@@ -1,5 +1,7 @@
 package org.openlca.simapro.csv;
 
+import static org.openlca.simapro.csv.WriterUtils.comment;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -23,6 +25,7 @@ import org.openlca.simapro.csv.model.SPProductFlow;
 import org.openlca.simapro.csv.model.SPQuantity;
 import org.openlca.simapro.csv.model.SPReferenceProduct;
 import org.openlca.simapro.csv.model.SPSystemDescription;
+import org.openlca.simapro.csv.model.SPSystemDescriptionEntry;
 import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteToTreatmentFlow;
@@ -43,7 +46,6 @@ import org.openlca.simapro.csv.model.types.SystemBoundary;
 import org.openlca.simapro.csv.model.types.Technology;
 import org.openlca.simapro.csv.model.types.TimePeriod;
 import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
-
 
 /**
  * The CSV writer creates a new SimaPro CSV file and writes the given data set
@@ -80,27 +82,29 @@ public class CSVWriter {
 		List<SPSystemDescription> systemDescriptions = new ArrayList<SPSystemDescription>();
 		List<String> descriptionNames = new ArrayList<String>();
 		for (SPProcess process : dataSet.getProcesses()) {
-			if (process.getDocumentation().getSystemDescriptionEntry() != null) {
-				SPSystemDescription sd = process.getDocumentation()
-						.getSystemDescriptionEntry().getSystemDescription();
-				if (!descriptionNames.contains(sd.getName())) {
-					descriptionNames.add(sd.getName());
-					systemDescriptions.add(sd);
-				}
-			}
+			SPDocumentation doc = process.getDocumentation();
+			addSystemDescriptions(doc, systemDescriptions, descriptionNames);
 		}
 		for (SPWasteTreatment wt : dataSet.getWasteTreatments()) {
-			if (wt.getDocumentation().getSystemDescriptionEntry() != null) {
-				SPSystemDescription sd = wt.getDocumentation()
-						.getSystemDescriptionEntry().getSystemDescription();
-				if (!descriptionNames.contains(sd.getName())) {
-					descriptionNames.add(sd.getName());
-					systemDescriptions.add(sd);
-				}
-			}
+			SPDocumentation doc = wt.getDocumentation();
+			addSystemDescriptions(doc, systemDescriptions, descriptionNames);
 		}
 		return systemDescriptions
 				.toArray(new SPSystemDescription[systemDescriptions.size()]);
+	}
+
+	private void addSystemDescriptions(SPDocumentation doc,
+			List<SPSystemDescription> descriptions, List<String> names) {
+		if (doc == null)
+			return;
+		SPSystemDescriptionEntry entry = doc.getSystemDescriptionEntry();
+		if (entry == null)
+			return;
+		SPSystemDescription sd = entry.getSystemDescription();
+		if (!names.contains(sd.getName())) {
+			names.add(sd.getName());
+			descriptions.add(sd);
+		}
 	}
 
 	/**
@@ -235,8 +239,7 @@ public class CSVWriter {
 		line += ";" + flow.getUnit().getName() + ";"
 				+ flow.getAmount().replace('.', separator) + ";"
 				+ getDistributionPart(flow.getDistribution())
-				+ flow.getComment().replaceAll("\\r?\\n", "" + (char) 127)
-				+ (char) 127;
+				+ comment(flow.getComment());
 		return line;
 	}
 
@@ -251,10 +254,8 @@ public class CSVWriter {
 		String line = product.getName() + ";" + product.getUnit().getName()
 				+ ";" + product.getAmount().replace('.', separator) + ";"
 				+ getDistributionPart(product.getDistribution());
-		if (product.getComment() != null) {
-			line += product.getComment().replaceAll("\\r?\\n", "" + (char) 127)
-					+ (char) 127;
-		}
+		if (product.getComment() != null)
+			line += comment(product.getComment());
 		return line;
 	}
 
@@ -298,10 +299,8 @@ public class CSVWriter {
 			line += "Others";
 		}
 		line += ";";
-		if (product.getComment() != null) {
-			line += product.getComment().replaceAll("\\r?\\n", "" + (char) 127)
-					+ (char) 127;
-		}
+		if (product.getComment() != null)
+			line += comment(product.getComment());
 		line += ";";
 		return line;
 	}
@@ -332,11 +331,8 @@ public class CSVWriter {
 			line += subCategory;
 		}
 		line += ";";
-		if (wasteSpecification.getComment() != null) {
-			line += wasteSpecification.getComment().replaceAll("\\r?\\n",
-					"" + (char) 127)
-					+ (char) 127;
-		}
+		if (wasteSpecification.getComment() != null)
+			line += comment(wasteSpecification.getComment());
 		line += ";";
 		return line;
 	}
@@ -379,14 +375,13 @@ public class CSVWriter {
 	 */
 	private void writeCalculatedParameter(SPCalculatedParameter parameter)
 			throws IOException {
-		writeln(parameter.getName()
+		String line = parameter.getName()
 				+ ";"
 				+ parameter.getExpression().replace(".",
-						String.valueOf(separator))
-				+ ";"
-				+ (parameter.getComment() != null ? parameter.getComment()
-						.replace(';', ',') : "").replaceAll("\\r?\\n", ""
-						+ (char) 127) + (char) 127);
+						String.valueOf(separator)) + ";";
+		if (parameter.getComment() != null)
+			line += comment(parameter.getComment());
+		writeln(line);
 	}
 
 	/**
@@ -470,14 +465,8 @@ public class CSVWriter {
 		writeEntry("Infrastructure",
 				documentation.isInfrastructureProcess() ? "Yes" : "No");
 		writeEntry("Date", documentation.getCreationDate());
-		writeEntry("Record",
-				documentation.getRecord()
-						.replaceAll("\\r?\\n", "" + (char) 127) + (char) 127);
-		writeEntry(
-				"Generator",
-				documentation.getGenerator().replaceAll("\\r?\\n",
-						"" + (char) 127)
-						+ (char) 127);
+		writeEntry("Record", comment(documentation.getRecord()));
+		writeEntry("Generator", comment(documentation.getGenerator()));
 		writeln("Literature references");
 		boolean atLeastOneReference = false;
 		for (SPLiteratureReferenceEntry entry : documentation
@@ -486,9 +475,7 @@ public class CSVWriter {
 					.getLiteratureReference().getName() : null;
 			if (literatureReference != null && !literatureReference.equals("")
 					&& entry.getComment() != null) {
-				literatureReference += ";"
-						+ entry.getComment().replaceAll("\\r?\\n",
-								"" + (char) 127) + (char) 127;
+				literatureReference += ";" + comment(entry.getComment());
 			}
 			if (literatureReference != null && !literatureReference.equals("")) {
 				writeln(literatureReference);
@@ -499,23 +486,13 @@ public class CSVWriter {
 			writer.newLine();
 		}
 		writer.newLine();
-		writeEntry("Collection method", documentation.getCollectionMethod()
-				.replaceAll("\\r?\\n", "" + (char) 127) + (char) 127);
-		writeEntry("Data treatment", documentation.getDataTreatment()
-				.replaceAll("\\r?\\n", "" + (char) 127) + (char) 127);
-		writeEntry(
-				"Verification",
-				documentation.getVerification().replaceAll("\\r?\\n",
-						"" + (char) 127)
-						+ (char) 127);
-		writeEntry(
-				"Comment",
-				"\""
-						+ (documentation.getComment().replace('"', '\'') + "\"")
-								.replaceAll("\\r?\\n", "" + (char) 127)
-						+ (char) 127);
-		writeEntry("Allocation rules", documentation.getAllocationRules()
-				.replaceAll("\\r?\\n", "" + (char) 127) + (char) 127);
+		writeEntry("Collection method",
+				comment(documentation.getCollectionMethod()));
+		writeEntry("Data treatment", comment(documentation.getDataTreatment()));
+		writeEntry("Verification", comment(documentation.getVerification()));
+		writeEntry("Comment", comment(documentation.getComment()));
+		writeEntry("Allocation rules",
+				comment(documentation.getAllocationRules()));
 		String systemDescription = documentation.getSystemDescriptionEntry() != null ? documentation
 				.getSystemDescriptionEntry().getSystemDescription().getName()
 				: null;
@@ -525,11 +502,7 @@ public class CSVWriter {
 			systemDescription += ";"
 					+ documentation.getSystemDescriptionEntry().getComment();
 		}
-		if (systemDescription != null)
-			systemDescription = systemDescription.replaceAll("\\r?\\n", ""
-					+ (char) 127)
-					+ (char) 127;
-		writeEntry("System description", systemDescription);
+		writeEntry("System description", comment(systemDescription));
 	}
 
 	/**
@@ -585,9 +558,7 @@ public class CSVWriter {
 		line += getDistributionPart(parameter.getDistribution());
 		line += (parameter.isHidden() ? "Yes" : "No") + ";";
 		if (parameter.getComment() != null) {
-			line += parameter.getComment().replaceAll("\\r?\\n",
-					"" + (char) 127)
-					+ (char) 127;
+			line += comment(parameter.getComment());
 		}
 		writeln(line);
 	}
@@ -613,7 +584,8 @@ public class CSVWriter {
 	private void writeProcess(SPProcess process) throws IOException {
 		writeln("Process");
 		writer.newLine();
-		writeDocumentation(process.getDocumentation(), true);
+		if (process.getDocumentation() != null)
+			writeDocumentation(process.getDocumentation(), true);
 
 		writeln("Products");
 		for (SPReferenceProduct product : process.getReferenceProducts()) {
@@ -796,7 +768,8 @@ public class CSVWriter {
 			throws IOException {
 		writeln("Process");
 		writer.newLine();
-		writeDocumentation(wasteTreatment.getDocumentation(), false);
+		if (wasteTreatment.getDocumentation() != null)
+			writeDocumentation(wasteTreatment.getDocumentation(), false);
 
 		writeln("Waste treatment");
 		writeln(getWasteSpecificationLine(

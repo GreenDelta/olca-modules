@@ -6,7 +6,9 @@
 	<version>1.0.0</version>
 	<name>openLCA SimaPro CSV API</name>
 	<description>The openLCA API to read and write data sets in the SimaPro CSV format</description>
-
+	
+	<packaging>bundle</packaging>
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -42,6 +44,7 @@
 						<Bundle-Name>${project.artifactId}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Export-Package>org.openlca*</Export-Package>
+						
 					</instructions>
 				</configuration>
 			</plugin>
