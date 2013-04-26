@@ -1,0 +1,30 @@
+package org.openlca.expressions.functions;
+
+import org.openlca.expressions.AbstractExpression;
+import org.openlca.expressions.ExpressionContext;
+import org.openlca.expressions.ExpressionException;
+
+class Random extends AbstractExpression {
+
+	@Override
+	public Object evaluate(ExpressionContext context)
+			throws ExpressionException {
+		return Math.random();
+	}
+
+	@Override
+	public Class<?> getResultType() {
+		return Double.class;
+	}
+
+	@Override
+	public void check() throws ExpressionException {
+		checkNoArguments();
+	}
+
+	@Override
+	public String getName() {
+		return "rand";
+	}
+
+}

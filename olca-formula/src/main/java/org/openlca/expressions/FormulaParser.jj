@@ -1,0 +1,310 @@
+// ported from the xReporter project
+
+// JavaCC options
+options {
+    STATIC = false;  // create non-static methods    
+}
+
+PARSER_BEGIN(FormulaParser)
+
+package org.openlca.expressions;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+import org.openlca.expressions.functions.*;
+
+public class FormulaParser {
+  
+    protected Stack<Expression> argStack = new Stack<Expression>();    
+    protected FunctionFactory functionFactory = FunctionFactory.getInstance();    
+    protected List<VariableFunction> variables = new ArrayList<VariableFunction>();
+
+    public Expression getExpression() {
+        return argStack.pop();
+    }
+    
+    public List<VariableFunction> getVariables() {
+      return variables;
+    }
+
+    public FormulaParser(Reader reader, FunctionFactory functionFactory) {
+        this(reader);
+        this.functionFactory = functionFactory;
+    }
+
+    private void combineBinary(Token x, Expression f) {         Expression a = argStack.pop();
+         Expression b = argStack.pop();  
+         f.addArgument(b);
+         f.addArgument(a);
+         f.setPosition(x.beginLine, x.beginColumn);
+         argStack.push(f);
+    }    
+    
+}
+PARSER_END(FormulaParser)
+
+// Tokens to be sipped: space, return, tab, new line
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+| "\r\n"
+}
+
+// Mathematical operators
+TOKEN : 
+{
+    < AND: "&&" |  "&" >
+  | < OR: "||" | "|" >
+  | < PLUS: "+" >
+  | < MINUS: "-" >
+  | < MULTIPLY: "*" >
+  | < DIVIDE: "/" >
+  | < INTDIVIDE: "div" >
+  | < LT: "<" >
+  | < LTEQ: "<=" >
+  | < EQ: "=" | "==" >
+  | < NEQ: "!=" | "<>" >
+  | < GT: ">" >
+  | < GTEQ: ">=" >
+  | < POW: "^" >
+  | < MOD: "mod" >
+  | < XOR: "xor" >
+}
+
+// number token
+TOKEN:{
+  < #DIGIT : ["0" - "9"] >
+  | < #DIGITS : (< DIGIT >)+ >
+  | < #EXPONENT : ("e"|"E") ("-"|"+")? <DIGITS> >
+  | < NUMBER :
+         <DIGITS>  ("." <DIGITS>)? (< EXPONENT >)?
+         | "." <DIGITS> (< EXPONENT >)?
+         |  <DIGITS> "."  (< EXPONENT >)?       
+    >
+}
+
+// identifiers
+TOKEN : 
+{
+    < #LETTER: ["a"-"z", "A"-"Z"] >
+    | < #OTHERCHARS: ["_"] >
+    | < IDENTIFIER: ( <LETTER> )+ ( <DIGIT> | <LETTER> | <OTHERCHARS>)* >   
+} 
+
+
+// the entry point of the parser
+void parse() :
+{}
+{ expand() < EOF > }
+
+void expand() :
+{}{ logicalOr() }  
+
+// the logical or has the lowest operator precedence: 1
+void logicalOr() :
+{ Token x; }
+{
+    logicalXor()
+    (
+      (x=<OR>)
+      logicalXor()
+	    {
+	      combineBinary(x, new OpOr());
+	    }
+    )*
+}
+
+// the XOR operator, precedence 2
+void logicalXor() :
+{ Token x; }{
+    logicalAnd()
+    (
+      (x=<XOR>)
+      logicalAnd()
+	    {
+	      combineBinary(x, new OpXor());
+	    }
+    )*
+}
+
+// the AND operator, precedence 3
+void logicalAnd() :
+{ Token x; }
+{
+    compare()
+    (
+      (x=<AND>)
+      compare()
+	    {
+	      combineBinary(x, new OpAnd());	       
+	    }
+    )*
+}
+
+// comparison operators (<, <=, =, ...), precedence 4
+void compare() :
+{ Token x; }
+{
+    realsum()
+    (
+      ( x=<LT> | x=<LTEQ> | x=<EQ> | x=<NEQ> | x=<GT> | x=<GTEQ> )
+      realsum()
+	    {
+	        Expression func = null;
+	        if ( x.kind == LT )
+	            func = new OpLessThan();
+	        else if (x.kind == LTEQ)
+	            func = new OpLessThanOrEqual();
+	        else if (x.kind == EQ)
+	            func = new OpEqual();
+	        else if (x.kind == NEQ)
+	            func = new OpNotEqual();
+	        else if (x.kind == GT)
+	            func = new OpGreaterThan();
+	        else if (x.kind == GTEQ)
+	            func = new OpGreaterThanOrEqual();
+	        else 
+	            throw new ParseException("Unexpected token kind: " + x.kind);	
+	       combineBinary(x, func);	        
+	    }
+    )*
+}
+
+// addition and subtraction, precedence 5
+void realsum() :
+{ Token x; }
+{
+    term()
+    (
+      ( x = <PLUS> | x = <MINUS> )
+      term()
+	    {	        
+	        if ( x.kind == PLUS ) {
+	          combineBinary(x, new OpAddition());	           
+	        } else {
+	          combineBinary(x, new OpSubstraction());
+	        }
+	    }
+    )* 
+}
+
+// multiplication, division, modulo, ..., precedence 6
+void term() :
+{ Token x; }
+{
+    power() (( x = <MULTIPLY> | x = <DIVIDE> | x = <INTDIVIDE> | x = <MOD> ) power()
+    {       
+        if ( x.kind == MULTIPLY ) {
+            combineBinary(x, new OpMultiplication());           
+        } else if ( x.kind == INTDIVIDE) {
+            combineBinary(x, new OpIntegerDivision());            
+        } else if (x.kind == DIVIDE) {
+            combineBinary(x, new OpDivision());
+        } else if (x.kind == MOD) {
+            combineBinary(x, new OpModuloDivision());
+        }
+    }
+    )*
+}
+
+// power operator
+void power() :
+{ Token x; }
+{
+    unary()
+    (
+        ( x = <POW> )
+        unary()
+        {
+          combineBinary(x, new OpExponentiation());
+        }
+    )* 
+}
+
+// unary - or +, precedence 7
+void unary() :
+{
+    Token x;
+}
+{
+    ( x = <MINUS> | x = <PLUS> )
+    element()
+    {
+      if(x.kind == MINUS)
+      {        
+        Expression a = (Expression)argStack.pop();
+        Expression negateFunction = new OpUnaryMinus();
+        negateFunction.addArgument(a);
+        negateFunction.setPosition(x.beginLine, x.beginColumn);
+        argStack.push(negateFunction);
+      }
+    }
+  | element()
+}
+
+// other elements than operators
+void element() :
+{}
+{  
+     <NUMBER>
+     {
+         Double value;
+         try
+         {
+            value = new Double(token.image);
+         }
+         catch (NumberFormatException e)
+         {
+             throw new ParseException("Invalid number: " + token.image);
+         }
+         DecimalConstantFunction func = new DecimalConstantFunction(value);
+         func.setPosition(token.beginLine, token.beginColumn);
+         argStack.push(func);
+     }
+     
+  |  LOOKAHEAD(2) function()
+  
+  | <IDENTIFIER>
+    {
+        VariableFunction variableFunction = new VariableFunction(token.image);
+        variableFunction.setPosition(token.beginLine, token.beginColumn);
+        argStack.push(variableFunction);
+        variables.add(variableFunction);
+    }
+    
+  |  "(" expand() ")"  
+}
+
+// functions
+void function() :
+{
+    String functionName;
+    int paramCount = 0;
+}
+{
+    <IDENTIFIER> { functionName = token.image; } "(" [ expand() {paramCount++;} ( ";" expand() {paramCount++;})* ] ")"
+    {
+        Expression function;
+        try {
+            function = functionFactory.createFunction(functionName);
+        }
+        catch (Exception e) {
+            throw new ParseException("Problem with function '" + functionName + "': " + e.toString());
+        }
+
+        if (function == null)
+            throw new ParseException("Nonexisting function name '" + functionName + "'");
+
+        for (int i = 0; i < paramCount; i++) {
+            Expression arg = argStack.pop();
+            // when popping from the stack, we'll get the arguments in exactly the opposite
+            // order, so insert them at the beginning
+            function.addArgument(0, arg);
+        }
+        argStack.push(function);
+    }
+}
