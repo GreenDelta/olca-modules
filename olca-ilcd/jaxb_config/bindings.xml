@@ -1,0 +1,1749 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<bindings
+	xmlns='http://java.sun.com/xml/ns/jaxb'
+	xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xsi:schemaLocation='http://java.sun.com/xml/ns/jaxb bindingschema_2_1.xsd'
+	xmlns:xs='http://www.w3.org/2001/XMLSchema'
+	xmlns:xjc='http://java.sun.com/xml/ns/jaxb/xjc'
+	xmlns:process='http://lca.jrc.it/ILCD/Process'
+	xmlns:common='http://lca.jrc.it/ILCD/Common'
+	xmlns:flow='http://lca.jrc.it/ILCD/Flow'
+	xmlns:flowprop='http://lca.jrc.it/ILCD/FlowProperty'
+	xmlns:units='http://lca.jrc.it/ILCD/UnitGroup'
+	xmlns:source='http://lca.jrc.it/ILCD/Source'
+	xmlns:contact='http://lca.jrc.it/ILCD/Contact'
+	xmlns:wrapper='http://lca.jrc.it/ILCD/Wrapper'
+	xmlns:locations='http://lca.jrc.it/ILCD/Locations'
+	xmlns:categories='http://lca.jrc.it/ILCD/Categories'
+	xmlns:method='http://lca.jrc.it/ILCD/LCIAMethod'
+	xmlns:methodologies='http://lca.jrc.it/ILCD/LCIAMethodologies'
+	version='2.1'
+	extensionBindingPrefixes='xjc'>
+
+	<globalBindings>
+		<serializable
+			uid="1" />
+	</globalBindings>
+
+	<!-- bindings -->
+
+		<bindings
+			schemaLocation="../schemas/ILCD_Categories.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.lists" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.processes" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_Common_DataTypes.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.commons" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.flows" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_FlowPropertyDataSet.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.flowproperties" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_ContactDataSet.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.contacts" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_ILCD.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.commons" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_LCIAMethodDataSet.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.methods" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_SourceDataSet.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.sources" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_UnitGroupDataSet.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.units" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_Locations.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.lists" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			schemaLocation="../schemas/ILCD_LCIAMethodologies.xsd"
+			node="/xs:schema">
+			<schemaBindings>
+				<package
+					name="org.openlca.ilcd.methods" />
+			</schemaBindings>			
+		</bindings>
+		
+		<bindings
+			scd='/type::categories:CategoriesType'>
+			<class
+				name='CategoryList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::categories:CategorySystemType'>
+			<class
+				name='CategorySystem'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::categories:CategoryType'>
+			<class
+				name='Category'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:FTMultiLang'>
+			<class
+				name='FreeText'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:STMultiLang'>
+			<class
+				name='ShortText'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:StringMultiLang'>
+			<class
+				name='Label'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:CompletenessAvailabilityValues'>
+			<typesafeEnumClass
+				name='Availability'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:CompletenessTypeValues'>
+			<typesafeEnumClass
+				name='ImpactCategory'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:CompletenessValues'>
+			<typesafeEnumClass
+				name='FlowCompleteness'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:ComplianceValues'>
+			<typesafeEnumClass
+				name='Compliance'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:DataDerivationTypeStatusValues'>
+			<typesafeEnumClass
+				name='DataDerivation'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:DataQualityIndicatorValues'>
+			<typesafeEnumClass
+				name='QualityIndicator'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:ExchangeDirectionValues'>
+			<typesafeEnumClass
+				name='ExchangeDirection'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:ExchangeFunctionTypeValues'>
+			<typesafeEnumClass
+				name='ExchangeFunction'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:FlowDataDerivationTypeStatusValues'>
+			<typesafeEnumClass
+				name='FlowDataDerivation'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:FlowTypeValues'>
+			<typesafeEnumClass
+				name='FlowType'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:GlobalReferenceTypeValues'>
+			<typesafeEnumClass
+				name='DataSetType'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:Languages'>
+			<typesafeEnumClass
+				name='Language'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:LCIMethodApproachesValues'>
+			<typesafeEnumClass
+				name='LCIMethodApproach'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:LCIMethodPrincipleValues'>
+			<typesafeEnumClass
+				name='LCIMethodPrinciple'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:LicenseTypeValues'>
+			<typesafeEnumClass
+				name='LicenseType'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:PublicationTypeValues'>
+			<typesafeEnumClass
+				name='PublicationType'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:QualityValues'>
+			<typesafeEnumClass
+				name='Quality'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:StandardMethodTypeValues'>
+			<typesafeEnumClass
+				name='StandardLciaMethod'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:TypeOfOrganisationValues'>
+			<typesafeEnumClass
+				name='OrganisationType'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:TypeOfProcessValues'>
+			<typesafeEnumClass
+				name='ProcessType'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:TypeOfQuantitativeReferenceValues'>
+			<typesafeEnumClass
+				name='QuantitativeReferenceType'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:TypeOfReviewValues'>
+			<typesafeEnumClass
+				name='ReviewType'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:UncertaintyDistributionTypeValues'>
+			<typesafeEnumClass
+				name='UncertaintyDistribution'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:WorkflowAndPublicationStatusValues'>
+			<typesafeEnumClass
+				name='PublicationStatus'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:AreaOfProtectionValues'>
+			<typesafeEnumClass
+				name='AreaOfProtection'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:LCIAMethodPrincipleValues'>
+			<typesafeEnumClass
+				name='LCIAMethodPrinciple'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:RecommendationLevelValues'>
+			<typesafeEnumClass
+				name='RecommendationLevel'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:TypeOfLCIAMethodValues'>
+			<typesafeEnumClass
+				name='TypeOfLCIAMethod'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:CategoryType'>
+			<class
+				name='Category'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:ClassificationInformationType'>
+			<class
+				name='ClassificationInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:ClassificationType'>
+			<class
+				name='Classification'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:ClassType'>
+			<class
+				name='Class'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:CommissionerAndGoalType'>
+			<class
+				name='CommissionerAndGoal'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:DataQualityIndicatorsType'>
+			<class
+				name='DataQualityIndicatorList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:DataQualityIndicatorType'>
+			<class
+				name='DataQualityIndicator'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:FlowCategorizationType'>
+			<class
+				name='FlowCategorization'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:FlowCategoryInformationType'>
+			<class
+				name='FlowCategoryInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:GlobalReferenceType'>
+			<class
+				name='DataSetReference'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:TimeType'>
+			<class
+				name='Time'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:MethodOfReviewValues'>
+			<typesafeEnumClass
+				name='ReviewMethod'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::common:ScopeOfReviewValues'>
+			<typesafeEnumClass
+				name='ReviewScope'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::contact:AdministrativeInformationType'>
+			<class
+				name='AdministrativeInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::contact:ContactDataSetType'>
+			<class
+				name='Contact'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::contact:ContactInformationType'>
+			<class
+				name='ContactInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::contact:DataEntryByType'>
+			<class
+				name='DataEntry'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::contact:DataSetInformationType'>
+			<class
+				name='DataSetInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::contact:PublicationAndOwnershipType'>
+			<class
+				name='Publication'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:AdministrativeInformationType'>
+			<class
+				name='AdministrativeInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:CompletenessAvailabilityImpactFactorsType'>
+			<class
+				name='ImpactFactorAvailability'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:ComplianceDeclarationsType'>
+			<class
+				name='ComplianceDeclarationList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:ComplianceType'>
+			<class
+				name='ComplianceDeclaration'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:DataEntryByType'>
+			<class
+				name='DataEntry'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:DataSetInformationType'>
+			<class
+				name='DataSetInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:FlowDataSetType'>
+			<class
+				name='Flow'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:FlowInformationType'>
+			<class
+				name='FlowInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:FlowPropertiesType'>
+			<class
+				name='FlowPropertyList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:FlowPropertyType'>
+			<class
+				name='FlowPropertyReference'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:GeographyType'>
+			<class
+				name='Geography'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:LCIMethodType'>
+			<class
+				name='LCIMethod'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:ModellingAndValidationType'>
+			<class
+				name='ModellingAndValidation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:NameType'>
+			<class
+				name='FlowName'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:PublicationAndOwnershipType'>
+			<class
+				name='Publication'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:QuantitativeReferenceType'>
+			<class
+				name='QuantitativeReference'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flow:TechnologyType'>
+			<class
+				name='Technology'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:AdministrativeInformationType'>
+			<class
+				name='AdministrativeInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:ComplianceDeclarationsType'>
+			<class
+				name='ComplianceDeclarationList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:ComplianceType'>
+			<class
+				name='ComplianceDeclaration'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:DataEntryByType'>
+			<class
+				name='DataEntry'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:DataSetInformationType'>
+			<class
+				name='DataSetInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:DataSourcesTreatmentAndRepresentativenessType'>
+			<class
+				name='Representativeness'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:FlowPropertiesInformationType'>
+			<class
+				name='FlowPropertyInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:FlowPropertyDataSetType'>
+			<class
+				name='FlowProperty'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:ModellingAndValidationType'>
+			<class
+				name='ModellingAndValidation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:PublicationAndOwnershipType'>
+			<class
+				name='Publication'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::flowprop:QuantitativeReferenceType'>
+			<class
+				name='QuantitativeReference'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::wrapper:ILCDType'>
+			<class
+				name='Wrapper'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:AdministrativeInformationType'>
+			<class
+				name='AdministrativeInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:ComplianceDeclarationsType'>
+			<class
+				name='ComplianceDeclarationList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:ComplianceType'>
+			<class
+				name='ComplianceDeclaration'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:DataEntryByType'>
+			<class
+				name='DataEntry'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:DataGeneratorType'>
+			<class
+				name='DataGenerator'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:DataSetInformationType'>
+			<class
+				name='DataSetInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:GeographyType'>
+			<class
+				name='Geography'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:ImpactModelType'>
+			<class
+				name='ImpactModel'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:LCIAMethodDataSetType'>
+			<class
+				name='LCIAMethod'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:LCIAMethodInformationType'>
+			<class
+				name='LCIAMethodInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:MethodOfReviewValues'>
+			<typesafeEnumClass
+				name='ReviewMethod'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:ModellingAndValidationType'>
+			<class
+				name='ModellingAndValidation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:PublicationAndOwnershipType'>
+			<class
+				name='Publication'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:QuantitativeReferenceType'>
+			<class
+				name='QuantitativeReference'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:ReferencesToDataSourceType'>
+			<class
+				name='DataSourceReferenceList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:ReviewType'>
+			<class
+				name='Review'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:ScopeOfReviewValues'>
+			<typesafeEnumClass
+				name='ReviewScope'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:ValidationType'>
+			<class
+				name='Validation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:CharacterisationFactorsType'>
+			<class
+				name='FactorList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:CharacterisationFactorType'>
+			<class
+				name='Factor'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:CompletenessType'>
+			<class
+				name='Completeness'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:DataSourcesType'>
+			<class
+				name='DataSourceList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:LCIAMethodNormalisationAndWeightingType'>
+			<class
+				name='NormalisationAndWeighting'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:RecommendationType'>
+			<class
+				name='Recommendation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::method:TimeType'>
+			<class
+				name='Time'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::locations:ILCDLocationsType'>
+			<class
+				name='LocationList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::locations:LocationType'>
+			<class
+				name='Location'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:AdministrativeInformationType'>
+			<class
+				name='AdministrativeInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:AllocationsType'>
+			<class
+				name='Allocation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:AllocationType'>
+			<class
+				name='AllocationFactor'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ComplementingProcessesType'>
+			<class
+				name='ComplementingProcesseList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:CompletenessElementaryFlowsType'>
+			<class
+				name='ElementaryFlowCompleteness'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:CompletenessType'>
+			<class
+				name='Completeness'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ComplianceDeclarationsType'>
+			<class
+				name='ComplianceDeclarationList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ComplianceType'>
+			<class
+				name='ComplianceDeclaration'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:DataEntryByType'>
+			<class
+				name='DataEntry'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:DataGeneratorType'>
+			<class
+				name='DataGenerator'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:DataSetInformationType'>
+			<class
+				name='DataSetInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:DataSourcesTreatmentAndRepresentativenessType'>
+			<class
+				name='Representativeness'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ExchangesType'>
+			<class
+				name='ExchangeList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ExchangeType'>
+			<class
+				name='Exchange'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:GeographyType'>
+			<class
+				name='Geography'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:LCIAResultsType'>
+			<class
+				name='LCIAResultList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:LCIAResultType'>
+			<class
+				name='LCIAResult'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:LCIMethodAndAllocationType'>
+			<class
+				name='LCIMethod'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:LocationOfOperationSupplyOrProductionType'>
+			<class
+				name='Location'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:MathematicalRelationsType'>
+			<class
+				name='ParameterList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:MethodOfReviewValues'>
+			<typesafeEnumClass
+				name='ReviewMethod'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ModellingAndValidationType'>
+			<class
+				name='ModellingAndValidation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:NameType'>
+			<class
+				name='ProcessName'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ProcessDataSetType'>
+			<class
+				name='Process'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ProcessInformationType'>
+			<class
+				name='ProcessInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:PublicationAndOwnershipType'>
+			<class
+				name='Publication'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:QuantitativeReferenceType'>
+			<class
+				name='QuantitativeReference'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ReferencesToDataSourceType'>
+			<class
+				name='DataSourceReferenceList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ReviewType'>
+			<class
+				name='Review'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ScopeOfReviewValues'>
+			<typesafeEnumClass
+				name='ReviewScope'>
+			</typesafeEnumClass>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:SubLocationOfOperationSupplyOrProductionType'>
+			<class
+				name='SubLocation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:TechnologyType'>
+			<class
+				name='Technology'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:ValidationType'>
+			<class
+				name='Validation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::process:VariableParameterType'>
+			<class
+				name='Parameter'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::source:AdministrativeInformationType'>
+			<class
+				name='AdministrativeInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::source:DataEntryByType'>
+			<class
+				name='DataEntry'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::source:DataSetInformationType'>
+			<class
+				name='DataSetInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::source:PublicationAndOwnershipType'>
+			<class
+				name='Publication'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::source:ReferenceToDigitalFileType'>
+			<class
+				name='DigitalFileReference'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::source:SourceDataSetType'>
+			<class
+				name='Source'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::source:SourceInformationType'>
+			<class
+				name='SourceInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:AdministrativeInformationType'>
+			<class
+				name='AdministrativeInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:ComplianceDeclarationsType'>
+			<class
+				name='ComplianceDeclarationList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:ComplianceType'>
+			<class
+				name='ComplianceDeclaration'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:DataEntryByType'>
+			<class
+				name='DataEntry'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:DataSetInformationType'>
+			<class
+				name='DataSetInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:ModellingAndValidationType'>
+			<class
+				name='ModellingAndValidation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:PublicationAndOwnershipType'>
+			<class
+				name='Publication'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:QuantitativeReferenceType'>
+			<class
+				name='QuantitativeReference'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:UnitGroupDataSetType'>
+			<class
+				name='UnitGroup'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:UnitGroupInformationType'>
+			<class
+				name='UnitGroupInformation'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:UnitsType'>
+			<class
+				name='UnitList'>
+			</class>
+		</bindings>
+		
+		<bindings
+			scd='/type::units:UnitType'>
+			<class
+				name='Unit'>
+			</class>
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Locations.xsd"
+			node="//xs:complexType[@name='LocationType']//xs:attribute[@name='value']">
+			<property
+				name="locationCode" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='GeographyType']//xs:element[@name='locationOfOperationSupplyOrProduction']">
+			<property
+				name="location" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='GeographyType']//xs:element[@name='subLocationOfOperationSupplyOrProduction']">
+			<property
+				name="subLocations" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='ClassificationType']//xs:element[@name='class']">
+			<property
+				name="classes" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='ClassificationType']//xs:attribute[@name='classes']">
+			<property
+				name="url" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='ClassificationInformationType']//xs:element[@name='classification']">
+			<property
+				name="classifications" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='CommissionerAndGoalType']//xs:element[@name='referenceToCommissioner']">
+			<property
+				name="commissioners" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='DataQualityIndicatorsType']//xs:element[@name='dataQualityIndicator']">
+			<property
+				name="indicators" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='GlobalReferenceType']//xs:attribute[@name='refObjectId']">
+			<property
+				name="uuid" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='FlowCategorizationType']//xs:element[@name='category']">
+			<property
+				name="categories" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='FlowCategorizationType']//xs:attribute[@name='categories']">
+			<property
+				name="url" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='FlowCategoryInformationType']//xs:element[@name='elementaryFlowCategorization']">
+			<property
+				name="elementaryFlowCategorizations" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='FlowCategoryInformationType']//xs:element[@name='classification']">
+			<property
+				name="classifications" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='TimeType']//xs:element[@name='dataSetValidUntil']">
+			<property
+				name="validUntil" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Common_Groups.xsd"
+			node="//xs:complexType[@name='TimeType']//xs:element[@name='timeRepresentativenessDescription']">
+			<property
+				name="description" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ContactDataSet.xsd"
+			node="//xs:complexType[@name='AdministrativeInformationType']//xs:element[@name='dataEntryBy']">
+			<property
+				name="dataEntry" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ContactDataSet.xsd"
+			node="//xs:complexType[@name='AdministrativeInformationType']//xs:element[@name='publicationAndOwnership']">
+			<property
+				name="publication" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ContactDataSet.xsd"
+			node="//xs:complexType[@name='DataSetInformationType']//xs:element[@name='contactDescriptionOrComment']">
+			<property
+				name="description" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ContactDataSet.xsd"
+			node="//xs:complexType[@name='DataSetInformationType']//xs:element[@name='referenceToContact']">
+			<property
+				name="belongsTo" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ContactDataSet.xsd"
+			node="//xs:complexType[@name='DataSetInformationType']//xs:element[@name='referenceToLogo']">
+			<property
+				name="logo" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowPropertyDataSet.xsd"
+			node="//xs:complexType[@name='AdministrativeInformationType']//xs:element[@name='dataEntryBy']">
+			<property
+				name="dataEntry" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowPropertyDataSet.xsd"
+			node="//xs:complexType[@name='AdministrativeInformationType']//xs:element[@name='publicationAndOwnership']">
+			<property
+				name="publication" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowPropertyDataSet.xsd"
+			node="//xs:complexType[@name='ComplianceDeclarationsType']//xs:element[@name='compliance']">
+			<property
+				name="complianceDeclatations" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowPropertyDataSet.xsd"
+			node="//xs:complexType[@name='FlowPropertyDataSetType']//xs:element[@name='flowPropertiesInformation']">
+			<property
+				name="flowPropertyInformation" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowPropertyDataSet.xsd"
+			node="//xs:complexType[@name='ModellingAndValidationType']//xs:element[@name='dataSourcesTreatmentAndRepresentativeness']">
+			<property
+				name="representativeness" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowPropertyDataSet.xsd"
+			node="//xs:complexType[@name='QuantitativeReferenceType']//xs:element[@name='referenceToReferenceUnitGroup']">
+			<property
+				name="unitGroup" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowPropertyDataSet.xsd"
+			node="//xs:complexType[@name='DataSourcesTreatmentAndRepresentativenessType']//xs:element[@name='referenceToDataSource']">
+			<property
+				name="dataSource" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='AdministrativeInformationType']//xs:element[@name='dataEntryBy']">
+			<property
+				name="dataEntry" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='AdministrativeInformationType']//xs:element[@name='publicationAndOwnership']">
+			<property
+				name="publication" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='ComplianceDeclarationsType']//xs:element[@name='compliance']">
+			<property
+				name="complianceDeclatations" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='FlowPropertyType']//xs:element[@name='referenceToFlowPropertyDataSet']">
+			<property
+				name="flowProperty" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='FlowPropertyType']//xs:element[@name='uncertaintyDistributionType']">
+			<property
+				name="uncertaintyDistribution" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='FlowPropertyType']//xs:element[@name='dataDerivationTypeStatus']">
+			<property
+				name="dataDerivation" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='GeographyType']//xs:element[@name='locationOfSupply']">
+			<property
+				name="location" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='LCIMethodType']//xs:element[@name='typeOfDataSet']">
+			<property
+				name="flowType" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='QuantitativeReferenceType']//xs:element[@name='referenceToReferenceFlowProperty']">
+			<property
+				name="referenceFlowProperty" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_FlowDataSet.xsd"
+			node="//xs:complexType[@name='TechnologyType']//xs:element[@name='referenceToTechnicalSpecification']">
+			<property
+				name="technicalSpecifications" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Categories.xsd"
+			node="//xs:complexType[@name='CategoriesType']//xs:element[@name='category']">
+			<property
+				name="categories" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Categories.xsd"
+			node="//xs:complexType[@name='CategorySystemType']//xs:element[@name='referenceToSource']">
+			<property
+				name="source" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_Locations.xsd"
+			node="//xs:complexType[@name='ILCDLocationsType']//xs:element[@name='location']">
+			<property
+				name="locations" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='AdministrativeInformationType']//xs:element[@name='dataEntryBy']">
+			<property
+				name="dataEntry" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='AdministrativeInformationType']//xs:element[@name='publicationAndOwnership']">
+			<property
+				name="publication" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='AllocationsType']//xs:element[@name='allocation']">
+			<property
+				name="factors" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='AllocationType']//xs:attribute[@name='internalReferenceToCoProduct']">
+			<property
+				name="referenceToCoProduct" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ComplementingProcessesType']//xs:element[@name='referenceToComplementingProcess']">
+			<property
+				name="complementingProcesses" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='CompletenessType']//xs:element[@name='referenceToSupportedImpactAssessmentMethods']">
+			<property
+				name="supportedLciaMethods" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ComplianceDeclarationsType']//xs:element[@name='compliance']">
+			<property
+				name="complianceDeclatations" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='DataSetInformationType']//xs:element[@name='referenceToExternalDocumentation']">
+			<property
+				name="externalDocumentationSources" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ReferencesToDataSourceType']//xs:element[@name='referenceToDataSource']">
+			<property
+				name="sources" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='CompletenessElementaryFlowsType']//xs:attribute[@name='type']">
+			<property
+				name="impactCategory" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ExchangeType']//xs:element[@name='referenceToFlowDataSet']">
+			<property
+				name="flow" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ExchangeType']//xs:element[@name='functionType']">
+			<property
+				name="exchangeFunction" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ExchangeType']//xs:element[@name='referenceToVariable']">
+			<property
+				name="parameterName" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ExchangeType']//xs:element[@name='uncertaintyDistributionType']">
+			<property
+				name="uncertaintyDistribution" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ExchangeType']//xs:element[@name='allocations']">
+			<property
+				name="allocation" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ExchangeType']//xs:element[@name='dataDerivationTypeStatus']">
+			<property
+				name="dataDerivation" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ExchangeType']//xs:element[@name='referencesToDataSource']">
+			<property
+				name="dataSources" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ExchangesType']//xs:element[@name='exchange']">
+			<property
+				name="exchanges" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='LCIAResultType']//xs:element[@name='referenceToLCIAMethodDataSet']">
+			<property
+				name="lciaMethod" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='LCIAResultType']//xs:element[@name='uncertaintyDistributionType']">
+			<property
+				name="uncertaintyDistribution" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='LCIAResultsType']//xs:element[@name='LCIAResult']">
+			<property
+				name="lciaResults" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='LCIMethodAndAllocationType']//xs:element[@name='typeOfDataSet']">
+			<property
+				name="processType" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='LocationOfOperationSupplyOrProductionType']//xs:element[@name='descriptionOfRestrictions']">
+			<property
+				name="description" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ModellingAndValidationType']//xs:element[@name='dataSourcesTreatmentAndRepresentativeness']">
+			<property
+				name="representativeness" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ModellingAndValidationType']//xs:element[@name='LCIMethodAndAllocation']">
+			<property
+				name="lciMethod" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='MathematicalRelationsType']//xs:element[@name='variableParameter']">
+			<property
+				name="parameters" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='ProcessInformationType']//xs:element[@name='mathematicalRelations']">
+			<property
+				name="parameters" />
+		</bindings>
+		
+	   	<bindings
+	   		schemaLocation="../schemas/ILCD_ProcessDataSet.xsd"
+			node="//xs:complexType[@name='SubLocationOfOperationSupplyOrProductionType']//xs:element[@name='descriptionOfRestrictions']">
+			<property
+				name="description" />
+		</bindings>
+		
+</bindings>

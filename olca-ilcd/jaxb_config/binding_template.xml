@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<bindings
+	xmlns='http://java.sun.com/xml/ns/jaxb'
+	xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xsi:schemaLocation='http://java.sun.com/xml/ns/jaxb bindingschema_2_1.xsd'
+	xmlns:xs='http://www.w3.org/2001/XMLSchema'
+	xmlns:xjc='http://java.sun.com/xml/ns/jaxb/xjc'
+	xmlns:process='http://lca.jrc.it/ILCD/Process'
+	xmlns:common='http://lca.jrc.it/ILCD/Common'
+	xmlns:flow='http://lca.jrc.it/ILCD/Flow'
+	xmlns:flowprop='http://lca.jrc.it/ILCD/FlowProperty'
+	xmlns:units='http://lca.jrc.it/ILCD/UnitGroup'
+	xmlns:source='http://lca.jrc.it/ILCD/Source'
+	xmlns:contact='http://lca.jrc.it/ILCD/Contact'
+	xmlns:wrapper='http://lca.jrc.it/ILCD/Wrapper'
+	xmlns:locations='http://lca.jrc.it/ILCD/Locations'
+	xmlns:categories='http://lca.jrc.it/ILCD/Categories'
+	xmlns:method='http://lca.jrc.it/ILCD/LCIAMethod'
+	xmlns:methodologies='http://lca.jrc.it/ILCD/LCIAMethodologies'
+	version='2.1'
+	extensionBindingPrefixes='xjc'>
+
+	<globalBindings>
+		<serializable
+			uid="1" />
+	</globalBindings>
+
+	<!-- bindings -->
+
+</bindings>

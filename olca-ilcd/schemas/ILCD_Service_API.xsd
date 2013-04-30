@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.ilcd-network.org/ILCD/ServiceAPI"
+    xmlns:serviceapi="http://www.ilcd-network.org/ILCD/ServiceAPI" xmlns="http://www.ilcd-network.org/ILCD/ServiceAPI"
+    xmlns:process="http://www.ilcd-network.org/ILCD/ServiceAPI/Process" xmlns:flow="http://www.ilcd-network.org/ILCD/ServiceAPI/Flow"
+    xmlns:flowProperty="http://www.ilcd-network.org/ILCD/ServiceAPI/FlowProperty" xmlns:unitGroup="http://www.ilcd-network.org/ILCD/ServiceAPI/UnitGroup"
+    xmlns:lciamethod="http://www.ilcd-network.org/ILCD/ServiceAPI/LCIAMethod" xmlns:source="http://www.ilcd-network.org/ILCD/ServiceAPI/Source"
+    xmlns:contact="http://www.ilcd-network.org/ILCD/ServiceAPI/Contact" xmlns:xlink="http://www.w3.org/1999/xlink">
+    
+    <xs:include schemaLocation="ILCD_Service_API_DataTypes.xsd"/>
+    <xs:import namespace="http://www.ilcd-network.org/ILCD/ServiceAPI/Process" schemaLocation="ILCD_Service_API_Process.xsd"/>
+    <xs:import namespace="http://www.ilcd-network.org/ILCD/ServiceAPI/Flow" schemaLocation="ILCD_Service_API_Flow.xsd"/>
+    <xs:import namespace="http://www.ilcd-network.org/ILCD/ServiceAPI/FlowProperty" schemaLocation="ILCD_Service_API_FlowProperty.xsd"/>
+    <xs:import namespace="http://www.ilcd-network.org/ILCD/ServiceAPI/UnitGroup" schemaLocation="ILCD_Service_API_UnitGroup.xsd"/>
+    <xs:import namespace="http://www.ilcd-network.org/ILCD/ServiceAPI/Source" schemaLocation="ILCD_Service_API_Source.xsd"/>
+    <xs:import namespace="http://www.ilcd-network.org/ILCD/ServiceAPI/Contact" schemaLocation="ILCD_Service_API_Contact.xsd"/>
+    <xs:import namespace="http://www.ilcd-network.org/ILCD/ServiceAPI/LCIAMethod" schemaLocation="ILCD_Service_API_LCIAMethod.xsd"/>
+
+    <xs:element name="dataSetList" type="DataSetListType"/>
+
+    <xs:complexType name="DataSetListType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="process:process"/>
+            <xs:element ref="flow:flow"/>
+            <xs:element ref="flowProperty:flowProperty"/>
+            <xs:element ref="unitGroup:unitGroup"/>
+            <xs:element ref="source:source"/>
+            <xs:element ref="contact:contact"/>
+        </xs:choice>
+        <xs:attribute ref="serviceapi:sourceId"/>
+    </xs:complexType>
+
+</xs:schema>

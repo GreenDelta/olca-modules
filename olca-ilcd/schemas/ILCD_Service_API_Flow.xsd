@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.ilcd-network.org/ILCD/ServiceAPI/Flow"
+    xmlns:serviceapi="http://www.ilcd-network.org/ILCD/ServiceAPI" xmlns="http://www.ilcd-network.org/ILCD/ServiceAPI/Flow" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <xs:import namespace="http://www.ilcd-network.org/ILCD/ServiceAPI" schemaLocation="ILCD_Service_API_DataTypes.xsd"/>
+    <xs:import namespace="http://www.w3.org/1999/xlink"/>
+    
+    <xs:element name="flow">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="serviceapi:uuid" minOccurs="0"/>
+                <xs:element ref="serviceapi:permanentUri" minOccurs="0"/>
+                <xs:element ref="serviceapi:dataSetVersion" minOccurs="0"/>
+                <xs:element ref="serviceapi:name" minOccurs="0"/>
+                <xs:element ref="serviceapi:classification" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="serviceapi:generalComment" minOccurs="0"/>
+                <xs:element ref="serviceapi:synonyms" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="flowCategorization" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="type" type="serviceapi:TypeOfFlowValues" minOccurs="0"/>
+                <xs:element ref="casNumber" minOccurs="0"/>
+                <xs:element ref="sumFormula" minOccurs="0"/>
+                <xs:element ref="referenceFlowProperty" minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute ref="xlink:href"/>
+            <xs:attribute ref="serviceapi:sourceId"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="flowCategorization">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="serviceapi:category"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="CategorizationLevelUniqueConstraint">
+            <xs:selector xpath="serviceapi:category"/>
+            <xs:field xpath="@level"/>
+        </xs:unique>
+    </xs:element>
+
+    <xs:element name="casNumber" type="serviceapi:CASNumber"/>
+    
+    <xs:element name="sumFormula" type="xs:string"/>
+    
+    <xs:element name="referenceFlowProperty">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="serviceapi:StringMultiLang" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="defaultUnit" type="xs:string"/>
+                <xs:element ref="serviceapi:reference" minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute ref="xlink:href"/>
+        </xs:complexType>
+    </xs:element>
+    
+</xs:schema>
