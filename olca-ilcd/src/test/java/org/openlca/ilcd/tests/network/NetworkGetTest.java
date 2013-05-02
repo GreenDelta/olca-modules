@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.ilcd.contacts.Contact;
@@ -21,6 +22,11 @@ public class NetworkGetTest {
 
 	private String baseUri = "http://localhost:8080/soda4LCA/resource";
 	private NetworkClient client = new NetworkClient(baseUri);
+
+	@Before
+	public void setUp() throws Exception {
+		DataSets.upload();
+	}
 
 	@Test
 	public void testCreateWithPassword() {
@@ -45,7 +51,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetFlow() throws Exception {
-		String id = "8e1e39c0-11ef-4607-85f0-157ae68f6c63";
+		String id = "0d7a3ad1-6556-11dd-ad8b-0800200c9a66";
 		Flow flow = client.get(Flow.class, id);
 		assertEquals(id, flow.getFlowInformation().getDataSetInformation()
 				.getUUID());
@@ -54,7 +60,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetFlowProperty() throws Exception {
-		String id = "93a60a56-a3c8-13da-a746-0800200c9a66";
+		String id = "93a60a56-a3c8-14da-a746-0800200c9a66";
 		FlowProperty property = client.get(FlowProperty.class, id);
 		assertEquals(id, property.getFlowPropertyInformation()
 				.getDataSetInformation().getUUID());
@@ -63,7 +69,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetUnitGroup() throws Exception {
-		String id = "93a60a57-a3c8-12da-a746-0800200c9a66";
+		String id = "59f191d6-5dd3-4553-af88-1a32accfe308";
 		UnitGroup group = client.get(UnitGroup.class, id);
 		assertEquals(id, group.getUnitGroupInformation()
 				.getDataSetInformation().getUUID());
@@ -72,7 +78,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetContact() throws Exception {
-		String id = "d0d5f8bb-9311-49d1-9e30-2f20a6977f4f";
+		String id = "177ca340-ffa2-11da-92e3-0800200c9a66";
 		Contact contact = client.get(Contact.class, id);
 		assertEquals(id, contact.getContactInformation()
 				.getDataSetInformation().getUUID());
@@ -81,7 +87,7 @@ public class NetworkGetTest {
 
 	@Test
 	public void testGetSource() throws Exception {
-		String id = "a97a0155-0234-4b87-b4ce-a45da52f2a40";
+		String id = "2c699413-f88b-4cb5-a56d-98cb4068472f";
 		Source source = client.get(Source.class, id);
 		assertEquals(id, source.getSourceInformation().getDataSetInformation()
 				.getUUID());

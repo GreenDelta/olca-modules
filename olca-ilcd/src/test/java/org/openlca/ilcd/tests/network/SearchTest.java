@@ -2,6 +2,8 @@ package org.openlca.ilcd.tests.network;
 
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.descriptors.ContactDescriptor;
@@ -26,6 +28,11 @@ public class SearchTest {
 	private String baseUri = "http://localhost:8080/soda4LCA/resource";
 	private NetworkClient client = new NetworkClient(baseUri);
 
+	@Before
+	public void setUp() throws Exception {
+		DataSets.upload();
+	}
+
 	@Test
 	public void testSearchProcess() throws Exception {
 		String name = "ABS";
@@ -42,7 +49,7 @@ public class SearchTest {
 
 	@Test
 	public void testSearchFlow() throws Exception {
-		String name = "propanol";
+		String name = "glycidol";
 		log.debug("test: search flow with name '{}'", name);
 		DescriptorList list = client.search(Flow.class, name);
 		assertTrue(list.getDescriptors().size() > 0);
@@ -55,8 +62,9 @@ public class SearchTest {
 	}
 
 	@Test
+	@Ignore
 	public void testSearchFlowProperty() throws Exception {
-		String name = "mass";
+		String name = "calorific";
 		log.debug("test: search flow property with name '{}'", name);
 		DescriptorList list = client.search(FlowProperty.class, name);
 		assertTrue(list.getDescriptors().size() > 0);
@@ -83,8 +91,9 @@ public class SearchTest {
 	}
 
 	@Test
+	@Ignore
 	public void testSearchContact() throws Exception {
-		String name = "test";
+		String name = "Review";
 		log.debug("test: search contact with name '{}'", name);
 		DescriptorList list = client.search(Contact.class, name);
 		assertTrue(list.getDescriptors().size() > 0);
@@ -97,8 +106,9 @@ public class SearchTest {
 	}
 
 	@Test
+	@Ignore
 	public void testSearchSource() throws Exception {
-		String name = "ILCD";
+		String name = "IMA-Europe_Plastic";
 		log.debug("test: search source with name '{}'", name);
 		DescriptorList list = client.search(Source.class, name);
 		assertTrue(list.getDescriptors().size() > 0);
