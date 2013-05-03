@@ -1,0 +1,98 @@
+package org.openlca.util;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Contains helper methods for string operations.
+ */
+public class Strings {
+
+	private Strings() {
+	}
+
+	/**
+	 * Cut a string to the given length. Appends "..." if the string was
+	 * truncated.
+	 */
+	public static String cut(String string, int length) {
+
+		if (string == null || length <= 0)
+			return "";
+
+		String str = string.trim();
+		if (str.length() <= length)
+			return str;
+
+		switch (length) {
+		case 1:
+			return ".";
+		case 2:
+			return "..";
+		default:
+			return str.substring(0, length - 3).concat("...");
+		}
+	}
+
+	public static String[] readLines(InputStream is) throws IOException {
+		if (is == null)
+			return new String[0];
+
+		List<String> list = new ArrayList<>();
+		InputStreamReader reader = new InputStreamReader(is);
+		try (BufferedReader buffer = new BufferedReader(reader)) {
+			String line = null;
+			while ((line = buffer.readLine()) != null) {
+				list.add(line);
+			}
+		}
+		return list.toArray(new String[list.size()]);
+	}
+
+	/**
+	 * Returns true if both of the given strings are null or if both of the
+	 * given strings are equal.
+	 */
+	public static boolean nullOrEqual(String string1, String string2) {
+		return (string1 == null && string2 == null)
+				|| (string1 != null && string2 != null && string1
+						.equals(string2));
+	}
+
+	/**
+	 * Returns true if the given string value is null or empty.
+	 */
+	public static boolean nullOrEmpty(String val) {
+		if (val == null)
+			return true;
+		return val.trim().length() == 0;
+	}
+
+	/**
+	 * Returns true if the string is not null or empty, means that it contains
+	 * other characters that white-spaces.
+	 */
+	public static boolean notEmpty(String val) {
+		if (val == null)
+			return false;
+		String str = val.trim();
+		return !str.isEmpty();
+	}
+
+	/**
+	 * A null-save method for comparing two strings ignoring the case.
+	 */
+	public static int compare(String str1, String str2) {
+		if (str1 == null && str2 == null)
+			return 0;
+		if (str1 != null && str2 == null)
+			return 1;
+		if (str1 == null && str2 != null)
+			return -1;
+		return str1.compareToIgnoreCase(str2);
+	}
+}
