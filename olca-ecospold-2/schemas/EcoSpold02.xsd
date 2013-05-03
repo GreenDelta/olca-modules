@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<?xml-stylesheet type="text/xsl" href="../Tools/Transformations/schemadoc/EcoSpold02SchemaDocumentation.xsl"?>
+<xsd:schema targetNamespace="http://www.EcoInvent.org/EcoSpold02" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.11" xmlns:es="http://www.EcoInvent.org/EcoSpold02" xmlns:esc="http://www.EcoInvent.org/EcoSpold02Child" xmlns="http://www.EcoInvent.org/EcoSpold02" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:include schemaLocation="EcoSpold02Activity.xsd"/>
+	<xsd:import namespace="http://www.EcoInvent.org/EcoSpold02Child" schemaLocation="Child\EcoSpold02ChildActivity.xsd"/>
+	<xsd:complexType name="TEcoSpold">
+		<xsd:sequence>
+			<xsd:choice maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<propertyNameForChoiceElement>ActivityDatasets</propertyNameForChoiceElement>
+					</xsd:appinfo>
+				</xsd:annotation>
+				<xsd:element name="activityDataset" type="es:TActivityDataset"/>
+				<xsd:element name="childActivityDataset" type="esc:TActivityDataset"/>
+			</xsd:choice>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="ecoSpold" type="TEcoSpold">
+		<xsd:annotation>
+			<xsd:documentation>the data (exchange) format of the ecoinvent context.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+</xsd:schema>

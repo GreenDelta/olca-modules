@@ -1,0 +1,1165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<xsd:schema xmlns="http://www.EcoInvent.org/EcoSpold02Child" xmlns:es="http://www.EcoInvent.org/EcoSpold02Child" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://www.EcoInvent.org/EcoSpold02Child" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://www.EcoInvent.org/EcoSpold02Child" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.12">
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="XmlNamespace.xsd"/>
+	<xsd:simpleType name="TPercent">
+		<xsd:annotation>
+			<xsd:documentation>Format: ddd.d</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:float"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="TFloatNumber">
+		<xsd:annotation>
+			<xsd:documentation>Floating Point Zahl, 64-bit Genauigkeit, mit Vorzeichen, zur Angabe von Mengen und Unsicherheiten</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:double"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="TCompanyCode">
+		<xsd:annotation>
+			<xsd:documentation>7 letter company code (capital letters).</xsd:documentation>
+			<xsd:appinfo>
+				<isIdentifyingField/>
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="7"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="TProperty">
+		<xsd:annotation>
+			<xsd:documentation>Format to specify properties of exchanges.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString80" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>2310</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Descriptive name of the property.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="unitName" type="TString40" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>3706</spoldID>
+						<fieldId>2325</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Unit name of the property amount.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="uncertainty" type="TUncertainty" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>2360</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Uncertainty of the property value.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkPropertyUncertaintyCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>2380</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>A general comment can be made about each individual property of a particular exchange.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="propertyId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2300</fieldId>
+					<referenceToComplexType>TValidProperty</referenceToComplexType>
+					<propertyNameForReference>ValidProperty</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the master data entry for this property.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="propertyContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2301</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidPropertyContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the property.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="variableName" type="TVariableName" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2350</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Defines a variable name for referencing the property amount in a mathematicalrelation.</xsd:documentation>
+				<xsd:documentation>Variable names must start with a character (a-z) and may contain characters, numbers and underscores (_). Variable names are not case sensitive (calorific_Value equals Calorific_value).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="amount" type="TFloatNumber" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2330</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>The value of the property.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="isDefiningValue" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2335</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If this field is true, the value of this property is a part of the definition of the exchange and therefore has a fixed relation to the amount of the exchange that cannot be changed for individual instances of the exchange in different datasets.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="mathematicalRelation" type="TBaseString32000" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2340</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Defines a mathematical formula with references to values of flows, parameters or properties by variable names or REF function.</xsd:documentation>
+				<xsd:documentation>The result of the formula with a specific set of variable values is written into the amount field.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="isCalculatedAmount" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2345</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If true the value of the amount field is the calculated value of the mathematicalRelation.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>3706</spoldID>
+					<fieldId>2320</fieldId>
+					<referenceToComplexType>TValidUnit</referenceToComplexType>
+					<propertyNameForReference>ValidUnit</propertyNameForReference>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the unit of the amount.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2321</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidUnitContext</propertyNameForReference>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the unit.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2370</fieldId>
+					<referenceToComplexType>TValidSource</referenceToComplexType>
+					<propertyNameForReference>Source</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>A reference to a valid source. It indicates the publication where the property is documented.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2371</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidSourceContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the source.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceYear" type="TBaseString30" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2375</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the year of publication and communication, respectively. For web-sites: last visited.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceFirstAuthor" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>Indicates the first author by surname and abbreviated name (e.g., Einstein A.). In case of measurement on site, oral communication, personal written communication and questionnaries ('sourceType'=4, 5, 6, 7) the name of the communicating person is mentioned here.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2376</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TCompartmentName">
+		<xsd:annotation>
+			<xsd:documentation>40 letter string, multi language via xml:lang attribute</xsd:documentation>
+			<xsd:appinfo>
+				<isIdentifyingField/>
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TString40"/>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:simpleType name="TUuid">
+		<xsd:restriction base="xsd:string">
+			<xsd:length value="36"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TCasNumber">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="11"/>
+			<xsd:pattern value="\d{1,6}-\d{2,2}-\d"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="TString20">
+		<xsd:annotation>
+			<xsd:documentation>20 letter string, multi language via xml:lang attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TBaseString20">
+				<xsd:attribute ref="xml:lang">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<isIdentifyingField/>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TString30">
+		<xsd:annotation>
+			<xsd:documentation>30 letter string, multi language via xml:lang attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TBaseString30">
+				<xsd:attribute ref="xml:lang">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<isIdentifyingField/>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TString40">
+		<xsd:annotation>
+			<xsd:documentation>40 letter string, multi language via xml:lang attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TBaseString40">
+				<xsd:attribute ref="xml:lang">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<isIdentifyingField/>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TString80">
+		<xsd:annotation>
+			<xsd:documentation>80 letter string, multi language via xml:lang attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TBaseString80">
+				<xsd:attribute ref="xml:lang">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<isIdentifyingField/>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TString120">
+		<xsd:annotation>
+			<xsd:documentation>120 letter string, multi language via xml:lang attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TBaseString120">
+				<xsd:attribute ref="xml:lang">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<isIdentifyingField/>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TString255">
+		<xsd:annotation>
+			<xsd:documentation>255 letter string, multi language via xml:lang attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TBaseString255">
+				<xsd:attribute ref="xml:lang">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<isIdentifyingField/>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TString32000">
+		<xsd:annotation>
+			<xsd:documentation>32000letter string, multi language via xml:lang attribute</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TBaseString32000">
+				<xsd:attribute ref="xml:lang">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<isIdentifyingField/>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TIndexedString32000">
+		<xsd:simpleContent>
+			<xsd:extension base="TString32000">
+				<xsd:attribute name="index" type="xsd:integer" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TNamedString32000">
+		<xsd:simpleContent>
+			<xsd:extension base="TString32000">
+				<xsd:attribute name="name" type="TBaseString40" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<isIdentifyingField/>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TUncertainty">
+		<xsd:annotation>
+			<xsd:documentation>Of the following uncertainty methods (lognormal, normal, ..., undefined) exactly one must be selected. The TUncertainty complex type is used in several places, so one dataset may contain several uncertainty elements in distinct places. But each element which has uncertainty may only contain one.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:choice>
+				<xsd:annotation>
+					<xsd:appinfo>
+						<propertyNameForChoiceElement>DistributionFunction</propertyNameForChoiceElement>
+					</xsd:appinfo>
+				</xsd:annotation>
+				<xsd:element name="lognormal" minOccurs="0">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>2100</fieldId>
+						</xsd:appinfo>
+						<xsd:documentation>The Lognormal-distribution with average value μ (Mu parameter) and variance σ (Variance parameter) is a Normal-distribution, shaping the natural logarithm of the characteristic values ln(x) instead of x-values.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:any namespace="##other" minOccurs="0" maxOccurs="unbounded"/>
+						</xsd:sequence>
+						<xsd:attribute name="meanValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2101</fieldId>
+								</xsd:appinfo>
+								<xsd:documentation>Geometric mean</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="mu" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2102</fieldId>
+								</xsd:appinfo>
+								<xsd:documentation>Arithmetic mean of the underlying normal distribution</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="variance" type="TFloatNumber">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2103</fieldId>
+								</xsd:appinfo>
+								<xsd:documentation>Unbiased variance of the underlying normal distribution</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="varianceWithPedigreeUncertainty" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2104</fieldId>
+								</xsd:appinfo>
+								<xsd:documentation>Unbiased variance of the underlying normal distribution, basic uncertainty with pedigree uncertainty</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="normal" minOccurs="0">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>2110</fieldId>
+							<options/>
+						</xsd:appinfo>
+						<xsd:documentation>Normal (also known as "Gaussian") distribution. It is a family of distributions of the same general form, differing in their location and scale parameters: the mean ("MeanValue") and standard deviation ("Deviation"), respectively.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:any namespace="##other" minOccurs="0" maxOccurs="unbounded"/>
+						</xsd:sequence>
+						<xsd:attribute name="meanValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2111</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Arithemtic mean</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="variance" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2112</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Unbiased variance</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="varianceWithPedigreeUncertainty" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2113</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Unbiased variance, basic uncertainty with pedigree uncertainty</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="triangular" minOccurs="0">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>2120</fieldId>
+							<options/>
+						</xsd:appinfo>
+						<xsd:documentation>Parameter are minValue, mostLikelyValue, maxValue.</xsd:documentation>
+						<xsd:documentation>In case of triangular uncertainty distribution, the meanValue shall be calculated from the mostLikelyValue. The field mostLikelyValue (#3797) must not be used in the ecoinvent context.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:attribute name="minValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2121</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Minimum value</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="mostLikelyValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2122</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Mode</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="maxValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2123</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Maximum value</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="uniform" minOccurs="0">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>2130</fieldId>
+							<options/>
+						</xsd:appinfo>
+						<xsd:documentation>Uniform distribution of values between the minValue and the maxValue parameter. If the maxValue parameter is smaller than the minValue parameter their values will be swapped.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:attribute name="minValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2131</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Minimum value</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="maxValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2132</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Maximum value</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="beta" minOccurs="0">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>2140</fieldId>
+							<options/>
+						</xsd:appinfo>
+						<xsd:documentation>Beta distribution using minValue (a), maxValue (b) and mostFrequentValue (m) parameters to calculate the two shape parameters of the underlying Gamma distributions. The parameters must follow this condition: ((a &lt;= m) and (m &lt;= b)) or (a = b). The shape values will be calculated by these formulas: Shape1 = 1 + 4 * ((m-a) / (b-a)). Shape2 = 6 - Shape1.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:attribute name="minValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2141</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Minimum value (a)</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="mostFrequentValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2142</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Most Frequent value (m)</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="maxValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2143</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Maximum value (b)</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="gamma" minOccurs="0">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>2150</fieldId>
+							<options/>
+						</xsd:appinfo>
+						<xsd:documentation>Gamma distribution using scale and shape parameter. Absolute values of the values entered here will be used. The value of the minimum parameter will be added to all samples.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:attribute name="shape" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2151</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Shape parameter</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="scale" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2152</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Scale parameter</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="minValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2153</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Minimum value (location parameter)</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="binomial" minOccurs="0">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>2160</fieldId>
+						</xsd:appinfo>
+						<xsd:documentation>Binomial distribution using n and p parameter.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:attribute name="n" type="xsd:integer" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2161</fieldId>
+								</xsd:appinfo>
+								<xsd:documentation>Number of independant trials</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="p" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2162</fieldId>
+								</xsd:appinfo>
+								<xsd:documentation>Probability of success in each trial</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="undefined" minOccurs="0">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>2170</fieldId>
+							<options/>
+						</xsd:appinfo>
+						<xsd:documentation>This "distribution" can be used to hold legacy data of the EcoSpold01 format which reused the minValue, maxValue and standardDeviation95 fields to store undefined distribution data.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:attribute name="minValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2171</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Minimum value</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="maxValue" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2172</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>Maximum value</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="standardDeviation95" type="TFloatNumber" use="optional">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>new</spoldID>
+									<fieldId>2173</fieldId>
+									<options/>
+								</xsd:appinfo>
+								<xsd:documentation>The value, extended from both sides of the mean, that would be necessary to cover 95% of the population</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:choice>
+			<xsd:element name="pedigreeMatrix" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>2270</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>The data quality indicators provides a qualitative assessment of data quality. This can be converted to a quantitative additional uncertainty, which can be added to the basic uncertainty. The pedigreeMatrix element groups the 5 data quality indicators and contains no data itself.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:attribute name="reliability" use="optional">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<spoldID>new</spoldID>
+								<fieldId>2271</fieldId>
+								<options/>
+							</xsd:appinfo>
+							<xsd:documentation>1=Verified data based on measurements</xsd:documentation>
+							<xsd:documentation>2=Verified data partly based on assumptions OR nonverified data based on measurements</xsd:documentation>
+							<xsd:documentation>3=Non-verified data partly based on qualified estimates</xsd:documentation>
+							<xsd:documentation>4=Qualified estimate (e.g. by industrial expert)</xsd:documentation>
+							<xsd:documentation>5=Non-qualified estimate (default)</xsd:documentation>
+						</xsd:annotation>
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:integer">
+								<xsd:minInclusive value="1"/>
+								<xsd:maxInclusive value="5"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>
+					<xsd:attribute name="completeness" use="optional">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<spoldID>new</spoldID>
+								<fieldId>2272</fieldId>
+								<options/>
+							</xsd:appinfo>
+							<xsd:documentation>1=Representative data from all sites relevant for the market considered over an adequate period to even out normal fluctuations</xsd:documentation>
+							<xsd:documentation>2=Representative data from &gt;50% of the sites relevant for the market considered over an adequate period to even out normal fluctuations</xsd:documentation>
+							<xsd:documentation>3=Representative data from only some sites (&lt;&lt;50%) relevant for the market considered OR &gt;50% of sites but from shorter periods</xsd:documentation>
+							<xsd:documentation>4=Representative data from only one site relevant for the market considered OR some sites but from shorter periods</xsd:documentation>
+							<xsd:documentation>5=Representativeness unknown or data from a small number of sites AND from shorter periods</xsd:documentation>
+						</xsd:annotation>
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:integer">
+								<xsd:minInclusive value="1"/>
+								<xsd:maxInclusive value="5"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>
+					<xsd:attribute name="temporalCorrelation" use="optional">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<spoldID>new</spoldID>
+								<fieldId>2273</fieldId>
+								<options/>
+							</xsd:appinfo>
+							<xsd:documentation>1=Less than 3 years of difference to the time period of the dataset (fields 600-610)</xsd:documentation>
+							<xsd:documentation>2=Less than 6 years of difference to the time period of the dataset (fields 600-610)</xsd:documentation>
+							<xsd:documentation>3=Less than 10 years of difference to the time period of the dataset (fields 600-610)</xsd:documentation>
+							<xsd:documentation>4=Less than 15 years of difference to the time period of the dataset (fields 600-610)</xsd:documentation>
+							<xsd:documentation>5=Age of data unknown or more than 15 years of difference to the time period of the dataset (fields 600-610)</xsd:documentation>
+						</xsd:annotation>
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:integer">
+								<xsd:minInclusive value="1"/>
+								<xsd:maxInclusive value="5"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>
+					<xsd:attribute name="geographicalCorrelation" use="optional">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<spoldID>new</spoldID>
+								<fieldId>2274</fieldId>
+								<options/>
+							</xsd:appinfo>
+							<xsd:documentation>1=Data from area under study</xsd:documentation>
+							<xsd:documentation>2=Average data from larger area in which the area under study is included</xsd:documentation>
+							<xsd:documentation>3=Data from area with similar production conditions</xsd:documentation>
+							<xsd:documentation>4=Data from are with slightly similar production conditions</xsd:documentation>
+							<xsd:documentation>5=Data from unknown OR distinctly different area (north america instead of middle east, OECD-Europe instead of Russia)</xsd:documentation>
+						</xsd:annotation>
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:integer">
+								<xsd:minInclusive value="1"/>
+								<xsd:maxInclusive value="5"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>
+					<xsd:attribute name="furtherTechnologyCorrelation" use="optional">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<spoldID>new</spoldID>
+								<fieldId>2275</fieldId>
+								<options/>
+							</xsd:appinfo>
+							<xsd:documentation>1=Data from enterprises, processes and materials under study</xsd:documentation>
+							<xsd:documentation>2=Data from processes and materials under study  (i.e. identical technology) but from different enterprises</xsd:documentation>
+							<xsd:documentation>3=Data from processes and materials under study but from different technology</xsd:documentation>
+							<xsd:documentation>4=Data on related processes or materials</xsd:documentation>
+							<xsd:documentation>5=Data on related processes on laboratory scale or from different technology</xsd:documentation>
+						</xsd:annotation>
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:integer">
+								<xsd:minInclusive value="1"/>
+								<xsd:maxInclusive value="5"/>
+							</xsd:restriction>
+						</xsd:simpleType>
+					</xsd:attribute>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>3792</spoldID>
+						<fieldId>2010</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>A general comment can be made about each uncertainty information</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:simpleType name="TVariableName">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="40"/>
+			<xsd:pattern value="\w\S*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TBaseString20">
+		<xsd:annotation>
+			<xsd:documentation>20 letter string, required for multi language version</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="20"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TBaseString30">
+		<xsd:annotation>
+			<xsd:documentation>30 letter string, required for multi language version</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="30"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TBaseString40">
+		<xsd:annotation>
+			<xsd:documentation>40 letter string, required for multi language version</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="40"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TBaseString80">
+		<xsd:annotation>
+			<xsd:documentation>80 letter string, required for multi language version</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="80"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TBaseString120">
+		<xsd:annotation>
+			<xsd:documentation>120 letter string, required for multi language version</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="120"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TBaseString255">
+		<xsd:annotation>
+			<xsd:documentation>255 letter string, required for multi language version</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="255"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="TBaseString32000">
+		<xsd:annotation>
+			<xsd:documentation>32000 letter string, required for multi language version</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="32000"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="TTextAndImage">
+		<xsd:annotation>
+			<xsd:documentation>List of text, imageUri and variable elements. These can be combined in any order. Their desired order in the result must be given by the index attributes of the text and imageUrl elements.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:choice maxOccurs="unbounded">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<propertyNameForChoiceElement>Elements</propertyNameForChoiceElement>
+				</xsd:appinfo>
+			</xsd:annotation>
+			<xsd:element name="text" type="TIndexedString32000" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>3900</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Free text used to describe the current section. Its index attribute is used to enforce a specific order of text and image elements.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="imageUrl" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>3910</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Can be used to mix images between texts. Its index attribute is used to enforce a specific order of text and image elements.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:simpleContent>
+						<xsd:extension base="xsd:anyURI">
+							<xsd:attribute name="index" type="xsd:integer" use="optional"/>
+						</xsd:extension>
+					</xsd:simpleContent>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="variable" type="TNamedString32000" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>3920</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Defines a varible name and its value used in a text element in this section. These can be overriden by derived datasets to change the value of variables.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:choice>
+	</xsd:complexType>
+	<xsd:complexType name="TClassification">
+		<xsd:annotation>
+			<xsd:documentation>Contains classification pairs to specify the activity.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="classificationSystem" type="TString255" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>501</spoldID>
+						<fieldId>300</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the classification system used, e.g. ISIC Rev. 4. This is an optional plaintext value of the referenced classification system (field 320).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="classificationValue" type="TString120" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>310</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The class that the activity belongs to within the specified classification system.  This is an optional plaintext value of the referenced classification value (field 320).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="classificationId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>320</fieldId>
+					<referenceToComplexType>TValidClassificationValue</referenceToComplexType>
+					<propertyNameForReference>Content</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the value of a classification system. Must be defined in list of valid classifications (see field 3770).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="classificationContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>321</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidClassificationContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the classification.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TCompartment">
+		<xsd:annotation>
+			<xsd:documentation>Contains compartment pairs to specify an exchange.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="compartment" type="TCompartmentName" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>330</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the compartment.This is the plaintext value of the referenced compartment (field 5315).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="subcompartment" type="TCompartmentName" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>340</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the subcompartment.This is the plaintext value of the referenced subcompartment (field 5325).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="subcompartmentId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>350</fieldId>
+					<referenceToComplexType>TValidSubcompartment</referenceToComplexType>
+					<propertyNameForReference>Content</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the compartment/subcompartment pair. Must be defined in list of valid compartments (see field 5330).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="subcompartmentContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>351</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidPropertyContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the subcompartment</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TSynonym">
+		<xsd:annotation>
+			<xsd:documentation>A multilanguage 80 letter string that may be used to define more than one element with the same xml:lang attribute. This is a semantic restriction, that canot be checked by schema validation alone.</xsd:documentation>
+			<xsd:appinfo>
+				<isIdentifyingField/>
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TString80"/>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TTag">
+		<xsd:annotation>
+			<xsd:documentation>The tag field allows to fill in an open list of keywords which describes the activity and can be used for filtering, grouping and searching.The validTags file reference provides a list of predefined tags, but the semantic validation procedure should only display an information (not an error) if a tag entry couldn't found in the valid tags list.</xsd:documentation>
+			<xsd:appinfo>
+				<isIdentifyingField/>
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="TBaseString40"/>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="TRequiredContextReference">
+		<xsd:annotation>
+			<xsd:documentation>This type allows to specify which context(s) must be known if a dataset is to be read using the master data referenced by it.</xsd:documentation>
+			<xsd:documentation>It can be used signal that master data entries from different contexts are needed to read this dataset. The software reading the dataset must be aware of those contexts and must know where to find the actual master data files of each context.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="requiredContextName" type="TString80" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7855</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the context referenced by field 7850.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="majorRelease" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7810</fieldId>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRelease" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7820</fieldId>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7830</fieldId>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7840</fieldId>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="requiredContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7850</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidMasterDataContext</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the master data file.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself should be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="requiredContextFileLocation" type="xsd:anyURI" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7860</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Optional URI reference to the directory containing the master data files of this context.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+</xsd:schema>

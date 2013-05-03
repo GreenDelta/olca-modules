@@ -1,0 +1,956 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.EcoInvent.org/EcoSpold02Child" xmlns:es="http://www.EcoInvent.org/EcoSpold02Child" xmlns:ns1="http://www.EcoInvent.org/EcoSpold02Child" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://www.EcoInvent.org/EcoSpold02Child" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.12">
+	<xsd:include schemaLocation="EcoSpold02ChildDataTypes.xsd"/>
+	<xsd:complexType name="TCustomExchange">
+		<xsd:annotation>
+			<xsd:documentation>This section contains elements used in both exchange types. Elements unique to either Intermediate exchanges or Exchanges with environment are listed in the sections below.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString120" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>3702</spoldID>
+						<fieldId>1000</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Name of the exchange.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="unitName" type="TString40" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>3706</spoldID>
+						<fieldId>1035</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Unit name of the amount.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>3792</spoldID>
+						<fieldId>1110</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>A general comment can be made about each individual exchange.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="uncertainty" type="TUncertainty" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>3708</spoldID>
+						<fieldId>1300</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Uncertainty information in the form of distribution functions and their parameters and/or pedigree data.</xsd:documentation>
+					<xsd:documentation>For the format definition see the complex type section below.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkCustomExchangeUncertaintyCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="synonym" type="TSynonym" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>1470</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>List of synonyms for the name. Contrary to normal multi language strings, synonyms may contain more than one element with the same xml:lang attribute value.</xsd:documentation>
+					<xsd:documentation>0..n entries are allowed with a max. length of 80 each.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="property" type="TProperty" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>1400</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Properties of the exchange, e.g. dry mass, water content, price, content of specific elements or substances.</xsd:documentation>
+					<xsd:documentation>For the format definition see the complex type section below.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkCustomExchangePropertyNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:name"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkCustomExchangePropertyUnitNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:unitName"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkCustomExchangePropertyCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="transferCoefficient" type="TTransferCoefficient" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>1200</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Transfer coefficients relate specific inputs to specific outputs and record the share of this specific input that contributes to this specific output.</xsd:documentation>
+					<xsd:documentation>For the  format definition see the complex  type section below.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkCustomExchangeTransferCoefficientCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="tag" type="TTag" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>1450</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>The tag field allows an open list of keywords which describes the activity and can be used for filtering, grouping and searching. The validTags file reference provides a list of predefined tags, but the semantic validation procedure should only display an information (not an error) if a tag entry cannot be found in the validTags master file.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1005</fieldId>
+					<unique>1</unique>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Unique identifier for this exchange. The intermediateExchangeId or the elementaryExchangeId can not be used to identify an exchange because one master data entry can be referenced by more than one exchange of a dataset.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>3706</spoldID>
+					<fieldId>1030</fieldId>
+					<referenceToComplexType>TValidUnit</referenceToComplexType>
+					<propertyNameForReference>ValidUnit</propertyNameForReference>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the unit of the amount.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1031</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidUnitContext</propertyNameForReference>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the unit.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="variableName" type="TVariableName" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1040</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>The variable name is a short name for the exchange, used when refering to the exchange amount in mathematical relations (formulas). Variables may contain characters, numbers and underscores (_). Variable names must start with a character (a-z). Variable names are not case sensitive (calorific_Value equals Calorific_value).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="casNumber" type="TCasNumber" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>3701</spoldID>
+					<fieldId>1100</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the number according to the Chemical Abstract Service (CAS). The Format of the CAS-number: 000000-00-0, where the first string of digits needs not to be complete (i.e. less than six digits are admitted).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="amount" type="TFloatNumber" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>3707</spoldID>
+					<fieldId>1020</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Amount of an elementary or intermediate exchange.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="isCalculatedAmount" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1050</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If true the value of the amount field is the calculated value of the mathematicalRelation or the transferCoefficient.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="mathematicalRelation" type="TBaseString32000" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1060</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Defines a mathematical formula with references to values of flows, parameters or properties by variable names or REF function.</xsd:documentation>
+				<xsd:documentation>The result of the formula with a specific set of variable values is written into the amount field.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>3715</spoldID>
+					<fieldId>1120</fieldId>
+					<options>Reference to a source defined in the modelling and validation section.</options>
+					<referenceToComplexType>TValidSource</referenceToComplexType>
+					<propertyNameForReference>Source</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>A reference to a valid source.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceIdOverwrittenByChild" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1122</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If a reference to a master data entity must be removed in a child dataset it is required to set the corresponding xxxOverwrittenByChild attribute to true. Otherwise the removed referenced will be interpreted as "Keep the Parent Value".</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1121</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidSourceContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the source.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceYear" type="TBaseString30" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1125</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the year of publication and communication, respectively. For web-sites: last visited.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceFirstAuthor" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>Indicates the first author by surname and abbreviated name (e.g., Einstein A.). In case of measurement on site, oral communication, personal written communication and questionnaries ('sourceType'=4, 5, 6, 7) the name of the communicating person is mentioned here.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1126</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="pageNumbers" type="TBaseString30" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>3716</spoldID>
+					<fieldId>1130</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>The relevant page numbers if the data are sourced on specific pages in an article or larger publication.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="specificAllocationPropertyId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1150</fieldId>
+					<referenceToComplexType>TValidProperty</referenceToComplexType>
+					<propertyNameForReference>SpecificAllocationProperty</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the Property used by the allocation. This overrides the dataset wide default defined by masterAllocationPropertyId.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="specificAllocationPropertyIdOverwrittenByChild" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1152</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If a reference to a master data entity must be removed in a child dataset it is required to set the corresponding xxxOverwrittenByChild attribute to true. Otherwise the removed referenced will be interpreted as "Keep the Parent Value".</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="specificAllocationPropertyContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1151</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidSpecificAllocationPropertyContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the property.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TIntermediateExchange">
+		<xsd:annotation>
+			<xsd:documentation>Comprises fields (additional to the exchanges section) which are only valid for intermediate exchanges. Intermediate exchanges are 
+product or waste inputs and outputs recorded in a unit process and its related information.</xsd:documentation>
+			<xsd:documentation>This section extends the exchanges section in case of intermediate exchanges.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="TCustomExchange">
+				<xsd:sequence>
+					<xsd:element name="productionVolumeComment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<spoldID>724</spoldID>
+								<fieldId>1535</fieldId>
+								<options/>
+							</xsd:appinfo>
+							<xsd:documentation>A general comment can be made on the data source, assumptions and calculations for the production volume data.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:element name="productionVolumeUncertainty" type="TUncertainty" minOccurs="0">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<spoldID>new</spoldID>
+								<fieldId>1539</fieldId>
+								<options/>
+							</xsd:appinfo>
+							<xsd:documentation>Uncertainty information in the form of distribution functions and their parameters and/or pedigree data.</xsd:documentation>
+							<xsd:documentation>For the format definition see the complex type section below.</xsd:documentation>
+						</xsd:annotation>
+						<xsd:unique name="pkIntermediateExchangeProductionVolumeUncertaintyCommentLang">
+							<xsd:annotation>
+								<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+							</xsd:annotation>
+							<xsd:selector xpath="es:comment"/>
+							<xsd:field xpath="@xml:lang"/>
+						</xsd:unique>
+					</xsd:element>
+					<xsd:element name="classification" type="TClassification" minOccurs="0" maxOccurs="unbounded">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<spoldID>new</spoldID>
+								<fieldId>1540</fieldId>
+								<redundantMasterDataField/>
+							</xsd:appinfo>
+							<xsd:documentation>Contains classification pairs to specify the product.</xsd:documentation>
+						</xsd:annotation>
+						<xsd:unique name="pkExchangeClassifictionSystemLang">
+							<xsd:annotation>
+								<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+							</xsd:annotation>
+							<xsd:selector xpath="classificationSystem"/>
+							<xsd:field xpath="@xml:lang"/>
+						</xsd:unique>
+						<xsd:unique name="pkExchangeClassifictionValueLang">
+							<xsd:annotation>
+								<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+							</xsd:annotation>
+							<xsd:selector xpath="es:classificationValue"/>
+							<xsd:field xpath="@xml:lang"/>
+						</xsd:unique>
+					</xsd:element>
+					<xsd:choice>
+						<xsd:annotation>
+							<xsd:appinfo>
+								<propertyNameForChoiceElement>Side</propertyNameForChoiceElement>
+							</xsd:appinfo>
+						</xsd:annotation>
+						<xsd:element name="inputGroup" minOccurs="0">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>3503</spoldID>
+									<fieldId>1500</fieldId>
+									<options>1 = Materials/Fuels; 2 = Electricity/Heat; 3 = Services; 5 = From Technosphere (unspecified)</options>
+								</xsd:appinfo>
+								<xsd:documentation>Indicates the kind of input flow. 
+The codes are: 1=Materials/Fuels, 2=Electricity/Heat, 3=Services, 5=From Technosphere (unspecified).</xsd:documentation>
+								<xsd:documentation> For each exchange only an inputGroup or outputGroup shall exists. This indicates the direction of the flow.</xsd:documentation>
+							</xsd:annotation>
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:integer">
+									<xsd:enumeration value="1"/>
+									<xsd:enumeration value="2"/>
+									<xsd:enumeration value="3"/>
+									<xsd:enumeration value="5"/>
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:element>
+						<xsd:element name="outputGroup" minOccurs="0">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>3504</spoldID>
+									<fieldId>1510</fieldId>
+									<options>0 = ReferenceProduct;  2 = By-product; 3 = Material for Treatment; 5=Stock Additions</options>
+								</xsd:appinfo>
+								<xsd:documentation>Indicates the kind of output flow. 
+The codes are: 0=ReferenceProduct, 2=By-product, 3=MaterialForTreatment, 5=Stock Additions</xsd:documentation>
+								<xsd:documentation> For each exchange only an inputGroup or outputGroup shall exists. This indicates the direction of the flow.</xsd:documentation>
+							</xsd:annotation>
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:integer">
+									<xsd:enumeration value="0"/>
+									<xsd:enumeration value="2"/>
+									<xsd:enumeration value="3"/>
+									<xsd:enumeration value="5"/>
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:element>
+					</xsd:choice>
+					<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+				</xsd:sequence>
+				<xsd:attribute name="intermediateExchangeId" type="TUuid" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>3793</spoldID>
+							<fieldId>1515</fieldId>
+							<referenceToComplexType>TValidIntermediateExchange</referenceToComplexType>
+							<propertyNameForReference>ValidIntermediateExchange</propertyNameForReference>
+						</xsd:appinfo>
+						<xsd:documentation>Reference to the master data entry for this intermediate exchange</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="intermediateExchangeContextId" type="TUuid" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1516</fieldId>
+							<referenceToComplexType>TValidContext</referenceToComplexType>
+							<propertyNameForReference>ValidIntermediateExchangeContext</propertyNameForReference>
+						</xsd:appinfo>
+						<xsd:documentation>Reference to the context of the intermediate exchange.</xsd:documentation>
+						<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="activityLinkId" type="TUuid" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>3715</spoldID>
+							<fieldId>1520</fieldId>
+							<options>Reference to 105 (in another activity dataset).</options>
+							<referenceToComplexType>TActivityIndexEntry</referenceToComplexType>
+							<propertyNameForReference>ActivityLink</propertyNameForReference>
+						</xsd:appinfo>
+						<xsd:documentation>Explicit reference to the activity which supplies the intermediate product. If this field is empty the activity will determined by a linking rule, which uses geographical and temporal information of this activity.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="activityLinkIdOverwrittenByChild" type="xsd:boolean" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1522</fieldId>
+							<options/>
+						</xsd:appinfo>
+						<xsd:documentation>If a reference to a master data entity must be removed in a child dataset it is required to set the corresponding xxxOverwrittenByChild attribute to true. Otherwise the removed referenced will be interpreted as "Keep the Parent Value".</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="activityLinkContextId" type="TUuid" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1521</fieldId>
+							<referenceToComplexType>TValidContext</referenceToComplexType>
+							<propertyNameForReference>ValidActivityLinkContext</propertyNameForReference>
+						</xsd:appinfo>
+						<xsd:documentation>Reference to the context of the activity link.</xsd:documentation>
+						<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="productionVolumeAmount" type="TFloatNumber" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1530</fieldId>
+						</xsd:appinfo>
+						<xsd:documentation>The product volume expressed per year in the same unit as the exchange.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="productionVolumeVariableName" type="TVariableName" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1532</fieldId>
+						</xsd:appinfo>
+						<xsd:documentation>The variable name is a short name for the production volume of the exchange, used when refering to the production volume amount in mathematical relations (formulas). Variables may contain characters, numbers and underscores (_). Variable names must start with a character (a-z). Variable names are not case sensitive (calorific_Value equals Calorific_value).</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="productionVolumeMathematicalRelation" type="TBaseString32000" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1534</fieldId>
+						</xsd:appinfo>
+						<xsd:documentation>Defines a mathematical formula which references to values of flows, parameters or properties by variable names or REF function.</xsd:documentation>
+						<xsd:documentation>The result of the formula with a specific set of variable values is written into the amount field.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="productionVolumeSourceId" type="TUuid" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1533</fieldId>
+							<options>Reference to a source defined in the modelling and validation section.</options>
+							<referenceToComplexType>TValidSource</referenceToComplexType>
+							<propertyNameForReference>ProductionVolumeSource</propertyNameForReference>
+						</xsd:appinfo>
+						<xsd:documentation>A reference to a valid source.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="productionVolumeSourceIdOverwrittenByChild" type="xsd:boolean" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1531</fieldId>
+							<options/>
+						</xsd:appinfo>
+						<xsd:documentation>If a reference to a master data entity must be removed in a child dataset it is required to set the corresponding xxxOverwrittenByChild attribute to true. Otherwise the removed referenced will be interpreted as "Keep the Parent Value".</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="productionVolumeSourceContextId" type="TUuid" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1536</fieldId>
+							<referenceToComplexType>TValidContext</referenceToComplexType>
+							<propertyNameForReference>ProductionVolumeValidSourceContext</propertyNameForReference>
+						</xsd:appinfo>
+						<xsd:documentation>Reference to the context of the source.</xsd:documentation>
+						<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="productionVolumeSourceYear" type="TBaseString30" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1537</fieldId>
+							<redundantMasterDataField/>
+						</xsd:appinfo>
+						<xsd:documentation>Indicates the year of publication and communication, respectively. For web-sites: last visited.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="productionVolumeSourceFirstAuthor" type="TBaseString40" use="optional">
+					<xsd:annotation>
+						<xsd:documentation>Indicates the first author by surname and abbreviated name (e.g., Einstein A.). In case of measurement on site, oral communication, personal written communication and questionnaries ('sourceType'=4, 5, 6, 7) the name of the communicating person is mentioned here.</xsd:documentation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1538</fieldId>
+							<redundantMasterDataField/>
+						</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="TElementaryExchange">
+		<xsd:annotation>
+			<xsd:documentation>Comprises fields (additional to the exchanges section) which are only valid for elementary exchanges. Exchanges with environment are elementary flows as inputs and outputs recorded in a unit process and its related information.</xsd:documentation>
+			<xsd:documentation>This section extends the exchanges section in case of exchanges with environment.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="TCustomExchange">
+				<xsd:sequence>
+					<xsd:element name="compartment" type="TCompartment" minOccurs="0">
+						<xsd:annotation>
+							<xsd:appinfo>
+								<spoldID>new</spoldID>
+								<fieldId>1660</fieldId>
+								<redundantMasterDataField/>
+							</xsd:appinfo>
+							<xsd:documentation>Name of the compartment and subcompartment of the exchange. The xml document referenced by validCompartments contains definitions of valid compartment/subcompartment pairs for a given language.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:element>
+					<xsd:choice>
+						<xsd:annotation>
+							<xsd:appinfo>
+								<propertyNameForChoiceElement>Side</propertyNameForChoiceElement>
+							</xsd:appinfo>
+						</xsd:annotation>
+						<xsd:element name="inputGroup" minOccurs="0">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>3503</spoldID>
+									<fieldId>1600</fieldId>
+									<options>4 = From Environment</options>
+								</xsd:appinfo>
+								<xsd:documentation>Indicates the kind of input flow. The codes are: 4=From Environment</xsd:documentation>
+								<xsd:documentation>For each exchange only an inputGroup or outputGroup shall exists. This indicates the direction of the flow.</xsd:documentation>
+								<xsd:documentation>This field is the equivalent of field 1500 with a different set of valid values.</xsd:documentation>
+							</xsd:annotation>
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:integer">
+									<xsd:minInclusive value="4"/>
+									<xsd:maxInclusive value="4"/>
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:element>
+						<xsd:element name="outputGroup" minOccurs="0">
+							<xsd:annotation>
+								<xsd:appinfo>
+									<spoldID>3504</spoldID>
+									<fieldId>1610</fieldId>
+									<options>4 = ToEnvironment</options>
+								</xsd:appinfo>
+								<xsd:documentation>Indicates the kind of output flow. The codes are: 4=ToEnvironment</xsd:documentation>
+								<xsd:documentation>For each exchange only an inputGroup or outputGroup shall exists. This indicates the direction of the flow.</xsd:documentation>
+								<xsd:documentation>This field is the equivalent of field 1510 with a different set of valid values.</xsd:documentation>
+							</xsd:annotation>
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:integer">
+									<xsd:enumeration value="4"/>
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:element>
+					</xsd:choice>
+					<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+				</xsd:sequence>
+				<xsd:attribute name="elementaryExchangeId" type="TUuid" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>3793</spoldID>
+							<fieldId>1615</fieldId>
+							<referenceToComplexType>TValidElementaryExchange</referenceToComplexType>
+							<propertyNameForReference>ValidElementaryExchange</propertyNameForReference>
+						</xsd:appinfo>
+						<xsd:documentation>Reference to the master data entry for this elementary exchange</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="elementaryExchangeContextId" type="TUuid" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>new</spoldID>
+							<fieldId>1616</fieldId>
+							<referenceToComplexType>TValidContext</referenceToComplexType>
+							<propertyNameForReference>ValidElementaryExchangeContext</propertyNameForReference>
+						</xsd:appinfo>
+						<xsd:documentation>Reference to the context of the elementary exchange.</xsd:documentation>
+						<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="formula" type="TBaseString40" use="optional">
+					<xsd:annotation>
+						<xsd:appinfo>
+							<spoldID>3711</spoldID>
+							<fieldId>1670</fieldId>
+							<redundantMasterDataField/>
+						</xsd:appinfo>
+						<xsd:documentation>Chemical formula (e.g. sum formula) may be entered. </xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="TParameter">
+		<xsd:annotation>
+			<xsd:documentation>Dataset parameters for use in formulas.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString80" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>1700</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Descriptive name of the parameter.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="unitName" type="TString40" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>3706</spoldID>
+						<fieldId>1714</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Unit name of the parameter amount.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="uncertainty" type="TUncertainty" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>1730</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Uncertainty of the parameter amount.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkParameterUncertaintyCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>1740</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>A general comment can be made about each individual parameter.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="parameterId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1705</fieldId>
+					<referenceToComplexType>TValidParameter</referenceToComplexType>
+					<propertyNameForReference>ValidParameter</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>A reference to a valid master data parameter.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="parameterContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1706</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidParameterContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the parameter.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="variableName" type="TVariableName" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1715</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>The variable name is a short name for the exchange, used when refering to the exchange amount in mathematical relations (formulas). Variables may contain characters, numbers and underscores (_). Variable names must start with a character (a-z). Variable names are not case sensitive (calorific_Value equals Calorific_value).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="mathematicalRelation" type="TBaseString32000" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1720</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Defines a mathematical formula with references to values of flows, parameters or properties by variable names or REF function.</xsd:documentation>
+				<xsd:documentation>The result of the formula with a specific set of variable values is written into the amount field.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="isCalculatedAmount" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1725</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If true the value of the amount field is the calculated value of the mathematicalRelation.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="amount" type="TFloatNumber" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1710</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>The current value of the parameter.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>3706</spoldID>
+					<fieldId>1712</fieldId>
+					<referenceToComplexType>TValidUnit</referenceToComplexType>
+					<propertyNameForReference>ValidUnit</propertyNameForReference>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the unit of the parameter amount.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitIdOverwrittenByChild" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1716</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If a reference to a master data entity must be removed in a child dataset it is required to set the corresponding xxxOverwrittenByChild attribute to true. Otherwise the removed referenced will be interpreted as "Keep the Parent Value".</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>1713</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidUnitContext</propertyNameForReference>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the unit. If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TTransferCoefficient">
+		<xsd:annotation>
+			<xsd:documentation>Transfer coefficients for calculating amounts of outputs from amounts of inputs.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="uncertainty" type="TUncertainty" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>2430</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Uncertainty of the transfer coefficient amount.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkTransferCoefficientUncertaintyCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>3792</spoldID>
+						<fieldId>2450</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>A general comment can be made about each individual transfer coefficient.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="exchangeId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2400</fieldId>
+					<referenceToComplexType>TCustomExchange</referenceToComplexType>
+					<propertyNameForReference>Exchange</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the UUID of an exchange.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="amount" type="TFloatNumber" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2410</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>The amount of the transfer coefficient is to be multiplied with the amount of this referenced exchange.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="mathematicalRelation" type="TBaseString32000" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2420</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>defines a mathematical formula with references to values of flows, parameters or properties by variable names or REF function</xsd:documentation>
+				<xsd:documentation>the result of the formula with a specific set of variable values is written into the amount field</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="isCalculatedAmount" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2425</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If true the value of the amount field is the calculated value of the mathematicalRelation.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2440</fieldId>
+					<options>Reference to a source defined in the modellingAndValidation section.</options>
+					<referenceToComplexType>TValidSource</referenceToComplexType>
+					<propertyNameForReference>Source</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>A reference to a valid source.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceIdOverwrittenByChild" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2442</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If a reference to a master data entity must be removed in a child dataset it is required to set the corresponding xxxOverwrittenByChild attribute to true. Otherwise the removed referenced will be interpreted as "Keep the Parent Value".</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2441</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidSourceContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the source.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceYear" type="TBaseString30" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2445</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the year of publication and communication, respectively. For web-sites: last visited.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceFirstAuthor" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>Indicates the first author by surname and abbreviated name (e.g., Einstein A.). In case of measurement on site, oral communication, personal written communication and questionnaries ('sourceType'=4, 5, 6, 7) the name of the communicating person is mentioned here.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>2446</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+</xsd:schema>

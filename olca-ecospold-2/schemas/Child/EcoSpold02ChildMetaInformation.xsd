@@ -1,0 +1,1161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.EcoInvent.org/EcoSpold02Child" xmlns:es="http://www.EcoInvent.org/EcoSpold02Child" xmlns:ns1="http://www.EcoInvent.org/EcoSpold02Child" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://www.EcoInvent.org/EcoSpold02Child" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.12">
+	<xsd:include schemaLocation="EcoSpold02ChildDataTypes.xsd"/>
+	<xsd:complexType name="TDataEntryBy">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about the author of the dataset, i.e. the person that entered data into the database format and thereby is the person responsible for the data.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:any namespace="##other" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="personId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>302</spoldID>
+					<fieldId>3400</fieldId>
+					<options>Entry must be identical to an existing entry in field 3610</options>
+					<referenceToComplexType>TValidPerson</referenceToComplexType>
+					<propertyNameForReference>Person</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>ID number for the person that prepared the dataset and enters the dataset into the database.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="personContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3401</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidPersonContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the person.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="isActiveAuthor" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3403</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>This field defines if the person specified by field 3400 is the active author for this dataset. The active author will be consulted in case of future changes to the dataset by different data providers.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="personName" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3405</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Name and surname of the person.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="personEmail" type="TBaseString80" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3406</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Complete email address of the person.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TTimePeriod">
+		<xsd:annotation>
+			<xsd:documentation>Describes start and end date of the time period for which the dataset is valid.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="comment" type="TTextAndImage" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>611</spoldID>
+						<fieldId>630</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Text and image field for additional explanations concerning the temporal validity of the data reported. It may e.g. include information about:- how strong the temporal correlation is for the unit process at issue (e.g., are four year old data still adequate for the activity operated today?),- why data is not valid for the entire period, and for which smaller periods data are then valid. Text and image fields are list of text, imageUri and variable elements. The text and imageUri elements can used to describe the current section and they can be combined in any order given by their index attribute. Text variables are defined by the variable elements, which may be used in the text as {{variablename}}. If a parent text field includes a variable, this variable may be redefined by the child activity dataset while keeping the rest of the parent text intact. This allows easy changes of text parts in child processes.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkTimePeriodCommentIndex">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that all indices used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:text|es:imageUrl"/>
+					<xsd:field xpath="@index"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkTimePeriodCommentVariableName">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that the variable names used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:variable"/>
+					<xsd:field xpath="@name"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="startDate" type="xsd:date" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>601</spoldID>
+					<fieldId>600</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Start date of the time period for which the dataset is valid, presented as a complete date (year-month-day).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="endDate" type="xsd:date" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>602</spoldID>
+					<fieldId>610</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>End date of the time period for which the dataset is valid, presented as a complete date (year-month-day).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="isDataValidForEntirePeriod" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>603</spoldID>
+					<fieldId>620</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates whether or not the activity data (elementary and intermediate exchanges reported under flow data) are valid for the entire time period stated. If not, explanations may be given under 'comment'.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TGeography">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about the geographic validity of the process. The geography may be the point location of the activity, a line describing a mobile activity, or an area of a distributed activity or of a production mix, containing several located activities. For markets (consumption mixes), the geography describes the market boundaries, across which imports and exports are limited.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="shortname" type="TString40" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>662</spoldID>
+						<fieldId>410</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Descriptive shortname of the location referenced by geographyId, e.g. the regional codes of EcoSpold version 1.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="comment" type="TTextAndImage" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>663</spoldID>
+						<fieldId>420</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Text and image field for further explanations of the geography. Especially for area descriptions, the nature of the geographical delimitation may be given, especially when this is not an administrative area. Justifications for market boundaries may also be provided here.Text and image fields are list of text, imageUri and variable elements. The text and imageUri elements can used to describe the current section and they can be combined in any order given by their index attribute. Text variables are defined by the variable elements, which may be used in the text as {{variablename}}. If a parent text field includes a variable, this variable may be redefined by the child activity dataset while keeping the rest of the parent text intact. This allows easy changes of text parts in child processes.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkGeographyCommentIndex">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that all indices used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:text|es:imageUrl"/>
+					<xsd:field xpath="@index"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkGeographyCommentVariableName">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that the variable names used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:variable"/>
+					<xsd:field xpath="@name"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="geographyId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>400</fieldId>
+					<referenceToComplexType>TValidGeography</referenceToComplexType>
+					<propertyNameForReference>Value</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to valid locations file with detailed geography information.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="geographyContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>401</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidGeographyContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the geography.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TTechnology">
+		<xsd:annotation>
+			<xsd:documentation>Contains a description of the technology for which data has been collected. The text should cover information necessary to identify the properties and particularities of the technology(ies) underlying the activity data.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="comment" type="TTextAndImage" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>692</spoldID>
+						<fieldId>510</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Text and image field to describe the technology of the activity. The text should cover information necessary to identify the properties and particularities of the technology(ies) underlying the activity data. Describes the technological properties of the unit process. If the activity comprises several subactivities, the corresponding technologies should be reported as well. Professional nomenclature should be used for the description.Text and image fields are list of text, imageUri and variable elements. The text and imageUri elements can used to describe the current section and they can be combined in any order given by their index attribute. Text variables are defined by the variable elements, which may be used in the text as {{variablename}}. If a parent text field includes a variable, this variable may be redefined by the child activity dataset while keeping the rest of the parent text intact. This allows easy changes of text parts in child processes.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkTechnologyCommentIndex">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that all indices used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:text|es:imageUrl"/>
+					<xsd:field xpath="@index"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkTechnologyCommentVariableName">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that the variable names used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:variable"/>
+					<xsd:field xpath="@name"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="technologyLevel" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>500</fieldId>
+					<options>0 = undefined, 1 = New, 2 = Modern, 3 = Current (default), 4 = Old, 5 = Outdated</options>
+					<enumeration/>
+				</xsd:appinfo>
+				<xsd:documentation>Label that grossly classifies the technology of the described activity and can be used in modelling to select processes with a specific technological level. The codes used are:0=Undefined. For market activities that do not have a technology level.1=New. For a technology assumed to be on some aspects technically superior to modern technology, but not yet the most commonly installed when investment is based on purely economic considerations.2=Modern. For a technology currently used when installing new capacity, when investment is based on purely economic considerations (most competitive technology). 3=Current (default). For a technology in between modern and old.4=Old. For a technology that is currently taken out of use, when decommissioning is based on purely economic considerations (least competitive technology).5=Outdated. For a technology no longer in use.The terms used does not necessarily reflect the age of the technologies. A modern technology can be a century old, if it is still the most competitive technology, and an old technology can be relatively young, if it is one that has quickly become superseded by other more competitive ones. The technology level is relative to the year for which the data are valid, as given under Time Period. In a time series, the same technology can move between different technology levels over time. The same technology can also be given different technology levels in different geographical locations, even in the same year.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="0"/>
+					<xsd:maxInclusive value="5"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TRepresentativeness">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about the representativeness of the information in the dataset and about how data have been sampled and/or calculated.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="systemModelName" type="TString120" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>3005</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>This is the plaintext value of the referenced system model (field 3000).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="samplingProcedure" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>725</spoldID>
+						<fieldId>3030</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Text describing the sampling and calculation procedures applied for quantifying the exchanges. Reports whether the sampling procedure for particular elementary and intermediate exchanges differ from the general procedure. Mentions possible problems in combining different sampling procedures.Text and image fields are list of text, imageUri and variable elements. The text and imageUri elements can used to describe the current section and they can be combined in any order given by their index attribute. Text variables are defined by the variable elements, which may be used in the text as {{variablename}}. If a parent text field includes a variable, this variable may be redefined by the child activity dataset while keeping the rest of the parent text intact. This allows easy changes of text parts in child processes.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="extrapolations" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>726</spoldID>
+						<fieldId>3040</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Describes extrapolations of data from another time period, another geographical area or another technology and the way these extrapolations have been carried out.</xsd:documentation>
+					<xsd:documentation>It should be reported whether different extrapolations have been done on the level of individual exchanges.</xsd:documentation>
+					<xsd:documentation>If data representative for a activity operated in one country is used for another country's activity, its original representativity can be indicated here.</xsd:documentation>
+					<xsd:documentation>Changes in mean values due to extrapolations may also be reported here.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="percent" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>722</spoldID>
+					<fieldId>3010</fieldId>
+					<options>Maximum 100</options>
+				</xsd:appinfo>
+				<xsd:documentation>Percent of data sampled out of the total that the activity is intended to represent (as given by the fields under Geography, Technology and Time Period).</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="TPercent">
+					<xsd:maxInclusive value="100.0"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="systemModelId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3000</fieldId>
+					<referenceToComplexType>TValidSystemModel</referenceToComplexType>
+					<propertyNameForReference>SystemModel</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>The system model describes how activity datasets are linked to form product systems. Some options in the ecoinvent network are 'undefined', 'attributional, average current suppliers, revenue allocation', 'consequential, small-scale, long-term decisions'.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="systemModelContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3001</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidSystemModelContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the system model.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TDataGeneratorAndPublication">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about who collected, compiled or published the orginal data. This may or may not be the same person as under 'DataEntryBy'. Furthermore contains information about kind of publication underlying the dataset and the accessibility of the dataset.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="personId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>751</spoldID>
+					<fieldId>3500</fieldId>
+					<options>ID number for the data generator, i.e. the person or organisation that collected, compiled or published the original data. This may or may not be the same person as the author (see 'DataEntryBy'). The purpose of this field is to acknowledge and reference the origin of the data and the person or organisation that performed the majority of the work in data collection.</options>
+					<referenceToComplexType>TValidPerson</referenceToComplexType>
+					<propertyNameForReference>Person</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>ID number for the person that generated the dataset. It must correspond to an ID number of a person listed in the respective dataset.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="personContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3501</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidPersonContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the person.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="personName" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3505</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Name and surname of the person.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="personEmail" type="TBaseString80" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3506</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Complete email address of the person.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="dataPublishedIn" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>Indicates whether the dataset has been published (not, partly, entirely).</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>756</spoldID>
+					<fieldId>3510</fieldId>
+					<options>0 = Data as such not published elsewhere (default), 1 = The data of some unit processes or subsystems are published, 2 = Data has been published entirely in (refers to field 757)</options>
+					<enumeration/>
+				</xsd:appinfo>
+				<xsd:documentation>The codes are: 0=Data as such not published (default). 1=The data of some unit processes or subsystems are published. 2=Data has been published entirely in 'referenceToPublishedSource'.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="0"/>
+					<xsd:maxInclusive value="2"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="publishedSourceId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>757</spoldID>
+					<fieldId>3520</fieldId>
+					<options>Reference to 801</options>
+					<referenceToComplexType>TValidSource</referenceToComplexType>
+					<propertyNameForReference>PublishedSource</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>ID number for the report in which the dataset is documented.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="publishedSourceIdOverwrittenByChild" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3522</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If a reference to a master data entity must be removed in a child dataset it is required to set the corresponding xxxOverwrittenByChild attribute to true. Otherwise the removed referenced will be interpreted as "Keep the Parent Value".</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="publishedSourceContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3521</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidSourceContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the published source.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="publishedSourceYear" type="TBaseString30" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3525</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the year of publication and communication, respectively. For web-sites: last visited.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="publishedSourceFirstAuthor" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>Indicates the first author by surname and abbreviated name (e.g., Einstein A.). In case of measurement on site, oral communication, personal written communication and questionnaries ('sourceType'=4, 5, 6, 7) the name of the communicating person is mentioned here.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3526</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="isCopyrightProtected" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>758</spoldID>
+					<fieldId>3540</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates whether or not a copyright exists. '1' (Yes) or '0' (No) should be entered correspondingly.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="pageNumbers" type="TBaseString30" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>762</spoldID>
+					<fieldId>3530</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>The relevant page numbers if the data are sourced on specific pages in an article or larger publication.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="accessRestrictedTo" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>Indicates possible access restrictions for the dataset. </xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>759</spoldID>
+					<fieldId>3550</fieldId>
+					<options>0=Public, 1=Licensees, 2=Results only, 3=Restricted</options>
+					<enumeration/>
+				</xsd:appinfo>
+				<xsd:documentation>The codes used are: 0=Public, 1=Licensees, 2=Results only, 3=Restricted</xsd:documentation>
+				<xsd:documentation>accessRestrictedTo=0: No access restrictions.</xsd:documentation>
+				<xsd:documentation>accessRestrictedTo=1: only license holders (as defined by context) have access.</xsd:documentation>
+				<xsd:documentation>accessRestrictedTo=2: license holders (as defined by context) have access to LCI results but not to unit process raw data. Database administrator have full access.</xsd:documentation>
+				<xsd:documentation>accessRestrictedTo=3: only the organisation specified by 'companyCode' and the database administrator have access.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="0"/>
+					<xsd:maxInclusive value="3"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="companyId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>760</spoldID>
+					<fieldId>3560</fieldId>
+					<options>If 759=3</options>
+					<referenceToComplexType>TValidCompany</referenceToComplexType>
+					<propertyNameForReference>Company</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to an organisation/institute that the use of this dataset is restricted to.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="companyIdOverwrittenByChild" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3563</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If a reference to a master data entity must be removed in a child dataset it is required to set the corresponding xxxOverwrittenByChild attribute to true. Otherwise the removed referenced will be interpreted as "Keep the Parent Value".</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="companyContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3561</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidCompanyContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the company.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="companyCode" type="TCompanyCode" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>760</spoldID>
+					<fieldId>3562</fieldId>
+					<options>If 759=3</options>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Optional 7 letter code plaintext of the referenced company (field 3560)</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TReview">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about who carried out the critical review and about the main results and conclusions of the review and the recommendations made.</xsd:documentation>
+			<xsd:documentation>Multiple reviewers allowed</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="details" type="TTextAndImage" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>5615</spoldID>
+						<fieldId>3340</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Text and image field for the comment of the reviewer of the dataset. Text and image fields are list of text, imageUri and variable elements. The text and imageUri elements can used to describe the current section and they can be combined in any order given by their index attribute. Text variables are defined by the variable elements, which may be used in the text as {{variablename}}. If a parent text field includes a variable, this variable may be redefined by the child activity dataset while keeping the rest of the parent text intact. This allows easy changes of text parts in child processes.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkReviewDetailsIndex">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that all indices used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:text|es:imageUrl"/>
+					<xsd:field xpath="@index"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkReviewDetailsVariableName">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that the variable names used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:variable"/>
+					<xsd:field xpath="@name"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="otherDetails" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>5619</spoldID>
+						<fieldId>3350</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Contains further information from the review process, e.g. on smaller corrections added after the first publication of the dataset.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="reviewerId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>5616</spoldID>
+					<fieldId>3300</fieldId>
+					<options>Reference to 3610.</options>
+					<referenceToComplexType>TValidPerson</referenceToComplexType>
+					<propertyNameForReference>Reviewer</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the person who carried out the review.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="reviewerContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3301</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidReviewerContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the reviewer.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="reviewerName" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3305</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Name and surname of the person.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="reviewerEmail" type="TBaseString80" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3306</fieldId>
+					<redundantMasterDataField/>
+				</xsd:appinfo>
+				<xsd:documentation>Complete email address of the person.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="reviewDate" type="xsd:date" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3310</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Date of validation or review.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="reviewedMajorRelease" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3320</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>The dataset version validated or reviewed. Refers to 3800.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="reviewedMinorRelease" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3325</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>The dataset version validated or reviewed. Refers to 3805.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="reviewedMajorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3330</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>The dataset version validated or reviewed. Refers to 3810.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="reviewedMinorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3335</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>The dataset version validated or reviewed. Refers to 3815.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TActivity">
+		<xsd:annotation>
+			<xsd:documentation>Contains the identifying information of an activity dataset including name and classification.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="activityName" type="TString120" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>401-rename</spoldID>
+						<fieldId>100</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>A name for the activity that is represented by this dataset.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="synonym" type="TSynonym" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>491-type</spoldID>
+						<fieldId>170</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>List of synonyms for the name. Contrary to normal multi language strings, synonyms may contain more than one element with the same xml:lang attribute value.</xsd:documentation>
+					<xsd:documentation>0..n entries are allowed with a max. length of 80 each.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="includedActivitiesStart" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>402-type</spoldID>
+						<fieldId>145</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Describes the starting point of the activity. For "system terminated"  the starting point is always "From cradle, i.e. including all upstream activities". For unit processes, the starting point may be described in terms of the nature of the inputs, e.g. "From reception of [e.g. raw material X]..." or "Service starting with the input of [e.g. labour and energy].</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="includedActivitiesEnd" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>402-type</spoldID>
+						<fieldId>150</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Describes the included activities to the extent that this is not self-explanatory from the activity name, as well as activities or inputs that are intentionally excluded, e.g. if the activity “application of pesticides” as a service excludes the pesticide, in order to be applicable for many different active ingredients. The description ends by mentioning the last activity and/or point of delivery, e.g. “until and including loading of the product on lorries”.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="allocationComment" type="TTextAndImage" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>2407</spoldID>
+						<fieldId>195</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Text and image field for further information about the allocation procedure and the allocation properties chosen. An eventual coincidence in allocation factors when comparing different allocation parameters (like physical and economic ones) may be reported here as well.Text and image fields are list of text, imageUri and variable elements. The text and imageUri elements can used to describe the current section and they can be combined in any order given by their index attribute. Text variables are defined by the variable elements, which may be used in the text as {{variablename}}. If a parent text field includes a variable, this variable may be redefined by the child activity dataset while keeping the rest of the parent text intact. This allows easy changes of text parts in child processes.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkActivityAllocationCommentIndex">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that all indices used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:text|es:imageUrl"/>
+					<xsd:field xpath="@index"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkActivityAllocationCommentVariableName">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that the variable names used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:variable"/>
+					<xsd:field xpath="@name"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="generalComment" type="TTextAndImage" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>492</spoldID>
+						<fieldId>120</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Text and image field for general information about the dataset. Only comments and references of more general nature that cannot be placed in any of the more specific comment fields, should be placed here. In general, the information in the dataset should be sufficient to judge the appropriateness of a dataset for a specific application.Text and image fields are list of text, imageUri and variable elements. The text and imageUri elements can used to describe the current section and they can be combined in any order given by their index attribute. Text variables are defined by the variable elements, which may be used in the text as {{variablename}}. If a parent text field includes a variable, this variable may be redefined by the child activity dataset while keeping the rest of the parent text intact. This allows easy changes of text parts in child processes.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkAllocationGeneralCommentIndex">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that all indices used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:text|es:imageUrl"/>
+					<xsd:field xpath="@index"/>
+				</xsd:unique>
+				<xsd:unique name="pkAllocationGeneralCommentVariableName">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that the variable names used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:variable"/>
+					<xsd:field xpath="@name"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="tag" type="TTag" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>175</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>The tag field allows an open list of keywords which describes the activity and can be used for filtering, grouping and searching. The validTags file reference provides a list of predefined tags, but the semantic validation procedure should only display an information (not an error) if a tag entry cannot be found in the validTags master file.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>200-type</spoldID>
+					<fieldId>102</fieldId>
+					<referenceToComplexType>TActivityIndexEntry</referenceToComplexType>
+					<propertyNameForReference>ActivityIndexEntry</propertyNameForReference>
+					<unique>1</unique>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>Unique identifier for this activity. The datat type UUID is a 36 characters string with hexadecimal characters and ensures a world-wide unique identifier. A UUID for a new item must be supplied by external software. There are several UUID generators on the web and implementations in most programming languages.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="activityNameId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>105</fieldId>
+					<referenceToComplexType>TValidActivityName</referenceToComplexType>
+					<propertyNameForReference>ValidActivityName</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the activity name master data entry for this activity.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="activityNameContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>106</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidActivityNameContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the activity name.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="parentActivityId" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>130</fieldId>
+					<referenceToComplexType>TActivityIndexEntry</referenceToComplexType>
+					<propertyNameForReference>ParentActivity</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>The parentActivityId is a UUID to the parent activity dataset. When this field is filled with a UUID, all the field content from the parent activity dataset is taken over by the child activity dataset (the activity that calls the parent via the UUID).</xsd:documentation>
+				<xsd:documentation>Child activity is derived (inherited) from its parent activity and only the content changes in comparison to its parent are stored in the child process. Child activity datasets cannot be validated using the EcoSpold02 schema, since most of the required fields will not be filled. Please refer to the additional documentation regarding inheritance of datasets in the ecoinvent database for further details.</xsd:documentation>
+				<xsd:documentation>There are 5 ways to fill a field in a child activity dataset ("http://www.EcoInvent.org/EcoSpold02Child"):</xsd:documentation>
+				<xsd:documentation>1) Leave a field blank: In this case, the value from the parent activity dataset applies.</xsd:documentation>
+				<xsd:documentation>2) Fill in content: In this case, the filled in value applies, and the value from the parent activity dataset is ignored.</xsd:documentation>
+				<xsd:documentation>3) In a string field, fill in content including the text {{PARENTTEXT}} in which case the  field content from the parent activity dataset is included at this place in the filled in text in the child dataset.</xsd:documentation>
+				<xsd:documentation>4) In a field with type TTextAndImage, both {{PARENTTEXT}} and {{text_variables}} are supported; the latter allows to define text variables in the parent dataset and use them in the text as {{variablename}}. If a parent textfield includes a variable, this variable may be redefined by the child activity dataset while keeping the rest of the parent text intact. This allows easy changes of text parts in child processes.</xsd:documentation>
+				<xsd:documentation>5) In an amount field with corresponding mathematical relation fields, fill in content in the mathematicalRelation field including the reserved variable PARENTVALUE, e.g. the formula PARENTVALUE*0.5 results in halfing the value of the original amount field.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="parentActivityContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>131</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidParentActivityContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the parent activity.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="inheritanceDepth" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>135</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>The inheritance depth expresses the maximum number of parent datasets for the current dataset. The following values are used in the ecoinvent context: 0 = not a child, 1 = a geography child, 2 = a temporal child, 3 = a macro-economic scenario child.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="type" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>201-type</spoldID>
+					<fieldId>110</fieldId>
+					<options>1 = Unit process; 2 = System terminated</options>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the kind of data (1 = Unit process; 2 = System terminated) that is represented by this dataset. Data are always entered by the data providers as Unit process. The database-generated, attributional and consequential datasets are available both at the unit process level and as aggregated (terminated) system dataset (i.e. the life cycle inventory results) containing the aggregated elementary exchanges and impacts of the product system related to one specific product from the unit process. The terminated product systems include all upstream activity datasets, as linked by the intermediate exchanges, and therefore do not themselves have any intermediate exchanges, only environmental exchanges and accumulated impact assessment results.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="1"/>
+					<xsd:maxInclusive value="2"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="specialActivityType" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>115</fieldId>
+					<options>0 = ordinary transforming activity (default), 1 = market activity, 2 = IO activity, 3 = Residual activity, 4 = production mix, 5 = import activity, 6 = supply mix, 7 = export activity, 8 = re-export activity, 9 = correction activity</options>
+					<enumeration/>
+				</xsd:appinfo>
+				<xsd:documentation>The special activity types are: 0 = “ordinary” transforming activities. Transforming activities are human activities that transform inputs, so that the output of the activity is different from the inputs, e.g. a hard coal mine that transforms hard coal in ground to the marketable product hard coal. Transforming activities are here understood in the widest possible sense, including extraction, production, transport, consumption and waste treatment activities, i.e. any human activity where the intermediate output is different from the intermediate input. The concept “transforming activities” is introduced here simply to distinguish – in the further modelling and linking of activities – these “ordinary” activities from the market activities, production and supply mixes, import and export activities, and correction datasets.1 = market activity. Market activities do not transform their inputs, but simply transfer the intermediate output from a transforming activity to the transforming activities that consume this intermediate output as an input, e.g. from hard coal at the supplier to hard coal at the consumer. Market activities typically mix similar intermediate outputs from different transforming activities. Market activities therefore supply consumption mixes of the intermediate outputs.2 = IO activity. An IO activity represents an activity dataset from a national supply-use table, i.e. typically the supply and use of one specific industry.3 = Residual activity. A residual activity is the resulting activity when subtracting all available unit processes within an activity class from the supply-use data (IO activity) of the same activity class, for the same year and geo-graphical area. 4 = production mix. A production mix represents the production-volume-weighted average of the suppliers of a specific product within a geographical area.5 = import activity. An import activity represents the import of a specified product to a specified geographical area, solely for use in national balancing (not contributing to any auto-generated consumption mixes). Imports to administratively constrained markets and from partly isolated markets are modelled as ordinary transforming activities in order to be included in the relevant market activities (consumption mixes).6 = supply mix. A supply mix is a production mix with the addition of the import of a specified product to a specified geographical area.7 = export activity. An export activity represents the export volume of a national production mix that has the national area as its geographical location and does not contribute to any auto-generated consumption mixes. To give the correct value of the export, the same activities and data that are included with the market activities are added directly to the export activity. This includes transport activities, production losses, wholesaler and retailer activities, and product taxes and subsidies.8 = re-export activity. A re-export activity represents the re-export volume of a geographical area and does not contribute to any auto-generated consumption mixes.9 = correction activity. A correction activity is an activity that is added twice to a product system, one with a positive and once with a negative flow, in order to move one or more exchanges from one part of the system to another, e.g. to correct for downstream effects of an upstream activity, or to correct a bias in the mass-balance introduced by an allocation. More details on this is provided in the Chapters on "Downstream changes caused by differences in product quality" and "Allocation corrections" in the ecoinvent Data Quality Guidelines.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="0"/>
+					<xsd:maxInclusive value="9"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="energyValues" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>203</spoldID>
+					<fieldId>180</fieldId>
+					<options>0 = Undefined (default); 1 = Net values; 2 = Gross values</options>
+					<enumeration/>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the way energy values are applied in the dataset. The codes are: 0=Undefined (default). 1=Net (lower) heating value. 2=Gross (higher) heating value.</xsd:documentation>
+				<xsd:documentation>This data field is by default set to 0.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="0"/>
+					<xsd:maxInclusive value="2"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="masterAllocationPropertyId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>190</fieldId>
+					<referenceToComplexType>TValidProperty</referenceToComplexType>
+					<propertyNameForReference>MasterAllocationProperty</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>References the default Allocation Property (via UUID) for all exchanges of this dataset. The Allocation Property can be overwritten for each exchange (see field 1150 specificAllocationPropertyId).</xsd:documentation>
+				<xsd:documentation>The allocation factor for a specific output is then the declared TProperty value for this output multiplied by the amount of the output divided by the sum of the all such multiplied TProperty values for all outputs.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="masterAllocationPropertyIdOverwrittenByChild" type="xsd:boolean" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>192</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>If a reference to a master data entity must be removed in a child dataset it is required to set the corresponding xxxOverwrittenByChild attribute to true. Otherwise the removed referenced will be interpreted as "Keep the Parent Value".</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="masterAllocationPropertyContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>191</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidMasterAllocationPropertyContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the master allocation property.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="datasetIcon" type="xsd:anyURI">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>200</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>The URL of the dataset icon. A dataset icon serves a quick identification of the specific dataset, and may also be used for product brands and company logos. The icon is not directly part of the dataset, but is stored locally or on the ecoinvent web-server, from where it is retrievable via the Http protocol.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TFileAttributes">
+		<xsd:annotation>
+			<xsd:documentation>Contains metainformation regarding the file as a whole.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="contextName" type="TString80" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>3885</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the context referenced by field 3880.</xsd:documentation>
+					<xsd:documentation>The context replaces the ecoSpold01 quality network (field id 304). The context id for the ecoinvent quality network can be found in the Context.xml master data file.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="requiredContext" type="TRequiredContextReference" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>3890</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Reference to a context required to load this document with all its master data references intact. </xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="majorRelease" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>The major release number is increased by one with each major update (e.g. every second year).</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>202</spoldID>
+					<fieldId>3800</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRelease" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>The minor release number is increased by one for each release within the period of two major updates.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>202</spoldID>
+					<fieldId>3805</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>The revision number is specific to each dataset and is independent of the overall database release version and is used to discern different versions of the dataset within the database major/minor release versions. The major revision number reflects the amount of accepted changes to the dataset. It will only increase over time and must not be changed manually. In the ecoinvent context the major revision is increased each time changes to an activity are added to the database (i.e. after they passed the review process). This also resets the minor revision to 1.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>207</spoldID>
+					<fieldId>3810</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>The minor revision number describes versions of the dataset during the editing process before it is submitted for review. In th eecoinvent context it is increased automatically every time the data provider saves changes made to the dataset either locally or as a draft on the ecoinvent server. The minor revision number is reset to “1” each time the major revision number is increased (when changes to a dataset are accepted by a reviewer).</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>207</spoldID>
+					<fieldId>3815</fieldId>
+					<options/>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="internalSchemaVersion" type="TBaseString80" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3850</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Dataset is generated based on this internal schema version.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="defaultLanguage" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3820</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Default language for all multi language fields of this dataset. Any multi language field should contain a value at least for the default language. If no defaultLanguage is given, the default value ("en") will be used.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:minLength value="2"/>
+					<xsd:maxLength value="5"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="creationTimestamp" type="xsd:dateTime" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>Automatically generated date when dataset is created.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>204a</spoldID>
+					<fieldId>3830</fieldId>
+					<options>Time of creation of dataset</options>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="lastEditTimestamp" type="xsd:dateTime" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>Automatically generated date when dataset is saved.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>204b</spoldID>
+					<fieldId>3840</fieldId>
+					<options>Time of last editing of dataset</options>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="fileGenerator" type="TBaseString255">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3860</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Description of the program which created this file. Preferably including version.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="fileTimestamp" type="xsd:dateTime">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3870</fieldId>
+					<options/>
+				</xsd:appinfo>
+				<xsd:documentation>Time and date this file was created.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="contextId" type="TUuid">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3880</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the context for which this dataset is designed. The information is used, e.g. for restricting the accessibility of dataset information to one particular context and to determine which master data files are needed to access it. If this attribute is omitted the dataset is assumed to be a standalone dataset and masterdata references can not be dereferenced.</xsd:documentation>
+				<xsd:documentation>The context replaces the ecoSpold01 quality network (field id 304). The context id for the ecoinvent quality network can be found in the Context.xml master data file.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TMacroEconomicScenario">
+		<xsd:annotation>
+			<xsd:documentation>References the macro-economic scenario used in this dataset.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString80" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>720</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Name of the macro-economic scenario that this dataset belongs to.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>740</fieldId>
+						<options/>
+					</xsd:appinfo>
+					<xsd:documentation>Description of how a macro-economic child dataset deviates from the default scenario of the parent dataset.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="macroEconomicScenarioId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>700</fieldId>
+					<referenceToComplexType>TValidMacroEconomicScenario</referenceToComplexType>
+					<propertyNameForReference>Scenario</propertyNameForReference>
+					<isIdentifyingField/>
+				</xsd:appinfo>
+				<xsd:documentation>A reference to a macro-economic scenario defined in the list of valid scenarios (see field 3715).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="macroEconomicScenarioContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>701</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidScenarioContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the macro-economic scenario. If this attribute is omitted the context of the dataset itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+</xsd:schema>

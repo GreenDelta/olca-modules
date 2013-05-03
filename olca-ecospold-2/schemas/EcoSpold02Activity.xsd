@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<?xml-stylesheet type="text/xsl" href="../Tools/Transformations/schemadoc/EcoSpold02SchemaDocumentation.xsl"?>
+<xsd:schema targetNamespace="http://www.EcoInvent.org/EcoSpold02" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.11" xmlns:es="http://www.EcoInvent.org/EcoSpold02" xmlns="http://www.EcoInvent.org/EcoSpold02" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:include schemaLocation="EcoSpold02DataTypes.xsd"/>
+	<xsd:include schemaLocation="EcoSpold02MetaInformation.xsd"/>
+	<xsd:include schemaLocation="EcoSpold02FlowData.xsd"/>
+	<xsd:complexType name="TActivityDescription">
+		<xsd:annotation>
+			<xsd:documentation>Contains content-related metainformation for the activity.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="activity" type="TActivity">
+				<xsd:annotation>
+					<xsd:documentation>Comprises information which identifies and characterises one particular dataset (=unit process or system terminated).</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkActivityNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:activityName"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkIncludedActivitiesEndLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:includedActivitiesEnd"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkIncludedActivitiesStart">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:includedActivitiesStart"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="classification" type="TClassification" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Contains classification pairs to specify the activity.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkClassifictionSystemLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:classificationSystem"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkClassifictionValueLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:classificationValue"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="geography" type="TGeography">
+				<xsd:annotation>
+					<xsd:documentation>Describes the geographic location for which the dataset is supposed to be valid.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkGeographyShortnameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="shortname"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="technology" type="TTechnology">
+				<xsd:annotation>
+					<xsd:documentation>Describes the technological properties of the unit process.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="timePeriod" type="TTimePeriod">
+				<xsd:annotation>
+					<xsd:documentation>Characterises the temporal properties of the unit activity (or system terminated) at issue.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="macroEconomicScenario" type="TMacroEconomicScenario">
+				<xsd:unique name="pkMacroEconomicScenarioNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:name"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkMacroEconomicScenarioCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TModellingAndValidation">
+		<xsd:annotation>
+			<xsd:documentation>Contains meta information about how unit processes are modelled and about the review/validation of the dataset.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="representativeness" type="TRepresentativeness" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the representativeness of the unit process data (meta information and flow data).</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkSystemModelName">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:systemModelName"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkSamplingProcedure">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:samplingProcedure"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkExtrapolations">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:extrapolations"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="review" type="TReview" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the reviewers' comments on the dataset content.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkOtherDetailsLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:otherDetails"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TAdministrativeInformation">
+		<xsd:annotation>
+			<xsd:documentation>Contains the administrative information about the dataset at issue: The persons that compiled and entered the dataset in the database and about kind of publication and the accessibility of the dataset, timestamp, version and internalVersion number as well as language and localLanguage code.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="dataEntryBy" type="TDataEntryBy">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the author of the dataset, i.e. the person that entered the dataset into the database format and thereby is the person responsible for the data.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="dataGeneratorAndPublication" type="TDataGeneratorAndPublication">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about who collected, compiled or published the orginal data. This may or may not be the same person as under 'DataEntryBy'. Furthermore contains information about kind of publication underlying the dataset and the accessibility of the dataset.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="fileAttributes" type="TFileAttributes">
+				<xsd:unique name="pkContextNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:contextName"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TFlowData">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about inputs and outputs of the given activity (exchanges with environment as well as intermediate exchanges) as well as their properties, allocations, transfer coefficients, uncertainties and parameters for the use in mathematical formulas.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="intermediateExchange" type="TIntermediateExchange" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Comprises intermediate product and waste inputs and outputs for the activity.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkProductExchangeCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkProductExchangeNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:name"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkProductExchangeUnitNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:unitName"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkProductionVolumeComment">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:productionVolumeComment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="elementaryExchange" type="TElementaryExchange" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Comprises elementary inputs and outputs (exchanges with the environment) for the activity.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkElementaryExchangeCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkElementaryExchangeNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:name"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkElementaryExchangeUnitNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:unitName"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkCompartmentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:compartment/compartment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkSubcompartmentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="compartment/subcompartment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="parameter" type="TParameter" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Ccomprises all parameters of the activity.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkParameterNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:name"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkParameterUnitNameLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:unitName"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkParameterCommentLang">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that each xml:lang attribute is only used once in this context. I.e. there must be only one translation of the element.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TActivityDataset">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about one individual activity. Information is divided into metaInformation and flowData.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="activityDescription" type="TActivityDescription">
+				<xsd:annotation>
+					<xsd:documentation>Contains content-related metainformation for the activity.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkClassificationSystem">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that the value of a classification system is only referenced once per dataset. I.e. only one ISIC rev4 classification is allowed per dataset.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:classification"/>
+					<xsd:field xpath="@classificationId"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="flowData" type="TFlowData">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about inputs and outputs of the given activity (exchanges with environment as well as intermediate exchanges) as well as their properties, allocations, transfer coefficients, uncertainties and parameters for the use in mathematical formulas.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkVariableName">
+					<xsd:annotation>
+						<xsd:documentation>This constraints ensures the uniqueness of all variable names of one dataset.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:parameter|es:elementaryExchange|es:elementaryExchange/es:property|es:intermediateExchange|es:intermediateExchange/es:property"/>
+					<xsd:field xpath="@variableName"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="modellingAndValidation" type="TModellingAndValidation">
+				<xsd:annotation>
+					<xsd:documentation>Contains metainformation about how unit processes are modelled and about the review/validation of the dataset.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="administrativeInformation" type="TAdministrativeInformation">
+				<xsd:annotation>
+					<xsd:documentation>Contains the administrative information about the dataset at issue: The persons that compiled and entered the dataset in the database and about kind of publication and the accessibility of the dataset, timestamp, version and internalVersion number as well as language and localLanguage code.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

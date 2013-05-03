@@ -1,0 +1,65 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>EcoSpold02 Schema Documentation</title><style type="text/css">
+					a:link{color:#808080;
+						text-decoration:none;}
+					a:visited{color:#808080;
+						text-decoration:none;}
+					a:hover{color:red;
+						text-decoration:underline;}
+					body {background-color:#C0FFC0;
+						color:#000000;
+						font-family:arial, verdana, sans-serif; 
+						font-size:12pt;}
+					table {background:#C0FFC0;
+						height:20px;
+						color:#000000;}
+					td {	background:#C0FFC0;
+						font-size:9pt;
+						text-align:left;
+						color:#000000;}
+					td.ttl {background:#008000;
+						font-size:16pt; 
+						height:22;
+						text-align:left;
+						color:#FFFFFF;}
+					td.ttl1 {background:#00C000;
+						font-size:14pt; 
+						font-weight: bold;
+						height:22;
+						text-align:left;
+						color:#000000;}
+					td.ttl2 {background:#40FF40;
+						font-size:12pt; 
+						font-style: italic;
+						height:22;
+						text-align:left;
+						color:#000000;}
+					td.ttl3 {background:#80FF80;
+						font-weight: bold;
+						font-size:12pt; 
+						height:22;
+						text-align:left;}
+					td.ttc3 {background:#80FF80;
+						font-size:10pt; 
+						height:22;
+						padding-left: 5;
+						padding-right: 5;
+						text-align:center;}
+					td.ttl4 {background:#FFFFFF;
+						font-size:10pt; 
+						height:22;
+						padding-left: 5;
+						padding-right: 5;
+						text-align:left;}
+					td.ttc4 {background:#FFFFFF;
+						font-size:10pt; 
+						height:22;
+						padding-left: 5;
+						padding-right: 5;
+						text-align:center;}
+					th.ttc3 {background:#80FF80;
+						font-size:10pt; 
+						height:22;
+						padding-left: 5;
+						padding-right: 5;
+						text-align:center;}
+				</style></head><body><table width="100%"><tr><td><a href="top"></a><a name="TValidPersons"></a><table width="100%"><tr><td class="ttl3">Valid Persons</td></tr></table><table width="100%"><tr><td class="ttc3">Multiple occurences</td><td class="ttl4">No</td><td class="ttc3">Required</td><td class="ttl4">Yes</td></tr><tr><td class="ttl4" colspan="4">Contains administrative information about persons working within quality networks such as ecoinvent.</td></tr><tr /></table><table width="100%"><col width="60"><col width="5"><col width="5"><col width="15"><col width="5"><col width="80"><col width="5"><col width="5"><col width="5"><col width="5"><tr><th class="ttc3">Name</th><th class="ttc3">FieldID</th><th class="ttc3">SpoldID, <br>version 1</th><th class="ttc3">Options</th><th class="ttc3">Type</th><th class="ttc3">Size</th><th class="ttc3">Multiple <br>Occurence</th><th class="ttc3">Req</th><th class="ttc3">Multi <br>Language</th><th class="ttc3">Redundant <br> Master Data</th></tr><tr><td class="ttl4">@originalSource</td><td class="ttl4">6200</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">anyURI</td><td class="ttl4" /><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Reference to the location of the original document. Can be used to verify the data and/or to check for updates in the future.</td></tr><tr><td class="ttl4">@majorRelease</td><td class="ttl4">6201</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">integer</td><td class="ttl4" /><td class="ttl4">No</td><td class="ttl4">Yes</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: with a major update (e.g. every second year) the major release number is increased by one (1.00, 2.00, etc.).</td></tr><tr><td class="ttl4">@minorRelease</td><td class="ttl4">6202</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">integer</td><td class="ttl4" /><td class="ttl4">No</td><td class="ttl4">Yes</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: minor updates (corrected errors) within the period of two major updates increase the minor release version.</td></tr><tr><td class="ttl4">@majorRevision</td><td class="ttl4">6203</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">integer</td><td class="ttl4" /><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision version number is used to discern different versions during the working period until the dataset is entered into the database). The revision is generated automatically with each change made in the dataset or related file.</td></tr><tr><td class="ttl4">@minorRevision</td><td class="ttl4">6204</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">integer</td><td class="ttl4" /><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision Version number is used to discern different versions during the working period until the dataset is entered into the database). The revision  is generated automatically with each change made in the dataset or related file.</td></tr><tr><td class="ttl4">@contextId</td><td class="ttl4">6205</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">TUuid</td><td class="ttl4">36</td><td class="ttl4">No</td><td class="ttl4">Yes</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Reference to the context of the master data file.</td></tr><tr><td class="ttl4">contextName</td><td class="ttl4">6206</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">TString80</td><td class="ttl4">80</td><td class="ttl4">No</td><td class="ttl4">Yes</td><td class="ttl4">Yes</td><td class="ttl4">Yes</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">The name of the context referenced by field 3880.</td></tr><tr><td class="ttl4">person</td><td class="ttl4">6210</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">TValidPerson</td><td class="ttl4" /><td class="ttl4">Yes</td><td class="ttl4">Yes</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">A list of valid persons. This element provides hierarchical grouping only and contains no information on its own. For details see complex type TValidPerson below.</td></tr></table><br><center><a href="#top">Top</a></center><br><a name="TValidPerson"></a><table width="100%"><tr><td class="ttl3">TValidPerson</td></tr></table><table width="100%"><tr><td class="ttc3">Multiple occurences</td><td class="ttl4">No</td><td class="ttc3">Required</td><td class="ttl4">Yes</td></tr><tr><td class="ttl4" colspan="4">Used for the identification of members of the organisation / institute co-operating within a quality network (e.g., ecoinvent) referred to in the areas Validation, dataEntryBy and dataGeneratorAndPublication.</td></tr><tr /></table><table width="100%"><col width="60"><col width="5"><col width="5"><col width="15"><col width="5"><col width="80"><col width="5"><col width="5"><col width="5"><col width="5"><tr><th class="ttc3">Name</th><th class="ttc3">FieldID</th><th class="ttc3">SpoldID, <br>version 1</th><th class="ttc3">Options</th><th class="ttc3">Type</th><th class="ttc3">Size</th><th class="ttc3">Multiple <br>Occurence</th><th class="ttc3">Req</th><th class="ttc3">Multi <br>Language</th><th class="ttc3">Redundant <br> Master Data</th></tr><tr><td class="ttl4">@name</td><td class="ttl4">3600</td><td class="ttl4">5802</td><td class="ttl4"></td><td class="ttl4">TBaseString40</td><td class="ttl4">40</td><td class="ttl4">No</td><td class="ttl4">Yes</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Name and surname of the person working in an organisation/institute which is a member of the quality network.</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Identifies the person together with email.</td></tr><tr><td class="ttl4">@id</td><td class="ttl4">3610</td><td class="ttl4">5800</td><td class="ttl4"></td><td class="ttl4">TUuid</td><td class="ttl4">36</td><td class="ttl4">No</td><td class="ttl4">Yes</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Unique identifiert for each person.</td></tr><tr><td class="ttl4">@address</td><td class="ttl4">3620</td><td class="ttl4">5803</td><td class="ttl4"></td><td class="ttl4">TBaseString255</td><td class="ttl4">255</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Complete address, including street, po-box (if applicable), zip-code, city, state (if applicable), country.</td></tr><tr><td class="ttl4">@telephone</td><td class="ttl4">3630</td><td class="ttl4">5804</td><td class="ttl4"></td><td class="ttl4">TBaseString40</td><td class="ttl4">40</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Phone number including country and regional codes.</td></tr><tr><td class="ttl4">@telefax</td><td class="ttl4">3640</td><td class="ttl4">5805</td><td class="ttl4"></td><td class="ttl4">TBaseString40</td><td class="ttl4">40</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Fax number including country and regional codes.</td></tr><tr><td class="ttl4">@email</td><td class="ttl4">3650</td><td class="ttl4">5806</td><td class="ttl4"></td><td class="ttl4">TBaseString80</td><td class="ttl4">80</td><td class="ttl4">No</td><td class="ttl4">Yes</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Complete email address.</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Identifies the person together with 'name'.</td></tr><tr><td class="ttl4">@companyId</td><td class="ttl4">3660</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">TUuid</td><td class="ttl4">36</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Reference to the company of this person</td></tr><tr><td class="ttl4">@companyContextId</td><td class="ttl4">3661</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">TUuid</td><td class="ttl4">36</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">No</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Reference to the context of the company.</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">If this attribute is omitted the context of the document itself will be used instead.</td></tr><tr><td class="ttl4">companyName</td><td class="ttl4">3665</td><td class="ttl4">new</td><td class="ttl4"></td><td class="ttl4">es:TString255</td><td class="ttl4" /><td class="ttl4">No</td><td class="ttl4">No</td><td class="ttl4">Yes</td><td class="ttl4">Yes</td></tr><tr><td class="ttl4" /><td class="ttl4" colspan="9">Name of the person's company.</td></tr></table><br><center><a href="#top">Top</a></center><br></td></tr></table></body></html>
