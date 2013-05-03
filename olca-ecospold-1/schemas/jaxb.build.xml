@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ANT task for generating the source code unsing the XML-to-Java-Compiler (XJC)
+from JAXB -->
+<project name="project" default="compile">
+
+	<!-- the task definition of XJC -->
+	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+		<classpath>
+			<fileset dir="jaxb" includes="*.jar" />
+		</classpath>
+	</taskdef>
+
+	<target name="compile">
+
+		<!-- Clear the directory 'generated' -->
+		<delete>
+			<fileset dir="generated" includes="*/**" />
+		</delete>
+
+		<!-- Generate the process package -->
+		<xjc destdir="generated"
+		     binding="jaxb.bindings.xml"
+		     extension="true"
+		     header="false"
+		     package="org.openlca.ecospold.process">
+			<schema dir="schemas" includes="EcoSpold01Dataset.xsd" />
+		</xjc>
+
+		<xjc destdir="generated"
+			 binding="jaxb.bindings.impact.xml"
+		     extension="true"
+		     header="false"
+		     package="org.openlca.ecospold.impact">
+			<schema dir="schemas" includes="EcoSpold01ImpactDataset.xsd" />
+		</xjc>
+
+		<!-- Refresh the workspace (requires to run the ANT task in the same JVM as Eclipse) -->
+		<eclipse.refreshLocal resource="org.openlca.ecospold"
+		                      depth="infinite" />
+
+	</target>
+</project>

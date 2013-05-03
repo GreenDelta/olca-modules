@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<xsd:schema targetNamespace="http://www.EcoInvent.org/RegionalCodes" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.EcoInvent.org/RegionalCodes" elementFormDefault="qualified" attributeFormDefault="unqualified" blockDefault="restriction" version="1.0">
+	<xsd:simpleType name="regionalCode">
+		<xsd:annotation>
+			<xsd:documentation>7 letter code based on the ISO country codes and enlarged by regional codes (on a market area and continental level) and company and organisations codes.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="7"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="regionalCodes">
+		<xsd:annotation>
+			<xsd:documentation>Comprises all regionalCodes.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="regionalCode" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation>7 letter code based on the ISO country codes and enlarged by regional codes (on a market area and continental level) and company and organisations codes.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:simpleContent>
+							<xsd:extension base="regionalCode">
+								<xsd:attribute name="description" type="xsd:string">
+									<xsd:annotation>
+										<xsd:documentation>Explanation of the 7 letter regional code (name of country, continent, region, organisation or company).</xsd:documentation>
+									</xsd:annotation>
+								</xsd:attribute>
+							</xsd:extension>
+						</xsd:simpleContent>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

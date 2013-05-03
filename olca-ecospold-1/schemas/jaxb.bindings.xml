@@ -1,0 +1,175 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<bindings
+	xmlns='http://java.sun.com/xml/ns/jaxb'
+	xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xsi:schemaLocation='http://java.sun.com/xml/ns/jaxb bindingschema_2_1.xsd'
+	xmlns:xs='http://www.w3.org/2001/XMLSchema'
+	xmlns:xjc='http://java.sun.com/xml/ns/jaxb/xjc'
+	xmlns:process='http://www.EcoInvent.org/EcoSpold01'
+	xmlns:method='http://www.EcoInvent.org/EcoSpold01Impact'
+	version='2.1'
+	extensionBindingPrefixes='xjc'>
+
+	<globalBindings>
+		<serializable
+			uid="1" />
+	</globalBindings>
+
+	<bindings
+		scd='/type::process:TEcoSpold'>
+		<class
+			name='EcoSpold'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TDataset'>
+		<class
+			name='DataSet'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TAllocation'>
+		<class
+			name='Allocation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TAdministrativeInformation'>
+		<class 
+			name='AdministrativeInformation'>
+		</class>
+	</bindings>
+
+	
+
+	<bindings
+		scd='/type::process:TDataEntryBy'>
+		<class
+			name='DataEntryBy'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TDataGeneratorAndPublication'>
+		<class
+			name='DataGeneratorAndPublication'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TDataSetInformation'>
+		<class
+			name='DataSetInformation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TExchange'>
+		<class
+			name='Exchange'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TFlowData'>
+		<class
+			name='FlowData'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TGeography'>
+		<class
+			name='Geography'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TISOCountryCode'>
+		<typesafeEnumClass
+			name='CountryCode'>
+		</typesafeEnumClass>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TISOLanguageCode'>
+		<typesafeEnumClass
+			name='LanguageCode'>
+		</typesafeEnumClass>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TMetaInformation'>
+		<class
+			name='MetaInformation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TModellingAndValidation'>
+		<class
+			name='ModellingAndValidation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TPerson'>
+		<class
+			name='Person'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TProcessInformation'>
+		<class
+			name='ProcessInformation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TReferenceFunction'>
+		<class
+			name='ReferenceFunction'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::process:TRepresentativeness'>
+		<class
+			name='Representativeness'>
+		</class>
+	</bindings>
+	
+	<bindings
+        scd='/type::process:TSource'>
+        <class
+            name='Source'>
+        </class>
+    </bindings>
+    
+    <bindings
+        scd='/type::process:TTechnology'>
+        <class
+            name='Technology'>
+        </class>
+    </bindings>
+    
+    <bindings
+        scd='/type::process:TTimePeriod'>
+        <class
+            name='TimePeriod'>
+        </class>
+    </bindings>
+    
+    <bindings
+        scd='/type::process:TValidation'>
+        <class
+            name='Validation'>
+        </class>
+    </bindings>
+
+</bindings>

@@ -1,0 +1,299 @@
+<?xml version="1.0"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<xsd:schema targetNamespace="http://www.EcoInvent.org/EcoSpold01Impact" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.EcoInvent.org/EcoSpold01Impact" xmlns:es="http://www.EcoInvent.org/EcoSpold01Impact">
+	<xsd:annotation>
+		<xsd:appinfo>
+			<internalSchemaVersion>1.0</internalSchemaVersion>
+		</xsd:appinfo>
+	</xsd:annotation>
+	<xsd:include schemaLocation="EcoSpold01DataTypes.xsd"></xsd:include>
+	<xsd:include schemaLocation="EcoSpold01MetaInformation.xsd"></xsd:include>
+	<xsd:include schemaLocation="EcoSpold01FlowData.xsd"></xsd:include>
+	<xsd:complexType name="TProcessInformation">
+		<xsd:annotation>
+			<xsd:documentation>Contains content-related metainformation for the impact category.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="referenceFunction" type="es:TReferenceFunction">
+				<xsd:annotation>
+					<xsd:documentation>Contains information which identifies and characterises one particular dataset (=impact category).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="geography" type="es:TGeography">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the region for which the impact assessment method has been developed (e.g., western Europe, The Netherlands, Switzerland).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="technology" type="es:TTechnology" minOccurs="0" maxOccurs="0"></xsd:element>
+			<xsd:element name="timePeriod" type="es:TTimePeriod" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the temporal properties of the impact category at issue. It helps the user to judge the temporal suitability of the impact category dataset for his or her application (purpose).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="dataSetInformation" type="es:TDataSetInformation">
+				<xsd:annotation>
+					<xsd:documentation>Contains administrative information about the dataset (version number, language and localLanguage used).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"></xsd:any>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TModellingAndValidation">
+		<xsd:annotation>
+			<xsd:documentation>Contains metainformation about how impact categories are modelled and about the review/validation of the dataset.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="representativeness" type="es:TRepresentativeness" minOccurs="0" maxOccurs="0"></xsd:element>
+			<xsd:element name="source" type="es:TSource" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Lists and describes the sources where the dataset is documented (final report in the ECOINVENT quality network series). In case of impact categories it is the documentation of the implementation of original methods into the ECOINVENTstructure and nomenclature.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="validation" type="es:TValidation" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the reviewers' comments on the dataset content.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"></xsd:any>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TAdministrativeInformation">
+		<xsd:annotation>
+			<xsd:documentation>Contains the administrative information about the dataset at issue: type of dataset (unit process, elementary flow, impact category, multi-output process) timestamp, version and internalVersion number as well as language and localLanguage code.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="dataEntryBy" type="es:TDataEntryBy">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the person and the quality network the person belongs to.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="dataGeneratorAndPublication" type="es:TDataGeneratorAndPublication">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the generator of the dataset in the database, whether the dataset has been published (and how) and about copyright and the accessibility of the dataset (public or restricted to ETH domain, ECOINVENT, or a particular institute of ECOINVENT.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="person" type="es:TPerson" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Contains a list of persons with their addresses.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"></xsd:any>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TMetaInformation">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about the impact category (its name, unit, classification, geography, time etc.), about validation details and about dataset administration (version number, kind of dataset, language).</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="processInformation" type="es:TProcessInformation">
+				<xsd:annotation>
+					<xsd:documentation>Contains content-related metainformation for the impact category.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="modellingAndValidation" type="es:TModellingAndValidation">
+				<xsd:annotation>
+					<xsd:documentation>Contains metainformation about how impact categories are documented and about the review/validation of the dataset.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="administrativeInformation" type="es:TAdministrativeInformation">
+				<xsd:annotation>
+					<xsd:documentation>Contains the administrative information about the dataset at issue: type of dataset (unit process, elementary flow, impact category, multi-output process) timestamp, version and internalVersion number as well as language and localLanguage code.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"></xsd:any>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TFlowData">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about the characterisation, damage or weighting factors of the impact category described in the dataset.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="exchange" type="TExchange" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Contains the characterisation, damage or weighting factors of the impact category described in the dataset. Only inputs from and outputs to nature are allowed (see also inputGroup, outputGroup)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="allocation" type="TAllocation" minOccurs="0" maxOccurs="0"></xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"></xsd:any>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TDataset">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about one individual impact category. Information is divided into metaInformation and flowData.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="metaInformation" type="es:TMetaInformation">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the impact category (its name, unit, classification, geography, time, etc.), about validation details and about dataset administration (version number, kind of dataset, language).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="flowData" type="es:TFlowData" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>Contains information about the characterisation, damage or weighting factors of the impact category described in the dataset.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"></xsd:any>
+		</xsd:sequence>
+		<xsd:attribute name="number" type="es:TIndexNumber" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>200</spoldID>
+					<type>Number</type>
+					<size>10</size>
+					<options></options>
+					<multipleOccurences>No</multipleOccurences>
+					<valueRequiredInEcoInvent>Yes</valueRequiredInEcoInvent>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="internalSchemaVersion" type="xsd:string" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID></spoldID>
+					<type>Number</type>
+					<size></size>
+					<options></options>
+					<multipleOccurences>No</multipleOccurences>
+					<valueRequiredInEcoInvent>No</valueRequiredInEcoInvent>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="generator" type="es:TString255" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID></spoldID>
+					<type>String</type>
+					<size>255</size>
+					<options></options>
+					<multipleOccurences>No</multipleOccurences>
+					<valueRequiredInEcoInvent>Yes</valueRequiredInEcoInvent>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="timestamp" type="xsd:dateTime" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID></spoldID>
+					<type>XML DateTime</type>
+					<size>19</size>
+					<options></options>
+					<multipleOccurences>No</multipleOccurences>
+					<valueRequiredInEcoInvent>Yes</valueRequiredInEcoInvent>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="validCompanyCodes" type="xsd:string" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID></spoldID>
+					<type>String</type>
+					<size></size>
+					<options></options>
+					<multipleOccurences>No</multipleOccurences>
+					<valueRequiredInEcoInvent>No</valueRequiredInEcoInvent>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="validRegionalCodes" type="xsd:string" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID></spoldID>
+					<type>String</type>
+					<size></size>
+					<options></options>
+					<multipleOccurences>No</multipleOccurences>
+					<valueRequiredInEcoInvent>No</valueRequiredInEcoInvent>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="validCategories" type="xsd:string" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID></spoldID>
+					<type>String</type>
+					<size></size>
+					<options></options>
+					<multipleOccurences>No</multipleOccurences>
+					<valueRequiredInEcoInvent>No</valueRequiredInEcoInvent>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="validUnits" type="xsd:string" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID></spoldID>
+					<type>String</type>
+					<size></size>
+					<options></options>
+					<multipleOccurences>No</multipleOccurences>
+					<valueRequiredInEcoInvent>No</valueRequiredInEcoInvent>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TEcoSpold">
+		<xsd:annotation>
+			<xsd:documentation>The data (exchange) format of the ECOINVENT quality network.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="dataset" type="es:TDataset" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>A dataset describes LCIA related information of an impact category comprising metaInformation (description of the process) and flowData (quantified inputs and outputs and allocation factors, if any).</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkSourceNumber">
+					<xsd:selector xpath="es:metaInformation/es:modellingAndValidation/es:source"></xsd:selector>
+					<xsd:field xpath="@number"></xsd:field>
+				</xsd:unique>
+				<xsd:unique name="pkPersonNumber">
+					<xsd:selector xpath="es:metaInformation/es:administrativeInformation/es:person"></xsd:selector>
+					<xsd:field xpath="@number"></xsd:field>
+				</xsd:unique>
+				<xsd:unique name="pkExchangeNumber">
+					<xsd:selector xpath="es:flowData/es:exchange"></xsd:selector>
+					<xsd:field xpath="@number"></xsd:field>
+				</xsd:unique>
+				<xsd:keyref name="fkDataEntryByPerson" refer="pkPersonNumber">
+					<xsd:selector xpath="es:metaInformation/es:administrativeInformation/es:dataEntryBy"></xsd:selector>
+					<xsd:field xpath="@person"></xsd:field>
+				</xsd:keyref>
+				<xsd:keyref name="fkDataGenerationAndPublication" refer="pkPersonNumber">
+					<xsd:selector xpath="es:metaInformation/es:administrativeInformation/es:dataGeneratorAndPublication"></xsd:selector>
+					<xsd:field xpath="@person"></xsd:field>
+				</xsd:keyref>
+				<xsd:keyref name="fkDataGenerationAndPublicationSource" refer="pkSourceNumber">
+					<xsd:selector xpath="es:metaInformation/es:administrativeInformation/es:dataGeneratorAndPublication"></xsd:selector>
+					<xsd:field xpath="@referenceToPublishedSource"></xsd:field>
+				</xsd:keyref>
+				<xsd:keyref name="fkAllocationExchange" refer="pkExchangeNumber">
+					<xsd:selector xpath="es:flowData/es:allocation"></xsd:selector>
+					<xsd:field xpath="@referenceToCoProduct"></xsd:field>
+				</xsd:keyref>
+				<xsd:keyref name="fkExchangeSource" refer="pkSourceNumber">
+					<xsd:selector xpath="es:flowData/es:exchange"></xsd:selector>
+					<xsd:field xpath="@referenceToSource"></xsd:field>
+				</xsd:keyref>
+				<xsd:keyref name="fkValidationPerson" refer="pkPersonNumber">
+					<xsd:selector xpath="es:metaInformation/es:modellingAndValidation/es:validation"></xsd:selector>
+					<xsd:field xpath="@proofReadingValidator"></xsd:field>
+				</xsd:keyref>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"></xsd:any>
+		</xsd:sequence>
+		<xsd:attribute name="validationId" type="xsd:integer" use="optional"></xsd:attribute>
+		<xsd:attribute name="validationStatus" type="xsd:string" use="optional"></xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="ecoSpold" type="es:TEcoSpold">
+		<xsd:annotation>
+			<xsd:documentation>The data (exchange) format of the ECOINVENT quality network.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:unique name="pkIndexNumber">
+			<xsd:selector xpath="es:dataset"></xsd:selector>
+			<xsd:field xpath="@number"></xsd:field>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>

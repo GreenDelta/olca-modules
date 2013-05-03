@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<bindings
+	xmlns='http://java.sun.com/xml/ns/jaxb'
+	xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xsi:schemaLocation='http://java.sun.com/xml/ns/jaxb bindingschema_2_1.xsd'
+	xmlns:xs='http://www.w3.org/2001/XMLSchema'
+	xmlns:xjc='http://java.sun.com/xml/ns/jaxb/xjc'
+	xmlns:process='http://www.EcoInvent.org/EcoSpold01'
+	xmlns:method='http://www.EcoInvent.org/EcoSpold01Impact'
+	version='2.1'
+	extensionBindingPrefixes='xjc'>
+
+	<globalBindings>
+		<serializable
+			uid="1" />
+	</globalBindings>
+
+	<bindings
+		scd='/type::method:TEcoSpold'>
+		<class
+			name='ImpactEcoSpold'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TDataset'>
+		<class
+			name='ImpactDataSet'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TAllocation'>
+		<class
+			name='ImpactAllocation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TAdministrativeInformation'>
+		<class
+			name='ImpactAdministrativeInformation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TDataEntryBy'>
+		<class
+			name='ImpactDataEntryBy'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TDataGeneratorAndPublication'>
+		<class
+			name='ImpactDataGeneratorAndPublication'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TDataSetInformation'>
+		<class
+			name='ImpactDataSetInformation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TExchange'>
+		<class
+			name='ImpactFactor'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TFlowData'>
+		<class
+			name='ImpactFactors'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TGeography'>
+		<class
+			name='ImpactGeography'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TISOCountryCode'>
+		<typesafeEnumClass
+			name='ImpactCountryCode'>
+		</typesafeEnumClass>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TISOLanguageCode'>
+		<typesafeEnumClass
+			name='ImpactLanguageCode'>
+		</typesafeEnumClass>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TMetaInformation'>
+		<class
+			name='ImpactMetaInformation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TModellingAndValidation'>
+		<class
+			name='ImpactModellingAndValidation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TPerson'>
+		<class
+			name='ImpactPerson'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TProcessInformation'>
+		<class
+			name='ImpactProcessInformation'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TReferenceFunction'>
+		<class
+			name='ImpactReferenceFunction'>
+		</class>
+	</bindings>
+
+	<bindings
+		scd='/type::method:TRepresentativeness'>
+		<class
+			name='ImpactRepresentativeness'>
+		</class>
+	</bindings>
+	
+	<bindings
+        scd='/type::method:TSource'>
+        <class
+            name='ImpactSource'>
+        </class>
+    </bindings>
+    
+    <bindings
+        scd='/type::method:TTechnology'>
+        <class
+            name='ImpactTechnology'>
+        </class>
+    </bindings>
+    
+    <bindings
+        scd='/type::method:TTimePeriod'>
+        <class
+            name='ImpactTimePeriod'>
+        </class>
+    </bindings>
+    
+    <bindings
+        scd='/type::method:TValidation'>
+        <class
+            name='ImpactValidation'>
+        </class>
+    </bindings>
+
+</bindings>
