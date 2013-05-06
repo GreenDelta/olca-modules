@@ -7,6 +7,8 @@ import org.jdom2.Element;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.Geography;
+import org.openlca.ecospold2.Technology;
 
 /**
  * Maps an XML document to the EcoSpold model.
@@ -51,6 +53,8 @@ class InputMapper {
 		List<Element> classifications = Jdom.childs(description,
 				"classification");
 		mapClassifications(classifications);
+		mapGeography(Jdom.child(description, "geography"));
+		mapTechnology(Jdom.child(description, "technology"));
 	}
 
 	private void mapActivity(Element e) {
@@ -84,4 +88,28 @@ class InputMapper {
 					"classificationValue"));
 		}
 	}
+
+	private void mapGeography(Element e) {
+		if (e == null)
+			return;
+		Geography geography = new Geography();
+		geography.setId(e.getAttributeValue("geographyId"));
+		List<Element> comments = Jdom.childs(e, "comment", "text");
+		geography.setComment(Jdom.joinText(comments));
+		geography.setShortName(Jdom.childText(e, "shortname"));
+		dataSet.setGeography(geography);
+	}
+
+	private void mapTechnology(Element e) {
+		if (e == null)
+			return;
+		Technology tech = new Technology();
+		String levelStr = e.getAttributeValue("technologyLevel");
+		if (levelStr != null)
+			tech.setTechnologyLevel(Integer.parseInt(levelStr));
+		List<Element> comments = Jdom.childs(e, "comment", "text");
+		tech.setComment(Jdom.joinText(comments));
+		dataSet.setTechnology(tech);
+	}
+
 }

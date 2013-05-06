@@ -12,6 +12,8 @@ import org.junit.runner.RunWith;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.Geography;
+import org.openlca.ecospold2.Technology;
 
 @RunWith(Theories.class)
 public class ReaderTest {
@@ -43,6 +45,20 @@ public class ReaderTest {
 		DataSet dataSet = read(file);
 		List<Classification> classifications = dataSet.getClassifications();
 		Assert.assertEquals(2, classifications.size());
+	}
+
+	@Theory
+	public void testGeography(String file) throws Exception {
+		DataSet dataSet = read(file);
+		Geography geo = dataSet.getGeography();
+		Assert.assertEquals("geography comment", geo.getComment());
+	}
+
+	@Theory
+	public void testTechnology(String file) throws Exception {
+		DataSet dataSet = read(file);
+		Technology tech = dataSet.getTechnology();
+		Assert.assertEquals(3, tech.getTechnologyLevel().intValue());
 	}
 
 	private DataSet read(String file) throws Exception {
