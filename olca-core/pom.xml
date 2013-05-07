@@ -75,7 +75,7 @@
 						<Bundle-Name>${project.artifactId}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Export-Package>org.openlca.core.database,org.openlca.core.jobs,org.openlca.core.math,
-						org.openlca.core.model,org.openlca.core.model.descriptors,org.openlca.util
+						org.openlca.core.model,org.openlca.core.model.descriptors,org.openlca.util,
 						org.openlca.core.model.modelprovider,org.openlca.core.model.referencesearch,
 						org.openlca.core.model.results
 						</Export-Package>
