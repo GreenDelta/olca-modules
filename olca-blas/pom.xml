@@ -43,7 +43,7 @@ A class 'Library' was added to allow loading the native libraries from a defined
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.artifactId}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>org.jblas.exceptions,org.jblas.ranges,org.jblas.util,org.openlca.jblas</Export-Package>
+						<Export-Package>org.jblas,org.jblas.exceptions,org.jblas.ranges,org.jblas.util,org.openlca.jblas</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
