@@ -42,7 +42,7 @@
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.artifactId}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>org.openlca*</Export-Package>
+						<Export-Package>org.openlca.expressions</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
