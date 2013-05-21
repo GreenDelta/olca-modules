@@ -1,0 +1,93 @@
+package org.openlca.io.ilcd.input;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
+import org.openlca.ilcd.util.LangString;
+import org.openlca.ilcd.util.UnitExtension;
+import org.openlca.ilcd.util.UnitGroupBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Synchronisation of an existing unit group in the database with an imported
+ * unit group data set. A synchronisation is only done if the openLCA extensions
+ * are available in the ILCD data set (which is basically only the unit ID).
+ * 
+ * The synchronisation adds new units to a unit-group data set in openLCA if it
+ * is not yet contained in the database. If there is a new unit there are two
+ * possible cases:
+ * 
+ * <li>The reference unit in the openLCA data set is the same as for the ILCD
+ * data set. Then the new unit just needs to be added.
+ * 
+ * <li>The reference unit in the openLCA data set is NOT the same as for the
+ * ILCD data set. Then a conversion factor needs to be applied for the factor of
+ * the new unit: <code>f_olca = f_olca_ref/f_ilcd_ref * f_ilcd</code>
+ * 
+ */
+class UnitGroupSync {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
+	private UnitGroup olcaGroup;
+	private UnitGroupBag ilcdGroup;
+
+	public UnitGroupSync(UnitGroup olcaGroup, UnitGroupBag ilcdGroup) {
+		this.olcaGroup = olcaGroup;
+		this.ilcdGroup = ilcdGroup;
+	}
+
+	public void run(IDatabase database) {
+		try {
+			Unit olcaRefUnit = olcaGroup.getReferenceUnit();
+			org.openlca.ilcd.units.Unit ilcdRefUnit = findRefUnit(olcaRefUnit);
+			if (ilcdRefUnit == null)
+				return;
+			double factor = olcaRefUnit.getConversionFactor()
+					/ ilcdRefUnit.getMeanValue();
+			boolean changed = syncUnits(factor);
+			if (changed)
+				database.createDao(UnitGroup.class).update(olcaGroup);
+		} catch (Exception e) {
+			log.error("Failed to sync. unit groups", e);
+		}
+	}
+
+	private org.openlca.ilcd.units.Unit findRefUnit(Unit olcaRefUnit) {
+		if (olcaRefUnit == null)
+			return null;
+		for (org.openlca.ilcd.units.Unit ilcdUnit : ilcdGroup.getUnits()) {
+			UnitExtension ext = new UnitExtension(ilcdUnit);
+			String id = ext.getUnitId();
+			if (id != null && id.equals(olcaRefUnit.getId()))
+				return ilcdUnit;
+		}
+		return null;
+	}
+
+	private boolean syncUnits(double factor) {
+		boolean changed = false;
+		for (org.openlca.ilcd.units.Unit ilcdUnit : ilcdGroup.getUnits()) {
+			UnitExtension ext = new UnitExtension(ilcdUnit);
+			String id = ext.getUnitId();
+			if (id == null || containsUnit(id))
+				continue;
+			Unit unit = new Unit(id, ilcdUnit.getName());
+			unit.setConversionFactor(factor * ilcdUnit.getMeanValue());
+			unit.setDescription(LangString.getLabel(ilcdUnit
+					.getGeneralComment()));
+			olcaGroup.add(unit);
+			changed = true;
+		}
+		return changed;
+	}
+
+	private boolean containsUnit(String id) {
+		for (Unit unit : olcaGroup.getUnits()) {
+			if (id.equals(unit.getId()))
+				return true;
+		}
+		return false;
+	}
+
+}
