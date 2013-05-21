@@ -1,101 +1,83 @@
 package org.openlca.core.database.mysql;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Map;
+import javax.persistence.spi.PersistenceProvider;
 
-import org.openlca.core.database.IDatabaseServer;
 import org.openlca.util.Strings;
 
-/** Data of a MySQL connection. */
+/** Data for a MySQL connection. */
 public final class ConnectionData {
 
-	private String databaseName;
-	private String host;
-	private String port;
-	private String password;
+	private String database;
 	private String user;
+	private String host = "localhost";
+	private int port = 3306;
+	private String password;
+	private PersistenceProvider persistenceProvider;
 
-	/** Default constructor; clients should use the respective setters. */
-	public ConnectionData() {
+	/**
+	 * The persistence provider is required. Dependent on the JPA implementation
+	 * and context (OSGi!) different persistent providers are possible.
+	 */
+	public void setPersistenceProvider(PersistenceProvider persistenceProvider) {
+		this.persistenceProvider = persistenceProvider;
 	}
 
-	/** Initializes the connection data using the given properties. */
-	public ConnectionData(Map<String, String> properties) {
-		databaseName = properties.get(IDatabaseServer.DATABASE);
-		host = properties.get(IDatabaseServer.HOST);
-		port = properties.get(IDatabaseServer.PORT);
-		password = properties.get(IDatabaseServer.PASSWORD);
-		user = properties.get(IDatabaseServer.USER);
+	public PersistenceProvider getPersistenceProvider() {
+		return persistenceProvider;
 	}
 
-	/** Copies the fields from the given data into the new instance. */
-	public ConnectionData(ConnectionData other) {
-		databaseName = other.databaseName;
-		host = other.host;
-		port = other.port;
-		password = other.password;
-		user = other.user;
+	/** The database name is required for a connection. */
+	public void setDatabase(String database) {
+		this.database = database;
 	}
 
-	public void setDatabaseName(String databaseName) {
-		this.databaseName = databaseName;
+	public String getDatabase() {
+		return database;
 	}
 
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public void setPort(String port) {
-		this.port = port;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
+	/** The user name is required for a connection. */
 	public void setUser(String user) {
 		this.user = user;
-	}
-
-	public String getDatabaseName() {
-		return databaseName;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public String getPort() {
-		return port;
-	}
-
-	public String getPassword() {
-		return password;
 	}
 
 	public String getUser() {
 		return user;
 	}
 
-	/** Creates a new connection to a database server using the connection data. */
-	public Connection createServerConnection() throws SQLException {
-		String url = "jdbc:mysql://" + host + ":" + port;
-		return DriverManager.getConnection(url, user, password);
+	/** The host is optional (default value is 'localhost'). */
+	public void setHost(String host) {
+		this.host = host;
 	}
 
-	/** Creates a new connection to a database using the connection data. */
-	public Connection createDatabaseConnection() throws SQLException {
-		String url = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
-		return DriverManager.getConnection(url, user, password);
+	public String getHost() {
+		return host;
+	}
+
+	/** The port is optional (default is 3306). */
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	/** The password is optional (default is null). */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public String getUrl() {
+		return "jdbc:mysql://" + host + ":" + port + "/" + database;
 	}
 
 	@Override
 	public String toString() {
-		if (databaseName != null)
-			return "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
-		return "jdbc:mysql://" + host + ":" + port;
+		return getUrl();
 	}
 
 	@Override
@@ -107,14 +89,14 @@ public final class ConnectionData {
 		if (!(other instanceof ConnectionData))
 			return false;
 		ConnectionData otherData = (ConnectionData) other;
-		return this.toString().equals(other.toString())
+		return this.getUrl().equals(otherData.getUrl())
 				&& Strings.nullOrEqual(user, otherData.user)
 				&& Strings.nullOrEqual(password, otherData.password);
 	}
 
 	@Override
 	public int hashCode() {
-		String s = this.toString() + user + password;
+		String s = this.getUrl() + user + password;
 		return s.hashCode();
 	}
 

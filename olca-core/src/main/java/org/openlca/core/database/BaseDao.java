@@ -3,7 +3,6 @@ package org.openlca.core.database;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -158,13 +157,6 @@ public class BaseDao<T> {
 		} finally {
 			em.close();
 		}
-	}
-
-	public T getForRefId(String refId) throws Exception {
-		Map<String, String> params = new HashMap<>();
-		params.put("referenceid", refId);
-		return getFirst("SELECT o FROM " + entityType.getSimpleName() + " o"
-				+ " WHERE o.referenceId = :referenceid", params);
 	}
 
 	public List<T> getAll(String jpql, Map<String, ? extends Object> parameters)

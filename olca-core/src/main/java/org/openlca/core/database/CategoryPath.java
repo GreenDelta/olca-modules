@@ -25,7 +25,8 @@ public class CategoryPath {
 
 	private static Category getFromDb(String id, IDatabase db) {
 		try {
-			Category category = db.select(Category.class, id);
+			BaseDao<Category> dao = db.createDao(Category.class);
+			Category category = dao.getForId(id);
 			return category;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(CategoryPath.class);
