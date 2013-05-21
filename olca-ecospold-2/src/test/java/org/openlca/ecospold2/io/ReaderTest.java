@@ -12,6 +12,8 @@ import org.junit.runner.RunWith;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.ElementaryExchange;
+import org.openlca.ecospold2.IntermediateExchange;
 
 @RunWith(Theories.class)
 public class ReaderTest {
@@ -43,6 +45,31 @@ public class ReaderTest {
 		DataSet dataSet = read(file);
 		List<Classification> classifications = dataSet.getClassifications();
 		Assert.assertEquals(2, classifications.size());
+	}
+
+	@Theory
+	public void testElementaryExchanges(String file) throws Exception {
+		DataSet dataSet = read(file);
+		Assert.assertEquals(dataSet.getElementaryExchanges().size(), 3);
+		double sum = 0;
+		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+			sum += e.getAmount();
+		}
+		Assert.assertEquals(27, sum, 1e-15);
+	}
+
+	@Theory
+	public void testIntermediateExchanges(String file) throws Exception {
+		DataSet dataSet = read(file);
+		Assert.assertEquals(2, dataSet.getIntermediateExchanges().size());
+		boolean found = false;
+		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
+			if (e.getOutputGroup() == null || e.getOutputGroup() != 0)
+				continue;
+			found = true;
+			Assert.assertEquals("1-pentanol", e.getName());
+		}
+		Assert.assertTrue(found);
 	}
 
 	private DataSet read(String file) throws Exception {
