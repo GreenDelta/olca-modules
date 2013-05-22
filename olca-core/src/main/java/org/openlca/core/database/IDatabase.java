@@ -1,5 +1,6 @@
 package org.openlca.core.database;
 
+import java.io.Closeable;
 import java.sql.Connection;
 
 import javax.persistence.EntityManagerFactory;
@@ -7,7 +8,7 @@ import javax.persistence.EntityManagerFactory;
 /**
  * The common interface for openLCA databases.
  */
-public interface IDatabase {
+public interface IDatabase extends Closeable {
 
 	/**
 	 * Creates a native SQL connection to the underlying database. The
@@ -26,13 +27,5 @@ public interface IDatabase {
 	 * can be created using the entity manager factory from this class.
 	 */
 	<T> BaseDao<T> createDao(Class<T> clazz);
-
-	/**
-	 * Closes the database connection. This method is intended to free all
-	 * resources related to a database instance. There is no connect - method in
-	 * this interface, as implementations should initialise the respective
-	 * resources by their own.
-	 */
-	void close();
 
 }
