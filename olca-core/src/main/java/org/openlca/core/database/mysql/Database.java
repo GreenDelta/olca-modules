@@ -1,6 +1,7 @@
 package org.openlca.core.database.mysql;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,9 +19,11 @@ public class Database implements IDatabase {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private EntityManagerFactory entityFactory;
+	private ConnectionData data;
 
 	public Database(ConnectionData connectionData) {
 		connect(connectionData);
+		this.data = connectionData;
 	}
 
 	private void connect(ConnectionData data) {
@@ -44,7 +47,8 @@ public class Database implements IDatabase {
 	@Override
 	public Connection createConnection() {
 		try {
-			return entityFactory.createEntityManager().unwrap(Connection.class);
+			return DriverManager.getConnection(data.getUrl(), data.getUser(),
+					data.getPassword());
 		} catch (Exception e) {
 			log.error("Failed to create database connection", e);
 			return null;
