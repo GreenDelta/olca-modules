@@ -20,16 +20,18 @@ public class EcoSpold2ImportSample {
 		data.setDatabase("ei3_test");
 		data.setUser("root");
 		data.setPersistenceProvider(new PersistenceProvider());
-		IDatabase database = new Database(data);
 
-		// run the import
-		String dirPath = "C:/Users/Dell/projects/openlca/data/ecoinvent3/default/datasets";
-		File dir = new File(dirPath);
-		EcoSpold2Import importer = new EcoSpold2Import(database);
-		importer.run(dir.listFiles());
+		try (IDatabase database = new Database(data)) {
 
-		// close database
-		database.close();
+			// run the import
+			String dirPath = "C:/Users/Dell/projects/openlca/data/ecoinvent3/default/datasets";
+			File dir = new File(dirPath);
+			EcoSpold2Import importer = new EcoSpold2Import(database);
+			importer.run(dir.listFiles());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
