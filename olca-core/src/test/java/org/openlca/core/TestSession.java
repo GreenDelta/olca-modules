@@ -1,23 +1,20 @@
 package org.openlca.core;
 
-import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.mysql.ConnectionData;
-import org.openlca.core.database.mysql.Database;
+import org.openlca.core.database.mysql.MySQLDatabase;
 
 public class TestSession {
 
-	private static IDatabase database;
+	private static IDatabase mysqlDatabase;
 
-	public static IDatabase getDatabase() {
-		if (database != null)
-			return database;
-		ConnectionData data = new ConnectionData();
-		data.setDatabase("olca_test_db");
-		data.setUser("root");
-		data.setPersistenceProvider(new PersistenceProvider());
-		database = new Database(data);
-		return database;
+	public static IDatabase getMySQLDatabase() {
+		if (mysqlDatabase != null)
+			return mysqlDatabase;
+		String url = "jdbc:mysql://localhost:3306/olca_test_db";
+		String user = "root";
+		String password = null;
+		mysqlDatabase = new MySQLDatabase(url, user, password);
+		return mysqlDatabase;
 	}
 
 }

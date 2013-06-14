@@ -14,7 +14,7 @@ public class ActorDaoTest {
 
 	@Before
 	public void setUp() throws Exception {
-		dao = new ActorDao(TestSession.getDatabase().getEntityFactory());
+		dao = new ActorDao(TestSession.getMySQLDatabase().getEntityFactory());
 	}
 
 	@Test
