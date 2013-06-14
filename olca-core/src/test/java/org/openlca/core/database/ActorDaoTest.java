@@ -24,6 +24,7 @@ public class ActorDaoTest {
 		actor.setName("--test--actor--name");
 		actor.setAddress("--test--actor--addr");
 		dao.insert(actor);
+		TestSession.emptyCache();
 		String jpql = "select a from Actor a where a.name = :name";
 		Actor alias = dao.getFirst(jpql,
 				Collections.singletonMap("name", "--test--actor--name"));

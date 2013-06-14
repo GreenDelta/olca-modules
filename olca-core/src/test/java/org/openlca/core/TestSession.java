@@ -17,4 +17,10 @@ public class TestSession {
 		return mysqlDatabase;
 	}
 
+	public static void emptyCache() {
+		if (mysqlDatabase != null) {
+			mysqlDatabase.getEntityFactory().getCache().evictAll();
+		}
+	}
+
 }
