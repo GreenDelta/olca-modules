@@ -91,7 +91,7 @@ class DB {
 				return child;
 		}
 		Category child = new Category(UUID.randomUUID().toString(), childName,
-				root.getComponentClass());
+				root.getModelType());
 		child.setParentCategory(root);
 		root.add(child);
 		database.createDao(Category.class).update(root);

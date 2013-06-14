@@ -1,6 +1,7 @@
 package org.openlca.io.ilcd.input;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.ModelType;
 
 /**
  * The import for ILCD categories (classifications) into the openLCA database.
@@ -11,7 +12,7 @@ import org.openlca.core.database.IDatabase;
 class CategoryImport extends
 		AbstractCategoryImport<org.openlca.ilcd.commons.Class> {
 
-	public CategoryImport(IDatabase database, Class<?> modelType) {
+	public CategoryImport(IDatabase database, ModelType modelType) {
 		super(database, modelType);
 	}
 

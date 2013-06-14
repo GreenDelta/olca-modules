@@ -9,6 +9,7 @@ import org.openlca.core.model.AdminInfo;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ModelingAndValidation;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
@@ -104,7 +105,7 @@ public class ProcessImport {
 
 	private void importAndSetCategory() throws ImportException {
 		CategoryImport categoryImport = new CategoryImport(database,
-				Process.class);
+				ModelType.PROCESS);
 		Category category = categoryImport.run(ilcdProcess.getSortedClasses());
 		process.setCategoryId(category.getId());
 	}

@@ -18,6 +18,8 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
@@ -25,12 +27,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-/**
- * Represents a category of a model component
- * 
- * @author Sebastian Greve
- * 
- */
 @Entity
 @Table(name = "tbl_categories")
 public class Category extends AbstractEntity implements Copyable<Category> {
@@ -39,8 +35,9 @@ public class Category extends AbstractEntity implements Copyable<Category> {
 	@JoinColumn(name = "f_parentcategory")
 	private List<Category> childCategories = new ArrayList<>();
 
-	@Column(name = "componentclass")
-	private String componentClass;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "model_type")
+	private ModelType modelType;
 
 	@Column(name = "name")
 	private String name;
@@ -56,20 +53,18 @@ public class Category extends AbstractEntity implements Copyable<Category> {
 	public Category() {
 	}
 
-	/**
-	 * Creates a new category with the given key, name and component class
-	 * 
-	 * @param id
-	 *            The unique identifier of the category
-	 * @param name
-	 *            The name of the category
-	 * @param componentClass
-	 *            The class of the component that can use the category
-	 */
-	public Category(String id, String name, String componentClass) {
+	public Category(String id, String name, ModelType modelType) {
 		setId(id);
 		this.name = name;
-		this.componentClass = componentClass;
+		this.modelType = modelType;
+	}
+
+	public ModelType getModelType() {
+		return modelType;
+	}
+
+	public void setModelType(ModelType modelType) {
+		this.modelType = modelType;
 	}
 
 	/**
@@ -93,14 +88,10 @@ public class Category extends AbstractEntity implements Copyable<Category> {
 		return childCategories.toArray(new Category[childCategories.size()]);
 	}
 
-	public String getComponentClass() {
-		return componentClass;
-	}
-
 	@Override
 	public Category copy() {
 		Category category = new Category(UUID.randomUUID().toString(),
-				getName(), getComponentClass());
+				getName(), getModelType());
 		for (Category child : getChildCategories()) {
 			Category childCopy = child.copy();
 			category.add(childCopy);
@@ -118,28 +109,6 @@ public class Category extends AbstractEntity implements Copyable<Category> {
 		return parentCategory;
 	}
 
-	/**
-	 * Get the full path from the categories root to this category. Returns the
-	 * category names separated by '/'.
-	 */
-	public String getFullPath() {
-		String text = "";
-		if (!getId().equals(getComponentClass())) {
-			Category parentCategory = getParentCategory();
-			while (parentCategory != null) {
-				if (!parentCategory.getId().equals(
-						parentCategory.getComponentClass())) {
-					text = parentCategory.getName() + "/" + text;
-					parentCategory = parentCategory.getParentCategory();
-				} else {
-					parentCategory = null;
-				}
-			}
-			text += getName();
-		}
-		return text;
-	}
-
 	public void remove(Category childCategory) {
 		childCategories.remove(childCategory);
 		support.firePropertyChange("childCategories", childCategory, null);
@@ -147,11 +116,6 @@ public class Category extends AbstractEntity implements Copyable<Category> {
 
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		support.removePropertyChangeListener(listener);
-	}
-
-	public void setComponentClass(String componentClass) {
-		support.firePropertyChange("componentClass", this.componentClass,
-				this.componentClass = componentClass);
 	}
 
 	public void setName(String name) {
@@ -165,8 +129,8 @@ public class Category extends AbstractEntity implements Copyable<Category> {
 
 	@Override
 	public String toString() {
-		return String.format("Category {componentClass=%s, id=%s, name=%s}",
-				componentClass, getId(), name);
+		return String.format("Category {modelType=%s, id=%s, name=%s}",
+				getModelType(), getId(), name);
 	}
 
 }

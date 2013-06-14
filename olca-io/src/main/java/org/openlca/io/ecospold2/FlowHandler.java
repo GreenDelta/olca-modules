@@ -14,6 +14,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.Exchange;
@@ -135,7 +136,7 @@ class FlowHandler {
 		Category cat = flowCategories.get(pref);
 		if (cat == null) {
 			cat = new Category(UUID.randomUUID().toString(), pref,
-					Flow.class.getCanonicalName());
+					ModelType.FLOW);
 			BaseDao<Category> dao = database.createDao(Category.class);
 			Category parent = dao.getForId(Flow.class.getCanonicalName());
 			parent.add(cat);

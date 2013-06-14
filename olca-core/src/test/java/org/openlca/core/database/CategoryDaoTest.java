@@ -1,12 +1,13 @@
 package org.openlca.core.database;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.TestSession;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.Flow;
+import org.openlca.core.model.ModelType;
 
 public class CategoryDaoTest {
 
@@ -26,7 +27,7 @@ public class CategoryDaoTest {
 	}
 
 	@Test
-	public void addChild() throws Exception {
+	public void testAddChild() throws Exception {
 		Category parent = create();
 		dao.insert(parent);
 		Category child = create();
@@ -42,12 +43,25 @@ public class CategoryDaoTest {
 		Assert.assertNull(dao.getForId(child.getId()));
 	}
 
+	@Test
+	public void testFindRoot() throws Exception {
+		Category parent = create();
+		Category child = create();
+		parent.add(child);
+		child.setParentCategory(parent);
+		dao.insert(parent);
+		TestSession.emptyCache();
+		List<Category> roots = dao.getRootCategories(ModelType.FLOW);
+		Assert.assertTrue(roots.contains(parent));
+		Assert.assertFalse(roots.contains(child));
+		dao.delete(parent);
+	}
+
 	private Category create() {
 		Category category = new Category();
 		category.setId(UUID.randomUUID().toString());
 		category.setName("name");
-		category.setComponentClass(Flow.class.getCanonicalName());
+		category.setModelType(ModelType.FLOW);
 		return category;
 	}
-
 }

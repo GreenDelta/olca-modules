@@ -12,6 +12,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Expression;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
@@ -81,7 +82,7 @@ public class SystemImport {
 
 	private void importAndSetCategory() throws ImportException {
 		CategoryImport categoryImport = new CategoryImport(database,
-				ProductSystem.class);
+				ModelType.PRODUCT_SYSTEM);
 		Category category = categoryImport.run(ilcdProcessBag
 				.getSortedClasses());
 		system.setCategoryId(category.getId());

@@ -10,6 +10,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.flows.FlowPropertyReference;
 import org.openlca.ilcd.io.DataStore;
@@ -85,7 +86,8 @@ public class FlowImport {
 	}
 
 	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(database, Flow.class);
+		CategoryImport categoryImport = new CategoryImport(database,
+				ModelType.FLOW);
 		Category category = categoryImport.run(ilcdFlow.getSortedClasses());
 		flow.setCategoryId(category.getId());
 	}

@@ -1,7 +1,7 @@
 package org.openlca.io.ilcd.input;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Flow;
+import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.commons.Category;
 
 /**
@@ -15,7 +15,7 @@ import org.openlca.ilcd.commons.Category;
 public class CompartmentImport extends AbstractCategoryImport<Category> {
 
 	public CompartmentImport(IDatabase database) {
-		super(database, Flow.class);
+		super(database, ModelType.FLOW);
 	}
 
 	@Override

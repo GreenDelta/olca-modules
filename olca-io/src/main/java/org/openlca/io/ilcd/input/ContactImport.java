@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.input;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.ContactBag;
@@ -75,7 +76,7 @@ public class ContactImport {
 
 	private void importAndSetCategory() throws ImportException {
 		CategoryImport categoryImport = new CategoryImport(database,
-				Actor.class);
+				ModelType.ACTOR);
 		Category category = categoryImport.run(ilcdContact.getSortedClasses());
 		actor.setCategoryId(category.getId());
 	}

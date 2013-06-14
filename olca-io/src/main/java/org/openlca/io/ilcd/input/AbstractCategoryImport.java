@@ -3,57 +3,72 @@ package org.openlca.io.ilcd.input;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
 
 abstract class AbstractCategoryImport<C> {
 
-	private IDatabase database;
-	private Class<?> modelType;
+	private CategoryDao dao;
+	private ModelType modelType;
 
-	public AbstractCategoryImport(IDatabase database, Class<?> modelType) {
+	public AbstractCategoryImport(IDatabase database, ModelType modelType) {
 		this.modelType = modelType;
-		this.database = database;
+		dao = new CategoryDao(database.getEntityFactory());
 	}
+
+	/** Hook method that needs to be implemented by the concrete sub-class */
+	protected abstract String getName(C ilcdCategory);
 
 	public Category run(List<C> input) throws ImportException {
-		Category rootCategory = selectRootCategory();
-		Category category = rootCategory;
-		if (input != null && !input.isEmpty()) {
-			category = importCategories(rootCategory, input);
-		}
-		return category;
-	}
-
-	private Category selectRootCategory() throws ImportException {
-		String className = modelType.getCanonicalName();
+		if (input == null || input.isEmpty())
+			return null;
 		try {
-			Category category = database.createDao(Category.class).getForId(
-					className);
+			Category category = findRoot(input.get(0));
+			if (category != null) {
+				// root exists
+				category = importCategories(category, input);
+			} else {
+				// all new
+				category = createNew(input.get(0));
+				dao.insert(category);
+				for (int i = 1; i < input.size(); i++)
+					category = createAndSave(category, input.get(i));
+			}
 			return category;
 		} catch (Exception e) {
-			String message = String.format(
-					"Cannot get root category for type %s.", className);
-			throw new ImportException(message, e);
+			throw new ImportException("Failed to insert categories", e);
 		}
+	}
+
+	private Category findRoot(C c) throws Exception {
+		List<Category> roots = dao.getRootCategories(modelType);
+		if (roots == null || roots.isEmpty())
+			return null;
+		String cName = getName(c);
+		for (Category root : roots) {
+			if (StringUtils.equalsIgnoreCase(root.getName(), cName))
+				return root;
+		}
+		return null;
 	}
 
 	private Category importCategories(Category rootCategory,
 			List<C> ilcdCategories) throws ImportException {
 		Category nextRootCategory = rootCategory;
 		for (C ilcdCategory : ilcdCategories) {
-			Category category = findCategoryForIlcdType(nextRootCategory,
-					ilcdCategory);
+			Category category = findCategory(nextRootCategory, ilcdCategory);
 			if (category == null) {
-				category = createAndSaveCategory(nextRootCategory, ilcdCategory);
+				category = createAndSave(nextRootCategory, ilcdCategory);
 			}
 			nextRootCategory = category;
 		}
 		return nextRootCategory;
 	}
 
-	private Category findCategoryForIlcdType(Category rootCategory,
-			C ilcdCategory) {
+	private Category findCategory(Category rootCategory, C ilcdCategory) {
 		if (equals(rootCategory, ilcdCategory))
 			return rootCategory;
 		Category[] categories = rootCategory.getChildCategories();
@@ -73,15 +88,13 @@ abstract class AbstractCategoryImport<C> {
 				&& category.getName().equalsIgnoreCase(name);
 	}
 
-	protected abstract String getName(C ilcdCategory);
-
-	private Category createAndSaveCategory(Category parentCategory,
-			C ilcdCategory) throws ImportException {
+	private Category createAndSave(Category parentCategory, C ilcdCategory)
+			throws ImportException {
 		try {
-			Category newCategory = createNewCategory(ilcdCategory);
+			Category newCategory = createNew(ilcdCategory);
 			newCategory.setParentCategory(parentCategory);
 			parentCategory.add(newCategory);
-			database.createDao(Category.class).update(parentCategory);
+			dao.update(parentCategory);
 			return newCategory;
 		} catch (Exception e) {
 			String message = "Cannot save category in database.";
@@ -89,9 +102,9 @@ abstract class AbstractCategoryImport<C> {
 		}
 	}
 
-	private Category createNewCategory(C ilcdCategory) {
+	private Category createNew(C ilcdCategory) {
 		Category category = new Category();
-		category.setComponentClass(modelType.getCanonicalName());
+		category.setModelType(modelType);
 		category.setId(UUID.randomUUID().toString());
 		String name = getName(ilcdCategory);
 		category.setName(name);

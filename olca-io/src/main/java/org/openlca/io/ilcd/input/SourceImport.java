@@ -2,6 +2,7 @@ package org.openlca.io.ilcd.input;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.SourceBag;
@@ -78,7 +79,7 @@ public class SourceImport {
 
 	private void importAndSetCategory() throws ImportException {
 		CategoryImport categoryImport = new CategoryImport(database,
-				Source.class);
+				ModelType.SOURCE);
 		Category category = categoryImport.run(ilcdSource.getSortedClasses());
 		source.setCategoryId(category.getId());
 	}

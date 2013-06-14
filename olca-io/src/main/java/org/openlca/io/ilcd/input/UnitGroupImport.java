@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.io.DataStore;
@@ -85,7 +86,7 @@ public class UnitGroupImport {
 
 	private void importAndSetCategory() throws ImportException {
 		CategoryImport categoryImport = new CategoryImport(database,
-				UnitGroup.class);
+				ModelType.UNIT_GROUP);
 		Category category = categoryImport
 				.run(ilcdUnitGroup.getSortedClasses());
 		unitGroup.setCategoryId(category.getId());

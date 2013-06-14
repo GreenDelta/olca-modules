@@ -10,6 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.ecospold2.Activity;
@@ -133,7 +134,7 @@ class ProcessImport {
 		Category cat = processCategories.get(pref);
 		if (cat == null) {
 			cat = new Category(UUID.randomUUID().toString(), pref,
-					Process.class.getCanonicalName());
+					ModelType.PROCESS);
 			BaseDao<Category> dao = database.createDao(Category.class);
 			Category parent = dao.getForId(Process.class.getCanonicalName());
 			parent.add(cat);

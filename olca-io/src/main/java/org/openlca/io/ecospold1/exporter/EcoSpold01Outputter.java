@@ -331,18 +331,13 @@ public class EcoSpold01Outputter {
 	private void mapFlowCategory(IExchange exchange, String categoryId)
 			throws Exception {
 		Category category = getCategory(categoryId);
-		if (!category.getId().equals(category.getComponentClass())) {
-			if (category.getParentCategory() != null
-					&& !category
-							.getParentCategory()
-							.getId()
-							.equals(category.getParentCategory()
-									.getComponentClass())) {
-				exchange.setSubCategory(category.getName());
-				exchange.setCategory(category.getParentCategory().getName());
-			} else if (!category.getId().equals(category.getComponentClass())) {
-				exchange.setCategory(category.getName());
-			}
+		if (category == null)
+			return;
+		if (category.getParentCategory() == null)
+			exchange.setCategory(category.getName());
+		else {
+			exchange.setCategory(category.getParentCategory().getName());
+			exchange.setSubCategory(category.getName());
 		}
 	}
 
@@ -502,22 +497,17 @@ public class EcoSpold01Outputter {
 		referenceFunction.setName(exchange.getFlow().getName());
 		referenceFunction.setUnit(exchange.getUnit().getName());
 		referenceFunction.setInfrastructureProcess(flow.isInfrastructureFlow());
+		referenceFunction.setAmount(exchange.getResultingAmount().getValue());
 		Category category = getCategory(exchange.getFlow().getCategoryId());
-		if (!category.getId().equals(category.getComponentClass())) {
-			if (category.getParentCategory() != null
-					&& !category
-							.getParentCategory()
-							.getId()
-							.equals(category.getParentCategory()
-									.getComponentClass())) {
-				referenceFunction.setSubCategory(category.getName());
+		if (category != null) {
+			if (category.getParentCategory() == null)
+				referenceFunction.setCategory(category.getName());
+			else {
 				referenceFunction.setCategory(category.getParentCategory()
 						.getName());
-			} else if (!category.getId().equals(category.getComponentClass())) {
-				referenceFunction.setCategory(category.getName());
+				referenceFunction.setSubCategory(category.getName());
 			}
 		}
-		referenceFunction.setAmount(exchange.getResultingAmount().getValue());
 		return referenceFunction;
 	}
 
