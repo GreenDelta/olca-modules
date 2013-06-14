@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -83,8 +84,9 @@ public class ExchangeResultList {
 					.getFlowPropertyFactor(flow.getReferenceFlowProperty()
 							.getId());
 			exchange.setFlowPropertyFactor(flowPropertyFactor);
-			UnitGroup unitGroup = database
-					.select(UnitGroup.class, exchange.getFlowPropertyFactor()
+			BaseDao<UnitGroup> unitDao = database.createDao(UnitGroup.class);
+			UnitGroup unitGroup = unitDao
+					.getForId(exchange.getFlowPropertyFactor()
 							.getFlowProperty().getUnitGroupId());
 			exchange.setUnit(unitGroup.getReferenceUnit());
 		} catch (final Exception e) {

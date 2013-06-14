@@ -83,9 +83,10 @@ public class ProcessExport {
 
 	private void loadProcess(Process process) throws DataStoreException {
 		try {
-			this.process = database.select(Process.class, process.getId());
-			this.modelingAndValidation = database.select(
-					ModelingAndValidation.class, process.getId());
+			this.process = database.createDao(Process.class).getForId(
+					process.getId());
+			this.modelingAndValidation = database.createDao(
+					ModelingAndValidation.class).getForId(process.getId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load process from database.",
 					e);
@@ -124,7 +125,7 @@ public class ProcessExport {
 		log.trace("Create process time.");
 		Time time = null;
 		try {
-			time = database.select(Time.class, process.getId());
+			time = database.createDao(Time.class).getForId(process.getId());
 		} catch (Exception e) {
 			log.error("Cannot load process time id=" + process.getId(), e);
 		}
@@ -181,7 +182,8 @@ public class ProcessExport {
 		log.trace("Create process technology.");
 		Technology technology = null;
 		try {
-			technology = database.select(Technology.class, process.getId());
+			technology = database.createDao(Technology.class).getForId(
+					process.getId());
 		} catch (Exception e) {
 			log.error("Cannot load process technology id=" + process.getId(), e);
 		}
@@ -350,7 +352,8 @@ public class ProcessExport {
 		log.trace("Create process administrative information.");
 		AdminInfo adminInfo = null;
 		try {
-			adminInfo = database.select(AdminInfo.class, process.getId());
+			adminInfo = database.createDao(AdminInfo.class).getForId(
+					process.getId());
 		} catch (Exception e) {
 			log.error("Cannot load administrative information id="
 					+ process.getId());

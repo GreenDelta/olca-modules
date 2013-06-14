@@ -50,7 +50,8 @@ public class ActorExport {
 
 	private void loadActor(Actor actor) throws DataStoreException {
 		try {
-			this.actor = database.select(Actor.class, actor.getId());
+			this.actor = database.createDao(Actor.class)
+					.getForId(actor.getId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load actor from database.", e);
 		}

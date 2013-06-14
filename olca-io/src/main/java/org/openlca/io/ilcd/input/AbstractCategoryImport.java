@@ -28,7 +28,8 @@ abstract class AbstractCategoryImport<C> {
 	private Category selectRootCategory() throws ImportException {
 		String className = modelType.getCanonicalName();
 		try {
-			Category category = database.select(Category.class, className);
+			Category category = database.createDao(Category.class).getForId(
+					className);
 			return category;
 		} catch (Exception e) {
 			String message = String.format(
@@ -53,7 +54,7 @@ abstract class AbstractCategoryImport<C> {
 
 	private Category findCategoryForIlcdType(Category rootCategory,
 			C ilcdCategory) {
-		if(equals(rootCategory, ilcdCategory))
+		if (equals(rootCategory, ilcdCategory))
 			return rootCategory;
 		Category[] categories = rootCategory.getChildCategories();
 		Category equalCategory = null;
@@ -80,7 +81,7 @@ abstract class AbstractCategoryImport<C> {
 			Category newCategory = createNewCategory(ilcdCategory);
 			newCategory.setParentCategory(parentCategory);
 			parentCategory.add(newCategory);
-			database.update(parentCategory);
+			database.createDao(Category.class).update(parentCategory);
 			return newCategory;
 		} catch (Exception e) {
 			String message = "Cannot save category in database.";

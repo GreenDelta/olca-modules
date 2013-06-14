@@ -5,15 +5,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
+import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
+import org.openlca.ecospold2.Activity;
+import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.ElementaryExchange;
+import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.io.EcoSpold2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,68 +25,53 @@ class ProcessImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 	private FlowHandler flowHandler;
-	private SAXBuilder builder;
 	private Map<String, Category> processCategories = new HashMap<>();
 
 	public ProcessImport(IDatabase database) {
 		this.database = database;
 		this.flowHandler = new FlowHandler(database);
-		builder = new SAXBuilder();
 	}
 
-	public void importProcess(InputStream stream) {
+	public void importStream(InputStream stream) {
 		try {
-			Document doc = builder.build(stream);
-			Element dataSetElement = getDataSetElement(doc);
-			if (dataSetElement == null) {
+			DataSet dataSet = EcoSpold2.read(stream);
+			if (dataSet == null) {
 				log.warn("not an EcoSpold data set");
 				return;
 			}
-			runImport(dataSetElement);
+			checkImport(dataSet);
 		} catch (Exception e) {
 			log.error("Failed to import EcoSpold 2 process", e);
 		}
 	}
 
-	private Element getDataSetElement(Document doc) {
-		if (doc == null)
-			return null;
-		Element root = doc.getRootElement();
-		if (!"ecoSpold".equals(root.getName()))
-			return null;
-		Element e = root.getChild("activityDataset", root.getNamespace());
-		if (e == null)
-			e = root.getChild("childActivityDataset", root.getNamespace());
-		return e;
-	}
-
-	private void runImport(Element dataSet) {
-		LeanProcess leanProcess = LeanProcess.create(dataSet);
-		if (!valid(leanProcess)) {
-			log.warn("invalid data set {} {}", leanProcess.getId(),
-					leanProcess.getName());
+	private void checkImport(DataSet dataSet) {
+		if (!valid(dataSet)) {
+			log.warn("invalid data set -> not imported");
 			return;
 		}
+		Activity activity = dataSet.getActivity();
 		try {
 			boolean contains = database.createDao(Process.class).contains(
-					leanProcess.getId());
+					activity.getId());
 			if (contains) {
 				log.trace("process {} is already in the database",
-						leanProcess.getId());
+						activity.getId());
 				return;
 			}
-			log.trace("import process {}", leanProcess.getName());
-			runImport(leanProcess);
+			log.trace("import process {}", activity.getName());
+			runImport(dataSet);
 		} catch (Exception e) {
 			log.error("Failed to import process", e);
 		}
 	}
 
-	private boolean valid(LeanProcess leanProcess) {
-		if (leanProcess.getId() == null || leanProcess.getName() == null)
+	private boolean valid(DataSet dataSet) {
+		Activity activity = dataSet.getActivity();
+		if (activity.getId() == null || activity.getName() == null)
 			return false;
-		LeanExchange refFlow = null;
-		for (LeanExchange techFlow : leanProcess.getExchanges()) {
+		IntermediateExchange refFlow = null;
+		for (IntermediateExchange techFlow : dataSet.getIntermediateExchanges()) {
 			if (techFlow.getOutputGroup() == null)
 				continue;
 			if (techFlow.getOutputGroup() != 0)
@@ -94,34 +82,49 @@ class ProcessImport {
 		return refFlow != null;
 	}
 
-	private void runImport(LeanProcess leanProcess) throws Exception {
-		Process process = new Process(leanProcess.getId(),
-				leanProcess.getName());
+	private void runImport(DataSet dataSet) throws Exception {
+		Activity activity = dataSet.getActivity();
+		Process process = new Process(activity.getId(), activity.getName());
 		setCategory(process);
-		for (LeanExchange e : leanProcess.getExchanges()) {
+		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
 			if (e.getAmount() == 0)
 				continue;
 			Flow flow = flowHandler.getFlow(e);
-			Unit unit = flowHandler.getUnit(e.getUnitId());
-			if (flow == null || unit == null) {
-				log.warn("could not create exchange");
+			Exchange exchange = createExchange(e, flow, process);
+			if (flow == null)
 				continue;
-			}
-			Exchange exchange = new Exchange();
-			exchange.setId(UUID.randomUUID().toString());
-			exchange.setInput(e.getInputGroup() != null);
 			exchange.setDefaultProviderId(e.getActivityLinkId());
-			exchange.setFlow(flow);
-			exchange.setFlowPropertyFactor(flow.getReferencePropertyFactor());
-			exchange.setUnit(unit);
-			exchange.getResultingAmount().setValue(e.getAmount());
-			exchange.getResultingAmount().setFormula(
-					Double.toString(e.getAmount()));
 			if (e.getOutputGroup() != null && e.getOutputGroup() == 0)
 				process.setQuantitativeReference(exchange);
-			process.add(exchange);
+		}
+
+		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+			if (e.getAmount() == 0)
+				continue;
+			Flow flow = flowHandler.getFlow(e);
+			createExchange(e, flow, process);
 		}
 		database.createDao(Process.class).insert(process);
+	}
+
+	private Exchange createExchange(org.openlca.ecospold2.Exchange original,
+			Flow flow, Process process) {
+		if (flow == null || flow.getReferenceFlowProperty() == null) {
+			log.warn("invalid exchange {}; not imported", original);
+			return null;
+		}
+		Unit unit = flowHandler.getUnit(original.getUnitId());
+		Exchange exchange = new Exchange();
+		exchange.setId(UUID.randomUUID().toString());
+		exchange.setInput(original.getInputGroup() != null);
+		exchange.setFlow(flow);
+		exchange.setFlowPropertyFactor(flow.getReferencePropertyFactor());
+		exchange.setUnit(unit);
+		exchange.getResultingAmount().setValue(original.getAmount());
+		exchange.getResultingAmount().setFormula(
+				Double.toString(original.getAmount()));
+		process.add(exchange);
+		return exchange;
 	}
 
 	// TODO: just for tests
@@ -131,11 +134,11 @@ class ProcessImport {
 		if (cat == null) {
 			cat = new Category(UUID.randomUUID().toString(), pref,
 					Process.class.getCanonicalName());
-			Category parent = database.select(Category.class,
-					Process.class.getCanonicalName());
+			BaseDao<Category> dao = database.createDao(Category.class);
+			Category parent = dao.getForId(Process.class.getCanonicalName());
 			parent.add(cat);
 			cat.setParentCategory(parent);
-			database.update(parent);
+			dao.update(parent);
 			processCategories.put(pref, cat);
 		}
 		process.setCategoryId(cat.getId());

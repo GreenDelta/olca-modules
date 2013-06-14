@@ -10,6 +10,8 @@ public class DataSet {
 	private Geography geography;
 	private Technology technology;
 	private TimePeriod timePeriod;
+	private List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
+	private List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
 
 	public Activity getActivity() {
 		return activity;
@@ -45,6 +47,14 @@ public class DataSet {
 
 	public void setTimePeriod(TimePeriod timePeriod) {
 		this.timePeriod = timePeriod;
+	}
+
+	public List<ElementaryExchange> getElementaryExchanges() {
+		return elementaryExchanges;
+	}
+
+	public List<IntermediateExchange> getIntermediateExchanges() {
+		return intermediateExchanges;
 	}
 
 }

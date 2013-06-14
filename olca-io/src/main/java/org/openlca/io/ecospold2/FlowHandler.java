@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
@@ -14,6 +15,9 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Unit;
+import org.openlca.ecospold2.ElementaryExchange;
+import org.openlca.ecospold2.Exchange;
+import org.openlca.ecospold2.IntermediateExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,17 +60,27 @@ class FlowHandler {
 		return unitMap.get(id);
 	}
 
-	public Flow getFlow(LeanExchange exchange) {
-		String flowId = exchange.getFlowId();
+	public Flow getFlow(IntermediateExchange exchange) {
+		Flow dbFlow = getDbFlow(exchange.getIntermediateExchangeId());
+		if (dbFlow != null)
+			return dbFlow;
+		return createProduct(exchange);
+	}
+
+	public Flow getFlow(ElementaryExchange exchange) {
+		Flow dbFlow = getDbFlow(exchange.getElementaryExchangeId());
+		if (dbFlow != null)
+			return dbFlow;
+		return createElemFlow(exchange);
+	}
+
+	private Flow getDbFlow(String flowId) {
 		if (flowId == null)
 			return null;
 		Flow flow = cachedFlows.get(flowId);
 		if (flow != null)
 			return flow;
-		flow = getFromDb(flowId);
-		if (flow != null)
-			return flow;
-		return createNew(exchange);
+		return getFromDb(flowId);
 	}
 
 	private Flow getFromDb(String flowId) {
@@ -80,44 +94,53 @@ class FlowHandler {
 		}
 	}
 
-	private Flow createNew(LeanExchange exchange) {
-		Flow flow = new Flow(exchange.getFlowId(), exchange.getName());
+	private Flow createProduct(IntermediateExchange exchange) {
+		Flow flow = new Flow();
+		flow.setId(exchange.getIntermediateExchangeId());
+		flow.setFlowType(FlowType.ProductFlow);
+		fillCacheFlow(exchange, flow);
+		return flow;
+	}
+
+	private Flow createElemFlow(ElementaryExchange exchange) {
+		Flow flow = new Flow();
+		flow.setId(exchange.getElementaryExchangeId());
+		flow.setFlowType(FlowType.ElementaryFlow);
+		fillCacheFlow(exchange, flow);
+		return flow;
+	}
+
+	private void fillCacheFlow(Exchange exchange, Flow flow) {
+		flow.setName(exchange.getName());
 		FlowProperty prop = propertyMap.get(exchange.getUnitId());
 		if (prop == null) {
-			log.warn("unknown unit {}, could not create flow {}",
-					exchange.getUnitId(), exchange.getFlowId());
-			return null;
+			log.warn("unknown unit {}", exchange.getUnitId());
+			return;
 		}
 		FlowPropertyFactor fac = new FlowPropertyFactor(UUID.randomUUID()
 				.toString(), prop, 1.0);
 		flow.add(fac);
 		flow.setReferenceFlowProperty(prop);
-		FlowType type = exchange.getType() == LeanExchange.ELEMENTARY_FLOW ? FlowType.ElementaryFlow
-				: FlowType.ProductFlow;
-		flow.setFlowType(type);
 		try {
 			setCategory(flow);
 			database.createDao(Flow.class).insert(flow);
 			cachedFlows.put(flow.getId(), flow);
-			return flow;
 		} catch (Exception e) {
 			log.error("Failed to store flow", e);
-			return null;
 		}
 	}
 
-	// TODO: just for tests
 	private void setCategory(Flow flow) throws Exception {
 		String pref = flow.getName().substring(0, 1).toLowerCase();
 		Category cat = flowCategories.get(pref);
 		if (cat == null) {
 			cat = new Category(UUID.randomUUID().toString(), pref,
 					Flow.class.getCanonicalName());
-			Category parent = database.select(Category.class,
-					Flow.class.getCanonicalName());
+			BaseDao<Category> dao = database.createDao(Category.class);
+			Category parent = dao.getForId(Flow.class.getCanonicalName());
 			parent.add(cat);
 			cat.setParentCategory(parent);
-			database.update(parent);
+			dao.update(parent);
 			flowCategories.put(pref, cat);
 		}
 		flow.setCategoryId(cat.getId());

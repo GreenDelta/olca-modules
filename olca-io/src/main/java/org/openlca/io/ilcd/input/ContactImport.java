@@ -44,7 +44,7 @@ public class ContactImport {
 
 	private Actor findExisting(String contactId) throws ImportException {
 		try {
-			return database.select(Actor.class, contactId);
+			return database.createDao(Actor.class).getForId(contactId);
 		} catch (Exception e) {
 			String message = String.format("Search for actor %s failed.",
 					contactId);
@@ -93,7 +93,7 @@ public class ContactImport {
 
 	private void saveInDatabase() throws ImportException {
 		try {
-			database.insert(actor);
+			database.createDao(Actor.class).insert(actor);
 		} catch (Exception e) {
 			String message = String.format("Cannot save actor %s in database.",
 					actor.getId());

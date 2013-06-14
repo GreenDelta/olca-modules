@@ -56,12 +56,14 @@ public class FlowPropertyExport {
 		dataStore.put(iProperty, flowProperty.getId());
 		return iProperty;
 	}
-	
+
 	private void loadProperty(FlowProperty property) throws DataStoreException {
 		try {
-			this.flowProperty = database.select(FlowProperty.class, property.getId());	
+			this.flowProperty = database.createDao(FlowProperty.class)
+					.getForId(property.getId());
 		} catch (Exception e) {
-			throw new DataStoreException("Cannot load flow property from database.", e);
+			throw new DataStoreException(
+					"Cannot load flow property from database.", e);
 		}
 	}
 
@@ -82,16 +84,17 @@ public class FlowPropertyExport {
 	}
 
 	private DataSetReference makeUnitGroupRef() {
-		UnitGroup unitGroup = loadUnitGroup();		
-		return ExportDispatch.forwardExportCheck(unitGroup, database, dataStore);
+		UnitGroup unitGroup = loadUnitGroup();
+		return ExportDispatch
+				.forwardExportCheck(unitGroup, database, dataStore);
 	}
-
 
 	private UnitGroup loadUnitGroup() {
 		String unitGroupId = flowProperty.getUnitGroupId();
 		UnitGroup unitGroup = null;
 		try {
-			unitGroup = database.select(UnitGroup.class, unitGroupId);
+			unitGroup = database.createDao(UnitGroup.class).getForId(
+					unitGroupId);
 		} catch (Exception e) {
 			log.error("Cannot load unit group for id=" + unitGroupId, e);
 		}

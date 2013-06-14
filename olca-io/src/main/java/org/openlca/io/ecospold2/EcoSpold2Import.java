@@ -66,6 +66,6 @@ public class EcoSpold2Import {
 	}
 
 	private void handleInput(InputStream stream) throws Exception {
-		processImport.importProcess(stream);
+		processImport.importStream(stream);
 	}
 }

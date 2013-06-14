@@ -47,7 +47,7 @@ class DB {
 		if (category != null)
 			return category;
 		try {
-			Category root = database.select(Category.class,
+			Category root = database.createDao(Category.class).getForId(
 					type.getCanonicalName());
 			category = getPutCategory(root, parentName, name);
 			categories.put(key, category);
@@ -94,7 +94,7 @@ class DB {
 				root.getComponentClass());
 		child.setParentCategory(root);
 		root.add(child);
-		database.update(root);
+		database.createDao(Category.class).update(root);
 		return child;
 	}
 

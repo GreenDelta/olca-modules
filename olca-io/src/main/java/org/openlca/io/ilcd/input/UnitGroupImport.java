@@ -52,7 +52,7 @@ public class UnitGroupImport {
 
 	private UnitGroup findExisting(String unitGroupId) throws ImportException {
 		try {
-			return database.select(UnitGroup.class, unitGroupId);
+			return database.createDao(UnitGroup.class).getForId(unitGroupId);
 		} catch (Exception e) {
 			String message = String.format("Search for unit group %s failed.",
 					unitGroupId);
@@ -137,9 +137,9 @@ public class UnitGroupImport {
 		oUnit.setConversionFactor(iUnit.getMeanValue());
 	}
 
-	private void saveInDatabase(Object obj) throws ImportException {
+	private void saveInDatabase(UnitGroup obj) throws ImportException {
 		try {
-			database.insert(obj);
+			database.createDao(UnitGroup.class).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in unit group %s.",

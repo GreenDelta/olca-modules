@@ -133,7 +133,7 @@ class ProcessExchanges {
 			FlowPropertyFactor factor = flowInfo
 					.getFlowPropertyFactor(flowProperty.getId());
 			oExchange.setFlowPropertyFactor(factor);
-			UnitGroup unitGroup = database.select(UnitGroup.class,
+			UnitGroup unitGroup = database.createDao(UnitGroup.class).getForId(
 					flowProperty.getUnitGroupId());
 			oExchange.setUnit(unitGroup.getReferenceUnit());
 		} catch (Exception e) {
@@ -150,7 +150,8 @@ class ProcessExchanges {
 			exchange.setAvoidedProduct(true);
 		}
 		try {
-			Unit unit = database.select(Unit.class, extension.getUnitId());
+			Unit unit = database.createDao(Unit.class).getForId(
+					extension.getUnitId());
 			exchange.setUnit(unit);
 			FlowPropertyFactor factor = flowInfo
 					.getFlowPropertyFactor(extension.getPropertyId());

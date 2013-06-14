@@ -37,6 +37,12 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.openlca</groupId>
+			<artifactId>olca-ecospold-2</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.1</version>

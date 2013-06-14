@@ -38,7 +38,7 @@ public class SourceImport {
 
 	private Source findExisting(String sourceId) throws ImportException {
 		try {
-			return database.select(Source.class, sourceId);
+			return database.createDao(Source.class).getForId(sourceId);
 		} catch (Exception e) {
 			String message = String.format("Search for source %s failed.",
 					sourceId);
@@ -85,7 +85,7 @@ public class SourceImport {
 
 	private void saveInDatabase() throws ImportException {
 		try {
-			database.insert(source);
+			database.createDao(Source.class).insert(source);
 		} catch (Exception e) {
 			String message = String.format(
 					"Cannot save source %s in database.", source.getId());

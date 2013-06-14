@@ -51,10 +51,11 @@ public class SourceExport {
 		dataStore.put(iSource, source.getId());
 		return iSource;
 	}
-	
+
 	private void loadSource(Source source) throws DataStoreException {
 		try {
-			this.source = database.select(Source.class, source.getId());
+			this.source = database.createDao(Source.class).getForId(
+					source.getId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load source from database.", e);
 		}

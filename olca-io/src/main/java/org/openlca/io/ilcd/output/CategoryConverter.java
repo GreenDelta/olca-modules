@@ -51,7 +51,7 @@ class CategoryConverter {
 
 	private Category tryGetCategory(String categoryId) {
 		try {
-			return database.select(Category.class, categoryId);
+			return database.createDao(Category.class).getForId(categoryId);
 		} catch (Exception e) {
 			log.error("Cannot create classification for category id="
 					+ categoryId, e);

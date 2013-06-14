@@ -7,7 +7,10 @@ import org.jdom2.Element;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.ElementaryExchange;
+import org.openlca.ecospold2.Exchange;
 import org.openlca.ecospold2.Geography;
+import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.Technology;
 
 /**
@@ -47,14 +50,20 @@ class InputMapper {
 	}
 
 	private void mapContent(Element dataSet) {
-		Element description = Jdom.child(dataSet, "activityDescription");
-		Element activity = Jdom.child(description, "activity");
+		Element description = In.child(dataSet, "activityDescription");
+		Element activity = In.child(description, "activity");
 		mapActivity(activity);
-		List<Element> classifications = Jdom.childs(description,
-				"classification");
+		List<Element> classifications = In
+				.childs(description, "classification");
 		mapClassifications(classifications);
-		mapGeography(Jdom.child(description, "geography"));
-		mapTechnology(Jdom.child(description, "technology"));
+		mapGeography(In.child(description, "geography"));
+		mapTechnology(In.child(description, "technology"));
+		List<Element> elementaryExchanges = In.childs(dataSet, "flowData",
+				"elementaryExchange");
+		mapElementaryExchanges(elementaryExchanges);
+		List<Element> intermediateExchanges = In.childs(dataSet, "flowData",
+				"intermediateExchange");
+		mapIntermediateExchanges(intermediateExchanges);
 	}
 
 	private void mapActivity(Element e) {
@@ -63,16 +72,16 @@ class InputMapper {
 		Activity activity = new Activity();
 		dataSet.setActivity(activity);
 		activity.setId(e.getAttributeValue("id"));
-		activity.setName(Jdom.childText(e, "activityName"));
-		List<Element> elems = Jdom.childs(e, "generalComment", "text");
-		activity.setGeneralComment(Jdom.joinText(elems));
-		activity.setIncludedActivitiesEnd(Jdom.childText(e,
+		activity.setName(In.childText(e, "activityName"));
+		List<Element> elems = In.childs(e, "generalComment", "text");
+		activity.setGeneralComment(In.joinText(elems));
+		activity.setIncludedActivitiesEnd(In.childText(e,
 				"includedActivitiesEnd"));
-		activity.setIncludedActivitiesStart(Jdom.childText(e,
+		activity.setIncludedActivitiesStart(In.childText(e,
 				"includedActivitiesStart"));
-		List<String> syns = Jdom.childTexts(e, "synonym");
+		List<String> syns = In.childTexts(e, "synonym");
 		activity.getSynonyms().addAll(syns);
-		List<String> tags = Jdom.childTexts(e, "tag");
+		List<String> tags = In.childTexts(e, "tag");
 		activity.getTags().addAll(tags);
 	}
 
@@ -82,9 +91,9 @@ class InputMapper {
 			dataSet.getClassifications().add(classification);
 			classification.setClassificationId(e
 					.getAttributeValue("classificationId"));
-			classification.setClassificationSystem(Jdom.childText(e,
+			classification.setClassificationSystem(In.childText(e,
 					"classificationSystem"));
-			classification.setClassificationValue(Jdom.childText(e,
+			classification.setClassificationValue(In.childText(e,
 					"classificationValue"));
 		}
 	}
@@ -94,9 +103,9 @@ class InputMapper {
 			return;
 		Geography geography = new Geography();
 		geography.setId(e.getAttributeValue("geographyId"));
-		List<Element> comments = Jdom.childs(e, "comment", "text");
-		geography.setComment(Jdom.joinText(comments));
-		geography.setShortName(Jdom.childText(e, "shortname"));
+		List<Element> comments = In.childs(e, "comment", "text");
+		geography.setComment(In.joinText(comments));
+		geography.setShortName(In.childText(e, "shortname"));
 		dataSet.setGeography(geography);
 	}
 
@@ -107,9 +116,48 @@ class InputMapper {
 		String levelStr = e.getAttributeValue("technologyLevel");
 		if (levelStr != null)
 			tech.setTechnologyLevel(Integer.parseInt(levelStr));
-		List<Element> comments = Jdom.childs(e, "comment", "text");
-		tech.setComment(Jdom.joinText(comments));
+		List<Element> comments = In.childs(e, "comment", "text");
+		tech.setComment(In.joinText(comments));
 		dataSet.setTechnology(tech);
 	}
 
+	private void mapElementaryExchanges(List<Element> elems) {
+		for (Element e : elems) {
+			ElementaryExchange exchange = new ElementaryExchange();
+			fillExchange(exchange, e);
+			exchange.setElementaryExchangeId(e
+					.getAttributeValue("elementaryExchangeId"));
+			dataSet.getElementaryExchanges().add(exchange);
+		}
+	}
+
+	private void mapIntermediateExchanges(List<Element> elems) {
+		for (Element e : elems) {
+			IntermediateExchange exchange = new IntermediateExchange();
+			fillExchange(exchange, e);
+			exchange.setActivityLinkId(e.getAttributeValue("activityLinkId"));
+			exchange.setIntermediateExchangeId(e
+					.getAttributeValue("intermediateExchangeId"));
+			dataSet.getIntermediateExchanges().add(exchange);
+		}
+	}
+
+	private void fillExchange(Exchange exchange, Element element) {
+		String amount = element.getAttributeValue("amount");
+		exchange.setAmount(In.decimal(amount));
+		exchange.setId(element.getAttributeValue("id"));
+		exchange.setMathematicalRelation(element
+				.getAttributeValue("mathematicalRelation"));
+		exchange.setName(In.childText(element, "name"));
+		exchange.setUnitName(In.childText(element, "unitName"));
+		exchange.setComment(In.childText(element, "comment"));
+		exchange.setUnitId(element.getAttributeValue("unitId"));
+		String inGroup = In.childText(element, "inputGroup");
+		if (inGroup != null)
+			exchange.setInputGroup(In.integer(inGroup));
+		else {
+			String outGroup = In.childText(element, "outputGroup");
+			exchange.setOutputGroup(In.integer(outGroup));
+		}
+	}
 }

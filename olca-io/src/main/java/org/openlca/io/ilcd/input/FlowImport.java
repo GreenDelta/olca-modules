@@ -50,7 +50,7 @@ public class FlowImport {
 
 	private Flow findExisting(String flowId) throws ImportException {
 		try {
-			return database.select(Flow.class, flowId);
+			return database.createDao(Flow.class).getForId(flowId);
 		} catch (Exception e) {
 			String message = String
 					.format("Search for flow %s failed.", flowId);
@@ -182,9 +182,9 @@ public class FlowImport {
 		}
 	}
 
-	private void saveInDatabase(Object obj) throws ImportException {
+	private void saveInDatabase(Flow obj) throws ImportException {
 		try {
-			database.insert(obj);
+			database.createDao(Flow.class).insert(obj);
 		} catch (Exception e) {
 			String message = String.format("Save operation failed in flow %s.",
 					flow.getId());

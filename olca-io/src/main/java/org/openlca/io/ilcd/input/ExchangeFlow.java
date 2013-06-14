@@ -59,7 +59,7 @@ class ExchangeFlow {
 
 	private void fetchFromDatabase(String flowId) {
 		try {
-			flow = database.select(Flow.class, flowId);
+			flow = database.createDao(Flow.class).getForId(flowId);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.error("Cannot get flow", e);

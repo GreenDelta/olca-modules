@@ -48,7 +48,7 @@ public class FlowPropertyImport {
 
 	private FlowProperty findExisting(String propertyId) throws ImportException {
 		try {
-			return database.select(FlowProperty.class, propertyId);
+			return database.createDao(FlowProperty.class).getForId(propertyId);
 		} catch (Exception e) {
 			String message = String.format(
 					"Search for flow property %s failed.", propertyId);
@@ -118,9 +118,9 @@ public class FlowPropertyImport {
 		}
 	}
 
-	private void saveInDatabase(Object obj) throws ImportException {
+	private void saveInDatabase(FlowProperty obj) throws ImportException {
 		try {
-			database.insert(obj);
+			database.createDao(FlowProperty.class).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in flow property %s.",

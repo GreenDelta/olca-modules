@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openlca</groupId>
 	<artifactId>olca-ecospold-2</artifactId>
-	<version>0.0.1-ALPHA</version>
+	<version>1.0.0</version>
 	
 	<packaging>bundle</packaging>
 

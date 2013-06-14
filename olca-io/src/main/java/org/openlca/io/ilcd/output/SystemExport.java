@@ -137,7 +137,8 @@ public class SystemExport {
 
 	private void loadSystem(ProductSystem system) throws DataStoreException {
 		try {
-			this.system = database.select(ProductSystem.class, system.getId());
+			this.system = database.createDao(ProductSystem.class).getForId(
+					system.getId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load system from database", e);
 		}

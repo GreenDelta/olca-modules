@@ -57,7 +57,7 @@ public class SystemImport {
 
 	private ProductSystem findExisting(String systemId) throws ImportException {
 		try {
-			return database.select(ProductSystem.class, systemId);
+			return database.createDao(ProductSystem.class).getForId(systemId);
 		} catch (Exception e) {
 			throw new ImportException("Could not load product system id="
 					+ systemId, e);
@@ -72,7 +72,7 @@ public class SystemImport {
 		importAndSetCategory();
 		mapContent();
 		try {
-			database.insert(system);
+			database.createDao(ProductSystem.class).insert(system);
 			return system;
 		} catch (Exception e) {
 			throw new ImportException("Failed to save in database", e);
@@ -137,7 +137,8 @@ public class SystemImport {
 	private Unit getRefUnit(FlowProperty prop) throws ImportException {
 		try {
 			String groupId = prop.getUnitGroupId();
-			UnitGroup group = database.select(UnitGroup.class, groupId);
+			UnitGroup group = database.createDao(UnitGroup.class).getForId(
+					groupId);
 			return group.getReferenceUnit();
 		} catch (Exception e) {
 			throw new ImportException("Could not load ref-unit of property "

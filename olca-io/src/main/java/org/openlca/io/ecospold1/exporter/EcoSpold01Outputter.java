@@ -19,7 +19,6 @@ import java.util.Map;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.core.database.DataProviderException;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AdminInfo;
@@ -55,8 +54,8 @@ import org.openlca.ecospold.ITechnology;
 import org.openlca.ecospold.ITimePeriod;
 import org.openlca.ecospold.IValidation;
 import org.openlca.ecospold.io.DataSet;
-import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.ecospold.io.DataSetType;
+import org.openlca.ecospold.io.EcoSpoldIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,8 +100,7 @@ public class EcoSpold01Outputter {
 		datasetCounter = 0;
 	}
 
-	private IEcoSpold convertLCIAMethod(LCIAMethod method)
-			throws DataProviderException {
+	private IEcoSpold convertLCIAMethod(LCIAMethod method) throws Exception {
 		IEcoSpoldFactory factory = DataSetType.IMPACT_METHOD.getFactory();
 		IEcoSpold ecoSpold = factory.createEcoSpold();
 		for (LCIACategory category : method.getLCIACategories()) {
@@ -117,8 +115,7 @@ public class EcoSpold01Outputter {
 		return ecoSpold;
 	}
 
-	private IEcoSpold convertProcess(Process process)
-			throws DataProviderException {
+	private IEcoSpold convertProcess(Process process) throws Exception {
 		IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
 		IEcoSpold ecoSpold = factory.createEcoSpold();
 		IDataSet iDataSet = factory.createDataSet();
@@ -188,10 +185,10 @@ public class EcoSpold01Outputter {
 		return ecoSpold;
 	}
 
-	private Category getCategory(String id) throws DataProviderException {
+	private Category getCategory(String id) throws Exception {
 		Category category = categoryCache.get(id);
 		if (category == null) {
-			category = database.select(Category.class, id);
+			category = database.createDao(Category.class).getForId(id);
 			categoryCache.put(id, category);
 		}
 		return category;
@@ -216,8 +213,8 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapAdminInfo(String id, DataSet dataset,
-			IEcoSpoldFactory factory) throws DataProviderException {
-		AdminInfo adminInfo = database.select(AdminInfo.class, id);
+			IEcoSpoldFactory factory) throws Exception {
+		AdminInfo adminInfo = database.createDao(AdminInfo.class).getForId(id);
 		if (adminInfo == null)
 			return;
 		IDataGeneratorAndPublication generator = dataset
@@ -304,7 +301,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private IExchange mapExchange(Exchange inExchange, boolean multiOutput,
-			IEcoSpoldFactory factory) throws DataProviderException {
+			IEcoSpoldFactory factory) throws Exception {
 		IExchange exchange = factory.createExchange();
 		exchange.setNumber(exchangeCounter++);
 		exchange.setName(inExchange.getFlow().getName());
@@ -332,7 +329,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapFlowCategory(IExchange exchange, String categoryId)
-			throws DataProviderException {
+			throws Exception {
 		Category category = getCategory(categoryId);
 		if (!category.getId().equals(category.getComponentClass())) {
 			if (category.getParentCategory() != null
@@ -390,7 +387,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapLCIACategory(LCIACategory category, DataSet dataSet,
-			IEcoSpoldFactory factory) throws DataProviderException {
+			IEcoSpoldFactory factory) throws Exception {
 		dataSet.setNumber(datasetCounter++);
 		IReferenceFunction refFun = factory.createReferenceFunction();
 		dataSet.setReferenceFunction(refFun);
@@ -417,7 +414,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private IExchange mapLCIAFactor(LCIAFactor factor, IEcoSpoldFactory factory)
-			throws DataProviderException {
+			throws Exception {
 		IExchange exchange = factory.createExchange();
 		exchange.setNumber(exchangeCounter++);
 		mapFlowCategory(exchange, factor.getFlow().getCategoryId());
@@ -429,9 +426,9 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapModelingAndValidation(String id, DataSet dataset,
-			IEcoSpoldFactory factory) throws DataProviderException {
-		ModelingAndValidation modelingAndValidation = database.select(
-				ModelingAndValidation.class, id);
+			IEcoSpoldFactory factory) throws Exception {
+		ModelingAndValidation modelingAndValidation = database.createDao(
+				ModelingAndValidation.class).getForId(id);
 		if (modelingAndValidation == null)
 			return;
 		if (modelingAndValidation.getDataSetOtherEvaluation() != null) {
@@ -496,7 +493,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private IReferenceFunction mapQuantitativeReference(Exchange exchange,
-			IEcoSpoldFactory factory) throws DataProviderException {
+			IEcoSpoldFactory factory) throws Exception {
 		IReferenceFunction referenceFunction = factory
 				.createReferenceFunction();
 		Flow flow = exchange.getFlow();
@@ -550,8 +547,8 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapTechnology(String id, DataSet dataset,
-			IEcoSpoldFactory factory) throws DataProviderException {
-		Technology tech = database.select(Technology.class, id);
+			IEcoSpoldFactory factory) throws Exception {
+		Technology tech = database.createDao(Technology.class).getForId(id);
 		if (tech == null || tech.getDescription() == null)
 			return;
 		ITechnology technology = factory.createTechnology();
@@ -560,8 +557,8 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapTime(String id, DataSet dataset, IEcoSpoldFactory factory)
-			throws DataProviderException {
-		Time inTime = database.select(Time.class, id);
+			throws Exception {
+		Time inTime = database.createDao(Time.class).getForId(id);
 		if (inTime == null)
 			return;
 		ITimePeriod timePeriod = factory.createTimePeriod();

@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jdom2.Element;
 
 /** Some helper methods for XML parsing with Jdom */
-class Jdom {
+class In {
 
-	private Jdom() {
+	private In() {
 	}
 
 	static Element child(Element parent, String name) {
@@ -86,6 +87,30 @@ class Jdom {
 		List<Element> seq = new ArrayList<>(elements);
 		Collections.sort(seq, new ElementComparator());
 		return seq;
+	}
+
+	public static double decimal(String val) {
+		if (val == null)
+			return 0;
+		try {
+			return Double.parseDouble(val);
+		} catch (Exception e) {
+			Logger log = Logger.getGlobal();
+			log.log(Level.WARNING, "Failed to parse double", e);
+			return 0;
+		}
+	}
+
+	public static int integer(String val) {
+		if (val == null)
+			return -1;
+		try {
+			return Integer.parseInt(val);
+		} catch (Exception e) {
+			Logger log = Logger.getGlobal();
+			log.log(Level.WARNING, "Failed to parse integer", e);
+			return -1;
+		}
 	}
 
 	private static class ElementComparator implements Comparator<Element> {

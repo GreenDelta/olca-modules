@@ -59,8 +59,8 @@ public class UnitGroupExport {
 
 	private void loadUnitGroup(UnitGroup unitGroup) throws DataStoreException {
 		try {
-			this.unitGroup = database
-					.select(UnitGroup.class, unitGroup.getId());
+			this.unitGroup = database.createDao(UnitGroup.class).getForId(
+					unitGroup.getId());
 		} catch (Exception e) {
 			throw new DataStoreException(
 					"Cannot load unit group from database.", e);

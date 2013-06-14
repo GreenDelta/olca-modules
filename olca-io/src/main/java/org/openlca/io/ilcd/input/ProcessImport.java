@@ -71,7 +71,7 @@ public class ProcessImport {
 
 	private Process findExisting(String processId) throws ImportException {
 		try {
-			return database.select(Process.class, processId);
+			return database.createDao(Process.class).getForId(processId);
 		} catch (Exception e) {
 			String message = String.format("Search for process %s failed.",
 					processId);
@@ -166,7 +166,7 @@ public class ProcessImport {
 						location.setCode(locationCode);
 						location.setId(locationId);
 						location.setName(locationCode);
-						database.insert(location);
+						database.createDao(Location.class).insert(location);
 					}
 
 					process.setLocation(location);
@@ -395,9 +395,11 @@ public class ProcessImport {
 		}
 	}
 
-	private void saveInDatabase(Object obj) throws ImportException {
+	@SuppressWarnings("unchecked")
+	private <T> void saveInDatabase(T obj) throws ImportException {
 		try {
-			database.insert(obj);
+			Class<T> clazz = (Class<T>) obj.getClass();
+			database.createDao(clazz).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in process %s.", process.getId());

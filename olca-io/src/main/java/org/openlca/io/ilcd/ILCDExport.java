@@ -12,7 +12,6 @@ package org.openlca.io.ilcd;
 
 import java.io.File;
 
-import org.openlca.core.database.DataProviderException;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
@@ -22,7 +21,6 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.modelprovider.IModelComponent;
-import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.io.ZipStore;
 import org.openlca.io.ilcd.output.ActorExport;
 import org.openlca.io.ilcd.output.FlowExport;
@@ -89,44 +87,48 @@ public class ILCDExport {
 	}
 
 	private void tryExport(IModelComponent component, IDatabase database)
-			throws DataProviderException, DataStoreException {
+			throws Exception {
 		if (component instanceof ProductSystem) {
-			ProductSystem system = database.select(ProductSystem.class,
-					component.getId());
+			ProductSystem system = database.createDao(ProductSystem.class)
+					.getForId(component.getId());
 			SystemExport export = new SystemExport(database, ilcdStore);
 			export.run(system);
 		}
 
 		if (component instanceof Process) {
-			Process process = database.select(Process.class, component.getId());
+			Process process = database.createDao(Process.class).getForId(
+					component.getId());
 			ProcessExport export = new ProcessExport(database, ilcdStore);
 			export.run(process);
 
 		} else if (component instanceof Flow) {
-			Flow flow = database.select(Flow.class, component.getId());
+			Flow flow = database.createDao(Flow.class).getForId(
+					component.getId());
 			FlowExport flowExport = new FlowExport(database, ilcdStore);
 			flowExport.run(flow);
 
 		} else if (component instanceof FlowProperty) {
-			FlowProperty property = database.select(FlowProperty.class,
-					component.getId());
+			FlowProperty property = database.createDao(FlowProperty.class)
+					.getForId(component.getId());
 			FlowPropertyExport export = new FlowPropertyExport(database,
 					ilcdStore);
 			export.run(property);
 
 		} else if (component instanceof UnitGroup) {
-			UnitGroup unitGroup = database.select(UnitGroup.class,
+			UnitGroup unitGroup = database.createDao(UnitGroup.class).getForId(
 					component.getId());
 			UnitGroupExport export = new UnitGroupExport(database, ilcdStore);
 			export.run(unitGroup);
 
 		} else if (component instanceof Actor) {
-			Actor actor = database.select(Actor.class, component.getId());
+			Actor actor = database.createDao(Actor.class).getForId(
+					component.getId());
 			ActorExport export = new ActorExport(database, ilcdStore);
 			export.run(actor);
 
 		} else if (component instanceof Source) {
-			Source source = database.select(Source.class, component.getId());
+			Source source = database.createDao(Source.class).getForId(
+					component.getId());
 			SourceExport export = new SourceExport(database, ilcdStore);
 			export.run(source);
 		}

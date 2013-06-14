@@ -62,7 +62,7 @@ public class FlowExport {
 
 	private void loadFlow(Flow flow) throws DataStoreException {
 		try {
-			this.flow = database.select(Flow.class, flow.getId());
+			this.flow = database.createDao(Flow.class).getForId(flow.getId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load flow from database.", e);
 		}
