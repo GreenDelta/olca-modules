@@ -28,4 +28,9 @@ public interface IDatabase extends Closeable {
 	 */
 	<T> BaseDao<T> createDao(Class<T> clazz);
 
+	/**
+	 * Returns the database name.
+	 */
+	public String getName();
+
 }

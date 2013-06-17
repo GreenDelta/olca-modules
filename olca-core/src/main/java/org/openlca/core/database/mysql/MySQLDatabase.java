@@ -73,4 +73,13 @@ public class MySQLDatabase implements IDatabase {
 	public <T> BaseDao<T> createDao(Class<T> clazz) {
 		return new BaseDao<>(clazz, getEntityFactory());
 	}
+
+	public String getName() {
+		if (url == null)
+			return null;
+		String[] parts = url.split("/");
+		if (parts.length < 2)
+			return null;
+		return parts[parts.length - 1].trim();
+	}
 }
