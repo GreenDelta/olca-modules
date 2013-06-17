@@ -8,12 +8,12 @@
  * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
  ******************************************************************************/
 
-package org.openlca.core.database.mysql;
+package org.openlca.core.database.internal;
 
 /**
  * The interface for handlers of SQL script events.
  */
-public interface ScriptHandler {
+interface ScriptHandler {
 
 	void statement(String statement) throws Exception;
 

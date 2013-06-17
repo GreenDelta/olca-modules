@@ -8,7 +8,7 @@
  * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
  ******************************************************************************/
 
-package org.openlca.core.database.mysql;
+package org.openlca.core.database.internal;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

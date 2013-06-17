@@ -81,8 +81,28 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>14.0.1</version>
-			<type>bundle</type>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.10.1.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -107,9 +127,9 @@
 						<Bundle-Name>${project.artifactId}</Bundle-Name>
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Export-Package>org.openlca.core.database,org.openlca.core.jobs,org.openlca.core.math,
-						org.openlca.core.model,org.openlca.core.model.descriptors,org.openlca.util,
-						org.openlca.core.model.modelprovider,org.openlca.core.model.referencesearch,
-						org.openlca.core.model.results
+							org.openlca.core.model,org.openlca.core.model.descriptors,org.openlca.util,
+							org.openlca.core.model.modelprovider,org.openlca.core.model.referencesearch,
+							org.openlca.core.model.results
 						</Export-Package>
 					</instructions>
 				</configuration>

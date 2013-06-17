@@ -24,6 +24,7 @@ import org.openlca.core.database.DataProviderException;
 import org.openlca.core.database.DatabaseDescriptor;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.IDatabaseServer;
+import org.openlca.core.database.internal.ScriptRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

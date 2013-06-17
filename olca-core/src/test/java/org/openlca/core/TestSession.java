@@ -14,7 +14,6 @@ public class TestSession {
 		String user = "root";
 		String password = null;
 		mysqlDatabase = new MySQLDatabase(url, user, password);
-		System.out.println(mysqlDatabase.getName());
 		return mysqlDatabase;
 	}
 

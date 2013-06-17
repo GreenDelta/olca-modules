@@ -8,7 +8,7 @@
  * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
  ******************************************************************************/
 
-package org.openlca.core.database.mysql;
+package org.openlca.core.database.internal;
 
 import java.io.BufferedReader;
 import java.io.Reader;
@@ -16,7 +16,7 @@ import java.io.Reader;
 /**
  * A parser for SQL scripts.
  */
-public class ScriptParser {
+class ScriptParser {
 
 	private final String COMMENT_PREFIX = "--";
 	private final char DELIMITER = ';';
