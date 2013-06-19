@@ -47,7 +47,7 @@ public class DerbyDatabase implements IDatabase {
 		try {
 			Connection con = DriverManager.getConnection(url + ";create=true");
 			ScriptRunner runner = new ScriptRunner(con);
-			runner.run(Resource.CURRENT_SCHEMA.getStream(), "utf-8");
+			runner.run(Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
 			con.close();
 		} catch (Exception e) {
 			log.error("failed to create database", e);
