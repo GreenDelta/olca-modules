@@ -13,6 +13,7 @@ import javax.persistence.EntityManagerFactory;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.DatabaseContent;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
@@ -30,8 +31,9 @@ public class DerbyDatabase implements IDatabase {
 	public DerbyDatabase(File folder) {
 		this.folder = folder;
 		boolean create = !folder.exists();
-		log.info("initialize database @ {}, create={}", folder, create);
-		url = "jdbc:derby:" + folder.getAbsolutePath();
+		log.info("initialize database folder {}, create={}", folder, create);
+		url = "jdbc:derby:" + folder.getAbsolutePath().replace('\\', '/');
+		log.trace("database url: {}", url);
 		try {
 			DriverManager.registerDriver(new EmbeddedDriver());
 		} catch (Exception e) {
@@ -54,6 +56,26 @@ public class DerbyDatabase implements IDatabase {
 		}
 	}
 
+	/** Fill the database with the given content. */
+	public void fill(DatabaseContent content) {
+		if (content == null || content == DatabaseContent.EMPTY)
+			return;
+		log.trace("fill database with content: {}", content);
+		Resource resource = null;
+		if (content == DatabaseContent.ALL_REF_DATA)
+			resource = Resource.REF_DATA_ALL;
+		else if (content == DatabaseContent.UNITS)
+			resource = Resource.REF_DATA_UNITS;
+		if (resource == null)
+			return;
+		try (Connection con = createConnection()) {
+			ScriptRunner runner = new ScriptRunner(con);
+			runner.run(resource.getStream(), "utf-8");
+		} catch (Exception e) {
+			log.error("failed to fill database with  content", e);
+		}
+	}
+
 	private void connect() {
 		log.trace("connect to database: {}", url);
 		Map<Object, Object> map = new HashMap<>();
@@ -68,17 +90,22 @@ public class DerbyDatabase implements IDatabase {
 
 	@Override
 	public void close() throws IOException {
+		if (closed)
+			return;
 		log.trace("close database: {}", url);
 		if (entityFactory != null && entityFactory.isOpen())
 			entityFactory.close();
 		try {
-			DriverManager.getConnection(url + ";shutdown=true");
+			// TODO: single database shutdown throws unexpected
+			// error in eclipse APP - close all connections here
+			// DriverManager.getConnection(url + ";shutdown=true");
+			DriverManager.getConnection("jdbc:derby:;shutdown=true");
 		} catch (SQLException e) {
 			// a normal shutdown of derby throws an SQL exception
 			// with error code 50000 (for single database shutdown
 			// 45000), otherwise an error occurred
 			log.info("exception: {}", e.getErrorCode());
-			if (e.getErrorCode() != 45000)
+			if (e.getErrorCode() != 45000 && e.getErrorCode() != 50000)
 				log.error(e.getMessage(), e);
 			else {
 				closed = true;

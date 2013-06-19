@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.util.List;
 
 import org.openlca.core.database.DataProviderException;
+import org.openlca.core.database.DatabaseContent;
 import org.openlca.core.database.DatabaseDescriptor;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.IDatabaseServer;
@@ -80,7 +81,7 @@ public class MySQLServer implements IDatabaseServer {
 	}
 
 	@Override
-	public IDatabase createDatabase(String name, int contentType)
+	public IDatabase createDatabase(String name, DatabaseContent contentType)
 			throws Exception {
 		log.info("Create database {}, content type = {}", name, contentType);
 		if (hasDatabase(name))
@@ -89,9 +90,9 @@ public class MySQLServer implements IDatabaseServer {
 			con.createStatement().execute("create database " + name);
 			con.createStatement().execute("use " + name);
 			runScript("current_schema_v1.4.sql", con);
-			if (contentType == IDatabaseServer.CONTENT_TYPE_ALL_REF)
+			if (contentType == DatabaseContent.ALL_REF_DATA)
 				runScript("ref_data_all.sql", con);
-			else if (contentType == IDatabaseServer.CONTENT_TYPE_UNITS)
+			else if (contentType == DatabaseContent.UNITS)
 				runScript("ref_data_units.sql", con);
 			return new MySQLDatabase(url + "/" + name, user, password);
 		} catch (Exception e) {
@@ -174,7 +175,7 @@ public class MySQLServer implements IDatabaseServer {
 			throws Exception {
 		log.info("Import database: {}", dbName);
 		MySQLDatabase db = (MySQLDatabase) createDatabase(dbName,
-				CONTENT_TYPE_EMPTY);
+				DatabaseContent.EMPTY);
 		MySQLDatabaseImport databaseImport = new MySQLDatabaseImport(db,
 				packageFile);
 		databaseImport.run();

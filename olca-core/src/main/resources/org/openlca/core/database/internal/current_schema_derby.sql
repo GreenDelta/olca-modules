@@ -86,12 +86,12 @@ CREATE TABLE tbl_units (
 	description CLOB(64 K), 
 	name VARCHAR(255),
 	synonyms VARCHAR(255),
-	f_unitgroup VARCHAR(36),
+	f_unit_group VARCHAR(36),
 	
 	PRIMARY KEY (id)
 	
 );
-CREATE INDEX idx_unit_unit_group ON tbl_units(f_unitgroup);
+CREATE INDEX idx_unit_unit_group ON tbl_units(f_unit_group);
 
 
 CREATE TABLE tbl_unit_groups (
@@ -118,13 +118,13 @@ CREATE TABLE tbl_flow_properties (
 	f_category VARCHAR(36), 
 	description CLOB(64 K), 
 	flow_property_type VARCHAR(255), 
-	f_unitgroup VARCHAR(36), 
+	f_unit_group VARCHAR(36), 
 	
 	PRIMARY KEY (id)
 	
 );
 CREATE INDEX idx_flowprop_category ON tbl_flow_properties(f_category);
-CREATE INDEX idx_flowprop_unti_group ON tbl_flow_properties(f_unitgroup);
+CREATE INDEX idx_flowprop_unti_group ON tbl_flow_properties(f_unit_group);
 
 CREATE TABLE tbl_flows (
 
@@ -269,7 +269,7 @@ CREATE TABLE tbl_exchanges (
 	avoidedproduct SMALLINT default 0,
 	distributionType INTEGER default 0, 
 	is_input SMALLINT default 0, 
-	f_flowpropertyfactor VARCHAR(36), 
+	f_flow_property_factor VARCHAR(36), 
 	f_unit VARCHAR(36), 
 	f_flow VARCHAR(36), 
 	parametrized SMALLINT default 0, 
@@ -457,7 +457,7 @@ CREATE TABLE tbl_lciacategories (
 CREATE TABLE tbl_lciafactors (
 
 	id VARCHAR(36) NOT NULL, 
-	f_flowpropertyfactor VARCHAR(36), 
+	f_flow_property_factor VARCHAR(36), 
 	f_flow VARCHAR(36), 
 	f_unit VARCHAR(36), 
 	value DOUBLE, 

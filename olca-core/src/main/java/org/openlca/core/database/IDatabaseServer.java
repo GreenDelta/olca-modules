@@ -21,20 +21,12 @@ import java.util.List;
  */
 public interface IDatabaseServer {
 
-	/** Content type constant of a database: empty database. */
-	int CONTENT_TYPE_EMPTY = 0;
-
-	/** Content type constant of a database: units and flow properties only. */
-	int CONTENT_TYPE_UNITS = 1;
-
-	/** Content type constant of a database: all reference data. */
-	int CONTENT_TYPE_ALL_REF = 2;
-
 	/**
 	 * Creates a database with the given name and type. For the
 	 * content-type-flag see the CONTENT_TYPE_* constants in this interface.
 	 */
-	IDatabase createDatabase(String name, int contentType) throws Exception;
+	IDatabase createDatabase(String name, DatabaseContent contentType)
+			throws Exception;
 
 	/** Deletes the given database. */
 	void delete(IDatabase database) throws Exception;

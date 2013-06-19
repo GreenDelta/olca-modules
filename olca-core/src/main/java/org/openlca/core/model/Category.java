@@ -31,8 +31,8 @@ import javax.persistence.Transient;
 @Table(name = "tbl_categories")
 public class Category extends AbstractEntity implements Copyable<Category> {
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true)
-	@JoinColumn(name = "f_parentcategory")
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@JoinColumn(name = "f_parent_category")
 	private List<Category> childCategories = new ArrayList<>();
 
 	@Enumerated(EnumType.STRING)
@@ -43,7 +43,7 @@ public class Category extends AbstractEntity implements Copyable<Category> {
 	private String name;
 
 	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "f_parentcategory")
+	@JoinColumn(name = "f_parent_category")
 	private Category parentCategory;
 
 	@Transient
