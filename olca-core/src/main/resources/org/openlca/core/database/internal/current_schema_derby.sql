@@ -1,3 +1,9 @@
+-- Database definition for an openLCA database.
+-- There is a schema for Derby and MySQL databases. The MySQL schema can be 
+-- derived from the Derby schema by doing the following text replacements:
+-- 1) 'CLOB(64 K)' with 'TEXT'
+-- 2) 'SMALLINT default 0 ' with 'TINYINT default 0'
+-- 3) 'BLOB(16 M)' with MEDIUMBLOB
 
 -- DROP DATABASE IF EXISTS openlca;
 -- CREATE DATABASE openlca;
@@ -561,7 +567,7 @@ CREATE TABLE tbl_product_cost_entries (
 CREATE TABLE tbl_process_group_sets (
 	id VARCHAR(36) NOT NULL,
 	name VARCHAR(255), 
-	groups_blob BLOB,		
+	groups_blob BLOB(16 M),		
 	PRIMARY KEY (id)	
 ) ;
 

@@ -30,13 +30,13 @@ import org.openlca.core.model.modelprovider.IModelComponent;
  */
 @Entity
 @Table(name = "tbl_actors")
-public class Actor extends AbstractEntity implements Copyable<Actor>, IModelComponent,
-		IdentifyableByVersionAndUUID {
+public class Actor extends AbstractEntity implements Copyable<Actor>,
+		IModelComponent, IdentifyableByVersionAndUUID {
 
 	@Column(name = "address")
 	private String address;
 
-	@Column(length = 36, name = "categoryid")
+	@Column(length = 36, name = "f_category")
 	private String categoryId;
 
 	@Column(name = "city")

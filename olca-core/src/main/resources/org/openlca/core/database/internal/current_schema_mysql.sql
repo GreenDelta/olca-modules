@@ -1,27 +1,35 @@
+-- Database definition for an openLCA database.
+-- There is a schema for Derby and MySQL databases. The MySQL schema can be 
+-- derived from the Derby schema by doing the following text replacements:
+-- 1) 'CLOB(64 K)' with 'TEXT'
+-- 2) 'SMALLINT default 0 ' with 'TINYINT default 0'
+-- 3) 'BLOB(16 M)' with MEDIUMBLOB
 
 -- DROP DATABASE IF EXISTS openlca;
 -- CREATE DATABASE openlca;
 -- USE openLCA;
 
--- the version of the openLCA client
-
+-- current database version
 CREATE TABLE openlca_version (
+
 	id VARCHAR(36) NOT NULL,
 	version VARCHAR(255),	
 	name VARCHAR(255), 
+	
 	PRIMARY KEY (ID)
 );
 
-
-
 CREATE TABLE tbl_categories (
-	id VARCHAR(255) NOT NULL, 
+
+	id VARCHAR(36) NOT NULL, 
 	name VARCHAR(255), 
 	model_type VARCHAR(255), 
-	f_parent_category VARCHAR(255),	
+	f_parent_category VARCHAR(255),
+		
 	PRIMARY KEY (id)
 );
 CREATE INDEX idx_category_parent ON tbl_categories(f_parent_category);
+
 
 CREATE TABLE tbl_actors (
 
@@ -29,61 +37,53 @@ CREATE TABLE tbl_actors (
 	telefax VARCHAR(255), 
 	website VARCHAR(255), 
 	address VARCHAR(255), 
-	description VARCHAR(32000), 
+	description TEXT, 
 	zipcode VARCHAR(255), 
 	name VARCHAR(255), 
-	categoryid VARCHAR(255), 
+	f_category VARCHAR(36), 
 	email VARCHAR(255), 
 	telephone VARCHAR(255), 
 	country VARCHAR(255), 
 	city VARCHAR(255), 
 	
-	
 	PRIMARY KEY (id)
-	
 );
-
-
--- geographical locations
+CREATE INDEX idx_actor_category ON tbl_actors(f_category);
 
 CREATE TABLE tbl_locations (
 
 	id VARCHAR(36) NOT NULL, 
-	description VARCHAR(32000), 
+	description TEXT, 
 	name VARCHAR(255), 
 	longitude DOUBLE, 
-	code VARCHAR(255), 
 	latitude DOUBLE, 
+	code VARCHAR(255), 
 	
 	PRIMARY KEY (id)
-	
 );
 
-
--- data sources for modelling and administrative information of processes
 
 CREATE TABLE tbl_sources (
 
 	id VARCHAR(36) NOT NULL, 
-	description VARCHAR(32000), 
-	categoryid VARCHAR(36), 
+	description TEXT, 
+	f_category VARCHAR(36), 
 	name VARCHAR(255), 
 	source_year SMALLINT, 
-	textreference VARCHAR(32000), 
+	text_reference TEXT, 
 	doi VARCHAR(255), 
 	
 	PRIMARY KEY (id)
 	
 );
+CREATE INDEX idx_source_category ON tbl_sources(f_category);
 
-
--- units
 
 CREATE TABLE tbl_units (
 
 	id VARCHAR(36) NOT NULL,
-	conversionfactor DOUBLE, 
-	description VARCHAR(32000), 
+	conversion_factor DOUBLE, 
+	description TEXT, 
 	name VARCHAR(255),
 	synonyms VARCHAR(255),
 	f_unitgroup VARCHAR(36),
@@ -91,64 +91,50 @@ CREATE TABLE tbl_units (
 	PRIMARY KEY (id)
 	
 );
+CREATE INDEX idx_unit_unit_group ON tbl_units(f_unitgroup);
 
 
--- unit groups 
-
-CREATE TABLE tbl_unitgroups (
-
-	id VARCHAR(36) NOT NULL, 
-	description VARCHAR(32000), 
-	categoryid VARCHAR(36), 
-	name VARCHAR(255), 
-	f_referenceunit VARCHAR(36),
-	f_defaultflowproperty VARCHAR(36), 
-	
-	PRIMARY KEY (id),
-	CONSTRAINT FK_tbl_unitgroups_f_referenceunit 
-		FOREIGN KEY (f_referenceunit) REFERENCES tbl_units (id)
-	
-);
-
-
--- set the reference between units and unit group
-ALTER TABLE tbl_units ADD CONSTRAINT FK_tbl_units_f_unitgroup 
-	FOREIGN KEY (f_unitgroup) REFERENCES tbl_unitgroups (id);
-
-	
--- flow properties
-
-CREATE TABLE tbl_flowproperties (
+CREATE TABLE tbl_unit_groups (
 
 	id VARCHAR(36) NOT NULL, 
-	flowpropertytype INTEGER, 
-	description VARCHAR(32000), 
-	unitgroupid VARCHAR(36), 
-	categoryid VARCHAR(36), 
 	name VARCHAR(255), 
+	f_category VARCHAR(36), 
+	description TEXT, 
+	f_reference_unit VARCHAR(36),
+	f_default_flow_property VARCHAR(36), 
 	
 	PRIMARY KEY (id)
 	
 );
+CREATE INDEX idx_unit_group_category ON tbl_unit_groups(f_category);
+CREATE INDEX idx_unit_group_refunit ON tbl_unit_groups(f_reference_unit);
+CREATE INDEX idx_unit_group_flowprop ON tbl_unit_groups(f_default_flow_property);
 
 
--- reference for a default flow property of a unit group
-ALTER TABLE tbl_unitgroups ADD CONSTRAINT FK_tbl_unitgroups_f_defaultflowproperty 
-	FOREIGN KEY (f_defaultflowproperty) REFERENCES tbl_flowproperties (id);
+CREATE TABLE tbl_flow_properties (
 
-
-
--- flows (elementary, product, or waste flows)
+	id VARCHAR(36) NOT NULL, 
+	name VARCHAR(255), 
+	f_category VARCHAR(36), 
+	description TEXT, 
+	flow_property_type VARCHAR(255), 
+	f_unitgroup VARCHAR(36), 
+	
+	PRIMARY KEY (id)
+	
+);
+CREATE INDEX idx_flowprop_category ON tbl_flow_properties(f_category);
+CREATE INDEX idx_flowprop_unti_group ON tbl_flow_properties(f_unitgroup);
 
 CREATE TABLE tbl_flows (
 
 	id VARCHAR(36) NOT NULL, 
-	flowtype INTEGER, 
-	description VARCHAR(32000),
-	categoryid VARCHAR(36), 
 	name VARCHAR(255),
+	f_category VARCHAR(36), 
+	description TEXT,
+	flow_type VARCHAR(255), 
 	
-	infrastructure_flow SMALLINT default 0, 
+	infrastructure_flow TINYINT default 0, 
 	cas_number VARCHAR(255), 
 	formula VARCHAR(255), 
 	f_reference_flow_property VARCHAR(36), 
@@ -157,46 +143,50 @@ CREATE TABLE tbl_flows (
 	PRIMARY KEY (id)
 	
 );
+CREATE INDEX idx_flow_category ON tbl_flows(f_category);
+CREATE INDEX idx_flow_flow_property ON tbl_flows(f_reference_flow_property);
+CREATE INDEX idx_flow_location ON tbl_flows(f_location);
 
--- conversion factors between flow properties related to a flow
 
-CREATE TABLE tbl_flowpropertyfactors (
+CREATE TABLE tbl_flow_property_factors (
 
 	id VARCHAR(36) NOT NULL, 
-	conversionfactor DOUBLE, 
-	f_flowproperty VARCHAR(36),
-	f_flowinformation VARCHAR(36),
+	conversion_factor DOUBLE, 
+	f_flow VARCHAR(36),
+	f_flow_property VARCHAR(36),
 	
 	PRIMARY KEY (id)
 	
 );
+CREATE INDEX idx_flow_factor_flow ON tbl_flow_property_factors(f_flow);
+CREATE INDEX idx_flow_factor_property ON tbl_flow_property_factors(f_flow_property);
 
-
--- processes
 
 CREATE TABLE tbl_processes (
 
 	id VARCHAR(36) NOT NULL, 
-	processtype INTEGER, 
-	allocationmethod INTEGER, 
-	infrastructureprocess SMALLINT default 0, 
-	geographycomment VARCHAR(32000), 
-	description VARCHAR(32000), 
 	name VARCHAR(255), 
-	categoryid VARCHAR(36), 
-	f_quantitativereference VARCHAR(36), 
+	f_category VARCHAR(36), 
+	description TEXT, 
+	process_type VARCHAR(255), 
+	allocation_method VARCHAR(255), 
+	infrastructure_process TINYINT default 0, 
+	geography_comment TEXT, 
+	f_quantitative_reference VARCHAR(36), 
 	f_location VARCHAR(36), 
 	
 	PRIMARY KEY (id)	
 
 );
 
+
+
 -- process technologies
 
 CREATE TABLE tbl_technologies (
 	
 	id VARCHAR(36) NOT NULL,
-	description VARCHAR(32000),
+	description TEXT,
 	
 	PRIMARY KEY (id)
 	
@@ -210,7 +200,7 @@ CREATE TABLE tbl_times (
 	id VARCHAR(36) NOT NULL, 
 	startdate DATE, 
 	enddate DATE, 
-	comment VARCHAR(32000),
+	comment TEXT,
 	
 	PRIMARY KEY (id)
 	
@@ -222,14 +212,14 @@ CREATE TABLE tbl_times (
 CREATE TABLE tbl_modelingandvalidations (
 
 	id VARCHAR(36) NOT NULL,
-	modelingconstants VARCHAR(32000),
-	datatreatment VARCHAR(32000), 
-	sampling VARCHAR(32000), 
-	datacompleteness VARCHAR(32000),
-	datasetotherevaluation VARCHAR(32000),
-	lcimethod VARCHAR(32000), 
-	datacollectionperiod VARCHAR(32000), 
-	dataselection VARCHAR(32000), 
+	modelingconstants TEXT,
+	datatreatment TEXT, 
+	sampling TEXT, 
+	datacompleteness TEXT,
+	datasetotherevaluation TEXT,
+	lcimethod TEXT, 
+	datacollectionperiod TEXT, 
+	dataselection TEXT, 
 	f_reviewer VARCHAR(36), 
 	
 	PRIMARY KEY (id)
@@ -255,9 +245,9 @@ CREATE TABLE tbl_admininfos (
 	id VARCHAR(36) NOT NULL, 
 	project VARCHAR(255), 
 	creationdate DATE, 
-	intendedapplication VARCHAR(32000), 
-	accessanduserestrictions VARCHAR(32000),
-	copyright SMALLINT default 0, 
+	intendedapplication TEXT, 
+	accessanduserestrictions TEXT,
+	copyright TINYINT default 0, 
 	lastchange DATE, 
 	version VARCHAR(255), 
 	f_datagenerator VARCHAR(36),
@@ -276,13 +266,13 @@ CREATE TABLE tbl_admininfos (
 CREATE TABLE tbl_exchanges (
 
 	id VARCHAR(36) NOT NULL, 
-	avoidedproduct SMALLINT default 0,
+	avoidedproduct TINYINT default 0,
 	distributionType INTEGER default 0, 
-	is_input SMALLINT default 0, 
+	is_input TINYINT default 0, 
 	f_flowpropertyfactor VARCHAR(36), 
 	f_unit VARCHAR(36), 
 	f_flow VARCHAR(36), 
-	parametrized SMALLINT default 0, 
+	parametrized TINYINT default 0, 
 	resultingamount_value DOUBLE, 
 	resultingamount_formula VARCHAR(255), 
 	parameter1_value DOUBLE, 
@@ -321,9 +311,9 @@ CREATE TABLE tbl_productsystems (
 
 	id VARCHAR(36) NOT NULL,
 	name VARCHAR(255), 
-	description VARCHAR(32000), 
+	description TEXT, 
 	categoryid VARCHAR(36), 
-	marked VARCHAR(32000), 
+	marked TEXT, 
 	targetamount DOUBLE, 
 	f_referenceprocess VARCHAR(36), 
 	f_referenceexchange VARCHAR(36), 
@@ -407,7 +397,7 @@ CREATE TABLE tbl_lciaresults (
 	lciamethod VARCHAR(255), 
 	nwset VARCHAR(255), 
 	weightingunit VARCHAR(255), 
-	description VARCHAR(32000), 
+	description TEXT, 
 	categoryid VARCHAR(255), 
 	name VARCHAR(255), 
 	
@@ -439,7 +429,7 @@ CREATE TABLE tbl_lciacategoryresults (
 CREATE TABLE tbl_lciamethods (
 
 	id VARCHAR(36) NOT NULL, 
-	description VARCHAR(32000), 
+	description TEXT, 
 	categoryid VARCHAR(36), 
 	name VARCHAR(255), 
 	PRIMARY KEY (id)
@@ -452,7 +442,7 @@ CREATE TABLE tbl_lciamethods (
 CREATE TABLE tbl_lciacategories (
 
 	id VARCHAR(36) NOT NULL, 
-	description VARCHAR(32000), 
+	description TEXT, 
 	name VARCHAR(255), 
 	referenceunit VARCHAR(255),
 	f_lciamethod VARCHAR(36), 
@@ -516,11 +506,11 @@ CREATE TABLE tbl_normalizationweightingfactors (
 CREATE TABLE tbl_parameters (
 
 	id VARCHAR(36) NOT NULL, 
-	description VARCHAR(32000), 
+	description TEXT, 
 	name VARCHAR(255), 
 	f_owner VARCHAR(36), 
 	type INTEGER, 
-	expression_parametrized SMALLINT default 0, 
+	expression_parametrized TINYINT default 0, 
 	expression_value DOUBLE, 
 	expression_formula VARCHAR(255),
 	
@@ -533,14 +523,14 @@ CREATE TABLE tbl_parameters (
 CREATE TABLE tbl_projects (
 
 	id VARCHAR(36) NOT NULL, 
-	productsystems VARCHAR(32000), 
+	productsystems TEXT, 
 	creationdate DATE, 
-	description VARCHAR(32000), 
+	description TEXT, 
 	categoryid VARCHAR(36), 
-	functionalunit VARCHAR(32000), 
+	functionalunit TEXT, 
 	name VARCHAR(255), 
 	lastmodificationdate DATE,
-	goal VARCHAR(32000), 
+	goal TEXT, 
 	f_author VARCHAR(36), 
 	
 	PRIMARY KEY (id)	
@@ -560,7 +550,7 @@ CREATE TABLE tbl_mappings (
 CREATE TABLE tbl_cost_categories (	
 	id VARCHAR(36) NOT NULL,
 	name VARCHAR(255),
-	description VARCHAR(32000),
+	description TEXT,
 	fix BOOLEAN DEFAULT FALSE,
 	PRIMARY KEY (id)
 ) ;
@@ -577,11 +567,10 @@ CREATE TABLE tbl_product_cost_entries (
 CREATE TABLE tbl_process_group_sets (
 	id VARCHAR(36) NOT NULL,
 	name VARCHAR(255), 
-	groups_blob BLOB,		
+	groups_blob MEDIUMBLOB,		
 	PRIMARY KEY (id)	
 ) ;
 
 -- the version entry
-INSERT INTO openlca_version(id, version, name, eclipse) 
-	VALUES('b3dae112-8c6f-4c0e-9843-4758af2441cc', 
-	'1.3.0', 'openLCA', 'Juno');
+INSERT INTO openlca_version(id, version, name) 
+	VALUES('b3dae112-8c6f-4c0e-9843-4758af2441cc', '1.4.0', 'openLCA');
