@@ -20,15 +20,11 @@ import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.util.FlowPropertyBuilder;
 import org.openlca.ilcd.util.LangString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The export of an openLCA flow property to an ILCD flow property data set.
  */
 public class FlowPropertyExport {
-
-	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private FlowProperty flowProperty;
 	private IDatabase database;
@@ -75,10 +71,9 @@ public class FlowPropertyExport {
 			LangString.addFreeText(dataSetInfo.getGeneralComment(),
 					flowProperty.getDescription());
 		}
-		CategoryConverter converter = new CategoryConverter(FlowProperty.class,
-				database);
+		CategoryConverter converter = new CategoryConverter();
 		ClassificationInformation classInfo = converter
-				.getClassificationInformation(flowProperty.getCategoryId());
+				.getClassificationInformation(flowProperty.getCategory());
 		dataSetInfo.setClassificationInformation(classInfo);
 		return dataSetInfo;
 	}

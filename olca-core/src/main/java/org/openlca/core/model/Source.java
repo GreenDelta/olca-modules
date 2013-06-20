@@ -41,7 +41,7 @@ public class Source extends RootEntity {
 		Source source = new Source();
 		source.setId(UUID.randomUUID().toString());
 		source.setName(getName());
-		source.setCategoryId(getCategoryId());
+		source.setCategory(getCategory());
 		source.setDescription(getDescription());
 		source.setDoi(getDoi());
 		source.setTextReference(getTextReference());

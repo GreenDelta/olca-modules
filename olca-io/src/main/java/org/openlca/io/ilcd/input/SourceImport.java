@@ -81,7 +81,7 @@ public class SourceImport {
 		CategoryImport categoryImport = new CategoryImport(database,
 				ModelType.SOURCE);
 		Category category = categoryImport.run(ilcdSource.getSortedClasses());
-		source.setCategoryId(category.getId());
+		source.setCategory(category);
 	}
 
 	private void saveInDatabase() throws ImportException {

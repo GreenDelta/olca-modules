@@ -89,7 +89,7 @@ public class UnitGroupImport {
 				ModelType.UNIT_GROUP);
 		Category category = categoryImport
 				.run(ilcdUnitGroup.getSortedClasses());
-		unitGroup.setCategoryId(category.getId());
+		unitGroup.setCategory(category);
 	}
 
 	private void createAndMapContent() throws ImportException {

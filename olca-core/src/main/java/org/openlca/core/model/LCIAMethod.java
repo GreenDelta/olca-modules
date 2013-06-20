@@ -44,7 +44,7 @@ public class LCIAMethod extends RootEntity implements IParameterisable {
 		LCIAMethod lciaMethod = new LCIAMethod();
 		lciaMethod.setId(UUID.randomUUID().toString());
 		lciaMethod.setName(getName());
-		lciaMethod.setCategoryId(getCategoryId());
+		lciaMethod.setCategory(getCategory());
 		lciaMethod.setDescription(getDescription());
 		for (LCIACategory lciaCategory : getLCIACategories()) {
 			lciaMethod.getLCIACategories().add(lciaCategory.clone());

@@ -147,8 +147,7 @@ class DBSearch {
 	private boolean sameCategory(String categoryName, String subCategoryName,
 			Flow flow) {
 		try {
-			Category category = database.createDao(Category.class).getForId(
-					flow.getCategoryId());
+			Category category = flow.getCategory();
 			if (sameCategory(subCategoryName, category)) {
 				if (subCategoryName == null)
 					return true;

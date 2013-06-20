@@ -78,7 +78,7 @@ public class ContactImport {
 		CategoryImport categoryImport = new CategoryImport(database,
 				ModelType.ACTOR);
 		Category category = categoryImport.run(ilcdContact.getSortedClasses());
-		actor.setCategoryId(category.getId());
+		actor.setCategory(category);
 	}
 
 	private void setDescriptionAttributes() {

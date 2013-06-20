@@ -61,7 +61,6 @@ public class ImpactCalculator {
 	private LCIAResult prepareResult(ImpactMethodDescriptor method,
 			NormalizationWeightingSet nwSet) {
 		LCIAResult result = new LCIAResult();
-		result.setCategoryId(LCIAResult.class.getCanonicalName());
 		result.setId(UUID.randomUUID().toString());
 		result.setLciaMethod(method.getName());
 		result.setProduct(inventoryResult.getProductName());

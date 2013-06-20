@@ -16,7 +16,7 @@ class ProcessCopy {
 
 	private void copyFields(Process self, Process other) {
 		other.setAllocationMethod(self.getAllocationMethod());
-		other.setCategoryId(self.getCategoryId());
+		other.setCategory(self.getCategory());
 		other.setDescription(self.getDescription());
 		other.setGeographyComment(self.getGeographyComment());
 		other.setInfrastructureProcess(self.isInfrastructureProcess());

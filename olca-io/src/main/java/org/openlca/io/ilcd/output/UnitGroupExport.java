@@ -74,10 +74,9 @@ public class UnitGroupExport {
 		if (unitGroup.getDescription() != null)
 			LangString.addFreeText(dataSetInfo.getGeneralComment(),
 					unitGroup.getDescription());
-		CategoryConverter converter = new CategoryConverter(UnitGroup.class,
-				database);
+		CategoryConverter converter = new CategoryConverter();
 		ClassificationInformation classInfo = converter
-				.getClassificationInformation(unitGroup.getCategoryId());
+				.getClassificationInformation(unitGroup.getCategory());
 		dataSetInfo.setClassificationInformation(classInfo);
 		return dataSetInfo;
 	}

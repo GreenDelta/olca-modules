@@ -146,7 +146,7 @@ class FlowHandler {
 			dao.update(parent);
 			flowCategories.put(pref, cat);
 		}
-		flow.setCategoryId(cat.getId());
+		flow.setCategory(cat);
 	}
 
 }

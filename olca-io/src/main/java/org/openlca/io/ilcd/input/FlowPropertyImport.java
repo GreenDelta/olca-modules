@@ -85,7 +85,7 @@ public class FlowPropertyImport {
 		CategoryImport categoryImport = new CategoryImport(database,
 				ModelType.FLOW_PROPERTY);
 		Category category = categoryImport.run(ilcdProperty.getSortedClasses());
-		property.setCategoryId(category.getId());
+		property.setCategory(category);
 	}
 
 	private void createAndMapContent() throws ImportException {

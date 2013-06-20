@@ -110,11 +110,10 @@ public class ProcessExport {
 
 	private void addClassification(DataSetInformation dataSetInfo) {
 		log.trace("Add classification");
-		if (process.getCategoryId() != null) {
-			CategoryConverter converter = new CategoryConverter(Process.class,
-					database);
+		if (process.getCategory() != null) {
+			CategoryConverter converter = new CategoryConverter();
 			ClassificationInformation classification = converter
-					.getClassificationInformation(process.getCategoryId());
+					.getClassificationInformation(process.getCategory());
 			if (classification != null) {
 				dataSetInfo.setClassificationInformation(classification);
 			}

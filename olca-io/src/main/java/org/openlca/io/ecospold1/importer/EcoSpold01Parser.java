@@ -330,7 +330,7 @@ public class EcoSpold01Parser {
 		String subCategoryName = inRefFunction.getSubCategory();
 		Category category = db.getPutCategory(processCategory, topCategoryName,
 				subCategoryName);
-		ioProcess.setCategoryId(category.getId());
+		ioProcess.setCategory(category);
 
 	}
 
@@ -388,7 +388,7 @@ public class EcoSpold01Parser {
 		method.setId(methodId);
 		method.setName(dataSet.getReferenceFunction().getCategory());
 		Category category = db.getPutCategory(LCIAMethod.class, null, null);
-		method.setCategoryId(category.getId());
+		method.setCategory(category);
 		method.setDescription(dataSet.getReferenceFunction()
 				.getGeneralComment());
 		for (IDataSet adapter : es.getDataset()) {

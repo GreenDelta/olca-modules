@@ -62,8 +62,7 @@ public class FlowImport {
 	private Flow createNew() throws ImportException {
 		flow = new Flow();
 		importAndSetCompartment();
-		if (flow.getCategoryId() == null
-				|| flow.getCategoryId().equals(Flow.class.getCanonicalName()))
+		if (flow.getCategory() == null)
 			importAndSetCategory();
 		createAndMapContent();
 		saveInDatabase(flow);
@@ -89,7 +88,7 @@ public class FlowImport {
 		CategoryImport categoryImport = new CategoryImport(database,
 				ModelType.FLOW);
 		Category category = categoryImport.run(ilcdFlow.getSortedClasses());
-		flow.setCategoryId(category.getId());
+		flow.setCategory(category);
 	}
 
 	private void importAndSetCompartment() throws ImportException {
@@ -98,7 +97,7 @@ public class FlowImport {
 					database);
 			Category category = compartmentImport.run(ilcdFlow
 					.getSortedCompartments());
-			flow.setCategoryId(category.getId());
+			flow.setCategory(category);
 		}
 	}
 

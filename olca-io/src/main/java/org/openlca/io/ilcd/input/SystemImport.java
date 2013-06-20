@@ -85,7 +85,7 @@ public class SystemImport {
 				ModelType.PRODUCT_SYSTEM);
 		Category category = categoryImport.run(ilcdProcessBag
 				.getSortedClasses());
-		system.setCategoryId(category.getId());
+		system.setCategory(category);
 	}
 
 	private void mapContent() throws ImportException {

@@ -23,8 +23,8 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class RootEntity extends AbstractEntity implements Cloneable {
 
-	@Column(length = 36, name = "f_category")
-	private String categoryId;
+	@Column(name = "f_category")
+	private Category category;
 
 	@Column(name = "name")
 	private String name;
@@ -39,16 +39,8 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 		return name;
 	}
 
-	public String getCategoryId() {
-		return categoryId;
-	}
-
 	public String getDescription() {
 		return description;
-	}
-
-	public void setCategoryId(String categoryId) {
-		this.categoryId = categoryId;
 	}
 
 	public void setName(String name) {
@@ -57,5 +49,13 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 }

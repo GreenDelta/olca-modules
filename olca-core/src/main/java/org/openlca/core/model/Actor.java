@@ -52,7 +52,7 @@ public class Actor extends RootEntity {
 		actor.setId(UUID.randomUUID().toString());
 		actor.setName(getName());
 		actor.setAddress(getAddress());
-		actor.setCategoryId(getCategoryId());
+		actor.setCategory(getCategory());
 		actor.setCity(getCity());
 		actor.setCountry(getCountry());
 		actor.setDescription(getDescription());

@@ -51,7 +51,7 @@ public class UnitGroup extends RootEntity {
 		unitGroup.setId(UUID.randomUUID().toString());
 		unitGroup.setName(getName());
 		unitGroup.setDescription(getDescription());
-		unitGroup.setCategoryId(getCategoryId());
+		unitGroup.setCategory(getCategory());
 		unitGroup.setDefaultFlowProperty(getDefaultFlowProperty());
 		for (final Unit unit : getUnits()) {
 			final boolean isRef = getReferenceUnit().getId().equals(

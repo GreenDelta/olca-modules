@@ -313,7 +313,7 @@ public class EcoSpold01Outputter {
 					.getFlowType(), false, multiOutput));
 		}
 
-		mapFlowCategory(exchange, inExchange.getFlow().getCategoryId());
+		mapFlowCategory(exchange, inExchange.getFlow().getCategory());
 		mapFlowInformation(exchange, inExchange.getFlow());
 		exchange.setUnit(inExchange.getUnit().getName());
 
@@ -328,9 +328,8 @@ public class EcoSpold01Outputter {
 		return exchange;
 	}
 
-	private void mapFlowCategory(IExchange exchange, String categoryId)
+	private void mapFlowCategory(IExchange exchange, Category category)
 			throws Exception {
-		Category category = getCategory(categoryId);
 		if (category == null)
 			return;
 		if (category.getParentCategory() == null)
@@ -412,7 +411,7 @@ public class EcoSpold01Outputter {
 			throws Exception {
 		IExchange exchange = factory.createExchange();
 		exchange.setNumber(exchangeCounter++);
-		mapFlowCategory(exchange, factor.getFlow().getCategoryId());
+		mapFlowCategory(exchange, factor.getFlow().getCategory());
 		mapFlowInformation(exchange, factor.getFlow());
 		exchange.setUnit(factor.getUnit().getName());
 		exchange.setName(factor.getFlow().getName());
@@ -498,7 +497,7 @@ public class EcoSpold01Outputter {
 		referenceFunction.setUnit(exchange.getUnit().getName());
 		referenceFunction.setInfrastructureProcess(flow.isInfrastructureFlow());
 		referenceFunction.setAmount(exchange.getResultingAmount().getValue());
-		Category category = getCategory(exchange.getFlow().getCategoryId());
+		Category category = flow.getCategory();
 		if (category != null) {
 			if (category.getParentCategory() == null)
 				referenceFunction.setCategory(category.getName());

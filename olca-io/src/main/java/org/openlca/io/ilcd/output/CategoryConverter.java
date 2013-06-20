@@ -3,35 +3,22 @@ package org.openlca.io.ilcd.output;
 import java.math.BigInteger;
 import java.util.Stack;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.commons.FlowCategorization;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class CategoryConverter {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
-	private java.lang.Class<?> modelClass;
-	private IDatabase database;
-
-	CategoryConverter(java.lang.Class<?> modelClass, IDatabase database) {
-		this.modelClass = modelClass;
-		this.database = database;
-	}
-
-	ClassificationInformation getClassificationInformation(String categoryId) {
+	ClassificationInformation getClassificationInformation(Category category) {
 		ClassificationInformation info = new ClassificationInformation();
-		info.getClassifications().add(getClassification(categoryId));
+		info.getClassifications().add(getClassification(category));
 		return info;
 	}
 
-	Classification getClassification(String categoryId) {
+	Classification getClassification(Category category) {
 		Classification classification = new Classification();
-		Category category = tryGetCategory(categoryId);
 		if (category != null) {
 			Stack<Category> stack = fillStack(category);
 			makeClasses(classification, stack);
@@ -39,24 +26,13 @@ class CategoryConverter {
 		return classification;
 	}
 
-	FlowCategorization getElementaryFlowCategory(String categoryId) {
+	FlowCategorization getElementaryFlowCategory(Category category) {
 		FlowCategorization categorization = new FlowCategorization();
-		Category category = tryGetCategory(categoryId);
 		if (category != null) {
 			Stack<Category> stack = fillStack(category);
 			makeElementaryFlowCategories(categorization, stack);
 		}
 		return categorization;
-	}
-
-	private Category tryGetCategory(String categoryId) {
-		try {
-			return database.createDao(Category.class).getForId(categoryId);
-		} catch (Exception e) {
-			log.error("Cannot create classification for category id="
-					+ categoryId, e);
-			return null;
-		}
 	}
 
 	private Stack<Category> fillStack(Category category) {
@@ -70,11 +46,7 @@ class CategoryConverter {
 	}
 
 	private boolean isNonRoot(Category category) {
-		return category.getParentCategory() != null
-				&& category.getParentCategory().getId() != null
-				&& !category.getParentCategory().getId().equals("root")
-				&& !category.getParentCategory().getId()
-						.equals(modelClass.getCanonicalName());
+		return category.getParentCategory() != null;
 	}
 
 	private void makeClasses(Classification classification,

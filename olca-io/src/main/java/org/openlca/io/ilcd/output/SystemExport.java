@@ -160,13 +160,9 @@ public class SystemExport {
 	}
 
 	private void addClassification(DataSetInformation info) {
-		String catId = system.getCategoryId();
-		if (catId == null)
-			return;
-		CategoryConverter conv = new CategoryConverter(ProductSystem.class,
-				database);
+		CategoryConverter conv = new CategoryConverter();
 		ClassificationInformation classInfo = conv
-				.getClassificationInformation(catId);
+				.getClassificationInformation(system.getCategory());
 		if (classInfo != null)
 			info.setClassificationInformation(classInfo);
 	}

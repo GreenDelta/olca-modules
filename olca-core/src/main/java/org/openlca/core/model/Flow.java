@@ -56,7 +56,7 @@ public class Flow extends RootEntity {
 		Flow flow = new Flow();
 		flow.setId(UUID.randomUUID().toString());
 		flow.setName(getName());
-		flow.setCategoryId(getCategoryId());
+		flow.setCategory(getCategory());
 		flow.setDescription(getDescription());
 		flow.setFlowType(getFlowType());
 		flow.setCasNumber(getCasNumber());

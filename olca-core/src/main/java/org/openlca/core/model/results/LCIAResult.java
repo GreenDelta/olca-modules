@@ -137,7 +137,7 @@ public class LCIAResult extends RootEntity {
 	@Override
 	public LCIAResult clone() {
 		LCIAResult clone = new LCIAResult();
-		clone.setCategoryId(getCategoryId());
+		clone.setCategory(getCategory());
 		clone.setDescription(getDescription());
 		clone.setId(UUID.randomUUID().toString());
 		// TODO: not yet implemented

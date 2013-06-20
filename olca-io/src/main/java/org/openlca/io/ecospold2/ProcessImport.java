@@ -144,7 +144,7 @@ class ProcessImport {
 			dao.update(parent);
 			processCategories.put(pref, cat);
 		}
-		process.setCategoryId(cat.getId());
+		process.setCategory(cat);
 	}
 
 }

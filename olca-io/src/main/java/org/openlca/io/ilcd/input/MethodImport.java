@@ -103,8 +103,6 @@ public class MethodImport {
 			method = new org.openlca.core.model.LCIAMethod();
 			method.setId(id);
 			method.setName(name);
-			method.setCategoryId(org.openlca.core.model.LCIAMethod.class
-					.getCanonicalName());
 			dao.insert(method);
 		}
 		return method;

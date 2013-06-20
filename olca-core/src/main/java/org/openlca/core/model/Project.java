@@ -109,7 +109,7 @@ public class Project extends RootEntity {
 		project.setId(UUID.randomUUID().toString());
 		project.setName(getName());
 		project.setAuthor(getAuthor());
-		project.setCategoryId(getCategoryId());
+		project.setCategory(getCategory());
 		project.setCreationDate(getCreationDate());
 		project.setDescription(getDescription());
 		project.setFunctionalUnit(getFunctionalUnit());

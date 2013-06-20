@@ -107,7 +107,7 @@ public class ProcessImport {
 		CategoryImport categoryImport = new CategoryImport(database,
 				ModelType.PROCESS);
 		Category category = categoryImport.run(ilcdProcess.getSortedClasses());
-		process.setCategoryId(category.getId());
+		process.setCategory(category);
 	}
 
 	private void createAndMapContent() throws ImportException {

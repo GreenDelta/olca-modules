@@ -167,7 +167,7 @@ class FlowImport {
 		Category flowCategory = db.getPutCategory(Flow.class,
 				inExchange.getCategory(), inExchange.getSubCategory());
 		if (flowCategory != null)
-			flow.setCategoryId(flowCategory.getId());
+			flow.setCategory(flowCategory);
 		String locationCode = inExchange.getLocation();
 		if (locationCode != null) {
 			String locKey = KeyGen.get(locationCode);
@@ -184,7 +184,7 @@ class FlowImport {
 		Category flowCategory = db.getPutCategory(Flow.class,
 				refFun.getCategory(), refFun.getSubCategory());
 		if (flowCategory != null)
-			flow.setCategoryId(flowCategory.getId());
+			flow.setCategory(flowCategory);
 		if (dataset.getGeography() != null
 				&& dataset.getGeography().getLocation() != null) {
 			String code = dataset.getGeography().getLocation();

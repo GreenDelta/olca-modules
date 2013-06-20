@@ -71,10 +71,9 @@ public class SourceExport {
 					source.getDescription());
 		}
 		addTextReference(dataSetInfo);
-		CategoryConverter converter = new CategoryConverter(Source.class,
-				database);
+		CategoryConverter converter = new CategoryConverter();
 		ClassificationInformation classInfo = converter
-				.getClassificationInformation(source.getCategoryId());
+				.getClassificationInformation(source.getCategory());
 		dataSetInfo.setClassificationInformation(classInfo);
 		return dataSetInfo;
 	}

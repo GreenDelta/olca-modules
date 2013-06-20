@@ -89,11 +89,10 @@ public class ActorExport {
 	}
 
 	private void addClassification(DataSetInformation dataSetInfo) {
-		if (actor.getCategoryId() != null) {
-			CategoryConverter converter = new CategoryConverter(Actor.class,
-					database);
+		if (actor.getCategory() != null) {
+			CategoryConverter converter = new CategoryConverter();
 			ClassificationInformation classification = converter
-					.getClassificationInformation(actor.getCategoryId());
+					.getClassificationInformation(actor.getCategory());
 			if (classification != null) {
 				dataSetInfo.setClassificationInformation(classification);
 			}

@@ -67,7 +67,7 @@ public class ProductSystem extends RootEntity implements IParameterisable {
 	@Override
 	public ProductSystem clone() {
 		final ProductSystem productSystem = new ProductSystem();
-		productSystem.setCategoryId(getCategoryId());
+		productSystem.setCategory(getCategory());
 		productSystem.setDescription(getDescription());
 		productSystem.setId(UUID.randomUUID().toString());
 		productSystem.setName(getName());

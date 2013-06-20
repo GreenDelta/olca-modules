@@ -32,7 +32,7 @@ public class FlowProperty extends RootEntity {
 	@Override
 	public FlowProperty clone() {
 		FlowProperty flowProperty = new FlowProperty();
-		flowProperty.setCategoryId(getCategoryId());
+		flowProperty.setCategory(getCategory());
 		flowProperty.setDescription(getDescription());
 		flowProperty.setUnitGroup(getUnitGroup());
 		flowProperty.setFlowPropertyType(getFlowPropertyType());

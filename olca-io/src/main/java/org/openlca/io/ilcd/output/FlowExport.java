@@ -85,18 +85,17 @@ public class FlowExport {
 	}
 
 	private void makeCategoryInfo(DataSetInformation dataSetInfo) {
-		CategoryConverter converter = new CategoryConverter(Flow.class,
-				database);
+		CategoryConverter converter = new CategoryConverter();
 		FlowCategoryInformation categoryInformation = new FlowCategoryInformation();
 		dataSetInfo.setClassificationInformation(categoryInformation);
 		if (flow.getFlowType() == org.openlca.core.model.FlowType.ElementaryFlow) {
 			FlowCategorization categorization = converter
-					.getElementaryFlowCategory(flow.getCategoryId());
+					.getElementaryFlowCategory(flow.getCategory());
 			categoryInformation.getElementaryFlowCategorizations().add(
 					categorization);
 		} else {
 			Classification classification = converter.getClassification(flow
-					.getCategoryId());
+					.getCategory());
 			categoryInformation.getClassifications().add(classification);
 		}
 	}

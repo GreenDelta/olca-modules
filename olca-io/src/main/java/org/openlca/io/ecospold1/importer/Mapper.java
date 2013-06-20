@@ -27,14 +27,12 @@ class Mapper {
 		ioActor.setEmail(inPerson.getEmail());
 		ioActor.setTelefax(inPerson.getTelefax());
 		ioActor.setTelephone(inPerson.getTelephone());
-		ioActor.setCategoryId(Actor.class.getCanonicalName());
 	}
 
 	public static void mapSource(ISource inSource, Source ioSource) {
 		ioSource.setName(inSource.getFirstAuthor() + " " + inSource.getYear());
 		ioSource.setDescription(inSource.getText());
 		ioSource.setTextReference(inSource.getTitle());
-		ioSource.setCategoryId(Source.class.getCanonicalName());
 		if (inSource.getYear() != null) {
 			ioSource.setYear((short) inSource.getYear().getYear());
 		}
