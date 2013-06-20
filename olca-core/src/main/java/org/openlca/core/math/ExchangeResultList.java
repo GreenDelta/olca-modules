@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -20,13 +19,11 @@ import org.slf4j.LoggerFactory;
 public class ExchangeResultList {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
 	private String ownerId;
 	private Flow refFlow;
 	private double refAmount;
 
 	private ExchangeResultList(IDatabase database) {
-		this.database = database;
 	}
 
 	public static ExchangeResultList on(IDatabase database) {
@@ -80,14 +77,9 @@ public class ExchangeResultList {
 	private void appendFlowInformation(Exchange exchange) {
 		try {
 			Flow flow = exchange.getFlow();
-			FlowPropertyFactor flowPropertyFactor = flow
-					.getFlowPropertyFactor(flow.getReferenceFlowProperty()
-							.getId());
-			exchange.setFlowPropertyFactor(flowPropertyFactor);
-			BaseDao<UnitGroup> unitDao = database.createDao(UnitGroup.class);
-			UnitGroup unitGroup = unitDao
-					.getForId(exchange.getFlowPropertyFactor()
-							.getFlowProperty().getUnitGroupId());
+			FlowPropertyFactor factor = flow.getReferenceFactor();
+			exchange.setFlowPropertyFactor(factor);
+			UnitGroup unitGroup = factor.getFlowProperty().getUnitGroup();
 			exchange.setUnit(unitGroup.getReferenceUnit());
 		} catch (final Exception e) {
 			log.error("Loading reference flow property failed", e);

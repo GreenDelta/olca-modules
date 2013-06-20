@@ -9,14 +9,14 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.modelprovider.IModelComponent;
 import org.openlca.core.model.results.LCIAResult;
 
 public class Descriptors {
 
-	public static BaseDescriptor toDescriptor(IModelComponent component) {
+	public static BaseDescriptor toDescriptor(RootEntity component) {
 		if (component == null)
 			return null;
 		if (component instanceof Project)
@@ -140,15 +140,14 @@ public class Descriptors {
 		return descriptor;
 	}
 
-	private static void setBaseValues(IModelComponent component,
+	private static void setBaseValues(RootEntity component,
 			BaseDescriptor descriptor) {
 		descriptor.setDescription(component.getDescription());
 		descriptor.setId(component.getId());
 		descriptor.setName(component.getName());
 	}
 
-	private static BaseDescriptor createUnknownDescriptor(
-			IModelComponent component) {
+	private static BaseDescriptor createUnknownDescriptor(RootEntity component) {
 		BaseDescriptor descriptor = new BaseDescriptor();
 		descriptor.setDescription(component.getDescription());
 		descriptor.setId(component.getId());

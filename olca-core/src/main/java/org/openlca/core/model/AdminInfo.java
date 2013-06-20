@@ -31,7 +31,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "tbl_admininfos")
-public class AdminInfo extends AbstractEntity implements Copyable<AdminInfo> {
+public class AdminInfo extends AbstractEntity implements Cloneable {
 
 	/**
 	 * <p style="margin-top: 0">
@@ -182,7 +182,7 @@ public class AdminInfo extends AbstractEntity implements Copyable<AdminInfo> {
 	}
 
 	@Override
-	public AdminInfo copy() {
+	public AdminInfo clone() {
 		final AdminInfo adminInfo = new AdminInfo();
 		adminInfo.setAccessAndUseRestrictions(getAccessAndUseRestrictions());
 		adminInfo.setCopyright(getCopyright());

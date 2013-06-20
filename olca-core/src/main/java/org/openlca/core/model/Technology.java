@@ -26,7 +26,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "tbl_technologies")
-public class Technology extends AbstractEntity implements Copyable<Technology> {
+public class Technology extends AbstractEntity implements Cloneable {
 
 	/**
 	 * <p style="margin-top: 0">
@@ -79,7 +79,7 @@ public class Technology extends AbstractEntity implements Copyable<Technology> {
 	}
 
 	@Override
-	public Technology copy() {
+	public Technology clone() {
 		final Technology technology = new Technology();
 		technology.setDescription(getDescription());
 		return technology;

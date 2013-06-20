@@ -76,7 +76,7 @@ class UnitGroupSync {
 			unit.setConversionFactor(factor * ilcdUnit.getMeanValue());
 			unit.setDescription(LangString.getLabel(ilcdUnit
 					.getGeneralComment()));
-			olcaGroup.add(unit);
+			olcaGroup.getUnits().add(unit);
 			changed = true;
 		}
 		return changed;

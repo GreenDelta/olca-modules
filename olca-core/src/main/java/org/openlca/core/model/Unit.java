@@ -25,8 +25,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "tbl_units")
-public class Unit extends AbstractEntity implements Copyable<Unit>,
-		IdentifyableByVersionAndUUID {
+public class Unit extends AbstractEntity implements Cloneable {
 
 	/**
 	 * <p style="margin-top: 0">
@@ -125,7 +124,7 @@ public class Unit extends AbstractEntity implements Copyable<Unit>,
 	}
 
 	@Override
-	public Unit copy() {
+	public Unit clone() {
 		final Unit unit = new Unit(getId(), getName());
 		unit.setConversionFactor(getConversionFactor());
 		unit.setDescription(getDescription());
@@ -144,16 +143,6 @@ public class Unit extends AbstractEntity implements Copyable<Unit>,
 	 */
 	public String getDescription() {
 		return description;
-	}
-
-	@Override
-	public String getUUID() {
-		return getId();
-	}
-
-	@Override
-	public String getVersion() {
-		return "1.0";
 	}
 
 	/**

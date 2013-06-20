@@ -10,8 +10,6 @@ import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -61,18 +59,6 @@ public class FlowDao extends BaseDao<Flow> {
 			descriptors.add(descriptor);
 		}
 		return descriptors;
-	}
-
-	public String getRefUnitName(Flow flow) throws Exception {
-		FlowProperty prop = flow.getReferenceFlowProperty();
-		if (prop == null || prop.getUnitGroupId() == null)
-			return "";
-		BaseDao<UnitGroup> unitDao = new BaseDao<>(UnitGroup.class,
-				getEntityFactory());
-		UnitGroup unitGroup = unitDao.getForId(prop.getUnitGroupId());
-		if (unitGroup == null || unitGroup.getReferenceUnit() == null)
-			return "";
-		return unitGroup.getReferenceUnit().getName();
 	}
 
 	public List<ProcessDescriptor> getProviders(Flow flow) throws Exception {

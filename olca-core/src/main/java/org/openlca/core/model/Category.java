@@ -29,7 +29,7 @@ import javax.persistence.Transient;
 
 @Entity
 @Table(name = "tbl_categories")
-public class Category extends AbstractEntity implements Copyable<Category> {
+public class Category extends AbstractEntity implements Cloneable {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_parent_category")
@@ -89,11 +89,11 @@ public class Category extends AbstractEntity implements Copyable<Category> {
 	}
 
 	@Override
-	public Category copy() {
+	public Category clone() {
 		Category category = new Category(UUID.randomUUID().toString(),
 				getName(), getModelType());
 		for (Category child : getChildCategories()) {
-			Category childCopy = child.copy();
+			Category childCopy = child.clone();
 			category.add(childCopy);
 			childCopy.setParentCategory(category);
 		}

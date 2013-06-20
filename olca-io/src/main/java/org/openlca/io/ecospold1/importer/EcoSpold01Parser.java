@@ -43,8 +43,8 @@ import org.openlca.ecospold.IPerson;
 import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
-import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.ecospold.io.DataSetType;
+import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.maps.FlowMap;
@@ -277,7 +277,7 @@ public class EcoSpold01Parser {
 			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange,
 					inExchange);
 			exchangeAmount.map(flow.conversionFactor);
-			ioProcess.add(outExchange);
+			ioProcess.getExchanges().add(outExchange);
 			localExchangeCache.put(inExchange.getNumber(), outExchange);
 			if (ioProcess.getQuantitativeReference() == null
 					&& inExchange.getOutputGroup() != null
@@ -302,7 +302,7 @@ public class EcoSpold01Parser {
 			factor.setFlowPropertyFactor(flow.flowProperty);
 			factor.setUnit(flow.unit);
 			factor.setValue(flow.conversionFactor * inFactor.getMeanValue());
-			ioCategory.add(factor);
+			ioCategory.getLCIAFactors().add(factor);
 		}
 	}
 
@@ -350,7 +350,7 @@ public class EcoSpold01Parser {
 				* flow.conversionFactor;
 		outExchange.getResultingAmount().setFormula(Double.toString(amount));
 		outExchange.getResultingAmount().setValue(amount);
-		ioProcess.add(outExchange);
+		ioProcess.getExchanges().add(outExchange);
 		ioProcess.setQuantitativeReference(outExchange);
 	}
 
@@ -384,8 +384,9 @@ public class EcoSpold01Parser {
 			return;
 		}
 
-		method = new LCIAMethod(methodId, dataSet.getReferenceFunction()
-				.getCategory());
+		method = new LCIAMethod();
+		method.setId(methodId);
+		method.setName(dataSet.getReferenceFunction().getCategory());
 		Category category = db.getPutCategory(LCIAMethod.class, null, null);
 		method.setCategoryId(category.getId());
 		method.setDescription(dataSet.getReferenceFunction()
@@ -396,7 +397,7 @@ public class EcoSpold01Parser {
 			LCIACategory lciaCategory = mapReferenceFunction(dataSet
 					.getReferenceFunction());
 			mapFactors(dataSet.getExchanges(), lciaCategory);
-			method.add(lciaCategory);
+			method.getLCIACategories().add(lciaCategory);
 		}
 		db.put(method, methodId);
 	}

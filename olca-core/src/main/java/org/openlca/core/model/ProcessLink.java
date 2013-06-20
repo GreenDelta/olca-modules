@@ -27,8 +27,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "tbl_processlinks")
-public class ProcessLink extends AbstractEntity implements
-		Copyable<ProcessLink> {
+public class ProcessLink extends AbstractEntity implements Cloneable {
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "f_provideroutput")
@@ -58,7 +57,7 @@ public class ProcessLink extends AbstractEntity implements
 	}
 
 	@Override
-	public ProcessLink copy() {
+	public ProcessLink clone() {
 		final ProcessLink processLink = new ProcessLink();
 		processLink.setId(UUID.randomUUID().toString());
 		processLink.setProviderOutput(getProviderOutput());

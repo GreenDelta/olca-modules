@@ -126,9 +126,11 @@ public class FlowImport {
 					dataStore, database);
 			FlowProperty flowProperty = flowPropertyImport.run(prop
 					.getFlowProperty().getUuid());
-			FlowPropertyFactor factor = new FlowPropertyFactor(UUID
-					.randomUUID().toString(), flowProperty, prop.getMeanValue());
-			flow.add(factor);
+			FlowPropertyFactor factor = new FlowPropertyFactor();
+			factor.setId(UUID.randomUUID().toString());
+			factor.setFlowProperty(flowProperty);
+			factor.setConversionFactor(prop.getMeanValue());
+			flow.getFlowPropertyFactors().add(factor);
 			BigInteger propId = prop.getDataSetInternalID();
 			if (refPropertyId == null || propId == null)
 				continue;

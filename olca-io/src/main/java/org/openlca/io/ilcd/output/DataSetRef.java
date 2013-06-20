@@ -4,9 +4,9 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.modelprovider.IModelComponent;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.util.LangString;
@@ -16,7 +16,7 @@ class DataSetRef {
 	private DataSetRef() {
 	}
 
-	public static DataSetReference makeRef(IModelComponent model) {
+	public static DataSetReference makeRef(RootEntity model) {
 		if (model == null) {
 			return new DataSetReference();
 		}
@@ -30,8 +30,7 @@ class DataSetRef {
 		return ref;
 	}
 
-	private static void setUriAndType(IModelComponent iModel,
-			DataSetReference ref) {
+	private static void setUriAndType(RootEntity iModel, DataSetReference ref) {
 		String uri = "../";
 		if (iModel instanceof Actor) {
 			ref.setType(DataSetType.CONTACT_DATA_SET);

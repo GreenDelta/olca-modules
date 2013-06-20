@@ -5,8 +5,9 @@ import java.util.UUID;
 class ProcessCopy {
 
 	public Process create(Process self) {
-		Process other = new Process(UUID.randomUUID().toString(),
-				self.getName());
+		Process other = new Process();
+		other.setId(UUID.randomUUID().toString());
+		other.setName(self.getName());
 		copyFields(self, other);
 		copyExchanges(self, other);
 		copyParameters(self, other);
@@ -27,7 +28,7 @@ class ProcessCopy {
 		for (Exchange exchange : self.getExchanges()) {
 			Exchange otherExchange = new Exchange(other.getId());
 			copyExchangeFields(exchange, otherExchange);
-			other.add(otherExchange);
+			other.getExchanges().add(otherExchange);
 			if (exchange.equals(self.getQuantitativeReference())) {
 				other.setQuantitativeReference(otherExchange);
 			}
@@ -55,7 +56,7 @@ class ProcessCopy {
 					ParameterType.PROCESS, other.getId());
 			p.setDescription(parameter.getDescription());
 			p.setName(parameter.getName());
-			other.add(p);
+			other.getParameters().add(p);
 		}
 	}
 

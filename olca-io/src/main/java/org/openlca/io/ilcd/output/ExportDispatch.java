@@ -5,9 +5,9 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.modelprovider.IModelComponent;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.io.DataStore;
@@ -32,7 +32,7 @@ class ExportDispatch {
 	 * Runs an export of the given model to the ILCD data store and returns the
 	 * data set reference to the exported model in the store.
 	 */
-	public static DataSetReference forwardExportCheck(IModelComponent model,
+	public static DataSetReference forwardExportCheck(RootEntity model,
 			IDatabase database, DataStore target) {
 		if (model instanceof Source)
 			return checkRunSourceExort((Source) model, database, target);

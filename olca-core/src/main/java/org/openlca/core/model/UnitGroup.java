@@ -9,26 +9,16 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.PostLoad;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.openlca.core.model.modelprovider.IModelComponent;
 
 /**
  * A set of {@link Unit} objects which are directly convertible into each other
@@ -41,117 +31,38 @@ import org.openlca.core.model.modelprovider.IModelComponent;
  */
 @Entity
 @Table(name = "tbl_unitgroups")
-public class UnitGroup extends AbstractEntity implements IModelComponent,
-		PropertyChangeListener, Copyable<UnitGroup>,
-		IdentifyableByVersionAndUUID {
+public class UnitGroup extends RootEntity {
 
-	@Column(length = 36, name = "categoryid")
-	private String categoryId;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "f_defaultflowproperty")
+	@OneToOne
+	@JoinColumn(name = "f_default_flow_property")
 	private FlowProperty defaultFlowProperty;
 
-	@Lob
-	@Column(name = "description")
-	private String description;
-
-	@Column(name = "name")
-	private String name;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "f_referenceunit")
+	@OneToOne
+	@JoinColumn(name = "f_reference_unit")
 	private Unit referenceUnit;
 
-	@Transient
-	private final transient PropertyChangeSupport support = new PropertyChangeSupport(
-			this);
-
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	@JoinColumn(name = "f_unitgroup")
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_unit_group")
 	private final List<Unit> units = new ArrayList<>();
 
-	public UnitGroup() {
-	}
-
-	public UnitGroup(final String id, final String name) {
-		setId(id);
-		this.name = name;
-	}
-
-	/**
-	 * Initializes the property change listener after object is loaded from
-	 * database
-	 */
-	@PostLoad
-	protected void postLoad() {
-		for (final Unit unit : getUnits()) {
-			unit.addPropertyChangeListener(this);
-		}
-	}
-
-	public void add(final Unit unit) {
-		if (!units.contains(unit)) {
-			units.add(unit);
-			support.firePropertyChange("units", null, unit);
-			unit.addPropertyChangeListener(this);
-		}
-	}
-
 	@Override
-	public void addPropertyChangeListener(final PropertyChangeListener listener) {
-		support.addPropertyChangeListener(listener);
-	}
-
-	@Override
-	public String getCategoryId() {
-		return categoryId;
-	}
-
-	@Override
-	public UnitGroup copy() {
-		final UnitGroup unitGroup = new UnitGroup(UUID.randomUUID().toString(),
-				getName());
+	public UnitGroup clone() {
+		final UnitGroup unitGroup = new UnitGroup();
+		unitGroup.setId(UUID.randomUUID().toString());
+		unitGroup.setName(getName());
+		unitGroup.setDescription(getDescription());
 		unitGroup.setCategoryId(getCategoryId());
 		unitGroup.setDefaultFlowProperty(getDefaultFlowProperty());
 		for (final Unit unit : getUnits()) {
 			final boolean isRef = getReferenceUnit().getId().equals(
 					unit.getId());
-			final Unit copy = unit.copy();
-			unitGroup.add(copy);
+			final Unit copy = unit.clone();
+			unitGroup.getUnits().add(copy);
 			if (isRef) {
 				unitGroup.setReferenceUnit(copy);
 			}
 		}
 		return unitGroup;
-	}
-
-	public FlowProperty getDefaultFlowProperty() {
-		return defaultFlowProperty;
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
-	}
-
-	@Override
-	public String getUUID() {
-		return getId();
-	}
-
-	@Override
-	public String getVersion() {
-		return "1.0";
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	public Unit getReferenceUnit() {
-		return referenceUnit;
 	}
 
 	/**
@@ -172,53 +83,24 @@ public class UnitGroup extends AbstractEntity implements IModelComponent,
 		return null;
 	}
 
-	public Unit[] getUnits() {
-		return units.toArray(new Unit[units.size()]);
+	public FlowProperty getDefaultFlowProperty() {
+		return defaultFlowProperty;
 	}
 
-	@Override
-	public void propertyChange(final PropertyChangeEvent evt) {
-		support.firePropertyChange(evt);
+	public void setDefaultFlowProperty(FlowProperty defaultFlowProperty) {
+		this.defaultFlowProperty = defaultFlowProperty;
 	}
 
-	public void remove(final Unit unit) {
-		units.remove(unit);
-		unit.removePropertyChangeListener(this);
-		support.firePropertyChange("units", unit, null);
+	public Unit getReferenceUnit() {
+		return referenceUnit;
 	}
 
-	@Override
-	public void removePropertyChangeListener(
-			final PropertyChangeListener listener) {
-		support.removePropertyChangeListener(listener);
+	public void setReferenceUnit(Unit referenceUnit) {
+		this.referenceUnit = referenceUnit;
 	}
 
-	@Override
-	public void setCategoryId(final String categoryId) {
-		support.firePropertyChange("categoryId", this.categoryId,
-				this.categoryId = categoryId);
-	}
-
-	public void setDefaultFlowProperty(final FlowProperty defaultFlowProperty) {
-		support.firePropertyChange("defaultFlowProperty",
-				this.defaultFlowProperty,
-				this.defaultFlowProperty = defaultFlowProperty);
-	}
-
-	@Override
-	public void setDescription(final String description) {
-		support.firePropertyChange("description", this.description,
-				this.description = description);
-	}
-
-	@Override
-	public void setName(final String name) {
-		support.firePropertyChange("name", this.name, this.name = name);
-	}
-
-	public void setReferenceUnit(final Unit referenceUnit) {
-		support.firePropertyChange("referenceUnit", this.referenceUnit,
-				this.referenceUnit = referenceUnit);
+	public List<Unit> getUnits() {
+		return units;
 	}
 
 }

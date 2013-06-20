@@ -61,7 +61,9 @@ class FlowImport {
 		FlowBucket db = getDbFlow(flowKey, exchange);
 		if (db != null)
 			return cache(flowKey, db);
-		Flow flow = new Flow(flowKey, exchange.getName());
+		Flow flow = new Flow();
+		flow.setId(flowKey);
+		flow.setName(exchange.getName());
 		mapExchangeData(exchange, flow);
 		String unit = exchange.getUnit();
 		FlowBucket created = createFlow(flowKey, flow, unit);
@@ -80,7 +82,9 @@ class FlowImport {
 		if (db != null)
 			return cache(flowKey, db);
 		IReferenceFunction refFun = dataSet.getReferenceFunction();
-		Flow flow = new Flow(flowKey, refFun.getName());
+		Flow flow = new Flow();
+		flow.setId(flowKey);
+		flow.setName(refFun.getName());
 		mapDataSetData(dataSet, flow);
 		String unit = refFun.getUnit();
 		FlowBucket created = createFlow(flowKey, flow, unit);
@@ -119,7 +123,7 @@ class FlowImport {
 		FlowBucket bucket = new FlowBucket();
 		bucket.conversionFactor = entry.getConversionFactor();
 		bucket.flow = flow;
-		bucket.flowProperty = flow.getReferencePropertyFactor();
+		bucket.flowProperty = flow.getReferenceFactor();
 		Unit unit = getReferenceUnit(bucket.flowProperty);
 		bucket.unit = unit;
 		if (!bucket.isValid()) {
@@ -132,8 +136,7 @@ class FlowImport {
 	private Unit getReferenceUnit(FlowPropertyFactor flowProperty) {
 		if (flowProperty == null || flowProperty.getFlowProperty() == null)
 			return null;
-		UnitGroup group = db.get(UnitGroup.class, flowProperty
-				.getFlowProperty().getUnitGroupId());
+		UnitGroup group = flowProperty.getFlowProperty().getUnitGroup();
 		if (group == null)
 			return null;
 		return group.getReferenceUnit();
@@ -197,9 +200,11 @@ class FlowImport {
 		if (entry == null || !entry.isValid())
 			return null;
 		flow.setReferenceFlowProperty(entry.getFlowProperty());
-		FlowPropertyFactor propertyFactor = new FlowPropertyFactor(UUID
-				.randomUUID().toString(), entry.getFlowProperty(), 1.0);
-		flow.add(propertyFactor);
+		FlowPropertyFactor factor = new FlowPropertyFactor();
+		factor.setId(UUID.randomUUID().toString());
+		factor.setFlowProperty(entry.getFlowProperty());
+		factor.setConversionFactor(1.0);
+		flow.getFlowPropertyFactors().add(factor);
 		db.put(flow, flowKey);
 		return createBucket(flow, unit);
 	}
@@ -209,8 +214,7 @@ class FlowImport {
 		UnitMappingEntry mapEntry = unitMapping.getEntry(unit);
 		if (mapEntry == null || !mapEntry.isValid())
 			return null;
-		FlowPropertyFactor factor = flow.getFlowPropertyFactor(mapEntry
-				.getFlowProperty().getId());
+		FlowPropertyFactor factor = flow.getFactor(mapEntry.getFlowProperty());
 		if (factor == null) {
 			log.error("The unit/property for flow {}/{} "
 					+ "changed in the database", flow, unit);

@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import org.openlca.core.model.modelprovider.IParameterizedComponent;
 
 /**
  * Enumeration of parameter types
@@ -58,11 +57,11 @@ public enum ParameterType {
 	 * Returns the type of a specific class
 	 * 
 	 * @param clazz
-	 *            An implementation of {@link IParameterizedComponent}
+	 *            An implementation of {@link IParameterisable}
 	 * @return The type of a specific class
 	 */
 	public static ParameterType getTypeFor(
-			final Class<? extends IParameterizedComponent> clazz) {
+			final Class<? extends IParameterisable> clazz) {
 		ParameterType type = null;
 		if (clazz == Process.class) {
 			type = PROCESS;

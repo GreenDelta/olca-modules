@@ -84,7 +84,7 @@ class ProcessParameterConversion {
 
 	private void addOrInsert(Parameter param) {
 		if (param.getType() == ParameterType.PROCESS) {
-			olcaProcess.add(param);
+			olcaProcess.getParameters().add(param);
 			return;
 		}
 		try {

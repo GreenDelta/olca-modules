@@ -25,8 +25,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "tbl_allocationfactors")
-public class AllocationFactor extends AbstractEntity implements
-		Copyable<AllocationFactor> {
+public class AllocationFactor extends AbstractEntity implements Cloneable {
 
 	/**
 	 * <p style="margin-top: 0">
@@ -91,7 +90,7 @@ public class AllocationFactor extends AbstractEntity implements
 	}
 
 	@Override
-	public AllocationFactor copy() {
+	public AllocationFactor clone() {
 		return new AllocationFactor(UUID.randomUUID().toString(),
 				getProductId(), getValue());
 	}

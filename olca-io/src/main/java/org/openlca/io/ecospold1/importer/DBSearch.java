@@ -141,7 +141,7 @@ class DBSearch {
 		if (flow == null || mapping == null
 				|| mapping.getFlowProperty() == null)
 			return false;
-		return flow.getFlowPropertyFactor(mapping.getFlowProperty().getId()) != null;
+		return flow.getFactor(mapping.getFlowProperty()) != null;
 	}
 
 	private boolean sameCategory(String categoryName, String subCategoryName,

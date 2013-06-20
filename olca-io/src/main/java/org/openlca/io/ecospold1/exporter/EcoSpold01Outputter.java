@@ -204,7 +204,7 @@ public class EcoSpold01Outputter {
 		person.setName(inActor.getName());
 		person.setAddress(inActor.getAddress());
 		person.setCountryCode(factory.getCountryCode(inActor.getCountry()));
-		person.setEmail(inActor.getEMail());
+		person.setEmail(inActor.getEmail());
 		person.setTelefax(inActor.getTelefax());
 		person.setTelephone(inActor.getTelephone());
 		actorToES1Person.put(inActor.getId(), person);

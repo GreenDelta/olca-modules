@@ -81,7 +81,7 @@ class ProcessExchanges {
 			else
 				mapPropertyAndUnit(exchangeFlow, exchange);
 			if (isValid(exchange)) {
-				olcaProcess.add(exchange);
+				olcaProcess.getExchanges().add(exchange);
 				mappedPairs.add(new MappedPair(exchange, iExchange));
 			} else {
 				log.warn("invalid exchange {} - not added to process {}",
@@ -130,11 +130,9 @@ class ProcessExchanges {
 		try {
 			Flow flowInfo = exchangeFlow.getFlow();
 			FlowProperty flowProperty = flowInfo.getReferenceFlowProperty();
-			FlowPropertyFactor factor = flowInfo
-					.getFlowPropertyFactor(flowProperty.getId());
+			FlowPropertyFactor factor = flowInfo.getFactor(flowProperty);
 			oExchange.setFlowPropertyFactor(factor);
-			UnitGroup unitGroup = database.createDao(UnitGroup.class).getForId(
-					flowProperty.getUnitGroupId());
+			UnitGroup unitGroup = flowProperty.getUnitGroup();
 			oExchange.setUnit(unitGroup.getReferenceUnit());
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
@@ -153,8 +151,9 @@ class ProcessExchanges {
 			Unit unit = database.createDao(Unit.class).getForId(
 					extension.getUnitId());
 			exchange.setUnit(unit);
-			FlowPropertyFactor factor = flowInfo
-					.getFlowPropertyFactor(extension.getPropertyId());
+			FlowProperty property = database.createDao(FlowProperty.class)
+					.getForId(extension.getPropertyId());
+			FlowPropertyFactor factor = flowInfo.getFactor(property);
 			exchange.setFlowPropertyFactor(factor);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());

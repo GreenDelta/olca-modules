@@ -115,7 +115,7 @@ public class FlowPropertyImport {
 			UnitGroupImport unitGroupImport = new UnitGroupImport(dataStore,
 					database);
 			UnitGroup unitGroup = unitGroupImport.run(unitGroupRef.getUuid());
-			property.setUnitGroupId(unitGroup.getId());
+			property.setUnitGroup(unitGroup);
 		}
 	}
 

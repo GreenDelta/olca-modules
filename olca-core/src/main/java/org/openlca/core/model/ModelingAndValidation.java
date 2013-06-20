@@ -34,8 +34,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "tbl_modelingandvalidations")
-public class ModelingAndValidation extends AbstractEntity implements
-		Copyable<ModelingAndValidation> {
+public class ModelingAndValidation extends AbstractEntity implements Cloneable {
 
 	@Lob
 	@Column(name = "datacollectionperiod")
@@ -129,7 +128,7 @@ public class ModelingAndValidation extends AbstractEntity implements
 	}
 
 	@Override
-	public ModelingAndValidation copy() {
+	public ModelingAndValidation clone() {
 		final ModelingAndValidation modelingAndValidation = new ModelingAndValidation();
 		modelingAndValidation
 				.setDataCollectionPeriod(getDataCollectionPeriod());

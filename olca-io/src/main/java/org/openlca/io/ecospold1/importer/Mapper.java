@@ -24,7 +24,7 @@ class Mapper {
 		ioActor.setAddress(inPerson.getAddress());
 		if (inPerson.getCountryCode() != null)
 			ioActor.setCountry(inPerson.getCountryCode().value());
-		ioActor.setEMail(inPerson.getEmail());
+		ioActor.setEmail(inPerson.getEmail());
 		ioActor.setTelefax(inPerson.getTelefax());
 		ioActor.setTelephone(inPerson.getTelephone());
 		ioActor.setCategoryId(Actor.class.getCanonicalName());

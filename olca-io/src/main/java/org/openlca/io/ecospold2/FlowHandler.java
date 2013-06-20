@@ -118,9 +118,11 @@ class FlowHandler {
 			log.warn("unknown unit {}", exchange.getUnitId());
 			return;
 		}
-		FlowPropertyFactor fac = new FlowPropertyFactor(UUID.randomUUID()
-				.toString(), prop, 1.0);
-		flow.add(fac);
+		FlowPropertyFactor fac = new FlowPropertyFactor();
+		fac.setId(UUID.randomUUID().toString());
+		fac.setFlowProperty(prop);
+		fac.setConversionFactor(1.0);
+		flow.getFlowPropertyFactors().add(fac);
 		flow.setReferenceFlowProperty(prop);
 		try {
 			setCategory(flow);

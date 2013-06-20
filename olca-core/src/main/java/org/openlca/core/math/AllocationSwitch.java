@@ -36,9 +36,8 @@ public class AllocationSwitch {
 		double totalAmount = 0;
 		for (Exchange product : techOutputs) {
 			double rawAmount = product.getConvertedResult();
-			Flow flowInfo = product.getFlow();
-			FlowPropertyFactor factor = flowInfo.getFlowPropertyFactor(prop
-					.getId());
+			Flow flow = product.getFlow();
+			FlowPropertyFactor factor = flow.getFactor(prop);
 			if (factor == null)
 				continue;
 			double amount = rawAmount / factor.getConversionFactor();

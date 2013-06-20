@@ -18,9 +18,9 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.modelprovider.IModelComponent;
 import org.openlca.ilcd.io.ZipStore;
 import org.openlca.io.ilcd.output.ActorExport;
 import org.openlca.io.ilcd.output.FlowExport;
@@ -72,7 +72,7 @@ public class ILCDExport {
 		return i;
 	}
 
-	public void export(IModelComponent component, IDatabase database) {
+	public void export(RootEntity component, IDatabase database) {
 		if (component == null || database == null)
 			throw new IllegalArgumentException(
 					"Component and database cannot be NULL.");
@@ -86,7 +86,7 @@ public class ILCDExport {
 		}
 	}
 
-	private void tryExport(IModelComponent component, IDatabase database)
+	private void tryExport(RootEntity component, IDatabase database)
 			throws Exception {
 		if (component instanceof ProductSystem) {
 			ProductSystem system = database.createDao(ProductSystem.class)

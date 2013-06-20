@@ -28,7 +28,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "tbl_times")
-public class Time extends AbstractEntity implements Copyable<Time> {
+public class Time extends AbstractEntity implements Cloneable {
 
 	/**
 	 * <p style="margin-top: 0">
@@ -112,7 +112,7 @@ public class Time extends AbstractEntity implements Copyable<Time> {
 	}
 
 	@Override
-	public Time copy() {
+	public Time clone() {
 		final Time time = new Time();
 		time.setComment(getComment());
 		time.setEndDate(getEndDate());

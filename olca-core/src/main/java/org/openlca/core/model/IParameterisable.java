@@ -9,23 +9,13 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
+import java.util.List;
+
 /**
- * <p style="margin-top: 0">
- * Interface for copyable navigation view objects
- * </p>
- * 
- * @param <T>
- *            The implementing class
+ * Interface for parameterized models.
  */
-public interface Copyable<T> {
+public interface IParameterisable {
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Copies the object and returns the copy
-	 * </p>
-	 * 
-	 * @return The copy of the object
-	 */
-	T copy();
-
+	/** Returns a live list of parameters. */
+	List<Parameter> getParameters();
 }

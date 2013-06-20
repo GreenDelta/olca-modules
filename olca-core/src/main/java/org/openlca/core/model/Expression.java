@@ -23,7 +23,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Embeddable
-public class Expression implements Copyable<Expression> {
+public class Expression implements Cloneable {
 
 	@Column(name = "formula")
 	private String formula;
@@ -80,7 +80,7 @@ public class Expression implements Copyable<Expression> {
 	}
 
 	@Override
-	public Expression copy() {
+	public Expression clone() {
 		return new Expression(getFormula(), getValue());
 	}
 

@@ -104,7 +104,7 @@ public class SystemImport {
 			Process p = processImport.run(processId);
 			if (p != null) {
 				result.put(processId, p);
-				system.add(p);
+				system.getProcesses().add(p);
 			}
 		}
 		return result;
@@ -123,7 +123,7 @@ public class SystemImport {
 		system.setReferenceExchange(refExchange);
 		system.setTargetAmount(iExchange.getResultingAmount());
 		Flow flow = refExchange.getFlow();
-		system.setTargetFlowPropertyFactor(flow.getReferencePropertyFactor());
+		system.setTargetFlowPropertyFactor(flow.getReferenceFactor());
 		system.setTargetUnit(getRefUnit(flow.getReferenceFlowProperty()));
 	}
 
@@ -137,9 +137,7 @@ public class SystemImport {
 
 	private Unit getRefUnit(FlowProperty prop) throws ImportException {
 		try {
-			String groupId = prop.getUnitGroupId();
-			UnitGroup group = database.createDao(UnitGroup.class).getForId(
-					groupId);
+			UnitGroup group = prop.getUnitGroup();
 			return group.getReferenceUnit();
 		} catch (Exception e) {
 			throw new ImportException("Could not load ref-unit of property "
@@ -162,7 +160,7 @@ public class SystemImport {
 			link.setRecipientProcess(recipient);
 			link.setRecipientInput(findExchange(recipient, flowId, true));
 			if (valid(link))
-				system.add(link);
+				system.getProcessLinks().add(link);
 			else
 				log.warn("Could not add process link {} - invalid", link);
 		}
@@ -206,7 +204,7 @@ public class SystemImport {
 
 	private void addOrInsert(org.openlca.core.model.Parameter param) {
 		if (param.getType() == ParameterType.PRODUCT_SYSTEM) {
-			system.add(param);
+			system.getParameters().add(param);
 			return;
 		}
 		try {

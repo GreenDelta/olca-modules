@@ -117,7 +117,7 @@ public class UnitGroupImport {
 		Integer refUnitId = ilcdUnitGroup.getReferenceUnitId();
 		for (org.openlca.ilcd.units.Unit iUnit : ilcdUnitGroup.getUnits()) {
 			Unit oUnit = new Unit();
-			unitGroup.add(oUnit);
+			unitGroup.getUnits().add(oUnit);
 			mapUnitAttributes(iUnit, oUnit);
 			if (iUnit.getDataSetInternalID() != null) {
 				int id = iUnit.getDataSetInternalID().intValue();

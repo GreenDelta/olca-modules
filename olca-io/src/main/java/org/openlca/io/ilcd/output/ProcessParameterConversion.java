@@ -50,10 +50,7 @@ class ProcessParameterConversion {
 
 	private List<org.openlca.ilcd.processes.Parameter> processParams() {
 		List<org.openlca.ilcd.processes.Parameter> iParameters = new ArrayList<>();
-		Parameter[] parameters = process.getParameters();
-		if (parameters == null)
-			return iParameters;
-		for (Parameter oParam : parameters) {
+		for (Parameter oParam : process.getParameters()) {
 			if (!valid(oParam))
 				continue;
 			org.openlca.ilcd.processes.Parameter iParam = convertParam(oParam);

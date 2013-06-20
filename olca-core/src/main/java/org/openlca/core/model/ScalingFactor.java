@@ -23,8 +23,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_scalingfactors")
-public class ScalingFactor extends AbstractEntity implements
-		Copyable<ScalingFactor> {
+public class ScalingFactor extends AbstractEntity implements Cloneable {
 
 	/**
 	 * <p style="margin-top: 0">
@@ -67,7 +66,7 @@ public class ScalingFactor extends AbstractEntity implements
 	}
 
 	@Override
-	public ScalingFactor copy() {
+	public ScalingFactor clone() {
 		final ScalingFactor scalingFactor = new ScalingFactor();
 		scalingFactor.setFactor(getFactor());
 		scalingFactor.setId(UUID.randomUUID().toString());

@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MethodDao;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.LCIACategory;
@@ -131,7 +130,7 @@ public class MethodImport {
 		for (Factor factor : iMethod.getCharacterisationFactors().getFactor()) {
 			addFactor(category, factor);
 		}
-		oMethod.add(category);
+		oMethod.getLCIACategories().add(category);
 		dao.update(oMethod);
 	}
 
@@ -164,8 +163,7 @@ public class MethodImport {
 	}
 
 	private Unit getReferenceUnit(FlowProperty prop) throws Exception {
-		UnitGroupDao dao = new UnitGroupDao(database.getEntityFactory());
-		UnitGroup group = dao.getForId(prop.getUnitGroupId());
+		UnitGroup group = prop.getUnitGroup();
 		if (group != null && group.getReferenceUnit() != null)
 			return group.getReferenceUnit();
 		return null;
@@ -183,11 +181,11 @@ public class MethodImport {
 			}
 			LCIAFactor oFactor = new LCIAFactor();
 			oFactor.setFlow(flow);
-			oFactor.setFlowPropertyFactor(flow.getReferencePropertyFactor());
+			oFactor.setFlowPropertyFactor(flow.getReferenceFactor());
 			oFactor.setId(UUID.randomUUID().toString());
 			oFactor.setUnit(getRefUnit(flow));
 			oFactor.setValue(factor.getMeanValue());
-			category.add(oFactor);
+			category.getLCIAFactors().add(oFactor);
 		} catch (Exception e) {
 			log.warn("Failed to add factor " + factor, e);
 		}

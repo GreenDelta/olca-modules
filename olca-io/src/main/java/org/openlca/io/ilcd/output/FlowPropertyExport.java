@@ -84,21 +84,9 @@ public class FlowPropertyExport {
 	}
 
 	private DataSetReference makeUnitGroupRef() {
-		UnitGroup unitGroup = loadUnitGroup();
+		UnitGroup unitGroup = flowProperty.getUnitGroup();
 		return ExportDispatch
 				.forwardExportCheck(unitGroup, database, dataStore);
-	}
-
-	private UnitGroup loadUnitGroup() {
-		String unitGroupId = flowProperty.getUnitGroupId();
-		UnitGroup unitGroup = null;
-		try {
-			unitGroup = database.createDao(UnitGroup.class).getForId(
-					unitGroupId);
-		} catch (Exception e) {
-			log.error("Cannot load unit group for id=" + unitGroupId, e);
-		}
-		return unitGroup;
 	}
 
 }

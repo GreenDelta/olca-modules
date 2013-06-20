@@ -9,19 +9,18 @@
  ******************************************************************************/
 package org.openlca.core.model.results;
 
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.openlca.core.model.modelprovider.IModelComponent;
+import org.openlca.core.model.RootEntity;
 
 /**
  * This class represents a calculation result for a specific product system
@@ -31,17 +30,7 @@ import org.openlca.core.model.modelprovider.IModelComponent;
  */
 @Entity
 @Table(name = "tbl_lciaresults")
-public class LCIAResult implements IModelComponent {
-
-	@Column(name = "categoryid")
-	private String categoryId;
-
-	@Column(name = "description")
-	private String description;
-
-	@Id
-	@Column(name = "id")
-	private String id;
+public class LCIAResult extends RootEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_lciaresult")
@@ -49,9 +38,6 @@ public class LCIAResult implements IModelComponent {
 
 	@Column(name = "lciamethod")
 	private String lciaMethod;
-
-	@Column(name = "name")
-	private String name;
 
 	@Column(name = "nwset")
 	private String normalizationWeightingSet;
@@ -71,36 +57,12 @@ public class LCIAResult implements IModelComponent {
 	@Column(name = "weightingunit")
 	private String weightingUnit;
 
-	@Override
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-	}
-
-	@Override
-	public String getCategoryId() {
-		return categoryId;
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
-	}
-
-	@Override
-	public String getId() {
-		return id;
-	}
-
 	public List<LCIACategoryResult> getLCIACategoryResults() {
 		return lciaCategoryResults;
 	}
 
 	public String getLCIAMethod() {
 		return lciaMethod;
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	public String getNormalizationWeightingSet() {
@@ -125,30 +87,6 @@ public class LCIAResult implements IModelComponent {
 
 	public String getWeightingUnit() {
 		return weightingUnit;
-	}
-
-	@Override
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-	}
-
-	@Override
-	public void setCategoryId(String categoryId) {
-		this.categoryId = categoryId;
-	}
-
-	@Override
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	@Override
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	@Override
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public void setLciaCategoryResults(
@@ -188,11 +126,22 @@ public class LCIAResult implements IModelComponent {
 	}
 
 	private void updateName() {
-		name = productSystem;
+		String name = productSystem;
 		if (lciaMethod != null)
 			name += (" - " + lciaMethod);
 		if (normalizationWeightingSet != null)
 			name += normalizationWeightingSet;
+		setName(name);
+	}
+
+	@Override
+	public LCIAResult clone() {
+		LCIAResult clone = new LCIAResult();
+		clone.setCategoryId(getCategoryId());
+		clone.setDescription(getDescription());
+		clone.setId(UUID.randomUUID().toString());
+		// TODO: not yet implemented
+		return clone;
 	}
 
 }

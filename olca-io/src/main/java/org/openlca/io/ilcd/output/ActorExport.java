@@ -61,7 +61,7 @@ public class ActorExport {
 		DataSetInformation dataSetInfo = new DataSetInformation();
 		dataSetInfo.setUUID(actor.getId());
 		LangString.addLabel(dataSetInfo.getName(), actor.getName());
-		dataSetInfo.setEmail(actor.getEMail());
+		dataSetInfo.setEmail(actor.getEmail());
 		dataSetInfo.setTelefax(actor.getTelefax());
 		dataSetInfo.setTelephone(actor.getTelephone());
 		dataSetInfo.setWWWAddress(actor.getWebSite());
