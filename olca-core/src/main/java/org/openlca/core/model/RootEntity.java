@@ -1,8 +1,10 @@
 package org.openlca.core.model;
 
 import javax.persistence.Column;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToOne;
 
 /**
  * A root entity is a stand alone entity in the application. It should have a
@@ -23,7 +25,8 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class RootEntity extends AbstractEntity implements Cloneable {
 
-	@Column(name = "f_category")
+	@OneToOne
+	@JoinColumn(name = "f_category")
 	private Category category;
 
 	@Column(name = "name")

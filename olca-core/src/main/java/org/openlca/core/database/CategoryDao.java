@@ -7,7 +7,6 @@ import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,38 +50,6 @@ public class CategoryDao extends BaseDao<Category> {
 	private boolean isNotRoot(Category category) {
 		return category != null && category.getParentCategory() != null
 				&& category.getParentCategory().getParentCategory() != null;
-	}
-
-	public List<? extends BaseDescriptor> getModelDescriptors(Category category)
-			throws Exception {
-		if (category == null || category.getModelType() == null)
-			return Collections.emptyList();
-		switch (category.getModelType()) {
-		case ACTOR:
-			return new ActorDao(getEntityFactory()).getDescriptors(category);
-		case FLOW:
-			return new FlowDao(getEntityFactory()).getDescriptors(category);
-		case FLOW_PROPERTY:
-			return new FlowPropertyDao(getEntityFactory())
-					.getDescriptors(category);
-		case IMPACT_METHOD:
-			return new ImpactMethodDao(getEntityFactory()).getDescriptors(category);
-		case PROCESS:
-			return new ProcessDao(getEntityFactory()).getDescriptors(category);
-		case PRODUCT_SYSTEM:
-			return new ProductSystemDao(getEntityFactory())
-					.getDescriptors(category);
-		case PROJECT:
-			return new ProjectDao(getEntityFactory()).getDescriptors(category);
-		case SOURCE:
-			return new SourceDao(getEntityFactory()).getDescriptors(category);
-		case UNIT_GROUP:
-			return new UnitGroupDao(getEntityFactory())
-					.getDescriptors(category);
-		default:
-			log.warn("unknown category type {}", category.getModelType());
-			return Collections.emptyList();
-		}
 	}
 
 }

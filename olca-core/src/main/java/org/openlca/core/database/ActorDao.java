@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -11,6 +12,8 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 
+import com.google.common.base.Optional;
+
 public class ActorDao extends BaseDao<Actor> implements IRootEntityDao<Actor> {
 
 	public ActorDao(EntityManagerFactory emf) {
@@ -18,23 +21,32 @@ public class ActorDao extends BaseDao<Actor> implements IRootEntityDao<Actor> {
 	}
 
 	@Override
-	public List<ActorDescriptor> getDescriptors(Category category) {
-		String jpql = "select a.id, a.name, a.description from Actor a "
-				+ "where a.category = :category";
-		log.trace("get actor descriptors for {}", category);
+	public List<ActorDescriptor> getDescriptors(Optional<Category> category) {
+		String jpql = "select a.id, a.name, a.description from Actor a ";
+		Map<String, Category> params = null;
+		if (category.isPresent()) {
+			jpql += "where a.category = :category";
+			params = Collections.singletonMap("category", category.get());
+		} else {
+			jpql += "where a.category is null";
+			params = Collections.emptyMap();
+		}
+		return runDescriptorQuery(jpql, params);
+	}
+
+	private List<ActorDescriptor> runDescriptorQuery(String jpql,
+			Map<String, Category> params) {
 		try {
 			List<Object[]> results = Query.on(getEntityFactory()).getAll(
-					Object[].class, jpql,
-					Collections.singletonMap("category", category));
-			return toDescriptors(results);
+					Object[].class, jpql, params);
+			return createDescriptors(results);
 		} catch (Exception e) {
-			log.error("Failed to get actor descriptors for category "
-					+ category, e);
+			log.error("Failed to get actor descriptors " + params, e);
 			return Collections.emptyList();
 		}
 	}
 
-	private List<ActorDescriptor> toDescriptors(List<Object[]> results) {
+	private List<ActorDescriptor> createDescriptors(List<Object[]> results) {
 		List<ActorDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : results) {
 			ActorDescriptor descriptor = new ActorDescriptor();

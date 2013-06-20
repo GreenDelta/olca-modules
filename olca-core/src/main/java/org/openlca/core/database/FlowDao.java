@@ -42,8 +42,7 @@ public class FlowDao extends BaseDao<Flow> implements IRootEntityDao<Flow> {
 
 	public List<FlowDescriptor> getDescriptors(Category category) {
 		String jpql = "select f.id, f.name, f.description, loc.code from Flow f "
-				+ "left join f.location loc "
-				+ "where f.categoryId = :category";
+				+ "left join f.location loc " + "where f.category = :category";
 		log.trace("get flow descriptors for {}", category);
 		try {
 			List<Object[]> results = Query.on(getEntityFactory()).getAll(

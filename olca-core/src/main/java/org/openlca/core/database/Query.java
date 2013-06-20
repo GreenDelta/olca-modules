@@ -53,7 +53,7 @@ public class Query {
 
 	public <T> List<T> getAll(Class<T> type, String jpql,
 			Map<String, ? extends Object> params) throws Exception {
-		log.debug("Get all {} with query {}", type, jpql);
+		log.trace("Get all {} with query {}", type, jpql);
 		EntityManager em = createManager();
 		try {
 			TypedQuery<T> query = em.createQuery(jpql, type);
