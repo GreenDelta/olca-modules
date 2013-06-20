@@ -15,20 +15,31 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
 /** The DAO class for impact assessment methods. */
-public class MethodDao extends BaseDao<LCIAMethod> {
+public class ImpactMethodDao extends BaseDao<LCIAMethod> implements
+		IRootEntityDao<LCIAMethod> {
 
-	public MethodDao(EntityManagerFactory factory) {
+	public ImpactMethodDao(EntityManagerFactory factory) {
 		super(LCIAMethod.class, factory);
 	}
 
-	public List<ImpactMethodDescriptor> getDescriptors(Category category)
-			throws Exception {
-		String categoryId = category == null ? null : category.getId();
+	public List<ImpactMethodDescriptor> getDescriptors(Category category) {
+		log.trace("get impact methods for category {}", category);
 		String jpql = "select m.id, m.name, m.description from LCIAMethod m "
-				+ "where m.categoryId = :categoryId";
-		List<Object[]> results = Query.on(getEntityFactory()).getAll(
-				Object[].class, jpql,
-				Collections.singletonMap("categoryId", categoryId));
+				+ "where m.category = :category";
+		try {
+			List<Object[]> results = Query.on(getEntityFactory()).getAll(
+					Object[].class, jpql,
+					Collections.singletonMap("category", category));
+			return createDescriptors(results);
+		} catch (Exception e) {
+			log.error("failed to get impact methods for category " + category,
+					e);
+			return Collections.emptyList();
+		}
+	}
+
+	private List<ImpactMethodDescriptor> createDescriptors(
+			List<Object[]> results) {
 		List<ImpactMethodDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : results) {
 			ImpactMethodDescriptor descriptor = new ImpactMethodDescriptor();

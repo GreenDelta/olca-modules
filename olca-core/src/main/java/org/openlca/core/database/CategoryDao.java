@@ -66,7 +66,7 @@ public class CategoryDao extends BaseDao<Category> {
 			return new FlowPropertyDao(getEntityFactory())
 					.getDescriptors(category);
 		case IMPACT_METHOD:
-			return new MethodDao(getEntityFactory()).getDescriptors(category);
+			return new ImpactMethodDao(getEntityFactory()).getDescriptors(category);
 		case PROCESS:
 			return new ProcessDao(getEntityFactory()).getDescriptors(category);
 		case PRODUCT_SYSTEM:

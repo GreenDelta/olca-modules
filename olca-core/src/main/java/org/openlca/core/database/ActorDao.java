@@ -11,19 +11,30 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 
-public class ActorDao extends BaseDao<Actor> {
+public class ActorDao extends BaseDao<Actor> implements IRootEntityDao<Actor> {
 
 	public ActorDao(EntityManagerFactory emf) {
 		super(Actor.class, emf);
 	}
 
-	public List<ActorDescriptor> getDescriptors(Category category)
-			throws Exception {
-		String categoryId = category == null ? null : category.getId();
-		String jpql = "select a.id, a.name, a.description from Actor a where a.categoryId = :categoryId";
-		List<Object[]> results = Query.on(getEntityFactory()).getAll(
-				Object[].class, jpql,
-				Collections.singletonMap("categoryId", categoryId));
+	@Override
+	public List<ActorDescriptor> getDescriptors(Category category) {
+		String jpql = "select a.id, a.name, a.description from Actor a "
+				+ "where a.category = :category";
+		log.trace("get actor descriptors for {}", category);
+		try {
+			List<Object[]> results = Query.on(getEntityFactory()).getAll(
+					Object[].class, jpql,
+					Collections.singletonMap("category", category));
+			return toDescriptors(results);
+		} catch (Exception e) {
+			log.error("Failed to get actor descriptors for category "
+					+ category, e);
+			return Collections.emptyList();
+		}
+	}
+
+	private List<ActorDescriptor> toDescriptors(List<Object[]> results) {
 		List<ActorDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : results) {
 			ActorDescriptor descriptor = new ActorDescriptor();

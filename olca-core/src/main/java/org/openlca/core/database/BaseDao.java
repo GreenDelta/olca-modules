@@ -14,7 +14,7 @@ import javax.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BaseDao<T> {
+public class BaseDao<T> implements IDao<T> {
 
 	/**
 	 * A database dependent field for the maximum size of lists in JPQL queries.
@@ -30,16 +30,19 @@ public class BaseDao<T> {
 		this.entityFactory = factory;
 	}
 
+	@Override
 	public EntityManagerFactory getEntityFactory() {
 		return entityFactory;
 	}
 
+	@Override
 	public boolean contains(String id) throws Exception {
 		if (id == null)
 			return false;
 		return getForId(id) != null;
 	}
 
+	@Override
 	public void delete(T entity) throws Exception {
 		if (entity == null)
 			return;
@@ -53,6 +56,7 @@ public class BaseDao<T> {
 		}
 	}
 
+	@Override
 	public void deleteAll(Collection<T> entities) throws Exception {
 		if (entities == null)
 			return;
@@ -69,6 +73,7 @@ public class BaseDao<T> {
 		}
 	}
 
+	@Override
 	public T update(T entity) throws Exception {
 		if (entity == null)
 			return null;
@@ -83,6 +88,7 @@ public class BaseDao<T> {
 		}
 	}
 
+	@Override
 	public T insert(T entity) throws Exception {
 		if (entity == null)
 			return null;
@@ -97,6 +103,7 @@ public class BaseDao<T> {
 		}
 	}
 
+	@Override
 	public T getForId(String id) throws Exception {
 		if (id == null)
 			return null;
@@ -109,6 +116,7 @@ public class BaseDao<T> {
 		}
 	}
 
+	@Override
 	public List<T> getForIds(Set<String> ids) throws Exception {
 		if (ids == null || ids.isEmpty())
 			return Collections.emptyList();
@@ -144,6 +152,7 @@ public class BaseDao<T> {
 		}
 	}
 
+	@Override
 	public List<T> getAll() throws Exception {
 		log.debug("Select all for class {}", entityType);
 		EntityManager em = createManager();
@@ -159,6 +168,7 @@ public class BaseDao<T> {
 		}
 	}
 
+	@Override
 	public List<T> getAll(String jpql, Map<String, ? extends Object> parameters)
 			throws Exception {
 		EntityManager em = createManager();
@@ -174,6 +184,7 @@ public class BaseDao<T> {
 		}
 	}
 
+	@Override
 	public T getFirst(String jpql, Map<String, ? extends Object> parameters)
 			throws Exception {
 		List<T> list = getAll(jpql, parameters);
@@ -182,6 +193,7 @@ public class BaseDao<T> {
 		return list.get(0);
 	}
 
+	@Override
 	public long getCount(String jpql, Map<String, Object> parameters)
 			throws Exception {
 		EntityManager em = createManager();
@@ -197,6 +209,7 @@ public class BaseDao<T> {
 		}
 	}
 
+	@Override
 	public void deleteAll() throws Exception {
 		log.trace("delete all instances of {}", entityType);
 		deleteAll(getAll());

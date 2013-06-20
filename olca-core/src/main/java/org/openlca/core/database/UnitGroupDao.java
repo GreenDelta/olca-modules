@@ -12,7 +12,8 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
-public class UnitGroupDao extends BaseDao<UnitGroup> {
+public class UnitGroupDao extends BaseDao<UnitGroup> implements
+		IRootEntityDao<UnitGroup> {
 
 	public UnitGroupDao(EntityManagerFactory emf) {
 		super(UnitGroup.class, emf);
@@ -37,15 +38,19 @@ public class UnitGroupDao extends BaseDao<UnitGroup> {
 		return descriptors;
 	}
 
-	public List<UnitGroupDescriptor> getDescriptors(Category category)
-			throws Exception {
-		String categoryId = category == null ? null : category.getId();
+	public List<UnitGroupDescriptor> getDescriptors(Category category) {
+		log.trace("get unit groups for category {}", category);
 		String jpql = "select u.id, u.name, u.description from UnitGroup u "
-				+ "where u.categoryId = :categoryId";
-		List<Object[]> results = Query.on(getEntityFactory()).getAll(
-				Object[].class, jpql,
-				Collections.singletonMap("categoryId", categoryId));
-		return createDescriptors(results);
+				+ "where u.category = :category";
+		try {
+			List<Object[]> results = Query.on(getEntityFactory()).getAll(
+					Object[].class, jpql,
+					Collections.singletonMap("category", category));
+			return createDescriptors(results);
+		} catch (Exception e) {
+			log.error("failed to get unit groups for category " + category, e);
+			return Collections.emptyList();
+		}
 	}
 
 	public List<BaseDescriptor> whereUsed(UnitGroup group) {

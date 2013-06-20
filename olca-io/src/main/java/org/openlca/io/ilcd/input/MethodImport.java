@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.MethodDao;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.LCIACategory;
@@ -33,13 +33,13 @@ import org.slf4j.LoggerFactory;
 public class MethodImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private MethodDao dao;
+	private ImpactMethodDao dao;
 	private IDatabase database;
 	private DataStore ilcdStore;
 	private FlowMap flowMap;
 
 	public MethodImport(DataStore ilcdStore, IDatabase database) {
-		this.dao = new MethodDao(database.getEntityFactory());
+		this.dao = new ImpactMethodDao(database.getEntityFactory());
 		this.database = database;
 		this.ilcdStore = ilcdStore;
 		flowMap = new FlowMap(MapType.ILCD_FLOW);
