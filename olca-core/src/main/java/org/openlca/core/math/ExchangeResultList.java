@@ -48,9 +48,9 @@ public class ExchangeResultList {
 			double amount = results[i];
 			if (amount == 0)
 				continue;
-			boolean input = flow.getFlowType() == FlowType.ElementaryFlow ? flowIndex
+			boolean input = flow.getFlowType() == FlowType.ELEMENTARY_FLOW ? flowIndex
 					.isInput(flow) : results[i] < 0;
-			if (flow.getFlowType() == FlowType.ElementaryFlow) {
+			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
 				amount *= input ? -1 : 1;
 			} else {
 				amount = Math.abs(amount);

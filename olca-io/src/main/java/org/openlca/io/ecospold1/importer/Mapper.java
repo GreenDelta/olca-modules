@@ -44,7 +44,7 @@ class Mapper {
 		} else if (inExchange.getOutputGroup() != null) {
 			return FlowTypes.forOutputGroup(inExchange.getOutputGroup());
 		} else {
-			return FlowType.ElementaryFlow;
+			return FlowType.ELEMENTARY_FLOW;
 		}
 	}
 

@@ -133,8 +133,8 @@ class DBSearch {
 
 	private boolean sameFlowType(IExchange exchange, Flow flow) {
 		if (exchange.isElementaryFlow())
-			return flow.getFlowType() == FlowType.ElementaryFlow;
-		return flow.getFlowType() != FlowType.ElementaryFlow;
+			return flow.getFlowType() == FlowType.ELEMENTARY_FLOW;
+		return flow.getFlowType() != FlowType.ELEMENTARY_FLOW;
 	}
 
 	private boolean hasUnit(Flow flow, UnitMappingEntry mapping) {

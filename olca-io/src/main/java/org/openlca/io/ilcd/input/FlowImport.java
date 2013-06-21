@@ -140,21 +140,21 @@ public class FlowImport {
 
 	private void setFlowType() {
 		if (ilcdFlow.getFlowType() == null) {
-			flow.setFlowType(FlowType.ElementaryFlow);
+			flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 			return;
 		}
 		switch (ilcdFlow.getFlowType()) {
 		case ELEMENTARY_FLOW:
-			flow.setFlowType(FlowType.ElementaryFlow);
+			flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 			break;
 		case PRODUCT_FLOW:
-			flow.setFlowType(FlowType.ProductFlow);
+			flow.setFlowType(FlowType.PRODUCT_FLOW);
 			break;
 		case WASTE_FLOW:
-			flow.setFlowType(FlowType.WasteFlow);
+			flow.setFlowType(FlowType.WASTE_FLOW);
 			break;
 		default:
-			flow.setFlowType(FlowType.ElementaryFlow);
+			flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 			break;
 		}
 	}

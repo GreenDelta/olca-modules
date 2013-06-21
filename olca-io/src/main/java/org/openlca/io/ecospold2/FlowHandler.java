@@ -98,7 +98,7 @@ class FlowHandler {
 	private Flow createProduct(IntermediateExchange exchange) {
 		Flow flow = new Flow();
 		flow.setId(exchange.getIntermediateExchangeId());
-		flow.setFlowType(FlowType.ProductFlow);
+		flow.setFlowType(FlowType.PRODUCT_FLOW);
 		fillCacheFlow(exchange, flow);
 		return flow;
 	}
@@ -106,7 +106,7 @@ class FlowHandler {
 	private Flow createElemFlow(ElementaryExchange exchange) {
 		Flow flow = new Flow();
 		flow.setId(exchange.getElementaryExchangeId());
-		flow.setFlowType(FlowType.ElementaryFlow);
+		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 		fillCacheFlow(exchange, flow);
 		return flow;
 	}

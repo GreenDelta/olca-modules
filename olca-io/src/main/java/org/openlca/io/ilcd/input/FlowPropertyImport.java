@@ -103,7 +103,7 @@ public class FlowPropertyImport {
 	}
 
 	private void mapDescriptionAttributes() {
-		property.setFlowPropertyType(FlowPropertyType.Physical); // default
+		property.setFlowPropertyType(FlowPropertyType.PHYSICAL); // default
 		property.setId(ilcdProperty.getId());
 		property.setName(ilcdProperty.getName());
 		property.setDescription(ilcdProperty.getComment());

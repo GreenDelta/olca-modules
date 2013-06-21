@@ -75,7 +75,7 @@ public class ProcessRefFlowMapper {
 
 	private void handleCandidate(Exchange candidate) {
 		if (candidate == null
-				|| candidate.getFlow().getFlowType() == FlowType.ElementaryFlow)
+				|| candidate.getFlow().getFlowType() == FlowType.ELEMENTARY_FLOW)
 			handleNoReferenceFlow();
 		else {
 			if (candidate.isInput()) {
@@ -122,7 +122,7 @@ public class ProcessRefFlowMapper {
 		Exchange candidate = null;
 		for (Exchange exchange : olcaProcess.getExchanges()) {
 			if (exchange.isInput()
-					|| exchange.getFlow().getFlowType() == FlowType.ElementaryFlow)
+					|| exchange.getFlow().getFlowType() == FlowType.ELEMENTARY_FLOW)
 				continue;
 			if (betterMatch(exchange, candidate))
 				candidate = exchange;
@@ -133,7 +133,7 @@ public class ProcessRefFlowMapper {
 	private Exchange findNegativeInputProduct() {
 		for (Exchange exchange : olcaProcess.getExchanges()) {
 			if (exchange.isInput()
-					&& exchange.getFlow().getFlowType() == FlowType.ProductFlow
+					&& exchange.getFlow().getFlowType() == FlowType.PRODUCT_FLOW
 					&& exchange.getResultingAmount().getValue() < 0)
 				return exchange;
 		}
@@ -147,11 +147,11 @@ public class ProcessRefFlowMapper {
 			return true;
 		if (!newCandidate.isInput() && oldCandidate.isInput())
 			return true;
-		if (newCandidate.getFlow().getFlowType() == FlowType.ProductFlow
-				&& oldCandidate.getFlow().getFlowType() != FlowType.ProductFlow)
+		if (newCandidate.getFlow().getFlowType() == FlowType.PRODUCT_FLOW
+				&& oldCandidate.getFlow().getFlowType() != FlowType.PRODUCT_FLOW)
 			return true;
-		if (newCandidate.getFlow().getFlowType() == FlowType.WasteFlow
-				&& oldCandidate.getFlow().getFlowType() != FlowType.ElementaryFlow)
+		if (newCandidate.getFlow().getFlowType() == FlowType.WASTE_FLOW
+				&& oldCandidate.getFlow().getFlowType() != FlowType.ELEMENTARY_FLOW)
 			return true;
 		if (newCandidate.getResultingAmount().getValue() > oldCandidate
 				.getResultingAmount().getValue())

@@ -89,7 +89,7 @@ public class LinkContributions {
 		for (Exchange exchange : process.getExchanges()) {
 			if (exchange.isInput()
 					|| exchange.getFlow() == null
-					|| exchange.getFlow().getFlowType() == FlowType.ElementaryFlow)
+					|| exchange.getFlow().getFlowType() == FlowType.ELEMENTARY_FLOW)
 				continue;
 			int idx = index.getIndex(process, exchange);
 			if (idx < 0 || idx >= scalingFactors.length)

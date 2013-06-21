@@ -38,7 +38,7 @@ public class FlowDaoTest {
 		Flow flow = new Flow();
 		flow.setName("test_flow");
 		flow.setId(UUID.randomUUID().toString());
-		flow.setFlowType(FlowType.ElementaryFlow);
+		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 		return flow;
 	}
 

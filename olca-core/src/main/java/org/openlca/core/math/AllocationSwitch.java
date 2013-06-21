@@ -94,10 +94,10 @@ public class AllocationSwitch {
 	private boolean match(FlowPropertyType propertyType) {
 		if (propertyType == null || method == null)
 			return false;
-		else if (propertyType == FlowPropertyType.Economic
+		else if (propertyType == FlowPropertyType.ECONOMIC
 				&& method == AllocationMethod.Economic)
 			return true;
-		else if (propertyType == FlowPropertyType.Physical
+		else if (propertyType == FlowPropertyType.PHYSICAL
 				&& method == AllocationMethod.Physical)
 			return true;
 		else
@@ -114,8 +114,8 @@ public class AllocationSwitch {
 			if (exchange.isInput() || exchange.getFlow() == null)
 				continue;
 			FlowType flowType = exchange.getFlow().getFlowType();
-			if (flowType == FlowType.ProductFlow
-					|| flowType == FlowType.WasteFlow)
+			if (flowType == FlowType.PRODUCT_FLOW
+					|| flowType == FlowType.WASTE_FLOW)
 				outputs.add(exchange);
 		}
 		return outputs;

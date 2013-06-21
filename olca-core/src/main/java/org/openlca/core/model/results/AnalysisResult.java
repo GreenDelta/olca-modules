@@ -336,13 +336,13 @@ public class AnalysisResult implements IResultData {
 		if (d == 0)
 			return d;
 		boolean inputFlow = flowIndex.isInput(flow);
-		if (flow.getFlowType() == FlowType.ElementaryFlow)
+		if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW)
 			return inputFlow ? -d : d;
 		return Math.abs(d);
 	}
 
 	private boolean isInput(Flow flow, double rawValue) {
-		if (flow.getFlowType() == FlowType.ElementaryFlow
+		if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW
 				&& flowIndex.isInput(flow))
 			return true;
 		return rawValue < 0;

@@ -49,7 +49,7 @@ public class InventoryMatrixBuilder {
 				// if (exchange is elementary or product input which is not
 				// linked or parent process is not allocated) and if its a
 				// product input its not linked
-				if ((exchange.getFlow().getFlowType() == FlowType.ElementaryFlow
+				if ((exchange.getFlow().getFlowType() == FlowType.ELEMENTARY_FLOW
 						|| exchange.isInput()
 						|| process.getAllocationMethod() == AllocationMethod.None || process
 							.getAllocationMethod() == null)) {

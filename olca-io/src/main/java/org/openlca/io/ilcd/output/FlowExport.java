@@ -88,7 +88,7 @@ public class FlowExport {
 		CategoryConverter converter = new CategoryConverter();
 		FlowCategoryInformation categoryInformation = new FlowCategoryInformation();
 		dataSetInfo.setClassificationInformation(categoryInformation);
-		if (flow.getFlowType() == org.openlca.core.model.FlowType.ElementaryFlow) {
+		if (flow.getFlowType() == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
 			FlowCategorization categorization = converter
 					.getElementaryFlowCategory(flow.getCategory());
 			categoryInformation.getElementaryFlowCategorizations().add(
@@ -104,11 +104,11 @@ public class FlowExport {
 		if (flow.getFlowType() == null)
 			return FlowType.OTHER_FLOW;
 		switch (flow.getFlowType()) {
-		case ElementaryFlow:
+		case ELEMENTARY_FLOW:
 			return FlowType.ELEMENTARY_FLOW;
-		case ProductFlow:
+		case PRODUCT_FLOW:
 			return FlowType.PRODUCT_FLOW;
-		case WasteFlow:
+		case WASTE_FLOW:
 			return FlowType.WASTE_FLOW;
 		default:
 			return FlowType.OTHER_FLOW;

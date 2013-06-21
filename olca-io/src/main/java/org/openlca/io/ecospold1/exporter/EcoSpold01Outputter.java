@@ -141,7 +141,7 @@ public class EcoSpold01Outputter {
 			dataSet.getExchanges()
 					.add(mapExchange(
 							exchange,
-							process.getOutputs(FlowType.ProductFlow).length > 1,
+							process.getOutputs(FlowType.PRODUCT_FLOW).length > 1,
 							factory));
 		}
 
@@ -172,7 +172,7 @@ public class EcoSpold01Outputter {
 		if (process.getProcessType() == ProcessType.LCI_Result) {
 			dataSet.getDataSetInformation().setType(2);
 		} else {
-			if (process.getOutputs(FlowType.ProductFlow).length > 1) {
+			if (process.getOutputs(FlowType.PRODUCT_FLOW).length > 1) {
 				dataSet.getDataSetInformation().setType(5);
 			} else {
 				dataSet.getDataSetInformation().setType(1);
@@ -358,18 +358,18 @@ public class EcoSpold01Outputter {
 			boolean multiOutput) {
 		int group = 0;
 		if (input) {
-			if (flowType == FlowType.ElementaryFlow) {
+			if (flowType == FlowType.ELEMENTARY_FLOW) {
 				group = 4;
-			} else if (flowType == FlowType.WasteFlow
-					|| flowType == FlowType.ProductFlow) {
+			} else if (flowType == FlowType.WASTE_FLOW
+					|| flowType == FlowType.PRODUCT_FLOW) {
 				group = 5;
 			}
 		} else {
-			if (flowType == FlowType.ElementaryFlow) {
+			if (flowType == FlowType.ELEMENTARY_FLOW) {
 				group = 4;
-			} else if (flowType == FlowType.WasteFlow) {
+			} else if (flowType == FlowType.WASTE_FLOW) {
 				group = 3;
-			} else if (flowType == FlowType.ProductFlow) {
+			} else if (flowType == FlowType.PRODUCT_FLOW) {
 				if (multiOutput) {
 					group = 2;
 				} else {

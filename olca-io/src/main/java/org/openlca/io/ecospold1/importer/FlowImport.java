@@ -191,7 +191,7 @@ class FlowImport {
 			String locKey = KeyGen.get(code);
 			flow.setLocation(db.findLocation(code, locKey));
 		}
-		flow.setFlowType(FlowType.ProductFlow);
+		flow.setFlowType(FlowType.PRODUCT_FLOW);
 	}
 
 	/** Creates a new flow and inserts it in the database. */

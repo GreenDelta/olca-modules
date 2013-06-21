@@ -16,10 +16,10 @@ package org.openlca.core.model;
  */
 public enum FlowType {
 
-	ElementaryFlow,
+	ELEMENTARY_FLOW,
 
-	ProductFlow,
+	PRODUCT_FLOW,
 
-	WasteFlow
+	WASTE_FLOW
 
 }

@@ -10,15 +10,15 @@ class FlowTypes {
 	public static FlowType forInputGroup(int inputGroup) {
 		switch (inputGroup) {
 		case 1:
-			return FlowType.ProductFlow;
+			return FlowType.PRODUCT_FLOW;
 		case 2:
-			return FlowType.ProductFlow;
+			return FlowType.PRODUCT_FLOW;
 		case 3:
-			return FlowType.ProductFlow;
+			return FlowType.PRODUCT_FLOW;
 		case 4:
-			return FlowType.ElementaryFlow;
+			return FlowType.ELEMENTARY_FLOW;
 		case 5:
-			return FlowType.ProductFlow;
+			return FlowType.PRODUCT_FLOW;
 		default:
 			return null;
 		}
@@ -27,15 +27,15 @@ class FlowTypes {
 	public static FlowType forOutputGroup(int outputGroup) {
 		switch (outputGroup) {
 		case 0:
-			return FlowType.ProductFlow;
+			return FlowType.PRODUCT_FLOW;
 		case 1:
-			return FlowType.ProductFlow;
+			return FlowType.PRODUCT_FLOW;
 		case 2:
-			return FlowType.ProductFlow;
+			return FlowType.PRODUCT_FLOW;
 		case 3:
-			return FlowType.WasteFlow;
+			return FlowType.WASTE_FLOW;
 		case 4:
-			return FlowType.ElementaryFlow;
+			return FlowType.ELEMENTARY_FLOW;
 		default:
 			return null;
 		}
