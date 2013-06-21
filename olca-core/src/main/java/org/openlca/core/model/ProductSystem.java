@@ -16,7 +16,6 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
@@ -30,38 +29,38 @@ import javax.persistence.Table;
  * </p>
  */
 @Entity
-@Table(name = "tbl_productsystems")
+@Table(name = "tbl_product_systems")
 public class ProductSystem extends RootEntity implements IParameterisable {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
 	private final List<Parameter> parameters = new ArrayList<>();
 
-	@OneToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "tbl_productsystem_process", joinColumns = { @JoinColumn(name = "f_productsystem") }, inverseJoinColumns = { @JoinColumn(name = "f_process") })
+	@OneToMany
+	@JoinTable(name = "tbl_product_system_processes", joinColumns = { @JoinColumn(name = "f_product_system") }, inverseJoinColumns = { @JoinColumn(name = "f_process") })
 	private final List<Process> processes = new ArrayList<>();
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_product_system")
 	private final List<ProcessLink> processLinks = new ArrayList<>();
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne
 	@JoinColumn(name = "f_reference_exchange")
 	private Exchange referenceExchange;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne
 	@JoinColumn(name = "f_reference_process")
 	private Process referenceProcess;
 
-	@Column(name = "targetamount")
+	@Column(name = "target_amount")
 	private double targetAmount;
 
 	@OneToOne
-	@JoinColumn(name = "f_targetflowpropertyfactor")
+	@JoinColumn(name = "f_target_flow_property_factor")
 	private FlowPropertyFactor targetFlowPropertyFactor;
 
 	@OneToOne
-	@JoinColumn(name = "f_targetunit")
+	@JoinColumn(name = "f_target_unit")
 	private Unit targetUnit;
 
 	@Override

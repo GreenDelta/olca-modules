@@ -3,12 +3,15 @@ package org.openlca.core.database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
+
+import com.google.common.base.Optional;
 
 public class ProductSystemDao extends BaseDao<ProductSystem> implements
 		IRootEntityDao<ProductSystem> {
@@ -17,18 +20,28 @@ public class ProductSystemDao extends BaseDao<ProductSystem> implements
 		super(ProductSystem.class, emf);
 	}
 
-	public List<ProductSystemDescriptor> getDescriptors(Category category) {
-		log.trace("get product systems for category {}", category);
-		String jpql = "select s.id, s.name, s.description from ProductSystem s "
-				+ "where s.category = :category";
+	public List<ProductSystemDescriptor> getDescriptors(
+			Optional<Category> category) {
+		String jpql = "select s.id, s.name, s.description from ProductSystem s ";
+		Map<String, Category> params = null;
+		if (category.isPresent()) {
+			params = Collections.singletonMap("category", category.get());
+			jpql += "where s.category = :category";
+		} else {
+			params = Collections.emptyMap();
+			jpql += "where s.category is null";
+		}
+		return runDescriptorQuery(jpql, params);
+	}
+
+	private List<ProductSystemDescriptor> runDescriptorQuery(String jpql,
+			Map<String, Category> params) {
 		try {
 			List<Object[]> results = Query.on(getEntityFactory()).getAll(
-					Object[].class, jpql,
-					Collections.singletonMap("category", category));
+					Object[].class, jpql, params);
 			return createDescriptors(results);
 		} catch (Exception e) {
-			log.error("failed to get product systems for category " + category,
-					e);
+			log.error("failed to get product systems for category", e);
 			return Collections.emptyList();
 		}
 	}

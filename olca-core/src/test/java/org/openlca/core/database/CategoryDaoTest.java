@@ -11,7 +11,7 @@ import org.openlca.core.model.ModelType;
 
 public class CategoryDaoTest {
 
-	private CategoryDao dao = new CategoryDao(TestSession.getMySQLDatabase()
+	private CategoryDao dao = new CategoryDao(TestSession.getDefaultDatabase()
 			.getEntityFactory());
 
 	@Test

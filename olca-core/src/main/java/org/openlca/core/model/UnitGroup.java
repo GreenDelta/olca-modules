@@ -30,7 +30,7 @@ import javax.persistence.Table;
  * 0.001).
  */
 @Entity
-@Table(name = "tbl_unitgroups")
+@Table(name = "tbl_unit_groups")
 public class UnitGroup extends RootEntity {
 
 	@OneToOne

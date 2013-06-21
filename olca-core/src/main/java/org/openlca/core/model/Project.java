@@ -39,7 +39,7 @@ public class Project extends RootEntity {
 	private Actor author;
 
 	@Temporal(value = TemporalType.DATE)
-	@Column(name = "creationdate")
+	@Column(name = "creation_date")
 	private Date creationDate;
 
 	@Lob

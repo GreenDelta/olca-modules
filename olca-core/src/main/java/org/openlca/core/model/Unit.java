@@ -27,71 +27,26 @@ import javax.persistence.Transient;
 @Table(name = "tbl_units")
 public class Unit extends AbstractEntity implements Cloneable {
 
-	/**
-	 * <p style="margin-top: 0">
-	 * The conversion factor to the reference unit in the parent unit group of
-	 * the unit
-	 * </p>
-	 */
-	@Column(name = "conversionfactor")
+	@Column(name = "conversion_factor")
 	private double conversionFactor = 1d;
 
-	/**
-	 * <p style="margin-top: 0">
-	 * The description of the unit
-	 * </p>
-	 */
 	@Lob
 	@Column(name = "description")
 	private String description;
 
-	/**
-	 * <p style="margin-top: 0">
-	 * The name of the unit
-	 * </p>
-	 */
 	@Column(name = "name")
 	private String name;
 
-	/**
-	 * <p style="margin-top: 0">
-	 * The property change support of the unit
-	 * </p>
-	 */
 	@Transient
 	private final transient PropertyChangeSupport support = new PropertyChangeSupport(
 			this);
 
-	/**
-	 * <p style="margin-top: 0">
-	 * The synonyms of the unit, seperated by a semicolon
-	 * </p>
-	 */
 	@Column(name = "synonyms")
 	private String synonyms;
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Creates a new unit
-	 * </p>
-	 */
 	public Unit() {
 	}
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Creates a new unit with the given unique identifier and name
-	 * </p>
-	 * 
-	 * @param id
-	 *            <p style="margin-top: 0">
-	 *            The unique identifier of the unit
-	 *            </p>
-	 * @param name
-	 *            <p style="margin-top: 0">
-	 *            The name of the unit
-	 *            </p>
-	 */
 	public Unit(final String id, final String name) {
 		setId(id);
 		this.name = name;

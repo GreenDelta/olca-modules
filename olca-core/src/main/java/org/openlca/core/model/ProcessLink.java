@@ -14,7 +14,6 @@ import java.beans.PropertyChangeSupport;
 import java.util.UUID;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -26,23 +25,23 @@ import javax.persistence.Transient;
  * which must have the same flow
  */
 @Entity
-@Table(name = "tbl_processlinks")
+@Table(name = "tbl_process_links")
 public class ProcessLink extends AbstractEntity implements Cloneable {
 
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "f_provideroutput")
+	@OneToOne
+	@JoinColumn(name = "f_provider_output")
 	private Exchange providerOutput;
 
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "f_providerprocess")
+	@OneToOne
+	@JoinColumn(name = "f_provider_process")
 	private Process providerProcess;
 
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "f_recipientinput")
+	@OneToOne
+	@JoinColumn(name = "f_recipient_input")
 	private Exchange recipientInput;
 
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "f_recipientprocess")
+	@OneToOne
+	@JoinColumn(name = "f_recipient_process")
 	private Process recipientProcess;
 
 	@Transient

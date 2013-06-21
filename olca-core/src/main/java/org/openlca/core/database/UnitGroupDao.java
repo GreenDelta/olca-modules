@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -11,6 +12,8 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
+
+import com.google.common.base.Optional;
 
 public class UnitGroupDao extends BaseDao<UnitGroup> implements
 		IRootEntityDao<UnitGroup> {
@@ -38,17 +41,27 @@ public class UnitGroupDao extends BaseDao<UnitGroup> implements
 		return descriptors;
 	}
 
-	public List<UnitGroupDescriptor> getDescriptors(Category category) {
-		log.trace("get unit groups for category {}", category);
-		String jpql = "select u.id, u.name, u.description from UnitGroup u "
-				+ "where u.category = :category";
+	public List<UnitGroupDescriptor> getDescriptors(Optional<Category> category) {
+		String jpql = "select u.id, u.name, u.description from UnitGroup u ";
+		Map<String, Category> params = null;
+		if (category.isPresent()) {
+			params = Collections.singletonMap("category", category.get());
+			jpql += "where u.category = :category";
+		} else {
+			params = Collections.emptyMap();
+			jpql += "where u.category is null";
+		}
+		return runDescriptorQuery(jpql, params);
+	}
+
+	private List<UnitGroupDescriptor> runDescriptorQuery(String jpql,
+			Map<String, Category> params) {
 		try {
 			List<Object[]> results = Query.on(getEntityFactory()).getAll(
-					Object[].class, jpql,
-					Collections.singletonMap("category", category));
+					Object[].class, jpql, params);
 			return createDescriptors(results);
 		} catch (Exception e) {
-			log.error("failed to get unit groups for category " + category, e);
+			log.error("failed to get unit groups for category ", e);
 			return Collections.emptyList();
 		}
 	}

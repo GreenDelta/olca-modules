@@ -16,12 +16,6 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
-/**
- * <p style="margin-top: 0">
- * A source can be an instutiute or a book, which is used to know where the data
- * is coming from
- * </p>
- */
 @Entity
 @Table(name = "tbl_sources")
 public class Source extends RootEntity {
@@ -33,7 +27,7 @@ public class Source extends RootEntity {
 	@Column(name = "text_reference")
 	private String textReference;
 
-	@Column(name = "year")
+	@Column(name = "source_year")
 	private Short year;
 
 	@Override

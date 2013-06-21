@@ -53,7 +53,7 @@ public class Process extends RootEntity implements IParameterisable {
 	@JoinColumn(name = "f_location")
 	private Location location;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
 	private final List<Parameter> parameters = new ArrayList<>();
 
@@ -75,7 +75,7 @@ public class Process extends RootEntity implements IParameterisable {
 	private ProcessType processType = ProcessType.UnitProcess;
 
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	@JoinColumn(name = "f_quantitativereference")
+	@JoinColumn(name = "f_quantitative_reference")
 	private Exchange quantitativeReference;
 
 	/**

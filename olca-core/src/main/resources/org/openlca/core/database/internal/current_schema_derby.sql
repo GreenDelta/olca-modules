@@ -307,20 +307,18 @@ CREATE TABLE tbl_allocationfactors (
 
 -- product systems
 
-CREATE TABLE tbl_productsystems (
+CREATE TABLE tbl_product_systems (
 
 	id VARCHAR(36) NOT NULL,
 	name VARCHAR(255), 
 	description CLOB(64 K), 
-	categoryid VARCHAR(36), 
-	marked CLOB(64 K), 
-	targetamount DOUBLE, 
-	f_referenceprocess VARCHAR(36), 
-	f_referenceexchange VARCHAR(36), 
-	f_targetflowpropertyfactor VARCHAR(36), 
-	f_targetunit VARCHAR(36), 
-	
-	
+	f_category VARCHAR(36),  
+	target_amount DOUBLE, 
+	f_reference_process VARCHAR(36), 
+	f_reference_exchange VARCHAR(36), 
+	f_target_flow_property_factor VARCHAR(36), 
+	f_target_unit VARCHAR(36), 
+		
 	PRIMARY KEY (id)
 	
 );
@@ -328,26 +326,26 @@ CREATE TABLE tbl_productsystems (
 
 -- processes in a product system
 
-CREATE TABLE tbl_productsystem_process (
+CREATE TABLE tbl_product_system_processes (
 
-	f_productsystem VARCHAR(36) NOT NULL, 
+	f_product_system VARCHAR(36) NOT NULL, 
 	f_process VARCHAR(36) NOT NULL, 
 	
-	PRIMARY KEY (f_productsystem, f_process)
+	PRIMARY KEY (f_product_system, f_process)
 
 );
 
 
 -- process links of product systems
 
-CREATE TABLE tbl_processlinks (
+CREATE TABLE tbl_process_links (
 
 	id VARCHAR(36) NOT NULL, 
-	f_recipientprocess VARCHAR(36), 
-	f_recipientinput VARCHAR(36), 
-	f_providerprocess VARCHAR(36), 
-	f_provideroutput VARCHAR(36), 
-	f_productsystem VARCHAR(36), 
+	f_recipient_process VARCHAR(36), 
+	f_recipient_input VARCHAR(36), 
+	f_provider_process VARCHAR(36), 
+	f_provider_output VARCHAR(36), 
+	f_product_system VARCHAR(36), 
 	
 	PRIMARY KEY (id)
 	
@@ -523,13 +521,13 @@ CREATE TABLE tbl_parameters (
 CREATE TABLE tbl_projects (
 
 	id VARCHAR(36) NOT NULL, 
-	productsystems CLOB(64 K), 
-	creationdate DATE, 
+	product_systems CLOB(64 K), 
+	creation_date DATE, 
 	description CLOB(64 K), 
-	categoryid VARCHAR(36), 
-	functionalunit CLOB(64 K), 
+	f_category VARCHAR(36), 
+	functional_unit CLOB(64 K), 
 	name VARCHAR(255), 
-	lastmodificationdate DATE,
+	last_modification_date DATE,
 	goal CLOB(64 K), 
 	f_author VARCHAR(36), 
 	
