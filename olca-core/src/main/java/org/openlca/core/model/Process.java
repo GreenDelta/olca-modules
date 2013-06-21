@@ -19,11 +19,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 /**
  * <p style="margin-top: 0">
@@ -42,13 +40,6 @@ public class Process extends RootEntity implements IParameterisable {
 	@JoinColumn(name = "f_owner")
 	private List<Exchange> exchanges = new ArrayList<>();
 
-	@Lob
-	@Column(name = "geography_comment")
-	private String geographyComment;
-
-	@Column(name = "infrastructure_process")
-	private boolean infrastructureProcess;
-
 	@OneToOne
 	@JoinColumn(name = "f_location")
 	private Location location;
@@ -57,18 +48,9 @@ public class Process extends RootEntity implements IParameterisable {
 	@JoinColumn(name = "f_owner")
 	private final List<Parameter> parameters = new ArrayList<>();
 
-	// cannot rely on JPA for adminInfo and modelingAndValidation.
-	// @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-	// FetchType.LAZY)
-	// @JoinColumn(insertable = false, updatable = false, name = "id")
-	@Transient
-	private AdminInfo adminInfo;
-
-	// @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch =
-	// FetchType.LAZY)
-	// @JoinColumn(insertable = false, updatable = false, name = "id")
-	@Transient
-	private ModelingAndValidation modelingAndValidation;
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_process_doc")
+	private ProcessDocumentation documentation;
 
 	@Column(name = "process_type")
 	@Enumerated(EnumType.STRING)
@@ -149,42 +131,14 @@ public class Process extends RootEntity implements IParameterisable {
 		return allocationFactor;
 	}
 
-	/**
-	 * This property isn't JPA-managed.
-	 * 
-	 * @return
-	 */
-	public AdminInfo getAdminInfo() {
-		return adminInfo;
+	public ProcessDocumentation getDocumentation() {
+		return documentation;
 	}
 
-	public void setAdminInfo(AdminInfo adminInfo) {
-		this.adminInfo = adminInfo;
+	public void setDocumentation(ProcessDocumentation documentation) {
+		this.documentation = documentation;
 	}
 
-	/**
-	 * This property isn't JPA-managed.
-	 * 
-	 * @return
-	 */
-	public ModelingAndValidation getModelingAndValidation() {
-		return modelingAndValidation;
-	}
-
-	public void setModelingAndValidation(
-			ModelingAndValidation modelingAndValidation) {
-		this.modelingAndValidation = modelingAndValidation;
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Getter of the allocationMethod-field
-	 * </p>
-	 * 
-	 * @return <p style="margin-top: 0">
-	 *         The allocation method of the process
-	 *         </p>
-	 */
 	public AllocationMethod getAllocationMethod() {
 		return allocationMethod;
 	}
@@ -219,10 +173,6 @@ public class Process extends RootEntity implements IParameterisable {
 			}
 		}
 		return exchanges.toArray(new Exchange[exchanges.size()]);
-	}
-
-	public String getGeographyComment() {
-		return geographyComment;
 	}
 
 	public Exchange[] getInputs() {
@@ -278,10 +228,6 @@ public class Process extends RootEntity implements IParameterisable {
 		return quantitativeReference;
 	}
 
-	public boolean isInfrastructureProcess() {
-		return infrastructureProcess;
-	}
-
 	public List<Exchange> getExchanges() {
 		return exchanges;
 	}
@@ -292,14 +238,6 @@ public class Process extends RootEntity implements IParameterisable {
 
 	public void setAllocationMethod(AllocationMethod allocationMethod) {
 		this.allocationMethod = allocationMethod;
-	}
-
-	public void setGeographyComment(String geographyComment) {
-		this.geographyComment = geographyComment;
-	}
-
-	public void setInfrastructureProcess(boolean infrastructureProcess) {
-		this.infrastructureProcess = infrastructureProcess;
 	}
 
 	public void setLocation(Location location) {

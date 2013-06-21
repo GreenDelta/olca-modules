@@ -21,7 +21,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.AdminInfo;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -30,8 +29,8 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.ModelingAndValidation;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Technology;
@@ -145,9 +144,9 @@ public class EcoSpold01Outputter {
 							factory));
 		}
 
-		if (process.getGeographyComment() != null) {
+		if (process.getGeography() != null) {
 			IGeography geography = factory.createGeography();
-			geography.setText(process.getGeographyComment());
+			geography.setText(process.getGeography());
 			dataSet.setGeography(geography);
 		}
 
@@ -407,8 +406,8 @@ public class EcoSpold01Outputter {
 		refFun.setUnit(category.getReferenceUnit());
 	}
 
-	private IExchange mapLCIAFactor(ImpactFactor factor, IEcoSpoldFactory factory)
-			throws Exception {
+	private IExchange mapLCIAFactor(ImpactFactor factor,
+			IEcoSpoldFactory factory) throws Exception {
 		IExchange exchange = factory.createExchange();
 		exchange.setNumber(exchangeCounter++);
 		mapFlowCategory(exchange, factor.getFlow().getCategory());
@@ -421,8 +420,8 @@ public class EcoSpold01Outputter {
 
 	private void mapModelingAndValidation(String id, DataSet dataset,
 			IEcoSpoldFactory factory) throws Exception {
-		ModelingAndValidation modelingAndValidation = database.createDao(
-				ModelingAndValidation.class).getForId(id);
+		ProcessDocumentation modelingAndValidation = database.createDao(
+				ProcessDocumentation.class).getForId(id);
 		if (modelingAndValidation == null)
 			return;
 		if (modelingAndValidation.getDataSetOtherEvaluation() != null) {

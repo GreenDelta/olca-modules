@@ -4,16 +4,12 @@ import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.openlca.core.model.Process;
-import org.openlca.core.model.Time;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.TimeExtension;
 
 /**
  * Converts an ILCD process time to an openLCA process time.
- * 
- * @author Michael Srocka
- * 
  */
 class ProcessTime {
 
@@ -23,34 +19,31 @@ class ProcessTime {
 		this.ilcdTime = ilcdTime;
 	}
 
-	public Time create(Process process) {
-		Time time = new Time();
-		time.setId(process.getId());
+	public void map(ProcessDocumentation documentation) {
 		if (ilcdTime != null) {
-			mapValues(time);
+			mapValues(documentation);
 		}
-		return time;
 	}
 
-	private void mapValues(Time time) {
+	private void mapValues(ProcessDocumentation doc) {
 		TimeExtension extension = new TimeExtension(ilcdTime);
-		mapStartDate(extension, time);
-		mapEndDate(extension, time);
-		time.setComment(LangString.getFreeText(ilcdTime.getDescription()));
+		mapStartDate(extension, doc);
+		mapEndDate(extension, doc);
+		doc.setTime(LangString.getFreeText(ilcdTime.getDescription()));
 	}
 
-	private void mapStartDate(TimeExtension extension, Time time) {
+	private void mapStartDate(TimeExtension extension, ProcessDocumentation doc) {
 		Date startDate = extension.getStartDate();
 		if (startDate == null)
 			startDate = date(ilcdTime.getReferenceYear());
-		time.setStartDate(startDate);
+		doc.setValidFrom(startDate);
 	}
 
-	private void mapEndDate(TimeExtension extension, Time time) {
+	private void mapEndDate(TimeExtension extension, ProcessDocumentation doc) {
 		Date endDate = extension.getEndDate();
 		if (endDate == null)
 			endDate = date(ilcdTime.getValidUntil());
-		time.setEndDate(endDate);
+		doc.setValidUntil(endDate);
 	}
 
 	private Date date(BigInteger bigInt) {

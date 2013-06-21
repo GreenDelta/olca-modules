@@ -7,7 +7,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.AdminInfo;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
@@ -24,14 +24,14 @@ import org.slf4j.LoggerFactory;
 
 class ProcessAdminInfo {
 
-	private AdminInfo adminInfo;
+	private ProcessDocumentation documentation;
 	private AdministrativeInformation iAdminInfo;
 	private IDatabase database;
 	private DataStore dataStore;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	public ProcessAdminInfo(AdminInfo adminInfo) {
-		this.adminInfo = adminInfo;
+	public ProcessAdminInfo(ProcessDocumentation documentation) {
+		this.documentation = documentation;
 	}
 
 	public AdministrativeInformation create(IDatabase database,
@@ -51,9 +51,9 @@ class ProcessAdminInfo {
 		iAdminInfo.setDataEntry(dataEntry);
 		dataEntry.setTimeStamp(toXmlCalender(new Date()));
 		dataEntry.getReferenceToDataSetFormat().add(Reference.forIlcdFormat());
-		if (adminInfo.getDataDocumentor() != null) {
+		if (documentation.getDataDocumentor() != null) {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
-					adminInfo.getDataDocumentor(), database, dataStore);
+					documentation.getDataDocumentor(), database, dataStore);
 			if (ref != null) {
 				dataEntry.setReferenceToPersonOrEntityEnteringTheData(ref);
 			}
@@ -61,11 +61,11 @@ class ProcessAdminInfo {
 	}
 
 	private void createDataGenerator() {
-		if (adminInfo.getDataGenerator() != null) {
+		if (documentation.getDataGenerator() != null) {
 			DataGenerator generator = new DataGenerator();
 			iAdminInfo.setDataGenerator(generator);
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
-					adminInfo.getDataGenerator(), database, dataStore);
+					documentation.getDataGenerator(), database, dataStore);
 			if (ref != null)
 				generator.getReferenceToPersonOrEntityGeneratingTheDataSet()
 						.add(ref);
@@ -89,25 +89,24 @@ class ProcessAdminInfo {
 	private void createPublication() {
 		Publication publication = new Publication();
 		iAdminInfo.setPublication(publication);
-		publication.setDateOfLastRevision(toXmlCalender(adminInfo
+		publication.setDateOfLastRevision(toXmlCalender(documentation
 				.getLastChange()));
-		String version = adminInfo.getVersion() == null ? "01.00.000"
-				: adminInfo.getVersion();
+		String version = documentation.getVersion() == null ? "01.00.000"
+				: documentation.getVersion();
 		publication.setDataSetVersion(version);
-		publication.setCopyright(adminInfo.getCopyright());
+		publication.setCopyright(documentation.isCopyright());
 		mapDataSetOwner(publication);
-		if (!Strings.nullOrEmpty(adminInfo.getAccessAndUseRestrictions())) {
-			publication.getAccessRestrictions()
-					.add(LangString.freeText(adminInfo
-							.getAccessAndUseRestrictions()));
+		if (!Strings.nullOrEmpty(documentation.getRestrictions())) {
+			publication.getAccessRestrictions().add(
+					LangString.freeText(documentation.getRestrictions()));
 		}
 		mapPublicationSource(publication);
 	}
 
 	private void mapDataSetOwner(Publication publication) {
-		if (adminInfo.getDataSetOwner() != null) {
+		if (documentation.getDataSetOwner() != null) {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
-					adminInfo.getDataSetOwner(), database, dataStore);
+					documentation.getDataSetOwner(), database, dataStore);
 			if (ref != null) {
 				publication.setReferenceToOwnershipOfDataSet(ref);
 			}
@@ -115,7 +114,7 @@ class ProcessAdminInfo {
 	}
 
 	private void mapPublicationSource(Publication publication) {
-		Source source = adminInfo.getPublication();
+		Source source = documentation.getPublication();
 		if (source == null)
 			return;
 		DataSetReference ref = ExportDispatch.forwardExportCheck(source,
@@ -125,18 +124,19 @@ class ProcessAdminInfo {
 	}
 
 	private void createCommissionerAndGoal() {
-		if (Strings.nullOrEmpty(adminInfo.getIntendedApplication())
-				&& Strings.nullOrEmpty(adminInfo.getProject()))
+		if (Strings.nullOrEmpty(documentation.getIntendedApplication())
+				&& Strings.nullOrEmpty(documentation.getProject()))
 			return;
 		CommissionerAndGoal comAndGoal = new CommissionerAndGoal();
 		iAdminInfo.setCommissionerAndGoal(comAndGoal);
-		if (!Strings.nullOrEmpty(adminInfo.getIntendedApplication())) {
-			comAndGoal.getIntendedApplications().add(
-					LangString.freeText(adminInfo.getIntendedApplication()));
+		if (!Strings.nullOrEmpty(documentation.getIntendedApplication())) {
+			comAndGoal.getIntendedApplications()
+					.add(LangString.freeText(documentation
+							.getIntendedApplication()));
 		}
-		if (!Strings.nullOrEmpty(adminInfo.getProject())) {
+		if (!Strings.nullOrEmpty(documentation.getProject())) {
 			comAndGoal.getProject().add(
-					LangString.label(adminInfo.getProject()));
+					LangString.label(documentation.getProject()));
 		}
 	}
 

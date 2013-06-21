@@ -16,14 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.AdminInfo;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.ModelingAndValidation;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Technology;
-import org.openlca.core.model.Time;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LCIMethodApproach;
@@ -54,7 +51,7 @@ public class ProcessExport {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private Process process;
-	private ModelingAndValidation modelingAndValidation;
+	private ProcessDocumentation modelingAndValidation;
 	private IDatabase database;
 	private DataStore dataStore;
 
@@ -86,7 +83,7 @@ public class ProcessExport {
 			this.process = database.createDao(Process.class).getForId(
 					process.getId());
 			this.modelingAndValidation = database.createDao(
-					ModelingAndValidation.class).getForId(process.getId());
+					ProcessDocumentation.class).getForId(process.getId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load process from database.",
 					e);
@@ -157,8 +154,7 @@ public class ProcessExport {
 
 	private Geography makeGeography() {
 		log.trace("Create process geography.");
-		if (process.getLocation() == null
-				&& process.getGeographyComment() == null)
+		if (process.getLocation() == null && process.getGeography() == null)
 			return null;
 		Geography geography = new Geography();
 		org.openlca.ilcd.processes.Location iLocation = new org.openlca.ilcd.processes.Location();
@@ -170,9 +166,9 @@ public class ProcessExport {
 					+ oLocation.getLongitude();
 			iLocation.setLatitudeAndLongitude(pos);
 		}
-		if (Strings.notEmpty(process.getGeographyComment())) {
+		if (Strings.notEmpty(process.getGeography())) {
 			LangString.addFreeText(iLocation.getDescription(),
-					process.getGeographyComment());
+					process.getGeography());
 		}
 		return geography;
 	}

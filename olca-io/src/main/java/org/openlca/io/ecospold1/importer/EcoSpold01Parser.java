@@ -21,7 +21,6 @@ import java.util.zip.ZipFile;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.AdminInfo;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
@@ -30,11 +29,9 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.ModelingAndValidation;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Technology;
-import org.openlca.core.model.Time;
 import org.openlca.ecospold.IAllocation;
 import org.openlca.ecospold.IDataSet;
 import org.openlca.ecospold.IEcoSpold;
@@ -164,30 +161,32 @@ public class EcoSpold01Parser {
 			log.trace("Process {} already exists, not imported", processId);
 			return;
 		}
+
 		process = new Process();
 		process.setId(processId);
+		ProcessDocumentation documentation = new ProcessDocumentation();
+		documentation.setId(processId);
+
 		if (dataSet.getReferenceFunction() != null) {
 			process.setDescription(dataSet.getReferenceFunction()
 					.getGeneralComment());
-			process.setInfrastructureProcess(dataSet.getReferenceFunction()
-					.isInfrastructureProcess());
+			documentation.setInfrastructureProcess(dataSet
+					.getReferenceFunction().isInfrastructureProcess());
 		}
 		process.setProcessType(Mapper.getProcessType(dataSet));
+		mapTimeAndGeography(dataSet, process, documentation);
 
-		Technology technology = new Technology(process);
 		if (dataSet.getTechnology() != null
 				&& dataSet.getTechnology().getText() != null)
-			technology.setDescription(Strings.cut(
+			documentation.setTechnology(Strings.cut(
 					(dataSet.getTechnology().getText()), 65500));
-
-		Time time = mapTimeAndGeo(dataSet, process);
 
 		mapExchanges(dataSet.getExchanges(), process);
 		if (process.getQuantitativeReference() == null)
 			createProductFromRefFun(dataSet, process);
 
 		if (dataSet.getReferenceFunction() != null)
-			mapReferenceFunction(dataSet, process);
+			mapReferenceFunction(dataSet, process, documentation);
 
 		if (dataSet.getAllocations() != null
 				&& dataSet.getAllocations().size() > 0) {
@@ -195,40 +194,32 @@ public class EcoSpold01Parser {
 			process.setAllocationMethod(AllocationMethod.Causal);
 		}
 
-		ModelingAndValidation modelingAndValidation = new ModelingAndValidation(
-				process);
-		Mapper.mapModellingAndValidation(dataSet, modelingAndValidation);
-		AdminInfo adminInfo = new AdminInfo(process);
-		Mapper.mapAdminInfo(dataSet, adminInfo);
-		mapActors(modelingAndValidation, adminInfo, dataSet);
-		mapSources(modelingAndValidation, adminInfo, dataSet);
+		Mapper.mapModellingAndValidation(dataSet, documentation);
+		Mapper.mapAdminInfo(dataSet, documentation);
+		mapActors(documentation, dataSet);
+		mapSources(documentation, dataSet);
 
 		db.put(process, processId);
-		db.put(modelingAndValidation, processId);
-		db.put(adminInfo, processId);
-		db.put(time, processId);
-		db.put(technology, processId);
+		db.put(documentation, processId);
 
 		localExchangeCache.clear();
 	}
 
-	private Time mapTimeAndGeo(DataSet dataSet, Process process) {
-		ProcessTime processTime = new ProcessTime(process,
-				dataSet.getTimePeriod());
-		Time time = processTime.map();
+	private void mapTimeAndGeography(DataSet dataSet, Process process,
+			ProcessDocumentation documentation) {
+		ProcessTime processTime = new ProcessTime(dataSet.getTimePeriod());
+		processTime.map(documentation);
 		if (dataSet.getGeography() != null) {
 			String locationCode = dataSet.getGeography().getLocation();
 			if (locationCode != null) {
 				String genKey = KeyGen.get(locationCode);
 				process.setLocation(db.findLocation(locationCode, genKey));
 			}
-			process.setGeographyComment(dataSet.getGeography().getText());
+			documentation.setGeography(dataSet.getGeography().getText());
 		}
-		return time;
 	}
 
-	private void mapActors(ModelingAndValidation modelingAndValidation,
-			AdminInfo adminInfo, DataSet dataSet) {
+	private void mapActors(ProcessDocumentation doc, DataSet dataSet) {
 		Map<Integer, Actor> actors = new HashMap<>();
 		for (IPerson person : dataSet.getPersons()) {
 			Actor actor = db.findActor(person, ES1KeyGen.forPerson(person));
@@ -236,13 +227,13 @@ public class EcoSpold01Parser {
 				actors.put(person.getNumber(), actor);
 		}
 		if (dataSet.getDataGeneratorAndPublication() != null)
-			adminInfo.setDataGenerator(actors.get(dataSet
+			doc.setDataGenerator(actors.get(dataSet
 					.getDataGeneratorAndPublication().getPerson()));
 		if (dataSet.getValidation() != null)
-			modelingAndValidation.setReviewer(actors.get(dataSet
-					.getValidation().getProofReadingValidator()));
+			doc.setReviewer(actors.get(dataSet.getValidation()
+					.getProofReadingValidator()));
 		if (dataSet.getDataEntryBy() != null)
-			adminInfo.setDataDocumentor(actors.get(dataSet.getDataEntryBy()
+			doc.setDataDocumentor(actors.get(dataSet.getDataEntryBy()
 					.getPerson()));
 	}
 
@@ -318,14 +309,14 @@ public class EcoSpold01Parser {
 		return category;
 	}
 
-	private void mapReferenceFunction(DataSet dataSet, Process ioProcess) {
+	private void mapReferenceFunction(DataSet dataSet, Process ioProcess,
+			ProcessDocumentation doc) {
 		if (dataSet.getReferenceFunction() == null)
 			return;
 		IReferenceFunction inRefFunction = dataSet.getReferenceFunction();
 		ioProcess.setName(inRefFunction.getName());
 		ioProcess.setDescription(inRefFunction.getGeneralComment());
-		ioProcess.setInfrastructureProcess(inRefFunction
-				.isInfrastructureProcess());
+		doc.setInfrastructureProcess(inRefFunction.isInfrastructureProcess());
 		String topCategoryName = inRefFunction.getCategory();
 		String subCategoryName = inRefFunction.getSubCategory();
 		Category category = db.getPutCategory(processCategory, topCategoryName,
@@ -354,20 +345,19 @@ public class EcoSpold01Parser {
 		ioProcess.setQuantitativeReference(outExchange);
 	}
 
-	private void mapSources(ModelingAndValidation modelingAndValidation,
-			AdminInfo adminInfo, DataSet adapter) {
+	private void mapSources(ProcessDocumentation doc, DataSet adapter) {
 		Map<Integer, Source> sources = new HashMap<>();
 		for (ISource source : adapter.getSources()) {
 			Source s = db.findSource(source, ES1KeyGen.forSource(source));
 			if (s != null) {
 				sources.put(source.getNumber(), s);
-				modelingAndValidation.add(s);
+				doc.getSources().add(s);
 			}
 		}
 		if (adapter.getDataGeneratorAndPublication() != null
 				&& adapter.getDataGeneratorAndPublication()
 						.getReferenceToPublishedSource() != null)
-			adminInfo.setPublication(sources.get(adapter
+			doc.setPublication(sources.get(adapter
 					.getDataGeneratorAndPublication()
 					.getReferenceToPublishedSource()));
 	}

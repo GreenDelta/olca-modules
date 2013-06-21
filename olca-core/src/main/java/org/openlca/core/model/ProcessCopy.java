@@ -18,10 +18,9 @@ class ProcessCopy {
 		other.setAllocationMethod(self.getAllocationMethod());
 		other.setCategory(self.getCategory());
 		other.setDescription(self.getDescription());
-		other.setGeographyComment(self.getGeographyComment());
-		other.setInfrastructureProcess(self.isInfrastructureProcess());
 		other.setLocation(self.getLocation());
 		other.setProcessType(self.getProcessType());
+		other.setDocumentation(self.getDocumentation().clone());
 	}
 
 	private void copyExchanges(Process self, Process other) {

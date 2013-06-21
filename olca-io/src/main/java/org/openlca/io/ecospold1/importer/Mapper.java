@@ -3,9 +3,8 @@ package org.openlca.io.ecospold1.importer;
 import java.util.Date;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.AdminInfo;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ModelingAndValidation;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.ecospold.IDataGeneratorAndPublication;
@@ -59,7 +58,7 @@ class Mapper {
 	}
 
 	public static void mapModellingAndValidation(DataSet dataSet,
-			ModelingAndValidation mav) {
+			ProcessDocumentation doc) {
 		String evaluation = null;
 		IValidation validation = dataSet.getValidation();
 		if (validation != null) {
@@ -74,23 +73,23 @@ class Mapper {
 						+ validation.getOtherDetails();
 			}
 		}
-		mav.setDataSetOtherEvaluation(evaluation);
+		doc.setReviewDetails(evaluation);
 
 		IRepresentativeness representativeness = dataSet
 				.getRepresentativeness();
 		if (representativeness != null
 				&& representativeness.getSamplingProcedure() != null) {
 			String sampling = representativeness.getSamplingProcedure();
-			mav.setSampling(sampling);
+			doc.setSampling(sampling);
 		}
 	}
 
-	public static void mapAdminInfo(DataSet dataSet, AdminInfo adminInfo) {
+	public static void mapAdminInfo(DataSet dataSet, ProcessDocumentation doc) {
 
 		IDataGeneratorAndPublication generator = dataSet
 				.getDataGeneratorAndPublication();
 		if (generator != null) {
-			adminInfo.setCopyright(generator.isCopyright());
+			doc.setCopyright(generator.isCopyright());
 			String accessAndUseRestrictions = null;
 			Integer restrictedTo = generator.getAccessRestrictedTo();
 			if (restrictedTo != null) {
@@ -116,7 +115,7 @@ class Mapper {
 					break;
 				}
 			}
-			adminInfo.setAccessAndUseRestrictions(accessAndUseRestrictions);
+			doc.setRestrictions(accessAndUseRestrictions);
 		}
 
 		// timestamp
@@ -124,8 +123,8 @@ class Mapper {
 		if (info != null && info.getTimestamp() != null) {
 			Date lastChange = info.getTimestamp().toGregorianCalendar()
 					.getTime();
-			adminInfo.setLastChange(lastChange);
-			adminInfo.setCreationDate(lastChange);
+			doc.setLastChange(lastChange);
+			doc.setCreationDate(lastChange);
 		}
 	}
 

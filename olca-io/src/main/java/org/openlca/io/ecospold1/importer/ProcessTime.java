@@ -4,8 +4,7 @@ import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.core.model.Process;
-import org.openlca.core.model.Time;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.ecospold.ITimePeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,24 +12,18 @@ import org.slf4j.LoggerFactory;
 class ProcessTime {
 
 	private ITimePeriod timePeriod;
-	private Time time;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	public ProcessTime(Process process, ITimePeriod timePeriod) {
-		if (process == null)
-			time = new Time();
-		else
-			time = new Time(process);
+	public ProcessTime(ITimePeriod timePeriod) {
 		this.timePeriod = timePeriod;
 	}
 
-	public Time map() {
-		if (timePeriod != null) {
-			time.setComment(timePeriod.getText());
-			time.setStartDate(getStartDate());
-			time.setEndDate(getEndDate());
+	public void map(ProcessDocumentation doc) {
+		if (timePeriod != null && doc != null) {
+			doc.setTime(timePeriod.getText());
+			doc.setValidFrom(getStartDate());
+			doc.setValidUntil(getEndDate());
 		}
-		return time;
 	}
 
 	private Date getStartDate() {
