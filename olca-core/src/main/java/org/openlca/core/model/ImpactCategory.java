@@ -16,7 +16,6 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -28,12 +27,12 @@ import javax.persistence.Table;
  * </p>
  */
 @Entity
-@Table(name = "tbl_lciacategories")
-public class LCIACategory extends AbstractEntity implements Cloneable {
+@Table(name = "tbl_impact_categories")
+public class ImpactCategory extends AbstractEntity implements Cloneable {
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true)
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_impact_category")
-	private final List<LCIAFactor> lciaFactors = new ArrayList<>();
+	private final List<ImpactFactor> impactFactors = new ArrayList<>();
 
 	@Column(name = "name")
 	private String name;
@@ -51,11 +50,11 @@ public class LCIACategory extends AbstractEntity implements Cloneable {
 	 *            The flow the LCIA factor is requested for
 	 * @return The converted LCIA factor value for the given flow
 	 */
-	public double getConvertedLCIAFactor(final Flow flow) {
-		LCIAFactor factor = null;
+	public double getConvertedFactor(final Flow flow) {
+		ImpactFactor factor = null;
 		int i = 0;
-		while (factor == null && i < lciaFactors.size()) {
-			final LCIAFactor actual = lciaFactors.get(i);
+		while (factor == null && i < impactFactors.size()) {
+			final ImpactFactor actual = impactFactors.get(i);
 			if (actual.getFlow().getId().equals(flow.getId())) {
 				factor = actual;
 			} else {
@@ -66,14 +65,14 @@ public class LCIACategory extends AbstractEntity implements Cloneable {
 	}
 
 	@Override
-	public LCIACategory clone() {
-		final LCIACategory lciaCategory = new LCIACategory();
+	public ImpactCategory clone() {
+		final ImpactCategory lciaCategory = new ImpactCategory();
 		lciaCategory.setId(UUID.randomUUID().toString());
 		lciaCategory.setDescription(getDescription());
 		lciaCategory.setName(getName());
 		lciaCategory.setReferenceUnit(getReferenceUnit());
-		for (LCIAFactor lciaFactor : getLCIAFactors()) {
-			lciaCategory.getLCIAFactors().add(lciaFactor.clone());
+		for (ImpactFactor lciaFactor : getImpactFactors()) {
+			lciaCategory.getImpactFactors().add(lciaFactor.clone());
 		}
 		return lciaCategory;
 	}
@@ -102,8 +101,8 @@ public class LCIACategory extends AbstractEntity implements Cloneable {
 		this.referenceUnit = referenceUnit;
 	}
 
-	public List<LCIAFactor> getLCIAFactors() {
-		return lciaFactors;
+	public List<ImpactFactor> getImpactFactors() {
+		return impactFactors;
 	}
 
 }

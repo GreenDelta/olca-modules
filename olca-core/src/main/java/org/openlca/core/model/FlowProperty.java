@@ -19,7 +19,7 @@ import javax.persistence.Table;
  * Flow properties are quantities like mass, volume, etc.
  */
 @Entity
-@Table(name = "tbl_flowproperties")
+@Table(name = "tbl_flow_properties")
 public class FlowProperty extends RootEntity {
 
 	@Column(name = "flow_property_type")

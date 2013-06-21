@@ -14,6 +14,8 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
+import com.google.common.base.Optional;
+
 public class FlowDao extends BaseDao<Flow> implements IRootEntityDao<Flow> {
 
 	public FlowDao(EntityManagerFactory factory) {
@@ -40,19 +42,28 @@ public class FlowDao extends BaseDao<Flow> implements IRootEntityDao<Flow> {
 		}
 	}
 
-	public List<FlowDescriptor> getDescriptors(Category category) {
+	public List<FlowDescriptor> getDescriptors(Optional<Category> category) {
 		String jpql = "select f.id, f.name, f.description, loc.code from Flow f "
-				+ "left join f.location loc " + "where f.category = :category";
-		log.trace("get flow descriptors for {}", category);
+				+ "left join f.location loc ";
+		Map<String, Category> params = null;
+		if (category.isPresent()) {
+			jpql += "where f.category = :category";
+			params = Collections.singletonMap("category", category.get());
+		} else {
+			jpql += "where f.category is null";
+			params = Collections.emptyMap();
+		}
+		return runDescriptorQuery(jpql, params);
+	}
+
+	private List<FlowDescriptor> runDescriptorQuery(String jpql,
+			Map<String, Category> params) {
 		try {
 			List<Object[]> results = Query.on(getEntityFactory()).getAll(
-					Object[].class, jpql,
-					Collections.singletonMap("category", category));
+					Object[].class, jpql, params);
 			return toDescriptors(results);
 		} catch (Exception e) {
-			log.error(
-					"failed to get flow descriptors for category " + category,
-					e);
+			log.error("failed to get flow descriptors for " + jpql, e);
 			return Collections.emptyList();
 		}
 	}

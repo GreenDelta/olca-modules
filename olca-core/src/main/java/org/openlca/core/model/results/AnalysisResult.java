@@ -190,9 +190,9 @@ public class AnalysisResult implements IResultData {
 		int row = impactCategoryIndex.getIndex(category);
 		double singleVal = getValue(singleImpactResult, row, process);
 		double totalVal = getValue(totalImpactResult, row, process);
-		LCIACategoryResult singleResult = createImpactResult(category,
+		ImpactCategoryResult singleResult = createImpactResult(category,
 				singleVal, nwSet);
-		LCIACategoryResult totalResult = createImpactResult(category, totalVal,
+		ImpactCategoryResult totalResult = createImpactResult(category, totalVal,
 				nwSet);
 		AnalysisImpactResult result = new AnalysisImpactResult();
 		result.setAggregatedResult(totalResult);
@@ -202,10 +202,10 @@ public class AnalysisResult implements IResultData {
 		return result;
 	}
 
-	private LCIACategoryResult createImpactResult(
+	private ImpactCategoryResult createImpactResult(
 			ImpactCategoryDescriptor descriptor, double val,
 			NormalizationWeightingSet nwSet) {
-		LCIACategoryResult result = new LCIACategoryResult();
+		ImpactCategoryResult result = new ImpactCategoryResult();
 		result.setCategory(descriptor.getName());
 		result.setId(UUID.randomUUID().toString());
 		result.setUnit(descriptor.getReferenceUnit());

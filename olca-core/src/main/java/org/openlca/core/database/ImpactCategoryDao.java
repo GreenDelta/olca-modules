@@ -4,13 +4,13 @@ import java.util.Collections;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.openlca.core.model.LCIACategory;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
-public class ImpactCategoryDao extends BaseDao<LCIACategory> {
+public class ImpactCategoryDao extends BaseDao<ImpactCategory> {
 
 	public ImpactCategoryDao(EntityManagerFactory emf) {
-		super(LCIACategory.class, emf);
+		super(ImpactCategory.class, emf);
 	}
 
 	public ImpactCategoryDescriptor getDescriptor(String id) {

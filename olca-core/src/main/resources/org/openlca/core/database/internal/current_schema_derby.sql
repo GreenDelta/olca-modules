@@ -387,14 +387,14 @@ CREATE TABLE tbl_lciresults (
 
 -- LCIA results of product systems
 
-CREATE TABLE tbl_lciaresults (
+CREATE TABLE tbl_impact_results (
 
 	id VARCHAR(36) NOT NULL, 
 	targetamount DOUBLE, 
 	product VARCHAR(255),
 	productsystem VARCHAR(255), 
 	unit VARCHAR(255), 
-	lciamethod VARCHAR(255), 
+	impact_method VARCHAR(255), 
 	nwset VARCHAR(255), 
 	weightingunit VARCHAR(255), 
 	description CLOB(64 K), 
@@ -408,7 +408,7 @@ CREATE TABLE tbl_lciaresults (
 
 -- a stored LCIA result
 
-CREATE TABLE tbl_lciacategoryresults (
+CREATE TABLE tbl_impact_category_results (
 
 	id VARCHAR(36) NOT NULL, 
 	category VARCHAR(255), 
@@ -418,7 +418,7 @@ CREATE TABLE tbl_lciacategoryresults (
 	standarddeviation double, 
 	normalizationfactor double, 
 	weightingfactor double, 
-	f_lciaresult VARCHAR(36), 
+	f_impact_result VARCHAR(36), 
 	
 	PRIMARY KEY (id)
 );
@@ -426,11 +426,11 @@ CREATE TABLE tbl_lciacategoryresults (
 
 -- LCIA methods
 
-CREATE TABLE tbl_lciamethods (
+CREATE TABLE tbl_impact_methods (
 
 	id VARCHAR(36) NOT NULL, 
 	description CLOB(64 K), 
-	categoryid VARCHAR(36), 
+	f_category VARCHAR(36), 
 	name VARCHAR(255), 
 	PRIMARY KEY (id)
 	
@@ -439,13 +439,13 @@ CREATE TABLE tbl_lciamethods (
 
 -- LCIA categories
 
-CREATE TABLE tbl_lciacategories (
+CREATE TABLE tbl_impact_categories (
 
 	id VARCHAR(36) NOT NULL, 
 	description CLOB(64 K), 
 	name VARCHAR(255), 
-	referenceunit VARCHAR(255),
-	f_lciamethod VARCHAR(36), 
+	reference_unit VARCHAR(255),
+	f_impact_method VARCHAR(36), 
 	
 	PRIMARY KEY (id)	
 
@@ -454,14 +454,14 @@ CREATE TABLE tbl_lciacategories (
 
 -- LCIA factors
 
-CREATE TABLE tbl_lciafactors (
+CREATE TABLE tbl_impact_factors (
 
 	id VARCHAR(36) NOT NULL, 
 	f_flow_property_factor VARCHAR(36), 
 	f_flow VARCHAR(36), 
 	f_unit VARCHAR(36), 
 	value DOUBLE, 
-	f_lciacategory VARCHAR(36), 
+	f_impact_category VARCHAR(36), 
 	uncertainy_type VARCHAR(50),
 	uncertainty_parameter_1 DOUBLE,
 	uncertainty_parameter_2 DOUBLE,
@@ -474,11 +474,11 @@ CREATE TABLE tbl_lciafactors (
 
 -- normalisation and weighting sets of LCIA methods
 
-CREATE TABLE tbl_normalizationweightingsets (
+CREATE TABLE tbl_normalisation_weighting_sets (
 
 	id VARCHAR(255) NOT NULL, 
-	referencesystem VARCHAR(255),
-	f_lciamethod VARCHAR(36), 
+	reference_system VARCHAR(255),
+	f_impact_method VARCHAR(36), 
 	unit VARCHAR(255),
 	
 	PRIMARY KEY (id)
@@ -493,8 +493,8 @@ CREATE TABLE tbl_normalizationweightingfactors (
 	id VARCHAR(255) NOT NULL, 
 	weightingfactor DOUBLE, 
 	normalizationfactor DOUBLE,
-	f_lciacategory VARCHAR(36),
-	f_normalizationweightingset VARCHAR(255), 
+	f_impact_category VARCHAR(36),
+	f_normalisation_weighting_set VARCHAR(255), 
 	
 	PRIMARY KEY (id)
 

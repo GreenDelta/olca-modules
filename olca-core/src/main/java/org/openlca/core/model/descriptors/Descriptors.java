@@ -3,8 +3,8 @@ package org.openlca.core.model.descriptors;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.LCIACategory;
-import org.openlca.core.model.LCIAMethod;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -12,7 +12,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.results.LCIAResult;
+import org.openlca.core.model.results.ImpactResult;
 
 public class Descriptors {
 
@@ -21,8 +21,8 @@ public class Descriptors {
 			return null;
 		if (component instanceof Project)
 			return toDescriptor((Project) component);
-		if (component instanceof LCIAMethod)
-			return toDescriptor((LCIAMethod) component);
+		if (component instanceof ImpactMethod)
+			return toDescriptor((ImpactMethod) component);
 		if (component instanceof ProductSystem)
 			return toDescriptor((ProductSystem) component);
 		if (component instanceof Process)
@@ -37,8 +37,8 @@ public class Descriptors {
 			return toDescriptor((Actor) component);
 		if (component instanceof Source)
 			return toDescriptor((Source) component);
-		if (component instanceof LCIAResult)
-			return toDescriptor((LCIAResult) component);
+		if (component instanceof ImpactResult)
+			return toDescriptor((ImpactResult) component);
 		return createUnknownDescriptor(component);
 	}
 
@@ -50,7 +50,7 @@ public class Descriptors {
 		return descriptor;
 	}
 
-	public static ImpactMethodDescriptor toDescriptor(LCIAMethod method) {
+	public static ImpactMethodDescriptor toDescriptor(ImpactMethod method) {
 		if (method == null)
 			return null;
 		ImpactMethodDescriptor descriptor = new ImpactMethodDescriptor();
@@ -118,7 +118,7 @@ public class Descriptors {
 		return descriptor;
 	}
 
-	public static BaseDescriptor toDescriptor(LCIAResult impactResult) {
+	public static BaseDescriptor toDescriptor(ImpactResult impactResult) {
 		if (impactResult == null)
 			return null;
 		BaseDescriptor descriptor = new BaseDescriptor();
@@ -128,7 +128,7 @@ public class Descriptors {
 	}
 
 	public static ImpactCategoryDescriptor toDescriptor(
-			LCIACategory impactCategory) {
+			ImpactCategory impactCategory) {
 		if (impactCategory == null)
 			return null;
 		ImpactCategoryDescriptor descriptor = new ImpactCategoryDescriptor();

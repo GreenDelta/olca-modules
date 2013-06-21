@@ -29,12 +29,12 @@ import org.openlca.core.model.RootEntity;
  * 
  */
 @Entity
-@Table(name = "tbl_lciaresults")
-public class LCIAResult extends RootEntity {
+@Table(name = "tbl_impact_results")
+public class ImpactResult extends RootEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_lciaresult")
-	private List<LCIACategoryResult> lciaCategoryResults = new ArrayList<>();
+	private List<ImpactCategoryResult> lciaCategoryResults = new ArrayList<>();
 
 	@Column(name = "lciamethod")
 	private String lciaMethod;
@@ -57,7 +57,7 @@ public class LCIAResult extends RootEntity {
 	@Column(name = "weightingunit")
 	private String weightingUnit;
 
-	public List<LCIACategoryResult> getLCIACategoryResults() {
+	public List<ImpactCategoryResult> getLCIACategoryResults() {
 		return lciaCategoryResults;
 	}
 
@@ -90,7 +90,7 @@ public class LCIAResult extends RootEntity {
 	}
 
 	public void setLciaCategoryResults(
-			List<LCIACategoryResult> lciaCategoryResults) {
+			List<ImpactCategoryResult> lciaCategoryResults) {
 		this.lciaCategoryResults = lciaCategoryResults;
 	}
 
@@ -135,8 +135,8 @@ public class LCIAResult extends RootEntity {
 	}
 
 	@Override
-	public LCIAResult clone() {
-		LCIAResult clone = new LCIAResult();
+	public ImpactResult clone() {
+		ImpactResult clone = new ImpactResult();
 		clone.setCategory(getCategory());
 		clone.setDescription(getDescription());
 		clone.setId(UUID.randomUUID().toString());

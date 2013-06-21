@@ -10,12 +10,12 @@ import org.openlca.core.model.Process;
  */
 public class AnalysisImpactResult {
 
-	private LCIACategoryResult aggregatedResult;
+	private ImpactCategoryResult aggregatedResult;
 	private String category;
 	private Process process;
-	private LCIACategoryResult singleResult;
+	private ImpactCategoryResult singleResult;
 
-	public LCIACategoryResult getAggregatedResult() {
+	public ImpactCategoryResult getAggregatedResult() {
 		return aggregatedResult;
 	}
 
@@ -27,11 +27,11 @@ public class AnalysisImpactResult {
 		return process;
 	}
 
-	public LCIACategoryResult getSingleResult() {
+	public ImpactCategoryResult getSingleResult() {
 		return singleResult;
 	}
 
-	public void setAggregatedResult(LCIACategoryResult aggregatedResult) {
+	public void setAggregatedResult(ImpactCategoryResult aggregatedResult) {
 		this.aggregatedResult = aggregatedResult;
 	}
 
@@ -43,7 +43,7 @@ public class AnalysisImpactResult {
 		this.process = process;
 	}
 
-	public void setSingleResult(LCIACategoryResult singleResult) {
+	public void setSingleResult(ImpactCategoryResult singleResult) {
 		this.singleResult = singleResult;
 	}
 

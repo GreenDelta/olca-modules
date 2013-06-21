@@ -9,8 +9,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.LCIACategory;
-import org.openlca.core.model.LCIAFactor;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.TypeOfLCIAMethod;
@@ -57,7 +57,7 @@ public class MethodImport {
 			String name = methodName;
 			if (type != null)
 				name += " (" + type + ")";
-			org.openlca.core.model.LCIAMethod oMethod = fetchMethod(name);
+			org.openlca.core.model.ImpactMethod oMethod = fetchMethod(name);
 			if (!hasCategory(oMethod, categoryName)) {
 				addCategory(oMethod, categoryName, iMethod);
 			}
@@ -95,12 +95,12 @@ public class MethodImport {
 		return type.value();
 	}
 
-	private org.openlca.core.model.LCIAMethod fetchMethod(String name)
+	private org.openlca.core.model.ImpactMethod fetchMethod(String name)
 			throws Exception {
 		String id = KeyGen.get(name);
-		org.openlca.core.model.LCIAMethod method = dao.getForId(id);
+		org.openlca.core.model.ImpactMethod method = dao.getForId(id);
 		if (method == null) {
-			method = new org.openlca.core.model.LCIAMethod();
+			method = new org.openlca.core.model.ImpactMethod();
 			method.setId(id);
 			method.setName(name);
 			dao.insert(method);
@@ -108,20 +108,20 @@ public class MethodImport {
 		return method;
 	}
 
-	private boolean hasCategory(org.openlca.core.model.LCIAMethod oMethod,
+	private boolean hasCategory(org.openlca.core.model.ImpactMethod oMethod,
 			String categoryName) {
-		for (LCIACategory category : oMethod.getLCIACategories()) {
+		for (ImpactCategory category : oMethod.getLCIACategories()) {
 			if (StringUtils.equalsIgnoreCase(category.getName(), categoryName))
 				return true;
 		}
 		return false;
 	}
 
-	private void addCategory(org.openlca.core.model.LCIAMethod oMethod,
+	private void addCategory(org.openlca.core.model.ImpactMethod oMethod,
 			String categoryName, LCIAMethod iMethod) throws Exception {
 		log.trace("Add category {} to {}", categoryName, oMethod);
 		String categoryUnit = getCategoryUnit(iMethod);
-		LCIACategory category = new LCIACategory();
+		ImpactCategory category = new ImpactCategory();
 		category.setId(UUID.randomUUID().toString());
 		category.setName(categoryName);
 		category.setReferenceUnit(categoryUnit);
@@ -167,7 +167,7 @@ public class MethodImport {
 		return null;
 	}
 
-	private void addFactor(LCIACategory category, Factor factor) {
+	private void addFactor(ImpactCategory category, Factor factor) {
 		if (factor.getMeanValue() == 0)
 			return;
 		try {
@@ -177,13 +177,13 @@ public class MethodImport {
 				log.warn("Could not import flow {}", flowId);
 				return;
 			}
-			LCIAFactor oFactor = new LCIAFactor();
+			ImpactFactor oFactor = new ImpactFactor();
 			oFactor.setFlow(flow);
 			oFactor.setFlowPropertyFactor(flow.getReferenceFactor());
 			oFactor.setId(UUID.randomUUID().toString());
 			oFactor.setUnit(getRefUnit(flow));
 			oFactor.setValue(factor.getMeanValue());
-			category.getLCIAFactors().add(oFactor);
+			category.getImpactFactors().add(oFactor);
 		} catch (Exception e) {
 			log.warn("Failed to add factor " + factor, e);
 		}

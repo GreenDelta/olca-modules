@@ -24,37 +24,37 @@ import javax.persistence.Table;
  * An impact assessment method.
  */
 @Entity
-@Table(name = "tbl_lciamethods")
-public class LCIAMethod extends RootEntity implements IParameterisable {
+@Table(name = "tbl_impact_methods")
+public class ImpactMethod extends RootEntity implements IParameterisable {
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true)
-	@JoinColumn(name = "f_lcia_method")
-	private final List<LCIACategory> lciaCategories = new ArrayList<>();
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@JoinColumn(name = "f_impact_method")
+	private final List<ImpactCategory> impactCategories = new ArrayList<>();
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true)
-	@JoinColumn(name = "f_lcia_method")
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@JoinColumn(name = "f_impact_method")
 	private final List<NormalizationWeightingSet> normalizationWeightingSets = new ArrayList<>();
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true)
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
 	private final List<Parameter> parameters = new ArrayList<>();
 
 	@Override
-	public LCIAMethod clone() {
-		LCIAMethod lciaMethod = new LCIAMethod();
+	public ImpactMethod clone() {
+		ImpactMethod lciaMethod = new ImpactMethod();
 		lciaMethod.setId(UUID.randomUUID().toString());
 		lciaMethod.setName(getName());
 		lciaMethod.setCategory(getCategory());
 		lciaMethod.setDescription(getDescription());
-		for (LCIACategory lciaCategory : getLCIACategories()) {
+		for (ImpactCategory lciaCategory : getLCIACategories()) {
 			lciaMethod.getLCIACategories().add(lciaCategory.clone());
 		}
 		// TODO: clone parameters and nw-sets!
 		return lciaMethod;
 	}
 
-	public List<LCIACategory> getLCIACategories() {
-		return lciaCategories;
+	public List<ImpactCategory> getLCIACategories() {
+		return impactCategories;
 	}
 
 	public List<NormalizationWeightingSet> getNormalizationWeightingSets() {

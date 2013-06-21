@@ -24,7 +24,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_lciafactors")
-public class LCIAFactor extends AbstractEntity implements Cloneable {
+public class ImpactFactor extends AbstractEntity implements Cloneable {
 
 	@OneToOne
 	@JoinColumn(name = "f_flow")
@@ -60,8 +60,8 @@ public class LCIAFactor extends AbstractEntity implements Cloneable {
 	}
 
 	@Override
-	public LCIAFactor clone() {
-		final LCIAFactor lciaFactor = new LCIAFactor();
+	public ImpactFactor clone() {
+		final ImpactFactor lciaFactor = new ImpactFactor();
 		lciaFactor.setId(UUID.randomUUID().toString());
 		lciaFactor.setFlow(getFlow());
 		lciaFactor.setFlowPropertyFactor(getFlowPropertyFactor());

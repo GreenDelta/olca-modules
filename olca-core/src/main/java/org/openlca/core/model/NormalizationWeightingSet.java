@@ -19,7 +19,6 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
@@ -37,15 +36,15 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
  * 
  */
 @Entity
-@Table(name = "tbl_normalizationweightingsets")
+@Table(name = "tbl_normalisation_weighting_sets")
 public class NormalizationWeightingSet extends AbstractEntity implements
 		PropertyChangeListener {
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true)
-	@JoinColumn(name = "f_normalizationweightingset")
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@JoinColumn(name = "f_normalisation_weighting_set")
 	private final List<NormalizationWeightingFactor> normalizationWeightingFactors = new ArrayList<>();
 
-	@Column(name = "referencesystem")
+	@Column(name = "reference_system")
 	private String referenceSystem;
 
 	@Transient
@@ -60,11 +59,11 @@ public class NormalizationWeightingSet extends AbstractEntity implements
 	}
 
 	public NormalizationWeightingSet(String id, String referenceSystem,
-			LCIAMethod method) {
+			ImpactMethod method) {
 		setId(id);
 		this.referenceSystem = referenceSystem;
 		if (method != null) {
-			for (LCIACategory category : method.getLCIACategories()) {
+			for (ImpactCategory category : method.getLCIACategories()) {
 				NormalizationWeightingFactor fac = new NormalizationWeightingFactor();
 				fac.setId(UUID.randomUUID().toString());
 				fac.setImpactCategoryId(category.getId());
@@ -108,7 +107,7 @@ public class NormalizationWeightingSet extends AbstractEntity implements
 	}
 
 	public NormalizationWeightingFactor getNormalizationWeightingFactor(
-			LCIACategory category) {
+			ImpactCategory category) {
 		if (category == null)
 			return null;
 		return getFactor(category.getId());

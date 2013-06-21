@@ -1,6 +1,6 @@
 package org.openlca.core.model;
 
-import org.openlca.core.model.results.LCIAResult;
+import org.openlca.core.model.results.ImpactResult;
 
 /** Enumeration of the basic types in the openLCA domain model. */
 public enum ModelType {
@@ -9,9 +9,9 @@ public enum ModelType {
 
 	PROJECT(Project.class),
 
-	IMPACT_METHOD(LCIAMethod.class),
+	IMPACT_METHOD(ImpactMethod.class),
 
-	IMPACT_CATEGORY(LCIACategory.class),
+	IMPACT_CATEGORY(ImpactCategory.class),
 
 	PRODUCT_SYSTEM(ProductSystem.class),
 
@@ -29,7 +29,7 @@ public enum ModelType {
 
 	SOURCE(Source.class),
 
-	IMPACT_RESULT(LCIAResult.class);
+	IMPACT_RESULT(ImpactResult.class);
 
 	final Class<?> modelClass;
 

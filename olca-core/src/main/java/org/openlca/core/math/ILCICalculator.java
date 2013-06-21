@@ -11,7 +11,7 @@ package org.openlca.core.math;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.results.LCIResult;
+import org.openlca.core.model.results.InventoryResult;
 
 /**
  * Interface for calculation the life cycle inventory
@@ -24,6 +24,6 @@ public interface ILCICalculator {
 	/**
 	 * Calculates the LCI result of the given product system,
 	 */
-	LCIResult calculate(ProductSystem productSystem, IDatabase database);
+	InventoryResult calculate(ProductSystem productSystem, IDatabase database);
 
 }

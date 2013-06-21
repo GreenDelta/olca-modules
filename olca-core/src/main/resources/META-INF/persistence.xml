@@ -15,9 +15,9 @@
 		<class>org.openlca.core.model.Flow</class>
 		<class>org.openlca.core.model.FlowProperty</class>
 		<class>org.openlca.core.model.FlowPropertyFactor</class>
-		<class>org.openlca.core.model.LCIACategory</class>
-		<class>org.openlca.core.model.LCIAFactor</class>
-		<class>org.openlca.core.model.LCIAMethod</class>
+		<class>org.openlca.core.model.ImpactCategory</class>
+		<class>org.openlca.core.model.ImpactFactor</class>
+		<class>org.openlca.core.model.ImpactMethod</class>
 		<class>org.openlca.core.model.Location</class>
 		<class>org.openlca.core.model.ModelingAndValidation</class>
 		<class>org.openlca.core.model.NormalizationWeightingSet</class>
@@ -34,9 +34,9 @@
 		<class>org.openlca.core.model.Time</class>
 		<class>org.openlca.core.model.Unit</class>
 		<class>org.openlca.core.model.UnitGroup</class>
-		<class>org.openlca.core.model.results.LCIResult</class>
-		<class>org.openlca.core.model.results.LCIAResult</class>
-		<class>org.openlca.core.model.results.LCIACategoryResult</class>
+		<class>org.openlca.core.model.results.InventoryResult</class>
+		<class>org.openlca.core.model.results.ImpactResult</class>
+		<class>org.openlca.core.model.results.ImpactCategoryResult</class>
 		<class>org.openlca.core.model.iomaps.Mapping</class>
 		<class>org.openlca.core.model.CostCategory</class>
 		<class>org.openlca.core.model.ProductCostEntry</class>

@@ -27,14 +27,14 @@ import javax.persistence.Table;
 @Table(name = "tbl_flows")
 public class Flow extends RootEntity {
 
-	@Column(name = "flowtype")
+	@Column(name = "flow_type")
 	private FlowType flowType;
 
 	@Column(name = "cas_number")
 	private String casNumber;
 
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true)
-	@JoinColumn(name = "f_flowinformation")
+	@JoinColumn(name = "f_flow")
 	private final List<FlowPropertyFactor> flowPropertyFactors = new ArrayList<>();
 
 	@Column(name = "formula")

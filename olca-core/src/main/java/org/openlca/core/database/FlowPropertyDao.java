@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -10,6 +11,8 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
+
+import com.google.common.base.Optional;
 
 public class FlowPropertyDao extends BaseDao<FlowProperty> implements
 		IRootEntityDao<FlowProperty> {
@@ -25,18 +28,28 @@ public class FlowPropertyDao extends BaseDao<FlowProperty> implements
 		return createDescriptors(results);
 	}
 
-	public List<FlowPropertyDescriptor> getDescriptors(Category category) {
-		log.trace("get flow property descriptors for category {} ", category);
-		String jpql = "select p.id, p.name, p.description from FlowProperty p "
-				+ "where p.category = :category";
+	public List<FlowPropertyDescriptor> getDescriptors(
+			Optional<Category> category) {
+		String jpql = "select p.id, p.name, p.description from FlowProperty p ";
+		Map<String, Category> params = null;
+		if (category.isPresent()) {
+			jpql += "where p.category = :category";
+			params = Collections.singletonMap("category", category.get());
+		} else {
+			jpql += "where p.category is null";
+			params = Collections.emptyMap();
+		}
+		return runDescriptorQuery(jpql, params);
+	}
+
+	private List<FlowPropertyDescriptor> runDescriptorQuery(String jpql,
+			Map<String, Category> params) {
 		try {
 			List<Object[]> results = Query.on(getEntityFactory()).getAll(
-					Object[].class, jpql,
-					Collections.singletonMap("category", category));
+					Object[].class, jpql, params);
 			return createDescriptors(results);
 		} catch (Exception e) {
-			log.error("failed to get flow properties for category " + category,
-					e);
+			log.error("failed to get flow properties for category", e);
 			return Collections.emptyList();
 		}
 	}

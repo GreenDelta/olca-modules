@@ -20,8 +20,8 @@ import org.openlca.core.model.AbstractEntity;
  * 
  */
 @Entity
-@Table(name = "tbl_lciacategoryresults")
-public class LCIACategoryResult extends AbstractEntity {
+@Table(name = "tbl_impact_category_results")
+public class ImpactCategoryResult extends AbstractEntity {
 
 	@Column(name = "category")
 	private String category;

@@ -26,9 +26,9 @@ import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.LCIACategory;
-import org.openlca.core.model.LCIAFactor;
-import org.openlca.core.model.LCIAMethod;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelingAndValidation;
 import org.openlca.core.model.Process;
@@ -288,7 +288,7 @@ public class EcoSpold01Parser {
 		}
 	}
 
-	private void mapFactors(List<IExchange> inFactors, LCIACategory ioCategory)
+	private void mapFactors(List<IExchange> inFactors, ImpactCategory ioCategory)
 			throws Exception {
 		for (IExchange inFactor : inFactors) {
 			FlowBucket flow = flowImport.handleImpactFactor(inFactor);
@@ -296,18 +296,18 @@ public class EcoSpold01Parser {
 				log.error("Could not import flow {}", inFactor);
 				continue;
 			}
-			LCIAFactor factor = new LCIAFactor();
+			ImpactFactor factor = new ImpactFactor();
 			factor.setId(UUID.randomUUID().toString());
 			factor.setFlow(flow.flow);
 			factor.setFlowPropertyFactor(flow.flowProperty);
 			factor.setUnit(flow.unit);
 			factor.setValue(flow.conversionFactor * inFactor.getMeanValue());
-			ioCategory.getLCIAFactors().add(factor);
+			ioCategory.getImpactFactors().add(factor);
 		}
 	}
 
-	private LCIACategory mapReferenceFunction(IReferenceFunction inRefFunction) {
-		LCIACategory category = new LCIACategory();
+	private ImpactCategory mapReferenceFunction(IReferenceFunction inRefFunction) {
+		ImpactCategory category = new ImpactCategory();
 		category.setId(UUID.randomUUID().toString());
 		String name = inRefFunction.getSubCategory();
 		if (inRefFunction.getName() != null) {
@@ -378,23 +378,23 @@ public class EcoSpold01Parser {
 		DataSet dataSet = new DataSet(es.getDataset().get(0),
 				DataSetType.IMPACT_METHOD.getFactory());
 		String methodId = ES1KeyGen.forImpactMethod(dataSet);
-		LCIAMethod method = db.get(LCIAMethod.class, methodId);
+		ImpactMethod method = db.get(ImpactMethod.class, methodId);
 		if (method != null) {
 			log.trace("LCIA method {} already exists, not imported", methodId);
 			return;
 		}
 
-		method = new LCIAMethod();
+		method = new ImpactMethod();
 		method.setId(methodId);
 		method.setName(dataSet.getReferenceFunction().getCategory());
-		Category category = db.getPutCategory(LCIAMethod.class, null, null);
+		Category category = db.getPutCategory(ImpactMethod.class, null, null);
 		method.setCategory(category);
 		method.setDescription(dataSet.getReferenceFunction()
 				.getGeneralComment());
 		for (IDataSet adapter : es.getDataset()) {
 			dataSet = new DataSet(adapter,
 					DataSetType.IMPACT_METHOD.getFactory());
-			LCIACategory lciaCategory = mapReferenceFunction(dataSet
+			ImpactCategory lciaCategory = mapReferenceFunction(dataSet
 					.getReferenceFunction());
 			mapFactors(dataSet.getExchanges(), lciaCategory);
 			method.getLCIACategories().add(lciaCategory);

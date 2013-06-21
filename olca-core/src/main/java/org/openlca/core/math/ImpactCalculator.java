@@ -20,9 +20,9 @@ import org.openlca.core.model.NormalizationWeightingFactor;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.core.model.results.LCIACategoryResult;
-import org.openlca.core.model.results.LCIAResult;
-import org.openlca.core.model.results.LCIResult;
+import org.openlca.core.model.results.ImpactCategoryResult;
+import org.openlca.core.model.results.ImpactResult;
+import org.openlca.core.model.results.InventoryResult;
 
 /**
  * Calculates an impact assessment result for an inventory result.
@@ -30,17 +30,17 @@ import org.openlca.core.model.results.LCIResult;
 public class ImpactCalculator {
 
 	private IDatabase database;
-	private LCIResult inventoryResult;
+	private InventoryResult inventoryResult;
 
-	public ImpactCalculator(IDatabase database, LCIResult inventoryResult) {
+	public ImpactCalculator(IDatabase database, InventoryResult inventoryResult) {
 		this.database = database;
 		this.inventoryResult = inventoryResult;
 	}
 
-	public LCIAResult calculate(ImpactMethodDescriptor method,
+	public ImpactResult calculate(ImpactMethodDescriptor method,
 			NormalizationWeightingSet nwSet) {
 		if (inventoryResult == null || inventoryResult.getInventory().isEmpty()
-				|| method == null || method.getImpactCategories().isEmpty())
+				|| method == null)
 			return null;
 		FlowIndex flowIndex = buildFlowIndex();
 		ImpactMatrixBuilder builder = new ImpactMatrixBuilder(database);
@@ -52,15 +52,15 @@ public class ImpactCalculator {
 		IMatrix result = factors.multiply(vector);
 		Index<ImpactCategoryDescriptor> catIndex = impactMatrix
 				.getCategoryIndex();
-		LCIAResult impactResult = prepareResult(method, nwSet);
+		ImpactResult impactResult = prepareResult(method, nwSet);
 		impactResult.setLciaCategoryResults(fetchResults(result, catIndex,
 				nwSet));
 		return impactResult;
 	}
 
-	private LCIAResult prepareResult(ImpactMethodDescriptor method,
+	private ImpactResult prepareResult(ImpactMethodDescriptor method,
 			NormalizationWeightingSet nwSet) {
-		LCIAResult result = new LCIAResult();
+		ImpactResult result = new ImpactResult();
 		result.setId(UUID.randomUUID().toString());
 		result.setLciaMethod(method.getName());
 		result.setProduct(inventoryResult.getProductName());
@@ -73,15 +73,15 @@ public class ImpactCalculator {
 		return result;
 	}
 
-	private List<LCIACategoryResult> fetchResults(IMatrix result,
+	private List<ImpactCategoryResult> fetchResults(IMatrix result,
 			Index<ImpactCategoryDescriptor> catIndex,
 			NormalizationWeightingSet nwSet) {
-		List<LCIACategoryResult> resultList = new ArrayList<>(
+		List<ImpactCategoryResult> resultList = new ArrayList<>(
 				catIndex.size() + 2);
 		for (ImpactCategoryDescriptor cat : catIndex.getItems()) {
 			int row = catIndex.getIndex(cat);
 			double val = result.getEntry(row, 0);
-			LCIACategoryResult r = new LCIACategoryResult();
+			ImpactCategoryResult r = new ImpactCategoryResult();
 			r.setCategory(cat.getName());
 			r.setUnit(cat.getReferenceUnit());
 			r.setValue(val);
@@ -115,7 +115,7 @@ public class ImpactCalculator {
 		return vector;
 	}
 
-	private void addNwInfo(LCIACategoryResult r, ImpactCategoryDescriptor cat,
+	private void addNwInfo(ImpactCategoryResult r, ImpactCategoryDescriptor cat,
 			NormalizationWeightingSet nwSet) {
 		NormalizationWeightingFactor factor = nwSet.getFactor(cat);
 		if (factor == null)

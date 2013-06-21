@@ -30,8 +30,8 @@ import org.openlca.core.model.Exchange;
  * 
  */
 @Entity
-@Table(name = "tbl_lciresults")
-public class LCIResult {
+@Table(name = "tbl_inventory_results")
+public class InventoryResult {
 
 	@Id
 	@Column(name = "id")

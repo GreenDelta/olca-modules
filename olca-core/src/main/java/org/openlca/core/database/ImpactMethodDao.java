@@ -3,37 +3,50 @@ package org.openlca.core.database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 
 import org.openlca.core.model.Category;
-import org.openlca.core.model.LCIAMethod;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
+import com.google.common.base.Optional;
+
 /** The DAO class for impact assessment methods. */
-public class ImpactMethodDao extends BaseDao<LCIAMethod> implements
-		IRootEntityDao<LCIAMethod> {
+public class ImpactMethodDao extends BaseDao<ImpactMethod> implements
+		IRootEntityDao<ImpactMethod> {
 
 	public ImpactMethodDao(EntityManagerFactory factory) {
-		super(LCIAMethod.class, factory);
+		super(ImpactMethod.class, factory);
 	}
 
-	public List<ImpactMethodDescriptor> getDescriptors(Category category) {
-		log.trace("get impact methods for category {}", category);
-		String jpql = "select m.id, m.name, m.description from LCIAMethod m "
-				+ "where m.category = :category";
+	public List<ImpactMethodDescriptor> getDescriptors(
+			Optional<Category> category) {
+		String jpql = "select m.id, m.name, m.description from ImpactMethod m ";
+		Map<String, Category> params = null;
+		if (category.isPresent()) {
+			jpql += "where m.category = :category";
+			params = Collections.singletonMap("category", category.get());
+		} else {
+			jpql += "where m.category is null";
+			params = Collections.emptyMap();
+		}
+		return runDescriptorQuery(jpql, params);
+	}
+
+	private List<ImpactMethodDescriptor> runDescriptorQuery(String jpql,
+			Map<String, Category> params) {
 		try {
 			List<Object[]> results = Query.on(getEntityFactory()).getAll(
-					Object[].class, jpql,
-					Collections.singletonMap("category", category));
+					Object[].class, jpql, params);
 			return createDescriptors(results);
 		} catch (Exception e) {
-			log.error("failed to get impact methods for category " + category,
-					e);
+			log.error("failed to get impact methods for category", e);
 			return Collections.emptyList();
 		}
 	}
@@ -53,7 +66,7 @@ public class ImpactMethodDao extends BaseDao<LCIAMethod> implements
 
 	public List<ImpactMethodDescriptor> getDescriptors() {
 		try {
-			String jpql = "select m.id, m.name, m.description from LCIAMethod m";
+			String jpql = "select m.id, m.name, m.description from ImpactMethod m";
 			List<Object[]> list = query().getAll(Object[].class, jpql);
 			List<ImpactMethodDescriptor> descriptors = new ArrayList<>();
 			for (Object[] vals : list) {
@@ -69,7 +82,7 @@ public class ImpactMethodDao extends BaseDao<LCIAMethod> implements
 
 	public ImpactMethodDescriptor getDescriptor(String methodId) {
 		try {
-			String jpql = "select m.id, m.name, m.description from LCIAMethod m where "
+			String jpql = "select m.id, m.name, m.description from ImpactMethod m where "
 					+ "m.id = :methodId";
 			Object[] val = Query.on(getEntityFactory()).getFirst(
 					Object[].class, jpql,
@@ -88,15 +101,13 @@ public class ImpactMethodDao extends BaseDao<LCIAMethod> implements
 		descriptor.setId((String) vals[0]);
 		descriptor.setName((String) vals[1]);
 		descriptor.setDescription((String) vals[2]);
-		descriptor.getImpactCategories().addAll(
-				getCategoryDescriptors((String) vals[0]));
 		return descriptor;
 	}
 
 	public List<ImpactCategoryDescriptor> getCategoryDescriptors(String methodId) {
 		try {
 			String jpql = "select cat.id, cat.name, cat.referenceUnit, "
-					+ "cat.description from LCIAMethod m join m.lciaCategories "
+					+ "cat.description from ImpactMethod m join m.impactCategories "
 					+ "cat where m.id = :methodId ";
 			List<Object[]> vals = Query.on(getEntityFactory()).getAll(
 					Object[].class, jpql,
@@ -122,7 +133,7 @@ public class ImpactMethodDao extends BaseDao<LCIAMethod> implements
 		if (methodDescriptor == null)
 			return Collections.emptyList();
 		String jpql = "select n.id, n.referenceSystem, n.unit from "
-				+ "NormalizationWeightingSet n, LCIAMethod m "
+				+ "NormalizationWeightingSet n, ImpactMethod m "
 				+ "where n member of m.normalizationWeightingSets and m.id = :methodId";
 		EntityManager em = createManager();
 		try {

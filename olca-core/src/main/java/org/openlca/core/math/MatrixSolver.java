@@ -20,7 +20,7 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.results.AnalysisResult;
 import org.openlca.core.model.results.CalculationSetup;
-import org.openlca.core.model.results.LCIResult;
+import org.openlca.core.model.results.InventoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class MatrixSolver {
 		this.methodDescriptor = methodDescriptor;
 	}
 
-	public LCIResult calculate(ProductSystem system) {
+	public InventoryResult calculate(ProductSystem system) {
 		InventoryMatrix matrix = buildMatrix(system);
 		double[] g = MatrixMethod.solve(system, matrix);
 		List<Exchange> exchanges = ExchangeResultList
@@ -58,9 +58,9 @@ public class MatrixSolver {
 		return createInventoryResult(system, exchanges);
 	}
 
-	private LCIResult createInventoryResult(ProductSystem system,
+	private InventoryResult createInventoryResult(ProductSystem system,
 			List<Exchange> inventory) {
-		LCIResult result = new LCIResult();
+		InventoryResult result = new InventoryResult();
 		result.setProductSystemId(system.getId());
 		result.setProductSystemName(system.getName());
 		result.setProductName(system.getReferenceExchange().getFlow().getName());

@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.BlockFetch;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.Query;
 import org.openlca.core.database.BlockFetch.QueryFunction;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.Query;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.LCIAFactor;
+import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.slf4j.Logger;
@@ -51,8 +52,9 @@ public class ImpactMatrixBuilder {
 			ImpactMethodDescriptor methodDescriptor) {
 		Index<ImpactCategoryDescriptor> index = new Index<>(
 				ImpactCategoryDescriptor.class);
-		for (ImpactCategoryDescriptor cat : methodDescriptor
-				.getImpactCategories())
+		ImpactMethodDao dao = new ImpactMethodDao(database.getEntityFactory());
+		for (ImpactCategoryDescriptor cat : dao
+				.getCategoryDescriptors(methodDescriptor.getId()))
 			index.put(cat);
 		return index;
 	}
@@ -64,9 +66,9 @@ public class ImpactMatrixBuilder {
 		IMatrix values = matrix.getValues();
 		for (ImpactCategoryDescriptor category : categoryIndex.getItems()) {
 			FactorQuery query = new FactorQuery(category);
-			BlockFetch<LCIAFactor> fetch = new BlockFetch<>(query);
-			List<LCIAFactor> factors = fetch.doFetch(flowIds);
-			for (LCIAFactor factor : factors) {
+			BlockFetch<ImpactFactor> fetch = new BlockFetch<>(query);
+			List<ImpactFactor> factors = fetch.doFetch(flowIds);
+			for (ImpactFactor factor : factors) {
 				Flow flow = factor.getFlow();
 				if (!flowIndex.contains(flow))
 					continue;
@@ -87,7 +89,7 @@ public class ImpactMatrixBuilder {
 		return ids;
 	}
 
-	private class FactorQuery implements QueryFunction<LCIAFactor> {
+	private class FactorQuery implements QueryFunction<ImpactFactor> {
 
 		private ImpactCategoryDescriptor category;
 
@@ -96,7 +98,7 @@ public class ImpactMatrixBuilder {
 		}
 
 		@Override
-		public List<LCIAFactor> fetchChunk(List<String> flowIds) {
+		public List<ImpactFactor> fetchChunk(List<String> flowIds) {
 			try {
 				String jpql = "select factor from LCIACategory cat join "
 						+ "cat.lciaFactors factor where cat.id = :catId and "
@@ -104,8 +106,8 @@ public class ImpactMatrixBuilder {
 				Map<String, Object> params = new HashMap<>();
 				params.put("catId", category.getId());
 				params.put("flowIds", flowIds);
-				return Query.on(database)
-						.getAll(LCIAFactor.class, jpql, params);
+				return Query.on(database).getAll(ImpactFactor.class, jpql,
+						params);
 			} catch (Exception e) {
 				log.error("Failed to load LCIA factors", e);
 				return Collections.emptyList();

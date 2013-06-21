@@ -27,9 +27,9 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.LCIACategory;
-import org.openlca.core.model.LCIAFactor;
-import org.openlca.core.model.LCIAMethod;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelingAndValidation;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
@@ -100,10 +100,10 @@ public class EcoSpold01Outputter {
 		datasetCounter = 0;
 	}
 
-	private IEcoSpold convertLCIAMethod(LCIAMethod method) throws Exception {
+	private IEcoSpold convertLCIAMethod(ImpactMethod method) throws Exception {
 		IEcoSpoldFactory factory = DataSetType.IMPACT_METHOD.getFactory();
 		IEcoSpold ecoSpold = factory.createEcoSpold();
-		for (LCIACategory category : method.getLCIACategories()) {
+		for (ImpactCategory category : method.getLCIACategories()) {
 			IDataSet iDataSet = factory.createDataSet();
 			DataSet dataSet = new DataSet(iDataSet, factory);
 			mapLCIACategory(category, dataSet, factory);
@@ -380,7 +380,7 @@ public class EcoSpold01Outputter {
 		return group;
 	}
 
-	private void mapLCIACategory(LCIACategory category, DataSet dataSet,
+	private void mapLCIACategory(ImpactCategory category, DataSet dataSet,
 			IEcoSpoldFactory factory) throws Exception {
 		dataSet.setNumber(datasetCounter++);
 		IReferenceFunction refFun = factory.createReferenceFunction();
@@ -399,7 +399,7 @@ public class EcoSpold01Outputter {
 			}
 		}
 		exchangeCounter = 0;
-		for (final LCIAFactor factor : category.getLCIAFactors()) {
+		for (final ImpactFactor factor : category.getImpactFactors()) {
 			dataSet.getExchanges().add(mapLCIAFactor(factor, factory));
 		}
 		refFun.setSubCategory(subCategory);
@@ -407,7 +407,7 @@ public class EcoSpold01Outputter {
 		refFun.setUnit(category.getReferenceUnit());
 	}
 
-	private IExchange mapLCIAFactor(LCIAFactor factor, IEcoSpoldFactory factory)
+	private IExchange mapLCIAFactor(ImpactFactor factor, IEcoSpoldFactory factory)
 			throws Exception {
 		IExchange exchange = factory.createExchange();
 		exchange.setNumber(exchangeCounter++);
@@ -619,7 +619,7 @@ public class EcoSpold01Outputter {
 		categoryCache.clear();
 	}
 
-	public void exportLCIAMethod(LCIAMethod method, final IDatabase database)
+	public void exportLCIAMethod(ImpactMethod method, final IDatabase database)
 			throws Exception {
 		this.database = database;
 		IEcoSpold spold = convertLCIAMethod(method);
