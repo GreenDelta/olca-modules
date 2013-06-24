@@ -20,7 +20,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -42,7 +41,7 @@ public class Category extends AbstractEntity implements Cloneable {
 	@Column(name = "name")
 	private String name;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne
 	@JoinColumn(name = "f_parent_category")
 	private Category parentCategory;
 

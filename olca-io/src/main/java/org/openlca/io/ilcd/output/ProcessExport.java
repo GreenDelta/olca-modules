@@ -51,7 +51,7 @@ public class ProcessExport {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private Process process;
-	private ProcessDocumentation modelingAndValidation;
+	private ProcessDocumentation doc;
 	private IDatabase database;
 	private DataStore dataStore;
 
@@ -82,8 +82,8 @@ public class ProcessExport {
 		try {
 			this.process = database.createDao(Process.class).getForId(
 					process.getId());
-			this.modelingAndValidation = database.createDao(
-					ProcessDocumentation.class).getForId(process.getId());
+			this.doc = database.createDao(ProcessDocumentation.class).getForId(
+					process.getId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load process from database.",
 					e);
@@ -119,42 +119,37 @@ public class ProcessExport {
 
 	private org.openlca.ilcd.commons.Time makeTime() {
 		log.trace("Create process time.");
-		Time time = null;
-		try {
-			time = database.createDao(Time.class).getForId(process.getId());
-		} catch (Exception e) {
-			log.error("Cannot load process time id=" + process.getId(), e);
-		}
-
 		org.openlca.ilcd.commons.Time iTime = new org.openlca.ilcd.commons.Time();
-		if (time != null) {
-			mapTime(time, iTime);
-		}
+		mapTime(iTime);
 		return iTime;
 	}
 
-	private void mapTime(Time time, org.openlca.ilcd.commons.Time iTime) {
+	private void mapTime(org.openlca.ilcd.commons.Time iTime) {
 		log.trace("Map process time.");
+		if (doc == null)
+			return;
 		SimpleDateFormat dFormat = new SimpleDateFormat("yyyy");
 		TimeExtension extension = new TimeExtension(iTime);
-		if (time.getStartDate() != null) {
-			String _start = dFormat.format(time.getStartDate());
+		if (doc.getValidFrom() != null) {
+			String _start = dFormat.format(doc.getValidFrom());
 			iTime.setReferenceYear(new BigInteger(_start));
-			extension.setStartDate(time.getStartDate());
+			extension.setStartDate(doc.getValidFrom());
 		}
-		if (time.getEndDate() != null) {
-			String _end = dFormat.format(time.getEndDate());
+		if (doc.getValidUntil() != null) {
+			String _end = dFormat.format(doc.getValidUntil());
 			iTime.setValidUntil(new BigInteger(_end));
-			extension.setEndDate(time.getEndDate());
+			extension.setEndDate(doc.getValidUntil());
 		}
-		if (Strings.notEmpty(time.getComment())) {
-			LangString.addFreeText(iTime.getDescription(), time.getComment());
+		if (Strings.notEmpty(doc.getTime())) {
+			LangString.addFreeText(iTime.getDescription(), doc.getTime());
 		}
 	}
 
 	private Geography makeGeography() {
 		log.trace("Create process geography.");
-		if (process.getLocation() == null && process.getGeography() == null)
+		if (doc == null)
+			return null;
+		if (process.getLocation() == null && doc.getGeography() == null)
 			return null;
 		Geography geography = new Geography();
 		org.openlca.ilcd.processes.Location iLocation = new org.openlca.ilcd.processes.Location();
@@ -166,32 +161,24 @@ public class ProcessExport {
 					+ oLocation.getLongitude();
 			iLocation.setLatitudeAndLongitude(pos);
 		}
-		if (Strings.notEmpty(process.getGeography())) {
+		if (Strings.notEmpty(doc.getGeography())) {
 			LangString.addFreeText(iLocation.getDescription(),
-					process.getGeography());
+					doc.getGeography());
 		}
 		return geography;
 	}
 
 	private org.openlca.ilcd.processes.Technology makeTechnology() {
 		log.trace("Create process technology.");
-		Technology technology = null;
-		try {
-			technology = database.createDao(Technology.class).getForId(
-					process.getId());
-		} catch (Exception e) {
-			log.error("Cannot load process technology id=" + process.getId(), e);
-		}
-
-		if (technology == null)
+		if (doc == null)
 			return null;
 
 		org.openlca.ilcd.processes.Technology iTechnology = null;
-		if (Strings.notEmpty(technology.getDescription())) {
+		if (Strings.notEmpty(doc.getTechnology())) {
 			iTechnology = new org.openlca.ilcd.processes.Technology();
 			LangString.addFreeText(
 					iTechnology.getTechnologyDescriptionAndIncludedProcesses(),
-					technology.getDescription());
+					doc.getTechnology());
 		}
 		return iTechnology;
 	}
@@ -216,17 +203,15 @@ public class ProcessExport {
 
 		iMethod.setLCIMethodPrinciple(LCIMethodPrinciple.OTHER);
 
-		if (modelingAndValidation != null) {
-			if (Strings.notEmpty(modelingAndValidation.getLCIMethod())) {
+		if (doc != null) {
+			if (Strings.notEmpty(doc.getInventoryMethod())) {
 				iMethod.getDeviationsFromLCIMethodPrinciple().add(
-						LangString.freeText(modelingAndValidation
-								.getLCIMethod()));
+						LangString.freeText(doc.getInventoryMethod()));
 			}
 
-			if (Strings.notEmpty(modelingAndValidation.getModelingConstants())) {
+			if (Strings.notEmpty(doc.getModelingConstants())) {
 				iMethod.getModellingConstants().add(
-						LangString.freeText(modelingAndValidation
-								.getModelingConstants()));
+						LangString.freeText(doc.getModelingConstants()));
 			}
 		}
 
@@ -256,38 +241,35 @@ public class ProcessExport {
 		log.trace("Create process representativeness.");
 		Representativeness iRepri = null;
 
-		if (modelingAndValidation != null) {
+		if (doc != null) {
 			iRepri = new Representativeness();
 
 			// completeness
-			if (Strings.notEmpty(modelingAndValidation.getDataCompleteness())) {
+			if (Strings.notEmpty(doc.getCompleteness())) {
 				iRepri.getDataCutOffAndCompletenessPrinciples().add(
-						LangString.freeText(modelingAndValidation
-								.getDataCompleteness()));
+						LangString.freeText(doc.getCompleteness()));
 				iRepri.getDeviationsFromCutOffAndCompletenessPrinciples().add(
 						LangString.freeText("None."));
 			}
 
 			// data selection
-			if (Strings.notEmpty(modelingAndValidation.getDataSelection())) {
+			if (Strings.notEmpty(doc.getDataSelection())) {
 				iRepri.getDataSelectionAndCombinationPrinciples().add(
-						LangString.freeText(modelingAndValidation
-								.getDataSelection()));
+						LangString.freeText(doc.getDataSelection()));
 				iRepri.getDeviationsFromSelectionAndCombinationPrinciples()
 						.add(LangString.freeText("None."));
 			}
 
 			// data treatment
-			if (Strings.notEmpty(modelingAndValidation.getDataTreatment())) {
+			if (Strings.notEmpty(doc.getDataTreatment())) {
 				iRepri.getDataTreatmentAndExtrapolationsPrinciples().add(
-						LangString.freeText(modelingAndValidation
-								.getDataTreatment()));
+						LangString.freeText(doc.getDataTreatment()));
 				iRepri.getDataTreatmentAndExtrapolationsPrinciples().add(
 						LangString.freeText("None."));
 			}
 
 			// data sources
-			for (Source source : modelingAndValidation.getSources()) {
+			for (Source source : doc.getSources()) {
 				DataSetReference ref = ExportDispatch.forwardExportCheck(
 						source, database, dataStore);
 				if (ref != null)
@@ -295,18 +277,15 @@ public class ProcessExport {
 			}
 
 			// sampling procedure
-			if (Strings.notEmpty(modelingAndValidation.getSampling())) {
-				iRepri.getSamplingProcedure()
-						.add(LangString.freeText(modelingAndValidation
-								.getSampling()));
+			if (Strings.notEmpty(doc.getSampling())) {
+				iRepri.getSamplingProcedure().add(
+						LangString.freeText(doc.getSampling()));
 			}
 
 			// data collection period
-			if (Strings.notEmpty(modelingAndValidation
-					.getDataCollectionPeriod())) {
+			if (Strings.notEmpty(doc.getDataCollectionPeriod())) {
 				iRepri.getDataCollectionPeriod().add(
-						LangString.label(modelingAndValidation
-								.getDataCollectionPeriod()));
+						LangString.label(doc.getDataCollectionPeriod()));
 			}
 		}
 
@@ -316,28 +295,24 @@ public class ProcessExport {
 	private List<Review> makeReviews() {
 		log.trace("Create process reviews.");
 		List<Review> reviews = new ArrayList<>();
-		if (modelingAndValidation != null
-				&& modelingAndValidation.getReviewer() != null
-				|| modelingAndValidation.getDataSetOtherEvaluation() != null) {
+		if (doc != null && doc.getReviewer() != null
+				|| doc.getReviewDetails() != null) {
 
 			Review review = new Review();
 			reviews.add(review);
 			review.setType(ReviewType.NOT_REVIEWED);
 
-			if (modelingAndValidation.getReviewer() != null) {
+			if (doc.getReviewer() != null) {
 				DataSetReference ref = ExportDispatch.forwardExportCheck(
-						modelingAndValidation.getReviewer(), database,
-						dataStore);
+						doc.getReviewer(), database, dataStore);
 				if (ref != null)
 					review.getReferenceToNameOfReviewerAndInstitution()
 							.add(ref);
 			}
 
-			if (Strings.notEmpty(modelingAndValidation
-					.getDataSetOtherEvaluation())) {
+			if (Strings.notEmpty(doc.getReviewDetails())) {
 				review.getReviewDetails().add(
-						LangString.freeText(modelingAndValidation
-								.getDataSetOtherEvaluation()));
+						LangString.freeText(doc.getReviewDetails()));
 			}
 		}
 		return reviews;
@@ -345,17 +320,9 @@ public class ProcessExport {
 
 	private AdministrativeInformation makeAdminInformation() {
 		log.trace("Create process administrative information.");
-		AdminInfo adminInfo = null;
-		try {
-			adminInfo = database.createDao(AdminInfo.class).getForId(
-					process.getId());
-		} catch (Exception e) {
-			log.error("Cannot load administrative information id="
-					+ process.getId());
-		}
-		if (adminInfo == null)
+		if (doc == null)
 			return null;
-		ProcessAdminInfo processAdminInfo = new ProcessAdminInfo(adminInfo);
+		ProcessAdminInfo processAdminInfo = new ProcessAdminInfo(doc);
 		AdministrativeInformation iAdminInfo = processAdminInfo.create(
 				database, dataStore);
 		return iAdminInfo;

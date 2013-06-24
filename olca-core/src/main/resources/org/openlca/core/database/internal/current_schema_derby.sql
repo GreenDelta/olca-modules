@@ -169,99 +169,66 @@ CREATE TABLE tbl_processes (
 	f_category VARCHAR(36), 
 	description CLOB(64 K), 
 	process_type VARCHAR(255), 
-	allocation_method VARCHAR(255), 
-	infrastructure_process SMALLINT default 0, 
-	geography_comment CLOB(64 K), 
+	allocation_method VARCHAR(255), 	
 	f_quantitative_reference VARCHAR(36), 
 	f_location VARCHAR(36), 
+	f_process_doc VARCHAR(36), 
 	
 	PRIMARY KEY (id)	
 
 );
+CREATE INDEX idx_process_category ON tbl_processes(f_category);
+CREATE INDEX idx_process_qref ON tbl_processes(f_quantitative_reference);
+CREATE INDEX idx_process_location ON tbl_processes(f_location);
 
 
-
--- process technologies
-
-CREATE TABLE tbl_technologies (
+CREATE TABLE tbl_process_docs (
 	
 	id VARCHAR(36) NOT NULL,
-	description CLOB(64 K),
+	infrastructure_process SMALLINT default 0, 
+	geography CLOB(64 K), 
+	technology CLOB(64 K),
 	
-	PRIMARY KEY (id)
+	time CLOB(64 K),
+	valid_from DATE, 
+	valid_until DATE, 
 	
-);
-
-
--- valid time spans of processes
-
-CREATE TABLE tbl_times (
-
-	id VARCHAR(36) NOT NULL, 
-	startdate DATE, 
-	enddate DATE, 
-	comment CLOB(64 K),
-	
-	PRIMARY KEY (id)
-	
-);
-
-
--- modelling and validation entries of processes
-
-CREATE TABLE tbl_modelingandvalidations (
-
-	id VARCHAR(36) NOT NULL,
-	modelingconstants CLOB(64 K),
-	datatreatment CLOB(64 K), 
+	modeling_constants CLOB(64 K),
+	data_treatment CLOB(64 K), 
 	sampling CLOB(64 K), 
-	datacompleteness CLOB(64 K),
-	datasetotherevaluation CLOB(64 K),
-	lcimethod CLOB(64 K), 
-	datacollectionperiod CLOB(64 K), 
-	dataselection CLOB(64 K), 
+	completeness CLOB(64 K),
+	review_details CLOB(64 K),
+	inventory_method CLOB(64 K), 
+	data_collection_period CLOB(64 K), 
+	data_selection CLOB(64 K), 
 	f_reviewer VARCHAR(36), 
 	
+	project VARCHAR(255), 
+	creation_date DATE, 
+	intended_application CLOB(64 K), 
+	restrictions CLOB(64 K),
+	copyright SMALLINT default 0, 
+	last_change DATE, 
+	version VARCHAR(255), 
+	f_data_generator VARCHAR(36),
+	f_dataset_owner VARCHAR(36), 
+	f_data_documentor VARCHAR(36), 
+	f_publication VARCHAR(36), 
+		
 	PRIMARY KEY (id)
+
 );
 
 
--- sources referenced by the modelling and validation section of a process
+CREATE TABLE tbl_process_sources (
 
-CREATE TABLE tbl_modelingandvalidation_source (
-
-	f_modelingandvalidation VARCHAR(36) NOT NULL, 
+	f_process_doc VARCHAR(36) NOT NULL, 
 	f_source VARCHAR(36) NOT NULL,
 	
-	PRIMARY KEY (f_modelingandvalidation, f_source)
+	PRIMARY KEY (f_process_doc, f_source)
 
 );
 
-
--- administrative information of processes
-
-CREATE TABLE tbl_admininfos (
-
-	id VARCHAR(36) NOT NULL, 
-	project VARCHAR(255), 
-	creationdate DATE, 
-	intendedapplication CLOB(64 K), 
-	accessanduserestrictions CLOB(64 K),
-	copyright SMALLINT default 0, 
-	lastchange DATE, 
-	version VARCHAR(255), 
-	f_datagenerator VARCHAR(36),
-	f_datasetowner VARCHAR(36), 
-	f_datadocumentor VARCHAR(36), 
-	f_publication VARCHAR(36), 
-	
-	
-	PRIMARY KEY (id)
-		
-);
-
-
--- process / product system inputs and outputs
 
 CREATE TABLE tbl_exchanges (
 

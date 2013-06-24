@@ -7,7 +7,6 @@
 	<persistence-unit name="openLCA">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<class>org.openlca.core.model.Actor</class>
-		<class>org.openlca.core.model.AdminInfo</class>
 		<class>org.openlca.core.model.AllocationFactor</class>
 		<class>org.openlca.core.model.CalculationProperty</class>
 		<class>org.openlca.core.model.Category</class>
@@ -24,14 +23,13 @@
 		<class>org.openlca.core.model.NormalizationWeightingFactor</class>
 		<class>org.openlca.core.model.Parameter</class>
 		<class>org.openlca.core.model.Process</class>
+		<class>org.openlca.core.model.ProcessDocumentation</class>
 		<class>org.openlca.core.model.ProcessGroupSet</class>
 		<class>org.openlca.core.model.ProcessLink</class>
 		<class>org.openlca.core.model.ProductSystem</class>
 		<class>org.openlca.core.model.Project</class>
 		<class>org.openlca.core.model.ScalingFactor</class>
 		<class>org.openlca.core.model.Source</class>
-		<class>org.openlca.core.model.Technology</class>
-		<class>org.openlca.core.model.Time</class>
 		<class>org.openlca.core.model.Unit</class>
 		<class>org.openlca.core.model.UnitGroup</class>
 		<class>org.openlca.core.model.results.InventoryResult</class>

@@ -17,7 +17,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -56,7 +55,7 @@ public class Process extends RootEntity implements IParameterisable {
 	@Enumerated(EnumType.STRING)
 	private ProcessType processType = ProcessType.UnitProcess;
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_quantitative_reference")
 	private Exchange quantitativeReference;
 

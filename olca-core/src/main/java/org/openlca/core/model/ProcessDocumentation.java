@@ -15,7 +15,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
@@ -104,11 +103,11 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	@JoinColumn(name = "f_data_documentor")
 	private Actor dataDocumentor;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne
 	@JoinColumn(name = "f_data_generator")
 	private Actor dataGenerator;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne
 	@JoinColumn(name = "f_dataset_owner")
 	private Actor dataSetOwner;
 

@@ -17,7 +17,6 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -33,7 +32,7 @@ public class Flow extends RootEntity {
 	@Column(name = "cas_number")
 	private String casNumber;
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true)
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_flow")
 	private final List<FlowPropertyFactor> flowPropertyFactors = new ArrayList<>();
 

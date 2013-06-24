@@ -21,7 +21,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -37,7 +36,7 @@ import javax.persistence.Transient;
 @Table(name = "tbl_exchanges")
 public class Exchange extends AbstractEntity implements PropertyChangeListener {
 
-	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER, orphanRemoval = true)
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_exchange")
 	private final List<AllocationFactor> allocationFactors = new ArrayList<>();
 
@@ -47,11 +46,11 @@ public class Exchange extends AbstractEntity implements PropertyChangeListener {
 	@Column(name = "distributionType")
 	private UncertaintyDistributionType distributionType = UncertaintyDistributionType.NONE;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne
 	@JoinColumn(name = "f_flow")
 	private Flow flow;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne
 	@JoinColumn(name = "f_flowpropertyfactor")
 	private FlowPropertyFactor flowPropertyFactor;
 
@@ -113,7 +112,7 @@ public class Exchange extends AbstractEntity implements PropertyChangeListener {
 			@AttributeOverride(name = "formula", column = @Column(name = "parameter3_formula")) })
 	private Expression uncertaintyParameter3;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne
 	@JoinColumn(name = "f_unit")
 	private Unit unit;
 

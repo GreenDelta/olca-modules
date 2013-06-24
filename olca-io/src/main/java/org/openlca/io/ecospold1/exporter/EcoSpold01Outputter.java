@@ -19,7 +19,6 @@ import java.util.Map;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Category;
@@ -33,8 +32,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Technology;
-import org.openlca.core.model.Time;
 import org.openlca.core.model.UncertaintyDistributionType;
 import org.openlca.ecospold.IAllocation;
 import org.openlca.ecospold.IDataEntryBy;
@@ -65,7 +62,6 @@ public class EcoSpold01Outputter {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private IDatabase database;
 	private int datasetCounter = 0;
 	private int exchangeCounter = 0;
 	private int personCounter = 0;
@@ -115,16 +111,25 @@ public class EcoSpold01Outputter {
 	}
 
 	private IEcoSpold convertProcess(Process process) throws Exception {
+
 		IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
 		IEcoSpold ecoSpold = factory.createEcoSpold();
 		IDataSet iDataSet = factory.createDataSet();
 		DataSet dataSet = new DataSet(iDataSet, factory);
 		dataSet.setNumber(0);
 
-		mapModelingAndValidation(process.getId(), dataSet, factory);
-		mapAdminInfo(process.getId(), dataSet, factory);
-		mapTime(process.getId(), dataSet, factory);
-		mapTechnology(process.getId(), dataSet, factory);
+		ProcessDocumentation doc = process.getDocumentation();
+		if (doc != null) {
+			mapModelingAndValidation(doc, dataSet, factory);
+			mapAdminInfo(doc, dataSet, factory);
+			mapTime(doc, dataSet, factory);
+			mapTechnology(doc, dataSet, factory);
+			if (doc.getGeography() != null) {
+				IGeography geography = factory.createGeography();
+				geography.setText(doc.getGeography());
+				dataSet.setGeography(geography);
+			}
+		}
 
 		// map exchanges
 		Exchange qRef = process.getQuantitativeReference();
@@ -134,20 +139,15 @@ public class EcoSpold01Outputter {
 						factory);
 				dataSet.setReferenceFunction(refFun);
 				refFun.setGeneralComment(process.getDescription());
-				refFun.setInfrastructureProcess(process
-						.isInfrastructureProcess());
+				if (doc != null)
+					refFun.setInfrastructureProcess(doc
+							.isInfrastructureProcess());
 			}
 			dataSet.getExchanges()
 					.add(mapExchange(
 							exchange,
 							process.getOutputs(FlowType.PRODUCT_FLOW).length > 1,
 							factory));
-		}
-
-		if (process.getGeography() != null) {
-			IGeography geography = factory.createGeography();
-			geography.setText(process.getGeography());
-			dataSet.setGeography(geography);
 		}
 
 		// map location
@@ -184,15 +184,6 @@ public class EcoSpold01Outputter {
 		return ecoSpold;
 	}
 
-	private Category getCategory(String id) throws Exception {
-		Category category = categoryCache.get(id);
-		if (category == null) {
-			category = database.createDao(Category.class).getForId(id);
-			categoryCache.put(id, category);
-		}
-		return category;
-	}
-
 	private IPerson mapActor(Actor inActor, DataSet dataset,
 			IEcoSpoldFactory factory) {
 		IPerson person = actorToES1Person.get(inActor.getId());
@@ -211,10 +202,9 @@ public class EcoSpold01Outputter {
 		return person;
 	}
 
-	private void mapAdminInfo(String id, DataSet dataset,
+	private void mapAdminInfo(ProcessDocumentation doc, DataSet dataset,
 			IEcoSpoldFactory factory) throws Exception {
-		AdminInfo adminInfo = database.createDao(AdminInfo.class).getForId(id);
-		if (adminInfo == null)
+		if (doc == null)
 			return;
 		IDataGeneratorAndPublication generator = dataset
 				.getDataGeneratorAndPublication();
@@ -222,44 +212,43 @@ public class EcoSpold01Outputter {
 			generator = factory.createDataGeneratorAndPublication();
 			dataset.setDataGeneratorAndPublication(generator);
 		}
-		generator.setCopyright(adminInfo.getCopyright());
-		if (adminInfo.getAccessAndUseRestrictions() != null) {
-			if (adminInfo.getAccessAndUseRestrictions().contains(
+		generator.setCopyright(doc.isCopyright());
+		if (doc.getRestrictions() != null) {
+			if (doc.getRestrictions().contains(
 					"All information can be accesses by everybody.")) {
 				generator.setAccessRestrictedTo(0);
-			} else if (adminInfo
-					.getAccessAndUseRestrictions()
+			} else if (doc
+					.getRestrictions()
 					.contains(
 							"Ecoinvent clients have access to LCI results but not to unit process raw data. Members of the ecoinvent quality network (ecoinvent centre) have access to all information.")) {
 				generator.setAccessRestrictedTo(2);
-			} else if (adminInfo
-					.getAccessAndUseRestrictions()
+			} else if (doc
+					.getRestrictions()
 					.contains(
 							"The ecoinvent administrator has full access to information. Via the web only LCI results are accessible (for ecoinvent clients and for members of the ecoinvent centre).")) {
 				generator.setAccessRestrictedTo(3);
 			}
 		}
 
-		if (adminInfo.getLastChange() != null
-				|| adminInfo.getCreationDate() != null) {
+		if (doc.getLastChange() != null || doc.getCreationDate() != null) {
 			IDataSetInformation information = factory
 					.createDataSetInformation();
-			if (adminInfo.getLastChange() != null) {
-				information.setTimestamp(toXml(adminInfo.getLastChange()));
-			} else if (adminInfo.getCreationDate() != null) {
-				information.setTimestamp(toXml(adminInfo.getCreationDate()));
+			if (doc.getLastChange() != null) {
+				information.setTimestamp(toXml(doc.getLastChange()));
+			} else if (doc.getCreationDate() != null) {
+				information.setTimestamp(toXml(doc.getCreationDate()));
 			}
 			dataset.setDataSetInformation(information);
 		}
 
-		if (adminInfo.getDataGenerator() != null) {
-			IPerson dataGenerator = mapActor(adminInfo.getDataGenerator(),
-					dataset, factory);
+		if (doc.getDataGenerator() != null) {
+			IPerson dataGenerator = mapActor(doc.getDataGenerator(), dataset,
+					factory);
 			generator.setPerson(dataGenerator.getNumber());
 		}
-		if (adminInfo.getDataDocumentor() != null) {
-			IPerson dataDocumentor = mapActor(adminInfo.getDataDocumentor(),
-					dataset, factory);
+		if (doc.getDataDocumentor() != null) {
+			IPerson dataDocumentor = mapActor(doc.getDataDocumentor(), dataset,
+					factory);
 			IDataEntryBy entryBy = dataset.getDataEntryBy();
 			if (entryBy == null) {
 				entryBy = factory.createDataEntryBy();
@@ -267,9 +256,8 @@ public class EcoSpold01Outputter {
 			}
 			entryBy.setPerson(dataDocumentor.getNumber());
 		}
-		if (adminInfo.getPublication() != null) {
-			ISource source = mapSource(adminInfo.getPublication(), dataset,
-					factory);
+		if (doc.getPublication() != null) {
+			ISource source = mapSource(doc.getPublication(), dataset, factory);
 			generator.setReferenceToPublishedSource(source.getNumber());
 		}
 	}
@@ -418,26 +406,20 @@ public class EcoSpold01Outputter {
 		return exchange;
 	}
 
-	private void mapModelingAndValidation(String id, DataSet dataset,
-			IEcoSpoldFactory factory) throws Exception {
-		ProcessDocumentation modelingAndValidation = database.createDao(
-				ProcessDocumentation.class).getForId(id);
-		if (modelingAndValidation == null)
+	private void mapModelingAndValidation(ProcessDocumentation doc,
+			DataSet dataset, IEcoSpoldFactory factory) throws Exception {
+		if (doc == null)
 			return;
-		if (modelingAndValidation.getDataSetOtherEvaluation() != null) {
+		if (doc.getReviewDetails() != null) {
 			IValidation validation = dataset.getValidation();
 			if (validation == null) {
 				validation = factory.createValidation();
 				dataset.setValidation(validation);
 			}
-			if (modelingAndValidation.getDataSetOtherEvaluation().contains(
-					"Proof reading details: ")) {
-				String proofReadingDetails = modelingAndValidation
-						.getDataSetOtherEvaluation()
-						.substring(
-								modelingAndValidation
-										.getDataSetOtherEvaluation().indexOf(
-												"Proof reading details: ") + 23);
+			if (doc.getReviewDetails().contains("Proof reading details: ")) {
+				String proofReadingDetails = doc.getReviewDetails().substring(
+						doc.getReviewDetails().indexOf(
+								"Proof reading details: ") + 23);
 				if (proofReadingDetails.contains("Other details: ")) {
 					final String otherDetails = proofReadingDetails
 							.substring(proofReadingDetails
@@ -448,38 +430,35 @@ public class EcoSpold01Outputter {
 				}
 				validation.setProofReadingDetails(proofReadingDetails);
 			} else {
-				String otherDetails = modelingAndValidation
-						.getDataSetOtherEvaluation();
+				String otherDetails = doc.getReviewDetails();
 				if (otherDetails.contains("Other details: ")) {
 					otherDetails = otherDetails.substring(15);
 				}
 				validation.setOtherDetails(otherDetails);
 			}
 		}
-		if (modelingAndValidation.getSampling() != null) {
+		if (doc.getSampling() != null) {
 			IRepresentativeness representativeness = dataset
 					.getRepresentativeness();
 			if (representativeness == null) {
 				representativeness = factory.createRepresentativeness();
 				dataset.setRepresentativeness(representativeness);
 			}
-			representativeness.setSamplingProcedure(modelingAndValidation
-					.getSampling());
+			representativeness.setSamplingProcedure(doc.getSampling());
 		}
 
-		if (modelingAndValidation.getReviewer() != null) {
+		if (doc.getReviewer() != null) {
 			IValidation validation = dataset.getValidation();
 			if (validation == null) {
 				validation = factory.createValidation();
 				dataset.setValidation(validation);
 			}
-			IPerson reviewer = mapActor(modelingAndValidation.getReviewer(),
-					dataset, factory);
+			IPerson reviewer = mapActor(doc.getReviewer(), dataset, factory);
 			if (reviewer != null)
 				validation.setProofReadingValidator(reviewer.getNumber());
 		}
 
-		for (Source source : modelingAndValidation.getSources()) {
+		for (Source source : doc.getSources()) {
 			mapSource(source, dataset, factory);
 		}
 
@@ -534,28 +513,25 @@ public class EcoSpold01Outputter {
 		return source;
 	}
 
-	private void mapTechnology(String id, DataSet dataset,
+	private void mapTechnology(ProcessDocumentation doc, DataSet dataset,
 			IEcoSpoldFactory factory) throws Exception {
-		Technology tech = database.createDao(Technology.class).getForId(id);
-		if (tech == null || tech.getDescription() == null)
+		if (doc == null || doc.getTechnology() == null)
 			return;
 		ITechnology technology = factory.createTechnology();
-		technology.setText(tech.getDescription());
+		technology.setText(doc.getTechnology());
 		dataset.setTechnology(technology);
 	}
 
-	private void mapTime(String id, DataSet dataset, IEcoSpoldFactory factory)
-			throws Exception {
-		Time inTime = database.createDao(Time.class).getForId(id);
-		if (inTime == null)
+	private void mapTime(ProcessDocumentation doc, DataSet dataset,
+			IEcoSpoldFactory factory) throws Exception {
+		if (doc == null)
 			return;
 		ITimePeriod timePeriod = factory.createTimePeriod();
-		if (inTime.getStartDate() != null)
-			timePeriod.setStartDate(toXml(inTime.getStartDate()));
-		if (inTime.getEndDate() != null)
-			timePeriod.setEndDate(toXml(inTime.getStartDate()));
-
-		timePeriod.setText(inTime.getComment());
+		if (doc.getValidFrom() != null)
+			timePeriod.setStartDate(toXml(doc.getValidFrom()));
+		if (doc.getValidUntil() != null)
+			timePeriod.setEndDate(toXml(doc.getValidUntil()));
+		timePeriod.setText(doc.getTime());
 		dataset.setTimePeriod(timePeriod);
 	}
 
@@ -618,9 +594,7 @@ public class EcoSpold01Outputter {
 		categoryCache.clear();
 	}
 
-	public void exportLCIAMethod(ImpactMethod method, final IDatabase database)
-			throws Exception {
-		this.database = database;
+	public void exportLCIAMethod(ImpactMethod method) throws Exception {
 		IEcoSpold spold = convertLCIAMethod(method);
 		String fileName = "lcia_method_" + method.getId() + ".xml";
 		File file = new File(outDir, fileName);
@@ -628,9 +602,7 @@ public class EcoSpold01Outputter {
 		clearLocalCache();
 	}
 
-	public void exportProcess(Process process, IDatabase database)
-			throws Exception {
-		this.database = database;
+	public void exportProcess(Process process) throws Exception {
 		IEcoSpold spold = convertProcess(process);
 		String fileName = "process_" + process.getId() + ".xml";
 		File file = new File(outDir, fileName);
