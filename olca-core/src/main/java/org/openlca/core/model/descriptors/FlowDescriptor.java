@@ -5,6 +5,8 @@ import org.openlca.util.Strings;
 
 public class FlowDescriptor extends BaseDescriptor {
 
+	private static final long serialVersionUID = 4292185203406513488L;
+
 	private String locationCode;
 
 	public FlowDescriptor() {

@@ -1,5 +1,7 @@
 package org.openlca.core.model.descriptors;
 
+import java.io.Serializable;
+
 import org.openlca.core.model.Indexable;
 import org.openlca.core.model.ModelType;
 
@@ -9,7 +11,10 @@ import org.openlca.core.model.ModelType;
  * information fast from the database without loading the complete model.
  * Therefore, the respective DAO classes should provide these.
  */
-public class BaseDescriptor implements Indexable, Comparable<BaseDescriptor> {
+public class BaseDescriptor implements Indexable, Comparable<BaseDescriptor>,
+		Serializable {
+
+	private static final long serialVersionUID = -8609519818770549160L;
 
 	private String id;
 	private String name;

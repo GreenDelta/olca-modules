@@ -5,6 +5,8 @@ import org.openlca.util.Strings;
 
 public class ProcessDescriptor extends BaseDescriptor {
 
+	private static final long serialVersionUID = 5631406720764078522L;
+
 	private String locationCode;
 
 	public ProcessDescriptor() {
