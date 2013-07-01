@@ -23,7 +23,7 @@ import javax.persistence.Table;
  * A single impact assessment factor.
  */
 @Entity
-@Table(name = "tbl_lciafactors")
+@Table(name = "tbl_impact_factors")
 public class ImpactFactor extends AbstractEntity implements Cloneable {
 
 	@OneToOne

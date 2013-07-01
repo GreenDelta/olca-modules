@@ -21,7 +21,7 @@ import javax.persistence.Table;
  * A conversion factor between two quantities of a flow.
  */
 @Entity
-@Table(name = "tbl_flowpropertyfactors")
+@Table(name = "tbl_flow_property_factors")
 public class FlowPropertyFactor extends AbstractEntity {
 
 	@Column(name = "conversion_factor")

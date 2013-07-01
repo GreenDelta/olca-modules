@@ -24,7 +24,7 @@ import javax.persistence.Transient;
  * </p>
  */
 @Entity
-@Table(name = "tbl_allocationfactors")
+@Table(name = "tbl_allocation_factors")
 public class AllocationFactor extends AbstractEntity implements Cloneable {
 
 	/**
