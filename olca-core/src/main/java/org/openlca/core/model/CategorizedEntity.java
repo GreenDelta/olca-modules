@@ -23,7 +23,8 @@ import javax.persistence.OneToOne;
  */
 
 @MappedSuperclass
-public abstract class RootEntity extends AbstractEntity implements Cloneable {
+public abstract class CategorizedEntity extends AbstractEntity implements
+		Cloneable {
 
 	@OneToOne
 	@JoinColumn(name = "f_category")

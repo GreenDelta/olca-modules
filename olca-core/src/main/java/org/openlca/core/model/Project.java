@@ -32,7 +32,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "tbl_projects")
-public class Project extends RootEntity {
+public class Project extends CategorizedEntity {
 
 	@OneToOne
 	@JoinColumn(name = "f_author")

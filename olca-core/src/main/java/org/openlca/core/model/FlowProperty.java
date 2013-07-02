@@ -20,7 +20,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_flow_properties")
-public class FlowProperty extends RootEntity {
+public class FlowProperty extends CategorizedEntity {
 
 	@Column(name = "flow_property_type")
 	private FlowPropertyType flowPropertyType;

@@ -20,7 +20,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.CategorizedEntity;
 
 /**
  * This class represents a calculation result for a specific product system
@@ -30,7 +30,7 @@ import org.openlca.core.model.RootEntity;
  */
 @Entity
 @Table(name = "tbl_impact_results")
-public class ImpactResult extends RootEntity {
+public class ImpactResult extends CategorizedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_lciaresult")

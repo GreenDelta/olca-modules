@@ -18,7 +18,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_sources")
-public class Source extends RootEntity {
+public class Source extends CategorizedEntity {
 
 	@Column(name = "doi")
 	private String doi;

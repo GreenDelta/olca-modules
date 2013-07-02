@@ -24,7 +24,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_flows")
-public class Flow extends RootEntity {
+public class Flow extends CategorizedEntity {
 
 	@Column(name = "flow_type")
 	private FlowType flowType;

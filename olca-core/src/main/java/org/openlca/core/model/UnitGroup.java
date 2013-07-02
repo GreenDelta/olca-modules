@@ -31,7 +31,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_unit_groups")
-public class UnitGroup extends RootEntity {
+public class UnitGroup extends CategorizedEntity {
 
 	@OneToOne
 	@JoinColumn(name = "f_default_flow_property")

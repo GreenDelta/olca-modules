@@ -29,7 +29,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_processes")
-public class Process extends RootEntity implements IParameterisable {
+public class Process extends CategorizedEntity implements IParameterisable {
 
 	@Column(name = "allocation_method")
 	@Enumerated(EnumType.STRING)

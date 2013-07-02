@@ -20,7 +20,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_actors")
-public class Actor extends RootEntity {
+public class Actor extends CategorizedEntity {
 
 	@Column(name = "address")
 	private String address;

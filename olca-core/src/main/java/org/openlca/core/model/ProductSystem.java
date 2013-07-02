@@ -30,7 +30,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_product_systems")
-public class ProductSystem extends RootEntity implements IParameterisable {
+public class ProductSystem extends CategorizedEntity implements IParameterisable {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
