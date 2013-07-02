@@ -54,7 +54,7 @@ public class Exchange extends AbstractEntity implements PropertyChangeListener {
 	@JoinColumn(name = "f_flowpropertyfactor")
 	private FlowPropertyFactor flowPropertyFactor;
 
-	@Column(name = "input")
+	@Column(name = "is_input")
 	private boolean input;
 
 	@Column(name = "f_owner")

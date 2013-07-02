@@ -35,7 +35,7 @@ public class ProcessDao extends BaseDao<Process> implements
 			jpql += "where p.category = :category";
 			params = Collections.singletonMap("category", category.get());
 		} else {
-			jpql += "where a.category is null";
+			jpql += "where p.category is null";
 			params = Collections.emptyMap();
 		}
 		return runDescriptorQuery(jpql, params);
