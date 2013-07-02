@@ -27,36 +27,16 @@ import javax.persistence.Transient;
 @Table(name = "tbl_allocation_factors")
 public class AllocationFactor extends AbstractEntity implements Cloneable {
 
-	/**
-	 * <p style="margin-top: 0">
-	 * The id of the product exchange the factor is belonging to
-	 * </p>
-	 */
 	@Column(length = 36, name = "productid")
 	private String productId;
 
-	/**
-	 * <p style="margin-top: 0">
-	 * The property change support of the allocation factor
-	 * </p>
-	 */
 	@Transient
 	private final transient PropertyChangeSupport support = new PropertyChangeSupport(
 			this);
 
-	/**
-	 * <p style="margin-top: 0">
-	 * The value of the factor
-	 * </p>
-	 */
 	@Column(name = "value")
 	private double value;
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Creates a new allocation factor
-	 * </p>
-	 */
 	public AllocationFactor() {
 	}
 

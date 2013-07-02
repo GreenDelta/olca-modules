@@ -29,6 +29,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
@@ -319,9 +320,14 @@ public class EcoSpold01Parser {
 		doc.setInfrastructureProcess(inRefFunction.isInfrastructureProcess());
 		String topCategoryName = inRefFunction.getCategory();
 		String subCategoryName = inRefFunction.getSubCategory();
-		Category category = db.getPutCategory(processCategory, topCategoryName,
-				subCategoryName);
-		ioProcess.setCategory(category);
+		Category cat = null;
+		if (processCategory != null)
+			cat = db.getPutCategory(processCategory, topCategoryName,
+					subCategoryName);
+		else
+			cat = db.getPutCategory(ModelType.PROCESS, topCategoryName,
+					subCategoryName);
+		ioProcess.setCategory(cat);
 
 	}
 
@@ -377,8 +383,6 @@ public class EcoSpold01Parser {
 		method = new ImpactMethod();
 		method.setId(methodId);
 		method.setName(dataSet.getReferenceFunction().getCategory());
-		Category category = db.getPutCategory(ImpactMethod.class, null, null);
-		method.setCategory(category);
 		method.setDescription(dataSet.getReferenceFunction()
 				.getGeneralComment());
 		for (IDataSet adapter : es.getDataset()) {

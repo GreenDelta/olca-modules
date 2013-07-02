@@ -8,6 +8,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.IExchange;
@@ -164,7 +165,7 @@ class FlowImport {
 	private void mapExchangeData(IExchange inExchange, Flow flow) {
 		flow.setCasNumber(inExchange.getCASNumber());
 		flow.setFormula(inExchange.getFormula());
-		Category flowCategory = db.getPutCategory(Flow.class,
+		Category flowCategory = db.getPutCategory(ModelType.FLOW,
 				inExchange.getCategory(), inExchange.getSubCategory());
 		if (flowCategory != null)
 			flow.setCategory(flowCategory);
@@ -181,7 +182,7 @@ class FlowImport {
 		IReferenceFunction refFun = dataset.getReferenceFunction();
 		flow.setCasNumber(refFun.getCASNumber());
 		flow.setFormula(refFun.getFormula());
-		Category flowCategory = db.getPutCategory(Flow.class,
+		Category flowCategory = db.getPutCategory(ModelType.FLOW,
 				refFun.getCategory(), refFun.getSubCategory());
 		if (flowCategory != null)
 			flow.setCategory(flowCategory);

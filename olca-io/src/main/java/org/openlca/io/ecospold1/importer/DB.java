@@ -5,11 +5,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IPerson;
@@ -40,20 +42,61 @@ class DB {
 		this.search = new DBSearch(database);
 	}
 
-	public Category getPutCategory(Class<?> type, String parentName, String name) {
-		String key = StringUtils.join(new Object[] { type.getName(),
-				parentName, name }, "/");
+	public Category getPutCategory(ModelType type, String parentName,
+			String name) {
+		String key = StringUtils.join(new Object[] { type.name(), parentName,
+				name }, "/");
 		Category category = categories.get(key);
 		if (category != null)
 			return category;
 		try {
-			Category root = database.createDao(Category.class).getForId(
-					type.getCanonicalName());
-			category = getPutCategory(root, parentName, name);
+			CategoryDao dao = new CategoryDao(database.getEntityFactory());
+			dao.getRootCategories(type);
+			Category parent = null;
+			if (parentName != null) {
+				parent = findRoot(parentName, type);
+				if (parent == null)
+					parent = createRoot(type, parentName);
+			}
+			category = parent;
+			if (name != null) {
+				if (parent != null)
+					category = findChildOrAdd(parent, name);
+				else
+					category = createRoot(type, name);
+			}
 			categories.put(key, category);
 			return category;
 		} catch (Exception e) {
 			log.error("Failed to get category " + key, e);
+			return null;
+		}
+	}
+
+	private Category createRoot(ModelType type, String name) {
+		try {
+			Category category = new Category();
+			category.setId(UUID.randomUUID().toString());
+			category.setModelType(type);
+			category.setName(name);
+			database.createDao(Category.class).insert(category);
+			return category;
+		} catch (Exception e) {
+			log.error("failed to insert root category " + type + " name", e);
+			return null;
+		}
+	}
+
+	private Category findRoot(String name, ModelType type) {
+		try {
+			CategoryDao dao = new CategoryDao(database.getEntityFactory());
+			for (Category root : dao.getRootCategories(type)) {
+				if (StringUtils.equalsIgnoreCase(root.getName(), name))
+					return root;
+			}
+			return null;
+		} catch (Exception e) {
+			log.error("failed to search root category " + name + " " + type, e);
 			return null;
 		}
 	}
@@ -65,14 +108,13 @@ class DB {
 		if (category != null)
 			return category;
 		try {
-			if (parentName == null && name == null)
-				return cacheReturn(key, root);
-			Category p = root;
+			Category parent = root;
 			if (parentName != null)
-				p = findChildOrAdd(root, parentName);
-			if (name == null)
-				return cacheReturn(key, p);
-			return cacheReturn(key, findChildOrAdd(p, name));
+				parent = findChildOrAdd(root, parentName);
+			Category cat = parent;
+			if (name != null)
+				cat = findChildOrAdd(parent, name);
+			return cacheReturn(key, cat);
 		} catch (Exception e) {
 			log.error("Failed to find or add category", e);
 			return null;
