@@ -15,7 +15,10 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProcessDao extends BaseDao<Process> {
+import com.google.common.base.Optional;
+
+public class ProcessDao extends BaseDao<Process> implements
+		IRootEntityDao<Process> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -23,25 +26,40 @@ public class ProcessDao extends BaseDao<Process> {
 		super(Process.class, emf);
 	}
 
-	public List<ProcessDescriptor> getDescriptors(Category category)
-			throws Exception {
-		String categoryId = category == null ? null : category.getId();
+	@Override
+	public List<ProcessDescriptor> getDescriptors(Optional<Category> category) {
 		String jpql = "select p.id, p.name, p.description, loc.code "
-				+ "from Process p left join p.location loc "
-				+ "where p.categoryId = :categoryId";
-		List<Object[]> results = Query.on(getEntityFactory()).getAll(
-				Object[].class, jpql,
-				Collections.singletonMap("categoryId", categoryId));
-		List<ProcessDescriptor> descriptors = new ArrayList<>();
-		for (Object[] result : results) {
-			ProcessDescriptor d = new ProcessDescriptor();
-			d.setId((String) result[0]);
-			d.setName((String) result[1]);
-			d.setDescription((String) result[2]);
-			d.setLocationCode((String) result[3]);
-			descriptors.add(d);
+				+ "from Process p left join p.location loc ";
+		Map<String, Category> params = null;
+		if (category.isPresent()) {
+			jpql += "where p.category = :category";
+			params = Collections.singletonMap("category", category.get());
+		} else {
+			jpql += "where a.category is null";
+			params = Collections.emptyMap();
 		}
-		return descriptors;
+		return runDescriptorQuery(jpql, params);
+	}
+
+	private List<ProcessDescriptor> runDescriptorQuery(String jpql,
+			Map<String, Category> params) {
+		try {
+			List<Object[]> results = Query.on(getEntityFactory()).getAll(
+					Object[].class, jpql, params);
+			List<ProcessDescriptor> descriptors = new ArrayList<>();
+			for (Object[] result : results) {
+				ProcessDescriptor d = new ProcessDescriptor();
+				d.setId((String) result[0]);
+				d.setName((String) result[1]);
+				d.setDescription((String) result[2]);
+				d.setLocationCode((String) result[3]);
+				descriptors.add(d);
+			}
+			return descriptors;
+		} catch (Exception e) {
+			log.error("failed to get process descriptors " + params, e);
+			return Collections.emptyList();
+		}
 	}
 
 	public List<BaseDescriptor> whereUsed(Process process) {

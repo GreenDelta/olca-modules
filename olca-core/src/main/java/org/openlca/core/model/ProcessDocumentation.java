@@ -130,8 +130,8 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	private String version;
 
 	@Lob
-	@Column(name = "geography_comment")
-	private String geographyComment;
+	@Column(name = "geography")
+	private String geography;
 
 	@Column(name = "infrastructure_process")
 	private boolean infrastructureProcess;
@@ -341,11 +341,11 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	}
 
 	public String getGeography() {
-		return geographyComment;
+		return geography;
 	}
 
-	public void setGeography(String geographyComment) {
-		this.geographyComment = geographyComment;
+	public void setGeography(String geography) {
+		this.geography = geography;
 	}
 
 	public boolean isInfrastructureProcess() {
