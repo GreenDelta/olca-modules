@@ -13,8 +13,7 @@ import org.openlca.core.model.descriptors.ProjectDescriptor;
 
 import com.google.common.base.Optional;
 
-public class ProjectDao extends BaseDao<Project> implements
-		IRootEntityDao<Project> {
+public class ProjectDao extends RootEntityDao<Project> {
 
 	public ProjectDao(EntityManagerFactory emf) {
 		super(Project.class, emf);
@@ -49,7 +48,7 @@ public class ProjectDao extends BaseDao<Project> implements
 		List<ProjectDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : results) {
 			ProjectDescriptor descriptor = new ProjectDescriptor();
-			descriptor.setId((String) result[0]);
+			descriptor.setId((Long) result[0]);
 			descriptor.setName((String) result[1]);
 			descriptor.setDescription((String) result[2]);
 			descriptors.add(descriptor);

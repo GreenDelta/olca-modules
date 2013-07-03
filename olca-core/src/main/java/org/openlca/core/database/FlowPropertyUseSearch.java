@@ -44,7 +44,7 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				FlowDescriptor d = new FlowDescriptor();
-				d.setId((String) result[0]);
+				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
 				descriptors.add(d);
@@ -65,7 +65,7 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				UnitGroupDescriptor d = new UnitGroupDescriptor();
-				d.setId((String) result[0]);
+				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
 				descriptors.add(d);

@@ -2,8 +2,9 @@ package org.openlca.core.model.descriptors;
 
 import java.io.Serializable;
 
-import org.openlca.core.model.Indexable;
 import org.openlca.core.model.ModelType;
+
+import com.google.common.primitives.Longs;
 
 /**
  * Descriptors are lightweight models containing only descriptive information of
@@ -11,12 +12,11 @@ import org.openlca.core.model.ModelType;
  * information fast from the database without loading the complete model.
  * Therefore, the respective DAO classes should provide these.
  */
-public class BaseDescriptor implements Indexable, Comparable<BaseDescriptor>,
-		Serializable {
+public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable {
 
 	private static final long serialVersionUID = -8609519818770549160L;
 
-	private String id;
+	private long id;
 	private String name;
 	private String description;
 	private ModelType type = ModelType.UNKNOWN;
@@ -29,12 +29,11 @@ public class BaseDescriptor implements Indexable, Comparable<BaseDescriptor>,
 				o.name != null ? o.name.toLowerCase() : null);
 	}
 
-	@Override
-	public String getRefId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -85,15 +84,12 @@ public class BaseDescriptor implements Indexable, Comparable<BaseDescriptor>,
 		if (!(this.getClass().isInstance(obj)))
 			return false;
 		BaseDescriptor other = (BaseDescriptor) obj;
-		return this.id != null && other.id != null && this.id.equals(other.id)
-				&& this.type == other.type;
+		return this.id == other.id;
 	}
 
 	@Override
 	public int hashCode() {
-		if (id != null)
-			return id.hashCode();
-		return super.hashCode();
+		return Longs.hashCode(id);
 	}
 
 	@Override

@@ -15,8 +15,7 @@ import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
 import com.google.common.base.Optional;
 
-public class UnitGroupDao extends BaseDao<UnitGroup> implements
-		IRootEntityDao<UnitGroup> {
+public class UnitGroupDao extends RootEntityDao<UnitGroup> {
 
 	public UnitGroupDao(EntityManagerFactory emf) {
 		super(UnitGroup.class, emf);
@@ -33,7 +32,7 @@ public class UnitGroupDao extends BaseDao<UnitGroup> implements
 		List<UnitGroupDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : vals) {
 			UnitGroupDescriptor descriptor = new UnitGroupDescriptor();
-			descriptor.setId((String) result[0]);
+			descriptor.setId((Long) result[0]);
 			descriptor.setName((String) result[1]);
 			descriptor.setDescription((String) result[2]);
 			descriptors.add(descriptor);
@@ -78,7 +77,7 @@ public class UnitGroupDao extends BaseDao<UnitGroup> implements
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				FlowPropertyDescriptor d = new FlowPropertyDescriptor();
-				d.setId((String) result[0]);
+				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
 				descriptors.add(d);

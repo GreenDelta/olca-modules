@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 
-public class ProcessDao extends BaseDao<Process> implements
-		IRootEntityDao<Process> {
+public class ProcessDao extends RootEntityDao<Process> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -49,7 +48,7 @@ public class ProcessDao extends BaseDao<Process> implements
 			List<ProcessDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProcessDescriptor d = new ProcessDescriptor();
-				d.setId((String) result[0]);
+				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
 				d.setLocationCode((String) result[3]);
@@ -74,7 +73,7 @@ public class ProcessDao extends BaseDao<Process> implements
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProductSystemDescriptor d = new ProductSystemDescriptor();
-				d.setId((String) result[0]);
+				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
 				descriptors.add(d);
@@ -86,11 +85,11 @@ public class ProcessDao extends BaseDao<Process> implements
 		}
 	}
 
-	public ProcessDescriptor getDescriptor(String processId) throws Exception {
+	public ProcessDescriptor getDescriptor(long processId) throws Exception {
 		String jpql = "select p.name, p.description, loc.code "
 				+ "from Process p left join p.location loc where p.id = "
 				+ ":processId";
-		Map<String, String> params = Collections.singletonMap("processId",
+		Map<String, Long> params = Collections.singletonMap("processId",
 				processId);
 		Object[] result = query().getFirst(Object[].class, jpql, params);
 		if (result == null)

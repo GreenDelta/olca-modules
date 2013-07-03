@@ -14,8 +14,7 @@ import org.openlca.core.model.descriptors.SourceDescriptor;
 
 import com.google.common.base.Optional;
 
-public class SourceDao extends BaseDao<Source> implements
-		IRootEntityDao<Source> {
+public class SourceDao extends RootEntityDao<Source> {
 
 	public SourceDao(EntityManagerFactory emf) {
 		super(Source.class, emf);
@@ -50,7 +49,7 @@ public class SourceDao extends BaseDao<Source> implements
 		List<SourceDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : results) {
 			SourceDescriptor descriptor = new SourceDescriptor();
-			descriptor.setId((String) result[0]);
+			descriptor.setId((Long) result[0]);
 			descriptor.setName((String) result[1]);
 			descriptor.setDescription((String) result[2]);
 			descriptors.add(descriptor);

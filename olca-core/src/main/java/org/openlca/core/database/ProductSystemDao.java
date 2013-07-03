@@ -13,8 +13,7 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
 import com.google.common.base.Optional;
 
-public class ProductSystemDao extends BaseDao<ProductSystem> implements
-		IRootEntityDao<ProductSystem> {
+public class ProductSystemDao extends RootEntityDao<ProductSystem> {
 
 	public ProductSystemDao(EntityManagerFactory emf) {
 		super(ProductSystem.class, emf);
@@ -51,7 +50,7 @@ public class ProductSystemDao extends BaseDao<ProductSystem> implements
 		List<ProductSystemDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : results) {
 			ProductSystemDescriptor descriptor = new ProductSystemDescriptor();
-			descriptor.setId((String) result[0]);
+			descriptor.setId((Long) result[0]);
 			descriptor.setName((String) result[1]);
 			descriptor.setDescription((String) result[2]);
 			descriptors.add(descriptor);

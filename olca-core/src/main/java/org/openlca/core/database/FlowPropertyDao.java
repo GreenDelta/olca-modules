@@ -14,8 +14,7 @@ import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 
 import com.google.common.base.Optional;
 
-public class FlowPropertyDao extends BaseDao<FlowProperty> implements
-		IRootEntityDao<FlowProperty> {
+public class FlowPropertyDao extends RootEntityDao<FlowProperty> {
 
 	public FlowPropertyDao(EntityManagerFactory emf) {
 		super(FlowProperty.class, emf);
@@ -58,7 +57,7 @@ public class FlowPropertyDao extends BaseDao<FlowProperty> implements
 		List<FlowPropertyDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : vals) {
 			FlowPropertyDescriptor descriptor = new FlowPropertyDescriptor();
-			descriptor.setId((String) result[0]);
+			descriptor.setId((Long) result[0]);
 			descriptor.setName((String) result[1]);
 			descriptor.setDescription((String) result[2]);
 			descriptors.add(descriptor);

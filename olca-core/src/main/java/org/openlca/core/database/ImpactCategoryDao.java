@@ -13,9 +13,7 @@ public class ImpactCategoryDao extends BaseDao<ImpactCategory> {
 		super(ImpactCategory.class, emf);
 	}
 
-	public ImpactCategoryDescriptor getDescriptor(String id) {
-		if (id == null)
-			return null;
+	public ImpactCategoryDescriptor getDescriptor(long id) {
 		try {
 			String jpql = "select c.name, c.description, c.referenceUnit"
 					+ " from LCIACategory c where c.id = :id";

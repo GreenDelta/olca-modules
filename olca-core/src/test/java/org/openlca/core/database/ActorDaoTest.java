@@ -49,7 +49,7 @@ public class ActorDaoTest {
 		Category cat = null;
 		List<ActorDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
-		ActorDescriptor descriptor = ListUtils.findDescriptor(actor.getRefId(),
+		ActorDescriptor descriptor = ListUtils.findDescriptor(actor.getId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
 	}
@@ -59,7 +59,7 @@ public class ActorDaoTest {
 		Category category = addCategory();
 		List<ActorDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
-		ActorDescriptor descriptor = ListUtils.findDescriptor(actor.getRefId(),
+		ActorDescriptor descriptor = ListUtils.findDescriptor(actor.getId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)

@@ -45,7 +45,7 @@ class FlowUseSearch implements IUseSearch<Flow> {
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ImpactMethodDescriptor d = new ImpactMethodDescriptor();
-				d.setId((String) result[0]);
+				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
 				descriptors.add(d);
@@ -67,7 +67,7 @@ class FlowUseSearch implements IUseSearch<Flow> {
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProcessDescriptor d = new ProcessDescriptor();
-				d.setId((String) result[0]);
+				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
 				d.setLocationCode((String) result[3]);

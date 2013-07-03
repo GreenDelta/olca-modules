@@ -14,7 +14,7 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 
 import com.google.common.base.Optional;
 
-public class ActorDao extends BaseDao<Actor> implements IRootEntityDao<Actor> {
+public class ActorDao extends RootEntityDao<Actor> {
 
 	public ActorDao(EntityManagerFactory emf) {
 		super(Actor.class, emf);
@@ -50,7 +50,7 @@ public class ActorDao extends BaseDao<Actor> implements IRootEntityDao<Actor> {
 		List<ActorDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : results) {
 			ActorDescriptor descriptor = new ActorDescriptor();
-			descriptor.setId((String) result[0]);
+			descriptor.setId((Long) result[0]);
 			descriptor.setName((String) result[1]);
 			descriptor.setDescription((String) result[2]);
 			descriptors.add(descriptor);

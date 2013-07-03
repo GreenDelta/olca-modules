@@ -1,6 +1,7 @@
 package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -9,7 +10,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.results.ImpactResult;
@@ -134,7 +134,7 @@ public class Descriptors {
 		ImpactCategoryDescriptor descriptor = new ImpactCategoryDescriptor();
 		descriptor.setType(ModelType.IMPACT_CATEGORY);
 		descriptor.setDescription(impactCategory.getDescription());
-		descriptor.setId(impactCategory.getRefId());
+		descriptor.setId(impactCategory.getId());
 		descriptor.setName(impactCategory.getName());
 		descriptor.setReferenceUnit(impactCategory.getReferenceUnit());
 		return descriptor;
@@ -143,14 +143,15 @@ public class Descriptors {
 	private static void setBaseValues(CategorizedEntity component,
 			BaseDescriptor descriptor) {
 		descriptor.setDescription(component.getDescription());
-		descriptor.setId(component.getRefId());
+		descriptor.setId(component.getId());
 		descriptor.setName(component.getName());
 	}
 
-	private static BaseDescriptor createUnknownDescriptor(CategorizedEntity component) {
+	private static BaseDescriptor createUnknownDescriptor(
+			CategorizedEntity component) {
 		BaseDescriptor descriptor = new BaseDescriptor();
 		descriptor.setDescription(component.getDescription());
-		descriptor.setId(component.getRefId());
+		descriptor.setId(component.getId());
 		descriptor.setName(component.getName());
 		descriptor.setType(ModelType.UNKNOWN);
 		return descriptor;

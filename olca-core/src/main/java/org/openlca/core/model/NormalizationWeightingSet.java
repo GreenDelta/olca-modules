@@ -48,21 +48,19 @@ public class NormalizationWeightingSet extends AbstractEntity {
 			ImpactCategory category) {
 		if (category == null)
 			return null;
-		return getFactor(category.getRefId());
+		return getFactor(category.getId());
 	}
 
 	public NormalizationWeightingFactor getFactor(
 			ImpactCategoryDescriptor descriptor) {
 		if (descriptor == null)
 			return null;
-		return getFactor(descriptor.getRefId());
+		return getFactor(descriptor.getId());
 	}
 
-	private NormalizationWeightingFactor getFactor(String categoryId) {
-		if (categoryId == null)
-			return null;
+	private NormalizationWeightingFactor getFactor(long categoryId) {
 		for (NormalizationWeightingFactor fac : normalizationWeightingFactors) {
-			if (categoryId.equals(fac.getImpactCategoryId()))
+			if (categoryId == fac.getImpactCategoryId())
 				return fac;
 		}
 		return null;

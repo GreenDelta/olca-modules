@@ -42,7 +42,8 @@ CREATE INDEX idx_category_parent ON tbl_categories(f_parent_category);
 
 CREATE TABLE tbl_actors (
 
-	id VARCHAR(36) NOT NULL, 
+	id BIGINT NOT NULL,
+	ref_id VARCHAR(36) NOT NULL, 
 	telefax VARCHAR(255), 
 	website VARCHAR(255), 
 	address VARCHAR(255), 

@@ -16,13 +16,13 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 import com.google.common.base.Optional;
 
-public class FlowDao extends BaseDao<Flow> implements IRootEntityDao<Flow> {
+public class FlowDao extends RootEntityDao<Flow> {
 
 	public FlowDao(EntityManagerFactory factory) {
 		super(Flow.class, factory);
 	}
 
-	public FlowDescriptor getDescriptor(String id) {
+	public FlowDescriptor getDescriptor(long id) {
 		String jpql = "select f.name, f.description, loc.code from Flow f "
 				+ "left join f.location loc where f.id = :id";
 		try {
@@ -72,7 +72,7 @@ public class FlowDao extends BaseDao<Flow> implements IRootEntityDao<Flow> {
 		List<FlowDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : results) {
 			FlowDescriptor descriptor = new FlowDescriptor();
-			descriptor.setId((String) result[0]);
+			descriptor.setId((Long) result[0]);
 			descriptor.setName((String) result[1]);
 			descriptor.setDescription((String) result[2]);
 			descriptor.setLocationCode((String) result[3]);
@@ -82,16 +82,16 @@ public class FlowDao extends BaseDao<Flow> implements IRootEntityDao<Flow> {
 	}
 
 	public List<ProcessDescriptor> getProviders(Flow flow) throws Exception {
-		List<String> processIds = getProcessIdsWhereUsed(flow, false);
+		List<Long> processIds = getProcessIdsWhereUsed(flow, false);
 		return loadProcessDescriptors(processIds);
 	}
 
 	public List<ProcessDescriptor> getRecipients(Flow flow) throws Exception {
-		List<String> processIds = getProcessIdsWhereUsed(flow, true);
+		List<Long> processIds = getProcessIdsWhereUsed(flow, true);
 		return loadProcessDescriptors(processIds);
 	}
 
-	private List<String> getProcessIdsWhereUsed(Flow flow, boolean input)
+	private List<Long> getProcessIdsWhereUsed(Flow flow, boolean input)
 			throws Exception {
 		if (flow == null)
 			return Collections.emptyList();
@@ -100,18 +100,18 @@ public class FlowDao extends BaseDao<Flow> implements IRootEntityDao<Flow> {
 		Map<String, Object> params = new HashMap<>();
 		params.put("flowId", flow.getRefId());
 		params.put("input", input);
-		return query().getAll(String.class, jpql, params);
+		return query().getAll(Long.class, jpql, params);
 	}
 
-	private List<ProcessDescriptor> loadProcessDescriptors(
-			List<String> processIds) throws Exception {
+	private List<ProcessDescriptor> loadProcessDescriptors(List<Long> processIds)
+			throws Exception {
 		if (processIds == null || processIds.isEmpty())
 			return Collections.emptyList();
 		// TODO: performance may could be improved if we query the
 		// database with an 'IN - query'
 		List<ProcessDescriptor> results = new ArrayList<>();
 		ProcessDao dao = new ProcessDao(getEntityFactory());
-		for (String processId : processIds) {
+		for (Long processId : processIds) {
 			ProcessDescriptor d = dao.getDescriptor(processId);
 			if (d != null)
 				results.add(d);

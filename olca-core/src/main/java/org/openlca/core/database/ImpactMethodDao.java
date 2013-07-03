@@ -18,8 +18,7 @@ import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import com.google.common.base.Optional;
 
 /** The DAO class for impact assessment methods. */
-public class ImpactMethodDao extends BaseDao<ImpactMethod> implements
-		IRootEntityDao<ImpactMethod> {
+public class ImpactMethodDao extends RootEntityDao<ImpactMethod> {
 
 	public ImpactMethodDao(EntityManagerFactory factory) {
 		super(ImpactMethod.class, factory);
@@ -56,7 +55,7 @@ public class ImpactMethodDao extends BaseDao<ImpactMethod> implements
 		List<ImpactMethodDescriptor> descriptors = new ArrayList<>();
 		for (Object[] result : results) {
 			ImpactMethodDescriptor descriptor = new ImpactMethodDescriptor();
-			descriptor.setId((String) result[0]);
+			descriptor.setId((Long) result[0]);
 			descriptor.setName((String) result[1]);
 			descriptor.setDescription((String) result[2]);
 			descriptors.add(descriptor);
@@ -98,7 +97,7 @@ public class ImpactMethodDao extends BaseDao<ImpactMethod> implements
 
 	private ImpactMethodDescriptor createDescriptor(Object[] vals) {
 		ImpactMethodDescriptor descriptor = new ImpactMethodDescriptor();
-		descriptor.setId((String) vals[0]);
+		descriptor.setId((Long) vals[0]);
 		descriptor.setName((String) vals[1]);
 		descriptor.setDescription((String) vals[2]);
 		return descriptor;
@@ -115,7 +114,7 @@ public class ImpactMethodDao extends BaseDao<ImpactMethod> implements
 			List<ImpactCategoryDescriptor> list = new ArrayList<>();
 			for (Object[] val : vals) {
 				ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
-				d.setId((String) val[0]);
+				d.setId((Long) val[0]);
 				d.setName((String) val[1]);
 				d.setReferenceUnit((String) val[2]);
 				d.setDescription((String) val[3]);
@@ -138,7 +137,7 @@ public class ImpactMethodDao extends BaseDao<ImpactMethod> implements
 		EntityManager em = createManager();
 		try {
 			TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
-			query.setParameter("methodId", methodDescriptor.getRefId());
+			query.setParameter("methodId", methodDescriptor.getId());
 			return fetchNwSets(query);
 		} catch (Exception e) {
 			log.error("Failed to get nw-sets", e);
