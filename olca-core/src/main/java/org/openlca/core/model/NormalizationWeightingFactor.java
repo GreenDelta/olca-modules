@@ -5,16 +5,16 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "tbl_normalization_weighting_factors")
+@Table(name = "tbl_normalisation_weighting_factors")
 public class NormalizationWeightingFactor extends AbstractEntity {
 
 	@Column(name = "f_impact_category")
 	private long impactCategoryId;
 
-	@Column(name = "normalizationfactor")
+	@Column(name = "normalisation_factor")
 	private Double normalizationFactor;
 
-	@Column(name = "weightingfactor")
+	@Column(name = "weighting_factor")
 	private Double weightingFactor;
 
 	public Double getNormalizationFactor() {

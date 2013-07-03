@@ -8,7 +8,7 @@ import javax.persistence.Table;
 @Table(name = "tbl_allocation_factors")
 public class AllocationFactor extends AbstractEntity implements Cloneable {
 
-	@Column(name = "product_id")
+	@Column(name = "f_product")
 	private long productId;
 
 	@Column(name = "value")

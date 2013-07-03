@@ -35,10 +35,10 @@ public class Exchange extends AbstractEntity {
 	@JoinColumn(name = "f_exchange")
 	private final List<AllocationFactor> allocationFactors = new ArrayList<>();
 
-	@Column(name = "avoidedproduct")
+	@Column(name = "avoided_product")
 	private boolean avoidedProduct;
 
-	@Column(name = "distributionType")
+	@Column(name = "distribution_type")
 	private UncertaintyDistributionType distributionType = UncertaintyDistributionType.NONE;
 
 	@OneToOne
@@ -63,8 +63,8 @@ public class Exchange extends AbstractEntity {
 
 	@Embedded
 	@AttributeOverrides({
-			@AttributeOverride(name = "value", column = @Column(name = "resultingamount_value")),
-			@AttributeOverride(name = "formula", column = @Column(name = "resultingamount_formula")) })
+			@AttributeOverride(name = "value", column = @Column(name = "resulting_amount_value")),
+			@AttributeOverride(name = "formula", column = @Column(name = "resulting_amount_formula")) })
 	private final Expression resultingAmount = new Expression("1", 1d);
 
 	/**

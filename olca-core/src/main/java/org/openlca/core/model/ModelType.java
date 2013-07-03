@@ -41,4 +41,14 @@ public enum ModelType {
 		return modelClass;
 	}
 
+	public static ModelType forModelClass(Class<?> clazz) {
+		if (clazz == null)
+			return null;
+		for (ModelType type : ModelType.values()) {
+			if (clazz.equals(type.getModelClass()))
+				return type;
+		}
+		return null;
+	}
+
 }
