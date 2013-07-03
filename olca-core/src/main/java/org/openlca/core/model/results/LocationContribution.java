@@ -26,7 +26,7 @@ public class LocationContribution {
 		defaultLocation = new Location();
 		defaultLocation.setCode(defaultName);
 		defaultLocation.setName(defaultName);
-		defaultLocation.setId(UUID.randomUUID().toString());
+		defaultLocation.setRefId(UUID.randomUUID().toString());
 		initProcessIndex();
 	}
 

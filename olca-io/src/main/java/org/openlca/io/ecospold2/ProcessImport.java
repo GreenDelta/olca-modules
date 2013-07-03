@@ -86,7 +86,7 @@ class ProcessImport {
 	private void runImport(DataSet dataSet) throws Exception {
 		Activity activity = dataSet.getActivity();
 		Process process = new Process();
-		process.setId(activity.getId());
+		process.setRefId(activity.getId());
 		process.setName(activity.getName());
 		setCategory(process);
 		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
@@ -118,7 +118,7 @@ class ProcessImport {
 		}
 		Unit unit = flowHandler.getUnit(original.getUnitId());
 		Exchange exchange = new Exchange();
-		exchange.setId(UUID.randomUUID().toString());
+		exchange.setRefId(UUID.randomUUID().toString());
 		exchange.setInput(original.getInputGroup() != null);
 		exchange.setFlow(flow);
 		exchange.setFlowPropertyFactor(flow.getReferenceFactor());

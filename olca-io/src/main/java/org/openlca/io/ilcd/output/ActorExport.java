@@ -44,14 +44,14 @@ public class ActorExport {
 		DataSetInformation dataSetInfo = makeDataSetInfo();
 		Contact contact = ContactBuilder.makeContact().withBaseUri(baseUri)
 				.withDataSetInfo(dataSetInfo).getContact();
-		dataStore.put(contact, actor.getId());
+		dataStore.put(contact, actor.getRefId());
 		return contact;
 	}
 
 	private void loadActor(Actor actor) throws DataStoreException {
 		try {
 			this.actor = database.createDao(Actor.class)
-					.getForId(actor.getId());
+					.getForId(actor.getRefId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load actor from database.", e);
 		}
@@ -59,7 +59,7 @@ public class ActorExport {
 
 	private DataSetInformation makeDataSetInfo() {
 		DataSetInformation dataSetInfo = new DataSetInformation();
-		dataSetInfo.setUUID(actor.getId());
+		dataSetInfo.setUUID(actor.getRefId());
 		LangString.addLabel(dataSetInfo.getName(), actor.getName());
 		dataSetInfo.setEmail(actor.getEmail());
 		dataSetInfo.setTelefax(actor.getTelefax());

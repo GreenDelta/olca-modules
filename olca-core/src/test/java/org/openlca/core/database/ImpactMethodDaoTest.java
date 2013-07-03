@@ -37,7 +37,7 @@ public class ImpactMethodDaoTest {
 
 	private ImpactMethod createImpactMethod() {
 		ImpactMethod impactMethod = new ImpactMethod();
-		impactMethod.setId(UUID.randomUUID().toString());
+		impactMethod.setRefId(UUID.randomUUID().toString());
 		impactMethod.setName("name");
 		return impactMethod;
 	}
@@ -48,7 +48,7 @@ public class ImpactMethodDaoTest {
 		List<ImpactMethodDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
 		ImpactMethodDescriptor descriptor = ListUtils.findDescriptor(
-				impactMethod.getId(), descriptors);
+				impactMethod.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 	}
 
@@ -58,7 +58,7 @@ public class ImpactMethodDaoTest {
 		List<ImpactMethodDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
 		ImpactMethodDescriptor descriptor = ListUtils.findDescriptor(
-				impactMethod.getId(), descriptors);
+				impactMethod.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)
 				.delete(category);
@@ -66,7 +66,7 @@ public class ImpactMethodDaoTest {
 
 	private Category addCategory() throws Exception {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.IMPACT_METHOD);
 		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(

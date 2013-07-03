@@ -63,7 +63,7 @@ class FlowImport {
 		if (db != null)
 			return cache(flowKey, db);
 		Flow flow = new Flow();
-		flow.setId(flowKey);
+		flow.setRefId(flowKey);
 		flow.setName(exchange.getName());
 		mapExchangeData(exchange, flow);
 		String unit = exchange.getUnit();
@@ -84,7 +84,7 @@ class FlowImport {
 			return cache(flowKey, db);
 		IReferenceFunction refFun = dataSet.getReferenceFunction();
 		Flow flow = new Flow();
-		flow.setId(flowKey);
+		flow.setRefId(flowKey);
 		flow.setName(refFun.getName());
 		mapDataSetData(dataSet, flow);
 		String unit = refFun.getUnit();
@@ -202,7 +202,7 @@ class FlowImport {
 			return null;
 		flow.setReferenceFlowProperty(entry.getFlowProperty());
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setId(UUID.randomUUID().toString());
+		factor.setRefId(UUID.randomUUID().toString());
 		factor.setFlowProperty(entry.getFlowProperty());
 		factor.setConversionFactor(1.0);
 		flow.getFlowPropertyFactors().add(factor);

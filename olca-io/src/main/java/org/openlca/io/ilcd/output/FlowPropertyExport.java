@@ -49,14 +49,14 @@ public class FlowPropertyExport {
 				.makeFlowProperty().withBaseUri(baseUri)
 				.withDataSetInfo(dataSetInfo)
 				.withUnitGroupReference(unitGroupRef).getFlowProperty();
-		dataStore.put(iProperty, flowProperty.getId());
+		dataStore.put(iProperty, flowProperty.getRefId());
 		return iProperty;
 	}
 
 	private void loadProperty(FlowProperty property) throws DataStoreException {
 		try {
 			this.flowProperty = database.createDao(FlowProperty.class)
-					.getForId(property.getId());
+					.getForId(property.getRefId());
 		} catch (Exception e) {
 			throw new DataStoreException(
 					"Cannot load flow property from database.", e);
@@ -65,7 +65,7 @@ public class FlowPropertyExport {
 
 	private DataSetInformation makeDataSetInfo() {
 		DataSetInformation dataSetInfo = new DataSetInformation();
-		dataSetInfo.setUUID(flowProperty.getId());
+		dataSetInfo.setUUID(flowProperty.getRefId());
 		LangString.addLabel(dataSetInfo.getName(), flowProperty.getName());
 		if (flowProperty.getDescription() != null) {
 			LangString.addFreeText(dataSetInfo.getGeneralComment(),

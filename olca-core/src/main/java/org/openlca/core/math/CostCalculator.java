@@ -45,19 +45,19 @@ public class CostCalculator {
 		List<String> processIds = new ArrayList<>();
 		Queue<Process> processes = new LinkedList<>();
 		processes.add(system.getReferenceProcess());
-		processIds.add(system.getReferenceProcess().getId());
+		processIds.add(system.getReferenceProcess().getRefId());
 		while (!processes.isEmpty()) {
 			Process next = processes.poll();
 
-			for (ProcessLink link : system.getIncomingLinks(next.getId())) {
-				if (!processIds.contains(link.getProviderProcess().getId())) {
-					processIds.add(link.getProviderProcess().getId());
+			for (ProcessLink link : system.getIncomingLinks(next.getRefId())) {
+				if (!processIds.contains(link.getProviderProcess().getRefId())) {
+					processIds.add(link.getProviderProcess().getRefId());
 					processes.add(link.getProviderProcess());
 				}
 			}
-			for (ProcessLink link : system.getOutgoingLinks(next.getId())) {
-				if (!processIds.contains(link.getRecipientProcess().getId())) {
-					processIds.add(link.getRecipientProcess().getId());
+			for (ProcessLink link : system.getOutgoingLinks(next.getRefId())) {
+				if (!processIds.contains(link.getRecipientProcess().getRefId())) {
+					processIds.add(link.getRecipientProcess().getRefId());
 					processes.add(link.getRecipientProcess());
 				}
 			}
@@ -75,13 +75,13 @@ public class CostCalculator {
 
 			// value map entry
 			Double value = entry.getAmount();
-			if (idToValue.containsKey(costCategory.getId()))
-				value += idToValue.get(costCategory.getId());
-			idToValue.put(costCategory.getId(), value);
+			if (idToValue.containsKey(costCategory.getRefId()))
+				value += idToValue.get(costCategory.getRefId());
+			idToValue.put(costCategory.getRefId(), value);
 
 			// category map entry
-			if (!idToCategory.containsKey(costCategory.getId()))
-				idToCategory.put(costCategory.getId(), costCategory);
+			if (!idToCategory.containsKey(costCategory.getRefId()))
+				idToCategory.put(costCategory.getRefId(), costCategory);
 		}
 
 		CostCategory[] categories = new CostCategory[idToCategory.size()];

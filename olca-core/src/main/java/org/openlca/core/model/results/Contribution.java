@@ -1,9 +1,9 @@
 package org.openlca.core.model.results;
 
-import org.openlca.core.model.Indexable;
+import org.openlca.core.model.AbstractEntity;
 
 /** Generic container for results of a contribution analysis. */
-public class Contribution<T extends Indexable> {
+public class Contribution<T extends AbstractEntity> {
 
 	private T item;
 	private double amount;

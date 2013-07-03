@@ -36,7 +36,7 @@ public class SourceDaoTest {
 
 	private Source createSource() {
 		Source source = new Source();
-		source.setId(UUID.randomUUID().toString());
+		source.setRefId(UUID.randomUUID().toString());
 		source.setName("name");
 		return source;
 	}
@@ -46,7 +46,7 @@ public class SourceDaoTest {
 		Category cat = null;
 		List<SourceDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
-		SourceDescriptor descriptor = ListUtils.findDescriptor(source.getId(),
+		SourceDescriptor descriptor = ListUtils.findDescriptor(source.getRefId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
 	}
@@ -56,7 +56,7 @@ public class SourceDaoTest {
 		Category category = addCategory();
 		List<SourceDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
-		SourceDescriptor descriptor = ListUtils.findDescriptor(source.getId(),
+		SourceDescriptor descriptor = ListUtils.findDescriptor(source.getRefId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)
@@ -65,7 +65,7 @@ public class SourceDaoTest {
 
 	private Category addCategory() throws Exception {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.FLOW_PROPERTY);
 		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(

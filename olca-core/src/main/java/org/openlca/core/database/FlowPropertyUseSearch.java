@@ -24,7 +24,7 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 
 	@Override
 	public List<BaseDescriptor> findUses(FlowProperty prop) {
-		if (prop == null || prop.getId() == null)
+		if (prop == null || prop.getRefId() == null)
 			return Collections.emptyList();
 		List<BaseDescriptor> flows = findInFlows(prop);
 		List<BaseDescriptor> unitGroups = findInUnitGroups(prop);
@@ -40,7 +40,7 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 				+ "join f.flowPropertyFactors fp where fp.flowProperty.id = :propId";
 		try {
 			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("propId", prop.getId()));
+					Collections.singletonMap("propId", prop.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				FlowDescriptor d = new FlowDescriptor();
@@ -61,7 +61,7 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 				+ "where ug.defaultFlowProperty.id = :propId";
 		try {
 			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("propId", prop.getId()));
+					Collections.singletonMap("propId", prop.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				UnitGroupDescriptor d = new UnitGroupDescriptor();

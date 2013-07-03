@@ -28,8 +28,8 @@ class ProductSystemTable {
 		Set<ProductLink> oldLinks = fetchLinks(system);
 		Set<String> oldProcesses = fetchProcesses(system);
 		Set<String> newProcesses = fetchProcesses(newLinks);
-		insertProcesses(system.getId(), filter(newProcesses, oldProcesses));
-		insertLinks(system.getId(), filter(newLinks, oldLinks));
+		insertProcesses(system.getRefId(), filter(newProcesses, oldProcesses));
+		insertLinks(system.getRefId(), filter(newLinks, oldLinks));
 		database.getEntityFactory().getCache().evictAll();
 	}
 
@@ -95,7 +95,7 @@ class ProductSystemTable {
 	private Set<String> fetchProcesses(ProductSystem system) {
 		Set<String> oldProcesses = new HashSet<>();
 		for (Process process : system.getProcesses())
-			oldProcesses.add(process.getId());
+			oldProcesses.add(process.getRefId());
 		return oldProcesses;
 	}
 
@@ -113,9 +113,9 @@ class ProductSystemTable {
 		ProductExchange output = new ProductExchange();
 		Exchange exchange = realLink.getProviderOutput();
 		output.setAmount(exchange.getResultingAmount().getValue());
-		output.setFlowId(exchange.getFlow().getId());
-		output.setId(exchange.getId());
-		output.setProcessId(realLink.getProviderProcess().getId());
+		output.setFlowId(exchange.getFlow().getRefId());
+		output.setId(exchange.getRefId());
+		output.setProcessId(realLink.getProviderProcess().getRefId());
 		return output;
 	}
 
@@ -124,9 +124,9 @@ class ProductSystemTable {
 		Exchange exchange = realLink.getRecipientInput();
 		input.setAmount(exchange.getResultingAmount().getValue());
 		input.setDefaultProviderId(exchange.getDefaultProviderId());
-		input.setFlowId(exchange.getFlow().getId());
-		input.setId(exchange.getId());
-		input.setProcessId(realLink.getRecipientProcess().getId());
+		input.setFlowId(exchange.getFlow().getRefId());
+		input.setId(exchange.getRefId());
+		input.setProcessId(realLink.getRecipientProcess().getRefId());
 		return input;
 	}
 

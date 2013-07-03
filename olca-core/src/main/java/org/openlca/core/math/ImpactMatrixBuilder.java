@@ -54,7 +54,7 @@ public class ImpactMatrixBuilder {
 				ImpactCategoryDescriptor.class);
 		ImpactMethodDao dao = new ImpactMethodDao(database.getEntityFactory());
 		for (ImpactCategoryDescriptor cat : dao
-				.getCategoryDescriptors(methodDescriptor.getId()))
+				.getCategoryDescriptors(methodDescriptor.getRefId()))
 			index.put(cat);
 		return index;
 	}
@@ -85,7 +85,7 @@ public class ImpactMatrixBuilder {
 	private List<String> getFlowIds(FlowIndex index) {
 		List<String> ids = new ArrayList<>(index.size() + 2);
 		for (Flow flow : index.getFlows())
-			ids.add(flow.getId());
+			ids.add(flow.getRefId());
 		return ids;
 	}
 
@@ -104,7 +104,7 @@ public class ImpactMatrixBuilder {
 						+ "cat.lciaFactors factor where cat.id = :catId and "
 						+ "factor.flow.id in :flowIds";
 				Map<String, Object> params = new HashMap<>();
-				params.put("catId", category.getId());
+				params.put("catId", category.getRefId());
 				params.put("flowIds", flowIds);
 				return Query.on(database).getAll(ImpactFactor.class, jpql,
 						params);

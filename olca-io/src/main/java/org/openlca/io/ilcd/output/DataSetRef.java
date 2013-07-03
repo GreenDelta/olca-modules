@@ -22,7 +22,7 @@ class DataSetRef {
 		}
 		DataSetReference ref = new DataSetReference();
 		ref.setVersion("01.00.000");
-		ref.setUuid(model.getId());
+		ref.setUuid(model.getRefId());
 		setUriAndType(model, ref);
 		if (model.getName() != null) {
 			LangString.addShortText(ref.getShortDescription(), model.getName());
@@ -51,7 +51,7 @@ class DataSetRef {
 			ref.setType(DataSetType.PROCESS_DATA_SET);
 			uri += "processes/";
 		}
-		uri += iModel.getId();
+		uri += iModel.getRefId();
 		ref.setUri(uri);
 	}
 

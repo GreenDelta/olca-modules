@@ -98,7 +98,7 @@ public class FlowDao extends BaseDao<Flow> implements IRootEntityDao<Flow> {
 		String jpql = "select p.id from Process p join p.exchanges e "
 				+ "where e.flow.id = :flowId and e.input = :input ";
 		Map<String, Object> params = new HashMap<>();
-		params.put("flowId", flow.getId());
+		params.put("flowId", flow.getRefId());
 		params.put("input", input);
 		return query().getAll(String.class, jpql, params);
 	}

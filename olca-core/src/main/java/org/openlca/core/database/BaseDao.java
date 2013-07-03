@@ -36,9 +36,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public boolean contains(String id) throws Exception {
-		if (id == null)
-			return false;
+	public boolean contains(long id) throws Exception {
 		return getForId(id) != null;
 	}
 
@@ -104,9 +102,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public T getForId(String id) throws Exception {
-		if (id == null)
-			return null;
+	public T getForId(long id) throws Exception {
 		EntityManager entityManager = createManager();
 		try {
 			T o = entityManager.find(entityType, id);
@@ -117,7 +113,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public List<T> getForIds(Set<String> ids) throws Exception {
+	public List<T> getForIds(Set<Long> ids) throws Exception {
 		if (ids == null || ids.isEmpty())
 			return Collections.emptyList();
 		if (ids.size() <= MAX_LIST_SIZE)
@@ -125,13 +121,13 @@ public class BaseDao<T> implements IDao<T> {
 		return fetchForChunkedIds(ids);
 	}
 
-	private List<T> fetchForChunkedIds(Set<String> ids) {
-		List<String> rest = new ArrayList<>(ids);
+	private List<T> fetchForChunkedIds(Set<Long> ids) {
+		List<Long> rest = new ArrayList<>(ids);
 		List<T> results = new ArrayList<>();
 		while (!rest.isEmpty()) {
 			int toPos = rest.size() > MAX_LIST_SIZE ? MAX_LIST_SIZE : rest
 					.size();
-			List<String> nextChunk = rest.subList(0, toPos);
+			List<Long> nextChunk = rest.subList(0, toPos);
 			List<T> chunkResults = fetchForIds(nextChunk);
 			results.addAll(chunkResults);
 			nextChunk.clear(); // clears also the elements in rest
@@ -139,7 +135,7 @@ public class BaseDao<T> implements IDao<T> {
 		return results;
 	}
 
-	private List<T> fetchForIds(Collection<String> ids) {
+	private List<T> fetchForIds(Collection<Long> ids) {
 		EntityManager em = createManager();
 		try {
 			String jpql = "SELECT o FROM " + entityType.getSimpleName()

@@ -76,7 +76,7 @@ class DB {
 	private Category createRoot(ModelType type, String name) {
 		try {
 			Category category = new Category();
-			category.setId(UUID.randomUUID().toString());
+			category.setRefId(UUID.randomUUID().toString());
 			category.setModelType(type);
 			category.setName(name);
 			database.createDao(Category.class).insert(category);

@@ -63,14 +63,14 @@ public class ProcessDao extends BaseDao<Process> implements
 	}
 
 	public List<BaseDescriptor> whereUsed(Process process) {
-		if (process == null || process.getId() == null)
+		if (process == null || process.getRefId() == null)
 			return Collections.emptyList();
 		String jpql = "select s.id, s.name, s.description from ProductSystem s "
 				+ "join s.processes p where p.id = :processId";
 		try {
 			List<Object[]> results = Query.on(getEntityFactory()).getAll(
 					Object[].class, jpql,
-					Collections.singletonMap("processId", process.getId()));
+					Collections.singletonMap("processId", process.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProductSystemDescriptor d = new ProductSystemDescriptor();

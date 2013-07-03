@@ -22,12 +22,12 @@ public class FlowIndex {
 		if (contains(flow))
 			return;
 		int idx = map.size();
-		map.put(flow.getId(), idx);
+		map.put(flow.getRefId(), idx);
 		flows.add(flow);
 	}
 
 	public int getIndex(Flow flow) {
-		Integer idx = map.get(flow.getId());
+		Integer idx = map.get(flow.getRefId());
 		if (idx == null)
 			return -1;
 		return idx;
@@ -42,15 +42,15 @@ public class FlowIndex {
 	}
 
 	public boolean contains(Flow flow) {
-		return map.containsKey(flow.getId());
+		return map.containsKey(flow.getRefId());
 	}
 
 	public void setInput(Flow flow, boolean b) {
-		inputMap.put(flow.getId(), b);
+		inputMap.put(flow.getRefId(), b);
 	}
 
 	public boolean isInput(Flow flow) {
-		Boolean b = inputMap.get(flow.getId());
+		Boolean b = inputMap.get(flow.getRefId());
 		return b != null && b.booleanValue();
 	}
 

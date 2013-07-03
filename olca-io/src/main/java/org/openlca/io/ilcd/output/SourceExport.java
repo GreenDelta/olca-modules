@@ -48,14 +48,14 @@ public class SourceExport {
 		DataSetInformation dataSetInfo = makeDateSetInfo();
 		org.openlca.ilcd.sources.Source iSource = SourceBuilder.makeSource()
 				.withBaseUri(baseUri).withDataSetInfo(dataSetInfo).getSource();
-		dataStore.put(iSource, source.getId());
+		dataStore.put(iSource, source.getRefId());
 		return iSource;
 	}
 
 	private void loadSource(Source source) throws DataStoreException {
 		try {
 			this.source = database.createDao(Source.class).getForId(
-					source.getId());
+					source.getRefId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load source from database.", e);
 		}
@@ -64,7 +64,7 @@ public class SourceExport {
 	private DataSetInformation makeDateSetInfo() {
 		log.trace("Create data set information.");
 		DataSetInformation dataSetInfo = new DataSetInformation();
-		dataSetInfo.setUUID(source.getId());
+		dataSetInfo.setUUID(source.getRefId());
 		LangString.addLabel(dataSetInfo.getShortName(), source.getName());
 		if (source.getDescription() != null) {
 			LangString.addFreeText(dataSetInfo.getSourceDescriptionOrComment(),

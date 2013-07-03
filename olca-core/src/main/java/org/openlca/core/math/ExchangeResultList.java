@@ -65,7 +65,7 @@ public class ExchangeResultList {
 
 	private Exchange createExchange(Flow flow, boolean input, double amount) {
 		Exchange exchange = new Exchange(ownerId);
-		exchange.setId(UUID.randomUUID().toString());
+		exchange.setRefId(UUID.randomUUID().toString());
 		exchange.setFlow(flow);
 		exchange.setInput(input);
 		exchange.getResultingAmount().setValue(amount);

@@ -99,12 +99,12 @@ class ExchangeConversion {
 		if (oExchange.isParametrized())
 			extension.setFormula(expression.getFormula());
 		if (oExchange.getUnit() != null)
-			extension.setUnitId(oExchange.getUnit().getId());
+			extension.setUnitId(oExchange.getUnit().getRefId());
 		if (oExchange.getFlowPropertyFactor() != null) {
 			FlowPropertyFactor propFactor = oExchange.getFlowPropertyFactor();
 			FlowProperty prop = propFactor.getFlowProperty();
 			if (prop != null)
-				extension.setPropertyId(prop.getId());
+				extension.setPropertyId(prop.getRefId());
 		}
 	}
 
@@ -188,7 +188,7 @@ class ExchangeConversion {
 		if (oId == null)
 			return null;
 		for (MappedPair p : mappedPairs) {
-			if (oId.equals(p.oExchange.getId()))
+			if (oId.equals(p.oExchange.getRefId()))
 				return p.iExchange.getDataSetInternalID();
 		}
 		return null;

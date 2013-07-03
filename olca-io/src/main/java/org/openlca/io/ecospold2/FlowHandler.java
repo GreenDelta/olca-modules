@@ -97,7 +97,7 @@ class FlowHandler {
 
 	private Flow createProduct(IntermediateExchange exchange) {
 		Flow flow = new Flow();
-		flow.setId(exchange.getIntermediateExchangeId());
+		flow.setRefId(exchange.getIntermediateExchangeId());
 		flow.setFlowType(FlowType.PRODUCT_FLOW);
 		fillCacheFlow(exchange, flow);
 		return flow;
@@ -105,7 +105,7 @@ class FlowHandler {
 
 	private Flow createElemFlow(ElementaryExchange exchange) {
 		Flow flow = new Flow();
-		flow.setId(exchange.getElementaryExchangeId());
+		flow.setRefId(exchange.getElementaryExchangeId());
 		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 		fillCacheFlow(exchange, flow);
 		return flow;
@@ -119,7 +119,7 @@ class FlowHandler {
 			return;
 		}
 		FlowPropertyFactor fac = new FlowPropertyFactor();
-		fac.setId(UUID.randomUUID().toString());
+		fac.setRefId(UUID.randomUUID().toString());
 		fac.setFlowProperty(prop);
 		fac.setConversionFactor(1.0);
 		flow.getFlowPropertyFactors().add(fac);
@@ -127,7 +127,7 @@ class FlowHandler {
 		try {
 			setCategory(flow);
 			database.createDao(Flow.class).insert(flow);
-			cachedFlows.put(flow.getId(), flow);
+			cachedFlows.put(flow.getRefId(), flow);
 		} catch (Exception e) {
 			log.error("Failed to store flow", e);
 		}

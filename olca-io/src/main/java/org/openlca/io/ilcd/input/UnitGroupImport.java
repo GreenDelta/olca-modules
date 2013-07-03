@@ -108,7 +108,7 @@ public class UnitGroupImport {
 	}
 
 	private void mapDescriptionAttributes() {
-		unitGroup.setId(ilcdUnitGroup.getId());
+		unitGroup.setRefId(ilcdUnitGroup.getId());
 		unitGroup.setName(ilcdUnitGroup.getName());
 		unitGroup.setDescription(ilcdUnitGroup.getComment());
 	}
@@ -130,9 +130,9 @@ public class UnitGroupImport {
 	private void mapUnitAttributes(org.openlca.ilcd.units.Unit iUnit, Unit oUnit) {
 		UnitExtension extension = new UnitExtension(iUnit);
 		if (extension.isValid())
-			oUnit.setId(extension.getUnitId());
+			oUnit.setRefId(extension.getUnitId());
 		else
-			oUnit.setId(UUID.randomUUID().toString());
+			oUnit.setRefId(UUID.randomUUID().toString());
 		oUnit.setName(iUnit.getName());
 		oUnit.setDescription(LangString.getLabel(iUnit.getGeneralComment()));
 		oUnit.setConversionFactor(iUnit.getMeanValue());
@@ -144,7 +144,7 @@ public class UnitGroupImport {
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in unit group %s.",
-					unitGroup.getId());
+					unitGroup.getRefId());
 			throw new ImportException(message, e);
 		}
 	}

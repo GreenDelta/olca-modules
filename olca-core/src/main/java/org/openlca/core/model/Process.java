@@ -76,7 +76,7 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		int i = 0;
 		Exchange[] exchanges = input ? getInputs() : getOutputs();
 		while (i < exchanges.length && !contains) {
-			contains = exchanges[i].getFlow().getId().equals(flowId);
+			contains = exchanges[i].getFlow().getRefId().equals(flowId);
 			i++;
 		}
 		return contains;
@@ -105,19 +105,18 @@ public class Process extends CategorizedEntity implements IParameterisable {
 	 *            The id of the product the allocation factor is requested for
 	 * @return The allocation factor of the exchange for the product
 	 */
-	public double getAllocationFactor(Exchange exchange, String productId) {
+	public double getAllocationFactor(Exchange exchange, long productId) {
 		double allocationFactor = 1;
 		// if no allocation is applied, the factor is 1
 		if (getAllocationMethod() != null
 				&& getAllocationMethod() != AllocationMethod.None) {
 			// if the exchange is the product it's allocation factor is 1
-			if (!exchange.getId().equals(productId)) {
+			if (exchange.getId() != productId) {
 				AllocationFactor productFactor = null;
 				int i = 0;
 				while (productFactor == null
 						&& i < exchange.getAllocationFactors().length) {
-					if (exchange.getAllocationFactors()[i].getProductId()
-							.equals(productId)) {
+					if (exchange.getAllocationFactors()[i].getProductId() == productId) {
 						productFactor = exchange.getAllocationFactors()[i];
 					}
 					i++;
@@ -147,18 +146,9 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		return new ProcessCopy().create(this);
 	}
 
-	/**
-	 * Searches for an exchange with the given id
-	 * 
-	 * @param id
-	 *            The id of the searched exchange
-	 * @return The exchange with the given id or null if not found
-	 */
-	public Exchange getExchange(String id) {
-		if (id == null)
-			return null;
+	public Exchange getExchange(long id) {
 		for (Exchange e : exchanges) {
-			if (id.equals(e.getId()))
+			if (id == e.getId())
 				return e;
 		}
 		return null;

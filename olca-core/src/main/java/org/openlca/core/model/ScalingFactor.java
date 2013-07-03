@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import java.util.UUID;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -69,7 +67,6 @@ public class ScalingFactor extends AbstractEntity implements Cloneable {
 	public ScalingFactor clone() {
 		final ScalingFactor scalingFactor = new ScalingFactor();
 		scalingFactor.setFactor(getFactor());
-		scalingFactor.setId(UUID.randomUUID().toString());
 		scalingFactor.setUncertainty(getUncertainty());
 		scalingFactor.setProductId(getProductId());
 		scalingFactor.setProcessId(getProcessId());

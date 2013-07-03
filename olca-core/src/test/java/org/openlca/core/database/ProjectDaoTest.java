@@ -37,7 +37,7 @@ public class ProjectDaoTest {
 
 	private Project createProject() {
 		Project project = new Project();
-		project.setId(UUID.randomUUID().toString());
+		project.setRefId(UUID.randomUUID().toString());
 		project.setName("name");
 		return project;
 	}
@@ -48,7 +48,7 @@ public class ProjectDaoTest {
 		List<ProjectDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
 		ProjectDescriptor descriptor = ListUtils.findDescriptor(
-				project.getId(), descriptors);
+				project.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 	}
 
@@ -58,7 +58,7 @@ public class ProjectDaoTest {
 		List<ProjectDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
 		ProjectDescriptor descriptor = ListUtils.findDescriptor(
-				project.getId(), descriptors);
+				project.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)
 				.delete(category);
@@ -66,7 +66,7 @@ public class ProjectDaoTest {
 
 	private Category addCategory() throws Exception {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.FLOW_PROPERTY);
 		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(

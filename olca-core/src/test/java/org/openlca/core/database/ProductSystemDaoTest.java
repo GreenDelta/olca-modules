@@ -37,7 +37,7 @@ public class ProductSystemDaoTest {
 
 	private ProductSystem createProductSystem() {
 		ProductSystem productSystem = new ProductSystem();
-		productSystem.setId(UUID.randomUUID().toString());
+		productSystem.setRefId(UUID.randomUUID().toString());
 		productSystem.setName("name");
 		return productSystem;
 	}
@@ -48,7 +48,7 @@ public class ProductSystemDaoTest {
 		List<ProductSystemDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
 		ProductSystemDescriptor descriptor = ListUtils.findDescriptor(
-				productSystem.getId(), descriptors);
+				productSystem.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 	}
 
@@ -58,7 +58,7 @@ public class ProductSystemDaoTest {
 		List<ProductSystemDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
 		ProductSystemDescriptor descriptor = ListUtils.findDescriptor(
-				productSystem.getId(), descriptors);
+				productSystem.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)
 				.delete(category);
@@ -66,7 +66,7 @@ public class ProductSystemDaoTest {
 
 	private Category addCategory() throws Exception {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.PRODUCT_SYSTEM);
 		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(

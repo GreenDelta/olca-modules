@@ -53,7 +53,7 @@ public class Flow extends CategorizedEntity {
 	@Override
 	public Flow clone() {
 		Flow flow = new Flow();
-		flow.setId(UUID.randomUUID().toString());
+		flow.setRefId(UUID.randomUUID().toString());
 		flow.setName(getName());
 		flow.setCategory(getCategory());
 		flow.setDescription(getDescription());

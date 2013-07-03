@@ -20,7 +20,7 @@ public class ProcessExport {
 
 	public void run(File targetDir) {
 		log.debug("Export process {} to directory {}", process, targetDir);
-		File outFile = new File(targetDir, process.getId().concat(".spold"));
+		File outFile = new File(targetDir, process.getRefId().concat(".spold"));
 
 	}
 

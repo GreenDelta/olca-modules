@@ -56,7 +56,7 @@ class CategoryConverter {
 		while (!stack.isEmpty()) {
 			category = stack.pop();
 			org.openlca.ilcd.commons.Class clazz = new Class();
-			clazz.setClassId(category.getId());
+			clazz.setClassId(category.getRefId());
 			clazz.setLevel(BigInteger.valueOf(level));
 			clazz.setValue(category.getName());
 			classification.getClasses().add(clazz);
@@ -71,7 +71,7 @@ class CategoryConverter {
 		while (!stack.isEmpty()) {
 			category = stack.pop();
 			org.openlca.ilcd.commons.Category ilcdCategory = new org.openlca.ilcd.commons.Category();
-			ilcdCategory.setCatId(category.getId());
+			ilcdCategory.setCatId(category.getRefId());
 			ilcdCategory.setLevel(BigInteger.valueOf(level));
 			ilcdCategory.setValue(category.getName());
 			categorization.getCategories().add(ilcdCategory);

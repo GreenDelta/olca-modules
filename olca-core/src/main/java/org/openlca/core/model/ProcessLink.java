@@ -11,7 +11,6 @@ package org.openlca.core.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -58,7 +57,6 @@ public class ProcessLink extends AbstractEntity implements Cloneable {
 	@Override
 	public ProcessLink clone() {
 		final ProcessLink processLink = new ProcessLink();
-		processLink.setId(UUID.randomUUID().toString());
 		processLink.setProviderOutput(getProviderOutput());
 		processLink.setProviderProcess(getProviderProcess());
 		processLink.setRecipientInput(getRecipientInput());

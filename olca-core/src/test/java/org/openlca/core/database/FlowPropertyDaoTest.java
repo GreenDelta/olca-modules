@@ -37,7 +37,7 @@ public class FlowPropertyDaoTest {
 
 	private FlowProperty createFlowProperty() {
 		FlowProperty flowProperty = new FlowProperty();
-		flowProperty.setId(UUID.randomUUID().toString());
+		flowProperty.setRefId(UUID.randomUUID().toString());
 		flowProperty.setName("name");
 		return flowProperty;
 	}
@@ -48,7 +48,7 @@ public class FlowPropertyDaoTest {
 		List<FlowPropertyDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
 		FlowPropertyDescriptor descriptor = ListUtils.findDescriptor(
-				flowProperty.getId(), descriptors);
+				flowProperty.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 	}
 
@@ -58,7 +58,7 @@ public class FlowPropertyDaoTest {
 		List<FlowPropertyDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
 		FlowPropertyDescriptor descriptor = ListUtils.findDescriptor(
-				flowProperty.getId(), descriptors);
+				flowProperty.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)
 				.delete(category);
@@ -66,7 +66,7 @@ public class FlowPropertyDaoTest {
 
 	private Category addCategory() throws Exception {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.FLOW_PROPERTY);
 		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(

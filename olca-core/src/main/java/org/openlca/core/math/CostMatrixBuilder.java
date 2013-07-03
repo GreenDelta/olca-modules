@@ -99,12 +99,12 @@ public class CostMatrixBuilder {
 	}
 
 	private void makeCostEntries(Exchange exchange) {
-		List<ProductCostEntry> entries = productCostMap.get(exchange.getId());
+		List<ProductCostEntry> entries = productCostMap.get(exchange.getRefId());
 		if (entries == null || entries.isEmpty())
 			return;
 		for (ProductCostEntry entry : entries) {
 			int row = costCategoryIndex.getIndex(entry.getCostCategory());
-			int col = productIndex.getIndex(exchange.getId());
+			int col = productIndex.getIndex(exchange.getRefId());
 			if (row >= 0 && col >= 0)
 				costMatrix.setEntry(row, col, entry.getAmount());
 		}

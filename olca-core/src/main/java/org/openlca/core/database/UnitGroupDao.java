@@ -67,14 +67,14 @@ public class UnitGroupDao extends BaseDao<UnitGroup> implements
 	}
 
 	public List<BaseDescriptor> whereUsed(UnitGroup group) {
-		if (group == null || group.getId() == null)
+		if (group == null || group.getRefId() == null)
 			return Collections.emptyList();
 		String jpql = "select fp.id, fp.name, fp.description from FlowProperty fp "
 				+ "where fp.unitGroupId = :unitGroupId";
 		try {
 			List<Object[]> results = Query.on(getEntityFactory()).getAll(
 					Object[].class, jpql,
-					Collections.singletonMap("unitGroupId", group.getId()));
+					Collections.singletonMap("unitGroupId", group.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				FlowPropertyDescriptor d = new FlowPropertyDescriptor();

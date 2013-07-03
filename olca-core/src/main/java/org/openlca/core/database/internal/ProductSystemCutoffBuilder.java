@@ -60,10 +60,10 @@ public class ProductSystemCutoffBuilder implements IProductSystemBuilder {
 	}
 
 	private void autoComplete(Process process, double factor) {
-		scalingFactors.put(process.getId(), factor);
+		scalingFactors.put(process.getRefId(), factor);
 		Set<String> handled = new HashSet<>();
 		Queue<Collection<String>> nextLevels = new ArrayDeque<>();
-		nextLevels.add(Arrays.asList(process.getId()));
+		nextLevels.add(Arrays.asList(process.getRefId()));
 		int n = 0;
 		while (!nextLevels.isEmpty()) {
 			Collection<String> processIds = nextLevels.poll();

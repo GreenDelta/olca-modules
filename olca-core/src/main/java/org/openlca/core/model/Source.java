@@ -33,7 +33,7 @@ public class Source extends CategorizedEntity {
 	@Override
 	public Source clone() {
 		Source source = new Source();
-		source.setId(UUID.randomUUID().toString());
+		source.setRefId(UUID.randomUUID().toString());
 		source.setName(getName());
 		source.setCategory(getCategory());
 		source.setDescription(getDescription());

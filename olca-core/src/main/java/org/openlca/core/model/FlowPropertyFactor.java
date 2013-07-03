@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import java.util.UUID;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -36,7 +34,6 @@ public class FlowPropertyFactor extends AbstractEntity {
 		final FlowPropertyFactor factor = new FlowPropertyFactor();
 		factor.setConversionFactor(getConversionFactor());
 		factor.setFlowProperty(getFlowProperty());
-		factor.setId(UUID.randomUUID().toString());
 		return factor;
 	}
 

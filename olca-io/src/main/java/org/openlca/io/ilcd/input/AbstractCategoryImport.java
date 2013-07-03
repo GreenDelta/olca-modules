@@ -105,7 +105,7 @@ abstract class AbstractCategoryImport<C> {
 	private Category createNew(C ilcdCategory) {
 		Category category = new Category();
 		category.setModelType(modelType);
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		String name = getName(ilcdCategory);
 		category.setName(name);
 		return category;

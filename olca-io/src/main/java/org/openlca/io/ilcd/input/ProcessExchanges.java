@@ -102,7 +102,7 @@ class ProcessExchanges {
 			org.openlca.ilcd.processes.Exchange iExchange,
 			ExchangeFlow exchangeFlow) {
 		Exchange oExchange = new ExchangeConversion(iExchange).map(olcaProcess
-				.getId());
+				.getRefId());
 		if (exchangeFlow.getFlow() != null) {
 			oExchange.setFlow(exchangeFlow.getFlow());
 			if (exchangeFlow.isMapped())
@@ -179,7 +179,7 @@ class ProcessExchanges {
 	private void createAllocationFactor(MappedPair p, String productId,
 			BigDecimal fraction) {
 		org.openlca.core.model.AllocationFactor oFactor = new org.openlca.core.model.AllocationFactor();
-		oFactor.setId(UUID.randomUUID().toString());
+		oFactor.setRefId(UUID.randomUUID().toString());
 		oFactor.setProductId(productId);
 		oFactor.setValue(fraction.doubleValue());
 		p.oExchange.add(oFactor);
@@ -190,7 +190,7 @@ class ProcessExchanges {
 			return null;
 		for (MappedPair p : mappedPairs) {
 			if (iId.equals(p.iExchange.getDataSetInternalID()))
-				return p.oExchange.getId();
+				return p.oExchange.getRefId();
 		}
 		return null;
 	}

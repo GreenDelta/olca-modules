@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.model.Indexable;
+import org.openlca.core.model.AbstractEntity;
 
 /**
  * A set of contributions to an overall result. Contains optionally a rest-value
@@ -12,7 +12,7 @@ import org.openlca.core.model.Indexable;
  * 
  * rest = result - sum(contributions).
  */
-public class ContributionSet<T extends Indexable> {
+public class ContributionSet<T extends AbstractEntity> {
 
 	private double restValue;
 	private List<Contribution<T>> contributions = new ArrayList<>();
@@ -22,7 +22,7 @@ public class ContributionSet<T extends Indexable> {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <T extends Indexable> ContributionSet<T> empty() {
+	public static <T extends AbstractEntity> ContributionSet<T> empty() {
 		ContributionSet set = new ContributionSet(Collections.emptyList());
 		return set;
 	}

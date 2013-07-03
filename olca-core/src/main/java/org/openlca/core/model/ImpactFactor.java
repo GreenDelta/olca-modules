@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import java.util.UUID;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -62,7 +60,6 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 	@Override
 	public ImpactFactor clone() {
 		final ImpactFactor lciaFactor = new ImpactFactor();
-		lciaFactor.setId(UUID.randomUUID().toString());
 		lciaFactor.setFlow(getFlow());
 		lciaFactor.setFlowPropertyFactor(getFlowPropertyFactor());
 		lciaFactor.setUnit(getUnit());

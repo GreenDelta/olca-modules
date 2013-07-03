@@ -54,9 +54,7 @@ public class Parameter extends AbstractEntity implements PropertyChangeListener 
 		expression.addPropertyChangeListener(this);
 	}
 
-	public Parameter(String id, Expression expression, ParameterType type,
-			String ownerId) {
-		setId(id);
+	public Parameter(Expression expression, ParameterType type, String ownerId) {
 		if (type == null)
 			this.type = ParameterType.UNSPECIFIED;
 		else

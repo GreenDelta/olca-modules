@@ -37,7 +37,7 @@ public class UnitGroupDaoTest {
 
 	private UnitGroup createUnitGroup() {
 		UnitGroup unitGroup = new UnitGroup();
-		unitGroup.setId(UUID.randomUUID().toString());
+		unitGroup.setRefId(UUID.randomUUID().toString());
 		unitGroup.setName("name");
 		return unitGroup;
 	}
@@ -48,7 +48,7 @@ public class UnitGroupDaoTest {
 		List<UnitGroupDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
 		UnitGroupDescriptor descriptor = ListUtils.findDescriptor(
-				unitGroup.getId(), descriptors);
+				unitGroup.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 	}
 
@@ -58,7 +58,7 @@ public class UnitGroupDaoTest {
 		List<UnitGroupDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
 		UnitGroupDescriptor descriptor = ListUtils.findDescriptor(
-				unitGroup.getId(), descriptors);
+				unitGroup.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)
 				.delete(category);
@@ -66,7 +66,7 @@ public class UnitGroupDaoTest {
 
 	private Category addCategory() throws Exception {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.FLOW_PROPERTY);
 		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(

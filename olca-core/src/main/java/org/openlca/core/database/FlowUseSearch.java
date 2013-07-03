@@ -24,7 +24,7 @@ class FlowUseSearch implements IUseSearch<Flow> {
 
 	@Override
 	public List<BaseDescriptor> findUses(Flow flow) {
-		if (flow == null || flow.getId() == null)
+		if (flow == null || flow.getRefId() == null)
 			return Collections.emptyList();
 		List<BaseDescriptor> processes = findInProcesses(flow);
 		List<BaseDescriptor> methods = findInMethods(flow);
@@ -41,7 +41,7 @@ class FlowUseSearch implements IUseSearch<Flow> {
 				+ " where fac.flow.id = :flowId";
 		try {
 			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("flowId", flow.getId()));
+					Collections.singletonMap("flowId", flow.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ImpactMethodDescriptor d = new ImpactMethodDescriptor();
@@ -63,7 +63,7 @@ class FlowUseSearch implements IUseSearch<Flow> {
 				+ "loc where e.flow.id = :flowId";
 		try {
 			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("flowId", flow.getId()));
+					Collections.singletonMap("flowId", flow.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProcessDescriptor d = new ProcessDescriptor();

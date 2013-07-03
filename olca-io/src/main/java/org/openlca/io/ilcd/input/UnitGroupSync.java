@@ -59,7 +59,7 @@ class UnitGroupSync {
 		for (org.openlca.ilcd.units.Unit ilcdUnit : ilcdGroup.getUnits()) {
 			UnitExtension ext = new UnitExtension(ilcdUnit);
 			String id = ext.getUnitId();
-			if (id != null && id.equals(olcaRefUnit.getId()))
+			if (id != null && id.equals(olcaRefUnit.getRefId()))
 				return ilcdUnit;
 		}
 		return null;
@@ -84,7 +84,7 @@ class UnitGroupSync {
 
 	private boolean containsUnit(String id) {
 		for (Unit unit : olcaGroup.getUnits()) {
-			if (id.equals(unit.getId()))
+			if (id.equals(unit.getRefId()))
 				return true;
 		}
 		return false;

@@ -11,7 +11,7 @@ public interface IDao<T> {
 
 	EntityManagerFactory getEntityFactory();
 
-	boolean contains(String id) throws Exception;
+	boolean contains(long id) throws Exception;
 
 	void delete(T entity) throws Exception;
 
@@ -21,9 +21,9 @@ public interface IDao<T> {
 
 	T insert(T entity) throws Exception;
 
-	T getForId(String id) throws Exception;
+	T getForId(long id) throws Exception;
 
-	List<T> getForIds(Set<String> ids) throws Exception;
+	List<T> getForIds(Set<Long> ids) throws Exception;
 
 	List<T> getAll() throws Exception;
 

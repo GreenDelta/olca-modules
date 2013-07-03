@@ -104,7 +104,7 @@ public class FlowPropertyImport {
 
 	private void mapDescriptionAttributes() {
 		property.setFlowPropertyType(FlowPropertyType.PHYSICAL); // default
-		property.setId(ilcdProperty.getId());
+		property.setRefId(ilcdProperty.getId());
 		property.setName(ilcdProperty.getName());
 		property.setDescription(ilcdProperty.getComment());
 	}
@@ -125,7 +125,7 @@ public class FlowPropertyImport {
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in flow property %s.",
-					property.getId());
+					property.getRefId());
 			throw new ImportException(message, e);
 		}
 	}

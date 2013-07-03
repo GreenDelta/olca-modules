@@ -17,7 +17,9 @@ public class CategoryDaoTest {
 	@Test
 	public void testSimple() throws Exception {
 		Category category = create();
+		System.out.println(category.getId());
 		dao.insert(category);
+		System.out.println(category.getId());
 		TestSession.emptyCache();
 		Category alias = dao.getForId(category.getId());
 		Assert.assertEquals(category.getName(), alias.getName());
@@ -37,8 +39,8 @@ public class CategoryDaoTest {
 		TestSession.emptyCache();
 		Category alias = dao.getForId(parent.getId());
 		Assert.assertEquals(1, alias.getChildCategories().length);
-		Assert.assertEquals(child.getId(),
-				alias.getChildCategories()[0].getId());
+		Assert.assertEquals(child.getRefId(),
+				alias.getChildCategories()[0].getRefId());
 		dao.delete(alias);
 		Assert.assertNull(dao.getForId(child.getId()));
 	}
@@ -59,7 +61,7 @@ public class CategoryDaoTest {
 
 	private Category create() {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("name");
 		category.setModelType(ModelType.FLOW);
 		return category;

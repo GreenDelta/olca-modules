@@ -186,7 +186,7 @@ public class EcoSpold01Outputter {
 
 	private IPerson mapActor(Actor inActor, DataSet dataset,
 			IEcoSpoldFactory factory) {
-		IPerson person = actorToES1Person.get(inActor.getId());
+		IPerson person = actorToES1Person.get(inActor.getRefId());
 		if (person != null)
 			return person;
 		person = factory.createPerson();
@@ -197,7 +197,7 @@ public class EcoSpold01Outputter {
 		person.setEmail(inActor.getEmail());
 		person.setTelefax(inActor.getTelefax());
 		person.setTelephone(inActor.getTelephone());
-		actorToES1Person.put(inActor.getId(), person);
+		actorToES1Person.put(inActor.getRefId(), person);
 		dataset.getPersons().add(person);
 		return person;
 	}
@@ -281,7 +281,7 @@ public class EcoSpold01Outputter {
 							factor);
 				}
 				factor.getReferenceToInputOutput()
-						.add(exchangeToES1Exchange.get(exchange.getId())
+						.add(exchangeToES1Exchange.get(exchange.getRefId())
 								.getNumber());
 			}
 		}
@@ -310,7 +310,7 @@ public class EcoSpold01Outputter {
 		} else {
 			mapUncertainty(inExchange, exchange);
 		}
-		exchangeToES1Exchange.put(inExchange.getId(), exchange);
+		exchangeToES1Exchange.put(inExchange.getRefId(), exchange);
 
 		return exchange;
 	}
@@ -490,7 +490,7 @@ public class EcoSpold01Outputter {
 
 	private ISource mapSource(Source inSource, DataSet dataset,
 			IEcoSpoldFactory factory) {
-		ISource source = sourceToES1Source.get(inSource.getId());
+		ISource source = sourceToES1Source.get(inSource.getRefId());
 		if (source != null)
 			return source;
 		source = factory.createSource();
@@ -508,7 +508,7 @@ public class EcoSpold01Outputter {
 				log.warn("failed to set year of source ", e);
 			}
 		}
-		sourceToES1Source.put(inSource.getId(), source);
+		sourceToES1Source.put(inSource.getRefId(), source);
 		dataset.getSources().add(source);
 		return source;
 	}
@@ -596,7 +596,7 @@ public class EcoSpold01Outputter {
 
 	public void exportLCIAMethod(ImpactMethod method) throws Exception {
 		IEcoSpold spold = convertLCIAMethod(method);
-		String fileName = "lcia_method_" + method.getId() + ".xml";
+		String fileName = "lcia_method_" + method.getRefId() + ".xml";
 		File file = new File(outDir, fileName);
 		EcoSpoldIO.writeTo(file, spold, DataSetType.IMPACT_METHOD);
 		clearLocalCache();
@@ -604,7 +604,7 @@ public class EcoSpold01Outputter {
 
 	public void exportProcess(Process process) throws Exception {
 		IEcoSpold spold = convertProcess(process);
-		String fileName = "process_" + process.getId() + ".xml";
+		String fileName = "process_" + process.getRefId() + ".xml";
 		File file = new File(outDir, fileName);
 		EcoSpoldIO.writeTo(file, spold, DataSetType.PROCESS);
 		clearLocalCache();

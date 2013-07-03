@@ -55,7 +55,7 @@ public class SystemExport {
 			return null;
 		}
 		Process process = createProcess();
-		dataStore.put(process, system.getId());
+		dataStore.put(process, system.getRefId());
 		return process;
 	}
 
@@ -87,10 +87,10 @@ public class SystemExport {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(proc,
 					database, dataStore);
 			ProcessNode node = new ProcessNode();
-			node.setId(proc.getId());
+			node.setId(proc.getRefId());
 			node.setName(proc.getName());
 			node.setUri(ref.getUri());
-			node.setUuid(proc.getId());
+			node.setUuid(proc.getRefId());
 			model.getNodes().add(node);
 		}
 	}
@@ -101,16 +101,16 @@ public class SystemExport {
 			Connector connector = new Connector();
 			model.getConnections().add(connector);
 			connector.setId(Integer.toString(++c));
-			connector.setOrigin(link.getProviderProcess().getId());
+			connector.setOrigin(link.getProviderProcess().getRefId());
 			Product product = new Product();
 			connector.getProducts().add(product);
 			product.setName(link.getProviderOutput().getFlow().getName());
-			product.setUuid(link.getProviderOutput().getFlow().getId());
+			product.setUuid(link.getProviderOutput().getFlow().getRefId());
 			ConsumedBy consumedBy = new ConsumedBy();
 			product.setConsumedBy(consumedBy);
 			consumedBy.setAmount(link.getRecipientInput().getConvertedResult());
-			consumedBy.setFlowUUID(link.getRecipientInput().getFlow().getId());
-			consumedBy.setProcessId(link.getRecipientProcess().getId());
+			consumedBy.setFlowUUID(link.getRecipientInput().getFlow().getRefId());
+			consumedBy.setProcessId(link.getRecipientProcess().getRefId());
 		}
 	}
 
@@ -138,7 +138,7 @@ public class SystemExport {
 	private void loadSystem(ProductSystem system) throws DataStoreException {
 		try {
 			this.system = database.createDao(ProductSystem.class).getForId(
-					system.getId());
+					system.getRefId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load system from database", e);
 		}
@@ -146,7 +146,7 @@ public class SystemExport {
 
 	private DataSetInformation makeDataSetInfo() {
 		DataSetInformation info = new DataSetInformation();
-		info.setUUID(system.getId());
+		info.setUUID(system.getRefId());
 		ProcessName processName = new ProcessName();
 		info.setName(processName);
 		String name = system.getName() + " (product system)";
@@ -178,7 +178,7 @@ public class SystemExport {
 		org.openlca.core.model.Process refProcess = system
 				.getReferenceProcess();
 		ProcessInfoExtension ext = new ProcessInfoExtension(info);
-		ext.setModelRefProcess(refProcess.getId());
+		ext.setModelRefProcess(refProcess.getRefId());
 	}
 
 	private void addParamaters(ProductModel model) {

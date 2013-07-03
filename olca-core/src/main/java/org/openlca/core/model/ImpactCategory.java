@@ -28,7 +28,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_impact_categories")
-public class ImpactCategory extends AbstractEntity implements Cloneable {
+public class ImpactCategory extends RootEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_impact_category")
@@ -55,7 +55,7 @@ public class ImpactCategory extends AbstractEntity implements Cloneable {
 		int i = 0;
 		while (factor == null && i < impactFactors.size()) {
 			final ImpactFactor actual = impactFactors.get(i);
-			if (actual.getFlow().getId().equals(flow.getId())) {
+			if (actual.getFlow().getRefId().equals(flow.getRefId())) {
 				factor = actual;
 			} else {
 				i++;
@@ -67,7 +67,7 @@ public class ImpactCategory extends AbstractEntity implements Cloneable {
 	@Override
 	public ImpactCategory clone() {
 		final ImpactCategory lciaCategory = new ImpactCategory();
-		lciaCategory.setId(UUID.randomUUID().toString());
+		lciaCategory.setRefId(UUID.randomUUID().toString());
 		lciaCategory.setDescription(getDescription());
 		lciaCategory.setName(getName());
 		lciaCategory.setReferenceUnit(getReferenceUnit());

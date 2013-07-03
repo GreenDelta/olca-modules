@@ -39,7 +39,7 @@ public class ProcessDaoTest {
 
 	private Process createProcess() {
 		Process process = new Process();
-		process.setId(UUID.randomUUID().toString());
+		process.setRefId(UUID.randomUUID().toString());
 		process.setName("name");
 		return process;
 	}
@@ -50,7 +50,7 @@ public class ProcessDaoTest {
 		List<ProcessDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
 		ProcessDescriptor descriptor = ListUtils.findDescriptor(
-				process.getId(), descriptors);
+				process.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 	}
 
@@ -60,7 +60,7 @@ public class ProcessDaoTest {
 		List<ProcessDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
 		ProcessDescriptor descriptor = ListUtils.findDescriptor(
-				process.getId(), descriptors);
+				process.getRefId(), descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)
 				.delete(category);
@@ -68,7 +68,7 @@ public class ProcessDaoTest {
 
 	private Category addCategory() throws Exception {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.ACTOR);
 		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(
@@ -91,7 +91,7 @@ public class ProcessDaoTest {
 		Assert.assertTrue(results.size() > 0);
 		boolean found = false;
 		for (Process a : results)
-			if (Objects.equals(a.getId(), process.getId()))
+			if (Objects.equals(a.getRefId(), process.getRefId()))
 				found = true;
 		Assert.assertTrue(found);
 	}

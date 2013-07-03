@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,11 +22,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 @Entity
 @Table(name = "tbl_categories")
-public class Category extends AbstractEntity implements Cloneable {
+public class Category extends RootEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_parent_category")
@@ -38,25 +35,9 @@ public class Category extends AbstractEntity implements Cloneable {
 	@Column(name = "model_type")
 	private ModelType modelType;
 
-	@Column(name = "name")
-	private String name;
-
 	@OneToOne
 	@JoinColumn(name = "f_parent_category")
 	private Category parentCategory;
-
-	@Transient
-	private transient PropertyChangeSupport support = new PropertyChangeSupport(
-			this);
-
-	public Category() {
-	}
-
-	public Category(String id, String name, ModelType modelType) {
-		setId(id);
-		this.name = name;
-		this.modelType = modelType;
-	}
 
 	public ModelType getModelType() {
 		return modelType;
@@ -66,21 +47,10 @@ public class Category extends AbstractEntity implements Cloneable {
 		this.modelType = modelType;
 	}
 
-	/**
-	 * Adds a child category to the category
-	 */
 	public void add(Category childCategory) {
 		if (!childCategories.contains(childCategory)) {
 			childCategories.add(childCategory);
-			support.firePropertyChange("childCategories", null, childCategory);
 		}
-	}
-
-	/**
-	 * Adds a property change listener to the support
-	 */
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		support.addPropertyChangeListener(listener);
 	}
 
 	public Category[] getChildCategories() {
@@ -89,19 +59,18 @@ public class Category extends AbstractEntity implements Cloneable {
 
 	@Override
 	public Category clone() {
-		Category category = new Category(UUID.randomUUID().toString(),
-				getName(), getModelType());
+		Category clone = new Category();
+		clone.setDescription(getDescription());
+		clone.setModelType(getModelType());
+		clone.setName(getName());
+		clone.setParentCategory(getParentCategory());
+		clone.setRefId(UUID.randomUUID().toString());
 		for (Category child : getChildCategories()) {
 			Category childCopy = child.clone();
-			category.add(childCopy);
-			childCopy.setParentCategory(category);
+			clone.add(childCopy);
+			childCopy.setParentCategory(clone);
 		}
-		category.setParentCategory(getParentCategory());
-		return category;
-	}
-
-	public String getName() {
-		return name;
+		return clone;
 	}
 
 	public Category getParentCategory() {
@@ -110,26 +79,16 @@ public class Category extends AbstractEntity implements Cloneable {
 
 	public void remove(Category childCategory) {
 		childCategories.remove(childCategory);
-		support.firePropertyChange("childCategories", childCategory, null);
-	}
-
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		support.removePropertyChangeListener(listener);
-	}
-
-	public void setName(String name) {
-		support.firePropertyChange("name", this.name, this.name = name);
 	}
 
 	public void setParentCategory(Category parentCategory) {
-		support.firePropertyChange("parentCategory", this.parentCategory,
-				this.parentCategory = parentCategory);
+		this.parentCategory = parentCategory;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Category {modelType=%s, id=%s, name=%s}",
-				getModelType(), getId(), name);
+		return String.format("Category {modelType=%s, refId=%s, name=%s}",
+				getModelType(), getRefId(), getName());
 	}
 
 }

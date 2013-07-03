@@ -71,7 +71,7 @@ public class SourceImport {
 	}
 
 	private void setDescriptionAttributes() {
-		source.setId(ilcdSource.getId());
+		source.setRefId(ilcdSource.getId());
 		source.setName(ilcdSource.getShortName());
 		source.setDescription(ilcdSource.getComment());
 		source.setTextReference(ilcdSource.getSourceCitation());
@@ -89,7 +89,7 @@ public class SourceImport {
 			database.createDao(Source.class).insert(source);
 		} catch (Exception e) {
 			String message = String.format(
-					"Cannot save source %s in database.", source.getId());
+					"Cannot save source %s in database.", source.getRefId());
 			throw new ImportException(message, e);
 		}
 	}

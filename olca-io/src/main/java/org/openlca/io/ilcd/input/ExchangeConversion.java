@@ -42,7 +42,7 @@ class ExchangeConversion {
 
 	private Exchange initExchange(String processId) {
 		Exchange e = new Exchange(processId);
-		e.setId(UUID.randomUUID().toString());
+		e.setRefId(UUID.randomUUID().toString());
 		boolean input = ilcdExchange.getExchangeDirection() == ExchangeDirection.INPUT;
 		e.setInput(input);
 		if (extension != null) {

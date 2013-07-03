@@ -53,14 +53,14 @@ public class UnitGroupExport {
 				.makeUnitGroup().withBaseUri(baseUri)
 				.withDataSetInfo(dataSetInfo).withReferenceUnitId(0)
 				.withUnits(iUnits).getUnitGroup();
-		dataStore.put(iUnitGroup, unitGroup.getId());
+		dataStore.put(iUnitGroup, unitGroup.getRefId());
 		return iUnitGroup;
 	}
 
 	private void loadUnitGroup(UnitGroup unitGroup) throws DataStoreException {
 		try {
 			this.unitGroup = database.createDao(UnitGroup.class).getForId(
-					unitGroup.getId());
+					unitGroup.getRefId());
 		} catch (Exception e) {
 			throw new DataStoreException(
 					"Cannot load unit group from database.", e);
@@ -69,7 +69,7 @@ public class UnitGroupExport {
 
 	private DataSetInformation makeDataSetInfo() {
 		DataSetInformation dataSetInfo = new DataSetInformation();
-		dataSetInfo.setUUID(unitGroup.getId());
+		dataSetInfo.setUUID(unitGroup.getRefId());
 		LangString.addLabel(dataSetInfo.getName(), unitGroup.getName());
 		if (unitGroup.getDescription() != null)
 			LangString.addFreeText(dataSetInfo.getGeneralComment(),
@@ -107,7 +107,7 @@ public class UnitGroupExport {
 					unit.getDescription());
 		}
 		UnitExtension unitExtension = new UnitExtension(iUnit);
-		unitExtension.setUnitId(unit.getId());
+		unitExtension.setUnitId(unit.getRefId());
 		return iUnit;
 	}
 }

@@ -67,7 +67,7 @@ public class AllocationMatrix {
 			int column = productIndex.getIndex(process, product);
 			for (Exchange exchange : process.getExchanges()) {
 				AllocationFactor f = exchange.getAllocationFactor(product
-						.getId());
+						.getRefId());
 				if (f == null)
 					continue;
 				double factor = f.getValue();

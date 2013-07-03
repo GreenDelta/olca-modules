@@ -1,27 +1,34 @@
 package org.openlca.core.model;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
+import com.google.common.primitives.Longs;
+
 /**
  * This is an abstract class for everything that is identified by an ID and can
- * be stored in a database via JPA. It provides implementations for
- * <code>hashCode</code> and <code>equals</code> that are based on the ID field.
+ * be stored in a database via JPA. Generally, the generation of the ID should
+ * be managed by JPA.
+ * 
+ * This class provides implementations for <code>hashCode</code> and
+ * <code>equals</code> that are based on the ID field.
  */
 @MappedSuperclass
-public abstract class AbstractEntity implements Indexable {
+public abstract class AbstractEntity {
 
 	@Id
 	@Column(name = "id")
-	private String id;
+	@GeneratedValue(strategy = GenerationType.TABLE, generator = "entity_seq")
+	private long id;
 
-	@Override
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -34,15 +41,12 @@ public abstract class AbstractEntity implements Indexable {
 		if (!(this.getClass().isInstance(obj)))
 			return false;
 		AbstractEntity other = (AbstractEntity) obj;
-		return this.getId() != null && other.getId() != null
-				&& this.getId().equals(other.getId());
+		return this.getId() == other.getId();
 	}
 
 	@Override
 	public int hashCode() {
-		if (getId() != null)
-			return getId().hashCode();
-		return super.hashCode();
+		return Longs.hashCode(getId());
 	}
 
 	@Override

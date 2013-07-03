@@ -9,6 +9,13 @@
 -- CREATE DATABASE openlca;
 -- USE openLCA;
 
+CREATE TABLE SEQUENCE (	
+	SEQ_NAME VARCHAR(255) NOT NULL,
+	SEQ_COUNT BIGINT
+);
+INSERT INTO SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES('entity_seq', 0);
+
+
 -- current database version
 CREATE TABLE openlca_version (
 
@@ -21,10 +28,12 @@ CREATE TABLE openlca_version (
 
 CREATE TABLE tbl_categories (
 
-	id VARCHAR(36) NOT NULL, 
+	id BIGINT NOT NULL,
+	ref_id VARCHAR(36) NOT NULL, 
 	name VARCHAR(255), 
+	description CLOB(64 K),
 	model_type VARCHAR(255), 
-	f_parent_category VARCHAR(255),
+	f_parent_category BIGINT,
 		
 	PRIMARY KEY (id)
 );

@@ -164,7 +164,7 @@ class DBSearch {
 		if (category == null)
 			return false;
 		if (name == null)
-			return StringUtils.equals(category.getId(),
+			return StringUtils.equals(category.getRefId(),
 					Flow.class.getCanonicalName());
 		return StringUtils.equalsIgnoreCase(name, category.getName());
 	}

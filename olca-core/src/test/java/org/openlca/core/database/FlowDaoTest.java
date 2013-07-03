@@ -37,7 +37,7 @@ public class FlowDaoTest {
 	private Flow createFlow() {
 		Flow flow = new Flow();
 		flow.setName("test_flow");
-		flow.setId(UUID.randomUUID().toString());
+		flow.setRefId(UUID.randomUUID().toString());
 		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 		return flow;
 	}
@@ -47,7 +47,7 @@ public class FlowDaoTest {
 		Category cat = null;
 		List<FlowDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
-		FlowDescriptor descriptor = ListUtils.findDescriptor(flow.getId(),
+		FlowDescriptor descriptor = ListUtils.findDescriptor(flow.getRefId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
 	}
@@ -57,7 +57,7 @@ public class FlowDaoTest {
 		Category category = addCategory();
 		List<FlowDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
-		FlowDescriptor descriptor = ListUtils.findDescriptor(flow.getId(),
+		FlowDescriptor descriptor = ListUtils.findDescriptor(flow.getRefId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)
@@ -66,7 +66,7 @@ public class FlowDaoTest {
 
 	private Category addCategory() throws Exception {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.FLOW);
 		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(

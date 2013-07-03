@@ -9,14 +9,10 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 /**
  * <p style="margin-top: 0">
@@ -37,166 +33,49 @@ public class Unit extends AbstractEntity implements Cloneable {
 	@Column(name = "name")
 	private String name;
 
-	@Transient
-	private final transient PropertyChangeSupport support = new PropertyChangeSupport(
-			this);
-
 	@Column(name = "synonyms")
 	private String synonyms;
 
-	public Unit() {
-	}
-
-	public Unit(final String id, final String name) {
-		setId(id);
-		this.name = name;
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Adds a property change listener to the support
-	 * 
-	 * @param listener
-	 *            The property change listener to be added
-	 *            </p>
-	 */
-	public void addPropertyChangeListener(final PropertyChangeListener listener) {
-		support.addPropertyChangeListener(listener);
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Getter of the conversionFactor-field
-	 * </p>
-	 * 
-	 * @return <p style="margin-top: 0">
-	 *         The conversion factor to the reference unit in the parent unit
-	 *         group of the unit
-	 *         </p>
-	 */
 	public double getConversionFactor() {
 		return conversionFactor;
 	}
 
 	@Override
 	public Unit clone() {
-		final Unit unit = new Unit(getId(), getName());
+		final Unit unit = new Unit();
+		unit.setName(getName());
 		unit.setConversionFactor(getConversionFactor());
 		unit.setDescription(getDescription());
 		unit.setSynonyms(getSynonyms());
 		return unit;
 	}
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Getter of the description-field
-	 * </p>
-	 * 
-	 * @return <p style="margin-top: 0">
-	 *         The description of the unit
-	 *         </p>
-	 */
 	public String getDescription() {
 		return description;
 	}
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Getter of the name field
-	 * </p>
-	 * 
-	 * @return <p style="margin-top: 0">
-	 *         The name of the unit
-	 *         </p>
-	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Getter of the synonyms-field
-	 * </p>
-	 * 
-	 * @return <p style="margin-top: 0">
-	 *         The synonyms of the unit, seperated by a semicolon
-	 *         </p>
-	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getSynonyms() {
 		return synonyms;
 	}
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Removes a property change listener from the support
-	 * 
-	 * @param listener
-	 *            The property change listener to be removed
-	 *            </p>
-	 */
-	public void removePropertyChangeListener(
-			final PropertyChangeListener listener) {
-		support.removePropertyChangeListener(listener);
+	public void setSynonyms(String synonyms) {
+		this.synonyms = synonyms;
 	}
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Setter of the conversionFactor-field
-	 * </p>
-	 * 
-	 * @param conversionFactor
-	 *            <p style="margin-top: 0">
-	 *            The conversion factor to the reference unit in the parent unit
-	 *            group of the unit
-	 *            </p>
-	 */
-	public void setConversionFactor(final double conversionFactor) {
-		support.firePropertyChange("conversionFactor", this.conversionFactor,
-				this.conversionFactor = conversionFactor);
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Setter of the description-field
-	 * </p>
-	 * 
-	 * @param description
-	 *            <p style="margin-top: 0">
-	 *            The description of the unit
-	 *            </p>
-	 */
-	public void setDescription(final String description) {
-		support.firePropertyChange("description", this.description,
-				this.description = description);
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Setter of the name-field
-	 * </p>
-	 * 
-	 * @param name
-	 *            <p style="margin-top: 0">
-	 *            The name of the unit
-	 *            </p>
-	 */
-	public void setName(final String name) {
-		support.firePropertyChange("name", this.name, this.name = name);
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Setter of the synonyms-field
-	 * </p>
-	 * 
-	 * @param synonyms
-	 *            <p style="margin-top: 0">
-	 *            The synonyms of the unit, seperated by a semicolon
-	 *            </p>
-	 */
-	public void setSynonyms(final String synonyms) {
-		support.firePropertyChange("synonyms", this.synonyms,
-				this.synonyms = synonyms);
+	public void setConversionFactor(double conversionFactor) {
+		this.conversionFactor = conversionFactor;
 	}
 
 }

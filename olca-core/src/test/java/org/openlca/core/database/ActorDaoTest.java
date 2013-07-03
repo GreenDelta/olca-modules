@@ -38,7 +38,7 @@ public class ActorDaoTest {
 
 	private Actor createActor() {
 		Actor actor = new Actor();
-		actor.setId(UUID.randomUUID().toString());
+		actor.setRefId(UUID.randomUUID().toString());
 		actor.setName("name");
 		actor.setAddress("addr");
 		return actor;
@@ -49,7 +49,7 @@ public class ActorDaoTest {
 		Category cat = null;
 		List<ActorDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(cat));
-		ActorDescriptor descriptor = ListUtils.findDescriptor(actor.getId(),
+		ActorDescriptor descriptor = ListUtils.findDescriptor(actor.getRefId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
 	}
@@ -59,7 +59,7 @@ public class ActorDaoTest {
 		Category category = addCategory();
 		List<ActorDescriptor> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
-		ActorDescriptor descriptor = ListUtils.findDescriptor(actor.getId(),
+		ActorDescriptor descriptor = ListUtils.findDescriptor(actor.getRefId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
 		TestSession.getDefaultDatabase().createDao(Category.class)
@@ -68,7 +68,7 @@ public class ActorDaoTest {
 
 	private Category addCategory() throws Exception {
 		Category category = new Category();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.ACTOR);
 		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(
@@ -91,7 +91,7 @@ public class ActorDaoTest {
 		Assert.assertTrue(results.size() > 0);
 		boolean found = false;
 		for (Actor a : results)
-			if (Objects.equals(a.getId(), actor.getId()))
+			if (Objects.equals(a.getRefId(), actor.getRefId()))
 				found = true;
 		Assert.assertTrue(found);
 	}

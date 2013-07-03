@@ -31,12 +31,12 @@ public class Index<T extends Indexable> {
 		if (contains(item))
 			return;
 		int idx = map.size();
-		map.put(item.getId(), idx);
+		map.put(item.getRefId(), idx);
 		items.add(item);
 	}
 
 	public boolean contains(T item) {
-		return map.containsKey(item.getId());
+		return map.containsKey(item.getRefId());
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class Index<T extends Indexable> {
 	 * contained in the index.
 	 */
 	public int getIndex(T item) {
-		Integer idx = map.get(item.getId());
+		Integer idx = map.get(item.getRefId());
 		if (idx == null)
 			return -1;
 		return idx;

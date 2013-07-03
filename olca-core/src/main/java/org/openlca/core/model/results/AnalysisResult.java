@@ -3,7 +3,6 @@ package org.openlca.core.model.results;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import org.openlca.core.math.FlowIndex;
 import org.openlca.core.math.IMatrix;
@@ -192,8 +191,8 @@ public class AnalysisResult implements IResultData {
 		double totalVal = getValue(totalImpactResult, row, process);
 		ImpactCategoryResult singleResult = createImpactResult(category,
 				singleVal, nwSet);
-		ImpactCategoryResult totalResult = createImpactResult(category, totalVal,
-				nwSet);
+		ImpactCategoryResult totalResult = createImpactResult(category,
+				totalVal, nwSet);
 		AnalysisImpactResult result = new AnalysisImpactResult();
 		result.setAggregatedResult(totalResult);
 		result.setCategory(category.getName());
@@ -207,7 +206,6 @@ public class AnalysisResult implements IResultData {
 			NormalizationWeightingSet nwSet) {
 		ImpactCategoryResult result = new ImpactCategoryResult();
 		result.setCategory(descriptor.getName());
-		result.setId(UUID.randomUUID().toString());
 		result.setUnit(descriptor.getReferenceUnit());
 		result.setValue(val);
 		if (nwSet == null)

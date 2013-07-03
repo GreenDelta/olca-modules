@@ -82,7 +82,7 @@ public class ContactImport {
 	}
 
 	private void setDescriptionAttributes() {
-		actor.setId(ilcdContact.getId());
+		actor.setRefId(ilcdContact.getId());
 		actor.setName(ilcdContact.getName());
 		actor.setDescription(ilcdContact.getComment());
 		actor.setAddress(ilcdContact.getContactAddress());
@@ -97,7 +97,7 @@ public class ContactImport {
 			database.createDao(Actor.class).insert(actor);
 		} catch (Exception e) {
 			String message = String.format("Cannot save actor %s in database.",
-					actor.getId());
+					actor.getRefId());
 			throw new ImportException(message, e);
 		}
 	}

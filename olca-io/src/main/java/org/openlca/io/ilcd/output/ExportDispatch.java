@@ -55,7 +55,7 @@ class ExportDispatch {
 			IDatabase database, DataStore target) {
 		try {
 			if (!target.contains(org.openlca.ilcd.sources.Source.class,
-					source.getId())) {
+					source.getRefId())) {
 				SourceExport sourceExport = new SourceExport(database, target);
 				sourceExport.run(source);
 			}
@@ -69,7 +69,7 @@ class ExportDispatch {
 	private static DataSetReference checkRunActorExport(Actor actor,
 			IDatabase database, DataStore target) {
 		try {
-			if (!target.contains(Contact.class, actor.getId())) {
+			if (!target.contains(Contact.class, actor.getRefId())) {
 				ActorExport actorExport = new ActorExport(database, target);
 				actorExport.run(actor);
 			}
@@ -84,7 +84,7 @@ class ExportDispatch {
 			IDatabase database, DataStore target) {
 		try {
 			if (!target.contains(org.openlca.ilcd.flows.Flow.class,
-					flow.getId())) {
+					flow.getRefId())) {
 				FlowExport flowExport = new FlowExport(database, target);
 				flowExport.run(flow);
 			}
@@ -100,7 +100,7 @@ class ExportDispatch {
 		try {
 			if (!target.contains(
 					org.openlca.ilcd.flowproperties.FlowProperty.class,
-					flowProperty.getId())) {
+					flowProperty.getRefId())) {
 				FlowPropertyExport propertyExport = new FlowPropertyExport(
 						database, target);
 				propertyExport.run(flowProperty);
@@ -116,7 +116,7 @@ class ExportDispatch {
 			UnitGroup unitGroup, IDatabase database, DataStore target) {
 		try {
 			if (!target.contains(org.openlca.ilcd.units.UnitGroup.class,
-					unitGroup.getId())) {
+					unitGroup.getRefId())) {
 				UnitGroupExport export = new UnitGroupExport(database, target);
 				export.run(unitGroup);
 			}
@@ -131,7 +131,7 @@ class ExportDispatch {
 			IDatabase database, DataStore target) {
 		try {
 			if (!target.contains(org.openlca.ilcd.processes.Process.class,
-					process.getId())) {
+					process.getRefId())) {
 				ProcessExport export = new ProcessExport(database, target);
 				export.run(process);
 			}

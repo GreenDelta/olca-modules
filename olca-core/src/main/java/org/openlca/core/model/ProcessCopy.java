@@ -6,7 +6,7 @@ class ProcessCopy {
 
 	public Process create(Process self) {
 		Process other = new Process();
-		other.setId(UUID.randomUUID().toString());
+		other.setRefId(UUID.randomUUID().toString());
 		other.setName(self.getName());
 		copyFields(self, other);
 		copyExchanges(self, other);
@@ -25,7 +25,7 @@ class ProcessCopy {
 
 	private void copyExchanges(Process self, Process other) {
 		for (Exchange exchange : self.getExchanges()) {
-			Exchange otherExchange = new Exchange(other.getId());
+			Exchange otherExchange = new Exchange();
 			copyExchangeFields(exchange, otherExchange);
 			other.getExchanges().add(otherExchange);
 			if (exchange.equals(self.getQuantitativeReference())) {
@@ -35,7 +35,6 @@ class ProcessCopy {
 	}
 
 	private void copyExchangeFields(Exchange self, Exchange other) {
-		other.setId(UUID.randomUUID().toString());
 		other.setAvoidedProduct(self.isAvoidedProduct());
 		other.getResultingAmount().setValue(
 				self.getResultingAmount().getValue());
@@ -49,13 +48,14 @@ class ProcessCopy {
 
 	private void copyParameters(Process self, Process other) {
 		for (Parameter parameter : self.getParameters()) {
-			Parameter p = new Parameter(UUID.randomUUID().toString(),
-					new Expression(parameter.getExpression().getFormula(),
-							parameter.getExpression().getValue()),
-					ParameterType.PROCESS, other.getId());
-			p.setDescription(parameter.getDescription());
-			p.setName(parameter.getName());
-			other.getParameters().add(p);
+			// TODO: copy process parameters
+			// Parameter p = new Parameter(UUID.randomUUID().toString(),
+			// new Expression(parameter.getExpression().getFormula(),
+			// parameter.getExpression().getValue()),
+			// ParameterType.PROCESS, other.getRefId());
+			// p.setDescription(parameter.getDescription());
+			// p.setName(parameter.getName());
+			// other.getParameters().add(p);
 		}
 	}
 

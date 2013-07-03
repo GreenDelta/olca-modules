@@ -42,13 +42,13 @@ public class ProcessGrouping implements Indexable {
 	}
 
 	@Override
-	public String getId() {
+	public String getRefId() {
 		return name != null ? name : "no name";
 	}
 
 	@Override
 	public int hashCode() {
-		String id = getId();
+		String id = getRefId();
 		if (id != null)
 			return id.hashCode();
 		return super.hashCode();
@@ -63,8 +63,8 @@ public class ProcessGrouping implements Indexable {
 		if (!(obj instanceof ProcessGrouping))
 			return false;
 		ProcessGrouping other = (ProcessGrouping) obj;
-		String id = getId();
-		String otherId = other.getId();
+		String id = getRefId();
+		String otherId = other.getRefId();
 		if (id == null && otherId == null)
 			return true;
 		if (id == null || otherId == null)
@@ -119,7 +119,7 @@ public class ProcessGrouping implements Indexable {
 		List<Process> matches = new ArrayList<>();
 		for (String id : processIds) {
 			for (Process p : processes) {
-				if (p.getId() != null && p.getId().equals(id))
+				if (p.getRefId() != null && p.getRefId().equals(id))
 					matches.add(p);
 			}
 		}

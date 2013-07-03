@@ -30,7 +30,8 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_product_systems")
-public class ProductSystem extends CategorizedEntity implements IParameterisable {
+public class ProductSystem extends CategorizedEntity implements
+		IParameterisable {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
@@ -68,7 +69,7 @@ public class ProductSystem extends CategorizedEntity implements IParameterisable
 		final ProductSystem productSystem = new ProductSystem();
 		productSystem.setCategory(getCategory());
 		productSystem.setDescription(getDescription());
-		productSystem.setId(UUID.randomUUID().toString());
+		productSystem.setRefId(UUID.randomUUID().toString());
 		productSystem.setName(getName());
 		productSystem.setReferenceExchange(getReferenceExchange());
 		productSystem.setReferenceProcess(getReferenceProcess());
@@ -80,13 +81,14 @@ public class ProductSystem extends CategorizedEntity implements IParameterisable
 			productSystem.getProcessLinks().add(processLink.clone());
 		}
 		for (final Parameter parameter : getParameters()) {
-			final Parameter p = new Parameter(UUID.randomUUID().toString(),
-					new Expression(parameter.getExpression().getFormula(),
-							parameter.getExpression().getValue()),
-					ParameterType.PRODUCT_SYSTEM, productSystem.getId());
-			p.setDescription(parameter.getDescription());
-			p.setName(parameter.getName());
-			productSystem.getParameters().add(p);
+			// TODO: clone product system parameters
+			// final Parameter p = new Parameter(UUID.randomUUID().toString(),
+			// new Expression(parameter.getExpression().getFormula(),
+			// parameter.getExpression().getValue()),
+			// ParameterType.PRODUCT_SYSTEM, productSystem.getRefId());
+			// p.setDescription(parameter.getDescription());
+			// p.setName(parameter.getName());
+			// productSystem.getParameters().add(p);
 		}
 		productSystem
 				.setTargetFlowPropertyFactor(getTargetFlowPropertyFactor());
@@ -109,7 +111,7 @@ public class ProductSystem extends CategorizedEntity implements IParameterisable
 	public ProcessLink[] getIncomingLinks(final String processId) {
 		final List<ProcessLink> incoming = new ArrayList<>();
 		for (final ProcessLink link : getProcessLinks(processId)) {
-			if (link.getRecipientProcess().getId().equals(processId)) {
+			if (link.getRecipientProcess().getRefId().equals(processId)) {
 				incoming.add(link);
 			}
 		}
@@ -131,7 +133,7 @@ public class ProductSystem extends CategorizedEntity implements IParameterisable
 	public ProcessLink[] getOutgoingLinks(final String processId) {
 		final List<ProcessLink> outgoing = new ArrayList<>();
 		for (final ProcessLink link : getProcessLinks(processId)) {
-			if (link.getProviderProcess().getId().equals(processId)) {
+			if (link.getProviderProcess().getRefId().equals(processId)) {
 				outgoing.add(link);
 			}
 		}
@@ -152,8 +154,8 @@ public class ProductSystem extends CategorizedEntity implements IParameterisable
 	public ProcessLink[] getProcessLinks(final String processId) {
 		final List<ProcessLink> processLinks = new ArrayList<>();
 		for (final ProcessLink processLink : getProcessLinks()) {
-			if (processLink.getProviderProcess().getId().equals(processId)
-					|| processLink.getRecipientProcess().getId()
+			if (processLink.getProviderProcess().getRefId().equals(processId)
+					|| processLink.getRecipientProcess().getRefId()
 							.equals(processId)) {
 				processLinks.add(processLink);
 			}

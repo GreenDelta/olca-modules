@@ -71,7 +71,7 @@ public class ContributionTreeCalculator {
 			ContributionTreeNode node = queue.poll();
 			handled.add(node);
 			for (ProcessLink link : system.getIncomingLinks(node.getProcess()
-					.getId())) {
+					.getRefId())) {
 				Process provider = link.getProviderProcess();
 				double rawAmount = fn.getAmount(provider);
 				double factor = linkContributions.getShare(link);

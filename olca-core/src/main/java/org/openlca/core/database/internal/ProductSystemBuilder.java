@@ -73,8 +73,8 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 	public void autoComplete(ProductSystem system, Process process) {
 		try (Connection con = database.createConnection()) {
 			log.trace("auto complete product system {}", system);
-			prepareStatments(con, system.getId());
-			run(system, process.getId());
+			prepareStatments(con, system.getRefId());
+			run(system, process.getRefId());
 			clearStatements();
 			database.getEntityFactory().getCache().evictAll();
 		} catch (Exception e) {
@@ -90,13 +90,13 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 		Queue<String> processes = new LinkedList<>();
 		productSystemProcesses.add(startProcessId);
 		for (Process process : productSystem.getProcesses()) {
-			productSystemProcesses.add(process.getId());
+			productSystemProcesses.add(process.getRefId());
 		}
 		// get existing links
 		Map<String, org.openlca.core.model.ProcessLink> existingLinks = new HashMap<>();
 		for (org.openlca.core.model.ProcessLink link : productSystem
 				.getProcessLinks()) {
-			existingLinks.put(link.getRecipientInput().getId(), link);
+			existingLinks.put(link.getRecipientInput().getRefId(), link);
 		}
 		processes.add(startProcessId);
 
@@ -110,11 +110,11 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 					completeLink(link);
 				} else {
 					if (!productSystemProcesses.contains(existingLink
-							.getProviderProcess().getId())) {
+							.getProviderProcess().getRefId())) {
 						processes
-								.add(existingLink.getProviderProcess().getId());
+								.add(existingLink.getProviderProcess().getRefId());
 						productSystemProcesses.add(existingLink
-								.getProviderProcess().getId());
+								.getProviderProcess().getRefId());
 					}
 				}
 			}

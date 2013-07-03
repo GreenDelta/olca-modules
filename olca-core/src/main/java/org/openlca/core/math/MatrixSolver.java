@@ -51,7 +51,7 @@ public class MatrixSolver {
 		double[] g = MatrixMethod.solve(system, matrix);
 		List<Exchange> exchanges = ExchangeResultList
 				.on(database)
-				.withOwner(system.getId())
+				.withOwner(system.getRefId())
 				.withReferenceFlow(system.getReferenceExchange().getFlow(),
 						system.getConvertedTargetAmount())
 				.create(matrix.getFlowIndex(), g);
@@ -61,7 +61,7 @@ public class MatrixSolver {
 	private InventoryResult createInventoryResult(ProductSystem system,
 			List<Exchange> inventory) {
 		InventoryResult result = new InventoryResult();
-		result.setProductSystemId(system.getId());
+		result.setProductSystemId(system.getRefId());
 		result.setProductSystemName(system.getName());
 		result.setProductName(system.getReferenceExchange().getFlow().getName());
 		result.setUnitName(system.getTargetUnit().getName());

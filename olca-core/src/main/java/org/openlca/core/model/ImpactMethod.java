@@ -41,7 +41,7 @@ public class ImpactMethod extends CategorizedEntity implements IParameterisable 
 	@Override
 	public ImpactMethod clone() {
 		ImpactMethod lciaMethod = new ImpactMethod();
-		lciaMethod.setId(UUID.randomUUID().toString());
+		lciaMethod.setRefId(UUID.randomUUID().toString());
 		lciaMethod.setName(getName());
 		lciaMethod.setCategory(getCategory());
 		lciaMethod.setDescription(getDescription());

@@ -56,13 +56,13 @@ public class FlowExport {
 				.withFlowProperties(flowPropRefs).withFlowType(getFlowType())
 				.withReferenceFlowPropertyId(0).getFlow();
 		addLocation(iFlow);
-		dataStore.put(iFlow, flow.getId());
+		dataStore.put(iFlow, flow.getRefId());
 		return iFlow;
 	}
 
 	private void loadFlow(Flow flow) throws DataStoreException {
 		try {
-			this.flow = database.createDao(Flow.class).getForId(flow.getId());
+			this.flow = database.createDao(Flow.class).getForId(flow.getRefId());
 		} catch (Exception e) {
 			throw new DataStoreException("Cannot load flow from database.", e);
 		}
@@ -70,7 +70,7 @@ public class FlowExport {
 
 	private DataSetInformation makeDataSetInfo() {
 		DataSetInformation dataSetInfo = new DataSetInformation();
-		dataSetInfo.setUUID(flow.getId());
+		dataSetInfo.setUUID(flow.getRefId());
 		FlowName flowName = new FlowName();
 		dataSetInfo.setName(flowName);
 		LangString.addLabel(flowName.getBaseName(), flow.getName());

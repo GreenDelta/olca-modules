@@ -116,7 +116,7 @@ public class EcoSpold01Parser {
 			if (db.findActor(person, genKey) != null)
 				continue;
 			Actor actor = new Actor();
-			actor.setId(genKey);
+			actor.setRefId(genKey);
 			Mapper.mapPerson(person, actor);
 			db.put(actor, genKey);
 		}
@@ -128,7 +128,7 @@ public class EcoSpold01Parser {
 			if (db.findSource(eSource, sourceId) != null)
 				continue;
 			Source oSource = new Source();
-			oSource.setId(sourceId);
+			oSource.setRefId(sourceId);
 			Mapper.mapSource(eSource, oSource);
 			db.put(oSource, sourceId);
 		}
@@ -148,7 +148,7 @@ public class EcoSpold01Parser {
 		Location location = db.findLocation(locationCode, genKey);
 		if (location == null) {
 			location = new Location();
-			location.setId(genKey);
+			location.setRefId(genKey);
 			location.setName(locationCode);
 			location.setCode(locationCode);
 			db.put(location, genKey);
@@ -164,9 +164,9 @@ public class EcoSpold01Parser {
 		}
 
 		process = new Process();
-		process.setId(processId);
+		process.setRefId(processId);
 		ProcessDocumentation documentation = new ProcessDocumentation();
-		documentation.setId(processId);
+		documentation.setRefId(processId);
 
 		if (dataSet.getReferenceFunction() != null) {
 			process.setDescription(dataSet.getReferenceFunction()
@@ -246,7 +246,7 @@ public class EcoSpold01Parser {
 			for (Integer i : allocation.getReferenceToInputOutput()) {
 				Exchange exchange = localExchangeCache.get(i);
 				AllocationFactor allocationFactor = new AllocationFactor(UUID
-						.randomUUID().toString(), product.getId(), factor);
+						.randomUUID().toString(), product.getRefId(), factor);
 				exchange.add(allocationFactor);
 			}
 		}
@@ -260,9 +260,9 @@ public class EcoSpold01Parser {
 				log.error("Could not import flow {}", inExchange);
 				continue;
 			}
-			Exchange outExchange = new Exchange(ioProcess.getId());
+			Exchange outExchange = new Exchange(ioProcess.getRefId());
 			outExchange.setFlow(flow.flow);
-			outExchange.setId(UUID.randomUUID().toString());
+			outExchange.setRefId(UUID.randomUUID().toString());
 			outExchange.setUnit(flow.unit);
 			outExchange.setFlowPropertyFactor(flow.flowProperty);
 			outExchange.setInput(inExchange.getInputGroup() != null);
@@ -289,7 +289,7 @@ public class EcoSpold01Parser {
 				continue;
 			}
 			ImpactFactor factor = new ImpactFactor();
-			factor.setId(UUID.randomUUID().toString());
+			factor.setRefId(UUID.randomUUID().toString());
 			factor.setFlow(flow.flow);
 			factor.setFlowPropertyFactor(flow.flowProperty);
 			factor.setUnit(flow.unit);
@@ -300,7 +300,7 @@ public class EcoSpold01Parser {
 
 	private ImpactCategory mapReferenceFunction(IReferenceFunction inRefFunction) {
 		ImpactCategory category = new ImpactCategory();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		String name = inRefFunction.getSubCategory();
 		if (inRefFunction.getName() != null) {
 			name = name.concat(" - ").concat(inRefFunction.getName());
@@ -337,9 +337,9 @@ public class EcoSpold01Parser {
 			log.warn("Could not create reference flow {}", dataSet);
 			return;
 		}
-		Exchange outExchange = new Exchange(ioProcess.getId());
+		Exchange outExchange = new Exchange(ioProcess.getRefId());
 		outExchange.setFlow(flow.flow);
-		outExchange.setId(UUID.randomUUID().toString());
+		outExchange.setRefId(UUID.randomUUID().toString());
 		outExchange.setUnit(flow.unit);
 		outExchange.setFlowPropertyFactor(flow.flowProperty);
 		outExchange.setInput(false);
@@ -381,7 +381,7 @@ public class EcoSpold01Parser {
 		}
 
 		method = new ImpactMethod();
-		method.setId(methodId);
+		method.setRefId(methodId);
 		method.setName(dataSet.getReferenceFunction().getCategory());
 		method.setDescription(dataSet.getReferenceFunction()
 				.getGeneralComment());

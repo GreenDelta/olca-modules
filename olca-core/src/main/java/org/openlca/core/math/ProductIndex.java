@@ -42,8 +42,8 @@ public class ProductIndex {
 				system.getReferenceExchange());
 		for (ProcessLink link : system.getProcessLinks()) {
 			indexProduct(link.getProviderProcess(), link.getProviderOutput());
-			inputOutputLinks.put(link.getRecipientInput().getId(), link
-					.getProviderOutput().getId());
+			inputOutputLinks.put(link.getRecipientInput().getRefId(), link
+					.getProviderOutput().getRefId());
 		}
 		log.trace("product index with {} entries created", size());
 	}
@@ -60,24 +60,24 @@ public class ProductIndex {
 	}
 
 	public int getIndex(Process process, Exchange product) {
-		return getIndex(product.getId());
+		return getIndex(product.getRefId());
 	}
 
 	public boolean contains(Process process, Exchange product) {
-		return productIndex.containsKey(product.getId());
+		return productIndex.containsKey(product.getRefId());
 	}
 
 	private void indexProduct(Process process, Exchange exchange) {
-		String key = exchange.getId();
+		String key = exchange.getRefId();
 		Integer idx = productIndex.get(key);
 		if (idx != null)
 			return; // already indexed
 		idx = productIndex.size();
 		productIndex.put(key, idx);
-		List<String> products = processProducts.get(process.getId());
+		List<String> products = processProducts.get(process.getRefId());
 		if (products == null) {
 			products = new ArrayList<>();
-			processProducts.put(process.getId(), products);
+			processProducts.put(process.getRefId(), products);
 		}
 		products.add(key);
 		processes.add(process);
@@ -86,7 +86,7 @@ public class ProductIndex {
 
 	/** Get the exchange IDs of the output products of the given process. */
 	public List<String> getProducts(Process process) {
-		List<String> products = processProducts.get(process.getId());
+		List<String> products = processProducts.get(process.getRefId());
 		if (products == null)
 			return Collections.emptyList();
 		return products;
@@ -101,11 +101,11 @@ public class ProductIndex {
 	}
 
 	public boolean isLinkedInput(Exchange exchange) {
-		return inputOutputLinks.containsKey(exchange.getId());
+		return inputOutputLinks.containsKey(exchange.getRefId());
 	}
 
 	public String getLinkedOutputKey(Exchange input) {
-		return inputOutputLinks.get(input.getId());
+		return inputOutputLinks.get(input.getRefId());
 	}
 
 	/**

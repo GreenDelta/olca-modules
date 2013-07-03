@@ -19,7 +19,7 @@ public class CostMatrixSolver {
 		CostMatrix matrix = builder.build();
 		if (matrix.isEmpty())
 			return new SimpleCostResult(null, new double[0]);
-		String refProduct = system.getReferenceExchange().getId();
+		String refProduct = system.getReferenceExchange().getRefId();
 		double refAmount = system.getConvertedTargetAmount();
 		double[] costs = doCalc(matrix, refProduct, refAmount);
 		return new SimpleCostResult(matrix.getCostCategoryIndex(), costs);

@@ -109,7 +109,7 @@ public class ProcessImport {
 	}
 
 	private void createAndMapContent() throws ImportException {
-		process.setId(ilcdProcess.getId());
+		process.setRefId(ilcdProcess.getId());
 		process.setName(Strings.cut(ilcdProcess.getName(), 254));
 		process.setDescription(ilcdProcess.getComment());
 		mapDocumentation();
@@ -122,7 +122,7 @@ public class ProcessImport {
 
 	private void mapDocumentation() throws ImportException {
 		documentation = new ProcessDocumentation();
-		documentation.setId(ilcdProcess.getId());
+		documentation.setRefId(ilcdProcess.getId());
 		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime());
 		processTime.map(documentation);
 		mapGeography();
@@ -155,7 +155,7 @@ public class ProcessImport {
 					if (location == null) {
 						location = new Location();
 						location.setCode(locationCode);
-						location.setId(locationId);
+						location.setRefId(locationId);
 						location.setName(locationCode);
 						database.createDao(Location.class).insert(location);
 					}
@@ -367,7 +367,7 @@ public class ProcessImport {
 			return contactImport.run(reference.getUuid());
 		} catch (Exception e) {
 			log.warn("Failed to get contact {} referenced from process {}",
-					reference.getUuid(), process.getId());
+					reference.getUuid(), process.getRefId());
 			return null;
 		}
 	}
@@ -380,7 +380,7 @@ public class ProcessImport {
 			return sourceImport.run(reference.getUuid());
 		} catch (Exception e) {
 			log.warn("Failed to get source {} referenced from process {}",
-					reference.getUuid(), process.getId());
+					reference.getUuid(), process.getRefId());
 			return null;
 		}
 	}
@@ -392,7 +392,7 @@ public class ProcessImport {
 			database.createDao(clazz).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
-					"Save operation failed in process %s.", process.getId());
+					"Save operation failed in process %s.", process.getRefId());
 			throw new ImportException(message, e);
 		}
 	}

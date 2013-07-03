@@ -138,7 +138,7 @@ public class ImpactMethodDao extends BaseDao<ImpactMethod> implements
 		EntityManager em = createManager();
 		try {
 			TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
-			query.setParameter("methodId", methodDescriptor.getId());
+			query.setParameter("methodId", methodDescriptor.getRefId());
 			return fetchNwSets(query);
 		} catch (Exception e) {
 			log.error("Failed to get nw-sets", e);
@@ -154,7 +154,6 @@ public class ImpactMethodDao extends BaseDao<ImpactMethod> implements
 		List<NormalizationWeightingSet> results = new ArrayList<>();
 		for (Object[] object : objects) {
 			NormalizationWeightingSet nwSet = new NormalizationWeightingSet();
-			nwSet.setId((String) object[0]);
 			nwSet.setReferenceSystem((String) object[1]);
 			nwSet.setUnit((String) object[2]);
 			results.add(nwSet);

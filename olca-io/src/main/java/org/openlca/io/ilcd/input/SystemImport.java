@@ -68,7 +68,7 @@ public class SystemImport {
 	private ProductSystem createNew() throws ImportException {
 		system = new ProductSystem();
 		ProductModel model = ilcdProcessBag.getProductModel();
-		system.setId(ilcdProcessBag.getId());
+		system.setRefId(ilcdProcessBag.getId());
 		system.setName(model.getName());
 		importAndSetCategory();
 		mapContent();
@@ -129,7 +129,7 @@ public class SystemImport {
 
 	private Exchange findExchange(Process process, String flowId, boolean input) {
 		for (Exchange e : process.getExchanges()) {
-			if (e.getFlow().getId().equals(flowId) && e.isInput() == input)
+			if (e.getFlow().getRefId().equals(flowId) && e.isInput() == input)
 				return e;
 		}
 		return null;
@@ -149,7 +149,7 @@ public class SystemImport {
 		ProductModel model = ilcdProcessBag.getProductModel();
 		for (Connector con : model.getConnections()) {
 			ProcessLink link = new ProcessLink();
-			link.setId(UUID.randomUUID().toString());
+			link.setRefId(UUID.randomUUID().toString());
 			Process provider = processes.get(con.getOrigin());
 			link.setProviderProcess(provider);
 			Product product = con.getProducts().get(0);
@@ -167,7 +167,7 @@ public class SystemImport {
 	}
 
 	private boolean valid(ProcessLink link) {
-		return link.getId() != null && link.getProviderProcess() != null
+		return link.getRefId() != null && link.getProviderProcess() != null
 				&& link.getProviderOutput() != null
 				&& link.getRecipientProcess() != null
 				&& link.getRecipientInput() != null;
@@ -190,7 +190,7 @@ public class SystemImport {
 
 	private org.openlca.core.model.Parameter convert(Parameter iParam) {
 		Expression exp = new Expression(iParam.getFormula(), iParam.getValue());
-		String owner = system.getId();
+		String owner = system.getRefId();
 		ParameterType type = ParameterType.PRODUCT_SYSTEM;
 		if (iParam.getScope() == ParameterScopeValues.GLOBAL) {
 			owner = null;

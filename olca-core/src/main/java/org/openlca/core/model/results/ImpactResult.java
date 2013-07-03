@@ -139,7 +139,7 @@ public class ImpactResult extends CategorizedEntity {
 		ImpactResult clone = new ImpactResult();
 		clone.setCategory(getCategory());
 		clone.setDescription(getDescription());
-		clone.setId(UUID.randomUUID().toString());
+		clone.setRefId(UUID.randomUUID().toString());
 		// TODO: not yet implemented
 		return clone;
 	}

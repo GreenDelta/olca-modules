@@ -30,7 +30,7 @@ public class BaseDescriptor implements Indexable, Comparable<BaseDescriptor>,
 	}
 
 	@Override
-	public String getId() {
+	public String getRefId() {
 		return id;
 	}
 

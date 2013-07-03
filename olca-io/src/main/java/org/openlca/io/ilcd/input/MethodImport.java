@@ -101,7 +101,7 @@ public class MethodImport {
 		org.openlca.core.model.ImpactMethod method = dao.getForId(id);
 		if (method == null) {
 			method = new org.openlca.core.model.ImpactMethod();
-			method.setId(id);
+			method.setRefId(id);
 			method.setName(name);
 			dao.insert(method);
 		}
@@ -122,7 +122,7 @@ public class MethodImport {
 		log.trace("Add category {} to {}", categoryName, oMethod);
 		String categoryUnit = getCategoryUnit(iMethod);
 		ImpactCategory category = new ImpactCategory();
-		category.setId(UUID.randomUUID().toString());
+		category.setRefId(UUID.randomUUID().toString());
 		category.setName(categoryName);
 		category.setReferenceUnit(categoryUnit);
 		for (Factor factor : iMethod.getCharacterisationFactors().getFactor()) {
@@ -180,7 +180,7 @@ public class MethodImport {
 			ImpactFactor oFactor = new ImpactFactor();
 			oFactor.setFlow(flow);
 			oFactor.setFlowPropertyFactor(flow.getReferenceFactor());
-			oFactor.setId(UUID.randomUUID().toString());
+			oFactor.setRefId(UUID.randomUUID().toString());
 			oFactor.setUnit(getRefUnit(flow));
 			oFactor.setValue(factor.getMeanValue());
 			category.getImpactFactors().add(oFactor);

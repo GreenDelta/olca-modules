@@ -134,7 +134,7 @@ public class Descriptors {
 		ImpactCategoryDescriptor descriptor = new ImpactCategoryDescriptor();
 		descriptor.setType(ModelType.IMPACT_CATEGORY);
 		descriptor.setDescription(impactCategory.getDescription());
-		descriptor.setId(impactCategory.getId());
+		descriptor.setId(impactCategory.getRefId());
 		descriptor.setName(impactCategory.getName());
 		descriptor.setReferenceUnit(impactCategory.getReferenceUnit());
 		return descriptor;
@@ -143,14 +143,14 @@ public class Descriptors {
 	private static void setBaseValues(CategorizedEntity component,
 			BaseDescriptor descriptor) {
 		descriptor.setDescription(component.getDescription());
-		descriptor.setId(component.getId());
+		descriptor.setId(component.getRefId());
 		descriptor.setName(component.getName());
 	}
 
 	private static BaseDescriptor createUnknownDescriptor(CategorizedEntity component) {
 		BaseDescriptor descriptor = new BaseDescriptor();
 		descriptor.setDescription(component.getDescription());
-		descriptor.setId(component.getId());
+		descriptor.setId(component.getRefId());
 		descriptor.setName(component.getName());
 		descriptor.setType(ModelType.UNKNOWN);
 		return descriptor;

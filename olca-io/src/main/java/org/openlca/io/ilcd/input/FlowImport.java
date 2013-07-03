@@ -104,7 +104,7 @@ public class FlowImport {
 	private void createAndMapContent() throws ImportException {
 		validateInput();
 		setFlowType();
-		flow.setId(ilcdFlow.getId());
+		flow.setRefId(ilcdFlow.getId());
 		flow.setName(Strings.cut(ilcdFlow.getName(), 254));
 		flow.setDescription(ilcdFlow.getComment());
 		flow.setCasNumber(ilcdFlow.getCasNumber());
@@ -126,7 +126,7 @@ public class FlowImport {
 			FlowProperty flowProperty = flowPropertyImport.run(prop
 					.getFlowProperty().getUuid());
 			FlowPropertyFactor factor = new FlowPropertyFactor();
-			factor.setId(UUID.randomUUID().toString());
+			factor.setRefId(UUID.randomUUID().toString());
 			factor.setFlowProperty(flowProperty);
 			factor.setConversionFactor(prop.getMeanValue());
 			flow.getFlowPropertyFactors().add(factor);
@@ -173,7 +173,7 @@ public class FlowImport {
 		}
 		if (internalId == null || propRef == null) {
 			String message = "Invalid flow data set: no ref. flow property, flow "
-					+ flow.getId();
+					+ flow.getRefId();
 			throw new ImportException(message);
 		}
 		if (propRef.getUri() != null) {
@@ -190,7 +190,7 @@ public class FlowImport {
 			database.createDao(Flow.class).insert(obj);
 		} catch (Exception e) {
 			String message = String.format("Save operation failed in flow %s.",
-					flow.getId());
+					flow.getRefId());
 			throw new ImportException(message, e);
 		}
 	}

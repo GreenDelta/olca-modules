@@ -106,7 +106,7 @@ public class Project extends CategorizedEntity {
 	@Override
 	public Project clone() {
 		final Project project = new Project();
-		project.setId(UUID.randomUUID().toString());
+		project.setRefId(UUID.randomUUID().toString());
 		project.setName(getName());
 		project.setAuthor(getAuthor());
 		project.setCategory(getCategory());

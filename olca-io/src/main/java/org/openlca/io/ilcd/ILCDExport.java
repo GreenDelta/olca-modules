@@ -90,45 +90,45 @@ public class ILCDExport {
 			throws Exception {
 		if (component instanceof ProductSystem) {
 			ProductSystem system = database.createDao(ProductSystem.class)
-					.getForId(component.getId());
+					.getForId(component.getRefId());
 			SystemExport export = new SystemExport(database, ilcdStore);
 			export.run(system);
 		}
 
 		if (component instanceof Process) {
 			Process process = database.createDao(Process.class).getForId(
-					component.getId());
+					component.getRefId());
 			ProcessExport export = new ProcessExport(database, ilcdStore);
 			export.run(process);
 
 		} else if (component instanceof Flow) {
 			Flow flow = database.createDao(Flow.class).getForId(
-					component.getId());
+					component.getRefId());
 			FlowExport flowExport = new FlowExport(database, ilcdStore);
 			flowExport.run(flow);
 
 		} else if (component instanceof FlowProperty) {
 			FlowProperty property = database.createDao(FlowProperty.class)
-					.getForId(component.getId());
+					.getForId(component.getRefId());
 			FlowPropertyExport export = new FlowPropertyExport(database,
 					ilcdStore);
 			export.run(property);
 
 		} else if (component instanceof UnitGroup) {
 			UnitGroup unitGroup = database.createDao(UnitGroup.class).getForId(
-					component.getId());
+					component.getRefId());
 			UnitGroupExport export = new UnitGroupExport(database, ilcdStore);
 			export.run(unitGroup);
 
 		} else if (component instanceof Actor) {
 			Actor actor = database.createDao(Actor.class).getForId(
-					component.getId());
+					component.getRefId());
 			ActorExport export = new ActorExport(database, ilcdStore);
 			export.run(actor);
 
 		} else if (component instanceof Source) {
 			Source source = database.createDao(Source.class).getForId(
-					component.getId());
+					component.getRefId());
 			SourceExport export = new SourceExport(database, ilcdStore);
 			export.run(source);
 		}
