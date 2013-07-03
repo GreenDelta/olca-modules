@@ -16,6 +16,18 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 		super(clazz, factory);
 	}
 
+	public BaseDescriptor getDescriptor(long id) {
+		String jpql = getDescriptorQuery() + " where e.id = :id";
+		try {
+			Object[] result = Query.on(getEntityFactory()).getFirst(
+					Object[].class, jpql, Collections.singletonMap("id", id));
+			return createDescriptor(result);
+		} catch (Exception e) {
+			log.error("failed to get descriptor for " + id, e);
+			return null;
+		}
+	}
+
 	/**
 	 * Returns all descriptors of the entity type of this DAO from the database.
 	 */

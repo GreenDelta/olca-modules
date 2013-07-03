@@ -12,7 +12,14 @@ import org.openlca.core.TestSession;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
+import org.openlca.core.model.Source;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +35,14 @@ public class CategorizedEntityDaoTest {
 		EntityManagerFactory emf = TestSession.getDefaultDatabase()
 				.getEntityFactory();
 		run(Actor.class, new ActorDao(emf));
+		run(Source.class, new SourceDao(emf));
+		run(UnitGroup.class, new UnitGroupDao(emf));
+		run(FlowProperty.class, new FlowPropertyDao(emf));
+		run(Flow.class, new FlowDao(emf));
+		run(org.openlca.core.model.Process.class, new ProcessDao(emf));
+		run(ImpactMethod.class, new ImpactMethodDao(emf));
+		run(ProductSystem.class, new ProductSystemDao(emf));
+		run(Project.class, new ProjectDao(emf));
 	}
 
 	private <T extends CategorizedEntity> void run(Class<T> clazz,
