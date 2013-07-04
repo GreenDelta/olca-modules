@@ -49,7 +49,6 @@ public class SystemExport {
 
 	public Process run(ProductSystem system) throws DataStoreException {
 		log.trace("Run product system export with {}", system);
-		loadSystem(system);
 		if (!canRun()) {
 			log.error("System {} is not valid and cannot exported", system);
 			return null;
@@ -109,7 +108,8 @@ public class SystemExport {
 			ConsumedBy consumedBy = new ConsumedBy();
 			product.setConsumedBy(consumedBy);
 			consumedBy.setAmount(link.getRecipientInput().getConvertedResult());
-			consumedBy.setFlowUUID(link.getRecipientInput().getFlow().getRefId());
+			consumedBy.setFlowUUID(link.getRecipientInput().getFlow()
+					.getRefId());
 			consumedBy.setProcessId(link.getRecipientProcess().getRefId());
 		}
 	}
@@ -133,15 +133,6 @@ public class SystemExport {
 	private boolean canRun() {
 		return system.getReferenceExchange() != null
 				&& system.getReferenceProcess() != null;
-	}
-
-	private void loadSystem(ProductSystem system) throws DataStoreException {
-		try {
-			this.system = database.createDao(ProductSystem.class).getForId(
-					system.getRefId());
-		} catch (Exception e) {
-			throw new DataStoreException("Cannot load system from database", e);
-		}
 	}
 
 	private DataSetInformation makeDataSetInfo() {

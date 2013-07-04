@@ -42,7 +42,6 @@ public class FlowPropertyExport {
 
 	public org.openlca.ilcd.flowproperties.FlowProperty run(
 			FlowProperty flowProperty) throws DataStoreException {
-		loadProperty(flowProperty);
 		DataSetInformation dataSetInfo = makeDataSetInfo();
 		DataSetReference unitGroupRef = makeUnitGroupRef();
 		org.openlca.ilcd.flowproperties.FlowProperty iProperty = FlowPropertyBuilder
@@ -51,16 +50,6 @@ public class FlowPropertyExport {
 				.withUnitGroupReference(unitGroupRef).getFlowProperty();
 		dataStore.put(iProperty, flowProperty.getRefId());
 		return iProperty;
-	}
-
-	private void loadProperty(FlowProperty property) throws DataStoreException {
-		try {
-			this.flowProperty = database.createDao(FlowProperty.class)
-					.getForId(property.getRefId());
-		} catch (Exception e) {
-			throw new DataStoreException(
-					"Cannot load flow property from database.", e);
-		}
 	}
 
 	private DataSetInformation makeDataSetInfo() {

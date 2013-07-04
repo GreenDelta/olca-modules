@@ -1,7 +1,6 @@
 package org.openlca.io.ilcd.input;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
@@ -52,8 +51,7 @@ class ProcessParameterConversion {
 			owner = null;
 			type = ParameterType.DATABASE;
 		}
-		Parameter param = new Parameter(UUID.randomUUID().toString(),
-				expression, type, owner);
+		Parameter param = new Parameter(expression, type, owner);
 		param.setName(iParameter.getName());
 		param.setDescription(LangString.getLabel(iParameter.getComment()));
 		return param;

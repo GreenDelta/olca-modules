@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
@@ -39,7 +41,6 @@ public class ProcessImport {
 	private ProcessBag ilcdProcess;
 	private Process process;
 	private FlowMap flowMap;
-	private ProcessDocumentation documentation;
 
 	public ProcessImport(DataStore dataStore, IDatabase database) {
 		this.database = database;
@@ -70,7 +71,8 @@ public class ProcessImport {
 
 	private Process findExisting(String processId) throws ImportException {
 		try {
-			return database.createDao(Process.class).getForId(processId);
+			ProcessDao dao = new ProcessDao(database.getEntityFactory());
+			return dao.getForRefId(processId);
 		} catch (Exception e) {
 			String message = String.format("Search for process %s failed.",
 					processId);
@@ -112,7 +114,8 @@ public class ProcessImport {
 		process.setRefId(ilcdProcess.getId());
 		process.setName(Strings.cut(ilcdProcess.getName(), 254));
 		process.setDescription(ilcdProcess.getComment());
-		mapDocumentation();
+		ProcessDocumentation doc = mapDocumentation();
+		process.setDocumentation(doc);
 		ProcessParameterConversion paramConv = new ProcessParameterConversion(
 				process, database);
 		paramConv.run(ilcdProcess);
@@ -120,24 +123,23 @@ public class ProcessImport {
 				.to(database, process);
 	}
 
-	private void mapDocumentation() throws ImportException {
-		documentation = new ProcessDocumentation();
-		documentation.setRefId(ilcdProcess.getId());
+	private ProcessDocumentation mapDocumentation() throws ImportException {
+		ProcessDocumentation doc = new ProcessDocumentation();
 		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime());
-		processTime.map(documentation);
-		mapGeography();
-		mapTechnology();
-		mapPublication();
-		mapDataEntry();
-		mapDataGenerator();
-		mapComissionerAndGoal();
-		mapLciMethod();
-		mapRepresentativeness();
-		mapReviews();
-		saveInDatabase(documentation);
+		processTime.map(doc);
+		mapGeography(doc);
+		mapTechnology(doc);
+		mapPublication(doc);
+		mapDataEntry(doc);
+		mapDataGenerator(doc);
+		mapComissionerAndGoal(doc);
+		mapLciMethod(doc);
+		mapRepresentativeness(doc);
+		mapReviews(doc);
+		return doc;
 	}
 
-	private void mapGeography() throws ImportException {
+	private void mapGeography(ProcessDocumentation doc) throws ImportException {
 		Geography iGeography = ilcdProcess.getGeography();
 		if (iGeography != null) {
 
@@ -148,8 +150,9 @@ public class ProcessImport {
 					String locationId = KeyGen.get(locationCode);
 
 					// find a location
-					Location location = database.createDao(Location.class)
-							.getForId(locationId);
+					RootEntityDao<Location> locDao = new RootEntityDao<>(
+							Location.class, database.getEntityFactory());
+					Location location = locDao.getForRefId(locationId);
 
 					// create a new location
 					if (location == null) {
@@ -168,23 +171,23 @@ public class ProcessImport {
 
 			// comment
 			if (iGeography.getLocation() != null) {
-				documentation.setGeography(LangString.getFreeText(iGeography
+				doc.setGeography(LangString.getFreeText(iGeography
 						.getLocation().getDescription()));
 			}
 
 		}
 	}
 
-	private void mapTechnology() throws ImportException {
+	private void mapTechnology(ProcessDocumentation doc) throws ImportException {
 		org.openlca.ilcd.processes.Technology iTechnology = ilcdProcess
 				.getTechnology();
 		if (iTechnology != null) {
-			documentation.setTechnology(LangString.getFreeText(iTechnology
+			doc.setTechnology(LangString.getFreeText(iTechnology
 					.getTechnologyDescriptionAndIncludedProcesses()));
 		}
 	}
 
-	private void mapPublication() {
+	private void mapPublication(ProcessDocumentation doc) {
 		Publication iPublication = ilcdProcess.getPublication();
 		if (iPublication != null) {
 
@@ -192,30 +195,30 @@ public class ProcessImport {
 			DataSetReference ownerRef = iPublication
 					.getReferenceToOwnershipOfDataSet();
 			if (ownerRef != null)
-				documentation.setDataSetOwner(fetchActor(ownerRef));
+				doc.setDataSetOwner(fetchActor(ownerRef));
 
 			// publication
 			DataSetReference publicationRef = iPublication
 					.getReferenceToUnchangedRepublication();
 			if (publicationRef != null)
-				documentation.setPublication(fetchSource(publicationRef));
+				doc.setPublication(fetchSource(publicationRef));
 
 			// access and use restrictions
-			documentation.setRestrictions(LangString.getFreeText(iPublication
+			doc.setRestrictions(LangString.getFreeText(iPublication
 					.getAccessRestrictions()));
 
 			// version
-			documentation.setVersion(iPublication.getDataSetVersion());
+			doc.setVersion(iPublication.getDataSetVersion());
 
 			// copyright
 			if (iPublication.isCopyright() != null) {
-				documentation.setCopyright(iPublication.isCopyright());
+				doc.setCopyright(iPublication.isCopyright());
 			}
 
 		}
 	}
 
-	private void mapDataEntry() {
+	private void mapDataEntry(ProcessDocumentation doc) {
 		DataEntry iEntry = ilcdProcess.getDataEntry();
 		if (iEntry != null) {
 
@@ -223,42 +226,42 @@ public class ProcessImport {
 			if (iEntry.getTimeStamp() != null) {
 				Date tStamp = iEntry.getTimeStamp().toGregorianCalendar()
 						.getTime();
-				documentation.setCreationDate(tStamp);
-				documentation.setLastChange(tStamp);
+				doc.setCreationDate(tStamp);
+				doc.setLastChange(tStamp);
 			}
 
 			if (iEntry.getReferenceToPersonOrEntityEnteringTheData() != null) {
 				Actor documentor = fetchActor(iEntry
 						.getReferenceToPersonOrEntityEnteringTheData());
-				documentation.setDataDocumentor(documentor);
+				doc.setDataDocumentor(documentor);
 			}
 		}
 	}
 
-	private void mapDataGenerator() {
+	private void mapDataGenerator(ProcessDocumentation doc) {
 		if (ilcdProcess.getDataGenerator() != null) {
 			List<DataSetReference> refs = ilcdProcess.getDataGenerator()
 					.getReferenceToPersonOrEntityGeneratingTheDataSet();
 			if (refs != null && !refs.isEmpty()) {
 				DataSetReference generatorRef = refs.get(0);
-				documentation.setDataGenerator(fetchActor(generatorRef));
+				doc.setDataGenerator(fetchActor(generatorRef));
 			}
 		}
 	}
 
-	private void mapComissionerAndGoal() {
+	private void mapComissionerAndGoal(ProcessDocumentation doc) {
 		if (ilcdProcess.getCommissionerAndGoal() != null) {
 			CommissionerAndGoal comAndGoal = ilcdProcess
 					.getCommissionerAndGoal();
 			String intendedApp = LangString.getFreeText(comAndGoal
 					.getIntendedApplications());
-			documentation.setIntendedApplication(intendedApp);
+			doc.setIntendedApplication(intendedApp);
 			String project = LangString.getLabel(comAndGoal.getProject());
-			documentation.setProject(project);
+			doc.setProject(project);
 		}
 	}
 
-	private void mapLciMethod() {
+	private void mapLciMethod(ProcessDocumentation doc) {
 
 		if (ilcdProcess.getProcessType() != null) {
 			switch (ilcdProcess.getProcessType()) {
@@ -278,8 +281,8 @@ public class ProcessImport {
 		if (iMethod != null) {
 			String lciPrinciple = LangString.getFreeText(iMethod
 					.getDeviationsFromLCIMethodPrinciple());
-			documentation.setInventoryMethod(lciPrinciple);
-			documentation.setModelingConstants(LangString.getFreeText(iMethod
+			doc.setInventoryMethod(lciPrinciple);
+			doc.setModelingConstants(LangString.getFreeText(iMethod
 					.getModellingConstants()));
 			process.setAllocationMethod(getAllocation(iMethod));
 		}
@@ -305,56 +308,53 @@ public class ProcessImport {
 		return null;
 	}
 
-	private void mapRepresentativeness() {
+	private void mapRepresentativeness(ProcessDocumentation doc) {
 		Representativeness iRepresentativeness = ilcdProcess
 				.getRepresentativeness();
 		if (iRepresentativeness != null) {
 
 			// completeness
-			documentation.setCompleteness(LangString
-					.getFreeText(iRepresentativeness
-							.getDataCutOffAndCompletenessPrinciples()));
+			doc.setCompleteness(LangString.getFreeText(iRepresentativeness
+					.getDataCutOffAndCompletenessPrinciples()));
 
 			// data selection
-			documentation.setDataSelection(LangString
-					.getFreeText(iRepresentativeness
-							.getDataSelectionAndCombinationPrinciples()));
+			doc.setDataSelection(LangString.getFreeText(iRepresentativeness
+					.getDataSelectionAndCombinationPrinciples()));
 
 			// data treatment
-			documentation.setDataTreatment(LangString
-					.getFreeText(iRepresentativeness
-							.getDataTreatmentAndExtrapolationsPrinciples()));
+			doc.setDataTreatment(LangString.getFreeText(iRepresentativeness
+					.getDataTreatmentAndExtrapolationsPrinciples()));
 
 			// sampling procedure
-			documentation.setSampling(LangString
-					.getFreeText(iRepresentativeness.getSamplingProcedure()));
+			doc.setSampling(LangString.getFreeText(iRepresentativeness
+					.getSamplingProcedure()));
 
 			// data collection period
-			documentation.setDataCollectionPeriod(LangString
-					.getLabel(iRepresentativeness.getDataCollectionPeriod()));
+			doc.setDataCollectionPeriod(LangString.getLabel(iRepresentativeness
+					.getDataCollectionPeriod()));
 
 			// data sources
 			for (DataSetReference sourceRef : iRepresentativeness
 					.getReferenceToDataSource()) {
 				Source source = fetchSource(sourceRef);
 				if (source != null)
-					documentation.getSources().add(source);
+					doc.getSources().add(source);
 			}
 
 		}
 	}
 
-	private void mapReviews() {
+	private void mapReviews(ProcessDocumentation doc) {
 		if (!ilcdProcess.getReviews().isEmpty()) {
 			Review iReview = ilcdProcess.getReviews().get(0);
 			// reviewer
 			if (!iReview.getReferenceToNameOfReviewerAndInstitution().isEmpty()) {
 				DataSetReference ref = iReview
 						.getReferenceToNameOfReviewerAndInstitution().get(0);
-				documentation.setReviewer(fetchActor(ref));
+				doc.setReviewer(fetchActor(ref));
 			}
 			// review details
-			documentation.setReviewDetails(LangString.getFreeText(iReview
+			doc.setReviewDetails(LangString.getFreeText(iReview
 					.getReviewDetails()));
 		}
 	}

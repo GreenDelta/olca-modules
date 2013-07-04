@@ -48,7 +48,6 @@ public class FlowExport {
 	}
 
 	public org.openlca.ilcd.flows.Flow run(Flow flow) throws DataStoreException {
-		loadFlow(flow);
 		DataSetInformation dataSetInfo = makeDataSetInfo();
 		List<FlowPropertyReference> flowPropRefs = makeFlowPropRefs();
 		org.openlca.ilcd.flows.Flow iFlow = FlowBuilder.makeFlow()
@@ -58,14 +57,6 @@ public class FlowExport {
 		addLocation(iFlow);
 		dataStore.put(iFlow, flow.getRefId());
 		return iFlow;
-	}
-
-	private void loadFlow(Flow flow) throws DataStoreException {
-		try {
-			this.flow = database.createDao(Flow.class).getForId(flow.getRefId());
-		} catch (Exception e) {
-			throw new DataStoreException("Cannot load flow from database.", e);
-		}
 	}
 
 	private DataSetInformation makeDataSetInfo() {

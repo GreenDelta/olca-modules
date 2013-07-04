@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Expression;
 import org.openlca.core.model.Flow;
@@ -101,8 +102,7 @@ class ProcessExchanges {
 	private Exchange createExchange(
 			org.openlca.ilcd.processes.Exchange iExchange,
 			ExchangeFlow exchangeFlow) {
-		Exchange oExchange = new ExchangeConversion(iExchange).map(olcaProcess
-				.getRefId());
+		Exchange oExchange = new ExchangeConversion(iExchange).map();
 		if (exchangeFlow.getFlow() != null) {
 			oExchange.setFlow(exchangeFlow.getFlow());
 			if (exchangeFlow.isMapped())
@@ -142,17 +142,21 @@ class ProcessExchanges {
 
 	private void mapExtension(ExchangeExtension extension, Exchange exchange,
 			Flow flowInfo) {
-		exchange.setDefaultProviderId(extension.getDefaultProvider());
+		// TODO: map default provider
+		// exchange.setDefaultProviderId(extension.getDefaultProvider());
 		if (extension.isAvoidedProduct()) {
 			exchange.setInput(true);
 			exchange.setAvoidedProduct(true);
 		}
 		try {
-			Unit unit = database.createDao(Unit.class).getForId(
-					extension.getUnitId());
+			RootEntityDao<Unit> unitDao = new RootEntityDao<>(Unit.class,
+					database.getEntityFactory());
+			Unit unit = unitDao.getForRefId(extension.getUnitId());
 			exchange.setUnit(unit);
-			FlowProperty property = database.createDao(FlowProperty.class)
-					.getForId(extension.getPropertyId());
+			FlowPropertyDao propDao = new FlowPropertyDao(
+					database.getEntityFactory());
+			FlowProperty property = propDao.getForRefId(extension
+					.getPropertyId());
 			FlowPropertyFactor factor = flowInfo.getFactor(property);
 			exchange.setFlowPropertyFactor(factor);
 		} catch (Exception e) {
@@ -167,8 +171,7 @@ class ProcessExchanges {
 				continue;
 			for (AllocationFactor iFactor : p.iExchange.getAllocation()
 					.getFactors()) {
-				String productId = findMappedId(iFactor
-						.getReferenceToCoProduct());
+				Long productId = findMappedId(iFactor.getReferenceToCoProduct());
 				BigDecimal fraction = iFactor.getAllocatedFraction();
 				if (productId != null && fraction != null)
 					createAllocationFactor(p, productId, fraction);
@@ -176,21 +179,20 @@ class ProcessExchanges {
 		}
 	}
 
-	private void createAllocationFactor(MappedPair p, String productId,
+	private void createAllocationFactor(MappedPair p, long productId,
 			BigDecimal fraction) {
 		org.openlca.core.model.AllocationFactor oFactor = new org.openlca.core.model.AllocationFactor();
-		oFactor.setRefId(UUID.randomUUID().toString());
 		oFactor.setProductId(productId);
 		oFactor.setValue(fraction.doubleValue());
 		p.oExchange.add(oFactor);
 	}
 
-	private String findMappedId(BigInteger iId) {
+	private Long findMappedId(BigInteger iId) {
 		if (iId == null)
 			return null;
 		for (MappedPair p : mappedPairs) {
 			if (iId.equals(p.iExchange.getDataSetInternalID()))
-				return p.oExchange.getRefId();
+				return p.oExchange.getId();
 		}
 		return null;
 	}

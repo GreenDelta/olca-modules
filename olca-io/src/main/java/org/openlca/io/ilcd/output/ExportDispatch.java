@@ -2,10 +2,10 @@ package org.openlca.io.ilcd.output;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.DataSetReference;
@@ -35,7 +35,7 @@ class ExportDispatch {
 	public static DataSetReference forwardExportCheck(CategorizedEntity model,
 			IDatabase database, DataStore target) {
 		if (model instanceof Source)
-			return checkRunSourceExort((Source) model, database, target);
+			return checkRunSourceExort((Source) model, target);
 		if (model instanceof Actor)
 			return checkRunActorExport((Actor) model, database, target);
 		if (model instanceof Flow)
@@ -52,11 +52,11 @@ class ExportDispatch {
 	}
 
 	private static DataSetReference checkRunSourceExort(Source source,
-			IDatabase database, DataStore target) {
+			DataStore target) {
 		try {
 			if (!target.contains(org.openlca.ilcd.sources.Source.class,
 					source.getRefId())) {
-				SourceExport sourceExport = new SourceExport(database, target);
+				SourceExport sourceExport = new SourceExport(target);
 				sourceExport.run(source);
 			}
 			return DataSetRef.makeRef(source);
@@ -70,7 +70,7 @@ class ExportDispatch {
 			IDatabase database, DataStore target) {
 		try {
 			if (!target.contains(Contact.class, actor.getRefId())) {
-				ActorExport actorExport = new ActorExport(database, target);
+				ActorExport actorExport = new ActorExport(target);
 				actorExport.run(actor);
 			}
 			return DataSetRef.makeRef(actor);

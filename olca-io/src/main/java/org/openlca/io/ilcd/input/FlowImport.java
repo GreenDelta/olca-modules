@@ -2,8 +2,8 @@ package org.openlca.io.ilcd.input;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.UUID;
 
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
@@ -51,7 +51,8 @@ public class FlowImport {
 
 	private Flow findExisting(String flowId) throws ImportException {
 		try {
-			return database.createDao(Flow.class).getForId(flowId);
+			FlowDao dao = new FlowDao(database.getEntityFactory());
+			return dao.getForRefId(flowId);
 		} catch (Exception e) {
 			String message = String
 					.format("Search for flow %s failed.", flowId);
@@ -126,7 +127,6 @@ public class FlowImport {
 			FlowProperty flowProperty = flowPropertyImport.run(prop
 					.getFlowProperty().getUuid());
 			FlowPropertyFactor factor = new FlowPropertyFactor();
-			factor.setRefId(UUID.randomUUID().toString());
 			factor.setFlowProperty(flowProperty);
 			factor.setConversionFactor(prop.getMeanValue());
 			flow.getFlowPropertyFactors().add(factor);

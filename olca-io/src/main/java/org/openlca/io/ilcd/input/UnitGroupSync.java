@@ -72,7 +72,9 @@ class UnitGroupSync {
 			String id = ext.getUnitId();
 			if (id == null || containsUnit(id))
 				continue;
-			Unit unit = new Unit(id, ilcdUnit.getName());
+			Unit unit = new Unit();
+			unit.setRefId(id);
+			unit.setName(ilcdUnit.getName());
 			unit.setConversionFactor(factor * ilcdUnit.getMeanValue());
 			unit.setDescription(LangString.getLabel(ilcdUnit
 					.getGeneralComment()));

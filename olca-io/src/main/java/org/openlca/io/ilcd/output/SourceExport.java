@@ -10,7 +10,6 @@
 
 package org.openlca.io.ilcd.output;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.io.DataStore;
@@ -28,12 +27,10 @@ public class SourceExport {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private Source source;
-	private IDatabase database;
 	private DataStore dataStore;
 	private String baseUri;
 
-	public SourceExport(IDatabase database, DataStore dataStore) {
-		this.database = database;
+	public SourceExport(DataStore dataStore) {
 		this.dataStore = dataStore;
 	}
 
@@ -44,21 +41,11 @@ public class SourceExport {
 	public org.openlca.ilcd.sources.Source run(Source source)
 			throws DataStoreException {
 		log.trace("Run source export with {}", source);
-		loadSource(source);
 		DataSetInformation dataSetInfo = makeDateSetInfo();
 		org.openlca.ilcd.sources.Source iSource = SourceBuilder.makeSource()
 				.withBaseUri(baseUri).withDataSetInfo(dataSetInfo).getSource();
 		dataStore.put(iSource, source.getRefId());
 		return iSource;
-	}
-
-	private void loadSource(Source source) throws DataStoreException {
-		try {
-			this.source = database.createDao(Source.class).getForId(
-					source.getRefId());
-		} catch (Exception e) {
-			throw new DataStoreException("Cannot load source from database.", e);
-		}
 	}
 
 	private DataSetInformation makeDateSetInfo() {

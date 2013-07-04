@@ -3,10 +3,10 @@ package org.openlca.io.ilcd.input;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Expression;
@@ -58,7 +58,9 @@ public class SystemImport {
 
 	private ProductSystem findExisting(String systemId) throws ImportException {
 		try {
-			return database.createDao(ProductSystem.class).getForId(systemId);
+			ProductSystemDao dao = new ProductSystemDao(
+					database.getEntityFactory());
+			return dao.getForRefId(systemId);
 		} catch (Exception e) {
 			throw new ImportException("Could not load product system id="
 					+ systemId, e);
@@ -149,7 +151,6 @@ public class SystemImport {
 		ProductModel model = ilcdProcessBag.getProductModel();
 		for (Connector con : model.getConnections()) {
 			ProcessLink link = new ProcessLink();
-			link.setRefId(UUID.randomUUID().toString());
 			Process provider = processes.get(con.getOrigin());
 			link.setProviderProcess(provider);
 			Product product = con.getProducts().get(0);
@@ -167,7 +168,7 @@ public class SystemImport {
 	}
 
 	private boolean valid(ProcessLink link) {
-		return link.getRefId() != null && link.getProviderProcess() != null
+		return link.getProviderProcess() != null
 				&& link.getProviderOutput() != null
 				&& link.getRecipientProcess() != null
 				&& link.getRecipientInput() != null;
@@ -197,7 +198,7 @@ public class SystemImport {
 			type = ParameterType.DATABASE;
 		}
 		org.openlca.core.model.Parameter param = new org.openlca.core.model.Parameter(
-				UUID.randomUUID().toString(), exp, type, owner);
+				exp, type, owner);
 		param.setName(iParam.getName());
 		return param;
 	}

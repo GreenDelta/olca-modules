@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.UUID;
-
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Expression;
 import org.openlca.ilcd.commons.ExchangeDirection;
@@ -27,8 +25,8 @@ class ExchangeConversion {
 			extension = ext;
 	}
 
-	public Exchange map(String processId) {
-		olcaExchange = initExchange(processId);
+	public Exchange map() {
+		olcaExchange = initExchange();
 		mapAmount();
 		new UncertaintyConverter().map(ilcdExchange, olcaExchange);
 		if (isParameterized())
@@ -40,9 +38,8 @@ class ExchangeConversion {
 		return olcaExchange;
 	}
 
-	private Exchange initExchange(String processId) {
-		Exchange e = new Exchange(processId);
-		e.setRefId(UUID.randomUUID().toString());
+	private Exchange initExchange() {
+		Exchange e = new Exchange();
 		boolean input = ilcdExchange.getExchangeDirection() == ExchangeDirection.INPUT;
 		e.setInput(input);
 		if (extension != null) {

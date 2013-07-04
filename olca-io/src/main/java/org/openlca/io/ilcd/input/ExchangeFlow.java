@@ -1,5 +1,6 @@
 package org.openlca.io.ilcd.input;
 
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.ilcd.commons.DataSetReference;
@@ -59,7 +60,8 @@ class ExchangeFlow {
 
 	private void fetchFromDatabase(String flowId) {
 		try {
-			flow = database.createDao(Flow.class).getForId(flowId);
+			FlowDao dao = new FlowDao(database.getEntityFactory());
+			flow = dao.getForRefId(flowId);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.error("Cannot get flow", e);

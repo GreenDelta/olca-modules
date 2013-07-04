@@ -91,7 +91,8 @@ class ExchangeConversion {
 			iExchange.setExchangeDirection(ExchangeDirection.OUTPUT);
 			extension.setAvoidedProduct(true);
 		}
-		extension.setDefaultProvider(oExchange.getDefaultProviderId());
+		// TODO: map default provider
+		// extension.setDefaultProvider(oExchange.getDefaultProviderId());
 		Expression expression = oExchange.getResultingAmount();
 		extension.setAmount(expression.getValue());
 		extension.setBaseUncertainty(oExchange.getBaseUncertainty());
@@ -173,7 +174,7 @@ class ExchangeConversion {
 				iExchange.setAllocation(iAlloc);
 			}
 			double val = factor.getValue();
-			String productId = factor.getProductId();
+			long productId = factor.getProductId();
 			BigInteger iExchangeId = findMappedId(productId);
 			if (iExchangeId != null) {
 				org.openlca.ilcd.processes.AllocationFactor iFactor = new org.openlca.ilcd.processes.AllocationFactor();
@@ -184,11 +185,9 @@ class ExchangeConversion {
 		}
 	}
 
-	private BigInteger findMappedId(String oId) {
-		if (oId == null)
-			return null;
+	private BigInteger findMappedId(long oId) {
 		for (MappedPair p : mappedPairs) {
-			if (oId.equals(p.oExchange.getRefId()))
+			if (oId == p.oExchange.getId())
 				return p.iExchange.getDataSetInternalID();
 		}
 		return null;

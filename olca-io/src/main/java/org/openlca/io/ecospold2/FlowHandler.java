@@ -7,8 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.persistence.EntityManagerFactory;
+
 import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -47,9 +52,11 @@ class FlowHandler {
 		while ((line = reader.readLine()) != null) {
 			String[] args = line.split(",");
 			String eiUnit = args[0];
-			Unit unit = database.createDao(Unit.class).getForId(args[1]);
-			FlowProperty prop = database.createDao(FlowProperty.class)
-					.getForId(args[2]);
+			EntityManagerFactory emf = database.getEntityFactory();
+			RootEntityDao<Unit> unitDao = new RootEntityDao<>(Unit.class, emf);
+			Unit unit = unitDao.getForRefId(args[1]);
+			FlowPropertyDao propDao = new FlowPropertyDao(emf);
+			FlowProperty prop = propDao.getForRefId(args[2]);
 			if (unit != null && prop != null) {
 				unitMap.put(eiUnit, unit);
 				propertyMap.put(eiUnit, prop);
@@ -86,7 +93,8 @@ class FlowHandler {
 
 	private Flow getFromDb(String flowId) {
 		try {
-			Flow flow = database.createDao(Flow.class).getForId(flowId);
+			FlowDao dao = new FlowDao(database.getEntityFactory());
+			Flow flow = dao.getForRefId(flowId);
 			cachedFlows.put(flowId, flow);
 			return flow;
 		} catch (Exception e) {
@@ -119,7 +127,6 @@ class FlowHandler {
 			return;
 		}
 		FlowPropertyFactor fac = new FlowPropertyFactor();
-		fac.setRefId(UUID.randomUUID().toString());
 		fac.setFlowProperty(prop);
 		fac.setConversionFactor(1.0);
 		flow.getFlowPropertyFactors().add(fac);
@@ -137,13 +144,12 @@ class FlowHandler {
 		String pref = flow.getName().substring(0, 1).toLowerCase();
 		Category cat = flowCategories.get(pref);
 		if (cat == null) {
-			cat = new Category(UUID.randomUUID().toString(), pref,
-					ModelType.FLOW);
+			cat = new Category();
+			cat.setRefId(UUID.randomUUID().toString());
+			cat.setName(pref);
+			cat.setModelType(ModelType.FLOW);
 			BaseDao<Category> dao = database.createDao(Category.class);
-			Category parent = dao.getForId(Flow.class.getCanonicalName());
-			parent.add(cat);
-			cat.setParentCategory(parent);
-			dao.update(parent);
+			dao.insert(cat);
 			flowCategories.put(pref, cat);
 		}
 		flow.setCategory(cat);

@@ -21,7 +21,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_units")
-public class Unit extends AbstractEntity implements Cloneable {
+public class Unit extends RootEntity {
 
 	@Column(name = "conversion_factor")
 	private double conversionFactor = 1d;

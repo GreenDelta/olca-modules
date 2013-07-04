@@ -67,10 +67,9 @@ public class EcoSpold01Outputter {
 	private int personCounter = 0;
 	private int sourceCounter = 0;
 
-	private Map<String, IExchange> exchangeToES1Exchange = new HashMap<>();
-	private Map<String, ISource> sourceToES1Source = new HashMap<>();
-	private Map<String, IPerson> actorToES1Person = new HashMap<>();
-	private Map<String, Category> categoryCache = new HashMap<>();
+	private Map<Long, IExchange> exchangeToES1Exchange = new HashMap<>();
+	private Map<Long, ISource> sourceToES1Source = new HashMap<>();
+	private Map<Long, IPerson> actorToES1Person = new HashMap<>();
 
 	private File outDir;
 
@@ -186,7 +185,7 @@ public class EcoSpold01Outputter {
 
 	private IPerson mapActor(Actor inActor, DataSet dataset,
 			IEcoSpoldFactory factory) {
-		IPerson person = actorToES1Person.get(inActor.getRefId());
+		IPerson person = actorToES1Person.get(inActor.getId());
 		if (person != null)
 			return person;
 		person = factory.createPerson();
@@ -197,7 +196,7 @@ public class EcoSpold01Outputter {
 		person.setEmail(inActor.getEmail());
 		person.setTelefax(inActor.getTelefax());
 		person.setTelephone(inActor.getTelephone());
-		actorToES1Person.put(inActor.getRefId(), person);
+		actorToES1Person.put(inActor.getId(), person);
 		dataset.getPersons().add(person);
 		return person;
 	}
@@ -264,24 +263,16 @@ public class EcoSpold01Outputter {
 
 	private void mapAllocations(Process process, DataSet dataset,
 			IEcoSpoldFactory factory) {
-		Map<String, IAllocation> semIdToFactor = new HashMap<>();
 		for (Exchange exchange : process.getExchanges()) {
 			for (AllocationFactor inFactor : exchange.getAllocationFactors()) {
-				IAllocation factor = semIdToFactor.get(inFactor.getProductId()
-						+ inFactor.getValue());
-				if (factor == null) {
-					factor = factory.createAllocation();
-					factor.setFraction((float) (inFactor.getValue() * 100));
-					factor.setReferenceToCoProduct(exchangeToES1Exchange.get(
-							inFactor.getProductId()).getNumber());
-					factor.setAllocationMethod(-1);
-					dataset.getAllocations().add(factor);
-					semIdToFactor.put(
-							inFactor.getProductId() + inFactor.getValue(),
-							factor);
-				}
+				IAllocation factor = factory.createAllocation();
+				factor.setFraction((float) (inFactor.getValue() * 100));
+				factor.setReferenceToCoProduct(exchangeToES1Exchange.get(
+						inFactor.getProductId()).getNumber());
+				factor.setAllocationMethod(-1);
+				dataset.getAllocations().add(factor);
 				factor.getReferenceToInputOutput()
-						.add(exchangeToES1Exchange.get(exchange.getRefId())
+						.add(exchangeToES1Exchange.get(exchange.getId())
 								.getNumber());
 			}
 		}
@@ -310,7 +301,7 @@ public class EcoSpold01Outputter {
 		} else {
 			mapUncertainty(inExchange, exchange);
 		}
-		exchangeToES1Exchange.put(inExchange.getRefId(), exchange);
+		exchangeToES1Exchange.put(inExchange.getId(), exchange);
 
 		return exchange;
 	}
@@ -490,7 +481,7 @@ public class EcoSpold01Outputter {
 
 	private ISource mapSource(Source inSource, DataSet dataset,
 			IEcoSpoldFactory factory) {
-		ISource source = sourceToES1Source.get(inSource.getRefId());
+		ISource source = sourceToES1Source.get(inSource.getId());
 		if (source != null)
 			return source;
 		source = factory.createSource();
@@ -508,7 +499,7 @@ public class EcoSpold01Outputter {
 				log.warn("failed to set year of source ", e);
 			}
 		}
-		sourceToES1Source.put(inSource.getRefId(), source);
+		sourceToES1Source.put(inSource.getId(), source);
 		dataset.getSources().add(source);
 		return source;
 	}
@@ -588,10 +579,6 @@ public class EcoSpold01Outputter {
 				exchange.setUncertaintyType(0);
 			}
 		}
-	}
-
-	public void clearGlobalCache() {
-		categoryCache.clear();
 	}
 
 	public void exportLCIAMethod(ImpactMethod method) throws Exception {

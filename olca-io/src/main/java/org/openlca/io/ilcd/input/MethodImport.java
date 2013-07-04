@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.Flow;
@@ -98,7 +99,7 @@ public class MethodImport {
 	private org.openlca.core.model.ImpactMethod fetchMethod(String name)
 			throws Exception {
 		String id = KeyGen.get(name);
-		org.openlca.core.model.ImpactMethod method = dao.getForId(id);
+		org.openlca.core.model.ImpactMethod method = dao.getForRefId(id);
 		if (method == null) {
 			method = new org.openlca.core.model.ImpactMethod();
 			method.setRefId(id);
@@ -180,7 +181,6 @@ public class MethodImport {
 			ImpactFactor oFactor = new ImpactFactor();
 			oFactor.setFlow(flow);
 			oFactor.setFlowPropertyFactor(flow.getReferenceFactor());
-			oFactor.setRefId(UUID.randomUUID().toString());
 			oFactor.setUnit(getRefUnit(flow));
 			oFactor.setValue(factor.getMeanValue());
 			category.getImpactFactors().add(oFactor);
@@ -200,8 +200,8 @@ public class MethodImport {
 		FlowMapEntry entry = flowMap.getEntry(flowId);
 		if (entry == null)
 			return null;
-		return database.createDao(Flow.class).getForId(
-				entry.getOpenlcaFlowKey());
+		FlowDao dao = new FlowDao(database.getEntityFactory());
+		return dao.getForRefId(entry.getOpenlcaFlowKey());
 	}
 
 	private Unit getRefUnit(Flow flow) throws Exception {

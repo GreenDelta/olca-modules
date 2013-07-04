@@ -166,7 +166,7 @@ public class EcoSpold01Parser {
 		process = new Process();
 		process.setRefId(processId);
 		ProcessDocumentation documentation = new ProcessDocumentation();
-		documentation.setRefId(processId);
+		process.setDocumentation(documentation);
 
 		if (dataSet.getReferenceFunction() != null) {
 			process.setDescription(dataSet.getReferenceFunction()
@@ -201,7 +201,6 @@ public class EcoSpold01Parser {
 		mapSources(documentation, dataSet);
 
 		db.put(process, processId);
-		db.put(documentation, processId);
 
 		localExchangeCache.clear();
 	}
@@ -245,8 +244,9 @@ public class EcoSpold01Parser {
 					.getReferenceToCoProduct());
 			for (Integer i : allocation.getReferenceToInputOutput()) {
 				Exchange exchange = localExchangeCache.get(i);
-				AllocationFactor allocationFactor = new AllocationFactor(UUID
-						.randomUUID().toString(), product.getRefId(), factor);
+				AllocationFactor allocationFactor = new AllocationFactor();
+				allocationFactor.setProductId(product.getId());
+				allocationFactor.setValue(factor);
 				exchange.add(allocationFactor);
 			}
 		}
@@ -260,9 +260,8 @@ public class EcoSpold01Parser {
 				log.error("Could not import flow {}", inExchange);
 				continue;
 			}
-			Exchange outExchange = new Exchange(ioProcess.getRefId());
+			Exchange outExchange = new Exchange();
 			outExchange.setFlow(flow.flow);
-			outExchange.setRefId(UUID.randomUUID().toString());
 			outExchange.setUnit(flow.unit);
 			outExchange.setFlowPropertyFactor(flow.flowProperty);
 			outExchange.setInput(inExchange.getInputGroup() != null);
@@ -289,7 +288,6 @@ public class EcoSpold01Parser {
 				continue;
 			}
 			ImpactFactor factor = new ImpactFactor();
-			factor.setRefId(UUID.randomUUID().toString());
 			factor.setFlow(flow.flow);
 			factor.setFlowPropertyFactor(flow.flowProperty);
 			factor.setUnit(flow.unit);
@@ -337,9 +335,8 @@ public class EcoSpold01Parser {
 			log.warn("Could not create reference flow {}", dataSet);
 			return;
 		}
-		Exchange outExchange = new Exchange(ioProcess.getRefId());
+		Exchange outExchange = new Exchange();
 		outExchange.setFlow(flow.flow);
-		outExchange.setRefId(UUID.randomUUID().toString());
 		outExchange.setUnit(flow.unit);
 		outExchange.setFlowPropertyFactor(flow.flowProperty);
 		outExchange.setInput(false);

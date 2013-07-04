@@ -46,7 +46,6 @@ public class UnitGroupExport {
 
 	public org.openlca.ilcd.units.UnitGroup run(UnitGroup unitGroup)
 			throws DataStoreException {
-		loadUnitGroup(unitGroup);
 		DataSetInformation dataSetInfo = makeDataSetInfo();
 		List<org.openlca.ilcd.units.Unit> iUnits = makeUnits();
 		org.openlca.ilcd.units.UnitGroup iUnitGroup = UnitGroupBuilder
@@ -55,16 +54,6 @@ public class UnitGroupExport {
 				.withUnits(iUnits).getUnitGroup();
 		dataStore.put(iUnitGroup, unitGroup.getRefId());
 		return iUnitGroup;
-	}
-
-	private void loadUnitGroup(UnitGroup unitGroup) throws DataStoreException {
-		try {
-			this.unitGroup = database.createDao(UnitGroup.class).getForId(
-					unitGroup.getRefId());
-		} catch (Exception e) {
-			throw new DataStoreException(
-					"Cannot load unit group from database.", e);
-		}
 	}
 
 	private DataSetInformation makeDataSetInfo() {

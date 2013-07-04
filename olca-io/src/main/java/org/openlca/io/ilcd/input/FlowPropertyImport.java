@@ -1,5 +1,6 @@
 package org.openlca.io.ilcd.input;
 
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
@@ -12,8 +13,6 @@ import org.openlca.ilcd.util.FlowPropertyBag;
 
 /**
  * The import of an ILCD flow property data set to an openLCA database.
- * 
- * @author Michael Srocka
  * 
  */
 public class FlowPropertyImport {
@@ -49,7 +48,9 @@ public class FlowPropertyImport {
 
 	private FlowProperty findExisting(String propertyId) throws ImportException {
 		try {
-			return database.createDao(FlowProperty.class).getForId(propertyId);
+			FlowPropertyDao dao = new FlowPropertyDao(
+					database.getEntityFactory());
+			return dao.getForRefId(propertyId);
 		} catch (Exception e) {
 			String message = String.format(
 					"Search for flow property %s failed.", propertyId);

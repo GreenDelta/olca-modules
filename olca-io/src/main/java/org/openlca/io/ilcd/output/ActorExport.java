@@ -10,7 +10,6 @@
 
 package org.openlca.io.ilcd.output;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.contacts.Contact;
@@ -26,12 +25,10 @@ import org.openlca.ilcd.util.LangString;
 public class ActorExport {
 
 	private Actor actor;
-	private IDatabase database;
 	private DataStore dataStore;
 	private String baseUri;
 
-	public ActorExport(IDatabase database, DataStore dataStore) {
-		this.database = database;
+	public ActorExport(DataStore dataStore) {
 		this.dataStore = dataStore;
 	}
 
@@ -40,21 +37,11 @@ public class ActorExport {
 	}
 
 	public Contact run(Actor actor) throws DataStoreException {
-		loadActor(actor);
 		DataSetInformation dataSetInfo = makeDataSetInfo();
 		Contact contact = ContactBuilder.makeContact().withBaseUri(baseUri)
 				.withDataSetInfo(dataSetInfo).getContact();
 		dataStore.put(contact, actor.getRefId());
 		return contact;
-	}
-
-	private void loadActor(Actor actor) throws DataStoreException {
-		try {
-			this.actor = database.createDao(Actor.class)
-					.getForId(actor.getRefId());
-		} catch (Exception e) {
-			throw new DataStoreException("Cannot load actor from database.", e);
-		}
 	}
 
 	private DataSetInformation makeDataSetInfo() {

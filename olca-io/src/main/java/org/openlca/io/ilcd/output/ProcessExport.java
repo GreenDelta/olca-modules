@@ -63,7 +63,8 @@ public class ProcessExport {
 	public org.openlca.ilcd.processes.Process run(Process process)
 			throws DataStoreException {
 		log.trace("Run process export with {}", process);
-		loadProcess(process);
+		this.process = process;
+		this.doc = process.getDocumentation();
 		org.openlca.ilcd.processes.Process iProcess = ProcessBuilder
 				.makeProcess().with(makeLciMethod())
 				.withAdminInfo(makeAdminInformation())
@@ -76,18 +77,6 @@ public class ProcessExport {
 		addExchanges(iProcess);
 		dataStore.put(iProcess, process.getRefId());
 		return iProcess;
-	}
-
-	private void loadProcess(Process process) throws DataStoreException {
-		try {
-			this.process = database.createDao(Process.class).getForId(
-					process.getRefId());
-			this.doc = database.createDao(ProcessDocumentation.class).getForId(
-					process.getRefId());
-		} catch (Exception e) {
-			throw new DataStoreException("Cannot load process from database.",
-					e);
-		}
 	}
 
 	private DataSetInformation makeDataSetInfo() {

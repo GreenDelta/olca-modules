@@ -1,6 +1,7 @@
 package org.openlca.io.ilcd.input;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
@@ -39,7 +40,8 @@ public class SourceImport {
 
 	private Source findExisting(String sourceId) throws ImportException {
 		try {
-			return database.createDao(Source.class).getForId(sourceId);
+			SourceDao dao = new SourceDao(database.getEntityFactory());
+			return dao.getForRefId(sourceId);
 		} catch (Exception e) {
 			String message = String.format("Search for source %s failed.",
 					sourceId);

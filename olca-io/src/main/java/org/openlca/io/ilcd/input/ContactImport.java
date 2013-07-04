@@ -1,5 +1,6 @@
 package org.openlca.io.ilcd.input;
 
+import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
@@ -10,13 +11,11 @@ import org.openlca.ilcd.util.ContactBag;
 
 /**
  * The import of an ILCD contact data set to an openLCA database.
- * 
- * @author Michael Srocka
- * 
  */
 public class ContactImport {
 
 	private IDatabase database;
+	private ActorDao dao;
 	private DataStore dataStore;
 	private ContactBag ilcdContact;
 	private Actor actor;
@@ -24,6 +23,7 @@ public class ContactImport {
 	public ContactImport(DataStore dataStore, IDatabase database) {
 		this.dataStore = dataStore;
 		this.database = database;
+		this.dao = new ActorDao(database.getEntityFactory());
 	}
 
 	public Actor run(Contact contact) throws ImportException {
@@ -45,7 +45,7 @@ public class ContactImport {
 
 	private Actor findExisting(String contactId) throws ImportException {
 		try {
-			return database.createDao(Actor.class).getForId(contactId);
+			return dao.getForRefId(contactId);
 		} catch (Exception e) {
 			String message = String.format("Search for actor %s failed.",
 					contactId);
@@ -94,7 +94,7 @@ public class ContactImport {
 
 	private void saveInDatabase() throws ImportException {
 		try {
-			database.createDao(Actor.class).insert(actor);
+			dao.insert(actor);
 		} catch (Exception e) {
 			String message = String.format("Cannot save actor %s in database.",
 					actor.getRefId());

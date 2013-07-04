@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.input;
 import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
@@ -53,7 +54,8 @@ public class UnitGroupImport {
 
 	private UnitGroup findExisting(String unitGroupId) throws ImportException {
 		try {
-			return database.createDao(UnitGroup.class).getForId(unitGroupId);
+			UnitGroupDao dao = new UnitGroupDao(database.getEntityFactory());
+			return dao.getForRefId(unitGroupId);
 		} catch (Exception e) {
 			String message = String.format("Search for unit group %s failed.",
 					unitGroupId);

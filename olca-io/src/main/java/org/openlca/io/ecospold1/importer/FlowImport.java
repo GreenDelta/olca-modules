@@ -2,7 +2,6 @@ package org.openlca.io.ecospold1.importer;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
@@ -202,7 +201,6 @@ class FlowImport {
 			return null;
 		flow.setReferenceFlowProperty(entry.getFlowProperty());
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setRefId(UUID.randomUUID().toString());
 		factor.setFlowProperty(entry.getFlowProperty());
 		factor.setConversionFactor(1.0);
 		flow.getFlowPropertyFactors().add(factor);
