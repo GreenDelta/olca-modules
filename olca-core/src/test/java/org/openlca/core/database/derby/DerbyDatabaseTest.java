@@ -3,10 +3,7 @@ package org.openlca.core.database.derby;
 import java.io.File;
 import java.util.UUID;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.DatabaseContent;
@@ -15,7 +12,7 @@ public class DerbyDatabaseTest {
 
 	private static DerbyDatabase database;
 
-	@BeforeClass
+	// @BeforeClass
 	public static void setUp() {
 		String tmpDirPath = System.getProperty("java.io.tmpdir");
 		String dbName = "test_db_"
@@ -25,7 +22,7 @@ public class DerbyDatabaseTest {
 		database = new DerbyDatabase(folder);
 	}
 
-	@AfterClass
+	// @AfterClass
 	public static void tearDown() throws Exception {
 		database.close();
 		database.delete();
@@ -45,7 +42,7 @@ public class DerbyDatabaseTest {
 	}
 
 	@Test
-	@Ignore
+	// @Ignore
 	public void testUnitRefData() throws Exception {
 		database.fill(DatabaseContent.UNITS);
 	}
