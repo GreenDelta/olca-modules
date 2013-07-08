@@ -29,6 +29,8 @@ public class ProcessDao extends CategorizedEnitityDao<Process> {
 
 	@Override
 	protected BaseDescriptor createDescriptor(Object[] queryResult) {
+		if (queryResult == null)
+			return null;
 		ProcessDescriptor d = new ProcessDescriptor();
 		d.setId((Long) queryResult[0]);
 		d.setName((String) queryResult[1]);

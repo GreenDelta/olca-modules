@@ -140,6 +140,8 @@ class DB {
 		child.setRefId(UUID.randomUUID().toString());
 		child.setParentCategory(root);
 		root.add(child);
+		CategoryDao dao = new CategoryDao(database.getEntityFactory());
+		dao.insert(child);
 		database.createDao(Category.class).update(root);
 		return child;
 	}

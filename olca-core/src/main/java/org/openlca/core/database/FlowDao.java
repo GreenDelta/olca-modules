@@ -26,6 +26,8 @@ public class FlowDao extends CategorizedEnitityDao<Flow> {
 
 	@Override
 	protected BaseDescriptor createDescriptor(Object[] queryResult) {
+		if (queryResult == null)
+			return null;
 		FlowDescriptor descriptor = new FlowDescriptor();
 		try {
 			descriptor.setId((Long) queryResult[0]);
@@ -55,7 +57,7 @@ public class FlowDao extends CategorizedEnitityDao<Flow> {
 		String jpql = "select p.id from Process p join p.exchanges e "
 				+ "where e.flow.id = :flowId and e.input = :input ";
 		Map<String, Object> params = new HashMap<>();
-		params.put("flowId", flow.getRefId());
+		params.put("flowId", flow.getId());
 		params.put("input", input);
 		return query().getAll(Long.class, jpql, params);
 	}

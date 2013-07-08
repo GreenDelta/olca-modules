@@ -41,6 +41,8 @@ public abstract class AbstractEntity {
 		if (!(this.getClass().isInstance(obj)))
 			return false;
 		AbstractEntity other = (AbstractEntity) obj;
+		if (this.getId() == 0L && other.getId() == 0L)
+			return false; // we already checked this == other above
 		return this.getId() == other.getId();
 	}
 
