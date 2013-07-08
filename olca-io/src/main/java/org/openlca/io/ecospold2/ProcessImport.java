@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -53,8 +54,8 @@ class ProcessImport {
 		}
 		Activity activity = dataSet.getActivity();
 		try {
-			boolean contains = database.createDao(Process.class).contains(
-					activity.getId());
+			ProcessDao dao = new ProcessDao(database.getEntityFactory());
+			boolean contains = dao.getForRefId(activity.getId()) != null;
 			if (contains) {
 				log.trace("process {} is already in the database",
 						activity.getId());
@@ -96,7 +97,8 @@ class ProcessImport {
 			Exchange exchange = createExchange(e, flow, process);
 			if (flow == null)
 				continue;
-			exchange.setDefaultProviderId(e.getActivityLinkId());
+			// TODO: default provider!
+			// exchange.setDefaultProviderId(e.getActivityLinkId());
 			if (e.getOutputGroup() != null && e.getOutputGroup() == 0)
 				process.setQuantitativeReference(exchange);
 		}
@@ -118,7 +120,6 @@ class ProcessImport {
 		}
 		Unit unit = flowHandler.getUnit(original.getUnitId());
 		Exchange exchange = new Exchange();
-		exchange.setRefId(UUID.randomUUID().toString());
 		exchange.setInput(original.getInputGroup() != null);
 		exchange.setFlow(flow);
 		exchange.setFlowPropertyFactor(flow.getReferenceFactor());
@@ -135,13 +136,12 @@ class ProcessImport {
 		String pref = process.getName().substring(0, 1).toLowerCase();
 		Category cat = processCategories.get(pref);
 		if (cat == null) {
-			cat = new Category(UUID.randomUUID().toString(), pref,
-					ModelType.PROCESS);
+			cat = new Category();
+			cat.setModelType(ModelType.PROCESS);
+			cat.setName(pref);
+			cat.setRefId(UUID.randomUUID().toString());
 			BaseDao<Category> dao = database.createDao(Category.class);
-			Category parent = dao.getForId(Process.class.getCanonicalName());
-			parent.add(cat);
-			cat.setParentCategory(parent);
-			dao.update(parent);
+			dao.insert(cat);
 			processCategories.put(pref, cat);
 		}
 		process.setCategory(cat);

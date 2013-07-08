@@ -7,11 +7,13 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IPerson;
@@ -132,8 +134,10 @@ class DB {
 			if (StringUtils.equalsIgnoreCase(child.getName(), childName))
 				return child;
 		}
-		Category child = new Category(UUID.randomUUID().toString(), childName,
-				root.getModelType());
+		Category child = new Category();
+		child.setModelType(root.getModelType());
+		child.setName(childName);
+		child.setRefId(UUID.randomUUID().toString());
 		child.setParentCategory(root);
 		root.add(child);
 		database.createDao(Category.class).update(root);
@@ -192,7 +196,8 @@ class DB {
 		return flow;
 	}
 
-	private <T> T get(Class<T> type, Map<String, T> cache, String genKey) {
+	private <T extends RootEntity> T get(Class<T> type, Map<String, T> cache,
+			String genKey) {
 		T entity = cache.get(genKey);
 		if (entity != null)
 			return entity;
@@ -202,9 +207,11 @@ class DB {
 		return entity;
 	}
 
-	public <T> T get(Class<T> type, String id) {
+	public <T extends RootEntity> T get(Class<T> type, String id) {
 		try {
-			return database.createDao(type).getForId(id);
+			RootEntityDao<T> dao = new RootEntityDao<>(type,
+					database.getEntityFactory());
+			return dao.getForRefId(id);
 		} catch (Exception e) {
 			log.error("Failed to query database for " + type + " id=" + id, e);
 			return null;
