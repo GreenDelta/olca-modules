@@ -19,14 +19,13 @@ public class CostMatrixSolver {
 		CostMatrix matrix = builder.build();
 		if (matrix.isEmpty())
 			return new SimpleCostResult(null, new double[0]);
-		String refProduct = system.getReferenceExchange().getRefId();
+		Long refProduct = system.getReferenceExchange().getId();
 		double refAmount = system.getConvertedTargetAmount();
 		double[] costs = doCalc(matrix, refProduct, refAmount);
 		return new SimpleCostResult(matrix.getCostCategoryIndex(), costs);
 	}
 
-	private double[] doCalc(CostMatrix matrix, String refProduct,
-			double refAmount) {
+	private double[] doCalc(CostMatrix matrix, Long refProduct, double refAmount) {
 		try {
 			IMatrix techMatrix = matrix.getTechnologyMatrix();
 			IMatrix costMatrix = matrix.getCostMatrix();

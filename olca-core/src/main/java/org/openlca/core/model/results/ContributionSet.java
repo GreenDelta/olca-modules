@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.model.AbstractEntity;
-
 /**
  * A set of contributions to an overall result. Contains optionally a rest-value
  * which is defined as: </br><code>
  * 
  * rest = result - sum(contributions).
  */
-public class ContributionSet<T extends AbstractEntity> {
+public class ContributionSet<T> {
 
 	private double restValue;
 	private List<Contribution<T>> contributions = new ArrayList<>();
@@ -22,7 +20,7 @@ public class ContributionSet<T extends AbstractEntity> {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <T extends AbstractEntity> ContributionSet<T> empty() {
+	public static <T> ContributionSet<T> empty() {
 		ContributionSet set = new ContributionSet(Collections.emptyList());
 		return set;
 	}

@@ -2,7 +2,6 @@ package org.openlca.core.math;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 public class ExchangeResultList {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private String ownerId;
 	private Flow refFlow;
 	private double refAmount;
 
@@ -28,11 +26,6 @@ public class ExchangeResultList {
 
 	public static ExchangeResultList on(IDatabase database) {
 		return new ExchangeResultList(database);
-	}
-
-	public ExchangeResultList withOwner(String ownerId) {
-		this.ownerId = ownerId;
-		return this;
 	}
 
 	public ExchangeResultList withReferenceFlow(Flow flow, double amount) {
@@ -64,8 +57,7 @@ public class ExchangeResultList {
 	}
 
 	private Exchange createExchange(Flow flow, boolean input, double amount) {
-		Exchange exchange = new Exchange(ownerId);
-		exchange.setRefId(UUID.randomUUID().toString());
+		Exchange exchange = new Exchange();
 		exchange.setFlow(flow);
 		exchange.setInput(input);
 		exchange.getResultingAmount().setValue(amount);

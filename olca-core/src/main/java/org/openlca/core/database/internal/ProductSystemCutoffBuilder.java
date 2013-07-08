@@ -27,7 +27,7 @@ public class ProductSystemCutoffBuilder implements IProductSystemBuilder {
 	private double cutoff;
 	private boolean preferSystemProcesses;
 
-	private Map<String, Double> scalingFactors = new HashMap<>();
+	private Map<Long, Double> scalingFactors = new HashMap<>();
 
 	private ProcessTypeTable processTypeTable;
 	private ProductExchangeTable exchangeTable;
@@ -60,31 +60,31 @@ public class ProductSystemCutoffBuilder implements IProductSystemBuilder {
 	}
 
 	private void autoComplete(Process process, double factor) {
-		scalingFactors.put(process.getRefId(), factor);
-		Set<String> handled = new HashSet<>();
-		Queue<Collection<String>> nextLevels = new ArrayDeque<>();
-		nextLevels.add(Arrays.asList(process.getRefId()));
+		scalingFactors.put(process.getId(), factor);
+		Set<Long> handled = new HashSet<>();
+		Queue<Collection<Long>> nextLevels = new ArrayDeque<>();
+		nextLevels.add(Arrays.asList(process.getId()));
 		int n = 0;
 		while (!nextLevels.isEmpty()) {
-			Collection<String> processIds = nextLevels.poll();
+			Collection<Long> processIds = nextLevels.poll();
 			log.trace("load level {} with {} processes", n, processIds.size());
 			exchangeTable.loadProductInputs(processIds);
 			List<ProductExchange> allInputs = new ArrayList<>();
-			for (String processId : processIds) {
+			for (Long processId : processIds) {
 				if (handled.contains(processId))
 					continue;
 				handled.add(processId);
 				List<ProductExchange> inputs = getFilteredInputs(processId);
 				allInputs.addAll(inputs);
 			}
-			Set<String> nextLevel = fetchNextLevel(allInputs);
+			Set<Long> nextLevel = fetchNextLevel(allInputs);
 			if (!nextLevel.isEmpty())
 				nextLevels.add(nextLevel);
 			n++;
 		}
 	}
 
-	private List<ProductExchange> getFilteredInputs(String processId) {
+	private List<ProductExchange> getFilteredInputs(Long processId) {
 		List<ProductExchange> inputs = exchangeTable
 				.getProductInputs(processId);
 		if (cutoff == 0 || inputs.isEmpty())
@@ -102,9 +102,9 @@ public class ProductSystemCutoffBuilder implements IProductSystemBuilder {
 		return filtered;
 	}
 
-	private Set<String> fetchNextLevel(List<ProductExchange> inputs) {
+	private Set<Long> fetchNextLevel(List<ProductExchange> inputs) {
 		loadTableData(inputs);
-		Set<String> nextProcessIds = new HashSet<>();
+		Set<Long> nextProcessIds = new HashSet<>();
 		Set<ProductLink> nextLinks = fetchNextLinks(inputs);
 		for (ProductLink nextLink : nextLinks) {
 			ProductExchange input = nextLink.getInput();
@@ -141,8 +141,8 @@ public class ProductSystemCutoffBuilder implements IProductSystemBuilder {
 				.getFlowId());
 		ProductExchange candidate = null;
 		for (ProductExchange output : outputs) {
-			String defaultId = input.getDefaultProviderId();
-			String providerId = output.getProcessId();
+			Long defaultId = input.getDefaultProviderId();
+			Long providerId = output.getProcessId();
 			if (defaultId != null && defaultId.equals(providerId))
 				return output;
 			if (betterOutputCandidate(output, candidate))
@@ -169,11 +169,11 @@ public class ProductSystemCutoffBuilder implements IProductSystemBuilder {
 	}
 
 	private void loadTableData(List<ProductExchange> inputs) {
-		Set<String> flowIds = new HashSet<>();
+		Set<Long> flowIds = new HashSet<>();
 		for (ProductExchange input : inputs)
 			flowIds.add(input.getFlowId());
 		exchangeTable.loadOutputsWithFlows(flowIds);
-		Set<String> newProcessIds = new HashSet<>();
+		Set<Long> newProcessIds = new HashSet<>();
 		for (ProductExchange input : inputs) {
 			List<ProductExchange> outputs = exchangeTable
 					.getOutputsWithFlow(input.getFlowId());

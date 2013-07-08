@@ -42,22 +42,22 @@ public class CostCalculator {
 	private void applyFixCostsTo(SimpleCostResult costResult,
 			ProductSystem system) {
 		// Info: this index is also build earlier in the cost matrix builder
-		List<String> processIds = new ArrayList<>();
+		List<Long> processIds = new ArrayList<>();
 		Queue<Process> processes = new LinkedList<>();
 		processes.add(system.getReferenceProcess());
-		processIds.add(system.getReferenceProcess().getRefId());
+		processIds.add(system.getReferenceProcess().getId());
 		while (!processes.isEmpty()) {
 			Process next = processes.poll();
 
-			for (ProcessLink link : system.getIncomingLinks(next.getRefId())) {
+			for (ProcessLink link : system.getIncomingLinks(next.getId())) {
 				if (!processIds.contains(link.getProviderProcess().getRefId())) {
-					processIds.add(link.getProviderProcess().getRefId());
+					processIds.add(link.getProviderProcess().getId());
 					processes.add(link.getProviderProcess());
 				}
 			}
-			for (ProcessLink link : system.getOutgoingLinks(next.getRefId())) {
+			for (ProcessLink link : system.getOutgoingLinks(next.getId())) {
 				if (!processIds.contains(link.getRecipientProcess().getRefId())) {
-					processIds.add(link.getRecipientProcess().getRefId());
+					processIds.add(link.getRecipientProcess().getId());
 					processes.add(link.getRecipientProcess());
 				}
 			}
@@ -68,26 +68,26 @@ public class CostCalculator {
 		if (costEntries == null || costEntries.isEmpty())
 			return;
 
-		Map<String, Double> idToValue = new HashMap<>();
-		Map<String, CostCategory> idToCategory = new HashMap<>();
+		Map<Long, Double> idToValue = new HashMap<>();
+		Map<Long, CostCategory> idToCategory = new HashMap<>();
 		for (ProductCostEntry entry : costEntries) {
 			CostCategory costCategory = entry.getCostCategory();
 
 			// value map entry
 			Double value = entry.getAmount();
-			if (idToValue.containsKey(costCategory.getRefId()))
-				value += idToValue.get(costCategory.getRefId());
-			idToValue.put(costCategory.getRefId(), value);
+			if (idToValue.containsKey(costCategory.getId()))
+				value += idToValue.get(costCategory.getId());
+			idToValue.put(costCategory.getId(), value);
 
 			// category map entry
-			if (!idToCategory.containsKey(costCategory.getRefId()))
-				idToCategory.put(costCategory.getRefId(), costCategory);
+			if (!idToCategory.containsKey(costCategory.getId()))
+				idToCategory.put(costCategory.getId(), costCategory);
 		}
 
 		CostCategory[] categories = new CostCategory[idToCategory.size()];
 		double[] values = new double[idToCategory.size()];
 		int index = 0;
-		for (String id : idToCategory.keySet()) {
+		for (Long id : idToCategory.keySet()) {
 			categories[index] = idToCategory.get(id);
 			values[index] = idToValue.get(id);
 			index++;
@@ -95,7 +95,7 @@ public class CostCalculator {
 		costResult.appendFixCosts(categories, values);
 	}
 
-	private List<ProductCostEntry> fetchFixCostEntries(List<String> productIds) {
+	private List<ProductCostEntry> fetchFixCostEntries(List<Long> productIds) {
 		FixCostEntryQuery query = new FixCostEntryQuery();
 		BlockFetch<ProductCostEntry> fetch = new BlockFetch<>(query);
 		return fetch.doFetch(productIds);
@@ -104,7 +104,7 @@ public class CostCalculator {
 	private class FixCostEntryQuery implements QueryFunction<ProductCostEntry> {
 
 		@Override
-		public List<ProductCostEntry> fetchChunk(List<String> processIds) {
+		public List<ProductCostEntry> fetchChunk(List<Long> processIds) {
 			try {
 				String jpql = "select e from ProductCostEntry e where e.processId "
 						+ "in :processIds AND e.costCategory.fix = true";

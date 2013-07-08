@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 class ProductExchangeTable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private Map<String, List<ProductExchange>> processInputs = new HashMap<>();
-	private Map<String, List<ProductExchange>> outputsForFlow = new HashMap<>();
+	private Map<Long, List<ProductExchange>> processInputs = new HashMap<>();
+	private Map<Long, List<ProductExchange>> outputsForFlow = new HashMap<>();
 	private IDatabase database;
 
 	private final String SELECT_EXCHANGE = "SELECT e.id, e.f_owner, e.f_flow, "
@@ -38,8 +38,8 @@ class ProductExchangeTable {
 	 * Loads the product inputs of the processes with the given IDs into this
 	 * table.
 	 */
-	public void loadProductInputs(Collection<String> processIds) {
-		List<String> realIds = filterKeys(processInputs, processIds);
+	public void loadProductInputs(Collection<Long> processIds) {
+		List<Long> realIds = filterKeys(processInputs, processIds);
 		if (realIds.isEmpty())
 			return;
 		log.trace("Load inputs for {} processes", realIds.size());
@@ -53,8 +53,8 @@ class ProductExchangeTable {
 	}
 
 	/** Loads the process outputs with the given flows into the table. */
-	public void loadOutputsWithFlows(Collection<String> flowIds) {
-		List<String> realIds = filterKeys(outputsForFlow, flowIds);
+	public void loadOutputsWithFlows(Collection<Long> flowIds) {
+		List<Long> realIds = filterKeys(outputsForFlow, flowIds);
 		if (realIds.isEmpty())
 			return;
 		log.trace("Load process outputs for {} flows", realIds.size());
@@ -65,10 +65,9 @@ class ProductExchangeTable {
 			put(result.getFlowId(), result, outputsForFlow);
 	}
 
-	private List<String> filterKeys(Map<String, ?> map,
-			Collection<String> rawList) {
-		List<String> filtered = new ArrayList<>();
-		for (String rawKey : rawList) {
+	private List<Long> filterKeys(Map<Long, ?> map, Collection<Long> rawList) {
+		List<Long> filtered = new ArrayList<>();
+		for (Long rawKey : rawList) {
 			if (map.containsKey(rawKey))
 				continue;
 			filtered.add(rawKey);
@@ -83,10 +82,10 @@ class ProductExchangeTable {
 			while (rs.next()) {
 				ProductExchange e = new ProductExchange();
 				e.setAmount(rs.getDouble("resultingamount_value"));
-				e.setDefaultProviderId(rs.getString("f_default_provider"));
-				e.setFlowId(rs.getString("f_flow"));
-				e.setId(rs.getString("id"));
-				e.setProcessId(rs.getString("f_owner"));
+				e.setDefaultProviderId(rs.getLong("f_default_provider"));
+				e.setFlowId(rs.getLong("f_flow"));
+				e.setId(rs.getLong("id"));
+				e.setProcessId(rs.getLong("f_owner"));
 				results.add(e);
 			}
 			return results;
@@ -97,25 +96,25 @@ class ProductExchangeTable {
 	}
 
 	/** Get the product inputs of the process with the given ID. */
-	public List<ProductExchange> getProductInputs(String processId) {
+	public List<ProductExchange> getProductInputs(long processId) {
 		return get(processInputs, processId);
 	}
 
 	/** Get the process outputs where the flow with the given ID is used. */
-	public List<ProductExchange> getOutputsWithFlow(String flowId) {
+	public List<ProductExchange> getOutputsWithFlow(long flowId) {
 		return get(outputsForFlow, flowId);
 	}
 
-	private List<ProductExchange> get(Map<String, List<ProductExchange>> map,
-			String key) {
+	private List<ProductExchange> get(Map<Long, List<ProductExchange>> map,
+			long key) {
 		List<ProductExchange> r = map.get(key);
 		if (r == null)
 			return Collections.emptyList();
 		return r;
 	}
 
-	private void put(String key, ProductExchange result,
-			Map<String, List<ProductExchange>> map) {
+	private void put(long key, ProductExchange result,
+			Map<Long, List<ProductExchange>> map) {
 		List<ProductExchange> list = map.get(key);
 		if (list == null) {
 			list = new ArrayList<>();
@@ -125,11 +124,11 @@ class ProductExchangeTable {
 			list.add(result);
 	}
 
-	private String asSql(List<String> ids) {
+	private String asSql(List<Long> ids) {
 		StringBuilder b = new StringBuilder();
 		b.append('(');
 		for (int i = 0; i < ids.size(); i++) {
-			b.append('\'').append(ids.get(i)).append('\'');
+			b.append(ids.get(i));
 			if (i < (ids.size() - 1))
 				b.append(',');
 		}

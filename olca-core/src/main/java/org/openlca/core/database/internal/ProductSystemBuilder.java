@@ -93,10 +93,10 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 			productSystemProcesses.add(process.getRefId());
 		}
 		// get existing links
-		Map<String, org.openlca.core.model.ProcessLink> existingLinks = new HashMap<>();
+		Map<Long, org.openlca.core.model.ProcessLink> existingLinks = new HashMap<>();
 		for (org.openlca.core.model.ProcessLink link : productSystem
 				.getProcessLinks()) {
-			existingLinks.put(link.getRecipientInput().getRefId(), link);
+			existingLinks.put(link.getRecipientInput().getId(), link);
 		}
 		processes.add(startProcessId);
 
@@ -111,8 +111,8 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 				} else {
 					if (!productSystemProcesses.contains(existingLink
 							.getProviderProcess().getRefId())) {
-						processes
-								.add(existingLink.getProviderProcess().getRefId());
+						processes.add(existingLink.getProviderProcess()
+								.getRefId());
 						productSystemProcesses.add(existingLink
 								.getProviderProcess().getRefId());
 					}

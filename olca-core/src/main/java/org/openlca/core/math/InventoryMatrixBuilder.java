@@ -82,8 +82,8 @@ public class InventoryMatrixBuilder {
 	private void makeInterventionMatrixEntries(Process process,
 			Exchange exchange) {
 		int row = flowIndex.getIndex(exchange.getFlow());
-		List<String> processProducts = productIndex.getProducts(process);
-		for (String productId : processProducts) {
+		List<Long> processProducts = productIndex.getProducts(process);
+		for (Long productId : processProducts) {
 			int col = productIndex.getIndex(productId);
 			if (row < 0 || col < 0) // allocated outputs
 				continue;
@@ -97,10 +97,10 @@ public class InventoryMatrixBuilder {
 	}
 
 	private void makeTechnologyMatrixEntries(Process process, Exchange input) {
-		List<String> processProducts = productIndex.getProducts(process);
-		String outputKey = productIndex.getLinkedOutputKey(input);
+		List<Long> processProducts = productIndex.getProducts(process);
+		Long outputKey = productIndex.getLinkedOutputKey(input);
 		int row = productIndex.getIndex(outputKey);
-		for (String productId : processProducts) {
+		for (Long productId : processProducts) {
 			int col = productIndex.getIndex(productId);
 			double oldValue = technologyMatrix.getEntry(row, col);
 			double newValue = -1 * input.getConvertedResult();

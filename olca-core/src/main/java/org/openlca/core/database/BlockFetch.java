@@ -19,8 +19,7 @@ public class BlockFetch<T> {
 	}
 
 	/** Creates a new BlockFetch and runs the given query function. */
-	public static <T> List<T> doFetch(List<String> ids,
-			QueryFunction<T> function) {
+	public static <T> List<T> doFetch(List<Long> ids, QueryFunction<T> function) {
 		BlockFetch<T> fetch = new BlockFetch<>(function);
 		return fetch.doFetch(ids);
 	}
@@ -29,15 +28,15 @@ public class BlockFetch<T> {
 	 * Split the given IDs into chunks with a size not greater than
 	 * {@link Dao#MAX_LIST_SIZE}, run the queries and return the results.
 	 */
-	public List<T> doFetch(List<String> ids) {
+	public List<T> doFetch(List<Long> ids) {
 		if (ids == null || ids.isEmpty())
 			return Collections.emptyList();
-		List<String> restToLoad = new ArrayList<>(ids);
+		List<Long> restToLoad = new ArrayList<>(ids);
 		List<T> results = new ArrayList<>();
 		while (!restToLoad.isEmpty()) {
 			int toPos = restToLoad.size() > BaseDao.MAX_LIST_SIZE ? BaseDao.MAX_LIST_SIZE
 					: restToLoad.size();
-			List<String> nextChunk = restToLoad.subList(0, toPos);
+			List<Long> nextChunk = restToLoad.subList(0, toPos);
 			List<T> chunkResults = func.fetchChunk(nextChunk);
 			results.addAll(chunkResults);
 			nextChunk.clear(); // clears also the elements in rest
@@ -49,7 +48,7 @@ public class BlockFetch<T> {
 	 * A function that does the query for a chunk of IDs.
 	 */
 	public interface QueryFunction<T> {
-		List<T> fetchChunk(List<String> ids);
+		List<T> fetchChunk(List<Long> ids);
 	}
 
 }

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 class ProcessTypeTable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private Map<String, ProcessType> typeMap = new HashMap<>();
+	private Map<Long, ProcessType> typeMap = new HashMap<>();
 	private IDatabase database;
 
 	public ProcessTypeTable(IDatabase database) {
@@ -30,9 +30,9 @@ class ProcessTypeTable {
 	 * significant performance lost if the processes are already contained in
 	 * this table.
 	 */
-	public void load(Collection<String> processIds) {
-		List<String> fetchIds = new ArrayList<>();
-		for (String processId : processIds) {
+	public void load(Collection<Long> processIds) {
+		List<Long> fetchIds = new ArrayList<>();
+		for (Long processId : processIds) {
 			if (typeMap.containsKey(processId))
 				continue;
 			fetchIds.add(processId);
@@ -42,14 +42,14 @@ class ProcessTypeTable {
 		realLoad(fetchIds);
 	}
 
-	private void realLoad(List<String> fetchIds) {
+	private void realLoad(List<Long> fetchIds) {
 		String query = "select id, processtype from tbl_processes where id in ";
 		query += asSql(fetchIds);
 		log.trace("load process types for {} processes", fetchIds);
 		try (Connection con = database.createConnection();
 				ResultSet rs = con.createStatement().executeQuery(query)) {
 			while (rs.next()) {
-				String processId = rs.getString("id");
+				long processId = rs.getLong("id");
 				int type = rs.getInt("processtype");
 				ProcessType processType = type == 0 ? ProcessType.LCI_Result
 						: ProcessType.UnitProcess;
@@ -60,11 +60,11 @@ class ProcessTypeTable {
 		}
 	}
 
-	private String asSql(List<String> ids) {
+	private String asSql(List<Long> ids) {
 		StringBuilder b = new StringBuilder();
 		b.append('(');
 		for (int i = 0; i < ids.size(); i++) {
-			b.append('\'').append(ids.get(i)).append('\'');
+			b.append(ids.get(i));
 			if (i < (ids.size() - 1))
 				b.append(',');
 		}
@@ -72,7 +72,7 @@ class ProcessTypeTable {
 		return b.toString();
 	}
 
-	public ProcessType getType(String processId) {
+	public ProcessType getType(long processId) {
 		return typeMap.get(processId);
 	}
 

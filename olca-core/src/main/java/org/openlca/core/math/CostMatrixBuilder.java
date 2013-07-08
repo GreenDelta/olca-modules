@@ -38,7 +38,7 @@ public class CostMatrixBuilder {
 
 	public CostMatrix build() {
 		productIndex = new ProductIndex(productSystem);
-		List<String> productIds = productIndex.getProductIds();
+		List<Long> productIds = productIndex.getProductIds();
 		List<ProductCostEntry> costEntries = fetchVariableCostEntries(productIds);
 		if (costEntries == null || costEntries.isEmpty())
 			return CostMatrix.empty();
@@ -79,7 +79,8 @@ public class CostMatrixBuilder {
 		}
 	}
 
-	private List<ProductCostEntry> fetchVariableCostEntries(List<String> productIds) {
+	private List<ProductCostEntry> fetchVariableCostEntries(
+			List<Long> productIds) {
 		VariableCostEntryQuery query = new VariableCostEntryQuery();
 		BlockFetch<ProductCostEntry> fetch = new BlockFetch<>(query);
 		return fetch.doFetch(productIds);
@@ -99,12 +100,12 @@ public class CostMatrixBuilder {
 	}
 
 	private void makeCostEntries(Exchange exchange) {
-		List<ProductCostEntry> entries = productCostMap.get(exchange.getRefId());
+		List<ProductCostEntry> entries = productCostMap.get(exchange.getId());
 		if (entries == null || entries.isEmpty())
 			return;
 		for (ProductCostEntry entry : entries) {
 			int row = costCategoryIndex.getIndex(entry.getCostCategory());
-			int col = productIndex.getIndex(exchange.getRefId());
+			int col = productIndex.getIndex(exchange.getId());
 			if (row >= 0 && col >= 0)
 				costMatrix.setEntry(row, col, entry.getAmount());
 		}
@@ -113,10 +114,10 @@ public class CostMatrixBuilder {
 	// TODO: same code as in intervention matrix builder
 
 	private void makeTechnologyMatrixEntries(Process process, Exchange input) {
-		List<String> processProducts = productIndex.getProducts(process);
-		String outputKey = productIndex.getLinkedOutputKey(input);
+		List<Long> processProducts = productIndex.getProducts(process);
+		Long outputKey = productIndex.getLinkedOutputKey(input);
 		int row = productIndex.getIndex(outputKey);
-		for (String productId : processProducts) {
+		for (Long productId : processProducts) {
 			int col = productIndex.getIndex(productId);
 			double oldValue = technologyMatrix.getEntry(row, col);
 			double newValue = -1
@@ -129,7 +130,7 @@ public class CostMatrixBuilder {
 		}
 	}
 
-	private double getResultingAmount(Exchange exchange, String productId,
+	private double getResultingAmount(Exchange exchange, Long productId,
 			AllocationMethod allocationMethod) {
 		double result = exchange.getConvertedResult();
 		AllocationFactor allocationFactor = exchange
@@ -148,10 +149,11 @@ public class CostMatrixBuilder {
 		technologyMatrix.setEntry(idx, idx, newValue);
 	}
 
-	private class VariableCostEntryQuery implements QueryFunction<ProductCostEntry> {
+	private class VariableCostEntryQuery implements
+			QueryFunction<ProductCostEntry> {
 
 		@Override
-		public List<ProductCostEntry> fetchChunk(List<String> productIds) {
+		public List<ProductCostEntry> fetchChunk(List<Long> productIds) {
 			try {
 				String jpql = "select e from ProductCostEntry e where e.exchangeId "
 						+ "in :productIds AND e.costCategory.fix = false";

@@ -67,7 +67,7 @@ public class AllocationMatrix {
 			int column = productIndex.getIndex(process, product);
 			for (Exchange exchange : process.getExchanges()) {
 				AllocationFactor f = exchange.getAllocationFactor(product
-						.getRefId());
+						.getId());
 				if (f == null)
 					continue;
 				double factor = f.getValue();
@@ -92,7 +92,7 @@ public class AllocationMatrix {
 	private void putFactor(ProductIndex productIndex, FlowIndex flowIndex,
 			int column, Exchange exchange, double factor) {
 		if (productIndex.isLinkedInput(exchange)) {
-			String key = productIndex.getLinkedOutputKey(exchange);
+			Long key = productIndex.getLinkedOutputKey(exchange);
 			int row = productIndex.getIndex(key);
 			putFactor(row, column, factor, techColumns);
 		} else if (flowIndex.contains(exchange.getFlow())) {

@@ -275,8 +275,8 @@ public class AnalysisResult implements IResultData {
 
 	public double getScalingFactor(Process process) {
 		double factor = 0;
-		List<String> productIds = productIndex.getProducts(process);
-		for (String productId : productIds) {
+		List<Long> productIds = productIndex.getProducts(process);
+		for (long productId : productIds) {
 			int idx = productIndex.getIndex(productId);
 			factor += scalingFactors[idx];
 		}
@@ -321,7 +321,7 @@ public class AnalysisResult implements IResultData {
 		if (row < 0 || row >= rows)
 			return 0;
 		double colSum = 0;
-		for (String productId : productIndex.getProducts(process)) {
+		for (Long productId : productIndex.getProducts(process)) {
 			int col = productIndex.getIndex(productId);
 			if (col < 0 || col >= cols)
 				continue;

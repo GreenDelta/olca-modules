@@ -54,12 +54,12 @@ public class ImpactMatrixBuilder {
 				ImpactCategoryDescriptor.class);
 		ImpactMethodDao dao = new ImpactMethodDao(database.getEntityFactory());
 		for (ImpactCategoryDescriptor cat : dao
-				.getCategoryDescriptors(methodDescriptor.getRefId()))
+				.getCategoryDescriptors(methodDescriptor.getId()))
 			index.put(cat);
 		return index;
 	}
 
-	private void fill(ImpactMatrix matrix, List<String> flowIds) {
+	private void fill(ImpactMatrix matrix, List<Long> flowIds) {
 		FlowIndex flowIndex = matrix.getFlowIndex();
 		Index<ImpactCategoryDescriptor> categoryIndex = matrix
 				.getCategoryIndex();
@@ -82,10 +82,10 @@ public class ImpactMatrixBuilder {
 		}
 	}
 
-	private List<String> getFlowIds(FlowIndex index) {
-		List<String> ids = new ArrayList<>(index.size() + 2);
+	private List<Long> getFlowIds(FlowIndex index) {
+		List<Long> ids = new ArrayList<>(index.size() + 2);
 		for (Flow flow : index.getFlows())
-			ids.add(flow.getRefId());
+			ids.add(flow.getId());
 		return ids;
 	}
 
@@ -98,13 +98,13 @@ public class ImpactMatrixBuilder {
 		}
 
 		@Override
-		public List<ImpactFactor> fetchChunk(List<String> flowIds) {
+		public List<ImpactFactor> fetchChunk(List<Long> flowIds) {
 			try {
 				String jpql = "select factor from LCIACategory cat join "
 						+ "cat.lciaFactors factor where cat.id = :catId and "
 						+ "factor.flow.id in :flowIds";
 				Map<String, Object> params = new HashMap<>();
-				params.put("catId", category.getRefId());
+				params.put("catId", category.getId());
 				params.put("flowIds", flowIds);
 				return Query.on(database).getAll(ImpactFactor.class, jpql,
 						params);

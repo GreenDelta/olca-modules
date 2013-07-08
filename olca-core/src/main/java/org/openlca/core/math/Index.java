@@ -5,17 +5,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.openlca.core.model.Indexable;
-
 /**
  * Maps a set off n sequentially added objects to an index 0 <= i < n, where the
  * first added value gets the index 0 and the last n-1. The index class is one
  * of the main data structure to map objects to rows and columns in the matrix
  * method.
  */
-public class Index<T extends Indexable> {
+public class Index<T> {
 
-	private HashMap<String, Integer> map = new HashMap<>();
+	private HashMap<T, Integer> map = new HashMap<>();
 	private List<T> items = new ArrayList<>();
 	private Class<T> contentType;
 
@@ -31,12 +29,12 @@ public class Index<T extends Indexable> {
 		if (contains(item))
 			return;
 		int idx = map.size();
-		map.put(item.getRefId(), idx);
+		map.put(item, idx);
 		items.add(item);
 	}
 
 	public boolean contains(T item) {
-		return map.containsKey(item.getRefId());
+		return map.containsKey(item);
 	}
 
 	/**
@@ -44,7 +42,7 @@ public class Index<T extends Indexable> {
 	 * contained in the index.
 	 */
 	public int getIndex(T item) {
-		Integer idx = map.get(item.getRefId());
+		Integer idx = map.get(item);
 		if (idx == null)
 			return -1;
 		return idx;

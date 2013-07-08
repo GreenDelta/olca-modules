@@ -1,48 +1,50 @@
 package org.openlca.core.database.internal;
 
+import com.google.common.primitives.Longs;
+
 /**
  * Internal representation of a product input or output. The ID is the real
  * exchange ID from the database.
  */
 class ProductExchange {
 
-	private String id;
-	private String processId;
-	private String flowId;
+	private long id;
+	private long processId;
+	private long flowId;
 	private double amount;
-	private String defaultProviderId;
+	private Long defaultProviderId;
 
 	/** Only valid for inputs. */
-	public String getDefaultProviderId() {
+	public Long getDefaultProviderId() {
 		return defaultProviderId;
 	}
 
 	/** Only valid for inputs. */
-	public void setDefaultProviderId(String defaultProviderId) {
+	public void setDefaultProviderId(Long defaultProviderId) {
 		this.defaultProviderId = defaultProviderId;
 	}
 
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public String getProcessId() {
+	public long getProcessId() {
 		return processId;
 	}
 
-	public void setProcessId(String processId) {
+	public void setProcessId(long processId) {
 		this.processId = processId;
 	}
 
-	public String getFlowId() {
+	public long getFlowId() {
 		return flowId;
 	}
 
-	public void setFlowId(String flowId) {
+	public void setFlowId(long flowId) {
 		this.flowId = flowId;
 	}
 
@@ -56,10 +58,7 @@ class ProductExchange {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+		return Longs.hashCode(id);
 	}
 
 	@Override
@@ -71,12 +70,7 @@ class ProductExchange {
 		if (getClass() != obj.getClass())
 			return false;
 		ProductExchange other = (ProductExchange) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
+		return this.id == other.id;
 	}
 
 }

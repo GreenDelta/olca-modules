@@ -26,9 +26,9 @@ class ProductSystemTable {
 
 	public void merge(ProductSystem system, Collection<ProductLink> newLinks) {
 		Set<ProductLink> oldLinks = fetchLinks(system);
-		Set<String> oldProcesses = fetchProcesses(system);
-		Set<String> newProcesses = fetchProcesses(newLinks);
-		insertProcesses(system.getRefId(), filter(newProcesses, oldProcesses));
+		Set<Long> oldProcesses = fetchProcesses(system);
+		Set<Long> newProcesses = fetchProcesses(newLinks);
+		insertProcesses(system.getId(), filter(newProcesses, oldProcesses));
 		insertLinks(system.getRefId(), filter(newLinks, oldLinks));
 		database.getEntityFactory().getCache().evictAll();
 	}
@@ -43,11 +43,12 @@ class ProductSystemTable {
 		try (Connection con = database.createConnection()) {
 			PreparedStatement stmt = con.prepareStatement(sql);
 			for (ProductLink link : links) {
-				stmt.setString(1, UUID.randomUUID().toString());
-				stmt.setString(2, link.getInput().getId());
-				stmt.setString(3, link.getInput().getProcessId());
-				stmt.setString(4, link.getOutput().getId());
-				stmt.setString(5, link.getOutput().getProcessId());
+				stmt.setString(1, UUID.randomUUID().toString()); // TODO: will
+																	// fail
+				stmt.setLong(2, link.getInput().getId());
+				stmt.setLong(3, link.getInput().getProcessId());
+				stmt.setLong(4, link.getOutput().getId());
+				stmt.setLong(5, link.getOutput().getProcessId());
 				stmt.addBatch();
 			}
 			stmt.executeBatch();
@@ -56,7 +57,7 @@ class ProductSystemTable {
 		}
 	}
 
-	private void insertProcesses(String systemId, Set<String> processes) {
+	private void insertProcesses(long systemId, Set<Long> processes) {
 		if (processes.isEmpty())
 			return;
 		String sql = "INSERT INTO tbl_productsystem_process(f_process,f_productsystem) "
@@ -64,8 +65,8 @@ class ProductSystemTable {
 		log.trace("insert {} system processes", processes.size());
 		try (Connection con = database.createConnection()) {
 			PreparedStatement stmt = con.prepareStatement(sql);
-			for (String processId : processes) {
-				stmt.setString(1, processId);
+			for (Long processId : processes) {
+				stmt.setLong(1, processId);
 				stmt.addBatch();
 			}
 			stmt.executeBatch();
@@ -74,8 +75,8 @@ class ProductSystemTable {
 		}
 	}
 
-	private Set<String> fetchProcesses(Collection<ProductLink> newLinks) {
-		Set<String> newProcesses = new HashSet<>();
+	private Set<Long> fetchProcesses(Collection<ProductLink> newLinks) {
+		Set<Long> newProcesses = new HashSet<>();
 		for (ProductLink newLink : newLinks) {
 			newProcesses.add(newLink.getInput().getProcessId());
 			newProcesses.add(newLink.getOutput().getProcessId());
@@ -92,10 +93,10 @@ class ProductSystemTable {
 		return filtered;
 	}
 
-	private Set<String> fetchProcesses(ProductSystem system) {
-		Set<String> oldProcesses = new HashSet<>();
+	private Set<Long> fetchProcesses(ProductSystem system) {
+		Set<Long> oldProcesses = new HashSet<>();
 		for (Process process : system.getProcesses())
-			oldProcesses.add(process.getRefId());
+			oldProcesses.add(process.getId());
 		return oldProcesses;
 	}
 
@@ -113,9 +114,9 @@ class ProductSystemTable {
 		ProductExchange output = new ProductExchange();
 		Exchange exchange = realLink.getProviderOutput();
 		output.setAmount(exchange.getResultingAmount().getValue());
-		output.setFlowId(exchange.getFlow().getRefId());
-		output.setId(exchange.getRefId());
-		output.setProcessId(realLink.getProviderProcess().getRefId());
+		output.setFlowId(exchange.getFlow().getId());
+		output.setId(exchange.getId());
+		output.setProcessId(realLink.getProviderProcess().getId());
 		return output;
 	}
 
@@ -124,9 +125,9 @@ class ProductSystemTable {
 		Exchange exchange = realLink.getRecipientInput();
 		input.setAmount(exchange.getResultingAmount().getValue());
 		input.setDefaultProviderId(exchange.getDefaultProviderId());
-		input.setFlowId(exchange.getFlow().getRefId());
-		input.setId(exchange.getRefId());
-		input.setProcessId(realLink.getRecipientProcess().getRefId());
+		input.setFlowId(exchange.getFlow().getId());
+		input.setId(exchange.getId());
+		input.setProcessId(realLink.getRecipientProcess().getId());
 		return input;
 	}
 

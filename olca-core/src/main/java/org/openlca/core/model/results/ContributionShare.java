@@ -2,20 +2,17 @@ package org.openlca.core.model.results;
 
 import java.util.List;
 
-import org.openlca.core.model.AbstractEntity;
-
 /** Class for calculating the relative share of a contribution. */
 class ContributionShare {
 
 	private ContributionShare() {
 	}
 
-	public static void calculate(
-			List<? extends Contribution<? extends AbstractEntity>> contributions) {
+	public static void calculate(List<? extends Contribution<?>> contributions) {
 		if (contributions == null || contributions.isEmpty())
 			return;
 		double refVal = getRefValue(contributions);
-		for (Contribution<? extends AbstractEntity> c : contributions) {
+		for (Contribution<?> c : contributions) {
 			double share = share(c.getAmount(), refVal);
 			c.setShare(share);
 		}
@@ -28,12 +25,12 @@ class ContributionShare {
 	}
 
 	private static double getRefValue(
-			List<? extends Contribution<? extends AbstractEntity>> contributions) {
-		Contribution<? extends AbstractEntity> first = contributions.get(0);
+			List<? extends Contribution<?>> contributions) {
+		Contribution<?> first = contributions.get(0);
 		double max = first.getAmount();
 		double min = max;
 		for (int i = 1; i < contributions.size(); i++) {
-			Contribution<? extends AbstractEntity> next = contributions.get(i);
+			Contribution<?> next = contributions.get(i);
 			double nextVal = next.getAmount();
 			max = Math.max(max, nextVal);
 			min = Math.min(min, nextVal);

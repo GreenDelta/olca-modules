@@ -51,7 +51,6 @@ public class MatrixSolver {
 		double[] g = MatrixMethod.solve(system, matrix);
 		List<Exchange> exchanges = ExchangeResultList
 				.on(database)
-				.withOwner(system.getRefId())
 				.withReferenceFlow(system.getReferenceExchange().getFlow(),
 						system.getConvertedTargetAmount())
 				.create(matrix.getFlowIndex(), g);

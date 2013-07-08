@@ -108,7 +108,7 @@ public class ProductSystem extends CategorizedEntity implements
 	 *         The links where the process with the given id is recipient
 	 *         </p>
 	 */
-	public ProcessLink[] getIncomingLinks(final String processId) {
+	public ProcessLink[] getIncomingLinks(long processId) {
 		final List<ProcessLink> incoming = new ArrayList<>();
 		for (final ProcessLink link : getProcessLinks(processId)) {
 			if (link.getRecipientProcess().getRefId().equals(processId)) {
@@ -130,7 +130,7 @@ public class ProductSystem extends CategorizedEntity implements
 	 *         The links where the process with the given id is provider
 	 *         </p>
 	 */
-	public ProcessLink[] getOutgoingLinks(final String processId) {
+	public ProcessLink[] getOutgoingLinks(long processId) {
 		final List<ProcessLink> outgoing = new ArrayList<>();
 		for (final ProcessLink link : getProcessLinks(processId)) {
 			if (link.getProviderProcess().getRefId().equals(processId)) {
@@ -151,12 +151,11 @@ public class ProductSystem extends CategorizedEntity implements
 	 *         provider or recipient
 	 *         </p>
 	 */
-	public ProcessLink[] getProcessLinks(final String processId) {
+	public ProcessLink[] getProcessLinks(long processId) {
 		final List<ProcessLink> processLinks = new ArrayList<>();
 		for (final ProcessLink processLink : getProcessLinks()) {
-			if (processLink.getProviderProcess().getRefId().equals(processId)
-					|| processLink.getRecipientProcess().getRefId()
-							.equals(processId)) {
+			if (processLink.getProviderProcess().getId() == processId
+					|| processLink.getRecipientProcess().getId() == processId) {
 				processLinks.add(processLink);
 			}
 		}

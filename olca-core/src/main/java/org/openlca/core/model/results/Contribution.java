@@ -1,9 +1,8 @@
 package org.openlca.core.model.results;
 
-import org.openlca.core.model.AbstractEntity;
 
 /** Generic container for results of a contribution analysis. */
-public class Contribution<T extends AbstractEntity> {
+public class Contribution<T> {
 
 	private T item;
 	private double amount;

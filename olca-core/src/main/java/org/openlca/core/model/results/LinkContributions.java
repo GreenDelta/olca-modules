@@ -24,7 +24,7 @@ import org.openlca.util.Doubles;
  */
 public class LinkContributions {
 
-	private HashMap<String, Double> shares = new HashMap<>();
+	private HashMap<Long, Double> shares = new HashMap<>();
 
 	private LinkContributions() {
 	}
@@ -44,9 +44,9 @@ public class LinkContributions {
 	 * product system. The returned share is a value between 0 and 1.
 	 */
 	public double getShare(ProcessLink link) {
-		if (link == null || link.getRefId() == null)
+		if (link == null)
 			return 0;
-		Double share = shares.get(link.getRefId());
+		Double share = shares.get(link.getId());
 		return share == null ? 0 : share;
 	}
 
@@ -59,7 +59,7 @@ public class LinkContributions {
 			if (group == null || group.size() == 0)
 				continue;
 			if (group.size() == 1)
-				shares.put(group.get(0).getRefId(), 1.0);
+				shares.put(group.get(0).getId(), 1.0);
 			else
 				putShares(group, factors);
 		}
@@ -115,7 +115,7 @@ public class LinkContributions {
 			return;
 		for (int i = 0; i < group.size(); i++) {
 			double share = inputAmounts[i] / sum;
-			shares.put(group.get(i).getRefId(), share);
+			shares.put(group.get(i).getId(), share);
 		}
 	}
 
@@ -126,7 +126,7 @@ public class LinkContributions {
 			if (!valid(link))
 				continue;
 			String key = link.getProviderProcess().getRefId()
-					+ link.getProviderOutput().getRefId();
+					+ link.getProviderOutput().getId();
 			List<ProcessLink> links = groups.get(key);
 			if (links == null) {
 				links = new ArrayList<>();
