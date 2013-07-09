@@ -17,6 +17,7 @@ public class DataSet {
 
 	private List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
 	private List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
+	private List<Parameter> parameters = new ArrayList<>();
 
 	public Activity getActivity() {
 		return activity;
@@ -71,6 +72,10 @@ public class DataSet {
 		return intermediateExchanges;
 	}
 
+	public List<Parameter> getParameters() {
+		return parameters;
+	}
+
 	static DataSet fromXml(Document doc) {
 		Element root = getRootElement(doc);
 		if (root == null)
@@ -82,17 +87,28 @@ public class DataSet {
 	}
 
 	private static void readFlowData(Element root, DataSet dataSet) {
-		List<Element> elementaryExchanges = In.childs(root, "flowData",
+		Element flowData = In.child(root, "flowData");
+		if (flowData == null)
+			return;
+		List<Element> elementaryExchanges = In.childs(flowData,
 				"elementaryExchange");
 		for (Element e : elementaryExchanges) {
 			ElementaryExchange exchange = ElementaryExchange.fromXml(e);
-			dataSet.getElementaryExchanges().add(exchange);
+			if (exchange != null)
+				dataSet.getElementaryExchanges().add(exchange);
 		}
-		List<Element> intermediateExchanges = In.childs(root, "flowData",
+		List<Element> intermediateExchanges = In.childs(flowData,
 				"intermediateExchange");
 		for (Element e : intermediateExchanges) {
 			IntermediateExchange exchange = IntermediateExchange.fromXml(e);
-			dataSet.getIntermediateExchanges().add(exchange);
+			if (exchange != null)
+				dataSet.getIntermediateExchanges().add(exchange);
+		}
+		List<Element> parameters = In.childs(flowData, "parameter");
+		for (Element e : parameters) {
+			Parameter p = Parameter.fromXml(e);
+			if (p != null)
+				dataSet.getParameters().add(p);
 		}
 	}
 
@@ -152,12 +168,12 @@ public class DataSet {
 	}
 
 	private void writeFlowData(Element flowData) {
-		for (IntermediateExchange exchange : intermediateExchanges) {
+		for (IntermediateExchange exchange : intermediateExchanges)
 			flowData.addContent(exchange.toXml());
-		}
-		for (ElementaryExchange exchange : elementaryExchanges) {
+		for (ElementaryExchange exchange : elementaryExchanges)
 			flowData.addContent(exchange.toXml());
-		}
+		for (Parameter parameter : parameters)
+			flowData.addContent(parameter.toXml());
 	}
 
 }
