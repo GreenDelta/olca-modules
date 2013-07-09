@@ -1,5 +1,7 @@
 package org.openlca.ecospold2;
 
+import org.jdom2.Element;
+
 public class Classification {
 
 	private String classificationId;
@@ -28,6 +30,27 @@ public class Classification {
 
 	public void setClassificationValue(String classificationValue) {
 		this.classificationValue = classificationValue;
+	}
+
+	static Classification fromXml(Element element) {
+		if (element == null)
+			return null;
+		Classification classification = new Classification();
+		classification.setClassificationId(element
+				.getAttributeValue("classificationId"));
+		classification.setClassificationSystem(In.childText(element,
+				"classificationSystem"));
+		classification.setClassificationValue(In.childText(element,
+				"classificationValue"));
+		return classification;
+	}
+
+	Element toXml() {
+		Element element = new Element("classification", Out.NS);
+		element.setAttribute("classificationId", classificationId);
+		Out.addChild(element, "classificationSystem", classificationSystem);
+		Out.addChild(element, "classificationValue", classificationValue);
+		return element;
 	}
 
 }

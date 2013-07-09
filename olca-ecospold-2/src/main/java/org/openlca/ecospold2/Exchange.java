@@ -1,5 +1,7 @@
 package org.openlca.ecospold2;
 
+import org.jdom2.Element;
+
 public abstract class Exchange {
 
 	private String id;
@@ -82,6 +84,43 @@ public abstract class Exchange {
 
 	public void setOutputGroup(Integer outputGroup) {
 		this.outputGroup = outputGroup;
+	}
+
+	protected void readValues(Element element) {
+		String amount = element.getAttributeValue("amount");
+		setAmount(In.decimal(amount));
+		setId(element.getAttributeValue("id"));
+		setMathematicalRelation(element
+				.getAttributeValue("mathematicalRelation"));
+		setName(In.childText(element, "name"));
+		setUnitName(In.childText(element, "unitName"));
+		setComment(In.childText(element, "comment"));
+		setUnitId(element.getAttributeValue("unitId"));
+		String inGroup = In.childText(element, "inputGroup");
+		if (inGroup != null)
+			setInputGroup(In.integer(inGroup));
+		else {
+			String outGroup = In.childText(element, "outputGroup");
+			setOutputGroup(In.integer(outGroup));
+		}
+	}
+
+	protected void writeValues(Element element) {
+		element.setAttribute("id", id);
+		element.setAttribute("unitId", unitId);
+		element.setAttribute("amount", Double.toString(amount));
+		if (mathematicalRelation != null)
+			element.setAttribute("mathematicalRelation", mathematicalRelation);
+		Out.addChild(element, "name", name);
+		Out.addChild(element, "unitName", unitName);
+		if (comment != null)
+			Out.addChild(element, "comment", comment);
+
+		if (inputGroup != null)
+			Out.addChild(element, "inputGroup").setText(inputGroup.toString());
+		else if (outputGroup != null)
+			Out.addChild(element, "outputGroup")
+					.setText(outputGroup.toString());
 	}
 
 }

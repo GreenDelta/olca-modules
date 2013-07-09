@@ -16,9 +16,9 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.io.EcoSpold2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

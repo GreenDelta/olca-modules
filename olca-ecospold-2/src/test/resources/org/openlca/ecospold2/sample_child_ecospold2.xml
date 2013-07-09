@@ -24,16 +24,12 @@
 				<tag>tag2</tag>
 			</activity>
 			<classification classificationId="a2cfa5cb-7e0a-4b16-88d6-75bececda629">
-				<classificationSystem xml:lang="en">ISIC rev.4
-					ecoinvent</classificationSystem>
-				<classificationValue xml:lang="en">0112:Growing of
-					rice</classificationValue>
+				<classificationSystem xml:lang="en">ISIC rev.4 ecoinvent</classificationSystem>
+				<classificationValue xml:lang="en">0112:Growing of rice</classificationValue>
 			</classification>
 			<classification classificationId="359b3be8-bc56-4abf-a04b-294115165214">
-				<classificationSystem xml:lang="en">EcoSpold01Categories
-				</classificationSystem>
-				<classificationValue xml:lang="en">agricultural means
-					of production/mineral fertiliser</classificationValue>
+				<classificationSystem xml:lang="en">EcoSpold01Categories</classificationSystem>
+				<classificationValue xml:lang="en">agricultural means of production/mineral fertiliser</classificationValue>
 			</classification>
 			<geography geographyId="1023d322-7d7e-11de-9ae2-0019e336be3a">
 				<shortname xml:lang="en">AX</shortname>

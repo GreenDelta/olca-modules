@@ -1,8 +1,10 @@
-package org.openlca.ecospold2.io;
+package org.openlca.ecospold2;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,8 +98,34 @@ class In {
 			return Double.parseDouble(val);
 		} catch (Exception e) {
 			Logger log = Logger.getGlobal();
-			log.log(Level.WARNING, "Failed to parse double", e);
+			log.log(Level.WARNING, "Failed to parse double " + val, e);
 			return 0;
+		}
+	}
+
+	public static boolean bool(String val) {
+		if (val == null)
+			return false;
+		try {
+			return Boolean.parseBoolean(val);
+		} catch (Exception e) {
+			Logger log = Logger.getGlobal();
+			log.log(Level.WARNING, "Failed to parse boolean " + val, e);
+			return false;
+		}
+	}
+
+	public static Date date(String val, String pattern) {
+		if (val == null)
+			return null;
+		try {
+			SimpleDateFormat format = new SimpleDateFormat(pattern);
+			return format.parse(val);
+		} catch (Exception e) {
+			Logger log = Logger.getGlobal();
+			log.log(Level.WARNING, "Failed to parse date " + val + " format "
+					+ pattern, e);
+			return null;
 		}
 	}
 
@@ -108,7 +136,7 @@ class In {
 			return Integer.parseInt(val);
 		} catch (Exception e) {
 			Logger log = Logger.getGlobal();
-			log.log(Level.WARNING, "Failed to parse integer", e);
+			log.log(Level.WARNING, "Failed to parse integer " + val, e);
 			return -1;
 		}
 	}

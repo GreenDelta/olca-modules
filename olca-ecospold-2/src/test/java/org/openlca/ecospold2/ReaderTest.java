@@ -1,4 +1,4 @@
-package org.openlca.ecospold2.io;
+package org.openlca.ecospold2;
 
 import java.io.InputStream;
 import java.util.List;
@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
@@ -47,6 +48,9 @@ public class ReaderTest {
 		DataSet dataSet = read(file);
 		List<Classification> classifications = dataSet.getClassifications();
 		Assert.assertEquals(2, classifications.size());
+		Classification classification = classifications.get(0);
+		Assert.assertEquals("ISIC rev.4 ecoinvent",
+				classification.getClassificationSystem());
 	}
 
 	@Theory
