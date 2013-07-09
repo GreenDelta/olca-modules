@@ -7,12 +7,12 @@ following snippet shows how you can read or write a data set using this API:
 	DataSet dataSet = EcoSpold02.read(aFileOrStream);
 	
 	// write a data set to a file or output stream
-	EcoSpold02.write(aFileOrStream);
+	EcoSpold02.write(dataSet, aFileOrStream);
 	
 Dependencies
 ------------
 Internally, we use [JDOM 2](https://github.com/hunterhacker/jdom) to map XML to
-this API and back again.
+the domain model and back again.
 
 TODO
 ----
@@ -21,3 +21,4 @@ TODO
 * mathematical formulas of exchanges
 * other uncertainty distributions
 * meta information: modeling and validation and administrative information
+* master data
