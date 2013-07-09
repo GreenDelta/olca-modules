@@ -11,6 +11,7 @@ public abstract class Exchange {
 	private String unitName;
 	private String mathematicalRelation;
 	private String comment;
+	private Uncertainty uncertainty;
 	private Integer outputGroup;
 	private Integer inputGroup;
 
@@ -70,6 +71,14 @@ public abstract class Exchange {
 		this.comment = comment;
 	}
 
+	public void setUncertainty(Uncertainty uncertainty) {
+		this.uncertainty = uncertainty;
+	}
+
+	public Uncertainty getUncertainty() {
+		return uncertainty;
+	}
+
 	public Integer getInputGroup() {
 		return inputGroup;
 	}
@@ -96,6 +105,7 @@ public abstract class Exchange {
 		setUnitName(In.childText(element, "unitName"));
 		setComment(In.childText(element, "comment"));
 		setUnitId(element.getAttributeValue("unitId"));
+		setUncertainty(Uncertainty.fromXml(In.child(element, "uncertainty")));
 		String inGroup = In.childText(element, "inputGroup");
 		if (inGroup != null)
 			setInputGroup(In.integer(inGroup));
@@ -115,7 +125,12 @@ public abstract class Exchange {
 		Out.addChild(element, "unitName", unitName);
 		if (comment != null)
 			Out.addChild(element, "comment", comment);
+		if (uncertainty != null)
+			element.addContent(uncertainty.toXml());
 
+	}
+
+	protected void writeInputOutputGroup(Element element) {
 		if (inputGroup != null)
 			Out.addChild(element, "inputGroup").setText(inputGroup.toString());
 		else if (outputGroup != null)

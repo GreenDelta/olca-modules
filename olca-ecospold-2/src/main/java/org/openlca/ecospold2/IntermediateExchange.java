@@ -40,6 +40,8 @@ public class IntermediateExchange extends Exchange {
 		if (activityLinkId != null)
 			element.setAttribute("activityLinkId", activityLinkId);
 		writeValues(element);
+
+		writeInputOutputGroup(element);
 		return element;
 	}
 
