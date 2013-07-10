@@ -16,9 +16,6 @@ the domain model and back again.
 
 TODO
 ----
-* properties under exchanges
-* parameters in exchanges
-* mathematical formulas of exchanges
 * other uncertainty distributions
-* meta information: modeling and validation and administrative information
+* meta information: modelling and validation and administrative information
 * master data

@@ -1,5 +1,8 @@
 package org.openlca.ecospold2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jdom2.Element;
 
 public abstract class Exchange {
@@ -12,6 +15,7 @@ public abstract class Exchange {
 	private String mathematicalRelation;
 	private String comment;
 	private Uncertainty uncertainty;
+	private List<Property> properties = new ArrayList<>();
 	private Integer outputGroup;
 	private Integer inputGroup;
 
@@ -106,6 +110,14 @@ public abstract class Exchange {
 		setComment(In.childText(element, "comment"));
 		setUnitId(element.getAttributeValue("unitId"));
 		setUncertainty(Uncertainty.fromXml(In.child(element, "uncertainty")));
+
+		List<Element> propElems = In.childs(element, "property");
+		for (Element propElem : propElems) {
+			Property property = Property.fromXml(propElem);
+			if (property != null)
+				properties.add(property);
+		}
+
 		String inGroup = In.childText(element, "inputGroup");
 		if (inGroup != null)
 			setInputGroup(In.integer(inGroup));
@@ -127,7 +139,8 @@ public abstract class Exchange {
 			Out.addChild(element, "comment", comment);
 		if (uncertainty != null)
 			element.addContent(uncertainty.toXml());
-
+		for (Property property : properties)
+			element.addContent(property.toXml());
 	}
 
 	protected void writeInputOutputGroup(Element element) {
