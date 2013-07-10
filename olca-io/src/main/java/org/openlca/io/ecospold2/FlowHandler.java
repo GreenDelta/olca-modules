@@ -1,19 +1,12 @@
 package org.openlca.io.ecospold2;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -38,30 +31,6 @@ class FlowHandler {
 
 	public FlowHandler(IDatabase database) {
 		this.database = database;
-		try {
-			loadMaps();
-		} catch (Exception e) {
-			log.error("Failed to load unit - maps", e);
-		}
-	}
-
-	private void loadMaps() throws Exception {
-		InputStream is = getClass().getResourceAsStream("ei3_unit_map.csv");
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		String line = null;
-		while ((line = reader.readLine()) != null) {
-			String[] args = line.split(",");
-			String eiUnit = args[0];
-			EntityManagerFactory emf = database.getEntityFactory();
-			RootEntityDao<Unit> unitDao = new RootEntityDao<>(Unit.class, emf);
-			Unit unit = unitDao.getForRefId(args[1]);
-			FlowPropertyDao propDao = new FlowPropertyDao(emf);
-			FlowProperty prop = propDao.getForRefId(args[2]);
-			if (unit != null && prop != null) {
-				unitMap.put(eiUnit, unit);
-				propertyMap.put(eiUnit, prop);
-			}
-		}
 	}
 
 	public Unit getUnit(String id) {

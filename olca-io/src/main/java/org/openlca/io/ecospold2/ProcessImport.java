@@ -1,6 +1,5 @@
 package org.openlca.io.ecospold2;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -16,7 +15,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.slf4j.Logger;
@@ -34,9 +32,8 @@ class ProcessImport {
 		this.flowHandler = new FlowHandler(database);
 	}
 
-	public void importStream(InputStream stream) {
+	public void importDataSet(DataSet dataSet) {
 		try {
-			DataSet dataSet = EcoSpold2.read(stream);
 			if (dataSet == null) {
 				log.warn("not an EcoSpold data set");
 				return;

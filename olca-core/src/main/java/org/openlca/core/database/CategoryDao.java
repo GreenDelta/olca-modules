@@ -8,7 +8,7 @@ import javax.persistence.EntityManagerFactory;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 
-public class CategoryDao extends BaseDao<Category> {
+public class CategoryDao extends RootEntityDao<Category> {
 
 	public CategoryDao(EntityManagerFactory entityFactory) {
 		super(Category.class, entityFactory);
