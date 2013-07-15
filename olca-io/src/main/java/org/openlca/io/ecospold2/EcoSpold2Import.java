@@ -10,13 +10,34 @@ import org.slf4j.LoggerFactory;
 public class EcoSpold2Import {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private ProcessImport processImport;
+	private IDatabase database;
 
 	public EcoSpold2Import(IDatabase database) {
-		this.processImport = new ProcessImport(database);
+		this.database = database;
 	}
 
 	public void run(File[] files) {
+		RefDataIndex index = importRefData(files);
+		importProcesses(files, index);
+	}
+
+	private RefDataIndex importRefData(File[] files) {
+		log.trace("import reference data");
+		RefDataImport refDataImport = new RefDataImport(database);
+		try (DataSetIterator iterator = new DataSetIterator(files)) {
+			while (iterator.hasNext()) {
+				DataSet dataSet = iterator.next();
+				refDataImport.importDataSet(dataSet);
+			}
+		} catch (Exception e) {
+			log.error("reference data import failed", e);
+		}
+		return refDataImport.getIndex();
+	}
+
+	private void importProcesses(File[] files, RefDataIndex index) {
+		log.trace("import processes");
+		ProcessImport processImport = new ProcessImport(database, index);
 		try (DataSetIterator iterator = new DataSetIterator(files)) {
 			while (iterator.hasNext()) {
 				DataSet dataSet = iterator.next();
@@ -26,5 +47,4 @@ public class EcoSpold2Import {
 			log.error("process import failed", e);
 		}
 	}
-
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Unit;
@@ -15,9 +16,11 @@ class RefDataIndex {
 
 	private Map<String, Category> processCategories = new HashMap<>();
 	private Map<String, Category> compartments = new HashMap<>();
+	private Map<String, Category> productCategories = new HashMap<>();
 	private Map<String, Location> locations = new HashMap<>();
 	private Map<String, Unit> units = new HashMap<>();
 	private Map<String, FlowProperty> flowProperties = new HashMap<>();
+	private Map<String, Flow> flows = new HashMap<>();
 
 	public Category getProcessCategory(String key) {
 		return processCategories.get(key);
@@ -59,4 +62,21 @@ class RefDataIndex {
 		compartments.put(key, category);
 	}
 
+	/** The key is the ID of the product, NOT the ID of the category. */
+	public Category getProductCategory(String key) {
+		return productCategories.get(key);
+	}
+
+	/** The key is the ID of the product, NOT the ID of the category. */
+	public void putProductCategory(String key, Category category) {
+		productCategories.put(key, category);
+	}
+
+	public Flow getFlow(String key) {
+		return flows.get(key);
+	}
+
+	public void putFlow(String key, Flow flow) {
+		flows.put(key, flow);
+	}
 }

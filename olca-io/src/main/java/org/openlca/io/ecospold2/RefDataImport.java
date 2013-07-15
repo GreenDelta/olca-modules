@@ -7,11 +7,15 @@ import java.io.InputStreamReader;
 import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
@@ -19,7 +23,10 @@ import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.Compartment;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
+import org.openlca.ecospold2.Exchange;
 import org.openlca.ecospold2.Geography;
+import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.io.Categories;
 import org.openlca.io.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +39,19 @@ class RefDataImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
+	private IDatabase database;
 	private CategoryDao categoryDao;
+	private FlowDao flowDao;
 	private RootEntityDao<Location> locationDao;
 	private RefDataIndex index;
 
 	public RefDataImport(IDatabase database) {
+		this.database = database;
 		this.index = new RefDataIndex();
 		this.categoryDao = new CategoryDao(database.getEntityFactory());
 		this.locationDao = new RootEntityDao<>(Location.class,
 				database.getEntityFactory());
+		this.flowDao = new FlowDao(database.getEntityFactory());
 		try {
 			loadUnitMaps(database);
 		} catch (Exception e) {
@@ -80,8 +91,14 @@ class RefDataImport {
 		try {
 			classification(dataSet);
 			geography(dataSet);
-			for (ElementaryExchange exchange : dataSet.getElementaryExchanges())
+			for (IntermediateExchange exchange : dataSet
+					.getIntermediateExchanges()) {
+				productFlow(dataSet, exchange);
+			}
+			for (ElementaryExchange exchange : dataSet.getElementaryExchanges()) {
 				compartment(exchange.getCompartment());
+				elementaryFlow(exchange);
+			}
 		} catch (Exception e) {
 			log.error("failed to import reference data from data set", e);
 		}
@@ -141,13 +158,119 @@ class RefDataImport {
 	}
 
 	private void compartment(Compartment compartment) {
-		if (compartment == null || compartment.getSubcompartmentId() == null)
+		if (compartment == null || compartment.getSubcompartmentId() == null
+				|| compartment.getSubcompartment() == null
+				|| compartment.getCompartment() == null)
 			return;
 		String refId = compartment.getSubcompartmentId();
 		Category category = index.getCompartment(refId);
 		if (category != null)
 			return;
-
+		category = categoryDao.getForRefId(refId);
+		if (category == null) {
+			Category parent = Categories.findOrCreateRoot(database,
+					ModelType.FLOW, compartment.getCompartment());
+			category = Categories.findOrAddChild(database, parent,
+					compartment.getSubcompartment());
+		}
+		index.putCompartment(refId, category);
 	}
 
+	private void productFlow(DataSet dataSet, IntermediateExchange exchange)
+			throws Exception {
+		String refId = exchange.getIntermediateExchangeId();
+		Integer og = exchange.getOutputGroup();
+		boolean isRef = og != null && og == 0;
+		Category category = getProductCategory(dataSet, exchange);
+		Flow flow = index.getFlow(refId);
+		if (flow == null) {
+			flow = flowDao.getForRefId(refId);
+			if (flow != null)
+				index.putFlow(refId, flow);
+		}
+		if (flow == null)
+			createNewProduct(exchange, refId, category);
+		else {
+			if (!isRef || flow.getCategory() != null || category == null)
+				return;
+			// update the product category if it is a reference flow
+			flow.setCategory(category);
+			flow = flowDao.update(flow);
+			index.putFlow(refId, flow);
+		}
+	}
+
+	private void createNewProduct(IntermediateExchange exchange, String refId,
+			Category category) {
+		Flow flow;
+		flow = new Flow();
+		flow.setRefId(refId);
+		FlowType type = exchange.getAmount() < 0 ? FlowType.WASTE_FLOW
+				: FlowType.PRODUCT_FLOW;
+		flow.setFlowType(type);
+		flow.setCategory(category);
+		createFlow(exchange, flow);
+	}
+
+	private void elementaryFlow(ElementaryExchange exchange) {
+		String refId = exchange.getElementaryExchangeId();
+		Flow flow = index.getFlow(refId);
+		if (flow != null)
+			return;
+		flow = flowDao.getForRefId(refId);
+		if (flow != null) {
+			index.putFlow(refId, flow);
+			return;
+		}
+		Category category = null;
+		if (exchange.getCompartment() != null)
+			category = index.getCompartment(exchange.getCompartment()
+					.getSubcompartmentId());
+		flow = new Flow();
+		flow.setRefId(refId);
+		flow.setCategory(category);
+		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
+		createFlow(exchange, flow);
+	}
+
+	private void createFlow(Exchange exchange, Flow flow) {
+		flow.setName(exchange.getName());
+		FlowProperty prop = index.getFlowProperty(exchange.getUnitId());
+		if (prop == null) {
+			log.warn("unknown unit {}", exchange.getUnitId());
+			return;
+		}
+		FlowPropertyFactor fac = new FlowPropertyFactor();
+		fac.setFlowProperty(prop);
+		fac.setConversionFactor(1.0);
+		flow.getFlowPropertyFactors().add(fac);
+		flow.setReferenceFlowProperty(prop);
+		try {
+			flow = flowDao.insert(flow);
+			index.putFlow(flow.getRefId(), flow);
+		} catch (Exception e) {
+			log.error("Failed to store flow", e);
+		}
+	}
+
+	/**
+	 * Returns only a value if the given exchange is the reference product of
+	 * the data set.
+	 */
+	private Category getProductCategory(DataSet dataSet,
+			IntermediateExchange exchange) {
+		String refId = exchange.getIntermediateExchangeId();
+		Integer og = exchange.getOutputGroup();
+		if (og == null || og != 0)
+			return null;
+		Category category = index.getProductCategory(refId);
+		if (category != null)
+			return category;
+		Classification clazz = findClassification(dataSet);
+		if (clazz == null || clazz.getClassificationValue() == null)
+			return null;
+		Category cat = Categories.findOrCreateRoot(database, ModelType.FLOW,
+				clazz.getClassificationValue());
+		return cat;
+	}
 }

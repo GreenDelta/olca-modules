@@ -1,19 +1,14 @@
 package org.openlca.io.ecospold2;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.ecospold2.Activity;
+import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
@@ -24,12 +19,11 @@ class ProcessImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
-	private FlowHandler flowHandler;
-	private Map<String, Category> processCategories = new HashMap<>();
+	private RefDataIndex index;
 
-	public ProcessImport(IDatabase database) {
+	public ProcessImport(IDatabase database, RefDataIndex index) {
 		this.database = database;
-		this.flowHandler = new FlowHandler(database);
+		this.index = index;
 	}
 
 	public void importDataSet(DataSet dataSet) {
@@ -86,27 +80,41 @@ class ProcessImport {
 		Process process = new Process();
 		process.setRefId(activity.getId());
 		process.setName(activity.getName());
-		setCategory(process);
+		setCategory(dataSet, process);
+		createProductExchanges(dataSet, process);
+		createElementaryExchanges(dataSet, process);
+		database.createDao(Process.class).insert(process);
+	}
+
+	private void createElementaryExchanges(DataSet dataSet, Process process) {
+		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+			if (e.getAmount() == 0)
+				continue;
+			Flow flow = index.getFlow(e.getElementaryExchangeId());
+			if (flow == null) {
+				log.warn("could not create flow for {}",
+						e.getElementaryExchangeId());
+			}
+			createExchange(e, flow, process);
+		}
+	}
+
+	private void createProductExchanges(DataSet dataSet, Process process) {
 		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
 			if (e.getAmount() == 0)
 				continue;
-			Flow flow = flowHandler.getFlow(e);
-			Exchange exchange = createExchange(e, flow, process);
-			if (flow == null)
+			Flow flow = index.getFlow(e.getIntermediateExchangeId());
+			if (flow == null) {
+				log.warn("could not create flow for {}",
+						e.getIntermediateExchangeId());
 				continue;
+			}
+			Exchange exchange = createExchange(e, flow, process);
 			// TODO: default provider!
 			// exchange.setDefaultProviderId(e.getActivityLinkId());
 			if (e.getOutputGroup() != null && e.getOutputGroup() == 0)
 				process.setQuantitativeReference(exchange);
 		}
-
-		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
-			if (e.getAmount() == 0)
-				continue;
-			Flow flow = flowHandler.getFlow(e);
-			createExchange(e, flow, process);
-		}
-		database.createDao(Process.class).insert(process);
 	}
 
 	private Exchange createExchange(org.openlca.ecospold2.Exchange original,
@@ -115,7 +123,7 @@ class ProcessImport {
 			log.warn("invalid exchange {}; not imported", original);
 			return null;
 		}
-		Unit unit = flowHandler.getUnit(original.getUnitId());
+		Unit unit = index.getUnit(original.getUnitId());
 		Exchange exchange = new Exchange();
 		exchange.setInput(original.getInputGroup() != null);
 		exchange.setFlow(flow);
@@ -128,20 +136,14 @@ class ProcessImport {
 		return exchange;
 	}
 
-	// TODO: just for tests
-	private void setCategory(Process process) throws Exception {
-		String pref = process.getName().substring(0, 1).toLowerCase();
-		Category cat = processCategories.get(pref);
-		if (cat == null) {
-			cat = new Category();
-			cat.setModelType(ModelType.PROCESS);
-			cat.setName(pref);
-			cat.setRefId(UUID.randomUUID().toString());
-			BaseDao<Category> dao = database.createDao(Category.class);
-			dao.insert(cat);
-			processCategories.put(pref, cat);
+	private void setCategory(DataSet dataSet, Process process) throws Exception {
+		Category category = null;
+		for (Classification clazz : dataSet.getClassifications()) {
+			category = index.getProcessCategory(clazz.getClassificationId());
+			if (category != null)
+				break;
 		}
-		process.setCategory(cat);
+		process.setCategory(category);
 	}
 
 }
