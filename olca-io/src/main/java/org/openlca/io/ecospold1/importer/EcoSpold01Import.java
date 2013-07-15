@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
  * the database
  */
-public class EcoSpold01Parser {
+public class EcoSpold01Import {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private Category processCategory;
@@ -63,15 +63,18 @@ public class EcoSpold01Parser {
 	private DB db;
 	private FlowImport flowImport;
 
-	public EcoSpold01Parser(Category category, IDatabase iDatabase,
-			UnitMapping unitMapping) {
+	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping) {
 		this.db = new DB(iDatabase);
-		this.processCategory = category;
 		FlowMap flowMap = new FlowMap(MapType.ECOSPOLD_FLOW);
 		this.flowImport = new FlowImport(db, unitMapping, flowMap);
 	}
 
-	public void parse(File file, boolean process) throws Exception {
+	/** Set an optional root category for the new processes. */
+	public void setProcessCategory(Category processCategory) {
+		this.processCategory = processCategory;
+	}
+
+	public void run(File file, boolean process) throws Exception {
 		try (InputStream is = new FileInputStream(file)) {
 			parse(new FileInputStream(file), process);
 		}

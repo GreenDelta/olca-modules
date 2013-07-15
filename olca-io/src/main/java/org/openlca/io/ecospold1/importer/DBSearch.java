@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.IDatabase;
@@ -51,14 +52,18 @@ class DBSearch {
 	public Source findSource(ISource source) {
 		try {
 			log.trace("Search for source {} in database", source.getTitle());
-			String jpql = "select s from Source s where s.name = :name "
-					+ "and s.textReference = :textReference";
+			String jpql = "select s from Source s where s.name = :name";
 			Map<String, Object> args = new HashMap<>();
 			int year = source.getYear() != null ? source.getYear().getYear()
 					: 0;
 			args.put("name", source.getFirstAuthor() + " " + year);
-			args.put("textReference", source.getTitle());
-			return Query.on(database).getFirst(Source.class, jpql, args);
+			Source candidate = Query.on(database).getFirst(Source.class, jpql,
+					args);
+			if (candidate == null)
+				return null;
+			if (Objects.equals(candidate.getTextReference(), source.getTitle()))
+				return candidate;
+			return null;
 		} catch (Exception e) {
 			log.error("Failed to search for Source", e);
 			return null;

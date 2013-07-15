@@ -17,12 +17,13 @@ public class EcoSpold2ImportSample {
 		String tmpDirPath = System.getProperty("java.io.tmpdir");
 		File tmpDir = new File(tmpDirPath + "/olca_test_db_1.4");
 		boolean isNew = !tmpDir.exists();
-		DerbyDatabase database = new DerbyDatabase(tmpDir);
-		if (isNew)
-			database.fill(DatabaseContent.UNITS); // reference data for units
-													// and flow properties
-		try {
 
+		try (DerbyDatabase database = new DerbyDatabase(tmpDir)) {
+
+			if (isNew)
+				database.fill(DatabaseContent.UNITS); // reference data for
+														// units
+														// and flow properties
 			// run the import
 			String dirPath = "C:/Users/Dell/projects/openlca/data/ecoinvent3/default/samples";
 			File dir = new File(dirPath);
@@ -34,5 +35,4 @@ public class EcoSpold2ImportSample {
 		}
 
 	}
-
 }

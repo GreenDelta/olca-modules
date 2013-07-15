@@ -9,11 +9,19 @@
  ******************************************************************************/
 package org.openlca.io;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
+import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Mappings of unit names to unit groups and flow properties in openLCA.
@@ -24,6 +32,64 @@ public class UnitMapping {
 	private HashMap<String, FlowProperty> flowPropertyMappings = new HashMap<>();
 	private HashMap<String, UnitGroup> unitGroupMappings = new HashMap<>();
 	private HashMap<String, UnitMappingEntry> cachedEntries = new HashMap<>();
+
+	/**
+	 * Creates a default mapping for the unit names in the database.
+	 */
+	public static UnitMapping createDefault(IDatabase database) {
+		Logger log = LoggerFactory.getLogger(UnitMapping.class);
+		log.trace("create default mappings");
+		UnitMapping mapping = new UnitMapping();
+		try {
+			for (UnitGroup group : database.createDao(UnitGroup.class).getAll()) {
+				FlowProperty prop = group.getDefaultFlowProperty();
+				if (prop == null)
+					prop = findProperty(database, group);
+				if (prop == null) {
+					log.warn("no flow property found for unit group {}", group);
+					continue;
+				}
+				registerUnits(group, prop, mapping);
+			}
+		} catch (Exception e) {
+			log.error("failed to init. unit mapping", e);
+		}
+		return mapping;
+	}
+
+	private static void registerUnits(UnitGroup group, FlowProperty prop,
+			UnitMapping mapping) {
+		for (Unit unit : group.getUnits()) {
+			List<String> names = unitNames(unit);
+			for (String name : names) {
+				mapping.put(name, prop, group,
+						unit.getConversionFactor());
+			}
+		}
+	}
+
+	private static FlowProperty findProperty(IDatabase database, UnitGroup group)
+			throws Exception {
+		BaseDao<FlowProperty> dao = database.createDao(FlowProperty.class);
+		for (FlowProperty prop : dao.getAll()) {
+			if (Objects.equals(group, prop.getUnitGroup()))
+				return prop;
+		}
+		return null;
+	}
+
+	private static List<String> unitNames(Unit unit) {
+		if (unit == null)
+			return Collections.emptyList();
+		List<String> names = new ArrayList<>();
+		if (unit.getName() != null)
+			names.add(unit.getName());
+		if (unit.getSynonyms() == null || unit.getSynonyms().isEmpty())
+			return names;
+		for (String synonym : unit.getSynonyms().split(";"))
+			names.add(synonym.trim());
+		return names;
+	}
 
 	public Double getConversionFactor(String unitName) {
 		return factors.get(unitName);
