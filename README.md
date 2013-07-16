@@ -3,10 +3,12 @@ openLCA – modules
 
 ** Note that this is not a stable version yet. **
 
-The openLCA modules project includes the basic components of the [openLCA framework]
-(http://openlca.org). The aim of this project is to provide a reusable set of libraries 
-for the JVM with clear dependencies to other open source frameworks. Starting from 
-version 1.4 the openLCA application will be built on of these components.
+The openLCA modules project includes the basic components of the 
+[openLCA framework](http://openlca.org). The aim of this project is to provide a 
+reusable set of libraries for the JVM with clear dependencies to other open source 
+frameworks. Starting from version 1.4 the openLCA application will be built on of 
+these components.
+
 
 Content
 -------
@@ -23,10 +25,22 @@ Content
 * olca-simapro-csv: an API for reading and writing SimaPro CSV files. 
 
 
+Building
+--------
+All components in the modules project are [Maven](http://maven.apache.org/) projects. You 
+can build each module separately or all together via the POM in the root directory:
+
+    mvn clean install
+	
+As this is not yet a stable version, may not all tests work and the build may fail. You
+can skip the tests and the build should work:
+
+	mvn clean install -DskipTests=true
+
 
 License
 -------
 Unless stated otherwise, all source code of the openLCA project is licensed under the 
 [Mozilla Public License, v. 2.0](http://mozilla.org/MPL/2.0/). Please see the LICENSE.txt
-file in this directory.
+file in the root directory of the source code.
  
