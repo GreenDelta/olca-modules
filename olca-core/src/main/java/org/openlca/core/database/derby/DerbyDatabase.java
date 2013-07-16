@@ -20,6 +20,9 @@ import org.openlca.core.database.internal.ScriptRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jolbox.bonecp.BoneCP;
+import com.jolbox.bonecp.BoneCPConfig;
+
 public class DerbyDatabase implements IDatabase {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -27,6 +30,7 @@ public class DerbyDatabase implements IDatabase {
 	private String url;
 	private File folder;
 	private boolean closed = false;
+	private BoneCP connectionPool;
 
 	public DerbyDatabase(File folder) {
 		this.folder = folder;
@@ -86,6 +90,17 @@ public class DerbyDatabase implements IDatabase {
 		map.put("eclipselink.target-database", "Derby");
 		entityFactory = new PersistenceProvider().createEntityManagerFactory(
 				"openLCA", map);
+		initConnectionPool();
+	}
+
+	private void initConnectionPool() {
+		try {
+			BoneCPConfig config = new BoneCPConfig();
+			config.setJdbcUrl(url);
+			connectionPool = new BoneCP(config);
+		} catch (Exception e) {
+			log.error("failed to initialize connection pool", e);
+		}
 	}
 
 	@Override
@@ -95,6 +110,8 @@ public class DerbyDatabase implements IDatabase {
 		log.trace("close database: {}", url);
 		if (entityFactory != null && entityFactory.isOpen())
 			entityFactory.close();
+		if (connectionPool != null)
+			connectionPool.shutdown();
 		try {
 			// TODO: single database shutdown throws unexpected
 			// error in eclipse APP - close all connections here
@@ -117,11 +134,15 @@ public class DerbyDatabase implements IDatabase {
 	}
 
 	@Override
-	// TODO: use a connection pool here
 	public Connection createConnection() {
 		log.trace("create connection: {}", url);
 		try {
-			return DriverManager.getConnection(url);
+			if (connectionPool != null)
+				return connectionPool.getConnection();
+			else {
+				log.warn("no connection pool set up for {}", url);
+				return DriverManager.getConnection(url);
+			}
 		} catch (Exception e) {
 			log.error("Failed to create database connection", e);
 			return null;
