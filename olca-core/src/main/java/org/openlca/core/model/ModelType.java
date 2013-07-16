@@ -29,7 +29,11 @@ public enum ModelType {
 
 	SOURCE(Source.class),
 
-	IMPACT_RESULT(ImpactResult.class);
+	IMPACT_RESULT(ImpactResult.class),
+
+	CATEGORY(Category.class),
+
+	LOCATION(Location.class);
 
 	final Class<?> modelClass;
 

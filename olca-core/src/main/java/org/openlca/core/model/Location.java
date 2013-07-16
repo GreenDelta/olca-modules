@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
@@ -14,18 +13,11 @@ public class Location extends RootEntity {
 	@Column(name = "code")
 	private String code;
 
-	@Lob
-	@Column(name = "description")
-	private String description;
-
 	@Column(name = "latitude")
 	private double latitude;
 
 	@Column(name = "longitude")
 	private double longitude;
-
-	@Column(name = "name")
-	private String name;
 
 	public String getCode() {
 		return code;
@@ -41,10 +33,6 @@ public class Location extends RootEntity {
 		clone.setName(getName());
 		clone.setRefId(UUID.randomUUID().toString());
 		return clone;
-	}
-
-	public String getDescription() {
-		return description;
 	}
 
 	public double getLatitude() {

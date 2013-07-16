@@ -1,7 +1,7 @@
 package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -10,36 +10,39 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.results.ImpactResult;
 
 public class Descriptors {
 
-	public static BaseDescriptor toDescriptor(CategorizedEntity component) {
-		if (component == null)
+	public static BaseDescriptor toDescriptor(RootEntity entity) {
+		if (entity == null)
 			return null;
-		if (component instanceof Project)
-			return toDescriptor((Project) component);
-		if (component instanceof ImpactMethod)
-			return toDescriptor((ImpactMethod) component);
-		if (component instanceof ProductSystem)
-			return toDescriptor((ProductSystem) component);
-		if (component instanceof Process)
-			return toDescriptor((Process) component);
-		if (component instanceof Flow)
-			return toDescriptor((Flow) component);
-		if (component instanceof FlowProperty)
-			return toDescriptor((FlowProperty) component);
-		if (component instanceof UnitGroup)
-			return toDescriptor((UnitGroup) component);
-		if (component instanceof Actor)
-			return toDescriptor((Actor) component);
-		if (component instanceof Source)
-			return toDescriptor((Source) component);
-		if (component instanceof ImpactResult)
-			return toDescriptor((ImpactResult) component);
-		return createUnknownDescriptor(component);
+		if (entity instanceof Project)
+			return toDescriptor((Project) entity);
+		if (entity instanceof ImpactMethod)
+			return toDescriptor((ImpactMethod) entity);
+		if (entity instanceof ProductSystem)
+			return toDescriptor((ProductSystem) entity);
+		if (entity instanceof Process)
+			return toDescriptor((Process) entity);
+		if (entity instanceof Flow)
+			return toDescriptor((Flow) entity);
+		if (entity instanceof FlowProperty)
+			return toDescriptor((FlowProperty) entity);
+		if (entity instanceof UnitGroup)
+			return toDescriptor((UnitGroup) entity);
+		if (entity instanceof Actor)
+			return toDescriptor((Actor) entity);
+		if (entity instanceof Source)
+			return toDescriptor((Source) entity);
+		if (entity instanceof ImpactResult)
+			return toDescriptor((ImpactResult) entity);
+		if (entity instanceof Category)
+			return toDescriptor((Category) entity);
+		return createUnknownDescriptor(entity);
 	}
 
 	public static ProjectDescriptor toDescriptor(Project project) {
@@ -140,15 +143,28 @@ public class Descriptors {
 		return descriptor;
 	}
 
-	private static void setBaseValues(CategorizedEntity component,
-			BaseDescriptor descriptor) {
-		descriptor.setDescription(component.getDescription());
-		descriptor.setId(component.getId());
-		descriptor.setName(component.getName());
+	public static CategoryDescriptor toDescriptor(Category category) {
+		if (category == null)
+			return null;
+		CategoryDescriptor descriptor = new CategoryDescriptor();
+		descriptor.setType(ModelType.CATEGORY);
+		setBaseValues(category, descriptor);
+		String path = category.getName();
+		if (category.getParentCategory() != null)
+			path = category.getParentCategory().getName() + "/" + path;
+		descriptor.setShortPath(path);
+		return descriptor;
 	}
 
-	private static BaseDescriptor createUnknownDescriptor(
-			CategorizedEntity component) {
+	private static void setBaseValues(RootEntity entity,
+			BaseDescriptor descriptor) {
+		descriptor.setRefId(entity.getRefId());
+		descriptor.setDescription(entity.getDescription());
+		descriptor.setId(entity.getId());
+		descriptor.setName(entity.getName());
+	}
+
+	private static BaseDescriptor createUnknownDescriptor(RootEntity component) {
 		BaseDescriptor descriptor = new BaseDescriptor();
 		descriptor.setDescription(component.getDescription());
 		descriptor.setId(component.getId());

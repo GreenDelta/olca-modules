@@ -11,7 +11,6 @@ package org.openlca.core.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 /**
@@ -25,13 +24,6 @@ public class Unit extends RootEntity {
 
 	@Column(name = "conversion_factor")
 	private double conversionFactor = 1d;
-
-	@Lob
-	@Column(name = "description")
-	private String description;
-
-	@Column(name = "name")
-	private String name;
 
 	@Column(name = "synonyms")
 	private String synonyms;
@@ -48,22 +40,6 @@ public class Unit extends RootEntity {
 		unit.setDescription(getDescription());
 		unit.setSynonyms(getSynonyms());
 		return unit;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public String getSynonyms() {

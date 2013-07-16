@@ -103,6 +103,7 @@ public class BaseDao<T> implements IDao<T> {
 
 	@Override
 	public T getForId(long id) throws Exception {
+		log.trace("get {} for id={}", entityType, id);
 		EntityManager entityManager = createManager();
 		try {
 			T o = entityManager.find(entityType, id);
@@ -218,6 +219,17 @@ public class BaseDao<T> implements IDao<T> {
 
 	protected Query query() {
 		return Query.on(getEntityFactory());
+	}
+
+	public T detach(T val) {
+		EntityManager em = createManager();
+		try {
+			em.detach(val);
+			return val;
+		} catch (Exception e) {
+			log.error("detaching entity failed ", e);
+			return val;
+		}
 	}
 
 }

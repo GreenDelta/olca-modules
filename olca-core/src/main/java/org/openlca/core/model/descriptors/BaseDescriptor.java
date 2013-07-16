@@ -16,6 +16,7 @@ public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable 
 
 	private static final long serialVersionUID = -8609519818770549160L;
 
+	private String refId;
 	private long id;
 	private String name;
 	private String description;
@@ -35,6 +36,14 @@ public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable 
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getRefId() {
+		return refId;
+	}
+
+	public void setRefId(String refId) {
+		this.refId = refId;
 	}
 
 	public String getName() {
