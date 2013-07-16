@@ -6,8 +6,8 @@ import java.util.List;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.core.model.lean.ImpactCategoryDescriptor;
+import org.openlca.core.model.lean.ImpactMethodDescriptor;
 
 public class CalculationSetup {
 

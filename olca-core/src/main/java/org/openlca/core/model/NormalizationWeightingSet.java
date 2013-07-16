@@ -10,7 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.lean.ImpactCategoryDescriptor;
 
 @Entity
 @Table(name = "tbl_normalisation_weighting_sets")

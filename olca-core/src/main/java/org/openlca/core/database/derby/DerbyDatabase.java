@@ -75,6 +75,7 @@ public class DerbyDatabase implements IDatabase {
 		try (Connection con = createConnection()) {
 			ScriptRunner runner = new ScriptRunner(con);
 			runner.run(resource.getStream(), "utf-8");
+			con.commit();
 		} catch (Exception e) {
 			log.error("failed to fill database with  content", e);
 		}

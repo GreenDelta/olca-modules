@@ -13,8 +13,8 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.Query;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.core.model.lean.ImpactCategoryDescriptor;
+import org.openlca.core.model.lean.ImpactMethodDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

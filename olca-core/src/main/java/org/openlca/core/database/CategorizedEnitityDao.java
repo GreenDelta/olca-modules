@@ -8,7 +8,7 @@ import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.lean.BaseDescriptor;
 
 import com.google.common.base.Optional;
 

@@ -2,7 +2,7 @@ package org.openlca.core;
 
 import java.util.List;
 
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.lean.BaseDescriptor;
 
 public class ListUtils {
 

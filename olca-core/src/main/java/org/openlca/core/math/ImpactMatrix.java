@@ -1,6 +1,6 @@
 package org.openlca.core.math;
 
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.lean.ImpactCategoryDescriptor;
 
 /**
  * A matrix with impact assessment factors where the flows are mapped to the

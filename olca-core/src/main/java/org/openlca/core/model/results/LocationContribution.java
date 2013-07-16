@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.lean.ImpactCategoryDescriptor;
 
 /**
  * Calculates the contributions of the single process results in an analysis

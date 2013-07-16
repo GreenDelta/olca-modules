@@ -10,8 +10,8 @@ import javax.persistence.TypedQuery;
 
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.NormalizationWeightingSet;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.core.model.lean.ImpactCategoryDescriptor;
+import org.openlca.core.model.lean.ImpactMethodDescriptor;
 
 /** The DAO class for impact assessment methods. */
 public class ImpactMethodDao extends CategorizedEnitityDao<ImpactMethod> {

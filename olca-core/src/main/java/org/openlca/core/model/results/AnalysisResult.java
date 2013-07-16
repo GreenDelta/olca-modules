@@ -14,7 +14,7 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.NormalizationWeightingFactor;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.lean.ImpactCategoryDescriptor;
 
 /**
  * The result of an analysis of a product system.

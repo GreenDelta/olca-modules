@@ -557,6 +557,16 @@ CREATE TABLE tbl_process_group_sets (
 	PRIMARY KEY (id)	
 ) ;
 
+CREATE TABLE tbl_technosphere_links (
+	f_process BIGINT NOT NULL,
+	f_flow BIGINT NOT NULL,
+	amount DOUBLE,
+	is_input SMALLINT default 0,
+	is_waste SMALLINT default 0
+);
+CREATE INDEX idx_tech_link_process ON tbl_technosphere_links(f_process);
+CREATE INDEX idx_tech_link_flow ON tbl_technosphere_links(f_flow);
+
 -- the version entry
 INSERT INTO openlca_version(id, version, name) 
 	VALUES('b3dae112-8c6f-4c0e-9843-4758af2441cc', '1.4.0', 'openLCA');

@@ -1,4 +1,4 @@
-package org.openlca.core.model.descriptors;
+package org.openlca.core.model.lean;
 
 import java.io.Serializable;
 

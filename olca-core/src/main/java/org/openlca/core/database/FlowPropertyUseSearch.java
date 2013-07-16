@@ -7,9 +7,9 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.UnitGroupDescriptor;
+import org.openlca.core.model.lean.BaseDescriptor;
+import org.openlca.core.model.lean.FlowDescriptor;
+import org.openlca.core.model.lean.UnitGroupDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

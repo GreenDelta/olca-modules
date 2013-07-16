@@ -7,9 +7,9 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.model.descriptors.ProjectDescriptor;
+import org.openlca.core.model.lean.BaseDescriptor;
+import org.openlca.core.model.lean.ProcessDescriptor;
+import org.openlca.core.model.lean.ProjectDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

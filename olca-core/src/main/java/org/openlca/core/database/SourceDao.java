@@ -5,7 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.Source;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.lean.BaseDescriptor;
 
 public class SourceDao extends CategorizedEnitityDao<Source> {
 
