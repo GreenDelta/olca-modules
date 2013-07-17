@@ -4,6 +4,7 @@ import org.openlca.core.model.UncertaintyDistributionType;
 
 public class CalcExchange {
 
+	private long processId;
 	private long flowId;
 	private long exchangeId;
 	private double conversionFactor;
@@ -111,6 +112,14 @@ public class CalcExchange {
 
 	public void setParameter3Formula(String parameter3Formula) {
 		this.parameter3Formula = parameter3Formula;
+	}
+
+	public void setProcessId(long processId) {
+		this.processId = processId;
+	}
+
+	public long getProcessId() {
+		return processId;
 	}
 
 }

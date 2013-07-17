@@ -1,6 +1,5 @@
 package org.openlca.core.indices;
 
-
 public class LongPair implements Comparable<LongPair> {
 
 	private long first;
@@ -29,6 +28,10 @@ public class LongPair implements Comparable<LongPair> {
 		long h = first * 79 + second;
 		int hash = (int) ((h >> 32) ^ h);
 		return hash;
+	}
+
+	public boolean equals(long first, long second) {
+		return this.first == first && this.second == second;
 	}
 
 	@Override

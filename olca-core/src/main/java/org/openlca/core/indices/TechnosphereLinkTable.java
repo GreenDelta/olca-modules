@@ -139,7 +139,6 @@ public class TechnosphereLinkTable implements Closeable {
 			insertStatement = null;
 			con = null;
 		}
-
 	}
 
 }
