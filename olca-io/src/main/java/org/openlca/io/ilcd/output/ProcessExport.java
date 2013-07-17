@@ -183,7 +183,7 @@ public class ProcessExport {
 		log.trace("Create process LCI method.");
 		LCIMethod iMethod = new LCIMethod();
 		if (process.getProcessType() != null) {
-			if (process.getProcessType() == ProcessType.UnitProcess) {
+			if (process.getProcessType() == ProcessType.UNIT_PROCESS) {
 				iMethod.setProcessType(org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX);
 			} else {
 				iMethod.setProcessType(org.openlca.ilcd.commons.ProcessType.LCI_RESULT);

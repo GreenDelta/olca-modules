@@ -51,8 +51,8 @@ class ProcessTypeTable {
 			while (rs.next()) {
 				long processId = rs.getLong("id");
 				int type = rs.getInt("processtype");
-				ProcessType processType = type == 0 ? ProcessType.LCI_Result
-						: ProcessType.UnitProcess;
+				ProcessType processType = type == 0 ? ProcessType.LCI_RESULT
+						: ProcessType.UNIT_PROCESS;
 				typeMap.put(processId, processType);
 			}
 		} catch (Exception e) {

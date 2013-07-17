@@ -17,6 +17,8 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -27,6 +29,7 @@ import javax.persistence.Table;
 public class Flow extends CategorizedEntity {
 
 	@Column(name = "flow_type")
+	@Enumerated(EnumType.STRING)
 	private FlowType flowType;
 
 	@Column(name = "cas_number")

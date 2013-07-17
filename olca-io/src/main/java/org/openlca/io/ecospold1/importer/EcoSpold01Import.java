@@ -22,7 +22,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.TechnosphereLinkIndex;
+import org.openlca.core.indices.TechnosphereLinkTable;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -65,11 +65,11 @@ public class EcoSpold01Import implements Closeable {
 	private HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
 	private DB db;
 	private FlowImport flowImport;
-	private TechnosphereLinkIndex linkIndex;
+	private TechnosphereLinkTable linkIndex;
 
 	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping) {
 		this.db = new DB(iDatabase);
-		this.linkIndex = new TechnosphereLinkIndex(iDatabase);
+		this.linkIndex = new TechnosphereLinkTable(iDatabase);
 		FlowMap flowMap = new FlowMap(MapType.ECOSPOLD_FLOW);
 		this.flowImport = new FlowImport(db, unitMapping, flowMap);
 	}
@@ -216,7 +216,7 @@ public class EcoSpold01Import implements Closeable {
 		mapSources(documentation, dataSet);
 
 		db.put(process, processId);
-		linkIndex.index(process);
+		linkIndex.store(process);
 		localExchangeCache.clear();
 	}
 

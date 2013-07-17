@@ -11,8 +11,8 @@ package org.openlca.core.model;
 
 public enum ProcessType {
 
-	LCI_Result,
+	LCI_RESULT,
 
-	UnitProcess;
+	UNIT_PROCESS;
 
 }

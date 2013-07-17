@@ -49,12 +49,12 @@ class Mapper {
 
 	public static ProcessType getProcessType(DataSet dataset) {
 		if (dataset == null || dataset.getDataSetInformation() == null)
-			return ProcessType.UnitProcess;
+			return ProcessType.UNIT_PROCESS;
 		IDataSetInformation info = dataset.getDataSetInformation();
 		if (info.getType() == 2)
-			return ProcessType.LCI_Result;
+			return ProcessType.LCI_RESULT;
 		else
-			return ProcessType.UnitProcess;
+			return ProcessType.UNIT_PROCESS;
 	}
 
 	public static void mapModellingAndValidation(DataSet dataSet,

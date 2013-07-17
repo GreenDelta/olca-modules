@@ -1,4 +1,4 @@
-package org.openlca.core.database;
+package org.openlca.core.indices;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
@@ -16,14 +17,14 @@ import org.openlca.core.model.lean.TechnosphereLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TechnosphereLinkIndex implements Closeable {
+public class TechnosphereLinkTable implements Closeable {
 
 	private IDatabase database;
 	private PreparedStatement insertStatement;
 	private Connection con;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public TechnosphereLinkIndex(IDatabase database) {
+	public TechnosphereLinkTable(IDatabase database) {
 		this.database = database;
 	}
 
@@ -41,7 +42,7 @@ public class TechnosphereLinkIndex implements Closeable {
 		}
 	}
 
-	public void index(Process process) {
+	public void store(Process process) {
 		if (process == null)
 			return;
 		log.trace("index technosphere links for process {}", process.getId());

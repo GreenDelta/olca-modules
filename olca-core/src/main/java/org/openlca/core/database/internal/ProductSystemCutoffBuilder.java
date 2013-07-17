@@ -155,8 +155,8 @@ public class ProductSystemCutoffBuilder implements IProductSystemBuilder {
 			ProductExchange oldCandidate) {
 		if (oldCandidate == null)
 			return true;
-		ProcessType preferredType = preferSystemProcesses ? ProcessType.LCI_Result
-				: ProcessType.UnitProcess;
+		ProcessType preferredType = preferSystemProcesses ? ProcessType.LCI_RESULT
+				: ProcessType.UNIT_PROCESS;
 		ProcessType newType = processTypeTable.getType(newCandidate
 				.getProcessId());
 		ProcessType oldType = processTypeTable.getType(oldCandidate

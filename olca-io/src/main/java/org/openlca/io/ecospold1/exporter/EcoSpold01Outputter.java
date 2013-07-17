@@ -167,7 +167,7 @@ public class EcoSpold01Outputter {
 		}
 
 		// map type
-		if (process.getProcessType() == ProcessType.LCI_Result) {
+		if (process.getProcessType() == ProcessType.LCI_RESULT) {
 			dataSet.getDataSetInformation().setType(2);
 		} else {
 			if (process.getOutputs(FlowType.PRODUCT_FLOW).length > 1) {

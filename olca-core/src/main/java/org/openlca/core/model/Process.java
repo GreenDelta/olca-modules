@@ -53,7 +53,7 @@ public class Process extends CategorizedEntity implements IParameterisable {
 
 	@Column(name = "process_type")
 	@Enumerated(EnumType.STRING)
-	private ProcessType processType = ProcessType.UnitProcess;
+	private ProcessType processType = ProcessType.UNIT_PROCESS;
 
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_quantitative_reference")

@@ -266,13 +266,13 @@ public class ProcessImport {
 		if (ilcdProcess.getProcessType() != null) {
 			switch (ilcdProcess.getProcessType()) {
 			case UNIT_PROCESS_BLACK_BOX:
-				process.setProcessType(ProcessType.UnitProcess);
+				process.setProcessType(ProcessType.UNIT_PROCESS);
 				break;
 			case UNIT_PROCESS_SINGLE_OPERATION:
-				process.setProcessType(ProcessType.UnitProcess);
+				process.setProcessType(ProcessType.UNIT_PROCESS);
 				break;
 			default:
-				process.setProcessType(ProcessType.LCI_Result);
+				process.setProcessType(ProcessType.LCI_RESULT);
 				break;
 			}
 		}

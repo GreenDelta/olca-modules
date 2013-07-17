@@ -13,6 +13,7 @@ public class TechnosphereLink {
 	private double amount;
 	private boolean input;
 	private boolean waste;
+	private long defaultProviderId;
 
 	public long getProcessId() {
 		return processId;
@@ -52,6 +53,14 @@ public class TechnosphereLink {
 
 	public void setWaste(boolean waste) {
 		this.waste = waste;
+	}
+
+	public long getDefaultProviderId() {
+		return defaultProviderId;
+	}
+
+	public void setDefaultProviderId(long defaultProviderId) {
+		this.defaultProviderId = defaultProviderId;
 	}
 
 }
