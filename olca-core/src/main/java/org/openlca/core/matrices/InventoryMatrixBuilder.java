@@ -93,8 +93,8 @@ public class InventoryMatrixBuilder {
 			return;
 		double val = exchange.isInput() ? -exchange.getAmount() : exchange
 				.getAmount();
-		double old = technologyMatrix.getEntry(row, col);
-		technologyMatrix.setEntry(row, col, old + val);
+		double old = matrix.getEntry(row, col);
+		matrix.setEntry(row, col, old + val);
 	}
 
 }
