@@ -25,13 +25,14 @@ public class ExchangeTable {
 	private void init(IDatabase database, List<Long> processIds) {
 		if (processIds.isEmpty())
 			return;
+		FlowTypeIndex flowTypes = new FlowTypeIndex(database);
 		log.trace("create exchange table for {} processes", processIds.size());
 		try (Connection con = database.createConnection()) {
 			String query = "select * from tbl_exchanges where f_owner in "
 					+ asSql(processIds);
 			ResultSet result = con.createStatement().executeQuery(query);
 			while (result.next()) {
-				CalcExchange exchange = nextExchange(result);
+				CalcExchange exchange = nextExchange(result, flowTypes);
 				index(exchange);
 			}
 			result.close();
@@ -50,7 +51,8 @@ public class ExchangeTable {
 		list.add(exchange);
 	}
 
-	private CalcExchange nextExchange(ResultSet r) throws Exception {
+	private CalcExchange nextExchange(ResultSet r, FlowTypeIndex flowTypes)
+			throws Exception {
 		CalcExchange e = new CalcExchange();
 		e.setProcessId(r.getLong("f_owner"));
 		e.setAmount(r.getDouble("resulting_amount_value"));
@@ -58,6 +60,8 @@ public class ExchangeTable {
 		e.setConversionFactor(1); // TODO: add
 		e.setExchangeId(r.getLong("id"));
 		e.setFlowId(r.getLong("f_flow"));
+		e.setFlowType(flowTypes.getType(e.getFlowId()));
+		e.setInput(r.getBoolean("is_input"));
 		e.setParameter1(r.getDouble("parameter1_value"));
 		e.setParameter2(r.getDouble("parameter2_value"));
 		e.setParameter3(r.getDouble("parameter3_value"));

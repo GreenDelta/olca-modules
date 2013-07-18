@@ -52,4 +52,8 @@ public class LongIndex {
 		return keys;
 	}
 
+	public boolean isEmpty() {
+		return map.isEmpty();
+	}
+
 }

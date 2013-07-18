@@ -26,18 +26,20 @@ public class ProcessTypeIndex {
 		try (Connection con = database.createConnection()) {
 			String query = "select id, process_type from tbl_processes";
 			ResultSet result = con.createStatement().executeQuery(query);
-			while (result.next()) {
-				long id = result.getLong("id");
-				String typeString = result.getString("process_type");
-				ProcessType type = Objects.equals(
-						ProcessType.LCI_RESULT.name(), typeString) ? ProcessType.LCI_RESULT
-						: ProcessType.UNIT_PROCESS;
-				map.put(id, type);
-			}
+			while (result.next())
+				fetchProcessType(result);
 			result.close();
 		} catch (Exception e) {
 			log.error("failed to build process type index", e);
 		}
+	}
+
+	private void fetchProcessType(ResultSet result) throws Exception {
+		long id = result.getLong("id");
+		String typeString = result.getString("process_type");
+		ProcessType type = Objects.equals(ProcessType.LCI_RESULT.name(),
+				typeString) ? ProcessType.LCI_RESULT : ProcessType.UNIT_PROCESS;
+		map.put(id, type);
 	}
 
 	public ProcessType getType(long processId) {

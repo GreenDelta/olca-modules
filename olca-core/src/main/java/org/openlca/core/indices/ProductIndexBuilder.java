@@ -29,11 +29,10 @@ public class ProductIndexBuilder {
 	public ProductIndex build() {
 		linkIndex = new TechnosphereLinkIndex(database);
 		typeIndex = new ProcessTypeIndex(database);
-		ProductIndex index = new ProductIndex();
+		ProductIndex index = new ProductIndex(refProduct);
 		Queue<LongPair> queue = new ArrayDeque<>();
 		List<LongPair> handled = new ArrayList<>();
 		queue.add(refProduct);
-		index.put(refProduct);
 		while (!queue.isEmpty()) {
 			LongPair recipient = queue.poll();
 			handled.add(recipient);

@@ -28,6 +28,17 @@ public class ProductIndex {
 	/** Maps a process ID to the output products of this process. */
 	private final HashMap<Long, List<LongPair>> processProducts = new HashMap<>();
 
+	private LongPair refProduct;
+
+	public ProductIndex(LongPair refProduct) {
+		this.refProduct = refProduct;
+		put(refProduct);
+	}
+
+	public LongPair getRefProduct() {
+		return refProduct;
+	}
+
 	/**
 	 * Returns the number of products in the index. This is equal to the number
 	 * of rows and columns in a technology matrix with this index.

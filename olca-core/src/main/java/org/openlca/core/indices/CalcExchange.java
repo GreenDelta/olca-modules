@@ -8,6 +8,7 @@ public class CalcExchange {
 	private long processId;
 	private long flowId;
 	private long exchangeId;
+	private boolean input;
 	private double conversionFactor;
 	private double amount;
 	private String amountFormula;
@@ -130,6 +131,14 @@ public class CalcExchange {
 
 	public void setFlowType(FlowType flowType) {
 		this.flowType = flowType;
+	}
+
+	public boolean isInput() {
+		return input;
+	}
+
+	public void setInput(boolean input) {
+		this.input = input;
 	}
 
 }

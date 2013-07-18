@@ -3,6 +3,8 @@ package org.openlca.core.indices;
 import java.util.HashMap;
 import java.util.List;
 
+import org.openlca.core.model.FlowType;
+
 /**
  * A flow index represents the flows in the intervention matrix. Thus, this
  * index maps each flow to a row in the intervention matrix.
@@ -29,9 +31,44 @@ public class FlowIndex {
 					continue; // the exchange is an output product
 				if (productIndex.isLinkedInput(productCandidate))
 					continue; // the exchange is a linked input
-
+				if (e.isInput() || e.getFlowType() == FlowType.ELEMENTARY_FLOW)
+					indexFlow(e);
+				// TODO: co-products without allocation
 			}
 		}
+	}
+
+	private void indexFlow(CalcExchange e) {
+		flowIndex.add(e.getFlowId());
+		inputMap.put(e.getFlowId(), e.isInput());
+	}
+
+	public int getIndex(long flowId) {
+		return flowIndex.get(flowId);
+	}
+
+	public boolean contains(long flowId) {
+		return flowIndex.contains(flowId);
+	}
+
+	public boolean isInput(long flowId) {
+		Boolean input = inputMap.get(flowId);
+		if (input == null)
+			return false;
+		else
+			return input;
+	}
+
+	public boolean isEmpty() {
+		return flowIndex.isEmpty();
+	}
+
+	public long[] getFlowIds() {
+		return flowIndex.getKeys();
+	}
+
+	public int size() {
+		return flowIndex.size();
 	}
 
 }
