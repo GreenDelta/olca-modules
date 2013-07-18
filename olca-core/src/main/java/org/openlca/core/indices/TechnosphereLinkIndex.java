@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.lean.TechnosphereLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

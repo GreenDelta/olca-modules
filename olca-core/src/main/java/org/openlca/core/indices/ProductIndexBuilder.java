@@ -7,7 +7,6 @@ import java.util.Queue;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.lean.TechnosphereLink;
 
 // TODO: cut-offs
 public class ProductIndexBuilder {
@@ -44,7 +43,9 @@ public class ProductIndexBuilder {
 				LongPair provider = findProvider(inputLink);
 				if (provider == null)
 					continue;
-				index.putLink(recipient, provider);
+				LongPair recipientInput = new LongPair(
+						inputLink.getProcessId(), inputLink.getFlowId());
+				index.putLink(recipientInput, provider);
 				if (!handled.contains(provider) && !queue.contains(provider))
 					queue.add(provider);
 			}

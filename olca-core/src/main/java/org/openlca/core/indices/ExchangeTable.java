@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.UncertaintyDistributionType;
-import org.openlca.core.model.lean.CalcExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +88,10 @@ public class ExchangeTable {
 		if (list == null)
 			return Collections.emptyList();
 		return list;
+	}
+
+	public Set<Long> getProcessIds() {
+		return exchanges.keySet();
 	}
 
 }

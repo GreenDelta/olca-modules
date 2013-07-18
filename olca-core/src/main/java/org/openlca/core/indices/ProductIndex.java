@@ -89,11 +89,11 @@ public class ProductIndex {
 	}
 
 	/**
-	 * Adds a link between the given products to this index. The products are
-	 * added to this index if they are not yet contained.
+	 * Adds a link between the given products to this index. The output product
+	 * is added to the index if it is not yet contained. NOTE: that the input is
+	 * not part of the index!
 	 */
 	public void putLink(LongPair input, LongPair output) {
-		put(input);
 		put(output);
 		productLinks.put(input, output);
 	}

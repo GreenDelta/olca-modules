@@ -1,5 +1,6 @@
-package org.openlca.core.model.lean;
+package org.openlca.core.indices;
 
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyDistributionType;
 
 public class CalcExchange {
@@ -17,6 +18,7 @@ public class CalcExchange {
 	private String parameter1Formula;
 	private String parameter2Formula;
 	private String parameter3Formula;
+	private FlowType flowType;
 
 	public long getFlowId() {
 		return flowId;
@@ -120,6 +122,14 @@ public class CalcExchange {
 
 	public long getProcessId() {
 		return processId;
+	}
+
+	public FlowType getFlowType() {
+		return flowType;
+	}
+
+	public void setFlowType(FlowType flowType) {
+		this.flowType = flowType;
 	}
 
 }

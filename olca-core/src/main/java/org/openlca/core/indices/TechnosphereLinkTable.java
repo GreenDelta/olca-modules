@@ -13,7 +13,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.lean.TechnosphereLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package org.openlca.core.model.lean;
+package org.openlca.core.indices;
 
 /**
  * Describes an input or output of a product or waste flow of a process (a link
