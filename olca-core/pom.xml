@@ -7,7 +7,7 @@
 	<name>openLCA core API</name>
 	<description>The openLCA core API</description>
 
-	<packaging>bundle</packaging>
+	<packaging>jar</packaging>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -121,25 +121,7 @@
 					<source>1.7</source>
 					<target>1.7</target>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.7</version>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>${project.artifactId}</Bundle-Name>
-						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>org.openlca.core.database,org.openlca.core.jobs,org.openlca.core.math,
-							org.openlca.core.model,org.openlca.core.model.descriptors,org.openlca.util,
-							org.openlca.core.model.modelprovider,org.openlca.core.model.referencesearch,
-							org.openlca.core.model.results
-						</Export-Package>
-					</instructions>
-				</configuration>
-			</plugin>
+			</plugin>			
 		</plugins>
 	</build>
 </project>

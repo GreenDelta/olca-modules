@@ -1,0 +1,5 @@
+# connects to a MySQL database and runs a calculation
+
+# connect to the MySQL database
+mysql localhost:3306/olca_test_db root
+
