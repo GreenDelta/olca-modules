@@ -56,24 +56,35 @@ public class Shell {
 		log.trace("execute command {}", command);
 		String[] args = parseArgs(fullCommand);
 		switch (command) {
+
 		case "exit":
 			exit();
 			break;
+
 		case "quit":
 			exit();
 			break;
+
 		case "mysql":
 			new MySqlCommand().exec(this, args);
 			break;
+
 		case "derby":
 			new DerbyCommand().exec(this, args);
 			break;
+
 		case "load":
 			loadFile(args);
 			break;
+
 		case "sql":
 			new SqlCommand().exec(this, rawLine.substring(4));
 			break;
+
+		case "import":
+			new ImportCommand().exec(this, args);
+			break;
+
 		default:
 			log.info("unknown command ", command);
 			break;

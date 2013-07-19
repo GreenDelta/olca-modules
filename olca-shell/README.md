@@ -62,4 +62,20 @@ or
 
 	sql update tbl_flows set flow_type = 'ELEMENTARY_FLOW'
 	
-	  	
+	
+Import
+------
+
+The `import` command allows to import data sets from different formats:
+
+	import <format> <path to file or directory>
+	
+The following formats are supported:
+
+* EcoSpold_1: the path must be an XML file or a directory with XML files
+
+This an import command could look like:
+
+	import EcoSpold_1 C:\...\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
+
+  	
