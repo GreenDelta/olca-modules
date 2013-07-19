@@ -1,7 +1,11 @@
 # creates a connection to a derby database
 # if the database is new, we create it with all reference data
-
 derby  C:\Users\Dell\Downloads\olca_test_db full
 
+# initialise the BLAS library
+blas C:\Users\Dell\Downloads
+
 # import EcoSpold 01 data sets
-import EcoSpold_1 C:\Users\Dell\projects\data\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
+# import EcoSpold_1 C:\Users\Dell\projects\data\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
+
+solve 20309#20305

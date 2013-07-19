@@ -53,7 +53,6 @@ public class Shell {
 		String command = fullCommand[0].trim().toLowerCase();
 		if (command.isEmpty())
 			return;
-		log.trace("execute command {}", command);
 		String[] args = parseArgs(fullCommand);
 		switch (command) {
 
@@ -63,6 +62,10 @@ public class Shell {
 
 		case "quit":
 			exit();
+			break;
+
+		case "blas":
+			new BlasCommand().exec(args);
 			break;
 
 		case "mysql":
@@ -83,6 +86,10 @@ public class Shell {
 
 		case "import":
 			new ImportCommand().exec(this, args);
+			break;
+
+		case "solve":
+			new SolveCommand().exec(this, args);
 			break;
 
 		default:

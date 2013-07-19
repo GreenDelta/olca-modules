@@ -18,6 +18,17 @@ In such a file every non-empty line is executed as openLCA command except the
 lines that starts with a hash mark (`#`).
 
 
+Loading the BLAS library
+------------------------
+openLCA can calculate using the high performance BLAS library OpenBLAS. To
+initialise this library in a session, you can run the `blas` command which
+takes a file folder as argument, from which the library should be loaded. If
+the folder is empty, openLCA first copies this library into this folder. For
+example the following command initialises the BLAS library:
+
+	blas C:\Users\Dell\Downloads
+
+
 Connect to a database
 ---------------------
 
@@ -79,3 +90,11 @@ This an import command could look like:
 	import EcoSpold_1 C:\...\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
 
   	
+Solving a product system
+------------------------
+
+	solve <process-id>#<product-flow-id>
+	
+e.g.
+
+	solve 20309#20305

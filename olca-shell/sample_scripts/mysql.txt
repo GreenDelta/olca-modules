@@ -1,4 +1,11 @@
 # creates a MySQL connection
-
 mysql localhost:3306/olca_test_db root
 
+# initialise the BLAS library
+blas C:\Users\Dell\Downloads
+
+# import EcoSpold 01 data sets
+# import EcoSpold_1 C:\Users\Dell\projects\data\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
+
+# solve a product system: process=20309 product-flow=20305
+solve 20309#20305
