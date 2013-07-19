@@ -71,9 +71,11 @@ public class MySQLDatabase implements IDatabase {
 	public Connection createConnection() {
 		log.trace("create connection mysql: {} @ {}", user, url);
 		try {
-			if (connectionPool != null)
-				return connectionPool.getConnection();
-			else {
+			if (connectionPool != null) {
+				Connection con = connectionPool.getConnection();
+				con.setAutoCommit(true);
+				return con;
+			} else {
 				log.warn("no connection pool set up for {}", url);
 				return DriverManager.getConnection(url, user, password);
 			}

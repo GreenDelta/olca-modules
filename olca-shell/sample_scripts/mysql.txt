@@ -1,0 +1,4 @@
+# creates a MySQL connection
+
+mysql localhost:3306/olca_test_db root
+

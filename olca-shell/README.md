@@ -47,4 +47,19 @@ allowed types for the database are:
   properties
 * full: the database is created with all the reference data of openLCA
 
+
+SQL Queries
+-----------
+
+If there is a connection to a database, you can execute SQL statements using the
+`sql` command. All SQL statements in the respective database dialect (MySQL, 
+Derby) are allowed. If you execute a SELECT query the results of the query are
+printed on the screen. Examples for SQL commands are
+
+	sql select * from tbl_flows where name like 'a%'
 	
+or
+
+	sql update tbl_flows set flow_type = 'ELEMENTARY_FLOW'
+	
+	  	

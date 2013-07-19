@@ -21,6 +21,10 @@ public class Shell {
 		this.database = database;
 	}
 
+	public IDatabase getDatabase() {
+		return database;
+	}
+
 	public void run() {
 		System.out.println("Welcome to the openLCA Shell");
 		System.out.print("olca> ");
@@ -42,10 +46,10 @@ public class Shell {
 	private void executeLine(String line) {
 		String[] command = line.trim().split("\\s+");
 		if (command.length > 0 && command[0] != null)
-			eval(command);
+			eval(command, line.trim());
 	}
 
-	private void eval(String[] fullCommand) {
+	private void eval(String[] fullCommand, String rawLine) {
 		String command = fullCommand[0].trim().toLowerCase();
 		if (command.isEmpty())
 			return;
@@ -66,6 +70,9 @@ public class Shell {
 			break;
 		case "load":
 			loadFile(args);
+			break;
+		case "sql":
+			new SqlCommand().exec(this, rawLine.substring(4));
 			break;
 		default:
 			log.info("unknown command ", command);

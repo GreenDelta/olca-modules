@@ -1,0 +1,4 @@
+# creates a connection to a derby database
+# if the database is new, we create it with all reference data
+
+derby  C:\Users\Dell\Downloads\olca_test_db full

@@ -138,9 +138,11 @@ public class DerbyDatabase implements IDatabase {
 	public Connection createConnection() {
 		log.trace("create connection: {}", url);
 		try {
-			if (connectionPool != null)
-				return connectionPool.getConnection();
-			else {
+			if (connectionPool != null) {
+				Connection con = connectionPool.getConnection();
+				con.setAutoCommit(true);
+				return con;
+			} else {
 				log.warn("no connection pool set up for {}", url);
 				return DriverManager.getConnection(url);
 			}
