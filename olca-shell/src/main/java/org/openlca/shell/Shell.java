@@ -61,6 +61,9 @@ public class Shell {
 		case "mysql":
 			new MySqlCommand().exec(this, args);
 			break;
+		case "derby":
+			new DerbyCommand().exec(this, args);
+			break;
 		case "load":
 			loadFile(args);
 			break;

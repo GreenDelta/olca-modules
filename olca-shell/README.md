@@ -17,17 +17,34 @@ path contains white spaces you have to enclose the path in quotation marks:
 In such a file every non-empty line is executed as openLCA command except the
 lines that starts with a hash mark (`#`).
 
+
 Connect to a database
 ---------------------
 
 ### MySQL
 The command to connect to a MySQL database is:
 
-	mysql <host>:<port>/<database> <user> <password>
+	mysql <host>:<port>/<database> <user> <optional password>
 	
 The password parameter is optional. For example, this connects to the database
 `openlca`:
 
 	mysql localhost:3306/openlca root
 	
+	
+### Derby 
+The command to connect to a derby database is:
 
+	derby <path to directory> <optional type>
+
+The first argument must be a directory where the database is located. If the
+directory not yet exist, it is created. In this case you can pass an additional
+argument that indicates the type of the database that should be created. The
+allowed types for the database are:
+
+* empty: an empty database with no data is created
+* units: the database is filled with the openLCA reference units and flow 
+  properties
+* full: the database is created with all the reference data of openLCA
+
+	
