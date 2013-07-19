@@ -31,12 +31,8 @@ public class EcoSpold1ImportSample {
 			UnitMapping unitMapping = UnitMapping.createDefault(database);
 			EcoSpold01Import importer = new EcoSpold01Import(database,
 					unitMapping);
-
-			// import the files
-			for (File file : dir.listFiles())
-				importer.run(file, true); // true -> means process file; false
-											// -> LCIA method
-
+			importer.run(dir.listFiles());
+			importer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

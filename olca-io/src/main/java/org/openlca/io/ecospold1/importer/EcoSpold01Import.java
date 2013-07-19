@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,28 +86,62 @@ public class EcoSpold01Import implements Closeable {
 		this.processCategory = processCategory;
 	}
 
-	public void run(File file, boolean process) throws Exception {
-		log.trace("import file {}", file);
-		try (InputStream is = new FileInputStream(file)) {
-			run(new FileInputStream(file), process);
+	public void run(File file) {
+		if (file == null)
+			return;
+		run(new File[] { file });
+	}
+
+	public void run(File[] files) {
+		if (files == null || files.length == 0)
+			return;
+		for (File file : files) {
+			if (file.isDirectory())
+				continue;
+			String fileName = file.getName().toLowerCase();
+			if (fileName.endsWith(".xml"))
+				importXml(file);
+			else if (fileName.endsWith(".zip"))
+				importZip(file);
+			else
+				log.warn("unexpected file for import {}", file);
 		}
 	}
 
-	public void run(ZipFile zipFile, ZipEntry entry, boolean process)
-			throws Exception {
-		if (!entry.isDirectory()
-				&& entry.getName().toLowerCase().endsWith(".xml")) {
-			try (InputStream is = zipFile.getInputStream(entry)) {
-				run(is, process);
+	private void importXml(File file) {
+		try {
+			DataSetType type = EcoSpoldIO.getEcoSpoldType(file);
+			FileInputStream in = new FileInputStream(file);
+			run(in, type);
+		} catch (Exception e) {
+			log.error("failed to import XML file " + file, e);
+		}
+	}
+
+	private void importZip(File file) {
+		try (ZipFile zipFile = new ZipFile(file)) {
+			Enumeration<? extends ZipEntry> entries = zipFile.entries();
+			while (entries.hasMoreElements()) {
+				ZipEntry entry = entries.nextElement();
+				if (entry.isDirectory())
+					continue;
+				String name = entry.getName().toLowerCase();
+				if (!name.endsWith(".xml"))
+					continue;
+				DataSetType type = EcoSpoldIO.getEcoSpoldType(zipFile
+						.getInputStream(entry));
+				run(zipFile.getInputStream(entry), type);
 			}
+		} catch (Exception e) {
+			log.error("failed to import ZIP file " + file, e);
 		}
 	}
 
-	public void run(InputStream is, boolean process) throws Exception {
-		DataSetType type = process ? DataSetType.PROCESS
-				: DataSetType.IMPACT_METHOD;
+	private void run(InputStream is, DataSetType type) throws Exception {
+		if (is == null || type == null)
+			return;
 		IEcoSpold spold = EcoSpoldIO.readFrom(is, type);
-		if (process) {
+		if (type == DataSetType.PROCESS) {
 			for (IDataSet ds : spold.getDataset()) {
 				DataSet dataSet = new DataSet(ds, type.getFactory());
 				parseProcessDataSet(dataSet);

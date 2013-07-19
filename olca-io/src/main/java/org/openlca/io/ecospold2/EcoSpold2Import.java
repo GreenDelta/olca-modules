@@ -7,6 +7,11 @@ import org.openlca.ecospold2.DataSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The import of data sets in the EcoSpold v2 format. The import expects a set
+ * of SPOLD files in the EcoSpold v2 format or ZIP files which contain such
+ * files.
+ */
 public class EcoSpold2Import {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -14,6 +19,12 @@ public class EcoSpold2Import {
 
 	public EcoSpold2Import(IDatabase database) {
 		this.database = database;
+	}
+
+	public void run(File file) {
+		if (file == null)
+			return;
+		run(new File[] { file });
 	}
 
 	public void run(File[] files) {
