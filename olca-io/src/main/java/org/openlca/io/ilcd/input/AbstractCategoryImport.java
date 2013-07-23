@@ -94,6 +94,7 @@ abstract class AbstractCategoryImport<C> {
 			Category newCategory = createNew(ilcdCategory);
 			newCategory.setParentCategory(parentCategory);
 			parentCategory.add(newCategory);
+			dao.insert(newCategory);
 			dao.update(parentCategory);
 			return newCategory;
 		} catch (Exception e) {

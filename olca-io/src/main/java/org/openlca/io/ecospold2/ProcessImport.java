@@ -21,7 +21,6 @@ class ProcessImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 	private RefDataIndex index;
-	private TechnosphereLinkTable linkTable;
 
 	public ProcessImport(IDatabase database, RefDataIndex index) {
 		this.database = database;
@@ -86,7 +85,9 @@ class ProcessImport {
 		createProductExchanges(dataSet, process);
 		createElementaryExchanges(dataSet, process);
 		database.createDao(Process.class).insert(process);
+		TechnosphereLinkTable linkTable = new TechnosphereLinkTable(database);
 		linkTable.store(process);
+		linkTable.close();
 	}
 
 	private void createElementaryExchanges(DataSet dataSet, Process process) {
