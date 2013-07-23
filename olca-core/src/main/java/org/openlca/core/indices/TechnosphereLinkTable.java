@@ -58,6 +58,7 @@ public class TechnosphereLinkTable implements Closeable {
 			link.setInput(e.isInput());
 			link.setProcessId(process.getId());
 			link.setWaste(type == FlowType.WASTE_FLOW);
+			link.setDefaultProviderId(e.getDefaultProviderId());
 			links.add(link);
 		}
 		try {
@@ -80,6 +81,7 @@ public class TechnosphereLinkTable implements Closeable {
 			insertStatement.setDouble(3, link.getAmount());
 			insertStatement.setBoolean(4, link.isInput());
 			insertStatement.setBoolean(5, link.isWaste());
+			insertStatement.setLong(6, link.getDefaultProviderId());
 			insertStatement.addBatch();
 		}
 		insertStatement.executeBatch();
@@ -90,7 +92,7 @@ public class TechnosphereLinkTable implements Closeable {
 		if (con == null)
 			con = database.createConnection();
 		String sql = "insert into tbl_technosphere_links(f_process, f_flow, "
-				+ "amount, is_input, is_waste) values (?, ?, ?, ?, ?)";
+				+ "amount, is_input, is_waste, f_default_provider) values (?, ?, ?, ?, ?, ?)";
 		insertStatement = con.prepareStatement(sql);
 	}
 
@@ -111,6 +113,7 @@ public class TechnosphereLinkTable implements Closeable {
 				link.setInput(set.getBoolean("is_input"));
 				link.setProcessId(set.getLong("f_process"));
 				link.setWaste(set.getBoolean("is_waste"));
+				link.setDefaultProviderId(set.getLong("f_default_provider"));
 				links.add(link);
 			}
 			log.trace("fetched {} technosphere links", links.size());

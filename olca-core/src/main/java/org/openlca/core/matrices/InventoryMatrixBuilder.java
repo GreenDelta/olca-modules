@@ -58,7 +58,8 @@ public class InventoryMatrixBuilder {
 	}
 
 	private void putExchangeValue(LongPair processProduct, CalcExchange e) {
-		if (processProduct.equals(e.getProcessId(), e.getFlowId())) {
+		if (!e.isInput()
+				&& processProduct.equals(e.getProcessId(), e.getFlowId())) {
 			int idx = productIndex.getIndex(processProduct);
 			add(idx, idx, technologyMatrix, e);
 		} else if (e.getFlowType() == FlowType.ELEMENTARY_FLOW) {

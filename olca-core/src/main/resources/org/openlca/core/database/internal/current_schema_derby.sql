@@ -562,7 +562,8 @@ CREATE TABLE tbl_technosphere_links (
 	f_flow BIGINT NOT NULL,
 	amount DOUBLE,
 	is_input SMALLINT default 0,
-	is_waste SMALLINT default 0
+	is_waste SMALLINT default 0,
+	f_default_provider BIGINT
 );
 CREATE INDEX idx_tech_link_process ON tbl_technosphere_links(f_process);
 CREATE INDEX idx_tech_link_flow ON tbl_technosphere_links(f_flow);
