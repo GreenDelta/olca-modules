@@ -5,16 +5,16 @@ A simple command line shell for openLCA.
 
 Loading command files
 ---------------------
-You can store openLCA commands from a file with the load command:
+You can load openLCA commands from a file with the load command:
 
 	load C:/path/to/a/file/with/commands.txt
 
-The path of the file can be relative to the current location. Note, if you file
+The path of the file can be relative to the current location. Note, if your file
 path contains white spaces you have to enclose the path in quotation marks:
 
 	load "relative file path/with white spaces.txt"
 
-In such a file every non-empty line is executed as openLCA command except the
+In such a file every non-empty line is executed as an openLCA command except the
 lines that starts with a hash mark (`#`).
 
 
@@ -83,7 +83,11 @@ The `import` command allows to import data sets from different formats:
 	
 The following formats are supported:
 
-* EcoSpold_1: the path must be an XML file or a directory with XML files
+* EcoSpold_1: the path must be an XML file, a ZIP file with  XML files, 
+  or a directory with XML or ZIP files
+* EcoSpold_2: the path must be a SPOLD file, a ZIP file with SPOLD files, 
+  or a directory with SPOLD and ZIP files
+* ILCD: the path must be a ZIP file in the ILCD format
 
 This an import command could look like:
 

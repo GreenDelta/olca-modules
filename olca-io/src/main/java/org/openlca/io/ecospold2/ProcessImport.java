@@ -2,6 +2,7 @@ package org.openlca.io.ecospold2;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.indices.TechnosphereLinkTable;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -20,6 +21,7 @@ class ProcessImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 	private RefDataIndex index;
+	private TechnosphereLinkTable linkTable;
 
 	public ProcessImport(IDatabase database, RefDataIndex index) {
 		this.database = database;
@@ -84,6 +86,7 @@ class ProcessImport {
 		createProductExchanges(dataSet, process);
 		createElementaryExchanges(dataSet, process);
 		database.createDao(Process.class).insert(process);
+		linkTable.store(process);
 	}
 
 	private void createElementaryExchanges(DataSet dataSet, Process process) {

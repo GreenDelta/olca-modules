@@ -6,6 +6,7 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.indices.TechnosphereLinkTable;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
@@ -81,11 +82,19 @@ public class ProcessImport {
 	}
 
 	private Process createNew() throws ImportException {
-		process = new Process();
-		importAndSetCategory();
-		createAndMapContent();
-		saveInDatabase(process);
-		return process;
+		try {
+			process = new Process();
+			importAndSetCategory();
+			createAndMapContent();
+			saveInDatabase(process);
+			TechnosphereLinkTable linkTable = new TechnosphereLinkTable(
+					database);
+			linkTable.store(process);
+			linkTable.close();
+			return process;
+		} catch (Exception e) {
+			throw new ImportException(e);
+		}
 	}
 
 	private org.openlca.ilcd.processes.Process tryGetProcess(String processId)
