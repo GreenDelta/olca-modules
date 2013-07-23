@@ -1,5 +1,7 @@
 package org.openlca.shell;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -7,12 +9,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.internal.ScriptRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlCommand {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
+
+	public void execFile(Shell shell, String[] args) {
+		if (shell.getDatabase() == null) {
+			log.error("you do not have a database connection");
+			return;
+		}
+		if (args.length < 1 || args[0] == null) {
+			log.error("a file name is expected as argument");
+			return;
+		}
+		File file = new File(args[0]);
+		if (!file.exists()) {
+			log.error("the given file does not exist");
+			return;
+		}
+		runScript(shell, args, file);
+	}
+
+	private void runScript(Shell shell, String[] args, File file) {
+		IDatabase db = shell.getDatabase();
+		try (Connection con = db.createConnection()) {
+			String encoding = fetchEncoding(args);
+			log.info("import sql-file {} using encoding {}", file, encoding);
+			FileInputStream in = new FileInputStream(file);
+			ScriptRunner runner = new ScriptRunner(con);
+			runner.run(in, encoding);
+			log.info("import done");
+		} catch (Exception e) {
+			log.error("failed to execute sql file", e);
+		}
+	}
+
+	private String fetchEncoding(String[] args) {
+		if (args.length < 2 || args[1] == null)
+			return System.getProperty("file.encoding");
+		return args[1];
+	}
 
 	public void exec(Shell shell, String sqlStatement) {
 		IDatabase database = shell.getDatabase();

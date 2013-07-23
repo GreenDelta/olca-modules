@@ -84,6 +84,10 @@ public class Shell {
 			new SqlCommand().exec(this, rawLine.substring(4));
 			break;
 
+		case "sql+file":
+			new SqlCommand().execFile(this, args);
+			break;
+
 		case "import":
 			new ImportCommand().exec(this, args);
 			break;

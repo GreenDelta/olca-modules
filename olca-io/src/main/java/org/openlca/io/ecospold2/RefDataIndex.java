@@ -14,6 +14,7 @@ import org.openlca.core.model.Unit;
  */
 class RefDataIndex {
 
+	private Map<String, Long> processIds = new HashMap<>();
 	private Map<String, Category> processCategories = new HashMap<>();
 	private Map<String, Category> compartments = new HashMap<>();
 	private Map<String, Category> productCategories = new HashMap<>();
@@ -78,5 +79,13 @@ class RefDataIndex {
 
 	public void putFlow(String key, Flow flow) {
 		flows.put(key, flow);
+	}
+
+	public void putProcessId(String key, long id) {
+		processIds.put(key, id);
+	}
+
+	public Long getProcessId(String key) {
+		return processIds.get(key);
 	}
 }

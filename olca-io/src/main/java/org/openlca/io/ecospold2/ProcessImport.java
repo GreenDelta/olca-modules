@@ -1,5 +1,10 @@
 package org.openlca.io.ecospold2;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.indices.TechnosphereLinkTable;
@@ -21,10 +26,15 @@ class ProcessImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 	private RefDataIndex index;
+	private ProcessDao dao;
+
+	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
+	private HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
 
 	public ProcessImport(IDatabase database, RefDataIndex index) {
 		this.database = database;
 		this.index = index;
+		dao = new ProcessDao(database.getEntityFactory());
 	}
 
 	public void importDataSet(DataSet dataSet) {
@@ -46,7 +56,6 @@ class ProcessImport {
 		}
 		Activity activity = dataSet.getActivity();
 		try {
-			ProcessDao dao = new ProcessDao(database.getEntityFactory());
 			boolean contains = dao.getForRefId(activity.getId()) != null;
 			if (contains) {
 				log.trace("process {} is already in the database",
@@ -88,6 +97,22 @@ class ProcessImport {
 		TechnosphereLinkTable linkTable = new TechnosphereLinkTable(database);
 		linkTable.store(process);
 		linkTable.close();
+		flushLinkQueue(process);
+	}
+
+	private void flushLinkQueue(Process process) {
+		List<Exchange> exchanges = linkQueue.remove(process.getRefId());
+		if (exchanges == null || process.getId() == 0)
+			return;
+		try {
+			BaseDao<Exchange> dao = database.createDao(Exchange.class);
+			for (Exchange exchange : exchanges) {
+				exchange.setDefaultProviderId(process.getId());
+				dao.update(exchange);
+			}
+		} catch (Exception e) {
+			log.error("failed to update default provider", e);
+		}
 	}
 
 	private void createElementaryExchanges(DataSet dataSet, Process process) {
@@ -114,8 +139,8 @@ class ProcessImport {
 				continue;
 			}
 			Exchange exchange = createExchange(e, flow, process);
-			// TODO: default provider!
-			// exchange.setDefaultProviderId(e.getActivityLinkId());
+			if (e.getActivityLinkId() != null)
+				addActivityLink(e, exchange);
 			if (e.getOutputGroup() != null && e.getOutputGroup() == 0)
 				process.setQuantitativeReference(exchange);
 		}
@@ -138,6 +163,21 @@ class ProcessImport {
 				Double.toString(original.getAmount()));
 		process.getExchanges().add(exchange);
 		return exchange;
+	}
+
+	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
+		String providerId = e.getActivityLinkId();
+		Long processId = index.getProcessId(providerId);
+		if (processId != null) {
+			exchange.setDefaultProviderId(processId);
+			return;
+		}
+		List<Exchange> exchanges = linkQueue.get(providerId);
+		if (exchanges == null) {
+			exchanges = new ArrayList<>();
+			linkQueue.put(providerId, exchanges);
+		}
+		exchanges.add(exchange);
 	}
 
 	private void setCategory(DataSet dataSet, Process process) throws Exception {

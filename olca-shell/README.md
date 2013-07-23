@@ -59,8 +59,8 @@ allowed types for the database are:
 * full: the database is created with all the reference data of openLCA
 
 
-SQL Queries
------------
+SQL
+---
 
 If there is a connection to a database, you can execute SQL statements using the
 `sql` command. All SQL statements in the respective database dialect (MySQL, 
@@ -72,6 +72,13 @@ printed on the screen. Examples for SQL commands are
 or
 
 	sql update tbl_flows set flow_type = 'ELEMENTARY_FLOW'
+	
+Additionally, it is possible to execute a file with SQL commands via the 
+`sql+file` command:
+
+	sql+file <a path to a file> <optional encoding>
+	
+As an example, this can be used to load the reference data into a MySQL database.	
 	
 	
 Import

@@ -4,6 +4,9 @@ mysql localhost:3306/olca_test_db root
 # initialise the BLAS library
 blas C:\Users\Dell\Downloads
 
+# load reference data into a MySQL database
+sql+file "../olca-core/src/main/resources/org/openlca/core/database/internal/ref_data_all.sql" utf-8
+
 # import EcoSpold 01 data sets
 # import EcoSpold_1 C:\Users\Dell\projects\data\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
 
@@ -14,4 +17,4 @@ blas C:\Users\Dell\Downloads
 # import ILCD C:\Users\Dell\projects\data\ELCDIII.zip
 
 # solve a product system: process=20309 product-flow=20305
-solve 20309#20305
+# solve 20309#20305
