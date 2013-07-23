@@ -30,8 +30,8 @@ public interface IMatrix {
 	IMatrix multiply(IMatrix with);
 
 	/**
-	 * Performs a matrix addition with this matrix and the given matrix
-	 * and returns the result as new matrix.
+	 * Performs a matrix addition with this matrix and the given matrix and
+	 * returns the result as new matrix.
 	 */
 	IMatrix add(IMatrix toAdd);
 
@@ -47,11 +47,11 @@ public interface IMatrix {
 
 	/** Creates a copy of this matrix and returns it */
 	IMatrix copy();
-	
+
 	/**
-	 * Performs a matrix subtraction with this matrix and the given matrix
-	 * and returns the result as new matrix.
+	 * Performs a matrix subtraction with this matrix and the given matrix and
+	 * returns the result as new matrix.
 	 */
 	IMatrix subtract(IMatrix b);
-	
+
 }

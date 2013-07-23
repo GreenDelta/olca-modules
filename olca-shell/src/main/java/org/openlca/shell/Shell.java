@@ -92,6 +92,10 @@ public class Shell {
 			new SolveCommand().exec(this, args);
 			break;
 
+		case "check_matrix":
+			new CheckMatrixCommand().exec(this, args);
+			break;
+
 		default:
 			log.info("unknown command ", command);
 			break;

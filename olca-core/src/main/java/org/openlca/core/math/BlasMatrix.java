@@ -4,7 +4,7 @@ import org.jblas.DoubleMatrix;
 import org.jblas.SimpleBlas;
 import org.jblas.Solve;
 
-class BlasMatrix implements IMatrix {
+public class BlasMatrix implements IMatrix {
 
 	private final DoubleMatrix matrix;
 
@@ -95,6 +95,10 @@ class BlasMatrix implements IMatrix {
 		DoubleMatrix matrixToSubtract = unwrap(toSubtract);
 		DoubleMatrix result = matrix.sub(matrixToSubtract);
 		return new BlasMatrix(result);
+	}
+
+	public DoubleMatrix getNativeMatrix() {
+		return matrix;
 	}
 
 }
