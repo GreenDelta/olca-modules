@@ -131,7 +131,8 @@ public class TechnosphereLinkTable implements Closeable {
 			if (insertStatement != null)
 				insertStatement.close();
 			if (con != null) {
-				con.commit();
+				if (!con.getAutoCommit())
+					con.commit();
 				con.close();
 			}
 		} catch (Exception e) {
