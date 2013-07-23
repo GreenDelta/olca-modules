@@ -9,10 +9,10 @@ blas C:\Users\Dell\Downloads
 # import EcoSpold_1 C:\Users\Dell\projects\data\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
 
 # import EcoSpold 02 data sets
-# import EcoSpold_2 C:\Users\Dell\projects\openlca\data\ecoinvent3\default\datasets
+import EcoSpold_2 C:\Users\Dell\projects\openlca\data\ecoinvent3\default\datasets
 
 # import ILCD data sets
-import ILCD C:\Users\Dell\projects\data\ELCDIII.zip
+# import ILCD C:\Users\Dell\projects\data\ELCDIII.zip
 
 # solve a product system: process=20309 product-flow=20305
 solve 20309#20305
