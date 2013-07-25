@@ -120,7 +120,7 @@ public class CheckMatrixCommand {
 
 	private void printError(int size, DoubleMatrix subMatrix, Throwable e) {
 		System.err.println("FAILED");
-		if (size < 100) {
+		if (size < 400) {
 			System.out.println("\n\n\n\n Matlab format");
 			System.out.println("A= " + subMatrix);
 			System.out.println("\n\n\n Excel format");

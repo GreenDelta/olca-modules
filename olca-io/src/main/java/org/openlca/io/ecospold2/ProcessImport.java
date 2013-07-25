@@ -7,7 +7,6 @@ import java.util.List;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.indices.TechnosphereLinkTable;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -94,9 +93,6 @@ class ProcessImport {
 		createProductExchanges(dataSet, process);
 		createElementaryExchanges(dataSet, process);
 		database.createDao(Process.class).insert(process);
-		TechnosphereLinkTable linkTable = new TechnosphereLinkTable(database);
-		linkTable.store(process);
-		linkTable.close();
 		flushLinkQueue(process);
 	}
 

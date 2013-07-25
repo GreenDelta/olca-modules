@@ -64,7 +64,6 @@ public class ImportCommand {
 				es1Import.run(file.listFiles());
 			else
 				es1Import.run(file);
-			es1Import.close();
 			log.info("import done");
 		} catch (Exception e) {
 			log.error("failed to import data sets", e);

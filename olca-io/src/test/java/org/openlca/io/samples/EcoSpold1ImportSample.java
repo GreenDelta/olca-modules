@@ -32,7 +32,6 @@ public class EcoSpold1ImportSample {
 			EcoSpold01Import importer = new EcoSpold01Import(database,
 					unitMapping);
 			importer.run(dir.listFiles());
-			importer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

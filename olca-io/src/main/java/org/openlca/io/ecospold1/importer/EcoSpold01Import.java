@@ -9,10 +9,8 @@
  ******************************************************************************/
 package org.openlca.io.ecospold1.importer;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -23,7 +21,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.indices.TechnosphereLinkTable;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -59,26 +56,18 @@ import org.slf4j.LoggerFactory;
  * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
  * the database
  */
-public class EcoSpold01Import implements Closeable {
+public class EcoSpold01Import {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private Category processCategory;
 	private HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
 	private DB db;
 	private FlowImport flowImport;
-	private TechnosphereLinkTable linkIndex;
 
 	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping) {
 		this.db = new DB(iDatabase);
-		this.linkIndex = new TechnosphereLinkTable(iDatabase);
 		FlowMap flowMap = new FlowMap(MapType.ECOSPOLD_FLOW);
 		this.flowImport = new FlowImport(db, unitMapping, flowMap);
-	}
-
-	@Override
-	public void close() throws IOException {
-		if (linkIndex != null)
-			linkIndex.close();
 	}
 
 	/** Set an optional root category for the new processes. */
@@ -251,7 +240,6 @@ public class EcoSpold01Import implements Closeable {
 		mapSources(documentation, dataSet);
 
 		db.put(process, processId);
-		linkIndex.store(process);
 		localExchangeCache.clear();
 	}
 
