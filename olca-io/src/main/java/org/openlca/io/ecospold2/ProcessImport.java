@@ -17,9 +17,27 @@ import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.io.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Runs the import of process data sets in the EcoSpold 02 format.
+ * 
+ * In Ecoinvent 3, the UUIDs of process data sets are not unique. Thus, we have
+ * multiple process data sets with the same UUID. But the combination of process
+ * UUID and reference product UUID is unique (or should be unique). Thus, we
+ * take a hash of the process UUID and the UUID of the reference product to
+ * generate a reference ID for a data set. But this leads to a problem when the
+ * user exports data sets and want to import these data sets again.
+ * 
+ * Other things in Ecoinvent 3:
+ * <ul>
+ * <li>There a data sets with multiple reference products (outputGroup = 0), but
+ * there should be only on flow with an amount <> 0
+ * <li>negative values indicate waste flows
+ * </ul>
+ */
 class ProcessImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -78,6 +96,8 @@ class ProcessImport {
 				continue;
 			if (techFlow.getOutputGroup() != 0)
 				continue;
+			if (techFlow.getAmount() == 0)
+				continue;
 			refFlow = techFlow;
 			break;
 		}
@@ -87,13 +107,25 @@ class ProcessImport {
 	private void runImport(DataSet dataSet) throws Exception {
 		Activity activity = dataSet.getActivity();
 		Process process = new Process();
-		process.setRefId(activity.getId());
+		String refId = KeyGen.get(activity.getId(), findRefFlowId(dataSet));
+		process.setRefId(refId);
 		process.setName(activity.getName());
 		setCategory(dataSet, process);
 		createProductExchanges(dataSet, process);
 		createElementaryExchanges(dataSet, process);
 		database.createDao(Process.class).insert(process);
+		index.putProcessId(refId, process.getId());
 		flushLinkQueue(process);
+	}
+
+	private String findRefFlowId(DataSet dataSet) {
+		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges()) {
+			if (exchange.getOutputGroup() == null)
+				continue;
+			if (exchange.getOutputGroup() == 0 && exchange.getAmount() != 0)
+				return exchange.getIntermediateExchangeId();
+		}
+		return null;
 	}
 
 	private void flushLinkQueue(Process process) {
@@ -163,15 +195,17 @@ class ProcessImport {
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
 		String providerId = e.getActivityLinkId();
-		Long processId = index.getProcessId(providerId);
+		String flowId = e.getIntermediateExchangeId();
+		String refId = KeyGen.get(providerId, flowId);
+		Long processId = index.getProcessId(refId);
 		if (processId != null) {
 			exchange.setDefaultProviderId(processId);
 			return;
 		}
-		List<Exchange> exchanges = linkQueue.get(providerId);
+		List<Exchange> exchanges = linkQueue.get(refId);
 		if (exchanges == null) {
 			exchanges = new ArrayList<>();
-			linkQueue.put(providerId, exchanges);
+			linkQueue.put(refId, exchanges);
 		}
 		exchanges.add(exchange);
 	}
