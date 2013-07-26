@@ -1,7 +1,7 @@
 package org.openlca.core.indices;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Maps arbitrary values of type long to an ordinal, zero-based index of type
@@ -11,23 +11,34 @@ import java.util.Set;
 public class LongIndex {
 
 	private final HashMap<Long, Integer> map = new HashMap<>();
+	private final ArrayList<Long> values = new ArrayList<>();
 
 	/**
 	 * Adds the given key to the index. The value for the key is the current
 	 * size of the index.
 	 */
-	public int add(long key) {
+	public int put(long key) {
+		if (contains(key))
+			return getIndex(key);
 		int s = map.size();
 		map.put(key, s);
+		values.add(key);
 		return s;
+	}
+
+	public long getKeyAt(int index) {
+		return values.get(index);
 	}
 
 	/**
 	 * Returns the index for the given key. Returns -1 if the key is not
 	 * contained in the map.
 	 */
-	public int get(long key) {
-		return map.get(key);
+	public int getIndex(long key) {
+		Integer val = map.get(key);
+		if (val == null)
+			return -1;
+		return val;
 	}
 
 	/**
@@ -41,14 +52,13 @@ public class LongIndex {
 		return map.containsKey(key);
 	}
 
+	/**
+	 * Get the keys of this index in their respective order in this index.
+	 */
 	public long[] getKeys() {
-		Set<Long> keySet = map.keySet();
-		long[] keys = new long[keySet.size()];
-		int i = 0;
-		for (long key : keySet) {
-			keys[i] = key;
-			i++;
-		}
+		long[] keys = new long[values.size()];
+		for (int i = 0; i < keys.length; i++)
+			keys[i] = values.get(i);
 		return keys;
 	}
 

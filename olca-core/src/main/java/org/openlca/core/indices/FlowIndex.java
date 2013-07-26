@@ -1,6 +1,5 @@
 package org.openlca.core.indices;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import org.openlca.core.model.FlowType;
 public class FlowIndex {
 
 	private LongIndex flowIndex = new LongIndex();
-	private ArrayList<Long> flowIds = new ArrayList<>();
 	private HashMap<Long, Boolean> inputMap = new HashMap<>();
 
 	public FlowIndex(ProductIndex productIndex, ExchangeTable exchangeTable) {
@@ -41,17 +39,16 @@ public class FlowIndex {
 	}
 
 	private void indexFlow(CalcExchange e) {
-		flowIndex.add(e.getFlowId());
-		flowIds.add(e.getFlowId());
+		flowIndex.put(e.getFlowId());
 		inputMap.put(e.getFlowId(), e.isInput());
 	}
 
 	public int getIndex(long flowId) {
-		return flowIndex.get(flowId);
+		return flowIndex.getIndex(flowId);
 	}
 
 	public long getFlowAt(int idx) {
-		return flowIds.get(idx);
+		return flowIndex.getKeyAt(idx);
 	}
 
 	public boolean contains(long flowId) {

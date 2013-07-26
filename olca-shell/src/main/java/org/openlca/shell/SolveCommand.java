@@ -90,7 +90,7 @@ public class SolveCommand {
 
 			log.trace("Solve inventory");
 			InventorySolver solver = new InventorySolver();
-			double[] g = solver.solve(matrix);
+			double[] g = solver.solve(matrix, 1.0);
 			logTime("inventory solved");
 
 			log.trace("finished after {} msec", totalTime);

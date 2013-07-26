@@ -6,7 +6,7 @@ import org.openlca.core.math.MatrixFactory;
 
 public class InventorySolver {
 
-	public double[] solve(InventoryMatrix inventory) {
+	public double[] solve(InventoryMatrix inventory, double demand) {
 		if (inventory.isEmpty())
 			return new double[0];
 
@@ -17,7 +17,7 @@ public class InventorySolver {
 		IMatrix demandVector = MatrixFactory.create(
 				techMatrix.getRowDimension(), 1);
 		int refIndex = productIndex.getIndex(productIndex.getRefProduct());
-		demandVector.setEntry(refIndex, 0, 1);
+		demandVector.setEntry(refIndex, 0, demand);
 
 		IMatrix s = techMatrix.solve(demandVector);
 		IMatrix g = interventionMatrix.multiply(s);

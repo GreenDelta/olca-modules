@@ -29,7 +29,7 @@ public class ExchangeTable {
 		log.trace("create exchange table for {} processes", processIds.size());
 		try (Connection con = database.createConnection()) {
 			String query = "select * from tbl_exchanges where f_owner in "
-					+ asSql(processIds);
+					+ Indices.asSql(processIds);
 			ResultSet result = con.createStatement().executeQuery(query);
 			while (result.next()) {
 				CalcExchange exchange = nextExchange(result, flowTypes);
@@ -57,7 +57,7 @@ public class ExchangeTable {
 		e.setProcessId(r.getLong("f_owner"));
 		e.setAmount(r.getDouble("resulting_amount_value"));
 		e.setAmountFormula(r.getString("resulting_amount_formula"));
-		e.setConversionFactor(1); // TODO: add
+		e.setConversionFactor(1); // TODO: add to exchange table
 		e.setExchangeId(r.getLong("id"));
 		e.setFlowId(r.getLong("f_flow"));
 		e.setFlowType(flowTypes.getType(e.getFlowId()));
@@ -73,18 +73,6 @@ public class ExchangeTable {
 			e.setUncertaintyType(UncertaintyDistributionType.values()[uncertaintyType]);
 		}
 		return e;
-	}
-
-	private String asSql(List<Long> ids) {
-		StringBuilder b = new StringBuilder();
-		b.append('(');
-		for (int i = 0; i < ids.size(); i++) {
-			b.append(ids.get(i));
-			if (i < (ids.size() - 1))
-				b.append(',');
-		}
-		b.append(')');
-		return b.toString();
 	}
 
 	public List<CalcExchange> getExchanges(long processId) {
