@@ -1,16 +1,16 @@
-package org.openlca.core.model.lean;
+package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
 
-public class ProcessDescriptor extends BaseDescriptor {
+public class FlowDescriptor extends BaseDescriptor {
 
-	private static final long serialVersionUID = 5631406720764078522L;
+	private static final long serialVersionUID = 4292185203406513488L;
 
 	private String locationCode;
 
-	public ProcessDescriptor() {
-		setType(ModelType.PROCESS);
+	public FlowDescriptor() {
+		setType(ModelType.FLOW);
 	}
 
 	public String getLocationCode() {

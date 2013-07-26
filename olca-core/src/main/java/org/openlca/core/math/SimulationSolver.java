@@ -4,7 +4,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.lean.ImpactMethodDescriptor;
+import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

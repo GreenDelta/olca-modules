@@ -5,7 +5,7 @@ import java.util.Collections;
 import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.lean.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public class ImpactCategoryDao extends BaseDao<ImpactCategory> {
 

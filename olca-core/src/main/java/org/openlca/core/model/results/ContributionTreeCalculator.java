@@ -10,10 +10,10 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.lean.BaseDescriptor;
-import org.openlca.core.model.lean.Descriptors;
-import org.openlca.core.model.lean.ImpactCategoryDescriptor;
-import org.openlca.core.model.lean.ProcessDescriptor;
+import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * Calculates a contribution tree of the processes in a product system to a flow

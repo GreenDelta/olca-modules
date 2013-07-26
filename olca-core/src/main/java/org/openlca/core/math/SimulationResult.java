@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.lean.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public class SimulationResult implements IResultData {
 

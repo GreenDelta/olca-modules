@@ -9,8 +9,8 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.lean.BaseDescriptor;
-import org.openlca.core.model.lean.FlowDescriptor;
+import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class FlowDao extends CategorizedEnitityDao<Flow> {
 

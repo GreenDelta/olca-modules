@@ -1,6 +1,6 @@
 package org.openlca.core.model.results;
 
-import org.openlca.core.model.lean.BaseDescriptor;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 
 public class ContributionTree {
 

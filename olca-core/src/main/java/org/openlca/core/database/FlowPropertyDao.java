@@ -5,7 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.lean.BaseDescriptor;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 
 public class FlowPropertyDao extends CategorizedEnitityDao<FlowProperty> {
 

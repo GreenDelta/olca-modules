@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.lean.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
  * Calculates the contributions of the elementary flows to the impact category

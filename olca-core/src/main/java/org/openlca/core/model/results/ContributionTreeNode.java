@@ -3,7 +3,7 @@ package org.openlca.core.model.results;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.model.lean.ProcessDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 public class ContributionTreeNode {
 

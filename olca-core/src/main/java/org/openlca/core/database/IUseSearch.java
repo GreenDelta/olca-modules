@@ -2,7 +2,7 @@ package org.openlca.core.database;
 
 import java.util.List;
 
-import org.openlca.core.model.lean.BaseDescriptor;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 
 /** Search of entities where another entity is used. */
 interface IUseSearch<T> {

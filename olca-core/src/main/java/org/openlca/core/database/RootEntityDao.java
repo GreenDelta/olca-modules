@@ -8,7 +8,7 @@ import javax.persistence.EntityManagerFactory;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.lean.BaseDescriptor;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 
 public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 
