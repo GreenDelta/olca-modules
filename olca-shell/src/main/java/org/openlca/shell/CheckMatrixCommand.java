@@ -64,9 +64,8 @@ public class CheckMatrixCommand {
 			log.info("check product system {}#{}", refProduct.getFirst(),
 					refProduct.getSecond());
 
-			ProductIndexBuilder builder = new ProductIndexBuilder(database,
-					refProduct);
-			ProductIndex index = builder.build();
+			ProductIndexBuilder builder = new ProductIndexBuilder(database);
+			ProductIndex index = builder.build(refProduct, 1d);
 			List<Long> processIds = new ArrayList<>();
 			for (int i = 0; i < index.size(); i++) {
 				LongPair product = index.getProductAt(i);

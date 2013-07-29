@@ -62,15 +62,15 @@ public class ExchangeTable {
 		e.setFlowId(r.getLong("f_flow"));
 		e.setFlowType(flowTypes.getType(e.getFlowId()));
 		e.setInput(r.getBoolean("is_input"));
-		e.setParameter1(r.getDouble("parameter1_value"));
-		e.setParameter2(r.getDouble("parameter2_value"));
-		e.setParameter3(r.getDouble("parameter3_value"));
-		e.setParameter1Formula(r.getString("parameter1_formula"));
-		e.setParameter2Formula(r.getString("parameter2_formula"));
-		e.setParameter3Formula(r.getString("parameter3_formula"));
 		int uncertaintyType = r.getInt("distribution_type");
 		if (!r.wasNull()) {
 			e.setUncertaintyType(UncertaintyDistributionType.values()[uncertaintyType]);
+			e.setParameter1(r.getDouble("parameter1_value"));
+			e.setParameter2(r.getDouble("parameter2_value"));
+			e.setParameter3(r.getDouble("parameter3_value"));
+			e.setParameter1Formula(r.getString("parameter1_formula"));
+			e.setParameter2Formula(r.getString("parameter2_formula"));
+			e.setParameter3Formula(r.getString("parameter3_formula"));
 		}
 		return e;
 	}

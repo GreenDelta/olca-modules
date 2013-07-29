@@ -13,23 +13,21 @@ public class ProductIndexBuilder {
 
 	private ProcessType preferredType = ProcessType.LCI_RESULT;
 	private IDatabase database;
-	private LongPair refProduct;
 	private TechnosphereLinkIndex linkIndex;
 	private ProcessTypeIndex typeIndex;
 
-	public ProductIndexBuilder(IDatabase database, LongPair refProduct) {
+	public ProductIndexBuilder(IDatabase database) {
 		this.database = database;
-		this.refProduct = refProduct;
 	}
 
 	public void setPreferredType(ProcessType preferredType) {
 		this.preferredType = preferredType;
 	}
 
-	public ProductIndex build() {
+	public ProductIndex build(LongPair refProduct, double demand) {
 		linkIndex = new TechnosphereLinkIndex(database);
 		typeIndex = new ProcessTypeIndex(database);
-		ProductIndex index = new ProductIndex(refProduct);
+		ProductIndex index = new ProductIndex(refProduct, demand);
 		Queue<LongPair> queue = new ArrayDeque<>();
 		List<LongPair> handled = new ArrayList<>();
 		queue.add(refProduct);

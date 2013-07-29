@@ -29,14 +29,30 @@ public class ProductIndex {
 	private final HashMap<Long, List<LongPair>> processProducts = new HashMap<>();
 
 	private LongPair refProduct;
+	private double demand;
 
-	public ProductIndex(LongPair refProduct) {
+	/**
+	 * Creates a new product index.
+	 * 
+	 * @param refProduct
+	 *            the reference process-product pair
+	 * @param demand
+	 *            the demand value, this is the amount of the reference
+	 *            process-product given in the reference unit and flow property
+	 *            of this product.
+	 */
+	public ProductIndex(LongPair refProduct, double demand) {
 		this.refProduct = refProduct;
+		this.demand = demand;
 		put(refProduct);
 	}
 
 	public LongPair getRefProduct() {
 		return refProduct;
+	}
+
+	public double getDemand() {
+		return demand;
 	}
 
 	/**

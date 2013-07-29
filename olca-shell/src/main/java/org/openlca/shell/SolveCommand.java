@@ -11,7 +11,7 @@ import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.indices.ProductIndexBuilder;
 import org.openlca.core.matrices.InventoryMatrix;
 import org.openlca.core.matrices.InventoryMatrixBuilder;
-import org.openlca.core.matrices.InventorySolver;
+import org.openlca.core.matrices.InventoryMatrixSolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,9 +62,8 @@ public class SolveCommand {
 			totalTime = 0;
 			lastStop = System.currentTimeMillis();
 
-			ProductIndexBuilder builder = new ProductIndexBuilder(database,
-					refProduct);
-			ProductIndex index = builder.build();
+			ProductIndexBuilder builder = new ProductIndexBuilder(database);
+			ProductIndex index = builder.build(refProduct, 1d);
 			List<Long> processIds = new ArrayList<>();
 			for (int i = 0; i < index.size(); i++) {
 				LongPair product = index.getProductAt(i);
@@ -89,7 +88,7 @@ public class SolveCommand {
 			logTime("inventory matrix created");
 
 			log.trace("Solve inventory");
-			InventorySolver solver = new InventorySolver();
+			InventoryMatrixSolver solver = new InventoryMatrixSolver();
 			double[] g = solver.solve(matrix, 1.0);
 			logTime("inventory solved");
 
