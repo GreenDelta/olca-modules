@@ -94,7 +94,7 @@ public class EcoSpold01Outputter {
 		datasetCounter = 0;
 	}
 
-	private IEcoSpold convertLCIAMethod(ImpactMethod method) throws Exception {
+	private IEcoSpold convertLCIAMethod(ImpactMethod method) {
 		IEcoSpoldFactory factory = DataSetType.IMPACT_METHOD.getFactory();
 		IEcoSpold ecoSpold = factory.createEcoSpold();
 		for (ImpactCategory category : method.getLCIACategories()) {
@@ -109,7 +109,7 @@ public class EcoSpold01Outputter {
 		return ecoSpold;
 	}
 
-	private IEcoSpold convertProcess(Process process) throws Exception {
+	private IEcoSpold convertProcess(Process process) {
 
 		IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
 		IEcoSpold ecoSpold = factory.createEcoSpold();
@@ -202,7 +202,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapAdminInfo(ProcessDocumentation doc, DataSet dataset,
-			IEcoSpoldFactory factory) throws Exception {
+			IEcoSpoldFactory factory) {
 		if (doc == null)
 			return;
 		IDataGeneratorAndPublication generator = dataset
@@ -279,7 +279,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private IExchange mapExchange(Exchange inExchange, boolean multiOutput,
-			IEcoSpoldFactory factory) throws Exception {
+			IEcoSpoldFactory factory) {
 		IExchange exchange = factory.createExchange();
 		exchange.setNumber(exchangeCounter++);
 		exchange.setName(inExchange.getFlow().getName());
@@ -306,8 +306,7 @@ public class EcoSpold01Outputter {
 		return exchange;
 	}
 
-	private void mapFlowCategory(IExchange exchange, Category category)
-			throws Exception {
+	private void mapFlowCategory(IExchange exchange, Category category) {
 		if (category == null)
 			return;
 		if (category.getParentCategory() == null)
@@ -359,7 +358,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapLCIACategory(ImpactCategory category, DataSet dataSet,
-			IEcoSpoldFactory factory) throws Exception {
+			IEcoSpoldFactory factory) {
 		dataSet.setNumber(datasetCounter++);
 		IReferenceFunction refFun = factory.createReferenceFunction();
 		dataSet.setReferenceFunction(refFun);
@@ -386,7 +385,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private IExchange mapLCIAFactor(ImpactFactor factor,
-			IEcoSpoldFactory factory) throws Exception {
+			IEcoSpoldFactory factory) {
 		IExchange exchange = factory.createExchange();
 		exchange.setNumber(exchangeCounter++);
 		mapFlowCategory(exchange, factor.getFlow().getCategory());
@@ -398,7 +397,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapModelingAndValidation(ProcessDocumentation doc,
-			DataSet dataset, IEcoSpoldFactory factory) throws Exception {
+			DataSet dataset, IEcoSpoldFactory factory) {
 		if (doc == null)
 			return;
 		if (doc.getReviewDetails() != null) {
@@ -456,7 +455,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private IReferenceFunction mapQuantitativeReference(Exchange exchange,
-			IEcoSpoldFactory factory) throws Exception {
+			IEcoSpoldFactory factory) {
 		IReferenceFunction referenceFunction = factory
 				.createReferenceFunction();
 		Flow flow = exchange.getFlow();
@@ -505,7 +504,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapTechnology(ProcessDocumentation doc, DataSet dataset,
-			IEcoSpoldFactory factory) throws Exception {
+			IEcoSpoldFactory factory) {
 		if (doc == null || doc.getTechnology() == null)
 			return;
 		ITechnology technology = factory.createTechnology();
@@ -514,7 +513,7 @@ public class EcoSpold01Outputter {
 	}
 
 	private void mapTime(ProcessDocumentation doc, DataSet dataset,
-			IEcoSpoldFactory factory) throws Exception {
+			IEcoSpoldFactory factory) {
 		if (doc == null)
 			return;
 		ITimePeriod timePeriod = factory.createTimePeriod();

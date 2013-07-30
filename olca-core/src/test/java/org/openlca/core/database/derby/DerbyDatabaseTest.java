@@ -30,20 +30,20 @@ public class DerbyDatabaseTest {
 
 	@Test
 	// @Ignore
-	public void testEmptyDao() throws Exception {
+	public void testEmptyDao() {
 		ActorDao dao = new ActorDao(database);
 		Assert.assertTrue(dao.getAll().isEmpty());
 	}
 
 	@Test
 	// @Ignore
-	public void testAllRefData() throws Exception {
+	public void testAllRefData() {
 		database.fill(DatabaseContent.ALL_REF_DATA);
 	}
 
 	@Test
 	// @Ignore
-	public void testUnitRefData() throws Exception {
+	public void testUnitRefData() {
 		database.fill(DatabaseContent.UNITS);
 	}
 

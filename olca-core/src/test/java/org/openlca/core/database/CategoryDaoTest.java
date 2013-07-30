@@ -14,7 +14,7 @@ public class CategoryDaoTest {
 	private CategoryDao dao = new CategoryDao(TestSession.getDefaultDatabase());
 
 	@Test
-	public void testSimple() throws Exception {
+	public void testSimple() {
 		Category category = create();
 		System.out.println(category.getId());
 		dao.insert(category);
@@ -28,7 +28,7 @@ public class CategoryDaoTest {
 	}
 
 	@Test
-	public void testAddChild() throws Exception {
+	public void testAddChild() {
 		Category parent = create();
 		dao.insert(parent);
 		Category child = create();
@@ -45,7 +45,7 @@ public class CategoryDaoTest {
 	}
 
 	@Test
-	public void testFindRoot() throws Exception {
+	public void testFindRoot() {
 		Category parent = create();
 		Category child = create();
 		parent.add(child);

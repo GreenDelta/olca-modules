@@ -6,7 +6,6 @@ import java.nio.charset.Charset;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.openlca.core.database.DataProviderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,7 @@ public class MySQLDatabaseImport {
 		}
 	}
 
-	public void run() throws DataProviderException {
+	public void run() {
 		// TODO: we can skip this when we move to derby for client database
 		throw new RuntimeException("not yet implemented");
 

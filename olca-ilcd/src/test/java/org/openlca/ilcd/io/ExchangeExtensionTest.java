@@ -37,17 +37,17 @@ public class ExchangeExtensionTest {
 	}
 
 	@Test
-	public void testUnitId() throws Exception {
+	public void testUnitId() {
 		assertEquals("unit-id", extension().getUnitId());
 	}
 
 	@Test
-	public void testPropertyId() throws Exception {
+	public void testPropertyId() {
 		assertEquals("property-id", extension().getPropertyId());
 	}
 
 	@Test
-	public void testAmount() throws Exception {
+	public void testAmount() {
 		assertEquals(42d, extension().getAmount().doubleValue(), 1e-15);
 	}
 

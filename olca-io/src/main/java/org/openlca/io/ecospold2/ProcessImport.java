@@ -104,7 +104,7 @@ class ProcessImport {
 		return refFlow != null;
 	}
 
-	private void runImport(DataSet dataSet) throws Exception {
+	private void runImport(DataSet dataSet) {
 		Activity activity = dataSet.getActivity();
 		Process process = new Process();
 		String refId = KeyGen.get(activity.getId(), findRefFlowId(dataSet));
@@ -210,7 +210,7 @@ class ProcessImport {
 		exchanges.add(exchange);
 	}
 
-	private void setCategory(DataSet dataSet, Process process) throws Exception {
+	private void setCategory(DataSet dataSet, Process process) {
 		Category category = null;
 		for (Classification clazz : dataSet.getClassifications()) {
 			category = index.getProcessCategory(clazz.getClassificationId());

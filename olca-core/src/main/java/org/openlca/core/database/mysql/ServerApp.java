@@ -35,7 +35,7 @@ public class ServerApp {
 	private String dataDir;
 	private int port;
 
-	public ServerApp(File appDir, File dataDir, int port) throws Exception {
+	public ServerApp(File appDir, File dataDir, int port) {
 		checkArgs(appDir);
 		log.trace("Init MySQL Server App");
 		log.trace("App - directory {}", appDir);

@@ -7,30 +7,28 @@ import java.util.Set;
 
 public interface IDao<T> {
 
-	boolean contains(long id) throws Exception;
+	boolean contains(long id);
 
-	void delete(T entity) throws Exception;
+	void delete(T entity);
 
-	void deleteAll(Collection<T> entities) throws Exception;
+	void deleteAll(Collection<T> entities);
 
-	T update(T entity) throws Exception;
+	T update(T entity);
 
-	T insert(T entity) throws Exception;
+	T insert(T entity);
 
-	T getForId(long id) throws Exception;
+	T getForId(long id);
 
-	List<T> getForIds(Set<Long> ids) throws Exception;
+	List<T> getForIds(Set<Long> ids);
 
-	List<T> getAll() throws Exception;
+	List<T> getAll();
 
-	List<T> getAll(String jpql, Map<String, ? extends Object> parameters)
-			throws Exception;
+	List<T> getAll(String jpql, Map<String, ? extends Object> parameters);
 
-	T getFirst(String jpql, Map<String, ? extends Object> parameters)
-			throws Exception;
+	T getFirst(String jpql, Map<String, ? extends Object> parameters);
 
-	long getCount(String jpql, Map<String, Object> parameters) throws Exception;
+	long getCount(String jpql, Map<String, Object> parameters);
 
-	void deleteAll() throws Exception;
+	void deleteAll();
 
 }

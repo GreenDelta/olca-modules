@@ -34,12 +34,12 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public boolean contains(long id) throws Exception {
+	public boolean contains(long id) {
 		return getForId(id) != null;
 	}
 
 	@Override
-	public void delete(T entity) throws Exception {
+	public void delete(T entity) {
 		if (entity == null)
 			return;
 		EntityManager em = createManager();
@@ -53,7 +53,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public void deleteAll(Collection<T> entities) throws Exception {
+	public void deleteAll(Collection<T> entities) {
 		if (entities == null)
 			return;
 		EntityManager em = createManager();
@@ -70,7 +70,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public T update(T entity) throws Exception {
+	public T update(T entity) {
 		if (entity == null)
 			return null;
 		EntityManager em = createManager();
@@ -85,7 +85,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public T insert(T entity) throws Exception {
+	public T insert(T entity) {
 		if (entity == null)
 			return null;
 		EntityManager em = createManager();
@@ -100,7 +100,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public T getForId(long id) throws Exception {
+	public T getForId(long id) {
 		log.trace("get {} for id={}", entityType, id);
 		EntityManager entityManager = createManager();
 		try {
@@ -112,7 +112,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public List<T> getForIds(Set<Long> ids) throws Exception {
+	public List<T> getForIds(Set<Long> ids) {
 		if (ids == null || ids.isEmpty())
 			return Collections.emptyList();
 		if (ids.size() <= MAX_LIST_SIZE)
@@ -148,7 +148,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public List<T> getAll() throws Exception {
+	public List<T> getAll() {
 		log.debug("Select all for class {}", entityType);
 		EntityManager em = createManager();
 		try {
@@ -164,8 +164,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public List<T> getAll(String jpql, Map<String, ? extends Object> parameters)
-			throws Exception {
+	public List<T> getAll(String jpql, Map<String, ? extends Object> parameters) {
 		EntityManager em = createManager();
 		try {
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
@@ -180,8 +179,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public T getFirst(String jpql, Map<String, ? extends Object> parameters)
-			throws Exception {
+	public T getFirst(String jpql, Map<String, ? extends Object> parameters) {
 		List<T> list = getAll(jpql, parameters);
 		if (list.isEmpty())
 			return null;
@@ -189,8 +187,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public long getCount(String jpql, Map<String, Object> parameters)
-			throws Exception {
+	public long getCount(String jpql, Map<String, Object> parameters) {
 		EntityManager em = createManager();
 		try {
 			TypedQuery<Long> query = em.createQuery(jpql, Long.class);
@@ -205,7 +202,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public void deleteAll() throws Exception {
+	public void deleteAll() {
 		log.trace("delete all instances of {}", entityType);
 		deleteAll(getAll());
 	}

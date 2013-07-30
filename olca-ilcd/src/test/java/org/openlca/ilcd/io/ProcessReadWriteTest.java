@@ -12,7 +12,7 @@ import org.openlca.ilcd.util.LangString;
 public class ProcessReadWriteTest {
 
 	@Test
-	public void testReadWrite() throws Exception {
+	public void testReadWrite() {
 		Process process = new Process();
 		setNameAndComment(process);
 		createExchange(process);

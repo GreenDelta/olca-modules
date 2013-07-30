@@ -42,8 +42,8 @@ public class CategorizedEntityDaoTest {
 		run(Project.class, new ProjectDao(database));
 	}
 
-	private <T extends CategorizedEntity> void run(Class<T> clazz,
-			CategorizedEnitityDao<T> dao) throws Exception {
+	private <T extends CategorizedEntity, V extends BaseDescriptor> void run(
+			Class<T> clazz, CategorizedEnitityDao<T, V> dao) throws Exception {
 		log.info("run category entity tests for {}", clazz);
 		T instance = makeNew(clazz);
 		dao.insert(instance);
@@ -52,18 +52,17 @@ public class CategorizedEntityDaoTest {
 		testGetDescriptorsForCategory(dao, instance, category);
 	}
 
-	private <T extends CategorizedEntity> void testFindForNullCategory(
-			CategorizedEnitityDao<T> dao, T instance) {
+	private <T extends CategorizedEntity, V extends BaseDescriptor> void testFindForNullCategory(
+			CategorizedEnitityDao<T, V> dao, T instance) {
 		Category cat = null;
-		List<BaseDescriptor> descriptors = dao.getDescriptors(Optional
-				.fromNullable(cat));
+		List<V> descriptors = dao.getDescriptors(Optional.fromNullable(cat));
 		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
 	}
 
-	private <T extends CategorizedEntity> Category addCategory(Class<T> clazz,
-			CategorizedEnitityDao<T> dao, T instance) throws Exception {
+	private <T extends CategorizedEntity, V extends BaseDescriptor> Category addCategory(
+			Class<T> clazz, CategorizedEnitityDao<T, V> dao, T instance) {
 		Category category = new Category();
 		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
@@ -76,10 +75,9 @@ public class CategorizedEntityDaoTest {
 		return category;
 	}
 
-	private <T extends CategorizedEntity> void testGetDescriptorsForCategory(
-			CategorizedEnitityDao<T> dao, T instance, Category category)
-			throws Exception {
-		List<BaseDescriptor> descriptors = dao.getDescriptors(Optional
+	private <T extends CategorizedEntity, V extends BaseDescriptor> void testGetDescriptorsForCategory(
+			CategorizedEnitityDao<T, V> dao, T instance, Category category) {
+		List<V> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
 		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
 				descriptors);

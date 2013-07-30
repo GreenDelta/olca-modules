@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Expression;
 import org.openlca.core.model.Flow;
@@ -149,7 +149,7 @@ class ProcessExchanges {
 			exchange.setAvoidedProduct(true);
 		}
 		try {
-			RootEntityDao<Unit> unitDao = new RootEntityDao<>(Unit.class,
+			BaseEntityDao<Unit> unitDao = new BaseEntityDao<>(Unit.class,
 					database);
 			Unit unit = unitDao.getForRefId(extension.getUnitId());
 			exchange.setUnit(unit);

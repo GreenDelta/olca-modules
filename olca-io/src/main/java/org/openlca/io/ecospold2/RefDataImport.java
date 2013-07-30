@@ -4,11 +4,11 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -40,14 +40,14 @@ class RefDataImport {
 	private IDatabase database;
 	private CategoryDao categoryDao;
 	private FlowDao flowDao;
-	private RootEntityDao<Location> locationDao;
+	private BaseEntityDao<Location> locationDao;
 	private RefDataIndex index;
 
 	public RefDataImport(IDatabase database) {
 		this.database = database;
 		this.index = new RefDataIndex();
 		this.categoryDao = new CategoryDao(database);
-		this.locationDao = new RootEntityDao<>(Location.class, database);
+		this.locationDao = new BaseEntityDao<>(Location.class, database);
 		this.flowDao = new FlowDao(database);
 		try {
 			loadUnitMaps(database);
@@ -67,7 +67,7 @@ class RefDataImport {
 		while ((line = reader.readLine()) != null) {
 			String[] args = line.split(",");
 			String eiUnitKey = args[0];
-			RootEntityDao<Unit> unitDao = new RootEntityDao<>(Unit.class,
+			BaseEntityDao<Unit> unitDao = new BaseEntityDao<>(Unit.class,
 					database);
 			Unit unit = unitDao.getForRefId(args[1]);
 			FlowPropertyDao propDao = new FlowPropertyDao(database);
@@ -101,7 +101,7 @@ class RefDataImport {
 		}
 	}
 
-	private void classification(DataSet dataSet) throws Exception {
+	private void classification(DataSet dataSet) {
 		Classification classification = findClassification(dataSet);
 		if (classification == null
 				|| classification.getClassificationId() == null)
@@ -132,7 +132,7 @@ class RefDataImport {
 		return null;
 	}
 
-	private void geography(DataSet dataSet) throws Exception {
+	private void geography(DataSet dataSet) {
 		Geography geography = dataSet.getGeography();
 		if (geography == null || geography.getId() == null
 				|| geography.getShortName() == null)
@@ -173,8 +173,7 @@ class RefDataImport {
 		index.putCompartment(refId, category);
 	}
 
-	private void productFlow(DataSet dataSet, IntermediateExchange exchange)
-			throws Exception {
+	private void productFlow(DataSet dataSet, IntermediateExchange exchange) {
 		String refId = exchange.getIntermediateExchangeId();
 		Integer og = exchange.getOutputGroup();
 		boolean isRef = og != null && og == 0;

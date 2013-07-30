@@ -43,7 +43,7 @@ abstract class AbstractCategoryImport<C> {
 		}
 	}
 
-	private Category findRoot(C c) throws Exception {
+	private Category findRoot(C c) {
 		List<Category> roots = dao.getRootCategories(modelType);
 		if (roots == null || roots.isEmpty())
 			return null;
