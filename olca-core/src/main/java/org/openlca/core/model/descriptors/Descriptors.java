@@ -86,6 +86,8 @@ public class Descriptors {
 		setBaseValues(flow, descriptor);
 		if (flow.getLocation() != null)
 			descriptor.setLocationCode(flow.getLocation().getCode());
+		if (flow.getFlowType() != null)
+			descriptor.setFlowType(flow.getFlowType());
 		return descriptor;
 	}
 

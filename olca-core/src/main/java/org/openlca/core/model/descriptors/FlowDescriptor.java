@@ -1,5 +1,6 @@
 package org.openlca.core.model.descriptors;
 
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
 
@@ -8,6 +9,7 @@ public class FlowDescriptor extends BaseDescriptor {
 	private static final long serialVersionUID = 4292185203406513488L;
 
 	private String locationCode;
+	private FlowType flowType;
 
 	public FlowDescriptor() {
 		setType(ModelType.FLOW);
@@ -19,6 +21,14 @@ public class FlowDescriptor extends BaseDescriptor {
 
 	public void setLocationCode(String locationCode) {
 		this.locationCode = locationCode;
+	}
+
+	public FlowType getFlowType() {
+		return flowType;
+	}
+
+	public void setFlowType(FlowType flowType) {
+		this.flowType = flowType;
 	}
 
 	@Override
