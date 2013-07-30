@@ -5,18 +5,18 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProcessDao extends CategorizedEnitityDao<Process> {
+public class ProcessDao extends
+		CategorizedEnitityDao<Process, ProcessDescriptor> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	public ProcessDao(IDatabase database) {
-		super(Process.class, database);
+		super(Process.class, ProcessDescriptor.class, database);
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class ProcessDao extends CategorizedEnitityDao<Process> {
 	}
 
 	@Override
-	protected BaseDescriptor createDescriptor(Object[] queryResult) {
+	protected ProcessDescriptor createDescriptor(Object[] queryResult) {
 		if (queryResult == null)
 			return null;
 		ProcessDescriptor d = new ProcessDescriptor();
@@ -37,7 +37,7 @@ public class ProcessDao extends CategorizedEnitityDao<Process> {
 		return d;
 	}
 
-	public List<BaseDescriptor> whereUsed(Process process) {
+	public List<ProductSystemDescriptor> whereUsed(Process process) {
 		if (process == null || process.getRefId() == null)
 			return Collections.emptyList();
 		String jpql = "select s.id, s.name, s.description from ProductSystem s "
@@ -46,7 +46,7 @@ public class ProcessDao extends CategorizedEnitityDao<Process> {
 			List<Object[]> results = Query.on(getDatabase()).getAll(
 					Object[].class, jpql,
 					Collections.singletonMap("processId", process.getRefId()));
-			List<BaseDescriptor> descriptors = new ArrayList<>();
+			List<ProductSystemDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProductSystemDescriptor d = new ProductSystemDescriptor();
 				d.setId((Long) result[0]);

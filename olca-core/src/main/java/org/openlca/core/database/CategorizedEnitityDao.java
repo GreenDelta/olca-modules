@@ -12,14 +12,15 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 
 import com.google.common.base.Optional;
 
-public class CategorizedEnitityDao<T extends CategorizedEntity> extends
-		RootEntityDao<T> {
+public class CategorizedEnitityDao<T extends CategorizedEntity, V extends BaseDescriptor>
+		extends RootEntityDao<T, V> {
 
-	public CategorizedEnitityDao(Class<T> clazz, IDatabase database) {
-		super(clazz, database);
+	public CategorizedEnitityDao(Class<T> entityType, Class<V> descriptorType,
+			IDatabase database) {
+		super(entityType, descriptorType, database);
 	}
 
-	public List<BaseDescriptor> getDescriptors(Optional<Category> category) {
+	public List<V> getDescriptors(Optional<Category> category) {
 		String jpql = getDescriptorQuery();
 		Map<String, Category> params = null;
 		if (category.isPresent()) {
@@ -33,10 +34,6 @@ public class CategorizedEnitityDao<T extends CategorizedEntity> extends
 	}
 
 	public void updateCategory(BaseDescriptor model, Optional<Category> category) {
-		if (model.getModelType().getModelClass() != entityType) {
-			log.error("");
-			return;
-		}
 		String jpql = "update " + entityType.getSimpleName()
 				+ " e set e.category = :category where e.id = :id";
 		TypedQuery<?> query = createManager().createQuery(jpql, entityType);
@@ -46,8 +43,7 @@ public class CategorizedEnitityDao<T extends CategorizedEntity> extends
 		query.executeUpdate();
 	}
 
-	private List<BaseDescriptor> runDescriptorQuery(String jpql,
-			Map<String, Category> params) {
+	private List<V> runDescriptorQuery(String jpql, Map<String, Category> params) {
 		try {
 			List<Object[]> results = Query.on(getDatabase()).getAll(
 					Object[].class, jpql, params);

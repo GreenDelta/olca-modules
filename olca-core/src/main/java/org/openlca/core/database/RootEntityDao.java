@@ -8,13 +8,18 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 
-public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
+public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
+		extends BaseDao<T> {
 
-	public RootEntityDao(Class<T> clazz, IDatabase database) {
-		super(clazz, database);
+	private Class<V> descriptorType;
+
+	public RootEntityDao(Class<T> entityType, Class<V> descriptorType,
+			IDatabase database) {
+		super(entityType, database);
+		this.descriptorType = descriptorType;
 	}
 
-	public BaseDescriptor getDescriptor(long id) {
+	public V getDescriptor(long id) {
 		String jpql = getDescriptorQuery() + " where e.id = :id";
 		try {
 			Object[] result = Query.on(getDatabase()).getFirst(Object[].class,
@@ -29,7 +34,7 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 	/**
 	 * Returns all descriptors of the entity type of this DAO from the database.
 	 */
-	public List<BaseDescriptor> getDescriptors() {
+	public List<V> getDescriptors() {
 		try {
 			String jpql = getDescriptorQuery();
 			List<Object[]> results = Query.on(getDatabase()).getAll(
@@ -54,12 +59,12 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 	/**
 	 * Creates a list of descriptors from a list of query results.
 	 */
-	protected List<BaseDescriptor> createDescriptors(List<Object[]> results) {
+	protected List<V> createDescriptors(List<Object[]> results) {
 		if (results == null)
 			return Collections.emptyList();
-		List<BaseDescriptor> descriptors = new ArrayList<>(results.size());
+		List<V> descriptors = new ArrayList<>(results.size());
 		for (Object[] result : results) {
-			BaseDescriptor descriptor = createDescriptor(result);
+			V descriptor = createDescriptor(result);
 			if (descriptor != null)
 				descriptors.add(descriptor);
 		}
@@ -71,9 +76,10 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 	 * method can be overwritten by subclasses but it must be implemented in a
 	 * way that it matches the respective descriptor query.
 	 */
-	protected BaseDescriptor createDescriptor(Object[] queryResult) {
-		BaseDescriptor descriptor = new BaseDescriptor();
+	protected V createDescriptor(Object[] queryResult) {
+		V descriptor = null;
 		try {
+			descriptor = descriptorType.newInstance();
 			descriptor.setId((Long) queryResult[0]);
 			descriptor.setName((String) queryResult[1]);
 			descriptor.setDescription((String) queryResult[2]);

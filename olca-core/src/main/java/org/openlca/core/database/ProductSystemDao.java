@@ -1,11 +1,13 @@
 package org.openlca.core.database;
 
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
-public class ProductSystemDao extends CategorizedEnitityDao<ProductSystem> {
+public class ProductSystemDao extends
+		CategorizedEnitityDao<ProductSystem, ProductSystemDescriptor> {
 
 	public ProductSystemDao(IDatabase database) {
-		super(ProductSystem.class, database);
+		super(ProductSystem.class, ProductSystemDescriptor.class, database);
 	}
 
 }

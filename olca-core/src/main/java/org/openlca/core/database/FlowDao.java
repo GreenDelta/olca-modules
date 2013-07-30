@@ -9,11 +9,12 @@ import java.util.Map;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class FlowDao extends CategorizedEnitityDao<Flow> {
+public class FlowDao extends CategorizedEnitityDao<Flow, FlowDescriptor> {
 
 	public FlowDao(IDatabase database) {
-		super(Flow.class, database);
+		super(Flow.class, FlowDescriptor.class, database);
 	}
 
 	@Override
@@ -23,7 +24,7 @@ public class FlowDao extends CategorizedEnitityDao<Flow> {
 	}
 
 	@Override
-	protected BaseDescriptor createDescriptor(Object[] queryResult) {
+	protected FlowDescriptor createDescriptor(Object[] queryResult) {
 		if (queryResult == null)
 			return null;
 		FlowDescriptor descriptor = new FlowDescriptor();
@@ -38,18 +39,17 @@ public class FlowDao extends CategorizedEnitityDao<Flow> {
 		return descriptor;
 	}
 
-	public List<BaseDescriptor> getProviders(Flow flow) throws Exception {
+	public List<ProcessDescriptor> getProviders(Flow flow) {
 		List<Long> processIds = getProcessIdsWhereUsed(flow, false);
 		return loadProcessDescriptors(processIds);
 	}
 
-	public List<BaseDescriptor> getRecipients(Flow flow) throws Exception {
+	public List<ProcessDescriptor> getRecipients(Flow flow) {
 		List<Long> processIds = getProcessIdsWhereUsed(flow, true);
 		return loadProcessDescriptors(processIds);
 	}
 
-	private List<Long> getProcessIdsWhereUsed(Flow flow, boolean input)
-			throws Exception {
+	private List<Long> getProcessIdsWhereUsed(Flow flow, boolean input) {
 		if (flow == null)
 			return Collections.emptyList();
 		String jpql = "select p.id from Process p join p.exchanges e "
@@ -60,16 +60,15 @@ public class FlowDao extends CategorizedEnitityDao<Flow> {
 		return query().getAll(Long.class, jpql, params);
 	}
 
-	private List<BaseDescriptor> loadProcessDescriptors(List<Long> processIds)
-			throws Exception {
+	private List<ProcessDescriptor> loadProcessDescriptors(List<Long> processIds) {
 		if (processIds == null || processIds.isEmpty())
 			return Collections.emptyList();
 		// TODO: performance may could be improved if we query the
 		// database with an 'IN - query'
-		List<BaseDescriptor> results = new ArrayList<>();
+		List<ProcessDescriptor> results = new ArrayList<>();
 		ProcessDao dao = new ProcessDao(getDatabase());
 		for (Long processId : processIds) {
-			BaseDescriptor d = dao.getDescriptor(processId);
+			ProcessDescriptor d = dao.getDescriptor(processId);
 			if (d != null)
 				results.add(d);
 		}

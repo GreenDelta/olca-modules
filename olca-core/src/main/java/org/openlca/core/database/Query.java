@@ -33,7 +33,7 @@ public class Query {
 	 * have a string field 'name'. If no such type is contained in the database,
 	 * null is returned.
 	 */
-	public <T> T getForName(Class<T> type, String name) throws Exception {
+	public <T> T getForName(Class<T> type, String name) {
 		log.trace("query {} for name {}", type, name);
 		BaseDao<T> dao = new BaseDao<>(type, database);
 		String jpql = "select t from " + type.getSimpleName()
@@ -43,13 +43,13 @@ public class Query {
 		return dao.getFirst(jpql, map);
 	}
 
-	public <T> List<T> getAll(Class<T> type, String jpql) throws Exception {
+	public <T> List<T> getAll(Class<T> type, String jpql) {
 		Map<String, Object> map = new HashMap<>();
 		return getAll(type, jpql, map);
 	}
 
 	public <T> List<T> getAll(Class<T> type, String jpql,
-			Map<String, ? extends Object> params) throws Exception {
+			Map<String, ? extends Object> params) {
 		log.trace("Get all {} with query {}", type, jpql);
 		EntityManager em = createManager();
 		try {
@@ -67,7 +67,7 @@ public class Query {
 	}
 
 	public <T> T getFirst(Class<T> type, String jpql,
-			Map<String, ? extends Object> params) throws Exception {
+			Map<String, ? extends Object> params) {
 		List<T> all = getAll(type, jpql, params);
 		if (all == null || all.isEmpty())
 			return null;

@@ -7,11 +7,13 @@ import java.util.List;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
+import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
-public class UnitGroupDao extends CategorizedEnitityDao<UnitGroup> {
+public class UnitGroupDao extends
+		CategorizedEnitityDao<UnitGroup, UnitGroupDescriptor> {
 
 	public UnitGroupDao(IDatabase database) {
-		super(UnitGroup.class, database);
+		super(UnitGroup.class, UnitGroupDescriptor.class, database);
 	}
 
 	public List<BaseDescriptor> whereUsed(UnitGroup group) {
