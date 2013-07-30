@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -16,10 +14,10 @@ import org.slf4j.LoggerFactory;
 class FlowUseSearch implements IUseSearch<Flow> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private EntityManagerFactory emf;
+	private IDatabase database;
 
-	public FlowUseSearch(EntityManagerFactory emf) {
-		this.emf = emf;
+	public FlowUseSearch(IDatabase database) {
+		this.database = database;
 	}
 
 	@Override
@@ -40,7 +38,7 @@ class FlowUseSearch implements IUseSearch<Flow> {
 				+ " join m.lciaCategories cat join cat.lciaFactors fac "
 				+ " where fac.flow.id = :flowId";
 		try {
-			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
+			List<Object[]> results = Query.on(database).getAll(Object[].class, jpql,
 					Collections.singletonMap("flowId", flow.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
@@ -62,7 +60,7 @@ class FlowUseSearch implements IUseSearch<Flow> {
 				+ "from Process p join p.exchanges e left join p.location "
 				+ "loc where e.flow.id = :flowId";
 		try {
-			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
+			List<Object[]> results = Query.on(database).getAll(Object[].class, jpql,
 					Collections.singletonMap("flowId", flow.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {

@@ -40,7 +40,7 @@ public class SourceImport {
 
 	private Source findExisting(String sourceId) throws ImportException {
 		try {
-			SourceDao dao = new SourceDao(database.getEntityFactory());
+			SourceDao dao = new SourceDao(database);
 			return dao.getForRefId(sourceId);
 		} catch (Exception e) {
 			String message = String.format("Search for source %s failed.",

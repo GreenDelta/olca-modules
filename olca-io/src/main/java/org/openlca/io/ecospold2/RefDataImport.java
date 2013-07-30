@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
@@ -48,10 +46,9 @@ class RefDataImport {
 	public RefDataImport(IDatabase database) {
 		this.database = database;
 		this.index = new RefDataIndex();
-		this.categoryDao = new CategoryDao(database.getEntityFactory());
-		this.locationDao = new RootEntityDao<>(Location.class,
-				database.getEntityFactory());
-		this.flowDao = new FlowDao(database.getEntityFactory());
+		this.categoryDao = new CategoryDao(database);
+		this.locationDao = new RootEntityDao<>(Location.class, database);
+		this.flowDao = new FlowDao(database);
 		try {
 			loadUnitMaps(database);
 		} catch (Exception e) {
@@ -70,10 +67,10 @@ class RefDataImport {
 		while ((line = reader.readLine()) != null) {
 			String[] args = line.split(",");
 			String eiUnitKey = args[0];
-			EntityManagerFactory emf = database.getEntityFactory();
-			RootEntityDao<Unit> unitDao = new RootEntityDao<>(Unit.class, emf);
+			RootEntityDao<Unit> unitDao = new RootEntityDao<>(Unit.class,
+					database);
 			Unit unit = unitDao.getForRefId(args[1]);
-			FlowPropertyDao propDao = new FlowPropertyDao(emf);
+			FlowPropertyDao propDao = new FlowPropertyDao(database);
 			FlowProperty prop = propDao.getForRefId(args[2]);
 			if (unit == null || prop == null)
 				log.warn("no unit or property found for {} in database, "

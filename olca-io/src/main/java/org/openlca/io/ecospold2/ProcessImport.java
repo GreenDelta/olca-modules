@@ -51,7 +51,7 @@ class ProcessImport {
 	public ProcessImport(IDatabase database, RefDataIndex index) {
 		this.database = database;
 		this.index = index;
-		dao = new ProcessDao(database.getEntityFactory());
+		dao = new ProcessDao(database);
 	}
 
 	public void importDataSet(DataSet dataSet) {

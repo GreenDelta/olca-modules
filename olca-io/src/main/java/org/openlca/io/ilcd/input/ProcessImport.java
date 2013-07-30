@@ -71,7 +71,7 @@ public class ProcessImport {
 
 	private Process findExisting(String processId) throws ImportException {
 		try {
-			ProcessDao dao = new ProcessDao(database.getEntityFactory());
+			ProcessDao dao = new ProcessDao(database);
 			return dao.getForRefId(processId);
 		} catch (Exception e) {
 			String message = String.format("Search for process %s failed.",
@@ -155,7 +155,7 @@ public class ProcessImport {
 
 					// find a location
 					RootEntityDao<Location> locDao = new RootEntityDao<>(
-							Location.class, database.getEntityFactory());
+							Location.class, database);
 					Location location = locDao.getForRefId(locationId);
 
 					// create a new location

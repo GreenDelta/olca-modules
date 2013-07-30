@@ -51,7 +51,7 @@ public class FlowImport {
 
 	private Flow findExisting(String flowId) throws ImportException {
 		try {
-			FlowDao dao = new FlowDao(database.getEntityFactory());
+			FlowDao dao = new FlowDao(database);
 			return dao.getForRefId(flowId);
 		} catch (Exception e) {
 			String message = String

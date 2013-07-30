@@ -150,11 +150,10 @@ class ProcessExchanges {
 		}
 		try {
 			RootEntityDao<Unit> unitDao = new RootEntityDao<>(Unit.class,
-					database.getEntityFactory());
+					database);
 			Unit unit = unitDao.getForRefId(extension.getUnitId());
 			exchange.setUnit(unit);
-			FlowPropertyDao propDao = new FlowPropertyDao(
-					database.getEntityFactory());
+			FlowPropertyDao propDao = new FlowPropertyDao(database);
 			FlowProperty property = propDao.getForRefId(extension
 					.getPropertyId());
 			FlowPropertyFactor factor = flowInfo.getFactor(property);

@@ -4,15 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterType;
 
 public class ParameterDao extends BaseDao<Parameter> {
 
-	public ParameterDao(EntityManagerFactory factory) {
-		super(Parameter.class, factory);
+	public ParameterDao(IDatabase database) {
+		super(Parameter.class, database);
 	}
 
 	public List<Parameter> getAllForType(ParameterType type) throws Exception {

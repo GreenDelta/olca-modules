@@ -54,7 +54,7 @@ public class UnitGroupImport {
 
 	private UnitGroup findExisting(String unitGroupId) throws ImportException {
 		try {
-			UnitGroupDao dao = new UnitGroupDao(database.getEntityFactory());
+			UnitGroupDao dao = new UnitGroupDao(database);
 			return dao.getForRefId(unitGroupId);
 		} catch (Exception e) {
 			String message = String.format("Search for unit group %s failed.",

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -16,11 +14,11 @@ import org.slf4j.LoggerFactory;
 /** Searches for models where a given actor is used. */
 class ActorUseSearch implements IUseSearch<Actor> {
 
-	private EntityManagerFactory emf;
+	private IDatabase database;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public ActorUseSearch(EntityManagerFactory emf) {
-		this.emf = emf;
+	public ActorUseSearch(IDatabase database) {
+		this.database = database;
 	}
 
 	@Override
@@ -38,8 +36,8 @@ class ActorUseSearch implements IUseSearch<Actor> {
 		try {
 			String jpql = "select p.id, p.name, p.description from Project p "
 					+ "where p.author = :actor";
-			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("actor", actor));
+			List<Object[]> results = Query.on(database).getAll(Object[].class,
+					jpql, Collections.singletonMap("actor", actor));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProjectDescriptor d = new ProjectDescriptor();
@@ -65,8 +63,8 @@ class ActorUseSearch implements IUseSearch<Actor> {
 					+ " or info.dataSetOwner = :actor "
 					+ " or info.dataGenerator = :actor "
 					+ " or info.dataDocumentor = :actor";
-			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("actor", actor));
+			List<Object[]> results = Query.on(database).getAll(Object[].class,
+					jpql, Collections.singletonMap("actor", actor));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProcessDescriptor d = new ProcessDescriptor();

@@ -5,11 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.EntityManagerFactory;
-
 public interface IDao<T> {
-
-	EntityManagerFactory getEntityFactory();
 
 	boolean contains(long id) throws Exception;
 

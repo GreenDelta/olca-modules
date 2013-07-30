@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 
 import org.openlca.core.model.ImpactMethod;
@@ -16,8 +15,8 @@ import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 /** The DAO class for impact assessment methods. */
 public class ImpactMethodDao extends CategorizedEnitityDao<ImpactMethod> {
 
-	public ImpactMethodDao(EntityManagerFactory factory) {
-		super(ImpactMethod.class, factory);
+	public ImpactMethodDao(IDatabase database) {
+		super(ImpactMethod.class, database);
 	}
 
 	public List<ImpactCategoryDescriptor> getCategoryDescriptors(long methodId) {
@@ -25,7 +24,7 @@ public class ImpactMethodDao extends CategorizedEnitityDao<ImpactMethod> {
 			String jpql = "select cat.id, cat.name, cat.referenceUnit, "
 					+ "cat.description from ImpactMethod m join m.impactCategories "
 					+ "cat where m.id = :methodId ";
-			List<Object[]> vals = Query.on(getEntityFactory()).getAll(
+			List<Object[]> vals = Query.on(getDatabase()).getAll(
 					Object[].class, jpql,
 					Collections.singletonMap("methodId", methodId));
 			List<ImpactCategoryDescriptor> list = new ArrayList<>();

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
@@ -23,16 +22,15 @@ public class BaseDao<T> implements IDao<T> {
 
 	protected Class<T> entityType;
 	protected Logger log = LoggerFactory.getLogger(this.getClass());
-	private EntityManagerFactory entityFactory;
+	private IDatabase database;
 
-	public BaseDao(Class<T> entityType, EntityManagerFactory factory) {
+	public BaseDao(Class<T> entityType, IDatabase database) {
 		this.entityType = entityType;
-		this.entityFactory = factory;
+		this.database = database;
 	}
 
-	@Override
-	public EntityManagerFactory getEntityFactory() {
-		return entityFactory;
+	protected IDatabase getDatabase() {
+		return database;
 	}
 
 	@Override
@@ -213,12 +211,13 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	protected EntityManager createManager() {
-		EntityManager em = entityFactory.createEntityManager();
+		EntityManager em = getDatabase().getEntityFactory()
+				.createEntityManager();
 		return em;
 	}
 
 	protected Query query() {
-		return Query.on(getEntityFactory());
+		return Query.on(database);
 	}
 
 	public T detach(T val) {

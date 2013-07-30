@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -16,10 +14,10 @@ import org.slf4j.LoggerFactory;
 class SourceUseSearch implements IUseSearch<Source> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private EntityManagerFactory emf;
+	private IDatabase database;
 
-	public SourceUseSearch(EntityManagerFactory emf) {
-		this.emf = emf;
+	public SourceUseSearch(IDatabase database) {
+		this.database = database;
 	}
 
 	@Override
@@ -30,7 +28,7 @@ class SourceUseSearch implements IUseSearch<Source> {
 				+ " left join p.adminInfo info left join mav.sources s"
 				+ " where info.publication = :source or s = :source";
 		try {
-			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
+			List<Object[]> results = Query.on(database).getAll(Object[].class, jpql,
 					Collections.singletonMap("source", source));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {

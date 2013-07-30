@@ -52,7 +52,7 @@ public class ImpactMatrixBuilder {
 			ImpactMethodDescriptor methodDescriptor) {
 		Index<ImpactCategoryDescriptor> index = new Index<>(
 				ImpactCategoryDescriptor.class);
-		ImpactMethodDao dao = new ImpactMethodDao(database.getEntityFactory());
+		ImpactMethodDao dao = new ImpactMethodDao(database);
 		for (ImpactCategoryDescriptor cat : dao
 				.getCategoryDescriptors(methodDescriptor.getId()))
 			index.put(cat);

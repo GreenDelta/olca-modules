@@ -103,7 +103,7 @@ public class MySQLDatabase implements IDatabase {
 
 	@Override
 	public <T> BaseDao<T> createDao(Class<T> clazz) {
-		return new BaseDao<>(clazz, getEntityFactory());
+		return new BaseDao<>(clazz, this);
 	}
 
 	public String getName() {

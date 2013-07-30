@@ -6,16 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class FlowDao extends CategorizedEnitityDao<Flow> {
 
-	public FlowDao(EntityManagerFactory factory) {
-		super(Flow.class, factory);
+	public FlowDao(IDatabase database) {
+		super(Flow.class, database);
 	}
 
 	@Override
@@ -69,7 +67,7 @@ public class FlowDao extends CategorizedEnitityDao<Flow> {
 		// TODO: performance may could be improved if we query the
 		// database with an 'IN - query'
 		List<BaseDescriptor> results = new ArrayList<>();
-		ProcessDao dao = new ProcessDao(getEntityFactory());
+		ProcessDao dao = new ProcessDao(getDatabase());
 		for (Long processId : processIds) {
 			BaseDescriptor d = dao.getDescriptor(processId);
 			if (d != null)
@@ -79,7 +77,7 @@ public class FlowDao extends CategorizedEnitityDao<Flow> {
 	}
 
 	public List<BaseDescriptor> whereUsed(Flow flow) {
-		return new FlowUseSearch(getEntityFactory()).findUses(flow);
+		return new FlowUseSearch(getDatabase()).findUses(flow);
 	}
 
 }

@@ -18,17 +18,14 @@ public class Query {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private EntityManagerFactory entityFactory;
+	private IDatabase database;
 
-	private Query(EntityManagerFactory entityFactory) {
-		this.entityFactory = entityFactory;
+	private Query(IDatabase database) {
+		this.database = database;
 	}
 
 	public static Query on(IDatabase database) {
-		return new Query(database.getEntityFactory());
-	}
-
-	public static Query on(EntityManagerFactory entityFactory) {
-		return new Query(entityFactory);
+		return new Query(database);
 	}
 
 	/**
@@ -38,7 +35,7 @@ public class Query {
 	 */
 	public <T> T getForName(Class<T> type, String name) throws Exception {
 		log.trace("query {} for name {}", type, name);
-		BaseDao<T> dao = new BaseDao<>(type, entityFactory);
+		BaseDao<T> dao = new BaseDao<>(type, database);
 		String jpql = "select t from " + type.getSimpleName()
 				+ " t where t.name = :name";
 		Map<String, String> map = new HashMap<>();

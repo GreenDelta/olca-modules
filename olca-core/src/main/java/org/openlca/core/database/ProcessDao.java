@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -17,8 +15,8 @@ public class ProcessDao extends CategorizedEnitityDao<Process> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public ProcessDao(EntityManagerFactory emf) {
-		super(Process.class, emf);
+	public ProcessDao(IDatabase database) {
+		super(Process.class, database);
 	}
 
 	@Override
@@ -45,7 +43,7 @@ public class ProcessDao extends CategorizedEnitityDao<Process> {
 		String jpql = "select s.id, s.name, s.description from ProductSystem s "
 				+ "join s.processes p where p.id = :processId";
 		try {
-			List<Object[]> results = Query.on(getEntityFactory()).getAll(
+			List<Object[]> results = Query.on(getDatabase()).getAll(
 					Object[].class, jpql,
 					Collections.singletonMap("processId", process.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();

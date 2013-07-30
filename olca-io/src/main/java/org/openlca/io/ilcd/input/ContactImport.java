@@ -23,7 +23,7 @@ public class ContactImport {
 	public ContactImport(DataStore dataStore, IDatabase database) {
 		this.dataStore = dataStore;
 		this.database = database;
-		this.dao = new ActorDao(database.getEntityFactory());
+		this.dao = new ActorDao(database);
 	}
 
 	public Actor run(Contact contact) throws ImportException {

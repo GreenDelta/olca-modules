@@ -4,23 +4,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 
 public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 
-	public RootEntityDao(Class<T> clazz, EntityManagerFactory factory) {
-		super(clazz, factory);
+	public RootEntityDao(Class<T> clazz, IDatabase database) {
+		super(clazz, database);
 	}
 
 	public BaseDescriptor getDescriptor(long id) {
 		String jpql = getDescriptorQuery() + " where e.id = :id";
 		try {
-			Object[] result = Query.on(getEntityFactory()).getFirst(
-					Object[].class, jpql, Collections.singletonMap("id", id));
+			Object[] result = Query.on(getDatabase()).getFirst(Object[].class,
+					jpql, Collections.singletonMap("id", id));
 			return createDescriptor(result);
 		} catch (Exception e) {
 			log.error("failed to get descriptor for " + id, e);
@@ -34,7 +32,7 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 	public List<BaseDescriptor> getDescriptors() {
 		try {
 			String jpql = getDescriptorQuery();
-			List<Object[]> results = Query.on(getEntityFactory()).getAll(
+			List<Object[]> results = Query.on(getDatabase()).getAll(
 					Object[].class, jpql);
 			return createDescriptors(results);
 		} catch (Exception e) {
@@ -92,12 +90,11 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 		String jpql = "select e from " + entityType.getSimpleName()
 				+ " e where e.refId = :refId";
 		try {
-			return Query.on(getEntityFactory()).getFirst(entityType, jpql,
+			return Query.on(getDatabase()).getFirst(entityType, jpql,
 					Collections.singletonMap("refId", refId));
 		} catch (Exception e) {
 			log.error("failed to get instance for refId " + refId, e);
 			return null;
 		}
 	}
-
 }

@@ -82,8 +82,7 @@ public class BaseDaoTest {
 			throws Exception {
 		log.info("run base dao test with {}", clazz);
 		T instance = clazz.newInstance();
-		BaseDao<T> dao = new BaseDao<>(clazz, TestSession.getDefaultDatabase()
-				.getEntityFactory());
+		BaseDao<T> dao = new BaseDao<>(clazz, TestSession.getDefaultDatabase());
 		dao.insert(instance);
 		dao.update(instance);
 		TestSession.emptyCache();

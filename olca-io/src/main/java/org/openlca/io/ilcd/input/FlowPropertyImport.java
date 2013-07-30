@@ -48,8 +48,7 @@ public class FlowPropertyImport {
 
 	private FlowProperty findExisting(String propertyId) throws ImportException {
 		try {
-			FlowPropertyDao dao = new FlowPropertyDao(
-					database.getEntityFactory());
+			FlowPropertyDao dao = new FlowPropertyDao(database);
 			return dao.getForRefId(propertyId);
 		} catch (Exception e) {
 			String message = String.format(

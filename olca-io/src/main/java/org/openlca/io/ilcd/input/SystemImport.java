@@ -58,8 +58,7 @@ public class SystemImport {
 
 	private ProductSystem findExisting(String systemId) throws ImportException {
 		try {
-			ProductSystemDao dao = new ProductSystemDao(
-					database.getEntityFactory());
+			ProductSystemDao dao = new ProductSystemDao(database);
 			return dao.getForRefId(systemId);
 		} catch (Exception e) {
 			throw new ImportException("Could not load product system id="
@@ -209,7 +208,7 @@ public class SystemImport {
 			return;
 		}
 		try {
-			ParameterDao dao = new ParameterDao(database.getEntityFactory());
+			ParameterDao dao = new ParameterDao(database);
 			List<org.openlca.core.model.Parameter> params = dao.getAllForName(
 					param.getName(), param.getType());
 			if (params.isEmpty())

@@ -40,7 +40,7 @@ public class MethodImport {
 	private FlowMap flowMap;
 
 	public MethodImport(DataStore ilcdStore, IDatabase database) {
-		this.dao = new ImpactMethodDao(database.getEntityFactory());
+		this.dao = new ImpactMethodDao(database);
 		this.database = database;
 		this.ilcdStore = ilcdStore;
 		flowMap = new FlowMap(MapType.ILCD_FLOW);
@@ -200,7 +200,7 @@ public class MethodImport {
 		FlowMapEntry entry = flowMap.getEntry(flowId);
 		if (entry == null)
 			return null;
-		FlowDao dao = new FlowDao(database.getEntityFactory());
+		FlowDao dao = new FlowDao(database);
 		return dao.getForRefId(entry.getOpenlcaFlowKey());
 	}
 

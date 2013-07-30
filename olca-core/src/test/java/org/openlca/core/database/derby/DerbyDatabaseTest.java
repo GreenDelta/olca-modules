@@ -31,7 +31,7 @@ public class DerbyDatabaseTest {
 	@Test
 	// @Ignore
 	public void testEmptyDao() throws Exception {
-		ActorDao dao = new ActorDao(database.getEntityFactory());
+		ActorDao dao = new ActorDao(database);
 		Assert.assertTrue(dao.getAll().isEmpty());
 	}
 

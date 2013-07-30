@@ -16,7 +16,7 @@ abstract class AbstractCategoryImport<C> {
 
 	public AbstractCategoryImport(IDatabase database, ModelType modelType) {
 		this.modelType = modelType;
-		dao = new CategoryDao(database.getEntityFactory());
+		dao = new CategoryDao(database);
 	}
 
 	/** Hook method that needs to be implemented by the concrete sub-class */

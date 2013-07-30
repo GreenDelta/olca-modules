@@ -3,8 +3,6 @@ package org.openlca.core.database;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.ListUtils;
@@ -32,17 +30,16 @@ public class CategorizedEntityDaoTest {
 
 	@Test
 	public void runCrudTests() throws Exception {
-		EntityManagerFactory emf = TestSession.getDefaultDatabase()
-				.getEntityFactory();
-		run(Actor.class, new ActorDao(emf));
-		run(Source.class, new SourceDao(emf));
-		run(UnitGroup.class, new UnitGroupDao(emf));
-		run(FlowProperty.class, new FlowPropertyDao(emf));
-		run(Flow.class, new FlowDao(emf));
-		run(org.openlca.core.model.Process.class, new ProcessDao(emf));
-		run(ImpactMethod.class, new ImpactMethodDao(emf));
-		run(ProductSystem.class, new ProductSystemDao(emf));
-		run(Project.class, new ProjectDao(emf));
+		IDatabase database = TestSession.getDefaultDatabase();
+		run(Actor.class, new ActorDao(database));
+		run(Source.class, new SourceDao(database));
+		run(UnitGroup.class, new UnitGroupDao(database));
+		run(FlowProperty.class, new FlowPropertyDao(database));
+		run(Flow.class, new FlowDao(database));
+		run(org.openlca.core.model.Process.class, new ProcessDao(database));
+		run(ImpactMethod.class, new ImpactMethodDao(database));
+		run(ProductSystem.class, new ProductSystemDao(database));
+		run(Project.class, new ProjectDao(database));
 	}
 
 	private <T extends CategorizedEntity> void run(Class<T> clazz,

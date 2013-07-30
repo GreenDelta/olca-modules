@@ -2,19 +2,17 @@ package org.openlca.core.database;
 
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 
 public class SourceDao extends CategorizedEnitityDao<Source> {
 
-	public SourceDao(EntityManagerFactory emf) {
-		super(Source.class, emf);
+	public SourceDao(IDatabase database) {
+		super(Source.class, database);
 	}
 
 	public List<BaseDescriptor> whereUsed(Source source) {
-		return new SourceUseSearch(getEntityFactory()).findUses(source);
+		return new SourceUseSearch(getDatabase()).findUses(source);
 	}
 
 }

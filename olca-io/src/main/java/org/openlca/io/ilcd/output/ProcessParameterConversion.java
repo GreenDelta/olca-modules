@@ -38,7 +38,7 @@ class ProcessParameterConversion {
 
 	private void addDatabaseParams(
 			List<org.openlca.ilcd.processes.Parameter> params) throws Exception {
-		ParameterDao dao = new ParameterDao(database.getEntityFactory());
+		ParameterDao dao = new ParameterDao(database);
 		for (Parameter param : dao.getAllForType(ParameterType.DATABASE)) {
 			if (!valid(param))
 				continue;

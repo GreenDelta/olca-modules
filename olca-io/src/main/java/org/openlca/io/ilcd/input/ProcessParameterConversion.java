@@ -27,7 +27,7 @@ class ProcessParameterConversion {
 
 	public ProcessParameterConversion(Process olcaProcess, IDatabase database) {
 		this.olcaProcess = olcaProcess;
-		this.dao = new ParameterDao(database.getEntityFactory());
+		this.dao = new ParameterDao(database);
 	}
 
 	public void run(ProcessBag ilcdProcess) {
