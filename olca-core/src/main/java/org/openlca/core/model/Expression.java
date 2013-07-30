@@ -9,13 +9,9 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
 
 /**
  * An expression is an object which holds the combination of a formula and its
@@ -27,10 +23,6 @@ public class Expression implements Cloneable {
 
 	@Column(name = "formula")
 	private String formula;
-
-	@Transient
-	private final transient PropertyChangeSupport support = new PropertyChangeSupport(
-			this);
 
 	@Column(name = "value")
 	private double value;
@@ -75,10 +67,6 @@ public class Expression implements Cloneable {
 		return isDouble;
 	}
 
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		support.addPropertyChangeListener(listener);
-	}
-
 	@Override
 	public Expression clone() {
 		return new Expression(getFormula(), getValue());
@@ -92,18 +80,12 @@ public class Expression implements Cloneable {
 		return value;
 	}
 
-	public void removePropertyChangeListener(
-			final PropertyChangeListener listener) {
-		support.removePropertyChangeListener(listener);
-	}
-
 	public void setFormula(String formula) {
-		support.firePropertyChange("formula", this.formula,
-				this.formula = formula);
+		this.formula = formula;
 	}
 
 	public void setValue(double value) {
-		support.firePropertyChange("value", this.value, this.value = value);
+		this.value = value;
 	}
 
 	@Override

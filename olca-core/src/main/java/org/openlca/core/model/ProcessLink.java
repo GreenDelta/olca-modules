@@ -9,14 +9,10 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 /**
  * A process link is a link between a providing process and a receiving process.
@@ -43,15 +39,7 @@ public class ProcessLink extends AbstractEntity implements Cloneable {
 	@JoinColumn(name = "f_recipient_process")
 	private Process recipientProcess;
 
-	@Transient
-	private final transient PropertyChangeSupport support = new PropertyChangeSupport(
-			this);
-
 	public ProcessLink() {
-	}
-
-	public void addPropertyChangeListener(final PropertyChangeListener listener) {
-		support.addPropertyChangeListener(listener);
 	}
 
 	@Override
@@ -80,29 +68,20 @@ public class ProcessLink extends AbstractEntity implements Cloneable {
 		return recipientProcess;
 	}
 
-	public void removePropertyChangeListener(
-			final PropertyChangeListener listener) {
-		support.removePropertyChangeListener(listener);
-	}
-
 	public void setProviderOutput(final Exchange providerOutput) {
-		support.firePropertyChange("providerOutput", this.providerOutput,
-				this.providerOutput = providerOutput);
+		this.providerOutput = providerOutput;
 	}
 
 	public void setProviderProcess(final Process providerProcess) {
-		support.firePropertyChange("providerProcess", this.providerProcess,
-				this.providerProcess = providerProcess);
+		this.providerProcess = providerProcess;
 	}
 
 	public void setRecipientInput(final Exchange recipientInput) {
-		support.firePropertyChange("recipientInput", this.recipientInput,
-				this.recipientInput = recipientInput);
+		this.recipientInput = recipientInput;
 	}
 
 	public void setRecipientProcess(final Process recipientProcess) {
-		support.firePropertyChange("recipientProcess", this.recipientProcess,
-				this.recipientProcess = recipientProcess);
+		this.recipientProcess = recipientProcess;
 	}
 
 	@Override
