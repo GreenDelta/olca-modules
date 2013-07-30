@@ -14,6 +14,8 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.NormalizationWeightingFactor;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
@@ -253,8 +255,11 @@ public class AnalysisResult implements IResultData {
 	}
 
 	@Override
-	public Flow[] getFlows() {
-		return getFlowIndex().getFlows();
+	public FlowDescriptor[] getFlows() {
+		List<FlowDescriptor> descriptors = new ArrayList<>();
+		for (Flow flow : flowIndex.getFlows())
+			descriptors.add(Descriptors.toDescriptor(flow));
+		return descriptors.toArray(new FlowDescriptor[descriptors.size()]);
 	}
 
 	@Override
