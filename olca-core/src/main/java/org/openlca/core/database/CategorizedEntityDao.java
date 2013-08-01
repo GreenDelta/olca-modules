@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import org.openlca.core.model.CategorizedEntity;
@@ -15,8 +16,7 @@ import com.google.common.base.Optional;
 public class CategorizedEntityDao<T extends CategorizedEntity, V extends BaseDescriptor>
 		extends RootEntityDao<T, V> {
 
-
-	CategorizedEntityDao(Class<T> entityType, Class<V> descriptorType,
+	public CategorizedEntityDao(Class<T> entityType, Class<V> descriptorType,
 			IDatabase database) {
 		super(entityType, descriptorType, database);
 	}
@@ -37,11 +37,18 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends BaseDes
 	public void updateCategory(BaseDescriptor model, Optional<Category> category) {
 		String jpql = "update " + entityType.getSimpleName()
 				+ " e set e.category = :category where e.id = :id";
-		TypedQuery<?> query = createManager().createQuery(jpql, entityType);
+		EntityManager em = createManager();
+		TypedQuery<?> query = em.createQuery(jpql, entityType);
 		query.setParameter("id", model.getId());
 		query.setParameter("category", category.isPresent() ? category.get()
 				: null);
-		query.executeUpdate();
+		try {
+			em.getTransaction().begin();
+			query.executeUpdate();
+			em.getTransaction().commit();
+		} finally {
+			em.close();
+		}
 	}
 
 	private List<V> runDescriptorQuery(String jpql, Map<String, Category> params) {
