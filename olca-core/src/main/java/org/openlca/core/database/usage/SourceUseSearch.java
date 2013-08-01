@@ -26,9 +26,9 @@ class SourceUseSearch implements IUseSearch<Source> {
 	public List<BaseDescriptor> findUses(Source source) {
 		String jpql = "select p.id, p.name, p.description, loc.code "
 				+ " from Process p left join p.location loc "
-				+ " left join p.modelingAndValidation mav "
-				+ " left join p.adminInfo info left join mav.sources s"
-				+ " where info.publication = :source or s = :source";
+				+ " left join p.documentation doc "
+				+ " left join doc.sources s"
+				+ " where doc.publication = :source or s = :source";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
 					jpql, Collections.singletonMap("source", source));

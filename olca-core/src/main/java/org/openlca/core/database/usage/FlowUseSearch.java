@@ -36,7 +36,7 @@ class FlowUseSearch implements IUseSearch<Flow> {
 	}
 
 	private List<BaseDescriptor> findInMethods(Flow flow) {
-		String jpql = "select distinct m.id, m.name, m.description from ImpactMethod m"
+		String jpql = "select m.id, m.name, m.description from ImpactMethod m"
 				+ " join m.impactCategories cat join cat.impactFactors fac "
 				+ " where fac.flow = :flow";
 		try {

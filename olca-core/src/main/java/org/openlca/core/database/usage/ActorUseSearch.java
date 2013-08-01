@@ -59,12 +59,11 @@ class ActorUseSearch implements IUseSearch<Actor> {
 		try {
 			String jpql = "select p.id, p.name, p.description, loc.code "
 					+ " from Process p left join p.location loc "
-					+ " left join p.modelingAndValidation mav "
-					+ " left join p.adminInfo info"
-					+ " where mav.reviewer = :actor "
-					+ " or info.dataSetOwner = :actor "
-					+ " or info.dataGenerator = :actor "
-					+ " or info.dataDocumentor = :actor";
+					+ " left join p.documentation doc "
+					+ " where doc.reviewer = :actor "
+					+ " or doc.dataSetOwner = :actor "
+					+ " or doc.dataGenerator = :actor "
+					+ " or doc.dataDocumentor = :actor";
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
 					jpql, Collections.singletonMap("actor", actor));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
