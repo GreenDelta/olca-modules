@@ -1,9 +1,4 @@
 -- Database definition for an openLCA database.
--- There is a schema for Derby and MySQL databases. The MySQL schema can be 
--- derived from the Derby schema by doing the following text replacements:
--- 1) 'CLOB(64 K)' with 'TEXT'
--- 2) 'SMALLINT default 0 ' with 'TINYINT default 0'
--- 3) 'BLOB(16 M)' with MEDIUMBLOB
 
 -- DROP DATABASE IF EXISTS openlca;
 -- CREATE DATABASE openlca;
@@ -81,7 +76,7 @@ CREATE TABLE tbl_sources (
 	description TEXT, 
 	f_category  BIGINT, 
 	name VARCHAR(255), 
-	source_year SMALLINT, 
+	source_year TINYINT, 
 	text_reference TEXT, 
 	doi VARCHAR(255), 
 	
