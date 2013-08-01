@@ -43,7 +43,7 @@ public class CategorizedEntityDaoTest {
 	}
 
 	private <T extends CategorizedEntity, V extends BaseDescriptor> void run(
-			Class<T> clazz, CategorizedEnitityDao<T, V> dao) throws Exception {
+			Class<T> clazz, CategorizedEntityDao<T, V> dao) throws Exception {
 		log.info("run category entity tests for {}", clazz);
 		T instance = makeNew(clazz);
 		dao.insert(instance);
@@ -53,7 +53,7 @@ public class CategorizedEntityDaoTest {
 	}
 
 	private <T extends CategorizedEntity, V extends BaseDescriptor> void testFindForNullCategory(
-			CategorizedEnitityDao<T, V> dao, T instance) {
+			CategorizedEntityDao<T, V> dao, T instance) {
 		Category cat = null;
 		List<V> descriptors = dao.getDescriptors(Optional.fromNullable(cat));
 		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
@@ -62,7 +62,7 @@ public class CategorizedEntityDaoTest {
 	}
 
 	private <T extends CategorizedEntity, V extends BaseDescriptor> Category addCategory(
-			Class<T> clazz, CategorizedEnitityDao<T, V> dao, T instance) {
+			Class<T> clazz, CategorizedEntityDao<T, V> dao, T instance) {
 		Category category = new Category();
 		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
@@ -76,7 +76,7 @@ public class CategorizedEntityDaoTest {
 	}
 
 	private <T extends CategorizedEntity, V extends BaseDescriptor> void testGetDescriptorsForCategory(
-			CategorizedEnitityDao<T, V> dao, T instance, Category category) {
+			CategorizedEntityDao<T, V> dao, T instance, Category category) {
 		List<V> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));
 		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
