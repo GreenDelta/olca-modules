@@ -4,7 +4,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
 public class ProductSystemDao extends
-		CategorizedEnitityDao<ProductSystem, ProductSystemDescriptor> {
+		CategorizedEntityDao<ProductSystem, ProductSystemDescriptor> {
 
 	public ProductSystemDao(IDatabase database) {
 		super(ProductSystem.class, ProductSystemDescriptor.class, database);

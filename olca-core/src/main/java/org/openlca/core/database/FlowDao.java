@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class FlowDao extends CategorizedEnitityDao<Flow, FlowDescriptor> {
+public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
 	public FlowDao(IDatabase database) {
 		super(Flow.class, FlowDescriptor.class, database);
@@ -73,10 +72,6 @@ public class FlowDao extends CategorizedEnitityDao<Flow, FlowDescriptor> {
 				results.add(d);
 		}
 		return results;
-	}
-
-	public List<BaseDescriptor> whereUsed(Flow flow) {
-		return new FlowUseSearch(getDatabase()).findUses(flow);
 	}
 
 }

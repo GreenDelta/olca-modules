@@ -10,7 +10,7 @@ import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
 public class UnitGroupDao extends
-		CategorizedEnitityDao<UnitGroup, UnitGroupDescriptor> {
+		CategorizedEntityDao<UnitGroup, UnitGroupDescriptor> {
 
 	public UnitGroupDao(IDatabase database) {
 		super(UnitGroup.class, UnitGroupDescriptor.class, database);

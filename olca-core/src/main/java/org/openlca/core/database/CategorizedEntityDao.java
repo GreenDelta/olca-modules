@@ -12,10 +12,11 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 
 import com.google.common.base.Optional;
 
-public class CategorizedEnitityDao<T extends CategorizedEntity, V extends BaseDescriptor>
+public class CategorizedEntityDao<T extends CategorizedEntity, V extends BaseDescriptor>
 		extends RootEntityDao<T, V> {
 
-	public CategorizedEnitityDao(Class<T> entityType, Class<V> descriptorType,
+
+	CategorizedEntityDao(Class<T> entityType, Class<V> descriptorType,
 			IDatabase database) {
 		super(entityType, descriptorType, database);
 	}
