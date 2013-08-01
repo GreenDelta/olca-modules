@@ -1,9 +1,11 @@
-package org.openlca.core.database;
+package org.openlca.core.database.usage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.Query;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -16,13 +18,13 @@ class FlowUseSearch implements IUseSearch<Flow> {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 
-	public FlowUseSearch(IDatabase database) {
+	FlowUseSearch(IDatabase database) {
 		this.database = database;
 	}
 
 	@Override
 	public List<BaseDescriptor> findUses(Flow flow) {
-		if (flow == null || flow.getRefId() == null)
+		if (flow == null)
 			return Collections.emptyList();
 		List<BaseDescriptor> processes = findInProcesses(flow);
 		List<BaseDescriptor> methods = findInMethods(flow);
@@ -34,12 +36,12 @@ class FlowUseSearch implements IUseSearch<Flow> {
 	}
 
 	private List<BaseDescriptor> findInMethods(Flow flow) {
-		String jpql = "select distinct m.id, m.name, m.description from LCIAMethod m"
-				+ " join m.lciaCategories cat join cat.lciaFactors fac "
-				+ " where fac.flow.id = :flowId";
+		String jpql = "select distinct m.id, m.name, m.description from ImpactMethod m"
+				+ " join m.impactCategories cat join cat.impactFactors fac "
+				+ " where fac.flow = :flow";
 		try {
-			List<Object[]> results = Query.on(database).getAll(Object[].class, jpql,
-					Collections.singletonMap("flowId", flow.getRefId()));
+			List<Object[]> results = Query.on(database).getAll(Object[].class,
+					jpql, Collections.singletonMap("flow", flow));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ImpactMethodDescriptor d = new ImpactMethodDescriptor();
@@ -58,10 +60,10 @@ class FlowUseSearch implements IUseSearch<Flow> {
 	private List<BaseDescriptor> findInProcesses(Flow flow) {
 		String jpql = "select p.id, p.name, p.description, loc.code "
 				+ "from Process p join p.exchanges e left join p.location "
-				+ "loc where e.flow.id = :flowId";
+				+ "loc where e.flow = :flow";
 		try {
-			List<Object[]> results = Query.on(database).getAll(Object[].class, jpql,
-					Collections.singletonMap("flowId", flow.getRefId()));
+			List<Object[]> results = Query.on(database).getAll(Object[].class,
+					jpql, Collections.singletonMap("flow", flow));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProcessDescriptor d = new ProcessDescriptor();

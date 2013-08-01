@@ -1,9 +1,11 @@
-package org.openlca.core.database;
+package org.openlca.core.database.usage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.Query;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -17,7 +19,7 @@ class ActorUseSearch implements IUseSearch<Actor> {
 	private IDatabase database;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public ActorUseSearch(IDatabase database) {
+	ActorUseSearch(IDatabase database) {
 		this.database = database;
 	}
 

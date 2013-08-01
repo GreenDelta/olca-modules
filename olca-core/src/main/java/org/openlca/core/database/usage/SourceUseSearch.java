@@ -1,9 +1,11 @@
-package org.openlca.core.database;
+package org.openlca.core.database.usage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.Query;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -16,7 +18,7 @@ class SourceUseSearch implements IUseSearch<Source> {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 
-	public SourceUseSearch(IDatabase database) {
+	SourceUseSearch(IDatabase database) {
 		this.database = database;
 	}
 
@@ -28,8 +30,8 @@ class SourceUseSearch implements IUseSearch<Source> {
 				+ " left join p.adminInfo info left join mav.sources s"
 				+ " where info.publication = :source or s = :source";
 		try {
-			List<Object[]> results = Query.on(database).getAll(Object[].class, jpql,
-					Collections.singletonMap("source", source));
+			List<Object[]> results = Query.on(database).getAll(Object[].class,
+					jpql, Collections.singletonMap("source", source));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProcessDescriptor d = new ProcessDescriptor();
