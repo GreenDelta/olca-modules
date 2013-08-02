@@ -103,4 +103,14 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 			return null;
 		}
 	}
+
+	public List<T> getForName(String name) {
+		try {
+			return Query.on(getDatabase()).getAllForName(entityType, name);
+		} catch (Exception e) {
+			log.error("failed to get instance for name " + name, e);
+			return null;
+		}
+	}
+
 }

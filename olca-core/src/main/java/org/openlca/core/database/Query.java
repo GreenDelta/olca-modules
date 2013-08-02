@@ -41,11 +41,19 @@ public class Query {
 		return dao.getFirst(jpql, map);
 	}
 
+	public <T> List<T> getAllForName(Class<T> type, String name) {
+		if (name == null)
+			return null;
+		String jpql = "select e from " + type.getSimpleName()
+				+ " e where e.name = '" + name + "'";
+		return getAll(type, jpql);
+	}
+
 	public <T> List<T> getAll(Class<T> type, String jpql) {
 		Map<String, Object> map = new HashMap<>();
 		return getAll(type, jpql, map);
 	}
-
+ 
 	public <T> List<T> getAll(Class<T> type, String jpql,
 			Map<String, ? extends Object> params) {
 		log.trace("Get all {} with query {}", type, jpql);
