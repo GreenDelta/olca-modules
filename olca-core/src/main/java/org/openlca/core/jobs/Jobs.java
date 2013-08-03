@@ -14,9 +14,6 @@ import java.util.Map;
 
 /**
  * Registry for job handlers
- * 
- * @author Sebastian Greve
- * 
  */
 public class Jobs {
 

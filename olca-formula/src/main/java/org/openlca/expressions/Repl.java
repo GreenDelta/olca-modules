@@ -7,9 +7,6 @@ import java.io.PrintStream;
 
 /**
  * A read-eval-print-loop for formula evaluation.
- * 
- * @author Michael Srocka
- * 
  */
 public class Repl {
 

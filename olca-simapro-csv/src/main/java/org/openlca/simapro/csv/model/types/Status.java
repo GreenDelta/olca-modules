@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible status of a process
- * 
- * @author Sebastian Greve
- * 
  */
 public enum Status {
 

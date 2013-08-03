@@ -3,9 +3,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a process parameter having a double value (no formula)
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPInputParameter {
 

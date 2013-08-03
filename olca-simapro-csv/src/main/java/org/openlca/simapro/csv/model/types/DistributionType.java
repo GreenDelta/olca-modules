@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible uncertainty distributions
- * 
- * @author Sebastian Greve
- * 
  */
 public enum DistributionType {
 

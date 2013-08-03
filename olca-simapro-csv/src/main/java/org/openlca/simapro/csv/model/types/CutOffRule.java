@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible cut off rules
- * 
- * @author Sebastian Greve
- * 
  */
 public enum CutOffRule {
 

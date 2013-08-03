@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a SimaPro waste treatment
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPWasteTreatment extends SPDataEntry {
 

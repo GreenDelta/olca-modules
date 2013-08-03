@@ -10,10 +10,6 @@ import org.openlca.simapro.csv.model.types.ProductFlowType;
 /**
  * This class represents a SimaPro data entry (can be {@link SPProcess} or
  * {@link SPWasteTreatment}
- * 
- * @author Sebastian Greve
- * @author Imo Graf
- * 
  */
 public abstract class SPDataEntry {
 

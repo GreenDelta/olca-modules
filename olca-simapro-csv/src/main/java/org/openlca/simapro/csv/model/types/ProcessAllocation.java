@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration for possible multiple output allocation
- * 
- * @author Sebastian Greve
- * 
  */
 public enum ProcessAllocation {
 

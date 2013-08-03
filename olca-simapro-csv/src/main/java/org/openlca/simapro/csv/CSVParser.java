@@ -11,9 +11,6 @@ import org.openlca.simapro.csv.model.SPDataSet;
 
 /**
  * Parse a SimaPro CSV and returned one {@link SPDataSet} for each process
- * 
- * @author Imo Graf
- * 
  */
 public class CSVParser {
 	private SPDataSet dataSet;

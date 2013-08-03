@@ -6,9 +6,6 @@ import org.openlca.simapro.csv.model.types.DistributionType;
 
 /**
  * Simple implementation of {@link IDistribution} for uniform distribution
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPUniformDistribution implements IDistribution {
 

@@ -2,9 +2,6 @@ package org.openlca.io;
 
 /**
  * Exception occurring in the parsing process
- * 
- * @author Sebastian Greve
- * 
  */
 public class ParserException extends Exception {
 

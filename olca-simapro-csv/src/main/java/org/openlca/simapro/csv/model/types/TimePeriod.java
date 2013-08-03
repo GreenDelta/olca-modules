@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible time periods
- * 
- * @author Sebastian Greve
- * 
  */
 public enum TimePeriod {
 

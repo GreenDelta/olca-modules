@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a SimaPro system description
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPSystemDescription {
 

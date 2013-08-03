@@ -3,9 +3,6 @@ package org.openlca.simapro.csv.model;
 /**
  * This class represents a process parameter with expression (can be a double
  * value or a formula)
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPCalculatedParameter {
 

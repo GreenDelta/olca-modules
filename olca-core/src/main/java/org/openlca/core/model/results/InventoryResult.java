@@ -25,9 +25,6 @@ import org.openlca.core.model.Exchange;
 
 /**
  * Class represents an LCI result
- * 
- * @author Sebastian Greve
- * 
  */
 @Entity
 @Table(name = "tbl_inventory_results")

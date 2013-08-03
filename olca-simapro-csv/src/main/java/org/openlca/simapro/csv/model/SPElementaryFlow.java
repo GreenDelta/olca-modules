@@ -1,15 +1,10 @@
 package org.openlca.simapro.csv.model;
 
-import org.openlca.simapro.csv.model.types.DistributionParameterType;
-import org.openlca.simapro.csv.model.types.DistributionType;
 import org.openlca.simapro.csv.model.types.ElementaryFlowType;
 import org.openlca.simapro.csv.model.types.SubCompartment;
 
 /**
  * This class represents an elementary flow in SimaPro
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPElementaryFlow extends SPFlow {
 

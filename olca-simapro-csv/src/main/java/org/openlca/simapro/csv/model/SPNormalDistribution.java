@@ -3,12 +3,8 @@ package org.openlca.simapro.csv.model;
 import org.openlca.simapro.csv.model.types.DistributionParameterType;
 import org.openlca.simapro.csv.model.types.DistributionType;
 
-
 /**
  * Simple implementation of {@link IDistribution} for normal distribution
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPNormalDistribution implements IDistribution {
 

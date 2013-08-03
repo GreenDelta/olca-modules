@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents the main output of a process
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPReferenceProduct extends SPFlow {
 

@@ -4,9 +4,6 @@ import org.openlca.simapro.csv.model.types.ProductFlowType;
 
 /**
  * This class represents a product input in SimaPro
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPProductFlow extends SPFlow {
 

@@ -2,9 +2,6 @@ package org.openlca.core.math;
 
 /**
  * Converted script exception
- * 
- * @author Sebastian Greve
- * 
  */
 public class FormulaParseException extends Exception {
 

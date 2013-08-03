@@ -7,10 +7,6 @@ import org.openlca.ilcd.commons.Category;
 /**
  * The import of ILCD compartments (elementary flow categories) into an openLCA
  * database.
- * 
- * 
- * @author Michael Srocka
- * 
  */
 public class CompartmentImport extends AbstractCategoryImport<Category> {
 

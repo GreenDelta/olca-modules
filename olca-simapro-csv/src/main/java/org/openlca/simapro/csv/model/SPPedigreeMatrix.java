@@ -1,6 +1,5 @@
 package org.openlca.simapro.csv.model;
 
-import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,11 +11,6 @@ import org.openlca.simapro.csv.model.pedigreetypes.SampleSize;
 import org.openlca.simapro.csv.model.pedigreetypes.TemporalCorrelation;
 
 
-/**
- * 
- * @author Imo Graf
- * 
- */
 public class SPPedigreeMatrix {
 
 	private static Set<String> pedigreeContain = new HashSet<String>();

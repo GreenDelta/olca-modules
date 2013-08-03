@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible technologies
- * 
- * @author Sebastian Greve
- * 
  */
 public enum Technology {
 

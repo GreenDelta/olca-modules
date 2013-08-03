@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible representativeness values
- * 
- * @author Sebastian Greve
- * 
  */
 public enum Representativeness {
 

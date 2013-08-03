@@ -3,9 +3,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a SimaPro literature reference
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPLiteratureReference {
 

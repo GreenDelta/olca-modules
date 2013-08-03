@@ -15,9 +15,6 @@ import org.openlca.ilcd.util.UnitGroupBag;
 
 /**
  * The import of an ILCD unit group data set to an openLCA database.
- * 
- * @author Michael Srocka
- * 
  */
 public class UnitGroupImport {
 

@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible distribution parameters
- * 
- * @author Sebastian Greve
- * 
  */
 public enum DistributionParameterType {
 

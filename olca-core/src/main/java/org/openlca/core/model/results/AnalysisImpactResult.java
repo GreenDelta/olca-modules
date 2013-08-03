@@ -4,9 +4,6 @@ import org.openlca.core.model.Process;
 
 /**
  * Aggregated and single result of a process for a specific LCIA category
- * 
- * @author Sebastian Greve
- * 
  */
 public class AnalysisImpactResult {
 

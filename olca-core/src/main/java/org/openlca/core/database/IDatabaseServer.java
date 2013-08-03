@@ -15,9 +15,6 @@ import java.util.List;
 /**
  * Specifies the required functionality of a connection to an openLCA data
  * provider
- * 
- * @author Sebastian Greve
- * 
  */
 public interface IDatabaseServer {
 

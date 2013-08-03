@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a SimaPro unit
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPUnit {
 

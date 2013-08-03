@@ -11,9 +11,6 @@ package org.openlca.core.jobs;
 
 /**
  * Interface for listening to a job handler
- * 
- * @author Sebastian Greve
- * 
  */
 public interface JobListener {
 
