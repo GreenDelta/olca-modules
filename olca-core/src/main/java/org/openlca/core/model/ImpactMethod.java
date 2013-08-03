@@ -45,14 +45,14 @@ public class ImpactMethod extends CategorizedEntity implements IParameterisable 
 		lciaMethod.setName(getName());
 		lciaMethod.setCategory(getCategory());
 		lciaMethod.setDescription(getDescription());
-		for (ImpactCategory lciaCategory : getLCIACategories()) {
-			lciaMethod.getLCIACategories().add(lciaCategory.clone());
+		for (ImpactCategory lciaCategory : getImpactCategories()) {
+			lciaMethod.getImpactCategories().add(lciaCategory.clone());
 		}
 		// TODO: clone parameters and nw-sets!
 		return lciaMethod;
 	}
 
-	public List<ImpactCategory> getLCIACategories() {
+	public List<ImpactCategory> getImpactCategories() {
 		return impactCategories;
 	}
 

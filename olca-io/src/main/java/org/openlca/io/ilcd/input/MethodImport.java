@@ -110,7 +110,7 @@ public class MethodImport {
 
 	private boolean hasCategory(org.openlca.core.model.ImpactMethod oMethod,
 			String categoryName) {
-		for (ImpactCategory category : oMethod.getLCIACategories()) {
+		for (ImpactCategory category : oMethod.getImpactCategories()) {
 			if (StringUtils.equalsIgnoreCase(category.getName(), categoryName))
 				return true;
 		}
@@ -128,7 +128,7 @@ public class MethodImport {
 		for (Factor factor : iMethod.getCharacterisationFactors().getFactor()) {
 			addFactor(category, factor);
 		}
-		oMethod.getLCIACategories().add(category);
+		oMethod.getImpactCategories().add(category);
 		dao.update(oMethod);
 	}
 

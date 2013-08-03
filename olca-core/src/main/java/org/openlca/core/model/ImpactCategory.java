@@ -34,12 +34,6 @@ public class ImpactCategory extends RootEntity {
 	@JoinColumn(name = "f_impact_category")
 	private final List<ImpactFactor> impactFactors = new ArrayList<>();
 
-	@Column(name = "name")
-	private String name;
-
-	@Column(name = "description")
-	private String description;
-
 	@Column(name = "reference_unit")
 	private String referenceUnit;
 
@@ -75,22 +69,6 @@ public class ImpactCategory extends RootEntity {
 			lciaCategory.getImpactFactors().add(lciaFactor.clone());
 		}
 		return lciaCategory;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	public String getReferenceUnit() {

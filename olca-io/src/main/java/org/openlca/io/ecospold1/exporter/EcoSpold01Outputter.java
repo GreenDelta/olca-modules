@@ -97,7 +97,7 @@ public class EcoSpold01Outputter {
 	private IEcoSpold convertLCIAMethod(ImpactMethod method) {
 		IEcoSpoldFactory factory = DataSetType.IMPACT_METHOD.getFactory();
 		IEcoSpold ecoSpold = factory.createEcoSpold();
-		for (ImpactCategory category : method.getLCIACategories()) {
+		for (ImpactCategory category : method.getImpactCategories()) {
 			IDataSet iDataSet = factory.createDataSet();
 			DataSet dataSet = new DataSet(iDataSet, factory);
 			mapLCIACategory(category, dataSet, factory);

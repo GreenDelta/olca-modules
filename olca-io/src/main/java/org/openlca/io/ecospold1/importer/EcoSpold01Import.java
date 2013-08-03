@@ -429,7 +429,7 @@ public class EcoSpold01Import {
 			ImpactCategory lciaCategory = mapReferenceFunction(dataSet
 					.getReferenceFunction());
 			mapFactors(dataSet.getExchanges(), lciaCategory);
-			method.getLCIACategories().add(lciaCategory);
+			method.getImpactCategories().add(lciaCategory);
 		}
 		db.put(method, methodId);
 	}

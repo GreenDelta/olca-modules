@@ -32,7 +32,7 @@ public class NormalizationWeightingSet extends AbstractEntity {
 	public NormalizationWeightingSet(String referenceSystem, ImpactMethod method) {
 		this.referenceSystem = referenceSystem;
 		if (method != null) {
-			for (ImpactCategory category : method.getLCIACategories()) {
+			for (ImpactCategory category : method.getImpactCategories()) {
 				NormalizationWeightingFactor fac = new NormalizationWeightingFactor();
 				fac.setImpactCategoryId(category.getId());
 				normalizationWeightingFactors.add(fac);
