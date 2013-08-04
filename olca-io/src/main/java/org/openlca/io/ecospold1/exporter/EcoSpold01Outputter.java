@@ -56,7 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Creates EcoSpold01 xml files for openLCA processes and LCIA methods
+ * Creates EcoSpold01 xml files for openLCA processes and impact methods
  */
 public class EcoSpold01Outputter {
 

@@ -407,7 +407,7 @@ CREATE TABLE tbl_impact_category_results (
 );
 
 
--- LCIA methods
+-- Impact methods
 
 CREATE TABLE tbl_impact_methods (
 
@@ -457,7 +457,7 @@ CREATE TABLE tbl_impact_factors (
 );
 
 
--- normalisation and weighting sets of LCIA methods
+-- normalisation and weighting sets of impact methods
 
 CREATE TABLE tbl_normalisation_weighting_sets (
 
@@ -471,7 +471,7 @@ CREATE TABLE tbl_normalisation_weighting_sets (
 );
 
 
--- factors of normalisation and weighting sets of LCIA methods
+-- factors of normalisation and weighting sets of impact methods
 
 CREATE TABLE tbl_normalisation_weighting_factors (
 
