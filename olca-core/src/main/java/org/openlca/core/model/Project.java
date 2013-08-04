@@ -20,6 +20,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -58,45 +60,28 @@ public class Project extends CategorizedEntity {
 	private String productSystemArray = "";
 
 	@Transient
-	private final List<String> productSystems = new ArrayList<>();
+	private final List<Long> productSystems = new ArrayList<>();
 
-	/**
-	 * Maps the product systems of the project to string
-	 */
-	private void mapArray() {
-		productSystemArray = "";
+	@PrePersist
+	@PreUpdate
+	protected void preUpdate() {
+		productSystemArray = null;
 		for (int i = 0; i < productSystems.size(); i++) {
+			if (i == 0)
+				productSystemArray = "";
 			productSystemArray += productSystems.get(i);
-			if (i != productSystems.size() - 1) {
+			if (i != productSystems.size() - 1)
 				productSystemArray += ";";
-			}
 		}
 	}
 
-	/**
-	 * Initializes the property change listener after object is loaded from
-	 * database
-	 */
 	@PostLoad
 	protected void postLoad() {
 		if (productSystemArray != null && productSystemArray.length() > 0) {
 			for (final String id : productSystemArray.split(";")) {
-				if (id.length() == 36) {
-					productSystems.add(id);
-				}
+				productSystems.add(Long.parseLong(id));
 			}
 		}
-	}
-
-	public void addProductSystem(final String id) {
-		if (!productSystems.contains(id)) {
-			productSystems.add(id);
-			mapArray();
-		}
-	}
-
-	public boolean containsProductSystem(final String id) {
-		return productSystems.contains(id);
 	}
 
 	public Actor getAuthor() {
@@ -115,8 +100,8 @@ public class Project extends CategorizedEntity {
 		project.setFunctionalUnit(getFunctionalUnit());
 		project.setGoal(getGoal());
 		project.setLastModificationDate(getLastModificationDate());
-		for (String id : getProductSystems()) {
-			project.addProductSystem(id);
+		for (Long id : getProductSystems()) {
+			project.getProductSystems().add(id);
 		}
 		return project;
 	}
@@ -137,15 +122,8 @@ public class Project extends CategorizedEntity {
 		return lastModificationDate;
 	}
 
-	public String[] getProductSystems() {
-		return productSystems.toArray(new String[productSystems.size()]);
-	}
-
-	public void removeProductSystem(final String id) {
-		if (productSystems.contains(id)) {
-			productSystems.remove(id);
-			mapArray();
-		}
+	public List<Long> getProductSystems() {
+		return productSystems;
 	}
 
 	public void setAuthor(Actor author) {
