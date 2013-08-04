@@ -133,9 +133,6 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	@Column(name = "geography")
 	private String geography;
 
-	@Column(name = "infrastructure_process")
-	private boolean infrastructureProcess;
-
 	@Override
 	public ProcessDocumentation clone() {
 		ProcessDocumentation clone = new ProcessDocumentation();
@@ -171,7 +168,6 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 		clone.setVersion(getVersion());
 
 		clone.setGeography(getGeography());
-		clone.setInfrastructureProcess(isInfrastructureProcess());
 
 		return clone;
 	}
@@ -346,14 +342,6 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 
 	public void setGeography(String geography) {
 		this.geography = geography;
-	}
-
-	public boolean isInfrastructureProcess() {
-		return infrastructureProcess;
-	}
-
-	public void setInfrastructureProcess(boolean infrastructureProcess) {
-		this.infrastructureProcess = infrastructureProcess;
 	}
 
 	public String getTechnology() {

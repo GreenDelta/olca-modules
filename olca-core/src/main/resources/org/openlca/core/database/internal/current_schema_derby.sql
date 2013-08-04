@@ -187,6 +187,7 @@ CREATE TABLE tbl_processes (
 	description CLOB(64 K), 
 	process_type VARCHAR(255), 
 	allocation_method VARCHAR(255), 	
+	infrastructure_process SMALLINT default 0, 
 	f_quantitative_reference BIGINT, 
 	f_location BIGINT, 
 	f_process_doc BIGINT, 
@@ -202,7 +203,6 @@ CREATE INDEX idx_process_location ON tbl_processes(f_location);
 CREATE TABLE tbl_process_docs (
 	
 	id BIGINT NOT NULL,
-	infrastructure_process SMALLINT default 0, 
 	geography CLOB(64 K), 
 	technology CLOB(64 K),
 	
