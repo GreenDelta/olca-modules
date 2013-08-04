@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -18,7 +19,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
 	@Override
 	protected String getDescriptorQuery() {
-		return "select e.id, e.name, e.description, loc.code from Flow e "
+		return "select e.id, e.name, e.description, e.flowType, loc.code from Flow e "
 				+ "left join e.location loc ";
 	}
 
@@ -31,7 +32,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			descriptor.setId((Long) queryResult[0]);
 			descriptor.setName((String) queryResult[1]);
 			descriptor.setDescription((String) queryResult[2]);
-			descriptor.setLocationCode((String) queryResult[3]);
+			descriptor.setFlowType((FlowType) queryResult[3]);
+			descriptor.setLocationCode((String) queryResult[4]);
 		} catch (Exception e) {
 			log.error("failed to map values to flow descriptor", e);
 		}

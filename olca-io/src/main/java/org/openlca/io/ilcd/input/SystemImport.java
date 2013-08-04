@@ -190,15 +190,15 @@ public class SystemImport {
 
 	private org.openlca.core.model.Parameter convert(Parameter iParam) {
 		Expression exp = new Expression(iParam.getFormula(), iParam.getValue());
-		String owner = system.getRefId();
 		ParameterType type = ParameterType.PRODUCT_SYSTEM;
 		if (iParam.getScope() == ParameterScopeValues.GLOBAL) {
-			owner = null;
 			type = ParameterType.DATABASE;
 		}
-		org.openlca.core.model.Parameter param = new org.openlca.core.model.Parameter(
-				exp, type, owner);
+		org.openlca.core.model.Parameter param = new org.openlca.core.model.Parameter();
 		param.setName(iParam.getName());
+		param.setType(type);
+		param.getExpression().setValue(exp.getValue());
+		param.getExpression().setFormula(exp.getFormula());
 		return param;
 	}
 

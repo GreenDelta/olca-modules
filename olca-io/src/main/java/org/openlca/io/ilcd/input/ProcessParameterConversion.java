@@ -45,15 +45,15 @@ class ProcessParameterConversion {
 	private Parameter convertParameter(
 			org.openlca.ilcd.processes.Parameter iParameter) {
 		Expression expression = createParameterExpression(iParameter);
-		String owner = olcaProcess.getRefId();
 		ParameterType type = ParameterType.PROCESS;
-		if (isGlobal(iParameter)) {
-			owner = null;
+		if (isGlobal(iParameter))
 			type = ParameterType.DATABASE;
-		}
-		Parameter param = new Parameter(expression, type, owner);
+		Parameter param = new Parameter();
 		param.setName(iParameter.getName());
 		param.setDescription(LangString.getLabel(iParameter.getComment()));
+		param.setType(type);
+		param.getExpression().setValue(expression.getValue());
+		param.getExpression().setFormula(expression.getFormula());
 		return param;
 	}
 

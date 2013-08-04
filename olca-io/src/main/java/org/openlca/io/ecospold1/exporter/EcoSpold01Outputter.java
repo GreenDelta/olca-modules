@@ -138,9 +138,8 @@ public class EcoSpold01Outputter {
 						factory);
 				dataSet.setReferenceFunction(refFun);
 				refFun.setGeneralComment(process.getDescription());
-				if (doc != null)
-					refFun.setInfrastructureProcess(doc
-							.isInfrastructureProcess());
+				refFun.setInfrastructureProcess(process
+						.isInfrastructureProcess());
 			}
 			dataSet.getExchanges()
 					.add(mapExchange(

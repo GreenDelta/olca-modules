@@ -210,8 +210,8 @@ public class EcoSpold01Import {
 		if (dataSet.getReferenceFunction() != null) {
 			process.setDescription(dataSet.getReferenceFunction()
 					.getGeneralComment());
-			documentation.setInfrastructureProcess(dataSet
-					.getReferenceFunction().isInfrastructureProcess());
+			process.setInfrastructureProcess(dataSet.getReferenceFunction()
+					.isInfrastructureProcess());
 		}
 		process.setProcessType(Mapper.getProcessType(dataSet));
 		mapTimeAndGeography(dataSet, process, documentation);
@@ -356,7 +356,8 @@ public class EcoSpold01Import {
 		IReferenceFunction inRefFunction = dataSet.getReferenceFunction();
 		ioProcess.setName(inRefFunction.getName());
 		ioProcess.setDescription(inRefFunction.getGeneralComment());
-		doc.setInfrastructureProcess(inRefFunction.isInfrastructureProcess());
+		ioProcess.setInfrastructureProcess(inRefFunction
+				.isInfrastructureProcess());
 		String topCategoryName = inRefFunction.getCategory();
 		String subCategoryName = inRefFunction.getSubCategory();
 		Category cat = null;

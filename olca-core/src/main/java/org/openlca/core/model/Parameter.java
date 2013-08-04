@@ -31,9 +31,6 @@ public class Parameter extends AbstractEntity {
 			@AttributeOverride(name = "formula", column = @Column(name = "expression_formula")) })
 	private Expression expression = new Expression("1", 1);
 
-	@Column(name = "f_owner")
-	private String ownerId;
-
 	@Column(name = "name")
 	private String name;
 
@@ -41,15 +38,6 @@ public class Parameter extends AbstractEntity {
 	private ParameterType type = ParameterType.UNSPECIFIED;
 
 	public Parameter() {
-	}
-
-	public Parameter(Expression expression, ParameterType type, String ownerId) {
-		if (type == null)
-			this.type = ParameterType.UNSPECIFIED;
-		else
-			this.type = type;
-		this.expression = expression;
-		this.ownerId = ownerId;
 	}
 
 	// TODO allow upper case letters and underscores
@@ -79,16 +67,12 @@ public class Parameter extends AbstractEntity {
 		return name;
 	}
 
-	public void setOwnerId(String ownerId) {
-		this.ownerId = ownerId;
-	}
-
-	public String getOwnerId() {
-		return ownerId;
-	}
-
 	public ParameterType getType() {
 		return type != null ? type : ParameterType.UNSPECIFIED;
+	}
+
+	public void setType(ParameterType type) {
+		this.type = type;
 	}
 
 	public void setDescription(String description) {
