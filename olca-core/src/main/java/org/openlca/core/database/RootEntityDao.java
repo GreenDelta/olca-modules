@@ -31,6 +31,18 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 		}
 	}
 
+	public List<V> getDescriptors(List<Long> ids) {
+		String jpql = getDescriptorQuery() + " where e.id in :ids";
+		try {
+			List<Object[]> results = Query.on(getDatabase()).getAll(
+					Object[].class, jpql, Collections.singletonMap("ids", ids));
+			return createDescriptors(results);
+		} catch (Exception e) {
+			log.error("failed to get descriptors for " + ids, e);
+			return null;
+		}
+	}
+
 	/**
 	 * Returns all descriptors of the entity type of this DAO from the database.
 	 */
