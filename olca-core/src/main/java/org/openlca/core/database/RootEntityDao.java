@@ -26,7 +26,8 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 					jpql, Collections.singletonMap("id", id));
 			return createDescriptor(result);
 		} catch (Exception e) {
-			log.error("failed to get descriptor for " + id, e);
+			DatabaseException.logAndThrow(log, "failed to get descriptor for "
+					+ id, e);
 			return null;
 		}
 	}
@@ -38,7 +39,8 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 					Object[].class, jpql, Collections.singletonMap("ids", ids));
 			return createDescriptors(results);
 		} catch (Exception e) {
-			log.error("failed to get descriptors for " + ids, e);
+			DatabaseException.logAndThrow(log, "failed to get descriptor for "
+					+ ids, e);
 			return null;
 		}
 	}
@@ -53,7 +55,8 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 					Object[].class, jpql);
 			return createDescriptors(results);
 		} catch (Exception e) {
-			log.error("failed to query all descriptors for " + entityType, e);
+			DatabaseException.logAndThrow(log,
+					"failed to query all descriptors for " + entityType, e);
 			return Collections.emptyList();
 		}
 	}
@@ -97,7 +100,8 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 			descriptor.setDescription((String) queryResult[2]);
 			descriptor.setType(ModelType.forModelClass(entityType));
 		} catch (Exception e) {
-			log.error("failed to map query result to descriptor", e);
+			DatabaseException.logAndThrow(log,
+					"failed to map query result to descriptor", e);
 		}
 		return descriptor;
 	}
@@ -111,7 +115,8 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 			return Query.on(getDatabase()).getFirst(entityType, jpql,
 					Collections.singletonMap("refId", refId));
 		} catch (Exception e) {
-			log.error("failed to get instance for refId " + refId, e);
+			DatabaseException.logAndThrow(log,
+					"failed to get instance for refId " + refId, e);
 			return null;
 		}
 	}
@@ -120,7 +125,8 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 		try {
 			return Query.on(getDatabase()).getAllForName(entityType, name);
 		} catch (Exception e) {
-			log.error("failed to get instance for name " + name, e);
+			DatabaseException.logAndThrow(log,
+					"failed to get instance for name " + name, e);
 			return null;
 		}
 	}

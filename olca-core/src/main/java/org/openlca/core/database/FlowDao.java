@@ -35,7 +35,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			descriptor.setFlowType((FlowType) queryResult[3]);
 			descriptor.setLocationCode((String) queryResult[4]);
 		} catch (Exception e) {
-			log.error("failed to map values to flow descriptor", e);
+			DatabaseException.logAndThrow(log,
+					"failed to map values to flow descriptor", e);
 		}
 		return descriptor;
 	}

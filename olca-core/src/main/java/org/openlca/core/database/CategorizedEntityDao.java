@@ -46,6 +46,9 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends BaseDes
 			em.getTransaction().begin();
 			query.executeUpdate();
 			em.getTransaction().commit();
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "failed to update category for "
+					+ entityType.getSimpleName(), e);
 		} finally {
 			em.close();
 		}
@@ -57,7 +60,8 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends BaseDes
 					Object[].class, jpql, params);
 			return createDescriptors(results);
 		} catch (Exception e) {
-			log.error("Failed to get descriptors for category " + params, e);
+			DatabaseException.logAndThrow(log,
+					"Failed to get descriptors for category " + params, e);
 			return Collections.emptyList();
 		}
 	}

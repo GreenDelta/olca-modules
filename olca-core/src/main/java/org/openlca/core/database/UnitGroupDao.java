@@ -35,7 +35,8 @@ public class UnitGroupDao extends
 			}
 			return descriptors;
 		} catch (Exception e) {
-			log.error("Failed to search for unit group usages", e);
+			DatabaseException.logAndThrow(log,
+					"Failed to search for unit group usages", e);
 			return Collections.emptyList();
 		}
 	}

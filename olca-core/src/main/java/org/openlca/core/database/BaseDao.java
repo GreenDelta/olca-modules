@@ -47,6 +47,9 @@ public class BaseDao<T> implements IDao<T> {
 			em.getTransaction().begin();
 			em.remove(em.merge(entity));
 			em.getTransaction().commit();
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while deleting "
+					+ entityType.getSimpleName(), e);
 		} finally {
 			em.close();
 		}
@@ -64,6 +67,9 @@ public class BaseDao<T> implements IDao<T> {
 				em.remove(em.merge(entity));
 			}
 			em.getTransaction().commit();
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while deleting "
+					+ entityType.getSimpleName(), e);
 		} finally {
 			em.close();
 		}
@@ -79,6 +85,10 @@ public class BaseDao<T> implements IDao<T> {
 			T retval = em.merge(entity);
 			em.getTransaction().commit();
 			return retval;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while updating "
+					+ entityType.getSimpleName(), e);
+			return entity;
 		} finally {
 			em.close();
 		}
@@ -94,6 +104,10 @@ public class BaseDao<T> implements IDao<T> {
 			em.persist(entity);
 			em.getTransaction().commit();
 			return entity;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while inserting "
+					+ entityType.getSimpleName(), e);
+			return entity;
 		} finally {
 			em.close();
 		}
@@ -106,6 +120,10 @@ public class BaseDao<T> implements IDao<T> {
 		try {
 			T o = entityManager.find(entityType, id);
 			return o;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while loading "
+					+ entityType.getSimpleName() + " with id " + id, e);
+			return null;
 		} finally {
 			entityManager.close();
 		}
@@ -142,6 +160,10 @@ public class BaseDao<T> implements IDao<T> {
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
 			query.setParameter("ids", ids);
 			return query.getResultList();
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while fetching for ids",
+					e);
+			return Collections.emptyList();
 		} finally {
 			em.close();
 		}
@@ -158,6 +180,10 @@ public class BaseDao<T> implements IDao<T> {
 			List<T> results = query.getResultList();
 			log.debug("{} results", results.size());
 			return results;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while loading all "
+					+ entityType.getSimpleName(), e);
+			return Collections.emptyList();
 		} finally {
 			em.close();
 		}
@@ -173,6 +199,10 @@ public class BaseDao<T> implements IDao<T> {
 			}
 			List<T> results = query.getResultList();
 			return results;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while loading all "
+					+ entityType.getSimpleName(), e);
+			return Collections.emptyList();
 		} finally {
 			em.close();
 		}
@@ -196,6 +226,10 @@ public class BaseDao<T> implements IDao<T> {
 			}
 			Long count = query.getSingleResult();
 			return count == null ? 0 : count;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while getting count of "
+					+ entityType.getSimpleName(), e);
+			return 0;
 		} finally {
 			em.close();
 		}
@@ -223,10 +257,12 @@ public class BaseDao<T> implements IDao<T> {
 			em.detach(val);
 			return val;
 		} catch (Exception e) {
-			log.error("detaching entity failed ", e);
+			DatabaseException.logAndThrow(log, "Error while detaching entity "
+					+ entityType.getSimpleName(), e);
 			return val;
+		} finally {
+			em.close();
 		}
 	}
-
 
 }
