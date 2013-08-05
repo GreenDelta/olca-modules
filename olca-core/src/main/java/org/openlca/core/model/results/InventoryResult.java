@@ -41,16 +41,16 @@ public class InventoryResult {
 	@Column(name = "product")
 	private String productName;
 
-	@Column(name = "productSystem")
+	@Column(name = "product_system")
 	private String productSystemName;
 
-	@Column(name = "targetamount")
+	@Column(name = "target_amount")
 	private double targetAmount;
 
 	@Column(name = "unit")
 	private String unitName;
 
-	@Column(name = "calculationmethod")
+	@Column(name = "calculation_method")
 	private String calculationMethod;
 
 	public void setProductSystemId(String productSystemId) {

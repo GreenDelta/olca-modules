@@ -49,15 +49,14 @@ class ProcessCopy {
 
 	private void copyParameters(Process self, Process other) {
 		for (Parameter parameter : self.getParameters()) {
-			// TODO: copy process parameters
-			// Parameter p = new Parameter(UUID.randomUUID().toString(),
-			// new Expression(parameter.getExpression().getFormula(),
-			// parameter.getExpression().getValue()),
-			// ParameterType.PROCESS, other.getRefId());
-			// p.setDescription(parameter.getDescription());
-			// p.setName(parameter.getName());
-			// other.getParameters().add(p);
+			Parameter p = new Parameter();
+			p.setDescription(parameter.getDescription());
+			p.setName(parameter.getName());
+			p.setType(ParameterType.PROCESS);
+			p.getExpression().setValue(parameter.getExpression().getValue());
+			p.getExpression()
+					.setFormula(parameter.getExpression().getFormula());
+			other.getParameters().add(p);
 		}
 	}
-
 }

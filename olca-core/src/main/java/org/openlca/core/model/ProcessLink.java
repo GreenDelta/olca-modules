@@ -9,9 +9,8 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -23,21 +22,17 @@ import javax.persistence.Table;
 @Table(name = "tbl_process_links")
 public class ProcessLink extends AbstractEntity implements Cloneable {
 
-	@OneToOne
-	@JoinColumn(name = "f_provider_output")
-	private Exchange providerOutput;
+	@Column(name = "f_provider_output")
+	private long providerOutput;
 
-	@OneToOne
-	@JoinColumn(name = "f_provider_process")
-	private Process providerProcess;
+	@Column(name = "f_provider_process")
+	private long providerProcess;
 
-	@OneToOne
-	@JoinColumn(name = "f_recipient_input")
-	private Exchange recipientInput;
+	@Column(name = "f_recipient_input")
+	private long recipientInput;
 
-	@OneToOne
-	@JoinColumn(name = "f_recipient_process")
-	private Process recipientProcess;
+	@Column(name = "f_recipient_process")
+	private long recipientProcess;
 
 	public ProcessLink() {
 	}
@@ -52,35 +47,35 @@ public class ProcessLink extends AbstractEntity implements Cloneable {
 		return processLink;
 	}
 
-	public Exchange getProviderOutput() {
+	public long getProviderOutput() {
 		return providerOutput;
 	}
 
-	public Process getProviderProcess() {
+	public long getProviderProcess() {
 		return providerProcess;
 	}
 
-	public Exchange getRecipientInput() {
+	public long getRecipientInput() {
 		return recipientInput;
 	}
 
-	public Process getRecipientProcess() {
+	public long getRecipientProcess() {
 		return recipientProcess;
 	}
 
-	public void setProviderOutput(final Exchange providerOutput) {
+	public void setProviderOutput(long providerOutput) {
 		this.providerOutput = providerOutput;
 	}
 
-	public void setProviderProcess(final Process providerProcess) {
+	public void setProviderProcess(long providerProcess) {
 		this.providerProcess = providerProcess;
 	}
 
-	public void setRecipientInput(final Exchange recipientInput) {
+	public void setRecipientInput(long recipientInput) {
 		this.recipientInput = recipientInput;
 	}
 
-	public void setRecipientProcess(final Process recipientProcess) {
+	public void setRecipientProcess(long recipientProcess) {
 		this.recipientProcess = recipientProcess;
 	}
 

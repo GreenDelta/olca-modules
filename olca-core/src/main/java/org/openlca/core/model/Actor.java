@@ -32,9 +32,9 @@ public class Actor extends CategorizedEntity {
 	private String telephone;
 
 	@Column(name = "website")
-	private String webSite;
+	private String website;
 
-	@Column(name = "zipcode")
+	@Column(name = "zip_code")
 	private String zipCode;
 
 	@Override
@@ -50,7 +50,7 @@ public class Actor extends CategorizedEntity {
 		actor.setEmail(getEmail());
 		actor.setTelefax(getTelefax());
 		actor.setTelephone(getTelephone());
-		actor.setWebSite(getWebSite());
+		actor.setWebsite(getWebsite());
 		actor.setZipCode(getZipCode());
 		return actor;
 	}
@@ -79,8 +79,8 @@ public class Actor extends CategorizedEntity {
 		return telephone;
 	}
 
-	public String getWebSite() {
-		return webSite;
+	public String getWebsite() {
+		return website;
 	}
 
 	public String getZipCode() {
@@ -111,8 +111,8 @@ public class Actor extends CategorizedEntity {
 		this.telephone = telephone;
 	}
 
-	public void setWebSite(String webSite) {
-		this.webSite = webSite;
+	public void setWebsite(String website) {
+		this.website = website;
 	}
 
 	public void setZipCode(String zipCode) {

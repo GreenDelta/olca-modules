@@ -14,18 +14,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 /**
  * <p style="margin-top: 0">
@@ -56,33 +54,10 @@ public class Project extends CategorizedEntity {
 	@Column(name = "last_modification_date")
 	private Date lastModificationDate;
 
-	@Column(name = "product_systems")
-	private String productSystemArray = "";
-
-	@Transient
+	@ElementCollection
+	@Column(name = "f_product_system")
+	@CollectionTable(name = "tbl_project_product_systems", joinColumns = { @JoinColumn(name = "f_project") })
 	private final List<Long> productSystems = new ArrayList<>();
-
-	@PrePersist
-	@PreUpdate
-	protected void preUpdate() {
-		productSystemArray = null;
-		for (int i = 0; i < productSystems.size(); i++) {
-			if (i == 0)
-				productSystemArray = "";
-			productSystemArray += productSystems.get(i);
-			if (i != productSystems.size() - 1)
-				productSystemArray += ";";
-		}
-	}
-
-	@PostLoad
-	protected void postLoad() {
-		if (productSystemArray != null && productSystemArray.length() > 0) {
-			for (final String id : productSystemArray.split(";")) {
-				productSystems.add(Long.parseLong(id));
-			}
-		}
-	}
 
 	public Actor getAuthor() {
 		return author;
