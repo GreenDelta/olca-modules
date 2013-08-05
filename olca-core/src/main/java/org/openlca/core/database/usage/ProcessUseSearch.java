@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Search for entities where a given source is used. */
-class ProcessUseSearch implements IUseSearch<Process> {
+class ProcessUseSearch implements IUseSearch<ProcessDescriptor> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
@@ -23,7 +23,7 @@ class ProcessUseSearch implements IUseSearch<Process> {
 	}
 
 	@Override
-	public List<BaseDescriptor> findUses(Process process) {
+	public List<BaseDescriptor> findUses(ProcessDescriptor process) {
 		if (process == null || process.getRefId() == null)
 			return Collections.emptyList();
 		String jpql = "select s.id, s.name, s.description from ProductSystem s "

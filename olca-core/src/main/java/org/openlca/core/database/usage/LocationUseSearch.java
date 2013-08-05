@@ -7,14 +7,13 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class LocationUseSearch implements IUseSearch<Location> {
+class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
@@ -24,7 +23,7 @@ class LocationUseSearch implements IUseSearch<Location> {
 	}
 
 	@Override
-	public List<BaseDescriptor> findUses(Location location) {
+	public List<BaseDescriptor> findUses(BaseDescriptor location) {
 		if (location == null)
 			return Collections.emptyList();
 		List<BaseDescriptor> locations = findInFlows(location);
@@ -36,12 +35,13 @@ class LocationUseSearch implements IUseSearch<Location> {
 		return descriptors;
 	}
 
-	private List<BaseDescriptor> findInFlows(Location location) {
+	private List<BaseDescriptor> findInFlows(BaseDescriptor location) {
 		String jpql = "select distinct f.id, f.name, f.description, f.flowType from Flow f"
-				+ " where f.location = :location";
+				+ " where f.location.id = :locationId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
-					jpql, Collections.singletonMap("location", location));
+					jpql,
+					Collections.singletonMap("locationId", location.getId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				FlowDescriptor d = new FlowDescriptor();
@@ -58,13 +58,13 @@ class LocationUseSearch implements IUseSearch<Location> {
 		}
 	}
 
-	private List<BaseDescriptor> findInProcesses(Location location) {
+	private List<BaseDescriptor> findInProcesses(BaseDescriptor location) {
 		String jpql = "select distinct p.id, p.name, p.description, loc.code from Process p"
-				+ " left join p.location loc"
-				+ " where p.location = :location";
+				+ " left join p.location loc" + " where loc.id = :locationId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
-					jpql, Collections.singletonMap("location", location));
+					jpql,
+					Collections.singletonMap("locationId", location.getId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProcessDescriptor d = new ProcessDescriptor();
