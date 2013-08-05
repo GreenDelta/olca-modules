@@ -26,6 +26,8 @@ public interface IUseSearch<T extends BaseDescriptor> {
 				return (IUseSearch<T>) new ActorUseSearch(database);
 			case SOURCE:
 				return (IUseSearch<T>) new SourceUseSearch(database);
+			case UNIT_GROUP:
+				return (IUseSearch<T>) new UnitGroupUseSearch(database);
 			case FLOW_PROPERTY:
 				return (IUseSearch<T>) new FlowPropertyUseSearch(database);
 			case FLOW:
