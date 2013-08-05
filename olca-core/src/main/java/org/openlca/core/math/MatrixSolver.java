@@ -18,9 +18,9 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.core.model.results.AnalysisResult;
-import org.openlca.core.model.results.CalculationSetup;
 import org.openlca.core.model.results.InventoryResult;
+import org.openlca.core.results.AnalysisResult;
+import org.openlca.core.results.CalculationSetup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,21 +1,19 @@
-package org.openlca.core.model.results;
+package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.math.FlowIndex;
+import org.openlca.core.indices.FlowIndex;
+import org.openlca.core.indices.LongIndex;
+import org.openlca.core.indices.LongPair;
+import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IResultData;
-import org.openlca.core.math.Index;
-import org.openlca.core.math.ProductIndex;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.NormalizationWeightingFactor;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
@@ -23,28 +21,20 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
  */
 public class AnalysisResult implements IResultData {
 
-	private CalculationSetup setup;
-
 	private FlowIndex flowIndex;
 	private ProductIndex productIndex;
-	private Index<ImpactCategoryDescriptor> impactCategoryIndex;
+	private LongIndex impactCategoryIndex;
 
 	private double[] scalingFactors;
-	private IMatrix singleResult;
-	private IMatrix totalResult;
+	private IMatrix singleFlowResults;
+	private IMatrix totalFlowResults;
 	private IMatrix singleImpactResult;
 	private IMatrix totalImpactResult;
 	private IMatrix impactFactors;
 
-	public AnalysisResult(CalculationSetup setup, FlowIndex flowIndex,
-			ProductIndex productIndex) {
-		this.setup = setup;
+	public AnalysisResult(FlowIndex flowIndex, ProductIndex productIndex) {
 		this.flowIndex = flowIndex;
 		this.productIndex = productIndex;
-	}
-
-	public CalculationSetup getSetup() {
-		return setup;
 	}
 
 	public ProductIndex getProductIndex() {
@@ -60,11 +50,11 @@ public class AnalysisResult implements IResultData {
 	}
 
 	public void setSingleResult(IMatrix singleResult) {
-		this.singleResult = singleResult;
+		this.singleFlowResults = singleResult;
 	}
 
 	public void setTotalResult(IMatrix totalResult) {
-		this.totalResult = totalResult;
+		this.totalFlowResults = totalResult;
 	}
 
 	public void setSingleImpactResult(IMatrix singleImpactResult) {
@@ -75,8 +65,7 @@ public class AnalysisResult implements IResultData {
 		this.totalImpactResult = totalImpactResult;
 	}
 
-	public void setImpactCategoryIndex(
-			Index<ImpactCategoryDescriptor> impactCategoryIndex) {
+	public void setImpactCategoryIndex(LongIndex impactCategoryIndex) {
 		this.impactCategoryIndex = impactCategoryIndex;
 	}
 
@@ -94,40 +83,6 @@ public class AnalysisResult implements IResultData {
 				|| col >= impactFactors.getColumnDimension())
 			return 0d;
 		return impactFactors.getEntry(row, col);
-	}
-
-	public List<AnalysisFlowResult> getFlowResults(Flow flow) {
-		List<AnalysisFlowResult> results = new ArrayList<>();
-		for (Process process : setup.getProductSystem().getProcesses()) {
-			double singleResult = getSingleResult(process, flow);
-			double result = getResult(process, flow);
-			AnalysisFlowResult flowResult = new AnalysisFlowResult();
-			flowResult.setAggregatedResult(result);
-			flowResult.setProcess(process);
-			flowResult.setFlow(flow);
-			flowResult.setSingleResult(singleResult);
-			results.add(flowResult);
-		}
-		return results;
-	}
-
-	/**
-	 * Get the total result of the given flow (this is the result of the
-	 * reference product which can be less than the maximum in the product
-	 * system).
-	 */
-	public AnalysisFlowResult getTotalResult(Flow flow) {
-		int col = productIndex.getIndex(setup.getReferenceProcess(),
-				setup.getReferenceExchange());
-		int row = flowIndex.getIndex(flow);
-		double aggVal = adopt(totalResult.getEntry(row, col), flow);
-		double singVal = adopt(singleResult.getEntry(row, col), flow);
-		AnalysisFlowResult result = new AnalysisFlowResult();
-		result.setAggregatedResult(aggVal);
-		result.setSingleResult(singVal);
-		result.setFlow(flow);
-		result.setProcess(setup.getReferenceProcess());
-		return result;
 	}
 
 	/** Get the impact assessment result for the given process and category. */
@@ -224,49 +179,8 @@ public class AnalysisResult implements IResultData {
 		return result;
 	}
 
-	public AnalysisFlowResult[][] getFlowResults(Process process) {
-		List<AnalysisFlowResult> inputs = new ArrayList<>();
-		List<AnalysisFlowResult> outputs = new ArrayList<>();
-		for (int i = 0; i < flowIndex.size(); i++) {
-			Flow flow = flowIndex.getFlowAt(i);
-			double rawResult = getValue(totalResult, i, process);
-			double result = adopt(rawResult, flow);
-			if (result == 0)
-				continue;
-			double singleResult = getSingleResult(process, flow);
-			AnalysisFlowResult flowResult = new AnalysisFlowResult();
-			flowResult.setAggregatedResult(result);
-			flowResult.setFlow(flow);
-			flowResult.setProcess(process);
-			flowResult.setSingleResult(singleResult);
-			boolean input = isInput(flow, rawResult);
-			if (input)
-				inputs.add(flowResult);
-			else
-				outputs.add(flowResult);
-		}
-		return new AnalysisFlowResult[][] {
-				inputs.toArray(new AnalysisFlowResult[inputs.size()]),
-				outputs.toArray(new AnalysisFlowResult[outputs.size()]) };
-	}
-
 	public FlowIndex getFlowIndex() {
-		return flowIndex == null ? new FlowIndex() : flowIndex;
-	}
-
-	@Override
-	public FlowDescriptor[] getFlows() {
-		List<FlowDescriptor> descriptors = new ArrayList<>();
-		for (Flow flow : flowIndex.getFlows())
-			descriptors.add(Descriptors.toDescriptor(flow));
-		return descriptors.toArray(new FlowDescriptor[descriptors.size()]);
-	}
-
-	@Override
-	public ImpactCategoryDescriptor[] getImpactCategories() {
-		if (impactCategoryIndex == null)
-			return new ImpactCategoryDescriptor[0];
-		return impactCategoryIndex.getItems();
+		return flowIndex;
 	}
 
 	@Override
@@ -274,81 +188,91 @@ public class AnalysisResult implements IResultData {
 		return impactCategoryIndex != null && !impactCategoryIndex.isEmpty();
 	}
 
-	public int getIndex(Flow flow) {
-		return flowIndex.getIndex(flow);
-	}
-
-	public double getScalingFactor(Process process) {
+	/**
+	 * Get the scaling factor for the given process. If the process is used with
+	 * several products in the product system, this returns the sum of all
+	 * scaling factors for each process-product-pair.
+	 */
+	public double getScalingFactor(long processId) {
 		double factor = 0;
-		List<Long> productIds = productIndex.getProducts(process);
-		for (long productId : productIds) {
-			int idx = productIndex.getIndex(productId);
+		List<LongPair> productIds = productIndex.getProducts(processId);
+		for (LongPair product : productIds) {
+			int idx = productIndex.getIndex(product);
+			if (idx < 0 || idx > scalingFactors.length)
+				continue;
 			factor += scalingFactors[idx];
 		}
 		return factor;
 	}
 
-	public double getResult(Process process, Flow flow) {
-		int row = flowIndex.getIndex(flow);
-		double val = getValue(totalResult, row, process);
-		return adopt(val, flow);
+	/**
+	 * Get the single flow result for the given process and flow.
+	 */
+	public double getSingleFlowResult(long processId, long flowId) {
+		int row = flowIndex.getIndex(flowId);
+		double val = getValue(singleFlowResults, row, processId);
+		return adoptFlowResult(val, flowId);
 	}
 
-	public double getResult(Process process,
-			ImpactCategoryDescriptor impactCategory) {
+	/**
+	 * Get the upstream-total flow result for the given process and flow.
+	 */
+	public double getTotalFlowResult(long processId, long flowId) {
+		int row = flowIndex.getIndex(flowId);
+		double val = getValue(totalFlowResults, row, processId);
+		return adoptFlowResult(val, flowId);
+	}
+
+	private double adoptFlowResult(double d, long flowId) {
+		if (d == 0)
+			return d;
+		boolean inputFlow = flowIndex.isInput(flowId);
+		return inputFlow ? -d : d;
+	}
+
+	/**
+	 * Get the single impact category result for the given process and impact
+	 * category.
+	 */
+	public double getSingleImpactResult(long processId, long impactCategory) {
 		if (impactCategoryIndex == null)
 			return 0;
 		int row = impactCategoryIndex.getIndex(impactCategory);
-		double val = getValue(totalImpactResult, row, process);
+		double val = getValue(singleImpactResult, row, processId);
 		return val;
 	}
 
-	public double getSingleResult(Process process, Flow flow) {
-		int row = flowIndex.getIndex(flow);
-		double val = getValue(singleResult, row, process);
-		return adopt(val, flow);
-	}
-
-	public double getSingleResult(Process process,
-			ImpactCategoryDescriptor impactCategory) {
+	/**
+	 * Get the upstream-total impact category result for the given process and
+	 * impact category.
+	 */
+	public double getTotalImpactResult(long processId, long impactCategory) {
 		if (impactCategoryIndex == null)
 			return 0;
 		int row = impactCategoryIndex.getIndex(impactCategory);
-		double val = getValue(singleImpactResult, row, process);
+		double val = getValue(totalImpactResult, row, processId);
 		return val;
 	}
 
-	private double getValue(IMatrix matrix, int row, Process process) {
-		if (matrix == null || process == null)
-			return 0;
-		int rows = matrix.getRowDimension();
-		int cols = matrix.getColumnDimension();
-		if (row < 0 || row >= rows)
+	private double getValue(IMatrix matrix, int row, long processId) {
+		if (matrix == null)
 			return 0;
 		double colSum = 0;
-		for (Long productId : productIndex.getProducts(process)) {
-			int col = productIndex.getIndex(productId);
-			if (col < 0 || col >= cols)
-				continue;
-			colSum += matrix.getEntry(row, col);
+		for (LongPair product : productIndex.getProducts(processId)) {
+			int col = productIndex.getIndex(product);
+			colSum += getValue(matrix, row, col);
 		}
 		return colSum;
 	}
 
-	private double adopt(double d, Flow flow) {
-		if (d == 0)
-			return d;
-		boolean inputFlow = flowIndex.isInput(flow);
-		if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW)
-			return inputFlow ? -d : d;
-		return Math.abs(d);
-	}
-
-	private boolean isInput(Flow flow, double rawValue) {
-		if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW
-				&& flowIndex.isInput(flow))
-			return true;
-		return rawValue < 0;
+	private double getValue(IMatrix matrix, int row, int col) {
+		if (matrix == null)
+			return 0d;
+		if (row < 0 || row >= matrix.getRowDimension())
+			return 0d;
+		if (col < 0 || col >= matrix.getColumnDimension())
+			return 0d;
+		return matrix.getEntry(row, col);
 	}
 
 }

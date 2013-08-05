@@ -21,6 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.results.ImpactCategoryResult;
 
 /**
  * This class represents a calculation result for a specific product system
