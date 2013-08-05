@@ -2,13 +2,16 @@ package org.openlca.io.ilcd.output;
 
 import java.math.BigInteger;
 
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Expression;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
@@ -82,7 +85,10 @@ public class SystemExport {
 	}
 
 	private void exportProcesses(ProductModel model) {
-		for (org.openlca.core.model.Process proc : system.getProcesses()) {
+		ProcessDao processDao = new ProcessDao(database);
+		for (Long processId : system.getProcesses()) {
+			org.openlca.core.model.Process proc = processDao
+					.getForId(processId);
 			DataSetReference ref = ExportDispatch.forwardExportCheck(proc,
 					database, dataStore);
 			ProcessNode node = new ProcessNode();
@@ -96,21 +102,43 @@ public class SystemExport {
 
 	private void exportLinks(ProductModel model) {
 		int c = 0;
+		ProcessDao processDao = new ProcessDao(database);
+		FlowDao flowDao = new FlowDao(database);
 		for (ProcessLink link : this.system.getProcessLinks()) {
 			Connector connector = new Connector();
 			model.getConnections().add(connector);
 			connector.setId(Integer.toString(++c));
-			connector.setOrigin(link.getProviderProcess().getRefId());
+
+			// provider process
+			BaseDescriptor provider = processDao.getDescriptor(link
+					.getProviderProcess());
+			if (provider == null)
+				continue;
+			connector.setOrigin(provider.getRefId());
+
+			// product flow
+			BaseDescriptor flow = flowDao.getDescriptor(link
+					.getProviderOutput());
+			if (flow == null)
+				continue;
 			Product product = new Product();
 			connector.getProducts().add(product);
-			product.setName(link.getProviderOutput().getFlow().getName());
-			product.setUuid(link.getProviderOutput().getFlow().getRefId());
+			product.setName(flow.getName());
+			product.setUuid(flow.getRefId());
+
+			// recipient process
 			ConsumedBy consumedBy = new ConsumedBy();
 			product.setConsumedBy(consumedBy);
-			consumedBy.setAmount(link.getRecipientInput().getConvertedResult());
-			consumedBy.setFlowUUID(link.getRecipientInput().getFlow()
-					.getRefId());
-			consumedBy.setProcessId(link.getRecipientProcess().getRefId());
+			consumedBy.setFlowUUID(flow.getRefId());
+			BaseDescriptor recipient = processDao.getDescriptor(link
+					.getRecipientProcess());
+			if (recipient == null)
+				continue;
+			consumedBy.setProcessId(recipient.getRefId());
+
+			// we do not set the amount field currently because it is
+			// the value in the respective process
+			// consumedBy.setAmount(link.getRecipientInput().getConvertedResult());
 		}
 	}
 

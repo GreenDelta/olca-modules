@@ -89,7 +89,7 @@ public class ContactImport {
 		actor.setEmail(ilcdContact.getEmail());
 		actor.setTelefax(ilcdContact.getTelefax());
 		actor.setTelephone(ilcdContact.getTelephone());
-		actor.setWebSite(ilcdContact.getWebSite());
+		actor.setWebsite(ilcdContact.getWebSite());
 	}
 
 	private void saveInDatabase() throws ImportException {
