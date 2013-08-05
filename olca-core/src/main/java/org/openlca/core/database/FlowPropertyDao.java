@@ -1,20 +1,13 @@
 package org.openlca.core.database;
 
-import java.util.List;
-
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 
-public class FlowPropertyDao extends CategorizedEnitityDao<FlowProperty> {
+public class FlowPropertyDao extends
+		CategorizedEntityDao<FlowProperty, FlowPropertyDescriptor> {
 
-	public FlowPropertyDao(EntityManagerFactory emf) {
-		super(FlowProperty.class, emf);
-	}
-
-	public List<BaseDescriptor> whereUsed(FlowProperty prop) {
-		return new FlowPropertyUseSearch(getEntityFactory()).findUses(prop);
+	public FlowPropertyDao(IDatabase database) {
+		super(FlowProperty.class, FlowPropertyDescriptor.class, database);
 	}
 
 }

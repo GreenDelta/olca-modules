@@ -17,9 +17,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A class for forwarding an export of a resource to the respective Export
  * class.
- * 
- * @author Michael Srocka
- * 
  */
 class ExportDispatch {
 

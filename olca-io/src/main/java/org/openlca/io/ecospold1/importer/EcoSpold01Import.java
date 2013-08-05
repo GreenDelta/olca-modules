@@ -140,7 +140,7 @@ public class EcoSpold01Import {
 		}
 	}
 
-	private void parseProcessDataSet(DataSet dataSet) throws Exception {
+	private void parseProcessDataSet(DataSet dataSet) {
 		if (dataSet.getReferenceFunction() == null)
 			return;
 		insertPersons(dataSet);
@@ -194,7 +194,7 @@ public class EcoSpold01Import {
 		}
 	}
 
-	private void insertProcess(DataSet dataSet) throws Exception {
+	private void insertProcess(DataSet dataSet) {
 		String processId = ES1KeyGen.forProcess(dataSet);
 		Process process = db.get(Process.class, processId);
 		if (process != null) {
@@ -210,8 +210,8 @@ public class EcoSpold01Import {
 		if (dataSet.getReferenceFunction() != null) {
 			process.setDescription(dataSet.getReferenceFunction()
 					.getGeneralComment());
-			documentation.setInfrastructureProcess(dataSet
-					.getReferenceFunction().isInfrastructureProcess());
+			process.setInfrastructureProcess(dataSet.getReferenceFunction()
+					.isInfrastructureProcess());
 		}
 		process.setProcessType(Mapper.getProcessType(dataSet));
 		mapTimeAndGeography(dataSet, process, documentation);
@@ -295,8 +295,7 @@ public class EcoSpold01Import {
 		}
 	}
 
-	private void mapExchanges(List<IExchange> inExchanges, Process ioProcess)
-			throws Exception {
+	private void mapExchanges(List<IExchange> inExchanges, Process ioProcess) {
 		for (IExchange inExchange : inExchanges) {
 			FlowBucket flow = flowImport.handleProcessExchange(inExchange);
 			if (flow == null || !flow.isValid()) {
@@ -322,8 +321,7 @@ public class EcoSpold01Import {
 		}
 	}
 
-	private void mapFactors(List<IExchange> inFactors, ImpactCategory ioCategory)
-			throws Exception {
+	private void mapFactors(List<IExchange> inFactors, ImpactCategory ioCategory) {
 		for (IExchange inFactor : inFactors) {
 			FlowBucket flow = flowImport.handleImpactFactor(inFactor);
 			if (flow == null || !flow.isValid()) {
@@ -358,7 +356,8 @@ public class EcoSpold01Import {
 		IReferenceFunction inRefFunction = dataSet.getReferenceFunction();
 		ioProcess.setName(inRefFunction.getName());
 		ioProcess.setDescription(inRefFunction.getGeneralComment());
-		doc.setInfrastructureProcess(inRefFunction.isInfrastructureProcess());
+		ioProcess.setInfrastructureProcess(inRefFunction
+				.isInfrastructureProcess());
 		String topCategoryName = inRefFunction.getCategory();
 		String subCategoryName = inRefFunction.getSubCategory();
 		Category cat = null;
@@ -408,7 +407,7 @@ public class EcoSpold01Import {
 					.getReferenceToPublishedSource()));
 	}
 
-	private void insertImpactMethod(IEcoSpold es) throws Exception {
+	private void insertImpactMethod(IEcoSpold es) {
 		if (es.getDataset().isEmpty())
 			return;
 		DataSet dataSet = new DataSet(es.getDataset().get(0),
@@ -431,7 +430,7 @@ public class EcoSpold01Import {
 			ImpactCategory lciaCategory = mapReferenceFunction(dataSet
 					.getReferenceFunction());
 			mapFactors(dataSet.getExchanges(), lciaCategory);
-			method.getLCIACategories().add(lciaCategory);
+			method.getImpactCategories().add(lciaCategory);
 		}
 		db.put(method, methodId);
 	}

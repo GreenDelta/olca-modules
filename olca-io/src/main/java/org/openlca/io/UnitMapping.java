@@ -62,14 +62,12 @@ public class UnitMapping {
 		for (Unit unit : group.getUnits()) {
 			List<String> names = unitNames(unit);
 			for (String name : names) {
-				mapping.put(name, prop, group,
-						unit.getConversionFactor());
+				mapping.put(name, prop, group, unit.getConversionFactor());
 			}
 		}
 	}
 
-	private static FlowProperty findProperty(IDatabase database, UnitGroup group)
-			throws Exception {
+	private static FlowProperty findProperty(IDatabase database, UnitGroup group) {
 		BaseDao<FlowProperty> dao = database.createDao(FlowProperty.class);
 		for (FlowProperty prop : dao.getAll()) {
 			if (Objects.equals(group, prop.getUnitGroup()))

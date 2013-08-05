@@ -56,9 +56,6 @@ import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
  * The CSV reader reads out a SimaPro 7.2 CSV file (file separator ;) and
  * creates a {@link SPDataSet} object containing the information of the file
  * 
- * @author Sebastian Greve
- * @author Imo Graf
- * 
  */
 public class CSVReader {
 

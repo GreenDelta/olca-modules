@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
@@ -17,18 +16,14 @@ import org.slf4j.LoggerFactory;
 public class Query {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private EntityManagerFactory entityFactory;
+	private IDatabase database;
 
-	private Query(EntityManagerFactory entityFactory) {
-		this.entityFactory = entityFactory;
+	private Query(IDatabase database) {
+		this.database = database;
 	}
 
 	public static Query on(IDatabase database) {
-		return new Query(database.getEntityFactory());
-	}
-
-	public static Query on(EntityManagerFactory entityFactory) {
-		return new Query(entityFactory);
+		return new Query(database);
 	}
 
 	/**
@@ -36,9 +31,9 @@ public class Query {
 	 * have a string field 'name'. If no such type is contained in the database,
 	 * null is returned.
 	 */
-	public <T> T getForName(Class<T> type, String name) throws Exception {
+	public <T> T getForName(Class<T> type, String name) {
 		log.trace("query {} for name {}", type, name);
-		BaseDao<T> dao = new BaseDao<>(type, entityFactory);
+		BaseDao<T> dao = new BaseDao<>(type, database);
 		String jpql = "select t from " + type.getSimpleName()
 				+ " t where t.name = :name";
 		Map<String, String> map = new HashMap<>();
@@ -46,13 +41,21 @@ public class Query {
 		return dao.getFirst(jpql, map);
 	}
 
-	public <T> List<T> getAll(Class<T> type, String jpql) throws Exception {
+	public <T> List<T> getAllForName(Class<T> type, String name) {
+		if (name == null)
+			return null;
+		String jpql = "select e from " + type.getSimpleName()
+				+ " e where e.name = '" + name + "'";
+		return getAll(type, jpql);
+	}
+
+	public <T> List<T> getAll(Class<T> type, String jpql) {
 		Map<String, Object> map = new HashMap<>();
 		return getAll(type, jpql, map);
 	}
-
+ 
 	public <T> List<T> getAll(Class<T> type, String jpql,
-			Map<String, ? extends Object> params) throws Exception {
+			Map<String, ? extends Object> params) {
 		log.trace("Get all {} with query {}", type, jpql);
 		EntityManager em = createManager();
 		try {
@@ -70,7 +73,7 @@ public class Query {
 	}
 
 	public <T> T getFirst(Class<T> type, String jpql,
-			Map<String, ? extends Object> params) throws Exception {
+			Map<String, ? extends Object> params) {
 		List<T> all = getAll(type, jpql, params);
 		if (all == null || all.isEmpty())
 			return null;
@@ -78,7 +81,7 @@ public class Query {
 	}
 
 	private EntityManager createManager() {
-		return entityFactory.createEntityManager();
+		return database.getEntityFactory().createEntityManager();
 	}
 
 }

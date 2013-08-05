@@ -508,7 +508,7 @@ CREATE TABLE tbl_lciacategoryresults (
 )ENGINE = MYISAM;
 
 
--- LCIA methods
+-- Impact methods
 DROP TABLE IF EXISTS tbl_lciamethods;
 CREATE TABLE tbl_lciamethods (
 
@@ -566,7 +566,7 @@ CREATE TABLE tbl_lciafactors (
 )ENGINE = MYISAM;
 
 
--- normalisation and weighting sets of LCIA methods
+-- normalisation and weighting sets of impact methods
 DROP TABLE IF EXISTS tbl_normalizationweightingsets;
 CREATE TABLE tbl_normalizationweightingsets (
 
@@ -583,7 +583,7 @@ CREATE TABLE tbl_normalizationweightingsets (
 )ENGINE = MYISAM;
 
 
--- factors of normalisation and weighting sets of LCIA methods
+-- factors of normalisation and weighting sets of impact methods
 DROP TABLE IF EXISTS tbl_normalizationweightingfactors;
 CREATE TABLE tbl_normalizationweightingfactors (
 

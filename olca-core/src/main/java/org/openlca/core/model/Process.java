@@ -59,6 +59,9 @@ public class Process extends CategorizedEntity implements IParameterisable {
 	@JoinColumn(name = "f_quantitative_reference")
 	private Exchange quantitativeReference;
 
+	@Column(name = "infrastructure_process")
+	private boolean infrastructureProcess;
+
 	/**
 	 * Removes all allocation factors from all exchanges
 	 */
@@ -225,6 +228,10 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		return parameters;
 	}
 
+	public boolean isInfrastructureProcess() {
+		return infrastructureProcess;
+	}
+
 	public void setAllocationMethod(AllocationMethod allocationMethod) {
 		this.allocationMethod = allocationMethod;
 	}
@@ -239,6 +246,10 @@ public class Process extends CategorizedEntity implements IParameterisable {
 
 	public void setQuantitativeReference(Exchange quantitativeReference) {
 		this.quantitativeReference = quantitativeReference;
+	}
+
+	public void setInfrastructureProcess(boolean infrastructureProcess) {
+		this.infrastructureProcess = infrastructureProcess;
 	}
 
 }

@@ -3,9 +3,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * Simple implementation of {@link ISystemDescriptionEntry}
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPSystemDescriptionEntry {
 

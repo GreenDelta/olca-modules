@@ -9,7 +9,7 @@ import org.openlca.core.model.FlowPropertyFactor;
 public class IdGeneratorTest {
 
 	@Test
-	public void testCascadeId() throws Exception {
+	public void testCascadeId() {
 
 		IDatabase database = TestSession.getDefaultDatabase();
 

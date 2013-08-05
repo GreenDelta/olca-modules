@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
@@ -23,25 +22,24 @@ public class BaseDao<T> implements IDao<T> {
 
 	protected Class<T> entityType;
 	protected Logger log = LoggerFactory.getLogger(this.getClass());
-	private EntityManagerFactory entityFactory;
+	private IDatabase database;
 
-	public BaseDao(Class<T> entityType, EntityManagerFactory factory) {
+	public BaseDao(Class<T> entityType, IDatabase database) {
 		this.entityType = entityType;
-		this.entityFactory = factory;
+		this.database = database;
+	}
+
+	protected IDatabase getDatabase() {
+		return database;
 	}
 
 	@Override
-	public EntityManagerFactory getEntityFactory() {
-		return entityFactory;
-	}
-
-	@Override
-	public boolean contains(long id) throws Exception {
+	public boolean contains(long id) {
 		return getForId(id) != null;
 	}
 
 	@Override
-	public void delete(T entity) throws Exception {
+	public void delete(T entity) {
 		if (entity == null)
 			return;
 		EntityManager em = createManager();
@@ -55,7 +53,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public void deleteAll(Collection<T> entities) throws Exception {
+	public void deleteAll(Collection<T> entities) {
 		if (entities == null)
 			return;
 		EntityManager em = createManager();
@@ -72,7 +70,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public T update(T entity) throws Exception {
+	public T update(T entity) {
 		if (entity == null)
 			return null;
 		EntityManager em = createManager();
@@ -87,7 +85,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public T insert(T entity) throws Exception {
+	public T insert(T entity) {
 		if (entity == null)
 			return null;
 		EntityManager em = createManager();
@@ -102,7 +100,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public T getForId(long id) throws Exception {
+	public T getForId(long id) {
 		log.trace("get {} for id={}", entityType, id);
 		EntityManager entityManager = createManager();
 		try {
@@ -114,7 +112,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public List<T> getForIds(Set<Long> ids) throws Exception {
+	public List<T> getForIds(Set<Long> ids) {
 		if (ids == null || ids.isEmpty())
 			return Collections.emptyList();
 		if (ids.size() <= MAX_LIST_SIZE)
@@ -150,7 +148,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public List<T> getAll() throws Exception {
+	public List<T> getAll() {
 		log.debug("Select all for class {}", entityType);
 		EntityManager em = createManager();
 		try {
@@ -166,8 +164,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public List<T> getAll(String jpql, Map<String, ? extends Object> parameters)
-			throws Exception {
+	public List<T> getAll(String jpql, Map<String, ? extends Object> parameters) {
 		EntityManager em = createManager();
 		try {
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
@@ -182,8 +179,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public T getFirst(String jpql, Map<String, ? extends Object> parameters)
-			throws Exception {
+	public T getFirst(String jpql, Map<String, ? extends Object> parameters) {
 		List<T> list = getAll(jpql, parameters);
 		if (list.isEmpty())
 			return null;
@@ -191,8 +187,7 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public long getCount(String jpql, Map<String, Object> parameters)
-			throws Exception {
+	public long getCount(String jpql, Map<String, Object> parameters) {
 		EntityManager em = createManager();
 		try {
 			TypedQuery<Long> query = em.createQuery(jpql, Long.class);
@@ -207,18 +202,19 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	@Override
-	public void deleteAll() throws Exception {
+	public void deleteAll() {
 		log.trace("delete all instances of {}", entityType);
 		deleteAll(getAll());
 	}
 
 	protected EntityManager createManager() {
-		EntityManager em = entityFactory.createEntityManager();
+		EntityManager em = getDatabase().getEntityFactory()
+				.createEntityManager();
 		return em;
 	}
 
 	protected Query query() {
-		return Query.on(getEntityFactory());
+		return Query.on(database);
 	}
 
 	public T detach(T val) {
@@ -231,5 +227,6 @@ public class BaseDao<T> implements IDao<T> {
 			return val;
 		}
 	}
+
 
 }

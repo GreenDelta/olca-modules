@@ -9,9 +9,6 @@ import java.util.Map;
 
 /**
  * Enumeration of possible elementary flow types
- * 
- * @author Sebastian Greve
- * 
  */
 public enum ElementaryFlowType {
 

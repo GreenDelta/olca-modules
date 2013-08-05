@@ -175,7 +175,7 @@ public class SystemExport {
 	private void addParamaters(ProductModel model) {
 		for (Parameter parameter : system.getParameters())
 			addParameter(parameter, model, ParameterScopeValues.PRODUCTMODEL);
-		ParameterDao dao = new ParameterDao(database.getEntityFactory());
+		ParameterDao dao = new ParameterDao(database);
 		try {
 			for (Parameter param : dao.getAllForType(ParameterType.DATABASE))
 				addParameter(param, model, ParameterScopeValues.GLOBAL);

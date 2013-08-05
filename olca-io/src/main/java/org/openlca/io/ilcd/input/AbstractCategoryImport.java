@@ -16,7 +16,7 @@ abstract class AbstractCategoryImport<C> {
 
 	public AbstractCategoryImport(IDatabase database, ModelType modelType) {
 		this.modelType = modelType;
-		dao = new CategoryDao(database.getEntityFactory());
+		dao = new CategoryDao(database);
 	}
 
 	/** Hook method that needs to be implemented by the concrete sub-class */
@@ -43,7 +43,7 @@ abstract class AbstractCategoryImport<C> {
 		}
 	}
 
-	private Category findRoot(C c) throws Exception {
+	private Category findRoot(C c) {
 		List<Category> roots = dao.getRootCategories(modelType);
 		if (roots == null || roots.isEmpty())
 			return null;
@@ -71,7 +71,7 @@ abstract class AbstractCategoryImport<C> {
 	private Category findCategory(Category rootCategory, C ilcdCategory) {
 		if (equals(rootCategory, ilcdCategory))
 			return rootCategory;
-		Category[] categories = rootCategory.getChildCategories();
+		List<Category> categories = rootCategory.getChildCategories();
 		Category equalCategory = null;
 		for (Category category : categories) {
 			if (equals(category, ilcdCategory)) {
@@ -93,7 +93,7 @@ abstract class AbstractCategoryImport<C> {
 		try {
 			Category newCategory = createNew(ilcdCategory);
 			newCategory.setParentCategory(parentCategory);
-			parentCategory.add(newCategory);
+			parentCategory.getChildCategories().add(newCategory);
 			dao.insert(newCategory);
 			dao.update(parentCategory);
 			return newCategory;

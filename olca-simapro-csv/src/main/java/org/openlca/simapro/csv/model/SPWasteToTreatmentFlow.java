@@ -2,11 +2,6 @@ package org.openlca.simapro.csv.model;
 
 import org.openlca.simapro.csv.model.types.DistributionType;
 
-/**
- * 
- * @author Imo Graf
- * 
- */
 public class SPWasteToTreatmentFlow extends SPFlow {
 
 	/**

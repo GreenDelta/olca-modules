@@ -60,7 +60,7 @@ class ExchangeFlow {
 
 	private void fetchFromDatabase(String flowId) {
 		try {
-			FlowDao dao = new FlowDao(database.getEntityFactory());
+			FlowDao dao = new FlowDao(database);
 			flow = dao.getForRefId(flowId);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());

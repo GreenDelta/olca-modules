@@ -4,26 +4,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterType;
 
 public class ParameterDao extends BaseDao<Parameter> {
 
-	public ParameterDao(EntityManagerFactory factory) {
-		super(Parameter.class, factory);
+	public ParameterDao(IDatabase database) {
+		super(Parameter.class, database);
 	}
 
-	public List<Parameter> getAllForType(ParameterType type) throws Exception {
+	public List<Parameter> getAllForType(ParameterType type) {
 		String jpql = "select p from Parameter p where p.type = :type";
 		Map<String, Object> args = new HashMap<>();
 		args.put("type", type);
 		return getAll(jpql, args);
 	}
 
-	public List<Parameter> getAllForName(String name, ParameterType type)
-			throws Exception {
+	public List<Parameter> getAllForName(String name, ParameterType type) {
 		String jpql = "select p from Parameter p where lower(p.name) = "
 				+ "lower(:name) and p.type = :type";
 		Map<String, Object> args = new HashMap<>();

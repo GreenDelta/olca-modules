@@ -1,11 +1,11 @@
-package org.openlca.core.database;
+package org.openlca.core.database.usage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.Query;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -16,15 +16,15 @@ import org.slf4j.LoggerFactory;
 class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private EntityManagerFactory emf;
+	private IDatabase database;
 
-	public FlowPropertyUseSearch(EntityManagerFactory emf) {
-		this.emf = emf;
+	FlowPropertyUseSearch(IDatabase database) {
+		this.database = database;
 	}
 
 	@Override
 	public List<BaseDescriptor> findUses(FlowProperty prop) {
-		if (prop == null || prop.getRefId() == null)
+		if (prop == null)
 			return Collections.emptyList();
 		List<BaseDescriptor> flows = findInFlows(prop);
 		List<BaseDescriptor> unitGroups = findInUnitGroups(prop);
@@ -37,10 +37,10 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 
 	private List<BaseDescriptor> findInFlows(FlowProperty prop) {
 		String jpql = "select f.id, f.name, f.description from Flow f "
-				+ "join f.flowPropertyFactors fp where fp.flowProperty.id = :propId";
+				+ "join f.flowPropertyFactors fp where fp.flowProperty = :flowProperty";
 		try {
-			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("propId", prop.getRefId()));
+			List<Object[]> results = Query.on(database).getAll(Object[].class,
+					jpql, Collections.singletonMap("flowProperty", prop));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				FlowDescriptor d = new FlowDescriptor();
@@ -58,10 +58,10 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 
 	private List<BaseDescriptor> findInUnitGroups(FlowProperty prop) {
 		String jpql = "select ug.id, ug.name, ug.description from UnitGroup ug "
-				+ "where ug.defaultFlowProperty.id = :propId";
+				+ "where ug.defaultFlowProperty = :flowProperty";
 		try {
-			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("propId", prop.getRefId()));
+			List<Object[]> results = Query.on(database).getAll(Object[].class,
+					jpql, Collections.singletonMap("flowProperty", prop));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				UnitGroupDescriptor d = new UnitGroupDescriptor();

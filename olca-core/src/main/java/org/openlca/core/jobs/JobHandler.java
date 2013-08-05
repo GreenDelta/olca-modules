@@ -14,9 +14,6 @@ import java.util.List;
 
 /**
  * The job handler is a non-UI progress monitor
- * 
- * @author Sebastian Greve
- * 
  */
 // TODO: remove this from the core model, replace this in the UI with
 // IProgressMonitor from Eclipse.

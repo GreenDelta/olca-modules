@@ -15,7 +15,7 @@ import org.openlca.ilcd.util.UnitExtension;
 public class UnitExtensionTest {
 
 	@Test
-	public void testEmpty() throws Exception {
+	public void testEmpty() {
 		Unit unit = io(createUnit());
 		UnitExtension extension = new UnitExtension(unit);
 		assertFalse(extension.isValid());
@@ -23,7 +23,7 @@ public class UnitExtensionTest {
 	}
 
 	@Test
-	public void testExtension() throws Exception {
+	public void testExtension() {
 		Unit unit = createUnit();
 		UnitExtension extension = new UnitExtension(unit);
 		extension.setUnitId("00-12-4-5");

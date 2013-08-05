@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a SimaPro substance
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPSubstance {
 

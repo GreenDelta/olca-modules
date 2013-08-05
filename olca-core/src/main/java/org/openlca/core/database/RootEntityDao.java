@@ -4,23 +4,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 
-public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
+public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
+		extends BaseDao<T> {
 
-	public RootEntityDao(Class<T> clazz, EntityManagerFactory factory) {
-		super(clazz, factory);
+	private Class<V> descriptorType;
+
+	public RootEntityDao(Class<T> entityType, Class<V> descriptorType,
+			IDatabase database) {
+		super(entityType, database);
+		this.descriptorType = descriptorType;
 	}
 
-	public BaseDescriptor getDescriptor(long id) {
+	public V getDescriptor(long id) {
 		String jpql = getDescriptorQuery() + " where e.id = :id";
 		try {
-			Object[] result = Query.on(getEntityFactory()).getFirst(
-					Object[].class, jpql, Collections.singletonMap("id", id));
+			Object[] result = Query.on(getDatabase()).getFirst(Object[].class,
+					jpql, Collections.singletonMap("id", id));
 			return createDescriptor(result);
 		} catch (Exception e) {
 			log.error("failed to get descriptor for " + id, e);
@@ -31,10 +34,10 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 	/**
 	 * Returns all descriptors of the entity type of this DAO from the database.
 	 */
-	public List<BaseDescriptor> getDescriptors() {
+	public List<V> getDescriptors() {
 		try {
 			String jpql = getDescriptorQuery();
-			List<Object[]> results = Query.on(getEntityFactory()).getAll(
+			List<Object[]> results = Query.on(getDatabase()).getAll(
 					Object[].class, jpql);
 			return createDescriptors(results);
 		} catch (Exception e) {
@@ -56,12 +59,12 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 	/**
 	 * Creates a list of descriptors from a list of query results.
 	 */
-	protected List<BaseDescriptor> createDescriptors(List<Object[]> results) {
+	protected List<V> createDescriptors(List<Object[]> results) {
 		if (results == null)
 			return Collections.emptyList();
-		List<BaseDescriptor> descriptors = new ArrayList<>(results.size());
+		List<V> descriptors = new ArrayList<>(results.size());
 		for (Object[] result : results) {
-			BaseDescriptor descriptor = createDescriptor(result);
+			V descriptor = createDescriptor(result);
 			if (descriptor != null)
 				descriptors.add(descriptor);
 		}
@@ -73,9 +76,10 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 	 * method can be overwritten by subclasses but it must be implemented in a
 	 * way that it matches the respective descriptor query.
 	 */
-	protected BaseDescriptor createDescriptor(Object[] queryResult) {
-		BaseDescriptor descriptor = new BaseDescriptor();
+	protected V createDescriptor(Object[] queryResult) {
+		V descriptor = null;
 		try {
+			descriptor = descriptorType.newInstance();
 			descriptor.setId((Long) queryResult[0]);
 			descriptor.setName((String) queryResult[1]);
 			descriptor.setDescription((String) queryResult[2]);
@@ -92,10 +96,19 @@ public class RootEntityDao<T extends RootEntity> extends BaseDao<T> {
 		String jpql = "select e from " + entityType.getSimpleName()
 				+ " e where e.refId = :refId";
 		try {
-			return Query.on(getEntityFactory()).getFirst(entityType, jpql,
+			return Query.on(getDatabase()).getFirst(entityType, jpql,
 					Collections.singletonMap("refId", refId));
 		} catch (Exception e) {
 			log.error("failed to get instance for refId " + refId, e);
+			return null;
+		}
+	}
+
+	public List<T> getForName(String name) {
+		try {
+			return Query.on(getDatabase()).getAllForName(entityType, name);
+		} catch (Exception e) {
+			log.error("failed to get instance for name " + name, e);
 			return null;
 		}
 	}

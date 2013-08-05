@@ -6,9 +6,6 @@ import java.util.Map;
 
 /**
  * Enumeration of possible sub compartments
- * 
- * @author Sebastian Greve
- * 
  */
 public enum SubCompartment {
 

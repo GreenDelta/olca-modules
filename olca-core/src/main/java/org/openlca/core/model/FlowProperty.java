@@ -32,6 +32,7 @@ public class FlowProperty extends CategorizedEntity {
 	@Override
 	public FlowProperty clone() {
 		FlowProperty flowProperty = new FlowProperty();
+		flowProperty.setName(getName());
 		flowProperty.setCategory(getCategory());
 		flowProperty.setDescription(getDescription());
 		flowProperty.setUnitGroup(getUnitGroup());

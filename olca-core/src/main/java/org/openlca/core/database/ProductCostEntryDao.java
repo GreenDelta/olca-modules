@@ -3,19 +3,16 @@ package org.openlca.core.database;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.ProductCostEntry;
 
 public class ProductCostEntryDao extends BaseDao<ProductCostEntry> {
 
-	public ProductCostEntryDao(EntityManagerFactory factory) {
-		super(ProductCostEntry.class, factory);
+	public ProductCostEntryDao(IDatabase database) {
+		super(ProductCostEntry.class, database);
 	}
 
-	public List<ProductCostEntry> getAllForProduct(String exchangeId)
-			throws Exception {
+	public List<ProductCostEntry> getAllForProduct(String exchangeId) {
 		if (exchangeId == null)
 			return Collections.emptyList();
 		String jpql = "select e from ProductCostEntry e where "
@@ -23,8 +20,7 @@ public class ProductCostEntryDao extends BaseDao<ProductCostEntry> {
 		return getAll(jpql, Collections.singletonMap("exchangeId", exchangeId));
 	}
 
-	public List<ProductCostEntry> getAllForProcess(String processId)
-			throws Exception {
+	public List<ProductCostEntry> getAllForProcess(String processId) {
 		if (processId == null)
 			return Collections.emptyList();
 		String jpql = "select e from ProductCostEntry e where "
@@ -32,8 +28,7 @@ public class ProductCostEntryDao extends BaseDao<ProductCostEntry> {
 		return getAll(jpql, Collections.singletonMap("processId", processId));
 	}
 
-	public List<ProductCostEntry> getAllForCategory(CostCategory category)
-			throws Exception {
+	public List<ProductCostEntry> getAllForCategory(CostCategory category) {
 		if (category == null)
 			return Collections.emptyList();
 		String jpql = "select e from ProductCostEntry e where "

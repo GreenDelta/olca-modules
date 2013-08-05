@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
+import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
-public class UnitGroupDao extends CategorizedEnitityDao<UnitGroup> {
+public class UnitGroupDao extends
+		CategorizedEntityDao<UnitGroup, UnitGroupDescriptor> {
 
-	public UnitGroupDao(EntityManagerFactory emf) {
-		super(UnitGroup.class, emf);
+	public UnitGroupDao(IDatabase database) {
+		super(UnitGroup.class, UnitGroupDescriptor.class, database);
 	}
 
 	public List<BaseDescriptor> whereUsed(UnitGroup group) {
@@ -22,7 +22,7 @@ public class UnitGroupDao extends CategorizedEnitityDao<UnitGroup> {
 		String jpql = "select fp.id, fp.name, fp.description from FlowProperty fp "
 				+ "where fp.unitGroupId = :unitGroupId";
 		try {
-			List<Object[]> results = Query.on(getEntityFactory()).getAll(
+			List<Object[]> results = Query.on(getDatabase()).getAll(
 					Object[].class, jpql,
 					Collections.singletonMap("unitGroupId", group.getRefId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();

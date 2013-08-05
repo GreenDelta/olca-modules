@@ -12,9 +12,6 @@ package org.openlca.core.model;
 
 /**
  * Enumeration of parameter types
- * 
- * @author Sebastian Greve
- * 
  */
 public enum ParameterType {
 

@@ -16,7 +16,7 @@ import org.openlca.ilcd.util.TimeExtension;
 public class TimeExtensionTest {
 
 	@Test
-	public void testEmpty() throws Exception {
+	public void testEmpty() {
 		Time time = io(new Time());
 		time.setReferenceYear(new BigInteger("1979"));
 		TimeExtension extension = new TimeExtension(time);
@@ -24,7 +24,7 @@ public class TimeExtensionTest {
 		assertNull(extension.getStartDate());
 		assertNull(extension.getEndDate());
 	}
-	
+
 	@Test
 	public void testGetStartDate() {
 		Date date = new Date();
@@ -42,7 +42,7 @@ public class TimeExtensionTest {
 		assertTrue(extension.isValid());
 		assertEquals(date, extension.getEndDate());
 	}
-	
+
 	private Time createTime(Date date) {
 		Time time = io(new Time());
 		time.setReferenceYear(new BigInteger("1979"));
@@ -51,7 +51,7 @@ public class TimeExtensionTest {
 		extension.setEndDate(date);
 		return time;
 	}
-	
+
 	private Time io(Time time) {
 		StringWriter writer = new StringWriter();
 		JAXB.marshal(time, writer);

@@ -34,9 +34,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The entry point for the ILCD export of model components.
- * 
- * @author Michael Srocka
- * 
  */
 public class ILCDExport {
 

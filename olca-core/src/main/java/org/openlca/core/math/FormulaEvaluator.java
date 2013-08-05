@@ -12,9 +12,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Implementation changed with new formula interpreter.
- * 
- * @author Michael Srocka
- * 
  */
 public class FormulaEvaluator {
 

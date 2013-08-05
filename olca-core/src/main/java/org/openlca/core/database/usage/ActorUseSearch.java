@@ -1,11 +1,11 @@
-package org.openlca.core.database;
+package org.openlca.core.database.usage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.Query;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
 /** Searches for models where a given actor is used. */
 class ActorUseSearch implements IUseSearch<Actor> {
 
-	private EntityManagerFactory emf;
+	private IDatabase database;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public ActorUseSearch(EntityManagerFactory emf) {
-		this.emf = emf;
+	ActorUseSearch(IDatabase database) {
+		this.database = database;
 	}
 
 	@Override
@@ -38,8 +38,8 @@ class ActorUseSearch implements IUseSearch<Actor> {
 		try {
 			String jpql = "select p.id, p.name, p.description from Project p "
 					+ "where p.author = :actor";
-			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("actor", actor));
+			List<Object[]> results = Query.on(database).getAll(Object[].class,
+					jpql, Collections.singletonMap("actor", actor));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProjectDescriptor d = new ProjectDescriptor();
@@ -59,14 +59,13 @@ class ActorUseSearch implements IUseSearch<Actor> {
 		try {
 			String jpql = "select p.id, p.name, p.description, loc.code "
 					+ " from Process p left join p.location loc "
-					+ " left join p.modelingAndValidation mav "
-					+ " left join p.adminInfo info"
-					+ " where mav.reviewer = :actor "
-					+ " or info.dataSetOwner = :actor "
-					+ " or info.dataGenerator = :actor "
-					+ " or info.dataDocumentor = :actor";
-			List<Object[]> results = Query.on(emf).getAll(Object[].class, jpql,
-					Collections.singletonMap("actor", actor));
+					+ " left join p.documentation doc "
+					+ " where doc.reviewer = :actor "
+					+ " or doc.dataSetOwner = :actor "
+					+ " or doc.dataGenerator = :actor "
+					+ " or doc.dataDocumentor = :actor";
+			List<Object[]> results = Query.on(database).getAll(Object[].class,
+					jpql, Collections.singletonMap("actor", actor));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProcessDescriptor d = new ProcessDescriptor();

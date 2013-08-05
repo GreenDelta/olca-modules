@@ -24,9 +24,6 @@ import org.openlca.core.model.CategorizedEntity;
 
 /**
  * This class represents a calculation result for a specific product system
- * 
- * @author Sebastian Greve
- * 
  */
 @Entity
 @Table(name = "tbl_impact_results")

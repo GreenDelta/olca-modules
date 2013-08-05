@@ -11,11 +11,10 @@ import org.openlca.core.model.ModelType;
 
 public class CategoryDaoTest {
 
-	private CategoryDao dao = new CategoryDao(TestSession.getDefaultDatabase()
-			.getEntityFactory());
+	private CategoryDao dao = new CategoryDao(TestSession.getDefaultDatabase());
 
 	@Test
-	public void testSimple() throws Exception {
+	public void testSimple() {
 		Category category = create();
 		System.out.println(category.getId());
 		dao.insert(category);
@@ -29,27 +28,27 @@ public class CategoryDaoTest {
 	}
 
 	@Test
-	public void testAddChild() throws Exception {
+	public void testAddChild() {
 		Category parent = create();
 		dao.insert(parent);
 		Category child = create();
-		parent.add(child);
+		parent.getChildCategories().add(child);
 		child.setParentCategory(parent);
 		dao.update(parent);
 		TestSession.emptyCache();
 		Category alias = dao.getForId(parent.getId());
-		Assert.assertEquals(1, alias.getChildCategories().length);
+		Assert.assertEquals(1, alias.getChildCategories().size());
 		Assert.assertEquals(child.getRefId(),
-				alias.getChildCategories()[0].getRefId());
+				alias.getChildCategories().get(0).getRefId());
 		dao.delete(alias);
 		Assert.assertNull(dao.getForId(child.getId()));
 	}
 
 	@Test
-	public void testFindRoot() throws Exception {
+	public void testFindRoot() {
 		Category parent = create();
 		Category child = create();
-		parent.add(child);
+		parent.getChildCategories().add(child);
 		child.setParentCategory(parent);
 		dao.insert(parent);
 		TestSession.emptyCache();

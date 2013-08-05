@@ -5,9 +5,6 @@ import java.util.List;
 
 /**
  * This class represents a SimaPro process
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPProcess extends SPDataEntry {
 

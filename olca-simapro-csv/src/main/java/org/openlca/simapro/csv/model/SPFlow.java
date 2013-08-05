@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents the basic information of each flow line in SimaPro
- * 
- * @author Sebastian Greve
- * 
  */
 public abstract class SPFlow {
 

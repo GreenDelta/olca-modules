@@ -58,8 +58,7 @@ public class SystemImport {
 
 	private ProductSystem findExisting(String systemId) throws ImportException {
 		try {
-			ProductSystemDao dao = new ProductSystemDao(
-					database.getEntityFactory());
+			ProductSystemDao dao = new ProductSystemDao(database);
 			return dao.getForRefId(systemId);
 		} catch (Exception e) {
 			throw new ImportException("Could not load product system id="
@@ -191,15 +190,15 @@ public class SystemImport {
 
 	private org.openlca.core.model.Parameter convert(Parameter iParam) {
 		Expression exp = new Expression(iParam.getFormula(), iParam.getValue());
-		String owner = system.getRefId();
 		ParameterType type = ParameterType.PRODUCT_SYSTEM;
 		if (iParam.getScope() == ParameterScopeValues.GLOBAL) {
-			owner = null;
 			type = ParameterType.DATABASE;
 		}
-		org.openlca.core.model.Parameter param = new org.openlca.core.model.Parameter(
-				exp, type, owner);
+		org.openlca.core.model.Parameter param = new org.openlca.core.model.Parameter();
 		param.setName(iParam.getName());
+		param.setType(type);
+		param.getExpression().setValue(exp.getValue());
+		param.getExpression().setFormula(exp.getFormula());
 		return param;
 	}
 
@@ -209,7 +208,7 @@ public class SystemImport {
 			return;
 		}
 		try {
-			ParameterDao dao = new ParameterDao(database.getEntityFactory());
+			ParameterDao dao = new ParameterDao(database);
 			List<org.openlca.core.model.Parameter> params = dao.getAllForName(
 					param.getName(), param.getType());
 			if (params.isEmpty())

@@ -5,9 +5,6 @@ import org.openlca.simapro.csv.model.types.DistributionType;
 
 /**
  * This class represents a SimaPro uncertainty distribution
- * 
- * @author Sebastian Greve
- * 
  */
 public interface IDistribution {
 

@@ -40,13 +40,13 @@ public class MethodImport {
 	private FlowMap flowMap;
 
 	public MethodImport(DataStore ilcdStore, IDatabase database) {
-		this.dao = new ImpactMethodDao(database.getEntityFactory());
+		this.dao = new ImpactMethodDao(database);
 		this.database = database;
 		this.ilcdStore = ilcdStore;
 		flowMap = new FlowMap(MapType.ILCD_FLOW);
 	}
 
-	public void run(LCIAMethod iMethod) throws Exception {
+	public void run(LCIAMethod iMethod) {
 		if (iMethod == null || iMethod.getCharacterisationFactors() == null)
 			return;
 		List<String> methodNames = getMethodNames(iMethod);
@@ -96,8 +96,7 @@ public class MethodImport {
 		return type.value();
 	}
 
-	private org.openlca.core.model.ImpactMethod fetchMethod(String name)
-			throws Exception {
+	private org.openlca.core.model.ImpactMethod fetchMethod(String name) {
 		String id = KeyGen.get(name);
 		org.openlca.core.model.ImpactMethod method = dao.getForRefId(id);
 		if (method == null) {
@@ -111,7 +110,7 @@ public class MethodImport {
 
 	private boolean hasCategory(org.openlca.core.model.ImpactMethod oMethod,
 			String categoryName) {
-		for (ImpactCategory category : oMethod.getLCIACategories()) {
+		for (ImpactCategory category : oMethod.getImpactCategories()) {
 			if (StringUtils.equalsIgnoreCase(category.getName(), categoryName))
 				return true;
 		}
@@ -119,7 +118,7 @@ public class MethodImport {
 	}
 
 	private void addCategory(org.openlca.core.model.ImpactMethod oMethod,
-			String categoryName, LCIAMethod iMethod) throws Exception {
+			String categoryName, LCIAMethod iMethod) {
 		log.trace("Add category {} to {}", categoryName, oMethod);
 		String categoryUnit = getCategoryUnit(iMethod);
 		ImpactCategory category = new ImpactCategory();
@@ -129,7 +128,7 @@ public class MethodImport {
 		for (Factor factor : iMethod.getCharacterisationFactors().getFactor()) {
 			addFactor(category, factor);
 		}
-		oMethod.getLCIACategories().add(category);
+		oMethod.getImpactCategories().add(category);
 		dao.update(oMethod);
 	}
 
@@ -161,7 +160,7 @@ public class MethodImport {
 		}
 	}
 
-	private Unit getReferenceUnit(FlowProperty prop) throws Exception {
+	private Unit getReferenceUnit(FlowProperty prop) {
 		UnitGroup group = prop.getUnitGroup();
 		if (group != null && group.getReferenceUnit() != null)
 			return group.getReferenceUnit();
@@ -196,15 +195,15 @@ public class MethodImport {
 		return new FlowImport(ilcdStore, database).run(flowId);
 	}
 
-	private Flow getMappedFlow(String flowId) throws Exception {
+	private Flow getMappedFlow(String flowId) {
 		FlowMapEntry entry = flowMap.getEntry(flowId);
 		if (entry == null)
 			return null;
-		FlowDao dao = new FlowDao(database.getEntityFactory());
+		FlowDao dao = new FlowDao(database);
 		return dao.getForRefId(entry.getOpenlcaFlowKey());
 	}
 
-	private Unit getRefUnit(Flow flow) throws Exception {
+	private Unit getRefUnit(Flow flow) {
 		if (flow == null)
 			return null;
 		FlowProperty prop = flow.getReferenceFlowProperty();

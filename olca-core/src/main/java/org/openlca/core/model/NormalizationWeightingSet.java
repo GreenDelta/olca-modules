@@ -29,23 +29,7 @@ public class NormalizationWeightingSet extends AbstractEntity {
 	public NormalizationWeightingSet() {
 	}
 
-	public NormalizationWeightingSet(String referenceSystem, ImpactMethod method) {
-		this.referenceSystem = referenceSystem;
-		if (method != null) {
-			for (ImpactCategory category : method.getLCIACategories()) {
-				NormalizationWeightingFactor fac = new NormalizationWeightingFactor();
-				fac.setImpactCategoryId(category.getId());
-				normalizationWeightingFactors.add(fac);
-			}
-		}
-	}
-
-	public void add(NormalizationWeightingFactor factor) {
-		normalizationWeightingFactors.add(factor);
-	}
-
-	public NormalizationWeightingFactor getNormalizationWeightingFactor(
-			ImpactCategory category) {
+	public NormalizationWeightingFactor getFactor(ImpactCategory category) {
 		if (category == null)
 			return null;
 		return getFactor(category.getId());
@@ -66,10 +50,8 @@ public class NormalizationWeightingSet extends AbstractEntity {
 		return null;
 	}
 
-	public NormalizationWeightingFactor[] getNormalizationWeightingFactors() {
-		return normalizationWeightingFactors
-				.toArray(new NormalizationWeightingFactor[normalizationWeightingFactors
-						.size()]);
+	public List<NormalizationWeightingFactor> getNormalizationWeightingFactors() {
+		return normalizationWeightingFactors;
 	}
 
 	public String getReferenceSystem() {
@@ -78,10 +60,6 @@ public class NormalizationWeightingSet extends AbstractEntity {
 
 	public String getUnit() {
 		return unit;
-	}
-
-	public void remove(NormalizationWeightingFactor factor) {
-		normalizationWeightingFactors.remove(factor);
 	}
 
 	public void setReferenceSystem(final String referenceSystem) {

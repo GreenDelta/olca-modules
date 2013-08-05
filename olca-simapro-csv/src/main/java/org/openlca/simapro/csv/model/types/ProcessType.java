@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of SimaPro process types
- * 
- * @author Sebastian Greve
- * 
  */
 public enum ProcessType {
 

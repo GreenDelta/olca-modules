@@ -3,9 +3,9 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.List;
 
+import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
@@ -71,7 +71,7 @@ public class ProcessImport {
 
 	private Process findExisting(String processId) throws ImportException {
 		try {
-			ProcessDao dao = new ProcessDao(database.getEntityFactory());
+			ProcessDao dao = new ProcessDao(database);
 			return dao.getForRefId(processId);
 		} catch (Exception e) {
 			String message = String.format("Search for process %s failed.",
@@ -154,8 +154,8 @@ public class ProcessImport {
 					String locationId = KeyGen.get(locationCode);
 
 					// find a location
-					RootEntityDao<Location> locDao = new RootEntityDao<>(
-							Location.class, database.getEntityFactory());
+					BaseEntityDao<Location> locDao = new BaseEntityDao<>(
+							Location.class, database);
 					Location location = locDao.getForRefId(locationId);
 
 					// create a new location
@@ -182,7 +182,7 @@ public class ProcessImport {
 		}
 	}
 
-	private void mapTechnology(ProcessDocumentation doc) throws ImportException {
+	private void mapTechnology(ProcessDocumentation doc) {
 		org.openlca.ilcd.processes.Technology iTechnology = ilcdProcess
 				.getTechnology();
 		if (iTechnology != null) {

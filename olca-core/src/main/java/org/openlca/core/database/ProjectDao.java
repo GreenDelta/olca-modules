@@ -1,13 +1,13 @@
 package org.openlca.core.database;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Project;
+import org.openlca.core.model.descriptors.ProjectDescriptor;
 
-public class ProjectDao extends CategorizedEnitityDao<Project> {
+public class ProjectDao extends
+		CategorizedEntityDao<Project, ProjectDescriptor> {
 
-	public ProjectDao(EntityManagerFactory emf) {
-		super(Project.class, emf);
+	public ProjectDao(IDatabase database) {
+		super(Project.class, ProjectDescriptor.class, database);
 	}
 
 }

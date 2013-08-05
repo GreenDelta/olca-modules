@@ -1,9 +1,4 @@
 -- Database definition for an openLCA database.
--- There is a schema for Derby and MySQL databases. The MySQL schema can be 
--- derived from the Derby schema by doing the following text replacements:
--- 1) 'CLOB(64 K)' with 'TEXT'
--- 2) 'SMALLINT default 0 ' with 'TINYINT default 0'
--- 3) 'BLOB(16 M)' with MEDIUMBLOB
 
 -- DROP DATABASE IF EXISTS openlca;
 -- CREATE DATABASE openlca;
@@ -81,7 +76,7 @@ CREATE TABLE tbl_sources (
 	description TEXT, 
 	f_category  BIGINT, 
 	name VARCHAR(255), 
-	source_year SMALLINT, 
+	source_year TINYINT, 
 	text_reference TEXT, 
 	doi VARCHAR(255), 
 	
@@ -187,6 +182,7 @@ CREATE TABLE tbl_processes (
 	description TEXT, 
 	process_type VARCHAR(255), 
 	allocation_method VARCHAR(255), 	
+	infrastructure_process TINYINT default 0, 
 	f_quantitative_reference BIGINT, 
 	f_location BIGINT, 
 	f_process_doc BIGINT, 
@@ -202,7 +198,6 @@ CREATE INDEX idx_process_location ON tbl_processes(f_location);
 CREATE TABLE tbl_process_docs (
 	
 	id BIGINT NOT NULL,
-	infrastructure_process TINYINT default 0, 
 	geography TEXT, 
 	technology TEXT,
 	
@@ -407,7 +402,7 @@ CREATE TABLE tbl_impact_category_results (
 );
 
 
--- LCIA methods
+-- Impact methods
 
 CREATE TABLE tbl_impact_methods (
 
@@ -457,7 +452,7 @@ CREATE TABLE tbl_impact_factors (
 );
 
 
--- normalisation and weighting sets of LCIA methods
+-- normalisation and weighting sets of impact methods
 
 CREATE TABLE tbl_normalisation_weighting_sets (
 
@@ -471,7 +466,7 @@ CREATE TABLE tbl_normalisation_weighting_sets (
 );
 
 
--- factors of normalisation and weighting sets of LCIA methods
+-- factors of normalisation and weighting sets of impact methods
 
 CREATE TABLE tbl_normalisation_weighting_factors (
 

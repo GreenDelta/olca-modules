@@ -5,9 +5,6 @@ import java.util.List;
 
 /**
  * This class represents a SimaPro quantity
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPQuantity {
 

@@ -1,13 +1,13 @@
 package org.openlca.core.database;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
-public class ProductSystemDao extends CategorizedEnitityDao<ProductSystem> {
+public class ProductSystemDao extends
+		CategorizedEntityDao<ProductSystem, ProductSystemDescriptor> {
 
-	public ProductSystemDao(EntityManagerFactory emf) {
-		super(ProductSystem.class, emf);
+	public ProductSystemDao(IDatabase database) {
+		super(ProductSystem.class, ProductSystemDescriptor.class, database);
 	}
 
 }

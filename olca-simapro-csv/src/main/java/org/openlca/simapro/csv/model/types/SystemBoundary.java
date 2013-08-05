@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of system boundaries
- * 
- * @author Sebastian Greve
- * 
  */
 public enum SystemBoundary {
 

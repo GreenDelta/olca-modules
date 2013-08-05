@@ -6,26 +6,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class FlowDao extends CategorizedEnitityDao<Flow> {
+public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
-	public FlowDao(EntityManagerFactory factory) {
-		super(Flow.class, factory);
+	public FlowDao(IDatabase database) {
+		super(Flow.class, FlowDescriptor.class, database);
 	}
 
 	@Override
 	protected String getDescriptorQuery() {
-		return "select e.id, e.name, e.description, loc.code from Flow e "
+		return "select e.id, e.name, e.description, e.flowType, loc.code from Flow e "
 				+ "left join e.location loc ";
 	}
 
 	@Override
-	protected BaseDescriptor createDescriptor(Object[] queryResult) {
+	protected FlowDescriptor createDescriptor(Object[] queryResult) {
 		if (queryResult == null)
 			return null;
 		FlowDescriptor descriptor = new FlowDescriptor();
@@ -33,25 +32,25 @@ public class FlowDao extends CategorizedEnitityDao<Flow> {
 			descriptor.setId((Long) queryResult[0]);
 			descriptor.setName((String) queryResult[1]);
 			descriptor.setDescription((String) queryResult[2]);
-			descriptor.setLocationCode((String) queryResult[3]);
+			descriptor.setFlowType((FlowType) queryResult[3]);
+			descriptor.setLocationCode((String) queryResult[4]);
 		} catch (Exception e) {
 			log.error("failed to map values to flow descriptor", e);
 		}
 		return descriptor;
 	}
 
-	public List<BaseDescriptor> getProviders(Flow flow) throws Exception {
+	public List<ProcessDescriptor> getProviders(Flow flow) {
 		List<Long> processIds = getProcessIdsWhereUsed(flow, false);
 		return loadProcessDescriptors(processIds);
 	}
 
-	public List<BaseDescriptor> getRecipients(Flow flow) throws Exception {
+	public List<ProcessDescriptor> getRecipients(Flow flow) {
 		List<Long> processIds = getProcessIdsWhereUsed(flow, true);
 		return loadProcessDescriptors(processIds);
 	}
 
-	private List<Long> getProcessIdsWhereUsed(Flow flow, boolean input)
-			throws Exception {
+	private List<Long> getProcessIdsWhereUsed(Flow flow, boolean input) {
 		if (flow == null)
 			return Collections.emptyList();
 		String jpql = "select p.id from Process p join p.exchanges e "
@@ -62,24 +61,19 @@ public class FlowDao extends CategorizedEnitityDao<Flow> {
 		return query().getAll(Long.class, jpql, params);
 	}
 
-	private List<BaseDescriptor> loadProcessDescriptors(List<Long> processIds)
-			throws Exception {
+	private List<ProcessDescriptor> loadProcessDescriptors(List<Long> processIds) {
 		if (processIds == null || processIds.isEmpty())
 			return Collections.emptyList();
 		// TODO: performance may could be improved if we query the
 		// database with an 'IN - query'
-		List<BaseDescriptor> results = new ArrayList<>();
-		ProcessDao dao = new ProcessDao(getEntityFactory());
+		List<ProcessDescriptor> results = new ArrayList<>();
+		ProcessDao dao = new ProcessDao(getDatabase());
 		for (Long processId : processIds) {
-			BaseDescriptor d = dao.getDescriptor(processId);
+			ProcessDescriptor d = dao.getDescriptor(processId);
 			if (d != null)
 				results.add(d);
 		}
 		return results;
-	}
-
-	public List<BaseDescriptor> whereUsed(Flow flow) {
-		return new FlowUseSearch(getEntityFactory()).findUses(flow);
 	}
 
 }

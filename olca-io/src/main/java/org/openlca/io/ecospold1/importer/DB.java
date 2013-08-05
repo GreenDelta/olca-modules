@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
@@ -52,7 +52,7 @@ class DB {
 		if (category != null)
 			return category;
 		try {
-			CategoryDao dao = new CategoryDao(database.getEntityFactory());
+			CategoryDao dao = new CategoryDao(database);
 			dao.getRootCategories(type);
 			Category parent = null;
 			if (parentName != null) {
@@ -166,8 +166,7 @@ class DB {
 
 	public <T extends RootEntity> T get(Class<T> type, String id) {
 		try {
-			RootEntityDao<T> dao = new RootEntityDao<>(type,
-					database.getEntityFactory());
+			BaseEntityDao<T> dao = new BaseEntityDao<>(type, database);
 			return dao.getForRefId(id);
 		} catch (Exception e) {
 			log.error("Failed to query database for " + type + " id=" + id, e);

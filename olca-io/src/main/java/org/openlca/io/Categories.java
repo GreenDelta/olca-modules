@@ -30,8 +30,8 @@ public class Categories {
 			child.setName(childName);
 			child.setRefId(UUID.randomUUID().toString());
 			child.setParentCategory(parent);
-			parent.add(child);
-			CategoryDao dao = new CategoryDao(database.getEntityFactory());
+			parent.getChildCategories().add(child);
+			CategoryDao dao = new CategoryDao(database);
 			dao.insert(child);
 			database.createDao(Category.class).update(parent);
 			return child;
@@ -81,7 +81,7 @@ public class Categories {
 		if (database == null || type == null || name == null)
 			return null;
 		try {
-			CategoryDao dao = new CategoryDao(database.getEntityFactory());
+			CategoryDao dao = new CategoryDao(database);
 			for (Category root : dao.getRootCategories(type)) {
 				if (StringUtils.equalsIgnoreCase(root.getName(), name))
 					return root;

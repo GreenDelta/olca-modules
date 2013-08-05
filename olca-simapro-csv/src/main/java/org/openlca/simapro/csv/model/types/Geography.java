@@ -6,9 +6,6 @@ import java.util.Map;
 
 /**
  * Enumeration of possible locations
- * 
- * @author Sebastian Greve
- * 
  */
 public enum Geography {
 

@@ -5,36 +5,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.EntityManagerFactory;
-
 public interface IDao<T> {
 
-	EntityManagerFactory getEntityFactory();
+	boolean contains(long id);
 
-	boolean contains(long id) throws Exception;
+	void delete(T entity);
 
-	void delete(T entity) throws Exception;
+	void deleteAll(Collection<T> entities);
 
-	void deleteAll(Collection<T> entities) throws Exception;
+	T update(T entity);
 
-	T update(T entity) throws Exception;
+	T insert(T entity);
 
-	T insert(T entity) throws Exception;
+	T getForId(long id);
 
-	T getForId(long id) throws Exception;
+	List<T> getForIds(Set<Long> ids);
 
-	List<T> getForIds(Set<Long> ids) throws Exception;
+	List<T> getAll();
 
-	List<T> getAll() throws Exception;
+	List<T> getAll(String jpql, Map<String, ? extends Object> parameters);
 
-	List<T> getAll(String jpql, Map<String, ? extends Object> parameters)
-			throws Exception;
+	T getFirst(String jpql, Map<String, ? extends Object> parameters);
 
-	T getFirst(String jpql, Map<String, ? extends Object> parameters)
-			throws Exception;
+	long getCount(String jpql, Map<String, Object> parameters);
 
-	long getCount(String jpql, Map<String, Object> parameters) throws Exception;
-
-	void deleteAll() throws Exception;
+	void deleteAll();
 
 }

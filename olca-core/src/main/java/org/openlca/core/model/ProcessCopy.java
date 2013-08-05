@@ -20,6 +20,7 @@ class ProcessCopy {
 		other.setDescription(self.getDescription());
 		other.setLocation(self.getLocation());
 		other.setProcessType(self.getProcessType());
+		other.setInfrastructureProcess(self.isInfrastructureProcess());
 		other.setDocumentation(self.getDocumentation().clone());
 	}
 

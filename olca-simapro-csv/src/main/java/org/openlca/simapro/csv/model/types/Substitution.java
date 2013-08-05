@@ -2,9 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible substitution allocation
- * 
- * @author Sebastian Greve
- * 
  */
 public enum Substitution {
 

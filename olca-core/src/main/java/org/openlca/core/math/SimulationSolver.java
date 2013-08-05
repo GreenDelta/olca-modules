@@ -31,7 +31,7 @@ public class SimulationSolver {
 	}
 
 	/** TODO: allocation method = null means 'as defined in processes' */
-	public void setUp(AllocationMethod allocationMethod) throws Exception {
+	public void setUp(AllocationMethod allocationMethod) {
 		matrix = SimulationMatrix.create(system);
 		result = new SimulationResult(matrix.getInventoryMatrix()
 				.getFlowIndex());
@@ -48,7 +48,7 @@ public class SimulationSolver {
 
 	/** TODO: allocation method = null means 'as defined in processes' */
 	public void setUp(AllocationMethod allocationMethod,
-			ImpactMethodDescriptor methodDescriptor) throws Exception {
+			ImpactMethodDescriptor methodDescriptor) {
 		setUp(allocationMethod);
 		ImpactMatrixBuilder builder = new ImpactMatrixBuilder(database);
 		impactMatrix = builder.build(methodDescriptor, matrix

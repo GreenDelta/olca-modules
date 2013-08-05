@@ -4,9 +4,6 @@ package org.openlca.simapro.csv.model;
 /**
  * This class represents a literature reference entry in the process
  * documentation
- * 
- * @author Sebastian Greve
- * 
  */
 public class SPLiteratureReferenceEntry {
 

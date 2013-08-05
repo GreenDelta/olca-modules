@@ -3,3 +3,5 @@ target
 /derby.log
 .idea
 olca-core.iml
+/.classpath
+/.gitignore

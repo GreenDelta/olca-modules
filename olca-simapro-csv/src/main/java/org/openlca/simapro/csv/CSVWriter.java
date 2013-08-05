@@ -50,10 +50,6 @@ import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
 /**
  * The CSV writer creates a new SimaPro CSV file and writes the given data set
  * into it
- * 
- * @author Sebastian Greve
- * @author Imo Graf
- * 
  */
 public class CSVWriter {
 

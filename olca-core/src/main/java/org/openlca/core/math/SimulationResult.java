@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public class SimulationResult implements IResultData {
@@ -72,8 +74,11 @@ public class SimulationResult implements IResultData {
 	}
 
 	@Override
-	public Flow[] getFlows() {
-		return flowIndex.getFlows();
+	public FlowDescriptor[] getFlows() {
+		List<FlowDescriptor> descriptors = new ArrayList<>();
+		for (Flow flow : flowIndex.getFlows())
+			descriptors.add(Descriptors.toDescriptor(flow));
+		return descriptors.toArray(new FlowDescriptor[descriptors.size()]);
 	}
 
 	@Override

@@ -2,10 +2,6 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of SimaPro categories
- * 
- * @author Sebastian Greve
- * @author Imo Graf
- * 
  */
 public enum ProcessCategory {
 

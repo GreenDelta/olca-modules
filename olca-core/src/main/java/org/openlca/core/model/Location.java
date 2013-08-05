@@ -14,11 +14,11 @@ public class Location extends RootEntity {
 	private String code;
 
 	@Column(name = "latitude")
-	private double latitude;
+	private double latitude; 
 
 	@Column(name = "longitude")
 	private double longitude;
-
+	
 	public String getCode() {
 		return code;
 	}
