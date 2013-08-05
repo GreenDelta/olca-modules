@@ -4,6 +4,7 @@ import org.openlca.core.indices.LongPair;
 import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.MatrixFactory;
+import org.openlca.core.results.InventoryResult;
 
 public class InventorySolver {
 

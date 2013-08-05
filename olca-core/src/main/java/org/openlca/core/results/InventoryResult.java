@@ -1,4 +1,4 @@
-package org.openlca.core.matrices;
+package org.openlca.core.results;
 
 import org.openlca.core.indices.FlowIndex;
 import org.openlca.core.indices.LongIndex;
@@ -25,27 +25,27 @@ public class InventoryResult {
 	private double[] impactResults;
 	private double[] scalingFactors;
 
-	void setProductIndex(ProductIndex productIndex) {
+	public void setProductIndex(ProductIndex productIndex) {
 		this.productIndex = productIndex;
 	}
 
-	void setFlowIndex(FlowIndex flowIndex) {
+	public void setFlowIndex(FlowIndex flowIndex) {
 		this.flowIndex = flowIndex;
 	}
 
-	void setImpactIndex(LongIndex impactIndex) {
+	public void setImpactIndex(LongIndex impactIndex) {
 		this.impactIndex = impactIndex;
 	}
 
-	void setFlowResults(double[] flowResults) {
+	public void setFlowResults(double[] flowResults) {
 		this.flowResults = flowResults;
 	}
 
-	void setImpactResults(double[] impactResults) {
+	public void setImpactResults(double[] impactResults) {
 		this.impactResults = impactResults;
 	}
 
-	void setScalingFactors(double[] scalingFactors) {
+	public void setScalingFactors(double[] scalingFactors) {
 		this.scalingFactors = scalingFactors;
 	}
 
