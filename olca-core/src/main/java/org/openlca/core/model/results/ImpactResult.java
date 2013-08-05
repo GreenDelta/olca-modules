@@ -33,25 +33,25 @@ public class ImpactResult extends CategorizedEntity {
 	@JoinColumn(name = "f_lciaresult")
 	private List<ImpactCategoryResult> lciaCategoryResults = new ArrayList<>();
 
-	@Column(name = "lciamethod")
+	@Column(name = "lcia_method")
 	private String lciaMethod;
 
-	@Column(name = "nwset")
+	@Column(name = "nw_set")
 	private String normalizationWeightingSet;
 
 	@Column(name = "product")
 	private String product;
 
-	@Column(name = "productsystem")
+	@Column(name = "product_system")
 	private String productSystem;
 
-	@Column(name = "targetamount")
+	@Column(name = "target_amount")
 	private double targetAmount;
 
 	@Column(name = "unit")
 	private String unit;
 
-	@Column(name = "weightingunit")
+	@Column(name = "weighting_unit")
 	private String weightingUnit;
 
 	public List<ImpactCategoryResult> getLCIACategoryResults() {

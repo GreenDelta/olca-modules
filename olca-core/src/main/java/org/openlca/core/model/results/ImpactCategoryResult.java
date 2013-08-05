@@ -26,10 +26,10 @@ public class ImpactCategoryResult extends AbstractEntity {
 	@Column(name = "category")
 	private String category;
 
-	@Column(name = "normalizationfactor")
+	@Column(name = "normalization_factor")
 	private double normalizationFactor;
 
-	@Column(name = "standarddeviation")
+	@Column(name = "standard_deviation")
 	private double standardDeviation;
 
 	@Column(name = "unit")
@@ -38,10 +38,10 @@ public class ImpactCategoryResult extends AbstractEntity {
 	@Column(name = "value")
 	private double value;
 
-	@Column(name = "weightingfactor")
+	@Column(name = "weighting_factor")
 	private double weightingFactor;
 
-	@Column(name = "weightingunit")
+	@Column(name = "weighting_unit")
 	private String weightingUnit;
 
 	public void setCategory(String category) {

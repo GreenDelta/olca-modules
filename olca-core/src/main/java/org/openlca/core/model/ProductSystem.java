@@ -14,10 +14,11 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -36,10 +37,6 @@ public class ProductSystem extends CategorizedEntity implements
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
 	private final List<Parameter> parameters = new ArrayList<>();
-
-	@OneToMany
-	@JoinTable(name = "tbl_product_system_processes", joinColumns = { @JoinColumn(name = "f_product_system") }, inverseJoinColumns = { @JoinColumn(name = "f_process") })
-	private final List<Process> processes = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_product_system")
@@ -64,6 +61,11 @@ public class ProductSystem extends CategorizedEntity implements
 	@JoinColumn(name = "f_target_unit")
 	private Unit targetUnit;
 
+	@ElementCollection
+	@Column(name = "f_process")
+	@CollectionTable(name = "tbl_product_system_processes", joinColumns = { @JoinColumn(name = "f_product_system") })
+	private final List<Long> processes = new ArrayList<>();
+
 	@Override
 	public ProductSystem clone() {
 		final ProductSystem productSystem = new ProductSystem();
@@ -74,21 +76,19 @@ public class ProductSystem extends CategorizedEntity implements
 		productSystem.setReferenceExchange(getReferenceExchange());
 		productSystem.setReferenceProcess(getReferenceProcess());
 		productSystem.setTargetAmount(getTargetAmount());
-		for (final Process process : getProcesses()) {
+		for (Long process : getProcesses())
 			productSystem.getProcesses().add(process);
-		}
-		for (final ProcessLink processLink : getProcessLinks()) {
+		for (ProcessLink processLink : getProcessLinks())
 			productSystem.getProcessLinks().add(processLink.clone());
-		}
-		for (final Parameter parameter : getParameters()) {
-			// TODO: clone product system parameters
-			// final Parameter p = new Parameter(UUID.randomUUID().toString(),
-			// new Expression(parameter.getExpression().getFormula(),
-			// parameter.getExpression().getValue()),
-			// ParameterType.PRODUCT_SYSTEM, productSystem.getRefId());
-			// p.setDescription(parameter.getDescription());
-			// p.setName(parameter.getName());
-			// productSystem.getParameters().add(p);
+		for (Parameter parameter : getParameters()) {
+			Parameter p = new Parameter();
+			p.setDescription(parameter.getDescription());
+			p.setName(parameter.getName());
+			p.setType(ParameterType.PRODUCT_SYSTEM);
+			p.getExpression().setValue(parameter.getExpression().getValue());
+			p.getExpression()
+					.setFormula(parameter.getExpression().getFormula());
+			productSystem.getParameters().add(p);
 		}
 		productSystem
 				.setTargetFlowPropertyFactor(getTargetFlowPropertyFactor());
@@ -109,12 +109,10 @@ public class ProductSystem extends CategorizedEntity implements
 	 *         </p>
 	 */
 	public ProcessLink[] getIncomingLinks(long processId) {
-		final List<ProcessLink> incoming = new ArrayList<>();
-		for (final ProcessLink link : getProcessLinks(processId)) {
-			if (link.getRecipientProcess().getRefId().equals(processId)) {
+		List<ProcessLink> incoming = new ArrayList<>();
+		for (ProcessLink link : getProcessLinks(processId))
+			if (link.getRecipientProcess() == processId)
 				incoming.add(link);
-			}
-		}
 		return incoming.toArray(new ProcessLink[incoming.size()]);
 	}
 
@@ -131,12 +129,10 @@ public class ProductSystem extends CategorizedEntity implements
 	 *         </p>
 	 */
 	public ProcessLink[] getOutgoingLinks(long processId) {
-		final List<ProcessLink> outgoing = new ArrayList<>();
-		for (final ProcessLink link : getProcessLinks(processId)) {
-			if (link.getProviderProcess().getRefId().equals(processId)) {
+		List<ProcessLink> outgoing = new ArrayList<>();
+		for (ProcessLink link : getProcessLinks(processId))
+			if (link.getProviderProcess() == processId)
 				outgoing.add(link);
-			}
-		}
 		return outgoing.toArray(new ProcessLink[outgoing.size()]);
 	}
 
@@ -152,13 +148,11 @@ public class ProductSystem extends CategorizedEntity implements
 	 *         </p>
 	 */
 	public ProcessLink[] getProcessLinks(long processId) {
-		final List<ProcessLink> processLinks = new ArrayList<>();
-		for (final ProcessLink processLink : getProcessLinks()) {
-			if (processLink.getProviderProcess().getId() == processId
-					|| processLink.getRecipientProcess().getId() == processId) {
+		List<ProcessLink> processLinks = new ArrayList<>();
+		for (ProcessLink processLink : getProcessLinks())
+			if (processLink.getProviderProcess() == processId
+					|| processLink.getRecipientProcess() == processId)
 				processLinks.add(processLink);
-			}
-		}
 		return processLinks.toArray(new ProcessLink[processLinks.size()]);
 	}
 
@@ -193,27 +187,11 @@ public class ProductSystem extends CategorizedEntity implements
 				* targetUnit.getConversionFactor();
 	}
 
-	/**
-	 * Converts all exchanges of all processes to their reference flow property
-	 * and unit
-	 */
-	public void normalize() {
-		for (final Process process : getProcesses()) {
-			for (final Exchange exchange : process.getExchanges()) {
-				exchange.getResultingAmount().setValue(
-						exchange.getConvertedResult());
-				exchange.getResultingAmount().setFormula(
-						Double.toString(exchange.getResultingAmount()
-								.getValue()));
-			}
-		}
-	}
-
 	public List<Parameter> getParameters() {
 		return parameters;
 	}
 
-	public List<Process> getProcesses() {
+	public List<Long> getProcesses() {
 		return processes;
 	}
 

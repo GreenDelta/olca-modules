@@ -48,7 +48,7 @@ CREATE TABLE tbl_actors (
 	website VARCHAR(255), 
 	address VARCHAR(255), 
 	description CLOB(64 K), 
-	zipcode VARCHAR(255), 
+	zip_code VARCHAR(255), 
 	name VARCHAR(255), 
 	f_category BIGINT, 
 	email VARCHAR(255), 
@@ -360,8 +360,8 @@ CREATE TABLE tbl_inventory_results (
 	id BIGINT NOT NULL, 
 	target_amount DOUBLE, 
 	product VARCHAR(255),
-	productsystem VARCHAR(255), 
-	calculationmethod VARCHAR(255), 
+	product_system VARCHAR(255), 
+	calculation_method VARCHAR(255), 
 	unit VARCHAR(255), 
 	PRIMARY KEY (id)
 	
@@ -378,8 +378,8 @@ CREATE TABLE tbl_impact_results (
 	product_system VARCHAR(255), 
 	unit VARCHAR(255), 
 	impact_method VARCHAR(255), 
-	nwset VARCHAR(255), 
-	weightingunit VARCHAR(255), 
+	nw_set VARCHAR(255), 
+	weighting_unit VARCHAR(255), 
 	description CLOB(64 K), 
 	f_category BIGINT, 
 	name VARCHAR(255), 
@@ -396,11 +396,11 @@ CREATE TABLE tbl_impact_category_results (
 	id VARCHAR(36) NOT NULL, 
 	category VARCHAR(255), 
 	unit VARCHAR(255), 
-	weightingunit VARCHAR(255), 
+	weighting_unit VARCHAR(255), 
 	value double, 
-	standarddeviation double, 
-	normalizationfactor double, 
-	weightingfactor double, 
+	standard_deviation double, 
+	normalization_factor double, 
+	weighting_factor double, 
 	f_impact_result VARCHAR(36), 
 	
 	PRIMARY KEY (id)
@@ -509,7 +509,6 @@ CREATE TABLE tbl_projects (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
-	product_systems CLOB(64 K), 
 	creation_date DATE, 
 	description CLOB(64 K), 
 	f_category BIGINT, 
@@ -521,6 +520,16 @@ CREATE TABLE tbl_projects (
 	
 	PRIMARY KEY (id)	
 );
+
+CREATE TABLE tbl_project_product_systems (
+
+	f_project BIGINT NOT NULL, 
+	f_product_system BIGINT NOT NULL, 
+	
+	PRIMARY KEY (f_project, f_product_system)
+
+);
+
 
 CREATE TABLE tbl_mappings (
 	id VARCHAR(50) NOT NULL,
