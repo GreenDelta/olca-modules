@@ -47,14 +47,8 @@ public class Category extends RootEntity {
 		this.modelType = modelType;
 	}
 
-	public void add(Category childCategory) {
-		if (!childCategories.contains(childCategory)) {
-			childCategories.add(childCategory);
-		}
-	}
-
-	public Category[] getChildCategories() {
-		return childCategories.toArray(new Category[childCategories.size()]);
+	public List<Category> getChildCategories() {
+		return childCategories;
 	}
 
 	@Override
@@ -67,7 +61,7 @@ public class Category extends RootEntity {
 		clone.setRefId(UUID.randomUUID().toString());
 		for (Category child : getChildCategories()) {
 			Category childCopy = child.clone();
-			clone.add(childCopy);
+			clone.getChildCategories().add(childCopy);
 			childCopy.setParentCategory(clone);
 		}
 		return clone;
@@ -75,10 +69,6 @@ public class Category extends RootEntity {
 
 	public Category getParentCategory() {
 		return parentCategory;
-	}
-
-	public void remove(Category childCategory) {
-		childCategories.remove(childCategory);
 	}
 
 	public void setParentCategory(Category parentCategory) {

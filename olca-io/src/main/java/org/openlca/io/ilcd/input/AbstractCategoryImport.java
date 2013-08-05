@@ -71,7 +71,7 @@ abstract class AbstractCategoryImport<C> {
 	private Category findCategory(Category rootCategory, C ilcdCategory) {
 		if (equals(rootCategory, ilcdCategory))
 			return rootCategory;
-		Category[] categories = rootCategory.getChildCategories();
+		List<Category> categories = rootCategory.getChildCategories();
 		Category equalCategory = null;
 		for (Category category : categories) {
 			if (equals(category, ilcdCategory)) {
@@ -93,7 +93,7 @@ abstract class AbstractCategoryImport<C> {
 		try {
 			Category newCategory = createNew(ilcdCategory);
 			newCategory.setParentCategory(parentCategory);
-			parentCategory.add(newCategory);
+			parentCategory.getChildCategories().add(newCategory);
 			dao.insert(newCategory);
 			dao.update(parentCategory);
 			return newCategory;

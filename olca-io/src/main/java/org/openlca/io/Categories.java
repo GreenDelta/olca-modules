@@ -30,7 +30,7 @@ public class Categories {
 			child.setName(childName);
 			child.setRefId(UUID.randomUUID().toString());
 			child.setParentCategory(parent);
-			parent.add(child);
+			parent.getChildCategories().add(child);
 			CategoryDao dao = new CategoryDao(database);
 			dao.insert(child);
 			database.createDao(Category.class).update(parent);

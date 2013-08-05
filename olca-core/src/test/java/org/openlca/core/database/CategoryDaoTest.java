@@ -32,14 +32,14 @@ public class CategoryDaoTest {
 		Category parent = create();
 		dao.insert(parent);
 		Category child = create();
-		parent.add(child);
+		parent.getChildCategories().add(child);
 		child.setParentCategory(parent);
 		dao.update(parent);
 		TestSession.emptyCache();
 		Category alias = dao.getForId(parent.getId());
-		Assert.assertEquals(1, alias.getChildCategories().length);
+		Assert.assertEquals(1, alias.getChildCategories().size());
 		Assert.assertEquals(child.getRefId(),
-				alias.getChildCategories()[0].getRefId());
+				alias.getChildCategories().get(0).getRefId());
 		dao.delete(alias);
 		Assert.assertNull(dao.getForId(child.getId()));
 	}
@@ -48,7 +48,7 @@ public class CategoryDaoTest {
 	public void testFindRoot() {
 		Category parent = create();
 		Category child = create();
-		parent.add(child);
+		parent.getChildCategories().add(child);
 		child.setParentCategory(parent);
 		dao.insert(parent);
 		TestSession.emptyCache();
