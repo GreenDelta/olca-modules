@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.input;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
@@ -105,7 +106,7 @@ public class SystemImport {
 			Process p = processImport.run(processId);
 			if (p != null) {
 				result.put(processId, p);
-				system.getProcesses().add(p);
+				system.getProcesses().add(p.getId());
 			}
 		}
 		return result;
@@ -120,7 +121,7 @@ public class SystemImport {
 		org.openlca.ilcd.processes.Exchange iExchange = ilcdProcessBag
 				.getExchanges().get(0);
 		String flowId = iExchange.getFlow().getUuid();
-		Exchange refExchange = findExchange(refProc, flowId, false);
+		Exchange refExchange = findRefExchange(refProc, flowId, false);
 		system.setReferenceExchange(refExchange);
 		system.setTargetAmount(iExchange.getResultingAmount());
 		Flow flow = refExchange.getFlow();
@@ -128,10 +129,13 @@ public class SystemImport {
 		system.setTargetUnit(getRefUnit(flow.getReferenceFlowProperty()));
 	}
 
-	private Exchange findExchange(Process process, String flowId, boolean input) {
-		for (Exchange e : process.getExchanges()) {
-			if (e.getFlow().getRefId().equals(flowId) && e.isInput() == input)
-				return e;
+	private Exchange findRefExchange(Process refProc, String flowId,
+			boolean input) {
+		for (Exchange exchange : refProc.getExchanges()) {
+			if (exchange.getFlow() == null || exchange.isInput() != input)
+				continue;
+			if (Objects.equals(exchange.getFlow().getRefId(), flowId))
+				return exchange;
 		}
 		return null;
 	}
@@ -150,27 +154,47 @@ public class SystemImport {
 		ProductModel model = ilcdProcessBag.getProductModel();
 		for (Connector con : model.getConnections()) {
 			ProcessLink link = new ProcessLink();
+
+			// provider process
 			Process provider = processes.get(con.getOrigin());
-			link.setProviderProcess(provider);
+			if (provider == null)
+				continue;
+			link.setProviderProcess(provider.getId());
+
+			// provider output flow
 			Product product = con.getProducts().get(0);
 			String flowId = product.getUuid();
-			link.setProviderOutput(findExchange(provider, flowId, false));
+			Flow outFlow = findFlow(provider, flowId, false);
+			if (outFlow == null)
+				continue;
+			link.setProviderOutput(outFlow.getId());
+
+			// recipient process
 			ConsumedBy consumedBy = product.getConsumedBy();
 			Process recipient = processes.get(consumedBy.getProcessId());
-			link.setRecipientProcess(recipient);
-			link.setRecipientInput(findExchange(recipient, flowId, true));
-			if (valid(link))
-				system.getProcessLinks().add(link);
-			else
-				log.warn("Could not add process link {} - invalid", link);
+			if (recipient == null)
+				continue;
+			link.setRecipientProcess(recipient.getId());
+
+			// recipient input flow
+			Flow inFlow = findFlow(recipient, flowId, true);
+			if (inFlow == null || !Objects.equals(outFlow, inFlow))
+				continue;
+			link.setRecipientInput(inFlow.getId());
+			system.getProcessLinks().add(link);
 		}
 	}
 
-	private boolean valid(ProcessLink link) {
-		return link.getProviderProcess() != null
-				&& link.getProviderOutput() != null
-				&& link.getRecipientProcess() != null
-				&& link.getRecipientInput() != null;
+	private Flow findFlow(Process process, String flowRefId, boolean input) {
+		if (process == null || flowRefId == null)
+			return null;
+		for (Exchange e : process.getExchanges()) {
+			if (e.getFlow() == null || e.isInput() != input)
+				continue;
+			if (Objects.equals(e.getFlow().getRefId(), flowRefId))
+				return e.getFlow();
+		}
+		return null;
 	}
 
 	private void addParameters() {
