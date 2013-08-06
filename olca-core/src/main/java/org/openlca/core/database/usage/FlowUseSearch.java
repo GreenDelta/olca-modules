@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -58,9 +59,8 @@ class FlowUseSearch implements IUseSearch<FlowDescriptor> {
 	}
 
 	private List<BaseDescriptor> findInProcesses(FlowDescriptor flow) {
-		String jpql = "select p.id, p.name, p.description, loc.code "
-				+ "from Process p join p.exchanges e left join p.location "
-				+ "loc where e.flow.id = :flowId";
+		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
+				+ "from Process p join p.exchanges e where e.flow.id = :flowId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
 					jpql, Collections.singletonMap("flowId", flow.getId()));
@@ -70,7 +70,10 @@ class FlowUseSearch implements IUseSearch<FlowDescriptor> {
 				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
-				d.setLocationCode((String) result[3]);
+				d.setProcessType((ProcessType) result[3]);
+				d.setInfrastructureProcess((Boolean) result[4]);
+				d.setLocation((Long) result[5]);
+				d.setCategory((Long) result[6]);
 				descriptors.add(d);
 			}
 			return descriptors;

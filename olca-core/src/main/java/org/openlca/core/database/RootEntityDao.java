@@ -4,14 +4,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.persistence.Table;
+
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.util.Strings;
 
 public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 		extends BaseDao<T> {
 
 	private Class<V> descriptorType;
+	private String entityTable;
+
+	Class<V> getDescriptorType() {
+		return descriptorType;
+	}
 
 	public RootEntityDao(Class<T> entityType, Class<V> descriptorType,
 			IDatabase database) {
@@ -20,55 +28,48 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 	}
 
 	public V getDescriptor(long id) {
-		String jpql = getDescriptorQuery() + " where e.id = :id";
-		try {
-			Object[] result = Query.on(getDatabase()).getFirst(Object[].class,
-					jpql, Collections.singletonMap("id", id));
-			return createDescriptor(result);
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to get descriptor for "
-					+ id, e);
-			return null;
-		}
+		String sql = getDescriptorQuery() + " where id = ?";
+		Object[] result = selectFirst(sql, getDescriptorFields(),
+				Collections.singletonList((Object) id));
+		return createDescriptor(result);
 	}
 
 	public List<V> getDescriptors(List<Long> ids) {
-		String jpql = getDescriptorQuery() + " where e.id in :ids";
-		try {
-			List<Object[]> results = Query.on(getDatabase()).getAll(
-					Object[].class, jpql, Collections.singletonMap("ids", ids));
-			return createDescriptors(results);
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to get descriptor for "
-					+ ids, e);
-			return null;
-		}
+		String sql = getDescriptorQuery() + " where id in ?";
+		Object arg = "(" + Strings.join(ids, ',') + ")";
+		List<Object[]> results = selectAll(sql, getDescriptorFields(),
+				Collections.singletonList(arg));
+		return createDescriptors(results);
 	}
 
 	/**
 	 * Returns all descriptors of the entity type of this DAO from the database.
 	 */
 	public List<V> getDescriptors() {
-		try {
-			String jpql = getDescriptorQuery();
-			List<Object[]> results = Query.on(getDatabase()).getAll(
-					Object[].class, jpql);
-			return createDescriptors(results);
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log,
-					"failed to query all descriptors for " + entityType, e);
-			return Collections.emptyList();
-		}
+		String sql = getDescriptorQuery();
+		List<Object[]> results = selectAll(sql, getDescriptorFields(),
+				Collections.emptyList());
+		return createDescriptors(results);
+	}
+
+	protected final String getDescriptorQuery() {
+		return "select " + Strings.join(getDescriptorFields(), ',') + " from "
+				+ getEntityTable();
+	}
+
+	private String getEntityTable() {
+		if (entityTable == null)
+			entityTable = entityType.getClass().getAnnotation(Table.class)
+					.name();
+		return entityTable;
 	}
 
 	/**
-	 * Returns the default descriptor query. The query can be overwritten by
-	 * subclasses. But as this query is used in other queries it must be assured
-	 * that the name of the respective entity type in the query is 'e'.
+	 * Returns all fields that should be queried by the descriptor query.
+	 * Subclass may override to provide more information. Use sql column names !
 	 */
-	protected String getDescriptorQuery() {
-		return "select e.id, e.name, e.description from "
-				+ entityType.getSimpleName() + " e ";
+	protected String[] getDescriptorFields() {
+		return new String[] { "id", "name", "description" };
 	}
 
 	/**

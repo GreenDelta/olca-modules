@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -57,13 +58,12 @@ class ActorUseSearch implements IUseSearch<ActorDescriptor> {
 
 	private List<BaseDescriptor> findInProcesses(ActorDescriptor actor) {
 		try {
-			String jpql = "select p.id, p.name, p.description, loc.code "
-					+ " from Process p left join p.location loc "
-					+ " left join p.documentation doc "
-					+ " where doc.reviewer.id = :actorId "
-					+ " or doc.dataSetOwner.id = :actorId "
-					+ " or doc.dataGenerator.id = :actorId "
-					+ " or doc.dataDocumentor.id = :actorId";
+			String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
+					+ " from Process p "
+					+ " where p.documentation.reviewer.id = :actorId "
+					+ " or p.documentation.dataSetOwner.id = :actorId "
+					+ " or p.documentation.dataGenerator.id = :actorId "
+					+ " or p.documentation.dataDocumentor.id = :actorId";
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
 					jpql, Collections.singletonMap("actorId", actor.getId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
@@ -72,7 +72,10 @@ class ActorUseSearch implements IUseSearch<ActorDescriptor> {
 				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
-				d.setLocationCode((String) result[3]);
+				d.setProcessType((ProcessType) result[3]);
+				d.setInfrastructureProcess((Boolean) result[4]);
+				d.setLocation((Long) result[5]);
+				d.setCategory((Long) result[6]);
 				descriptors.add(d);
 			}
 			return descriptors;
@@ -81,5 +84,4 @@ class ActorUseSearch implements IUseSearch<ActorDescriptor> {
 			return Collections.emptyList();
 		}
 	}
-
 }

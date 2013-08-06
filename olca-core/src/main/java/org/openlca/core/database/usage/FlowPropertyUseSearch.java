@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
@@ -36,7 +37,7 @@ class FlowPropertyUseSearch implements IUseSearch<FlowPropertyDescriptor> {
 	}
 
 	private List<BaseDescriptor> findInFlows(FlowPropertyDescriptor prop) {
-		String jpql = "select f.id, f.name, f.description from Flow f "
+		String jpql = "select f.id, f.name, f.description, f.flowType, f.location.id, f.category.id from Flow f "
 				+ "join f.flowPropertyFactors fp where fp.flowProperty.id = :flowPropertyId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
@@ -48,6 +49,9 @@ class FlowPropertyUseSearch implements IUseSearch<FlowPropertyDescriptor> {
 				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
+				d.setFlowType((FlowType) result[3]);
+				d.setLocation((Long) result[4]);
+				d.setCategory((Long) result[5]);
 				descriptors.add(d);
 			}
 			return descriptors;

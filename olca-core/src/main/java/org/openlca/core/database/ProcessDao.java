@@ -12,9 +12,9 @@ public class ProcessDao extends
 	}
 
 	@Override
-	protected String getDescriptorQuery() {
-		return "select e.id, e.name, e.description, e.processType, e.infrastructureProcess, loc.code "
-				+ "from Process e left join e.location loc ";
+	protected String[] getDescriptorFields() {
+		return new String[] { "id", "name", "description", "process_type",
+				"infrastructure_process", "f_category", "f_location" };
 	}
 
 	@Override
@@ -27,7 +27,8 @@ public class ProcessDao extends
 		d.setDescription((String) queryResult[2]);
 		d.setProcessType((ProcessType) queryResult[3]);
 		d.setInfrastructureProcess((Boolean) queryResult[4]);
-		d.setLocationCode((String) queryResult[5]);
+		d.setCategory((Long) queryResult[5]);
+		d.setLocation((Long) queryResult[6]);
 		return d;
 	}
 

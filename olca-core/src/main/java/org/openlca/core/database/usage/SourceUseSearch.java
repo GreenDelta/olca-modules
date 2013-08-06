@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
@@ -24,11 +25,10 @@ class SourceUseSearch implements IUseSearch<SourceDescriptor> {
 
 	@Override
 	public List<BaseDescriptor> findUses(SourceDescriptor source) {
-		String jpql = "select p.id, p.name, p.description, loc.code "
-				+ " from Process p left join p.location loc "
-				+ " left join p.documentation doc "
+		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
+				+ " from Process p "
 				+ " left join doc.sources s"
-				+ " where doc.publication.id = :sourceId or s.id = :sourceId";
+				+ " where p.documentation.publication.id = :sourceId or s.id = :sourceId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
 					jpql, Collections.singletonMap("sourceId", source.getId()));
@@ -38,7 +38,10 @@ class SourceUseSearch implements IUseSearch<SourceDescriptor> {
 				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
-				d.setLocationCode((String) result[3]);
+				d.setProcessType((ProcessType) result[3]);
+				d.setInfrastructureProcess((Boolean) result[4]);
+				d.setLocation((Long) result[5]);
+				d.setCategory((Long) result[6]);
 				descriptors.add(d);
 			}
 			return descriptors;

@@ -18,9 +18,9 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 	}
 
 	@Override
-	protected String getDescriptorQuery() {
-		return "select e.id, e.name, e.description, e.flowType, loc.code from Flow e "
-				+ "left join e.location loc ";
+	protected String[] getDescriptorFields() {
+		return new String[] { "id", "name", "description", "flow_type",
+				"f_category", "f_location" };
 	}
 
 	@Override
@@ -32,8 +32,9 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			descriptor.setId((Long) queryResult[0]);
 			descriptor.setName((String) queryResult[1]);
 			descriptor.setDescription((String) queryResult[2]);
-			descriptor.setFlowType((FlowType) queryResult[3]);
-			descriptor.setLocationCode((String) queryResult[4]);
+			descriptor.setFlowType(FlowType.valueOf((String) queryResult[3]));
+			descriptor.setCategory((Long) queryResult[4]);
+			descriptor.setLocation((Long) queryResult[5]);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log,
 					"failed to map values to flow descriptor", e);

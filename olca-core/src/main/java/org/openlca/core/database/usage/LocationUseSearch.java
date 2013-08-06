@@ -7,6 +7,7 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -36,7 +37,7 @@ class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 	}
 
 	private List<BaseDescriptor> findInFlows(BaseDescriptor location) {
-		String jpql = "select distinct f.id, f.name, f.description, f.flowType from Flow f"
+		String jpql = "select f.id, f.name, f.description, f.flowType, f.location.id, f.category.id from Flow f"
 				+ " where f.location.id = :locationId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
@@ -49,6 +50,8 @@ class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
 				d.setFlowType((FlowType) result[3]);
+				d.setLocation((Long) result[4]);
+				d.setCategory((Long) result[5]);
 				descriptors.add(d);
 			}
 			return descriptors;
@@ -59,8 +62,8 @@ class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 	}
 
 	private List<BaseDescriptor> findInProcesses(BaseDescriptor location) {
-		String jpql = "select distinct p.id, p.name, p.description, loc.code from Process p"
-				+ " left join p.location loc" + " where loc.id = :locationId";
+		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
+				+ " from Process p where p.location.id = :locationId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
 					jpql,
@@ -71,7 +74,10 @@ class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
-				d.setLocationCode((String) result[3]);
+				d.setProcessType((ProcessType) result[3]);
+				d.setInfrastructureProcess((Boolean) result[4]);
+				d.setLocation((Long) result[5]);
+				d.setCategory((Long) result[6]);
 				descriptors.add(d);
 			}
 			return descriptors;

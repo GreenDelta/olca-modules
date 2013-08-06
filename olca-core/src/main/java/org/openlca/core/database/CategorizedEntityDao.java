@@ -2,7 +2,6 @@ package org.openlca.core.database;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -10,10 +9,11 @@ import javax.persistence.TypedQuery;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
 import com.google.common.base.Optional;
 
-public class CategorizedEntityDao<T extends CategorizedEntity, V extends BaseDescriptor>
+public class CategorizedEntityDao<T extends CategorizedEntity, V extends CategorizedDescriptor>
 		extends RootEntityDao<T, V> {
 
 	public CategorizedEntityDao(Class<T> entityType, Class<V> descriptorType,
@@ -22,16 +22,18 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends BaseDes
 	}
 
 	public List<V> getDescriptors(Optional<Category> category) {
-		String jpql = getDescriptorQuery();
-		Map<String, Category> params = null;
+		String sql = getDescriptorQuery();
 		if (category.isPresent()) {
-			jpql += "where e.category = :category";
-			params = Collections.singletonMap("category", category.get());
+			sql += " where f_category = ?";
+			List<Object[]> results = selectAll(sql, getDescriptorFields(),
+					Collections.singletonList((Object) category.get().getId()));
+			return createDescriptors(results);
 		} else {
-			jpql += "where e.category is null";
-			params = Collections.emptyMap();
+			sql += " where f_category is null";
+			List<Object[]> results = selectAll(sql, getDescriptorFields(),
+					Collections.emptyList());
+			return createDescriptors(results);
 		}
-		return runDescriptorQuery(jpql, params);
 	}
 
 	public void updateCategory(BaseDescriptor model, Optional<Category> category) {
@@ -51,18 +53,6 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends BaseDes
 					+ entityType.getSimpleName(), e);
 		} finally {
 			em.close();
-		}
-	}
-
-	private List<V> runDescriptorQuery(String jpql, Map<String, Category> params) {
-		try {
-			List<Object[]> results = Query.on(getDatabase()).getAll(
-					Object[].class, jpql, params);
-			return createDescriptors(results);
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log,
-					"Failed to get descriptors for category " + params, e);
-			return Collections.emptyList();
 		}
 	}
 
