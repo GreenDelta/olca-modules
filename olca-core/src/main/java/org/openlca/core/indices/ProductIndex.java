@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A product index is used to map process products to rows and columns in
@@ -141,4 +142,7 @@ public class ProductIndex {
 		return productLinks.get(product);
 	}
 
+	public Set<LongPair> getLinkedInputs() {
+		return productLinks.keySet();
+	}
 }
