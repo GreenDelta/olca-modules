@@ -22,69 +22,46 @@ import javax.persistence.Table;
 @Table(name = "tbl_process_links")
 public class ProcessLink extends AbstractEntity implements Cloneable {
 
-	@Column(name = "f_provider_output")
-	private long providerOutput;
+	@Column(name = "f_flow")
+	private long flowId;
 
 	@Column(name = "f_provider_process")
-	private long providerProcess;
-
-	@Column(name = "f_recipient_input")
-	private long recipientInput;
+	private long providerProcessId;
 
 	@Column(name = "f_recipient_process")
-	private long recipientProcess;
-
-	public ProcessLink() {
-	}
+	private long recipientProcessId;
 
 	@Override
 	public ProcessLink clone() {
-		final ProcessLink processLink = new ProcessLink();
-		processLink.setProviderOutput(getProviderOutput());
-		processLink.setProviderProcess(getProviderProcess());
-		processLink.setRecipientInput(getRecipientInput());
-		processLink.setRecipientProcess(getRecipientProcess());
-		return processLink;
+		ProcessLink clone = new ProcessLink();
+		clone.setFlowId(getFlowId());
+		clone.setProviderProcessId(getProviderProcessId());
+		clone.setRecipientProcessId(getRecipientProcessId());
+		return clone;
 	}
 
-	public long getProviderOutput() {
-		return providerOutput;
+	public long getFlowId() {
+		return flowId;
 	}
 
-	public long getProviderProcess() {
-		return providerProcess;
+	public void setFlowId(long flowId) {
+		this.flowId = flowId;
 	}
 
-	public long getRecipientInput() {
-		return recipientInput;
+	public long getProviderProcessId() {
+		return providerProcessId;
 	}
 
-	public long getRecipientProcess() {
-		return recipientProcess;
+	public void setProviderProcessId(long providerProcessId) {
+		this.providerProcessId = providerProcessId;
 	}
 
-	public void setProviderOutput(long providerOutput) {
-		this.providerOutput = providerOutput;
+	public long getRecipientProcessId() {
+		return recipientProcessId;
 	}
 
-	public void setProviderProcess(long providerProcess) {
-		this.providerProcess = providerProcess;
-	}
-
-	public void setRecipientInput(long recipientInput) {
-		this.recipientInput = recipientInput;
-	}
-
-	public void setRecipientProcess(long recipientProcess) {
-		this.recipientProcess = recipientProcess;
-	}
-
-	@Override
-	public String toString() {
-		return "ProcessLink [providerOutput=" + providerOutput
-				+ ", providerProcess=" + providerProcess + ", recipientInput="
-				+ recipientInput + ", recipientProcess=" + recipientProcess
-				+ "]";
+	public void setRecipientProcessId(long recipientProcessId) {
+		this.recipientProcessId = recipientProcessId;
 	}
 
 }

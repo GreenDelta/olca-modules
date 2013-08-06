@@ -159,7 +159,7 @@ public class SystemImport {
 			Process provider = processes.get(con.getOrigin());
 			if (provider == null)
 				continue;
-			link.setProviderProcess(provider.getId());
+			link.setProviderProcessId(provider.getId());
 
 			// provider output flow
 			Product product = con.getProducts().get(0);
@@ -167,20 +167,19 @@ public class SystemImport {
 			Flow outFlow = findFlow(provider, flowId, false);
 			if (outFlow == null)
 				continue;
-			link.setProviderOutput(outFlow.getId());
+			link.setFlowId(outFlow.getId());
 
 			// recipient process
 			ConsumedBy consumedBy = product.getConsumedBy();
 			Process recipient = processes.get(consumedBy.getProcessId());
 			if (recipient == null)
 				continue;
-			link.setRecipientProcess(recipient.getId());
+			link.setRecipientProcessId(recipient.getId());
 
 			// recipient input flow
 			Flow inFlow = findFlow(recipient, flowId, true);
 			if (inFlow == null || !Objects.equals(outFlow, inFlow))
 				continue;
-			link.setRecipientInput(inFlow.getId());
 			system.getProcessLinks().add(link);
 		}
 	}

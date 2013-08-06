@@ -111,14 +111,13 @@ public class SystemExport {
 
 			// provider process
 			BaseDescriptor provider = processDao.getDescriptor(link
-					.getProviderProcess());
+					.getProviderProcessId());
 			if (provider == null)
 				continue;
 			connector.setOrigin(provider.getRefId());
 
 			// product flow
-			BaseDescriptor flow = flowDao.getDescriptor(link
-					.getProviderOutput());
+			BaseDescriptor flow = flowDao.getDescriptor(link.getFlowId());
 			if (flow == null)
 				continue;
 			Product product = new Product();
@@ -131,7 +130,7 @@ public class SystemExport {
 			product.setConsumedBy(consumedBy);
 			consumedBy.setFlowUUID(flow.getRefId());
 			BaseDescriptor recipient = processDao.getDescriptor(link
-					.getRecipientProcess());
+					.getRecipientProcessId());
 			if (recipient == null)
 				continue;
 			consumedBy.setProcessId(recipient.getRefId());
