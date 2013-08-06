@@ -59,7 +59,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 
 	private String getEntityTable() {
 		if (entityTable == null)
-			entityTable = entityType.getClass().getAnnotation(Table.class)
+			entityTable = entityType.getAnnotation(Table.class)
 					.name();
 		return entityTable;
 	}

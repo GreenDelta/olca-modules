@@ -1,5 +1,6 @@
 package org.openlca.core.database;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,8 +17,6 @@ import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.mysql.jdbc.Connection;
 
 public class BaseDao<T> implements IDao<T> {
 
@@ -308,12 +307,13 @@ public class BaseDao<T> implements IDao<T> {
 		List<Object[]> results = new ArrayList<>();
 		PreparedStatement statement = getStatement(conn, sql);
 		for (int i = 0; i < parameters.size(); i++)
-			statement.setObject(i, parameters.get(i));
-		ResultSet resultSet = statement.executeQuery(sql);
+			statement.setObject(i + 1, parameters.get(i));
+		ResultSet resultSet = statement.executeQuery();
 		while (resultSet.next()) {
 			Object[] result = new Object[fields.length];
 			for (int i = 0; i < fields.length; i++)
 				result[i] = resultSet.getObject(fields[i]);
+			results.add(result);
 			if (single)
 				break;
 		}
