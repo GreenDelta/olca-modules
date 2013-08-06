@@ -298,14 +298,8 @@ public class BaseDao<T> implements IDao<T> {
 		ResultSet resultSet = statement.executeQuery();
 		while (resultSet.next()) {
 			Object[] result = new Object[fields.length];
-			for (int i = 0; i < fields.length; i++) {
-				Object value = resultSet.getObject(fields[i]);
-				if (value instanceof Clob)
-					result[i] = ((Clob) value).getSubString(1,
-							(int) ((Clob) value).length());
-				else
-					result[i] = resultSet.getObject(fields[i]);
-			}
+			for (int i = 0; i < fields.length; i++)
+				result[i] = getValue(resultSet, fields[i]);
 			results.add(result);
 			if (single)
 				break;
@@ -313,6 +307,15 @@ public class BaseDao<T> implements IDao<T> {
 		resultSet.close();
 		statement.close();
 		return results;
+	}
+
+	private Object getValue(ResultSet resultSet, String field)
+			throws SQLException {
+		Object value = resultSet.getObject(field);
+		if (value instanceof Clob)
+			value = ((Clob) value).getSubString(1,
+					(int) ((Clob) value).length());
+		return value;
 	}
 
 	public T detach(T val) {
