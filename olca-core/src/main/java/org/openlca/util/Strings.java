@@ -95,4 +95,27 @@ public class Strings {
 			return -1;
 		return str1.compareToIgnoreCase(str2);
 	}
+
+	public static <T> String join(List<T> values, char delimiter) {
+		String[] stringValues = new String[values.size()];
+		for (int i = 0; i < values.size(); i++)
+			if (values.get(i) != null)
+				stringValues[i] = values.get(i).toString();
+		return join(stringValues, delimiter);
+	}
+
+	public static String join(String[] values, char delimiter) {
+		int length = 0;
+		for (String v : values)
+			if (v != null)
+				length += v.length();
+		StringBuilder b = new StringBuilder(length + values.length - 1);
+		for (int i = 0; i < values.length; i++) {
+			if (i != 0)
+				b.append(delimiter);
+			if (values[i] != null)
+				b.append(values[i]);
+		}
+		return b.toString();
+	}
 }

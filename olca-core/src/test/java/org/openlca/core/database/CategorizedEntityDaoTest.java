@@ -19,6 +19,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public class CategorizedEntityDaoTest {
 		run(Project.class, new ProjectDao(database));
 	}
 
-	private <T extends CategorizedEntity, V extends BaseDescriptor> void run(
+	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void run(
 			Class<T> clazz, CategorizedEntityDao<T, V> dao) throws Exception {
 		log.info("run category entity tests for {}", clazz);
 		T instance = makeNew(clazz);
@@ -52,7 +53,7 @@ public class CategorizedEntityDaoTest {
 		testGetDescriptorsForCategory(dao, instance, category);
 	}
 
-	private <T extends CategorizedEntity, V extends BaseDescriptor> void testFindForNullCategory(
+	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void testFindForNullCategory(
 			CategorizedEntityDao<T, V> dao, T instance) {
 		Category cat = null;
 		List<V> descriptors = dao.getDescriptors(Optional.fromNullable(cat));
@@ -61,7 +62,7 @@ public class CategorizedEntityDaoTest {
 		Assert.assertNotNull(descriptor);
 	}
 
-	private <T extends CategorizedEntity, V extends BaseDescriptor> Category addCategory(
+	private <T extends CategorizedEntity, V extends CategorizedDescriptor> Category addCategory(
 			Class<T> clazz, CategorizedEntityDao<T, V> dao, T instance) {
 		Category category = new Category();
 		category.setRefId(UUID.randomUUID().toString());
@@ -75,7 +76,7 @@ public class CategorizedEntityDaoTest {
 		return category;
 	}
 
-	private <T extends CategorizedEntity, V extends BaseDescriptor> void testGetDescriptorsForCategory(
+	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void testGetDescriptorsForCategory(
 			CategorizedEntityDao<T, V> dao, T instance, Category category) {
 		List<V> descriptors = dao.getDescriptors(Optional
 				.fromNullable(category));

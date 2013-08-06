@@ -26,7 +26,8 @@ public class ImpactCategoryDao extends BaseDao<ImpactCategory> {
 			descriptor.setReferenceUnit((String) result[2]);
 			return descriptor;
 		} catch (Exception e) {
-			log.error("Failed to load impact category descriptor", e);
+			DatabaseException.logAndThrow(log,
+					"Failed to load impact category descriptor", e);
 			return null;
 		}
 	}

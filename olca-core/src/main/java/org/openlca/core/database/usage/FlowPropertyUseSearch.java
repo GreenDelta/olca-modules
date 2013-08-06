@@ -6,14 +6,15 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
-import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
+class FlowPropertyUseSearch implements IUseSearch<FlowPropertyDescriptor> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
@@ -23,7 +24,7 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 	}
 
 	@Override
-	public List<BaseDescriptor> findUses(FlowProperty prop) {
+	public List<BaseDescriptor> findUses(FlowPropertyDescriptor prop) {
 		if (prop == null)
 			return Collections.emptyList();
 		List<BaseDescriptor> flows = findInFlows(prop);
@@ -35,18 +36,22 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 		return results;
 	}
 
-	private List<BaseDescriptor> findInFlows(FlowProperty prop) {
-		String jpql = "select f.id, f.name, f.description from Flow f "
-				+ "join f.flowPropertyFactors fp where fp.flowProperty = :flowProperty";
+	private List<BaseDescriptor> findInFlows(FlowPropertyDescriptor prop) {
+		String jpql = "select f.id, f.name, f.description, f.flowType, f.location.id, f.category.id from Flow f "
+				+ "join f.flowPropertyFactors fp where fp.flowProperty.id = :flowPropertyId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
-					jpql, Collections.singletonMap("flowProperty", prop));
+					jpql,
+					Collections.singletonMap("flowPropertyId", prop.getId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				FlowDescriptor d = new FlowDescriptor();
 				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
+				d.setFlowType((FlowType) result[3]);
+				d.setLocation((Long) result[4]);
+				d.setCategory((Long) result[5]);
 				descriptors.add(d);
 			}
 			return descriptors;
@@ -56,12 +61,13 @@ class FlowPropertyUseSearch implements IUseSearch<FlowProperty> {
 		}
 	}
 
-	private List<BaseDescriptor> findInUnitGroups(FlowProperty prop) {
+	private List<BaseDescriptor> findInUnitGroups(FlowPropertyDescriptor prop) {
 		String jpql = "select ug.id, ug.name, ug.description from UnitGroup ug "
-				+ "where ug.defaultFlowProperty = :flowProperty";
+				+ "where ug.defaultFlowProperty.id = :flowPropertyId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
-					jpql, Collections.singletonMap("flowProperty", prop));
+					jpql,
+					Collections.singletonMap("flowPropertyId", prop.getId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				UnitGroupDescriptor d = new UnitGroupDescriptor();

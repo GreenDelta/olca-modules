@@ -62,20 +62,6 @@ public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable 
 		this.description = description;
 	}
 
-	/** Returns a name to be used in label-providers etc. */
-	public String getDisplayName() {
-		if (name == null)
-			return "";
-		return name;
-	}
-
-	/** Returns an info-text to be used in tool-tips etc. */
-	public String getDisplayInfoText() {
-		if (description == null)
-			return "";
-		return description;
-	}
-
 	public void setType(ModelType type) {
 		this.type = type;
 	}

@@ -53,7 +53,7 @@ public class Query {
 		Map<String, Object> map = new HashMap<>();
 		return getAll(type, jpql, map);
 	}
- 
+
 	public <T> List<T> getAll(Class<T> type, String jpql,
 			Map<String, ? extends Object> params) {
 		log.trace("Get all {} with query {}", type, jpql);

@@ -7,14 +7,14 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.Location;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class LocationUseSearch implements IUseSearch<Location> {
+class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
@@ -24,7 +24,7 @@ class LocationUseSearch implements IUseSearch<Location> {
 	}
 
 	@Override
-	public List<BaseDescriptor> findUses(Location location) {
+	public List<BaseDescriptor> findUses(BaseDescriptor location) {
 		if (location == null)
 			return Collections.emptyList();
 		List<BaseDescriptor> locations = findInFlows(location);
@@ -36,12 +36,13 @@ class LocationUseSearch implements IUseSearch<Location> {
 		return descriptors;
 	}
 
-	private List<BaseDescriptor> findInFlows(Location location) {
-		String jpql = "select distinct f.id, f.name, f.description, f.flowType from Flow f"
-				+ " where f.location = :location";
+	private List<BaseDescriptor> findInFlows(BaseDescriptor location) {
+		String jpql = "select f.id, f.name, f.description, f.flowType, f.location.id, f.category.id from Flow f"
+				+ " where f.location.id = :locationId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
-					jpql, Collections.singletonMap("location", location));
+					jpql,
+					Collections.singletonMap("locationId", location.getId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				FlowDescriptor d = new FlowDescriptor();
@@ -49,6 +50,8 @@ class LocationUseSearch implements IUseSearch<Location> {
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
 				d.setFlowType((FlowType) result[3]);
+				d.setLocation((Long) result[4]);
+				d.setCategory((Long) result[5]);
 				descriptors.add(d);
 			}
 			return descriptors;
@@ -58,20 +61,23 @@ class LocationUseSearch implements IUseSearch<Location> {
 		}
 	}
 
-	private List<BaseDescriptor> findInProcesses(Location location) {
-		String jpql = "select distinct p.id, p.name, p.description, loc.code from Process p"
-				+ " left join p.location loc"
-				+ " where p.location = :location";
+	private List<BaseDescriptor> findInProcesses(BaseDescriptor location) {
+		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
+				+ " from Process p where p.location.id = :locationId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
-					jpql, Collections.singletonMap("location", location));
+					jpql,
+					Collections.singletonMap("locationId", location.getId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProcessDescriptor d = new ProcessDescriptor();
 				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
-				d.setLocationCode((String) result[3]);
+				d.setProcessType((ProcessType) result[3]);
+				d.setInfrastructureProcess((Boolean) result[4]);
+				d.setLocation((Long) result[5]);
+				d.setCategory((Long) result[6]);
 				descriptors.add(d);
 			}
 			return descriptors;

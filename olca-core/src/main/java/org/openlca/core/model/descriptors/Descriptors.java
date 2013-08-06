@@ -1,7 +1,7 @@
 package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.Category;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -16,105 +16,17 @@ import org.openlca.core.model.UnitGroup;
 
 public class Descriptors {
 
-	public static RootEntity toModel(BaseDescriptor descriptor) {
-		if (descriptor == null)
-			return null;
-		switch (descriptor.getModelType()) {
-		case ACTOR:
-			return toActor(descriptor);
-		case SOURCE:
-			return toSource(descriptor);
-		case UNIT_GROUP:
-			return toUnitGroup(descriptor);
-		case FLOW_PROPERTY:
-			return toFlowProperty(descriptor);
-		case FLOW:
-			return toFlow(descriptor);
-		case PROCESS:
-			return toProcess(descriptor);
-		case PRODUCT_SYSTEM:
-			return toProductSystem(descriptor);
-		case PROJECT:
-			return toProject(descriptor);
-		case IMPACT_METHOD:
-			return toImpactMethod(descriptor);
-		case CATEGORY:
-			return toCategory(descriptor);
-		case UNKNOWN:
-		default:
-			return null;
-		}
-	}
-
-	public static Actor toActor(BaseDescriptor descriptor) {
-		Actor actor = new Actor();
-		setBaseValues(descriptor, actor);
-		return actor;
-	}
-
-	public static Source toSource(BaseDescriptor descriptor) {
-		Source source = new Source();
-		setBaseValues(descriptor, source);
-		return source;
-	}
-
-	public static UnitGroup toUnitGroup(BaseDescriptor descriptor) {
-		UnitGroup unitGroup = new UnitGroup();
-		setBaseValues(descriptor, unitGroup);
-		return unitGroup;
-	}
-
-	public static FlowProperty toFlowProperty(BaseDescriptor descriptor) {
-		FlowProperty flowProperty = new FlowProperty();
-		setBaseValues(descriptor, flowProperty);
-		return flowProperty;
-	}
-
-	public static Flow toFlow(BaseDescriptor descriptor) {
-		Flow flow = new Flow();
-		setBaseValues(descriptor, flow);
-		return flow;
-	}
-
-	public static Process toProcess(BaseDescriptor descriptor) {
-		Process process = new Process();
-		setBaseValues(descriptor, process);
-		return process;
-	}
-
-	public static ProductSystem toProductSystem(BaseDescriptor descriptor) {
-		ProductSystem productSystem = new ProductSystem();
-		setBaseValues(descriptor, productSystem);
-		return productSystem;
-	}
-
-	public static Project toProject(BaseDescriptor descriptor) {
-		Project project = new Project();
-		setBaseValues(descriptor, project);
-		return project;
-	}
-
-	public static ImpactMethod toImpactMethod(BaseDescriptor descriptor) {
-		ImpactMethod impactMethod = new ImpactMethod();
-		setBaseValues(descriptor, impactMethod);
-		return impactMethod;
-	}
-
-	public static Category toCategory(BaseDescriptor descriptor) {
-		Category category = new Category();
-		setBaseValues(descriptor, category);
-		return category;
-	}
-
-	private static void setBaseValues(BaseDescriptor descriptor,
-			RootEntity entity) {
-		entity.setId(descriptor.getId());
-		entity.setName(descriptor.getName());
-		entity.setDescription(descriptor.getDescription());
-		entity.setRefId(descriptor.getRefId());
-	}
-
 	public static BaseDescriptor toDescriptor(RootEntity entity) {
+		if (entity == null)
+			return null;
+		if (entity instanceof CategorizedEntity)
+			return toDescriptor((CategorizedEntity) entity);
+		if (entity instanceof ImpactCategory)
+			return toDescriptor((ImpactCategory) entity);
+		return createUnknownDescriptor(entity);
+	}
+
+	public static CategorizedDescriptor toDescriptor(CategorizedEntity entity) {
 		if (entity == null)
 			return null;
 		if (entity instanceof Project)
@@ -135,8 +47,6 @@ public class Descriptors {
 			return toDescriptor((Actor) entity);
 		if (entity instanceof Source)
 			return toDescriptor((Source) entity);
-		if (entity instanceof Category)
-			return toDescriptor((Category) entity);
 		return createUnknownDescriptor(entity);
 	}
 
@@ -170,7 +80,7 @@ public class Descriptors {
 		ProcessDescriptor descriptor = new ProcessDescriptor();
 		setBaseValues(process, descriptor);
 		if (process.getLocation() != null)
-			descriptor.setLocationCode(process.getLocation().getCode());
+			descriptor.setLocation(process.getLocation().getId());
 		return descriptor;
 	}
 
@@ -180,7 +90,7 @@ public class Descriptors {
 		FlowDescriptor descriptor = new FlowDescriptor();
 		setBaseValues(flow, descriptor);
 		if (flow.getLocation() != null)
-			descriptor.setLocationCode(flow.getLocation().getCode());
+			descriptor.setLocation(flow.getLocation().getId());
 		if (flow.getFlowType() != null)
 			descriptor.setFlowType(flow.getFlowType());
 		return descriptor;
@@ -231,17 +141,10 @@ public class Descriptors {
 		return descriptor;
 	}
 
-	public static CategoryDescriptor toDescriptor(Category category) {
-		if (category == null)
-			return null;
-		CategoryDescriptor descriptor = new CategoryDescriptor();
-		descriptor.setType(ModelType.CATEGORY);
-		setBaseValues(category, descriptor);
-		String path = category.getName();
-		if (category.getParentCategory() != null)
-			path = category.getParentCategory().getName() + "/" + path;
-		descriptor.setShortPath(path);
-		return descriptor;
+	private static void setBaseValues(CategorizedEntity entity,
+			CategorizedDescriptor descriptor) {
+		setBaseValues((RootEntity) entity, descriptor);
+		descriptor.setCategory(entity.getCategory().getId());
 	}
 
 	private static void setBaseValues(RootEntity entity,
@@ -252,12 +155,16 @@ public class Descriptors {
 		descriptor.setName(entity.getName());
 	}
 
-	private static BaseDescriptor createUnknownDescriptor(RootEntity component) {
+	private static CategorizedDescriptor createUnknownDescriptor(
+			CategorizedEntity entity) {
+		CategorizedDescriptor descriptor = new CategorizedDescriptor();
+		setBaseValues(entity, descriptor);
+		return descriptor;
+	}
+
+	private static BaseDescriptor createUnknownDescriptor(RootEntity entity) {
 		BaseDescriptor descriptor = new BaseDescriptor();
-		descriptor.setDescription(component.getDescription());
-		descriptor.setId(component.getId());
-		descriptor.setName(component.getName());
-		descriptor.setType(ModelType.UNKNOWN);
+		setBaseValues(entity, descriptor);
 		return descriptor;
 	}
 

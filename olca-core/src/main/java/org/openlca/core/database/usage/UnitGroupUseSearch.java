@@ -7,34 +7,33 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
 import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.model.descriptors.ProductSystemDescriptor;
+import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
+import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Search for entities where a given source is used. */
-class ProcessUseSearch implements IUseSearch<ProcessDescriptor> {
+public class UnitGroupUseSearch implements IUseSearch<UnitGroupDescriptor> {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
+	private Logger log = LoggerFactory.getLogger(getClass());
 
-	ProcessUseSearch(IDatabase database) {
+	UnitGroupUseSearch(IDatabase database) {
 		this.database = database;
 	}
 
 	@Override
-	public List<BaseDescriptor> findUses(ProcessDescriptor process) {
-		if (process == null)
+	public List<BaseDescriptor> findUses(UnitGroupDescriptor group) {
+		if (group == null)
 			return Collections.emptyList();
-		String jpql = "select s.id, s.name, s.description from ProductSystem s "
-				+ "join s.processes p where p.id = :processId";
+		String jpql = "select fp.id, fp.name, fp.description from FlowProperty fp "
+				+ "where fp.unitGroup.id = :unitGroupId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
 					jpql,
-					Collections.singletonMap("processId", process.getRefId()));
+					Collections.singletonMap("unitGroupId", group.getId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
-				ProductSystemDescriptor d = new ProductSystemDescriptor();
+				FlowPropertyDescriptor d = new FlowPropertyDescriptor();
 				d.setId((Long) result[0]);
 				d.setName((String) result[1]);
 				d.setDescription((String) result[2]);
@@ -42,9 +41,8 @@ class ProcessUseSearch implements IUseSearch<ProcessDescriptor> {
 			}
 			return descriptors;
 		} catch (Exception e) {
-			log.error("Faile to search for processes in product systems", e);
+			log.error("Failed to search for unit group usages", e);
 			return Collections.emptyList();
 		}
 	}
-
 }

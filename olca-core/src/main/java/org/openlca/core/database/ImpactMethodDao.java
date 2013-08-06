@@ -39,7 +39,8 @@ public class ImpactMethodDao extends
 			}
 			return list;
 		} catch (Exception e) {
-			log.error("Failed to load impact category descriptors", e);
+			DatabaseException.logAndThrow(log,
+					"Failed to load impact category descriptors", e);
 			return Collections.emptyList();
 		}
 	}
@@ -57,7 +58,7 @@ public class ImpactMethodDao extends
 			query.setParameter("methodId", methodDescriptor.getId());
 			return fetchNwSets(query);
 		} catch (Exception e) {
-			log.error("Failed to get nw-sets", e);
+			DatabaseException.logAndThrow(log, "Failed to get nw-sets", e);
 			return Collections.emptyList();
 		} finally {
 			em.close();

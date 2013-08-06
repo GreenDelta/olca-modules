@@ -1,8 +1,13 @@
 package org.openlca.core.database;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,10 +28,15 @@ public class BaseDao<T> implements IDao<T> {
 	protected Class<T> entityType;
 	protected Logger log = LoggerFactory.getLogger(this.getClass());
 	private IDatabase database;
+	private Map<String, PreparedStatement> preparedStatements = new HashMap<>();
 
 	public BaseDao(Class<T> entityType, IDatabase database) {
 		this.entityType = entityType;
 		this.database = database;
+	}
+
+	Class<T> getEntityType() {
+		return entityType;
 	}
 
 	protected IDatabase getDatabase() {
@@ -47,6 +57,9 @@ public class BaseDao<T> implements IDao<T> {
 			em.getTransaction().begin();
 			em.remove(em.merge(entity));
 			em.getTransaction().commit();
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while deleting "
+					+ entityType.getSimpleName(), e);
 		} finally {
 			em.close();
 		}
@@ -64,6 +77,9 @@ public class BaseDao<T> implements IDao<T> {
 				em.remove(em.merge(entity));
 			}
 			em.getTransaction().commit();
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while deleting "
+					+ entityType.getSimpleName(), e);
 		} finally {
 			em.close();
 		}
@@ -79,6 +95,10 @@ public class BaseDao<T> implements IDao<T> {
 			T retval = em.merge(entity);
 			em.getTransaction().commit();
 			return retval;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while updating "
+					+ entityType.getSimpleName(), e);
+			return entity;
 		} finally {
 			em.close();
 		}
@@ -94,6 +114,10 @@ public class BaseDao<T> implements IDao<T> {
 			em.persist(entity);
 			em.getTransaction().commit();
 			return entity;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while inserting "
+					+ entityType.getSimpleName(), e);
+			return entity;
 		} finally {
 			em.close();
 		}
@@ -106,6 +130,10 @@ public class BaseDao<T> implements IDao<T> {
 		try {
 			T o = entityManager.find(entityType, id);
 			return o;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while loading "
+					+ entityType.getSimpleName() + " with id " + id, e);
+			return null;
 		} finally {
 			entityManager.close();
 		}
@@ -142,6 +170,10 @@ public class BaseDao<T> implements IDao<T> {
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
 			query.setParameter("ids", ids);
 			return query.getResultList();
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while fetching for ids",
+					e);
+			return Collections.emptyList();
 		} finally {
 			em.close();
 		}
@@ -158,6 +190,10 @@ public class BaseDao<T> implements IDao<T> {
 			List<T> results = query.getResultList();
 			log.debug("{} results", results.size());
 			return results;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while loading all "
+					+ entityType.getSimpleName(), e);
+			return Collections.emptyList();
 		} finally {
 			em.close();
 		}
@@ -173,6 +209,10 @@ public class BaseDao<T> implements IDao<T> {
 			}
 			List<T> results = query.getResultList();
 			return results;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while loading all "
+					+ entityType.getSimpleName(), e);
+			return Collections.emptyList();
 		} finally {
 			em.close();
 		}
@@ -196,6 +236,10 @@ public class BaseDao<T> implements IDao<T> {
 			}
 			Long count = query.getSingleResult();
 			return count == null ? 0 : count;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while getting count of "
+					+ entityType.getSimpleName(), e);
+			return 0;
 		} finally {
 			em.close();
 		}
@@ -217,16 +261,88 @@ public class BaseDao<T> implements IDao<T> {
 		return Query.on(database);
 	}
 
+	protected List<Object[]> selectAll(String sql, String[] fields,
+			List<Object> parameters) {
+		EntityManager em = createManager();
+		try {
+			em.getTransaction().begin();
+			Connection conn = em.unwrap(Connection.class);
+			List<Object[]> results = execute(sql, fields, parameters, conn,
+					false);
+			em.getTransaction().commit();
+			return results;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "failed to execute query: "
+					+ sql, e);
+			return Collections.emptyList();
+		} finally {
+			em.close();
+		}
+	}
+
+	protected Object[] selectFirst(String sql, String[] fields,
+			List<Object> parameters) {
+		EntityManager em = createManager();
+		try {
+			em.getTransaction().begin();
+			Connection conn = em.unwrap(Connection.class);
+			List<Object[]> results = execute(sql, fields, parameters, conn,
+					true);
+			em.getTransaction().commit();
+			if (results.isEmpty())
+				return null;
+			return results.get(0);
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "failed to execute query: "
+					+ sql, e);
+			return null;
+		} finally {
+			em.close();
+		}
+	}
+
+	private List<Object[]> execute(String sql, String[] fields,
+			List<Object> parameters, Connection conn, boolean single)
+			throws SQLException {
+		List<Object[]> results = new ArrayList<>();
+		PreparedStatement statement = getStatement(conn, sql);
+		for (int i = 0; i < parameters.size(); i++)
+			statement.setObject(i + 1, parameters.get(i));
+		ResultSet resultSet = statement.executeQuery();
+		while (resultSet.next()) {
+			Object[] result = new Object[fields.length];
+			for (int i = 0; i < fields.length; i++)
+				result[i] = resultSet.getObject(fields[i]);
+			results.add(result);
+			if (single)
+				break;
+		}
+		resultSet.close();
+		return results;
+	}
+
+	private PreparedStatement getStatement(Connection conn, String sql)
+			throws SQLException {
+		PreparedStatement statement = preparedStatements.get(sql);
+		if (statement == null) {
+			statement = conn.prepareStatement(sql);
+			preparedStatements.put(sql, statement);
+		}
+		return statement;
+	}
+
 	public T detach(T val) {
 		EntityManager em = createManager();
 		try {
 			em.detach(val);
 			return val;
 		} catch (Exception e) {
-			log.error("detaching entity failed ", e);
+			DatabaseException.logAndThrow(log, "Error while detaching entity "
+					+ entityType.getSimpleName(), e);
 			return val;
+		} finally {
+			em.close();
 		}
 	}
-
 
 }
