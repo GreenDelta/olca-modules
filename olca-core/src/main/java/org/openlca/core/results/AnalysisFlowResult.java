@@ -11,25 +11,34 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  */
 public class AnalysisFlowResult {
 
+	private boolean input;
 	private FlowDescriptor flow;
 	private ProcessDescriptor process;
 	private double totalResult;
 	private double singleResult;
 
-	public void setTotalResult(double totalResult) {
+	void setInput(boolean input) {
+		this.input = input;
+	}
+
+	void setTotalResult(double totalResult) {
 		this.totalResult = totalResult;
 	}
 
-	public void setFlow(FlowDescriptor flow) {
+	void setFlow(FlowDescriptor flow) {
 		this.flow = flow;
 	}
 
-	public void setProcess(ProcessDescriptor process) {
+	void setProcess(ProcessDescriptor process) {
 		this.process = process;
 	}
 
-	public void setSingleResult(double singleResult) {
+	void setSingleResult(double singleResult) {
 		this.singleResult = singleResult;
+	}
+
+	public boolean isInput() {
+		return input;
 	}
 
 	public double getTotalResult() {

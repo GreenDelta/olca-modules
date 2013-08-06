@@ -12,11 +12,39 @@ public class AnalysisImpactResult {
 
 	private ImpactCategoryDescriptor impactCategory;
 	private ProcessDescriptor process;
-	private ImpactCategoryResult totalResult;
-	private ImpactCategoryResult singleResult;
 
-	public ImpactCategoryResult getTotalResult() {
-		return totalResult;
+	private double totalResult;
+	private double singleResult;
+	private double normalizationFactor = 1;
+	private double weightingFactor = 1;
+	private String weightingUnit;
+
+	void setImpactCategory(ImpactCategoryDescriptor impactCategory) {
+		this.impactCategory = impactCategory;
+	}
+
+	void setProcess(ProcessDescriptor process) {
+		this.process = process;
+	}
+
+	void setTotalResult(double totalResult) {
+		this.totalResult = totalResult;
+	}
+
+	void setSingleResult(double singleResult) {
+		this.singleResult = singleResult;
+	}
+
+	void setNormalizationFactor(double normalizationFactor) {
+		this.normalizationFactor = normalizationFactor;
+	}
+
+	void setWeightingFactor(double weightingFactor) {
+		this.weightingFactor = weightingFactor;
+	}
+
+	void setWeightingUnit(String weightingUnit) {
+		this.weightingUnit = weightingUnit;
 	}
 
 	public ImpactCategoryDescriptor getImpactCategory() {
@@ -27,24 +55,32 @@ public class AnalysisImpactResult {
 		return process;
 	}
 
-	public ImpactCategoryResult getSingleResult() {
+	public double getTotalResult() {
+		return totalResult;
+	}
+
+	public double getSingleResult() {
 		return singleResult;
 	}
 
-	public void setTotalResult(ImpactCategoryResult totalResult) {
-		this.totalResult = totalResult;
+	public String getWeightingUnit() {
+		return weightingUnit;
 	}
 
-	public void setImpactCategory(ImpactCategoryDescriptor impactCategory) {
-		this.impactCategory = impactCategory;
+	public double getNormalizedTotalResult() {
+		return totalResult / normalizationFactor;
 	}
 
-	public void setProcess(ProcessDescriptor process) {
-		this.process = process;
+	public double getNormalizedSingleResult() {
+		return singleResult / normalizationFactor;
 	}
 
-	public void setSingleResult(ImpactCategoryResult singleResult) {
-		this.singleResult = singleResult;
+	public double getWeightedTotalResult() {
+		return getNormalizedTotalResult() * weightingFactor;
+	}
+
+	public double getWeightedSingleResult() {
+		return getNormalizedSingleResult() * weightingFactor;
 	}
 
 }

@@ -1,7 +1,5 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.indices.FlowIndex;
@@ -9,17 +7,11 @@ import org.openlca.core.indices.LongIndex;
 import org.openlca.core.indices.LongPair;
 import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IResultData;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.NormalizationWeightingFactor;
-import org.openlca.core.model.NormalizationWeightingSet;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
  * The result of an analysis of a product system.
  */
-public class AnalysisResult implements IResultData {
+public class AnalysisResult {
 
 	private FlowIndex flowIndex;
 	private ProductIndex productIndex;
@@ -73,117 +65,18 @@ public class AnalysisResult implements IResultData {
 		this.impactFactors = impactFactors;
 	}
 
-	public double getImpactFactor(ImpactCategoryDescriptor impact, Flow flow) {
-		if (impactCategoryIndex == null || flowIndex == null
-				|| impactFactors == null)
+	public double getImpactFactor(long impactCategory, long flow) {
+		if (impactCategoryIndex == null)
 			return 0d;
-		int row = impactCategoryIndex.getIndex(impact);
+		int row = impactCategoryIndex.getIndex(impactCategory);
 		int col = flowIndex.getIndex(flow);
-		if (row < 0 || col < 0 || row >= impactFactors.getRowDimension()
-				|| col >= impactFactors.getColumnDimension())
-			return 0d;
-		return impactFactors.getEntry(row, col);
-	}
-
-	/** Get the impact assessment result for the given process and category. */
-	public AnalysisImpactResult getImpactResult(Process process,
-			ImpactCategoryDescriptor category, NormalizationWeightingSet nwSet) {
-		return createImpactResult(process, category, nwSet);
-	}
-
-	/**
-	 * Get the impact assessment results of the given impact category for each
-	 * process.
-	 */
-	public List<AnalysisImpactResult> getImpactResults(
-			ImpactCategoryDescriptor category) {
-		List<AnalysisImpactResult> list = new ArrayList<>();
-		for (Process process : setup.getProductSystem().getProcesses()) {
-			AnalysisImpactResult r = getImpactResult(process, category, null);
-			list.add(r);
-		}
-		return list;
-	}
-
-	/**
-	 * Get the impact assessment results of the given categories for all
-	 * processes in the product system.
-	 */
-	public List<AnalysisImpactResult> getImpactResults(
-			ImpactCategoryDescriptor category, NormalizationWeightingSet nwSet) {
-		if (category == null || impactCategoryIndex == null)
-			return Collections.emptyList();
-		List<AnalysisImpactResult> results = new ArrayList<>();
-		for (Process process : setup.getProductSystem().getProcesses()) {
-			AnalysisImpactResult result = createImpactResult(process, category,
-					nwSet);
-			results.add(result);
-		}
-		return results;
-	}
-
-	/**
-	 * Get the impact assessment results for all impact categories of the given
-	 * process.
-	 */
-	public List<AnalysisImpactResult> getImpactResults(Process process,
-			NormalizationWeightingSet nwSet) {
-		if (impactCategoryIndex == null || totalImpactResult == null)
-			return Collections.emptyList();
-		List<AnalysisImpactResult> input = new ArrayList<>();
-		for (ImpactCategoryDescriptor descriptor : impactCategoryIndex
-				.getItems()) {
-			AnalysisImpactResult res = createImpactResult(process, descriptor,
-					nwSet);
-			if (res != null)
-				input.add(res);
-		}
-		return input;
-	}
-
-	private AnalysisImpactResult createImpactResult(Process process,
-			ImpactCategoryDescriptor category, NormalizationWeightingSet nwSet) {
-		int row = impactCategoryIndex.getIndex(category);
-		double singleVal = getValue(singleImpactResult, row, process);
-		double totalVal = getValue(totalImpactResult, row, process);
-		ImpactCategoryResult singleResult = createImpactResult(category,
-				singleVal, nwSet);
-		ImpactCategoryResult totalResult = createImpactResult(category,
-				totalVal, nwSet);
-		AnalysisImpactResult result = new AnalysisImpactResult();
-		result.setAggregatedResult(totalResult);
-		result.setCategory(category.getName());
-		result.setProcess(process);
-		result.setSingleResult(singleResult);
-		return result;
-	}
-
-	private ImpactCategoryResult createImpactResult(
-			ImpactCategoryDescriptor descriptor, double val,
-			NormalizationWeightingSet nwSet) {
-		ImpactCategoryResult result = new ImpactCategoryResult();
-		result.setCategory(descriptor.getName());
-		result.setUnit(descriptor.getReferenceUnit());
-		result.setValue(val);
-		if (nwSet == null)
-			return result;
-		NormalizationWeightingFactor fac = nwSet.getFactor(descriptor);
-		if (fac == null)
-			return result;
-		if (fac.getNormalizationFactor() != null)
-			result.setNormalizationFactor(fac.getNormalizationFactor());
-		if (fac.getWeightingFactor() != null) {
-			result.setWeightingFactor(fac.getWeightingFactor());
-			result.setWeightingUnit(nwSet.getUnit());
-		}
-		return result;
+		return getValue(impactFactors, row, col);
 	}
 
 	public FlowIndex getFlowIndex() {
 		return flowIndex;
 	}
 
-	@Override
 	public boolean hasImpactResults() {
 		return impactCategoryIndex != null && !impactCategoryIndex.isEmpty();
 	}
@@ -225,7 +118,7 @@ public class AnalysisResult implements IResultData {
 
 	private double adoptFlowResult(double d, long flowId) {
 		if (d == 0)
-			return d;
+			return d; // avoid -0 in the results
 		boolean inputFlow = flowIndex.isInput(flowId);
 		return inputFlow ? -d : d;
 	}

@@ -13,7 +13,6 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.results.ImpactResult;
 
 public class Descriptors {
 
@@ -39,8 +38,6 @@ public class Descriptors {
 			return toProject(descriptor);
 		case IMPACT_METHOD:
 			return toImpactMethod(descriptor);
-		case IMPACT_RESULT:
-			return toImpactResult(descriptor);
 		case CATEGORY:
 			return toCategory(descriptor);
 		case UNKNOWN:
@@ -103,12 +100,6 @@ public class Descriptors {
 		return impactMethod;
 	}
 
-	public static ImpactResult toImpactResult(BaseDescriptor descriptor) {
-		ImpactResult impactResult = new ImpactResult();
-		setBaseValues(descriptor, impactResult);
-		return impactResult;
-	}
-
 	public static Category toCategory(BaseDescriptor descriptor) {
 		Category category = new Category();
 		setBaseValues(descriptor, category);
@@ -144,8 +135,6 @@ public class Descriptors {
 			return toDescriptor((Actor) entity);
 		if (entity instanceof Source)
 			return toDescriptor((Source) entity);
-		if (entity instanceof ImpactResult)
-			return toDescriptor((ImpactResult) entity);
 		if (entity instanceof Category)
 			return toDescriptor((Category) entity);
 		return createUnknownDescriptor(entity);
@@ -226,15 +215,6 @@ public class Descriptors {
 			return null;
 		SourceDescriptor descriptor = new SourceDescriptor();
 		setBaseValues(source, descriptor);
-		return descriptor;
-	}
-
-	public static BaseDescriptor toDescriptor(ImpactResult impactResult) {
-		if (impactResult == null)
-			return null;
-		BaseDescriptor descriptor = new BaseDescriptor();
-		descriptor.setType(ModelType.IMPACT_RESULT);
-		setBaseValues(impactResult, descriptor);
 		return descriptor;
 	}
 
