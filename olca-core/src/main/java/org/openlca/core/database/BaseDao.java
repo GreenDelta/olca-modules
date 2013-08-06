@@ -1,5 +1,6 @@
 package org.openlca.core.database;
 
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +28,6 @@ public class BaseDao<T> implements IDao<T> {
 	protected Class<T> entityType;
 	protected Logger log = LoggerFactory.getLogger(this.getClass());
 	private IDatabase database;
-	private Map<String, PreparedStatement> preparedStatements = new HashMap<>();
 
 	public BaseDao(Class<T> entityType, IDatabase database) {
 		this.entityType = entityType;
@@ -263,32 +262,22 @@ public class BaseDao<T> implements IDao<T> {
 
 	protected List<Object[]> selectAll(String sql, String[] fields,
 			List<Object> parameters) {
-		EntityManager em = createManager();
-		try {
-			em.getTransaction().begin();
-			Connection conn = em.unwrap(Connection.class);
+		try (Connection conn = getDatabase().createConnection()) {
 			List<Object[]> results = execute(sql, fields, parameters, conn,
 					false);
-			em.getTransaction().commit();
 			return results;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "failed to execute query: "
 					+ sql, e);
 			return Collections.emptyList();
-		} finally {
-			em.close();
 		}
 	}
 
 	protected Object[] selectFirst(String sql, String[] fields,
 			List<Object> parameters) {
-		EntityManager em = createManager();
-		try {
-			em.getTransaction().begin();
-			Connection conn = em.unwrap(Connection.class);
+		try (Connection conn = getDatabase().createConnection()) {
 			List<Object[]> results = execute(sql, fields, parameters, conn,
 					true);
-			em.getTransaction().commit();
 			if (results.isEmpty())
 				return null;
 			return results.get(0);
@@ -296,8 +285,6 @@ public class BaseDao<T> implements IDao<T> {
 			DatabaseException.logAndThrow(log, "failed to execute query: "
 					+ sql, e);
 			return null;
-		} finally {
-			em.close();
 		}
 	}
 
@@ -305,30 +292,27 @@ public class BaseDao<T> implements IDao<T> {
 			List<Object> parameters, Connection conn, boolean single)
 			throws SQLException {
 		List<Object[]> results = new ArrayList<>();
-		PreparedStatement statement = getStatement(conn, sql);
+		PreparedStatement statement = conn.prepareStatement(sql);
 		for (int i = 0; i < parameters.size(); i++)
 			statement.setObject(i + 1, parameters.get(i));
 		ResultSet resultSet = statement.executeQuery();
 		while (resultSet.next()) {
 			Object[] result = new Object[fields.length];
-			for (int i = 0; i < fields.length; i++)
-				result[i] = resultSet.getObject(fields[i]);
+			for (int i = 0; i < fields.length; i++) {
+				Object value = resultSet.getObject(fields[i]);
+				if (value instanceof Clob)
+					result[i] = ((Clob) value).getSubString(1,
+							(int) ((Clob) value).length());
+				else
+					result[i] = resultSet.getObject(fields[i]);
+			}
 			results.add(result);
 			if (single)
 				break;
 		}
 		resultSet.close();
+		statement.close();
 		return results;
-	}
-
-	private PreparedStatement getStatement(Connection conn, String sql)
-			throws SQLException {
-		PreparedStatement statement = preparedStatements.get(sql);
-		if (statement == null) {
-			statement = conn.prepareStatement(sql);
-			preparedStatements.put(sql, statement);
-		}
-		return statement;
 	}
 
 	public T detach(T val) {

@@ -156,7 +156,8 @@ public class Descriptors {
 	private static void setBaseValues(CategorizedEntity entity,
 			CategorizedDescriptor descriptor) {
 		setBaseValues((RootEntity) entity, descriptor);
-		descriptor.setCategory(entity.getCategory().getId());
+		if (entity.getCategory() != null)
+			descriptor.setCategory(entity.getCategory().getId());
 	}
 
 	private static void setBaseValues(RootEntity entity,

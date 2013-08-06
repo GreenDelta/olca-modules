@@ -13,23 +13,20 @@ public class ProcessDao extends
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "name", "description", "process_type",
-				"infrastructure_process", "f_category", "f_location" };
+		return new String[] { "id", "ref_id", "name", "description",
+				"process_type", "infrastructure_process", "f_category",
+				"f_location" };
 	}
 
 	@Override
 	protected ProcessDescriptor createDescriptor(Object[] queryResult) {
 		if (queryResult == null)
 			return null;
-		ProcessDescriptor d = new ProcessDescriptor();
-		d.setId((Long) queryResult[0]);
-		d.setName((String) queryResult[1]);
-		d.setDescription((String) queryResult[2]);
-		d.setProcessType((ProcessType) queryResult[3]);
-		d.setInfrastructureProcess((Boolean) queryResult[4]);
-		d.setCategory((Long) queryResult[5]);
-		d.setLocation((Long) queryResult[6]);
+		ProcessDescriptor d = super.createDescriptor(queryResult);
+		d.setProcessType(ProcessType.valueOf((String) queryResult[4]));
+		d.setInfrastructureProcess((Integer) queryResult[5] == 1);
+		d.setCategory((Long) queryResult[6]);
+		d.setLocation((Long) queryResult[7]);
 		return d;
 	}
-
 }

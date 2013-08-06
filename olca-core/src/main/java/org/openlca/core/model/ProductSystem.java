@@ -10,7 +10,9 @@
 package org.openlca.core.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
@@ -64,7 +66,7 @@ public class ProductSystem extends CategorizedEntity implements
 	@ElementCollection
 	@Column(name = "f_process")
 	@CollectionTable(name = "tbl_product_system_processes", joinColumns = { @JoinColumn(name = "f_product_system") })
-	private final List<Long> processes = new ArrayList<>();
+	private final Set<Long> processes = new HashSet<>();
 
 	@Override
 	public ProductSystem clone() {
@@ -191,7 +193,7 @@ public class ProductSystem extends CategorizedEntity implements
 		return parameters;
 	}
 
-	public List<Long> getProcesses() {
+	public Set<Long> getProcesses() {
 		return processes;
 	}
 

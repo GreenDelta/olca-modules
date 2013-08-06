@@ -1,7 +1,11 @@
 package org.openlca.core.database;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
@@ -65,52 +69,105 @@ public class Cache {
 		return getDescriptor(actorDao, id);
 	}
 
+	public List<ActorDescriptor> getActorDescriptors(Set<Long> ids) {
+		return getDescriptors(actorDao, ids);
+	}
+
 	public SourceDescriptor getSourceDescriptor(long id) {
 		return getDescriptor(sourceDao, id);
+	}
+
+	public List<SourceDescriptor> getSourceDescriptors(Set<Long> ids) {
+		return getDescriptors(sourceDao, ids);
 	}
 
 	public UnitGroupDescriptor getUnitGroupDescriptor(long id) {
 		return getDescriptor(unitGroupDao, id);
 	}
 
+	public List<UnitGroupDescriptor> getUnitGroupDescriptors(Set<Long> ids) {
+		return getDescriptors(unitGroupDao, ids);
+	}
+
 	public FlowPropertyDescriptor getFlowPropertyDescriptor(long id) {
 		return getDescriptor(flowPropertyDao, id);
+	}
+
+	public List<FlowPropertyDescriptor> getFlowPropertyDescriptors(Set<Long> ids) {
+		return getDescriptors(flowPropertyDao, ids);
 	}
 
 	public FlowDescriptor getFlowDescriptor(long id) {
 		return getDescriptor(flowDao, id);
 	}
 
+	public List<FlowDescriptor> getFlowDescriptors(Set<Long> ids) {
+		return getDescriptors(flowDao, ids);
+	}
+
 	public ProcessDescriptor getProcessDescriptor(long id) {
 		return getDescriptor(processDao, id);
+	}
+
+	public List<ProcessDescriptor> getProcessDescriptors(Set<Long> ids) {
+		return getDescriptors(processDao, ids);
 	}
 
 	public ProductSystemDescriptor getProductSystemDescriptor(long id) {
 		return getDescriptor(productSystemDao, id);
 	}
 
+	public List<ProductSystemDescriptor> getProductSystemDescriptors(
+			Set<Long> ids) {
+		return getDescriptors(productSystemDao, ids);
+	}
+
 	public ImpactMethodDescriptor getImpactMethodDescriptor(long id) {
 		return getDescriptor(impactMethodDao, id);
+	}
+
+	public List<ImpactMethodDescriptor> getImpactMethodDescriptors(Set<Long> ids) {
+		return getDescriptors(impactMethodDao, ids);
 	}
 
 	public ProjectDescriptor getProjectDescriptor(long id) {
 		return getDescriptor(projectDao, id);
 	}
 
+	public List<ProjectDescriptor> getProjectDescriptors(Set<Long> ids) {
+		return getDescriptors(projectDao, ids);
+	}
+
 	public Location getLocation(long id) {
 		return get(locationDao, id);
+	}
+
+	public List<Location> getLocations(Set<Long> ids) {
+		return get(locationDao, ids);
 	}
 
 	public Category getCategory(long id) {
 		return get(categoryDao, id);
 	}
 
+	public List<Category> getCategorys(Set<Long> ids) {
+		return get(categoryDao, ids);
+	}
+
 	public UnitGroup getUnitGroup(long id) {
 		return get(unitGroupDao, id);
 	}
 
+	public List<UnitGroup> getUnitGroups(Set<Long> ids) {
+		return get(unitGroupDao, ids);
+	}
+
 	public FlowProperty getFlowProperty(long id) {
 		return get(flowPropertyDao, id);
+	}
+
+	public List<FlowProperty> getFlowProperties(Set<Long> ids) {
+		return get(flowPropertyDao, ids);
 	}
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> V getDescriptor(
@@ -125,6 +182,27 @@ public class Cache {
 		return value;
 	}
 
+	private <T extends CategorizedEntity, V extends CategorizedDescriptor> List<V> getDescriptors(
+			CategorizedEntityDao<T, V> dao, Set<Long> ids) {
+		List<V> results = new ArrayList<>();
+		Set<Long> toLoad = new HashSet<>();
+		for (Long id : ids) {
+			String key = getKey(dao.getDescriptorType(), id);
+			@SuppressWarnings("unchecked")
+			V value = (V) cache.get(key);
+			if (value == null)
+				toLoad.add(id);
+			else
+				results.add(value);
+		}
+		List<V> rest = dao.getDescriptors(toLoad);
+		for (V v : rest) {
+			cache.put(getKey(dao.getDescriptorType(), v.getId()), v);
+			results.add(v);
+		}
+		return results;
+	}
+
 	private <T extends RootEntity> T get(BaseDao<T> dao, long id) {
 		String key = getKey(dao.getEntityType(), id);
 		@SuppressWarnings("unchecked")
@@ -134,6 +212,26 @@ public class Cache {
 			cache.put(key, value);
 		}
 		return value;
+	}
+
+	private <T extends RootEntity> List<T> get(BaseDao<T> dao, Set<Long> ids) {
+		List<T> results = new ArrayList<>();
+		Set<Long> toLoad = new HashSet<>();
+		for (Long id : ids) {
+			String key = getKey(dao.getEntityType(), id);
+			@SuppressWarnings("unchecked")
+			T value = (T) cache.get(key);
+			if (value == null)
+				toLoad.add(id);
+			else
+				results.add(value);
+		}
+		List<T> rest = dao.getForIds(toLoad);
+		for (T t : rest) {
+			cache.put(getKey(dao.getEntityType(), t.getId()), t);
+			results.add(t);
+		}
+		return results;
 	}
 
 	private String getKey(Class<?> clazz, long id) {
