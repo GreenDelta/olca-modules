@@ -25,6 +25,8 @@ class SourceUseSearch implements IUseSearch<SourceDescriptor> {
 
 	@Override
 	public List<BaseDescriptor> findUses(SourceDescriptor source) {
+		if (source == null)
+			return Collections.emptyList();
 		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
 				+ " from Process p "
 				+ " left join doc.sources s"

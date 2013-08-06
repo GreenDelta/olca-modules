@@ -23,7 +23,7 @@ public class UnitGroupUseSearch implements IUseSearch<UnitGroupDescriptor> {
 
 	@Override
 	public List<BaseDescriptor> findUses(UnitGroupDescriptor group) {
-		if (group == null || group.getRefId() == null)
+		if (group == null)
 			return Collections.emptyList();
 		String jpql = "select fp.id, fp.name, fp.description from FlowProperty fp "
 				+ "where fp.unitGroup.id = :unitGroupId";

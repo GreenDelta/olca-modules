@@ -24,7 +24,7 @@ class ProcessUseSearch implements IUseSearch<ProcessDescriptor> {
 
 	@Override
 	public List<BaseDescriptor> findUses(ProcessDescriptor process) {
-		if (process == null || process.getRefId() == null)
+		if (process == null)
 			return Collections.emptyList();
 		String jpql = "select s.id, s.name, s.description from ProductSystem s "
 				+ "join s.processes p where p.id = :processId";
