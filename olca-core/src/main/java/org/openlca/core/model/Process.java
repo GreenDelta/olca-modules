@@ -159,7 +159,7 @@ public class Process extends CategorizedEntity implements IParameterisable {
 	public Exchange[] getExchanges(FlowType... flowTypes) {
 		if (flowTypes == null)
 			return exchanges.toArray(new Exchange[exchanges.size()]);
-		List<Exchange> exchanges = new ArrayList<>();
+		List<Exchange> exchanges = new ArrayList<>(); 
 		for (Exchange exchange : getExchanges())
 			for (FlowType flowType : flowTypes)
 				if (exchange.getFlow().getFlowType() == flowType) {
@@ -181,7 +181,7 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		if (flowTypes == null)
 			return getInputs();
 		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : exchanges)
+		for (Exchange exchange : getExchanges())
 			if (exchange.isInput())
 				for (FlowType flowType : flowTypes)
 					if (exchange.getFlow().getFlowType() == flowType) {
@@ -207,7 +207,7 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		if (flowTypes == null)
 			return getOutputs();
 		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : exchanges)
+		for (Exchange exchange : getExchanges())
 			if (!exchange.isInput())
 				for (FlowType flowType : flowTypes)
 					if (exchange.getFlow().getFlowType() == flowType) {
