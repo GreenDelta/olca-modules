@@ -1,13 +1,10 @@
 package org.openlca.core.results;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openlca.core.database.Cache;
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongPair;
-import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -20,36 +17,22 @@ public final class AnalysisFlowResults {
 	private AnalysisFlowResults() {
 	}
 
-	public static List<FlowDescriptor> getFlows(AnalysisResult result,
+	public static Set<FlowDescriptor> getFlows(AnalysisResult result,
 			Cache cache) {
-		FlowIndex flowIndex = result.getFlowIndex();
-		List<FlowDescriptor> flows = new ArrayList<>();
-		for (int i = 0; i < flowIndex.size(); i++) {
-			long flowId = flowIndex.getFlowAt(i);
-			FlowDescriptor flow = cache.getFlowDescriptor(flowId);
-			if (flow != null)
-				flows.add(flow);
-		}
-		return flows;
+		return Results.getFlowDescriptors(result.getFlowIndex(), cache);
+	}
+
+	public static Set<ProcessDescriptor> getProcesses(AnalysisResult result,
+			Cache cache) {
+		return Results.getProcessDescriptors(result.getProductIndex(), cache);
 	}
 
 	public static List<AnalysisFlowResult> getForFlow(AnalysisResult result,
 			FlowDescriptor flow, Cache cache) {
 		List<AnalysisFlowResult> results = new ArrayList<>();
-		ProductIndex index = result.getProductIndex();
-		HashSet<Long> handled = new HashSet<>();
-		for (int i = 0; i < index.size(); i++) {
-			LongPair processProduct = index.getProductAt(i);
-			long processId = processProduct.getFirst();
-			if (handled.contains(processId))
-				continue;
-			handled.add(processId);
-			ProcessDescriptor process = cache.getProcessDescriptor(processId);
-			if (process == null)
-				continue;
+		for (ProcessDescriptor process : getProcesses(result, cache)) {
 			AnalysisFlowResult r = getResult(result, process, flow);
 			results.add(r);
-
 		}
 		return results;
 	}

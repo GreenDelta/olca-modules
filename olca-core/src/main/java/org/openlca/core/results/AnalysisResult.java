@@ -61,6 +61,10 @@ public class AnalysisResult {
 		this.impactCategoryIndex = impactCategoryIndex;
 	}
 
+	public LongIndex getImpactIndex() {
+		return impactCategoryIndex;
+	}
+
 	public void setImpactFactors(IMatrix impactFactors) {
 		this.impactFactors = impactFactors;
 	}

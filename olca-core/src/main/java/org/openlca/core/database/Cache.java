@@ -7,16 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.ActorDescriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
@@ -38,6 +38,7 @@ public class Cache {
 	private final ProjectDao projectDao;
 	private final LocationDao locationDao;
 	private final CategoryDao categoryDao;
+	private final ImpactCategoryDao impactCategoryDao;
 
 	public Cache(IDatabase database) {
 		actorDao = new ActorDao(database);
@@ -51,6 +52,7 @@ public class Cache {
 		projectDao = new ProjectDao(database);
 		locationDao = new LocationDao(database);
 		categoryDao = new CategoryDao(database);
+		impactCategoryDao = new ImpactCategoryDao(database);
 	}
 
 	public void load() {
@@ -130,6 +132,15 @@ public class Cache {
 		return getDescriptors(impactMethodDao, ids);
 	}
 
+	public ImpactCategoryDescriptor getImpactCategoryDescriptor(long id) {
+		return getDescriptor(impactCategoryDao, id);
+	}
+
+	public List<ImpactCategoryDescriptor> getImpactCategoryDescriptors(
+			Set<Long> ids) {
+		return getDescriptors(impactCategoryDao, ids);
+	}
+
 	public ProjectDescriptor getProjectDescriptor(long id) {
 		return getDescriptor(projectDao, id);
 	}
@@ -170,8 +181,8 @@ public class Cache {
 		return get(flowPropertyDao, ids);
 	}
 
-	private <T extends CategorizedEntity, V extends CategorizedDescriptor> V getDescriptor(
-			CategorizedEntityDao<T, V> dao, long id) {
+	private <T extends RootEntity, V extends BaseDescriptor> V getDescriptor(
+			RootEntityDao<T, V> dao, long id) {
 		String key = getKey(dao.getDescriptorType(), id);
 		@SuppressWarnings("unchecked")
 		V value = (V) cache.get(key);
@@ -182,8 +193,8 @@ public class Cache {
 		return value;
 	}
 
-	private <T extends CategorizedEntity, V extends CategorizedDescriptor> List<V> getDescriptors(
-			CategorizedEntityDao<T, V> dao, Set<Long> ids) {
+	private <T extends RootEntity, V extends BaseDescriptor> List<V> getDescriptors(
+			RootEntityDao<T, V> dao, Set<Long> ids) {
 		List<V> results = new ArrayList<>();
 		Set<Long> toLoad = new HashSet<>();
 		for (Long id : ids) {
