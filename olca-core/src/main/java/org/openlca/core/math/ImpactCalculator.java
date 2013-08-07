@@ -20,9 +20,9 @@ import org.openlca.core.model.NormalizationWeightingFactor;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.core.model.results.ImpactCategoryResult;
 import org.openlca.core.model.results.ImpactResult;
 import org.openlca.core.model.results.InventoryResult;
+import org.openlca.core.results.ImpactCategoryResult;
 
 /**
  * Calculates an impact assessment result for an inventory result.

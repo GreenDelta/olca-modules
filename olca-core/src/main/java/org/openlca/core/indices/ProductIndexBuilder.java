@@ -24,6 +24,10 @@ public class ProductIndexBuilder {
 		this.preferredType = preferredType;
 	}
 
+	public ProductIndex build(LongPair refProduct) {
+		return build(refProduct, 1.0);
+	}
+
 	public ProductIndex build(LongPair refProduct, double demand) {
 		linkIndex = new TechnosphereLinkIndex(database);
 		typeIndex = new ProcessTypeIndex(database);

@@ -10,8 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-
 @Entity
 @Table(name = "tbl_normalisation_weighting_sets")
 public class NormalizationWeightingSet extends AbstractEntity {
@@ -26,23 +24,11 @@ public class NormalizationWeightingSet extends AbstractEntity {
 	@Column(name = "unit")
 	private String unit;
 
-	public NormalizationWeightingSet() {
-	}
-
-	public NormalizationWeightingFactor getFactor(ImpactCategory category) {
-		if (category == null)
-			return null;
-		return getFactor(category.getId());
-	}
-
-	public NormalizationWeightingFactor getFactor(
-			ImpactCategoryDescriptor descriptor) {
-		if (descriptor == null)
-			return null;
-		return getFactor(descriptor.getId());
-	}
-
-	private NormalizationWeightingFactor getFactor(long categoryId) {
+	/**
+	 * Get the impact factor for the given category ID, or null if there is no
+	 * factor for this category in this nw-set.
+	 */
+	public NormalizationWeightingFactor getFactor(long categoryId) {
 		for (NormalizationWeightingFactor fac : normalizationWeightingFactors) {
 			if (categoryId == fac.getImpactCategoryId())
 				return fac;

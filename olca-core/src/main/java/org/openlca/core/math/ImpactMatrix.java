@@ -1,5 +1,6 @@
 package org.openlca.core.math;
 
+import org.openlca.core.indices.FlowIndex;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**

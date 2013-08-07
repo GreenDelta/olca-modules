@@ -1,9 +1,8 @@
 package org.openlca.core.database;
 
 import org.openlca.core.database.internal.ProductSystemBuilder;
-import org.openlca.core.database.internal.ProductSystemCutoffBuilder;
+import org.openlca.core.indices.LongPair;
 import org.openlca.core.jobs.IProgressMonitor;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +21,10 @@ public interface IProductSystemBuilder {
 	void autoComplete(ProductSystem system);
 
 	/**
-	 * Creates the supply chain of the given process in the product system.
+	 * Creates the supply chain of the given process-product in the product
+	 * system.
 	 */
-	void autoComplete(ProductSystem system, Process process);
+	void autoComplete(ProductSystem system, LongPair processProduct);
 
 	class Factory {
 
@@ -46,11 +46,8 @@ public interface IProductSystemBuilder {
 				IProgressMonitor monitor, boolean preferSystemProcesses,
 				double cutoff) {
 			log.trace("Create product system builder with cut-off = {}", cutoff);
-			ProductSystemCutoffBuilder builder = new ProductSystemCutoffBuilder(
-					database, cutoff);
-			builder.setPreferSystemProcesses(preferSystemProcesses);
-			// TODO: progress monitor
-			return builder;
+			return create(database, monitor, preferSystemProcesses);
+			// TODO: no cutoff!
 		}
 	}
 }

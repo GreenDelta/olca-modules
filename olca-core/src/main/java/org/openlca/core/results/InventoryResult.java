@@ -1,4 +1,4 @@
-package org.openlca.core.matrices;
+package org.openlca.core.results;
 
 import org.openlca.core.indices.FlowIndex;
 import org.openlca.core.indices.LongIndex;
@@ -25,27 +25,27 @@ public class InventoryResult {
 	private double[] impactResults;
 	private double[] scalingFactors;
 
-	void setProductIndex(ProductIndex productIndex) {
+	public void setProductIndex(ProductIndex productIndex) {
 		this.productIndex = productIndex;
 	}
 
-	void setFlowIndex(FlowIndex flowIndex) {
+	public void setFlowIndex(FlowIndex flowIndex) {
 		this.flowIndex = flowIndex;
 	}
 
-	void setImpactIndex(LongIndex impactIndex) {
+	public void setImpactIndex(LongIndex impactIndex) {
 		this.impactIndex = impactIndex;
 	}
 
-	void setFlowResults(double[] flowResults) {
+	public void setFlowResults(double[] flowResults) {
 		this.flowResults = flowResults;
 	}
 
-	void setImpactResults(double[] impactResults) {
+	public void setImpactResults(double[] impactResults) {
 		this.impactResults = impactResults;
 	}
 
-	void setScalingFactors(double[] scalingFactors) {
+	public void setScalingFactors(double[] scalingFactors) {
 		this.scalingFactors = scalingFactors;
 	}
 
@@ -62,7 +62,14 @@ public class InventoryResult {
 	}
 
 	public double[] getFlowResults() {
-		return flowResults;
+		if (flowResults == null)
+			return new double[0];
+		double[] vals = new double[flowResults.length];
+		for (int i = 0; i < vals.length; i++) {
+			long flowId = flowIndex.getFlowAt(i);
+			vals[i] = adoptFlowResult(flowResults[i], flowId);
+		}
+		return vals;
 	}
 
 	public double[] getImpactResults() {
@@ -77,7 +84,14 @@ public class InventoryResult {
 		int idx = flowIndex.getIndex(flowId);
 		if (idx < 0 || idx >= flowResults.length)
 			return 0;
-		return flowResults[idx];
+		return adoptFlowResult(flowResults[idx], flowId);
+	}
+
+	private double adoptFlowResult(double value, long flowId) {
+		if (value == 0)
+			return 0; // avoid -0 in the results
+		boolean inputFlow = flowIndex.isInput(flowId);
+		return inputFlow ? -value : value;
 	}
 
 	public boolean hasImpactResults() {

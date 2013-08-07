@@ -13,7 +13,6 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.results.ImpactResult;
 
 public class Descriptors {
 
@@ -48,8 +47,6 @@ public class Descriptors {
 			return toDescriptor((Actor) entity);
 		if (entity instanceof Source)
 			return toDescriptor((Source) entity);
-		if (entity instanceof ImpactResult)
-			return toDescriptor((ImpactResult) entity);
 		return createUnknownDescriptor(entity);
 	}
 
@@ -128,15 +125,6 @@ public class Descriptors {
 			return null;
 		SourceDescriptor descriptor = new SourceDescriptor();
 		setBaseValues(source, descriptor);
-		return descriptor;
-	}
-
-	public static CategorizedDescriptor toDescriptor(ImpactResult impactResult) {
-		if (impactResult == null)
-			return null;
-		CategorizedDescriptor descriptor = new CategorizedDescriptor();
-		descriptor.setType(ModelType.IMPACT_RESULT);
-		setBaseValues(impactResult, descriptor);
 		return descriptor;
 	}
 

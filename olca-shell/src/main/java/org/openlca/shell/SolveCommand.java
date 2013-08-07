@@ -1,8 +1,5 @@
 package org.openlca.shell;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.indices.ExchangeTable;
 import org.openlca.core.indices.FlowIndex;
@@ -64,17 +61,11 @@ public class SolveCommand {
 
 			ProductIndexBuilder builder = new ProductIndexBuilder(database);
 			ProductIndex index = builder.build(refProduct, 1d);
-			List<Long> processIds = new ArrayList<>();
-			for (int i = 0; i < index.size(); i++) {
-				LongPair product = index.getProductAt(i);
-				Long processId = product.getFirst();
-				if (!processIds.contains(processId))
-					processIds.add(processId);
-			}
 			logTime("product index created");
 
 			log.trace("Build exchange table");
-			ExchangeTable table = new ExchangeTable(database, processIds);
+			ExchangeTable table = new ExchangeTable(database,
+					index.getProcessIds());
 			logTime("exchange table created");
 
 			log.trace("Build flow index");

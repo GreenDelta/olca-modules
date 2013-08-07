@@ -18,11 +18,11 @@ public class ExchangeTable {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final HashMap<Long, List<CalcExchange>> exchanges = new HashMap<>();
 
-	public ExchangeTable(IDatabase database, List<Long> processIds) {
+	public ExchangeTable(IDatabase database, Set<Long> processIds) {
 		init(database, processIds);
 	}
 
-	private void init(IDatabase database, List<Long> processIds) {
+	private void init(IDatabase database, Set<Long> processIds) {
 		if (processIds.isEmpty())
 			return;
 		FlowTypeIndex flowTypes = new FlowTypeIndex(database);

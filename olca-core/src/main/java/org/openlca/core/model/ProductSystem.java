@@ -113,7 +113,7 @@ public class ProductSystem extends CategorizedEntity implements
 	public ProcessLink[] getIncomingLinks(long processId) {
 		List<ProcessLink> incoming = new ArrayList<>();
 		for (ProcessLink link : getProcessLinks(processId))
-			if (link.getRecipientProcess() == processId)
+			if (link.getRecipientProcessId() == processId)
 				incoming.add(link);
 		return incoming.toArray(new ProcessLink[incoming.size()]);
 	}
@@ -133,7 +133,7 @@ public class ProductSystem extends CategorizedEntity implements
 	public ProcessLink[] getOutgoingLinks(long processId) {
 		List<ProcessLink> outgoing = new ArrayList<>();
 		for (ProcessLink link : getProcessLinks(processId))
-			if (link.getProviderProcess() == processId)
+			if (link.getProviderProcessId() == processId)
 				outgoing.add(link);
 		return outgoing.toArray(new ProcessLink[outgoing.size()]);
 	}
@@ -152,8 +152,8 @@ public class ProductSystem extends CategorizedEntity implements
 	public ProcessLink[] getProcessLinks(long processId) {
 		List<ProcessLink> processLinks = new ArrayList<>();
 		for (ProcessLink processLink : getProcessLinks())
-			if (processLink.getProviderProcess() == processId
-					|| processLink.getRecipientProcess() == processId)
+			if (processLink.getProviderProcessId() == processId
+					|| processLink.getRecipientProcessId() == processId)
 				processLinks.add(processLink);
 		return processLinks.toArray(new ProcessLink[processLinks.size()]);
 	}

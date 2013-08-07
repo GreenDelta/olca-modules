@@ -6,6 +6,7 @@ import java.util.List;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.results.AnalysisResult;
 
 /**
  * Calculates the contributions of single process results grouped by a given

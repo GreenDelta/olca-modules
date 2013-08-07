@@ -100,6 +100,18 @@ public class Shell {
 			new CheckMatrixCommand().exec(this, args);
 			break;
 
+		case "make_system":
+			new MakeSystemCommand().exec(this, args);
+			break;
+
+		case "solve_system":
+			new SystemCalculationCommand().solve(this, args);
+			break;
+
+		case "analyse_system":
+			new SystemCalculationCommand().analyse(this, args);
+			break;
+
 		default:
 			log.info("unknown command ", command);
 			break;

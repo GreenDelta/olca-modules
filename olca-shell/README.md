@@ -100,6 +100,18 @@ This an import command could look like:
 
 	import EcoSpold_1 C:\...\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
 
+
+Creating a product system
+-------------------------
+
+A product system can be created from a process with the `make_system` command:
+
+	make_system <ID of process>
+	
+This will create a new product system in the database using the process with
+the given ID as reference process and the quantitative reference of this 
+process as reference exchange. 
+
   	
 Solving a product system
 ------------------------

@@ -11,6 +11,7 @@ import org.openlca.core.database.BlockFetch.QueryFunction;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.Query;
+import org.openlca.core.indices.FlowIndex;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
