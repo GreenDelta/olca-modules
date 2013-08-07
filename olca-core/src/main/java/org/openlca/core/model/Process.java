@@ -150,40 +150,44 @@ public class Process extends CategorizedEntity implements IParameterisable {
 	}
 
 	public Exchange getExchange(long id) {
-		for (Exchange e : exchanges) {
+		for (Exchange e : exchanges)
 			if (id == e.getId())
 				return e;
-		}
 		return null;
 	}
 
-	public Exchange[] getExchanges(FlowType flowType) {
-		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getExchanges()) {
-			if (exchange.getFlow().getFlowType() == flowType) {
-				exchanges.add(exchange);
-			}
-		}
+	public Exchange[] getExchanges(FlowType... flowTypes) {
+		if (flowTypes == null)
+			return exchanges.toArray(new Exchange[exchanges.size()]);
+		List<Exchange> exchanges = new ArrayList<>(); 
+		for (Exchange exchange : getExchanges())
+			for (FlowType flowType : flowTypes)
+				if (exchange.getFlow().getFlowType() == flowType) {
+					exchanges.add(exchange);
+					break;
+				}
 		return exchanges.toArray(new Exchange[exchanges.size()]);
 	}
 
 	public Exchange[] getInputs() {
 		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getExchanges()) {
-			if (exchange.isInput()) {
+		for (Exchange exchange : getExchanges())
+			if (exchange.isInput())
 				exchanges.add(exchange);
-			}
-		}
 		return exchanges.toArray(new Exchange[exchanges.size()]);
 	}
 
-	public Exchange[] getInputs(FlowType flowType) {
+	public Exchange[] getInputs(FlowType... flowTypes) {
+		if (flowTypes == null)
+			return getInputs();
 		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getInputs()) {
-			if (exchange.getFlow().getFlowType() == flowType) {
-				exchanges.add(exchange);
-			}
-		}
+		for (Exchange exchange : getExchanges())
+			if (exchange.isInput())
+				for (FlowType flowType : flowTypes)
+					if (exchange.getFlow().getFlowType() == flowType) {
+						exchanges.add(exchange);
+						break;
+					}
 		return exchanges.toArray(new Exchange[exchanges.size()]);
 	}
 
@@ -193,22 +197,23 @@ public class Process extends CategorizedEntity implements IParameterisable {
 
 	public Exchange[] getOutputs() {
 		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getExchanges()) {
-			if (!exchange.isInput()) {
+		for (Exchange exchange : getExchanges())
+			if (!exchange.isInput())
 				exchanges.add(exchange);
-			}
-		}
 		return exchanges.toArray(new Exchange[exchanges.size()]);
 	}
 
-	public Exchange[] getOutputs(FlowType flowType) {
+	public Exchange[] getOutputs(FlowType... flowTypes) {
+		if (flowTypes == null)
+			return getOutputs();
 		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getOutputs()) {
-			Flow flow = exchange.getFlow();
-			if (flow != null && flow.getFlowType() == flowType) {
-				exchanges.add(exchange);
-			}
-		}
+		for (Exchange exchange : getExchanges())
+			if (!exchange.isInput())
+				for (FlowType flowType : flowTypes)
+					if (exchange.getFlow().getFlowType() == flowType) {
+						exchanges.add(exchange);
+						break;
+					}
 		return exchanges.toArray(new Exchange[exchanges.size()]);
 	}
 

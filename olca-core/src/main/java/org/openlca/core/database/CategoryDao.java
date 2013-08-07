@@ -5,11 +5,12 @@ import java.util.List;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 
-public class CategoryDao extends BaseDao<Category> {
+public class CategoryDao extends RootEntityDao<Category, BaseDescriptor> {
 
 	public CategoryDao(IDatabase database) {
-		super(Category.class, database);
+		super(Category.class, BaseDescriptor.class, database);
 	}
 
 	/** Root categories do not have a parent category. */

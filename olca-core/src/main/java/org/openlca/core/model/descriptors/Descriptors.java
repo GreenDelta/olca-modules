@@ -141,10 +141,38 @@ public class Descriptors {
 		return descriptor;
 	}
 
+	public static Class<? extends RootEntity> getModelClass(
+			Class<? extends BaseDescriptor> descriptorClass) {
+		if (descriptorClass == BaseDescriptor.class)
+			return RootEntity.class;
+		else if (descriptorClass == CategorizedDescriptor.class)
+			return CategorizedEntity.class;
+		else if (descriptorClass == ActorDescriptor.class)
+			return Actor.class;
+		else if (descriptorClass == SourceDescriptor.class)
+			return Source.class;
+		else if (descriptorClass == UnitGroupDescriptor.class)
+			return UnitGroup.class;
+		else if (descriptorClass == FlowPropertyDescriptor.class)
+			return FlowProperty.class;
+		else if (descriptorClass == FlowDescriptor.class)
+			return Flow.class;
+		else if (descriptorClass == ProcessDescriptor.class)
+			return Process.class;
+		else if (descriptorClass == ProductSystemDescriptor.class)
+			return ProductSystem.class;
+		else if (descriptorClass == ImpactMethodDescriptor.class)
+			return ImpactMethod.class;
+		else if (descriptorClass == ImpactCategoryDescriptor.class)
+			return ImpactCategory.class;
+		return RootEntity.class;
+	}
+
 	private static void setBaseValues(CategorizedEntity entity,
 			CategorizedDescriptor descriptor) {
 		setBaseValues((RootEntity) entity, descriptor);
-		descriptor.setCategory(entity.getCategory().getId());
+		if (entity.getCategory() != null)
+			descriptor.setCategory(entity.getCategory().getId());
 	}
 
 	private static void setBaseValues(RootEntity entity,

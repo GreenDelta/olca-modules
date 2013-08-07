@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -96,11 +97,12 @@ public class Strings {
 		return str1.compareToIgnoreCase(str2);
 	}
 
-	public static <T> String join(List<T> values, char delimiter) {
+	public static <T> String join(Collection<T> values, char delimiter) {
 		String[] stringValues = new String[values.size()];
-		for (int i = 0; i < values.size(); i++)
-			if (values.get(i) != null)
-				stringValues[i] = values.get(i).toString();
+		int i = 0;
+		for (T value : values)
+			if (value != null)
+				stringValues[i++] = value.toString();
 		return join(stringValues, delimiter);
 	}
 

@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Table;
 
@@ -34,9 +35,9 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 		return createDescriptor(result);
 	}
 
-	public List<V> getDescriptors(List<Long> ids) {
-		String sql = getDescriptorQuery() + " where id in ?";
-		Object arg = "(" + Strings.join(ids, ',') + ")";
+	public List<V> getDescriptors(Set<Long> ids) {
+		String sql = getDescriptorQuery() + " where id in (?)";
+		Object arg = Strings.join(ids, ',');
 		List<Object[]> results = selectAll(sql, getDescriptorFields(),
 				Collections.singletonList(arg));
 		return createDescriptors(results);
@@ -59,8 +60,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 
 	private String getEntityTable() {
 		if (entityTable == null)
-			entityTable = entityType.getAnnotation(Table.class)
-					.name();
+			entityTable = entityType.getAnnotation(Table.class).name();
 		return entityTable;
 	}
 
@@ -69,7 +69,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 	 * Subclass may override to provide more information. Use sql column names !
 	 */
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "name", "description" };
+		return new String[] { "id", "ref_id", "name", "description" };
 	}
 
 	/**
@@ -97,8 +97,9 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 		try {
 			descriptor = descriptorType.newInstance();
 			descriptor.setId((Long) queryResult[0]);
-			descriptor.setName((String) queryResult[1]);
-			descriptor.setDescription((String) queryResult[2]);
+			descriptor.setRefId((String) queryResult[1]);
+			descriptor.setName((String) queryResult[2]);
+			descriptor.setDescription((String) queryResult[3]);
 			descriptor.setType(ModelType.forModelClass(entityType));
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log,
