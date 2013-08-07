@@ -95,7 +95,7 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	@Column(name = "copyright")
 	private boolean copyright;
 
-	@Temporal(value = TemporalType.DATE)
+	@Temporal(value = TemporalType.TIMESTAMP)
 	@Column(name = "creation_date")
 	private Date creationDate;
 
@@ -115,7 +115,7 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	@Column(name = "intended_application")
 	private String intendedApplication;
 
-	@Temporal(value = TemporalType.DATE)
+	@Temporal(value = TemporalType.TIMESTAMP)
 	@Column(name = "last_change")
 	private Date lastChange;
 
