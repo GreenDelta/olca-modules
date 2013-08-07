@@ -36,7 +36,11 @@ public class InventorySolver {
 		return result;
 	}
 
-	public AnalysisResult analyze(Inventory inventory, ImpactMatrix impactMatrix) {
+	public AnalysisResult analyse(Inventory inventory) {
+		return analyse(inventory, null);
+	}
+
+	public AnalysisResult analyse(Inventory inventory, ImpactMatrix impactMatrix) {
 
 		ProductIndex productIndex = inventory.getProductIndex();
 		ExchangeMatrix techExchanges = inventory.getTechnologyMatrix();

@@ -108,6 +108,10 @@ public class Shell {
 			new SystemCalculationCommand().solve(this, args);
 			break;
 
+		case "analyse_system":
+			new SystemCalculationCommand().analyse(this, args);
+			break;
+
 		default:
 			log.info("unknown command ", command);
 			break;
