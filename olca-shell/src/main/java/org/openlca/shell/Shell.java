@@ -104,6 +104,10 @@ public class Shell {
 			new MakeSystemCommand().exec(this, args);
 			break;
 
+		case "solve_system":
+			new SystemCalculationCommand().solve(this, args);
+			break;
+
 		default:
 			log.info("unknown command ", command);
 			break;

@@ -1,8 +1,5 @@
 package org.openlca.shell;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.openlca.core.database.IDatabase;
@@ -66,16 +63,10 @@ public class CheckMatrixCommand {
 
 			ProductIndexBuilder builder = new ProductIndexBuilder(database);
 			ProductIndex index = builder.build(refProduct, 1d);
-			List<Long> processIds = new ArrayList<>();
-			for (int i = 0; i < index.size(); i++) {
-				LongPair product = index.getProductAt(i);
-				Long processId = product.getFirst();
-				if (!processIds.contains(processId))
-					processIds.add(processId);
-			}
 
 			log.trace("Build exchange table");
-			ExchangeTable table = new ExchangeTable(database, processIds);
+			ExchangeTable table = new ExchangeTable(database,
+					index.getProcessIds());
 
 			log.trace("Build flow index");
 			FlowIndex flowIndex = new FlowIndex(index, table);
