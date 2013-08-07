@@ -27,11 +27,11 @@ class ProcessUseSearch implements IUseSearch<ProcessDescriptor> {
 		if (process == null)
 			return Collections.emptyList();
 		String jpql = "select s.id, s.name, s.description from ProductSystem s "
-				+ "join s.processes p where p.id = :processId";
+				+ "where :processId MEMBER OF s.processes";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
 					jpql,
-					Collections.singletonMap("processId", process.getRefId()));
+					Collections.singletonMap("processId", process.getId()));
 			List<BaseDescriptor> descriptors = new ArrayList<>();
 			for (Object[] result : results) {
 				ProductSystemDescriptor d = new ProductSystemDescriptor();
