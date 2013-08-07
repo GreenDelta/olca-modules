@@ -1,4 +1,4 @@
-package org.openlca.core.model.results;
+package org.openlca.core.results;
 
 import java.util.List;
 

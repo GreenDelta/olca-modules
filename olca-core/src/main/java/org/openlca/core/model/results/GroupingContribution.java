@@ -7,6 +7,9 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.AnalysisResult;
+import org.openlca.core.results.Contribution;
+import org.openlca.core.results.ContributionSet;
+import org.openlca.core.results.ContributionShare;
 
 /**
  * Calculates the contributions of single process results grouped by a given

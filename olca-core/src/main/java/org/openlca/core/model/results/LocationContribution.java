@@ -11,6 +11,9 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.AnalysisResult;
+import org.openlca.core.results.Contribution;
+import org.openlca.core.results.ContributionSet;
+import org.openlca.core.results.ContributionShare;
 
 /**
  * Calculates the contributions of the single process results in an analysis

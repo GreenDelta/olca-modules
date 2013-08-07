@@ -1,5 +1,6 @@
 package org.openlca.shell;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.InventoryResult;
 import org.openlca.core.results.InventoryResults;
+import org.openlca.io.xls.results.AnalysisResultExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,7 @@ public class SystemCalculationCommand {
 
 	private long systemId;
 	private IDatabase database;
+	private File file;
 
 	public void solve(Shell shell, String[] args) {
 		boolean valid = parseArgs(shell, args);
@@ -53,7 +56,14 @@ public class SystemCalculationCommand {
 					.size());
 			SystemCalculator calculator = new SystemCalculator(database);
 			AnalysisResult result = calculator.analyse(system);
-			log.trace("print results");
+			Cache cache = new Cache(database);
+			if (file != null) {
+				log.trace("export result to file {}", file);
+				AnalysisResultExport export = new AnalysisResultExport(system,
+						file, cache);
+				export.run(result);
+				log.trace("done");
+			}
 		} catch (Exception e) {
 			log.error("failed to analyse system with ID " + args[0], e);
 		}
@@ -87,6 +97,9 @@ public class SystemCalculationCommand {
 		} catch (Exception e) {
 			log.error("the product system id is not valid");
 			return false;
+		}
+		if (args.length > 1 && args[1] != null) {
+			file = new File(args[1]);
 		}
 		return true;
 	}
