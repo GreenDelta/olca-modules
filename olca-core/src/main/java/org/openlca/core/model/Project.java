@@ -38,7 +38,7 @@ public class Project extends CategorizedEntity {
 	@JoinColumn(name = "f_author")
 	private Actor author;
 
-	@Temporal(value = TemporalType.DATE)
+	@Temporal(value = TemporalType.TIMESTAMP)
 	@Column(name = "creation_date")
 	private Date creationDate;
 
@@ -50,7 +50,7 @@ public class Project extends CategorizedEntity {
 	@Column(name = "goal")
 	private String goal;
 
-	@Temporal(value = TemporalType.DATE)
+	@Temporal(value = TemporalType.TIMESTAMP)
 	@Column(name = "last_modification_date")
 	private Date lastModificationDate;
 

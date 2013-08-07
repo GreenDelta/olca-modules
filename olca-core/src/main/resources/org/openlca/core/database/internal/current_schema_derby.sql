@@ -221,11 +221,11 @@ CREATE TABLE tbl_process_docs (
 	f_reviewer BIGINT, 
 	
 	project VARCHAR(255), 
-	creation_date DATE, 
+	creation_date TIMESTAMP, 
 	intended_application CLOB(64 K), 
 	restrictions CLOB(64 K),
 	copyright SMALLINT default 0, 
-	last_change DATE, 
+	last_change TIMESTAMP, 
 	version VARCHAR(255), 
 	f_data_generator BIGINT,
 	f_dataset_owner BIGINT, 
@@ -509,12 +509,12 @@ CREATE TABLE tbl_projects (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
-	creation_date DATE, 
+	creation_date TIMESTAMP, 
 	description CLOB(64 K), 
 	f_category BIGINT, 
 	functional_unit CLOB(64 K), 
 	name VARCHAR(255), 
-	last_modification_date DATE,
+	last_modification_date TIMESTAMP,
 	goal CLOB(64 K), 
 	f_author BIGINT, 
 	
