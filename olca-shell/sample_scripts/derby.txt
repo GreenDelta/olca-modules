@@ -6,7 +6,7 @@ derby  C:\Users\Dell\Downloads\olca_test_db full
 blas C:\Users\Dell\Downloads
 
 # import EcoSpold 01 data sets
-import EcoSpold_1 C:\Users\Dell\projects\data\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
+# import EcoSpold_1 C:\Users\Dell\projects\data\ecoinvent\ecoinvent2.2\Process_withinfra_raw.zip
 
 # import EcoSpold 02 data sets
 # import EcoSpold_2 C:\Users\Dell\projects\openlca\data\ecoinvent3\default\datasets
