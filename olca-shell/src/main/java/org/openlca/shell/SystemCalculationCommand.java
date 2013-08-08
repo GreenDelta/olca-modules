@@ -37,7 +37,7 @@ public class SystemCalculationCommand {
 			SystemCalculator calculator = new SystemCalculator(database);
 			InventoryResult result = calculator.solve(system);
 			log.trace("print results");
-			Cache cache = new Cache(database);
+			Cache cache = Cache.createEmptyCache(database);
 			printInventoryResult(result, cache);
 		} catch (Exception e) {
 			log.error("failed to solve system with ID " + args[0], e);
@@ -56,7 +56,7 @@ public class SystemCalculationCommand {
 					.size());
 			SystemCalculator calculator = new SystemCalculator(database);
 			AnalysisResult result = calculator.analyse(system);
-			Cache cache = new Cache(database);
+			Cache cache = Cache.createEmptyCache(database);
 			if (file != null) {
 				log.trace("export result to file {}", file);
 				AnalysisResultExport export = new AnalysisResultExport(system,

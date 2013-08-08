@@ -74,8 +74,7 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 		}
 	}
 
-	private void run(ProductSystem system, LongPair processProduct)
-			throws Exception {
+	private void run(ProductSystem system, LongPair processProduct) {
 		ProductIndexBuilder builder = new ProductIndexBuilder(database);
 		builder.setPreferredType(preferSystemProcesses ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS);

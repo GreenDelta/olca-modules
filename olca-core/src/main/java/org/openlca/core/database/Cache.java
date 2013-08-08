@@ -40,7 +40,17 @@ public class Cache {
 	private final CategoryDao categoryDao;
 	private final ImpactCategoryDao impactCategoryDao;
 
-	public Cache(IDatabase database) {
+	public static Cache createEmptyCache(IDatabase database) {
+		return new Cache(database);
+	}
+
+	public static Cache createDefaultCache(IDatabase database) {
+		Cache cache = new Cache(database);
+		cache.initializeData();
+		return cache;
+	}
+
+	private Cache(IDatabase database) {
 		actorDao = new ActorDao(database);
 		sourceDao = new SourceDao(database);
 		unitGroupDao = new UnitGroupDao(database);
@@ -55,7 +65,7 @@ public class Cache {
 		impactCategoryDao = new ImpactCategoryDao(database);
 	}
 
-	public void load() {
+	private void initializeData() {
 		for (Category category : categoryDao.getAll())
 			cache.put(getKey(Category.class, category.getId()), category);
 		for (UnitGroup unitGroup : unitGroupDao.getAll())
