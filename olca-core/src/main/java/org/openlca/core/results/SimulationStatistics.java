@@ -1,4 +1,4 @@
-package org.openlca.core.math;
+package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,13 +7,13 @@ import java.util.List;
 /**
  * Calculates statistic parameters for a set of numbers.
  */
-public class Statistics {
+public class SimulationStatistics {
 
 	private List<Double> values;
 	private int intervalCount;
 	private int[] frequencies;
 
-	public Statistics(List<Double> values, int intervalCount) {
+	public SimulationStatistics(List<Double> values, int intervalCount) {
 		if (values == null || values.isEmpty()) {
 			this.values = new ArrayList<>();
 			this.values.add(0d);
@@ -25,8 +25,8 @@ public class Statistics {
 		calculateFrequencyTable();
 	}
 
-	public static Statistics empty() {
-		return new Statistics(null, 1);
+	public static SimulationStatistics empty() {
+		return new SimulationStatistics(null, 1);
 	}
 
 	private void calculateFrequencyTable() {

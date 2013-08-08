@@ -6,9 +6,10 @@ import org.openlca.core.indices.FlowIndex;
 import org.openlca.core.indices.LongPair;
 import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.indices.ProductIndexBuilder;
+import org.openlca.core.math.InventorySolver;
 import org.openlca.core.matrices.InventoryMatrix;
 import org.openlca.core.matrices.InventoryMatrixBuilder;
-import org.openlca.core.matrices.InventoryMatrixSolver;
+import org.openlca.core.results.InventoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,17 +80,18 @@ public class SolveCommand {
 			logTime("inventory matrix created");
 
 			log.trace("Solve inventory");
-			InventoryMatrixSolver solver = new InventoryMatrixSolver();
-			double[] g = solver.solve(matrix, 1.0);
+			InventorySolver solver = new InventorySolver();
+			InventoryResult result = solver.solve(matrix);
 			logTime("inventory solved");
 
 			log.trace("finished after {} msec", totalTime);
 
 			System.out.println("\n\nResults:");
 			System.out.println("flow \t result");
-			for (int i = 0; i < g.length; i++) {
+			for (int i = 0; i < flowIndex.size(); i++) {
 				long flowId = flowIndex.getFlowAt(i);
-				System.out.println(String.format("%s \t %s", flowId, g[i]));
+				System.out.println(String.format("%s \t %s", flowId,
+						result.getFlowResult(flowId)));
 			}
 
 		} catch (Exception e) {

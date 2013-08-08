@@ -1,9 +1,11 @@
-package org.openlca.core.matrices;
+package org.openlca.core.math;
 
-import org.openlca.core.indices.LongPair;
 import org.openlca.core.indices.ProductIndex;
-import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.MatrixFactory;
+import org.openlca.core.matrices.ExchangeCell;
+import org.openlca.core.matrices.ExchangeMatrix;
+import org.openlca.core.matrices.ImpactMatrix;
+import org.openlca.core.matrices.Inventory;
+import org.openlca.core.matrices.InventoryMatrix;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.InventoryResult;
 
@@ -14,18 +16,34 @@ public class InventorySolver {
 	}
 
 	public InventoryResult solve(Inventory inventory, ImpactMatrix impactMatrix) {
-
-		IMatrix techMatrix = inventory.getTechnologyMatrix().createRealMatrix();
-		IMatrix demand = demandVector(inventory);
-		IMatrix s = techMatrix.solve(demand);
+		InventoryMatrix matrix = new InventoryMatrix();
+		matrix.setFlowIndex(inventory.getFlowIndex());
+		matrix.setProductIndex(inventory.getProductIndex());
 		IMatrix enviMatrix = inventory.getInterventionMatrix()
 				.createRealMatrix();
+		matrix.setInterventionMatrix(enviMatrix);
+		IMatrix techMatrix = inventory.getTechnologyMatrix().createRealMatrix();
+		matrix.setTechnologyMatrix(techMatrix);
+		return solve(matrix, impactMatrix);
+	}
+
+	public InventoryResult solve(InventoryMatrix matrix) {
+		return solve(matrix, null);
+	}
+
+	public InventoryResult solve(InventoryMatrix matrix,
+			ImpactMatrix impactMatrix) {
+		IMatrix techMatrix = matrix.getTechnologyMatrix();
+		IMatrix demand = Calculators.createDemandVector(matrix
+				.getProductIndex());
+		IMatrix s = techMatrix.solve(demand);
+		IMatrix enviMatrix = matrix.getInterventionMatrix();
 		IMatrix g = enviMatrix.multiply(s);
 
 		InventoryResult result = new InventoryResult();
-		result.setFlowIndex(inventory.getFlowIndex());
+		result.setFlowIndex(matrix.getFlowIndex());
 		result.setFlowResults(g.getColumn(0));
-		result.setProductIndex(inventory.getProductIndex());
+		result.setProductIndex(matrix.getProductIndex());
 		result.setScalingFactors(s.getColumn(0));
 		if (impactMatrix != null) {
 			IMatrix impactFactors = impactMatrix.getValues();
@@ -54,7 +72,7 @@ public class InventorySolver {
 				.createRealMatrix();
 		IMatrix inverse = techMatrix.getInverse();
 
-		IMatrix demand = demandVector(inventory);
+		IMatrix demand = Calculators.createDemandVector(productIndex);
 		IMatrix scalingFactors = inverse.multiply(demand);
 		// we now that the reference product is always in the first column
 		result.setScalingFactors(scalingFactors.getColumn(0));
@@ -92,15 +110,6 @@ public class InventorySolver {
 			result.setTotalImpactResult(totalImpactResult);
 		}
 		return result;
-	}
-
-	private IMatrix demandVector(Inventory inventory) {
-		ProductIndex index = inventory.getProductIndex();
-		LongPair refProduct = index.getRefProduct();
-		int idx = index.getIndex(refProduct);
-		IMatrix demandVector = MatrixFactory.create(index.size(), 1);
-		demandVector.setEntry(idx, 0, index.getDemand());
-		return demandVector;
 	}
 
 }

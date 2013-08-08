@@ -112,6 +112,10 @@ public class Shell {
 			new SystemCalculationCommand().analyse(this, args);
 			break;
 
+		case "simulate_system":
+			new SimulationCommand().exec(this, args);
+			break;
+
 		default:
 			log.info("unknown command ", command);
 			break;
