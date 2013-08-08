@@ -25,6 +25,7 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.AnalysisFlowResults;
 import org.openlca.core.results.AnalysisImpactResults;
 import org.openlca.core.results.AnalysisResult;
+import org.openlca.io.CategoryPair;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class AnalysisResultExport {
 	private List<ImpactCategoryDescriptor> impacts;
 	private List<FlowDescriptor> flows;
 
-	private HashMap<Long, String[]> flowCategories = new HashMap<>();
+	private HashMap<Long, CategoryPair> flowCategories = new HashMap<>();
 	private HashMap<Long, String> flowUnits = new HashMap<>();
 
 	public AnalysisResultExport(ProductSystem system, File file, Cache cache) {
@@ -134,12 +135,9 @@ public class AnalysisResultExport {
 		Collections.sort(flows, new Comparator<FlowDescriptor>() {
 			@Override
 			public int compare(FlowDescriptor o1, FlowDescriptor o2) {
-				String[] cat1 = flowCategory(o1);
-				String[] cat2 = flowCategory(o2);
-				int c = Strings.compare(cat1[0], cat2[0]);
-				if (c != 0)
-					return c;
-				c = Strings.compare(cat1[1], cat2[1]);
+				CategoryPair cat1 = flowCategory(o1);
+				CategoryPair cat2 = flowCategory(o2);
+				int c = cat1.compareTo(cat2);
 				if (c != 0)
 					return c;
 				return Strings.compare(o1.getName(), o2.getName());
@@ -361,9 +359,9 @@ public class AnalysisResultExport {
 		int col = 1;
 		Excel.cell(sheet, row, col++, flow.getRefId());
 		Excel.cell(sheet, row, col++, flow.getName());
-		String[] flowCat = flowCategory(flow);
-		Excel.cell(sheet, row, col++, flowCat[0]);
-		Excel.cell(sheet, row, col++, flowCat[1]);
+		CategoryPair flowCat = flowCategory(flow);
+		Excel.cell(sheet, row, col++, flowCat.getCategory());
+		Excel.cell(sheet, row, col++, flowCat.getSubCategory());
 		Excel.cell(sheet, row, col++, "#TODO#");
 	}
 
@@ -377,28 +375,19 @@ public class AnalysisResultExport {
 		void next(FlowDescriptor flow, boolean input);
 	}
 
-	/** An array with [0]: parent category or ''; [1] sub-category or '' */
-	private String[] flowCategory(FlowDescriptor flow) {
-		String[] cats = flowCategories.get(flow.getId());
-		if (cats != null)
-			return cats;
+	private CategoryPair flowCategory(FlowDescriptor flow) {
+		CategoryPair pair = flowCategories.get(flow.getId());
+		if (pair != null)
+			return pair;
 		Long catId = flow.getCategory();
 		if (catId == null)
-			cats = new String[] { "", "" };
+			pair = new CategoryPair(null);
 		else {
 			Category cat = cache.getCategory(catId);
-			if (cat == null)
-				cats = new String[] { "", "" };
-			else {
-				Category parent = cat.getParentCategory();
-				if (parent == null)
-					cats = new String[] { cat.getName(), "" };
-				else
-					cats = new String[] { parent.getName(), cat.getName() };
-			}
+			pair = new CategoryPair(cat);
 		}
-		flowCategories.put(flow.getId(), cats);
-		return cats;
+		flowCategories.put(flow.getId(), pair);
+		return pair;
 	}
 
 	private String flowUnit(FlowDescriptor flow) {

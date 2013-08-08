@@ -2,9 +2,12 @@ package org.openlca.shell;
 
 import java.io.File;
 
+import org.openlca.core.database.Cache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.results.SimulationResult;
+import org.openlca.io.xls.results.SimulationResultExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +35,21 @@ public class SimulationCommand {
 				boolean success = simulator.nextRun();
 				log.trace("run {} finished, success = {}", i + 1, success);
 			}
+			exportResults(simulator);
+			log.trace("all done");
 		} catch (Exception e) {
 			log.error("failed to run simulation", e);
+		}
+	}
+
+	private void exportResults(Simulator simulator) throws Exception {
+		if (file != null) {
+			log.trace("export results");
+			SimulationResult result = simulator.getResult();
+			Cache cache = Cache.createEmptyCache(database);
+			SimulationResultExport export = new SimulationResultExport(result,
+					cache);
+			export.run(file);
 		}
 	}
 

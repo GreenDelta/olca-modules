@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A helper class for the import of categories.
+ * A helper class for the import, export, and display of categories.
  */
 public class Categories {
 

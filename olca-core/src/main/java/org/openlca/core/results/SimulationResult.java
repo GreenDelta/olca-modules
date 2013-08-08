@@ -35,6 +35,10 @@ public class SimulationResult {
 			categoryResults = new List[index.size()];
 	}
 
+	public LongIndex getImpactIndex() {
+		return impactIndex;
+	}
+
 	public void appendFlowResults(double[] vector) {
 		appendResults(vector, flowResults);
 	}
