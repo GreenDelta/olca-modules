@@ -95,10 +95,10 @@ public class AllocationSwitch {
 		if (propertyType == null || method == null)
 			return false;
 		else if (propertyType == FlowPropertyType.ECONOMIC
-				&& method == AllocationMethod.Economic)
+				&& method == AllocationMethod.ECONOMIC)
 			return true;
 		else if (propertyType == FlowPropertyType.PHYSICAL
-				&& method == AllocationMethod.Physical)
+				&& method == AllocationMethod.PHYSICAL)
 			return true;
 		else
 			return false;

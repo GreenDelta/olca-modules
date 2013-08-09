@@ -136,7 +136,7 @@ public class CostMatrixBuilder {
 		AllocationFactor allocationFactor = exchange
 				.getAllocationFactor(productId);
 		if (allocationMethod != null && allocationFactor != null
-				&& allocationMethod != AllocationMethod.None) {
+				&& allocationMethod != AllocationMethod.NONE) {
 			result *= allocationFactor.getValue();
 		}
 		return result;

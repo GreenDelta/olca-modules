@@ -231,7 +231,7 @@ public class EcoSpold01Import {
 		if (dataSet.getAllocations() != null
 				&& dataSet.getAllocations().size() > 0) {
 			mapAllocations(dataSet.getAllocations());
-			process.setAllocationMethod(AllocationMethod.Causal);
+			process.setAllocationMethod(AllocationMethod.CAUSAL);
 		}
 
 		Mapper.mapModellingAndValidation(dataSet, documentation);

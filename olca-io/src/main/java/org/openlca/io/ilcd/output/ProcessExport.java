@@ -215,11 +215,11 @@ public class ProcessExport {
 		if (process.getAllocationMethod() == null)
 			return null;
 		switch (process.getAllocationMethod()) {
-		case Causal:
+		case CAUSAL:
 			return LCIMethodApproach.ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT;
-		case Economic:
+		case ECONOMIC:
 			return LCIMethodApproach.ALLOCATION_MARKET_VALUE;
-		case Physical:
+		case PHYSICAL:
 			return LCIMethodApproach.ALLOCATION_PHYSICAL_CAUSALITY;
 		default:
 			return null;

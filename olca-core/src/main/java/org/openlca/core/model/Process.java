@@ -112,7 +112,7 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		double allocationFactor = 1;
 		// if no allocation is applied, the factor is 1
 		if (getAllocationMethod() != null
-				&& getAllocationMethod() != AllocationMethod.None) {
+				&& getAllocationMethod() != AllocationMethod.NONE) {
 			// if the exchange is the product it's allocation factor is 1
 			if (exchange.getId() != productId) {
 				AllocationFactor productFactor = null;

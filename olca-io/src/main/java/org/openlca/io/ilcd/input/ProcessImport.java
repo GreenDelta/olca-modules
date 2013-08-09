@@ -300,11 +300,11 @@ public class ProcessImport {
 		for (LCIMethodApproach app : approaches) {
 			switch (app) {
 			case ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT:
-				return AllocationMethod.Causal;
+				return AllocationMethod.CAUSAL;
 			case ALLOCATION_MARKET_VALUE:
-				return AllocationMethod.Economic;
+				return AllocationMethod.ECONOMIC;
 			case ALLOCATION_PHYSICAL_CAUSALITY:
-				return AllocationMethod.Physical;
+				return AllocationMethod.PHYSICAL;
 			default:
 				continue;
 			}
