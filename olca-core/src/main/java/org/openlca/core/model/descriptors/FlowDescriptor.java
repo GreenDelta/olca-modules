@@ -9,6 +9,7 @@ public class FlowDescriptor extends CategorizedDescriptor {
 
 	private Long location;
 	private FlowType flowType;
+	private long refFlowPropertyId;
 
 	public FlowDescriptor() {
 		setType(ModelType.FLOW);
@@ -28,6 +29,14 @@ public class FlowDescriptor extends CategorizedDescriptor {
 
 	public void setFlowType(FlowType flowType) {
 		this.flowType = flowType;
+	}
+
+	public long getRefFlowPropertyId() {
+		return refFlowPropertyId;
+	}
+
+	public void setRefFlowPropertyId(long refFlowPropertyId) {
+		this.refFlowPropertyId = refFlowPropertyId;
 	}
 
 }
