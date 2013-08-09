@@ -10,10 +10,10 @@ import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
  */
 public class CalculationSetup {
 
-	public static final int QUICK_RESULT = 0;
-	public static final int ANALYSIS = 1;
-	public static final int MONTE_CARLO_SIMULATION = 2;
-	public static final int COST_CALCULATION = 3;
+	public static final int QUICK_RESULT = 1;
+	public static final int ANALYSIS = 2;
+	public static final int MONTE_CARLO_SIMULATION = 3;
+	public static final int COST_CALCULATION = 4;
 
 	private final int type;
 	private final ProductSystem productSystem;
@@ -38,7 +38,7 @@ public class CalculationSetup {
 	 * should be one of the constants defined in this class.
 	 */
 	public boolean hasType(int type) {
-		return (type & this.type) == 0;
+		return (type & this.type) == type;
 	}
 
 	public ProductSystem getProductSystem() {
