@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.UUID;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.DatabaseContent;
@@ -29,20 +30,20 @@ public class DerbyDatabaseTest {
 	}
 
 	@Test
-	// @Ignore
+	@Ignore
 	public void testEmptyDao() {
 		ActorDao dao = new ActorDao(database);
 		Assert.assertTrue(dao.getAll().isEmpty());
 	}
 
 	@Test
-	// @Ignore
+	@Ignore
 	public void testAllRefData() {
 		database.fill(DatabaseContent.ALL_REF_DATA);
 	}
 
 	@Test
-	// @Ignore
+	@Ignore
 	public void testUnitRefData() {
 		database.fill(DatabaseContent.UNITS);
 	}

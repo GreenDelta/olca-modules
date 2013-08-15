@@ -28,7 +28,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		if (queryResult == null)
 			return null;
 		FlowDescriptor descriptor = super.createDescriptor(queryResult);
-		descriptor.setFlowType(FlowType.valueOf((String) queryResult[4]));
+		if (queryResult[4] instanceof String)
+			descriptor.setFlowType(FlowType.valueOf((String) queryResult[4]));
 		descriptor.setCategory((Long) queryResult[5]);
 		descriptor.setLocation((Long) queryResult[6]);
 		return descriptor;
