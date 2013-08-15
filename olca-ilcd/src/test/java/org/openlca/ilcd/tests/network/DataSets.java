@@ -20,9 +20,9 @@ import org.openlca.ilcd.util.UnitGroupBag;
 class DataSets {
 
 	static void upload() throws Exception {
-		NetworkClient client = new NetworkClient(
-				"http://localhost:8080/soda4LCA/resource", "admin", "default");
-		client.connect();
+		if (!Network.isAppAlive())
+			return;
+		NetworkClient client = Network.createClient();
 		putUnitGroup(client);
 		putFlowProperty(client);
 		putFlow(client);

@@ -3,6 +3,7 @@ package org.openlca.ilcd.tests.network;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.descriptors.DescriptorList;
@@ -20,14 +21,14 @@ import com.sun.jersey.api.client.WebResource;
 public class DescriptorTest {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
-	private String baseUrl = "http://localhost:8080/soda4LCA/resource";
-	private String unitUrl = baseUrl + "/unitgroups";
-	Client client = Client.create();
+	private String unitUrl = Network.RESOURCE_URL + "/unitgroups";
+	private Client client = Client.create();
 
 	@Before
 	public void setUp() throws Exception {
-		NetworkClient client = new NetworkClient(baseUrl, "admin", "default");
-		client.connect();
+		if (!Network.isAppAlive())
+			return;
+		NetworkClient client = Network.createClient();
 		XmlBinder binder = new XmlBinder();
 		UnitGroup group = binder.fromStream(UnitGroup.class, getClass()
 				.getResourceAsStream("unit.xml"));
@@ -40,6 +41,7 @@ public class DescriptorTest {
 
 	@Test
 	public void testGetDescriptors() {
+		Assume.assumeTrue(Network.isAppAlive());
 		log.trace("Run testGetDescriptors");
 		log.trace("Get unit groups: {}", unitUrl);
 		DescriptorList result = client.resource(unitUrl).get(
