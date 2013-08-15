@@ -89,7 +89,7 @@ public class SystemCalculationCommand {
 		}
 		this.database = shell.getDatabase();
 		if (args.length < 1) {
-			log.error("a process ID is expected");
+			log.error("a product system ID is expected");
 			return false;
 		}
 		try {

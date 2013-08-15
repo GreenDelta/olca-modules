@@ -112,6 +112,20 @@ This will create a new product system in the database using the process with
 the given ID as reference process and the quantitative reference of this 
 process as reference exchange. 
 
+
+Run an analysis
+---------------
+
+You can analyse a product system with the `analyse_system` command
+
+	analyse_system <ID of product system> <export xlsx file>
+	
+This will run an analysis of the given product system and export the result
+to the given Excel file (note that the format is XLSX), e.g.:
+
+	analyse_system 229755 C:/Users/Dell/Downloads/229755.xslx
+  
+	
   	
 Solving a product system
 ------------------------
