@@ -5,12 +5,12 @@ import java.util.HashMap;
 
 public class Interpreter {
 
-	private InterpreterContext context;
+	private Scope context;
 	private HashMap<String, Variable> vars;
 
 	public Interpreter() {
 		vars = new HashMap<>();
-		context = new InterpreterContext(this, vars);
+		context = new Scope(this, vars);
 	}
 
 	public void bind(Variable var) {

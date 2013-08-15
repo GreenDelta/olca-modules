@@ -2,14 +2,17 @@ package org.openlca.expressions;
 
 import java.util.HashMap;
 
-class InterpreterContext implements ExpressionContext {
+/**
+ * A scope provides bindings of symbols to expressions.
+ * 
+ */
+class Scope implements ExpressionContext {
 
 	private HashMap<String, Integer> evaluationCalls = new HashMap<>();
 	private Interpreter interpreter;
 	private HashMap<String, Variable> variables;
 
-	public InterpreterContext(Interpreter interpreter,
-			HashMap<String, Variable> variables) {
+	public Scope(Interpreter interpreter, HashMap<String, Variable> variables) {
 		this.interpreter = interpreter;
 		this.variables = variables;
 	}
