@@ -7,6 +7,7 @@ import org.openlca.core.indices.ExchangeTable;
 import org.openlca.core.indices.FlowIndex;
 import org.openlca.core.indices.LongPair;
 import org.openlca.core.indices.ProductIndex;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 
 public class InventoryBuilder {
@@ -14,18 +15,19 @@ public class InventoryBuilder {
 	private ProductIndex productIndex;
 	private FlowIndex flowIndex;
 	private ExchangeTable exchangeTable;
+	private AllocationMethod allocationMethod;
 
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	public InventoryBuilder(ProductIndex productIndex, FlowIndex flowIndex,
-			ExchangeTable exchangeTable) {
+	public InventoryBuilder(ProductIndex productIndex, FlowIndex flowIndex) {
 		this.productIndex = productIndex;
 		this.flowIndex = flowIndex;
-		this.exchangeTable = exchangeTable;
 	}
 
-	public Inventory build() {
+	public Inventory build(ExchangeTable exchangeTable,
+			AllocationMethod allocationMethod) {
+		this.exchangeTable = exchangeTable;
 		technologyMatrix = new ExchangeMatrix(productIndex.size(),
 				productIndex.size());
 		interventionMatrix = new ExchangeMatrix(flowIndex.size(),
@@ -56,19 +58,32 @@ public class InventoryBuilder {
 	private void putExchangeValue(LongPair processProduct, CalcExchange e) {
 		if (!e.isInput()
 				&& processProduct.equals(e.getProcessId(), e.getFlowId())) {
+			// the reference product
 			int idx = productIndex.getIndex(processProduct);
 			add(idx, idx, technologyMatrix, e);
+
 		} else if (e.getFlowType() == FlowType.ELEMENTARY_FLOW) {
+			// elementary exchanges
 			addIntervention(processProduct, e);
+
 		} else if (e.isInput()) {
+
 			LongPair inputProduct = new LongPair(e.getProcessId(),
 					e.getFlowId());
-			if (productIndex.isLinkedInput(inputProduct))
+
+			if (productIndex.isLinkedInput(inputProduct)) {
+				// linked product inputs
 				addProcessLink(processProduct, e, inputProduct);
-			else
+			} else {
+				// an unlinked product input
 				addIntervention(processProduct, e);
+			}
+
+		} else if (allocationMethod == null
+				|| allocationMethod == AllocationMethod.NONE) {
+			// non allocated output products
+			addIntervention(processProduct, e);
 		}
-		// TODO: non-allocated output-products
 	}
 
 	private void addProcessLink(LongPair processProduct, CalcExchange e,

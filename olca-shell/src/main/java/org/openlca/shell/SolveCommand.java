@@ -7,8 +7,9 @@ import org.openlca.core.indices.LongPair;
 import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.indices.ProductIndexBuilder;
 import org.openlca.core.math.InventorySolver;
-import org.openlca.core.matrices.InventoryMatrix;
-import org.openlca.core.matrices.InventoryMatrixBuilder;
+import org.openlca.core.matrices.Inventory;
+import org.openlca.core.matrices.InventoryBuilder;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.results.InventoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,9 +75,10 @@ public class SolveCommand {
 			logTime("flow index created");
 
 			log.trace("Build inventory matrix");
-			InventoryMatrixBuilder matrixBuilder = new InventoryMatrixBuilder(
-					index, flowIndex, table);
-			InventoryMatrix matrix = matrixBuilder.build();
+			InventoryBuilder matrixBuilder = new InventoryBuilder(index,
+					flowIndex);
+			Inventory matrix = matrixBuilder.build(table,
+					AllocationMethod.USE_DEFAULT);
 			logTime("inventory matrix created");
 
 			log.trace("Solve inventory");

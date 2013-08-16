@@ -2,6 +2,7 @@ package org.openlca.core.matrices;
 
 import org.openlca.core.indices.FlowIndex;
 import org.openlca.core.indices.ProductIndex;
+import org.openlca.core.model.AllocationMethod;
 
 public class Inventory {
 
@@ -9,12 +10,21 @@ public class Inventory {
 	private FlowIndex flowIndex;
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
+	private AllocationMethod allocationMethod;
 
 	public boolean isEmpty() {
 		return productIndex == null || productIndex.size() == 0
 				|| flowIndex == null || flowIndex.isEmpty()
 				|| technologyMatrix == null || technologyMatrix.isEmpty()
 				|| interventionMatrix == null || interventionMatrix.isEmpty();
+	}
+
+	public void setAllocationMethod(AllocationMethod allocationMethod) {
+		this.allocationMethod = allocationMethod;
+	}
+
+	public AllocationMethod getAllocationMethod() {
+		return allocationMethod;
 	}
 
 	public ProductIndex getProductIndex() {
