@@ -2,16 +2,13 @@ package org.openlca.core.matrices;
 
 import java.util.List;
 
-import org.openlca.core.indices.CalcExchange;
-import org.openlca.core.indices.ExchangeTable;
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongPair;
-import org.openlca.core.indices.ProductIndex;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 
 public class InventoryBuilder {
 
+	private IDatabase database;
 	private ProductIndex productIndex;
 	private FlowIndex flowIndex;
 	private ExchangeTable exchangeTable;
@@ -20,19 +17,28 @@ public class InventoryBuilder {
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	public InventoryBuilder(ProductIndex productIndex, FlowIndex flowIndex) {
-		this.productIndex = productIndex;
-		this.flowIndex = flowIndex;
+	public InventoryBuilder(IDatabase database) {
+		this.database = database;
 	}
 
-	public Inventory build(ExchangeTable exchangeTable,
+	public Inventory build(ProductIndex productIndex,
 			AllocationMethod allocationMethod) {
-		this.exchangeTable = exchangeTable;
+		this.productIndex = productIndex;
+		this.allocationMethod = allocationMethod;
+		exchangeTable = new ExchangeTable(database,
+				productIndex.getProcessIds());
+		flowIndex = new FlowIndex(productIndex, exchangeTable, allocationMethod);
 		technologyMatrix = new ExchangeMatrix(productIndex.size(),
 				productIndex.size());
 		interventionMatrix = new ExchangeMatrix(flowIndex.size(),
 				productIndex.size());
+		return createInventory(productIndex, allocationMethod);
+	}
+
+	private Inventory createInventory(ProductIndex productIndex,
+			AllocationMethod allocationMethod) {
 		Inventory inventory = new Inventory();
+		inventory.setAllocationMethod(allocationMethod);
 		inventory.setFlowIndex(flowIndex);
 		inventory.setInterventionMatrix(interventionMatrix);
 		inventory.setProductIndex(productIndex);

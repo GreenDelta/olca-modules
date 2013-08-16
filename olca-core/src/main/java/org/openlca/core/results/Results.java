@@ -5,10 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openlca.core.database.Cache;
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongIndex;
-import org.openlca.core.indices.LongPair;
-import org.openlca.core.indices.ProductIndex;
+import org.openlca.core.matrices.FlowIndex;
+import org.openlca.core.matrices.LongIndex;
+import org.openlca.core.matrices.LongPair;
+import org.openlca.core.matrices.ProductIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;

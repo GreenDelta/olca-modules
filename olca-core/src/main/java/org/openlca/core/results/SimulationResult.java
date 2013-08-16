@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongIndex;
+import org.openlca.core.matrices.FlowIndex;
+import org.openlca.core.matrices.LongIndex;
 
 public class SimulationResult {
 

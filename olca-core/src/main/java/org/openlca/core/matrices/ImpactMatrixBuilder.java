@@ -6,10 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.indices.CalcImpactFactor;
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.ImpactFactorTable;
-import org.openlca.core.indices.LongIndex;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.MatrixFactory;
 import org.slf4j.Logger;

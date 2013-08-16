@@ -18,10 +18,10 @@ import java.sql.Connection;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.IProductSystemBuilder;
-import org.openlca.core.indices.LongPair;
-import org.openlca.core.indices.ProductIndex;
-import org.openlca.core.indices.ProductIndexBuilder;
 import org.openlca.core.jobs.IProgressMonitor;
+import org.openlca.core.matrices.LongPair;
+import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrices.ProductIndexBuilder;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;

@@ -1,4 +1,4 @@
-package org.openlca.core.indices;
+package org.openlca.core.matrices;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -13,7 +13,7 @@ import org.openlca.core.model.UncertaintyDistributionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExchangeTable {
+class ExchangeTable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final HashMap<Long, List<CalcExchange>> exchanges = new HashMap<>();

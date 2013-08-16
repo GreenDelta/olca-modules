@@ -1,4 +1,4 @@
-package org.openlca.core.matrices;
+package org.openlca.core.math;
 
 import org.openlca.expressions.Interpreter;
 import org.openlca.expressions.InterpreterException;

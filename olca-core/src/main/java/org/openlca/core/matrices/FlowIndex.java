@@ -1,8 +1,9 @@
-package org.openlca.core.indices;
+package org.openlca.core.matrices;
 
 import java.util.HashMap;
 import java.util.List;
 
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 
 /**
@@ -14,11 +15,13 @@ public class FlowIndex {
 	private LongIndex flowIndex = new LongIndex();
 	private HashMap<Long, Boolean> inputMap = new HashMap<>();
 
-	public FlowIndex(ProductIndex productIndex, ExchangeTable exchangeTable) {
-		init(productIndex, exchangeTable);
+	FlowIndex(ProductIndex productIndex, ExchangeTable exchangeTable,
+			AllocationMethod allocationMethod) {
+		init(productIndex, exchangeTable, allocationMethod);
 	}
 
-	private void init(ProductIndex productIndex, ExchangeTable exchangeTable) {
+	private void init(ProductIndex productIndex, ExchangeTable exchangeTable,
+			AllocationMethod allocationMethod) {
 		for (Long processId : exchangeTable.getProcessIds()) {
 			List<CalcExchange> exchanges = exchangeTable
 					.getExchanges(processId);
@@ -33,7 +36,10 @@ public class FlowIndex {
 					continue; // the exchange is a linked input
 				if (e.isInput() || e.getFlowType() == FlowType.ELEMENTARY_FLOW)
 					indexFlow(e);
-				// TODO: co-products without allocation
+				else if (allocationMethod == null
+						|| allocationMethod == AllocationMethod.NONE)
+					indexFlow(e); // non-allocated co-product -> handle like
+									// elementary flow
 			}
 		}
 	}

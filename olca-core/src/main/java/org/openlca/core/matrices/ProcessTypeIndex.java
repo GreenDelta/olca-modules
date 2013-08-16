@@ -1,4 +1,4 @@
-package org.openlca.core.indices;
+package org.openlca.core.matrices;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

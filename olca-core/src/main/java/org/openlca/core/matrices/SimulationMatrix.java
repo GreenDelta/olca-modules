@@ -3,11 +3,6 @@ package org.openlca.core.matrices;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.core.indices.CalcExchange;
-import org.openlca.core.indices.ExchangeTable;
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongPair;
-import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.model.UncertaintyDistributionType;
 import org.slf4j.Logger;

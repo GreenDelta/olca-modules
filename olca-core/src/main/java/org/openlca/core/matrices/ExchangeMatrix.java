@@ -2,6 +2,7 @@ package org.openlca.core.matrices;
 
 import java.util.HashMap;
 
+import org.openlca.core.math.FormulaInterpreter;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.MatrixFactory;
 

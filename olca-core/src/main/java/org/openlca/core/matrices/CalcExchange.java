@@ -1,9 +1,9 @@
-package org.openlca.core.indices;
+package org.openlca.core.matrices;
 
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyDistributionType;
 
-public class CalcExchange {
+class CalcExchange {
 
 	private long processId;
 	private long flowId;

@@ -1,7 +1,5 @@
 package org.openlca.core.matrices;
 
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.math.IMatrix;
 
 public class InventoryMatrix {

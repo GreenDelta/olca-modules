@@ -1,6 +1,5 @@
 package org.openlca.core.matrices;
 
-import org.openlca.core.indices.CalcExchange;
 import org.openlca.core.math.NumberGenerator;
 import org.openlca.core.model.UncertaintyDistributionType;
 
