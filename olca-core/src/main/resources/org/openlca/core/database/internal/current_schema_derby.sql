@@ -186,7 +186,7 @@ CREATE TABLE tbl_processes (
 	f_category BIGINT, 
 	description CLOB(64 K), 
 	process_type VARCHAR(255), 
-	allocation_method VARCHAR(255), 	
+	default_allocation_method VARCHAR(255), 	
 	infrastructure_process SMALLINT default 0, 
 	f_quantitative_reference BIGINT, 
 	f_location BIGINT, 
@@ -275,12 +275,12 @@ CREATE TABLE tbl_exchanges (
 );
 
 
--- an allocation factor of an allocated process
-
 CREATE TABLE tbl_allocation_factors (
 
 	id BIGINT NOT NULL, 
+	allocation_type VARCHAR(255),
 	value DOUBLE, 
+	f_process BIGINT,
 	f_product BIGINT, 
 	f_exchange BIGINT, 
 	

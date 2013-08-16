@@ -5,6 +5,7 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.database.mysql.MySQLDatabase;
+import org.openlca.jblas.Library;
 
 public class TestSession {
 
@@ -13,6 +14,15 @@ public class TestSession {
 
 	public static IDatabase getDefaultDatabase() {
 		return getDerbyDatabase();
+	}
+
+	/** Tries to load the native BLAS library if it is not yet done. */
+	public static void prefereBlas() {
+		if (Library.isLoaded())
+			return;
+		String tmpDirPath = System.getProperty("java.io.tmpdir");
+		File tempDir = new File(tmpDirPath);
+		Library.loadFromDir(tempDir);
 	}
 
 	public static IDatabase getMySQLDatabase() {
