@@ -2,7 +2,7 @@ package org.openlca.core.matrices;
 
 import org.openlca.core.model.UncertaintyDistributionType;
 
-public class CalcImpactFactor {
+class CalcImpactFactor {
 
 	private long imactCategoryId;
 	private long flowId;

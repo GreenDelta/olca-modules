@@ -15,7 +15,7 @@ import org.openlca.core.database.Query;
 import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.ProductCostEntry;
+import org.openlca.core.model.ProcessCostEntry;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.results.SimpleCostResult;
 import org.slf4j.Logger;
@@ -64,13 +64,13 @@ public class CostCalculator {
 
 		}
 
-		List<ProductCostEntry> costEntries = fetchFixCostEntries(processIds);
+		List<ProcessCostEntry> costEntries = fetchFixCostEntries(processIds);
 		if (costEntries == null || costEntries.isEmpty())
 			return;
 
 		Map<Long, Double> idToValue = new HashMap<>();
 		Map<Long, CostCategory> idToCategory = new HashMap<>();
-		for (ProductCostEntry entry : costEntries) {
+		for (ProcessCostEntry entry : costEntries) {
 			CostCategory costCategory = entry.getCostCategory();
 
 			// value map entry
@@ -95,20 +95,20 @@ public class CostCalculator {
 		costResult.appendFixCosts(categories, values);
 	}
 
-	private List<ProductCostEntry> fetchFixCostEntries(List<Long> productIds) {
+	private List<ProcessCostEntry> fetchFixCostEntries(List<Long> productIds) {
 		FixCostEntryQuery query = new FixCostEntryQuery();
-		BlockFetch<ProductCostEntry> fetch = new BlockFetch<>(query);
+		BlockFetch<ProcessCostEntry> fetch = new BlockFetch<>(query);
 		return fetch.doFetch(productIds);
 	}
 
-	private class FixCostEntryQuery implements QueryFunction<ProductCostEntry> {
+	private class FixCostEntryQuery implements QueryFunction<ProcessCostEntry> {
 
 		@Override
-		public List<ProductCostEntry> fetchChunk(List<Long> processIds) {
+		public List<ProcessCostEntry> fetchChunk(List<Long> processIds) {
 			try {
 				String jpql = "select e from ProductCostEntry e where e.processId "
 						+ "in :processIds AND e.costCategory.fix = true";
-				return Query.on(database).getAll(ProductCostEntry.class, jpql,
+				return Query.on(database).getAll(ProcessCostEntry.class, jpql,
 						Collections.singletonMap("processIds", processIds));
 			} catch (Exception e) {
 				log.error("Failed to fetch cost entries", e);

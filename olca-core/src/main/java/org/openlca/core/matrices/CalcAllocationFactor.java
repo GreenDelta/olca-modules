@@ -2,7 +2,7 @@ package org.openlca.core.matrices;
 
 import org.openlca.core.model.AllocationMethod;
 
-public class CalcAllocationFactor {
+class CalcAllocationFactor {
 
 	private long processId;
 	private long productId;

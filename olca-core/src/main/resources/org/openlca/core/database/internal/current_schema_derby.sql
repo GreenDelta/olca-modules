@@ -549,7 +549,7 @@ CREATE TABLE tbl_cost_categories (
 	PRIMARY KEY (id)
 ) ;
 
-CREATE TABLE tbl_product_cost_entries (
+CREATE TABLE tbl_process_cost_entries (
 	id BIGINT NOT NULL,
 	f_process BIGINT,
 	f_exchange BIGINT,

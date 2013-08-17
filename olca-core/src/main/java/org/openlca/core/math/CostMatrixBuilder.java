@@ -15,7 +15,7 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductCostEntry;
+import org.openlca.core.model.ProcessCostEntry;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class CostMatrixBuilder {
 	private ProductSystem productSystem;
 	private ProductIndex productIndex;
 	private Index<CostCategory> costCategoryIndex;
-	private Map<String, List<ProductCostEntry>> productCostMap;
+	private Map<String, List<ProcessCostEntry>> productCostMap;
 	private IDatabase database;
 	private IMatrix technologyMatrix;
 	private IMatrix costMatrix;
@@ -39,7 +39,7 @@ public class CostMatrixBuilder {
 	public CostMatrix build() {
 		productIndex = new ProductIndex(productSystem);
 		List<Long> productIds = productIndex.getProductIds();
-		List<ProductCostEntry> costEntries = fetchVariableCostEntries(productIds);
+		List<ProcessCostEntry> costEntries = fetchVariableCostEntries(productIds);
 		if (costEntries == null || costEntries.isEmpty())
 			return CostMatrix.empty();
 		createCostIndex(costEntries);
@@ -60,16 +60,16 @@ public class CostMatrixBuilder {
 		return matrix;
 	}
 
-	private void createCostIndex(List<ProductCostEntry> costEntries) {
+	private void createCostIndex(List<ProcessCostEntry> costEntries) {
 		costCategoryIndex = new Index<>(CostCategory.class);
 		productCostMap = new HashMap<>();
-		for (ProductCostEntry entry : costEntries) {
+		for (ProcessCostEntry entry : costEntries) {
 			CostCategory cc = entry.getCostCategory();
 			String productId = entry.getExchangeId();
 			if (cc == null || productId == null)
 				continue;
 			costCategoryIndex.put(cc);
-			List<ProductCostEntry> productEntries = productCostMap
+			List<ProcessCostEntry> productEntries = productCostMap
 					.get(productId);
 			if (productEntries == null) {
 				productEntries = new ArrayList<>();
@@ -79,10 +79,10 @@ public class CostMatrixBuilder {
 		}
 	}
 
-	private List<ProductCostEntry> fetchVariableCostEntries(
+	private List<ProcessCostEntry> fetchVariableCostEntries(
 			List<Long> productIds) {
 		VariableCostEntryQuery query = new VariableCostEntryQuery();
-		BlockFetch<ProductCostEntry> fetch = new BlockFetch<>(query);
+		BlockFetch<ProcessCostEntry> fetch = new BlockFetch<>(query);
 		return fetch.doFetch(productIds);
 	}
 
@@ -100,10 +100,10 @@ public class CostMatrixBuilder {
 	}
 
 	private void makeCostEntries(Exchange exchange) {
-		List<ProductCostEntry> entries = productCostMap.get(exchange.getId());
+		List<ProcessCostEntry> entries = productCostMap.get(exchange.getId());
 		if (entries == null || entries.isEmpty())
 			return;
-		for (ProductCostEntry entry : entries) {
+		for (ProcessCostEntry entry : entries) {
 			int row = costCategoryIndex.getIndex(entry.getCostCategory());
 			int col = productIndex.getIndex(exchange.getId());
 			if (row >= 0 && col >= 0)
@@ -150,14 +150,14 @@ public class CostMatrixBuilder {
 	}
 
 	private class VariableCostEntryQuery implements
-			QueryFunction<ProductCostEntry> {
+			QueryFunction<ProcessCostEntry> {
 
 		@Override
-		public List<ProductCostEntry> fetchChunk(List<Long> productIds) {
+		public List<ProcessCostEntry> fetchChunk(List<Long> productIds) {
 			try {
 				String jpql = "select e from ProductCostEntry e where e.exchangeId "
 						+ "in :productIds AND e.costCategory.fix = false";
-				return Query.on(database).getAll(ProductCostEntry.class, jpql,
+				return Query.on(database).getAll(ProcessCostEntry.class, jpql,
 						Collections.singletonMap("productIds", productIds));
 			} catch (Exception e) {
 				log.error("Failed to fetch cost entries", e);

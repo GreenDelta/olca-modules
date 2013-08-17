@@ -66,6 +66,10 @@ public class Process extends CategorizedEntity implements IParameterisable {
 	@Column(name = "infrastructure_process")
 	private boolean infrastructureProcess;
 
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_process")
+	private final List<ProcessCostEntry> costEntries = new ArrayList<>();
+
 	/**
 	 * Converts all exchanges to their reference flow property and reference
 	 * unit
@@ -199,6 +203,10 @@ public class Process extends CategorizedEntity implements IParameterisable {
 
 	public List<AllocationFactor> getAllocationFactors() {
 		return allocationFactors;
+	}
+
+	public List<ProcessCostEntry> getCostEntries() {
+		return costEntries;
 	}
 
 }
