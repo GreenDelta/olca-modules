@@ -12,6 +12,7 @@ public class InventoryBuilder {
 	private ProductIndex productIndex;
 	private FlowIndex flowIndex;
 	private ExchangeTable exchangeTable;
+	private AllocationTable allocationTable;
 	private AllocationMethod allocationMethod;
 
 	private ExchangeMatrix technologyMatrix;
@@ -25,6 +26,10 @@ public class InventoryBuilder {
 			AllocationMethod allocationMethod) {
 		this.productIndex = productIndex;
 		this.allocationMethod = allocationMethod;
+		if (allocationMethod != null
+				&& allocationMethod != AllocationMethod.NONE)
+			allocationTable = new AllocationTable(database, productIndex,
+					allocationMethod);
 		exchangeTable = new ExchangeTable(database,
 				productIndex.getProcessIds());
 		flowIndex = new FlowIndex(productIndex, exchangeTable, allocationMethod);
@@ -66,7 +71,7 @@ public class InventoryBuilder {
 				&& processProduct.equals(e.getProcessId(), e.getFlowId())) {
 			// the reference product
 			int idx = productIndex.getIndex(processProduct);
-			add(idx, idx, technologyMatrix, e);
+			add(idx, processProduct, technologyMatrix, e);
 
 		} else if (e.getFlowType() == FlowType.ELEMENTARY_FLOW) {
 			// elementary exchanges
@@ -96,21 +101,26 @@ public class InventoryBuilder {
 			LongPair inputProduct) {
 		LongPair linkedOutput = productIndex.getLinkedOutput(inputProduct);
 		int row = productIndex.getIndex(linkedOutput);
-		int col = productIndex.getIndex(processProduct);
-		add(row, col, technologyMatrix, e);
+		add(row, processProduct, technologyMatrix, e);
 	}
 
 	private void addIntervention(LongPair processProduct, CalcExchange e) {
 		int row = flowIndex.getIndex(e.getFlowId());
-		int col = productIndex.getIndex(processProduct);
-		add(row, col, interventionMatrix, e);
+		add(row, processProduct, interventionMatrix, e);
 	}
 
-	private void add(int row, int col, ExchangeMatrix matrix,
+	private void add(int row, LongPair processProduct, ExchangeMatrix matrix,
 			CalcExchange exchange) {
+		int col = productIndex.getIndex(processProduct);
 		if (row < 0 || col < 0)
 			return;
-		matrix.setEntry(row, col, new ExchangeCell(exchange));
+		ExchangeCell cell = new ExchangeCell(exchange);
+		if (allocationTable != null) {
+			// note that the allocation table assures that the factor is 1.0 for
+			// reference products
+			double factor = allocationTable.getFactor(processProduct, exchange);
+			cell.setAllocationFactor(factor);
+		}
+		matrix.setEntry(row, col, cell);
 	}
-
 }
