@@ -1,6 +1,7 @@
 package org.openlca.core.matrices;
 
-import java.util.HashMap;
+import gnu.trove.map.hash.TLongByteHashMap;
+
 import java.util.List;
 
 import org.openlca.core.model.AllocationMethod;
@@ -13,7 +14,7 @@ import org.openlca.core.model.FlowType;
 public class FlowIndex {
 
 	private LongIndex flowIndex = new LongIndex();
-	private HashMap<Long, Boolean> inputMap = new HashMap<>();
+	private TLongByteHashMap inputMap = new TLongByteHashMap();
 
 	FlowIndex(ProductIndex productIndex, ExchangeTable exchangeTable,
 			AllocationMethod allocationMethod) {
@@ -46,7 +47,8 @@ public class FlowIndex {
 
 	private void indexFlow(CalcExchange e) {
 		flowIndex.put(e.getFlowId());
-		inputMap.put(e.getFlowId(), e.isInput());
+		byte input = e.isInput() ? (byte) 1 : (byte) 0;
+		inputMap.put(e.getFlowId(), input);
 	}
 
 	public int getIndex(long flowId) {
@@ -62,11 +64,8 @@ public class FlowIndex {
 	}
 
 	public boolean isInput(long flowId) {
-		Boolean input = inputMap.get(flowId);
-		if (input == null)
-			return false;
-		else
-			return input;
+		byte input = inputMap.get(flowId);
+		return input == 1;
 	}
 
 	public boolean isEmpty() {

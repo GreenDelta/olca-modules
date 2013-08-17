@@ -1,7 +1,8 @@
 package org.openlca.core.matrices;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import gnu.trove.impl.Constants;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TLongIntHashMap;
 
 /**
  * Maps arbitrary values of type long to an ordinal, zero-based index of type
@@ -10,8 +11,15 @@ import java.util.HashMap;
  */
 public class LongIndex {
 
-	private final HashMap<Long, Integer> map = new HashMap<>();
-	private final ArrayList<Long> values = new ArrayList<>();
+	//@formatter:off
+	private final TLongIntHashMap map = new TLongIntHashMap(
+			Constants.DEFAULT_CAPACITY, 
+			Constants.DEFAULT_LOAD_FACTOR,
+			Constants.DEFAULT_LONG_NO_ENTRY_VALUE, // = 0
+			-1); // default value for no-index = -1
+	//@formatter:on
+
+	private final TLongArrayList values = new TLongArrayList();
 
 	/**
 	 * Adds the given key to the index. The value for the key is the current
@@ -56,10 +64,7 @@ public class LongIndex {
 	 * Get the keys of this index in their respective order in this index.
 	 */
 	public long[] getKeys() {
-		long[] keys = new long[values.size()];
-		for (int i = 0; i < keys.length; i++)
-			keys[i] = values.get(i);
-		return keys;
+		return values.toArray();
 	}
 
 	public boolean isEmpty() {
