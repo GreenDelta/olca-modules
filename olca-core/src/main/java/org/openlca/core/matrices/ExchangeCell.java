@@ -1,8 +1,8 @@
 package org.openlca.core.matrices;
 
-import org.openlca.core.math.FormulaInterpreter;
 import org.openlca.core.math.NumberGenerator;
 import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +34,7 @@ public class ExchangeCell {
 		}
 	}
 
+	// TODO: implement scoping here-> process ID is the ID of the scope
 	private void tryEval(FormulaInterpreter interpreter)
 			throws InterpreterException {
 		if (exchange.getAmountFormula() != null) {
