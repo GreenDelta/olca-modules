@@ -29,9 +29,8 @@ public class CostMatrixBuilder {
 		this.database = database;
 	}
 
-	public CostMatrix build(Inventory inventory) {
+	public CostMatrix build(ProductIndex productIndex) {
 		log.trace("build cost matrix");
-		ProductIndex productIndex = inventory.getProductIndex();
 		CostMatrix costMatrix = new CostMatrix();
 		costMatrix.setProductIndex(productIndex);
 		costEntries = ArrayListMultimap.create();
@@ -40,13 +39,11 @@ public class CostMatrixBuilder {
 		varCostCategoryIndex = new LongIndex();
 		loadIndexEntries(productIndex);
 		if (!fixCostCategoryIndex.isEmpty()) {
-			IMatrix fixCosts = buildMatrix(fixCostCategoryIndex, productIndex,
-					inventory);
+			IMatrix fixCosts = buildMatrix(fixCostCategoryIndex, productIndex);
 			costMatrix.setFixCosts(fixCostCategoryIndex, fixCosts);
 		}
 		if (!varCostCategoryIndex.isEmpty()) {
-			IMatrix varCosts = buildMatrix(varCostCategoryIndex, productIndex,
-					inventory);
+			IMatrix varCosts = buildMatrix(varCostCategoryIndex, productIndex);
 			costMatrix.setVariableCosts(varCostCategoryIndex, varCosts);
 		}
 		return costMatrix;
@@ -102,30 +99,20 @@ public class CostMatrixBuilder {
 	}
 
 	private IMatrix buildMatrix(LongIndex costCategoryIndex,
-			ProductIndex productIndex, Inventory inventory) {
+			ProductIndex productIndex) {
 		IMatrix matrix = MatrixFactory.create(costCategoryIndex.size(),
 				productIndex.size());
 		for (int col = 0; col < productIndex.size(); col++) {
 			LongPair processProduct = productIndex.getProductAt(col);
-			double factor = getConversionFactor(col, inventory);
-			if (factor == 0)
-				continue;
 			for (CalcCostEntry entry : costEntries.get(processProduct)) {
 				if (!costCategoryIndex.contains(entry.getCostCategoryId()))
 					continue;
 				int row = costCategoryIndex.getIndex(entry.getCostCategoryId());
-				double val = entry.getAmount() / factor;
+				double val = entry.getAmount();
 				matrix.setEntry(row, col, val);
 			}
 		}
 		return matrix;
 	}
 
-	private double getConversionFactor(int idx, Inventory inventory) {
-		ExchangeMatrix techMatrix = inventory.getTechnologyMatrix();
-		ExchangeCell cell = techMatrix.getEntry(idx, idx);
-		if (cell == null)
-			return 1;
-		return cell.getExchange().getConversionFactor();
-	}
 }

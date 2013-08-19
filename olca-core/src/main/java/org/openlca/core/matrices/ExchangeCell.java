@@ -17,10 +17,6 @@ public class ExchangeCell {
 		this.exchange = exchange;
 	}
 
-	public CalcExchange getExchange() {
-		return exchange;
-	}
-
 	void setAllocationFactor(double allocationFactor) {
 		this.allocationFactor = allocationFactor;
 	}
