@@ -3,8 +3,7 @@ package org.openlca.expressions;
 class OpUnaryMinus extends AbstractExpression {
 
 	@Override
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		return -((Double) arguments.get(0).evaluate(context));
 	}
 

@@ -1,14 +1,13 @@
 package org.openlca.expressions.functions;
 
 import org.openlca.expressions.AbstractExpression;
-import org.openlca.expressions.ExpressionContext;
 import org.openlca.expressions.ExpressionException;
+import org.openlca.expressions.Scope;
 
 class Random extends AbstractExpression {
 
 	@Override
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		return Math.random();
 	}
 

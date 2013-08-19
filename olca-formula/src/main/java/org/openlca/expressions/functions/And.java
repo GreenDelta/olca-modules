@@ -4,14 +4,13 @@ import java.util.Iterator;
 
 import org.openlca.expressions.AbstractExpression;
 import org.openlca.expressions.Expression;
-import org.openlca.expressions.ExpressionContext;
 import org.openlca.expressions.ExpressionException;
+import org.openlca.expressions.Scope;
 
 public class And extends AbstractExpression {
 
 	@Override
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		boolean result = true;
 		Iterator<Expression> it = arguments.iterator();
 		while (result && it.hasNext()) {

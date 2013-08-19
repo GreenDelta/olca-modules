@@ -1,17 +1,14 @@
 package org.openlca.expressions;
 
 import org.junit.Test;
-import org.openlca.expressions.Interpreter;
-import org.openlca.expressions.InterpreterException;
-import org.openlca.expressions.Variable;
 
 public class FailTest {
 
-	private Interpreter interpreter = new Interpreter();
+	private FormulaInterpreter interpreter = new FormulaInterpreter();
 
 	@Test(expected = InterpreterException.class)
 	public void divisionByZero() throws Exception {
-		interpreter.bind(new Variable("g10", "5/0"));
+		interpreter.getGlobalScope().bind("g10", "5/0");
 		double val = interpreter.eval("g10");
 		System.out.println(val);
 	}
@@ -30,10 +27,10 @@ public class FailTest {
 	public void noClosingBracket() throws Exception {
 		interpreter.eval(" ( 1 + 1");
 	}
-	
+
 	@Test(expected = InterpreterException.class)
 	public void unknownVariableName() throws Exception {
-		interpreter.eval(" 5 * a");		
+		interpreter.eval(" 5 * a");
 	}
 
 }

@@ -3,7 +3,7 @@ package org.openlca.expressions;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openlca.expressions.Interpreter;
+import org.openlca.expressions.FormulaInterpreter;
 
 /**
  * Evaluates the expressions from the specification.
@@ -12,7 +12,7 @@ public class SpecificationTest {
 
 	@Test
 	public void testSpecification() throws Exception {
-		Interpreter interpreter = new Interpreter();
+		FormulaInterpreter interpreter = new FormulaInterpreter();
 		assertEquals(Math.PI, interpreter.eval("pi"), 1e-15);
 		assertEquals(Math.E, interpreter.eval("e"), 1e-15);
 		assertEquals(-1, interpreter.eval("-1.0"), 1e-15);

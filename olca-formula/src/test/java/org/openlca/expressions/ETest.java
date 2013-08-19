@@ -3,13 +3,13 @@ package org.openlca.expressions;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openlca.expressions.Interpreter;
+import org.openlca.expressions.FormulaInterpreter;
 
 public class ETest {
 
 	@Test
 	public void testSingleE() throws Exception {
-		Interpreter interpreter = new Interpreter();
+		FormulaInterpreter interpreter = new FormulaInterpreter();
 		assertEquals(Math.E, interpreter.eval("e"), 1e-16);
 		assertEquals(0, interpreter.eval("e-e"), 1e-16);
 		assertEquals(Math.E * 2, interpreter.eval("e+e"), 1e-16);
@@ -22,7 +22,7 @@ public class ETest {
 
 	@Test
 	public void testNoSignExp() throws Exception {
-		Interpreter interpreter = new Interpreter();
+		FormulaInterpreter interpreter = new FormulaInterpreter();
 		assertEquals(1, interpreter.eval("1E0"), 1e-16);
 		assertEquals(10, interpreter.eval("10E0"), 1e-16);
 		assertEquals(11, interpreter.eval("10E0+1"), 1e-16);
@@ -33,7 +33,7 @@ public class ETest {
 
 	@Test
 	public void testPositiveExp() throws Exception {
-		Interpreter interpreter = new Interpreter();
+		FormulaInterpreter interpreter = new FormulaInterpreter();
 		assertEquals(1, interpreter.eval("1E+0"), 1e-16);
 		assertEquals(10, interpreter.eval("10E+0"), 1e-16);
 		assertEquals(11, interpreter.eval("10E0+1"), 1e-16);
@@ -44,7 +44,7 @@ public class ETest {
 
 	@Test
 	public void testNegativeExp() throws Exception {
-		Interpreter interpreter = new Interpreter();
+		FormulaInterpreter interpreter = new FormulaInterpreter();
 		assertEquals(1, interpreter.eval("1E-0"), 1e-16);
 		assertEquals(10, interpreter.eval("10E-0"), 1e-16);
 		assertEquals(11, interpreter.eval("10E-0+1"), 1e-16);

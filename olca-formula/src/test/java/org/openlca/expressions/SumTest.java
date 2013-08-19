@@ -3,11 +3,11 @@ package org.openlca.expressions;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openlca.expressions.Interpreter;
+import org.openlca.expressions.FormulaInterpreter;
 
 public class SumTest {
 
-	private Interpreter interpreter = new Interpreter();
+	private FormulaInterpreter interpreter = new FormulaInterpreter();
 
 	@Test
 	public void testEmptySum() throws Exception {

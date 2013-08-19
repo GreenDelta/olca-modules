@@ -1,14 +1,13 @@
 package org.openlca.expressions.functions;
 
 import org.openlca.expressions.AbstractExpression;
-import org.openlca.expressions.ExpressionContext;
 import org.openlca.expressions.ExpressionException;
+import org.openlca.expressions.Scope;
 
 public class If extends AbstractExpression {
 
 	@Override
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		boolean result = ((Boolean) arguments.get(0).evaluate(context))
 				.booleanValue();
 		if (result)

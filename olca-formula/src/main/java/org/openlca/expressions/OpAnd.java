@@ -6,8 +6,7 @@ import java.util.Iterator;
 class OpAnd extends AbstractExpression {
 
 	@Override
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		boolean result = true;
 		Iterator<Expression> argIt = arguments.iterator();
 		while (argIt.hasNext()) {

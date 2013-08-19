@@ -13,7 +13,7 @@ public class Repl {
 	private BufferedReader in;
 	private PrintStream out;
 	private PrintStream err;
-	Interpreter evaluator = new Interpreter();
+	FormulaInterpreter evaluator = new FormulaInterpreter();
 
 	public Repl(InputStream in, PrintStream out, PrintStream err) {
 		this.in = new BufferedReader(new InputStreamReader(in));
@@ -95,11 +95,9 @@ public class Repl {
 
 	private void evalVariable(String variableName, String formula) {
 		try {
-			Variable var = new Variable();
-			var.setName(variableName);
-			var.setExpression(formula);
-			evaluator.bindAndEval(var);
-			out.println("olca>> " + variableName + " = " + var.getValue());
+			evaluator.getGlobalScope().bind(variableName, formula);
+			double val = evaluator.eval(variableName);
+			out.println("olca>> " + variableName + " = " + val);
 		} catch (Exception e) {
 			err.println("error>> " + e.getMessage());
 		}

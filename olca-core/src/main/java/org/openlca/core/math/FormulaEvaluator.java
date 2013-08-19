@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.openlca.core.model.Parameter;
-import org.openlca.expressions.Interpreter;
+import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.expressions.Variable;
 import org.slf4j.Logger;
@@ -77,7 +77,7 @@ public class FormulaEvaluator {
 
 	private void eval(HashMap<String, Variable> variables)
 			throws InterpreterException {
-		Interpreter interpreter = new Interpreter();
+		FormulaInterpreter interpreter = new FormulaInterpreter();
 		for (Variable var : variables.values())
 			interpreter.bind(var);
 		interpreter.evalVariables();

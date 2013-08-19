@@ -24,7 +24,7 @@ class DecimalConstantFunction implements Expression {
 	}
 
 	@Override
-	public Object evaluate(ExpressionContext context) {
+	public Object evaluate(Scope context) {
 		return value;
 	}
 

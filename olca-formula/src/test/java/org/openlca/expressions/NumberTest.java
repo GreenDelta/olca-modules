@@ -3,11 +3,11 @@ package org.openlca.expressions;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openlca.expressions.Interpreter;
+import org.openlca.expressions.FormulaInterpreter;
 
 public class NumberTest {
 
-	private Interpreter interpreter = new Interpreter();
+	private FormulaInterpreter interpreter = new FormulaInterpreter();
 
 	@Test(expected = Throwable.class)
 	public void noNumber() throws Exception {

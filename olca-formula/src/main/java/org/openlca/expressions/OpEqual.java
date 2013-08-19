@@ -4,8 +4,7 @@ package org.openlca.expressions;
 class OpEqual extends AbstractComparisonExpression {
 
 	@Override
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		Object value1 = arguments.get(0).evaluate(context);
 		Object value2 = arguments.get(1).evaluate(context);
 		if (value1.equals(value2))

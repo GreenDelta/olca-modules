@@ -1,12 +1,12 @@
 package org.openlca.core.math;
 
-import org.openlca.expressions.Interpreter;
+import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.expressions.Variable;
 
 public class FormulaInterpreter {
 
-	private Interpreter interpreter = new Interpreter();
+	private FormulaInterpreter interpreter = new FormulaInterpreter();
 
 	public void bind(String parameter, String formula) {
 		Variable var = new Variable(parameter, formula);

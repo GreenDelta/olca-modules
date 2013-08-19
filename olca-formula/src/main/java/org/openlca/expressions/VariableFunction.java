@@ -22,8 +22,7 @@ class VariableFunction implements Expression {
 	}
 
 	@Override
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		Object object = context.resolveVariable(variableName);
 		if (object == null)
 			throw new ExpressionException("Unknown variable " + variableName,

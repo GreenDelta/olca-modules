@@ -5,8 +5,7 @@ class OpGreaterThanOrEqual extends AbstractComparisonExpression {
 
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		Comparable value1 = (Comparable) arguments.get(0).evaluate(context);
 		Comparable value2 = (Comparable) arguments.get(1).evaluate(context);
 		if (value1.compareTo(value2) >= 0)

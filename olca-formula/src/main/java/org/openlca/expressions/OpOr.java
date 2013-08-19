@@ -5,8 +5,7 @@ import java.util.Iterator;
 
 class OpOr extends AbstractExpression {
 	@Override
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		boolean result = false;
 		Iterator<?> argIt = arguments.iterator();
 		while (argIt.hasNext()) {

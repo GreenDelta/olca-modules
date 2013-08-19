@@ -6,8 +6,7 @@ public interface Expression {
 
 	public void addArgument(int index, Expression expression);
 
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException;
+	public Object evaluate(Scope context) throws ExpressionException;
 
 	public void check() throws ExpressionException;
 

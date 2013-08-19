@@ -1,8 +1,8 @@
 package org.openlca.expressions.functions;
 
 import org.openlca.expressions.AbstractExpression;
-import org.openlca.expressions.ExpressionContext;
 import org.openlca.expressions.ExpressionException;
+import org.openlca.expressions.Scope;
 
 abstract class FunctionN extends AbstractExpression {
 
@@ -14,8 +14,7 @@ abstract class FunctionN extends AbstractExpression {
 	protected abstract double eval(double[] args);
 
 	@Override
-	public Object evaluate(ExpressionContext context)
-			throws ExpressionException {
+	public Object evaluate(Scope context) throws ExpressionException {
 		if (arguments == null || arguments.size() == 0)
 			return getDefault();
 		double[] args = new double[arguments.size()];
