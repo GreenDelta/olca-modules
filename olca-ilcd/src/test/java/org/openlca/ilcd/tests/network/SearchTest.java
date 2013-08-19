@@ -2,6 +2,7 @@ package org.openlca.ilcd.tests.network;
 
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,16 +26,19 @@ import org.slf4j.LoggerFactory;
 public class SearchTest {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
-	private String baseUri = "http://localhost:8080/soda4LCA/resource";
-	private NetworkClient client = new NetworkClient(baseUri);
+	private NetworkClient client;
 
 	@Before
 	public void setUp() throws Exception {
+		if (!Network.isAppAlive())
+			return;
 		DataSets.upload();
+		client = Network.createClient();
 	}
 
 	@Test
 	public void testSearchProcess() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String name = "ABS";
 		log.debug("test: search process with name '{}'", name);
 		DescriptorList list = client.search(Process.class, name);
@@ -49,6 +53,7 @@ public class SearchTest {
 
 	@Test
 	public void testSearchFlow() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String name = "glycidol";
 		log.debug("test: search flow with name '{}'", name);
 		DescriptorList list = client.search(Flow.class, name);
@@ -64,6 +69,7 @@ public class SearchTest {
 	@Test
 	@Ignore
 	public void testSearchFlowProperty() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String name = "calorific";
 		log.debug("test: search flow property with name '{}'", name);
 		DescriptorList list = client.search(FlowProperty.class, name);
@@ -78,6 +84,7 @@ public class SearchTest {
 
 	@Test
 	public void testSearchUnitGroup() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String name = "mass";
 		log.debug("test: search unit group with name '{}'", name);
 		DescriptorList list = client.search(UnitGroup.class, name);
@@ -93,6 +100,7 @@ public class SearchTest {
 	@Test
 	@Ignore
 	public void testSearchContact() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String name = "Review";
 		log.debug("test: search contact with name '{}'", name);
 		DescriptorList list = client.search(Contact.class, name);
@@ -108,6 +116,7 @@ public class SearchTest {
 	@Test
 	@Ignore
 	public void testSearchSource() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String name = "IMA-Europe_Plastic";
 		log.debug("test: search source with name '{}'", name);
 		DescriptorList list = client.search(Source.class, name);

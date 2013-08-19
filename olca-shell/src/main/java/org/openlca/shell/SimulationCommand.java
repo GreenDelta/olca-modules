@@ -4,7 +4,9 @@ import java.io.File;
 
 import org.openlca.core.database.Cache;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.Simulator;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.io.xls.results.SimulationResultExport;
@@ -29,7 +31,10 @@ public class SimulationCommand {
 					systemId, runs);
 			ProductSystem system = database.createDao(ProductSystem.class)
 					.getForId(systemId);
-			Simulator simulator = new Simulator(system, database);
+			CalculationSetup setup = new CalculationSetup(system,
+					CalculationSetup.MONTE_CARLO_SIMULATION);
+			setup.setAllocationMethod(AllocationMethod.USE_DEFAULT);
+			Simulator simulator = new Simulator(setup, database);
 			for (int i = 0; i < runs; i++) {
 				log.trace("next run {} started", i + 1);
 				boolean success = simulator.nextRun();

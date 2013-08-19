@@ -262,18 +262,15 @@ public class EcoSpold01Outputter {
 
 	private void mapAllocations(Process process, DataSet dataset,
 			IEcoSpoldFactory factory) {
-		for (Exchange exchange : process.getExchanges()) {
-			for (AllocationFactor inFactor : exchange.getAllocationFactors()) {
-				IAllocation factor = factory.createAllocation();
-				factor.setFraction((float) (inFactor.getValue() * 100));
-				factor.setReferenceToCoProduct(exchangeToES1Exchange.get(
-						inFactor.getProductId()).getNumber());
-				factor.setAllocationMethod(-1);
-				dataset.getAllocations().add(factor);
-				factor.getReferenceToInputOutput()
-						.add(exchangeToES1Exchange.get(exchange.getId())
-								.getNumber());
-			}
+		for (AllocationFactor inFactor : process.getAllocationFactors()) {
+			IAllocation factor = factory.createAllocation();
+			factor.setFraction((float) (inFactor.getValue() * 100));
+			factor.setReferenceToCoProduct(exchangeToES1Exchange.get(
+					inFactor.getProductId()).getNumber());
+			factor.setAllocationMethod(-1);
+			dataset.getAllocations().add(factor);
+			factor.getReferenceToInputOutput().add(
+					exchangeToES1Exchange.get(exchange.getId()).getNumber());
 		}
 	}
 

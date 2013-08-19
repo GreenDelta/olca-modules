@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.openlca.core.database.Cache;
-import org.openlca.core.indices.LongIndex;
+import org.openlca.core.matrices.LongIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 

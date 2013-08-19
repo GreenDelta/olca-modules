@@ -1,9 +1,9 @@
 package org.openlca.core.results;
 
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongIndex;
-import org.openlca.core.indices.LongPair;
-import org.openlca.core.indices.ProductIndex;
+import org.openlca.core.matrices.FlowIndex;
+import org.openlca.core.matrices.LongIndex;
+import org.openlca.core.matrices.LongPair;
+import org.openlca.core.matrices.ProductIndex;
 
 /**
  * The result type of a normal inventory calculation. The vector flowResults is

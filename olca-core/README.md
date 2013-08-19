@@ -1,12 +1,17 @@
-TODOS
------
-* Database management -> DB package (server class etc., execution of scripts
-  etc).
-* check class loader field
-  
-Changes
--------
+olca-core
+=========
 
-* MySQL support: MySQL classes were moved directly to the model package.
-* reference searches removed-
+This package contains the core model, data persistence, and calculation 
+functionalities of the openLCA framework. 
+
+
+Persistence
+-----------
+
+MySQL or Derby
+
+
+Simple calculation
+------------------
+
 

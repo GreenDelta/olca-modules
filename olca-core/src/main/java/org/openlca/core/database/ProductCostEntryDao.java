@@ -4,15 +4,15 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.model.CostCategory;
-import org.openlca.core.model.ProductCostEntry;
+import org.openlca.core.model.ProcessCostEntry;
 
-public class ProductCostEntryDao extends BaseDao<ProductCostEntry> {
+public class ProductCostEntryDao extends BaseDao<ProcessCostEntry> {
 
 	public ProductCostEntryDao(IDatabase database) {
-		super(ProductCostEntry.class, database);
+		super(ProcessCostEntry.class, database);
 	}
 
-	public List<ProductCostEntry> getAllForProduct(String exchangeId) {
+	public List<ProcessCostEntry> getAllForProduct(String exchangeId) {
 		if (exchangeId == null)
 			return Collections.emptyList();
 		String jpql = "select e from ProductCostEntry e where "
@@ -20,7 +20,7 @@ public class ProductCostEntryDao extends BaseDao<ProductCostEntry> {
 		return getAll(jpql, Collections.singletonMap("exchangeId", exchangeId));
 	}
 
-	public List<ProductCostEntry> getAllForProcess(String processId) {
+	public List<ProcessCostEntry> getAllForProcess(String processId) {
 		if (processId == null)
 			return Collections.emptyList();
 		String jpql = "select e from ProductCostEntry e where "
@@ -28,7 +28,7 @@ public class ProductCostEntryDao extends BaseDao<ProductCostEntry> {
 		return getAll(jpql, Collections.singletonMap("processId", processId));
 	}
 
-	public List<ProductCostEntry> getAllForCategory(CostCategory category) {
+	public List<ProcessCostEntry> getAllForCategory(CostCategory category) {
 		if (category == null)
 			return Collections.emptyList();
 		String jpql = "select e from ProductCostEntry e where "

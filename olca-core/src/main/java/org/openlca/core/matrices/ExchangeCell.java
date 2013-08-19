@@ -1,6 +1,6 @@
 package org.openlca.core.matrices;
 
-import org.openlca.core.indices.CalcExchange;
+import org.openlca.core.math.FormulaInterpreter;
 import org.openlca.core.math.NumberGenerator;
 import org.openlca.core.model.UncertaintyDistributionType;
 import org.openlca.expressions.InterpreterException;
@@ -13,11 +13,11 @@ public class ExchangeCell {
 	private NumberGenerator generator;
 	private double allocationFactor = 1d;
 
-	public ExchangeCell(CalcExchange exchange) {
+	ExchangeCell(CalcExchange exchange) {
 		this.exchange = exchange;
 	}
 
-	public void setAllocationFactor(double allocationFactor) {
+	void setAllocationFactor(double allocationFactor) {
 		this.allocationFactor = allocationFactor;
 	}
 

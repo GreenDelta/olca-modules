@@ -1,4 +1,4 @@
-package org.openlca.core.indices;
+package org.openlca.core.matrices;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,7 +9,7 @@ import org.openlca.core.model.FlowType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FlowTypeIndex {
+class FlowTypeIndex {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final HashMap<Long, FlowType> map = new HashMap<>();

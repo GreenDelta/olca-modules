@@ -1,14 +1,14 @@
 package org.openlca.shell;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.indices.ExchangeTable;
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongPair;
-import org.openlca.core.indices.ProductIndex;
-import org.openlca.core.indices.ProductIndexBuilder;
 import org.openlca.core.math.InventorySolver;
-import org.openlca.core.matrices.InventoryMatrix;
-import org.openlca.core.matrices.InventoryMatrixBuilder;
+import org.openlca.core.matrices.FlowIndex;
+import org.openlca.core.matrices.Inventory;
+import org.openlca.core.matrices.InventoryBuilder;
+import org.openlca.core.matrices.LongPair;
+import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrices.ProductIndexBuilder;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.results.InventoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,19 +64,10 @@ public class SolveCommand {
 			ProductIndex index = builder.build(refProduct, 1d);
 			logTime("product index created");
 
-			log.trace("Build exchange table");
-			ExchangeTable table = new ExchangeTable(database,
-					index.getProcessIds());
-			logTime("exchange table created");
-
-			log.trace("Build flow index");
-			FlowIndex flowIndex = new FlowIndex(index, table);
-			logTime("flow index created");
-
-			log.trace("Build inventory matrix");
-			InventoryMatrixBuilder matrixBuilder = new InventoryMatrixBuilder(
-					index, flowIndex, table);
-			InventoryMatrix matrix = matrixBuilder.build();
+			log.trace("Build inventory");
+			InventoryBuilder matrixBuilder = new InventoryBuilder(database);
+			Inventory matrix = matrixBuilder.build(index,
+					AllocationMethod.USE_DEFAULT);
 			logTime("inventory matrix created");
 
 			log.trace("Solve inventory");
@@ -88,6 +79,7 @@ public class SolveCommand {
 
 			System.out.println("\n\nResults:");
 			System.out.println("flow \t result");
+			FlowIndex flowIndex = matrix.getFlowIndex();
 			for (int i = 0; i < flowIndex.size(); i++) {
 				long flowId = flowIndex.getFlowAt(i);
 				System.out.println(String.format("%s \t %s", flowId,

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.UUID;
 
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.DataSetType;
@@ -29,12 +31,18 @@ import org.openlca.ilcd.util.UnitGroupBuilder;
 
 public class NetworkPutTest {
 
-	private String baseUri = "http://localhost:8080/soda4LCA/resource";
-	private NetworkClient client = new NetworkClient(baseUri, "admin",
-			"default");
+	private NetworkClient client;
+
+	@Before
+	public void setUp() throws Exception {
+		if (!Network.isAppAlive())
+			return;
+		client = Network.createClient();
+	}
 
 	@Test
 	public void testPutContact() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		DataSetInformation dataSetInfo = new DataSetInformation();
 		String name = "xtest contact - " + new Random().nextInt(1000);
@@ -42,24 +50,27 @@ public class NetworkPutTest {
 		LangString.addLabel(dataSetInfo.getShortName(), name);
 		dataSetInfo.setUUID(id);
 		Contact contact = ContactBuilder.makeContact()
-				.withDataSetInfo(dataSetInfo).withBaseUri(baseUri).getContact();
+				.withDataSetInfo(dataSetInfo).withBaseUri(Network.RESOURCE_URL)
+				.getContact();
 		client.put(contact, id);
 	}
 
 	@Test
 	public void testPutSource() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		org.openlca.ilcd.sources.DataSetInformation dataSetInfo = new org.openlca.ilcd.sources.DataSetInformation();
 		String name = "xtest source - " + new Random().nextInt(1000);
 		LangString.addLabel(dataSetInfo.getShortName(), name);
 		dataSetInfo.setUUID(id);
 		Source source = SourceBuilder.makeSource().withDataSetInfo(dataSetInfo)
-				.withBaseUri(baseUri).getSource();
+				.withBaseUri(Network.RESOURCE_URL).getSource();
 		client.put(source, id);
 	}
 
 	@Test
 	public void testPutUnitGroup() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		UnitGroup unitGroup = makeUnitGroup(id);
 		client.put(unitGroup, id);
@@ -75,7 +86,7 @@ public class NetworkPutTest {
 		unit.setMeanValue(1.0);
 		unit.setName("kg");
 		UnitGroup unitGroup = UnitGroupBuilder.makeUnitGroup()
-				.withBaseUri(baseUri).withDataSetInfo(dataSetInfo)
+				.withBaseUri(Network.RESOURCE_URL).withDataSetInfo(dataSetInfo)
 				.withReferenceUnitId(0)
 				.withUnits(Collections.singletonList(unit)).getUnitGroup();
 		return unitGroup;
@@ -94,6 +105,7 @@ public class NetworkPutTest {
 
 	@Test
 	public void testPutFlowProperty() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		FlowProperty flowProperty = makeFlowProperty(id);
 		client.put(flowProperty, id);
@@ -106,7 +118,7 @@ public class NetworkPutTest {
 		dataSetInfo.setUUID(id);
 		DataSetReference unitGroupRef = toRef(makeUnitGroup(id));
 		FlowProperty flowProperty = FlowPropertyBuilder.makeFlowProperty()
-				.withBaseUri(baseUri).withDataSetInfo(dataSetInfo)
+				.withBaseUri(Network.RESOURCE_URL).withDataSetInfo(dataSetInfo)
 				.withUnitGroupReference(unitGroupRef).getFlowProperty();
 		return flowProperty;
 	}
@@ -124,6 +136,7 @@ public class NetworkPutTest {
 
 	@Test
 	public void testPutFlow() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		org.openlca.ilcd.flows.DataSetInformation dataSetInfo = new org.openlca.ilcd.flows.DataSetInformation();
 		String name = "xtest flow - " + new Random().nextInt(1000);
@@ -135,7 +148,7 @@ public class NetworkPutTest {
 		propRef.setMeanValue(1.0);
 		propRef.setDataSetInternalID(BigInteger.valueOf(0));
 		propRef.setFlowProperty(toRef(makeFlowProperty(id)));
-		Flow flow = FlowBuilder.makeFlow().withBaseUri(baseUri)
+		Flow flow = FlowBuilder.makeFlow().withBaseUri(Network.RESOURCE_URL)
 				.withDataSetInfo(dataSetInfo)
 				.withFlowProperties(Collections.singletonList(propRef))
 				.withReferenceFlowPropertyId(0).getFlow();

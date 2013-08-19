@@ -1,14 +1,14 @@
 package org.openlca.core.math;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.indices.ExchangeTable;
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongPair;
-import org.openlca.core.indices.ProductIndex;
+import org.openlca.core.matrices.FlowIndex;
 import org.openlca.core.matrices.ImpactMatrix;
 import org.openlca.core.matrices.ImpactMatrixBuilder;
 import org.openlca.core.matrices.Inventory;
 import org.openlca.core.matrices.InventoryBuilder;
+import org.openlca.core.matrices.LongPair;
+import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
@@ -43,19 +43,23 @@ final class Calculators {
 		return matrix;
 	}
 
+	static Inventory createInventory(CalculationSetup setup, IDatabase database) {
+		ProductSystem system = setup.getProductSystem();
+		AllocationMethod method = setup.getAllocationMethod();
+		if (method == null)
+			method = AllocationMethod.NONE;
+		return createInventory(system, method, database);
+	}
+
 	/**
 	 * Creates the inventory for the given product system.
-	 * 
-	 * TODO: pass in the allocation method here
 	 */
-	static Inventory createInventory(ProductSystem system, IDatabase database) {
+	static Inventory createInventory(ProductSystem system,
+			AllocationMethod allocationMethod, IDatabase database) {
 		ProductIndex productIndex = createProductIndex(system);
-		ExchangeTable exchangeTable = new ExchangeTable(database,
-				productIndex.getProcessIds());
-		FlowIndex flowIndex = new FlowIndex(productIndex, exchangeTable);
-		InventoryBuilder inventoryBuilder = new InventoryBuilder(productIndex,
-				flowIndex, exchangeTable);
-		Inventory inventory = inventoryBuilder.build();
+		InventoryBuilder inventoryBuilder = new InventoryBuilder(database);
+		Inventory inventory = inventoryBuilder.build(productIndex,
+				allocationMethod);
 		return inventory;
 	}
 

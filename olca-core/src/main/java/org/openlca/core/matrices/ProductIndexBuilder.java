@@ -1,4 +1,4 @@
-package org.openlca.core.indices;
+package org.openlca.core.matrices;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Queue;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProcessType;
 
 // TODO: cut-offs
@@ -37,6 +38,7 @@ public class ProductIndexBuilder {
 		queue.add(refProduct);
 		while (!queue.isEmpty()) {
 			LongPair recipient = queue.poll();
+			indexAllocation(recipient, index);
 			handled.add(recipient);
 			List<TechnosphereLink> inputLinks = linkIndex
 					.getProductInputs(recipient.getFirst());
@@ -52,6 +54,13 @@ public class ProductIndexBuilder {
 			}
 		}
 		return index;
+	}
+
+	private void indexAllocation(LongPair recipient, ProductIndex index) {
+		long processId = recipient.getFirst();
+		AllocationMethod method = typeIndex
+				.getDefaultAllocationMethod(processId);
+		index.putDefaultAllocationMethod(processId, method);
 	}
 
 	private LongPair findProvider(TechnosphereLink inputLink) {

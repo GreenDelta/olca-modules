@@ -9,13 +9,15 @@ class ProcessCopy {
 		other.setRefId(UUID.randomUUID().toString());
 		other.setName(self.getName());
 		copyFields(self, other);
-		copyExchanges(self, other);
 		copyParameters(self, other);
+		copyExchanges(self, other);
+		for (AllocationFactor factor : self.getAllocationFactors())
+			other.getAllocationFactors().add(factor.clone());
 		return other;
 	}
 
 	private void copyFields(Process self, Process other) {
-		other.setAllocationMethod(self.getAllocationMethod());
+		other.setDefaultAllocationMethod(self.getDefaultAllocationMethod());
 		other.setCategory(self.getCategory());
 		other.setDescription(self.getDescription());
 		other.setLocation(self.getLocation());

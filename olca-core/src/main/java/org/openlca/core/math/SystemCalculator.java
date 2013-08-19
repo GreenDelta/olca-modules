@@ -3,8 +3,6 @@ package org.openlca.core.math;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrices.ImpactMatrix;
 import org.openlca.core.matrices.Inventory;
-import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.InventoryResult;
 import org.slf4j.Logger;
@@ -19,42 +17,32 @@ public class SystemCalculator {
 		this.database = database;
 	}
 
-	public InventoryResult solve(ProductSystem system) {
-		return solve(system, null);
-	}
-
-	public InventoryResult solve(ProductSystem system,
-			ImpactMethodDescriptor method) {
-		log.trace("solve product system {}", system);
-		log.trace("create inventory");
-		Inventory inventory = Calculators.createInventory(system, database);
-		log.trace("solve invenotory");
+	public InventoryResult solve(CalculationSetup setup) {
+		log.trace("solve product system - build inventory");
+		Inventory inventory = Calculators.createInventory(setup, database);
+		log.trace("solve inventory");
 		InventorySolver solver = new InventorySolver();
-		if (method == null)
+		if (setup.getImpactMethod() == null)
 			return solver.solve(inventory);
 		else {
-			ImpactMatrix impactMatrix = Calculators.createImpactMatrix(method,
-					inventory.getFlowIndex(), database);
+			ImpactMatrix impactMatrix = Calculators
+					.createImpactMatrix(setup.getImpactMethod(),
+							inventory.getFlowIndex(), database);
 			return solver.solve(inventory, impactMatrix);
 		}
 	}
 
-	public AnalysisResult analyse(ProductSystem system) {
-		return analyse(system, null);
-	}
-
-	public AnalysisResult analyse(ProductSystem system,
-			ImpactMethodDescriptor method) {
-		log.trace("analyse product system {}", system);
-		log.trace("create inventory");
-		Inventory inventory = Calculators.createInventory(system, database);
+	public AnalysisResult analyse(CalculationSetup setup) {
+		log.trace("analyse product system - build inventory");
+		Inventory inventory = Calculators.createInventory(setup, database);
 		log.trace("analyse inventory");
 		InventorySolver solver = new InventorySolver();
-		if (method == null)
+		if (setup.getImpactMethod() == null)
 			return solver.analyse(inventory);
 		else {
-			ImpactMatrix impactMatrix = Calculators.createImpactMatrix(method,
-					inventory.getFlowIndex(), database);
+			ImpactMatrix impactMatrix = Calculators
+					.createImpactMatrix(setup.getImpactMethod(),
+							inventory.getFlowIndex(), database);
 			return solver.analyse(inventory, impactMatrix);
 		}
 	}

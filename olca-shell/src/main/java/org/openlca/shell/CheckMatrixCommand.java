@@ -3,14 +3,13 @@ package org.openlca.shell;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.indices.ExchangeTable;
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongPair;
-import org.openlca.core.indices.ProductIndex;
-import org.openlca.core.indices.ProductIndexBuilder;
 import org.openlca.core.math.BlasMatrix;
-import org.openlca.core.matrices.InventoryMatrix;
-import org.openlca.core.matrices.InventoryMatrixBuilder;
+import org.openlca.core.matrices.Inventory;
+import org.openlca.core.matrices.InventoryBuilder;
+import org.openlca.core.matrices.LongPair;
+import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrices.ProductIndexBuilder;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.jblas.Library;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,20 +63,13 @@ public class CheckMatrixCommand {
 			ProductIndexBuilder builder = new ProductIndexBuilder(database);
 			ProductIndex index = builder.build(refProduct, 1d);
 
-			log.trace("Build exchange table");
-			ExchangeTable table = new ExchangeTable(database,
-					index.getProcessIds());
-
-			log.trace("Build flow index");
-			FlowIndex flowIndex = new FlowIndex(index, table);
-
-			log.trace("Build inventory matrix");
-			InventoryMatrixBuilder matrixBuilder = new InventoryMatrixBuilder(
-					index, flowIndex, table);
-			InventoryMatrix inventory = matrixBuilder.build();
+			log.trace("Build inventory");
+			InventoryBuilder matrixBuilder = new InventoryBuilder(database);
+			Inventory inventory = matrixBuilder.build(index,
+					AllocationMethod.USE_DEFAULT);
 
 			BlasMatrix techMatrix = (BlasMatrix) inventory
-					.getTechnologyMatrix();
+					.getTechnologyMatrix().createRealMatrix();
 			DoubleMatrix matrix = techMatrix.getNativeMatrix();
 
 			for (int i = 1; i < index.size(); i++) {

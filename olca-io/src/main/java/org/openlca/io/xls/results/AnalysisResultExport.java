@@ -14,7 +14,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.Cache;
-import org.openlca.core.indices.FlowIndex;
+import org.openlca.core.matrices.FlowIndex;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
@@ -26,6 +26,7 @@ import org.openlca.core.results.AnalysisFlowResults;
 import org.openlca.core.results.AnalysisImpactResults;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.io.CategoryPair;
+import org.openlca.io.DisplayValues;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -362,7 +363,7 @@ public class AnalysisResultExport {
 		CategoryPair flowCat = flowCategory(flow);
 		Excel.cell(sheet, row, col++, flowCat.getCategory());
 		Excel.cell(sheet, row, col++, flowCat.getSubCategory());
-		Excel.cell(sheet, row, col++, "#TODO#");
+		Excel.cell(sheet, row, col++, flowUnit(flow));
 	}
 
 	/** Makes a header entry in the given row and column. */
@@ -394,7 +395,9 @@ public class AnalysisResultExport {
 		String unit = flowUnits.get(flow.getId());
 		if (unit != null)
 			return unit;
-		return ""; // TODO: we need the reference flow property at
+		unit = DisplayValues.referenceUnit(flow, cache);
+		flowUnits.put(flow.getId(), unit == null ? "" : unit);
+		return unit;
 	}
 
 }

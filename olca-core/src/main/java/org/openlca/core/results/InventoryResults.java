@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.Cache;
-import org.openlca.core.indices.FlowIndex;
-import org.openlca.core.indices.LongIndex;
+import org.openlca.core.matrices.FlowIndex;
+import org.openlca.core.matrices.LongIndex;
 import org.openlca.core.model.NormalizationWeightingFactor;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.descriptors.FlowDescriptor;

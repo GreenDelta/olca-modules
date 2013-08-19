@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.RootEntity;
@@ -39,6 +41,7 @@ public class Cache {
 	private final LocationDao locationDao;
 	private final CategoryDao categoryDao;
 	private final ImpactCategoryDao impactCategoryDao;
+	private final BaseDao<CostCategory> costCategoryDao;
 
 	public static Cache createEmptyCache(IDatabase database) {
 		return new Cache(database);
@@ -63,6 +66,7 @@ public class Cache {
 		locationDao = new LocationDao(database);
 		categoryDao = new CategoryDao(database);
 		impactCategoryDao = new ImpactCategoryDao(database);
+		costCategoryDao = new BaseDao<>(CostCategory.class, database);
 	}
 
 	private void initializeData() {
@@ -191,6 +195,10 @@ public class Cache {
 		return get(flowPropertyDao, ids);
 	}
 
+	public CostCategory getCostCategory(long id) {
+		return get(costCategoryDao, id);
+	}
+
 	private <T extends RootEntity, V extends BaseDescriptor> V getDescriptor(
 			RootEntityDao<T, V> dao, long id) {
 		String key = getKey(dao.getDescriptorType(), id);
@@ -224,7 +232,7 @@ public class Cache {
 		return results;
 	}
 
-	private <T extends RootEntity> T get(BaseDao<T> dao, long id) {
+	private <T extends AbstractEntity> T get(BaseDao<T> dao, long id) {
 		String key = getKey(dao.getEntityType(), id);
 		@SuppressWarnings("unchecked")
 		T value = (T) cache.get(key);

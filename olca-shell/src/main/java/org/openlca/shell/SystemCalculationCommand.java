@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openlca.core.database.Cache;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.AnalysisResult;
@@ -35,7 +36,9 @@ public class SystemCalculationCommand {
 			log.trace("solve system with {} processes", system.getProcesses()
 					.size());
 			SystemCalculator calculator = new SystemCalculator(database);
-			InventoryResult result = calculator.solve(system);
+			CalculationSetup setup = new CalculationSetup(system,
+					CalculationSetup.QUICK_RESULT);
+			InventoryResult result = calculator.solve(setup);
 			log.trace("print results");
 			Cache cache = Cache.createEmptyCache(database);
 			printInventoryResult(result, cache);
@@ -55,7 +58,9 @@ public class SystemCalculationCommand {
 			log.trace("analyse system with {} processes", system.getProcesses()
 					.size());
 			SystemCalculator calculator = new SystemCalculator(database);
-			AnalysisResult result = calculator.analyse(system);
+			CalculationSetup setup = new CalculationSetup(system,
+					CalculationSetup.ANALYSIS);
+			AnalysisResult result = calculator.analyse(setup);
 			Cache cache = Cache.createEmptyCache(database);
 			if (file != null) {
 				log.trace("export result to file {}", file);
@@ -89,7 +94,7 @@ public class SystemCalculationCommand {
 		}
 		this.database = shell.getDatabase();
 		if (args.length < 1) {
-			log.error("a process ID is expected");
+			log.error("a product system ID is expected");
 			return false;
 		}
 		try {

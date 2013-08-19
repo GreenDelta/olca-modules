@@ -1,11 +1,11 @@
 package org.openlca.core.math;
 
-import org.openlca.core.indices.ProductIndex;
 import org.openlca.core.matrices.ExchangeCell;
 import org.openlca.core.matrices.ExchangeMatrix;
 import org.openlca.core.matrices.ImpactMatrix;
 import org.openlca.core.matrices.Inventory;
 import org.openlca.core.matrices.InventoryMatrix;
+import org.openlca.core.matrices.ProductIndex;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.InventoryResult;
 

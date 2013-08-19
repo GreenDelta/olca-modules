@@ -9,6 +9,7 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.SimulationStatistics;
 import org.openlca.io.CategoryPair;
+import org.openlca.io.DisplayValues;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 
@@ -19,7 +20,6 @@ class SimulationExportFlow implements Comparable<SimulationExportFlow> {
 	private String name;
 	private CategoryPair category;
 	private String unit;
-	private String property;
 
 	public SimulationExportFlow(FlowDescriptor flow, boolean input, Cache cache) {
 		this.flow = flow;
@@ -31,25 +31,12 @@ class SimulationExportFlow implements Comparable<SimulationExportFlow> {
 			Category cat = cache.getCategory(flow.getCategory());
 			this.category = new CategoryPair(cat);
 		}
-		// loadFlowInfo(flow, database);
+		unit = DisplayValues.referenceUnit(flow, cache);
 	}
 
 	public boolean isInput() {
 		return input;
 	}
-
-	// TODO: load flow info
-	// private void loadFlowInfo(Flow flow, IDatabase database) {
-	// try {
-	// FlowDao dao = new FlowDao(database);
-	// unit = dao.getRefUnitName(flow);
-	// FlowProperty prop = flow.getReferenceFlowProperty();
-	// property = prop != null ? prop.getName() : "n.a.";
-	// } catch (Exception e) {
-	// Logger log = LoggerFactory.getLogger(getClass());
-	// log.error("Could not load flow information", e);
-	// }
-	// }
 
 	@Override
 	public int compareTo(SimulationExportFlow other) {

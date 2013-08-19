@@ -9,17 +9,12 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -30,10 +25,6 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "tbl_exchanges")
 public class Exchange extends AbstractEntity {
-
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
-	@JoinColumn(name = "f_exchange")
-	private final List<AllocationFactor> allocationFactors = new ArrayList<>();
 
 	@Column(name = "avoided_product")
 	private boolean avoidedProduct;
@@ -133,24 +124,6 @@ public class Exchange extends AbstractEntity {
 		}
 	}
 
-	public void add(AllocationFactor allocationFactor) {
-		if (!allocationFactors.contains(allocationFactor)) {
-			allocationFactors.add(allocationFactor);
-		}
-	}
-
-	public AllocationFactor getAllocationFactor(long productId) {
-		for (AllocationFactor factor : getAllocationFactors())
-			if (factor.getProductId() == productId)
-				return factor;
-		return null;
-	}
-
-	public AllocationFactor[] getAllocationFactors() {
-		return allocationFactors.toArray(new AllocationFactor[allocationFactors
-				.size()]);
-	}
-
 	/**
 	 * <p style="margin-top: 0">
 	 * Applies the conversion factor of the unit and the flow property of the
@@ -234,10 +207,6 @@ public class Exchange extends AbstractEntity {
 
 	public boolean isParametrized() {
 		return parametrized;
-	}
-
-	public void remove(AllocationFactor allocationFactor) {
-		allocationFactors.remove(allocationFactor);
 	}
 
 	public void setAvoidedProduct(boolean avoidedProduct) {

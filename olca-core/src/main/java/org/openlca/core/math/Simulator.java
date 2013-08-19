@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A calculator for Monte-Carlo-Simulations.
- * 
- * TODO: allocation-method
  */
 public class Simulator {
 
@@ -28,16 +26,13 @@ public class Simulator {
 	private ImpactMatrix impactMatrix;
 	private Inventory inventory;
 	private InventoryMatrix matrix;
+	private CalculationSetup setup;
 
-	public Simulator(ProductSystem system, IDatabase database) {
-		this(system, null, database);
-	}
-
-	public Simulator(ProductSystem system, ImpactMethodDescriptor impactMethod,
-			IDatabase database) {
-		this.system = system;
-		this.impactMethod = impactMethod;
+	public Simulator(CalculationSetup setup, IDatabase database) {
+		this.system = setup.getProductSystem();
+		this.impactMethod = setup.getImpactMethod();
 		this.database = database;
+		this.setup = setup;
 	}
 
 	public SimulationResult getResult() {
@@ -73,7 +68,7 @@ public class Simulator {
 
 	private void setUp() {
 		log.trace("set up inventory");
-		inventory = Calculators.createInventory(system, database);
+		inventory = Calculators.createInventory(setup, database);
 		if (impactMethod != null)
 			impactMatrix = Calculators.createImpactMatrix(impactMethod,
 					inventory.getFlowIndex(), database);

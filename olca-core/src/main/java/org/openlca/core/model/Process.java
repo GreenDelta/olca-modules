@@ -31,9 +31,13 @@ import javax.persistence.Table;
 @Table(name = "tbl_processes")
 public class Process extends CategorizedEntity implements IParameterisable {
 
-	@Column(name = "allocation_method")
+	@Column(name = "default_allocation_method")
 	@Enumerated(EnumType.STRING)
-	private AllocationMethod allocationMethod;
+	private AllocationMethod defaultAllocationMethod;
+
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	@JoinColumn(name = "f_process")
+	private final List<AllocationFactor> allocationFactors = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
@@ -62,28 +66,9 @@ public class Process extends CategorizedEntity implements IParameterisable {
 	@Column(name = "infrastructure_process")
 	private boolean infrastructureProcess;
 
-	/**
-	 * Removes all allocation factors from all exchanges
-	 */
-	public void clearAllocationFactors() {
-		for (Exchange exchange : exchanges) {
-			AllocationFactor[] factors = exchange.getAllocationFactors();
-			for (AllocationFactor factor : factors) {
-				exchange.remove(factor);
-			}
-		}
-	}
-
-	public boolean contains(String flowId, boolean input) {
-		boolean contains = false;
-		int i = 0;
-		Exchange[] exchanges = input ? getInputs() : getOutputs();
-		while (i < exchanges.length && !contains) {
-			contains = exchanges[i].getFlow().getRefId().equals(flowId);
-			i++;
-		}
-		return contains;
-	}
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_process")
+	private final List<ProcessCostEntry> costEntries = new ArrayList<>();
 
 	/**
 	 * Converts all exchanges to their reference flow property and reference
@@ -98,40 +83,6 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		}
 	}
 
-	/**
-	 * Calculates the allocation factor of the given exchange for the given
-	 * product
-	 * 
-	 * @param exchange
-	 *            The exchange the allocation factor is requested for
-	 * @param productId
-	 *            The id of the product the allocation factor is requested for
-	 * @return The allocation factor of the exchange for the product
-	 */
-	public double getAllocationFactor(Exchange exchange, long productId) {
-		double allocationFactor = 1;
-		// if no allocation is applied, the factor is 1
-		if (getAllocationMethod() != null
-				&& getAllocationMethod() != AllocationMethod.NONE) {
-			// if the exchange is the product it's allocation factor is 1
-			if (exchange.getId() != productId) {
-				AllocationFactor productFactor = null;
-				int i = 0;
-				while (productFactor == null
-						&& i < exchange.getAllocationFactors().length) {
-					if (exchange.getAllocationFactors()[i].getProductId() == productId) {
-						productFactor = exchange.getAllocationFactors()[i];
-					}
-					i++;
-				}
-				if (productFactor != null) {
-					allocationFactor = productFactor.getValue();
-				}
-			}
-		}
-		return allocationFactor;
-	}
-
 	public ProcessDocumentation getDocumentation() {
 		return documentation;
 	}
@@ -140,26 +91,15 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		this.documentation = documentation;
 	}
 
-	public AllocationMethod getAllocationMethod() {
-		return allocationMethod;
-	}
-
 	@Override
 	public Process clone() {
 		return new ProcessCopy().create(this);
 	}
 
-	public Exchange getExchange(long id) {
-		for (Exchange e : exchanges)
-			if (id == e.getId())
-				return e;
-		return null;
-	}
-
 	public Exchange[] getExchanges(FlowType... flowTypes) {
 		if (flowTypes == null)
 			return exchanges.toArray(new Exchange[exchanges.size()]);
-		List<Exchange> exchanges = new ArrayList<>(); 
+		List<Exchange> exchanges = new ArrayList<>();
 		for (Exchange exchange : getExchanges())
 			for (FlowType flowType : flowTypes)
 				if (exchange.getFlow().getFlowType() == flowType) {
@@ -237,10 +177,6 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		return infrastructureProcess;
 	}
 
-	public void setAllocationMethod(AllocationMethod allocationMethod) {
-		this.allocationMethod = allocationMethod;
-	}
-
 	public void setLocation(Location location) {
 		this.location = location;
 	}
@@ -255,6 +191,22 @@ public class Process extends CategorizedEntity implements IParameterisable {
 
 	public void setInfrastructureProcess(boolean infrastructureProcess) {
 		this.infrastructureProcess = infrastructureProcess;
+	}
+
+	public AllocationMethod getDefaultAllocationMethod() {
+		return defaultAllocationMethod;
+	}
+
+	public void setDefaultAllocationMethod(AllocationMethod method) {
+		this.defaultAllocationMethod = method;
+	}
+
+	public List<AllocationFactor> getAllocationFactors() {
+		return allocationFactors;
+	}
+
+	public List<ProcessCostEntry> getCostEntries() {
+		return costEntries;
 	}
 
 }
