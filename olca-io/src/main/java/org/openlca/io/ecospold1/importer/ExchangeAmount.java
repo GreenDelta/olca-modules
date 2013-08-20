@@ -1,7 +1,6 @@
 package org.openlca.io.ecospold1.importer;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Expression;
 import org.openlca.core.model.UncertaintyDistributionType;
 import org.openlca.ecospold.IExchange;
 import org.slf4j.Logger;
@@ -25,8 +24,7 @@ class ExchangeAmount {
 	public void map(double factor) {
 		try {
 			double mean = esExchange.getMeanValue() * factor;
-			olcaExchange.getResultingAmount().setFormula(Double.toString(mean));
-			olcaExchange.getResultingAmount().setValue(mean);
+			olcaExchange.setAmountValue(mean);
 			if (esExchange.getUncertaintyType() == null) {
 				olcaExchange
 						.setDistributionType(UncertaintyDistributionType.NONE);
@@ -57,51 +55,41 @@ class ExchangeAmount {
 	}
 
 	private void mapUniform(Double min, Double max) {
+		if (min == null || max == null)
+			return;
 		olcaExchange.setDistributionType(UncertaintyDistributionType.UNIFORM);
-		Expression uMin = olcaExchange.getUncertaintyParameter1();
-		Expression uMax = olcaExchange.getUncertaintyParameter2();
-		uMin.setFormula(Double.toString(min));
-		uMin.setValue(min);
-		uMax.setFormula(Double.toString(max));
-		uMax.setValue(max);
+		olcaExchange.setParameter1Value(min);
+		olcaExchange.setParameter2Value(max);
 	}
 
 	private void mapTriangle(double mean, Double min, Double max) {
+		if (min == null || max == null)
+			return;
 		olcaExchange.setDistributionType(UncertaintyDistributionType.TRIANGLE);
-		Expression tMin = olcaExchange.getUncertaintyParameter1();
-		Expression tMax = olcaExchange.getUncertaintyParameter2();
-		Expression tMost = olcaExchange.getUncertaintyParameter3();
-		tMin.setFormula(Double.toString(min));
-		tMin.setValue(min);
-		tMax.setFormula(Double.toString(max));
-		tMax.setValue(max);
+		olcaExchange.setParameter1Value(min);
 		Double mostLikely = esExchange.getMostLikelyValue();
 		if (mostLikely == null) {
 			mostLikely = 3 * mean - min - max;
 		}
-		tMost.setFormula(mostLikely.toString());
-		tMost.setValue(mostLikely);
+		olcaExchange.setParameter2Value(mostLikely);
+		olcaExchange.setParameter3Value(max);
 	}
 
 	private void mapNormal(double mean, Double sd) {
+		if (sd == null)
+			return;
 		olcaExchange.setDistributionType(UncertaintyDistributionType.NORMAL);
-		Expression aMean = olcaExchange.getUncertaintyParameter1();
-		Expression asd = olcaExchange.getUncertaintyParameter2();
-		aMean.setFormula(Double.toString(mean));
-		aMean.setValue(mean);
-		asd.setFormula(Double.toString(sd / 2));
-		asd.setValue(sd / 2);
+		olcaExchange.setParameter1Value(mean);
+		olcaExchange.setParameter2Value(sd / 2);
 	}
 
 	private void mapLogNormal(double mean, Double sd) {
+		if (sd == null)
+			return;
 		olcaExchange
 				.setDistributionType(UncertaintyDistributionType.LOG_NORMAL);
-		Expression geoMean = olcaExchange.getUncertaintyParameter1();
-		Expression geoSD = olcaExchange.getUncertaintyParameter2();
-		geoMean.setFormula(Double.toString(mean));
-		geoMean.setValue(mean);
-		geoSD.setFormula(Double.toString(Math.sqrt(sd)));
-		geoSD.setValue(Math.sqrt(sd));
+		olcaExchange.setParameter1Value(mean);
+		olcaExchange.setParameter2Value(Math.sqrt(sd));
 	}
 
 }

@@ -126,7 +126,7 @@ public class EcoSpold01Import {
 		}
 	}
 
-	private void run(InputStream is, DataSetType type) throws Exception {
+	public void run(InputStream is, DataSetType type) throws Exception {
 		if (is == null || type == null)
 			return;
 		IEcoSpold spold = EcoSpoldIO.readFrom(is, type);
@@ -230,8 +230,8 @@ public class EcoSpold01Import {
 
 		if (dataSet.getAllocations() != null
 				&& dataSet.getAllocations().size() > 0) {
-			mapAllocations(dataSet.getAllocations());
-			process.setAllocationMethod(AllocationMethod.CAUSAL);
+			mapAllocations(process, dataSet.getAllocations());
+			process.setDefaultAllocationMethod(AllocationMethod.CAUSAL);
 		}
 
 		Mapper.mapModellingAndValidation(dataSet, documentation);
@@ -275,7 +275,7 @@ public class EcoSpold01Import {
 					.getPerson()));
 	}
 
-	private void mapAllocations(List<IAllocation> allocations) {
+	private void mapAllocations(Process process, List<IAllocation> allocations) {
 		for (IAllocation allocation : allocations) {
 			double factor = Math.round(allocation.getFraction() * 10000d) / 1000000d;
 			Exchange product = localExchangeCache.get(allocation
@@ -288,9 +288,11 @@ public class EcoSpold01Import {
 					continue;
 				}
 				AllocationFactor allocationFactor = new AllocationFactor();
-				allocationFactor.setProductId(product.getId());
+				allocationFactor.setProductId(product.getFlow().getId());
 				allocationFactor.setValue(factor);
-				exchange.add(allocationFactor);
+				allocationFactor.setAllocationType(AllocationMethod.CAUSAL);
+				allocationFactor.setExchange(exchange);
+				process.getAllocationFactors().add(allocationFactor);
 			}
 		}
 	}
@@ -384,8 +386,7 @@ public class EcoSpold01Import {
 		outExchange.setInput(false);
 		double amount = dataSet.getReferenceFunction().getAmount()
 				* flow.conversionFactor;
-		outExchange.getResultingAmount().setFormula(Double.toString(amount));
-		outExchange.getResultingAmount().setValue(amount);
+		outExchange.setAmountValue(amount);
 		ioProcess.getExchanges().add(outExchange);
 		ioProcess.setQuantitativeReference(outExchange);
 	}

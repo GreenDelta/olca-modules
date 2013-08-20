@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecoSpold
+	xsi:schemaLocation="http://www.EcoInvent.org/EcoSpold01 ..\..\..\..\..\..\..\Program%20Files\ecoinvent\EcoSpold\EcoSpold01Dataset.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.EcoInvent.org/EcoSpold01">
+	<dataset validCompanyCodes="CompanyCodes.xml"
+		validRegionalCodes="RegionalCodes.xml" validCategories="Categories.xml"
+		validUnits="Units.xml" number="1" generator="EcoInvent Excel2EcoSpold 1.2.1"
+		timestamp="2008-07-14T10:04:25" internalSchemaVersion="1.0">
+		<metaInformation>
+			<processInformation>
+				<referenceFunction datasetRelatesToProduct="true"
+					name="Bauxite, at mine" localName="Bauxite, at mine"
+					infrastructureProcess="false" amount="1" unit="kg"
+					category="Mining (except Oil and Gas)" subCategory="All Other Metal Ore Mining"
+					localCategory="Sonstiges" localSubCategory="Unbestimmt"
+					includedProcesses="Bauxite mining"
+					generalComment="Aluminum is the most widely distributed metal in the earth’s crust, with only the nonmetallic elements oxygen and silicon surpassing it in abundance. However, bauxite ore is the only commercially exploited source of aluminum. Although other types of earth, including ordinary clay, contain aluminum, economics favor the use of bauxite. Bauxite is formed by the action of rain and erosion on materials containing aluminum oxide (alumina). The heavy rainfall and warm temperatures of the tropics provide nearly ideal conditions for this process, and most of the world’s bauxite is mined in these regions. Australia is the leading producer of bauxite, followed by Guinea, Jamaica, Brazil, and Guyana. Greater than 99 percent of the total bauxite imported by the U.S. is supplied by these countries. This analysis assumes that the Canadian supply of bauxite is similar to that of the U.S.&#xA;&#xA;Important note: although most of the data in the US LCI database has &#xA;undergone some sort of review, the database as a whole has not yet &#xA;undergone a formal validation process.&#xA;Please email comments to lci@nrel.gov."
+					infrastructureIncluded="false"></referenceFunction>
+				<geography location="GLO"
+					text="Australia (2%), Jamaica (55 %), Guinea (30%), Brazil (3%), Suriname (1%), and Guyana (9%)."></geography>
+				<technology text="Mining of bauxite ore."></technology>
+				<timePeriod dataValidForEntirePeriod="true">
+					<startYear>1998</startYear>
+					<endYear>1998</endYear>
+				</timePeriod>
+				<dataSetInformation timestamp="2008-07-14T10:04:25"
+					type="1" impactAssessmentResult="false" version="1.6"
+					internalVersion="1.0" energyValues="2" languageCode="en"
+					localLanguageCode="de"></dataSetInformation>
+			</processInformation>
+			<modellingAndValidation>
+				<representativeness percent="100.0"
+					productionVolume="100"></representativeness>
+				<source number="1" sourceType="0"
+					firstAuthor="Franklin Associates, A Division of ERG" year="2007"
+					title="Data Module Report: Primary Aluminum" placeOfPublications="unspecified"
+					volumeNo="0"></source>
+				<source number="2" sourceType="3" firstAuthor="The Aluminum Association"
+					additionalAuthors="Roy F. Weston, Inc." year="1998"
+					title="Life Cycle Inventory Report for the North American Aluminum Industry"
+					placeOfPublications="unspecified" volumeNo="0"></source>
+				<source number="3" sourceType="3"
+					firstAuthor="Energy Information Administration (EIA)" year="2002"
+					title="International Energy Annual 2002" placeOfPublications="unspecified"
+					volumeNo="0"></source>
+				<source number="4" sourceType="2" firstAuthor="US Geological Survey"
+					year="2004" title="USGS Mineral Commodity Summaries"
+					placeOfPublications="unspecified" volumeNo="0"></source>
+				<source number="5" sourceType="3"
+					firstAuthor="IAI Statistical Report: Electrical Power" year="2003"
+					title="International Aluminum Institute" placeOfPublications="unspecified"
+					volumeNo="0"></source>
+				<source number="6" sourceType="0" firstAuthor="US EPA" year="2002"
+					title="Emissions &amp; Generation Resource Integrated Database, eGRID2002 Version 2.01."
+					placeOfPublications="unspecified" volumeNo="0"></source>
+			</modellingAndValidation>
+			<administrativeInformation>
+				<dataEntryBy person="1" qualityNetwork="3"></dataEntryBy>
+				<dataGeneratorAndPublication person="1"
+					dataPublishedIn="0" referenceToPublishedSource="1" copyright="false"
+					accessRestrictedTo="0"></dataGeneratorAndPublication>
+				<person number="1" name="James Littlefield, Franklin Associates"
+					address="Prairie Village, KS" telephone="913-649-2225" email="jlittlefield@fal.com"
+					companyCode="FAL" countryCode="US"></person>
+			</administrativeInformation>
+		</metaInformation>
+		<flowData>
+			<exchange number="1" infrastructureProcess="false"
+				name="Residual fuel oil, combusted in industrial boiler" location="US"
+				unit="L" meanValue="0.00125">
+				<inputGroup>5</inputGroup>
+			</exchange>
+			<exchange number="2" infrastructureProcess="false"
+				name="Gasoline, combusted in equipment" location="US" unit="L"
+				meanValue="0.000267">
+				<inputGroup>5</inputGroup>
+			</exchange>
+			<exchange number="3" infrastructureProcess="false"
+				name="Diesel, combusted in industrial boiler" location="US" unit="L"
+				meanValue="0.00434">
+				<inputGroup>5</inputGroup>
+			</exchange>
+			<exchange number="4" infrastructureProcess="false"
+				name="Electricity, bauxite mining regions" location="GLO" unit="kWh"
+				meanValue="0.000397">
+				<inputGroup>5</inputGroup>
+			</exchange>
+			<exchange number="5" infrastructureProcess="false"
+				name="Transport, train, diesel powered" location="US" unit="tkm"
+				meanValue="0.349">
+				<inputGroup>5</inputGroup>
+			</exchange>
+			<exchange number="6" infrastructureProcess="false"
+				name="Transport, ocean freighter, residual fuel oil powered"
+				location="US" unit="tkm" meanValue="2.53">
+				<inputGroup>5</inputGroup>
+			</exchange>
+			<exchange number="7" infrastructureProcess="false"
+				name="Transport, ocean freighter, diesel powered" location="US"
+				unit="tkm" meanValue="0.281">
+				<inputGroup>5</inputGroup>
+			</exchange>
+			<exchange number="8" infrastructureProcess="false"
+				name="Dummy_Disposal, solid waste, unspecified, to unspecified treatment"
+				location="US" unit="kg" meanValue="0.136" generalComment="Overburden">
+				<inputGroup>5</inputGroup>
+			</exchange>
+			<exchange number="9" category="resource" subCategory="in ground"
+				infrastructureProcess="false" name="Bauxite" unit="kg" meanValue="1">
+				<inputGroup>4</inputGroup>
+			</exchange>
+			<exchange number="10" category="air" subCategory="unspecified"
+				infrastructureProcess="false" name="Carbon dioxide, fossil" unit="kg"
+				meanValue="0.00079" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="11" category="air" subCategory="unspecified"
+				infrastructureProcess="false" name="Carbon monoxide" unit="kg"
+				meanValue="3.2E-6" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="12" category="air" subCategory="unspecified"
+				infrastructureProcess="false" name="Methane" unit="kg" meanValue="6.6E-6"
+				uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="13" category="air" subCategory="unspecified"
+				infrastructureProcess="false" name="Nitrogen oxides" unit="kg"
+				meanValue="4E-5" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="14" category="air" subCategory="unspecified"
+				infrastructureProcess="false" name="Dinitrogen monoxide" unit="kg"
+				meanValue="3.4E-7" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="15" category="air" subCategory="unspecified"
+				infrastructureProcess="false"
+				name="NMVOC, non-methane volatile organic compounds, unspecified origin"
+				unit="kg" meanValue="4.5E-7" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="16" category="air" subCategory="unspecified"
+				infrastructureProcess="false" name="Particulates, unspecified" unit="kg"
+				meanValue="0.00235" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="17" category="air" subCategory="unspecified"
+				infrastructureProcess="false" name="Sulfur oxides" unit="kg"
+				meanValue="1.1E-6" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="18" category="water" subCategory="unspecified"
+				infrastructureProcess="false" name="Detergents, unspecified" unit="kg"
+				meanValue="2.5E-9" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="19" category="water" subCategory="unspecified"
+				infrastructureProcess="false" name="Dissolved solids" unit="kg"
+				meanValue="2.1E-7" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="20" category="water" subCategory="unspecified"
+				infrastructureProcess="false" name="Nitrogen" unit="kg" meanValue="6.5E-10"
+				uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="21" category="water" subCategory="unspecified"
+				infrastructureProcess="false" name="Oils, unspecified" unit="kg"
+				meanValue="1.9E-9" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="22" category="water" subCategory="unspecified"
+				infrastructureProcess="false" name="Phosphate" unit="kg" meanValue="2.5E-9"
+				uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="23" category="water" subCategory="unspecified"
+				infrastructureProcess="false" name="Suspended solids, unspecified"
+				unit="kg" meanValue="1.5E-8" uncertaintyType="0">
+				<outputGroup>4</outputGroup>
+			</exchange>
+			<exchange number="24" infrastructureProcess="false"
+				name="Bauxite, at mine" location="GLO" unit="kg" meanValue="1">
+				<outputGroup>0</outputGroup>
+			</exchange>
+		</flowData>
+	</dataset>
+</ecoSpold>

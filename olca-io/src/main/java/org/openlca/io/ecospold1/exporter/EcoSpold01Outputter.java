@@ -20,7 +20,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -33,7 +32,6 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UncertaintyDistributionType;
-import org.openlca.ecospold.IAllocation;
 import org.openlca.ecospold.IDataEntryBy;
 import org.openlca.ecospold.IDataGeneratorAndPublication;
 import org.openlca.ecospold.IDataSet;
@@ -141,11 +139,8 @@ public class EcoSpold01Outputter {
 				refFun.setInfrastructureProcess(process
 						.isInfrastructureProcess());
 			}
-			dataSet.getExchanges()
-					.add(mapExchange(
-							exchange,
-							process.getOutputs(FlowType.PRODUCT_FLOW).length > 1,
-							factory));
+			dataSet.getExchanges().add(
+					mapExchange(exchange, isMultiOutput(process), factory));
 		}
 
 		// map location
@@ -165,21 +160,35 @@ public class EcoSpold01Outputter {
 			dataSet.setDataSetInformation(factory.createDataSetInformation());
 		}
 
-		// map type
-		if (process.getProcessType() == ProcessType.LCI_RESULT) {
-			dataSet.getDataSetInformation().setType(2);
-		} else {
-			if (process.getOutputs(FlowType.PRODUCT_FLOW).length > 1) {
-				dataSet.getDataSetInformation().setType(5);
-			} else {
-				dataSet.getDataSetInformation().setType(1);
-			}
-		}
+		mapProcessType(process, dataSet);
 
-		mapAllocations(process, dataSet, factory);
+		// TODO: map allocation factors
+		// mapAllocations(process, dataSet, factory);
 
 		ecoSpold.getDataset().add(iDataSet);
 		return ecoSpold;
+	}
+
+	private void mapProcessType(Process process, DataSet dataSet) {
+		if (process.getProcessType() == ProcessType.LCI_RESULT) {
+			dataSet.getDataSetInformation().setType(2);
+		} else {
+			if (isMultiOutput(process))
+				dataSet.getDataSetInformation().setType(5);
+			else
+				dataSet.getDataSetInformation().setType(1);
+		}
+	}
+
+	private boolean isMultiOutput(Process process) {
+		int count = 0;
+		for (Exchange e : process.getExchanges()) {
+			if (e.isInput() || e.getFlow() == null)
+				continue;
+			if (e.getFlow().getFlowType() == FlowType.PRODUCT_FLOW)
+				count++;
+		}
+		return count > 1;
 	}
 
 	private IPerson mapActor(Actor inActor, DataSet dataset,
@@ -260,19 +269,20 @@ public class EcoSpold01Outputter {
 		}
 	}
 
-	private void mapAllocations(Process process, DataSet dataset,
-			IEcoSpoldFactory factory) {
-		for (AllocationFactor inFactor : process.getAllocationFactors()) {
-			IAllocation factor = factory.createAllocation();
-			factor.setFraction((float) (inFactor.getValue() * 100));
-			factor.setReferenceToCoProduct(exchangeToES1Exchange.get(
-					inFactor.getProductId()).getNumber());
-			factor.setAllocationMethod(-1);
-			dataset.getAllocations().add(factor);
-			factor.getReferenceToInputOutput().add(
-					exchangeToES1Exchange.get(exchange.getId()).getNumber());
-		}
-	}
+	// TODO: map allocation factors
+	// private void mapAllocations(Process process, DataSet dataset,
+	// IEcoSpoldFactory factory) {
+	// for (AllocationFactor inFactor : process.getAllocationFactors()) {
+	// IAllocation factor = factory.createAllocation();
+	// factor.setFraction((float) (inFactor.getValue() * 100));
+	// factor.setReferenceToCoProduct(exchangeToES1Exchange.get(
+	// inFactor.getProductId()).getNumber());
+	// factor.setAllocationMethod(-1);
+	// dataset.getAllocations().add(factor);
+	// factor.getReferenceToInputOutput().add(
+	// exchangeToES1Exchange.get(exchange.getId()).getNumber());
+	// }
+	// }
 
 	private IExchange mapExchange(Exchange inExchange, boolean multiOutput,
 			IEcoSpoldFactory factory) {
@@ -293,7 +303,7 @@ public class EcoSpold01Outputter {
 
 		if (inExchange.getDistributionType() == null
 				|| inExchange.getDistributionType() == UncertaintyDistributionType.NONE) {
-			exchange.setMeanValue(inExchange.getResultingAmount().getValue());
+			exchange.setMeanValue(inExchange.getAmountValue());
 		} else {
 			mapUncertainty(inExchange, exchange);
 		}
@@ -460,7 +470,7 @@ public class EcoSpold01Outputter {
 		referenceFunction.setName(exchange.getFlow().getName());
 		referenceFunction.setUnit(exchange.getUnit().getName());
 		referenceFunction.setInfrastructureProcess(flow.isInfrastructureFlow());
-		referenceFunction.setAmount(exchange.getResultingAmount().getValue());
+		referenceFunction.setAmount(exchange.getAmountValue());
 		Category category = flow.getCategory();
 		if (category != null) {
 			if (category.getParentCategory() == null)
@@ -538,39 +548,31 @@ public class EcoSpold01Outputter {
 		if (oExchange.getDistributionType() != null) {
 			switch (oExchange.getDistributionType()) {
 			case NORMAL:
-				exchange.setMeanValue(oExchange.getUncertaintyParameter1()
-						.getValue());
-				exchange.setStandardDeviation95(oExchange
-						.getUncertaintyParameter2().getValue() * 2);
+				exchange.setMeanValue(oExchange.getParameter1Value());
+				exchange.setStandardDeviation95(oExchange.getParameter2Value() * 2);
 				exchange.setUncertaintyType(2);
 				break;
 			case LOG_NORMAL:
-				exchange.setMeanValue(oExchange.getUncertaintyParameter1()
-						.getValue());
-				double sd = oExchange.getUncertaintyParameter2().getValue();
+				exchange.setMeanValue(oExchange.getParameter1Value());
+				double sd = oExchange.getParameter2Value();
 				exchange.setStandardDeviation95(Math.pow(sd, 2));
 				exchange.setUncertaintyType(1);
 				break;
 			case TRIANGLE:
-				exchange.setMinValue(oExchange.getUncertaintyParameter1()
-						.getValue());
-				exchange.setMaxValue(oExchange.getUncertaintyParameter2()
-						.getValue());
-				exchange.setMostLikelyValue(oExchange
-						.getUncertaintyParameter3().getValue());
-				exchange.setMeanValue(oExchange.getResultingAmount().getValue());
+				exchange.setMinValue(oExchange.getParameter1Value());
+				exchange.setMostLikelyValue(oExchange.getParameter2Value());
+				exchange.setMaxValue(oExchange.getParameter3Value());
+				exchange.setMeanValue(oExchange.getAmountValue());
 				exchange.setUncertaintyType(3);
 				break;
 			case UNIFORM:
-				exchange.setMinValue(oExchange.getUncertaintyParameter1()
-						.getValue());
-				exchange.setMaxValue(oExchange.getUncertaintyParameter2()
-						.getValue());
-				exchange.setMeanValue(oExchange.getResultingAmount().getValue());
+				exchange.setMinValue(oExchange.getParameter1Value());
+				exchange.setMaxValue(oExchange.getParameter2Value());
+				exchange.setMeanValue(oExchange.getAmountValue());
 				exchange.setUncertaintyType(4);
 				break;
 			default:
-				exchange.setMeanValue(oExchange.getResultingAmount().getValue());
+				exchange.setMeanValue(oExchange.getAmountValue());
 				exchange.setUncertaintyType(0);
 			}
 		}
