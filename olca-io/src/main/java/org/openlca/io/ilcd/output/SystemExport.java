@@ -8,7 +8,7 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Expression;
 import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterType;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -204,7 +204,7 @@ public class SystemExport {
 			addParameter(parameter, model, ParameterScopeValues.PRODUCTMODEL);
 		ParameterDao dao = new ParameterDao(database);
 		try {
-			for (Parameter param : dao.getAllForType(ParameterType.DATABASE))
+			for (Parameter param : dao.getAllForType(ParameterScope.DATABASE))
 				addParameter(param, model, ParameterScopeValues.GLOBAL);
 		} catch (Exception e) {
 			log.error("Failed to export database paramaters", e);

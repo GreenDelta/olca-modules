@@ -256,7 +256,6 @@ CREATE TABLE tbl_exchanges (
 	f_flow_property_factor BIGINT, 
 	f_unit BIGINT, 
 	f_flow BIGINT, 
-	parametrized SMALLINT default 0, 
 	resulting_amount_value DOUBLE, 
 	resulting_amount_formula VARCHAR(255), 
 	parameter1_value DOUBLE, 
@@ -485,18 +484,27 @@ CREATE TABLE tbl_normalisation_weighting_factors (
 );
 
 
--- parameters
-
 CREATE TABLE tbl_parameters (
 
 	id BIGINT NOT NULL, 
+	name VARCHAR(255), 
 	description CLOB(64 K), 
+	is_input_param SMALLINT default 0,
+	f_owner BIGINT, 
+	scope VARCHAR(255), 
+	value DOUBLE, 
+	formula VARCHAR(255),
+	
+	PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_parameter_redefs (
+
+	id BIGINT NOT NULL, 
 	name VARCHAR(255), 
 	f_owner BIGINT, 
-	type INTEGER, 
-	expression_parametrized SMALLINT default 0, 
-	expression_value DOUBLE, 
-	expression_formula VARCHAR(255),
+	f_process BIGINT,
+	value DOUBLE,
 	
 	PRIMARY KEY (id)
 );

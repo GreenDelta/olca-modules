@@ -39,10 +39,14 @@ class ProcessCopy {
 
 	private void copyExchangeFields(Exchange self, Exchange other) {
 		other.setAvoidedProduct(self.isAvoidedProduct());
-		other.getResultingAmount().setValue(
-				self.getResultingAmount().getValue());
-		other.getResultingAmount().setFormula(
-				self.getResultingAmount().getFormula());
+		other.setAmountFormula(self.getAmountFormula());
+		other.setAmountValue(self.getAmountValue());
+		other.setParameter1Formula(self.getParameter1Formula());
+		other.setParameter1Value(self.getParameter1Value());
+		other.setParameter2Formula(self.getParameter2Formula());
+		other.setParameter2Value(self.getParameter2Value());
+		other.setParameter3Formula(self.getParameter3Formula());
+		other.setParameter3Value(self.getParameter3Value());
 		other.setFlow(self.getFlow());
 		other.setFlowPropertyFactor(self.getFlowPropertyFactor());
 		other.setInput(self.isInput());
@@ -54,10 +58,9 @@ class ProcessCopy {
 			Parameter p = new Parameter();
 			p.setDescription(parameter.getDescription());
 			p.setName(parameter.getName());
-			p.setType(ParameterType.PROCESS);
-			p.getExpression().setValue(parameter.getExpression().getValue());
-			p.getExpression()
-					.setFormula(parameter.getExpression().getFormula());
+			p.setScope(ParameterScope.PROCESS);
+			p.setFormula(parameter.getFormula());
+			p.setValue(parameter.getValue());
 			other.getParameters().add(p);
 		}
 	}

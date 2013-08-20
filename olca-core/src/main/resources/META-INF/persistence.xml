@@ -22,6 +22,7 @@
 		<class>org.openlca.core.model.NormalizationWeightingSet</class>
 		<class>org.openlca.core.model.NormalizationWeightingFactor</class>
 		<class>org.openlca.core.model.Parameter</class>
+		<class>org.openlca.core.model.ParameterRedef</class>
 		<class>org.openlca.core.model.Process</class>
 		<class>org.openlca.core.model.ProcessDocumentation</class>
 		<class>org.openlca.core.model.ProcessGroupSet</class>
@@ -37,7 +38,7 @@
 		<class>org.openlca.core.model.results.ImpactCategoryResult</class>
 		<class>org.openlca.core.model.iomaps.Mapping</class>
 		<class>org.openlca.core.model.CostCategory</class>
-		<class>org.openlca.core.model.ProductCostEntry</class>
+		<class>org.openlca.core.model.ProcessCostEntry</class>
 		<properties>
 			<property name="eclipselink.connection-pool.default.max"
 				value="10" />

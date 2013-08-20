@@ -24,7 +24,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_impact_methods")
-public class ImpactMethod extends CategorizedEntity implements IParameterisable {
+public class ImpactMethod extends CategorizedEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_impact_method")

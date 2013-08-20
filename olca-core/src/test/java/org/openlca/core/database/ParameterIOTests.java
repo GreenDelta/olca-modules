@@ -1,0 +1,72 @@
+package org.openlca.core.database;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.openlca.core.TestSession;
+import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterScope;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
+
+public class ParameterIOTests {
+
+	private IDatabase database = TestSession.getDefaultDatabase();
+	private ParameterDao parameterDao = new ParameterDao(database);
+
+	@Test
+	public void testGlobalParameters() {
+		Parameter param = new Parameter();
+		param.setDescription("test parameter");
+		param.setInputParameter(true);
+		param.setScope(ParameterScope.GLOBAL);
+		param.setName("p_342637");
+		param.setValue(42);
+		parameterDao.insert(param);
+		TestSession.emptyCache();
+		Parameter alias = parameterDao.getForId(param.getId());
+		Assert.assertEquals("p_342637", alias.getName());
+		Assert.assertTrue(parameterDao.getGlobalParameters().contains(alias));
+		parameterDao.delete(alias);
+	}
+
+	@Test
+	public void testProcessParameters() {
+		Process process = new Process();
+		process.setName("test-proc");
+		Parameter param = new Parameter();
+		param.setDescription("test parameter");
+		param.setInputParameter(true);
+		param.setScope(ParameterScope.PROCESS);
+		param.setName("p_734564");
+		param.setValue(42);
+		process.getParameters().add(param);
+		ProcessDao dao = new ProcessDao(database);
+		dao.insert(process);
+		TestSession.emptyCache();
+		dao.getForId(process.getId());
+		Assert.assertTrue(process.getParameters().get(0).getValue() == 42);
+		Assert.assertTrue(parameterDao.getAll().contains(param));
+		Assert.assertFalse(parameterDao.getGlobalParameters().contains(param));
+		dao.delete(process);
+		Assert.assertFalse(parameterDao.getAll().contains(param));
+	}
+
+	@Test
+	public void testSystemParameterRedef() {
+		ProductSystem system = new ProductSystem();
+		system.setName("test system");
+		ParameterRedef redef = new ParameterRedef();
+		redef.setName("a");
+		redef.setProcessId(123L);
+		redef.setValue(42);
+		system.getParameterRedefs().add(redef);
+		ProductSystemDao dao = new ProductSystemDao(database);
+		dao.insert(system);
+		TestSession.emptyCache();
+		ProductSystem alias = dao.getForId(system.getId());
+		Assert.assertTrue(alias.getParameterRedefs().get(0).getProcessId() == 123L);
+		dao.delete(system);
+	}
+
+}

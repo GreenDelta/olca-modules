@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterType;
+import org.openlca.core.model.ParameterScope;
 
 public class ParameterDao extends BaseDao<Parameter> {
 
@@ -13,19 +13,10 @@ public class ParameterDao extends BaseDao<Parameter> {
 		super(Parameter.class, database);
 	}
 
-	public List<Parameter> getAllForType(ParameterType type) {
-		String jpql = "select p from Parameter p where p.type = :type";
+	public List<Parameter> getGlobalParameters() {
+		String jpql = "select p from Parameter p where p.scope = :scope";
 		Map<String, Object> args = new HashMap<>();
-		args.put("type", type);
-		return getAll(jpql, args);
-	}
-
-	public List<Parameter> getAllForName(String name, ParameterType type) {
-		String jpql = "select p from Parameter p where lower(p.name) = "
-				+ "lower(:name) and p.type = :type";
-		Map<String, Object> args = new HashMap<>();
-		args.put("name", name);
-		args.put("type", type);
+		args.put("scope", ParameterScope.GLOBAL);
 		return getAll(jpql, args);
 	}
 

@@ -6,7 +6,7 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterType;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.ParameterExtension;
@@ -39,12 +39,12 @@ class ProcessParameterConversion {
 	private void addDatabaseParams(
 			List<org.openlca.ilcd.processes.Parameter> params) {
 		ParameterDao dao = new ParameterDao(database);
-		for (Parameter param : dao.getAllForType(ParameterType.DATABASE)) {
+		for (Parameter param : dao.getAllForType(ParameterScope.DATABASE)) {
 			if (!valid(param))
 				continue;
 			org.openlca.ilcd.processes.Parameter iParam = convertParam(param);
 			params.add(iParam);
-			addScope(iParam, ParameterType.DATABASE);
+			addScope(iParam, ParameterScope.DATABASE);
 		}
 	}
 
@@ -55,7 +55,7 @@ class ProcessParameterConversion {
 				continue;
 			org.openlca.ilcd.processes.Parameter iParam = convertParam(oParam);
 			iParameters.add(iParam);
-			addScope(iParam, ParameterType.PROCESS);
+			addScope(iParam, ParameterScope.PROCESS);
 		}
 		return iParameters;
 	}
@@ -83,12 +83,12 @@ class ProcessParameterConversion {
 	}
 
 	private void addScope(org.openlca.ilcd.processes.Parameter param,
-			ParameterType type) {
+			ParameterScope type) {
 		String scope = getScope(type);
 		new ParameterExtension(param).setScope(scope);
 	}
 
-	private String getScope(ParameterType type) {
+	private String getScope(ParameterScope type) {
 		if (type == null)
 			return "unspecified";
 		switch (type) {

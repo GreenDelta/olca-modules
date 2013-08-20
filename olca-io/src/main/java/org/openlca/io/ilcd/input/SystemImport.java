@@ -14,7 +14,7 @@ import org.openlca.core.model.Expression;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ParameterType;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -213,27 +213,27 @@ public class SystemImport {
 
 	private org.openlca.core.model.Parameter convert(Parameter iParam) {
 		Expression exp = new Expression(iParam.getFormula(), iParam.getValue());
-		ParameterType type = ParameterType.PRODUCT_SYSTEM;
+		ParameterScope type = ParameterScope.PRODUCT_SYSTEM;
 		if (iParam.getScope() == ParameterScopeValues.GLOBAL) {
-			type = ParameterType.DATABASE;
+			type = ParameterScope.DATABASE;
 		}
 		org.openlca.core.model.Parameter param = new org.openlca.core.model.Parameter();
 		param.setName(iParam.getName());
-		param.setType(type);
+		param.setScope(type);
 		param.getExpression().setValue(exp.getValue());
 		param.getExpression().setFormula(exp.getFormula());
 		return param;
 	}
 
 	private void addOrInsert(org.openlca.core.model.Parameter param) {
-		if (param.getType() == ParameterType.PRODUCT_SYSTEM) {
+		if (param.getScope() == ParameterScope.PRODUCT_SYSTEM) {
 			system.getParameters().add(param);
 			return;
 		}
 		try {
 			ParameterDao dao = new ParameterDao(database);
 			List<org.openlca.core.model.Parameter> params = dao.getAllForName(
-					param.getName(), param.getType());
+					param.getName(), param.getScope());
 			if (params.isEmpty())
 				dao.insert(param);
 		} catch (Exception e) {

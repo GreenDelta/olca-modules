@@ -9,18 +9,38 @@
  ******************************************************************************/
 package org.openlca.core.model;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
- * An exchange is a carrier of a flow (an elementary flows like CO2 or a product
- * flow). Exchanges are representing the inputs and outputs of processes.
+ * Exchanges are representing the inputs and outputs of flows in processes. For
+ * the amounts of an exchange uncertainty distributions can be defined. Three
+ * fields are reserved for the distribution parameters: <br>
+ * <br>
+ * 
+ * parameter 1:
+ * <ul>
+ * <li>Normal distribution: arithmetic mean value
+ * <li>Lognormal distribution: geometric mean value
+ * <li>Triangle distribution: min value
+ * <li>Uniform distribution: min value
+ * </ul>
+ * 
+ * parameter 2:
+ * <ul>
+ * <li>Normal distribution: arithmetic standard deviation
+ * <li>Lognormal distribution: geometric standard deviation
+ * <li>Triangle distribution: most likely value
+ * <li>Uniform distribution: max value
+ * </ul>
+ * 
+ * parameter 3:
+ * <ul>
+ * <li>Triangle distribution: max value
+ * </ul>
  */
 @Entity
 @Table(name = "tbl_exchanges")
@@ -43,53 +63,35 @@ public class Exchange extends AbstractEntity {
 	@Column(name = "is_input")
 	private boolean input;
 
-	@Column(name = "parametrized")
-	private boolean parametrized;
-
 	@Column(name = "base_uncertainty")
 	private Double baseUncertainty;
 
 	@Column(name = "f_default_provider")
 	private long defaultProviderId;
 
-	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "value", column = @Column(name = "resulting_amount_value")),
-			@AttributeOverride(name = "formula", column = @Column(name = "resulting_amount_formula")) })
-	private final Expression resultingAmount = new Expression("1", 1d);
+	@Column(name = "resulting_amount_value")
+	private double amountValue;
 
-	/**
-	 * Normal distribution: arithmetic mean value <br>
-	 * Lognormal distribution: geometric mean value <br>
-	 * Triangle distribution: min value <br>
-	 * Uniform distribution: min value
-	 */
-	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "value", column = @Column(name = "parameter1_value")),
-			@AttributeOverride(name = "formula", column = @Column(name = "parameter1_formula")) })
-	private Expression uncertaintyParameter1;
+	@Column(name = "resulting_amount_formula")
+	private String amountFormula;
 
-	/**
-	 * Normal distribution: arithmetic standard deviation<br>
-	 * Lognormal distribution: geometric standard deviation<br>
-	 * Triangle distribution: most likely value<br>
-	 * Uniform distribution: max value
-	 */
-	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "value", column = @Column(name = "parameter2_value")),
-			@AttributeOverride(name = "formula", column = @Column(name = "parameter2_formula")) })
-	private Expression uncertaintyParameter2;
+	@Column(name = "parameter1_value")
+	private Double parameter1Value;
 
-	/**
-	 * Triangle distribution: max value
-	 */
-	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "value", column = @Column(name = "parameter3_value")),
-			@AttributeOverride(name = "formula", column = @Column(name = "parameter3_formula")) })
-	private Expression uncertaintyParameter3;
+	@Column(name = "parameter1_formula")
+	private String parameter1Formula;
+
+	@Column(name = "parameter2_value")
+	private Double parameter2Value;
+
+	@Column(name = "parameter2_formula")
+	private String parameter2Formula;
+
+	@Column(name = "parameter3_value")
+	private Double parameter3Value;
+
+	@Column(name = "parameter3_formula")
+	private String parameter3Formula;
 
 	@OneToOne
 	@JoinColumn(name = "f_unit")
@@ -98,48 +100,76 @@ public class Exchange extends AbstractEntity {
 	@Column(name = "pedigree_uncertainty")
 	private String pedigreeUncertainty;
 
-	private void calculateResultingAmount(UncertaintyDistributionType type) {
-		String formula = null;
-		switch (type) {
-		case NORMAL:
-			formula = uncertaintyParameter1.getFormula();
-			break;
-		case LOG_NORMAL:
-			formula = uncertaintyParameter1.getFormula();
-			break;
-		case TRIANGLE:
-			formula = "(" + uncertaintyParameter1.getFormula() + " + "
-					+ uncertaintyParameter2.getFormula() + " + "
-					+ uncertaintyParameter3.getFormula() + ") / 3";
-			break;
-		case UNIFORM:
-			formula = "(" + uncertaintyParameter1.getFormula() + " + "
-					+ uncertaintyParameter2.getFormula() + ") / 2";
-			break;
-		default:
-			break;
-		}
-		if (formula != null) {
-			resultingAmount.setFormula(formula);
-		}
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Applies the conversion factor of the unit and the flow property of the
-	 * exchange onto the resulting amount and returns the result
-	 * </p>
-	 * 
-	 * @return The converted result
-	 */
-	public double getConvertedResult() {
-		return getResultingAmount().getValue()
-				/ getFlowPropertyFactor().getConversionFactor()
-				* getUnit().getConversionFactor();
-	}
-
 	public UncertaintyDistributionType getDistributionType() {
 		return distributionType;
+	}
+
+	public double getAmountValue() {
+		return amountValue;
+	}
+
+	public void setAmountValue(double amountValue) {
+		this.amountValue = amountValue;
+	}
+
+	public String getAmountFormula() {
+		return amountFormula;
+	}
+
+	public void setAmountFormula(String amountFormula) {
+		this.amountFormula = amountFormula;
+	}
+
+	public Double getParameter1Value() {
+		return parameter1Value;
+	}
+
+	public void setParameter1Value(Double parameter1Value) {
+		this.parameter1Value = parameter1Value;
+	}
+
+	public String getParameter1Formula() {
+		return parameter1Formula;
+	}
+
+	public void setParameter1Formula(String parameter1Formula) {
+		this.parameter1Formula = parameter1Formula;
+	}
+
+	public Double getParameter2Value() {
+		return parameter2Value;
+	}
+
+	public void setParameter2Value(Double parameter2Value) {
+		this.parameter2Value = parameter2Value;
+	}
+
+	public String getParameter2Formula() {
+		return parameter2Formula;
+	}
+
+	public void setParameter2Formula(String parameter2Formula) {
+		this.parameter2Formula = parameter2Formula;
+	}
+
+	public Double getParameter3Value() {
+		return parameter3Value;
+	}
+
+	public void setParameter3Value(Double parameter3Value) {
+		this.parameter3Value = parameter3Value;
+	}
+
+	public String getParameter3Formula() {
+		return parameter3Formula;
+	}
+
+	public void setParameter3Formula(String parameter3Formula) {
+		this.parameter3Formula = parameter3Formula;
+	}
+
+	public void setDistributionType(UncertaintyDistributionType distributionType) {
+		this.distributionType = distributionType;
 	}
 
 	public Flow getFlow() {
@@ -148,49 +178,6 @@ public class Exchange extends AbstractEntity {
 
 	public FlowPropertyFactor getFlowPropertyFactor() {
 		return flowPropertyFactor;
-	}
-
-	public Expression getResultingAmount() {
-		return resultingAmount;
-	}
-
-	/**
-	 * Getter of the first uncertainty parameter
-	 * 
-	 * @return In case of: <br>
-	 *         Normal distribution: arithmetic mean value<br>
-	 *         Lognormal distribution: geometric mean value<br>
-	 *         Triangle distribution: min value<br>
-	 *         Uniform distribution: min value<br>
-	 *         null otherwise
-	 */
-	public Expression getUncertaintyParameter1() {
-		return uncertaintyParameter1;
-	}
-
-	/**
-	 * Getter of the second uncertainty parameter
-	 * 
-	 * @return In case of: <br>
-	 *         Normal distribution: arithmetic standard deviation<br>
-	 *         Lognormal distribution: geometric standard deviation<br>
-	 *         Triangle distribution: most likely value<br>
-	 *         Uniform distribution: max value<br>
-	 *         null otherwise
-	 */
-	public Expression getUncertaintyParameter2() {
-		return uncertaintyParameter2;
-	}
-
-	/**
-	 * Getter of the third uncertainty parameter
-	 * 
-	 * @return In case of: <br>
-	 *         Triangle distribution: max value<br>
-	 *         null otherwise
-	 */
-	public Expression getUncertaintyParameter3() {
-		return uncertaintyParameter3;
 	}
 
 	public Unit getUnit() {
@@ -205,77 +192,8 @@ public class Exchange extends AbstractEntity {
 		return input;
 	}
 
-	public boolean isParametrized() {
-		return parametrized;
-	}
-
 	public void setAvoidedProduct(boolean avoidedProduct) {
 		this.avoidedProduct = avoidedProduct;
-	}
-
-	public void setDistributionType(UncertaintyDistributionType distributionType) {
-		if (this.distributionType == distributionType)
-			return;
-		resetUncertainty();
-		if (distributionType != null
-				&& distributionType != UncertaintyDistributionType.NONE) {
-			setUncertaintyValues(distributionType);
-			calculateResultingAmount(distributionType);
-		}
-		this.distributionType = distributionType;
-	}
-
-	private void resetUncertainty() {
-		if (uncertaintyParameter1 != null)
-			uncertaintyParameter1 = null;
-		if (uncertaintyParameter2 != null)
-			uncertaintyParameter2 = null;
-		if (uncertaintyParameter3 != null)
-			uncertaintyParameter3 = null;
-	}
-
-	private void setUncertaintyValues(
-			UncertaintyDistributionType distributionType) {
-		String formula = resultingAmount.getFormula();
-		double value = resultingAmount.getValue();
-		switch (distributionType) {
-		case NORMAL:
-			setUncertainty(1, formula, value);
-			setUncertainty(2, "1", 1d);
-			break;
-		case LOG_NORMAL:
-			setUncertainty(1, formula, value);
-			setUncertainty(2, "1", 1d);
-			break;
-		case TRIANGLE:
-			setUncertainty(1, formula, value);
-			setUncertainty(2, formula, value);
-			setUncertainty(3, formula, value);
-			break;
-		case UNIFORM:
-			setUncertainty(1, formula, value);
-			setUncertainty(2, formula, value);
-			break;
-		default:
-			break;
-		}
-	}
-
-	private void setUncertainty(int param, String formula, double value) {
-		Expression e = new Expression(formula, value);
-		switch (param) {
-		case 1:
-			uncertaintyParameter1 = e;
-			break;
-		case 2:
-			uncertaintyParameter2 = e;
-			break;
-		case 3:
-			uncertaintyParameter3 = e;
-			break;
-		default:
-			break;
-		}
 	}
 
 	public void setFlow(final Flow flow) {
@@ -320,9 +238,8 @@ public class Exchange extends AbstractEntity {
 
 	@Override
 	public String toString() {
-		return "Exchange [flow=" + flow + ", input=" + input
-				+ ",resultingAmount=" + resultingAmount + ", unit=" + unit
-				+ "]";
+		return "Exchange [flow=" + flow + ", input=" + input + ",amount="
+				+ amountValue + ", unit=" + unit + "]";
 	}
 
 }

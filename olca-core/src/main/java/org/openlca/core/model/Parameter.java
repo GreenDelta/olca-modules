@@ -1,19 +1,9 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
 package org.openlca.core.model;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
@@ -21,58 +11,56 @@ import javax.persistence.Table;
 @Table(name = "tbl_parameters")
 public class Parameter extends AbstractEntity {
 
+	@Column(name = "name")
+	private String name;
+
 	@Lob
 	@Column(name = "description")
 	private String description;
 
-	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "value", column = @Column(name = "expression_value")),
-			@AttributeOverride(name = "formula", column = @Column(name = "expression_formula")) })
-	private Expression expression = new Expression("1", 1);
+	@Column(name = "scope")
+	@Enumerated(EnumType.STRING)
+	private ParameterScope scope = ParameterScope.GLOBAL;
 
-	@Column(name = "name")
-	private String name;
+	@Column(name = "is_input_param")
+	private boolean inputParameter;
 
-	@Column(name = "type")
-	private ParameterType type = ParameterType.UNSPECIFIED;
+	@Column(name = "value")
+	private double value;
 
-	public Parameter() {
-	}
+	@Column(name = "formula")
+	private String formula;
 
-	// TODO allow upper case letters and underscores
-	public static boolean checkName(String name) {
-		if (name == null || name.equals(""))
+	/**
+	 * Returns true if the given name is a valid identifier for a parameter. We
+	 * allow the same rules as for Java identifiers.
+	 */
+	public static boolean isValidName(String paramaterName) {
+		if (paramaterName == null)
 			return false;
-		boolean correct = true;
-		int i = 0;
-		while (correct && i < name.length()) {
-			char c = name.charAt(i);
-			if (!(c >= '0' && c <= '9' && i > 0 || c >= 'a' && c <= 'z'))
-				correct = false;
-			i++;
+		String id = paramaterName.trim();
+		if (id.isEmpty())
+			return false;
+		for (int i = 0; i < id.length(); i++) {
+			char c = id.charAt(i);
+			if (i == 0 && !Character.isLetter(c))
+				return false;
+			if (i > 0 && !Character.isJavaIdentifierPart(c))
+				return false;
 		}
-		return correct;
+		return true;
 	}
 
 	public String getDescription() {
 		return description;
 	}
 
-	public Expression getExpression() {
-		return expression;
-	}
-
 	public String getName() {
 		return name;
 	}
 
-	public ParameterType getType() {
-		return type != null ? type : ParameterType.UNSPECIFIED;
-	}
-
-	public void setType(ParameterType type) {
-		this.type = type;
+	public void setScope(ParameterScope type) {
+		this.scope = type;
 	}
 
 	public void setDescription(String description) {
@@ -83,10 +71,38 @@ public class Parameter extends AbstractEntity {
 		this.name = name;
 	}
 
+	public boolean isInputParameter() {
+		return inputParameter;
+	}
+
+	public void setInputParameter(boolean inputParameter) {
+		this.inputParameter = inputParameter;
+	}
+
+	public double getValue() {
+		return value;
+	}
+
+	public void setValue(double value) {
+		this.value = value;
+	}
+
+	public String getFormula() {
+		return formula;
+	}
+
+	public void setFormula(String formula) {
+		this.formula = formula;
+	}
+
+	public ParameterScope getScope() {
+		return scope;
+	}
+
 	@Override
 	public String toString() {
-		return "Parameter [expression=" + expression + ", name=" + name
-				+ ", type=" + type + "]";
+		return "Parameter [formula=" + formula + ", name=" + name + ", type="
+				+ scope + "]";
 	}
 
 }

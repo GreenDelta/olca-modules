@@ -33,12 +33,11 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_product_systems")
-public class ProductSystem extends CategorizedEntity implements
-		IParameterisable {
+public class ProductSystem extends CategorizedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
-	private final List<Parameter> parameters = new ArrayList<>();
+	private final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_product_system")
@@ -82,15 +81,8 @@ public class ProductSystem extends CategorizedEntity implements
 			productSystem.getProcesses().add(process);
 		for (ProcessLink processLink : getProcessLinks())
 			productSystem.getProcessLinks().add(processLink.clone());
-		for (Parameter parameter : getParameters()) {
-			Parameter p = new Parameter();
-			p.setDescription(parameter.getDescription());
-			p.setName(parameter.getName());
-			p.setType(ParameterType.PRODUCT_SYSTEM);
-			p.getExpression().setValue(parameter.getExpression().getValue());
-			p.getExpression()
-					.setFormula(parameter.getExpression().getFormula());
-			productSystem.getParameters().add(p);
+		for (ParameterRedef redef : getParameterRedefs()) {
+			productSystem.getParameterRedefs().add(redef.clone());
 		}
 		productSystem
 				.setTargetFlowPropertyFactor(getTargetFlowPropertyFactor());
@@ -189,8 +181,8 @@ public class ProductSystem extends CategorizedEntity implements
 				* targetUnit.getConversionFactor();
 	}
 
-	public List<Parameter> getParameters() {
-		return parameters;
+	public List<ParameterRedef> getParameterRedefs() {
+		return parameterRedefs;
 	}
 
 	public Set<Long> getProcesses() {

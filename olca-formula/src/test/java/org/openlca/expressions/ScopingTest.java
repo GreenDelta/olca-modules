@@ -35,4 +35,15 @@ public class ScopingTest {
 
 	}
 
+	@Test
+	public void testSearchInParentScope() throws Exception {
+		FormulaInterpreter interpreter = new FormulaInterpreter();
+		interpreter.bind("a", "b + 5");
+		interpreter.bind("b", "4");
+		Scope scope = interpreter.createScope(1);
+		scope.bind("c", "a * 2");
+		scope.bind("b", "a");
+		Assert.assertEquals(18.0, scope.eval("c"), 1e-16);
+	}
+
 }

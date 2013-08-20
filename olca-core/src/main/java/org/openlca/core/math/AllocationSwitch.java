@@ -35,7 +35,8 @@ public class AllocationSwitch {
 		Map<Exchange, Double> amounts = new HashMap<>();
 		double totalAmount = 0;
 		for (Exchange product : techOutputs) {
-			double rawAmount = product.getConvertedResult();
+			double rawAmount = product.getAmountValue(); // TODO: + conversion
+															// formulas!
 			Flow flow = product.getFlow();
 			FlowPropertyFactor factor = flow.getFactor(prop);
 			if (factor == null)

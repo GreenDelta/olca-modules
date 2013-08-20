@@ -6,7 +6,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Expression;
 import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterType;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.ParameterExtension;
@@ -45,13 +45,13 @@ class ProcessParameterConversion {
 	private Parameter convertParameter(
 			org.openlca.ilcd.processes.Parameter iParameter) {
 		Expression expression = createParameterExpression(iParameter);
-		ParameterType type = ParameterType.PROCESS;
+		ParameterScope type = ParameterScope.PROCESS;
 		if (isGlobal(iParameter))
-			type = ParameterType.DATABASE;
+			type = ParameterScope.DATABASE;
 		Parameter param = new Parameter();
 		param.setName(iParameter.getName());
 		param.setDescription(LangString.getLabel(iParameter.getComment()));
-		param.setType(type);
+		param.setScope(type);
 		param.getExpression().setValue(expression.getValue());
 		param.getExpression().setFormula(expression.getFormula());
 		return param;
@@ -81,13 +81,13 @@ class ProcessParameterConversion {
 	}
 
 	private void addOrInsert(Parameter param) {
-		if (param.getType() == ParameterType.PROCESS) {
+		if (param.getScope() == ParameterScope.PROCESS) {
 			olcaProcess.getParameters().add(param);
 			return;
 		}
 		try {
 			List<Parameter> params = dao.getAllForName(param.getName(),
-					param.getType());
+					param.getScope());
 			if (params.isEmpty())
 				dao.insert(param);
 		} catch (Exception e) {

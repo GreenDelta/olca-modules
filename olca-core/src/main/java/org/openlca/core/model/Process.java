@@ -29,7 +29,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "tbl_processes")
-public class Process extends CategorizedEntity implements IParameterisable {
+public class Process extends CategorizedEntity {
 
 	@Column(name = "default_allocation_method")
 	@Enumerated(EnumType.STRING)
@@ -70,19 +70,6 @@ public class Process extends CategorizedEntity implements IParameterisable {
 	@JoinColumn(name = "f_process")
 	private final List<ProcessCostEntry> costEntries = new ArrayList<>();
 
-	/**
-	 * Converts all exchanges to their reference flow property and reference
-	 * unit
-	 */
-	public void convertExchanges() {
-		for (Exchange exchange : getExchanges()) {
-			exchange.getResultingAmount().setValue(
-					exchange.getConvertedResult());
-			exchange.getResultingAmount().setFormula(
-					Double.toString(exchange.getConvertedResult()));
-		}
-	}
-
 	public ProcessDocumentation getDocumentation() {
 		return documentation;
 	}
@@ -96,65 +83,8 @@ public class Process extends CategorizedEntity implements IParameterisable {
 		return new ProcessCopy().create(this);
 	}
 
-	public Exchange[] getExchanges(FlowType... flowTypes) {
-		if (flowTypes == null)
-			return exchanges.toArray(new Exchange[exchanges.size()]);
-		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getExchanges())
-			for (FlowType flowType : flowTypes)
-				if (exchange.getFlow().getFlowType() == flowType) {
-					exchanges.add(exchange);
-					break;
-				}
-		return exchanges.toArray(new Exchange[exchanges.size()]);
-	}
-
-	public Exchange[] getInputs() {
-		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getExchanges())
-			if (exchange.isInput())
-				exchanges.add(exchange);
-		return exchanges.toArray(new Exchange[exchanges.size()]);
-	}
-
-	public Exchange[] getInputs(FlowType... flowTypes) {
-		if (flowTypes == null)
-			return getInputs();
-		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getExchanges())
-			if (exchange.isInput())
-				for (FlowType flowType : flowTypes)
-					if (exchange.getFlow().getFlowType() == flowType) {
-						exchanges.add(exchange);
-						break;
-					}
-		return exchanges.toArray(new Exchange[exchanges.size()]);
-	}
-
 	public Location getLocation() {
 		return location;
-	}
-
-	public Exchange[] getOutputs() {
-		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getExchanges())
-			if (!exchange.isInput())
-				exchanges.add(exchange);
-		return exchanges.toArray(new Exchange[exchanges.size()]);
-	}
-
-	public Exchange[] getOutputs(FlowType... flowTypes) {
-		if (flowTypes == null)
-			return getOutputs();
-		List<Exchange> exchanges = new ArrayList<>();
-		for (Exchange exchange : getExchanges())
-			if (!exchange.isInput())
-				for (FlowType flowType : flowTypes)
-					if (exchange.getFlow().getFlowType() == flowType) {
-						exchanges.add(exchange);
-						break;
-					}
-		return exchanges.toArray(new Exchange[exchanges.size()]);
 	}
 
 	public ProcessType getProcessType() {
