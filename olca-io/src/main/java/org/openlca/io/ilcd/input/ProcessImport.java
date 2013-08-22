@@ -288,7 +288,7 @@ public class ProcessImport {
 			doc.setInventoryMethod(lciPrinciple);
 			doc.setModelingConstants(LangString.getFreeText(iMethod
 					.getModellingConstants()));
-			process.setAllocationMethod(getAllocation(iMethod));
+			process.setDefaultAllocationMethod(getAllocation(iMethod));
 		}
 
 	}

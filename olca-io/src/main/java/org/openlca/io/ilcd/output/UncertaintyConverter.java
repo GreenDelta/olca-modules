@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.output;
 import java.math.BigDecimal;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Expression;
 import org.openlca.core.model.UncertaintyDistributionType;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
 import org.openlca.ilcd.util.ExchangeExtension;
@@ -83,22 +82,15 @@ class UncertaintyConverter {
 	}
 
 	private Double getUncertaintyParam(int param, Exchange oExchange) {
-		Expression exp = null;
 		switch (param) {
 		case 1:
-			exp = oExchange.getUncertaintyParameter1();
-			break;
+			return oExchange.getParameter1Value();
 		case 2:
-			exp = oExchange.getUncertaintyParameter2();
-			break;
+			return oExchange.getParameter2Value();
 		case 3:
-			exp = oExchange.getUncertaintyParameter3();
-			break;
+			return oExchange.getParameter3Value();
 		default:
-			break;
-		}
-		if (exp == null)
 			return null;
-		return exp.getValue();
+		}
 	}
 }

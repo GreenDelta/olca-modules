@@ -82,7 +82,7 @@ public class ProcessRefFlowMapper {
 				log.warn("Input found as reference flow in ILCD process {};"
 						+ " changed it to output", ilcdProcess.getId());
 				candidate.setInput(false);
-				if (candidate.getResultingAmount().getValue() < 0)
+				if (candidate.getAmountValue() < 0)
 					switchSign(candidate);
 			}
 			olcaProcess.setQuantitativeReference(candidate);
@@ -112,10 +112,9 @@ public class ProcessRefFlowMapper {
 	private void switchSign(Exchange found) {
 		log.info("Set a negative input product as quant. ref., "
 				+ "change sign, in process {}", ilcdProcess.getId());
-		String formula = found.getResultingAmount().getFormula();
-		double val = found.getResultingAmount().getValue();
-		found.getResultingAmount().setValue(Math.abs(val));
-		found.getResultingAmount().setFormula(formula.replaceFirst("-", ""));
+		double val = found.getAmountValue();
+		found.setAmountValue(Math.abs(val));
+		found.setAmountFormula(null);
 	}
 
 	private Exchange findBestOutput() {
@@ -134,7 +133,7 @@ public class ProcessRefFlowMapper {
 		for (Exchange exchange : olcaProcess.getExchanges()) {
 			if (exchange.isInput()
 					&& exchange.getFlow().getFlowType() == FlowType.PRODUCT_FLOW
-					&& exchange.getResultingAmount().getValue() < 0)
+					&& exchange.getAmountValue() < 0)
 				return exchange;
 		}
 		return null;
@@ -153,8 +152,7 @@ public class ProcessRefFlowMapper {
 		if (newCandidate.getFlow().getFlowType() == FlowType.WASTE_FLOW
 				&& oldCandidate.getFlow().getFlowType() != FlowType.ELEMENTARY_FLOW)
 			return true;
-		if (newCandidate.getResultingAmount().getValue() > oldCandidate
-				.getResultingAmount().getValue())
+		if (newCandidate.getAmountValue() > oldCandidate.getAmountValue())
 			return true;
 		return false;
 	}

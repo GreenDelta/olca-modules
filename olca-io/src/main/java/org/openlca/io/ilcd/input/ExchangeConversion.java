@@ -1,7 +1,6 @@
 package org.openlca.io.ilcd.input;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Expression;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.util.ExchangeExtension;
 
@@ -27,14 +26,9 @@ class ExchangeConversion {
 
 	public Exchange map() {
 		olcaExchange = initExchange();
-		mapAmount();
 		new UncertaintyConverter().map(ilcdExchange, olcaExchange);
 		if (isParameterized())
 			mapFormula();
-		else {
-			double d = olcaExchange.getResultingAmount().getValue();
-			olcaExchange.getResultingAmount().setFormula(Double.toString(d));
-		}
 		return olcaExchange;
 	}
 
@@ -45,19 +39,13 @@ class ExchangeConversion {
 		if (extension != null) {
 			e.setPedigreeUncertainty(extension.getPedigreeUncertainty());
 			e.setBaseUncertainty(extension.getBaseUncertainty());
-		}
-		return e;
-	}
-
-	private void mapAmount() {
-		Expression expression = olcaExchange.getResultingAmount();
-		if (extension != null)
-			expression.setValue(extension.getAmount());
-		else {
+			olcaExchange.setAmountValue(extension.getAmount());
+		} else {
 			Double amount = ilcdExchange.getResultingAmount();
 			if (amount != null)
-				expression.setValue(amount);
+				olcaExchange.setAmountValue(amount);
 		}
+		return e;
 	}
 
 	private boolean isParameterized() {
@@ -68,17 +56,15 @@ class ExchangeConversion {
 	private void mapFormula() {
 		String formula = extension != null ? extension.getFormula() : null;
 		if (formula != null)
-			olcaExchange.getResultingAmount().setFormula(formula);
-		else
-			mapIlcdParameter();
+			olcaExchange.setAmountFormula(formula);
+		else {
+			double meanAmount = ilcdExchange.getMeanAmount();
+			String meanAmountStr = Double.toString(meanAmount);
+			String parameter = ilcdExchange.getParameterName();
+			formula = meanAmount == 1.0 ? parameter : meanAmountStr + " * "
+					+ parameter + "";
+			olcaExchange.setAmountFormula(formula);
+		}
 	}
 
-	private void mapIlcdParameter() {
-		double meanAmount = ilcdExchange.getMeanAmount();
-		String meanAmountStr = Double.toString(meanAmount);
-		String parameter = ilcdExchange.getParameterName();
-		String formula = meanAmount == 1.0 ? parameter : meanAmountStr + " * "
-				+ parameter + "";
-		olcaExchange.getResultingAmount().setFormula(formula);
-	}
 }

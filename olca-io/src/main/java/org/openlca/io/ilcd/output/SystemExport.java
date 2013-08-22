@@ -4,11 +4,7 @@ import java.math.BigInteger;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.model.Expression;
-import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -28,7 +24,6 @@ import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.QuantitativeReference;
 import org.openlca.ilcd.productmodel.Connector;
 import org.openlca.ilcd.productmodel.ConsumedBy;
-import org.openlca.ilcd.productmodel.ParameterScopeValues;
 import org.openlca.ilcd.productmodel.ProcessNode;
 import org.openlca.ilcd.productmodel.Product;
 import org.openlca.ilcd.productmodel.ProductModel;
@@ -81,7 +76,7 @@ public class SystemExport {
 		info.setOther(other);
 		exportProcesses(model);
 		exportLinks(model);
-		addParamaters(model);
+		// addParamaters(model);
 	}
 
 	private void exportProcesses(ProductModel model) {
@@ -199,29 +194,31 @@ public class SystemExport {
 		ext.setModelRefProcess(refProcess.getRefId());
 	}
 
-	private void addParamaters(ProductModel model) {
-		for (Parameter parameter : system.getParameters())
-			addParameter(parameter, model, ParameterScopeValues.PRODUCTMODEL);
-		ParameterDao dao = new ParameterDao(database);
-		try {
-			for (Parameter param : dao.getAllForType(ParameterScope.DATABASE))
-				addParameter(param, model, ParameterScopeValues.GLOBAL);
-		} catch (Exception e) {
-			log.error("Failed to export database paramaters", e);
-		}
-	}
-
-	private void addParameter(Parameter parameter, ProductModel model,
-			ParameterScopeValues scope) {
-		Expression exp = parameter.getExpression();
-		if (exp == null || parameter.getName() == null)
-			return;
-		org.openlca.ilcd.productmodel.Parameter iParameter = new org.openlca.ilcd.productmodel.Parameter();
-		iParameter.setFormula(exp.getFormula());
-		iParameter.setName(parameter.getName());
-		iParameter.setScope(scope);
-		iParameter.setValue(exp.getValue());
-		model.getParameters().add(iParameter);
-	}
+	// TODO: map system parameters
+	// private void addParamaters(ProductModel model) {
+	// for (Parameter parameter : system.getParameters())
+	// addParameter(parameter, model, ParameterScopeValues.PRODUCTMODEL);
+	// ParameterDao dao = new ParameterDao(database);
+	// try {
+	// for (Parameter param : dao.getAllForType(ParameterScope.DATABASE))
+	// addParameter(param, model, ParameterScopeValues.GLOBAL);
+	// } catch (Exception e) {
+	// log.error("Failed to export database paramaters", e);
+	// }
+	// }
+	//
+	// private void addParameter(Parameter parameter, ProductModel model,
+	// ParameterScopeValues scope) {
+	// Expression exp = parameter.getExpression();
+	// if (exp == null || parameter.getName() == null)
+	// return;
+	// org.openlca.ilcd.productmodel.Parameter iParameter = new
+	// org.openlca.ilcd.productmodel.Parameter();
+	// iParameter.setFormula(exp.getFormula());
+	// iParameter.setName(parameter.getName());
+	// iParameter.setScope(scope);
+	// iParameter.setValue(exp.getValue());
+	// model.getParameters().add(iParameter);
+	// }
 
 }

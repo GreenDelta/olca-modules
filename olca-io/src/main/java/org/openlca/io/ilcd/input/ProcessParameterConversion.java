@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.model.Expression;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.ParameterExtension;
 import org.openlca.ilcd.util.ProcessBag;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,32 +44,22 @@ class ProcessParameterConversion {
 
 	private Parameter convertParameter(
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Expression expression = createParameterExpression(iParameter);
-		ParameterScope type = ParameterScope.PROCESS;
+		ParameterScope scope = ParameterScope.PROCESS;
 		if (isGlobal(iParameter))
-			type = ParameterScope.DATABASE;
+			scope = ParameterScope.GLOBAL;
 		Parameter param = new Parameter();
+		param.setScope(scope);
 		param.setName(iParameter.getName());
-		param.setDescription(LangString.getLabel(iParameter.getComment()));
-		param.setScope(type);
-		param.getExpression().setValue(expression.getValue());
-		param.getExpression().setFormula(expression.getFormula());
-		return param;
-	}
-
-	private Expression createParameterExpression(
-			org.openlca.ilcd.processes.Parameter iParameter) {
-		Expression expression = new Expression();
 		Double mean = iParameter.getMeanValue();
-		if (mean != null) {
-			expression.setValue(mean);
+		param.setDescription(LangString.getLabel(iParameter.getComment()));
+		if (mean != null)
+			param.setValue(mean);
+		param.setInputParameter(true);
+		if (iParameter.getFormula() != null && scope == ParameterScope.PROCESS) {
+			param.setFormula(iParameter.getFormula());
+			param.setInputParameter(false);
 		}
-		if (iParameter.getFormula() != null) {
-			expression.setFormula(iParameter.getFormula());
-		} else if (mean != null) {
-			expression.setFormula(mean.toString());
-		}
-		return expression;
+		return param;
 	}
 
 	private boolean isGlobal(org.openlca.ilcd.processes.Parameter iParameter) {
@@ -86,9 +76,15 @@ class ProcessParameterConversion {
 			return;
 		}
 		try {
-			List<Parameter> params = dao.getAllForName(param.getName(),
-					param.getScope());
-			if (params.isEmpty())
+			List<Parameter> params = dao.getGlobalParameters();
+			boolean contains = false;
+			for (Parameter dbParam : params) {
+				if (Strings.nullOrEqual(param.getName(), dbParam.getName())) {
+					contains = true;
+					break;
+				}
+			}
+			if (!contains)
 				dao.insert(param);
 		} catch (Exception e) {
 			log.error("Failed to store parameter in database", e);

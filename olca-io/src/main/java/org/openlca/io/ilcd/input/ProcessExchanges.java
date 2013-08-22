@@ -11,7 +11,6 @@ import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Expression;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -112,16 +111,13 @@ class ProcessExchanges {
 	}
 
 	private void applyFlowAssignment(Exchange oExchange, FlowMapEntry mapEntry) {
-		Expression amount = oExchange.getResultingAmount();
-		double newVal = mapEntry.getConversionFactor() * amount.getValue();
-		amount.setValue(newVal);
-		if (oExchange.isParametrized()) {
-			String newForm = "(" + amount.getFormula() + ") * "
+		double amount = oExchange.getAmountValue();
+		double newVal = mapEntry.getConversionFactor() * amount;
+		oExchange.setAmountValue(newVal);
+		if (oExchange.getAmountFormula() != null) {
+			String newForm = "(" + oExchange.getAmountFormula() + ") * "
 					+ mapEntry.getConversionFactor();
-			amount.setFormula(newForm);
-		} else {
-			String newForm = Double.toString(newVal);
-			amount.setFormula(newForm);
+			oExchange.setAmountFormula(newForm);
 		}
 	}
 
@@ -180,10 +176,12 @@ class ProcessExchanges {
 
 	private void createAllocationFactor(MappedPair p, long productId,
 			BigDecimal fraction) {
-		org.openlca.core.model.AllocationFactor oFactor = new org.openlca.core.model.AllocationFactor();
-		oFactor.setProductId(productId);
-		oFactor.setValue(fraction.doubleValue());
-		p.oExchange.add(oFactor);
+		// TODO: port new allocation model
+		// org.openlca.core.model.AllocationFactor oFactor = new
+		// org.openlca.core.model.AllocationFactor();
+		// oFactor.setProductId(productId);
+		// oFactor.setValue(fraction.doubleValue());
+		// p.oExchange.add(oFactor);
 	}
 
 	private Long findMappedId(BigInteger iId) {

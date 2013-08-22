@@ -212,9 +212,9 @@ public class ProcessExport {
 	}
 
 	private LCIMethodApproach getAllocationMethod() {
-		if (process.getAllocationMethod() == null)
+		if (process.getDefaultAllocationMethod() == null)
 			return null;
-		switch (process.getAllocationMethod()) {
+		switch (process.getDefaultAllocationMethod()) {
 		case CAUSAL:
 			return LCIMethodApproach.ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT;
 		case ECONOMIC:

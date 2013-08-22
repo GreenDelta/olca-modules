@@ -2,7 +2,6 @@ package org.openlca.io.ilcd.input;
 
 import java.math.BigDecimal;
 
-import org.openlca.core.model.Expression;
 import org.openlca.core.model.UncertaintyDistributionType;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
 import org.openlca.ilcd.processes.Exchange;
@@ -44,8 +43,8 @@ class UncertaintyConverter {
 			return;
 		double s = bigDec.doubleValue();
 		oExchange.setDistributionType(UncertaintyDistributionType.LOG_NORMAL);
-		setVal(oExchange.getUncertaintyParameter1(), mean);
-		setVal(oExchange.getUncertaintyParameter2(), s);
+		oExchange.setParameter1Value(mean);
+		oExchange.setParameter2Value(s);
 	}
 
 	private void mapNormal(Exchange iExchange,
@@ -56,9 +55,8 @@ class UncertaintyConverter {
 			return;
 		double s = bigDec.doubleValue();
 		oExchange.setDistributionType(UncertaintyDistributionType.NORMAL);
-		setVal(oExchange.getUncertaintyParameter1(), mean);
-		setVal(oExchange.getUncertaintyParameter2(), s);
-
+		oExchange.setParameter1Value(mean);
+		oExchange.setParameter2Value(s);
 	}
 
 	private void mapTriangular(Exchange iExchange,
@@ -69,9 +67,9 @@ class UncertaintyConverter {
 		if (min == null || mode == null || max == null)
 			return;
 		oExchange.setDistributionType(UncertaintyDistributionType.TRIANGLE);
-		setVal(oExchange.getUncertaintyParameter1(), min);
-		setVal(oExchange.getUncertaintyParameter2(), mode);
-		setVal(oExchange.getUncertaintyParameter3(), max);
+		oExchange.setParameter1Value(min);
+		oExchange.setParameter2Value(mode);
+		oExchange.setParameter3Value(max);
 	}
 
 	private void mapUniform(Exchange iExchange,
@@ -81,13 +79,8 @@ class UncertaintyConverter {
 		if (min == null || max == null)
 			return;
 		oExchange.setDistributionType(UncertaintyDistributionType.UNIFORM);
-		setVal(oExchange.getUncertaintyParameter1(), min);
-		setVal(oExchange.getUncertaintyParameter2(), max);
-	}
-
-	private void setVal(Expression exp, double val) {
-		exp.setValue(val);
-		exp.setFormula(Double.toString(val));
+		oExchange.setParameter1Value(min);
+		oExchange.setParameter2Value(max);
 	}
 
 	private double getAmount(Exchange iExchange) {

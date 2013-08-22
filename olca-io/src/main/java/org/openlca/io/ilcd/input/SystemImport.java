@@ -1,20 +1,17 @@
 package org.openlca.io.ilcd.input;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Expression;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ParameterScope;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -24,7 +21,6 @@ import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.productmodel.Connector;
 import org.openlca.ilcd.productmodel.ConsumedBy;
 import org.openlca.ilcd.productmodel.Parameter;
-import org.openlca.ilcd.productmodel.ParameterScopeValues;
 import org.openlca.ilcd.productmodel.ProcessNode;
 import org.openlca.ilcd.productmodel.Product;
 import org.openlca.ilcd.productmodel.ProductModel;
@@ -201,8 +197,9 @@ public class SystemImport {
 				.getParameters()) {
 			if (!valid(iParam))
 				continue;
-			org.openlca.core.model.Parameter oParam = convert(iParam);
-			addOrInsert(oParam);
+			// TODO: parameter handling
+			// org.openlca.core.model.Parameter oParam = convert(iParam);
+			// addOrInsert(oParam);
 		}
 	}
 
@@ -211,34 +208,27 @@ public class SystemImport {
 				&& iParam.getName() != null && iParam.getScope() != null;
 	}
 
-	private org.openlca.core.model.Parameter convert(Parameter iParam) {
-		Expression exp = new Expression(iParam.getFormula(), iParam.getValue());
-		ParameterScope type = ParameterScope.PRODUCT_SYSTEM;
-		if (iParam.getScope() == ParameterScopeValues.GLOBAL) {
-			type = ParameterScope.DATABASE;
-		}
-		org.openlca.core.model.Parameter param = new org.openlca.core.model.Parameter();
-		param.setName(iParam.getName());
-		param.setScope(type);
-		param.getExpression().setValue(exp.getValue());
-		param.getExpression().setFormula(exp.getFormula());
-		return param;
+	private ParameterRedef convert(Parameter iParam) {
+		ParameterRedef redef = new ParameterRedef();
+		redef.setName(iParam.getName());
+		redef.setValue(iParam.getValue());
+		return redef;
 	}
 
-	private void addOrInsert(org.openlca.core.model.Parameter param) {
-		if (param.getScope() == ParameterScope.PRODUCT_SYSTEM) {
-			system.getParameters().add(param);
-			return;
-		}
-		try {
-			ParameterDao dao = new ParameterDao(database);
-			List<org.openlca.core.model.Parameter> params = dao.getAllForName(
-					param.getName(), param.getScope());
-			if (params.isEmpty())
-				dao.insert(param);
-		} catch (Exception e) {
-			log.error("Failed to store parameter in database", e);
-		}
-	}
+	// private void addOrInsert(org.openlca.core.model.Parameter param) {
+	// if (param.getScope() == ParameterScope.PRODUCT_SYSTEM) {
+	// system.getParameters().add(param);
+	// return;
+	// }
+	// try {
+	// ParameterDao dao = new ParameterDao(database);
+	// List<org.openlca.core.model.Parameter> params = dao.getAllForName(
+	// param.getName(), param.getScope());
+	// if (params.isEmpty())
+	// dao.insert(param);
+	// } catch (Exception e) {
+	// log.error("Failed to store parameter in database", e);
+	// }
+	// }
 
 }

@@ -186,9 +186,7 @@ class ProcessImport {
 		exchange.setFlow(flow);
 		exchange.setFlowPropertyFactor(flow.getReferenceFactor());
 		exchange.setUnit(unit);
-		exchange.getResultingAmount().setValue(original.getAmount());
-		exchange.getResultingAmount().setFormula(
-				Double.toString(original.getAmount()));
+		exchange.setAmountValue(original.getAmount());
 		process.getExchanges().add(exchange);
 		return exchange;
 	}

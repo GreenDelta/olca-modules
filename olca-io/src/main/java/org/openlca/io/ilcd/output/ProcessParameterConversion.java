@@ -39,12 +39,12 @@ class ProcessParameterConversion {
 	private void addDatabaseParams(
 			List<org.openlca.ilcd.processes.Parameter> params) {
 		ParameterDao dao = new ParameterDao(database);
-		for (Parameter param : dao.getAllForType(ParameterScope.DATABASE)) {
+		for (Parameter param : dao.getGlobalParameters()) {
 			if (!valid(param))
 				continue;
 			org.openlca.ilcd.processes.Parameter iParam = convertParam(param);
 			params.add(iParam);
-			addScope(iParam, ParameterScope.DATABASE);
+			addScope(iParam, ParameterScope.GLOBAL);
 		}
 	}
 
@@ -63,10 +63,8 @@ class ProcessParameterConversion {
 	private org.openlca.ilcd.processes.Parameter convertParam(Parameter oParam) {
 		org.openlca.ilcd.processes.Parameter iParameter = new org.openlca.ilcd.processes.Parameter();
 		iParameter.setName(oParam.getName());
-		if (oParam.getExpression() != null) {
-			iParameter.setFormula(oParam.getExpression().getFormula());
-			iParameter.setMeanValue(oParam.getExpression().getValue());
-		}
+		iParameter.setFormula(oParam.getFormula());
+		iParameter.setMeanValue(oParam.getValue());
 		if (Strings.notEmpty(oParam.getDescription())) {
 			iParameter.getComment().add(
 					LangString.label(oParam.getDescription()));
@@ -76,8 +74,6 @@ class ProcessParameterConversion {
 
 	private boolean valid(Parameter param) {
 		if (param == null || Strings.nullOrEmpty(param.getName()))
-			return false;
-		if (param.getExpression() == null)
 			return false;
 		return true;
 	}
@@ -92,12 +88,10 @@ class ProcessParameterConversion {
 		if (type == null)
 			return "unspecified";
 		switch (type) {
-		case DATABASE:
+		case GLOBAL:
 			return "global";
 		case PROCESS:
 			return "process";
-		case PRODUCT_SYSTEM:
-			return "system";
 		default:
 			return "unspecified";
 		}
