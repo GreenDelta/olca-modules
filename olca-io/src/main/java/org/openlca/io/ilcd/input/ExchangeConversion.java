@@ -39,11 +39,11 @@ class ExchangeConversion {
 		if (extension != null) {
 			e.setPedigreeUncertainty(extension.getPedigreeUncertainty());
 			e.setBaseUncertainty(extension.getBaseUncertainty());
-			olcaExchange.setAmountValue(extension.getAmount());
+			e.setAmountValue(extension.getAmount());
 		} else {
 			Double amount = ilcdExchange.getResultingAmount();
 			if (amount != null)
-				olcaExchange.setAmountValue(amount);
+				e.setAmountValue(amount);
 		}
 		return e;
 	}
