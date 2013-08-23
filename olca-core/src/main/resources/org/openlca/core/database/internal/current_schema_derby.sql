@@ -238,12 +238,8 @@ CREATE TABLE tbl_process_docs (
 
 
 CREATE TABLE tbl_process_sources (
-
 	f_process_doc BIGINT, 
-	f_source BIGINT,
-	
-	PRIMARY KEY (f_process_doc, f_source)
-
+	f_source BIGINT
 );
 
 

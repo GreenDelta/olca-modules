@@ -338,13 +338,19 @@ public class ProcessImport {
 					.getDataCollectionPeriod()));
 
 			// data sources
-			for (DataSetReference sourceRef : iRepresentativeness
-					.getReferenceToDataSource()) {
-				Source source = fetchSource(sourceRef);
-				if (source != null)
-					doc.getSources().add(source);
-			}
+			addSources(doc, iRepresentativeness);
 
+		}
+	}
+
+	private void addSources(ProcessDocumentation doc,
+			Representativeness iRepresentativeness) {
+		for (DataSetReference sourceRef : iRepresentativeness
+				.getReferenceToDataSource()) {
+			Source source = fetchSource(sourceRef);
+			if (source == null || doc.getSources().contains(source))
+				continue;
+			doc.getSources().add(source);
 		}
 	}
 
