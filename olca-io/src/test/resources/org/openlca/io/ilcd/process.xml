@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet version="1.0" href="../../stylesheets/process2html.xsl" type="text/xsl"?>
+<processDataSet xmlns="http://lca.jrc.it/ILCD/Process" xmlns:common="http://lca.jrc.it/ILCD/Common" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://lca.jrc.it/ILCD/Process ../../schemas/ILCD_ProcessDataSet.xsd" locations="../ILCDLocations.xml" version="1.1">
+  <!-- note that we modified the original data set for the tests -->
+  <processInformation>
+    <dataSetInformation>
+      <common:UUID>76d6aaa4-37e2-40b2-994c-03292b600074</common:UUID>
+      <name>
+        <baseName xml:lang="en">Acrylonitrile-Butadiene-Styrene granulate (ABS)</baseName>
+        <mixAndLocationTypes xml:lang="en">production mix, at plant</mixAndLocationTypes>
+      </name>
+      <common:synonyms xml:lang="en">Acrylonitrile-butadiene-styrene copolymer; Styrene, acrylonitrile, butadiene polymer; 2-Propenenitrile, polymer with 1,3-butadiene and ethenylbenzene; Acrylonitrile, polymer with 1,3-butadiene and styrene</common:synonyms>
+      <classificationInformation>
+        <common:classification>
+          <common:class level="0">Materials production</common:class>
+          <common:class level="1">Plastics</common:class>
+        </common:classification>
+      </classificationInformation>
+      <common:generalComment xml:lang="en">Raw data for polymerization and intermediate products are collected by several producers in Europe; the average is calculated by the consultant based on the production capacity of the companies. The LCI result is calculated with background data from the Boustead database.</common:generalComment>
+    </dataSetInformation>
+    <quantitativeReference type="Reference flow(s)">
+      <referenceToReferenceFlow>0</referenceToReferenceFlow>
+    </quantitativeReference>
+    <time>
+      <common:referenceYear>1996</common:referenceYear>
+      <common:dataSetValidUntil>2006</common:dataSetValidUntil>
+      <common:timeRepresentativenessDescription xml:lang="en">The data corresponding to the polybutadiene and styrene production was collected in 2002 and to acrylnitrile production in 1994. Data on crude oil extraction and refining and on natural gas extraction and processing was collected in 2001. All the calculations were carried out in 2005.</common:timeRepresentativenessDescription>
+    </time>
+    <geography>
+      <locationOfOperationSupplyOrProduction location="RER">
+        <descriptionOfRestrictions xml:lang="en">The data set represents the region specific situation, focusing on the main technologies and the region specific characteristics.</descriptionOfRestrictions>
+      </locationOfOperationSupplyOrProduction>
+    </geography>
+    <technology>
+      <technologyDescriptionAndIncludedProcesses xml:lang="en">ABS takes its name from the initial letters of the three immediate precursors (acrylonitrile, butadiene, styrene) and is a two phase polymer system consisting of a glassy matrix of styrene-acrylonitrile copolymer and the synthetic rubber, styrene-butadiene copolymer. ABS is technically produced by co- or graft copolymerisation of the three base monomers in emulsion or mass polymerisation. By varying the share of monomer input the technical properties of ABS are influenced. The background system is addressed as follows:
+Electricity:
+Electricity used, is modelled according to the individual country-specific situation. Modelling the electricity production system covers the production and delivery of primary fuels, the steam generator, the electricity generator and the distributor.
+Electricity is regarded to be derived from the public electricity supply and from on-site electricity generation of plants. Input materials used for producing electricity are fossil fuels, like coal, oil and gas.
+Process Steam:
+Process steam/thermal energy used, is modelled according to the individual country-specific situation. Process steam is regarded to be derived as by-product from the public electricity supply and from on-site steam generation of plants. Input materials used for producing process steam are fossil fuels, like coal, oil and gas. Another source for process steam are waste incineration plants.
+Transport:
+All relevant and known transport processes used, are included. Overseas transport to and from major ports as well as all relevant and known pipeline and / or tanker transport of crude oil imports are included.
+Energy carriers: 
+Crude oil is modelled according to the production and supply of crude oil to Western Europe. The crude oil supply is regarded regional. Therefore, interchanges between countries within that region do not count as imports or exports. Oil processing is reckoned as standard worldwide with overall energy production efficiency of the order of 90%. The IEA data on world oil production and processing data have been used for the use of energy. The total inputs have been partitioned between the products using energy as the partitioning parameter. Modelling covers the extraction, the transport and the delivery including emissions arising at the extraction site and reported losses during subsequent distribution of the oil. The transport for indigenous crude oil production is based on the characteristics of North Sea production since this represents 98% of indigenous production. For North Sea oil some 75% is delivered by pipeline with the remainder delivered by tanker.
+Coal modelling covers the production, the transport and the delivery.</technologyDescriptionAndIncludedProcesses>
+      <technologicalApplicability xml:lang="en">ABS is a well known polymer used in many technical and consumer applications such as: interior and exterior automotive parts, housings for domestic appliances such as hair driers and vacuum cleaners, kitchen appliances such as mixing machines and refrigerator linings, furniture parts, telephones, toys, pipes and profiles.</technologicalApplicability>
+    </technology>
+  </processInformation>
+  <modellingAndValidation>
+    <LCIMethodAndAllocation>
+      <typeOfDataSet>Partly terminated system</typeOfDataSet>
+      <LCIMethodPrinciple>Attributional</LCIMethodPrinciple>
+      <deviationsFromLCIMethodPrinciple xml:lang="en">None</deviationsFromLCIMethodPrinciple>
+      <LCIMethodApproaches>Allocation - element content</LCIMethodApproaches>
+      <deviationsFromLCIMethodApproaches>Butadiene: Cracker - Mass allocation</deviationsFromLCIMethodApproaches>
+      <modellingConstants xml:lang="en">All data used in the calculation of the LCI results refer to net calorific value.</modellingConstants>
+      <deviationsFromModellingConstants xml:lang="en">None</deviationsFromModellingConstants>
+    </LCIMethodAndAllocation>
+    <dataSourcesTreatmentAndRepresentativeness>
+      <dataCutOffAndCompletenessPrinciples xml:lang="en">All relevant mass and energy flows are included in the inventory; no specific cut-off rule is applied.</dataCutOffAndCompletenessPrinciples>
+      <deviationsFromCutOffAndCompletenessPrinciples xml:lang="en">It is unusually to receive questionnaires completed in all respects. In such cases data are extrapolated.</deviationsFromCutOffAndCompletenessPrinciples>
+      <dataSelectionAndCombinationPrinciples xml:lang="en">Full coverage of the European industry, modelling the integrated sites as far as possible.</dataSelectionAndCombinationPrinciples>
+      <deviationsFromSelectionAndCombinationPrinciples xml:lang="en">Many industrial sites contain a large number of different plants and therefore it is usual that certain services are provided from some central source. That is the case of the provision of steam and compressed air, and the treatment of water. In this case the attribution of these central services is a matter of estimating and guesswork. Frequently the information is not held by the companies in a form that is directly usable in eco-profile calculations. For example, air and water emission are normally expressed as concentrations (kg/m3) whereas eco-profiles want the total annual loading (kg/year). Companies can often make the conversion using internal conversion factors, but there is no standarisation of these factors across Europe. Besides, issues such as weighing errors, materials in transit, stock changes and so on, make it difficult to maintain absolutely accurate records.</deviationsFromSelectionAndCombinationPrinciples>
+      <dataTreatmentAndExtrapolationsPrinciples xml:lang="en">Missing data are substituted by the average value calculated from the data supplied by those plants that made positive returns. Thus, for example, suppose that three plants with the same output volume fill in questionnaires. For one of the parameters, one plant returns a value of 1 mg, the second plant returns a value of 2 mg and the third is unable to provide the data. The average from the two plants returning data is 1.5 mg and this value is substituted in place of the missing data for the third plant.</dataTreatmentAndExtrapolationsPrinciples>
+      <deviationsFromTreatmentAndExtrapolationPrinciples xml:lang="en">None</deviationsFromTreatmentAndExtrapolationPrinciples>
+      <percentageSupplyOrProductionCovered>95.0</percentageSupplyOrProductionCovered>
+      <samplingProcedure xml:lang="en">The data are collected from participating companies for the performance characteristics of their plants through questionnaires. Most of the information supplied is derived from the records that are already kept by companies and plants.</samplingProcedure>
+      <useAdviceForDataSet xml:lang="en">The LCI data set should be used for LCI/ LCA studies where ABS is used along the production chain, e.g. injection moulding, of a product.</useAdviceForDataSet>
+    </dataSourcesTreatmentAndRepresentativeness>
+    <completeness>
+      <completenessProductModel>All relevant flows quantified</completenessProductModel>
+    </completeness>
+    <validation>
+      <review type="Dependent internal review">
+        <common:scope name="LCI results or Partly terminated system">
+          <common:method name="Cross-check with other data set" />
+          <common:method name="Expert judgement" />
+        </common:scope>
+        <common:scope name="LCIA results">
+          <common:method name="Expert judgement" />
+        </common:scope>
+        <common:scope name="Documentation">
+          <common:method name="Expert judgement" />
+        </common:scope>
+      </review>
+      <review type="Dependent internal review">
+        <common:scope name="Raw data">
+          <common:method name="Element balance" />
+          <common:method name="Cross-check with other source" />
+          <common:method name="Expert judgement" />
+          <common:method name="Mass balance" />
+        </common:scope>
+        <common:scope name="LCI results or Partly terminated system">
+          <common:method name="Expert judgement" />
+          <common:method name="Mass balance" />
+        </common:scope>
+        <common:scope name="Life cycle inventory methods">
+          <common:method name="Compliance with ISO 14040 to 14044" />
+        </common:scope>
+      </review>
+    </validation>
+    <complianceDeclarations>
+      <compliance>
+        <common:referenceToComplianceSystem type="source data set" uri="../sources/d92a1a12-2545-49e2-a585-55c259997756_01.01.000.xml" refObjectId="d92a1a12-2545-49e2-a585-55c259997756" version="01.01.000">
+          <common:shortDescription>ILCD Data Network - Entry-level</common:shortDescription>
+        </common:referenceToComplianceSystem>
+        <common:approvalOfOverallCompliance>Not compliant</common:approvalOfOverallCompliance>
+        <common:nomenclatureCompliance>Fully compliant</common:nomenclatureCompliance>
+        <common:methodologicalCompliance>Fully compliant</common:methodologicalCompliance>
+        <common:reviewCompliance>Not compliant</common:reviewCompliance>
+        <common:documentationCompliance>Not compliant</common:documentationCompliance>
+      </compliance>
+    </complianceDeclarations>
+  </modellingAndValidation>
+  <administrativeInformation>
+    <dataGenerator>
+    </dataGenerator>
+    <dataEntryBy>
+      <common:timeStamp>2010-03-12T00:00:00+01:00</common:timeStamp>
+      <common:referenceToDataSetFormat type="source data set" uri="../sources/a97a0155-0234-4b87-b4ce-a45da52f2a40_01.01.000.xml" refObjectId="a97a0155-0234-4b87-b4ce-a45da52f2a40" version="01.01.000">
+        <common:shortDescription>ILCD format</common:shortDescription>
+      </common:referenceToDataSetFormat>
+    </dataEntryBy>
+    <publicationAndOwnership>
+      <common:dataSetVersion>02.01.000</common:dataSetVersion>
+      <common:permanentDataSetURI>http://lca.jrc.ec.europa.eu/lcainfohub/datasets/elcd/processes/76d6aaa4-37e2-40b2-994c-03292b600074_02.01.000.xml</common:permanentDataSetURI>
+      <common:workflowAndPublicationStatus>Data set finalised; entirely published</common:workflowAndPublicationStatus>
+      <common:copyright>true</common:copyright>
+      <common:accessRestrictions xml:lang="en">The data set can be used free of charge by anybody to perform LCA studies, to distribute it to third parties, to convert it to other formats, to develop own data sets etc. as long as the copyright and license conditions for the ELCD data sets and the ILCD format are met that can be accessed via http://lca.jrc.ec.europa.eu. Please note e.g. that reference must be given to the 'Owner of data set' and to the 'ELCD database' plus version number, when using the data set or parts thereof. Please note also, that any modifications/omissions of the data set results in invalidity of any existing 'Official approval of data set by producer/operator', that the impression must be avoided that this would still be a complete ELCD data set, and that the content of further fields has to be adjusted. For details see the aforementioned copyright and license conditions.</common:accessRestrictions>
+    </publicationAndOwnership>
+  </administrativeInformation>
+  <exchanges>
+    <exchange dataSetInternalID="0">
+      <referenceToFlowDataSet 
+      	refObjectId="0d7a3ad1-6556-11dd-ad8b-0800200c9a66" version="02.01.000" type="flow data set" uri="../flows/0d7a3ad1-6556-11dd-ad8b-0800200c9a66_02.01.000.xml">
+        <common:shortDescription xml:lang="en">carcass meal</common:shortDescription>
+      </referenceToFlowDataSet>
+      <exchangeDirection>Output</exchangeDirection>
+      <meanAmount>1.0</meanAmount>
+      <resultingAmount>1.0</resultingAmount>
+      <dataSourceType>Mixed primary / secondary</dataSourceType>
+      <dataDerivationTypeStatus>Unknown derivation</dataDerivationTypeStatus>
+    </exchange>   
+  </exchanges>
+</processDataSet>

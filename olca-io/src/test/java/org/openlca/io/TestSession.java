@@ -16,7 +16,7 @@ public class TestSession {
 			String dbName = "olca_test_db_1.4";
 			File tmpDir = new File(tmpDirPath);
 			File folder = new File(tmpDir, dbName);
-			boolean newDb = folder.exists();
+			boolean newDb = !folder.exists();
 			DerbyDatabase db = new DerbyDatabase(folder);
 			if (newDb)
 				db.fill(DatabaseContent.ALL_REF_DATA);
