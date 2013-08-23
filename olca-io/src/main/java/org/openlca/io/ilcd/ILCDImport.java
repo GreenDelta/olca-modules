@@ -208,6 +208,8 @@ public class ILCDImport implements Runnable {
 	private void importProcesses(ZipStore zipStore) throws Exception {
 		FlowMap flowMap = new FlowMap(MapType.ILCD_FLOW);
 		Iterator<Process> it = zipStore.iterator(Process.class);
+		ProcessImport processImport = new ProcessImport(zipStore, database);
+		processImport.setFlowMap(flowMap);
 		while (it.hasNext() && !monitor.isCanceled()) {
 			Process process = it.next();
 			ProcessBag bag = new ProcessBag(process);
@@ -219,9 +221,6 @@ public class ILCDImport implements Runnable {
 			} else {
 				monitor.subTask("Import process "
 						+ Strings.cut(bag.getName(), 50));
-				ProcessImport processImport = new ProcessImport(zipStore,
-						database);
-				processImport.setFlowMap(flowMap);
 				processImport.run(process);
 			}
 		}

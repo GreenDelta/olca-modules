@@ -3,6 +3,7 @@ package org.openlca.io.maps;
 import java.io.InputStream;
 import java.util.HashMap;
 
+import org.openlca.core.model.Flow;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,23 @@ public class FlowMap {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private HashMap<String, FlowMapEntry> map;
+	private HashMap<String, Flow> cache = new HashMap<>();
 
 	public FlowMap(MapType mapType) {
 		init(mapType);
+	}
+
+	/** Caches a flow for the given id. */
+	public void cache(String id, Flow flow) {
+		cache.put(id, flow);
+	}
+
+	/**
+	 * Returns the cached flow for the given ID, or null if no such flow is
+	 * cached.
+	 */
+	public Flow getCached(String id) {
+		return cache.get(id);
 	}
 
 	private void init(MapType mapType) {
@@ -26,7 +41,6 @@ public class FlowMap {
 		} catch (Exception e) {
 			log.error("Cannot read mapping file", e);
 		}
-
 	}
 
 	private String mapFileName(MapType mapType) {
