@@ -1,7 +1,11 @@
 package org.openlca.core.math;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.NormalizationWeightingSet;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
@@ -21,6 +25,7 @@ public class CalculationSetup {
 	private NormalizationWeightingSet nwSet;
 	private AllocationMethod allocationMethod;
 	private int numberOfRuns = -1;
+	private List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
 	/**
 	 * Creates a new calculation setup for the given type. The type can be
@@ -79,6 +84,10 @@ public class CalculationSetup {
 	/** Only valid for sensitivity analysis of Monte-Carlo-Simulations. */
 	public int getNumberOfRuns() {
 		return numberOfRuns;
+	}
+
+	public List<ParameterRedef> getParameterRedefs() {
+		return parameterRedefs;
 	}
 
 }

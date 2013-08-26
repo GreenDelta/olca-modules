@@ -4,6 +4,7 @@ import org.openlca.core.math.NumberGenerator;
 import org.openlca.core.model.UncertaintyDistributionType;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
+import org.openlca.expressions.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,10 @@ public class ExchangeCell {
 		if (interpreter == null)
 			return;
 		try {
-			tryEval(interpreter);
+			Scope scope = interpreter.getScope(exchange.getProcessId());
+			if (scope == null)
+				scope = interpreter.getGlobalScope();
+			tryEval(scope);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error(
@@ -34,23 +38,21 @@ public class ExchangeCell {
 		}
 	}
 
-	// TODO: implement scoping here-> process ID is the ID of the scope
-	private void tryEval(FormulaInterpreter interpreter)
-			throws InterpreterException {
+	private void tryEval(Scope scope) throws InterpreterException {
 		if (exchange.getAmountFormula() != null) {
-			double v = interpreter.eval(exchange.getAmountFormula());
+			double v = scope.eval(exchange.getAmountFormula());
 			exchange.setAmount(v);
 		}
 		if (exchange.getParameter1Formula() != null) {
-			double v = interpreter.eval(exchange.getParameter1Formula());
+			double v = scope.eval(exchange.getParameter1Formula());
 			exchange.setParameter1(v);
 		}
 		if (exchange.getParameter2Formula() != null) {
-			double v = interpreter.eval(exchange.getParameter2Formula());
+			double v = scope.eval(exchange.getParameter2Formula());
 			exchange.setParameter2(v);
 		}
 		if (exchange.getParameter3Formula() != null) {
-			double v = interpreter.eval(exchange.getParameter3Formula());
+			double v = scope.eval(exchange.getParameter3Formula());
 			exchange.setParameter3(v);
 		}
 	}
