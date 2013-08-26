@@ -13,7 +13,7 @@ public class TestSession {
 	public static IDatabase getDerbyDatabase() {
 		if (derbyDatabase == null) {
 			String tmpDirPath = System.getProperty("java.io.tmpdir");
-			String dbName = "olca_test_db_1.4";
+			String dbName = "olca_test_db_io_1.4";
 			File tmpDir = new File(tmpDirPath);
 			File folder = new File(tmpDir, dbName);
 			boolean newDb = !folder.exists();
