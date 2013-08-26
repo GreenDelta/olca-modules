@@ -1,12 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
 package org.openlca.core.model;
 
 import java.util.ArrayList;
@@ -14,22 +5,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.CollectionTable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-/**
- * <p style="margin-top: 0">
- * A project compares different product systems to each other
- * </p>
- */
 @Entity
 @Table(name = "tbl_projects")
 public class Project extends CategorizedEntity {
@@ -54,10 +40,9 @@ public class Project extends CategorizedEntity {
 	@Column(name = "last_modification_date")
 	private Date lastModificationDate;
 
-	@ElementCollection
-	@Column(name = "f_product_system")
-	@CollectionTable(name = "tbl_project_product_systems", joinColumns = { @JoinColumn(name = "f_project") })
-	private final List<Long> productSystems = new ArrayList<>();
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_project")
+	private final List<ProjectVariant> variants = new ArrayList<>();
 
 	public Actor getAuthor() {
 		return author;
@@ -65,20 +50,23 @@ public class Project extends CategorizedEntity {
 
 	@Override
 	public Project clone() {
-		final Project project = new Project();
-		project.setRefId(UUID.randomUUID().toString());
-		project.setName(getName());
-		project.setAuthor(getAuthor());
-		project.setCategory(getCategory());
-		project.setCreationDate(getCreationDate());
-		project.setDescription(getDescription());
-		project.setFunctionalUnit(getFunctionalUnit());
-		project.setGoal(getGoal());
-		project.setLastModificationDate(getLastModificationDate());
-		for (Long id : getProductSystems()) {
-			project.getProductSystems().add(id);
-		}
-		return project;
+		Project clone = new Project();
+		clone.setRefId(UUID.randomUUID().toString());
+		clone.setName(getName());
+		clone.setAuthor(getAuthor());
+		clone.setCategory(getCategory());
+		clone.setCreationDate(getCreationDate());
+		clone.setDescription(getDescription());
+		clone.setFunctionalUnit(getFunctionalUnit());
+		clone.setGoal(getGoal());
+		clone.setLastModificationDate(getLastModificationDate());
+		for (ProjectVariant variant : getVariants())
+			clone.getVariants().add(variant.clone());
+		return clone;
+	}
+
+	public List<ProjectVariant> getVariants() {
+		return variants;
 	}
 
 	public Date getCreationDate() {
@@ -95,10 +83,6 @@ public class Project extends CategorizedEntity {
 
 	public Date getLastModificationDate() {
 		return lastModificationDate;
-	}
-
-	public List<Long> getProductSystems() {
-		return productSystems;
 	}
 
 	public void setAuthor(Actor author) {

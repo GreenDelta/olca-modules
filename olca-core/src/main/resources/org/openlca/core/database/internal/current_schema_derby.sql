@@ -506,17 +506,15 @@ CREATE TABLE tbl_parameter_redefs (
 );
 
 
--- projects
-
 CREATE TABLE tbl_projects (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
-	creation_date TIMESTAMP, 
+	name VARCHAR(255), 
 	description CLOB(64 K), 
 	f_category BIGINT, 
+	creation_date TIMESTAMP, 
 	functional_unit CLOB(64 K), 
-	name VARCHAR(255), 
 	last_modification_date TIMESTAMP,
 	goal CLOB(64 K), 
 	f_author BIGINT, 
@@ -524,13 +522,15 @@ CREATE TABLE tbl_projects (
 	PRIMARY KEY (id)	
 );
 
-CREATE TABLE tbl_project_product_systems (
 
-	f_project BIGINT NOT NULL, 
-	f_product_system BIGINT NOT NULL, 
+CREATE TABLE tbl_project_variants (
 	
-	PRIMARY KEY (f_project, f_product_system)
-
+	id BIGINT NOT NULL,
+	f_project BIGINT,
+	name VARCHAR(255), 
+	f_product_system BIGINT,
+	
+	PRIMARY KEY (id)	
 );
 
 

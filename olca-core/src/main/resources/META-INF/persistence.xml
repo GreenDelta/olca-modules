@@ -29,6 +29,7 @@
 		<class>org.openlca.core.model.ProcessLink</class>
 		<class>org.openlca.core.model.ProductSystem</class>
 		<class>org.openlca.core.model.Project</class>
+		<class>org.openlca.core.model.ProjectVariant</class>
 		<class>org.openlca.core.model.ScalingFactor</class>
 		<class>org.openlca.core.model.Source</class>
 		<class>org.openlca.core.model.Unit</class>
