@@ -16,6 +16,7 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.ContributionTree;
+import org.openlca.core.results.LinkContributions;
 
 /**
  * Calculates a contribution tree of the processes in a product system to a flow

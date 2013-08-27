@@ -10,6 +10,10 @@ public class LongPair implements Comparable<LongPair> {
 		this.second = second;
 	}
 
+	public static LongPair of(long first, long second) {
+		return new LongPair(first, second);
+	}
+
 	public long getFirst() {
 		return first;
 	}
