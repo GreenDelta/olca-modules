@@ -25,18 +25,18 @@ public class ProcessLink extends AbstractEntity implements Cloneable {
 	@Column(name = "f_flow")
 	private long flowId;
 
-	@Column(name = "f_provider_process")
-	private long providerProcessId;
+	@Column(name = "f_provider")
+	private long providerId;
 
-	@Column(name = "f_recipient_process")
-	private long recipientProcessId;
+	@Column(name = "f_recipient")
+	private long recipientId;
 
 	@Override
 	public ProcessLink clone() {
 		ProcessLink clone = new ProcessLink();
 		clone.setFlowId(getFlowId());
-		clone.setProviderProcessId(getProviderProcessId());
-		clone.setRecipientProcessId(getRecipientProcessId());
+		clone.setProviderId(getProviderId());
+		clone.setRecipientId(getRecipientId());
 		return clone;
 	}
 
@@ -48,20 +48,20 @@ public class ProcessLink extends AbstractEntity implements Cloneable {
 		this.flowId = flowId;
 	}
 
-	public long getProviderProcessId() {
-		return providerProcessId;
+	public long getProviderId() {
+		return providerId;
 	}
 
-	public void setProviderProcessId(long providerProcessId) {
-		this.providerProcessId = providerProcessId;
+	public void setProviderId(long providerId) {
+		this.providerId = providerId;
 	}
 
-	public long getRecipientProcessId() {
-		return recipientProcessId;
+	public long getRecipientId() {
+		return recipientId;
 	}
 
-	public void setRecipientProcessId(long recipientProcessId) {
-		this.recipientProcessId = recipientProcessId;
+	public void setRecipientId(long recipientId) {
+		this.recipientId = recipientId;
 	}
 
 }

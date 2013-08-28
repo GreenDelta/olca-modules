@@ -89,8 +89,8 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 				continue;
 			ProcessLink link = new ProcessLink();
 			link.setFlowId(input.getSecond());
-			link.setProviderProcessId(output.getFirst());
-			link.setRecipientProcessId(input.getFirst());
+			link.setProviderId(output.getFirst());
+			link.setRecipientId(input.getFirst());
 			system.getProcessLinks().add(link);
 		}
 
@@ -100,8 +100,8 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 			LongPair output) {
 		for (ProcessLink link : system.getProcessLinks()) {
 			if (link.getFlowId() == input.getSecond()
-					&& link.getRecipientProcessId() == input.getFirst()
-					&& link.getProviderProcessId() == output.getFirst())
+					&& link.getRecipientId() == input.getFirst()
+					&& link.getProviderId() == output.getFirst())
 				return true;
 		}
 		return false;
