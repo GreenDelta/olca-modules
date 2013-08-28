@@ -55,9 +55,9 @@ public class LinkContributions {
 		Double share = map.get(link.getRecipientProcessId());
 		return share == null ? 0 : share;
 	}
-	
-	public double getShare(LongPair provider, LongPair recipient) {
-		if(provider == null || provider == null)
+
+	double getShare(LongPair provider, LongPair recipient) {
+		if (provider == null || provider == null)
 			return 0;
 		HashMap<Long, Double> map = shares.get(provider);
 		if (map == null)

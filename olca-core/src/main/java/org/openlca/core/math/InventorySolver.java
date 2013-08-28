@@ -8,6 +8,7 @@ import org.openlca.core.matrices.InventoryMatrix;
 import org.openlca.core.matrices.ProductIndex;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.InventoryResult;
+import org.openlca.core.results.LinkContributions;
 
 public class InventorySolver {
 
@@ -99,6 +100,10 @@ public class InventorySolver {
 		IMatrix totalResult = enviMatrix.multiply(inverse).multiply(
 				demandMatrix);
 		result.setTotalResult(totalResult);
+
+		LinkContributions linkContributions = LinkContributions.calculate(
+				techMatrix, productIndex, scalingFactors.getColumn(0));
+		result.setLinkContributions(linkContributions);
 
 		if (impactMatrix != null) {
 			result.setImpactCategoryIndex(impactMatrix.getCategoryIndex());

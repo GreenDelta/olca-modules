@@ -9,46 +9,46 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
- * A helper class that generates instances of {@link AnalysisFlowResult} from an
+ * A class that generates instances of {@link AnalysisFlowResult} from an
  * analysis result.
  */
 public final class AnalysisFlowResults {
 
-	private AnalysisFlowResults() {
+	private final AnalysisResult result;
+
+	AnalysisFlowResults(AnalysisResult result) {
+		this.result = result;
 	}
 
-	public static Set<FlowDescriptor> getFlows(AnalysisResult result,
-			Cache cache) {
+	public Set<FlowDescriptor> getFlows(Cache cache) {
 		return Results.getFlowDescriptors(result.getFlowIndex(), cache);
 	}
 
-	public static Set<ProcessDescriptor> getProcesses(AnalysisResult result,
-			Cache cache) {
+	public Set<ProcessDescriptor> getProcesses(Cache cache) {
 		return Results.getProcessDescriptors(result.getProductIndex(), cache);
 	}
 
-	public static List<AnalysisFlowResult> getForFlow(AnalysisResult result,
-			FlowDescriptor flow, Cache cache) {
+	public List<AnalysisFlowResult> getForFlow(FlowDescriptor flow, Cache cache) {
 		List<AnalysisFlowResult> results = new ArrayList<>();
-		for (ProcessDescriptor process : getProcesses(result, cache)) {
-			AnalysisFlowResult r = getResult(result, process, flow);
+		for (ProcessDescriptor process : getProcesses(cache)) {
+			AnalysisFlowResult r = getResult(process, flow);
 			results.add(r);
 		}
 		return results;
 	}
 
-	public static List<AnalysisFlowResult> getForProcess(AnalysisResult result,
-			ProcessDescriptor process, Cache cache) {
+	public List<AnalysisFlowResult> getForProcess(ProcessDescriptor process,
+			Cache cache) {
 		List<AnalysisFlowResult> results = new ArrayList<>();
-		for (FlowDescriptor flow : getFlows(result, cache)) {
-			AnalysisFlowResult r = getResult(result, process, flow);
+		for (FlowDescriptor flow : getFlows(cache)) {
+			AnalysisFlowResult r = getResult(process, flow);
 			results.add(r);
 		}
 		return results;
 	}
 
-	public static AnalysisFlowResult getResult(AnalysisResult result,
-			ProcessDescriptor process, FlowDescriptor flow) {
+	public AnalysisFlowResult getResult(ProcessDescriptor process,
+			FlowDescriptor flow) {
 		long flowId = flow.getId();
 		long processId = process.getId();
 		double single = result.getSingleFlowResult(processId, flowId);

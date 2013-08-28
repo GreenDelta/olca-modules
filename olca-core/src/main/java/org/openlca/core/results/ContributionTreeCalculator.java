@@ -21,7 +21,7 @@ import com.google.common.collect.Multimap;
  * Calculates a contribution tree of the processes in a product system to a flow
  * or impact assessment result.
  */
-public class ContributionTreeCalculator {
+class ContributionTreeCalculator {
 
 	private AnalysisResult result;
 	private LinkContributions linkContributions;

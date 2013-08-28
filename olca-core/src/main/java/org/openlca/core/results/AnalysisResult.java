@@ -24,9 +24,37 @@ public class AnalysisResult {
 	private IMatrix totalImpactResult;
 	private IMatrix impactFactors;
 
+	// result generators
+	private AnalysisFlowResults flowResults;
+	private AnalysisImpactResults impactResults;
+	private AnalysisContributions contributions;
+	private LinkContributions linkContributions;
+
 	public AnalysisResult(FlowIndex flowIndex, ProductIndex productIndex) {
 		this.flowIndex = flowIndex;
 		this.productIndex = productIndex;
+	}
+
+	public AnalysisFlowResults getFlowResults() {
+		if (flowResults == null)
+			flowResults = new AnalysisFlowResults(this);
+		return flowResults;
+	}
+
+	public AnalysisImpactResults getImpactResults() {
+		if (impactResults == null)
+			impactResults = new AnalysisImpactResults(this);
+		return impactResults;
+	}
+
+	public void setLinkContributions(LinkContributions linkContributions) {
+		this.linkContributions = linkContributions;
+	}
+
+	public AnalysisContributions getContributions() {
+		if (contributions == null)
+			contributions = new AnalysisContributions(this, linkContributions);
+		return contributions;
 	}
 
 	public ProductIndex getProductIndex() {
