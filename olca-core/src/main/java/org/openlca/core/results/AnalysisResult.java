@@ -112,6 +112,16 @@ public class AnalysisResult {
 	}
 
 	/**
+	 * Get the total flow result for the given process-product and flow.
+	 */
+	public double getTotalFlowResult(LongPair processProduct, long flowId) {
+		int row = flowIndex.getIndex(flowId);
+		int col = productIndex.getIndex(processProduct);
+		double val = getValue(totalFlowResults, row, col);
+		return adoptFlowResult(val, flowId);
+	}
+
+	/**
 	 * Get the upstream-total flow result for the given process and flow.
 	 */
 	public double getTotalFlowResult(long processId, long flowId) {
@@ -136,6 +146,20 @@ public class AnalysisResult {
 			return 0;
 		int row = impactCategoryIndex.getIndex(impactCategory);
 		double val = getValue(singleImpactResult, row, processId);
+		return val;
+	}
+
+	/**
+	 * Get the upstream-total impact category result for the given
+	 * process-product and impact category.
+	 */
+	public double getTotalImpactResult(LongPair processProduct,
+			long impactCategory) {
+		if (impactCategoryIndex == null)
+			return 0;
+		int row = impactCategoryIndex.getIndex(impactCategory);
+		int col = productIndex.getIndex(processProduct);
+		double val = getValue(totalImpactResult, row, col);
 		return val;
 	}
 

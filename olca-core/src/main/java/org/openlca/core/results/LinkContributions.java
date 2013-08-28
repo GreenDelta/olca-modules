@@ -55,6 +55,16 @@ public class LinkContributions {
 		Double share = map.get(link.getRecipientProcessId());
 		return share == null ? 0 : share;
 	}
+	
+	public double getShare(LongPair provider, LongPair recipient) {
+		if(provider == null || provider == null)
+			return 0;
+		HashMap<Long, Double> map = shares.get(provider);
+		if (map == null)
+			return 0;
+		Double share = map.get(recipient.getFirst());
+		return share == null ? 0 : share;
+	}
 
 	private void calculateShares(IMatrix matrix, ProductIndex index,
 			double[] scalingFactors) {

@@ -15,6 +15,8 @@ into your local repository:
     mvn install:install-file -Dfile=ojalgo-34.0.jar -DgroupId=org.ojalgo \
     -DartifactId=ojalgo -Dversion=34.0 -Dpackaging=jar
 
+On some platforms you may have to [quote the arguments](http://bit.ly/18k1Bli). 
+
 
 Persistence
 -----------
