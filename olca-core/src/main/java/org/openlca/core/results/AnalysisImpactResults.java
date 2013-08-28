@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.openlca.core.database.Cache;
 import org.openlca.core.matrices.LongIndex;
+import org.openlca.core.matrices.LongPair;
 import org.openlca.core.model.NormalizationWeightingFactor;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -29,6 +30,16 @@ public final class AnalysisImpactResults {
 		if (impactIndex == null)
 			return Collections.emptySet();
 		return Results.getImpactDescriptors(impactIndex, cache);
+	}
+
+	/**
+	 * Returns the total result for the given impact category which is the
+	 * upstream-total result of the reference process.
+	 */
+	public double getTotalResult(ImpactCategoryDescriptor impact) {
+		LongPair refProduct = result.getProductIndex().getRefProduct();
+		return result.getTotalImpactResult(refProduct.getFirst(),
+				impact.getId());
 	}
 
 	public List<AnalysisImpactResult> getForImpact(

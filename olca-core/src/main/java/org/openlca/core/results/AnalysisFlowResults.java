@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.Cache;
+import org.openlca.core.matrices.LongPair;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -26,6 +27,15 @@ public final class AnalysisFlowResults {
 
 	public Set<ProcessDescriptor> getProcesses(Cache cache) {
 		return Results.getProcessDescriptors(result.getProductIndex(), cache);
+	}
+
+	/**
+	 * Returns the total result for the given impact category which is the
+	 * upstream-total result of the reference process.
+	 */
+	public double getTotalResult(FlowDescriptor flow) {
+		LongPair refProduct = result.getProductIndex().getRefProduct();
+		return result.getTotalFlowResult(refProduct.getFirst(), flow.getId());
 	}
 
 	public List<AnalysisFlowResult> getForFlow(FlowDescriptor flow, Cache cache) {
