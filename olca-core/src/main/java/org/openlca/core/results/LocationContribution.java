@@ -9,8 +9,8 @@ import java.util.UUID;
 import org.openlca.core.database.Cache;
 import org.openlca.core.matrices.LongPair;
 import org.openlca.core.matrices.ProductIndex;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -54,7 +54,7 @@ public class LocationContribution {
 	}
 
 	/** Calculates contributions to an inventory flow. */
-	public ContributionSet<Location> calculate(Flow flow) {
+	public ContributionSet<Location> calculate(FlowDescriptor flow) {
 		if (flow == null || result == null)
 			return ContributionSet.empty();
 		List<Contribution<Location>> contributions = new ArrayList<>();
