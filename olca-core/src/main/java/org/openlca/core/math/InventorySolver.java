@@ -1,7 +1,6 @@
 package org.openlca.core.math;
 
-import org.openlca.core.matrices.ExchangeCell;
-import org.openlca.core.matrices.ExchangeMatrix;
+import org.openlca.core.matrices.FlowIndex;
 import org.openlca.core.matrices.ImpactMatrix;
 import org.openlca.core.matrices.Inventory;
 import org.openlca.core.matrices.InventoryMatrix;
@@ -17,14 +16,7 @@ public class InventorySolver {
 	}
 
 	public InventoryResult solve(Inventory inventory, ImpactMatrix impactMatrix) {
-		InventoryMatrix matrix = new InventoryMatrix();
-		matrix.setFlowIndex(inventory.getFlowIndex());
-		matrix.setProductIndex(inventory.getProductIndex());
-		IMatrix enviMatrix = inventory.getInterventionMatrix()
-				.createRealMatrix();
-		matrix.setInterventionMatrix(enviMatrix);
-		IMatrix techMatrix = inventory.getTechnologyMatrix().createRealMatrix();
-		matrix.setTechnologyMatrix(techMatrix);
+		InventoryMatrix matrix = asMatrix(inventory);
 		return solve(matrix, impactMatrix);
 	}
 
@@ -60,17 +52,24 @@ public class InventorySolver {
 	}
 
 	public AnalysisResult analyse(Inventory inventory, ImpactMatrix impactMatrix) {
+		InventoryMatrix matrix = asMatrix(inventory);
+		return analyse(matrix, null);
+	}
 
-		ProductIndex productIndex = inventory.getProductIndex();
-		ExchangeMatrix techExchanges = inventory.getTechnologyMatrix();
-		int n = productIndex.size();
+	public AnalysisResult analyse(InventoryMatrix matrix) {
+		return analyse(matrix, null);
+	}
 
-		AnalysisResult result = new AnalysisResult(inventory.getFlowIndex(),
-				inventory.getProductIndex());
+	public AnalysisResult analyse(InventoryMatrix matrix,
+			ImpactMatrix impactMatrix) {
 
-		IMatrix techMatrix = techExchanges.createRealMatrix();
-		IMatrix enviMatrix = inventory.getInterventionMatrix()
-				.createRealMatrix();
+		ProductIndex productIndex = matrix.getProductIndex();
+		FlowIndex flowIndex = matrix.getFlowIndex();
+		AnalysisResult result = new AnalysisResult(flowIndex, productIndex);
+
+		IMatrix techMatrix = matrix.getTechnologyMatrix();
+		IMatrix enviMatrix = matrix.getInterventionMatrix();
+
 		IMatrix inverse = techMatrix.getInverse();
 
 		IMatrix demand = Calculators.createDemandVector(productIndex);
@@ -79,6 +78,7 @@ public class InventorySolver {
 		result.setScalingFactors(scalingFactors.getColumn(0));
 
 		// single results
+		int n = productIndex.size();
 		IMatrix scalingMatrix = MatrixFactory.create(n, n);
 		for (int i = 0; i < n; i++) {
 			scalingMatrix.setEntry(i, i, scalingFactors.getEntry(i, 0));
@@ -87,15 +87,12 @@ public class InventorySolver {
 		result.setSingleResult(singleResult);
 
 		// total results
-		// TODO: loop correction
+		// TODO: self loop correction
 		IMatrix demandMatrix = MatrixFactory.create(n, n);
 		for (int i = 0; i < productIndex.size(); i++) {
-			ExchangeCell productCell = techExchanges.getEntry(i, i);
-			if (productCell == null)
-				continue;
-			double amount = scalingFactors.getEntry(i, 0)
-					* productCell.getMatrixValue();
-			demandMatrix.setEntry(i, i, amount);
+			double entry = techMatrix.getEntry(i, i);
+			double s = scalingFactors.getEntry(i, 0);
+			demandMatrix.setEntry(i, i, s * entry);
 		}
 		IMatrix totalResult = enviMatrix.multiply(inverse).multiply(
 				demandMatrix);
@@ -115,6 +112,19 @@ public class InventorySolver {
 			result.setTotalImpactResult(totalImpactResult);
 		}
 		return result;
+
+	}
+
+	private InventoryMatrix asMatrix(Inventory inventory) {
+		InventoryMatrix matrix = new InventoryMatrix();
+		matrix.setFlowIndex(inventory.getFlowIndex());
+		matrix.setProductIndex(inventory.getProductIndex());
+		IMatrix enviMatrix = inventory.getInterventionMatrix()
+				.createRealMatrix();
+		matrix.setInterventionMatrix(enviMatrix);
+		IMatrix techMatrix = inventory.getTechnologyMatrix().createRealMatrix();
+		matrix.setTechnologyMatrix(techMatrix);
+		return matrix;
 	}
 
 }

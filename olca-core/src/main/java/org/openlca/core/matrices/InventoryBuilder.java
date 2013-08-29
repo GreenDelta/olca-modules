@@ -32,7 +32,9 @@ public class InventoryBuilder {
 					allocationMethod);
 		exchangeTable = new ExchangeTable(database,
 				productIndex.getProcessIds());
-		flowIndex = new FlowIndex(productIndex, exchangeTable, allocationMethod);
+
+		flowIndex = new FlowIndexBuilder(allocationMethod).build(productIndex,
+				exchangeTable);
 		technologyMatrix = new ExchangeMatrix(productIndex.size(),
 				productIndex.size());
 		interventionMatrix = new ExchangeMatrix(flowIndex.size(),

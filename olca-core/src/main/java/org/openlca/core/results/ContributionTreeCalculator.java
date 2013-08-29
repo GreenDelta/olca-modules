@@ -105,6 +105,7 @@ class ContributionTreeCalculator {
 				ContributionTreeNode newChild = createNode(childProto, fn);
 				if (newChild == null)
 					continue;
+				pair.getSecond().getChildren().add(newChild);
 				Pair<ProtoNode, ContributionTreeNode> nextPair = new Pair<>(
 						childProto, newChild);
 				queue.add(nextPair);
