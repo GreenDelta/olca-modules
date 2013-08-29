@@ -1,15 +1,11 @@
-package org.openlca.core.model.results;
+package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.Process;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.AnalysisResult;
-import org.openlca.core.results.Contribution;
-import org.openlca.core.results.ContributionSet;
-import org.openlca.core.results.ContributionShare;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * Calculates the contributions of single process results grouped by a given
@@ -27,7 +23,7 @@ public class GroupingContribution {
 	}
 
 	/** Calculates contributions to an inventory flow. */
-	public ContributionSet<ProcessGrouping> calculate(Flow flow) {
+	public ContributionSet<ProcessGrouping> calculate(FlowDescriptor flow) {
 		if (result == null || groupings == null)
 			return ContributionSet.empty();
 		List<Contribution<ProcessGrouping>> contributions = new ArrayList<>();
@@ -35,8 +31,8 @@ public class GroupingContribution {
 			Contribution<ProcessGrouping> contribution = new Contribution<>();
 			contribution.setItem(grouping);
 			double amount = 0;
-			for (Process p : grouping.getProcesses())
-				amount += result.getSingleResult(p, flow);
+			for (ProcessDescriptor p : grouping.getProcesses())
+				amount += result.getSingleFlowResult(p.getId(), flow.getId());
 			contribution.setAmount(amount);
 			contributions.add(contribution);
 		}
@@ -54,8 +50,9 @@ public class GroupingContribution {
 			Contribution<ProcessGrouping> contribution = new Contribution<>();
 			contribution.setItem(grouping);
 			double amount = 0;
-			for (Process p : grouping.getProcesses())
-				amount += result.getSingleResult(p, impact);
+			for (ProcessDescriptor p : grouping.getProcesses())
+				amount += result.getSingleImpactResult(p.getId(),
+						impact.getId());
 			contribution.setAmount(amount);
 			contributions.add(contribution);
 		}
