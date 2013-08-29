@@ -53,7 +53,7 @@ public class InventorySolver {
 
 	public AnalysisResult analyse(Inventory inventory, ImpactMatrix impactMatrix) {
 		InventoryMatrix matrix = asMatrix(inventory);
-		return analyse(matrix, null);
+		return analyse(matrix, impactMatrix);
 	}
 
 	public AnalysisResult analyse(InventoryMatrix matrix) {
