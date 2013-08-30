@@ -224,10 +224,12 @@ public class Cache {
 			else
 				results.add(value);
 		}
-		List<V> rest = dao.getDescriptors(toLoad);
-		for (V v : rest) {
-			cache.put(getKey(dao.getDescriptorType(), v.getId()), v);
-			results.add(v);
+		if (!toLoad.isEmpty()) {
+			List<V> rest = dao.getDescriptors(toLoad);
+			for (V v : rest) {
+				cache.put(getKey(dao.getDescriptorType(), v.getId()), v);
+				results.add(v);
+			}
 		}
 		return results;
 	}
@@ -255,10 +257,12 @@ public class Cache {
 			else
 				results.add(value);
 		}
-		List<T> rest = dao.getForIds(toLoad);
-		for (T t : rest) {
-			cache.put(getKey(dao.getEntityType(), t.getId()), t);
-			results.add(t);
+		if (!toLoad.isEmpty()) {
+			List<T> rest = dao.getForIds(toLoad);
+			for (T t : rest) {
+				cache.put(getKey(dao.getEntityType(), t.getId()), t);
+				results.add(t);
+			}
 		}
 		return results;
 	}
