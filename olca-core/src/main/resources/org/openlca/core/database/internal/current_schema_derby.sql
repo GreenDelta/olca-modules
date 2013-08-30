@@ -322,8 +322,8 @@ CREATE TABLE tbl_process_links (
 
 	id BIGINT NOT NULL, 
 	f_product_system BIGINT, 
-	f_provider_process BIGINT, 
-	f_recipient_process BIGINT, 
+	f_provider BIGINT, 
+	f_recipient BIGINT, 
 	f_flow BIGINT, 
 	
 	PRIMARY KEY (id)

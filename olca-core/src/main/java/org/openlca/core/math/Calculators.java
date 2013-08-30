@@ -77,8 +77,8 @@ final class Calculators {
 		ProductIndex index = new ProductIndex(refProduct, demand);
 		for (ProcessLink link : system.getProcessLinks()) {
 			long flow = link.getFlowId();
-			long provider = link.getProviderProcessId();
-			long recipient = link.getRecipientProcessId();
+			long provider = link.getProviderId();
+			long recipient = link.getRecipientId();
 			LongPair processProduct = new LongPair(provider, flow);
 			index.put(processProduct);
 			LongPair input = new LongPair(recipient, flow);

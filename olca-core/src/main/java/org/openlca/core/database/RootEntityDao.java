@@ -38,10 +38,10 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 	public List<V> getDescriptors(Set<Long> ids) {
 		if (ids == null || ids.isEmpty())
 			return Collections.emptyList();
-		String sql = getDescriptorQuery() + " where id in (?)";
-		Object arg = Strings.join(ids, ',');
+		String sql = getDescriptorQuery() + " where id in ("
+				+ Strings.join(ids, ',') + ")";
 		List<Object[]> results = selectAll(sql, getDescriptorFields(),
-				Collections.singletonList(arg));
+				Collections.emptyList());
 		return createDescriptors(results);
 	}
 
