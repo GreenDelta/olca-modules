@@ -47,12 +47,11 @@ public class LinkContributions {
 	public double getShare(ProcessLink link) {
 		if (link == null)
 			return 0;
-		LongPair output = new LongPair(link.getProviderProcessId(),
-				link.getFlowId());
+		LongPair output = new LongPair(link.getProviderId(), link.getFlowId());
 		HashMap<Long, Double> map = shares.get(output);
 		if (map == null)
 			return 0;
-		Double share = map.get(link.getRecipientProcessId());
+		Double share = map.get(link.getRecipientId());
 		return share == null ? 0 : share;
 	}
 
