@@ -1,11 +1,11 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.results.Contributions.Function;
 
 /**
  * Calculates the contributions of single process results grouped by a given
@@ -23,40 +23,37 @@ public class GroupingContribution {
 	}
 
 	/** Calculates contributions to an inventory flow. */
-	public ContributionSet<ProcessGrouping> calculate(FlowDescriptor flow) {
+	public ContributionSet<ProcessGrouping> calculate(final FlowDescriptor flow) {
 		if (result == null || groupings == null)
 			return ContributionSet.empty();
-		List<Contribution<ProcessGrouping>> contributions = new ArrayList<>();
-		for (ProcessGrouping grouping : groupings) {
-			Contribution<ProcessGrouping> contribution = new Contribution<>();
-			contribution.setItem(grouping);
-			double amount = 0;
-			for (ProcessDescriptor p : grouping.getProcesses())
-				amount += result.getSingleFlowResult(p.getId(), flow.getId());
-			contribution.setAmount(amount);
-			contributions.add(contribution);
-		}
-		ContributionShare.calculate(contributions);
-		return new ContributionSet<>(contributions);
+		return Contributions.calculate(groupings,
+				new Function<ProcessGrouping>() {
+					@Override
+					public double value(ProcessGrouping grouping) {
+						double amount = 0;
+						for (ProcessDescriptor p : grouping.getProcesses())
+							amount += result.getSingleFlowResult(p.getId(),
+									flow.getId());
+						return amount;
+					}
+				});
 	}
 
 	/** Calculates contributions to an impact assessment method. */
 	public ContributionSet<ProcessGrouping> calculate(
-			ImpactCategoryDescriptor impact) {
+			final ImpactCategoryDescriptor impact) {
 		if (result == null || groupings == null)
 			return ContributionSet.empty();
-		List<Contribution<ProcessGrouping>> contributions = new ArrayList<>();
-		for (ProcessGrouping grouping : groupings) {
-			Contribution<ProcessGrouping> contribution = new Contribution<>();
-			contribution.setItem(grouping);
-			double amount = 0;
-			for (ProcessDescriptor p : grouping.getProcesses())
-				amount += result.getSingleImpactResult(p.getId(),
-						impact.getId());
-			contribution.setAmount(amount);
-			contributions.add(contribution);
-		}
-		ContributionShare.calculate(contributions);
-		return new ContributionSet<>(contributions);
+		return Contributions.calculate(groupings,
+				new Function<ProcessGrouping>() {
+					@Override
+					public double value(ProcessGrouping grouping) {
+						double amount = 0;
+						for (ProcessDescriptor p : grouping.getProcesses())
+							amount += result.getSingleImpactResult(p.getId(),
+									impact.getId());
+						return amount;
+					}
+				});
 	}
 }

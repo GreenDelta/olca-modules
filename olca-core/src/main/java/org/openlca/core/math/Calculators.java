@@ -2,6 +2,7 @@ package org.openlca.core.math;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrices.FlowIndex;
+import org.openlca.core.matrices.FormulaInterpreterBuilder;
 import org.openlca.core.matrices.ImpactMatrix;
 import org.openlca.core.matrices.ImpactMatrixBuilder;
 import org.openlca.core.matrices.Inventory;
@@ -15,6 +16,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.expressions.FormulaInterpreter;
 
 /**
  * Helper methods for the calculators in this package.
@@ -48,18 +50,14 @@ final class Calculators {
 		AllocationMethod method = setup.getAllocationMethod();
 		if (method == null)
 			method = AllocationMethod.NONE;
-		return createInventory(system, method, database);
-	}
-
-	/**
-	 * Creates the inventory for the given product system.
-	 */
-	static Inventory createInventory(ProductSystem system,
-			AllocationMethod allocationMethod, IDatabase database) {
 		ProductIndex productIndex = createProductIndex(system);
 		InventoryBuilder inventoryBuilder = new InventoryBuilder(database);
-		Inventory inventory = inventoryBuilder.build(productIndex,
-				allocationMethod);
+		Inventory inventory = inventoryBuilder.build(productIndex, method);
+		FormulaInterpreter interpreter = FormulaInterpreterBuilder.build(
+				database, productIndex.getProcessIds());
+		FormulaInterpreterBuilder
+				.apply(setup.getParameterRedefs(), interpreter);
+		inventory.setFormulaInterpreter(interpreter);
 		return inventory;
 	}
 

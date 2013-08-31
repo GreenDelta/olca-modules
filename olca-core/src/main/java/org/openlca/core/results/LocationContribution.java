@@ -13,6 +13,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.results.Contributions.Function;
 
 /**
  * Calculates the contributions of the single process results in an analysis
@@ -54,42 +55,40 @@ public class LocationContribution {
 	}
 
 	/** Calculates contributions to an inventory flow. */
-	public ContributionSet<Location> calculate(FlowDescriptor flow) {
+	public ContributionSet<Location> calculate(final FlowDescriptor flow) {
 		if (flow == null || result == null)
 			return ContributionSet.empty();
-		List<Contribution<Location>> contributions = new ArrayList<>();
-		for (Location loc : processIndex.keySet()) {
-			List<ProcessDescriptor> list = processIndex.get(loc);
-			double amount = 0;
-			for (ProcessDescriptor p : list)
-				amount += result.getSingleFlowResult(p.getId(), flow.getId());
-			Contribution<Location> contribution = new Contribution<>();
-			contribution.setAmount(amount);
-			contribution.setItem(loc);
-			contributions.add(contribution);
-		}
-		ContributionShare.calculate(contributions);
-		return new ContributionSet<>(contributions);
+		return Contributions.calculate(processIndex.keySet(),
+				new Function<Location>() {
+					@Override
+					public double value(Location loc) {
+						List<ProcessDescriptor> list = processIndex.get(loc);
+						double amount = 0;
+						for (ProcessDescriptor p : list)
+							amount += result.getSingleFlowResult(p.getId(),
+									flow.getId());
+						return amount;
+					}
+				});
 	}
 
 	/** Calculates contributions to an impact assessment method. */
-	public ContributionSet<Location> calculate(ImpactCategoryDescriptor impact) {
+	public ContributionSet<Location> calculate(
+			final ImpactCategoryDescriptor impact) {
 		if (impact == null || result == null)
 			return ContributionSet.empty();
-		List<Contribution<Location>> contributions = new ArrayList<>();
-		for (Location loc : processIndex.keySet()) {
-			List<ProcessDescriptor> list = processIndex.get(loc);
-			double amount = 0;
-			for (ProcessDescriptor p : list)
-				amount += result.getSingleImpactResult(p.getId(),
-						impact.getId());
-			Contribution<Location> contribution = new Contribution<>();
-			contribution.setAmount(amount);
-			contribution.setItem(loc);
-			contributions.add(contribution);
-		}
-		ContributionShare.calculate(contributions);
-		return new ContributionSet<>(contributions);
+		return Contributions.calculate(processIndex.keySet(),
+				new Function<Location>() {
+					@Override
+					public double value(Location loc) {
+						List<ProcessDescriptor> list = processIndex.get(loc);
+						double amount = 0;
+						for (ProcessDescriptor p : list)
+							amount += result.getSingleImpactResult(p.getId(),
+									impact.getId());
+						return amount;
+					}
+				});
 	}
 
 }

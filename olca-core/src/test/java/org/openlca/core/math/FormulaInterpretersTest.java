@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.TestSession;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrices.FormulaInterpreterBuilder;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
@@ -42,7 +43,7 @@ public class FormulaInterpretersTest {
 		localParam.setScope(ParameterScope.PROCESS);
 		process.getParameters().add(localParam);
 		database.createDao(Process.class).insert(process);
-		interpreter = FormulaInterpreters.build(database, new HashSet<Long>() {
+		interpreter = FormulaInterpreterBuilder.build(database, new HashSet<Long>() {
 			{
 				add(process.getId());
 			}
@@ -87,7 +88,7 @@ public class FormulaInterpretersTest {
 				setProcessId(process.getId());
 			}
 		});
-		FormulaInterpreters.apply(redefs, interpreter);
+		FormulaInterpreterBuilder.apply(redefs, interpreter);
 		Assert.assertEquals(3.1, interpreter.eval("fi_tests_global"), 1e-16);
 		Scope scope = interpreter.getScope(process.getId());
 		Assert.assertEquals(1.3, scope.eval("fi_tests_local"), 1e-16);

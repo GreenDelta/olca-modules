@@ -35,14 +35,14 @@ public class InventorySolver {
 
 		InventoryResult result = new InventoryResult();
 		result.setFlowIndex(matrix.getFlowIndex());
-		result.setFlowResults(g.getColumn(0));
+		result.setFlowResultVector(g.getColumn(0));
 		result.setProductIndex(matrix.getProductIndex());
 		result.setScalingFactors(s.getColumn(0));
 		if (impactMatrix != null) {
 			IMatrix impactFactors = impactMatrix.getValues();
 			IMatrix i = impactFactors.multiply(g);
 			result.setImpactIndex(impactMatrix.getCategoryIndex());
-			result.setImpactResults(i.getColumn(0));
+			result.setImpactResultVector(i.getColumn(0));
 		}
 		return result;
 	}
@@ -116,6 +116,7 @@ public class InventorySolver {
 	}
 
 	private InventoryMatrix asMatrix(Inventory inventory) {
+		inventory.evalFormulas();
 		InventoryMatrix matrix = new InventoryMatrix();
 		matrix.setFlowIndex(inventory.getFlowIndex());
 		matrix.setProductIndex(inventory.getProductIndex());
