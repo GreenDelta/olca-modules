@@ -104,8 +104,16 @@ public class Shell {
 			new MakeSystemCommand().exec(this, args);
 			break;
 
+		case "make_project":
+			new MakeProjectCommand().exec(this, args);
+			break;
+
 		case "solve_system":
 			new SystemCalculationCommand().solve(this, args);
+			break;
+
+		case "solve_project":
+			new ProjectCalculationCommand().solve(this, args);
 			break;
 
 		case "analyse_system":
