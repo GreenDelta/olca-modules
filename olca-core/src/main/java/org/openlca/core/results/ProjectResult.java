@@ -11,6 +11,7 @@ import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.results.Contributions.Function;
 
 /**
  * A project result is a wrapper for the inventory results of the respective
@@ -55,6 +56,17 @@ public class ProjectResult {
 		return result.getFlowResults().getAll(cache);
 	}
 
+	public ContributionSet<ProjectVariant> getContributions(
+			final FlowDescriptor flow) {
+		return Contributions.calculate(getVariants(),
+				new Function<ProjectVariant>() {
+					@Override
+					public double value(ProjectVariant variant) {
+						return getFlowResult(variant, flow).getValue();
+					}
+				});
+	}
+
 	public Set<ImpactCategoryDescriptor> getImpacts(Cache cache) {
 		Set<ImpactCategoryDescriptor> impacts = new HashSet<>();
 		for (InventoryResult result : results.values())
@@ -78,4 +90,14 @@ public class ProjectResult {
 		return result.getImpactResults().get(impact, nwSet);
 	}
 
+	public ContributionSet<ProjectVariant> getContributions(
+			final ImpactCategoryDescriptor impact) {
+		return Contributions.calculate(getVariants(),
+				new Function<ProjectVariant>() {
+					@Override
+					public double value(ProjectVariant variant) {
+						return getImpactResult(variant, impact).getValue();
+					}
+				});
+	}
 }
