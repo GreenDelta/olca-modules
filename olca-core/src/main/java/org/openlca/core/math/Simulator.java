@@ -56,9 +56,9 @@ public class Simulator {
 			InventorySolver solver = new InventorySolver();
 			InventoryResult inventoryResult = solver
 					.solve(matrix, impactMatrix);
-			result.appendFlowResults(inventoryResult.getFlowResults());
+			result.appendFlowResults(inventoryResult.getFlowResultVector());
 			if (result.hasImpactResults())
-				result.appendImpactResults(inventoryResult.getImpactResults());
+				result.appendImpactResults(inventoryResult.getImpactResultVector());
 			return true;
 		} catch (Throwable e) {
 			log.trace("simulation run failed", e);
@@ -69,6 +69,7 @@ public class Simulator {
 	private void setUp() {
 		log.trace("set up inventory");
 		inventory = Calculators.createInventory(setup, database);
+		inventory.evalFormulas();
 		if (impactMethod != null)
 			impactMatrix = Calculators.createImpactMatrix(impactMethod,
 					inventory.getFlowIndex(), database);

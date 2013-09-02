@@ -149,10 +149,13 @@ public class ProductIndex {
 	 * Returns the output product (provider) to which the given product input is
 	 * linked, or null if there is no such product.
 	 */
-	public LongPair getLinkedOutput(LongPair product) {
-		return productLinks.get(product);
+	public LongPair getLinkedOutput(LongPair productInput) {
+		return productLinks.get(productInput);
 	}
 
+	/**
+	 * Returns all input products that are linked to an output. 
+	 */
 	public Set<LongPair> getLinkedInputs() {
 		return productLinks.keySet();
 	}

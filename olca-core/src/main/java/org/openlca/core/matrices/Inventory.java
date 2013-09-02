@@ -1,6 +1,7 @@
 package org.openlca.core.matrices;
 
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.expressions.FormulaInterpreter;
 
 public class Inventory {
 
@@ -9,12 +10,21 @@ public class Inventory {
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 	private AllocationMethod allocationMethod;
+	private FormulaInterpreter formulaInterpreter;
 
 	public boolean isEmpty() {
 		return productIndex == null || productIndex.size() == 0
 				|| flowIndex == null || flowIndex.isEmpty()
 				|| technologyMatrix == null || technologyMatrix.isEmpty()
 				|| interventionMatrix == null || interventionMatrix.isEmpty();
+	}
+
+	public FormulaInterpreter getFormulaInterpreter() {
+		return formulaInterpreter;
+	}
+
+	public void setFormulaInterpreter(FormulaInterpreter formulaInterpreter) {
+		this.formulaInterpreter = formulaInterpreter;
 	}
 
 	public void setAllocationMethod(AllocationMethod allocationMethod) {
@@ -55,6 +65,20 @@ public class Inventory {
 
 	public void setInterventionMatrix(ExchangeMatrix interventionMatrix) {
 		this.interventionMatrix = interventionMatrix;
+	}
+
+	/**
+	 * Evaluates the formulas in the exchange matrices of this inventory using
+	 * the formula interpreter that is bound to this inventory. Does nothing if
+	 * there is no interpreter set or if the exchange matrices are NULL.
+	 */
+	public void evalFormulas() {
+		if (formulaInterpreter == null)
+			return;
+		if (technologyMatrix != null)
+			technologyMatrix.eval(formulaInterpreter);
+		if (interventionMatrix != null)
+			interventionMatrix.eval(formulaInterpreter);
 	}
 
 }

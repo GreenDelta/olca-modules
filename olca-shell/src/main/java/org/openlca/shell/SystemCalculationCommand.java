@@ -10,9 +10,8 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.AnalysisResult;
-import org.openlca.core.results.FlowResult;
+import org.openlca.core.results.InventoryFlowResult;
 import org.openlca.core.results.InventoryResult;
-import org.openlca.core.results.InventoryResults;
 import org.openlca.io.xls.results.AnalysisResultExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,10 +74,10 @@ public class SystemCalculationCommand {
 	}
 
 	private void printInventoryResult(InventoryResult result, Cache cache) {
-		List<FlowResult> flowResults = InventoryResults.getFlowResults(result,
+		List<InventoryFlowResult> flowResults = result.getFlowResults().getAll(
 				cache);
 		List<String[]> records = new ArrayList<>();
-		for (FlowResult flowResult : flowResults) {
+		for (InventoryFlowResult flowResult : flowResults) {
 			String[] record = new String[2];
 			record[0] = flowResult.getFlow().getName();
 			record[1] = Double.toString(flowResult.getValue());

@@ -1,4 +1,4 @@
-package org.openlca.core.math;
+package org.openlca.core.matrices;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -13,9 +13,9 @@ import org.openlca.expressions.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class FormulaInterpreters {
+public final class FormulaInterpreterBuilder {
 
-	private FormulaInterpreters() {
+	private FormulaInterpreterBuilder() {
 	}
 
 	/**
@@ -69,7 +69,7 @@ public final class FormulaInterpreters {
 			}
 			results.close();
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(FormulaInterpreters.class);
+			Logger log = LoggerFactory.getLogger(FormulaInterpreterBuilder.class);
 			log.error("Failed to build formula interpreter", e);
 		}
 		return interpreter;

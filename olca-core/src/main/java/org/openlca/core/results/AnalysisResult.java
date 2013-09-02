@@ -24,9 +24,37 @@ public class AnalysisResult {
 	private IMatrix totalImpactResult;
 	private IMatrix impactFactors;
 
+	// result generators
+	private AnalysisFlowResults flowResults;
+	private AnalysisImpactResults impactResults;
+	private AnalysisContributions contributions;
+	private LinkContributions linkContributions;
+
 	public AnalysisResult(FlowIndex flowIndex, ProductIndex productIndex) {
 		this.flowIndex = flowIndex;
 		this.productIndex = productIndex;
+	}
+
+	public AnalysisFlowResults getFlowResults() {
+		if (flowResults == null)
+			flowResults = new AnalysisFlowResults(this);
+		return flowResults;
+	}
+
+	public AnalysisImpactResults getImpactResults() {
+		if (impactResults == null)
+			impactResults = new AnalysisImpactResults(this);
+		return impactResults;
+	}
+
+	public void setLinkContributions(LinkContributions linkContributions) {
+		this.linkContributions = linkContributions;
+	}
+
+	public AnalysisContributions getContributions() {
+		if (contributions == null)
+			contributions = new AnalysisContributions(this, linkContributions);
+		return contributions;
 	}
 
 	public ProductIndex getProductIndex() {
@@ -112,6 +140,16 @@ public class AnalysisResult {
 	}
 
 	/**
+	 * Get the total flow result for the given process-product and flow.
+	 */
+	public double getTotalFlowResult(LongPair processProduct, long flowId) {
+		int row = flowIndex.getIndex(flowId);
+		int col = productIndex.getIndex(processProduct);
+		double val = getValue(totalFlowResults, row, col);
+		return adoptFlowResult(val, flowId);
+	}
+
+	/**
 	 * Get the upstream-total flow result for the given process and flow.
 	 */
 	public double getTotalFlowResult(long processId, long flowId) {
@@ -136,6 +174,20 @@ public class AnalysisResult {
 			return 0;
 		int row = impactCategoryIndex.getIndex(impactCategory);
 		double val = getValue(singleImpactResult, row, processId);
+		return val;
+	}
+
+	/**
+	 * Get the upstream-total impact category result for the given
+	 * process-product and impact category.
+	 */
+	public double getTotalImpactResult(LongPair processProduct,
+			long impactCategory) {
+		if (impactCategoryIndex == null)
+			return 0;
+		int row = impactCategoryIndex.getIndex(impactCategory);
+		int col = productIndex.getIndex(processProduct);
+		double val = getValue(totalImpactResult, row, col);
 		return val;
 	}
 

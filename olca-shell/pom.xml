@@ -7,7 +7,6 @@
 	<name>openLCA Shell</name>
 	<description>A simple command line tool for openLCA.</description>
 
-
 	<dependencies>
 	
 		<dependency>
@@ -74,6 +73,5 @@
         </plugin>
 		</plugins>
 	</build>
-
 
 </project>

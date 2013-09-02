@@ -1,22 +1,22 @@
-package org.openlca.core.model.results;
+package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.matrices.LongPair;
 
 public class ContributionTreeNode {
 
-	private ProcessDescriptor process;
+	private LongPair processProduct;
 	private double amount;
 	private List<ContributionTreeNode> children = new ArrayList<>();
 
-	public ProcessDescriptor getProcess() {
-		return process;
+	public LongPair getProcessProduct() {
+		return processProduct;
 	}
 
-	public void setProcess(ProcessDescriptor process) {
-		this.process = process;
+	public void setProcessProduct(LongPair processProduct) {
+		this.processProduct = processProduct;
 	}
 
 	public double getAmount() {

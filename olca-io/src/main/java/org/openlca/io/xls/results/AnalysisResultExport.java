@@ -22,8 +22,6 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.AnalysisFlowResults;
-import org.openlca.core.results.AnalysisImpactResults;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
@@ -131,7 +129,7 @@ public class AnalysisResultExport {
 	}
 
 	private void prepareFlowInfos() {
-		Set<FlowDescriptor> set = AnalysisFlowResults.getFlows(result, cache);
+		Set<FlowDescriptor> set = result.getFlowResults().getFlows(cache);
 		flows = new ArrayList<>(set);
 		Collections.sort(flows, new Comparator<FlowDescriptor>() {
 			@Override
@@ -147,7 +145,7 @@ public class AnalysisResultExport {
 	}
 
 	private void prepareProcesses() {
-		Set<ProcessDescriptor> procs = AnalysisFlowResults.getProcesses(result,
+		Set<ProcessDescriptor> procs = result.getFlowResults().getProcesses(
 				cache);
 		processes = new ArrayList<>(procs);
 		final long refProcess = result.getProductIndex().getRefProduct()
@@ -167,8 +165,8 @@ public class AnalysisResultExport {
 	private void prepareImpacts() {
 		if (!result.hasImpactResults())
 			return;
-		Set<ImpactCategoryDescriptor> set = AnalysisImpactResults.getImpacts(
-				result, cache);
+		Set<ImpactCategoryDescriptor> set = result.getImpactResults()
+				.getImpacts(cache);
 		impacts = new ArrayList<>(set);
 		Collections.sort(impacts, new Comparator<ImpactCategoryDescriptor>() {
 			@Override

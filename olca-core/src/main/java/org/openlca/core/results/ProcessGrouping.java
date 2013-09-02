@@ -1,13 +1,14 @@
-package org.openlca.core.model.results;
+package org.openlca.core.results;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.model.Indexable;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessGroup;
 import org.openlca.core.model.ProcessGroupSet;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class ProcessGrouping implements Indexable {
 
 	private String name;
-	private List<Process> processes = new ArrayList<>();
+	private List<ProcessDescriptor> processes = new ArrayList<>();
 	private boolean rest;
 
 	public String getName() {
@@ -29,7 +30,7 @@ public class ProcessGrouping implements Indexable {
 		this.name = name;
 	}
 
-	public List<Process> getProcesses() {
+	public List<ProcessDescriptor> getProcesses() {
 		return processes;
 	}
 
@@ -77,18 +78,19 @@ public class ProcessGrouping implements Indexable {
 	 * processes not assignable to a group of the group set a group with these
 	 * processes is created using the given parameter restName.
 	 */
-	public static List<ProcessGrouping> applyOn(List<Process> processes,
-			ProcessGroupSet groupSet, String restName) {
+	public static List<ProcessGrouping> applyOn(
+			Collection<ProcessDescriptor> processes, ProcessGroupSet groupSet,
+			String restName) {
 		if (processes == null)
 			return Collections.emptyList();
 		List<ProcessGroup> groups = getGroups(groupSet);
 		List<ProcessGrouping> groupings = new ArrayList<>();
-		List<Process> rest = new ArrayList<>(processes);
+		List<ProcessDescriptor> rest = new ArrayList<>(processes);
 		for (ProcessGroup group : groups) {
 			ProcessGrouping grouping = new ProcessGrouping();
 			grouping.setName(group.getName());
 			grouping.setRest(false);
-			List<Process> matches = split(group.getProcessIds(), rest);
+			List<ProcessDescriptor> matches = split(group.getProcessIds(), rest);
 			grouping.getProcesses().addAll(matches);
 			groupings.add(grouping);
 		}
@@ -114,11 +116,11 @@ public class ProcessGrouping implements Indexable {
 		}
 	}
 
-	private static List<Process> split(List<String> processIds,
-			List<Process> processes) {
-		List<Process> matches = new ArrayList<>();
+	private static List<ProcessDescriptor> split(List<String> processIds,
+			List<ProcessDescriptor> processes) {
+		List<ProcessDescriptor> matches = new ArrayList<>();
 		for (String id : processIds) {
-			for (Process p : processes) {
+			for (ProcessDescriptor p : processes) {
 				if (p.getRefId() != null && p.getRefId().equals(id))
 					matches.add(p);
 			}
