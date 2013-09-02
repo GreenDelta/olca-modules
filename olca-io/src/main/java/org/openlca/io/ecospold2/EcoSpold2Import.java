@@ -4,8 +4,11 @@ import java.io.File;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.io.ImportEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.eventbus.EventBus;
 
 /**
  * The import of data sets in the EcoSpold v2 format. The import expects a set
@@ -16,9 +19,19 @@ public class EcoSpold2Import {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
+	private EventBus eventBus;
+	private boolean canceled = false;
 
 	public EcoSpold2Import(IDatabase database) {
 		this.database = database;
+	}
+
+	public void cancel() {
+		canceled = true;
+	}
+
+	public void setEventBus(EventBus eventBus) {
+		this.eventBus = eventBus;
 	}
 
 	public void run(File file) {
@@ -35,8 +48,10 @@ public class EcoSpold2Import {
 	private RefDataIndex importRefData(File[] files) {
 		log.trace("import reference data");
 		RefDataImport refDataImport = new RefDataImport(database);
+		if (eventBus != null)
+			eventBus.post(new ImportEvent("reference data"));
 		try (DataSetIterator iterator = new DataSetIterator(files)) {
-			while (iterator.hasNext()) {
+			while (!canceled && iterator.hasNext()) {
 				DataSet dataSet = iterator.next();
 				refDataImport.importDataSet(dataSet);
 			}
@@ -50,12 +65,19 @@ public class EcoSpold2Import {
 		log.trace("import processes");
 		ProcessImport processImport = new ProcessImport(database, index);
 		try (DataSetIterator iterator = new DataSetIterator(files)) {
-			while (iterator.hasNext()) {
+			while (!canceled && iterator.hasNext()) {
 				DataSet dataSet = iterator.next();
+				fireEvent(dataSet);
 				processImport.importDataSet(dataSet);
 			}
 		} catch (Exception e) {
 			log.error("process import failed", e);
 		}
+	}
+
+	private void fireEvent(DataSet dataSet) {
+		if (eventBus == null || dataSet.getActivity() == null)
+			return;
+		eventBus.post(new ImportEvent(dataSet.getActivity().getName()));
 	}
 }

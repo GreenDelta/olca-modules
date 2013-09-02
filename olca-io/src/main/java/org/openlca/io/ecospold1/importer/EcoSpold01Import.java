@@ -44,6 +44,7 @@ import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
+import org.openlca.io.ImportEvent;
 import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.maps.FlowMap;
@@ -51,6 +52,8 @@ import org.openlca.io.maps.MapType;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.eventbus.EventBus;
 
 /**
  * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
@@ -63,11 +66,21 @@ public class EcoSpold01Import {
 	private HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
 	private DB db;
 	private FlowImport flowImport;
+	private EventBus eventBus;
+	private boolean canceled = false;
 
 	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping) {
 		this.db = new DB(iDatabase);
 		FlowMap flowMap = new FlowMap(MapType.ECOSPOLD_FLOW);
 		this.flowImport = new FlowImport(db, unitMapping, flowMap);
+	}
+
+	public void cancel() {
+		canceled = true;
+	}
+
+	public void setEventBus(EventBus eventBus) {
+		this.eventBus = eventBus;
 	}
 
 	/** Set an optional root category for the new processes. */
@@ -85,6 +98,8 @@ public class EcoSpold01Import {
 		if (files == null || files.length == 0)
 			return;
 		for (File file : files) {
+			if (canceled)
+				break;
 			if (file.isDirectory())
 				continue;
 			String fileName = file.getName().toLowerCase();
@@ -101,6 +116,7 @@ public class EcoSpold01Import {
 		try {
 			DataSetType type = EcoSpoldIO.getEcoSpoldType(file);
 			FileInputStream in = new FileInputStream(file);
+			fireEvent(file.getName());
 			run(in, type);
 		} catch (Exception e) {
 			log.error("failed to import XML file " + file, e);
@@ -110,13 +126,14 @@ public class EcoSpold01Import {
 	private void importZip(File file) {
 		try (ZipFile zipFile = new ZipFile(file)) {
 			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-			while (entries.hasMoreElements()) {
+			while (entries.hasMoreElements() && !canceled) {
 				ZipEntry entry = entries.nextElement();
 				if (entry.isDirectory())
 					continue;
 				String name = entry.getName().toLowerCase();
 				if (!name.endsWith(".xml"))
 					continue;
+				fireEvent(name);
 				DataSetType type = EcoSpoldIO.getEcoSpoldType(zipFile
 						.getInputStream(entry));
 				run(zipFile.getInputStream(entry), type);
@@ -126,10 +143,19 @@ public class EcoSpold01Import {
 		}
 	}
 
+	private void fireEvent(String dataSetName) {
+		log.trace("import data set {}", dataSetName);
+		if (eventBus == null)
+			return;
+		eventBus.post(new ImportEvent(dataSetName));
+	}
+
 	public void run(InputStream is, DataSetType type) throws Exception {
 		if (is == null || type == null)
 			return;
 		IEcoSpold spold = EcoSpoldIO.readFrom(is, type);
+		if (spold == null || spold.getDataset().isEmpty())
+			return;
 		if (type == DataSetType.PROCESS) {
 			for (IDataSet ds : spold.getDataset()) {
 				DataSet dataSet = new DataSet(ds, type.getFactory());

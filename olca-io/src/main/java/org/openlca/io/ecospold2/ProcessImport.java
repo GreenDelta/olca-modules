@@ -113,6 +113,7 @@ class ProcessImport {
 		setCategory(dataSet, process);
 		createProductExchanges(dataSet, process);
 		createElementaryExchanges(dataSet, process);
+		new DocImportMapper(database).map(dataSet, process);
 		database.createDao(Process.class).insert(process);
 		index.putProcessId(refId, process.getId());
 		flushLinkQueue(process);

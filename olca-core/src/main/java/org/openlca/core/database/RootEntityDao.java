@@ -18,14 +18,14 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 	private Class<V> descriptorType;
 	private String entityTable;
 
-	Class<V> getDescriptorType() {
-		return descriptorType;
-	}
-
 	public RootEntityDao(Class<T> entityType, Class<V> descriptorType,
 			IDatabase database) {
 		super(entityType, database);
 		this.descriptorType = descriptorType;
+	}
+
+	Class<V> getDescriptorType() {
+		return descriptorType;
 	}
 
 	public V getDescriptor(long id) {
