@@ -106,7 +106,7 @@ public class SystemExport {
 
 			// provider process
 			BaseDescriptor provider = processDao.getDescriptor(link
-					.getProviderProcessId());
+					.getProviderId());
 			if (provider == null)
 				continue;
 			connector.setOrigin(provider.getRefId());
@@ -125,7 +125,7 @@ public class SystemExport {
 			product.setConsumedBy(consumedBy);
 			consumedBy.setFlowUUID(flow.getRefId());
 			BaseDescriptor recipient = processDao.getDescriptor(link
-					.getRecipientProcessId());
+					.getRecipientId());
 			if (recipient == null)
 				continue;
 			consumedBy.setProcessId(recipient.getRefId());

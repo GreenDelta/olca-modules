@@ -155,7 +155,7 @@ public class SystemImport {
 			Process provider = processes.get(con.getOrigin());
 			if (provider == null)
 				continue;
-			link.setProviderProcessId(provider.getId());
+			link.setProviderId(provider.getId());
 
 			// provider output flow
 			Product product = con.getProducts().get(0);
@@ -170,7 +170,7 @@ public class SystemImport {
 			Process recipient = processes.get(consumedBy.getProcessId());
 			if (recipient == null)
 				continue;
-			link.setRecipientProcessId(recipient.getId());
+			link.setRecipientId(recipient.getId());
 
 			// recipient input flow
 			Flow inFlow = findFlow(recipient, flowId, true);
