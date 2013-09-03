@@ -3,7 +3,6 @@ package org.openlca.shell;
 import java.io.File;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.jobs.IProgressMonitor;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.ecospold1.importer.EcoSpold01Import;
 import org.openlca.io.ecospold2.EcoSpold2Import;
@@ -87,8 +86,7 @@ public class ImportCommand {
 	private void importILCD(File file, IDatabase database) {
 		log.info("import ILCD data sets from {}", file);
 		try {
-			ILCDImport ilcdImport = new ILCDImport(file, createMonitor(),
-					database);
+			ILCDImport ilcdImport = new ILCDImport(file, database);
 			ilcdImport.run();
 		} catch (Exception e) {
 			log.error("failed to import ILCD data sets", e);
@@ -121,40 +119,6 @@ public class ImportCommand {
 
 	private void fail() {
 		log.error("unknown import format or not an expected file.");
-	}
-
-	private IProgressMonitor createMonitor() {
-		return new IProgressMonitor() {
-
-			@Override
-			public void worked(int work) {
-			}
-
-			@Override
-			public void subTask(String name) {
-			}
-
-			@Override
-			public void setTaskName(String name) {
-			}
-
-			@Override
-			public void setCanceled(boolean value) {
-			}
-
-			@Override
-			public boolean isCanceled() {
-				return false;
-			}
-
-			@Override
-			public void done() {
-			}
-
-			@Override
-			public void beginTask(String name, int totalWork) {
-			}
-		};
 	}
 
 }
