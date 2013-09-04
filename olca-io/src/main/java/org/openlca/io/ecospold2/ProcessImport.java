@@ -10,6 +10,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.ecospold2.Activity;
@@ -17,6 +18,7 @@ import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.Parameter;
 import org.openlca.io.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +115,7 @@ class ProcessImport {
 		setCategory(dataSet, process);
 		createProductExchanges(dataSet, process);
 		createElementaryExchanges(dataSet, process);
+		mapParameters(dataSet, process);
 		new DocImportMapper(database).map(dataSet, process);
 		database.createDao(Process.class).insert(process);
 		index.putProcessId(refId, process.getId());
@@ -217,6 +220,18 @@ class ProcessImport {
 				break;
 		}
 		process.setCategory(category);
+	}
+
+	private void mapParameters(DataSet dataSet, Process process) {
+		for (Parameter param : dataSet.getParameters()) {
+			org.openlca.core.model.Parameter olcaParam = new org.openlca.core.model.Parameter();
+			olcaParam.setDescription(param.getUnitName());
+			olcaParam.setInputParameter(true);
+			olcaParam.setName(param.getVariableName());
+			olcaParam.setScope(ParameterScope.PROCESS);
+			olcaParam.setValue(param.getAmount());
+			process.getParameters().add(olcaParam);
+		}
 	}
 
 }

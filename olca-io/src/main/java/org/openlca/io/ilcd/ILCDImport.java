@@ -18,6 +18,7 @@ import org.openlca.ilcd.util.MethodBag;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.ilcd.util.SourceBag;
 import org.openlca.ilcd.util.UnitGroupBag;
+import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.openlca.io.ilcd.input.ContactImport;
 import org.openlca.io.ilcd.input.FlowImport;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 
-public class ILCDImport implements Runnable {
+public class ILCDImport implements FileImport {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private File zip;
@@ -50,10 +51,12 @@ public class ILCDImport implements Runnable {
 		this.database = database;
 	}
 
+	@Override
 	public void setEventBus(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
 
+	@Override
 	public void cancel() {
 		this.canceled = true;
 	}

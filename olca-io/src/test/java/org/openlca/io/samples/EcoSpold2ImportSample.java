@@ -27,8 +27,9 @@ public class EcoSpold2ImportSample {
 			// run the import
 			String dirPath = "C:/Users/Dell/projects/openlca/data/ecoinvent3/default/samples";
 			File dir = new File(dirPath);
-			EcoSpold2Import importer = new EcoSpold2Import(database);
-			importer.run(dir.listFiles());
+			EcoSpold2Import importer = new EcoSpold2Import(database,
+					dir.listFiles());
+			importer.run();
 
 		} catch (Exception e) {
 			e.printStackTrace();

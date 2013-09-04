@@ -44,6 +44,7 @@ import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
+import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMapping;
@@ -59,7 +60,7 @@ import com.google.common.eventbus.EventBus;
  * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
  * the database
  */
-public class EcoSpold01Import {
+public class EcoSpold01Import implements FileImport {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private Category processCategory;
@@ -68,6 +69,7 @@ public class EcoSpold01Import {
 	private FlowImport flowImport;
 	private EventBus eventBus;
 	private boolean canceled = false;
+	private File[] files;
 
 	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping) {
 		this.db = new DB(iDatabase);
@@ -75,10 +77,22 @@ public class EcoSpold01Import {
 		this.flowImport = new FlowImport(db, unitMapping, flowMap);
 	}
 
+	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping,
+			File[] files) {
+		this(iDatabase, unitMapping);
+		this.files = files;
+	}
+
+	public void setFiles(File[] files) {
+		this.files = files;
+	}
+
+	@Override
 	public void cancel() {
 		canceled = true;
 	}
 
+	@Override
 	public void setEventBus(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
@@ -88,13 +102,11 @@ public class EcoSpold01Import {
 		this.processCategory = processCategory;
 	}
 
-	public void run(File file) {
-		if (file == null)
-			return;
-		run(new File[] { file });
-	}
-
-	public void run(File[] files) {
+	/**
+	 * Runs the import with a set of files (use the respective constructor of
+	 * the setter method for the files).
+	 */
+	public void run() {
 		if (files == null || files.length == 0)
 			return;
 		for (File file : files) {

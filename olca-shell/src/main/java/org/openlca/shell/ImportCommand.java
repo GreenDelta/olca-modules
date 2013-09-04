@@ -60,9 +60,10 @@ public class ImportCommand {
 			UnitMapping mapping = UnitMapping.createDefault(database);
 			EcoSpold01Import es1Import = new EcoSpold01Import(database, mapping);
 			if (file.isDirectory())
-				es1Import.run(file.listFiles());
+				es1Import.setFiles(file.listFiles());
 			else
-				es1Import.run(file);
+				es1Import.setFiles(new File[] { file });
+			es1Import.run();
 			log.info("import done");
 		} catch (Exception e) {
 			log.error("failed to import data sets", e);
@@ -74,9 +75,10 @@ public class ImportCommand {
 		try {
 			EcoSpold2Import es2Import = new EcoSpold2Import(database);
 			if (file.isDirectory())
-				es2Import.run(file.listFiles());
+				es2Import.setFiles(file.listFiles());
 			else
-				es2Import.run(file);
+				es2Import.setFiles(new File[] { file });
+			es2Import.run();
 			log.info("import done");
 		} catch (Exception e) {
 			log.error("failed to import data sets", e);

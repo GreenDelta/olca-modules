@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,32 +16,41 @@ import com.google.common.eventbus.EventBus;
  * of SPOLD files in the EcoSpold v2 format or ZIP files which contain such
  * files.
  */
-public class EcoSpold2Import {
+public class EcoSpold2Import implements FileImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 	private EventBus eventBus;
 	private boolean canceled = false;
+	private File[] files;
 
 	public EcoSpold2Import(IDatabase database) {
 		this.database = database;
 	}
 
+	public EcoSpold2Import(IDatabase database, File[] files) {
+		this.database = database;
+		this.files = files;
+	}
+
+	public void setFiles(File[] files) {
+		this.files = files;
+	}
+
+	@Override
 	public void cancel() {
 		canceled = true;
 	}
 
+	@Override
 	public void setEventBus(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
 
-	public void run(File file) {
-		if (file == null)
+	@Override
+	public void run() {
+		if (files == null)
 			return;
-		run(new File[] { file });
-	}
-
-	public void run(File[] files) {
 		RefDataIndex index = importRefData(files);
 		importProcesses(files, index);
 	}

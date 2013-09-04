@@ -30,8 +30,8 @@ public class EcoSpold1ImportSample {
 			// reference data
 			UnitMapping unitMapping = UnitMapping.createDefault(database);
 			EcoSpold01Import importer = new EcoSpold01Import(database,
-					unitMapping);
-			importer.run(dir.listFiles());
+					unitMapping, dir.listFiles());
+			importer.run();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
