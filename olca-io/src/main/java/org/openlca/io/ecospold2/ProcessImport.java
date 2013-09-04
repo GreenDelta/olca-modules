@@ -227,7 +227,7 @@ class ProcessImport {
 			org.openlca.core.model.Parameter olcaParam = new org.openlca.core.model.Parameter();
 			olcaParam.setDescription(param.getUnitName());
 			olcaParam.setInputParameter(true);
-			olcaParam.setName(param.getVariableName());
+			olcaParam.setName(param.getName());
 			olcaParam.setScope(ParameterScope.PROCESS);
 			olcaParam.setValue(param.getAmount());
 			process.getParameters().add(olcaParam);
