@@ -13,7 +13,8 @@ public class UnitMappingEntry {
 	private Double factor;
 
 	public boolean isValid() {
-		return unit != null && unitGroup != null && flowProperty != null;
+		return unit != null && unitGroup != null && flowProperty != null
+				&& factor != null;
 	}
 
 	public String getUnitName() {
