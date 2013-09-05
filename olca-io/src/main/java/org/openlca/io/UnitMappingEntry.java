@@ -10,7 +10,7 @@ public class UnitMappingEntry {
 	private Unit unit;
 	private UnitGroup unitGroup;
 	private FlowProperty flowProperty;
-	private double factor;
+	private Double factor;
 
 	public boolean isValid() {
 		return unit != null && unitGroup != null && flowProperty != null;
@@ -48,11 +48,11 @@ public class UnitMappingEntry {
 		this.flowProperty = flowProperty;
 	}
 
-	public double getFactor() {
+	public Double getFactor() {
 		return factor;
 	}
 
-	public void setFactor(double factor) {
+	public void setFactor(Double factor) {
 		this.factor = factor;
 	}
 
