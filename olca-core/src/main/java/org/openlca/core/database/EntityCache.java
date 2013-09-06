@@ -34,7 +34,7 @@ import com.google.common.collect.Multimap;
 
 /**
  * A loading cache for entities and descriptors. This cache is intended to be
- * used for caching entities that a used very often (like unit groups or flow
+ * used for caching entities that are used very often (like unit groups or flow
  * properties) and descriptors.
  */
 public class EntityCache {
