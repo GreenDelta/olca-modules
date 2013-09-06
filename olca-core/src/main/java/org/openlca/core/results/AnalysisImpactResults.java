@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.LongIndex;
 import org.openlca.core.matrices.LongPair;
 import org.openlca.core.model.NormalizationWeightingFactor;
@@ -21,11 +21,11 @@ public final class AnalysisImpactResults {
 		this.result = result;
 	}
 
-	public Set<ProcessDescriptor> getProcesses(Cache cache) {
+	public Set<ProcessDescriptor> getProcesses(EntityCache cache) {
 		return Results.getProcessDescriptors(result.getProductIndex(), cache);
 	}
 
-	public Set<ImpactCategoryDescriptor> getImpacts(Cache cache) {
+	public Set<ImpactCategoryDescriptor> getImpacts(EntityCache cache) {
 		LongIndex impactIndex = result.getImpactIndex();
 		if (impactIndex == null)
 			return Collections.emptySet();
@@ -43,7 +43,7 @@ public final class AnalysisImpactResults {
 	}
 
 	public List<AnalysisImpactResult> getForImpact(
-			ImpactCategoryDescriptor impact, Cache cache) {
+			ImpactCategoryDescriptor impact, EntityCache cache) {
 		List<AnalysisImpactResult> results = new ArrayList<>();
 		for (ProcessDescriptor process : getProcesses(cache)) {
 			AnalysisImpactResult r = getResult(process, impact);
@@ -53,7 +53,7 @@ public final class AnalysisImpactResults {
 	}
 
 	public List<AnalysisImpactResult> getForProcess(ProcessDescriptor process,
-			Cache cache) {
+			EntityCache cache) {
 		List<AnalysisImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor impact : getImpacts(cache)) {
 			AnalysisImpactResult r = getResult(process, impact);

@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.LongIndex;
 import org.openlca.core.model.NormalizationWeightingFactor;
 import org.openlca.core.model.NormalizationWeightingSet;
@@ -19,7 +19,7 @@ public final class InventoryImpactResults {
 		this.result = result;
 	}
 
-	public Set<ImpactCategoryDescriptor> getImpacts(Cache cache) {
+	public Set<ImpactCategoryDescriptor> getImpacts(EntityCache cache) {
 		LongIndex impactIndex = result.getImpactIndex();
 		if (impactIndex == null)
 			return Collections.emptySet();
@@ -30,7 +30,7 @@ public final class InventoryImpactResults {
 	 * Returns the impact category results for the given result. In contrast to
 	 * the flow results, entries are also generated for 0-values.
 	 */
-	public List<InventoryImpactResult> getAll(Cache cache) {
+	public List<InventoryImpactResult> getAll(EntityCache cache) {
 		List<InventoryImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor d : getImpacts(cache)) {
 			InventoryImpactResult r = get(d);
@@ -40,7 +40,7 @@ public final class InventoryImpactResults {
 	}
 
 	public List<InventoryImpactResult> getAll(NormalizationWeightingSet nwset,
-			Cache cache) {
+			EntityCache cache) {
 		List<InventoryImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor d : getImpacts(cache)) {
 			InventoryImpactResult r = get(d, nwset);

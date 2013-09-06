@@ -95,6 +95,8 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 	 * way that it matches the respective descriptor query.
 	 */
 	protected V createDescriptor(Object[] queryResult) {
+		if (queryResult == null)
+			return null;
 		V descriptor = null;
 		try {
 			descriptor = descriptorType.newInstance();

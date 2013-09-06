@@ -2,7 +2,7 @@ package org.openlca.core.results;
 
 import java.util.Set;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.Contributions.Function;
@@ -15,9 +15,9 @@ public class FlowImpactContribution {
 
 	private AnalysisResult result;
 	private long refProcess;
-	private Cache cache;
+	private EntityCache cache;
 
-	public FlowImpactContribution(AnalysisResult result, Cache cache) {
+	public FlowImpactContribution(AnalysisResult result, EntityCache cache) {
 		this.result = result;
 		this.cache = cache;
 		refProcess = result.getProductIndex().getRefProduct().getFirst();

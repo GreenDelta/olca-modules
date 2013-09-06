@@ -2,7 +2,7 @@ package org.openlca.shell;
 
 import java.io.File;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.Simulator;
@@ -51,7 +51,7 @@ public class SimulationCommand {
 		if (file != null) {
 			log.trace("export results");
 			SimulationResult result = simulator.getResult();
-			Cache cache = Cache.createEmptyCache(database);
+			EntityCache cache = EntityCache.create(database);
 			SimulationResultExport export = new SimulationResultExport(result,
 					cache);
 			export.run(file);

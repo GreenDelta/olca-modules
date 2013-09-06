@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -33,7 +33,7 @@ public class ProjectResult {
 		return results.get(variant);
 	}
 
-	public Set<FlowDescriptor> getFlows(Cache cache) {
+	public Set<FlowDescriptor> getFlows(EntityCache cache) {
 		Set<FlowDescriptor> flows = new HashSet<>();
 		for (InventoryResult result : results.values())
 			flows.addAll(result.getFlowResults().getFlows(cache));
@@ -49,7 +49,7 @@ public class ProjectResult {
 	}
 
 	public List<InventoryFlowResult> getFlowResults(ProjectVariant variant,
-			Cache cache) {
+			EntityCache cache) {
 		InventoryResult result = results.get(variant);
 		if (result == null)
 			return Collections.emptyList();
@@ -67,7 +67,7 @@ public class ProjectResult {
 				});
 	}
 
-	public Set<ImpactCategoryDescriptor> getImpacts(Cache cache) {
+	public Set<ImpactCategoryDescriptor> getImpacts(EntityCache cache) {
 		Set<ImpactCategoryDescriptor> impacts = new HashSet<>();
 		for (InventoryResult result : results.values())
 			impacts.addAll(result.getImpactResults().getImpacts(cache));

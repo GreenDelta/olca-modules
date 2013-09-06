@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.LongPair;
 import org.openlca.core.matrices.ProductIndex;
 import org.openlca.core.model.Location;
@@ -26,7 +26,7 @@ public class LocationContribution {
 	private Location defaultLocation;
 
 	public LocationContribution(AnalysisResult result, String defaultName,
-			Cache cache) {
+			EntityCache cache) {
 		this.result = result;
 		defaultLocation = new Location();
 		defaultLocation.setCode(defaultName);
@@ -35,16 +35,16 @@ public class LocationContribution {
 		initProcessIndex(cache);
 	}
 
-	private void initProcessIndex(Cache cache) {
+	private void initProcessIndex(EntityCache cache) {
 		if (result == null || result.getProductIndex() == null)
 			return;
 		ProductIndex index = result.getProductIndex();
 		for (int i = 0; i < index.size(); i++) {
 			LongPair processProduct = index.getProductAt(i);
-			ProcessDescriptor p = cache.getProcessDescriptor(processProduct
-					.getFirst());
+			ProcessDescriptor p = cache.get(ProcessDescriptor.class,
+					processProduct.getFirst());
 			Location loc = p.getLocation() == null ? defaultLocation : cache
-					.getLocation(p.getLocation());
+					.get(Location.class, p.getLocation());
 			List<ProcessDescriptor> list = processIndex.get(loc);
 			if (list == null) {
 				list = new ArrayList<>();

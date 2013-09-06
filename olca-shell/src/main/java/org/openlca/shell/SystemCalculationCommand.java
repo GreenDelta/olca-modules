@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
@@ -39,7 +39,7 @@ public class SystemCalculationCommand {
 					CalculationSetup.QUICK_RESULT);
 			InventoryResult result = calculator.solve(setup);
 			log.trace("print results");
-			Cache cache = Cache.createEmptyCache(database);
+			EntityCache cache = EntityCache.create(database);
 			printInventoryResult(result, cache);
 		} catch (Exception e) {
 			log.error("failed to solve system with ID " + args[0], e);
@@ -60,7 +60,7 @@ public class SystemCalculationCommand {
 			CalculationSetup setup = new CalculationSetup(system,
 					CalculationSetup.ANALYSIS);
 			AnalysisResult result = calculator.analyse(setup);
-			Cache cache = Cache.createEmptyCache(database);
+			EntityCache cache = EntityCache.create(database);
 			if (file != null) {
 				log.trace("export result to file {}", file);
 				AnalysisResultExport export = new AnalysisResultExport(system,
@@ -73,7 +73,7 @@ public class SystemCalculationCommand {
 		}
 	}
 
-	private void printInventoryResult(InventoryResult result, Cache cache) {
+	private void printInventoryResult(InventoryResult result, EntityCache cache) {
 		List<InventoryFlowResult> flowResults = result.getFlowResults().getAll(
 				cache);
 		List<String[]> records = new ArrayList<>();

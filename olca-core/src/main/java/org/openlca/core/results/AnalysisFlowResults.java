@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.LongPair;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -21,11 +21,11 @@ public final class AnalysisFlowResults {
 		this.result = result;
 	}
 
-	public Set<FlowDescriptor> getFlows(Cache cache) {
+	public Set<FlowDescriptor> getFlows(EntityCache cache) {
 		return Results.getFlowDescriptors(result.getFlowIndex(), cache);
 	}
 
-	public Set<ProcessDescriptor> getProcesses(Cache cache) {
+	public Set<ProcessDescriptor> getProcesses(EntityCache cache) {
 		return Results.getProcessDescriptors(result.getProductIndex(), cache);
 	}
 
@@ -38,7 +38,7 @@ public final class AnalysisFlowResults {
 		return result.getTotalFlowResult(refProduct.getFirst(), flow.getId());
 	}
 
-	public List<AnalysisFlowResult> getForFlow(FlowDescriptor flow, Cache cache) {
+	public List<AnalysisFlowResult> getForFlow(FlowDescriptor flow, EntityCache cache) {
 		List<AnalysisFlowResult> results = new ArrayList<>();
 		for (ProcessDescriptor process : getProcesses(cache)) {
 			AnalysisFlowResult r = getResult(process, flow);
@@ -48,7 +48,7 @@ public final class AnalysisFlowResults {
 	}
 
 	public List<AnalysisFlowResult> getForProcess(ProcessDescriptor process,
-			Cache cache) {
+			EntityCache cache) {
 		List<AnalysisFlowResult> results = new ArrayList<>();
 		for (FlowDescriptor flow : getFlows(cache)) {
 			AnalysisFlowResult r = getResult(process, flow);

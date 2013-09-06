@@ -11,7 +11,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -23,11 +23,11 @@ import org.openlca.io.xls.Excel;
 public class SimulationResultExport {
 
 	private SimulationResult result;
-	private Cache cache;
+	private EntityCache cache;
 	private int row = 0;
 	private CellStyle headerStyle;
 
-	public SimulationResultExport(SimulationResult result, Cache cache) {
+	public SimulationResultExport(SimulationResult result, EntityCache cache) {
 		this.result = result;
 		this.cache = cache;
 	}

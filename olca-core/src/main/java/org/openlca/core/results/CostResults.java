@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.LongIndex;
 import org.openlca.core.model.CostCategory;
 
@@ -16,23 +16,23 @@ public final class CostResults {
 	}
 
 	public static Set<CostCategory> getCostCategories(CostResult result,
-			Cache cache) {
+			EntityCache cache) {
 		if (result == null)
 			return Collections.emptySet();
 		Set<CostCategory> set = new HashSet<>();
 		if (result.hasVarCostResults()) {
 			for (long id : result.getVarCostCategoryIndex().getKeys())
-				set.add(cache.getCostCategory(id));
+				set.add(cache.get(CostCategory.class, id));
 		}
 		if (result.hasFixCostResults()) {
 			for (long id : result.getFixCostCategoryIndex().getKeys())
-				set.add(cache.getCostCategory(id));
+				set.add(cache.get(CostCategory.class, id));
 		}
 		return set;
 	}
 
 	public static List<CostCategoryResult> getCostCategoryResults(
-			CostResult result, Cache cache) {
+			CostResult result, EntityCache cache) {
 		if (result == null)
 			return Collections.emptyList();
 		double[] varResults = result.getVarCostResults();

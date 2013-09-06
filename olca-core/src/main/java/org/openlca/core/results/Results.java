@@ -1,13 +1,15 @@
 package org.openlca.core.results;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.FlowIndex;
 import org.openlca.core.matrices.LongIndex;
-import org.openlca.core.matrices.LongPair;
 import org.openlca.core.matrices.ProductIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -19,44 +21,41 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 final class Results {
 
 	public static Set<ProcessDescriptor> getProcessDescriptors(
-			ProductIndex index, Cache cache) {
+			ProductIndex index, EntityCache cache) {
 		if (index == null)
 			return Collections.emptySet();
+		Map<Long, ProcessDescriptor> values = cache.getAll(
+				ProcessDescriptor.class, index.getProcessIds());
 		HashSet<ProcessDescriptor> descriptors = new HashSet<>();
-		for (int i = 0; i < index.size(); i++) {
-			LongPair processProduct = index.getProductAt(i);
-			long processId = processProduct.getFirst();
-			ProcessDescriptor process = cache.getProcessDescriptor(processId);
-			if (process != null)
-				descriptors.add(process);
-		}
+		descriptors.addAll(values.values());
 		return descriptors;
 	}
 
 	public static Set<FlowDescriptor> getFlowDescriptors(FlowIndex index,
-			Cache cache) {
+			EntityCache cache) {
 		if (index == null)
 			return Collections.emptySet();
+		List<Long> ids = new ArrayList<>(index.size());
+		for (long id : index.getFlowIds())
+			ids.add(id);
+		Map<Long, FlowDescriptor> values = cache.getAll(FlowDescriptor.class,
+				ids);
 		HashSet<FlowDescriptor> descriptors = new HashSet<>();
-		for (int i = 0; i < index.size(); i++) {
-			long flowId = index.getFlowAt(i);
-			FlowDescriptor flow = cache.getFlowDescriptor(flowId);
-			if (flow != null)
-				descriptors.add(flow);
-		}
+		descriptors.addAll(values.values());
 		return descriptors;
 	}
 
 	public static Set<ImpactCategoryDescriptor> getImpactDescriptors(
-			LongIndex index, Cache cache) {
+			LongIndex index, EntityCache cache) {
 		if (index == null)
 			return Collections.emptySet();
+		List<Long> ids = new ArrayList<>(index.size());
+		for (long id : index.getKeys())
+			ids.add(id);
+		Map<Long, ImpactCategoryDescriptor> values = cache.getAll(
+				ImpactCategoryDescriptor.class, ids);
 		HashSet<ImpactCategoryDescriptor> descriptors = new HashSet<>();
-		for (long id : index.getKeys()) {
-			ImpactCategoryDescriptor impact = cache
-					.getImpactCategoryDescriptor(id);
-			descriptors.add(impact);
-		}
+		descriptors.addAll(values.values());
 		return descriptors;
 	}
 

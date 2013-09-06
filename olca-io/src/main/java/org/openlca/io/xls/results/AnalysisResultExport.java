@@ -13,7 +13,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.FlowIndex;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -51,7 +51,7 @@ public class AnalysisResultExport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private ProductSystem system;
 	private File file;
-	private Cache cache;
+	private EntityCache cache;
 	private AnalysisResult result;
 	private CellStyle headerStyle;
 	private SXSSFWorkbook workbook;
@@ -63,13 +63,14 @@ public class AnalysisResultExport {
 	private HashMap<Long, CategoryPair> flowCategories = new HashMap<>();
 	private HashMap<Long, String> flowUnits = new HashMap<>();
 
-	public AnalysisResultExport(ProductSystem system, File file, Cache cache) {
+	public AnalysisResultExport(ProductSystem system, File file,
+			EntityCache cache) {
 		this.system = system;
 		this.file = file;
 		this.cache = cache;
 	}
 
-	Cache getCache() {
+	EntityCache getCache() {
 		return cache;
 	}
 
@@ -275,8 +276,9 @@ public class AnalysisResultExport {
 		Excel.cell(sheet, row++, col, process.getRefId());
 		Excel.cell(sheet, row++, col, process.getName());
 		if (process.getLocation() != null) {
-			Location loc = cache.getLocation(process.getLocation());
-			Excel.cell(sheet, row, col, loc.getCode());
+			Location loc = cache.get(Location.class, process.getLocation());
+			String code = loc == null ? "" : loc.getCode();
+			Excel.cell(sheet, row, col, code);
 		}
 	}
 
@@ -286,8 +288,9 @@ public class AnalysisResultExport {
 		Excel.cell(sheet, row, col++, process.getRefId());
 		Excel.cell(sheet, row, col++, process.getName());
 		if (process.getLocation() != null) {
-			Location loc = cache.getLocation(process.getLocation());
-			Excel.cell(sheet, row, col++, loc.getCode());
+			Location loc = cache.get(Location.class, process.getLocation());
+			String code = loc == null ? "" : loc.getCode();
+			Excel.cell(sheet, row, col++, code);
 		}
 	}
 
@@ -382,7 +385,7 @@ public class AnalysisResultExport {
 		if (catId == null)
 			pair = new CategoryPair(null);
 		else {
-			Category cat = cache.getCategory(catId);
+			Category cat = cache.get(Category.class, catId);
 			pair = new CategoryPair(cat);
 		}
 		flowCategories.put(flow.getId(), pair);

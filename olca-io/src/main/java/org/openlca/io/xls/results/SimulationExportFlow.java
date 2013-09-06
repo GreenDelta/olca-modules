@@ -3,7 +3,7 @@ package org.openlca.io.xls.results;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.SimulationResult;
@@ -21,14 +21,15 @@ class SimulationExportFlow implements Comparable<SimulationExportFlow> {
 	private CategoryPair category;
 	private String unit;
 
-	public SimulationExportFlow(FlowDescriptor flow, boolean input, Cache cache) {
+	public SimulationExportFlow(FlowDescriptor flow, boolean input,
+			EntityCache cache) {
 		this.flow = flow;
 		this.input = input;
 		this.name = flow.getName();
 		if (flow.getCategory() == null)
 			category = new CategoryPair(null);
 		else {
-			Category cat = cache.getCategory(flow.getCategory());
+			Category cat = cache.get(Category.class, flow.getCategory());
 			this.category = new CategoryPair(cat);
 		}
 		unit = DisplayValues.referenceUnit(flow, cache);

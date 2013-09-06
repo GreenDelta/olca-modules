@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.openlca.core.database.Cache;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
@@ -21,7 +21,7 @@ public final class InventoryFlowResults {
 		this.index = result.getFlowIndex();
 	}
 
-	public Set<FlowDescriptor> getFlows(Cache cache) {
+	public Set<FlowDescriptor> getFlows(EntityCache cache) {
 		return Results.getFlowDescriptors(result.getFlowIndex(), cache);
 	}
 
@@ -29,7 +29,7 @@ public final class InventoryFlowResults {
 	 * Returns the flow results of the inventory results. *No* entries are
 	 * generated for 0-values.
 	 */
-	public List<InventoryFlowResult> getAll(Cache cache) {
+	public List<InventoryFlowResult> getAll(EntityCache cache) {
 		List<InventoryFlowResult> results = new ArrayList<>();
 		for (FlowDescriptor d : getFlows(cache)) {
 			double val = result.getFlowResult(d.getId());
