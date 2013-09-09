@@ -16,8 +16,8 @@ public class CalculationSetup {
 
 	public static final int QUICK_RESULT = 1;
 	public static final int ANALYSIS = 2;
-	public static final int MONTE_CARLO_SIMULATION = 3;
-	public static final int COST_CALCULATION = 4;
+	public static final int MONTE_CARLO_SIMULATION = 4;
+	public static final int COST_CALCULATION = 8;
 
 	private final int type;
 	private final ProductSystem productSystem;
