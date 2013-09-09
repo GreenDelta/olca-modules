@@ -1,4 +1,4 @@
-package org.openlca.io.samples;
+package examples;
 
 import java.io.File;
 
@@ -9,7 +9,7 @@ import org.openlca.io.ecospold2.EcoSpold2Import;
 /**
  * A sample for importing an EcoSpold 02 database into openLCA via API.
  */
-public class EcoSpold2ImportSample {
+public class EcoSpold2Import_Example {
 
 	public static void main(String[] args) {
 

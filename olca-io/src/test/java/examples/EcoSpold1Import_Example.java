@@ -1,4 +1,4 @@
-package org.openlca.io.samples;
+package examples;
 
 import java.io.File;
 
@@ -7,7 +7,7 @@ import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.ecospold1.importer.EcoSpold01Import;
 
-public class EcoSpold1ImportSample {
+public class EcoSpold1Import_Example {
 
 	public static void main(String[] args) {
 
