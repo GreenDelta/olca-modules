@@ -3,7 +3,7 @@ package org.openlca.core.matrices;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyDistributionType;
 
-class CalcExchange {
+public class CalcExchange {
 
 	private long processId;
 	private long flowId;

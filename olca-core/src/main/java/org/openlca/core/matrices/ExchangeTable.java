@@ -13,7 +13,7 @@ import org.openlca.core.model.UncertaintyDistributionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ExchangeTable {
+public class ExchangeTable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final HashMap<Long, List<CalcExchange>> exchanges = new HashMap<>();
@@ -94,10 +94,6 @@ class ExchangeTable {
 		if (list == null)
 			return Collections.emptyList();
 		return list;
-	}
-
-	public Set<Long> getProcessIds() {
-		return exchanges.keySet();
 	}
 
 }

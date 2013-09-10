@@ -21,7 +21,7 @@ public class FlowIndexBuilder {
 	public FlowIndex build(ProductIndex productIndex,
 			ExchangeTable exchangeTable) {
 		FlowIndex index = new FlowIndex();
-		for (Long processId : exchangeTable.getProcessIds()) {
+		for (Long processId : productIndex.getProcessIds()) {
 			List<CalcExchange> exchanges = exchangeTable
 					.getExchanges(processId);
 			for (CalcExchange e : exchanges) {

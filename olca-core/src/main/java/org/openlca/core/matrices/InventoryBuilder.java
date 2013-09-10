@@ -39,11 +39,10 @@ public class InventoryBuilder {
 				productIndex.size());
 		interventionMatrix = new ExchangeMatrix(flowIndex.size(),
 				productIndex.size());
-		return createInventory(productIndex, allocationMethod);
+		return createInventory();
 	}
 
-	private Inventory createInventory(ProductIndex productIndex,
-			AllocationMethod allocationMethod) {
+	private Inventory createInventory() {
 		Inventory inventory = new Inventory();
 		inventory.setAllocationMethod(allocationMethod);
 		inventory.setFlowIndex(flowIndex);
@@ -55,7 +54,7 @@ public class InventoryBuilder {
 	}
 
 	private void fillMatrices() {
-		for (Long processId : exchangeTable.getProcessIds()) {
+		for (Long processId : productIndex.getProcessIds()) {
 			List<CalcExchange> exchanges = exchangeTable
 					.getExchanges(processId);
 			List<LongPair> processProducts = productIndex
