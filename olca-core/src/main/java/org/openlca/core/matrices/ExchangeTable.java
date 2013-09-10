@@ -17,6 +17,7 @@ class ExchangeTable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final HashMap<Long, List<CalcExchange>> exchanges = new HashMap<>();
+	private ConversionTable conversionTable;
 
 	public ExchangeTable(IDatabase database, Set<Long> processIds) {
 		init(database, processIds);
@@ -25,6 +26,7 @@ class ExchangeTable {
 	private void init(IDatabase database, Set<Long> processIds) {
 		if (processIds.isEmpty())
 			return;
+		conversionTable = ConversionTable.create(database);
 		FlowTypeIndex flowTypes = new FlowTypeIndex(database);
 		log.trace("create exchange table for {} processes", processIds.size());
 		try (Connection con = database.createConnection()) {
@@ -57,7 +59,8 @@ class ExchangeTable {
 		e.setProcessId(r.getLong("f_owner"));
 		e.setAmount(r.getDouble("resulting_amount_value"));
 		e.setAmountFormula(r.getString("resulting_amount_formula"));
-		e.setConversionFactor(1); // TODO: add to exchange table
+		double factor = getConversionFactor(r);
+		e.setConversionFactor(factor);
 		e.setExchangeId(r.getLong("id"));
 		e.setFlowId(r.getLong("f_flow"));
 		e.setFlowType(flowTypes.getType(e.getFlowId()));
@@ -73,6 +76,17 @@ class ExchangeTable {
 			e.setParameter3Formula(r.getString("parameter3_formula"));
 		}
 		return e;
+	}
+
+	private double getConversionFactor(ResultSet record) throws Exception {
+		long propertyFactorId = record.getLong("f_flow_property_factor");
+		double propertyFactor = conversionTable
+				.getFlowPropertyFactor(propertyFactorId);
+		long unitId = record.getLong("f_unit");
+		double unitFactor = conversionTable.getUnitFactor(unitId);
+		if (propertyFactor == 0)
+			return 0;
+		return unitFactor / propertyFactor;
 	}
 
 	public List<CalcExchange> getExchanges(long processId) {
