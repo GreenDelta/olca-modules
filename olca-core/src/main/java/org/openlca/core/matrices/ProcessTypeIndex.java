@@ -18,8 +18,10 @@ public class ProcessTypeIndex {
 	private final TLongObjectHashMap<ProcessType> typeMap = new TLongObjectHashMap<>();
 	private final TLongObjectHashMap<AllocationMethod> allocMap = new TLongObjectHashMap<>();
 
-	public ProcessTypeIndex(IDatabase database) {
-		init(database);
+	public static ProcessTypeIndex create(IDatabase database) {
+		ProcessTypeIndex index = new ProcessTypeIndex();
+		index.init(database);
+		return index;
 	}
 
 	private void init(IDatabase database) {

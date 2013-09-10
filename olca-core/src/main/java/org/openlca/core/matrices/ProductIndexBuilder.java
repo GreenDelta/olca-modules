@@ -31,7 +31,7 @@ public class ProductIndexBuilder {
 
 	public ProductIndex build(LongPair refProduct, double demand) {
 		linkIndex = new TechnosphereLinkIndex(database);
-		typeIndex = new ProcessTypeIndex(database);
+		typeIndex = ProcessTypeIndex.create(database);
 		ProductIndex index = new ProductIndex(refProduct, demand);
 		Queue<LongPair> queue = new ArrayDeque<>();
 		List<LongPair> handled = new ArrayList<>();
