@@ -2,12 +2,12 @@
 -- There is a schema for Derby and MySQL databases. The MySQL schema can be 
 -- derived from the Derby schema by doing the following text replacements:
 -- 1) 'CLOB(64 K)' with 'TEXT'
--- 2) 'SMALLINT default 0 ' with 'TINYINT default 0'
+-- 2) 'SMALLINT default 0' with 'TINYINT default 0'
 -- 3) 'BLOB(16 M)' with MEDIUMBLOB
 
 -- DROP DATABASE IF EXISTS openlca;
 -- CREATE DATABASE openlca;
--- USE openLCA;
+-- USE openlca;
 
 CREATE TABLE SEQUENCE (	
 	SEQ_NAME VARCHAR(255) NOT NULL,

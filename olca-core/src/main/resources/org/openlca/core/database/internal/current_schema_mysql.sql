@@ -1,8 +1,13 @@
 -- Database definition for an openLCA database.
+-- There is a schema for Derby and MySQL databases. The MySQL schema can be 
+-- derived from the Derby schema by doing the following text replacements:
+-- 1) 'CLOB(64 K)' with 'TEXT'
+-- 2) 'SMALLINT default 0' with 'TINYINT default 0'
+-- 3) 'BLOB(16 M)' with MEDIUMBLOB
 
 -- DROP DATABASE IF EXISTS openlca;
 -- CREATE DATABASE openlca;
--- USE openLCA;
+-- USE openlca;
 
 CREATE TABLE SEQUENCE (	
 	SEQ_NAME VARCHAR(255) NOT NULL,
@@ -76,7 +81,7 @@ CREATE TABLE tbl_sources (
 	description TEXT, 
 	f_category  BIGINT, 
 	name VARCHAR(255), 
-	source_year TINYINT, 
+	source_year SMALLINT, 
 	text_reference TEXT, 
 	doi VARCHAR(255), 
 	
@@ -233,12 +238,8 @@ CREATE TABLE tbl_process_docs (
 
 
 CREATE TABLE tbl_process_sources (
-
 	f_process_doc BIGINT, 
-	f_source BIGINT,
-	
-	PRIMARY KEY (f_process_doc, f_source)
-
+	f_source BIGINT
 );
 
 
@@ -251,7 +252,6 @@ CREATE TABLE tbl_exchanges (
 	f_flow_property_factor BIGINT, 
 	f_unit BIGINT, 
 	f_flow BIGINT, 
-	parametrized TINYINT default 0, 
 	resulting_amount_value DOUBLE, 
 	resulting_amount_formula VARCHAR(255), 
 	parameter1_value DOUBLE, 
@@ -272,8 +272,8 @@ CREATE TABLE tbl_exchanges (
 
 CREATE TABLE tbl_allocation_factors (
 
-	id BIGINT NOT NULL,
-	allocation_type VARCHAR(255), 
+	id BIGINT NOT NULL, 
+	allocation_type VARCHAR(255),
 	value DOUBLE, 
 	f_process BIGINT,
 	f_product BIGINT, 
@@ -480,35 +480,41 @@ CREATE TABLE tbl_normalisation_weighting_factors (
 );
 
 
--- parameters
-
 CREATE TABLE tbl_parameters (
 
 	id BIGINT NOT NULL, 
+	name VARCHAR(255), 
 	description TEXT, 
+	is_input_param TINYINT default 0,
+	f_owner BIGINT, 
+	scope VARCHAR(255), 
+	value DOUBLE, 
+	formula VARCHAR(255),
+	
+	PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_parameter_redefs (
+
+	id BIGINT NOT NULL, 
 	name VARCHAR(255), 
 	f_owner BIGINT, 
-	type INTEGER, 
-	expression_parametrized TINYINT default 0, 
-	expression_value DOUBLE, 
-	expression_formula VARCHAR(255),
+	f_process BIGINT,
+	value DOUBLE,
 	
 	PRIMARY KEY (id)
 );
 
 
--- projects
-
 CREATE TABLE tbl_projects (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
-	product_systems TEXT, 
-	creation_date TIMESTAMP, 
+	name VARCHAR(255), 
 	description TEXT, 
 	f_category BIGINT, 
+	creation_date TIMESTAMP, 
 	functional_unit TEXT, 
-	name VARCHAR(255), 
 	last_modification_date TIMESTAMP,
 	goal TEXT, 
 	f_author BIGINT, 
@@ -516,14 +522,17 @@ CREATE TABLE tbl_projects (
 	PRIMARY KEY (id)	
 );
 
-CREATE TABLE tbl_project_product_systems (
 
-	f_project BIGINT NOT NULL, 
-	f_product_system BIGINT NOT NULL, 
+CREATE TABLE tbl_project_variants (
 	
-	PRIMARY KEY (f_project, f_product_system)
-
+	id BIGINT NOT NULL,
+	f_project BIGINT,
+	name VARCHAR(255), 
+	f_product_system BIGINT,
+	
+	PRIMARY KEY (id)	
 );
+
 
 CREATE TABLE tbl_mappings (
 	id VARCHAR(50) NOT NULL,
