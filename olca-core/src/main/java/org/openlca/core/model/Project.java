@@ -44,9 +44,11 @@ public class Project extends CategorizedEntity {
 	@JoinColumn(name = "f_project")
 	private final List<ProjectVariant> variants = new ArrayList<>();
 
-	public Actor getAuthor() {
-		return author;
-	}
+	@Column(name = "f_impact_method")
+	private Long impactMethodId;
+
+	@Column(name = "f_nwset")
+	private Long nwSetId;
 
 	@Override
 	public Project clone() {
@@ -62,7 +64,13 @@ public class Project extends CategorizedEntity {
 		clone.setLastModificationDate(getLastModificationDate());
 		for (ProjectVariant variant : getVariants())
 			clone.getVariants().add(variant.clone());
+		clone.setImpactMethodId(getImpactMethodId());
+		clone.setNwSetId(getNwSetId());
 		return clone;
+	}
+
+	public Actor getAuthor() {
+		return author;
 	}
 
 	public List<ProjectVariant> getVariants() {
@@ -103,6 +111,22 @@ public class Project extends CategorizedEntity {
 
 	public void setLastModificationDate(Date lastModificationDate) {
 		this.lastModificationDate = lastModificationDate;
+	}
+
+	public void setImpactMethodId(Long impactMethodId) {
+		this.impactMethodId = impactMethodId;
+	}
+
+	public Long getImpactMethodId() {
+		return impactMethodId;
+	}
+
+	public void setNwSetId(Long nwSetId) {
+		this.nwSetId = nwSetId;
+	}
+
+	public Long getNwSetId() {
+		return nwSetId;
 	}
 
 }

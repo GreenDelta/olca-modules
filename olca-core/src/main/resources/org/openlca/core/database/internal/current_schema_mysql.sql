@@ -518,6 +518,8 @@ CREATE TABLE tbl_projects (
 	last_modification_date TIMESTAMP,
 	goal TEXT, 
 	f_author BIGINT, 
+	f_impact_method BIGINT,
+	f_nwset BIGINT,
 	
 	PRIMARY KEY (id)	
 );
