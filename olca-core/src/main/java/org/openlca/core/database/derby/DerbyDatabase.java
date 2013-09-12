@@ -118,6 +118,9 @@ public class DerbyDatabase implements IDatabase {
 			// error in eclipse APP - close all connections here
 			// DriverManager.getConnection(url + ";shutdown=true");
 			DriverManager.getConnection("jdbc:derby:;shutdown=true");
+			System.gc(); // unload embedded driver for possible restarts
+			// see also
+			// http://db.apache.org/derby/docs/10.4/devguide/rdevcsecure26537.html
 		} catch (SQLException e) {
 			// a normal shutdown of derby throws an SQL exception
 			// with error code 50000 (for single database shutdown

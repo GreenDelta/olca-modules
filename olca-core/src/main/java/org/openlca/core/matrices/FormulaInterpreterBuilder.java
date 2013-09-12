@@ -2,6 +2,7 @@ package org.openlca.core.matrices;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Set;
 
@@ -53,7 +54,8 @@ public final class FormulaInterpreterBuilder {
 		FormulaInterpreter interpreter = new FormulaInterpreter();
 		try (Connection con = database.createConnection()) {
 			String query = "select * from tbl_parameters";
-			ResultSet results = con.createStatement().executeQuery(query);
+			Statement stmt = con.createStatement();
+			ResultSet results = stmt.executeQuery(query);
 			while (results.next()) {
 				String name = results.getString("name");
 				String formula = results.getString("formula");
@@ -68,8 +70,10 @@ public final class FormulaInterpreterBuilder {
 				bindValue(name, formula, value, scope);
 			}
 			results.close();
+			stmt.close();
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(FormulaInterpreterBuilder.class);
+			Logger log = LoggerFactory
+					.getLogger(FormulaInterpreterBuilder.class);
 			log.error("Failed to build formula interpreter", e);
 		}
 		return interpreter;
