@@ -15,7 +15,6 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ProductSystem;
@@ -60,7 +59,6 @@ public class AnalysisResultExport {
 	private List<ImpactCategoryDescriptor> impacts;
 	private List<FlowDescriptor> flows;
 
-	private HashMap<Long, CategoryPair> flowCategories = new HashMap<>();
 	private HashMap<Long, String> flowUnits = new HashMap<>();
 
 	public AnalysisResultExport(ProductSystem system, File file,
@@ -131,18 +129,7 @@ public class AnalysisResultExport {
 
 	private void prepareFlowInfos() {
 		Set<FlowDescriptor> set = result.getFlowResults().getFlows(cache);
-		flows = new ArrayList<>(set);
-		Collections.sort(flows, new Comparator<FlowDescriptor>() {
-			@Override
-			public int compare(FlowDescriptor o1, FlowDescriptor o2) {
-				CategoryPair cat1 = flowCategory(o1);
-				CategoryPair cat2 = flowCategory(o2);
-				int c = cat1.compareTo(cat2);
-				if (c != 0)
-					return c;
-				return Strings.compare(o1.getName(), o2.getName());
-			}
-		});
+		flows = Utils.sort(set, cache);
 	}
 
 	private void prepareProcesses() {
@@ -361,7 +348,7 @@ public class AnalysisResultExport {
 		int col = 1;
 		Excel.cell(sheet, row, col++, flow.getRefId());
 		Excel.cell(sheet, row, col++, flow.getName());
-		CategoryPair flowCat = flowCategory(flow);
+		CategoryPair flowCat = CategoryPair.create(flow, cache);
 		Excel.cell(sheet, row, col++, flowCat.getCategory());
 		Excel.cell(sheet, row, col++, flowCat.getSubCategory());
 		Excel.cell(sheet, row, col++, flowUnit(flow));
@@ -375,21 +362,6 @@ public class AnalysisResultExport {
 	/** Visitor for the flows in the analysis result. */
 	interface FlowVisitor {
 		void next(FlowDescriptor flow, boolean input);
-	}
-
-	private CategoryPair flowCategory(FlowDescriptor flow) {
-		CategoryPair pair = flowCategories.get(flow.getId());
-		if (pair != null)
-			return pair;
-		Long catId = flow.getCategory();
-		if (catId == null)
-			pair = new CategoryPair(null);
-		else {
-			Category cat = cache.get(Category.class, catId);
-			pair = new CategoryPair(cat);
-		}
-		flowCategories.put(flow.getId(), pair);
-		return pair;
 	}
 
 	private String flowUnit(FlowDescriptor flow) {

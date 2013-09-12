@@ -1,6 +1,8 @@
 package org.openlca.io;
 
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.util.Strings;
 
 /**
@@ -12,6 +14,13 @@ public class CategoryPair implements Comparable<CategoryPair> {
 
 	private String category;
 	private String subCategory;
+
+	public static CategoryPair create(FlowDescriptor flow, EntityCache cache) {
+		if (flow == null || flow.getCategory() == null)
+			return new CategoryPair(null);
+		Category category = cache.get(Category.class, flow.getCategory());
+		return new CategoryPair(category);
+	}
 
 	public CategoryPair(String category, String subCategory) {
 		initVals(category, subCategory);

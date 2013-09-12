@@ -27,7 +27,6 @@ public class ProjectResultExport {
 	private Project project;
 	private File file;
 	private EntityCache cache;
-	private ProjectResult result;
 	private CellStyle headerStyle;
 
 	public ProjectResultExport(Project project, File file, EntityCache cache) {
@@ -44,10 +43,11 @@ public class ProjectResultExport {
 	}
 
 	public void run(ProjectResult result) throws Exception {
-		this.result = result;
 		Workbook workbook = new XSSFWorkbook();
 		headerStyle = Excel.headerStyle(workbook);
 		writeInfoSheet(workbook);
+		Sheet inventorySheet = workbook.createSheet("LCI Results");
+		ProjectInventories.write(result, cache, inventorySheet, headerStyle);
 		try (FileOutputStream fos = new FileOutputStream(file)) {
 			workbook.write(fos);
 		}
@@ -56,12 +56,12 @@ public class ProjectResultExport {
 	private void writeInfoSheet(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Info");
 		int row = 1;
-		Excel.cell(sheet, row++, 1, "Project result").setCellStyle(headerStyle);
-		Excel.cell(sheet, row, 1, "Name:").setCellStyle(headerStyle);
+		header(sheet, row++, 1, "Project result");
+		header(sheet, row, 1, "Name:");
 		Excel.cell(sheet, row++, 2, project.getName());
-		Excel.cell(sheet, row, 1, "Description:").setCellStyle(headerStyle);
+		header(sheet, row, 1, "Description:");
 		Excel.cell(sheet, row++, 2, project.getDescription());
-		Excel.cell(sheet, row, 1, "LCIA Method:").setCellStyle(headerStyle);
+		header(sheet, row, 1, "LCIA Method:");
 		if (project.getImpactMethodId() == null)
 			Excel.cell(sheet, row++, 2, "none");
 		else {
@@ -77,19 +77,16 @@ public class ProjectResultExport {
 	}
 
 	private int writeVariantTable(Sheet sheet, int row) {
-		Excel.cell(sheet, row++, 1, "Variants").setCellStyle(headerStyle);
-		Excel.cell(sheet, row, 1, "Name").setCellStyle(headerStyle);
-		Excel.cell(sheet, row, 2, "Product system").setCellStyle(headerStyle);
-		Excel.cell(sheet, row, 3, "Allocation method")
-				.setCellStyle(headerStyle);
-		Excel.cell(sheet, row, 4, "Reference flow").setCellStyle(headerStyle);
-		Excel.cell(sheet, row, 5, "Amount").setCellStyle(headerStyle);
-		Excel.cell(sheet, row++, 6, "Unit").setCellStyle(headerStyle);
+		header(sheet, row++, 1, "Variants");
+		header(sheet, row, 1, "Name");
+		header(sheet, row, 2, "Product system");
+		header(sheet, row, 3, "Allocation method");
+		header(sheet, row, 4, "Reference flow");
+		header(sheet, row, 5, "Amount");
+		header(sheet, row++, 6, "Unit");
 		for (ProjectVariant variant : project.getVariants()) {
-			Excel.cell(sheet, row, 1, variant.getName()).setCellStyle(
-					headerStyle);
-			Excel.cell(sheet, row, 2, variant.getProductSystem().getName())
-					.setCellStyle(headerStyle);
+			Excel.cell(sheet, row, 1, variant.getName());
+			Excel.cell(sheet, row, 2, variant.getProductSystem().getName());
 			// TODO: take data from the variants' functional unit
 			// Excel.cell(sheet, row, 3, "Allocation method").setCellStyle(
 			// headerStyle);
@@ -103,14 +100,14 @@ public class ProjectResultExport {
 	}
 
 	private void writeParameterTable(Sheet sheet, int row) {
-		Excel.cell(sheet, row++, 1, "Parameters").setCellStyle(headerStyle);
+		header(sheet, row++, 1, "Parameters");
 		List<ParameterRedef> parameters = fetchParameters();
 		if (parameters.isEmpty()) {
 			Excel.cell(sheet, row, 1, "no parameters redefined");
 			return;
 		}
-		Excel.cell(sheet, row, 1, "Name").setCellStyle(headerStyle);
-		Excel.cell(sheet, row, 2, "Process").setCellStyle(headerStyle);
+		header(sheet, row, 1, "Name");
+		header(sheet, row, 2, "Process");
 		for (int i = 0; i < parameters.size(); i++) {
 			ParameterRedef redef = parameters.get(i);
 			int r = row + i + 1;
@@ -174,6 +171,10 @@ public class ProjectResultExport {
 			return false;
 		return Objects.equals(redef1.getName(), redef2.getName())
 				&& Objects.equals(redef1.getProcessId(), redef2.getProcessId());
+	}
+
+	private void header(Sheet sheet, int row, int col, String val) {
+		Excel.cell(sheet, row, col, val).setCellStyle(headerStyle);
 	}
 
 }
