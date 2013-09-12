@@ -48,6 +48,10 @@ public class ProjectResultExport {
 		writeInfoSheet(workbook);
 		Sheet inventorySheet = workbook.createSheet("LCI Results");
 		ProjectInventories.write(result, cache, inventorySheet, headerStyle);
+		if (result.getImpacts(cache).size() > 0) {
+			Sheet impactSheet = workbook.createSheet("LCIA Results");
+			ProjectImpacts.write(result, cache, impactSheet, headerStyle);
+		}
 		try (FileOutputStream fos = new FileOutputStream(file)) {
 			workbook.write(fos);
 		}

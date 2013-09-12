@@ -129,7 +129,7 @@ public class AnalysisResultExport {
 
 	private void prepareFlowInfos() {
 		Set<FlowDescriptor> set = result.getFlowResults().getFlows(cache);
-		flows = Utils.sort(set, cache);
+		flows = Utils.sortFlows(set, cache);
 	}
 
 	private void prepareProcesses() {
@@ -155,14 +155,7 @@ public class AnalysisResultExport {
 			return;
 		Set<ImpactCategoryDescriptor> set = result.getImpactResults()
 				.getImpacts(cache);
-		impacts = new ArrayList<>(set);
-		Collections.sort(impacts, new Comparator<ImpactCategoryDescriptor>() {
-			@Override
-			public int compare(ImpactCategoryDescriptor d1,
-					ImpactCategoryDescriptor d2) {
-				return Strings.compare(d1.getName(), d2.getName());
-			}
-		});
+		impacts = Utils.sortImpacts(set);
 	}
 
 	/** Get the header style of the workbook. */
@@ -299,7 +292,7 @@ public class AnalysisResultExport {
 	void writeImpactColInfo(Sheet sheet, int col,
 			ImpactCategoryDescriptor impact) {
 		int row = 1;
-		Excel.cell(sheet, row++, col, impact.getId());
+		Excel.cell(sheet, row++, col, impact.getRefId());
 		Excel.cell(sheet, row++, col, impact.getName());
 		Excel.cell(sheet, row++, col, impact.getReferenceUnit());
 	}

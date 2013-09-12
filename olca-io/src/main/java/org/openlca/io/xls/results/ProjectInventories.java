@@ -36,16 +36,18 @@ class ProjectInventories {
 	}
 
 	private void run() {
-		List<ProjectVariant> variants = Utils.sort(result.getVariants());
-		List<FlowDescriptor> flows = Utils.sort(result.getFlows(cache), cache);
+		List<ProjectVariant> variants = Utils
+				.sortVariants(result.getVariants());
+		List<FlowDescriptor> flows = Utils.sortFlows(result.getFlows(cache),
+				cache);
 		if (variants.isEmpty() || flows.isEmpty())
 			return;
 		int row = 1;
-		header(sheet, row++, 1, "Inventory results");
+		header(sheet, row++, 1, "Inventory Results");
 		row = writeRows(row, variants, flows, true);
 		row++;
 		writeRows(row, variants, flows, false);
-		Excel.autoSize(sheet, 1, 7);
+		Excel.autoSize(sheet, 1, 6);
 	}
 
 	private int writeRows(int row, List<ProjectVariant> variants,

@@ -10,12 +10,26 @@ import java.util.List;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.util.Strings;
 
 class Utils {
 
-	static List<ProjectVariant> sort(Collection<ProjectVariant> variants) {
+	static List<ImpactCategoryDescriptor> sortImpacts(
+			Collection<ImpactCategoryDescriptor> impacts) {
+		List<ImpactCategoryDescriptor> list = new ArrayList<>(impacts);
+		Collections.sort(list, new Comparator<ImpactCategoryDescriptor>() {
+			@Override
+			public int compare(ImpactCategoryDescriptor o1,
+					ImpactCategoryDescriptor o2) {
+				return Strings.compare(o1.getName(), o2.getName());
+			}
+		});
+		return list;
+	}
+
+	static List<ProjectVariant> sortVariants(Collection<ProjectVariant> variants) {
 		List<ProjectVariant> list = new ArrayList<>(variants);
 		Collections.sort(list, new Comparator<ProjectVariant>() {
 			@Override
@@ -26,7 +40,7 @@ class Utils {
 		return list;
 	}
 
-	static List<FlowDescriptor> sort(Collection<FlowDescriptor> flows,
+	static List<FlowDescriptor> sortFlows(Collection<FlowDescriptor> flows,
 			EntityCache cache) {
 		if (flows == null)
 			return Collections.emptyList();
