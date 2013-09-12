@@ -5,6 +5,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.TableGenerator;
 
 import com.google.common.primitives.Longs;
 
@@ -22,6 +23,7 @@ public abstract class AbstractEntity {
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "entity_seq")
+	@TableGenerator(name = "entity_seq", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "entity_seq", allocationSize = 150, table = "SEQUENCE")
 	private long id;
 
 	public long getId() {
