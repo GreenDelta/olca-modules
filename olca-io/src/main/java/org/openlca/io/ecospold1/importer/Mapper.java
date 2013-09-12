@@ -63,9 +63,11 @@ class Mapper {
 			ProcessDocumentation doc) {
 		IValidation validation = dataSet.getValidation();
 		if (validation != null) {
-			String evaluation = Joiner.on(" ").join(
-					validation.getProofReadingDetails(),
-					validation.getOtherDetails());
+			String evaluation = Joiner
+					.on(" ")
+					.skipNulls()
+					.join(validation.getProofReadingDetails(),
+							validation.getOtherDetails());
 			doc.setReviewDetails(evaluation);
 		}
 		IRepresentativeness representativeness = dataSet
