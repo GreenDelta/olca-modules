@@ -10,10 +10,6 @@ import org.openlca.core.matrices.InventoryBuilder;
 import org.openlca.core.matrices.LongPair;
 import org.openlca.core.matrices.ProductIndex;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
@@ -50,7 +46,7 @@ final class Calculators {
 		AllocationMethod method = setup.getAllocationMethod();
 		if (method == null)
 			method = AllocationMethod.NONE;
-		ProductIndex productIndex = createProductIndex(system);
+		ProductIndex productIndex = ProductSystems.createProductIndex(system);
 		InventoryBuilder inventoryBuilder = new InventoryBuilder(database);
 		Inventory inventory = inventoryBuilder.build(productIndex, method);
 		FormulaInterpreter interpreter = FormulaInterpreterBuilder.build(
@@ -59,30 +55,6 @@ final class Calculators {
 				.apply(setup.getParameterRedefs(), interpreter);
 		inventory.setFormulaInterpreter(interpreter);
 		return inventory;
-	}
-
-	/**
-	 * Creates a product index from the given product system.
-	 * 
-	 * TODO: there is currently no check if the system is correctly defined.
-	 */
-	static ProductIndex createProductIndex(ProductSystem system) {
-		Process refProcess = system.getReferenceProcess();
-		Exchange refExchange = system.getReferenceExchange();
-		Flow refFlow = refExchange.getFlow();
-		LongPair refProduct = new LongPair(refProcess.getId(), refFlow.getId());
-		double demand = system.getConvertedTargetAmount();
-		ProductIndex index = new ProductIndex(refProduct, demand);
-		for (ProcessLink link : system.getProcessLinks()) {
-			long flow = link.getFlowId();
-			long provider = link.getProviderId();
-			long recipient = link.getRecipientId();
-			LongPair processProduct = new LongPair(provider, flow);
-			index.put(processProduct);
-			LongPair input = new LongPair(recipient, flow);
-			index.putLink(input, processProduct);
-		}
-		return index;
 	}
 
 }
