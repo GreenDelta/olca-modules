@@ -58,4 +58,11 @@ public class CategoryPair implements Comparable<CategoryPair> {
 		return Strings.compare(this.subCategory, other.subCategory);
 	}
 
+	public String toPath() {
+		if (category == null || category.isEmpty())
+			return subCategory;
+		else
+			return category + "/" + subCategory;
+	}
+
 }
