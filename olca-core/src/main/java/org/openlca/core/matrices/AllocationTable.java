@@ -65,8 +65,7 @@ class AllocationTable {
 			// otherwise we can filter the type via the query
 			sql += "allocation_type = '" + method.name() + "' AND ";
 		}
-		sql += "f_process_type in "
-				+ Indices.asSql(productIndex.getProcessIds());
+		sql += "f_process in " + Indices.asSql(productIndex.getProcessIds());
 		return sql;
 	}
 
