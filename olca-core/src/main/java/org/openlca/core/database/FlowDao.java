@@ -39,24 +39,21 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		return descriptor;
 	}
 
-	public List<ProcessDescriptor> getProviders(FlowDescriptor descriptor) {
-		List<Long> processIds = getProcessIdsWhereUsed(descriptor, false);
+	public List<ProcessDescriptor> getProviders(long flowId) {
+		List<Long> processIds = getProcessIdsWhereUsed(flowId, false);
 		return loadProcessDescriptors(processIds);
 	}
 
-	public List<ProcessDescriptor> getRecipients(FlowDescriptor descriptor) {
-		List<Long> processIds = getProcessIdsWhereUsed(descriptor, true);
+	public List<ProcessDescriptor> getRecipients(long flowId) {
+		List<Long> processIds = getProcessIdsWhereUsed(flowId, true);
 		return loadProcessDescriptors(processIds);
 	}
 
-	private List<Long> getProcessIdsWhereUsed(FlowDescriptor descriptor,
-			boolean input) {
-		if (descriptor == null)
-			return Collections.emptyList();
+	private List<Long> getProcessIdsWhereUsed(long flowId, boolean input) {
 		String jpql = "select p.id from Process p join p.exchanges e "
 				+ "where e.flow.id = :flowId and e.input = :input ";
 		Map<String, Object> params = new HashMap<>();
-		params.put("flowId", descriptor.getId());
+		params.put("flowId", flowId);
 		params.put("input", input);
 		return query().getAll(Long.class, jpql, params);
 	}
