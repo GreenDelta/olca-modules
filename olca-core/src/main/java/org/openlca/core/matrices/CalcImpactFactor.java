@@ -1,6 +1,6 @@
 package org.openlca.core.matrices;
 
-import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.core.model.UncertaintyType;
 
 class CalcImpactFactor {
 
@@ -8,7 +8,7 @@ class CalcImpactFactor {
 	private long flowId;
 	private double conversionFactor;
 	private double amount;
-	private UncertaintyDistributionType uncertaintyType;
+	private UncertaintyType uncertaintyType;
 	private double parameter1;
 	private double parameter2;
 	private double parameter3;
@@ -45,11 +45,11 @@ class CalcImpactFactor {
 		this.amount = amount;
 	}
 
-	public UncertaintyDistributionType getUncertaintyType() {
+	public UncertaintyType getUncertaintyType() {
 		return uncertaintyType;
 	}
 
-	public void setUncertaintyType(UncertaintyDistributionType uncertaintyType) {
+	public void setUncertaintyType(UncertaintyType uncertaintyType) {
 		this.uncertaintyType = uncertaintyType;
 	}
 

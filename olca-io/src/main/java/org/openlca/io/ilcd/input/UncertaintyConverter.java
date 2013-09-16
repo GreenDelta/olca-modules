@@ -2,7 +2,8 @@ package org.openlca.io.ilcd.input;
 
 import java.math.BigDecimal;
 
-import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.core.model.Uncertainty;
+import org.openlca.core.model.UncertaintyType;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.util.ExchangeExtension;
@@ -42,9 +43,11 @@ class UncertaintyConverter {
 		if (bigDec == null)
 			return;
 		double s = bigDec.doubleValue();
-		oExchange.setDistributionType(UncertaintyDistributionType.LOG_NORMAL);
-		oExchange.setParameter1Value(mean);
-		oExchange.setParameter2Value(s);
+		Uncertainty uncertainty = new Uncertainty();
+		oExchange.setUncertainty(uncertainty);
+		uncertainty.setDistributionType(UncertaintyType.LOG_NORMAL);
+		uncertainty.setParameter1Value(mean);
+		uncertainty.setParameter2Value(s);
 	}
 
 	private void mapNormal(Exchange iExchange,
@@ -54,9 +57,11 @@ class UncertaintyConverter {
 		if (bigDec == null)
 			return;
 		double s = bigDec.doubleValue();
-		oExchange.setDistributionType(UncertaintyDistributionType.NORMAL);
-		oExchange.setParameter1Value(mean);
-		oExchange.setParameter2Value(s);
+		Uncertainty uncertainty = new Uncertainty();
+		oExchange.setUncertainty(uncertainty);
+		uncertainty.setDistributionType(UncertaintyType.NORMAL);
+		uncertainty.setParameter1Value(mean);
+		uncertainty.setParameter2Value(s);
 	}
 
 	private void mapTriangular(Exchange iExchange,
@@ -66,10 +71,12 @@ class UncertaintyConverter {
 		Double max = iExchange.getMaximumAmount();
 		if (min == null || mode == null || max == null)
 			return;
-		oExchange.setDistributionType(UncertaintyDistributionType.TRIANGLE);
-		oExchange.setParameter1Value(min);
-		oExchange.setParameter2Value(mode);
-		oExchange.setParameter3Value(max);
+		Uncertainty uncertainty = new Uncertainty();
+		oExchange.setUncertainty(uncertainty);
+		uncertainty.setDistributionType(UncertaintyType.TRIANGLE);
+		uncertainty.setParameter1Value(min);
+		uncertainty.setParameter2Value(mode);
+		uncertainty.setParameter3Value(max);
 	}
 
 	private void mapUniform(Exchange iExchange,
@@ -78,9 +85,11 @@ class UncertaintyConverter {
 		Double max = iExchange.getMaximumAmount();
 		if (min == null || max == null)
 			return;
-		oExchange.setDistributionType(UncertaintyDistributionType.UNIFORM);
-		oExchange.setParameter1Value(min);
-		oExchange.setParameter2Value(max);
+		Uncertainty uncertainty = new Uncertainty();
+		oExchange.setUncertainty(uncertainty);
+		uncertainty.setDistributionType(UncertaintyType.UNIFORM);
+		uncertainty.setParameter1Value(min);
+		uncertainty.setParameter2Value(max);
 	}
 
 	private double getAmount(Exchange iExchange) {

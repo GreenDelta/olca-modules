@@ -1,7 +1,7 @@
 package org.openlca.core.matrices;
 
 import org.openlca.core.math.NumberGenerator;
-import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.core.model.UncertaintyType;
 
 /**
  * A bucket of the simulation matrix that contains a number generator.
@@ -13,8 +13,8 @@ class SimulationBucket {
 
 	public SimulationBucket(CalcExchange exchange) {
 		input = exchange.isInput();
-		UncertaintyDistributionType type = exchange.getUncertaintyType();
-		if (type != null && type != UncertaintyDistributionType.NONE)
+		UncertaintyType type = exchange.getUncertaintyType();
+		if (type != null && type != UncertaintyType.NONE)
 			generator = createGenerator(exchange);
 		if (generator == null)
 			generator = NumberGenerator.discrete(exchange.getAmount()

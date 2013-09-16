@@ -41,12 +41,8 @@ class ProcessCopy {
 		other.setAvoidedProduct(self.isAvoidedProduct());
 		other.setAmountFormula(self.getAmountFormula());
 		other.setAmountValue(self.getAmountValue());
-		other.setParameter1Formula(self.getParameter1Formula());
-		other.setParameter1Value(self.getParameter1Value());
-		other.setParameter2Formula(self.getParameter2Formula());
-		other.setParameter2Value(self.getParameter2Value());
-		other.setParameter3Formula(self.getParameter3Formula());
-		other.setParameter3Value(self.getParameter3Value());
+		if (self.getUncertainty() != null)
+			other.setUncertainty(self.getUncertainty().clone());
 		other.setFlow(self.getFlow());
 		other.setFlowPropertyFactor(self.getFlowPropertyFactor());
 		other.setInput(self.isInput());

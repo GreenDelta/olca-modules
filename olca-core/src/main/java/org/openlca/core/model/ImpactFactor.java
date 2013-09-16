@@ -41,7 +41,7 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 
 	@Column(name = "uncertainy_type")
 	@Enumerated(EnumType.STRING)
-	private UncertaintyDistributionType uncertaintyType;
+	private UncertaintyType uncertaintyType;
 
 	@Column(name = "uncertainty_parameter_1")
 	private double uncertaintyParameter1;
@@ -99,11 +99,11 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 		this.value = value;
 	}
 
-	public UncertaintyDistributionType getUncertaintyType() {
+	public UncertaintyType getUncertaintyType() {
 		return uncertaintyType;
 	}
 
-	public void setUncertaintyType(UncertaintyDistributionType uncertaintyType) {
+	public void setUncertaintyType(UncertaintyType uncertaintyType) {
 		this.uncertaintyType = uncertaintyType;
 	}
 

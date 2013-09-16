@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.core.model.UncertaintyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +63,7 @@ public class ImpactFactorTable {
 		f.setParameter3(r.getDouble("uncertainty_parameter_3"));
 		String uncertaintyType = r.getString("uncertainy_type");
 		if (uncertaintyType != null)
-			f.setUncertaintyType(UncertaintyDistributionType
+			f.setUncertaintyType(UncertaintyType
 					.valueOf(uncertaintyType));
 		return f;
 	}

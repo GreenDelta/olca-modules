@@ -1,7 +1,7 @@
 package org.openlca.core.matrices;
 
 import org.openlca.core.math.NumberGenerator;
-import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.expressions.Scope;
@@ -80,8 +80,8 @@ public class ExchangeCell {
 	}
 
 	private NumberGenerator createGenerator() {
-		UncertaintyDistributionType type = exchange.getUncertaintyType();
-		if (type == null && type == UncertaintyDistributionType.NONE)
+		UncertaintyType type = exchange.getUncertaintyType();
+		if (type == null && type == UncertaintyType.NONE)
 			return NumberGenerator.discrete(exchange.getAmount()
 					* exchange.getConversionFactor());
 		final CalcExchange e = exchange;

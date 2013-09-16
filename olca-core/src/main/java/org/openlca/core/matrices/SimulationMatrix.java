@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.core.model.UncertaintyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ class SimulationMatrix {
 
 	private boolean noDistribution(CalcExchange exchange) {
 		return exchange.getUncertaintyType() == null
-				|| exchange.getUncertaintyType() == UncertaintyDistributionType.NONE;
+				|| exchange.getUncertaintyType() == UncertaintyType.NONE;
 	}
 
 	private void setBucket(SimulationBucket bucket, LongPair processProduct,

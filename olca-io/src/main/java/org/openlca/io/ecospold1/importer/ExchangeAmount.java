@@ -1,7 +1,8 @@
 package org.openlca.io.ecospold1.importer;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.core.model.Uncertainty;
+import org.openlca.core.model.UncertaintyType;
 import org.openlca.ecospold.IExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +26,8 @@ class ExchangeAmount {
 		try {
 			double mean = esExchange.getMeanValue() * factor;
 			olcaExchange.setAmountValue(mean);
-			if (esExchange.getUncertaintyType() == null) {
-				olcaExchange
-						.setDistributionType(UncertaintyDistributionType.NONE);
-			} else {
+			if (esExchange.getUncertaintyType() != null)
 				setUncertaintyValues(mean);
-			}
 		} catch (Exception e) {
 			log.error("Mapping uncertainty distribution failed", e);
 		}
@@ -57,39 +54,46 @@ class ExchangeAmount {
 	private void mapUniform(Double min, Double max) {
 		if (min == null || max == null)
 			return;
-		olcaExchange.setDistributionType(UncertaintyDistributionType.UNIFORM);
-		olcaExchange.setParameter1Value(min);
-		olcaExchange.setParameter2Value(max);
+		Uncertainty uncertainty = new Uncertainty();
+		olcaExchange.setUncertainty(uncertainty);
+		uncertainty.setDistributionType(UncertaintyType.UNIFORM);
+		uncertainty.setParameter1Value(min);
+		uncertainty.setParameter2Value(max);
 	}
 
 	private void mapTriangle(double mean, Double min, Double max) {
 		if (min == null || max == null)
 			return;
-		olcaExchange.setDistributionType(UncertaintyDistributionType.TRIANGLE);
-		olcaExchange.setParameter1Value(min);
+		Uncertainty uncertainty = new Uncertainty();
+		olcaExchange.setUncertainty(uncertainty);
+		uncertainty.setDistributionType(UncertaintyType.TRIANGLE);
+		uncertainty.setParameter1Value(min);
 		Double mostLikely = esExchange.getMostLikelyValue();
 		if (mostLikely == null) {
 			mostLikely = 3 * mean - min - max;
 		}
-		olcaExchange.setParameter2Value(mostLikely);
-		olcaExchange.setParameter3Value(max);
+		uncertainty.setParameter2Value(mostLikely);
+		uncertainty.setParameter3Value(max);
 	}
 
 	private void mapNormal(double mean, Double sd) {
 		if (sd == null)
 			return;
-		olcaExchange.setDistributionType(UncertaintyDistributionType.NORMAL);
-		olcaExchange.setParameter1Value(mean);
-		olcaExchange.setParameter2Value(sd / 2);
+		Uncertainty uncertainty = new Uncertainty();
+		olcaExchange.setUncertainty(uncertainty);
+		uncertainty.setDistributionType(UncertaintyType.NORMAL);
+		uncertainty.setParameter1Value(mean);
+		uncertainty.setParameter2Value(sd / 2);
 	}
 
 	private void mapLogNormal(double mean, Double sd) {
 		if (sd == null)
 			return;
-		olcaExchange
-				.setDistributionType(UncertaintyDistributionType.LOG_NORMAL);
-		olcaExchange.setParameter1Value(mean);
-		olcaExchange.setParameter2Value(Math.sqrt(sd));
+		Uncertainty uncertainty = new Uncertainty();
+		olcaExchange.setUncertainty(uncertainty);
+		uncertainty.setDistributionType(UncertaintyType.LOG_NORMAL);
+		uncertainty.setParameter1Value(mean);
+		uncertainty.setParameter2Value(Math.sqrt(sd));
 	}
 
 }

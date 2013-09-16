@@ -3,21 +3,24 @@ package org.openlca.io.ilcd.output;
 import java.math.BigDecimal;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.core.model.Uncertainty;
+import org.openlca.core.model.UncertaintyType;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
 import org.openlca.ilcd.util.ExchangeExtension;
 
 /**
- * Maps the uncertainty information of an openLCA exchange to an ILCD exchange.
+ * Maps the uncertainty information from an openLCA exchange to an ILCD
+ * exchange.
  */
 class UncertaintyConverter {
 
 	public void map(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
-		if (oExchange.getDistributionType() == null
-				|| oExchange.getDistributionType() == UncertaintyDistributionType.NONE)
+		Uncertainty uncertainty = oExchange.getUncertainty();
+		if (uncertainty == null
+				|| uncertainty.getDistributionType() == UncertaintyType.NONE)
 			return;
-		switch (oExchange.getDistributionType()) {
+		switch (uncertainty.getDistributionType()) {
 		case LOG_NORMAL:
 			mapLogNormal(oExchange, iExchange);
 			break;
@@ -82,13 +85,14 @@ class UncertaintyConverter {
 	}
 
 	private Double getUncertaintyParam(int param, Exchange oExchange) {
+		Uncertainty uncertainty = oExchange.getUncertainty();
 		switch (param) {
 		case 1:
-			return oExchange.getParameter1Value();
+			return uncertainty.getParameter1Value();
 		case 2:
-			return oExchange.getParameter2Value();
+			return uncertainty.getParameter2Value();
 		case 3:
-			return oExchange.getParameter3Value();
+			return uncertainty.getParameter3Value();
 		default:
 			return null;
 		}

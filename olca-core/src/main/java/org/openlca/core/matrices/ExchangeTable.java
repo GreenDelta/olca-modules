@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.UncertaintyDistributionType;
+import org.openlca.core.model.UncertaintyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public class ExchangeTable {
 		e.setInput(r.getBoolean("is_input"));
 		int uncertaintyType = r.getInt("distribution_type");
 		if (!r.wasNull()) {
-			e.setUncertaintyType(UncertaintyDistributionType.values()[uncertaintyType]);
+			e.setUncertaintyType(UncertaintyType.values()[uncertaintyType]);
 			e.setParameter1(r.getDouble("parameter1_value"));
 			e.setParameter2(r.getDouble("parameter2_value"));
 			e.setParameter3(r.getDouble("parameter3_value"));
