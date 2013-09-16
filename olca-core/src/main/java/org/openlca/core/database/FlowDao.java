@@ -1,15 +1,15 @@
 package org.openlca.core.database;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
@@ -39,38 +39,36 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		return descriptor;
 	}
 
-	public List<ProcessDescriptor> getProviders(long flowId) {
-		List<Long> processIds = getProcessIdsWhereUsed(flowId, false);
-		return loadProcessDescriptors(processIds);
+	/**
+	 * Returns the processes where the given flow is an output.
+	 */
+	public List<Long> getProviders(long flowId) {
+		return getProcessIdsWhereUsed(flowId, false);
 	}
 
-	public List<ProcessDescriptor> getRecipients(long flowId) {
-		List<Long> processIds = getProcessIdsWhereUsed(flowId, true);
-		return loadProcessDescriptors(processIds);
+	/**
+	 * Returns the processes where the given flow is an input.
+	 */
+	public List<Long> getRecipients(long flowId) {
+		return getProcessIdsWhereUsed(flowId, true);
 	}
 
 	private List<Long> getProcessIdsWhereUsed(long flowId, boolean input) {
-		String jpql = "select p.id from Process p join p.exchanges e "
-				+ "where e.flow.id = :flowId and e.input = :input ";
-		Map<String, Object> params = new HashMap<>();
-		params.put("flowId", flowId);
-		params.put("input", input);
-		return query().getAll(Long.class, jpql, params);
-	}
-
-	private List<ProcessDescriptor> loadProcessDescriptors(List<Long> processIds) {
-		if (processIds == null || processIds.isEmpty())
+		String query = "select f_owner from tbl_exchanges where f_flow = "
+				+ flowId + " and is_input = " + (input ? 1 : 0);
+		try (Connection con = getDatabase().createConnection()) {
+			Statement stmt = con.createStatement();
+			ResultSet results = stmt.executeQuery(query);
+			List<Long> ids = new ArrayList<>();
+			while (results.next())
+				ids.add(results.getLong("f_owner"));
+			results.close();
+			stmt.close();
+			return ids;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log,
+					"failed to load processes for flow " + flowId, e);
 			return Collections.emptyList();
-		// TODO: performance may could be improved if we query the
-		// database with an 'IN - query'
-		List<ProcessDescriptor> results = new ArrayList<>();
-		ProcessDao dao = new ProcessDao(getDatabase());
-		for (Long processId : processIds) {
-			ProcessDescriptor d = dao.getDescriptor(processId);
-			if (d != null)
-				results.add(d);
 		}
-		return results;
 	}
-
 }
