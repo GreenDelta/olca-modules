@@ -35,8 +35,8 @@ public class UncertaintyTableTest {
 		dao.insert(process);
 		Set<Long> set = new HashSet<>();
 		set.add(process.getId());
-		ExchangeTable table = new ExchangeTable(database, set);
-		List<CalcExchange> exchanges = table.getExchanges(process.getId());
+		ExchangeTable table = ExchangeTable.create(database);
+		List<CalcExchange> exchanges = table.getVector(process.getId());
 		checkExchange(exchanges.get(0));
 		dao.delete(process);
 	}

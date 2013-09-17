@@ -1,6 +1,7 @@
 package org.openlca.core.matrices;
 
 import java.util.List;
+import java.util.Map;
 
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
@@ -21,9 +22,10 @@ public class FlowIndexBuilder {
 	public FlowIndex build(ProductIndex productIndex,
 			ExchangeTable exchangeTable) {
 		FlowIndex index = new FlowIndex();
+		Map<Long, List<CalcExchange>> map = exchangeTable.getAll(productIndex
+				.getProcessIds());
 		for (Long processId : productIndex.getProcessIds()) {
-			List<CalcExchange> exchanges = exchangeTable
-					.getExchanges(processId);
+			List<CalcExchange> exchanges = map.get(processId);
 			for (CalcExchange e : exchanges) {
 				if (index.contains(e.getFlowId()))
 					continue; // already indexed as flow

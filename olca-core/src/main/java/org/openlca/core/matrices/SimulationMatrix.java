@@ -41,8 +41,8 @@ class SimulationMatrix {
 		log.trace("decorate inventory matrix with number generators");
 		for (int i = 0; i < productIndex.size(); i++) {
 			LongPair processProduct = productIndex.getProductAt(i);
-			for (CalcExchange exchange : exchangeTable
-					.getExchanges(processProduct.getFirst())) {
+			for (CalcExchange exchange : exchangeTable.getVector(processProduct
+					.getFirst())) {
 				if (noDistribution(exchange))
 					continue;
 				SimulationBucket bucket = new SimulationBucket(exchange);

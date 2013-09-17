@@ -1,27 +1,26 @@
 package org.openlca.core.matrices;
 
-import java.util.Collection;
-
 /**
  * A helper class for index functions.
  */
 class Indices {
 
 	/**
-	 * Converts the given list of 64-bit integers in to a SQL string that can be
-	 * used in 'in'-queries; e.g. [1,2,3] is converted to (1, 2, 3).
+	 * Converts the given set of 64-bit integers in to a SQL string that can be
+	 * used in 'in'-queries; e.g. [1,2,3] is converted to (1,2,3).
 	 */
-	public static String asSql(Collection<Long> ids) {
+	public static String asSql(Iterable<? extends Long> ids) {
 		if (ids == null)
 			return "()";
 		StringBuilder b = new StringBuilder();
 		b.append('(');
-		int i = 0;
+		boolean first = true;
 		for (Long id : ids) {
-			b.append(id);
-			if (i < (ids.size() - 1))
+			if (!first)
 				b.append(',');
-			i++;
+			else
+				first = false;
+			b.append(id);
 		}
 		b.append(')');
 		return b.toString();

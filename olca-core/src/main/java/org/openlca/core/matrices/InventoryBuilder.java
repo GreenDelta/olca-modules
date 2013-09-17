@@ -1,6 +1,7 @@
 package org.openlca.core.matrices;
 
 import java.util.List;
+import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationMethod;
@@ -30,9 +31,7 @@ public class InventoryBuilder {
 				&& allocationMethod != AllocationMethod.NONE)
 			allocationTable = new AllocationTable(database, productIndex,
 					allocationMethod);
-		exchangeTable = new ExchangeTable(database,
-				productIndex.getProcessIds());
-
+		exchangeTable = ExchangeTable.create(database);
 		flowIndex = new FlowIndexBuilder(allocationMethod).build(productIndex,
 				exchangeTable);
 		technologyMatrix = new ExchangeMatrix(productIndex.size(),
@@ -54,9 +53,10 @@ public class InventoryBuilder {
 	}
 
 	private void fillMatrices() {
+		Map<Long, List<CalcExchange>> map = exchangeTable.getAll(productIndex
+				.getProcessIds());
 		for (Long processId : productIndex.getProcessIds()) {
-			List<CalcExchange> exchanges = exchangeTable
-					.getExchanges(processId);
+			List<CalcExchange> exchanges = map.get(processId);
 			List<LongPair> processProducts = productIndex
 					.getProducts(processId);
 			for (LongPair processProduct : processProducts) {
