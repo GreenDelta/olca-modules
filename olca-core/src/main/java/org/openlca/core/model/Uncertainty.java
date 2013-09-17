@@ -16,6 +16,7 @@ import javax.persistence.Embeddable;
  * <li>Lognormal distribution: geometric mean value
  * <li>Triangle distribution: min value
  * <li>Uniform distribution: min value
+ * <li>None: mean / resulting amount
  * </ul>
  * 
  * parameter 2:
@@ -57,6 +58,17 @@ public class Uncertainty {
 
 	@Column(name = "parameter3_formula")
 	private String parameter3Formula;
+
+	/**
+	 * Creates default distribution with type set to NONE and the first
+	 * parameter set with the given mean value.
+	 */
+	public static Uncertainty none(double mean) {
+		Uncertainty uncertainty = new Uncertainty();
+		uncertainty.setDistributionType(UncertaintyType.NONE);
+		uncertainty.setParameter1Value(mean);
+		return uncertainty;
+	}
 
 	/**
 	 * Creates a normal distribution.
