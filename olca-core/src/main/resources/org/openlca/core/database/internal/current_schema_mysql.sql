@@ -246,28 +246,32 @@ CREATE TABLE tbl_process_sources (
 CREATE TABLE tbl_exchanges (
 
 	id BIGINT NOT NULL, 
-	avoided_product TINYINT default 0,
-	distribution_type INTEGER default 0, 
+	f_owner BIGINT, 
+	f_flow BIGINT, 
+	f_unit BIGINT, 
 	is_input TINYINT default 0, 
 	f_flow_property_factor BIGINT, 
-	f_unit BIGINT, 
-	f_flow BIGINT, 
 	resulting_amount_value DOUBLE, 
 	resulting_amount_formula VARCHAR(255), 
+	avoided_product TINYINT default 0,
+	f_default_provider BIGINT,
+	
+	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
 	parameter1_formula VARCHAR(255), 
 	parameter2_value DOUBLE, 
 	parameter2_formula VARCHAR(255), 
 	parameter3_value DOUBLE, 
 	parameter3_formula VARCHAR(255), 
-	f_owner BIGINT, 
+	
 	pedigree_uncertainty VARCHAR(50),
 	base_uncertainty DOUBLE,
-	f_default_provider BIGINT,
 	
 	PRIMARY KEY (id)
 	
 );
+CREATE INDEX idx_exchange_process ON tbl_exchanges(f_owner);
+CREATE INDEX idx_exchange_flow ON tbl_exchanges(f_flow);
 
 
 CREATE TABLE tbl_allocation_factors (
@@ -283,8 +287,6 @@ CREATE TABLE tbl_allocation_factors (
 	
 );
 
-
--- product systems
 
 CREATE TABLE tbl_product_systems (
 
@@ -304,8 +306,6 @@ CREATE TABLE tbl_product_systems (
 );
 
 
--- processes in a product system
-
 CREATE TABLE tbl_product_system_processes (
 
 	f_product_system BIGINT NOT NULL, 
@@ -315,8 +315,6 @@ CREATE TABLE tbl_product_system_processes (
 
 );
 
-
--- process links of product systems
 
 CREATE TABLE tbl_process_links (
 
@@ -331,78 +329,6 @@ CREATE TABLE tbl_process_links (
 );
 
 
--- the scaling factors of processes of a calculated product system
-
-CREATE TABLE tbl_scalingfactors (
-
-	id BIGINT NOT NULL, 
-	f_process BIGINT, 
-	factor DOUBLE,
-	uncertainty DOUBLE, 
-	f_product BIGINT,
-	f_product_system BIGINT, 
-	
-	PRIMARY KEY (id)
-
-);
-
-
--- LCI results of product systems
-
-CREATE TABLE tbl_inventory_results (
-
-	id BIGINT NOT NULL, 
-	target_amount DOUBLE, 
-	product VARCHAR(255),
-	product_system VARCHAR(255), 
-	calculation_method VARCHAR(255), 
-	unit VARCHAR(255), 
-	PRIMARY KEY (id)
-	
-);
-
-
--- LCIA results of product systems
-
-CREATE TABLE tbl_impact_results (
-
-	id VARCHAR(36) NOT NULL, 
-	target_amount DOUBLE, 
-	product VARCHAR(255),
-	product_system VARCHAR(255), 
-	unit VARCHAR(255), 
-	impact_method VARCHAR(255), 
-	nw_set VARCHAR(255), 
-	weighting_unit VARCHAR(255), 
-	description TEXT, 
-	f_category BIGINT, 
-	name VARCHAR(255), 
-	
-	PRIMARY KEY (id)
-
-);
-
-
--- a stored LCIA result
-
-CREATE TABLE tbl_impact_category_results (
-
-	id VARCHAR(36) NOT NULL, 
-	category VARCHAR(255), 
-	unit VARCHAR(255), 
-	weighting_unit VARCHAR(255), 
-	value double, 
-	standard_deviation double, 
-	normalization_factor double, 
-	weighting_factor double, 
-	f_impact_result VARCHAR(36), 
-	
-	PRIMARY KEY (id)
-);
-
-
--- Impact methods
-
 CREATE TABLE tbl_impact_methods (
 
 	id BIGINT NOT NULL,
@@ -414,8 +340,6 @@ CREATE TABLE tbl_impact_methods (
 	
 );
 
-
--- LCIA categories
 
 CREATE TABLE tbl_impact_categories (
 
@@ -431,25 +355,27 @@ CREATE TABLE tbl_impact_categories (
 );
 
 
--- LCIA factors
-
 CREATE TABLE tbl_impact_factors (
 
 	id BIGINT NOT NULL, 
-	f_flow_property_factor BIGINT, 
+	f_impact_category BIGINT, 
 	f_flow BIGINT, 
+	f_flow_property_factor BIGINT, 
 	f_unit BIGINT, 
 	value DOUBLE, 
-	f_impact_category BIGINT, 
-	uncertainy_type VARCHAR(50),
-	uncertainty_parameter_1 DOUBLE,
-	uncertainty_parameter_2 DOUBLE,
-	uncertainty_parameter_3 DOUBLE,
+	
+	distribution_type INTEGER default 0, 
+	parameter1_value DOUBLE, 
+	parameter1_formula VARCHAR(255), 
+	parameter2_value DOUBLE, 
+	parameter2_formula VARCHAR(255), 
+	parameter3_value DOUBLE, 
+	parameter3_formula VARCHAR(255), 
 	
 	PRIMARY KEY (id)
 
 );
-
+CREATE INDEX idx_impact_factor_flow ON tbl_impact_factors(f_flow);
 
 -- normalisation and weighting sets of impact methods
 

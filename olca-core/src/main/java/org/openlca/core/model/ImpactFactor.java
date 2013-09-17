@@ -1,18 +1,8 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
 package org.openlca.core.model;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -39,23 +29,8 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 	@Column(name = "value")
 	private double value = 1;
 
-	@Column(name = "uncertainy_type")
-	@Enumerated(EnumType.STRING)
-	private UncertaintyType uncertaintyType;
-
-	@Column(name = "uncertainty_parameter_1")
-	private double uncertaintyParameter1;
-
-	@Column(name = "uncertainty_parameter_2")
-	private double uncertaintyParameter2;
-
-	@Column(name = "uncertainty_parameter_3")
-	private double uncertaintyParameter3;
-
-	public double getConvertedValue() {
-		return getValue() / getFlowPropertyFactor().getConversionFactor()
-				/ getUnit().getConversionFactor();
-	}
+	@Embedded
+	private Uncertainty uncertainty;
 
 	@Override
 	public ImpactFactor clone() {
@@ -99,36 +74,12 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 		this.value = value;
 	}
 
-	public UncertaintyType getUncertaintyType() {
-		return uncertaintyType;
+	public Uncertainty getUncertainty() {
+		return uncertainty;
 	}
 
-	public void setUncertaintyType(UncertaintyType uncertaintyType) {
-		this.uncertaintyType = uncertaintyType;
-	}
-
-	public double getUncertaintyParameter1() {
-		return uncertaintyParameter1;
-	}
-
-	public void setUncertaintyParameter1(double uncertaintyParameter1) {
-		this.uncertaintyParameter1 = uncertaintyParameter1;
-	}
-
-	public double getUncertaintyParameter2() {
-		return uncertaintyParameter2;
-	}
-
-	public void setUncertaintyParameter2(double uncertaintyParameter2) {
-		this.uncertaintyParameter2 = uncertaintyParameter2;
-	}
-
-	public double getUncertaintyParameter3() {
-		return uncertaintyParameter3;
-	}
-
-	public void setUncertaintyParameter3(double uncertaintyParameter3) {
-		this.uncertaintyParameter3 = uncertaintyParameter3;
+	public void setUncertainty(Uncertainty uncertainty) {
+		this.uncertainty = uncertainty;
 	}
 
 }
