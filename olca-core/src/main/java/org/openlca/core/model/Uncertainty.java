@@ -1,5 +1,7 @@
 package org.openlca.core.model;
 
+import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -190,5 +192,33 @@ public class Uncertainty {
 
 	public void setParameter3Formula(String parameter3Formula) {
 		this.parameter3Formula = parameter3Formula;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(distributionType, parameter1Formula,
+				parameter1Value, parameter2Formula, parameter2Value,
+				parameter3Formula, parameter3Value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this)
+			return true;
+		if (obj == null)
+			return false;
+		if (!Objects.equals(this.getClass(), obj.getClass()))
+			return false;
+		Uncertainty other = (Uncertainty) obj;
+		if (this.distributionType != other.distributionType)
+			return false;
+		//@formatter:off
+		return     Objects.equals(this.parameter1Value, other.parameter1Value)
+				&& Objects.equals(this.parameter2Value, other.parameter2Value)
+				&& Objects.equals(this.parameter3Value, other.parameter3Value)
+				&& Objects.equals(this.parameter1Formula, other.parameter1Formula)
+				&& Objects.equals(this.parameter2Formula, other.parameter2Formula)
+				&& Objects.equals(this.parameter3Formula, other.parameter3Formula);
+		//@formatter:on
 	}
 }
