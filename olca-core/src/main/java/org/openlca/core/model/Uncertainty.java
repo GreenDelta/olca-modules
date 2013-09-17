@@ -7,7 +7,7 @@ import javax.persistence.Enumerated;
 
 /**
  * Represents the uncertainty distributions supported by openLCA. Three fields
- * are reserved for the distribution parameters: <br>
+ * are reserved for distribution parameters: <br>
  * <br>
  * 
  * parameter 1:
@@ -22,7 +22,7 @@ import javax.persistence.Enumerated;
  * <ul>
  * <li>Normal distribution: arithmetic standard deviation
  * <li>Lognormal distribution: geometric standard deviation
- * <li>Triangle distribution: most likely value
+ * <li>Triangle distribution: most likely value (mode)
  * <li>Uniform distribution: max value
  * </ul>
  * 
@@ -30,6 +30,9 @@ import javax.persistence.Enumerated;
  * <ul>
  * <li>Triangle distribution: max value
  * </ul>
+ * 
+ * Each distribution parameter can take a value and additionally a formula.
+ * 
  */
 @Embeddable
 public class Uncertainty {
@@ -55,6 +58,73 @@ public class Uncertainty {
 
 	@Column(name = "parameter3_formula")
 	private String parameter3Formula;
+
+	/**
+	 * Creates a normal distribution.
+	 * 
+	 * @param mean
+	 *            the arithmetic mean.
+	 * @param sd
+	 *            the arithmetic standard deviation.
+	 */
+	public static Uncertainty normal(double mean, double sd) {
+		Uncertainty uncertainty = new Uncertainty();
+		uncertainty.setDistributionType(UncertaintyType.NORMAL);
+		uncertainty.setParameter1Value(mean);
+		uncertainty.setParameter2Value(sd);
+		return uncertainty;
+	}
+
+	/**
+	 * Creates a log-normal distribution.
+	 * 
+	 * @param gmean
+	 *            the geometric mean.
+	 * @param gsd
+	 *            the geometric standard deviation
+	 */
+	public static Uncertainty logNormal(double gmean, double gsd) {
+		Uncertainty uncertainty = new Uncertainty();
+		uncertainty.setDistributionType(UncertaintyType.LOG_NORMAL);
+		uncertainty.setParameter1Value(gmean);
+		uncertainty.setParameter2Value(gsd);
+		return uncertainty;
+	}
+
+	/**
+	 * Creates a uniform distribution.
+	 * 
+	 * @param min
+	 *            the minimum.
+	 * @param max
+	 *            the maximum.
+	 */
+	public static Uncertainty uniform(double min, double max) {
+		Uncertainty uncertainty = new Uncertainty();
+		uncertainty.setDistributionType(UncertaintyType.UNIFORM);
+		uncertainty.setParameter1Value(min);
+		uncertainty.setParameter2Value(max);
+		return uncertainty;
+	}
+
+	/**
+	 * Creates a triangle distribution.
+	 * 
+	 * @param min
+	 *            The minimum value.
+	 * @param mode
+	 *            The most likely value (the mode).
+	 * @param max
+	 *            The maximum value.
+	 */
+	public static Uncertainty triangle(double min, double mode, double max) {
+		Uncertainty uncertainty = new Uncertainty();
+		uncertainty.setDistributionType(UncertaintyType.TRIANGLE);
+		uncertainty.setParameter1Value(min);
+		uncertainty.setParameter2Value(mode);
+		uncertainty.setParameter3Value(max);
+		return uncertainty;
+	}
 
 	@Override
 	public Uncertainty clone() {

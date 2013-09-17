@@ -2,7 +2,6 @@ package org.openlca.io.ecospold1.importer;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.UncertaintyType;
 import org.openlca.ecospold.IExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,46 +53,29 @@ class ExchangeAmount {
 	private void mapUniform(Double min, Double max) {
 		if (min == null || max == null)
 			return;
-		Uncertainty uncertainty = new Uncertainty();
-		olcaExchange.setUncertainty(uncertainty);
-		uncertainty.setDistributionType(UncertaintyType.UNIFORM);
-		uncertainty.setParameter1Value(min);
-		uncertainty.setParameter2Value(max);
+		olcaExchange.setUncertainty(Uncertainty.uniform(min, max));
 	}
 
 	private void mapTriangle(double mean, Double min, Double max) {
 		if (min == null || max == null)
 			return;
-		Uncertainty uncertainty = new Uncertainty();
-		olcaExchange.setUncertainty(uncertainty);
-		uncertainty.setDistributionType(UncertaintyType.TRIANGLE);
-		uncertainty.setParameter1Value(min);
 		Double mostLikely = esExchange.getMostLikelyValue();
-		if (mostLikely == null) {
+		if (mostLikely == null)
 			mostLikely = 3 * mean - min - max;
-		}
-		uncertainty.setParameter2Value(mostLikely);
-		uncertainty.setParameter3Value(max);
+		olcaExchange.setUncertainty(Uncertainty.triangle(min, mostLikely, max));
 	}
 
 	private void mapNormal(double mean, Double sd) {
 		if (sd == null)
 			return;
-		Uncertainty uncertainty = new Uncertainty();
-		olcaExchange.setUncertainty(uncertainty);
-		uncertainty.setDistributionType(UncertaintyType.NORMAL);
-		uncertainty.setParameter1Value(mean);
-		uncertainty.setParameter2Value(sd / 2);
+		olcaExchange.setUncertainty(Uncertainty.normal(mean, sd / 2));
 	}
 
-	private void mapLogNormal(double mean, Double sd) {
+	private void mapLogNormal(double gmean, Double sd) {
 		if (sd == null)
 			return;
-		Uncertainty uncertainty = new Uncertainty();
-		olcaExchange.setUncertainty(uncertainty);
-		uncertainty.setDistributionType(UncertaintyType.LOG_NORMAL);
-		uncertainty.setParameter1Value(mean);
-		uncertainty.setParameter2Value(Math.sqrt(sd));
+		olcaExchange
+				.setUncertainty(Uncertainty.logNormal(gmean, Math.sqrt(sd)));
 	}
 
 }
