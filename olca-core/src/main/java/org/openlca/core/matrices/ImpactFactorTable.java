@@ -54,17 +54,17 @@ public class ImpactFactorTable {
 
 	private CalcImpactFactor nextFactor(ResultSet r) throws Exception {
 		CalcImpactFactor f = new CalcImpactFactor();
+		f.setImactCategoryId(r.getLong("f_impact_category"));
 		f.setAmount(r.getDouble("value"));
 		f.setConversionFactor(1d); // TODO: add to table
 		f.setFlowId(r.getLong("f_flow"));
-		f.setImactCategoryId(r.getLong("f_impact_category"));
-		f.setParameter1(r.getDouble("uncertainty_parameter_1"));
-		f.setParameter2(r.getDouble("uncertainty_parameter_2"));
-		f.setParameter3(r.getDouble("uncertainty_parameter_3"));
-		String uncertaintyType = r.getString("uncertainy_type");
-		if (uncertaintyType != null)
-			f.setUncertaintyType(UncertaintyType
-					.valueOf(uncertaintyType));
+		int uncertaintyType = r.getInt("distribution_type");
+		if (!r.wasNull()) {
+			f.setUncertaintyType(UncertaintyType.values()[uncertaintyType]);
+			f.setParameter1(r.getDouble("parameter1_value"));
+			f.setParameter2(r.getDouble("parameter2_value"));
+			f.setParameter3(r.getDouble("parameter3_value"));
+		}
 		return f;
 	}
 

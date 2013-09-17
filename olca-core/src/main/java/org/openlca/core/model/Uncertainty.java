@@ -2,8 +2,6 @@ package org.openlca.core.model;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 /**
  * Represents the uncertainty distributions supported by openLCA. Three fields
@@ -37,7 +35,6 @@ import javax.persistence.Enumerated;
 @Embeddable
 public class Uncertainty {
 
-	@Enumerated(EnumType.STRING)
 	@Column(name = "distribution_type")
 	private UncertaintyType distributionType = UncertaintyType.NONE;
 
