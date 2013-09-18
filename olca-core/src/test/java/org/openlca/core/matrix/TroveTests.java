@@ -1,4 +1,4 @@
-package org.openlca.core.matrices;
+package org.openlca.core.matrix;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongIntHashMap;

@@ -1,6 +1,5 @@
-package org.openlca.core.matrices;
+package org.openlca.core.matrix.cache;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,8 +12,6 @@ import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.CalcImpactFactor;
-import org.openlca.core.matrix.cache.ExchangeCache;
-import org.openlca.core.matrix.cache.ImpactFactorCache;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -27,9 +24,10 @@ import org.openlca.core.model.Uncertainty;
 public class UncertaintyTableTest {
 
 	private IDatabase database = TestSession.getDefaultDatabase();
+	private MatrixCache cache = MatrixCache.create(database);
 
 	@Test
-	public void testForExchange() {
+	public void testForExchange() throws Exception {
 		Exchange exchange = new Exchange();
 		Uncertainty uncertainty = createUncertainty();
 		exchange.setUncertainty(uncertainty);
@@ -39,8 +37,8 @@ public class UncertaintyTableTest {
 		dao.insert(process);
 		Set<Long> set = new HashSet<>();
 		set.add(process.getId());
-		ExchangeCache table = ExchangeCache.create(database);
-		List<CalcExchange> exchanges = table.getVector(process.getId());
+		List<CalcExchange> exchanges = cache.getExchangeCache().get(
+				process.getId());
 		checkExchange(exchanges.get(0));
 		dao.delete(process);
 	}
@@ -55,17 +53,15 @@ public class UncertaintyTableTest {
 	}
 
 	@Test
-	public void testForImpactFactor() {
+	public void testForImpactFactor() throws Exception {
 		ImpactFactor factor = new ImpactFactor();
 		factor.setUncertainty(createUncertainty());
 		ImpactCategory category = new ImpactCategory();
 		category.getImpactFactors().add(factor);
 		ImpactCategoryDao dao = new ImpactCategoryDao(database);
 		dao.insert(category);
-		ImpactFactorCache table = new ImpactFactorCache(database,
-				Arrays.asList(category.getId()));
-		List<CalcImpactFactor> factors = table.getImpactFactors(category
-				.getId());
+		List<CalcImpactFactor> factors = cache.getImpactCache().get(
+				category.getId());
 		checkFactor(factors.get(0));
 		dao.delete(category);
 	}

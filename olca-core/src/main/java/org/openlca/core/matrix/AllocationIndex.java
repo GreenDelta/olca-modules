@@ -4,6 +4,7 @@ import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongDoubleHashMap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 class AllocationIndex {
 
+	private MatrixCache cache;
 	private ProductIndex productIndex;
 	private AllocationMethod method;
 
@@ -33,32 +35,32 @@ class AllocationIndex {
 
 	public static AllocationIndex create(ProductIndex productIndex,
 			AllocationMethod method, MatrixCache cache) {
-		List<CalcAllocationFactor> factors = new ArrayList<>();
+		return new AllocationIndex(productIndex, method, cache);
+	}
+
+	private AllocationIndex(ProductIndex productIndex, AllocationMethod method,
+			MatrixCache cache) {
+		this.method = method;
+		this.productIndex = productIndex;
+		this.cache = cache;
+		List<CalcAllocationFactor> factors = loadFactors();
+		for (CalcAllocationFactor factor : factors)
+			index(factor);
+	}
+
+	private List<CalcAllocationFactor> loadFactors() {
 		try {
+			List<CalcAllocationFactor> factors = new ArrayList<>();
 			Map<Long, List<CalcAllocationFactor>> factorMap = cache
 					.getAllocationCache().getAll(productIndex.getProcessIds());
 			for (List<CalcAllocationFactor> list : factorMap.values())
 				factors.addAll(list);
-			return create(factors, productIndex, method);
+			return factors;
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(AllocationIndex.class);
+			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to load allocation factors from cache", e);
-			return create(factors, productIndex, method);
+			return Collections.emptyList();
 		}
-	}
-
-	public static AllocationIndex create(
-			Iterable<CalcAllocationFactor> factors, ProductIndex productIndex,
-			AllocationMethod method) {
-		return new AllocationIndex(factors, productIndex, method);
-	}
-
-	private AllocationIndex(Iterable<CalcAllocationFactor> factors,
-			ProductIndex productIndex, AllocationMethod method) {
-		this.method = method;
-		this.productIndex = productIndex;
-		for (CalcAllocationFactor factor : factors)
-			index(factor);
 	}
 
 	private void index(CalcAllocationFactor factor) {
@@ -66,8 +68,8 @@ class AllocationIndex {
 				factor.getProductId());
 		AllocationMethod _method = this.method;
 		if (this.method == AllocationMethod.USE_DEFAULT)
-			_method = productIndex.getDefaultAllocationMethod(factor
-					.getProcessId());
+			_method = cache.getProcessTable().getDefaultAllocationMethod(
+					factor.getProcessId());
 		if (_method == null)
 			return;
 		switch (_method) {
@@ -123,8 +125,8 @@ class AllocationIndex {
 						// waste-flows
 		AllocationMethod _method = this.method;
 		if (this.method == AllocationMethod.USE_DEFAULT)
-			_method = productIndex.getDefaultAllocationMethod(processProduct
-					.getFirst());
+			_method = cache.getProcessTable().getDefaultAllocationMethod(
+					processProduct.getFirst());
 		if (_method == null)
 			return 1d;
 		switch (_method) {
