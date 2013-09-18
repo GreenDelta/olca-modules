@@ -3,19 +3,28 @@ package org.openlca.core.matrix;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongDoubleHashMap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class AllocationIndex {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
+	private ProductIndex productIndex;
+	private AllocationMethod method;
 
 	/**
 	 * Used for physical and economic allocation: directly stores the the
 	 * allocation factors for the given process-products.
 	 */
 	private HashMap<LongPair, Double> productFactors;
-	private ProductIndex productIndex;
 
 	/**
 	 * Used for causal allocation: stores the relation process-product ->
@@ -23,12 +32,22 @@ class AllocationIndex {
 	 */
 	private HashMap<LongPair, TLongDoubleHashMap> exchangeFactors;
 
-	private AllocationMethod method;
-
 	public static AllocationIndex create(
 			Iterable<CalcAllocationFactor> factors, ProductIndex productIndex,
 			AllocationMethod method) {
 		return new AllocationIndex(factors, productIndex, method);
+	}
+
+	public static AllocationIndex create(ProductIndex productIndex,
+			AllocationMethod method, MatrixCache cache) {
+		try {
+			List<CalcImpactFactor> factors = new ArrayList<>();
+			Map<Long, List<CalcImpactFactor>> factorMap = cache
+					.getAllocationCache().getAll(productIndex.getProcessIds());
+
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	private AllocationIndex(Iterable<CalcAllocationFactor> factors,
