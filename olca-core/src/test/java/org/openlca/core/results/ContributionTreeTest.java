@@ -5,10 +5,10 @@ import org.junit.Test;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.InventorySolver;
 import org.openlca.core.math.MatrixFactory;
-import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.matrices.InventoryMatrix;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class ContributionTreeTest {

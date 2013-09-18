@@ -4,8 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.MatrixFactory;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.ProcessLink;
 
 public class LinkContributionsTest {

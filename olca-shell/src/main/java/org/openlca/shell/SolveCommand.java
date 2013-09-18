@@ -2,12 +2,12 @@ package org.openlca.shell;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.InventorySolver;
-import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.matrices.Inventory;
-import org.openlca.core.matrices.InventoryBuilder;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
-import org.openlca.core.matrices.ProductIndexBuilder;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.InventoryBuilder;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.ProductIndexBuilder;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.results.InventoryResult;
 import org.slf4j.Logger;

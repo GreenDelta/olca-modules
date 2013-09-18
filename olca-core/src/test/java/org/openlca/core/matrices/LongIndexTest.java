@@ -2,6 +2,7 @@ package org.openlca.core.matrices;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.matrix.LongIndex;
 
 public class LongIndexTest {
 

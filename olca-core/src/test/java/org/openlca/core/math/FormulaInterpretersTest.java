@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.TestSession;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrices.FormulaInterpreterBuilder;
+import org.openlca.core.matrix.FormulaInterpreterBuilder;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
