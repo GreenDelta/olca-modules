@@ -19,55 +19,29 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-public final class ExchangeTable {
+class ExchangeCache {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
-	private LoadingCache<Long, List<CalcExchange>> cache;
-
-	private ConversionTable conversionTable;
-	private FlowTypeTable flowTypes;
-
-	public static ExchangeTable create(IDatabase database) {
-		return new ExchangeTable(database);
+	public static LoadingCache<Long, List<CalcExchange>> create(
+			IDatabase database, ConversionTable conversionTable,
+			FlowTypeTable flowTypes) {
+		return CacheBuilder.newBuilder().build(
+				new ExchangeLoader(database, conversionTable, flowTypes));
 	}
 
-	private ExchangeTable(IDatabase database) {
-		this.database = database;
-		conversionTable = ConversionTable.create(database);
-		flowTypes = new FlowTypeTable(database);
-		cache = CacheBuilder.newBuilder().build(new ExchangeLoader());
-	}
+	private static class ExchangeLoader extends
+			CacheLoader<Long, List<CalcExchange>> {
 
-	public List<CalcExchange> getVector(Long processId) {
-		try {
-			return cache.get(processId);
-		} catch (Exception e) {
-			log.error("failed to load process vetcor for " + processId, e);
-			return Collections.emptyList();
+		private Logger log = LoggerFactory.getLogger(getClass());
+		private IDatabase database;
+		private ConversionTable conversionTable;
+		private FlowTypeTable flowTypes;
+
+		public ExchangeLoader(IDatabase database,
+				ConversionTable conversionTable, FlowTypeTable flowTypes) {
+			this.database = database;
+			this.conversionTable = conversionTable;
+			this.flowTypes = flowTypes;
 		}
-	}
-
-	public Map<Long, List<CalcExchange>> getAll(Iterable<Long> processIds) {
-		try {
-			return cache.getAll(processIds);
-		} catch (Exception e) {
-			log.error("failed to load process vetcors", e);
-			return Collections.emptyMap();
-		}
-	}
-
-	public void invalidate(Long processId) {
-		cache.invalidate(processId);
-	}
-
-	public void invalidateAll() {
-		conversionTable = ConversionTable.create(database);
-		flowTypes = new FlowTypeTable(database);
-		cache.invalidateAll();
-	}
-
-	private class ExchangeLoader extends CacheLoader<Long, List<CalcExchange>> {
 
 		@Override
 		public List<CalcExchange> load(Long key) throws Exception {

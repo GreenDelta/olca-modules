@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.CalcAllocationFactor;
+import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.CalcImpactFactor;
 
 import com.google.common.cache.LoadingCache;
@@ -17,6 +18,7 @@ public final class MatrixCache {
 
 	private LoadingCache<Long, List<CalcAllocationFactor>> allocationCache;
 	private LoadingCache<Long, List<CalcImpactFactor>> impactCache;
+	private LoadingCache<Long, List<CalcExchange>> exchangeCache;
 
 	public static MatrixCache create(IDatabase database) {
 		return new MatrixCache(database);
@@ -26,6 +28,8 @@ public final class MatrixCache {
 		this.database = database;
 		flowTypeTable = FlowTypeTable.create(database);
 		conversionTable = ConversionTable.create(database);
+		exchangeCache = ExchangeCache.create(database, conversionTable,
+				flowTypeTable);
 		allocationCache = AllocationCache.create(database);
 		impactCache = ImpactFactorCache.create(database, conversionTable);
 	}
@@ -36,6 +40,10 @@ public final class MatrixCache {
 
 	public LoadingCache<Long, List<CalcImpactFactor>> getImpactCache() {
 		return impactCache;
+	}
+
+	public LoadingCache<Long, List<CalcExchange>> getExchangeCache() {
+		return exchangeCache;
 	}
 
 }

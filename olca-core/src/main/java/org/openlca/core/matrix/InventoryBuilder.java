@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.AllocationCache;
-import org.openlca.core.matrix.cache.ExchangeTable;
+import org.openlca.core.matrix.cache.ExchangeCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 
@@ -14,7 +14,7 @@ public class InventoryBuilder {
 	private IDatabase database;
 	private ProductIndex productIndex;
 	private FlowIndex flowIndex;
-	private ExchangeTable exchangeTable;
+	private ExchangeCache exchangeTable;
 	private AllocationIndex allocationTable;
 	private AllocationMethod allocationMethod;
 
@@ -33,7 +33,7 @@ public class InventoryBuilder {
 				&& allocationMethod != AllocationMethod.NONE)
 			allocationTable = new AllocationCache(database, productIndex,
 					allocationMethod);
-		exchangeTable = ExchangeTable.create(database);
+		exchangeTable = ExchangeCache.create(database);
 		flowIndex = new FlowIndexBuilder(allocationMethod).build(productIndex,
 				exchangeTable);
 		technologyMatrix = new ExchangeMatrix(productIndex.size(),

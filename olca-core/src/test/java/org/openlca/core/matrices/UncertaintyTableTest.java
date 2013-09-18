@@ -13,7 +13,7 @@ import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.CalcImpactFactor;
-import org.openlca.core.matrix.cache.ExchangeTable;
+import org.openlca.core.matrix.cache.ExchangeCache;
 import org.openlca.core.matrix.cache.ImpactFactorCache;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
@@ -39,7 +39,7 @@ public class UncertaintyTableTest {
 		dao.insert(process);
 		Set<Long> set = new HashSet<>();
 		set.add(process.getId());
-		ExchangeTable table = ExchangeTable.create(database);
+		ExchangeCache table = ExchangeCache.create(database);
 		List<CalcExchange> exchanges = table.getVector(process.getId());
 		checkExchange(exchanges.get(0));
 		dao.delete(process);

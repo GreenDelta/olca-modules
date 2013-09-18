@@ -3,7 +3,7 @@ package org.openlca.core.matrix;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.core.matrix.cache.ExchangeTable;
+import org.openlca.core.matrix.cache.ExchangeCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 
@@ -21,7 +21,7 @@ public class FlowIndexBuilder {
 	}
 
 	public FlowIndex build(ProductIndex productIndex,
-			ExchangeTable exchangeTable) {
+			ExchangeCache exchangeTable) {
 		FlowIndex index = new FlowIndex();
 		Map<Long, List<CalcExchange>> map = exchangeTable.getAll(productIndex
 				.getProcessIds());

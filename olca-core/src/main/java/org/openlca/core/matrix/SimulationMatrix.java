@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.matrix.cache.ExchangeTable;
+import org.openlca.core.matrix.cache.ExchangeCache;
 import org.openlca.core.model.UncertaintyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ class SimulationMatrix {
 	private ProductIndex productIndex;
 
 	public SimulationMatrix(InventoryMatrix inventoryMatrix,
-			ExchangeTable exchangeTable) {
+			ExchangeCache exchangeTable) {
 		techBuckets = new HashMap<>();
 		enviBuckets = new HashMap<>();
 		this.inventoryMatrix = inventoryMatrix;
@@ -38,7 +38,7 @@ class SimulationMatrix {
 		return inventoryMatrix;
 	}
 
-	private void decorate(ExchangeTable exchangeTable) {
+	private void decorate(ExchangeCache exchangeTable) {
 		log.trace("decorate inventory matrix with number generators");
 		for (int i = 0; i < productIndex.size(); i++) {
 			LongPair processProduct = productIndex.getProductAt(i);
