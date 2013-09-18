@@ -1,10 +1,10 @@
 package org.openlca.core.math;
 
-import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.matrices.ImpactMatrix;
-import org.openlca.core.matrices.Inventory;
-import org.openlca.core.matrices.InventoryMatrix;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.ImpactMatrix;
+import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.InventoryResult;
 import org.openlca.core.results.LinkContributions;

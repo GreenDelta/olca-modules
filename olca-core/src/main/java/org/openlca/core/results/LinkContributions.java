@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.apache.commons.math3.util.Pair;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.util.Doubles;
 

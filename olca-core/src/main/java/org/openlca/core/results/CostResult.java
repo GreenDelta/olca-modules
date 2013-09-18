@@ -1,7 +1,7 @@
 package org.openlca.core.results;
 
-import org.openlca.core.matrices.LongIndex;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.LongIndex;
+import org.openlca.core.matrix.ProductIndex;
 
 /**
  * Represents the result of LCC calculation. Note that the fix-cost and

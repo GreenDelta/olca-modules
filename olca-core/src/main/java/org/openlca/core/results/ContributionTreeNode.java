@@ -3,7 +3,7 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrices.LongPair;
+import org.openlca.core.matrix.LongPair;
 
 public class ContributionTreeNode {
 

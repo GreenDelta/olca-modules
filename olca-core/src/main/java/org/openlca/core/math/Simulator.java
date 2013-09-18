@@ -1,9 +1,9 @@
 package org.openlca.core.math;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrices.ImpactMatrix;
-import org.openlca.core.matrices.Inventory;
-import org.openlca.core.matrices.InventoryMatrix;
+import org.openlca.core.matrix.ImpactMatrix;
+import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.InventoryResult;

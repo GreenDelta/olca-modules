@@ -2,7 +2,7 @@ package org.openlca.core.database;
 
 import org.openlca.core.database.internal.ProductSystemBuilder;
 import org.openlca.core.jobs.IProgressMonitor;
-import org.openlca.core.matrices.LongPair;
+import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

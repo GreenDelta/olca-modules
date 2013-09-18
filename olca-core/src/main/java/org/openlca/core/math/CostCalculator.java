@@ -1,9 +1,9 @@
 package org.openlca.core.math;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrices.CostMatrix;
-import org.openlca.core.matrices.CostMatrixBuilder;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.CostMatrix;
+import org.openlca.core.matrix.CostMatrixBuilder;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.results.CostResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

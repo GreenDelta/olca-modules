@@ -1,14 +1,14 @@
 package org.openlca.core.math;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.matrices.FormulaInterpreterBuilder;
-import org.openlca.core.matrices.ImpactMatrix;
-import org.openlca.core.matrices.ImpactMatrixBuilder;
-import org.openlca.core.matrices.Inventory;
-import org.openlca.core.matrices.InventoryBuilder;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.FormulaInterpreterBuilder;
+import org.openlca.core.matrix.ImpactMatrix;
+import org.openlca.core.matrix.ImpactMatrixBuilder;
+import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.InventoryBuilder;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
