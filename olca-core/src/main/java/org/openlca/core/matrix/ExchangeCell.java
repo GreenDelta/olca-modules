@@ -85,7 +85,7 @@ public class ExchangeCell {
 			return NumberGenerator.discrete(exchange.getAmount()
 					* exchange.getConversionFactor());
 		final CalcExchange e = exchange;
-		switch (exchange.getUncertaintyType()) {
+		switch (e.getUncertaintyType()) {
 		case LOG_NORMAL:
 			return NumberGenerator.logNormal(e.getParameter1(),
 					e.getParameter2());
