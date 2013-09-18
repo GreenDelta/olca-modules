@@ -20,6 +20,7 @@ public class CalcExchange {
 	private String parameter2Formula;
 	private String parameter3Formula;
 	private FlowType flowType;
+	private long defaultProviderId;
 
 	public long getFlowId() {
 		return flowId;
@@ -139,6 +140,15 @@ public class CalcExchange {
 
 	public void setInput(boolean input) {
 		this.input = input;
+	}
+
+	/** Returns 0 if the exchange has no default provider. */
+	public long getDefaultProviderId() {
+		return defaultProviderId;
+	}
+
+	public void setDefaultProviderId(long defaultProviderId) {
+		this.defaultProviderId = defaultProviderId;
 	}
 
 }

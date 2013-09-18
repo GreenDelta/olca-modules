@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Queue;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProcessType;
 
@@ -15,7 +16,7 @@ public class ProductIndexBuilder {
 	private ProcessType preferredType = ProcessType.LCI_RESULT;
 	private IDatabase database;
 	private TechnosphereLinkIndex linkIndex;
-	private ProcessTypeIndex typeIndex;
+	private ProcessTable typeIndex;
 
 	public ProductIndexBuilder(IDatabase database) {
 		this.database = database;
@@ -31,7 +32,7 @@ public class ProductIndexBuilder {
 
 	public ProductIndex build(LongPair refProduct, double demand) {
 		linkIndex = new TechnosphereLinkIndex(database);
-		typeIndex = ProcessTypeIndex.create(database);
+		typeIndex = ProcessTable.create(database);
 		ProductIndex index = new ProductIndex(refProduct, demand);
 		Queue<LongPair> queue = new ArrayDeque<>();
 		List<LongPair> handled = new ArrayList<>();
