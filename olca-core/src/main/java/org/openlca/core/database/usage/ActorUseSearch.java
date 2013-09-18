@@ -58,7 +58,7 @@ class ActorUseSearch implements IUseSearch<ActorDescriptor> {
 
 	private List<BaseDescriptor> findInProcesses(ActorDescriptor actor) {
 		try {
-			String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
+			String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id, p.quantitativeReference.id "
 					+ " from Process p "
 					+ " where p.documentation.reviewer.id = :actorId "
 					+ " or p.documentation.dataSetOwner.id = :actorId "
@@ -76,6 +76,7 @@ class ActorUseSearch implements IUseSearch<ActorDescriptor> {
 				d.setInfrastructureProcess((Boolean) result[4]);
 				d.setLocation((Long) result[5]);
 				d.setCategory((Long) result[6]);
+				d.setQuantitativeReference((Long) result[7]);
 				descriptors.add(d);
 			}
 			return descriptors;

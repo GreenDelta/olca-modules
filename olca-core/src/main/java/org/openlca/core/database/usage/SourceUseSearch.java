@@ -27,7 +27,7 @@ class SourceUseSearch implements IUseSearch<SourceDescriptor> {
 	public List<BaseDescriptor> findUses(SourceDescriptor source) {
 		if (source == null)
 			return Collections.emptyList();
-		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
+		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id, p.quantitativeReference.id "
 				+ " from Process p "
 				+ " left join doc.sources s"
 				+ " where p.documentation.publication.id = :sourceId or s.id = :sourceId";
@@ -44,6 +44,7 @@ class SourceUseSearch implements IUseSearch<SourceDescriptor> {
 				d.setInfrastructureProcess((Boolean) result[4]);
 				d.setLocation((Long) result[5]);
 				d.setCategory((Long) result[6]);
+				d.setQuantitativeReference((Long) result[7]);
 				descriptors.add(d);
 			}
 			return descriptors;

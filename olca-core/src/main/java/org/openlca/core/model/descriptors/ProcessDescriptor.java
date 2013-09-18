@@ -10,6 +10,7 @@ public class ProcessDescriptor extends CategorizedDescriptor {
 	private ProcessType processType;
 	private boolean infrastructureProcess;
 	private Long location;
+	private Long quantitativeReference;
 
 	public ProcessDescriptor() {
 		setType(ModelType.PROCESS);
@@ -37,6 +38,14 @@ public class ProcessDescriptor extends CategorizedDescriptor {
 
 	public void setLocation(Long location) {
 		this.location = location;
+	}
+
+	public Long getQuantitativeReference() {
+		return quantitativeReference;
+	}
+
+	public void setQuantitativeReference(Long quantitativeReference) {
+		this.quantitativeReference = quantitativeReference;
 	}
 
 }

@@ -81,6 +81,9 @@ public class Descriptors {
 		setBaseValues(process, descriptor);
 		if (process.getLocation() != null)
 			descriptor.setLocation(process.getLocation().getId());
+		if (process.getQuantitativeReference() != null)
+			descriptor.setQuantitativeReference(process
+					.getQuantitativeReference().getId());
 		return descriptor;
 	}
 
