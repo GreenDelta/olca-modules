@@ -1,25 +1,29 @@
 package org.openlca.core.matrix;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Queue;
+import java.util.Map;
+import java.util.Set;
 
-import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProcessTable;
-import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO: cut-offs
 public class ProductIndexBuilder {
 
 	private ProcessType preferredType = ProcessType.LCI_RESULT;
-	private IDatabase database;
-	private TechnosphereLinkIndex linkIndex;
-	private ProcessTable typeIndex;
+	private MatrixCache cache;
+	private ProcessTable processTable;
 
-	public ProductIndexBuilder(IDatabase database) {
-		this.database = database;
+	public ProductIndexBuilder(MatrixCache cache) {
+		this.cache = cache;
+		this.processTable = cache.getProcessTable();
 	}
 
 	public void setPreferredType(ProcessType preferredType) {
@@ -31,68 +35,97 @@ public class ProductIndexBuilder {
 	}
 
 	public ProductIndex build(LongPair refProduct, double demand) {
-		linkIndex = new TechnosphereLinkIndex(database);
-		typeIndex = ProcessTable.create(database);
 		ProductIndex index = new ProductIndex(refProduct, demand);
-		Queue<LongPair> queue = new ArrayDeque<>();
-		List<LongPair> handled = new ArrayList<>();
-		queue.add(refProduct);
-		while (!queue.isEmpty()) {
-			LongPair recipient = queue.poll();
-			indexAllocation(recipient, index);
-			handled.add(recipient);
-			List<TechnosphereLink> inputLinks = linkIndex
-					.getProductInputs(recipient.getFirst());
-			for (TechnosphereLink inputLink : inputLinks) {
-				LongPair provider = findProvider(inputLink);
-				if (provider == null)
-					continue;
-				LongPair recipientInput = new LongPair(
-						inputLink.getProcessId(), inputLink.getFlowId());
-				index.putLink(recipientInput, provider);
-				if (!handled.contains(provider) && !queue.contains(provider))
-					queue.add(provider);
+		List<LongPair> block = new ArrayList<>();
+		block.add(refProduct);
+		HashSet<LongPair> handled = new HashSet<>();
+		while (!block.isEmpty()) {
+			List<LongPair> nextBlock = new ArrayList<>();
+			Map<Long, List<CalcExchange>> exchanges = fetchExchanges(block);
+			for (LongPair recipient : block) {
+				handled.add(recipient);
+				List<CalcExchange> processExchanges = exchanges.get(recipient
+						.getFirst());
+				List<CalcExchange> productInputs = getProductInputs(processExchanges);
+				for (CalcExchange productInput : productInputs) {
+					LongPair provider = findProvider(productInput);
+					if (provider == null)
+						continue;
+					LongPair recipientInput = new LongPair(
+							recipient.getFirst(), productInput.getFlowId());
+					index.putLink(recipientInput, provider);
+					if (!handled.contains(provider)
+							&& !nextBlock.contains(provider))
+						nextBlock.add(provider);
+				}
 			}
+			block = nextBlock;
 		}
 		return index;
 	}
 
-	private void indexAllocation(LongPair recipient, ProductIndex index) {
-		long processId = recipient.getFirst();
-		AllocationMethod method = typeIndex
-				.getDefaultAllocationMethod(processId);
-		index.putDefaultAllocationMethod(processId, method);
-	}
-
-	private LongPair findProvider(TechnosphereLink inputLink) {
-		TechnosphereLink candidate = null;
-		List<TechnosphereLink> outputLinks = linkIndex
-				.getProductOutputs(inputLink.getFlowId());
-		for (TechnosphereLink outputLink : outputLinks) {
-			if (isBetter(inputLink, candidate, outputLink))
-				candidate = outputLink;
+	private List<CalcExchange> getProductInputs(
+			List<CalcExchange> processExchanges) {
+		if (processExchanges == null || processExchanges.isEmpty())
+			return Collections.emptyList();
+		List<CalcExchange> productInputs = new ArrayList<>();
+		for (CalcExchange exchange : processExchanges) {
+			if (!exchange.isInput())
+				continue;
+			if (exchange.getFlowType() == FlowType.ELEMENTARY_FLOW)
+				continue;
+			productInputs.add(exchange);
 		}
-		if (candidate == null)
-			return null;
-		return new LongPair(candidate.getProcessId(), candidate.getFlowId());
+		return productInputs;
 	}
 
-	private boolean isBetter(TechnosphereLink inputLink,
-			TechnosphereLink candidate, TechnosphereLink newOption) {
+	private Map<Long, List<CalcExchange>> fetchExchanges(List<LongPair> block) {
+		if (block.isEmpty())
+			return Collections.emptyMap();
+		Set<Long> processIds = new HashSet<>();
+		for (LongPair pair : block)
+			processIds.add(pair.getFirst());
+		try {
+			return cache.getExchangeCache().getAll(processIds);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.error("failed to load exchanges from cache", e);
+			return Collections.emptyMap();
+		}
+	}
+
+	private LongPair findProvider(CalcExchange productInput) {
+		if (productInput == null)
+			return null;
+		long productId = productInput.getFlowId();
+		long[] processIds = processTable.getProductProvider(productId);
+		if (processIds == null)
+			return null;
+		LongPair candidate = null;
+		for (long processId : processIds) {
+			LongPair newOption = LongPair.of(processId, productId);
+			if (isBetter(productInput, candidate, newOption))
+				candidate = newOption;
+		}
+		return candidate;
+	}
+
+	private boolean isBetter(CalcExchange inputLink, LongPair candidate,
+			LongPair newOption) {
 		if (candidate == null)
 			return true;
 		if (newOption == null)
 			return false;
-		if (candidate.getProcessId() == inputLink.getDefaultProviderId())
+		if (candidate.getFirst() == inputLink.getDefaultProviderId())
 			return false;
-		if (newOption.getProcessId() == inputLink.getDefaultProviderId())
+		if (newOption.getFirst() == inputLink.getDefaultProviderId())
 			return true;
-		ProcessType candidateType = typeIndex.getType(candidate.getProcessId());
-		ProcessType newOptionType = typeIndex.getType(newOption.getProcessId());
+		ProcessType candidateType = processTable.getType(candidate.getFirst());
+		ProcessType newOptionType = processTable.getType(newOption.getFirst());
 		if (candidateType == preferredType && newOptionType != preferredType)
 			return false;
 		if (candidateType != preferredType && newOptionType == preferredType)
 			return true;
-		return newOption.getAmount() > candidate.getAmount();
+		return false;
 	}
 }

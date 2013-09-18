@@ -3,26 +3,25 @@ package org.openlca.core.matrix;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.cache.AllocationCache;
-import org.openlca.core.matrix.cache.ExchangeCache;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InventoryBuilder {
 
-	private IDatabase database;
+	private MatrixCache cache;
 	private ProductIndex productIndex;
 	private FlowIndex flowIndex;
-	private ExchangeCache exchangeTable;
 	private AllocationIndex allocationTable;
 	private AllocationMethod allocationMethod;
 
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	public InventoryBuilder(IDatabase database) {
-		this.database = database;
+	public InventoryBuilder(MatrixCache matrixCache) {
+		this.cache = matrixCache;
 	}
 
 	public Inventory build(ProductIndex productIndex,
@@ -31,11 +30,10 @@ public class InventoryBuilder {
 		this.allocationMethod = allocationMethod;
 		if (allocationMethod != null
 				&& allocationMethod != AllocationMethod.NONE)
-			allocationTable = new AllocationCache(database, productIndex,
-					allocationMethod);
-		exchangeTable = ExchangeCache.create(database);
+			allocationTable = AllocationIndex.create(productIndex,
+					allocationMethod, cache);
 		flowIndex = new FlowIndexBuilder(allocationMethod).build(productIndex,
-				exchangeTable);
+				cache);
 		technologyMatrix = new ExchangeMatrix(productIndex.size(),
 				productIndex.size());
 		interventionMatrix = new ExchangeMatrix(flowIndex.size(),
@@ -55,17 +53,22 @@ public class InventoryBuilder {
 	}
 
 	private void fillMatrices() {
-		Map<Long, List<CalcExchange>> map = exchangeTable.getAll(productIndex
-				.getProcessIds());
-		for (Long processId : productIndex.getProcessIds()) {
-			List<CalcExchange> exchanges = map.get(processId);
-			List<LongPair> processProducts = productIndex
-					.getProducts(processId);
-			for (LongPair processProduct : processProducts) {
-				for (CalcExchange exchange : exchanges) {
-					putExchangeValue(processProduct, exchange);
+		try {
+			Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
+					.getAll(productIndex.getProcessIds());
+			for (Long processId : productIndex.getProcessIds()) {
+				List<CalcExchange> exchanges = map.get(processId);
+				List<LongPair> processProducts = productIndex
+						.getProducts(processId);
+				for (LongPair processProduct : processProducts) {
+					for (CalcExchange exchange : exchanges) {
+						putExchangeValue(processProduct, exchange);
+					}
 				}
 			}
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.error("failed to load exchanges from cache", e);
 		}
 	}
 

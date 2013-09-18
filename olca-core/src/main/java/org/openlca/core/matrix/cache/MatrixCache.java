@@ -11,6 +11,7 @@ import com.google.common.cache.LoadingCache;
 
 public final class MatrixCache {
 
+	private IDatabase database;
 	private FlowTypeTable flowTypeTable;
 	private ConversionTable conversionTable;
 	private ProcessTable processTable;
@@ -24,6 +25,7 @@ public final class MatrixCache {
 	}
 
 	private MatrixCache(IDatabase database) {
+		this.database = database;
 		flowTypeTable = FlowTypeTable.create(database);
 		conversionTable = ConversionTable.create(database);
 		processTable = ProcessTable.create(database);
@@ -31,6 +33,10 @@ public final class MatrixCache {
 				flowTypeTable);
 		allocationCache = AllocationCache.create(database);
 		impactCache = ImpactFactorCache.create(database, conversionTable);
+	}
+
+	public IDatabase getDatabase() {
+		return database;
 	}
 
 	public ProcessTable getProcessTable() {

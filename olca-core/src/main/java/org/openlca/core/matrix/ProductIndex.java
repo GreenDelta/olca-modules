@@ -1,15 +1,11 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.openlca.core.model.AllocationMethod;
 
 /**
  * A product index is used to map process products to rows and columns in
@@ -33,12 +29,6 @@ public class ProductIndex {
 
 	/** Maps a process ID to the output products of this process. */
 	private final HashMap<Long, List<LongPair>> processProducts = new HashMap<>();
-
-	/**
-	 * Maps a process-ID to the default allocation method of this process. Only
-	 * used if a product system is build with AllocationMethod.USE_DEFAULT.
-	 */
-	private TLongObjectHashMap<AllocationMethod> defaultAllocationMethods;
 
 	private LongPair refProduct;
 	private double demand;
@@ -154,7 +144,7 @@ public class ProductIndex {
 	}
 
 	/**
-	 * Returns all input products that are linked to an output. 
+	 * Returns all input products that are linked to an output.
 	 */
 	public Set<LongPair> getLinkedInputs() {
 		return productLinks.keySet();
@@ -167,19 +157,4 @@ public class ProductIndex {
 		return set;
 	}
 
-	public void putDefaultAllocationMethod(long processId,
-			AllocationMethod method) {
-		if (method == null || method == AllocationMethod.NONE)
-			return;
-		if (defaultAllocationMethods == null)
-			defaultAllocationMethods = new TLongObjectHashMap<>();
-		defaultAllocationMethods.put(processId, method);
-	}
-
-	public AllocationMethod getDefaultAllocationMethod(long processId) {
-		if (defaultAllocationMethods == null)
-			return AllocationMethod.NONE;
-		AllocationMethod m = defaultAllocationMethods.get(processId);
-		return m != null ? m : AllocationMethod.NONE;
-	}
 }

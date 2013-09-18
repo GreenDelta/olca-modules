@@ -1,11 +1,14 @@
 package org.openlca.core.matrix;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.core.matrix.cache.ExchangeCache;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builds a flow index from a product index and exchange table. All flows that
@@ -14,17 +17,16 @@ import org.openlca.core.model.FlowType;
  */
 public class FlowIndexBuilder {
 
+	private Logger log = LoggerFactory.getLogger(getClass());
 	private AllocationMethod allocationMethod;
 
 	public FlowIndexBuilder(AllocationMethod allocationMethod) {
 		this.allocationMethod = allocationMethod;
 	}
 
-	public FlowIndex build(ProductIndex productIndex,
-			ExchangeCache exchangeTable) {
+	public FlowIndex build(ProductIndex productIndex, MatrixCache cache) {
 		FlowIndex index = new FlowIndex();
-		Map<Long, List<CalcExchange>> map = exchangeTable.getAll(productIndex
-				.getProcessIds());
+		Map<Long, List<CalcExchange>> map = loadExchanges(productIndex, cache);
 		for (Long processId : productIndex.getProcessIds()) {
 			List<CalcExchange> exchanges = map.get(processId);
 			for (CalcExchange e : exchanges) {
@@ -45,6 +47,18 @@ public class FlowIndexBuilder {
 			}
 		}
 		return index;
+	}
+
+	private Map<Long, List<CalcExchange>> loadExchanges(
+			ProductIndex productIndex, MatrixCache cache) {
+		try {
+			Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
+					.getAll(productIndex.getProcessIds());
+			return map;
+		} catch (Exception e) {
+			log.error("failed to load exchanges from cache", e);
+			return Collections.emptyMap();
+		}
 	}
 
 	private void indexFlow(CalcExchange e, FlowIndex index) {

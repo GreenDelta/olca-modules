@@ -9,6 +9,7 @@ import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -41,13 +42,13 @@ final class Calculators {
 		return matrix;
 	}
 
-	static Inventory createInventory(CalculationSetup setup, IDatabase database) {
+	static Inventory createInventory(CalculationSetup setup, MatrixCache cache) {
 		ProductSystem system = setup.getProductSystem();
 		AllocationMethod method = setup.getAllocationMethod();
 		if (method == null)
 			method = AllocationMethod.NONE;
 		ProductIndex productIndex = ProductSystems.createProductIndex(system);
-		InventoryBuilder inventoryBuilder = new InventoryBuilder(database);
+		InventoryBuilder inventoryBuilder = new InventoryBuilder(cache);
 		Inventory inventory = inventoryBuilder.build(productIndex, method);
 		FormulaInterpreter interpreter = FormulaInterpreterBuilder.build(
 				database, productIndex.getProcessIds());

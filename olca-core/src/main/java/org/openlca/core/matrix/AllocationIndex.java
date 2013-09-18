@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 class AllocationIndex {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
 	private ProductIndex productIndex;
 	private AllocationMethod method;
 
@@ -32,22 +31,26 @@ class AllocationIndex {
 	 */
 	private HashMap<LongPair, TLongDoubleHashMap> exchangeFactors;
 
+	public static AllocationIndex create(ProductIndex productIndex,
+			AllocationMethod method, MatrixCache cache) {
+		List<CalcAllocationFactor> factors = new ArrayList<>();
+		try {
+			Map<Long, List<CalcAllocationFactor>> factorMap = cache
+					.getAllocationCache().getAll(productIndex.getProcessIds());
+			for (List<CalcAllocationFactor> list : factorMap.values())
+				factors.addAll(list);
+			return create(factors, productIndex, method);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(AllocationIndex.class);
+			log.error("failed to load allocation factors from cache", e);
+			return create(factors, productIndex, method);
+		}
+	}
+
 	public static AllocationIndex create(
 			Iterable<CalcAllocationFactor> factors, ProductIndex productIndex,
 			AllocationMethod method) {
 		return new AllocationIndex(factors, productIndex, method);
-	}
-
-	public static AllocationIndex create(ProductIndex productIndex,
-			AllocationMethod method, MatrixCache cache) {
-		try {
-			List<CalcImpactFactor> factors = new ArrayList<>();
-			Map<Long, List<CalcImpactFactor>> factorMap = cache
-					.getAllocationCache().getAll(productIndex.getProcessIds());
-
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
 	}
 
 	private AllocationIndex(Iterable<CalcAllocationFactor> factors,
