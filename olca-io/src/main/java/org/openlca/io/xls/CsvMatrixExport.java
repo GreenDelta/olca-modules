@@ -34,7 +34,7 @@ public class CsvMatrixExport implements Runnable {
 
 	public CsvMatrixExport(CsvMatrixExportData data) {
 		this.data = data;
-		cache = data.getCache();
+		cache = data.getEntityCache();
 		separator = data.getColumnSeperator();
 		point = data.getDecimalSeparator();
 	}
@@ -48,7 +48,7 @@ public class CsvMatrixExport implements Runnable {
 		}
 		log.trace("Build inventory matrix");
 		Inventory inventory = ProductSystems.createInventory(
-				data.getProductSystem(), data.getDatabase());
+				data.getProductSystem(), data.getMatrixCache());
 		tryEvalFormulas(inventory);
 		log.trace("Write technology matrix");
 		writeTechFile(inventory);

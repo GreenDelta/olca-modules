@@ -7,6 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.Simulator;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.io.xls.results.SimulationResultExport;
@@ -23,9 +24,10 @@ public class MonteCarloSimulation_Example {
 		String blasLibPath = "C:/Users/Dell/Downloads";
 		Library.loadFromDir(new File(blasLibPath));
 
-		// connect to a database
+		// connect to a database and initialize a matrix cache
 		String dbPath = "C:/Users/Dell/openLCA-data-demo-1.4/databases/ecoinvent2";
 		IDatabase database = new DerbyDatabase(new File(dbPath));
+		MatrixCache cache = MatrixCache.create(database);
 
 		// load a product system
 		ProductSystem system = database.createDao(ProductSystem.class)
@@ -38,7 +40,7 @@ public class MonteCarloSimulation_Example {
 		setup.setNumberOfRuns(runs);
 
 		// run the simulation
-		Simulator simulator = new Simulator(setup, database);
+		Simulator simulator = new Simulator(setup, cache);
 		for (int i = 0; i < runs; i++)
 			simulator.nextRun();
 
