@@ -67,42 +67,22 @@ public class ImpactFactorCache {
 			log.trace("load impact factors for multiple categories");
 			try (Connection con = database.createConnection()) {
 				String query = "select * from tbl_impact_factors where f_impact_category in "
-						+ Indices.asSql(impactCategoryIds);
+						+ CacheUtil.asSql(impactCategoryIds);
 				Statement statement = con.createStatement();
 				ResultSet result = statement.executeQuery(query);
 				Map<Long, List<CalcImpactFactor>> map = new HashMap<>();
 				while (result.next()) {
 					CalcImpactFactor factor = nextFactor(result);
-					addFactor(map, factor);
+					CacheUtil.addListEntry(map, factor,
+							factor.getImactCategoryId());
 				}
 				result.close();
 				statement.close();
-				fillEmptyEntries(impactCategoryIds, map);
+				CacheUtil.fillEmptyEntries(impactCategoryIds, map);
 				return map;
 			} catch (Exception e) {
 				log.error("failed to load impact factors", e);
 				return Collections.emptyMap();
-			}
-		}
-
-		private void addFactor(Map<Long, List<CalcImpactFactor>> map,
-				CalcImpactFactor factor) {
-			List<CalcImpactFactor> list = map.get(factor.getImactCategoryId());
-			if (list == null) {
-				list = new ArrayList<>();
-				map.put(factor.getImactCategoryId(), list);
-			}
-			list.add(factor);
-		}
-
-		private void fillEmptyEntries(
-				Iterable<? extends Long> impactCategoryIds,
-				Map<Long, List<CalcImpactFactor>> map) {
-			for (Long impactId : impactCategoryIds) {
-				if (!map.containsKey(impactId)) {
-					List<CalcImpactFactor> empty = Collections.emptyList();
-					map.put(impactId, empty);
-				}
 			}
 		}
 

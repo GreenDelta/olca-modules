@@ -2,43 +2,42 @@ package org.openlca.core.matrix;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.MatrixFactory;
-import org.openlca.core.matrix.cache.Indices;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.CostCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 public class CostMatrixBuilder {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private final IDatabase database;
-	private Multimap<LongPair, CalcCostEntry> costEntries;
+	private MatrixCache matrixCache;
 	private TLongObjectHashMap<CostCategory> costCategories;
+	private Multimap<LongPair, CalcCostEntry> costEntries = HashMultimap
+			.create();
 	private LongIndex fixCostCategoryIndex;
 	private LongIndex varCostCategoryIndex;
 
-	public CostMatrixBuilder(IDatabase database) {
-		this.database = database;
+	public CostMatrixBuilder(MatrixCache matrixCache) {
+		this.matrixCache = matrixCache;
 	}
 
 	public CostMatrix build(ProductIndex productIndex) {
 		log.trace("build cost matrix");
 		CostMatrix costMatrix = new CostMatrix();
 		costMatrix.setProductIndex(productIndex);
-		costEntries = ArrayListMultimap.create();
 		costCategories = loadCostCategories();
 		fixCostCategoryIndex = new LongIndex();
 		varCostCategoryIndex = new LongIndex();
-		loadIndexEntries(productIndex);
+		indexData(productIndex);
 		if (!fixCostCategoryIndex.isEmpty()) {
 			IMatrix fixCosts = buildMatrix(fixCostCategoryIndex, productIndex);
 			costMatrix.setFixCosts(fixCostCategoryIndex, fixCosts);
@@ -51,6 +50,7 @@ public class CostMatrixBuilder {
 	}
 
 	private TLongObjectHashMap<CostCategory> loadCostCategories() {
+		IDatabase database = matrixCache.getDatabase();
 		TLongObjectHashMap<CostCategory> index = new TLongObjectHashMap<>();
 		List<CostCategory> list = database.createDao(CostCategory.class)
 				.getAll();
@@ -59,44 +59,32 @@ public class CostMatrixBuilder {
 		return index;
 	}
 
-	private void loadIndexEntries(ProductIndex productIndex) {
-		log.trace("load process cost entries");
-		try (Connection con = database.createConnection()) {
-			String query = "select * from tbl_process_cost_entries where f_process in "
-					+ Indices.asSql(productIndex.getProcessIds());
-			ResultSet result = con.createStatement().executeQuery(query);
-			while (result.next()) {
-				CalcCostEntry costEntry = fetchEntry(result);
-				index(productIndex, costEntry);
+	private void indexData(ProductIndex productIndex) {
+		try {
+			Map<Long, List<CalcCostEntry>> lists = matrixCache.getCostCache()
+					.getAll(productIndex.getProcessIds());
+			for (List<CalcCostEntry> list : lists.values()) {
+				for (CalcCostEntry entry : list)
+					indexEntry(productIndex, entry);
 			}
-			result.close();
 		} catch (Exception e) {
-			log.error("failed to load cost category entries from database", e);
+			log.error("failed to load cost entruies from database", e);
 		}
 	}
 
-	private CalcCostEntry fetchEntry(ResultSet result) throws Exception {
-		CalcCostEntry entry = new CalcCostEntry();
-		entry.setAmount(result.getDouble("amount"));
-		entry.setCostCategoryId(result.getLong("f_cost_category"));
-		entry.setExchangeId(result.getLong("f_exchange"));
-		entry.setProcessId(result.getLong("f_process"));
-		return entry;
-	}
-
-	private void index(ProductIndex productIndex, CalcCostEntry costEntry) {
-		LongPair processProduct = new LongPair(costEntry.getProcessId(),
-				costEntry.getExchangeId());
+	private void indexEntry(ProductIndex productIndex, CalcCostEntry entry) {
+		LongPair processProduct = LongPair.of(entry.getProcessId(),
+				entry.getExchangeId());
 		if (!productIndex.contains(processProduct))
 			return;
-		CostCategory cat = costCategories.get(costEntry.getCostCategoryId());
+		CostCategory cat = costCategories.get(entry.getCostCategoryId());
 		if (cat == null)
 			return;
 		if (cat.isFix())
 			fixCostCategoryIndex.put(cat.getId());
 		else
 			varCostCategoryIndex.put(cat.getId());
-		costEntries.put(processProduct, costEntry);
+		costEntries.put(processProduct, entry);
 	}
 
 	private IMatrix buildMatrix(LongIndex costCategoryIndex,

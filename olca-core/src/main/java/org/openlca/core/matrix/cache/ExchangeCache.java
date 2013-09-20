@@ -70,13 +70,14 @@ class ExchangeCache {
 				Iterable<? extends Long> keys) throws Exception {
 			try (Connection con = database.createConnection()) {
 				String query = "select * from tbl_exchanges where f_owner in "
-						+ Indices.asSql(keys);
+						+ CacheUtil.asSql(keys);
 				Statement statement = con.createStatement();
 				HashMap<Long, List<CalcExchange>> map = new HashMap<>();
 				ResultSet result = statement.executeQuery(query);
 				while (result.next()) {
 					CalcExchange exchange = nextExchange(result);
-					add(exchange, map);
+					CacheUtil.addListEntry(map, exchange,
+							exchange.getProcessId());
 				}
 				result.close();
 				statement.close();
@@ -123,16 +124,6 @@ class ExchangeCache {
 			return unitFactor / propertyFactor;
 		}
 
-		private void add(CalcExchange exchange,
-				HashMap<Long, List<CalcExchange>> map) {
-			Long processId = exchange.getProcessId();
-			List<CalcExchange> list = map.get(processId);
-			if (list == null) {
-				list = new ArrayList<>();
-				map.put(processId, list);
-			}
-			list.add(exchange);
-		}
 	}
 
 }

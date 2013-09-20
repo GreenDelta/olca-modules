@@ -72,42 +72,22 @@ class AllocationCache {
 			log.trace("load allocation factors");
 			try (Connection con = database.createConnection()) {
 				String sql = "select * from tbl_allocation_factors where f_process in "
-						+ Indices.asSql(processIds);
+						+ CacheUtil.asSql(processIds);
 				Statement stmt = con.createStatement();
 				ResultSet rs = stmt.executeQuery(sql);
 				Map<Long, List<CalcAllocationFactor>> map = new HashMap<>();
 				while (rs.next()) {
 					CalcAllocationFactor factor = fetchFactor(rs);
-					addFactor(map, factor);
+					CacheUtil.addListEntry(map, factor, factor.getProcessId());
 				}
 				stmt.close();
 				rs.close();
-				fillEmptyEntries(processIds, map);
+				CacheUtil.fillEmptyEntries(processIds, map);
 				return map;
 			} catch (Exception e) {
 				log.error("failed to load allocation factors", e);
 				return Collections.emptyMap();
 			}
-		}
-
-		private void fillEmptyEntries(Iterable<? extends Long> processIds,
-				Map<Long, List<CalcAllocationFactor>> map) {
-			for (Long processId : processIds) {
-				if (!map.containsKey(processId)) {
-					List<CalcAllocationFactor> empty = Collections.emptyList();
-					map.put(processId, empty);
-				}
-			}
-		}
-
-		private void addFactor(Map<Long, List<CalcAllocationFactor>> map,
-				CalcAllocationFactor factor) {
-			List<CalcAllocationFactor> list = map.get(factor.getProcessId());
-			if (list == null) {
-				list = new ArrayList<>();
-				map.put(factor.getProcessId(), list);
-			}
-			list.add(factor);
 		}
 
 		private CalcAllocationFactor fetchFactor(ResultSet rs) throws Exception {
