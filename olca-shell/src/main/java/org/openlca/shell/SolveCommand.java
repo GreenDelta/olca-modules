@@ -8,6 +8,7 @@ import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.ProductIndexBuilder;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.results.InventoryResult;
 import org.slf4j.Logger;
@@ -59,13 +60,13 @@ public class SolveCommand {
 					refProduct.getSecond());
 			totalTime = 0;
 			lastStop = System.currentTimeMillis();
-
-			ProductIndexBuilder builder = new ProductIndexBuilder(database);
+			MatrixCache cache = MatrixCache.create(database);
+			ProductIndexBuilder builder = new ProductIndexBuilder(cache);
 			ProductIndex index = builder.build(refProduct, 1d);
 			logTime("product index created");
 
 			log.trace("Build inventory");
-			InventoryBuilder matrixBuilder = new InventoryBuilder(database);
+			InventoryBuilder matrixBuilder = new InventoryBuilder(cache);
 			Inventory matrix = matrixBuilder.build(index,
 					AllocationMethod.USE_DEFAULT);
 			logTime("inventory matrix created");

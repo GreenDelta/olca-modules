@@ -6,6 +6,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.Simulator;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.SimulationResult;
@@ -34,7 +35,8 @@ public class SimulationCommand {
 			CalculationSetup setup = new CalculationSetup(system,
 					CalculationSetup.MONTE_CARLO_SIMULATION);
 			setup.setAllocationMethod(AllocationMethod.USE_DEFAULT);
-			Simulator simulator = new Simulator(setup, database);
+			MatrixCache cache = MatrixCache.create(database);
+			Simulator simulator = new Simulator(setup, cache);
 			for (int i = 0; i < runs; i++) {
 				log.trace("next run {} started", i + 1);
 				boolean success = simulator.nextRun();

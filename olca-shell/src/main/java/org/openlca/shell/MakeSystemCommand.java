@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.IProductSystemBuilder;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -35,10 +36,11 @@ public class MakeSystemCommand {
 
 	private void run(long processId, IDatabase database) {
 		log.trace("create a product system for process {}", processId);
+		MatrixCache cache = MatrixCache.create(database);
 		ProductSystem system = createSystem(processId, database);
 		log.trace("auto-complete new product system {}", system);
 		IProductSystemBuilder builder = IProductSystemBuilder.Factory.create(
-				database, null, false);
+				cache, null, false);
 		builder.autoComplete(system);
 		log.trace("new system created");
 	}

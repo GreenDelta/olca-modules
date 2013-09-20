@@ -9,6 +9,7 @@ import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.ProductIndexBuilder;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.jblas.Library;
 import org.slf4j.Logger;
@@ -57,14 +58,15 @@ public class CheckMatrixCommand {
 	private void run(LongPair refProduct, IDatabase database) {
 		try {
 
+			MatrixCache cache = MatrixCache.create(database);
 			log.info("check product system {}#{}", refProduct.getFirst(),
 					refProduct.getSecond());
 
-			ProductIndexBuilder builder = new ProductIndexBuilder(database);
+			ProductIndexBuilder builder = new ProductIndexBuilder(cache);
 			ProductIndex index = builder.build(refProduct, 1d);
 
 			log.trace("Build inventory");
-			InventoryBuilder matrixBuilder = new InventoryBuilder(database);
+			InventoryBuilder matrixBuilder = new InventoryBuilder(cache);
 			Inventory inventory = matrixBuilder.build(index,
 					AllocationMethod.USE_DEFAULT);
 

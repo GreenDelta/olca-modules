@@ -8,6 +8,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.InventoryFlowResult;
@@ -34,13 +35,14 @@ public class SystemCalculationCommand {
 					.getForId(systemId);
 			log.trace("solve system with {} processes", system.getProcesses()
 					.size());
-			SystemCalculator calculator = new SystemCalculator(database);
+			MatrixCache cache = MatrixCache.create(database);
+			SystemCalculator calculator = new SystemCalculator(cache);
 			CalculationSetup setup = new CalculationSetup(system,
 					CalculationSetup.QUICK_RESULT);
 			InventoryResult result = calculator.solve(setup);
 			log.trace("print results");
-			EntityCache cache = EntityCache.create(database);
-			printInventoryResult(result, cache);
+			EntityCache entityCache = EntityCache.create(database);
+			printInventoryResult(result, entityCache);
 		} catch (Exception e) {
 			log.error("failed to solve system with ID " + args[0], e);
 		}
@@ -56,15 +58,16 @@ public class SystemCalculationCommand {
 					.getForId(systemId);
 			log.trace("analyse system with {} processes", system.getProcesses()
 					.size());
-			SystemCalculator calculator = new SystemCalculator(database);
+			MatrixCache cache = MatrixCache.create(database);
+			SystemCalculator calculator = new SystemCalculator(cache);
 			CalculationSetup setup = new CalculationSetup(system,
 					CalculationSetup.ANALYSIS);
 			AnalysisResult result = calculator.analyse(setup);
-			EntityCache cache = EntityCache.create(database);
+			EntityCache entityCache = EntityCache.create(database);
 			if (file != null) {
 				log.trace("export result to file {}", file);
 				AnalysisResultExport export = new AnalysisResultExport(system,
-						file, cache);
+						file, entityCache);
 				export.run(result);
 				log.trace("done");
 			}

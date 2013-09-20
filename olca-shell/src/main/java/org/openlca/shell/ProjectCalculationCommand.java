@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.ProjectCalculator;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +22,10 @@ public class ProjectCalculationCommand {
 			return;
 		try {
 			log.trace("calculate project {}", projectId);
+			MatrixCache cache = MatrixCache.create(database);
 			Project project = database.createDao(Project.class).getForId(
 					projectId);
-			ProjectCalculator calculator = new ProjectCalculator(database);
+			ProjectCalculator calculator = new ProjectCalculator(cache);
 			calculator.solve(project);
 			if (exportFile == null)
 				log.trace("no export file defined");
