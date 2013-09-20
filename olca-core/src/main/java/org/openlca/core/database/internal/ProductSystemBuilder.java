@@ -22,6 +22,7 @@ import org.openlca.core.jobs.IProgressMonitor;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.ProductIndexBuilder;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
@@ -36,12 +37,14 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 
 	private IProgressMonitor progressMonitor;
 
+	private MatrixCache matrixCache;
 	private IDatabase database;
 	private boolean preferSystemProcesses;
 
-	public ProductSystemBuilder(IDatabase database,
+	public ProductSystemBuilder(MatrixCache matrixCache,
 			boolean preferSystemProcesses) {
-		this.database = database;
+		this.matrixCache = matrixCache;
+		this.database = matrixCache.getDatabase();
 		this.preferSystemProcesses = preferSystemProcesses;
 	}
 
@@ -75,7 +78,7 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 	}
 
 	private void run(ProductSystem system, LongPair processProduct) {
-		ProductIndexBuilder builder = new ProductIndexBuilder(database);
+		ProductIndexBuilder builder = new ProductIndexBuilder(matrixCache);
 		builder.setPreferredType(preferSystemProcesses ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS);
 		ProductIndex index = builder.build(processProduct);

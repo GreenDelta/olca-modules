@@ -31,8 +31,7 @@ public class ImpactMatrixBuilder {
 		LongIndex categoryIndex = buildCategoryIndex(impactMethodId);
 		if (categoryIndex.isEmpty() || flowIndex.isEmpty())
 			return null;
-		ImpactMatrix matrix = new ImpactMatrix(categoryIndex.size(),
-				flowIndex.size());
+		ImpactMatrix matrix = new ImpactMatrix(categoryIndex, flowIndex);
 		List<Long> impactCategoryIds = new ArrayList<>();
 		for (long categoryId : categoryIndex.getKeys())
 			impactCategoryIds.add(categoryId);

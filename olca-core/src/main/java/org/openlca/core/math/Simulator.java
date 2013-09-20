@@ -1,9 +1,9 @@
 package org.openlca.core.math;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.InventoryResult;
@@ -20,15 +20,16 @@ public class Simulator {
 
 	private ProductSystem system;
 	private ImpactMethodDescriptor impactMethod;
-	private IDatabase database;
+	private MatrixCache database;
 
 	private SimulationResult result;
 	private ImpactMatrix impactMatrix;
+	private IMatrix realImpactMatrix;
 	private Inventory inventory;
 	private InventoryMatrix matrix;
 	private CalculationSetup setup;
 
-	public Simulator(CalculationSetup setup, IDatabase database) {
+	public Simulator(CalculationSetup setup, MatrixCache database) {
 		this.system = setup.getProductSystem();
 		this.impactMethod = setup.getImpactMethod();
 		this.database = database;
@@ -53,12 +54,16 @@ public class Simulator {
 					matrix.getInterventionMatrix());
 			inventory.getTechnologyMatrix().simulate(
 					matrix.getTechnologyMatrix());
+			// TODO: simulate impact results
+			// if (impactMatrix != null)
+			// impactMatrix.simulate(realImpactMatrix);
 			InventorySolver solver = new InventorySolver();
 			InventoryResult inventoryResult = solver
 					.solve(matrix, impactMatrix);
 			result.appendFlowResults(inventoryResult.getFlowResultVector());
 			if (result.hasImpactResults())
-				result.appendImpactResults(inventoryResult.getImpactResultVector());
+				result.appendImpactResults(inventoryResult
+						.getImpactResultVector());
 			return true;
 		} catch (Throwable e) {
 			log.trace("simulation run failed", e);
@@ -70,9 +75,11 @@ public class Simulator {
 		log.trace("set up inventory");
 		inventory = Calculators.createInventory(setup, database);
 		inventory.evalFormulas();
-		if (impactMethod != null)
+		if (impactMethod != null) {
 			impactMatrix = Calculators.createImpactMatrix(impactMethod,
 					inventory.getFlowIndex(), database);
+			// realImpactMatrix = impactMatrix.createRealMatrix();
+		}
 		matrix = new InventoryMatrix();
 		matrix.setFlowIndex(inventory.getFlowIndex());
 		matrix.setProductIndex(inventory.getProductIndex());

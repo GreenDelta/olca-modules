@@ -39,7 +39,7 @@ public class InventorySolver {
 		result.setProductIndex(matrix.getProductIndex());
 		result.setScalingFactors(s.getColumn(0));
 		if (impactMatrix != null) {
-			IMatrix impactFactors = impactMatrix.getValues();
+			IMatrix impactFactors = impactMatrix.createRealMatrix();
 			IMatrix i = impactFactors.multiply(g);
 			result.setImpactIndex(impactMatrix.getCategoryIndex());
 			result.setImpactResultVector(i.getColumn(0));
@@ -104,7 +104,7 @@ public class InventorySolver {
 
 		if (impactMatrix != null) {
 			result.setImpactCategoryIndex(impactMatrix.getCategoryIndex());
-			IMatrix factors = impactMatrix.getValues();
+			IMatrix factors = impactMatrix.createRealMatrix();
 			result.setImpactFactors(factors);
 			IMatrix singleImpactResult = factors.multiply(singleResult);
 			result.setSingleImpactResult(singleImpactResult);

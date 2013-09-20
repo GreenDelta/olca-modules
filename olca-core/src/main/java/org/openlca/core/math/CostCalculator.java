@@ -1,9 +1,9 @@
 package org.openlca.core.math;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.CostMatrix;
 import org.openlca.core.matrix.CostMatrixBuilder;
 import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.results.CostResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
 public class CostCalculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
+	private MatrixCache matrixCache;
 
-	public CostCalculator(IDatabase database) {
-		this.database = database;
+	public CostCalculator(MatrixCache matrixCache) {
+		this.matrixCache = matrixCache;
 	}
 
 	/**
@@ -26,7 +26,7 @@ public class CostCalculator {
 		CostResult result = new CostResult();
 		result.setProductIndex(index);
 		try {
-			CostMatrixBuilder builder = new CostMatrixBuilder(database);
+			CostMatrixBuilder builder = new CostMatrixBuilder(matrixCache);
 			CostMatrix matrix = builder.build(index);
 			if (matrix.hasVarCosts())
 				calculateVarCosts(matrix, s, result);

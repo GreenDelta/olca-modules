@@ -1,6 +1,5 @@
 package org.openlca.core.math;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.FormulaInterpreterBuilder;
 import org.openlca.core.matrix.ImpactMatrix;
@@ -36,8 +35,8 @@ final class Calculators {
 	 * and flows.
 	 */
 	static ImpactMatrix createImpactMatrix(ImpactMethodDescriptor method,
-			FlowIndex flowIndex, IDatabase database) {
-		ImpactMatrixBuilder builder = new ImpactMatrixBuilder(database);
+			FlowIndex flowIndex, MatrixCache matrixCache) {
+		ImpactMatrixBuilder builder = new ImpactMatrixBuilder(matrixCache);
 		ImpactMatrix matrix = builder.build(method.getId(), flowIndex);
 		return matrix;
 	}
@@ -51,7 +50,7 @@ final class Calculators {
 		InventoryBuilder inventoryBuilder = new InventoryBuilder(cache);
 		Inventory inventory = inventoryBuilder.build(productIndex, method);
 		FormulaInterpreter interpreter = FormulaInterpreterBuilder.build(
-				database, productIndex.getProcessIds());
+				cache.getDatabase(), productIndex.getProcessIds());
 		FormulaInterpreterBuilder
 				.apply(setup.getParameterRedefs(), interpreter);
 		inventory.setFormulaInterpreter(interpreter);

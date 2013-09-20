@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import org.openlca.core.database.internal.ProductSystemBuilder;
 import org.openlca.core.jobs.IProgressMonitor;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,20 +34,20 @@ public interface IProductSystemBuilder {
 		private Factory() {
 		}
 
-		public static IProductSystemBuilder create(IDatabase database,
+		public static IProductSystemBuilder create(MatrixCache matrixCache,
 				IProgressMonitor monitor, boolean preferSystemProcesses) {
 			log.trace("Create normal product system builder");
-			ProductSystemBuilder builder = new ProductSystemBuilder(database,
-					preferSystemProcesses);
+			ProductSystemBuilder builder = new ProductSystemBuilder(
+					matrixCache, preferSystemProcesses);
 			builder.setProgressMonitor(monitor);
 			return builder;
 		}
 
-		public static IProductSystemBuilder create(IDatabase database,
+		public static IProductSystemBuilder create(MatrixCache matrixCache,
 				IProgressMonitor monitor, boolean preferSystemProcesses,
 				double cutoff) {
 			log.trace("Create product system builder with cut-off = {}", cutoff);
-			return create(database, monitor, preferSystemProcesses);
+			return create(matrixCache, monitor, preferSystemProcesses);
 			// TODO: no cutoff!
 		}
 	}

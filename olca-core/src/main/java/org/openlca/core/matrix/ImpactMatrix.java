@@ -15,11 +15,23 @@ public class ImpactMatrix {
 	private int columns;
 	private int rows;
 	private final HashMap<Integer, HashMap<Integer, ImpactFactorCell>> cells;
+	private LongIndex categoryIndex;
+	private FlowIndex flowIndex;
 
-	public ImpactMatrix(int rows, int columns) {
-		this.columns = columns;
-		this.rows = rows;
+	public ImpactMatrix(LongIndex categoryIndex, FlowIndex flowIndex) {
+		this.categoryIndex = categoryIndex;
+		this.flowIndex = flowIndex;
+		this.columns = flowIndex.size();
+		this.rows = categoryIndex.size();
 		cells = new HashMap<>();
+	}
+
+	public LongIndex getCategoryIndex() {
+		return categoryIndex;
+	}
+
+	public FlowIndex getFlowIndex() {
+		return flowIndex;
 	}
 
 	public boolean isEmpty() {
