@@ -64,7 +64,7 @@ public class CsvMatrixExportData {
 		this.columnSeperator = columnSeperator;
 	}
 
-	public void setCache(EntityCache cache) {
+	public void setEntityCache(EntityCache cache) {
 		this.cache = cache;
 	}
 
