@@ -38,6 +38,28 @@ public final class MatrixCache {
 		costCache = CostEntryCache.create(database);
 	}
 
+	public void evictAll() {
+		flowTypeTable.reload();
+		conversionTable.reload();
+		processTable.reload();
+		exchangeCache.invalidateAll();
+		allocationCache.invalidateAll();
+		impactCache.invalidateAll();
+		costCache.invalidateAll();
+	}
+
+	/**
+	 * Drops the vectors for the process with the given ID from the cache.
+	 */
+	public void evictProcess(Long id) {
+		if (id == null)
+			return;
+		processTable.reload();
+		exchangeCache.invalidate(id);
+		allocationCache.invalidate(id);
+		costCache.invalidate(id);
+	}
+
 	public IDatabase getDatabase() {
 		return database;
 	}
