@@ -1,6 +1,6 @@
 package org.openlca.core.math;
 
-import org.openlca.core.matrix.ImpactMatrix;
+import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.results.AnalysisResult;
@@ -25,10 +25,10 @@ public class SystemCalculator {
 		if (setup.getImpactMethod() == null)
 			return solver.solve(inventory);
 		else {
-			ImpactMatrix impactMatrix = Calculators
-					.createImpactMatrix(setup.getImpactMethod(),
-							inventory.getFlowIndex(), matrixCache);
-			return solver.solve(inventory, impactMatrix);
+			ImpactTable impactTable = Calculators.createImpactTable(
+					setup.getImpactMethod(), inventory.getFlowIndex(),
+					matrixCache);
+			return solver.solve(inventory, impactTable);
 		}
 	}
 
@@ -40,10 +40,10 @@ public class SystemCalculator {
 		if (setup.getImpactMethod() == null)
 			return solver.analyse(inventory);
 		else {
-			ImpactMatrix impactMatrix = Calculators
-					.createImpactMatrix(setup.getImpactMethod(),
-							inventory.getFlowIndex(), matrixCache);
-			return solver.analyse(inventory, impactMatrix);
+			ImpactTable impactTable = Calculators.createImpactTable(
+					setup.getImpactMethod(), inventory.getFlowIndex(),
+					matrixCache);
+			return solver.analyse(inventory, impactTable);
 		}
 	}
 

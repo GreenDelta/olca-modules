@@ -2,7 +2,6 @@ package org.openlca.core.matrix;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,27 +16,29 @@ import com.google.common.primitives.Longs;
  * Builds a matrix with impact assessment factors.
  * 
  */
-public class ImpactMatrixBuilder {
+public class ImpactTableBuilder {
 
 	private MatrixCache cache;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public ImpactMatrixBuilder(MatrixCache cache) {
+	public ImpactTableBuilder(MatrixCache cache) {
 		this.cache = cache;
 	}
 
-	public ImpactMatrix build(long impactMethodId, FlowIndex flowIndex) {
+	public ImpactTable build(long impactMethodId, FlowIndex flowIndex) {
 		log.trace("Build impact factor matrix for method {}", impactMethodId);
 		LongIndex categoryIndex = buildCategoryIndex(impactMethodId);
 		if (categoryIndex.isEmpty() || flowIndex.isEmpty())
 			return null;
-		ImpactMatrix matrix = new ImpactMatrix(categoryIndex, flowIndex);
-		List<Long> impactCategoryIds = new ArrayList<>();
-		for (long categoryId : categoryIndex.getKeys())
-			impactCategoryIds.add(categoryId);
+		ImpactTable table = new ImpactTable();
+		table.setCategoryIndex(categoryIndex);
+		table.setFlowIndex(flowIndex);
+		ImpactFactorMatrix matrix = new ImpactFactorMatrix(
+				categoryIndex.size(), flowIndex.size());
+		table.setFactorMatrix(matrix);
 		fill(matrix, flowIndex, categoryIndex);
 		log.trace("Impact factor matrix ready");
-		return matrix;
+		return table;
 	}
 
 	private LongIndex buildCategoryIndex(long methodId) {
@@ -57,7 +58,7 @@ public class ImpactMatrixBuilder {
 		return index;
 	}
 
-	private void fill(ImpactMatrix matrix, FlowIndex flowIndex,
+	private void fill(ImpactFactorMatrix matrix, FlowIndex flowIndex,
 			LongIndex categoryIndex) {
 		Map<Long, List<CalcImpactFactor>> factorMap = loadFactors(categoryIndex);
 		for (int row = 0; row < categoryIndex.size(); row++) {

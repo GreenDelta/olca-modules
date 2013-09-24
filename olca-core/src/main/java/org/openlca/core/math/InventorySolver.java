@@ -2,6 +2,7 @@ package org.openlca.core.math;
 
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactMatrix;
+import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.ProductIndex;
@@ -15,8 +16,9 @@ public class InventorySolver {
 		return solve(inventory, null);
 	}
 
-	public InventoryResult solve(Inventory inventory, ImpactMatrix impactMatrix) {
+	public InventoryResult solve(Inventory inventory, ImpactTable impactTable) {
 		InventoryMatrix matrix = asMatrix(inventory);
+		ImpactMatrix impactMatrix = asMatrix(impactTable);
 		return solve(matrix, impactMatrix);
 	}
 
@@ -39,7 +41,7 @@ public class InventorySolver {
 		result.setProductIndex(matrix.getProductIndex());
 		result.setScalingFactors(s.getColumn(0));
 		if (impactMatrix != null) {
-			IMatrix impactFactors = impactMatrix.createRealMatrix();
+			IMatrix impactFactors = impactMatrix.getFactorMatrix();
 			IMatrix i = impactFactors.multiply(g);
 			result.setImpactIndex(impactMatrix.getCategoryIndex());
 			result.setImpactResultVector(i.getColumn(0));
@@ -51,8 +53,9 @@ public class InventorySolver {
 		return analyse(inventory, null);
 	}
 
-	public AnalysisResult analyse(Inventory inventory, ImpactMatrix impactMatrix) {
+	public AnalysisResult analyse(Inventory inventory, ImpactTable impactTable) {
 		InventoryMatrix matrix = asMatrix(inventory);
+		ImpactMatrix impactMatrix = asMatrix(impactTable);
 		return analyse(matrix, impactMatrix);
 	}
 
@@ -104,7 +107,7 @@ public class InventorySolver {
 
 		if (impactMatrix != null) {
 			result.setImpactCategoryIndex(impactMatrix.getCategoryIndex());
-			IMatrix factors = impactMatrix.createRealMatrix();
+			IMatrix factors = impactMatrix.getFactorMatrix();
 			result.setImpactFactors(factors);
 			IMatrix singleImpactResult = factors.multiply(singleResult);
 			result.setSingleImpactResult(singleImpactResult);
@@ -125,6 +128,18 @@ public class InventorySolver {
 		matrix.setInterventionMatrix(enviMatrix);
 		IMatrix techMatrix = inventory.getTechnologyMatrix().createRealMatrix();
 		matrix.setTechnologyMatrix(techMatrix);
+		return matrix;
+	}
+
+	private ImpactMatrix asMatrix(ImpactTable impactTable) {
+		if (impactTable == null)
+			return null;
+		ImpactMatrix matrix = new ImpactMatrix();
+		matrix.setCategoryIndex(impactTable.getCategoryIndex());
+		if (impactTable.getFactorMatrix() != null)
+			matrix.setFactorMatrix(impactTable.getFactorMatrix()
+					.createRealMatrix());
+		matrix.setFlowIndex(impactTable.getFlowIndex());
 		return matrix;
 	}
 

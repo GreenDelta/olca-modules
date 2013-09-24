@@ -1,6 +1,7 @@
 package org.openlca.core.math;
 
 import org.openlca.core.matrix.ImpactMatrix;
+import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -23,10 +24,10 @@ public class Simulator {
 	private MatrixCache database;
 
 	private SimulationResult result;
-	private ImpactMatrix impactMatrix;
-	private IMatrix realImpactMatrix;
 	private Inventory inventory;
-	private InventoryMatrix matrix;
+	private InventoryMatrix inventoryMatrix;
+	private ImpactTable impactTable;
+	private ImpactMatrix impactMatrix;
 	private CalculationSetup setup;
 
 	public Simulator(CalculationSetup setup, MatrixCache database) {
@@ -46,20 +47,20 @@ public class Simulator {
 	 * case when the resulting matrix is singular).
 	 */
 	public boolean nextRun() {
-		if (inventory == null || matrix == null)
+		if (inventory == null || inventoryMatrix == null)
 			setUp();
 		try {
 			log.trace("next simulation run");
 			inventory.getInterventionMatrix().simulate(
-					matrix.getInterventionMatrix());
+					inventoryMatrix.getInterventionMatrix());
 			inventory.getTechnologyMatrix().simulate(
-					matrix.getTechnologyMatrix());
+					inventoryMatrix.getTechnologyMatrix());
 			// TODO: simulate impact results
 			// if (impactMatrix != null)
 			// impactMatrix.simulate(realImpactMatrix);
 			InventorySolver solver = new InventorySolver();
-			InventoryResult inventoryResult = solver
-					.solve(matrix, impactMatrix);
+			InventoryResult inventoryResult = solver.solve(inventoryMatrix,
+					impactMatrix);
 			result.appendFlowResults(inventoryResult.getFlowResultVector());
 			if (result.hasImpactResults())
 				result.appendImpactResults(inventoryResult
@@ -75,22 +76,24 @@ public class Simulator {
 		log.trace("set up inventory");
 		inventory = Calculators.createInventory(setup, database);
 		inventory.evalFormulas();
+		inventoryMatrix = new InventoryMatrix();
+		inventoryMatrix.setFlowIndex(inventory.getFlowIndex());
+		inventoryMatrix.setProductIndex(inventory.getProductIndex());
+		IMatrix techMatrix = inventory.getTechnologyMatrix().createRealMatrix();
+		inventoryMatrix.setTechnologyMatrix(techMatrix);
+		IMatrix enviMatrix = inventory.getInterventionMatrix()
+				.createRealMatrix();
+		inventoryMatrix.setInterventionMatrix(enviMatrix);
+		result = new SimulationResult(inventory.getFlowIndex());
+
+		// TODO: init LCIA simulation
+		if (impactTable != null)
+			result.setImpactIndex(impactTable.getCategoryIndex());
 		if (impactMethod != null) {
-			impactMatrix = Calculators.createImpactMatrix(impactMethod,
+			impactTable = Calculators.createImpactTable(impactMethod,
 					inventory.getFlowIndex(), database);
 			// realImpactMatrix = impactMatrix.createRealMatrix();
 		}
-		matrix = new InventoryMatrix();
-		matrix.setFlowIndex(inventory.getFlowIndex());
-		matrix.setProductIndex(inventory.getProductIndex());
-		IMatrix techMatrix = inventory.getTechnologyMatrix().createRealMatrix();
-		matrix.setTechnologyMatrix(techMatrix);
-		IMatrix enviMatrix = inventory.getInterventionMatrix()
-				.createRealMatrix();
-		matrix.setInterventionMatrix(enviMatrix);
-		result = new SimulationResult(inventory.getFlowIndex());
-		if (impactMatrix != null)
-			result.setImpactIndex(impactMatrix.getCategoryIndex());
 	}
 
 }

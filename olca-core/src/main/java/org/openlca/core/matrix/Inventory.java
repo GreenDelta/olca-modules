@@ -3,6 +3,9 @@ package org.openlca.core.matrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
 
+/**
+ * Contains all the information of the inventory of a complete product system.
+ */
 public class Inventory {
 
 	private ProductIndex productIndex;

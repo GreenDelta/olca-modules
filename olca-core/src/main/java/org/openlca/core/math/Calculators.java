@@ -2,8 +2,8 @@ package org.openlca.core.math;
 
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.FormulaInterpreterBuilder;
-import org.openlca.core.matrix.ImpactMatrix;
-import org.openlca.core.matrix.ImpactMatrixBuilder;
+import org.openlca.core.matrix.ImpactTable;
+import org.openlca.core.matrix.ImpactTableBuilder;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.LongPair;
@@ -34,11 +34,11 @@ final class Calculators {
 	 * Creates a matrix with the impact assessment factors for the given method
 	 * and flows.
 	 */
-	static ImpactMatrix createImpactMatrix(ImpactMethodDescriptor method,
+	static ImpactTable createImpactTable(ImpactMethodDescriptor method,
 			FlowIndex flowIndex, MatrixCache matrixCache) {
-		ImpactMatrixBuilder builder = new ImpactMatrixBuilder(matrixCache);
-		ImpactMatrix matrix = builder.build(method.getId(), flowIndex);
-		return matrix;
+		ImpactTableBuilder builder = new ImpactTableBuilder(matrixCache);
+		ImpactTable table = builder.build(method.getId(), flowIndex);
+		return table;
 	}
 
 	static Inventory createInventory(CalculationSetup setup, MatrixCache cache) {

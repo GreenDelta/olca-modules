@@ -1,17 +1,15 @@
 package org.openlca.core.matrix;
 
-import org.openlca.core.math.IMatrix;
-
-public class ImpactMatrix {
+public class ImpactTable {
 
 	private LongIndex categoryIndex;
 	private FlowIndex flowIndex;
-	private IMatrix factorMatrix;
+	private ImpactFactorMatrix factorMatrix;
 
 	public boolean isEmpty() {
-		return flowIndex == null || flowIndex.size() == 0
-				|| categoryIndex == null || categoryIndex.size() == 0
-				|| factorMatrix == null;
+		return categoryIndex == null || categoryIndex.isEmpty()
+				|| flowIndex == null || flowIndex.isEmpty()
+				|| factorMatrix == null || factorMatrix.isEmpty();
 	}
 
 	public LongIndex getCategoryIndex() {
@@ -30,11 +28,11 @@ public class ImpactMatrix {
 		this.flowIndex = flowIndex;
 	}
 
-	public IMatrix getFactorMatrix() {
+	public ImpactFactorMatrix getFactorMatrix() {
 		return factorMatrix;
 	}
 
-	public void setFactorMatrix(IMatrix factorMatrix) {
+	public void setFactorMatrix(ImpactFactorMatrix factorMatrix) {
 		this.factorMatrix = factorMatrix;
 	}
 
