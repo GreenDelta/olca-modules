@@ -191,6 +191,8 @@ class ProcessImport {
 		exchange.setFlowPropertyFactor(flow.getReferenceFactor());
 		exchange.setUnit(unit);
 		exchange.setAmountValue(original.getAmount());
+		if (original.getMathematicalRelation() != null)
+			exchange.setAmountFormula(original.getMathematicalRelation());
 		process.getExchanges().add(exchange);
 		return exchange;
 	}
@@ -224,10 +226,12 @@ class ProcessImport {
 
 	private void mapParameters(DataSet dataSet, Process process) {
 		for (Parameter param : dataSet.getParameters()) {
+			if (param.getVariableName() == null)
+				continue; // not a parameter that can be used in formulas
 			org.openlca.core.model.Parameter olcaParam = new org.openlca.core.model.Parameter();
 			olcaParam.setDescription(param.getUnitName());
 			olcaParam.setInputParameter(true);
-			olcaParam.setName(param.getName());
+			olcaParam.setName(param.getVariableName());
 			olcaParam.setScope(ParameterScope.PROCESS);
 			olcaParam.setValue(param.getAmount());
 			process.getParameters().add(olcaParam);
