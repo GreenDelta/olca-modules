@@ -36,4 +36,13 @@ public class ImpactTable {
 		this.factorMatrix = factorMatrix;
 	}
 
+	public ImpactMatrix asMatrix() {
+		ImpactMatrix matrix = new ImpactMatrix();
+		matrix.setCategoryIndex(categoryIndex);
+		if (factorMatrix != null)
+			matrix.setFactorMatrix(factorMatrix.createRealMatrix());
+		matrix.setFlowIndex(flowIndex);
+		return matrix;
+	}
+
 }

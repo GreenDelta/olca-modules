@@ -17,8 +17,9 @@ public class InventorySolver {
 	}
 
 	public InventoryResult solve(Inventory inventory, ImpactTable impactTable) {
-		InventoryMatrix matrix = asMatrix(inventory);
-		ImpactMatrix impactMatrix = asMatrix(impactTable);
+		InventoryMatrix matrix = inventory.asMatrix();
+		ImpactMatrix impactMatrix = impactTable != null ? impactTable
+				.asMatrix() : null;
 		return solve(matrix, impactMatrix);
 	}
 
@@ -54,8 +55,9 @@ public class InventorySolver {
 	}
 
 	public AnalysisResult analyse(Inventory inventory, ImpactTable impactTable) {
-		InventoryMatrix matrix = asMatrix(inventory);
-		ImpactMatrix impactMatrix = asMatrix(impactTable);
+		InventoryMatrix matrix = inventory.asMatrix();
+		ImpactMatrix impactMatrix = impactTable != null ? impactTable
+				.asMatrix() : null;
 		return analyse(matrix, impactMatrix);
 	}
 
@@ -116,31 +118,6 @@ public class InventorySolver {
 		}
 		return result;
 
-	}
-
-	private InventoryMatrix asMatrix(Inventory inventory) {
-		inventory.evalFormulas();
-		InventoryMatrix matrix = new InventoryMatrix();
-		matrix.setFlowIndex(inventory.getFlowIndex());
-		matrix.setProductIndex(inventory.getProductIndex());
-		IMatrix enviMatrix = inventory.getInterventionMatrix()
-				.createRealMatrix();
-		matrix.setInterventionMatrix(enviMatrix);
-		IMatrix techMatrix = inventory.getTechnologyMatrix().createRealMatrix();
-		matrix.setTechnologyMatrix(techMatrix);
-		return matrix;
-	}
-
-	private ImpactMatrix asMatrix(ImpactTable impactTable) {
-		if (impactTable == null)
-			return null;
-		ImpactMatrix matrix = new ImpactMatrix();
-		matrix.setCategoryIndex(impactTable.getCategoryIndex());
-		if (impactTable.getFactorMatrix() != null)
-			matrix.setFactorMatrix(impactTable.getFactorMatrix()
-					.createRealMatrix());
-		matrix.setFlowIndex(impactTable.getFlowIndex());
-		return matrix;
 	}
 
 }

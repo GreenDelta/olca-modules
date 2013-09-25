@@ -55,9 +55,9 @@ public class Simulator {
 					inventoryMatrix.getInterventionMatrix());
 			inventory.getTechnologyMatrix().simulate(
 					inventoryMatrix.getTechnologyMatrix());
-			// TODO: simulate impact results
-			// if (impactMatrix != null)
-			// impactMatrix.simulate(realImpactMatrix);
+			if (impactMatrix != null)
+				impactTable.getFactorMatrix().simulate(
+						impactMatrix.getFactorMatrix());
 			InventorySolver solver = new InventorySolver();
 			InventoryResult inventoryResult = solver.solve(inventoryMatrix,
 					impactMatrix);
@@ -75,24 +75,16 @@ public class Simulator {
 	private void setUp() {
 		log.trace("set up inventory");
 		inventory = Calculators.createInventory(setup, database);
-		inventory.evalFormulas();
-		inventoryMatrix = new InventoryMatrix();
-		inventoryMatrix.setFlowIndex(inventory.getFlowIndex());
-		inventoryMatrix.setProductIndex(inventory.getProductIndex());
-		IMatrix techMatrix = inventory.getTechnologyMatrix().createRealMatrix();
-		inventoryMatrix.setTechnologyMatrix(techMatrix);
-		IMatrix enviMatrix = inventory.getInterventionMatrix()
-				.createRealMatrix();
-		inventoryMatrix.setInterventionMatrix(enviMatrix);
+		inventoryMatrix = inventory.asMatrix();
 		result = new SimulationResult(inventory.getFlowIndex());
-
-		// TODO: init LCIA simulation
-		if (impactTable != null)
-			result.setImpactIndex(impactTable.getCategoryIndex());
 		if (impactMethod != null) {
-			impactTable = Calculators.createImpactTable(impactMethod,
-					inventory.getFlowIndex(), database);
-			// realImpactMatrix = impactMatrix.createRealMatrix();
+			ImpactTable impactTable = Calculators.createImpactTable(
+					impactMethod, inventory.getFlowIndex(), database);
+			if (impactTable.isEmpty())
+				return;
+			this.impactTable = impactTable;
+			this.impactMatrix = impactTable.asMatrix();
+			result.setImpactIndex(impactTable.getCategoryIndex());
 		}
 	}
 
