@@ -12,6 +12,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.Uncertainty;
+import org.openlca.core.model.UncertaintyType;
 import org.openlca.io.TestSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +75,16 @@ public class EcoSpold2ImportTest {
 					|| Objects.equal("allard_mine_area_yearly_growth",
 							parameter.getName()));
 		}
+	}
+
+	@Test
+	public void testUncertaintyImported() {
+		Process process = dao.getForRefId(REF_ID);
+		Uncertainty uncertainty = process.getQuantitativeReference()
+				.getUncertainty();
+		Assert.assertEquals(UncertaintyType.LOG_NORMAL,
+				uncertainty.getDistributionType());
+		Assert.assertEquals(33, uncertainty.getParameter1Value(), 1e-16);
 	}
 
 }

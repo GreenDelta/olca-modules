@@ -193,6 +193,8 @@ class ProcessImport {
 		exchange.setAmountValue(original.getAmount());
 		if (original.getMathematicalRelation() != null)
 			exchange.setAmountFormula(original.getMathematicalRelation());
+		exchange.setUncertainty(UncertaintyConverter.toOpenLCA(original
+				.getUncertainty()));
 		process.getExchanges().add(exchange);
 		return exchange;
 	}
