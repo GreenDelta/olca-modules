@@ -196,7 +196,20 @@ class ProcessImport {
 		exchange.setUncertainty(UncertaintyConverter.toOpenLCA(original
 				.getUncertainty()));
 		process.getExchanges().add(exchange);
+		if (original.getVariableName() != null)
+			createParameter(original, process);
 		return exchange;
+	}
+
+	private void createParameter(org.openlca.ecospold2.Exchange exchange,
+			Process process) {
+		org.openlca.core.model.Parameter olcaParam = new org.openlca.core.model.Parameter();
+		olcaParam.setInputParameter(false);
+		olcaParam.setName(exchange.getVariableName());
+		olcaParam.setScope(ParameterScope.PROCESS);
+		olcaParam.setValue(exchange.getAmount());
+		olcaParam.setFormula(exchange.getMathematicalRelation());
+		process.getParameters().add(olcaParam);
 	}
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {

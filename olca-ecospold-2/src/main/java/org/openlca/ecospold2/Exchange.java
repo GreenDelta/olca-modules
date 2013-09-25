@@ -12,6 +12,7 @@ public abstract class Exchange {
 	private double amount;
 	private String name;
 	private String unitName;
+	private String variableName;
 	private String mathematicalRelation;
 	private String comment;
 	private Uncertainty uncertainty;
@@ -99,12 +100,21 @@ public abstract class Exchange {
 		this.outputGroup = outputGroup;
 	}
 
+	public String getVariableName() {
+		return variableName;
+	}
+
+	public void setVariableName(String variableName) {
+		this.variableName = variableName;
+	}
+
 	protected void readValues(Element element) {
 		String amount = element.getAttributeValue("amount");
 		setAmount(In.decimal(amount));
 		setId(element.getAttributeValue("id"));
 		setMathematicalRelation(element
 				.getAttributeValue("mathematicalRelation"));
+		setVariableName(element.getAttributeValue("variableName"));
 		setName(In.childText(element, "name"));
 		setUnitName(In.childText(element, "unitName"));
 		setComment(In.childText(element, "comment"));
@@ -133,6 +143,8 @@ public abstract class Exchange {
 		element.setAttribute("amount", Double.toString(amount));
 		if (mathematicalRelation != null)
 			element.setAttribute("mathematicalRelation", mathematicalRelation);
+		if (variableName != null)
+			element.setAttribute("variableName", variableName);
 		Out.addChild(element, "name", name);
 		Out.addChild(element, "unitName", unitName);
 		if (comment != null)

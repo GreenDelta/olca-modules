@@ -252,17 +252,17 @@ CREATE TABLE tbl_exchanges (
 	is_input SMALLINT default 0, 
 	f_flow_property_factor BIGINT, 
 	resulting_amount_value DOUBLE, 
-	resulting_amount_formula VARCHAR(255), 
+	resulting_amount_formula VARCHAR(1000), 
 	avoided_product SMALLINT default 0,
 	f_default_provider BIGINT,
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
-	parameter1_formula VARCHAR(255), 
+	parameter1_formula VARCHAR(1000), 
 	parameter2_value DOUBLE, 
-	parameter2_formula VARCHAR(255), 
+	parameter2_formula VARCHAR(1000), 
 	parameter3_value DOUBLE, 
-	parameter3_formula VARCHAR(255), 
+	parameter3_formula VARCHAR(1000), 
 	
 	pedigree_uncertainty VARCHAR(50),
 	base_uncertainty DOUBLE,
@@ -366,11 +366,11 @@ CREATE TABLE tbl_impact_factors (
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
-	parameter1_formula VARCHAR(255), 
+	parameter1_formula VARCHAR(1000), 
 	parameter2_value DOUBLE, 
-	parameter2_formula VARCHAR(255), 
+	parameter2_formula VARCHAR(1000), 
 	parameter3_value DOUBLE, 
-	parameter3_formula VARCHAR(255), 
+	parameter3_formula VARCHAR(1000), 
 	
 	PRIMARY KEY (id)
 
@@ -415,7 +415,7 @@ CREATE TABLE tbl_parameters (
 	f_owner BIGINT, 
 	scope VARCHAR(255), 
 	value DOUBLE, 
-	formula VARCHAR(255),
+	formula VARCHAR(1000),
 	
 	PRIMARY KEY (id)
 );
