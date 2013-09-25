@@ -69,8 +69,11 @@ public class ExchangeCell {
 	}
 
 	public double getNextSimulationValue() {
+		UncertaintyType type = exchange.getUncertaintyType();
+		if (type == null || type == UncertaintyType.NONE)
+			return getMatrixValue();
 		if (generator == null)
-			generator = createGenerator();
+			generator = createGenerator(type);
 		double amount = generator.next() * allocationFactor
 				* exchange.getConversionFactor();
 		if (exchange.isInput())
@@ -79,13 +82,9 @@ public class ExchangeCell {
 			return amount;
 	}
 
-	private NumberGenerator createGenerator() {
-		UncertaintyType type = exchange.getUncertaintyType();
-		if (type == null && type == UncertaintyType.NONE)
-			return NumberGenerator.discrete(exchange.getAmount()
-					* exchange.getConversionFactor());
+	private NumberGenerator createGenerator(UncertaintyType type) {
 		final CalcExchange e = exchange;
-		switch (e.getUncertaintyType()) {
+		switch (type) {
 		case LOG_NORMAL:
 			return NumberGenerator.logNormal(e.getParameter1(),
 					e.getParameter2());

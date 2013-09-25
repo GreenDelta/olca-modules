@@ -25,19 +25,18 @@ public class ImpactFactorCell {
 	}
 
 	public double getNextSimulationValue() {
+		UncertaintyType type = factor.getUncertaintyType();
+		if (type == null || type == UncertaintyType.NONE)
+			return getMatrixValue();
 		if (generator == null)
-			generator = createGenerator();
+			generator = createGenerator(type);
 		double amount = generator.next() * factor.getConversionFactor();
 		return inputFlow ? -amount : amount;
 	}
 
-	private NumberGenerator createGenerator() {
-		UncertaintyType type = factor.getUncertaintyType();
-		if (type == null && type == UncertaintyType.NONE)
-			return NumberGenerator.discrete(factor.getAmount()
-					* factor.getConversionFactor());
+	private NumberGenerator createGenerator(UncertaintyType type) {
 		final CalcImpactFactor f = factor;
-		switch (f.getUncertaintyType()) {
+		switch (type) {
 		case LOG_NORMAL:
 			return NumberGenerator.logNormal(f.getParameter1(),
 					f.getParameter2());
