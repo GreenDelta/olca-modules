@@ -10,7 +10,6 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.ecospold2.Activity;
@@ -18,8 +17,8 @@ import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.Parameter;
 import org.openlca.io.KeyGen;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,9 +112,9 @@ class ProcessImport {
 		process.setRefId(refId);
 		process.setName(activity.getName());
 		setCategory(dataSet, process);
+		process.getParameters().addAll(Parameters.fetch(dataSet));
 		createProductExchanges(dataSet, process);
 		createElementaryExchanges(dataSet, process);
-		mapParameters(dataSet, process);
 		new DocImportMapper(database).map(dataSet, process);
 		database.createDao(Process.class).insert(process);
 		index.putProcessId(refId, process.getId());
@@ -191,25 +190,18 @@ class ProcessImport {
 		exchange.setFlowPropertyFactor(flow.getReferenceFactor());
 		exchange.setUnit(unit);
 		exchange.setAmountValue(original.getAmount());
-		if (original.getMathematicalRelation() != null)
+		String var = original.getVariableName();
+		if (Strings.notEmpty(var)) {
+			if (Parameters.contains(var, process.getParameters()))
+				exchange.setAmountFormula(var);
+		} else if (Parameters
+				.isValidFormula(original.getMathematicalRelation())) {
 			exchange.setAmountFormula(original.getMathematicalRelation());
+		}
 		exchange.setUncertainty(UncertaintyConverter.toOpenLCA(original
 				.getUncertainty()));
 		process.getExchanges().add(exchange);
-		if (original.getVariableName() != null)
-			createParameter(original, process);
 		return exchange;
-	}
-
-	private void createParameter(org.openlca.ecospold2.Exchange exchange,
-			Process process) {
-		org.openlca.core.model.Parameter olcaParam = new org.openlca.core.model.Parameter();
-		olcaParam.setInputParameter(false);
-		olcaParam.setName(exchange.getVariableName());
-		olcaParam.setScope(ParameterScope.PROCESS);
-		olcaParam.setValue(exchange.getAmount());
-		olcaParam.setFormula(exchange.getMathematicalRelation());
-		process.getParameters().add(olcaParam);
 	}
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
@@ -237,20 +229,6 @@ class ProcessImport {
 				break;
 		}
 		process.setCategory(category);
-	}
-
-	private void mapParameters(DataSet dataSet, Process process) {
-		for (Parameter param : dataSet.getParameters()) {
-			if (param.getVariableName() == null)
-				continue; // not a parameter that can be used in formulas
-			org.openlca.core.model.Parameter olcaParam = new org.openlca.core.model.Parameter();
-			olcaParam.setDescription(param.getUnitName());
-			olcaParam.setInputParameter(true);
-			olcaParam.setName(param.getVariableName());
-			olcaParam.setScope(ParameterScope.PROCESS);
-			olcaParam.setValue(param.getAmount());
-			process.getParameters().add(olcaParam);
-		}
 	}
 
 }

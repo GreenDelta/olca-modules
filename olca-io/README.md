@@ -55,8 +55,6 @@ can be found in the file `ei3_unit_map.csv`.
 
 TODO
 ----
-* categories of product flows (we could take the process category for the 
-  flow that is the reference flow in a data set)
 * import unknown units and handle flow properties (see problems above)
 
  

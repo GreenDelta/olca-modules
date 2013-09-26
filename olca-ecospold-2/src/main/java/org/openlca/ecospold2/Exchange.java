@@ -108,6 +108,10 @@ public abstract class Exchange {
 		this.variableName = variableName;
 	}
 
+	public List<Property> getProperties() {
+		return properties;
+	}
+
 	protected void readValues(Element element) {
 		String amount = element.getAttributeValue("amount");
 		setAmount(In.decimal(amount));

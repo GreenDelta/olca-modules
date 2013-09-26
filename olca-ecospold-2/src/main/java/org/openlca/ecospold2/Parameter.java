@@ -9,6 +9,7 @@ public class Parameter {
 	private double amount;
 	private String name;
 	private String unitName;
+	private String mathematicalRelation;
 
 	public String getId() {
 		return id;
@@ -50,6 +51,14 @@ public class Parameter {
 		this.unitName = unitName;
 	}
 
+	public String getMathematicalRelation() {
+		return mathematicalRelation;
+	}
+
+	public void setMathematicalRelation(String mathematicalRelation) {
+		this.mathematicalRelation = mathematicalRelation;
+	}
+
 	static Parameter fromXml(Element e) {
 		if (e == null)
 			return null;
@@ -59,6 +68,7 @@ public class Parameter {
 		p.name = In.childText(e, "name");
 		p.unitName = In.childText(e, "unitName");
 		p.variableName = e.getAttributeValue("variableName");
+		p.mathematicalRelation = e.getAttributeValue("mathematicalRelation");
 		return p;
 	}
 
@@ -66,7 +76,10 @@ public class Parameter {
 		Element e = new Element("parameter", Out.NS);
 		e.setAttribute("parameterId", id);
 		e.setAttribute("amount", Double.toString(amount));
-		e.setAttribute("variableName", variableName);
+		if (variableName != null)
+			e.setAttribute("variableName", variableName);
+		if (mathematicalRelation != null)
+			e.setAttribute("mathematicalRelation", mathematicalRelation);
 		Out.addChild(e, "name", name);
 		Out.addChild(e, "unitName", unitName);
 		return e;
