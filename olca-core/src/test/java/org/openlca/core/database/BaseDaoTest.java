@@ -20,10 +20,9 @@ import org.openlca.core.model.NormalizationWeightingFactor;
 import org.openlca.core.model.NormalizationWeightingSet;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessCostEntry;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessGroupSet;
-import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.ProcessCostEntry;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.Source;
@@ -61,7 +60,6 @@ public class BaseDaoTest {
 		Process.class,
 		ProcessGroupSet.class,
 		ProcessDocumentation.class,
-		ProcessLink.class,
 		ProcessCostEntry.class,
 		ProductSystem.class,
 		Project.class,

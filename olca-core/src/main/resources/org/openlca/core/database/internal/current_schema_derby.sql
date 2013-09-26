@@ -318,16 +318,13 @@ CREATE TABLE tbl_product_system_processes (
 
 CREATE TABLE tbl_process_links (
 
-	id BIGINT NOT NULL, 
 	f_product_system BIGINT, 
 	f_provider BIGINT, 
 	f_recipient BIGINT, 
 	f_flow BIGINT, 
 	
-	PRIMARY KEY (id)
-	
 );
-
+CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 
 CREATE TABLE tbl_impact_methods (
 

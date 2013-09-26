@@ -19,13 +19,13 @@ public interface IProductSystemBuilder {
 	 * Creates the supply-chain of a product system starting with the reference
 	 * process of the system.
 	 */
-	void autoComplete(ProductSystem system);
+	ProductSystem autoComplete(ProductSystem system);
 
 	/**
 	 * Creates the supply chain of the given process-product in the product
 	 * system.
 	 */
-	void autoComplete(ProductSystem system, LongPair processProduct);
+	ProductSystem autoComplete(ProductSystem system, LongPair processProduct);
 
 	class Factory {
 

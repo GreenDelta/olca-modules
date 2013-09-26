@@ -30,8 +30,8 @@ public class ProductSystem extends CategorizedEntity {
 	@JoinColumn(name = "f_owner")
 	private final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_product_system")
+	@ElementCollection
+	@CollectionTable(name = "tbl_process_links", joinColumns = @JoinColumn(name = "f_product_system"))
 	private final List<ProcessLink> processLinks = new ArrayList<>();
 
 	@OneToOne
