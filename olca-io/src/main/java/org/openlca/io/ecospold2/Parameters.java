@@ -40,7 +40,7 @@ final class Parameters {
 			olcaParam.setScope(ParameterScope.PROCESS);
 			olcaParam.setValue(param.getAmount());
 			if (isValidFormula(param.getMathematicalRelation())) {
-				olcaParam.setFormula(param.getMathematicalRelation());
+				olcaParam.setFormula(param.getMathematicalRelation().trim());
 				olcaParam.setInputParameter(false);
 			} else {
 				olcaParam.setInputParameter(true);
@@ -60,7 +60,7 @@ final class Parameters {
 			olcaParam.setValue(exchange.getAmount());
 			olcaParam.setDescription(exchange.getUnitName());
 			if (isValidFormula(exchange.getMathematicalRelation())) {
-				olcaParam.setFormula(exchange.getMathematicalRelation());
+				olcaParam.setFormula(exchange.getMathematicalRelation().trim());
 				olcaParam.setInputParameter(false);
 			} else
 				olcaParam.setInputParameter(true);
@@ -79,7 +79,7 @@ final class Parameters {
 			olcaParam.setValue(property.getAmount());
 			olcaParam.setDescription(property.getUnitName());
 			if (isValidFormula(property.getMathematicalRelation())) {
-				olcaParam.setFormula(property.getMathematicalRelation());
+				olcaParam.setFormula(property.getMathematicalRelation().trim());
 				olcaParam.setInputParameter(false);
 			} else
 				olcaParam.setInputParameter(true);
@@ -100,9 +100,15 @@ final class Parameters {
 			return false;
 		if (formula.trim().isEmpty())
 			return false;
-		// there are links to system local Excel tables in the ecoinvent 3
+		// there are even links to system local Excel tables in the ecoinvent 3
 		// database
 		if (formula.startsWith("LiveLink"))
+			return false;
+		if (formula.contains(","))
+			return false;
+		if (formula.contains("UnitConversion("))
+			return false;
+		if (formula.contains("Ref("))
 			return false;
 		else
 			return true;

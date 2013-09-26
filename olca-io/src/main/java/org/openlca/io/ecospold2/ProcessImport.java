@@ -196,7 +196,7 @@ class ProcessImport {
 				exchange.setAmountFormula(var);
 		} else if (Parameters
 				.isValidFormula(original.getMathematicalRelation())) {
-			exchange.setAmountFormula(original.getMathematicalRelation());
+			exchange.setAmountFormula(original.getMathematicalRelation().trim());
 		}
 		exchange.setUncertainty(UncertaintyConverter.toOpenLCA(original
 				.getUncertainty()));
