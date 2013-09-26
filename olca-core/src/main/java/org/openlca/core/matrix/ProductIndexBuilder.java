@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 // TODO: cut-offs
 public class ProductIndexBuilder {
 
+	private Logger log = LoggerFactory.getLogger(getClass());
 	private ProcessType preferredType = ProcessType.LCI_RESULT;
 	private MatrixCache cache;
 	private ProcessTable processTable;
@@ -35,12 +36,14 @@ public class ProductIndexBuilder {
 	}
 
 	public ProductIndex build(LongPair refProduct, double demand) {
+		log.trace("build product index for {}", refProduct);
 		ProductIndex index = new ProductIndex(refProduct, demand);
 		List<LongPair> block = new ArrayList<>();
 		block.add(refProduct);
 		HashSet<LongPair> handled = new HashSet<>();
 		while (!block.isEmpty()) {
 			List<LongPair> nextBlock = new ArrayList<>();
+			log.trace("fetch next block with {} entries", block.size());
 			Map<Long, List<CalcExchange>> exchanges = fetchExchanges(block);
 			for (LongPair recipient : block) {
 				handled.add(recipient);

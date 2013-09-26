@@ -47,6 +47,7 @@ class ExchangeCache {
 		public List<CalcExchange> load(Long key) throws Exception {
 			if (key == null)
 				return Collections.emptyList();
+			log.trace("fetch exchanges for key {}", key);
 			String query = "select * from tbl_exchanges where f_owner = " + key;
 			try (Connection con = database.createConnection()) {
 				Statement statement = con.createStatement();
@@ -58,6 +59,7 @@ class ExchangeCache {
 				}
 				result.close();
 				statement.close();
+				log.trace("fetched {} exchanges", exchanges.size());
 				return exchanges;
 			} catch (Exception e) {
 				log.error("failed to fetch exchange vector", e);
@@ -68,6 +70,7 @@ class ExchangeCache {
 		@Override
 		public Map<Long, List<CalcExchange>> loadAll(
 				Iterable<? extends Long> keys) throws Exception {
+			log.trace("fetch exchanges for multiple keys");
 			try (Connection con = database.createConnection()) {
 				String query = "select * from tbl_exchanges where f_owner in "
 						+ CacheUtil.asSql(keys);
@@ -81,6 +84,7 @@ class ExchangeCache {
 				}
 				result.close();
 				statement.close();
+				log.trace("{} lists loaded", map.size());
 				return map;
 			} catch (Exception e) {
 				log.error("failed to fetch exchange vectors", e);
