@@ -23,9 +23,14 @@ public class EcoSpold2Import implements FileImport {
 	private EventBus eventBus;
 	private boolean canceled = false;
 	private File[] files;
+	private boolean importParameters = false;
 
 	public EcoSpold2Import(IDatabase database) {
 		this.database = database;
+	}
+
+	public void setImportParameters(boolean importParameters) {
+		this.importParameters = importParameters;
 	}
 
 	public EcoSpold2Import(IDatabase database, File[] files) {
@@ -74,6 +79,7 @@ public class EcoSpold2Import implements FileImport {
 	private void importProcesses(File[] files, RefDataIndex index) {
 		log.trace("import processes");
 		ProcessImport processImport = new ProcessImport(database, index);
+		processImport.setImportParameters(importParameters);
 		try (DataSetIterator iterator = new DataSetIterator(files)) {
 			while (!canceled && iterator.hasNext()) {
 				DataSet dataSet = iterator.next();

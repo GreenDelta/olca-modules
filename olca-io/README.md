@@ -53,6 +53,24 @@ The import currently maps units from EcoSpold 02 that directly can be mapped to
 an openLCA unit (with unit group and flow property). This is a fixed list and
 can be found in the file `ei3_unit_map.csv`. 
 
+### Parameters
+
+It is currently not possible to evaluate all parameters of the ecoinvent 
+database with openLCA because of the following reasons:
+
+* there are `LiveLink` functions which link to system local Excel tables in 
+  formulas of some data sets
+* there are functions like `UnitConversion` (would mean that a formula
+  interpreter knows units) or `Ref(<UUID>)` (would mean that we have have the
+  same context UUIDs in our data sets available in the calculation)   
+
+Thus, by default we do not import the parameters. However, the import of 
+parameters can be enabled via
+
+     EcoSpold2Import e2Import = ...
+     e2Import.setImportParameters(true);
+     
+     
 TODO
 ----
 * import unknown units and handle flow properties (see problems above)

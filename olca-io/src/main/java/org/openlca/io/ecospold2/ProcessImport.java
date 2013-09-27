@@ -45,6 +45,7 @@ class ProcessImport {
 	private IDatabase database;
 	private RefDataIndex index;
 	private ProcessDao dao;
+	private boolean importParameters = false;
 
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
@@ -53,6 +54,10 @@ class ProcessImport {
 		this.database = database;
 		this.index = index;
 		dao = new ProcessDao(database);
+	}
+
+	public void setImportParameters(boolean importParameters) {
+		this.importParameters = importParameters;
 	}
 
 	public void importDataSet(DataSet dataSet) {
@@ -112,7 +117,8 @@ class ProcessImport {
 		process.setRefId(refId);
 		process.setName(activity.getName());
 		setCategory(dataSet, process);
-		process.getParameters().addAll(Parameters.fetch(dataSet));
+		if (importParameters)
+			process.getParameters().addAll(Parameters.fetch(dataSet));
 		createProductExchanges(dataSet, process);
 		createElementaryExchanges(dataSet, process);
 		new DocImportMapper(database).map(dataSet, process);
@@ -190,6 +196,16 @@ class ProcessImport {
 		exchange.setFlowPropertyFactor(flow.getReferenceFactor());
 		exchange.setUnit(unit);
 		exchange.setAmountValue(original.getAmount());
+		if (importParameters)
+			mapFormula(original, process, exchange);
+		exchange.setUncertainty(UncertaintyConverter.toOpenLCA(original
+				.getUncertainty()));
+		process.getExchanges().add(exchange);
+		return exchange;
+	}
+
+	private void mapFormula(org.openlca.ecospold2.Exchange original,
+			Process process, Exchange exchange) {
 		String var = original.getVariableName();
 		if (Strings.notEmpty(var)) {
 			if (Parameters.contains(var, process.getParameters()))
@@ -198,10 +214,6 @@ class ProcessImport {
 				.isValidFormula(original.getMathematicalRelation())) {
 			exchange.setAmountFormula(original.getMathematicalRelation().trim());
 		}
-		exchange.setUncertainty(UncertaintyConverter.toOpenLCA(original
-				.getUncertainty()));
-		process.getExchanges().add(exchange);
-		return exchange;
 	}
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
