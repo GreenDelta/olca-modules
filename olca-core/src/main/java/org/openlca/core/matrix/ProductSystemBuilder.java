@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 public class ProductSystemBuilder implements IProductSystemBuilder {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private final int MAX_BATCH_SIZE = 1000;
 
 	private IProgressMonitor progressMonitor;
 
@@ -128,16 +129,19 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 			String stmt = "insert into tbl_process_links(f_product_system, "
 					+ "f_provider, f_recipient, f_flow) values (?, ?, ?, ?)";
 			PreparedStatement ps = con.prepareStatement(stmt);
-			for (ProcessLink link : links) {
+			for (int i = 0; i < links.size(); i++) {
+				ProcessLink link = links.get(i);
 				ps.setLong(1, systemId);
 				ps.setLong(2, link.getProviderId());
 				ps.setLong(3, link.getRecipientId());
 				ps.setLong(4, link.getFlowId());
 				ps.addBatch();
+				if (i % MAX_BATCH_SIZE == 0)
+					ps.executeBatch();
 			}
-			int[] rows = ps.executeBatch();
+			ps.executeBatch();
 			ps.close();
-			log.trace("{} inserted", rows.length);
+			log.trace("all links inserted");
 		} catch (Exception e) {
 			log.error("failed to insert process links", e);
 		}
@@ -151,10 +155,13 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 			String stmt = "insert into tbl_product_system_processes("
 					+ "f_product_system, f_process) values (?, ?)";
 			PreparedStatement ps = con.prepareStatement(stmt);
-			for (long processId : processes.toArray()) {
+			long[] processIds = processes.toArray();
+			for (int i = 0; i < processIds.length; i++) {
 				ps.setLong(1, systemId);
-				ps.setLong(2, processId);
+				ps.setLong(2, processIds[i]);
 				ps.addBatch();
+				if (i % MAX_BATCH_SIZE == 0)
+					ps.executeBatch();
 			}
 			int[] rows = ps.executeBatch();
 			ps.close();
