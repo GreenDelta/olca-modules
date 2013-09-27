@@ -31,6 +31,12 @@ public class MySQLDatabase implements IDatabase {
 
 	public MySQLDatabase(String url, String user, String password) {
 		this.url = url;
+		if (!this.url.contains("rewriteBatchedStatements")
+				&& this.url.contains("useServerPrepStmts")) {
+			this.url += "&rewriteBatchedStatements=true"
+					+ "&useServerPrepStmts=false";
+			log.trace("modified URL optimized for batch updates: {}", this.url);
+		}
 		this.user = user;
 		this.password = password;
 		connect();
