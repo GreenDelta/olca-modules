@@ -36,11 +36,11 @@ public class SqlCommand {
 
 	private void runScript(Shell shell, String[] args, File file) {
 		IDatabase db = shell.getDatabase();
-		try (Connection con = db.createConnection()) {
+		try {
 			String encoding = fetchEncoding(args);
 			log.info("import sql-file {} using encoding {}", file, encoding);
 			FileInputStream in = new FileInputStream(file);
-			ScriptRunner runner = new ScriptRunner(con);
+			ScriptRunner runner = new ScriptRunner(db);
 			runner.run(in, encoding);
 			log.info("import done");
 		} catch (Exception e) {

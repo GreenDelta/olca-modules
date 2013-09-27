@@ -73,7 +73,7 @@ public class MySQLDatabase implements IDatabase {
 		try {
 			if (connectionPool != null) {
 				Connection con = connectionPool.getConnection();
-				con.setAutoCommit(true);
+				con.setAutoCommit(false);
 				return con;
 			} else {
 				log.warn("no connection pool set up for {}", url);

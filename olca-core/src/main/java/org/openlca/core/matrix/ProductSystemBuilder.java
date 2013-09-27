@@ -5,11 +5,13 @@ import gnu.trove.set.hash.TLongHashSet;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.IProductSystemBuilder;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.NativeSql.BatchInsertHandler;
 import org.openlca.core.jobs.IProgressMonitor;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.Flow;
@@ -23,7 +25,6 @@ import org.slf4j.LoggerFactory;
 public class ProductSystemBuilder implements IProductSystemBuilder {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
-	private final int MAX_BATCH_SIZE = 1000;
 
 	private IProgressMonitor progressMonitor;
 
@@ -98,77 +99,66 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 				continue;
 			links.put(provider, recipient, flow);
 		}
-		cleanTables(system.getId());
-		insertLinks(system.getId(), links.createLinks());
-		insertProcesses(system.getId(), processes);
+		updateDatabase(system, links, processes);
 	}
 
-	private void cleanTables(long systemId) {
+	private void updateDatabase(ProductSystem system, ProcessLinkIndex links,
+			TLongHashSet processes) {
+		try {
+			cleanTables(system.getId());
+			insertLinks(system.getId(), links.createLinks());
+			insertProcesses(system.getId(), processes);
+		} catch (Exception e) {
+			log.error("faile to update database in process builder", e);
+		}
+	}
+
+	private void cleanTables(long systemId) throws Exception {
 		log.trace("clean system tables for {}", systemId);
-		try (Connection con = database.createConnection()) {
-			String sql = "delete from tbl_process_links where "
-					+ "f_product_system = " + systemId;
-			Statement stmt = con.createStatement();
-			stmt.executeUpdate(sql);
-			stmt.close();
-			sql = "delete from tbl_product_system_processes where "
-					+ "f_product_system = " + systemId;
-			stmt = con.createStatement();
-			stmt.executeUpdate(sql);
-			stmt.close();
-		} catch (Exception e) {
-			log.error("failed to clean system tables for " + systemId, e);
-		}
+		String sql = "delete from tbl_process_links where "
+				+ "f_product_system = " + systemId;
+		NativeSql.on(database).runUpdate(sql);
+		sql = "delete from tbl_product_system_processes where "
+				+ "f_product_system = " + systemId;
+		NativeSql.on(database).runUpdate(sql);
 	}
 
-	private void insertLinks(long systemId, List<ProcessLink> links) {
+	private void insertLinks(final long systemId, final List<ProcessLink> links)
+			throws Exception {
 		log.trace("insert {} process links", links.size());
-		if (links.isEmpty())
-			return;
-		try (Connection con = database.createConnection()) {
-			String stmt = "insert into tbl_process_links(f_product_system, "
-					+ "f_provider, f_recipient, f_flow) values (?, ?, ?, ?)";
-			PreparedStatement ps = con.prepareStatement(stmt);
-			for (int i = 0; i < links.size(); i++) {
-				ProcessLink link = links.get(i);
-				ps.setLong(1, systemId);
-				ps.setLong(2, link.getProviderId());
-				ps.setLong(3, link.getRecipientId());
-				ps.setLong(4, link.getFlowId());
-				ps.addBatch();
-				if (i % MAX_BATCH_SIZE == 0)
-					ps.executeBatch();
-			}
-			ps.executeBatch();
-			ps.close();
-			log.trace("all links inserted");
-		} catch (Exception e) {
-			log.error("failed to insert process links", e);
-		}
+		String stmt = "insert into tbl_process_links(f_product_system, "
+				+ "f_provider, f_recipient, f_flow) values (?, ?, ?, ?)";
+		NativeSql.on(database).batchInsert(stmt, links.size(),
+				new BatchInsertHandler() {
+					@Override
+					public boolean addBatch(int i, PreparedStatement ps)
+							throws SQLException {
+						ProcessLink link = links.get(i);
+						ps.setLong(1, systemId);
+						ps.setLong(2, link.getProviderId());
+						ps.setLong(3, link.getRecipientId());
+						ps.setLong(4, link.getFlowId());
+						return true;
+					}
+				});
 	}
 
-	private void insertProcesses(long systemId, TLongHashSet processes) {
+	private void insertProcesses(final long systemId, TLongHashSet processes)
+			throws Exception {
 		log.trace("insert {} system processes", processes.size());
-		if (processes.isEmpty())
-			return;
-		try (Connection con = database.createConnection()) {
-			String stmt = "insert into tbl_product_system_processes("
-					+ "f_product_system, f_process) values (?, ?)";
-			PreparedStatement ps = con.prepareStatement(stmt);
-			long[] processIds = processes.toArray();
-			for (int i = 0; i < processIds.length; i++) {
-				ps.setLong(1, systemId);
-				ps.setLong(2, processIds[i]);
-				ps.addBatch();
-				if (i % MAX_BATCH_SIZE == 0)
-					ps.executeBatch();
-			}
-			int[] rows = ps.executeBatch();
-			ps.close();
-			log.trace("{} inserted", rows.length);
-		} catch (Exception e) {
-			log.error("failed to insert system processes", e);
-		}
+		final long[] processIds = processes.toArray();
+		String stmt = "insert into tbl_product_system_processes("
+				+ "f_product_system, f_process) values (?, ?)";
+		NativeSql.on(database).batchInsert(stmt, processIds.length,
+				new BatchInsertHandler() {
+					@Override
+					public boolean addBatch(int i, PreparedStatement ps)
+							throws SQLException {
+						ps.setLong(1, systemId);
+						ps.setLong(2, processIds[i]);
+						return true;
+					}
+				});
 	}
 
 	private void addSystemLinksAndProcesses(ProductSystem system,

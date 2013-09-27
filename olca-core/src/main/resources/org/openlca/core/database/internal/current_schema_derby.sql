@@ -321,7 +321,7 @@ CREATE TABLE tbl_process_links (
 	f_product_system BIGINT, 
 	f_provider BIGINT, 
 	f_recipient BIGINT, 
-	f_flow BIGINT, 
+	f_flow BIGINT 
 	
 );
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
