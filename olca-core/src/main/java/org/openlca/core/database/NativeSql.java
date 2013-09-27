@@ -76,12 +76,12 @@ public final class NativeSql {
 				stmt.addBatch(statement);
 				if (batchSize % MAX_BATCH_SIZE == 0) {
 					int[] s = stmt.executeBatch();
-					log.trace("{} statements executed", s);
+					log.trace("{} statements executed", s.length);
 				}
 				batchSize++;
 			}
 			int[] s = stmt.executeBatch();
-			log.trace("{} statements executed", s);
+			log.trace("{} statements executed", s.length);
 			con.commit();
 			stmt.close();
 		}
