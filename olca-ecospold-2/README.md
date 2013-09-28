@@ -16,6 +16,4 @@ the domain model and back again.
 
 TODO
 ----
-* other uncertainty distributions
-* meta information: modelling and validation and administrative information
 * master data
