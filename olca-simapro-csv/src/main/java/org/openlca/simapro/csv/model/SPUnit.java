@@ -2,6 +2,10 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a SimaPro unit
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public class SPUnit {
 
@@ -14,6 +18,10 @@ public class SPUnit {
 	 * The name of the unit
 	 */
 	private String name;
+
+	private String referenceUnit;
+
+	private String quantity;
 
 	/**
 	 * Creates a new unit
@@ -75,6 +83,32 @@ public class SPUnit {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(String quantity) {
+		this.quantity = quantity;
+	}
+
+	/**
+	 * The name of the reference unit
+	 * 
+	 * @return
+	 */
+	public String getReferenceUnit() {
+		return referenceUnit;
+	}
+
+	/**
+	 * The name of the reference unit
+	 * 
+	 * @param unit
+	 */
+	public void setReferenceUnit(String unit) {
+		this.referenceUnit = unit;
 	}
 
 }

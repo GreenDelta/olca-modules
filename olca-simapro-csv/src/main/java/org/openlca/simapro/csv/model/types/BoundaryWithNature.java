@@ -2,6 +2,10 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible boundaries with nature
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public enum BoundaryWithNature {
 

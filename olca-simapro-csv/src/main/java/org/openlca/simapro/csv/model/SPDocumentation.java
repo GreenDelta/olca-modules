@@ -19,9 +19,12 @@ import org.openlca.simapro.csv.model.types.Technology;
 import org.openlca.simapro.csv.model.types.TimePeriod;
 import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
 
-
 /**
  * This class represents the process information of a SimaPro process
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public class SPDocumentation {
 
@@ -29,7 +32,7 @@ public class SPDocumentation {
 	 * The Process identifier
 	 */
 	private String identifier;
-	
+
 	/**
 	 * The allocation rules of the data set
 	 */
@@ -671,11 +674,11 @@ public class SPDocumentation {
 			WasteTreatmentAllocation wasteTreatmentAllocation) {
 		this.wasteTreatmentAllocation = wasteTreatmentAllocation;
 	}
-	
+
 	public String getIdentifier() {
 		return identifier;
 	}
-	
+
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}

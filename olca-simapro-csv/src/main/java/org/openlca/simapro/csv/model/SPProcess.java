@@ -5,6 +5,10 @@ import java.util.List;
 
 /**
  * This class represents a SimaPro process
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public class SPProcess extends SPDataEntry {
 

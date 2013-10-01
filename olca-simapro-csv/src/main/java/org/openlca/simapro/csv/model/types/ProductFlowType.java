@@ -2,6 +2,10 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible product flow types
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public enum ProductFlowType {
 

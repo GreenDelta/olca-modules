@@ -1,6 +1,7 @@
 package org.openlca.simapro.csv;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,11 +9,15 @@ import java.io.StringReader;
 
 import org.openlca.simapro.csv.model.SPDataSet;
 
-
 /**
  * Parse a SimaPro CSV and returned one {@link SPDataSet} for each process
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
-public class CSVParser {
+@Deprecated
+public class CSVParser implements Closeable{
 	private SPDataSet dataSet;
 	private BufferedReader reader;
 	private File csvfile;
@@ -22,14 +27,6 @@ public class CSVParser {
 		this.csvfile = csvfile;
 	}
 
-	/**
-	 * Read a part from the csv file. Starts with the given String and stop with
-	 * the the line equals 'End'
-	 * 
-	 * @param part
-	 * @return
-	 * @throws IOException
-	 */
 	private StringReader readPart(String part) throws IOException {
 		boolean read = true;
 		boolean start = false;
@@ -37,9 +34,8 @@ public class CSVParser {
 		String line;
 
 		while ((line = reader.readLine()) != null && read) {
-			if (line.equals(part)) {
+			if (line.equals(part))
 				start = true;
-			}
 
 			if (start)
 				if (line.equals(part)) {
@@ -48,19 +44,18 @@ public class CSVParser {
 					process += line + "\n";
 				}
 
-			if (line.equals("End")) {
+			if (line.equals("End"))
 				read = false;
-			}
+
 		}
 
-		if (process != null) {
+		if (process != null)
 			return new StringReader(process);
-		} else {
-			reader.close();
-			reader = null;
-			run = false;
-			return null;
-		}
+
+		reader.close();
+		reader = null;
+		run = false;
+		return null;
 	}
 
 	/**
@@ -95,23 +90,19 @@ public class CSVParser {
 	public boolean next() throws IOException, IllegalArgumentException {
 		if (!run)
 			throw new IllegalArgumentException("Reading was not started.");
+
 		CSVReader csvReader = new CSVReader();
 		StringReader reader = readPart("Process");
-		if (reader != null) {
-			try {
-				dataSet = csvReader.read(reader);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
+		if (reader != null)
+			dataSet = csvReader.read(reader);
+		else
 			dataSet = null;
-		}
 
-		if (dataSet != null) {
+		if (dataSet != null)
 			return true;
-		} else {
+		else
 			return false;
-		}
+
 	}
 
 	/**
@@ -125,9 +116,8 @@ public class CSVParser {
 		start();
 		String line;
 		while ((line = reader.readLine()) != null) {
-			if (line.equals("Process")) {
+			if (line.equals("Process"))
 				count++;
-			}
 		}
 		run = false;
 		return count;
@@ -151,6 +141,12 @@ public class CSVParser {
 		// TODO: all :-)
 
 		return dataSet;
+	}
+
+	@Override
+	public void close() throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

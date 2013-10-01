@@ -63,8 +63,8 @@ public class ReadWriteTest {
 	public void testProcess() throws Exception {
 		SPDataSet dataSet = new SPDataSet(project);
 		SPUnit unit = new SPUnit("kg");
-		SPReferenceProduct product = new SPReferenceProduct("product", unit,
-				"42.42");
+		SPReferenceProduct product = new SPReferenceProduct("product", "unit",
+				"1");
 		SPDocumentation doc = new SPDocumentation("process",
 				ProcessCategory.MATERIAL, ProcessType.UNIT_PROCESS);
 		SPProcess process = new SPProcess(product, "test", doc);

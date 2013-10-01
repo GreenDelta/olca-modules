@@ -50,7 +50,12 @@ import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
 /**
  * The CSV writer creates a new SimaPro CSV file and writes the given data set
  * into it
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
+@Deprecated
 public class CSVWriter {
 
 	private char separator = ',';
@@ -228,11 +233,11 @@ public class CSVWriter {
 	 * @return The elementary flow line
 	 */
 	private String getElementaryFlowLine(SPElementaryFlow flow) {
-		String line = flow.getSubstance().getName() + ";";
+		String line = flow.getName() + ";";
 		if (flow.getSubCompartment() != null) {
 			line += flow.getSubCompartment().getValue();
 		}
-		line += ";" + flow.getUnit().getName() + ";"
+		line += ";" + flow.getUnit() + ";"
 				+ flow.getAmount().replace('.', separator) + ";"
 				+ getDistributionPart(flow.getDistribution())
 				+ comment(flow.getComment());
@@ -247,8 +252,8 @@ public class CSVWriter {
 	 * @return A product input entry for a process
 	 */
 	private String getProductLine(SPProductFlow product) {
-		String line = product.getName() + ";" + product.getUnit().getName()
-				+ ";" + product.getAmount().replace('.', separator) + ";"
+		String line = product.getName() + ";" + product.getUnit() + ";"
+				+ product.getAmount().replace('.', separator) + ";"
 				+ getDistributionPart(product.getDistribution());
 		if (product.getComment() != null)
 			line += comment(product.getComment());
@@ -262,7 +267,7 @@ public class CSVWriter {
 	 * @return line
 	 */
 	private String getWasteToTreatmentLine(SPWasteToTreatmentFlow flow) {
-		String line = flow.getName() + ";" + flow.getUnit().getName() + ";"
+		String line = flow.getName() + ";" + flow.getUnit() + ";"
 				+ flow.getAmount() + ";"
 				+ flow.getDistributionType().getValue() + ";"
 				+ flow.getStandardDeviation() + ";" + flow.getMin() + ";"
@@ -279,8 +284,8 @@ public class CSVWriter {
 	 * @return The product line for a process in a CSV file
 	 */
 	private String getProductLine(SPReferenceProduct product, String subCategory) {
-		String line = product.getName() + ";" + product.getUnit().getName()
-				+ ";" + product.getAmount().replace('.', separator) + ";"
+		String line = product.getName() + ";" + product.getUnit() + ";"
+				+ product.getAmount().replace('.', separator) + ";"
 				+ product.getAllocation() + ";";
 		if (product.getWasteType() != null
 				&& !product.getWasteType().equals("")) {
@@ -314,7 +319,7 @@ public class CSVWriter {
 	private String getWasteSpecificationLine(
 			SPWasteSpecification wasteSpecification, String subCategory) {
 		String line = wasteSpecification.getName() + ";"
-				+ wasteSpecification.getUnit().getName() + ";"
+				+ wasteSpecification.getUnit() + ";"
 				+ wasteSpecification.getAmount().replace('.', separator) + ";";
 		if (wasteSpecification.getWasteType() != null
 				&& !wasteSpecification.getWasteType().equals("")) {

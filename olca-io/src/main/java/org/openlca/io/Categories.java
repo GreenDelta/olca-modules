@@ -13,10 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A helper class for the import, export, and display of categories.
  */
-public class Categories {
-
-	private Categories() {
-	}
+public final class Categories {
 
 	public static Category findOrAddChild(IDatabase database, Category parent,
 			String childName) {

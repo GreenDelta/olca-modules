@@ -2,6 +2,10 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of possible time periods
+<<<<<<< Updated upstream
+=======
+ *
+>>>>>>> Stashed changes
  */
 public enum TimePeriod {
 

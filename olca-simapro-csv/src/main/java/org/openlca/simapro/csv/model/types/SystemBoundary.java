@@ -2,6 +2,10 @@ package org.openlca.simapro.csv.model.types;
 
 /**
  * Enumeration of system boundaries
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public enum SystemBoundary {
 

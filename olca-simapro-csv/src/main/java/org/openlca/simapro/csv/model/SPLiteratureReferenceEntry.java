@@ -4,6 +4,10 @@ package org.openlca.simapro.csv.model;
 /**
  * This class represents a literature reference entry in the process
  * documentation
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public class SPLiteratureReferenceEntry {
 

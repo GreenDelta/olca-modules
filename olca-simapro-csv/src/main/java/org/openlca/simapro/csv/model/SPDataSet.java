@@ -6,7 +6,12 @@ import java.util.List;
 /**
  * The class represents a SimaPro CSV file. It contains SimaPro processes which
  * will be written into a CSV file
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
+@Deprecated
 public class SPDataSet {
 
 	/**

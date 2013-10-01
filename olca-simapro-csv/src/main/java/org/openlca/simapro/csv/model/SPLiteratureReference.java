@@ -1,8 +1,11 @@
 package org.openlca.simapro.csv.model;
 
-
 /**
  * This class represents a SimaPro literature reference
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public class SPLiteratureReference {
 
@@ -20,6 +23,8 @@ public class SPLiteratureReference {
 	 * The name of the reference
 	 */
 	private String name;
+
+	private String documentLink;
 
 	/**
 	 * Creates a new literature reference
@@ -92,6 +97,14 @@ public class SPLiteratureReference {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public void setDocumentLink(String documentLink) {
+		this.documentLink = documentLink;
+	}
+
+	public String getDocumentLink() {
+		return documentLink;
 	}
 
 }

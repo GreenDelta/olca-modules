@@ -10,7 +10,6 @@ import org.openlca.simapro.csv.model.pedigreetypes.Reliability;
 import org.openlca.simapro.csv.model.pedigreetypes.SampleSize;
 import org.openlca.simapro.csv.model.pedigreetypes.TemporalCorrelation;
 
-
 public class SPPedigreeMatrix {
 
 	private static Set<String> pedigreeContain = new HashSet<String>();

@@ -51,12 +51,12 @@ import org.openlca.simapro.csv.model.types.Technology;
 import org.openlca.simapro.csv.model.types.TimePeriod;
 import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
 
-
 /**
  * The CSV reader reads out a SimaPro 7.2 CSV file (file separator ;) and
  * creates a {@link SPDataSet} object containing the information of the file
  * 
  */
+@Deprecated
 public class CSVReader {
 
 	/**
@@ -451,9 +451,9 @@ public class CSVReader {
 		}
 
 		return new SPElementaryFlow(type,
-				SubCompartment.forValue(subCompartment), getSubstance(name),
-				getUnit(unit), formula, comment, createDistibution(
-						distribution, dValue1, dValue2, dValue3, comment));
+				SubCompartment.forValue(subCompartment), name, unit, formula,
+				comment, createDistibution(distribution, dValue1, dValue2,
+						dValue3, comment));
 	}
 
 	/**
@@ -619,7 +619,7 @@ public class CSVReader {
 			comment += ";" + split[i];
 		}
 
-		return new SPProductFlow(type, name, getUnit(unit), formula, comment,
+		return new SPProductFlow(type, name, unit, formula, comment,
 				createDistibution(distribution, dValue1, dValue2, dValue3,
 						comment));
 	}
@@ -685,7 +685,7 @@ public class CSVReader {
 			comment += ";" + split[i];
 		}
 
-		return new SPReferenceProduct(name, getUnit(unit), formula,
+		return new SPReferenceProduct(name, unit, formula,
 				Double.parseDouble(allocation.replace(',', '.')), wasteType,
 				comment, category);
 	}
@@ -713,7 +713,7 @@ public class CSVReader {
 		SPSubstance substance = substances.get(name);
 		if (substance != null) {
 			substance.setCASNumber(cas);
-			substance.setReferenceUnit(getUnit(unit));
+			substance.setReferenceUnit(unit);
 			substance.setComment(comment);
 		}
 	}
@@ -862,8 +862,8 @@ public class CSVReader {
 			comment += ";" + split[i];
 		}
 
-		return new SPWasteSpecification(name, getUnit(unit), formula,
-				wasteType, comment, category);
+		return new SPWasteSpecification(name, unit, formula, wasteType,
+				comment, category);
 	}
 
 	/**
@@ -928,7 +928,7 @@ public class CSVReader {
 					dataSet.add(readInputParameter(line));
 				}
 			} else if (line.equals("Database Calculated parameters")
-					|| line.equals("Project Input parameters")) {
+					|| line.equals("Project Calculated parameters")) {
 				while ((line = reader.readLine()) != null
 						&& !(line.equals("") || line.equals("End"))) {
 					dataSet.add(readCalculatedParameter(line));

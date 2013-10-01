@@ -6,6 +6,10 @@ import org.openlca.simapro.csv.model.types.DistributionType;
 /**
  * Simple implementation of {@link IDistribution} for logarithmic normal
  * distribution
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public class SPLogNormalDistribution implements IDistribution {
 

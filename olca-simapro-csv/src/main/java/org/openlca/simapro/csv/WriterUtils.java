@@ -1,5 +1,5 @@
 package org.openlca.simapro.csv;
-
+@Deprecated
 class WriterUtils {
 
 	private WriterUtils() {

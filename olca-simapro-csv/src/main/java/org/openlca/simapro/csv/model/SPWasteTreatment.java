@@ -2,6 +2,10 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a SimaPro waste treatment
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public class SPWasteTreatment extends SPDataEntry {
 

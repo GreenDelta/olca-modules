@@ -6,6 +6,10 @@ import java.util.Map;
 
 /**
  * Enumeration of possible sub compartments
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public enum SubCompartment {
 
@@ -135,6 +139,8 @@ public enum SubCompartment {
 	}
 
 	public static SubCompartment forValue(String value) {
+		if ("".equals(value))
+			return UNSPECIFIED;
 		SubCompartment compartment = null;
 		int i = 0;
 		while (compartment == null && i < values().length) {

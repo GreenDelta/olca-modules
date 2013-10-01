@@ -2,6 +2,10 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a SimaPro system description
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public class SPSystemDescription {
 

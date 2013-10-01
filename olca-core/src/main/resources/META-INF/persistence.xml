@@ -37,9 +37,13 @@
 		<class>org.openlca.core.model.results.InventoryResult</class>
 		<class>org.openlca.core.model.results.ImpactResult</class>
 		<class>org.openlca.core.model.results.ImpactCategoryResult</class>
-		<class>org.openlca.core.model.iomaps.Mapping</class>
 		<class>org.openlca.core.model.CostCategory</class>
 		<class>org.openlca.core.model.ProcessCostEntry</class>
+		<class>org.openlca.core.model.ProductCostEntry</class>
+		<class>org.openlca.core.model.mapping.Mapping</class>
+		<class>org.openlca.core.model.mapping.content.MappingContent</class>
+		<class>org.openlca.core.model.mapping.content.ES1FlowContent</class>
+
 		<properties>
 			<property name="eclipselink.connection-pool.default.max"
 				value="10" />

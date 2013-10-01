@@ -3,6 +3,10 @@ package org.openlca.simapro.csv.model;
 
 /**
  * Simple implementation of {@link ISystemDescriptionEntry}
+<<<<<<< Updated upstream
+=======
+ * 
+>>>>>>> Stashed changes
  */
 public class SPSystemDescriptionEntry {
 
