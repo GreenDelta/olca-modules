@@ -3,9 +3,9 @@ package org.openlca.core.database;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -42,24 +42,24 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 	/**
 	 * Returns the processes where the given flow is an output.
 	 */
-	public List<Long> getProviders(long flowId) {
+	public Set<Long> getProviders(long flowId) {
 		return getProcessIdsWhereUsed(flowId, false);
 	}
 
 	/**
 	 * Returns the processes where the given flow is an input.
 	 */
-	public List<Long> getRecipients(long flowId) {
+	public Set<Long> getRecipients(long flowId) {
 		return getProcessIdsWhereUsed(flowId, true);
 	}
 
-	private List<Long> getProcessIdsWhereUsed(long flowId, boolean input) {
+	private Set<Long> getProcessIdsWhereUsed(long flowId, boolean input) {
 		String query = "select f_owner from tbl_exchanges where f_flow = "
 				+ flowId + " and is_input = " + (input ? 1 : 0);
 		try (Connection con = getDatabase().createConnection()) {
 			Statement stmt = con.createStatement();
 			ResultSet results = stmt.executeQuery(query);
-			List<Long> ids = new ArrayList<>();
+			Set<Long> ids = new HashSet<>();
 			while (results.next())
 				ids.add(results.getLong("f_owner"));
 			results.close();
@@ -68,7 +68,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log,
 					"failed to load processes for flow " + flowId, e);
-			return Collections.emptyList();
+			return Collections.emptySet();
 		}
 	}
 }
