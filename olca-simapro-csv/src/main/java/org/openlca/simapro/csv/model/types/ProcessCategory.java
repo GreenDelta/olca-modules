@@ -1,18 +1,11 @@
 package org.openlca.simapro.csv.model.types;
 
 /**
- * Enumeration of SimaPro categories
-<<<<<<< Updated upstream
-=======
+ * Enumeration of SimaPro categories <<<<<<< Updated upstream =======
  * 
->>>>>>> Stashed changes
+ * >>>>>>> Stashed changes
  */
 public enum ProcessCategory {
-
-	/**
-	 * Energy process
-	 */
-	ENERGY("Energy"),
 
 	/**
 	 * Material process
@@ -20,9 +13,9 @@ public enum ProcessCategory {
 	MATERIAL("Material"),
 
 	/**
-	 * Processing process
+	 * Energy process
 	 */
-	PROCESSING("Processing"),
+	ENERGY("Energy"),
 
 	/**
 	 * Transport process
@@ -30,9 +23,19 @@ public enum ProcessCategory {
 	TRANSPORT("Transport"),
 
 	/**
+	 * Processing process
+	 */
+	PROCESSING("Processing"),
+
+	/**
 	 * Use process
 	 */
 	USE("Use"),
+
+	/**
+	 * Transport process
+	 */
+	WASTE_SCENARIO("Waste scenario"),
 
 	/**
 	 * Waste treatment process
@@ -53,7 +56,8 @@ public enum ProcessCategory {
 		ProcessCategory category = null;
 		int i = 0;
 		while (category == null && i < values().length) {
-			if (values()[i].getValue().toLowerCase().equals(value.toLowerCase())) {
+			if (values()[i].getValue().toLowerCase()
+					.equals(value.toLowerCase())) {
 				category = values()[i];
 			} else {
 				i++;
