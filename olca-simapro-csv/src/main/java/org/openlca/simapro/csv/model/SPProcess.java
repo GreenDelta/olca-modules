@@ -5,64 +5,37 @@ import java.util.List;
 
 /**
  * This class represents a SimaPro process
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public class SPProcess extends SPDataEntry {
 
-	/**
-	 * The reference products of the process
-	 */
-	private List<SPReferenceProduct> referenceProducts = new ArrayList<SPReferenceProduct>();
+	private SPProduct referenceProduct = null;
+	private List<SPProduct> byProducts = new ArrayList<SPProduct>();
 
-	/**
-	 * Creates a new process
-	 * 
-	 * @param referenceProduct
-	 *            The reference product of the process
-	 */
-	public SPProcess(SPReferenceProduct referenceProduct) {
-		this.referenceProducts.add(referenceProduct);
+	public SPProcess(SPProduct referenceProduct) {
+		this.referenceProduct = referenceProduct;
 	}
 
-	/**
-	 * Creates a new process
-	 * 
-	 * @param referenceProduct
-	 *            The reference product of the process
-	 * @param subCategory
-	 *            The sub category of the process
-	 * @param documentation
-	 *            The documentation of the process
-	 */
-	public SPProcess(SPReferenceProduct referenceProduct, String subCategory,
+	public SPProcess(SPProduct referenceProduct, String subCategory,
 			SPDocumentation documentation) {
-		this.referenceProducts.add(referenceProduct);
+		this.referenceProduct = referenceProduct;
 		setSubCategory(subCategory);
 		setDocumentation(documentation);
 	}
 
-	/**
-	 * Adds a reference product to the process
-	 * 
-	 * @param product
-	 *            The product to add
-	 */
-	public void add(SPReferenceProduct product) {
-		referenceProducts.add(product);
+	public SPProduct getReferenceProduct() {
+		return referenceProduct;
 	}
 
-	/**
-	 * Getter of the reference products
-	 * 
-	 * @see SPReferenceProduct
-	 * @return The product outputs of the process
-	 */
-	public SPReferenceProduct[] getReferenceProducts() {
-		return referenceProducts
-				.toArray(new SPReferenceProduct[referenceProducts.size()]);
+	public void setReferenceProduct(SPProduct referenceProduct) {
+		this.referenceProduct = referenceProduct;
+	}
+
+	public void add(SPProduct byProduct) {
+		byProducts.add(byProduct);
+	}
+
+	public SPProduct[] getByProducts() {
+		return byProducts.toArray(new SPProduct[byProducts.size()]);
 	}
 
 	public SPFlow[] getFlows() {
@@ -73,7 +46,7 @@ public class SPProcess extends SPDataEntry {
 		for (SPFlow flow : getProductFlows()) {
 			flows.add(flow);
 		}
-		for (SPFlow flow : getReferenceProducts()) {
+		for (SPFlow flow : getByProducts()) {
 			flows.add(flow);
 		}
 		return flows.toArray(new SPFlow[flows.size()]);
