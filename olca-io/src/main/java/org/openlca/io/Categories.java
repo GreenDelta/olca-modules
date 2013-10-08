@@ -90,4 +90,14 @@ public final class Categories {
 			return null;
 		}
 	}
+
+	public static Category findOrAdd(IDatabase database, ModelType type,
+			String[] categories) {
+		if (categories == null || categories.length == 0)
+			return null;
+		Category category = findOrCreateRoot(database, type, categories[0]);
+		for (int i = 1; i < categories.length; i++)
+			category = findOrAddChild(database, category, categories[i]);
+		return category;
+	}
 }
