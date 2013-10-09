@@ -8,10 +8,14 @@ EcoSpold 02
 
 ## Import
 
+An import of a set of EcoSpold 02 files can be done via:
 
 	EcoSpold2Import es2Import = new EcoSpold2Import(aDatabase);
 	es2Import.run(anArrayOfFiles);	
 	
+The import accepts `*.spold`-files in the EcoSpold 02 format and `*.zip`-files
+containing such files.
+
 
 ### Process categorisation
 
@@ -36,9 +40,8 @@ Thus, we take the ISIC classes in the import (if available).
 ### Flow categorisation
 
 The current version of the ecoinvent 3 database does not provide categories for
-product flows (intermediate exchanges). To not have 8000+ product flows in the
-root category, we currently take the first letter of the product as its 
-category.
+product flows (intermediate exchanges). Thus, we take the category of a process
+also for the respective output product.
 
 
 ### Units and flow properties
