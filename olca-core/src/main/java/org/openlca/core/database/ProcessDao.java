@@ -24,7 +24,7 @@ public class ProcessDao extends
 	protected String[] getDescriptorFields() {
 		return new String[] { "id", "ref_id", "name", "description",
 				"process_type", "infrastructure_process", "f_category",
-				"f_location" };
+				"f_location", "f_quantitative_reference" };
 	}
 
 	@Override
@@ -36,6 +36,7 @@ public class ProcessDao extends
 		d.setInfrastructureProcess((Integer) queryResult[5] == 1);
 		d.setCategory((Long) queryResult[6]);
 		d.setLocation((Long) queryResult[7]);
+		d.setQuantitativeReference((Long) queryResult[8]);
 		return d;
 	}
 

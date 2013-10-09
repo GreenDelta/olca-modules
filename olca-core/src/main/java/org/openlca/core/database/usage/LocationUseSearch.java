@@ -62,7 +62,7 @@ class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 	}
 
 	private List<BaseDescriptor> findInProcesses(BaseDescriptor location) {
-		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
+		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id, p.quantitativeReference.id "
 				+ " from Process p where p.location.id = :locationId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
@@ -78,7 +78,8 @@ class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 				d.setInfrastructureProcess((Boolean) result[4]);
 				d.setLocation((Long) result[5]);
 				d.setCategory((Long) result[6]);
-				descriptors.add(d);
+				d.setQuantitativeReference((Long) result[7]);
+			descriptors.add(d);
 			}
 			return descriptors;
 		} catch (Exception e) {

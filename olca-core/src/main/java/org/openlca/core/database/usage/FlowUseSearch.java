@@ -59,7 +59,7 @@ class FlowUseSearch implements IUseSearch<FlowDescriptor> {
 	}
 
 	private List<BaseDescriptor> findInProcesses(FlowDescriptor flow) {
-		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id "
+		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id, p.quantitativeReference.id "
 				+ "from Process p join p.exchanges e where e.flow.id = :flowId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,
@@ -74,6 +74,7 @@ class FlowUseSearch implements IUseSearch<FlowDescriptor> {
 				d.setInfrastructureProcess((Boolean) result[4]);
 				d.setLocation((Long) result[5]);
 				d.setCategory((Long) result[6]);
+				d.setQuantitativeReference((Long) result[7]);
 				descriptors.add(d);
 			}
 			return descriptors;
