@@ -28,7 +28,8 @@ public class ZipStoreTest {
 	@BeforeClass
 	public static void setUpStore() {
 		String tempDir = System.getProperty("java.io.tmpdir");
-		String path = tempDir + "\\test_" + UUID.randomUUID() + ".zip";
+		String path = tempDir + File.separator + "test_" + UUID.randomUUID()
+				+ ".zip";
 		zipFile = new File(path);
 		store = new ZipStore(zipFile);
 	}
