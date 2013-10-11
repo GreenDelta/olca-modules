@@ -58,7 +58,7 @@ public class CheckMatrixCommand {
 	private void run(LongPair refProduct, IDatabase database) {
 		try {
 
-			MatrixCache cache = MatrixCache.create(database);
+			MatrixCache cache = MatrixCache.createLazy(database);
 			log.info("check product system {}#{}", refProduct.getFirst(),
 					refProduct.getSecond());
 

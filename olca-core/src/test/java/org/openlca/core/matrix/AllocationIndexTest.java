@@ -17,7 +17,7 @@ public class AllocationIndexTest {
 		ProductIndex index = new ProductIndex(
 				LongPair.of(999999999, 999999999), 1);
 		AllocationIndex allocationIndex = AllocationIndex.create(index,
-				AllocationMethod.USE_DEFAULT, MatrixCache.create(database));
+				AllocationMethod.USE_DEFAULT, MatrixCache.createLazy(database));
 		double f = allocationIndex.getFactor(index.getRefProduct(),
 				new CalcExchange());
 		assertEquals(1.0, f, 1e-16);

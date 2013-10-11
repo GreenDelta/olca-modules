@@ -60,7 +60,7 @@ public class SolveCommand {
 					refProduct.getSecond());
 			totalTime = 0;
 			lastStop = System.currentTimeMillis();
-			MatrixCache cache = MatrixCache.create(database);
+			MatrixCache cache = MatrixCache.createLazy(database);
 			ProductIndexBuilder builder = new ProductIndexBuilder(cache);
 			ProductIndex index = builder.build(refProduct, 1d);
 			logTime("product index created");

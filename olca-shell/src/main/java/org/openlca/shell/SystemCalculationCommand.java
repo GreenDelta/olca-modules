@@ -35,7 +35,7 @@ public class SystemCalculationCommand {
 					.getForId(systemId);
 			log.trace("solve system with {} processes", system.getProcesses()
 					.size());
-			MatrixCache cache = MatrixCache.create(database);
+			MatrixCache cache = MatrixCache.createLazy(database);
 			SystemCalculator calculator = new SystemCalculator(cache);
 			CalculationSetup setup = new CalculationSetup(system,
 					CalculationSetup.QUICK_RESULT);
@@ -58,7 +58,7 @@ public class SystemCalculationCommand {
 					.getForId(systemId);
 			log.trace("analyse system with {} processes", system.getProcesses()
 					.size());
-			MatrixCache cache = MatrixCache.create(database);
+			MatrixCache cache = MatrixCache.createLazy(database);
 			SystemCalculator calculator = new SystemCalculator(cache);
 			CalculationSetup setup = new CalculationSetup(system,
 					CalculationSetup.ANALYSIS);

@@ -36,7 +36,7 @@ public class MakeSystemCommand {
 
 	private void run(long processId, IDatabase database) {
 		log.trace("create a product system for process {}", processId);
-		MatrixCache cache = MatrixCache.create(database);
+		MatrixCache cache = MatrixCache.createLazy(database);
 		ProductSystem system = createSystem(processId, database);
 		log.trace("auto-complete new product system {}", system);
 		IProductSystemBuilder builder = IProductSystemBuilder.Factory.create(

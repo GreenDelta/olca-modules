@@ -24,7 +24,7 @@ import org.openlca.core.model.Uncertainty;
 public class UncertaintyTableTest {
 
 	private IDatabase database = TestSession.getDefaultDatabase();
-	private MatrixCache cache = MatrixCache.create(database);
+	private MatrixCache cache = MatrixCache.createLazy(database);
 
 	@Test
 	public void testForExchange() throws Exception {

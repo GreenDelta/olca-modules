@@ -27,7 +27,7 @@ public class MonteCarloSimulation_Example {
 		// connect to a database and initialize a matrix cache
 		String dbPath = "C:/Users/Dell/openLCA-data-demo-1.4/databases/ecoinvent2";
 		IDatabase database = new DerbyDatabase(new File(dbPath));
-		MatrixCache cache = MatrixCache.create(database);
+		MatrixCache cache = MatrixCache.createLazy(database);
 
 		// load a product system
 		ProductSystem system = database.createDao(ProductSystem.class)

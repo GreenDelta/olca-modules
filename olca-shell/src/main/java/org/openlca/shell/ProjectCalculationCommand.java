@@ -22,7 +22,7 @@ public class ProjectCalculationCommand {
 			return;
 		try {
 			log.trace("calculate project {}", projectId);
-			MatrixCache cache = MatrixCache.create(database);
+			MatrixCache cache = MatrixCache.createLazy(database);
 			Project project = database.createDao(Project.class).getForId(
 					projectId);
 			ProjectCalculator calculator = new ProjectCalculator(cache);

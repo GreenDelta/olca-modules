@@ -35,7 +35,7 @@ public class SimulationCommand {
 			CalculationSetup setup = new CalculationSetup(system,
 					CalculationSetup.MONTE_CARLO_SIMULATION);
 			setup.setAllocationMethod(AllocationMethod.USE_DEFAULT);
-			MatrixCache cache = MatrixCache.create(database);
+			MatrixCache cache = MatrixCache.createLazy(database);
 			Simulator simulator = new Simulator(setup, cache);
 			for (int i = 0; i < runs; i++) {
 				log.trace("next run {} started", i + 1);
