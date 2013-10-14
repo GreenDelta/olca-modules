@@ -79,14 +79,15 @@ class ProcessImport {
 		}
 		Activity activity = dataSet.getActivity();
 		try {
-			boolean contains = dao.getForRefId(activity.getId()) != null;
+			String refId = calcRefId(dataSet);
+			boolean contains = dao.contains(refId);
 			if (contains) {
 				log.trace("process {} is already in the database",
 						activity.getId());
 				return;
 			}
 			log.trace("import process {}", activity.getName());
-			runImport(dataSet);
+			runImport(dataSet, refId);
 		} catch (Exception e) {
 			log.error("Failed to import process", e);
 		}
@@ -110,10 +111,9 @@ class ProcessImport {
 		return refFlow != null;
 	}
 
-	private void runImport(DataSet dataSet) {
+	private void runImport(DataSet dataSet, String refId) {
 		Activity activity = dataSet.getActivity();
 		Process process = new Process();
-		String refId = KeyGen.get(activity.getId(), findRefFlowId(dataSet));
 		process.setRefId(refId);
 		process.setName(activity.getName());
 		setCategory(dataSet, process);
@@ -127,14 +127,17 @@ class ProcessImport {
 		flushLinkQueue(process);
 	}
 
-	private String findRefFlowId(DataSet dataSet) {
+	private String calcRefId(DataSet dataSet) {
+		String productId = null;
 		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges()) {
 			if (exchange.getOutputGroup() == null)
 				continue;
-			if (exchange.getOutputGroup() == 0 && exchange.getAmount() != 0)
-				return exchange.getIntermediateExchangeId();
+			if (exchange.getOutputGroup() == 0 && exchange.getAmount() != 0) {
+				productId = exchange.getIntermediateExchangeId();
+				break;
+			}
 		}
-		return null;
+		return KeyGen.get(dataSet.getActivity().getId(), productId);
 	}
 
 	private void flushLinkQueue(Process process) {
