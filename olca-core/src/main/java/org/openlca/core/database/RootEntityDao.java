@@ -1,5 +1,8 @@
 package org.openlca.core.database;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -124,6 +127,28 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 			DatabaseException.logAndThrow(log,
 					"failed to get instance for refId " + refId, e);
 			return null;
+		}
+	}
+
+	/**
+	 * Returns true if an entity with the given reference ID is in the database.
+	 */
+	public boolean contains(String refId) {
+		try (Connection con = getDatabase().createConnection()) {
+			String query = "select count(*) from " + getEntityTable()
+					+ " where ref_id = ?";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, refId);
+			ResultSet rs = stmt.executeQuery();
+			rs.next();
+			boolean b = rs.getLong(1) > 0;
+			rs.close();
+			stmt.close();
+			return b;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log,
+					"contains query failed for refId=" + refId, e);
+			return false;
 		}
 	}
 
