@@ -95,11 +95,19 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 			long recipient = input.getFirst();
 			long flow = input.getSecond();
 			processes.add(provider);
-			if (links.contains(provider, recipient, flow))
-				continue;
+			processes.add(recipient);
 			links.put(provider, recipient, flow);
 		}
 		updateDatabase(system, links, processes);
+	}
+
+	private void addSystemLinksAndProcesses(ProductSystem system,
+			ProcessLinkIndex linkIndex, TLongHashSet processes) {
+		for (ProcessLink link : system.getProcessLinks()) {
+			linkIndex.put(link);
+		}
+		for (long procId : system.getProcesses())
+			processes.add(procId);
 	}
 
 	private void updateDatabase(ProductSystem system, ProcessLinkIndex links,
@@ -159,14 +167,5 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 						return true;
 					}
 				});
-	}
-
-	private void addSystemLinksAndProcesses(ProductSystem system,
-			ProcessLinkIndex linkIndex, TLongHashSet processes) {
-		for (ProcessLink link : system.getProcessLinks()) {
-			linkIndex.put(link);
-		}
-		for (long procId : system.getProcesses())
-			processes.add(procId);
 	}
 }
