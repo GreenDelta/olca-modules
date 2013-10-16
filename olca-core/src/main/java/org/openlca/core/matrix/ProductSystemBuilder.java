@@ -78,6 +78,9 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 		builder.setPreferredType(preferSystemProcesses ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS);
 		ProductIndex index = builder.build(processProduct);
+		log.trace(
+				"built a product index with {} process products and {} links",
+				index.size(), index.getLinkedInputs().size());
 		log.trace("create new process links");
 		addLinksAndProcesses(system, index);
 	}
@@ -87,6 +90,7 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 		TLongHashSet processes = new TLongHashSet(Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR, -1);
 		addSystemLinksAndProcesses(system, links, processes);
+		log.trace("add new processes and links");
 		for (LongPair input : index.getLinkedInputs()) {
 			LongPair output = index.getLinkedOutput(input);
 			if (output == null)
@@ -103,6 +107,8 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 
 	private void addSystemLinksAndProcesses(ProductSystem system,
 			ProcessLinkIndex linkIndex, TLongHashSet processes) {
+		log.trace("the system already contains {} links and {} processes",
+				system.getProcessLinks().size(), system.getProcesses().size());
 		for (ProcessLink link : system.getProcessLinks()) {
 			linkIndex.put(link);
 		}
@@ -113,6 +119,7 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 	private void updateDatabase(ProductSystem system, ProcessLinkIndex links,
 			TLongHashSet processes) {
 		try {
+			log.trace("update product system tables");
 			cleanTables(system.getId());
 			insertLinks(system.getId(), links.createLinks());
 			insertProcesses(system.getId(), processes);
