@@ -19,18 +19,20 @@ public class ProcessTable {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private IDatabase database;
+
 	private final TLongObjectHashMap<ProcessType> typeMap = new TLongObjectHashMap<>();
 	private final TLongObjectHashMap<AllocationMethod> allocMap = new TLongObjectHashMap<>();
 
 	/**
 	 * Maps IDs of product flows to process IDs that have this product as
-	 * output. We need this when we build a product system automatically.
+	 * output: product-id -> provider-process-id. We need this when we build a
+	 * product system automatically.
 	 */
 	private final TLongObjectHashMap<TLongArrayList> productMap = new TLongObjectHashMap<>();
 
 	public static ProcessTable create(IDatabase database) {
-		ProcessTable index = new ProcessTable(database);
-		return index;
+		ProcessTable table = new ProcessTable(database);
+		return table;
 	}
 
 	private ProcessTable(IDatabase database) {
@@ -45,13 +47,13 @@ public class ProcessTable {
 	}
 
 	private void init() {
-		log.trace("build process type table");
+		log.trace("build process index table");
 		initTypeAndAllocation();
 		initProductMap();
 	}
 
 	private void initProductMap() {
-		log.trace("load process products");
+		log.trace("load product->process map");
 		String query = "select e.f_owner, e.f_flow from tbl_exchanges e "
 				+ "inner join tbl_flows f on e.f_flow = f.id "
 				+ "where  f.flow_type <> 'ELEMENTARY_FLOW' and e.is_input = 0";
@@ -59,14 +61,16 @@ public class ProcessTable {
 			Statement statement = con.createStatement();
 			ResultSet results = statement.executeQuery(query);
 			while (results.next()) {
-				long processId = results.getLong("f_owner");
 				long productId = results.getLong("f_flow");
+				long processId = results.getLong("f_owner");
 				indexProvider(productId, processId);
 			}
+			results.close();
+			statement.close();
+			log.trace("{} products mapped", productMap.size());
 		} catch (Exception e) {
 			log.error("failed to load process products", e);
 		}
-
 	}
 
 	private void indexProvider(long productId, long processId) {
@@ -79,6 +83,7 @@ public class ProcessTable {
 	}
 
 	private void initTypeAndAllocation() {
+		log.trace("index process and allocation types");
 		try (Connection con = database.createConnection()) {
 			String query = "select id, process_type, default_allocation_method "
 					+ "from tbl_processes";
@@ -86,6 +91,7 @@ public class ProcessTable {
 			while (result.next())
 				fetchValues(result);
 			result.close();
+			log.trace("{} processes indexed", typeMap.size());
 		} catch (Exception e) {
 			log.error("failed to build process type index", e);
 		}
@@ -104,6 +110,7 @@ public class ProcessTable {
 		}
 	}
 
+	/** Returns the process type for the given process-ID. */
 	public ProcessType getType(long processId) {
 		return typeMap.get(processId);
 	}
@@ -113,19 +120,11 @@ public class ProcessTable {
 		return allocMap.get(processId);
 	}
 
-	public int size() {
-		return typeMap.size();
-	}
-
-	public long[] keys() {
-		return typeMap.keys();
-	}
-
 	/**
 	 * Returns the list of process IDs that have the product flow with the given
 	 * ID as output.
 	 */
-	public long[] getProductProvider(long productId) {
+	public long[] getProductProviders(long productId) {
 		TLongArrayList list = productMap.get(productId);
 		if (list == null)
 			return new long[0];

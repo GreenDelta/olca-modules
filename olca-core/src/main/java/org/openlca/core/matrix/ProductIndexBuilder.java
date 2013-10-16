@@ -101,7 +101,7 @@ public class ProductIndexBuilder {
 		if (productInput == null)
 			return null;
 		long productId = productInput.getFlowId();
-		long[] processIds = processTable.getProductProvider(productId);
+		long[] processIds = processTable.getProductProviders(productId);
 		if (processIds == null)
 			return null;
 		LongPair candidate = null;
