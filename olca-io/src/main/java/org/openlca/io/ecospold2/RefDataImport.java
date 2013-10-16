@@ -201,9 +201,13 @@ class RefDataImport {
 		Flow flow;
 		flow = new Flow();
 		flow.setRefId(refId);
-		FlowType type = exchange.getAmount() < 0 ? FlowType.WASTE_FLOW
-				: FlowType.PRODUCT_FLOW;
-		flow.setFlowType(type);
+		// in ecoinvent 3 negative values indicate waste flows
+		// see also the exchange handling in the process input
+		// to be on the save side, we declare all intermediate flows as
+		// products
+		// FlowType type = exchange.getAmount() < 0 ? FlowType.WASTE_FLOW
+		// : FlowType.PRODUCT_FLOW;
+		flow.setFlowType(FlowType.PRODUCT_FLOW);
 		flow.setCategory(category);
 		createFlow(exchange, flow);
 	}

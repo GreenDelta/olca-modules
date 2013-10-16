@@ -199,13 +199,16 @@ class ProcessImport {
 		exchange.setUnit(unit);
 		exchange.setInput(original.getInputGroup() != null);
 		double amount = original.getAmount();
-		if (amount > 0)
-			exchange.setAmountValue(amount);
-		else {
-			// switch input / output side for negative values
-			exchange.setInput(!exchange.isInput());
-			exchange.setAmountValue(Math.abs(amount));
-		}
+		exchange.setAmountValue(amount);
+		// we could switch the input/output side for negative inputs
+		// but this could be a problem with waste treatment processes
+		// if (amount > 0)
+		// exchange.setAmountValue(amount);
+		// else {
+		// // switch input / output side for negative values
+		// exchange.setInput(!exchange.isInput());
+		// exchange.setAmountValue(Math.abs(amount));
+		// }
 		if (importParameters)
 			mapFormula(original, process, exchange);
 		exchange.setUncertainty(UncertaintyConverter.toOpenLCA(original
