@@ -174,10 +174,7 @@ class RefDataImport {
 	}
 
 	private void productFlow(DataSet dataSet, IntermediateExchange exchange) {
-		String refId = exchange.getIntermediateExchangeId();
-		Integer og = exchange.getOutputGroup();
-		boolean isRef = og != null && og == 0;
-		Category category = getProductCategory(dataSet, exchange);
+		String refId = RefId.forProductFlow(dataSet, exchange);
 		Flow flow = index.getFlow(refId);
 		if (flow == null) {
 			flow = flowDao.getForRefId(refId);
@@ -185,19 +182,23 @@ class RefDataImport {
 				index.putFlow(refId, flow);
 		}
 		if (flow == null)
-			createNewProduct(exchange, refId, category);
-		else {
-			if (!isRef || flow.getCategory() != null || category == null)
-				return;
-			// update the product category if it is a reference flow
-			flow.setCategory(category);
-			flow = flowDao.update(flow);
-			index.putFlow(refId, flow);
+			flow = createNewProduct(exchange, refId);
+		Integer og = exchange.getOutputGroup();
+		boolean isRef = og != null && og == 0;
+		if (!isRef)
+			return;
+		Category category = getProductCategory(dataSet, exchange);
+		flow.setCategory(category);
+		if (dataSet.getGeography() != null) {
+			Location location = index.getLocation(dataSet.getGeography()
+					.getId());
+			flow.setLocation(location);
 		}
+		flow = flowDao.update(flow);
+		index.putFlow(refId, flow);
 	}
 
-	private void createNewProduct(IntermediateExchange exchange, String refId,
-			Category category) {
+	private Flow createNewProduct(IntermediateExchange exchange, String refId) {
 		Flow flow;
 		flow = new Flow();
 		flow.setRefId(refId);
@@ -208,8 +209,8 @@ class RefDataImport {
 		// FlowType type = exchange.getAmount() < 0 ? FlowType.WASTE_FLOW
 		// : FlowType.PRODUCT_FLOW;
 		flow.setFlowType(FlowType.PRODUCT_FLOW);
-		flow.setCategory(category);
 		createFlow(exchange, flow);
+		return flow;
 	}
 
 	private void elementaryFlow(ElementaryExchange exchange) {

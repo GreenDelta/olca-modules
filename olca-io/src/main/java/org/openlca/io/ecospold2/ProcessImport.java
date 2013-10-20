@@ -22,23 +22,6 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Runs the import of process data sets in the EcoSpold 02 format.
- * 
- * In Ecoinvent 3, the UUIDs of process data sets are not unique. Thus, we have
- * multiple process data sets with the same UUID. But the combination of process
- * UUID and reference product UUID is unique (or should be unique). Thus, we
- * take a hash of the process UUID and the UUID of the reference product to
- * generate a reference ID for a data set. But this leads to a problem when the
- * user exports data sets and want to import these data sets again.
- * 
- * Other things in Ecoinvent 3:
- * <ul>
- * <li>There a data sets with multiple reference products (outputGroup = 0), but
- * there should be only on flow with an amount <> 0
- * <li>negative values indicate waste flows
- * </ul>
- */
 class ProcessImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -79,7 +62,7 @@ class ProcessImport {
 		}
 		Activity activity = dataSet.getActivity();
 		try {
-			String refId = calcRefId(dataSet);
+			String refId = RefId.forProcess(dataSet);
 			boolean contains = dao.contains(refId);
 			if (contains) {
 				log.trace("process {} is already in the database",
@@ -127,19 +110,6 @@ class ProcessImport {
 		flushLinkQueue(process);
 	}
 
-	private String calcRefId(DataSet dataSet) {
-		String productId = null;
-		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges()) {
-			if (exchange.getOutputGroup() == null)
-				continue;
-			if (exchange.getOutputGroup() == 0 && exchange.getAmount() != 0) {
-				productId = exchange.getIntermediateExchangeId();
-				break;
-			}
-		}
-		return KeyGen.get(dataSet.getActivity().getId(), productId);
-	}
-
 	private void flushLinkQueue(Process process) {
 		List<Exchange> exchanges = linkQueue.remove(process.getRefId());
 		if (exchanges == null || process.getId() == 0)
@@ -172,10 +142,10 @@ class ProcessImport {
 		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
 			if (e.getAmount() == 0)
 				continue;
-			Flow flow = index.getFlow(e.getIntermediateExchangeId());
+			String refId = RefId.forProductFlow(dataSet, e);
+			Flow flow = index.getFlow(refId);
 			if (flow == null) {
-				log.warn("could not create flow for {}",
-						e.getIntermediateExchangeId());
+				log.warn("could not get flow for {}", refId);
 				continue;
 			}
 			Exchange exchange = createExchange(e, flow, process);
