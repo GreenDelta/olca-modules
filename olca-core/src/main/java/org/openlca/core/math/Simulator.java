@@ -22,6 +22,7 @@ public class Simulator {
 	private ProductSystem system;
 	private ImpactMethodDescriptor impactMethod;
 	private MatrixCache database;
+	private final IMatrixFactory factory;
 
 	private SimulationResult result;
 	private Inventory inventory;
@@ -30,11 +31,13 @@ public class Simulator {
 	private ImpactMatrix impactMatrix;
 	private CalculationSetup setup;
 
-	public Simulator(CalculationSetup setup, MatrixCache database) {
+	public Simulator(CalculationSetup setup, MatrixCache database,
+			IMatrixFactory factory) {
 		this.system = setup.getProductSystem();
 		this.impactMethod = setup.getImpactMethod();
 		this.database = database;
 		this.setup = setup;
+		this.factory = factory;
 	}
 
 	public SimulationResult getResult() {
@@ -58,7 +61,7 @@ public class Simulator {
 			if (impactMatrix != null)
 				impactTable.getFactorMatrix().simulate(
 						impactMatrix.getFactorMatrix());
-			InventorySolver solver = new InventorySolver();
+			InventorySolver solver = new InventorySolver(factory);
 			InventoryResult inventoryResult = solver.solve(inventoryMatrix,
 					impactMatrix);
 			result.appendFlowResults(inventoryResult.getFlowResultVector());
@@ -75,7 +78,7 @@ public class Simulator {
 	private void setUp() {
 		log.trace("set up inventory");
 		inventory = Calculators.createInventory(setup, database);
-		inventoryMatrix = inventory.asMatrix();
+		inventoryMatrix = inventory.asMatrix(factory);
 		result = new SimulationResult(inventory.getFlowIndex());
 		if (impactMethod != null) {
 			ImpactTable impactTable = Calculators.createImpactTable(
@@ -83,7 +86,7 @@ public class Simulator {
 			if (impactTable.isEmpty())
 				return;
 			this.impactTable = impactTable;
-			this.impactMatrix = impactTable.asMatrix();
+			this.impactMatrix = impactTable.asMatrix(factory);
 			result.setImpactIndex(impactTable.getCategoryIndex());
 		}
 	}

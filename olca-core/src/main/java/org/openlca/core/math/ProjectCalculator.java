@@ -11,15 +11,17 @@ import org.openlca.core.results.ProjectResult;
 
 public class ProjectCalculator {
 
-	private MatrixCache matrixCache;
+	private final IMatrixFactory factory;
+	private final MatrixCache matrixCache;
 
-	public ProjectCalculator(MatrixCache matrixCache) {
+	public ProjectCalculator(MatrixCache matrixCache, IMatrixFactory factory) {
 		this.matrixCache = matrixCache;
+		this.factory = factory;
 	}
 
 	public ProjectResult solve(Project project) {
 		ProjectResult result = new ProjectResult();
-		SystemCalculator calculator = new SystemCalculator(matrixCache);
+		SystemCalculator calculator = new SystemCalculator(matrixCache, factory);
 		ImpactMethodDescriptor method = getImpactMethod(project);
 		NormalizationWeightingSet nwSet = getNwSet(project);
 		for (ProjectVariant v : project.getVariants()) {

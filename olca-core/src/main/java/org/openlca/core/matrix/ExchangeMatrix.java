@@ -3,7 +3,7 @@ package org.openlca.core.matrix;
 import java.util.HashMap;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.MatrixFactory;
+import org.openlca.core.math.IMatrixFactory;
 import org.openlca.expressions.FormulaInterpreter;
 
 public class ExchangeMatrix {
@@ -38,8 +38,8 @@ public class ExchangeMatrix {
 		return rowMap.get(col);
 	}
 
-	public IMatrix createRealMatrix() {
-		final IMatrix matrix = MatrixFactory.create(rows, columns);
+	public IMatrix createRealMatrix(IMatrixFactory factory) {
+		final IMatrix matrix = factory.create(rows, columns);
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ExchangeCell cell) {

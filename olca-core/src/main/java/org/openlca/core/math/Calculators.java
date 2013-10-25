@@ -22,10 +22,11 @@ final class Calculators {
 	private Calculators() {
 	}
 
-	static IMatrix createDemandVector(ProductIndex productIndex) {
+	static IMatrix createDemandVector(ProductIndex productIndex,
+			IMatrixFactory factory) {
 		LongPair refProduct = productIndex.getRefProduct();
 		int idx = productIndex.getIndex(refProduct);
-		IMatrix demandVector = MatrixFactory.create(productIndex.size(), 1);
+		IMatrix demandVector = factory.create(productIndex.size(), 1);
 		demandVector.setEntry(idx, 0, productIndex.getDemand());
 		return demandVector;
 	}

@@ -12,14 +12,20 @@ import org.openlca.core.results.LinkContributions;
 
 public class InventorySolver {
 
+	private final IMatrixFactory factory;
+
+	public InventorySolver(IMatrixFactory factory) {
+		this.factory = factory;
+	}
+
 	public InventoryResult solve(Inventory inventory) {
 		return solve(inventory, null);
 	}
 
 	public InventoryResult solve(Inventory inventory, ImpactTable impactTable) {
-		InventoryMatrix matrix = inventory.asMatrix();
+		InventoryMatrix matrix = inventory.asMatrix(factory);
 		ImpactMatrix impactMatrix = impactTable != null ? impactTable
-				.asMatrix() : null;
+				.asMatrix(factory) : null;
 		return solve(matrix, impactMatrix);
 	}
 
@@ -30,8 +36,8 @@ public class InventorySolver {
 	public InventoryResult solve(InventoryMatrix matrix,
 			ImpactMatrix impactMatrix) {
 		IMatrix techMatrix = matrix.getTechnologyMatrix();
-		IMatrix demand = Calculators.createDemandVector(matrix
-				.getProductIndex());
+		IMatrix demand = Calculators.createDemandVector(
+				matrix.getProductIndex(), factory);
 		IMatrix s = techMatrix.solve(demand);
 		IMatrix enviMatrix = matrix.getInterventionMatrix();
 		IMatrix g = enviMatrix.multiply(s);
@@ -55,9 +61,9 @@ public class InventorySolver {
 	}
 
 	public AnalysisResult analyse(Inventory inventory, ImpactTable impactTable) {
-		InventoryMatrix matrix = inventory.asMatrix();
+		InventoryMatrix matrix = inventory.asMatrix(factory);
 		ImpactMatrix impactMatrix = impactTable != null ? impactTable
-				.asMatrix() : null;
+				.asMatrix(factory) : null;
 		return analyse(matrix, impactMatrix);
 	}
 
@@ -77,14 +83,14 @@ public class InventorySolver {
 
 		IMatrix inverse = techMatrix.getInverse();
 
-		IMatrix demand = Calculators.createDemandVector(productIndex);
+		IMatrix demand = Calculators.createDemandVector(productIndex, factory);
 		IMatrix scalingFactors = inverse.multiply(demand);
 		// we now that the reference product is always in the first column
 		result.setScalingFactors(scalingFactors.getColumn(0));
 
 		// single results
 		int n = productIndex.size();
-		IMatrix scalingMatrix = MatrixFactory.create(n, n);
+		IMatrix scalingMatrix = factory.create(n, n);
 		for (int i = 0; i < n; i++) {
 			scalingMatrix.setEntry(i, i, scalingFactors.getEntry(i, 0));
 		}
@@ -93,7 +99,7 @@ public class InventorySolver {
 
 		// total results
 		// TODO: self loop correction
-		IMatrix demandMatrix = MatrixFactory.create(n, n);
+		IMatrix demandMatrix = factory.create(n, n);
 		for (int i = 0; i < productIndex.size(); i++) {
 			double entry = techMatrix.getEntry(i, i);
 			double s = scalingFactors.getEntry(i, 0);

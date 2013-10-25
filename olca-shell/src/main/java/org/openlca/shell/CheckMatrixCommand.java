@@ -4,6 +4,7 @@ import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.BlasMatrix;
+import org.openlca.core.math.BlasMatrixFactory;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.LongPair;
@@ -71,7 +72,8 @@ public class CheckMatrixCommand {
 					AllocationMethod.USE_DEFAULT);
 
 			BlasMatrix techMatrix = (BlasMatrix) inventory
-					.getTechnologyMatrix().createRealMatrix();
+					.getTechnologyMatrix().createRealMatrix(
+							new BlasMatrixFactory());
 			DoubleMatrix matrix = techMatrix.getNativeMatrix();
 
 			for (int i = 1; i < index.size(); i++) {

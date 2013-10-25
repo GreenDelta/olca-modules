@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.MatrixFactory;
+import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.CostCategory;
 import org.slf4j.Logger;
@@ -19,15 +19,17 @@ import com.google.common.collect.Multimap;
 public class CostMatrixBuilder {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private MatrixCache matrixCache;
+	private final MatrixCache matrixCache;
+	private final IMatrixFactory factory;
 	private TLongObjectHashMap<CostCategory> costCategories;
 	private Multimap<LongPair, CalcCostEntry> costEntries = HashMultimap
 			.create();
 	private LongIndex fixCostCategoryIndex;
 	private LongIndex varCostCategoryIndex;
 
-	public CostMatrixBuilder(MatrixCache matrixCache) {
+	public CostMatrixBuilder(MatrixCache matrixCache, IMatrixFactory factory) {
 		this.matrixCache = matrixCache;
+		this.factory = factory;
 	}
 
 	public CostMatrix build(ProductIndex productIndex) {
@@ -89,7 +91,7 @@ public class CostMatrixBuilder {
 
 	private IMatrix buildMatrix(LongIndex costCategoryIndex,
 			ProductIndex productIndex) {
-		IMatrix matrix = MatrixFactory.create(costCategoryIndex.size(),
+		IMatrix matrix = factory.create(costCategoryIndex.size(),
 				productIndex.size());
 		for (int col = 0; col < productIndex.size(); col++) {
 			LongPair processProduct = productIndex.getProductAt(col);

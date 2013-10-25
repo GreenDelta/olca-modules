@@ -4,7 +4,7 @@ import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.MatrixFactory;
+import org.openlca.core.math.IMatrixFactory;
 
 /**
  * A matrix with impact assessment factors where the flows are mapped to the
@@ -45,8 +45,8 @@ public class ImpactFactorMatrix {
 		return rowMap.get(col);
 	}
 
-	public IMatrix createRealMatrix() {
-		final IMatrix matrix = MatrixFactory.create(rows, columns);
+	public IMatrix createRealMatrix(IMatrixFactory factory) {
+		final IMatrix matrix = factory.create(rows, columns);
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ImpactFactorCell cell) {

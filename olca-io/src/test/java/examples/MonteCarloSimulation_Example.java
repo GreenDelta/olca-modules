@@ -5,7 +5,9 @@ import java.io.File;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.math.BlasMatrixFactory;
 import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
@@ -23,6 +25,7 @@ public class MonteCarloSimulation_Example {
 		// load the high-performance BLAS library
 		String blasLibPath = "C:/Users/Dell/Downloads";
 		Library.loadFromDir(new File(blasLibPath));
+		IMatrixFactory factory = new BlasMatrixFactory();
 
 		// connect to a database and initialize a matrix cache
 		String dbPath = "C:/Users/Dell/openLCA-data-demo-1.4/databases/ecoinvent2";
@@ -40,7 +43,7 @@ public class MonteCarloSimulation_Example {
 		setup.setNumberOfRuns(runs);
 
 		// run the simulation
-		Simulator simulator = new Simulator(setup, cache);
+		Simulator simulator = new Simulator(setup, cache, factory);
 		for (int i = 0; i < runs; i++)
 			simulator.nextRun();
 

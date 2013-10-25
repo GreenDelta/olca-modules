@@ -1,17 +1,11 @@
 package org.openlca.core.math;
 
-import java.io.File;
-
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openlca.jblas.Library;
+import org.openlca.core.TestSession;
 
 public class PrecisionBenchmarkTest {
-
-	static {
-		Library.loadFromDir(new File(System.getProperty("java.io.tmpdir")));
-	}
 
 	private final int MAX_SIZE = 5000;
 	private final int STEP = 500;
@@ -64,7 +58,8 @@ public class PrecisionBenchmarkTest {
 							* FACTOR);
 			}
 		}
-		BlockInversion blockInversion = new BlockInversion(2000);
+		BlockInversion blockInversion = new BlockInversion(2000,
+				TestSession.getMatrixFactory());
 		IMatrix inverse = blockInversion.run(matrix);
 		// IMatrix inverse = matrix.getInverse();
 		IMatrix eye = matrix.multiply(inverse);

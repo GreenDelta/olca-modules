@@ -1,5 +1,7 @@
 package org.openlca.core.matrix;
 
+import org.openlca.core.math.IMatrixFactory;
+
 public class ImpactTable {
 
 	private LongIndex categoryIndex;
@@ -36,11 +38,11 @@ public class ImpactTable {
 		this.factorMatrix = factorMatrix;
 	}
 
-	public ImpactMatrix asMatrix() {
+	public ImpactMatrix asMatrix(IMatrixFactory factory) {
 		ImpactMatrix matrix = new ImpactMatrix();
 		matrix.setCategoryIndex(categoryIndex);
 		if (factorMatrix != null)
-			matrix.setFactorMatrix(factorMatrix.createRealMatrix());
+			matrix.setFactorMatrix(factorMatrix.createRealMatrix(factory));
 		matrix.setFlowIndex(flowIndex);
 		return matrix;
 	}

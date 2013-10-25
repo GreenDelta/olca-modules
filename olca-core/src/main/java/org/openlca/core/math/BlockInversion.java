@@ -7,13 +7,15 @@ class BlockInversion {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final int MAX_BLOCK_SIZE;
+	private final IMatrixFactory factory;
 
-	public BlockInversion(int blockSize) {
+	public BlockInversion(int blockSize, IMatrixFactory factory) {
 		this.MAX_BLOCK_SIZE = blockSize;
+		this.factory = factory;
 	}
 
-	public BlockInversion() {
-		this.MAX_BLOCK_SIZE = 2500;
+	public BlockInversion(IMatrixFactory factory) {
+		this(2500, factory);
 	}
 
 	public IMatrix run(IMatrix a) {
@@ -29,12 +31,12 @@ class BlockInversion {
 		log.trace("Calculate inverse in blocks fow a {0}x{0} matrix; "
 				+ "block size = {1}", dim, blockSize);
 
-		IMatrix inverse = MatrixFactory.create(dim, dim);
+		IMatrix inverse = factory.create(dim, dim);
 
 		int blockStart = 0;
 		int blockEnd = blockSize;
 		int blockCol = 0;
-		IMatrix currentBlock = MatrixFactory.create(dim, blockSize);
+		IMatrix currentBlock = factory.create(dim, blockSize);
 		for (int col = 0; col < dim; col++) {
 			if (col == blockEnd) {
 				solveBlock(a, currentBlock, blockStart, blockEnd, inverse);
@@ -44,7 +46,7 @@ class BlockInversion {
 					blockEnd = dim;
 				else
 					blockEnd = col + blockSize;
-				currentBlock = MatrixFactory.create(dim, blockEnd - col);
+				currentBlock = factory.create(dim, blockEnd - col);
 			}
 			currentBlock.setEntry(col, blockCol, 1);
 			blockCol++;

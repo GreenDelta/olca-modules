@@ -2,8 +2,9 @@ package org.openlca.core.results;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.TestSession;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.MatrixFactory;
+import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.ProcessLink;
@@ -20,13 +21,11 @@ public class LinkContributionsTest {
 	@Test
 	public void testDoubleLink() {
 
-		//@formatter:off
-		IMatrix techMatrix = MatrixFactory.create(new double[][] {
-				{    1,    0,    0, 0 }, 
-				{ -0.5,    1,    0, 0 }, 
-				{ -0.5,    0,    1, 0 },
-				{    0, -0.5, -0.5, 1 } });
-		//@formatter:on
+		IMatrixFactory factory = TestSession.getMatrixFactory();
+		// @formatter:off
+		IMatrix techMatrix = factory.create(new double[][] { { 1, 0, 0, 0 },
+				{ -0.5, 1, 0, 0 }, { -0.5, 0, 1, 0 }, { 0, -0.5, -0.5, 1 } });
+		// @formatter:on
 
 		ProductIndex index = new ProductIndex(LongPair.of(1, 1), 1.0);
 		index.put(LongPair.of(2, 2));
@@ -55,8 +54,9 @@ public class LinkContributionsTest {
 	 */
 	@Test
 	public void testBandMatrix() {
+		IMatrixFactory factory = TestSession.getMatrixFactory();
 		int size = 4000;
-		IMatrix techMatrix = MatrixFactory.create(size, size);
+		IMatrix techMatrix = factory.create(size, size);
 		ProductIndex index = new ProductIndex(LongPair.of(1, 1), 1.0);
 		double[] s = new double[size];
 		for (int i = 0; i < size; i++) {

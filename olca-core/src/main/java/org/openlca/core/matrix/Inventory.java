@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.math.IMatrix;
+import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
 
@@ -85,14 +86,14 @@ public class Inventory {
 			interventionMatrix.eval(formulaInterpreter);
 	}
 
-	public InventoryMatrix asMatrix() {
+	public InventoryMatrix asMatrix(IMatrixFactory factory) {
 		evalFormulas();
 		InventoryMatrix matrix = new InventoryMatrix();
 		matrix.setFlowIndex(flowIndex);
 		matrix.setProductIndex(productIndex);
-		IMatrix enviMatrix = interventionMatrix.createRealMatrix();
+		IMatrix enviMatrix = interventionMatrix.createRealMatrix(factory);
 		matrix.setInterventionMatrix(enviMatrix);
-		IMatrix techMatrix = technologyMatrix.createRealMatrix();
+		IMatrix techMatrix = technologyMatrix.createRealMatrix(factory);
 		matrix.setTechnologyMatrix(techMatrix);
 		return matrix;
 	}

@@ -12,16 +12,18 @@ public class SystemCalculator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final MatrixCache matrixCache;
+	private final IMatrixFactory factory;
 
-	public SystemCalculator(MatrixCache database) {
+	public SystemCalculator(MatrixCache database, IMatrixFactory factory) {
 		this.matrixCache = database;
+		this.factory = factory;
 	}
 
 	public InventoryResult solve(CalculationSetup setup) {
 		log.trace("solve product system - build inventory");
 		Inventory inventory = Calculators.createInventory(setup, matrixCache);
 		log.trace("solve inventory");
-		InventorySolver solver = new InventorySolver();
+		InventorySolver solver = new InventorySolver(factory);
 		if (setup.getImpactMethod() == null)
 			return solver.solve(inventory);
 		else {
@@ -36,7 +38,7 @@ public class SystemCalculator {
 		log.trace("analyse product system - build inventory");
 		Inventory inventory = Calculators.createInventory(setup, matrixCache);
 		log.trace("analyse inventory");
-		InventorySolver solver = new InventorySolver();
+		InventorySolver solver = new InventorySolver(factory);
 		if (setup.getImpactMethod() == null)
 			return solver.analyse(inventory);
 		else {
