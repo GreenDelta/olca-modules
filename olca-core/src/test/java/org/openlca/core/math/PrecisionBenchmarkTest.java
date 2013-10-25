@@ -13,16 +13,17 @@ public class PrecisionBenchmarkTest {
 		Library.loadFromDir(new File(System.getProperty("java.io.tmpdir")));
 	}
 
-	private final int MAX_SIZE = 7500;
+	private final int MAX_SIZE = 5000;
 	private final int STEP = 500;
 	private final float FACTOR = 1e-6f;
 	private final boolean WITH_LOOPS = true;
+	private final boolean CHECK_ASSERTS = false;
 
 	@Test
-	@Ignore
+	// @Ignore
 	public void testDoublePrecision() {
 		System.out.println("\nRun benchmark for double precision");
-		System.out.println("Matrix size\t Time (ms) \t Success");
+		System.out.println("Matrix size \t Time (ms) \t DiagSum \t Success");
 		for (int i = STEP; i <= MAX_SIZE; i += STEP) {
 			IMatrix matrix = new BlasMatrix(i, i);
 			runAndLog(i, matrix);
@@ -33,7 +34,7 @@ public class PrecisionBenchmarkTest {
 	@Ignore
 	public void testSinglePrecision() {
 		System.out.println("\nRun benchmark for single precision");
-		System.out.println("Matrix size\t Time (ms) \t Success");
+		System.out.println("Matrix size \t Time (ms) \t DiagSum \t Success");
 		for (int i = STEP; i <= MAX_SIZE; i += STEP) {
 			IMatrix matrix = new BlasFloatMatrix(i, i);
 			runAndLog(i, matrix);
@@ -45,15 +46,17 @@ public class PrecisionBenchmarkTest {
 		double s = runCalculation(i, matrix);
 		long end = System.currentTimeMillis();
 		boolean success = s == (double) i;
-		System.out.printf("%s \t %s \t %s \n", i, end - start, success);
-		Assert.assertTrue(success);
+		System.out
+				.printf("%s \t %s \t %s \t %s \n", i, end - start, s, success);
+		if (CHECK_ASSERTS)
+			Assert.assertTrue(success);
 	}
 
 	private double runCalculation(int i, IMatrix matrix) {
 		for (int row = 0; row < i; row++) {
 			for (int col = 0; col < i; col++) {
 				if (row == col)
-					matrix.setEntry(row, col, 1);
+					matrix.setEntry(row, col, 1000 * Math.random());
 				else if (col < row)
 					matrix.setEntry(row, col, -1 * Math.random() * FACTOR);
 				else if (WITH_LOOPS)
@@ -61,11 +64,13 @@ public class PrecisionBenchmarkTest {
 							* FACTOR);
 			}
 		}
-		IMatrix inverse = matrix.getInverse();
+		BlockInversion blockInversion = new BlockInversion(2000);
+		IMatrix inverse = blockInversion.run(matrix);
+		// IMatrix inverse = matrix.getInverse();
 		IMatrix eye = matrix.multiply(inverse);
 		double s = 0;
 		for (int k = 0; k < i; k++) {
-			s += eye.getEntry(k, k);
+			s += Math.abs(eye.getEntry(k, k));
 		}
 		return s;
 	}
