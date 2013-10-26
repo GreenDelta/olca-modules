@@ -23,6 +23,7 @@ public class InventoryResult {
 	private LongIndex impactIndex;
 	private IMatrix flowResultVector;
 	private IMatrix impactResultVector;
+	private IMatrix scalingVector;
 
 	// result generators
 	private InventoryFlowResults flowResults;
@@ -60,6 +61,10 @@ public class InventoryResult {
 		this.impactResultVector = impactResultVector;
 	}
 
+	public void setScalingVector(IMatrix scalingVector) {
+		this.scalingVector = scalingVector;
+	}
+
 	public ProductIndex getProductIndex() {
 		return productIndex;
 	}
@@ -78,6 +83,10 @@ public class InventoryResult {
 
 	public IMatrix getImpactResultVector() {
 		return impactResultVector;
+	}
+
+	public IMatrix getScalingVector() {
+		return scalingVector;
 	}
 
 	public double getFlowResult(long flowId) {

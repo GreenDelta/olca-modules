@@ -24,6 +24,7 @@ public class DefaultInventorySolver implements InventorySolver {
 		result.setFlowIndex(matrix.getFlowIndex());
 		result.setFlowResultVector(g);
 		result.setProductIndex(matrix.getProductIndex());
+		result.setScalingVector(s);
 		return result;
 	}
 
