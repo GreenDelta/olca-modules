@@ -73,8 +73,16 @@ public class AnalysisResult {
 		this.singleFlowResults = singleResult;
 	}
 
+	public IMatrix getSingleResult() {
+		return singleFlowResults;
+	}
+
 	public void setTotalResult(IMatrix totalResult) {
 		this.totalFlowResults = totalResult;
+	}
+
+	public IMatrix getTotalResult() {
+		return totalFlowResults;
 	}
 
 	public void setSingleImpactResult(IMatrix singleImpactResult) {

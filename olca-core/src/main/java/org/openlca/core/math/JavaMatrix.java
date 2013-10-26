@@ -3,6 +3,7 @@ package org.openlca.core.math;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
 
 class JavaMatrix implements IMatrix {
 
@@ -12,8 +13,17 @@ class JavaMatrix implements IMatrix {
 		this.matrix = matrix;
 	}
 
+	public JavaMatrix(RealVector vector) {
+		matrix = new Array2DRowRealMatrix(vector.getDimension(), 1);
+		matrix.setColumnVector(0, vector);
+	}
+
 	public JavaMatrix(int rowSize, int colSize) {
 		matrix = new Array2DRowRealMatrix(rowSize, colSize);
+	}
+
+	public RealMatrix getRealMatrix() {
+		return matrix;
 	}
 
 	@Override
@@ -47,14 +57,14 @@ class JavaMatrix implements IMatrix {
 	}
 
 	@Override
-	public IMatrix multiply(IMatrix with) {
+	public JavaMatrix multiply(IMatrix with) {
 		RealMatrix withMatrix = unwrap(with);
 		RealMatrix result = matrix.multiply(withMatrix);
 		return new JavaMatrix(result);
 	}
 
 	@Override
-	public IMatrix solve(IMatrix b) {
+	public JavaMatrix solve(IMatrix b) {
 		RealMatrix matrixB = unwrap(b);
 		RealMatrix matrixX = new LUDecomposition(matrix).getSolver().solve(
 				matrixB);
@@ -62,17 +72,10 @@ class JavaMatrix implements IMatrix {
 	}
 
 	@Override
-	public IMatrix getInverse() {
+	public JavaMatrix getInverse() {
 		RealMatrix inverse = new LUDecomposition(matrix).getSolver()
 				.getInverse();
 		return new JavaMatrix(inverse);
-	}
-
-	private RealMatrix unwrap(IMatrix matrix) {
-		if (!(matrix instanceof JavaMatrix))
-			throw new IllegalArgumentException("incompatible matrix types");
-		JavaMatrix javaMatrix = (JavaMatrix) matrix;
-		return javaMatrix.matrix;
 	}
 
 	@Override
@@ -81,7 +84,7 @@ class JavaMatrix implements IMatrix {
 	}
 
 	@Override
-	public IMatrix add(IMatrix toAdd) {
+	public JavaMatrix add(IMatrix toAdd) {
 		RealMatrix matrixToAdd = unwrap(toAdd);
 		RealMatrix result = matrix.add(matrixToAdd);
 		return new JavaMatrix(result);
@@ -92,6 +95,13 @@ class JavaMatrix implements IMatrix {
 		RealMatrix matrixToSubtract = unwrap(toSubtract);
 		RealMatrix result = matrix.subtract(matrixToSubtract);
 		return new JavaMatrix(result);
+	}
+
+	private RealMatrix unwrap(IMatrix matrix) {
+		if (!(matrix instanceof JavaMatrix))
+			throw new IllegalArgumentException("incompatible matrix types");
+		JavaMatrix javaMatrix = (JavaMatrix) matrix;
+		return javaMatrix.matrix;
 	}
 
 }

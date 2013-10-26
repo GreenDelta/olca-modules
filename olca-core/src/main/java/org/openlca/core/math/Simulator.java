@@ -1,5 +1,6 @@
 package org.openlca.core.math;
 
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
@@ -61,18 +62,29 @@ public class Simulator {
 			if (impactMatrix != null)
 				impactTable.getFactorMatrix().simulate(
 						impactMatrix.getFactorMatrix());
-			InventorySolver solver = new InventorySolver(factory);
+			InventoryCalculator solver = new InventoryCalculator(factory);
 			InventoryResult inventoryResult = solver.solve(inventoryMatrix,
 					impactMatrix);
-			result.appendFlowResults(inventoryResult.getFlowResultVector());
-			if (result.hasImpactResults())
-				result.appendImpactResults(inventoryResult
-						.getImpactResultVector());
+			appendResults(inventoryResult);
 			return true;
 		} catch (Throwable e) {
 			log.trace("simulation run failed", e);
 			return false;
 		}
+	}
+
+	private void appendResults(InventoryResult inventoryResult) {
+		FlowIndex flowIndex = result.getFlowIndex();
+		double[] flowResults = new double[flowIndex.size()];
+		for (long flowId : flowIndex.getFlowIds()) {
+			int idx = flowIndex.getIndex(flowId);
+			// get result adopts the sign for input flow results
+			flowResults[idx] = inventoryResult.getFlowResult(flowId);
+		}
+		result.appendFlowResults(flowResults);
+		if (result.hasImpactResults())
+			result.appendImpactResults(inventoryResult.getImpactResultVector()
+					.getColumn(0));
 	}
 
 	private void setUp() {

@@ -1,7 +1,7 @@
 package org.openlca.shell;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.InventorySolver;
+import org.openlca.core.math.InventoryCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryBuilder;
@@ -72,7 +72,7 @@ public class SolveCommand {
 			logTime("inventory matrix created");
 
 			log.trace("Solve inventory");
-			InventorySolver solver = new InventorySolver();
+			InventoryCalculator solver = new InventoryCalculator();
 			InventoryResult result = solver.solve(matrix);
 			logTime("inventory solved");
 

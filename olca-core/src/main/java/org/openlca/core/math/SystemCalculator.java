@@ -23,7 +23,7 @@ public class SystemCalculator {
 		log.trace("solve product system - build inventory");
 		Inventory inventory = Calculators.createInventory(setup, matrixCache);
 		log.trace("solve inventory");
-		InventorySolver solver = new InventorySolver(factory);
+		InventoryCalculator solver = new InventoryCalculator(factory);
 		if (setup.getImpactMethod() == null)
 			return solver.solve(inventory);
 		else {
@@ -38,7 +38,7 @@ public class SystemCalculator {
 		log.trace("analyse product system - build inventory");
 		Inventory inventory = Calculators.createInventory(setup, matrixCache);
 		log.trace("analyse inventory");
-		InventorySolver solver = new InventorySolver(factory);
+		InventoryCalculator solver = new InventoryCalculator(factory);
 		if (setup.getImpactMethod() == null)
 			return solver.analyse(inventory);
 		else {
