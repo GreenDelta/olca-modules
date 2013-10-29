@@ -103,6 +103,9 @@ class ProcessImport {
 		if (importParameters)
 			process.getParameters().addAll(Parameters.fetch(dataSet));
 		createProductExchanges(dataSet, process);
+		if (process.getQuantitativeReference() == null)
+			log.warn("could not set a quantitative reference for process {}",
+					refId);
 		createElementaryExchanges(dataSet, process);
 		new DocImportMapper(database).map(dataSet, process);
 		database.createDao(Process.class).insert(process);
@@ -140,8 +143,11 @@ class ProcessImport {
 
 	private void createProductExchanges(DataSet dataSet, Process process) {
 		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
-			if (e.getAmount() == 0)
+			boolean isRefFlow = e.getOutputGroup() != null
+					&& e.getOutputGroup() == 0;
+			if (e.getAmount() == 0) {
 				continue;
+			}
 			String refId = RefId.forProductFlow(dataSet, e);
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
@@ -149,11 +155,22 @@ class ProcessImport {
 				continue;
 			}
 			Exchange exchange = createExchange(e, flow, process);
+			if (isAvoidedProduct(refId, exchange))
+				exchange.setAvoidedProduct(true);
 			if (e.getActivityLinkId() != null)
 				addActivityLink(e, exchange);
-			if (e.getOutputGroup() != null && e.getOutputGroup() == 0)
+			if (isRefFlow)
 				process.setQuantitativeReference(exchange);
 		}
+	}
+
+	private boolean isAvoidedProduct(String refId, Exchange exchange) {
+		return false;
+		// If the sign of an product/waste input is different from the sign of
+		// the product/waste output of the linked activity it could be an
+		// avoided product. Not sure, if this is true for ecoinvent 3
+		// boolean isNeg = exchange.getAmountValue() < 0;
+		// return isNeg != index.isNegativeFlow(refId) && exchange.isInput();
 	}
 
 	private Exchange createExchange(org.openlca.ecospold2.Exchange original,

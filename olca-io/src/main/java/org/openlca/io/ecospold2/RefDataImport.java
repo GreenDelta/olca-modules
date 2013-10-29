@@ -187,6 +187,7 @@ class RefDataImport {
 		boolean isRef = og != null && og == 0;
 		if (!isRef)
 			return;
+		index.putNegativeFlow(refId, exchange.getAmount() < 0);
 		Category category = getProductCategory(dataSet, exchange);
 		flow.setCategory(category);
 		if (dataSet.getGeography() != null) {

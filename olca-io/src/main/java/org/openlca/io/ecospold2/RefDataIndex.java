@@ -22,6 +22,7 @@ class RefDataIndex {
 	private Map<String, Unit> units = new HashMap<>();
 	private Map<String, FlowProperty> flowProperties = new HashMap<>();
 	private Map<String, Flow> flows = new HashMap<>();
+	private Map<String, Boolean> negativeFlow = new HashMap<>();
 
 	public Category getProcessCategory(String key) {
 		return processCategories.get(key);
@@ -79,6 +80,22 @@ class RefDataIndex {
 
 	public void putFlow(String key, Flow flow) {
 		flows.put(key, flow);
+	}
+
+	/**
+	 * Set to true if the product or waste flow with the given key is used with
+	 * a negative value in the reference output of a respective activity. This
+	 * can be an indicator for waste flows (negative values) and avoided
+	 * products (sign in an product input is different than in the reference
+	 * product flow of the linked activity).
+	 */
+	public void putNegativeFlow(String key, boolean val) {
+		negativeFlow.put(key, val);
+	}
+
+	public boolean isNegativeFlow(String key) {
+		Boolean val = negativeFlow.get(key);
+		return val == null ? false : val;
 	}
 
 	public void putProcessId(String key, long id) {
