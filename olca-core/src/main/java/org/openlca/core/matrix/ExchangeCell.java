@@ -62,7 +62,7 @@ public class ExchangeCell {
 			return 0;
 		double amount = exchange.getAmount() * allocationFactor
 				* exchange.getConversionFactor();
-		if (exchange.isInput())
+		if (exchange.isInput() && !exchange.isAvoidedProduct())
 			return -amount;
 		else
 			return amount;
@@ -76,7 +76,7 @@ public class ExchangeCell {
 			generator = createGenerator(type);
 		double amount = generator.next() * allocationFactor
 				* exchange.getConversionFactor();
-		if (exchange.isInput())
+		if (exchange.isInput() && !exchange.isAvoidedProduct())
 			return -amount;
 		else
 			return amount;

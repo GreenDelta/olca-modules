@@ -104,6 +104,7 @@ class ExchangeCache {
 			e.setFlowType(flowTypes.getType(e.getFlowId()));
 			e.setInput(r.getBoolean("is_input"));
 			e.setDefaultProviderId(r.getLong("f_default_provider"));
+			e.setAvoidedProduct(r.getBoolean("avoided_product"));
 			int uncertaintyType = r.getInt("distribution_type");
 			if (!r.wasNull()) {
 				e.setUncertaintyType(UncertaintyType.values()[uncertaintyType]);

@@ -21,6 +21,7 @@ public class CalcExchange {
 	private String parameter3Formula;
 	private FlowType flowType;
 	private long defaultProviderId;
+	private boolean avoidedProduct;
 
 	public long getFlowId() {
 		return flowId;
@@ -149,6 +150,14 @@ public class CalcExchange {
 
 	public void setDefaultProviderId(long defaultProviderId) {
 		this.defaultProviderId = defaultProviderId;
+	}
+
+	public boolean isAvoidedProduct() {
+		return avoidedProduct;
+	}
+
+	public void setAvoidedProduct(boolean avoidedProduct) {
+		this.avoidedProduct = avoidedProduct;
 	}
 
 }
