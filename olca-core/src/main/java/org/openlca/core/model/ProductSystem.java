@@ -81,66 +81,6 @@ public class ProductSystem extends CategorizedEntity {
 		return productSystem;
 	}
 
-	/**
-	 * <p style="margin-top: 0">
-	 * Searches for links where the process with the given id is recipient
-	 * </p>
-	 * 
-	 * @param processId
-	 *            The id of the process to search links for
-	 * 
-	 * @return <p style="margin-top: 0">
-	 *         The links where the process with the given id is recipient
-	 *         </p>
-	 */
-	public ProcessLink[] getIncomingLinks(long processId) {
-		List<ProcessLink> incoming = new ArrayList<>();
-		for (ProcessLink link : getProcessLinks(processId))
-			if (link.getRecipientId() == processId)
-				incoming.add(link);
-		return incoming.toArray(new ProcessLink[incoming.size()]);
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Searches for links where the process with the given id is provider
-	 * </p>
-	 * 
-	 * @param processId
-	 *            The id of the process to search links for
-	 * 
-	 * @return <p style="margin-top: 0">
-	 *         The links where the process with the given id is provider
-	 *         </p>
-	 */
-	public ProcessLink[] getOutgoingLinks(long processId) {
-		List<ProcessLink> outgoing = new ArrayList<>();
-		for (ProcessLink link : getProcessLinks(processId))
-			if (link.getProviderId() == processId)
-				outgoing.add(link);
-		return outgoing.toArray(new ProcessLink[outgoing.size()]);
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Getter of the process links for the given process id
-	 * 
-	 * @param processId
-	 *            The id of the process to search process links for
-	 * 
-	 * @return All process links having the process with the given id as
-	 *         provider or recipient
-	 *         </p>
-	 */
-	public ProcessLink[] getProcessLinks(long processId) {
-		List<ProcessLink> processLinks = new ArrayList<>();
-		for (ProcessLink processLink : getProcessLinks())
-			if (processLink.getProviderId() == processId
-					|| processLink.getRecipientId() == processId)
-				processLinks.add(processLink);
-		return processLinks.toArray(new ProcessLink[processLinks.size()]);
-	}
-
 	public Exchange getReferenceExchange() {
 		return referenceExchange;
 	}
