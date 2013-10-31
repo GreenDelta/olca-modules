@@ -1,25 +1,27 @@
 package org.openlca.core.math;
 
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.InventoryResult;
 import org.openlca.core.results.LinkContributions;
 
 public class InventoryCalculator {
 
-	private final InventorySolver solver;
 	private final IMatrixFactory factory;
+	private final ISolver solver;
 
 	public InventoryCalculator(IMatrixFactory factory) {
-		this(factory, new DefaultInventorySolver());
+		this(factory, factory.getDefaultSolver());
 	}
 
-	public InventoryCalculator(IMatrixFactory factory, InventorySolver solver) {
-		this.factory = factory;
+	public InventoryCalculator(IMatrixFactory factory, ISolver solver) {
 		this.solver = solver;
+		this.factory = factory;
 	}
 
 	public InventoryResult solve(Inventory inventory) {
@@ -39,10 +41,20 @@ public class InventoryCalculator {
 
 	public InventoryResult solve(InventoryMatrix matrix,
 			ImpactMatrix impactMatrix) {
-		InventoryResult result = solver.solve(matrix, factory);
+		IMatrix techMatrix = matrix.getTechnologyMatrix();
+		IMatrix demand = Calculators.createDemandVector(
+				matrix.getProductIndex(), factory);
+		IMatrix s = solver.solve(techMatrix, demand);
+		IMatrix enviMatrix = matrix.getInterventionMatrix();
+		IMatrix g = solver.multiply(enviMatrix, s);
+
+		InventoryResult result = new InventoryResult();
+		result.setFlowIndex(matrix.getFlowIndex());
+		result.setFlowResultVector(g);
+		result.setProductIndex(matrix.getProductIndex());
 		if (impactMatrix != null) {
 			IMatrix impactFactors = impactMatrix.getFactorMatrix();
-			IMatrix i = impactFactors.multiply(result.getFlowResultVector());
+			IMatrix i = solver.multiply(impactFactors, g);
 			result.setImpactIndex(impactMatrix.getCategoryIndex());
 			result.setImpactResultVector(i);
 		}
@@ -66,20 +78,53 @@ public class InventoryCalculator {
 
 	public AnalysisResult analyse(InventoryMatrix matrix,
 			ImpactMatrix impactMatrix) {
-		AnalysisResult result = solver.analyse(matrix, factory);
+
+		ProductIndex productIndex = matrix.getProductIndex();
+		FlowIndex flowIndex = matrix.getFlowIndex();
+		AnalysisResult result = new AnalysisResult(flowIndex, productIndex);
+
+		IMatrix techMatrix = matrix.getTechnologyMatrix();
+		IMatrix enviMatrix = matrix.getInterventionMatrix();
+
+		IMatrix inverse = solver.invert(techMatrix);
+
+		IMatrix demand = Calculators.createDemandVector(productIndex, factory);
+		IMatrix scalingFactors = solver.multiply(inverse, demand);
+		// we now that the reference product is always in the first column
+		result.setScalingFactors(scalingFactors.getColumn(0));
+
+		// single results
+		int n = productIndex.size();
+		IMatrix scalingMatrix = factory.create(n, n);
+		for (int i = 0; i < n; i++) {
+			scalingMatrix.setEntry(i, i, scalingFactors.getEntry(i, 0));
+		}
+		IMatrix singleResult = solver.multiply(enviMatrix, scalingMatrix);
+		result.setSingleResult(singleResult);
+
+		// total results
+		// TODO: self loop correction
+		IMatrix demandMatrix = factory.create(n, n);
+		for (int i = 0; i < productIndex.size(); i++) {
+			double entry = techMatrix.getEntry(i, i);
+			double s = scalingFactors.getEntry(i, 0);
+			demandMatrix.setEntry(i, i, s * entry);
+		}
+		IMatrix totalResult = solver.multiply(
+				solver.multiply(enviMatrix, inverse), demandMatrix);
+		result.setTotalResult(totalResult);
+
 		LinkContributions linkContributions = LinkContributions.calculate(
-				matrix.getTechnologyMatrix(), matrix.getProductIndex(),
-				result.getScalingFactors());
+				techMatrix, productIndex, scalingFactors.getColumn(0));
 		result.setLinkContributions(linkContributions);
+
 		if (impactMatrix != null) {
 			result.setImpactCategoryIndex(impactMatrix.getCategoryIndex());
 			IMatrix factors = impactMatrix.getFactorMatrix();
 			result.setImpactFactors(factors);
-			IMatrix singleImpactResult = factors.multiply(result
-					.getSingleResult());
+			IMatrix singleImpactResult = solver.multiply(factors, singleResult);
 			result.setSingleImpactResult(singleImpactResult);
-			IMatrix totalImpactResult = factors.multiply(result
-					.getTotalResult());
+			IMatrix totalImpactResult = solver.multiply(factors, totalResult);
 			result.setTotalImpactResult(totalImpactResult);
 		}
 		return result;

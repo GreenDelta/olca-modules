@@ -47,7 +47,8 @@ public class CostCalculator {
 		IMatrix scalingVector = factory.create(s.length, 1);
 		for (int row = 0; row < s.length; row++)
 			scalingVector.setEntry(row, 0, s[row]);
-		IMatrix varResult = varCosts.multiply(scalingVector);
+		ISolver solver = factory.getDefaultSolver();
+		IMatrix varResult = solver.multiply(varCosts, scalingVector);
 		result.setVarCostCategoryIndex(matrix.getVarCostCategoryIndex());
 		result.setVarCostResults(varResult.getColumn(0));
 	}

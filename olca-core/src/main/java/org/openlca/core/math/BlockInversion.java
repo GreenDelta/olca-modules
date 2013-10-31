@@ -8,10 +8,16 @@ class BlockInversion {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final int MAX_BLOCK_SIZE;
 	private final IMatrixFactory factory;
+	private final ISolver solver;
 
 	public BlockInversion(int blockSize, IMatrixFactory factory) {
+		this(blockSize, factory, factory.getDefaultSolver());
+	}
+
+	public BlockInversion(int blockSize, IMatrixFactory factory, ISolver solver) {
 		this.MAX_BLOCK_SIZE = blockSize;
 		this.factory = factory;
+		this.solver = solver;
 	}
 
 	public BlockInversion(IMatrixFactory factory) {
@@ -22,7 +28,7 @@ class BlockInversion {
 		if (a.getColumnDimension() <= MAX_BLOCK_SIZE) {
 			log.trace("Given matrix is smaller than max. block size "
 					+ "-> calculate normal inverse");
-			return a.getInverse();
+			return solver.invert(a);
 		}
 
 		int dim = a.getRowDimension();
@@ -57,7 +63,7 @@ class BlockInversion {
 
 	private void solveBlock(IMatrix a, IMatrix block, int blockStart,
 			int blockEnd, IMatrix inverse) {
-		IMatrix inversePart = a.solve(block);
+		IMatrix inversePart = solver.solve(a, block);
 		int partCol = 0;
 		for (int col = blockStart; col < blockEnd; col++) {
 			for (int row = 0; row < a.getRowDimension(); row++) {
