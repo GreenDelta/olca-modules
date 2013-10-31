@@ -28,8 +28,15 @@ public class MySQLDatabase implements IDatabase {
 	private String user;
 	private String password;
 	private BoneCP connectionPool;
+	private final String persistenceUnit;
 
 	public MySQLDatabase(String url, String user, String password) {
+		this(url, user, password, "openLCA");
+	}
+
+	public MySQLDatabase(String url, String user, String password,
+			String persistenceUnit) {
+		this.persistenceUnit = persistenceUnit;
 		this.url = url;
 		if (!this.url.contains("rewriteBatchedStatements")
 				&& this.url.contains("useServerPrepStmts")) {
@@ -52,7 +59,7 @@ public class MySQLDatabase implements IDatabase {
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "MySQL");
 		entityFactory = new PersistenceProvider().createEntityManagerFactory(
-				"openLCA", map);
+				persistenceUnit, map);
 		initConnectionPool();
 	}
 
