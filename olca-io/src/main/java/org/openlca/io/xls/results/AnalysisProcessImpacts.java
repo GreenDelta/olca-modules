@@ -25,8 +25,8 @@ class AnalysisProcessImpacts {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
-		startRow = export.IMPACT_INFO_SIZE + 1;
-		startCol = export.PROCESS_INFO_SIZE;
+		startRow = CellWriter.IMPACT_INFO_SIZE + 1;
+		startCol = CellWriter.PROCESS_INFO_SIZE;
 	}
 
 	public static void write(Sheet sheet, AnalysisResult result,
@@ -35,14 +35,14 @@ class AnalysisProcessImpacts {
 	}
 
 	private void doIt() {
-		export.writeImpactColHeader(sheet, startCol);
-		export.writeProcessRowHeader(sheet, startRow);
+		export.getWriter().writeImpactColHeader(sheet, startCol);
+		export.getWriter().writeProcessRowHeader(sheet, startRow);
 		int col = startCol + 1;
 		for (ImpactCategoryDescriptor impact : export.getImpacts()) {
-			export.writeImpactColInfo(sheet, col, impact);
+			export.getWriter().writeImpactColInfo(sheet, col, impact);
 			int row = startRow + 1;
 			for (ProcessDescriptor process : export.getProcesses()) {
-				export.writeProcessRowInfo(sheet, row, process);
+				export.getWriter().writeProcessRowInfo(sheet, row, process);
 				double val = result.getSingleImpactResult(process.getId(),
 						impact.getId());
 				Excel.cell(sheet, row, col, val);
@@ -50,6 +50,7 @@ class AnalysisProcessImpacts {
 			}
 			col++;
 		}
+		// there are problems with auto-size when the sheet is streamed
 		// Excel.autoSize(sheet, 1, 2, 3, 4);
 	}
 }
