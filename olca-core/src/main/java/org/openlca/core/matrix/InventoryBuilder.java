@@ -120,6 +120,11 @@ public class InventoryBuilder {
 		int col = productIndex.getIndex(processProduct);
 		if (row < 0 || col < 0)
 			return;
+		ExchangeCell existingCell = matrix.getEntry(row, col);
+		if (existingCell != null) {
+			// self loops
+			exchange = mergeExchanges(existingCell, exchange);
+		}
 		ExchangeCell cell = new ExchangeCell(exchange);
 		if (allocationTable != null) {
 			// note that the allocation table assures that the factor is 1.0 for
@@ -128,5 +133,19 @@ public class InventoryBuilder {
 			cell.setAllocationFactor(factor);
 		}
 		matrix.setEntry(row, col, cell);
+	}
+
+	private CalcExchange mergeExchanges(ExchangeCell existingCell,
+			CalcExchange exchange) {
+		ExchangeCell cell = new ExchangeCell(exchange);
+		CalcExchange newExchange = new CalcExchange();
+		double val = existingCell.getMatrixValue() + cell.getMatrixValue();
+		exchange.setInput(val < 0);
+		newExchange.setConversionFactor(1);
+		newExchange.setFlowId(exchange.getFlowId());
+		newExchange.setFlowType(exchange.getFlowType());
+		newExchange.setProcessId(exchange.getProcessId());
+		newExchange.setAmount(Math.abs(val));
+		return newExchange;
 	}
 }
