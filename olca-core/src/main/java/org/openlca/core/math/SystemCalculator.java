@@ -13,24 +13,32 @@ public class SystemCalculator {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final MatrixCache matrixCache;
 	private final IMatrixFactory factory;
+	private final ISolver solver;
 
-	public SystemCalculator(MatrixCache database, IMatrixFactory factory) {
-		this.matrixCache = database;
+	public SystemCalculator(MatrixCache cache, IMatrixFactory factory) {
+		this(cache, factory, factory.getDefaultSolver());
+	}
+
+	public SystemCalculator(MatrixCache cache, IMatrixFactory factory,
+			ISolver solver) {
+		this.matrixCache = cache;
 		this.factory = factory;
+		this.solver = solver;
 	}
 
 	public InventoryResult solve(CalculationSetup setup) {
 		log.trace("solve product system - build inventory");
 		Inventory inventory = Calculators.createInventory(setup, matrixCache);
 		log.trace("solve inventory");
-		InventoryCalculator solver = new InventoryCalculator(factory);
+		InventoryCalculator calculator = new InventoryCalculator(factory,
+				solver);
 		if (setup.getImpactMethod() == null)
-			return solver.solve(inventory);
+			return calculator.solve(inventory);
 		else {
 			ImpactTable impactTable = Calculators.createImpactTable(
 					setup.getImpactMethod(), inventory.getFlowIndex(),
 					matrixCache);
-			return solver.solve(inventory, impactTable);
+			return calculator.solve(inventory, impactTable);
 		}
 	}
 
@@ -38,14 +46,15 @@ public class SystemCalculator {
 		log.trace("analyse product system - build inventory");
 		Inventory inventory = Calculators.createInventory(setup, matrixCache);
 		log.trace("analyse inventory");
-		InventoryCalculator solver = new InventoryCalculator(factory);
+		InventoryCalculator calculator = new InventoryCalculator(factory,
+				solver);
 		if (setup.getImpactMethod() == null)
-			return solver.analyse(inventory);
+			return calculator.analyse(inventory);
 		else {
 			ImpactTable impactTable = Calculators.createImpactTable(
 					setup.getImpactMethod(), inventory.getFlowIndex(),
 					matrixCache);
-			return solver.analyse(inventory, impactTable);
+			return calculator.analyse(inventory, impactTable);
 		}
 	}
 

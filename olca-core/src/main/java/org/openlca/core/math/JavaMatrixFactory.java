@@ -13,6 +13,11 @@ public class JavaMatrixFactory implements IMatrixFactory {
 	}
 
 	@Override
+	public IMatrix createMatrix(int rows, int columns, double loadFactor) {
+		return new JavaMatrix(rows, columns);
+	}
+
+	@Override
 	public ISolver getDefaultSolver() {
 		return new JavaSolver();
 	}

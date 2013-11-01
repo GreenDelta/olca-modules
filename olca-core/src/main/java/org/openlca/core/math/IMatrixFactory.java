@@ -27,6 +27,11 @@ public interface IMatrixFactory {
 	IMatrix createSparse(int rows, int columns);
 
 	/**
+	 * Creates a dense or a sparse matrix depending on the given load factor.
+	 */
+	IMatrix createMatrix(int rows, int columns, double loadFactor);
+
+	/**
 	 * The solver implementation that supports the functions of the solver
 	 * interface for the matrix implementations created by this factory.
 	 */
