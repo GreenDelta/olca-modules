@@ -1,6 +1,8 @@
 package org.openlca.core.matrix;
 
-import java.util.HashMap;
+import gnu.trove.impl.Constants;
+import gnu.trove.iterator.TIntObjectIterator;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
@@ -10,36 +12,56 @@ public class ExchangeMatrix {
 
 	private int columns;
 	private int rows;
-	private final HashMap<Integer, HashMap<Integer, ExchangeCell>> cells;
+	private final TIntObjectHashMap<TIntObjectHashMap<ExchangeCell>> cells;
 
 	public ExchangeMatrix(int rows, int columns) {
 		this.columns = columns;
 		this.rows = rows;
-		cells = new HashMap<>();
+		cells = new TIntObjectHashMap<>(Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR, -1);
 	}
 
 	public boolean isEmpty() {
 		return cells.isEmpty();
 	}
 
+	/**
+	 * Returns <number of elements>/(rows * cols) which is an indicator for the
+	 * occupation of the matrix.
+	 */
+	public double getLoadFactor() {
+		TIntObjectIterator<TIntObjectHashMap<ExchangeCell>> it = cells
+				.iterator();
+		double size = 0;
+		while (it.hasNext()) {
+			it.advance();
+			TIntObjectHashMap<?> map = it.value();
+			if (map == null)
+				continue;
+			size += map.size();
+		}
+		return size / (rows * columns);
+	}
+
 	public void setEntry(int row, int col, ExchangeCell cell) {
-		HashMap<Integer, ExchangeCell> rowMap = cells.get(row);
+		TIntObjectHashMap<ExchangeCell> rowMap = cells.get(row);
 		if (rowMap == null) {
-			rowMap = new HashMap<>();
+			rowMap = new TIntObjectHashMap<>(Constants.DEFAULT_CAPACITY,
+					Constants.DEFAULT_LOAD_FACTOR, -1);
 			cells.put(row, rowMap);
 		}
 		rowMap.put(col, cell);
 	}
 
 	public ExchangeCell getEntry(int row, int col) {
-		HashMap<Integer, ExchangeCell> rowMap = cells.get(row);
+		TIntObjectHashMap<ExchangeCell> rowMap = cells.get(row);
 		if (rowMap == null)
 			return null;
 		return rowMap.get(col);
 	}
 
 	public IMatrix createRealMatrix(IMatrixFactory factory) {
-		final IMatrix matrix = factory.create(rows, columns);
+		final IMatrix matrix = factory.create(rows, columns, getLoadFactor());
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ExchangeCell cell) {
@@ -77,16 +99,19 @@ public class ExchangeMatrix {
 	}
 
 	private void iterate(Fn fn) {
-		for (Integer row : cells.keySet()) {
-			if (row == null)
-				continue;
-			HashMap<Integer, ExchangeCell> rowMap = cells.get(row);
+		TIntObjectIterator<TIntObjectHashMap<ExchangeCell>> rowIterator = cells
+				.iterator();
+		while (rowIterator.hasNext()) {
+			rowIterator.advance();
+			int row = rowIterator.key();
+			TIntObjectHashMap<ExchangeCell> rowMap = rowIterator.value();
 			if (rowMap == null)
 				continue;
-			for (Integer col : rowMap.keySet()) {
-				if (col == null)
-					continue;
-				ExchangeCell cell = rowMap.get(col);
+			TIntObjectIterator<ExchangeCell> colIterator = rowMap.iterator();
+			while (colIterator.hasNext()) {
+				colIterator.advance();
+				int col = colIterator.key();
+				ExchangeCell cell = colIterator.value();
 				if (cell == null)
 					continue;
 				fn.apply(row, col, cell);
