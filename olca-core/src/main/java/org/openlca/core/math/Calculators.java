@@ -6,7 +6,6 @@ import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.ImpactTableBuilder;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryBuilder;
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
@@ -20,15 +19,6 @@ import org.openlca.expressions.FormulaInterpreter;
 final class Calculators {
 
 	private Calculators() {
-	}
-
-	static IMatrix createDemandVector(ProductIndex productIndex,
-			IMatrixFactory factory) {
-		LongPair refProduct = productIndex.getRefProduct();
-		int idx = productIndex.getIndex(refProduct);
-		IMatrix demandVector = factory.create(productIndex.size(), 1);
-		demandVector.setEntry(idx, 0, productIndex.getDemand());
-		return demandVector;
 	}
 
 	/**

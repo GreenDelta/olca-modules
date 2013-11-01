@@ -5,6 +5,7 @@ import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.InventoryResult;
@@ -42,8 +43,7 @@ public class InventoryCalculator {
 	public InventoryResult solve(InventoryMatrix matrix,
 			ImpactMatrix impactMatrix) {
 		IMatrix techMatrix = matrix.getTechnologyMatrix();
-		IMatrix demand = Calculators.createDemandVector(
-				matrix.getProductIndex(), factory);
+		IMatrix demand = createDemandVector(matrix.getProductIndex());
 		IMatrix s = solver.solve(techMatrix, demand);
 		IMatrix enviMatrix = matrix.getInterventionMatrix();
 		IMatrix g = solver.multiply(enviMatrix, s);
@@ -88,14 +88,14 @@ public class InventoryCalculator {
 
 		IMatrix inverse = solver.invert(techMatrix);
 
-		IMatrix demand = Calculators.createDemandVector(productIndex, factory);
+		IMatrix demand = createDemandVector(productIndex);
 		IMatrix scalingFactors = solver.multiply(inverse, demand);
 		// we now that the reference product is always in the first column
 		result.setScalingFactors(scalingFactors.getColumn(0));
 
 		// single results
 		int n = productIndex.size();
-		IMatrix scalingMatrix = factory.create(n, n);
+		IMatrix scalingMatrix = factory.createSparse(n, n);
 		for (int i = 0; i < n; i++) {
 			scalingMatrix.setEntry(i, i, scalingFactors.getEntry(i, 0));
 		}
@@ -104,7 +104,7 @@ public class InventoryCalculator {
 
 		// total results
 		// TODO: self loop correction
-		IMatrix demandMatrix = factory.create(n, n);
+		IMatrix demandMatrix = factory.createSparse(n, n);
 		for (int i = 0; i < productIndex.size(); i++) {
 			double entry = techMatrix.getEntry(i, i);
 			double s = scalingFactors.getEntry(i, 0);
@@ -129,6 +129,14 @@ public class InventoryCalculator {
 		}
 		return result;
 
+	}
+
+	private IMatrix createDemandVector(ProductIndex productIndex) {
+		LongPair refProduct = productIndex.getRefProduct();
+		int idx = productIndex.getIndex(refProduct);
+		IMatrix demandVector = factory.createSparse(productIndex.size(), 1);
+		demandVector.setEntry(idx, 0, productIndex.getDemand());
+		return demandVector;
 	}
 
 }
