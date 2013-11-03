@@ -5,10 +5,8 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.database.mysql.MySQLDatabase;
-import org.openlca.core.math.BlasMatrixFactory;
 import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.JavaMatrixFactory;
-import org.openlca.jblas.Library;
 
 public class TestSession {
 
@@ -23,15 +21,15 @@ public class TestSession {
 	public static IMatrixFactory getMatrixFactory() {
 		if (matrixFactory != null)
 			return matrixFactory;
-		if (!Library.isLoaded()) {
-			String tmpDirPath = System.getProperty("java.io.tmpdir");
-			File tempDir = new File(tmpDirPath);
-			Library.loadFromDir(tempDir);
-		}
-		if (Library.isLoaded())
-			matrixFactory = new BlasMatrixFactory();
-		else
-			matrixFactory = new JavaMatrixFactory();
+		// if (!Library.isLoaded()) {
+		// String tmpDirPath = System.getProperty("java.io.tmpdir");
+		// File tempDir = new File(tmpDirPath);
+		// Library.loadFromDir(tempDir);
+		// }
+		// if (Library.isLoaded())
+		// matrixFactory = new BlasMatrixFactory();
+		// else
+		matrixFactory = new JavaMatrixFactory();
 		return matrixFactory;
 	}
 

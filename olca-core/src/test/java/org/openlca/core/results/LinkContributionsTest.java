@@ -8,6 +8,7 @@ import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.ProcessLink;
+import org.openlca.util.MatrixUtils;
 
 public class LinkContributionsTest {
 
@@ -23,8 +24,9 @@ public class LinkContributionsTest {
 
 		IMatrixFactory factory = TestSession.getMatrixFactory();
 		// @formatter:off
-		IMatrix techMatrix = factory.create(new double[][] { { 1, 0, 0, 0 },
-				{ -0.5, 1, 0, 0 }, { -0.5, 0, 1, 0 }, { 0, -0.5, -0.5, 1 } });
+		IMatrix techMatrix = MatrixUtils.create(new double[][] {
+				{ 1, 0, 0, 0 }, { -0.5, 1, 0, 0 }, { -0.5, 0, 1, 0 },
+				{ 0, -0.5, -0.5, 1 } }, factory);
 		// @formatter:on
 
 		ProductIndex index = new ProductIndex(LongPair.of(1, 1), 1.0);

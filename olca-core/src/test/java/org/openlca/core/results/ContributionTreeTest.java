@@ -11,6 +11,7 @@ import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.util.MatrixUtils;
 
 public class ContributionTreeTest {
 
@@ -30,13 +31,15 @@ public class ContributionTreeTest {
 		matrix.setFlowIndex(flowIndex);
 
 		IMatrixFactory factory = TestSession.getMatrixFactory();
-		IMatrix techMatrix = factory.create(new double[][] { { 1, 0, 0 },
-				{ -1, 1, 0 }, { -1, 0, 1 } });
+		IMatrix techMatrix = MatrixUtils.create(new double[][] { { 1, 0, 0 },
+				{ -1, 1, 0 }, { -1, 0, 1 } }, factory);
 		matrix.setTechnologyMatrix(techMatrix);
-		IMatrix enviMatrix = factory.create(new double[][] { { 0, 0.5, 0.5 } });
+		IMatrix enviMatrix = MatrixUtils.create(
+				new double[][] { { 0, 0.5, 0.5 } }, factory);
 		matrix.setInterventionMatrix(enviMatrix);
 
-		AnalysisResult result = new InventoryCalculator(factory).analyse(matrix);
+		AnalysisResult result = new InventoryCalculator(factory)
+				.analyse(matrix);
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setId(4);
 
