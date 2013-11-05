@@ -14,6 +14,7 @@ import org.apache.derby.jdbc.EmbeddedDriver;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.DatabaseContent;
+import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
@@ -57,6 +58,7 @@ public class DerbyDatabase implements IDatabase {
 			runner.run(Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
 		} catch (Exception e) {
 			log.error("failed to create database", e);
+			throw new DatabaseException("Failed to create database", e);
 		}
 	}
 
@@ -100,6 +102,7 @@ public class DerbyDatabase implements IDatabase {
 			connectionPool = new BoneCP(config);
 		} catch (Exception e) {
 			log.error("failed to initialize connection pool", e);
+			throw new DatabaseException("Could not create a connection", e);
 		}
 	}
 

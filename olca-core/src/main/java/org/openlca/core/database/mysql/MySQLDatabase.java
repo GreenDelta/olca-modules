@@ -9,6 +9,7 @@ import javax.persistence.EntityManagerFactory;
 
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +73,7 @@ public class MySQLDatabase implements IDatabase {
 			connectionPool = new BoneCP(config);
 		} catch (Exception e) {
 			log.error("failed to initialize connection pool", e);
+			throw new DatabaseException("Could not create a connection", e);
 		}
 	}
 
