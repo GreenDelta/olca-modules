@@ -38,8 +38,8 @@ public class CategoryDaoTest {
 		TestSession.emptyCache();
 		Category alias = dao.getForId(parent.getId());
 		Assert.assertEquals(1, alias.getChildCategories().size());
-		Assert.assertEquals(child.getRefId(),
-				alias.getChildCategories().get(0).getRefId());
+		Assert.assertEquals(child.getRefId(), alias.getChildCategories().get(0)
+				.getRefId());
 		dao.delete(alias);
 		Assert.assertNull(dao.getForId(child.getId()));
 	}
@@ -56,6 +56,23 @@ public class CategoryDaoTest {
 		Assert.assertTrue(roots.contains(parent));
 		Assert.assertFalse(roots.contains(child));
 		dao.delete(parent);
+	}
+
+	@Test
+	public void findAllRootTypes() {
+		// in the openLCA application not all of these types are really used
+		// in categories, but this test should work
+		for (ModelType type : ModelType.values()) {
+			Category cat = create();
+			cat.setModelType(type);
+			dao.insert(cat);
+			TestSession.emptyCache();
+			List<Category> categories = dao.getRootCategories(type);
+			Assert.assertTrue(categories.contains(cat));
+			dao.delete(cat);
+			categories = dao.getRootCategories(type);
+			Assert.assertFalse(categories.contains(cat));
+		}
 	}
 
 	private Category create() {

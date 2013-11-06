@@ -26,6 +26,9 @@ import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.io.Categories;
 import org.openlca.io.KeyGen;
+import org.openlca.io.maps.FlowMap;
+import org.openlca.io.maps.FlowMapEntry;
+import org.openlca.io.maps.MapType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +45,7 @@ class RefDataImport {
 	private FlowDao flowDao;
 	private BaseEntityDao<Location> locationDao;
 	private RefDataIndex index;
+	private FlowMap flowMap;
 
 	public RefDataImport(IDatabase database) {
 		this.database = database;
@@ -49,6 +53,7 @@ class RefDataImport {
 		this.categoryDao = new CategoryDao(database);
 		this.locationDao = new BaseEntityDao<>(Location.class, database);
 		this.flowDao = new FlowDao(database);
+		this.flowMap = new FlowMap(MapType.ECOSPOLD_2_FLOW);
 		try {
 			loadUnitMaps(database);
 		} catch (Exception e) {
@@ -90,12 +95,12 @@ class RefDataImport {
 			geography(dataSet);
 			for (IntermediateExchange exchange : dataSet
 					.getIntermediateExchanges()) {
+				if (exchange.getAmount() == 0)
+					continue;
 				productFlow(dataSet, exchange);
 			}
-			for (ElementaryExchange exchange : dataSet.getElementaryExchanges()) {
-				compartment(exchange.getCompartment());
+			for (ElementaryExchange exchange : dataSet.getElementaryExchanges())
 				elementaryFlow(exchange);
-			}
 		} catch (Exception e) {
 			log.error("failed to import reference data from data set", e);
 		}
@@ -203,6 +208,8 @@ class RefDataImport {
 		Flow flow;
 		flow = new Flow();
 		flow.setRefId(refId);
+		flow.setDescription("EcoSpold 2 intermediate exchange, ID = "
+				+ exchange.getIntermediateExchangeId());
 		// in ecoinvent 3 negative values indicate waste flows
 		// see also the exchange handling in the process input
 		// to be on the save side, we declare all intermediate flows as
@@ -219,20 +226,43 @@ class RefDataImport {
 		Flow flow = index.getFlow(refId);
 		if (flow != null)
 			return;
-		flow = flowDao.getForRefId(refId);
+		flow = loadElemDBFlow(exchange);
 		if (flow != null) {
 			index.putFlow(refId, flow);
 			return;
 		}
 		Category category = null;
-		if (exchange.getCompartment() != null)
+		if (exchange.getCompartment() != null) {
+			compartment(exchange.getCompartment());
 			category = index.getCompartment(exchange.getCompartment()
 					.getSubcompartmentId());
+		}
 		flow = new Flow();
 		flow.setRefId(refId);
 		flow.setCategory(category);
+		flow.setDescription("EcoSpold 2 elementary exchange, ID = "
+				+ exchange.getElementaryExchangeId());
 		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 		createFlow(exchange, flow);
+	}
+
+	/**
+	 * Tries to load an elementary flow from the database, which could also be a
+	 * mapped flow.
+	 */
+	private Flow loadElemDBFlow(ElementaryExchange exchange) {
+		String extId = exchange.getElementaryExchangeId();
+		Flow flow = flowDao.getForRefId(extId);
+		if (flow != null)
+			return flow;
+		FlowMapEntry entry = flowMap.getEntry(extId);
+		if (entry == null)
+			return null;
+		flow = flowDao.getForRefId(entry.getOpenlcaFlowKey());
+		if (flow == null)
+			return null;
+		index.putMappedFlow(extId, entry.getConversionFactor());
+		return flow;
 	}
 
 	private void createFlow(Exchange exchange, Flow flow) {

@@ -10,8 +10,10 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
@@ -132,12 +134,13 @@ class ProcessImport {
 		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
 			if (e.getAmount() == 0)
 				continue;
-			Flow flow = index.getFlow(e.getElementaryExchangeId());
+			String refId = e.getElementaryExchangeId();
+			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not create flow for {}",
 						e.getElementaryExchangeId());
 			}
-			createExchange(e, flow, process);
+			createExchange(e, refId, flow, process);
 		}
 	}
 
@@ -154,7 +157,9 @@ class ProcessImport {
 				log.warn("could not get flow for {}", refId);
 				continue;
 			}
-			Exchange exchange = createExchange(e, flow, process);
+			Exchange exchange = createExchange(e, refId, flow, process);
+			if (exchange == null)
+				continue;
 			if (isAvoidedProduct(refId, exchange))
 				exchange.setAvoidedProduct(true);
 			if (e.getActivityLinkId() != null)
@@ -174,18 +179,20 @@ class ProcessImport {
 	}
 
 	private Exchange createExchange(org.openlca.ecospold2.Exchange original,
-			Flow flow, Process process) {
-		if (flow == null || flow.getReferenceFlowProperty() == null) {
-			log.warn("invalid exchange {}; not imported", original);
+			String flowRefId, Flow flow, Process process) {
+		if (flow == null || flow.getReferenceFlowProperty() == null)
 			return null;
-		}
-		Unit unit = index.getUnit(original.getUnitId());
 		Exchange exchange = new Exchange();
 		exchange.setFlow(flow);
 		exchange.setFlowPropertyFactor(flow.getReferenceFactor());
+		Unit unit = getFlowUnit(original, flowRefId, flow);
+		if (unit == null)
+			return null;
 		exchange.setUnit(unit);
 		exchange.setInput(original.getInputGroup() != null);
 		double amount = original.getAmount();
+		if (index.isMappedFlow(flowRefId))
+			amount = amount * index.getMappedFlowFactor(flowRefId);
 		exchange.setAmountValue(amount);
 		// we could switch the input/output side for negative inputs
 		// but this could be a problem with waste treatment processes
@@ -202,6 +209,19 @@ class ProcessImport {
 				.getUncertainty()));
 		process.getExchanges().add(exchange);
 		return exchange;
+	}
+
+	private Unit getFlowUnit(org.openlca.ecospold2.Exchange original,
+			String flowRefId, Flow flow) {
+		if (!index.isMappedFlow(flowRefId))
+			return index.getUnit(original.getUnitId());
+		FlowProperty refProp = flow.getReferenceFlowProperty();
+		if (refProp == null)
+			return null;
+		UnitGroup ug = refProp.getUnitGroup();
+		if (ug == null)
+			return null;
+		return ug.getReferenceUnit();
 	}
 
 	private void mapFormula(org.openlca.ecospold2.Exchange original,

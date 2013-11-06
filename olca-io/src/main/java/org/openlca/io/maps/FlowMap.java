@@ -1,6 +1,7 @@
 package org.openlca.io.maps;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.openlca.core.model.Flow;
@@ -8,6 +9,14 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Maps (elementary) flow IDs of a data exchange format to the IDs of the
+ * openLCA reference flows. The maps are directly stored as recourses in this
+ * package in the following format:
+ * 
+ * "<external UUID>";"<openLCA ref. UUID>";<conversion factor>
+ * 
+ */
 public class FlowMap {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -47,6 +56,8 @@ public class FlowMap {
 		switch (mapType) {
 		case ECOSPOLD_FLOW:
 			return "ecospold_flow_map.csv";
+		case ECOSPOLD_2_FLOW:
+			return "ecospold_2_flow_map.csv";
 		case ILCD_FLOW:
 			return "ilcd_flow_map.csv";
 		default:
@@ -74,7 +85,8 @@ public class FlowMap {
 			entry.setConversionFactor(factor);
 			map.put(entry.getExternalFlowKey(), entry);
 		} catch (Exception e) {
-			log.error("Invalid number format in mapping file", e);
+			log.error("Invalid number format in mapping " + "file args="
+					+ Arrays.asList(args), e);
 		}
 	}
 

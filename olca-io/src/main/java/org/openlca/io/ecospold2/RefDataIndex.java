@@ -23,6 +23,8 @@ class RefDataIndex {
 	private Map<String, FlowProperty> flowProperties = new HashMap<>();
 	private Map<String, Flow> flows = new HashMap<>();
 	private Map<String, Boolean> negativeFlow = new HashMap<>();
+	private Map<String, Boolean> mappedFlow = new HashMap<>();
+	private Map<String, Double> flowFactor = new HashMap<>();
 
 	public Category getProcessCategory(String key) {
 		return processCategories.get(key);
@@ -105,4 +107,36 @@ class RefDataIndex {
 	public Long getProcessId(String key) {
 		return processIds.get(key);
 	}
+
+	/**
+	 * Sets the (elementary) flow with the given ID as mapped flow with the
+	 * given conversion factor.
+	 */
+	public void putMappedFlow(String key, double factor) {
+		mappedFlow.put(key, Boolean.TRUE);
+		flowFactor.put(key, factor);
+	}
+
+	/**
+	 * Returns true if the flow with the given ID is mapped to an openLCA
+	 * reference flow.
+	 */
+	public boolean isMappedFlow(String key) {
+		Boolean b = mappedFlow.get(key);
+		if (b == null)
+			return false;
+		return b;
+	}
+
+	/**
+	 * Returns the conversion factor which should be apply to an exchange amount
+	 * if the flow with the given key is a mapped flow.
+	 */
+	public double getMappedFlowFactor(String key) {
+		Double factor = flowFactor.get(key);
+		if (factor == null)
+			return 1;
+		return factor;
+	}
+
 }
