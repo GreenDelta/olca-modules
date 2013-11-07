@@ -64,7 +64,7 @@ public final class ProcessLinkSearchMap {
 		list = recipientIndex.get(processId);
 		if (list != null)
 			intSet.addAll(list);
-		return getLinks(list.iterator());
+		return getLinks(intSet.iterator());
 	}
 
 	/**

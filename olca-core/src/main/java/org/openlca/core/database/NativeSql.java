@@ -2,6 +2,7 @@ package org.openlca.core.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -20,6 +21,22 @@ public final class NativeSql {
 
 	private NativeSql(IDatabase database) {
 		this.database = database;
+	}
+
+	public void query(String query, QueryResultHandler handler)
+			throws SQLException {
+		log.trace("execute query {}", query);
+		try (Connection con = database.createConnection()) {
+			Statement stmt = con.createStatement();
+			ResultSet result = stmt.executeQuery(query);
+			while (result.next()) {
+				boolean b = handler.nextResult(result);
+				if (!b)
+					break;
+			}
+			result.close();
+			stmt.close();
+		}
 	}
 
 	public void runUpdate(String statement) throws SQLException {
@@ -90,6 +107,12 @@ public final class NativeSql {
 	public interface BatchInsertHandler {
 
 		boolean addBatch(int i, PreparedStatement stmt) throws SQLException;
+
+	}
+
+	public interface QueryResultHandler {
+
+		boolean nextResult(ResultSet result) throws SQLException;
 
 	}
 
