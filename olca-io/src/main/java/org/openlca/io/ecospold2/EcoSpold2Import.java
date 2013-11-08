@@ -23,19 +23,19 @@ public class EcoSpold2Import implements FileImport {
 	private EventBus eventBus;
 	private boolean canceled = false;
 	private File[] files;
-	private boolean importParameters = false;
+	private ImportConfig config;
 
 	public EcoSpold2Import(IDatabase database) {
 		this.database = database;
 	}
 
-	public void setImportParameters(boolean importParameters) {
-		this.importParameters = importParameters;
-	}
-
 	public EcoSpold2Import(IDatabase database, File[] files) {
 		this.database = database;
 		this.files = files;
+	}
+
+	public void setConfig(ImportConfig config) {
+		this.config = config;
 	}
 
 	public void setFiles(File[] files) {
@@ -54,15 +54,20 @@ public class EcoSpold2Import implements FileImport {
 
 	@Override
 	public void run() {
-		if (files == null)
+		if (files == null) {
+			log.trace("files is null, nothing to do");
 			return;
+		}
+		if (config == null)
+			config = ImportConfig.createDefault();
+		log.trace("run import with: {}", config);
 		RefDataIndex index = importRefData(files);
 		importProcesses(files, index);
 	}
 
 	private RefDataIndex importRefData(File[] files) {
 		log.trace("import reference data");
-		RefDataImport refDataImport = new RefDataImport(database);
+		RefDataImport refDataImport = new RefDataImport(database, config);
 		if (eventBus != null)
 			eventBus.post(new ImportEvent("reference data"));
 		try (DataSetIterator iterator = new DataSetIterator(files)) {
@@ -78,8 +83,7 @@ public class EcoSpold2Import implements FileImport {
 
 	private void importProcesses(File[] files, RefDataIndex index) {
 		log.trace("import processes");
-		ProcessImport processImport = new ProcessImport(database, index);
-		processImport.setImportParameters(importParameters);
+		ProcessImport processImport = new ProcessImport(database, index, config);
 		try (DataSetIterator iterator = new DataSetIterator(files)) {
 			while (!canceled && iterator.hasNext()) {
 				DataSet dataSet = iterator.next();

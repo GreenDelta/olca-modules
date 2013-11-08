@@ -30,19 +30,17 @@ class ProcessImport {
 	private IDatabase database;
 	private RefDataIndex index;
 	private ProcessDao dao;
-	private boolean importParameters = false;
+	private final ImportConfig config;
 
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
 
-	public ProcessImport(IDatabase database, RefDataIndex index) {
+	public ProcessImport(IDatabase database, RefDataIndex index,
+			ImportConfig config) {
 		this.database = database;
 		this.index = index;
+		this.config = config;
 		dao = new ProcessDao(database);
-	}
-
-	public void setImportParameters(boolean importParameters) {
-		this.importParameters = importParameters;
 	}
 
 	public void importDataSet(DataSet dataSet) {
@@ -102,8 +100,8 @@ class ProcessImport {
 		process.setRefId(refId);
 		process.setName(activity.getName());
 		setCategory(dataSet, process);
-		if (importParameters)
-			process.getParameters().addAll(Parameters.fetch(dataSet));
+		if (config.withParameters)
+			process.getParameters().addAll(Parameters.fetch(dataSet, config));
 		createProductExchanges(dataSet, process);
 		if (process.getQuantitativeReference() == null)
 			log.warn("could not set a quantitative reference for process {}",
@@ -132,7 +130,7 @@ class ProcessImport {
 
 	private void createElementaryExchanges(DataSet dataSet, Process process) {
 		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
-			if (e.getAmount() == 0)
+			if (e.getAmount() == 0 && config.skipNullExchanges)
 				continue;
 			String refId = e.getElementaryExchangeId();
 			Flow flow = index.getFlow(refId);
@@ -148,9 +146,8 @@ class ProcessImport {
 		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
 			boolean isRefFlow = e.getOutputGroup() != null
 					&& e.getOutputGroup() == 0;
-			if (e.getAmount() == 0) {
+			if (e.getAmount() == 0 && config.skipNullExchanges)
 				continue;
-			}
 			String refId = RefId.forProductFlow(dataSet, e);
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
@@ -203,7 +200,7 @@ class ProcessImport {
 		// exchange.setInput(!exchange.isInput());
 		// exchange.setAmountValue(Math.abs(amount));
 		// }
-		if (importParameters)
+		if (config.withParameters && config.withParameterFormulas)
 			mapFormula(original, process, exchange);
 		exchange.setUncertainty(UncertaintyConverter.toOpenLCA(original
 				.getUncertainty()));
@@ -230,8 +227,8 @@ class ProcessImport {
 		if (Strings.notEmpty(var)) {
 			if (Parameters.contains(var, process.getParameters()))
 				exchange.setAmountFormula(var);
-		} else if (Parameters
-				.isValidFormula(original.getMathematicalRelation())) {
+		} else if (Parameters.isValid(original.getMathematicalRelation(),
+				config)) {
 			exchange.setAmountFormula(original.getMathematicalRelation().trim());
 		}
 	}

@@ -19,17 +19,17 @@ final class Parameters {
 	 * Creates openLCA process parameters from the parameters and formulas in
 	 * the given data set.
 	 */
-	static List<Parameter> fetch(DataSet dataSet) {
-		List<Parameter> parameters = new ArrayList<>();
-		fetchProcessParameters(dataSet, parameters);
-		fetchFromExchanges(dataSet.getElementaryExchanges(), parameters);
-		fetchFromExchanges(dataSet.getIntermediateExchanges(), parameters);
-		return parameters;
+	static List<Parameter> fetch(DataSet dataSet, ImportConfig config) {
+		List<Parameter> params = new ArrayList<>();
+		fetchProcessParameters(dataSet, params, config);
+		fetchFromExchanges(dataSet.getElementaryExchanges(), params, config);
+		fetchFromExchanges(dataSet.getIntermediateExchanges(), params, config);
+		return params;
 
 	}
 
 	private static void fetchProcessParameters(DataSet dataSet,
-			List<Parameter> parameters) {
+			List<Parameter> parameters, ImportConfig config) {
 		for (org.openlca.ecospold2.Parameter param : dataSet.getParameters()) {
 			if (!canCreate(param.getVariableName(), parameters))
 				continue;
@@ -39,8 +39,9 @@ final class Parameters {
 			olcaParam.setName(param.getVariableName());
 			olcaParam.setScope(ParameterScope.PROCESS);
 			olcaParam.setValue(param.getAmount());
-			if (isValidFormula(param.getMathematicalRelation())) {
-				olcaParam.setFormula(param.getMathematicalRelation().trim());
+			String formula = param.getMathematicalRelation();
+			if (config.withParameterFormulas && isValid(formula, config)) {
+				olcaParam.setFormula(formula.trim());
 				olcaParam.setInputParameter(false);
 			} else {
 				olcaParam.setInputParameter(true);
@@ -49,27 +50,28 @@ final class Parameters {
 	}
 
 	private static void fetchFromExchanges(List<? extends Exchange> exchanges,
-			List<Parameter> parameters) {
+			List<Parameter> params, ImportConfig config) {
 		for (Exchange exchange : exchanges) {
-			fetchFromProperties(exchange.getProperties(), parameters);
-			if (!canCreate(exchange.getVariableName(), parameters))
+			fetchFromProperties(exchange.getProperties(), params, config);
+			if (!canCreate(exchange.getVariableName(), params))
 				continue;
 			Parameter olcaParam = new Parameter();
 			olcaParam.setName(exchange.getVariableName());
 			olcaParam.setScope(ParameterScope.PROCESS);
 			olcaParam.setValue(exchange.getAmount());
 			olcaParam.setDescription(exchange.getUnitName());
-			if (isValidFormula(exchange.getMathematicalRelation())) {
-				olcaParam.setFormula(exchange.getMathematicalRelation().trim());
+			String formula = exchange.getMathematicalRelation();
+			if (config.withParameterFormulas && isValid(formula, config)) {
+				olcaParam.setFormula(formula.trim());
 				olcaParam.setInputParameter(false);
 			} else
 				olcaParam.setInputParameter(true);
-			parameters.add(olcaParam);
+			params.add(olcaParam);
 		}
 	}
 
 	private static void fetchFromProperties(List<Property> properties,
-			List<Parameter> parameters) {
+			List<Parameter> parameters, ImportConfig config) {
 		for (Property property : properties) {
 			if (!canCreate(property.getVariableName(), parameters))
 				continue;
@@ -78,8 +80,9 @@ final class Parameters {
 			olcaParam.setScope(ParameterScope.PROCESS);
 			olcaParam.setValue(property.getAmount());
 			olcaParam.setDescription(property.getUnitName());
-			if (isValidFormula(property.getMathematicalRelation())) {
-				olcaParam.setFormula(property.getMathematicalRelation().trim());
+			String formula = property.getMathematicalRelation();
+			if (config.withParameterFormulas && isValid(formula, config)) {
+				olcaParam.setFormula(formula.trim());
 				olcaParam.setInputParameter(false);
 			} else
 				olcaParam.setInputParameter(true);
@@ -95,13 +98,13 @@ final class Parameters {
 		return true;
 	}
 
-	static boolean isValidFormula(String formula) {
+	static boolean isValid(String formula, ImportConfig config) {
 		if (formula == null)
 			return false;
 		if (formula.trim().isEmpty())
 			return false;
-		// there are even links to system local Excel tables in the ecoinvent 3
-		// database
+		if (!config.checkFormulas)
+			return true;
 		if (formula.startsWith("LiveLink"))
 			return false;
 		if (formula.contains(","))

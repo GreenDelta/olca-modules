@@ -40,6 +40,7 @@ class RefDataImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
+	private final ImportConfig config;
 	private IDatabase database;
 	private CategoryDao categoryDao;
 	private FlowDao flowDao;
@@ -47,7 +48,8 @@ class RefDataImport {
 	private RefDataIndex index;
 	private FlowMap flowMap;
 
-	public RefDataImport(IDatabase database) {
+	public RefDataImport(IDatabase database, ImportConfig config) {
+		this.config = config;
 		this.database = database;
 		this.index = new RefDataIndex();
 		this.categoryDao = new CategoryDao(database);
@@ -95,7 +97,7 @@ class RefDataImport {
 			geography(dataSet);
 			for (IntermediateExchange exchange : dataSet
 					.getIntermediateExchanges()) {
-				if (exchange.getAmount() == 0)
+				if (exchange.getAmount() == 0 && config.skipNullExchanges)
 					continue;
 				productFlow(dataSet, exchange);
 			}
