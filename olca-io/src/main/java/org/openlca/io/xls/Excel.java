@@ -2,6 +2,7 @@ package org.openlca.io.xls;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -32,6 +33,14 @@ public class Excel {
 		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
 		headerStyle.setFont(font);
 		return headerStyle;
+	}
+
+	public static CellStyle dateStyle(Workbook workbook) {
+		CellStyle style = workbook.createCellStyle();
+		DataFormat format = workbook.createDataFormat();
+		short f = format.getFormat("m/d/yy h:mm");
+		style.setDataFormat(f);
+		return style;
 	}
 
 	public static Row row(Sheet sheet, int row) {
@@ -82,12 +91,12 @@ public class Excel {
 	}
 
 	/**
-	 * The auto-size function has a strange behaviour when you use the SXSSF
+	 * The auto-size function has a strange behavior when you use the SXSSF
 	 * streaming API of POI. Thus it is better to not call this function in this
 	 * case.
 	 */
 	public static void autoSize(Sheet sheet, int from, int to) {
-		for (int column = from; column < to; column++)
+		for (int column = from; column <= to; column++)
 			sheet.autoSizeColumn(column);
 	}
 

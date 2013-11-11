@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -86,7 +87,9 @@ public class InventoryResultExport implements Runnable {
 		writer.header(sheet, 5, 1, "Allocation method:");
 		Excel.cell(sheet, 5, 2, getAllocationMethod());
 		writer.header(sheet, 6, 1, "Date:");
-		Excel.cell(sheet, 6, 2).setCellValue(new Date());
+		Cell dataCell = Excel.cell(sheet, 6, 2);
+		dataCell.setCellValue(new Date());
+		dataCell.setCellStyle(Excel.dateStyle(workbook));
 		Excel.autoSize(sheet, 1, 2);
 	}
 
