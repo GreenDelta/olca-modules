@@ -45,4 +45,9 @@ public class Unit extends RootEntity {
 		this.conversionFactor = conversionFactor;
 	}
 
+	@Override
+	public String toString() {
+		return "Unit [id=" + getId() + ", name=" + getName() + "]";
+	}
+
 }
