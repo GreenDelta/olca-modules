@@ -14,7 +14,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.ClassificationInformation;
@@ -31,12 +30,10 @@ import org.openlca.ilcd.util.UnitGroupBuilder;
 public class UnitGroupExport {
 
 	private UnitGroup unitGroup;
-	private IDatabase database;
 	private DataStore dataStore;
 	private String baseUri;
 
-	public UnitGroupExport(IDatabase database, DataStore dataStore) {
-		this.database = database;
+	public UnitGroupExport(DataStore dataStore) {
 		this.dataStore = dataStore;
 	}
 

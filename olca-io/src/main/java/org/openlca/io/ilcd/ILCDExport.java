@@ -104,7 +104,7 @@ public class ILCDExport {
 			export.run((FlowProperty) component);
 
 		} else if (component instanceof UnitGroup) {
-			UnitGroupExport export = new UnitGroupExport(database, ilcdStore);
+			UnitGroupExport export = new UnitGroupExport(ilcdStore);
 			export.run((UnitGroup) component);
 
 		} else if (component instanceof Actor) {
