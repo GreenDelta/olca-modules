@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
-
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.database.IDatabase;
@@ -42,6 +32,7 @@ public class FlowPropertyExport {
 
 	public org.openlca.ilcd.flowproperties.FlowProperty run(
 			FlowProperty flowProperty) throws DataStoreException {
+		this.flowProperty = flowProperty;
 		DataSetInformation dataSetInfo = makeDataSetInfo();
 		DataSetReference unitGroupRef = makeUnitGroupRef();
 		org.openlca.ilcd.flowproperties.FlowProperty iProperty = FlowPropertyBuilder
@@ -49,6 +40,7 @@ public class FlowPropertyExport {
 				.withDataSetInfo(dataSetInfo)
 				.withUnitGroupReference(unitGroupRef).getFlowProperty();
 		dataStore.put(iProperty, flowProperty.getRefId());
+		this.flowProperty = null;
 		return iProperty;
 	}
 

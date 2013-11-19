@@ -38,6 +38,7 @@ public class FlowExport {
 	}
 
 	public org.openlca.ilcd.flows.Flow run(Flow flow) throws DataStoreException {
+		this.flow = flow;
 		DataSetInformation dataSetInfo = makeDataSetInfo();
 		List<FlowPropertyReference> flowPropRefs = makeFlowPropRefs();
 		org.openlca.ilcd.flows.Flow iFlow = FlowBuilder.makeFlow()
@@ -46,6 +47,7 @@ public class FlowExport {
 				.withReferenceFlowPropertyId(0).getFlow();
 		addLocation(iFlow);
 		dataStore.put(iFlow, flow.getRefId());
+		this.flow = null;
 		return iFlow;
 	}
 
