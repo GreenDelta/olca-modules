@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
@@ -14,14 +16,19 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.SimulationStatistics;
 import org.openlca.io.xls.Excel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Exports a simulation result to Excel. */
 public class SimulationResultExport {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private SimulationResult result;
 	private EntityCache cache;
 	private int row = 0;
 	private CellWriter writer;
+	private boolean useStreaming = false;
 
 	public SimulationResultExport(SimulationResult result, EntityCache cache) {
 		this.result = result;
@@ -32,7 +39,7 @@ public class SimulationResultExport {
 	 * Runs the result export. The given file should be an xlsx file.
 	 */
 	public void run(File file) throws Exception {
-		Workbook workbook = new XSSFWorkbook();
+		Workbook workbook = createWorkbook();
 		writer = new CellWriter(cache, workbook);
 		writeInventorySheet(workbook);
 		if (result.hasImpactResults())
@@ -40,6 +47,16 @@ public class SimulationResultExport {
 		try (FileOutputStream fos = new FileOutputStream(file)) {
 			workbook.write(fos);
 		}
+		log.trace("result written to file {}", file);
+	}
+
+	private Workbook createWorkbook() {
+		useStreaming = result.getNumberOfRuns() > 150;
+		log.trace("create workbook, using streaming: {}", useStreaming);
+		if (useStreaming)
+			return new SXSSFWorkbook(-1);
+		else
+			return new XSSFWorkbook();
 	}
 
 	private void writeImpactSheet(Workbook workbook) {
@@ -65,8 +82,25 @@ public class SimulationResultExport {
 		List<FlowDescriptor> flows = Utils.getSortedFlows(flowIndex, cache);
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
-		for (int i = 0; i < CellWriter.FLOW_INFO_SIZE + 7; i++)
-			sheet.autoSizeColumn(i);
+		if (!useStreaming) {
+			for (int i = 0; i < CellWriter.FLOW_INFO_SIZE + 7; i++)
+				sheet.autoSizeColumn(i);
+		}
+		flushSheet(sheet);
+	}
+
+	private void flushSheet(Sheet sheet) {
+		if (!useStreaming)
+			return;
+		if (!(sheet instanceof SXSSFSheet))
+			return;
+		SXSSFSheet s = (SXSSFSheet) sheet;
+		try {
+			log.trace("flush rows of sheet {}", sheet.getSheetName());
+			s.flushRows();
+		} catch (Exception e) {
+			log.error("failed to flush rows of streamed sheet", e);
+		}
 	}
 
 	private void writeInventorySection(List<FlowDescriptor> flows,
