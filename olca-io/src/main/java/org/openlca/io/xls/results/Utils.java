@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -15,6 +17,28 @@ import org.openlca.io.CategoryPair;
 import org.openlca.util.Strings;
 
 class Utils {
+
+	static List<FlowDescriptor> getSortedFlows(FlowIndex flowIndex,
+			EntityCache cache) {
+		List<FlowDescriptor> flows = new ArrayList<>();
+		for (long flowId : flowIndex.getFlowIds()) {
+			FlowDescriptor flow = cache.get(FlowDescriptor.class, flowId);
+			if (flow != null)
+				flows.add(flow);
+		}
+		return sortFlows(flows, cache);
+	}
+
+	static List<ImpactCategoryDescriptor> getSortedImpacts(
+			LongIndex impactIndex, EntityCache cache) {
+		List<ImpactCategoryDescriptor> impacts = new ArrayList<>();
+		for (long id : impactIndex.getKeys()) {
+			ImpactCategoryDescriptor impact = cache.get(
+					ImpactCategoryDescriptor.class, id);
+			impacts.add(impact);
+		}
+		return sortImpacts(impacts);
+	}
 
 	static List<ImpactCategoryDescriptor> sortImpacts(
 			Collection<ImpactCategoryDescriptor> impacts) {

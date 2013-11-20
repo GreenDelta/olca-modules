@@ -74,4 +74,14 @@ public class SimulationResult {
 		return categoryResults[idx];
 	}
 
+	public int getNumberOfRuns() {
+		if (flowResults == null || flowResults.length == 0)
+			return 0;
+		List<Double> first = flowResults[0];
+		if (first == null)
+			return 0;
+		else
+			return first.size();
+	}
+
 }

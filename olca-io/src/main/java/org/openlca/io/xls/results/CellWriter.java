@@ -124,7 +124,7 @@ class CellWriter {
 	void writeImpactRowInfo(Sheet sheet, int row,
 			ImpactCategoryDescriptor impact) {
 		int col = 1;
-		Excel.cell(sheet, row, col++, impact.getId());
+		Excel.cell(sheet, row, col++, impact.getRefId());
 		Excel.cell(sheet, row, col++, impact.getName());
 		Excel.cell(sheet, row, col++, impact.getReferenceUnit());
 	}

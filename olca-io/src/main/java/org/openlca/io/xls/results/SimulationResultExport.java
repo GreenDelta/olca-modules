@@ -2,21 +2,17 @@ package org.openlca.io.xls.results;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.SimulationResult;
-import org.openlca.core.results.SimulationResults;
+import org.openlca.core.results.SimulationStatistics;
 import org.openlca.io.xls.Excel;
 
 /** Exports a simulation result to Excel. */
@@ -25,16 +21,19 @@ public class SimulationResultExport {
 	private SimulationResult result;
 	private EntityCache cache;
 	private int row = 0;
-	private CellStyle headerStyle;
+	private CellWriter writer;
 
 	public SimulationResultExport(SimulationResult result, EntityCache cache) {
 		this.result = result;
 		this.cache = cache;
 	}
 
+	/**
+	 * Runs the result export. The given file should be an xlsx file.
+	 */
 	public void run(File file) throws Exception {
-		HSSFWorkbook workbook = new HSSFWorkbook();
-		headerStyle = Excel.headerStyle(workbook);
+		Workbook workbook = new XSSFWorkbook();
+		writer = new CellWriter(cache, workbook);
 		writeInventorySheet(workbook);
 		if (result.hasImpactResults())
 			writeImpactSheet(workbook);
@@ -43,76 +42,48 @@ public class SimulationResultExport {
 		}
 	}
 
-	private void writeImpactSheet(HSSFWorkbook workbook) {
-		HSSFSheet sheet = workbook.createSheet("Impact Assessment");
+	private void writeImpactSheet(Workbook workbook) {
+		Sheet sheet = workbook.createSheet("Impact Assessment");
 		row = 0;
-		writeSheetHeader(sheet);
 		writerImpactHeader(sheet);
-		List<SimulationExportImpact> buckets = createCategoryBuckets();
-		for (SimulationExportImpact bucket : buckets) {
-			HSSFRow aRow = sheet.createRow(row++);
-			bucket.writeRow(aRow, result);
+		List<ImpactCategoryDescriptor> impacts = Utils.getSortedImpacts(
+				result.getImpactIndex(), cache);
+		for (ImpactCategoryDescriptor impact : impacts) {
+			writer.writeImpactRowInfo(sheet, row, impact);
+			List<Double> values = result.getImpactResults(impact.getId());
+			writeValues(sheet, row, CellWriter.IMPACT_INFO_SIZE + 1, values);
+			row++;
 		}
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < CellWriter.IMPACT_INFO_SIZE + 7; i++)
 			sheet.autoSizeColumn(i);
 	}
 
-	private List<SimulationExportImpact> createCategoryBuckets() {
-		List<SimulationExportImpact> buckets = new ArrayList<>();
-		for (ImpactCategoryDescriptor category : SimulationResults.getImpacts(
-				result, cache)) {
-			SimulationExportImpact bucket = new SimulationExportImpact(category);
-			buckets.add(bucket);
-		}
-		Collections.sort(buckets);
-		return buckets;
-	}
-
-	private void writerImpactHeader(HSSFSheet sheet) {
-		row++;
-		HSSFRow headerRow = sheet.createRow(row++);
-		String[] headers = SimulationExportImpact.getHeaders();
-		for (int i = 0; i < headers.length; i++)
-			headerCell(headerRow, i, headers[i]);
-	}
-
-	private void writeInventorySheet(HSSFWorkbook workbook) {
-		HSSFSheet sheet = workbook.createSheet("Inventory");
+	private void writeInventorySheet(Workbook workbook) {
+		Sheet sheet = workbook.createSheet("Inventory");
 		row = 0;
-		writeSheetHeader(sheet);
 		FlowIndex flowIndex = result.getFlowIndex();
-		List<SimulationExportFlow> flowBuckets = createFlowBuckets(flowIndex);
-		writeInventorySection(flowBuckets, true, sheet);
-		writeInventorySection(flowBuckets, false, sheet);
-		for (int i = 0; i < 11; i++)
+		List<FlowDescriptor> flows = Utils.getSortedFlows(flowIndex, cache);
+		writeInventorySection(flows, true, sheet);
+		writeInventorySection(flows, false, sheet);
+		for (int i = 0; i < CellWriter.FLOW_INFO_SIZE + 7; i++)
 			sheet.autoSizeColumn(i);
 	}
 
-	private List<SimulationExportFlow> createFlowBuckets(FlowIndex index) {
-		List<SimulationExportFlow> buckets = new ArrayList<>();
-		for (FlowDescriptor flow : SimulationResults.getFlows(result, cache)) {
-			boolean input = index.isInput(flow.getId());
-			SimulationExportFlow bucket = new SimulationExportFlow(flow, input,
-					cache);
-			buckets.add(bucket);
-		}
-		Collections.sort(buckets);
-		return buckets;
-	}
-
-	private void writeInventorySection(List<SimulationExportFlow> flowBuckets,
-			boolean forInputs, HSSFSheet sheet) {
-		String header = forInputs ? "Inputs" : "Outputs";
-		writeInventoryHeader(header, sheet);
-		for (SimulationExportFlow bucket : flowBuckets) {
-			if (bucket.isInput() == forInputs) {
-				HSSFRow aRow = sheet.createRow(row++);
-				bucket.writeRow(aRow, result);
-			}
+	private void writeInventorySection(List<FlowDescriptor> flows,
+			boolean forInputs, Sheet sheet) {
+		writeInventoryHeader(sheet, forInputs);
+		FlowIndex idx = result.getFlowIndex();
+		for (FlowDescriptor flow : flows) {
+			if (idx.isInput(flow.getId()) != forInputs)
+				continue;
+			writer.writeFlowRowInfo(sheet, row, flow);
+			List<Double> values = result.getFlowResults(flow.getId());
+			writeValues(sheet, row, CellWriter.FLOW_INFO_SIZE + 1, values);
+			row++;
 		}
 	}
 
-	private void writeSheetHeader(HSSFSheet sheet) {
+	private void writeSheetHeader(Sheet sheet) {
 		// TODO: we need a Simulation setup here
 		// String[] labels = { "Product system", "Process",
 		// "Quantitative reference" };
@@ -128,20 +99,50 @@ public class SimulationResultExport {
 		// aRow.createCell(1).setCellValue(input.getNumberOfRuns());
 	}
 
-	private void writeInventoryHeader(String section, HSSFSheet sheet) {
+	private void writeInventoryHeader(Sheet sheet, boolean inputs) {
 		row++;
-		HSSFRow aRow = sheet.createRow(row++);
-		headerCell(aRow, 0, section);
-		aRow = sheet.createRow(row++);
-		String[] columns = SimulationExportFlow.getHeaders();
-		for (int i = 0; i < columns.length; i++)
-			headerCell(aRow, i, columns[i]);
+		String section = inputs ? "Inputs" : "Outputs";
+		writer.header(sheet, row, 1, section);
+		row++;
+		writer.writeFlowRowHeader(sheet, row);
+		int nextCol = CellWriter.FLOW_INFO_SIZE + 1;
+		writeValueHeaders(sheet, row, nextCol);
+		row++;
 	}
 
-	private Cell headerCell(HSSFRow row, int column, String label) {
-		Cell cell = Excel.cell(row, column, label);
-		cell.setCellStyle(headerStyle);
-		return cell;
+	private void writerImpactHeader(Sheet sheet) {
+		row++;
+		writer.writeImpactRowHeader(sheet, row);
+		int nextCol = CellWriter.IMPACT_INFO_SIZE + 1;
+		writeValueHeaders(sheet, row, nextCol);
+		row++;
+	}
+
+	private void writeValueHeaders(Sheet sheet, int row, int startCol) {
+		String[] vals = { "Mean", "Standard deviation", "Minimum", "Maximum",
+				"Median", "5% Percentile", "95% Percentile" };
+		for (int i = 0; i < vals.length; i++)
+			writer.header(sheet, row, startCol + i, vals[i]);
+		int nextCol = startCol + vals.length;
+		for (int i = 0; i < result.getNumberOfRuns(); i++)
+			writer.header(sheet, row, nextCol++, "Run " + (i + 1));
+	}
+
+	private void writeValues(Sheet sheet, int row, int startCol,
+			List<Double> values) {
+		if (values == null)
+			return;
+		int col = startCol;
+		SimulationStatistics stat = new SimulationStatistics(values, 100);
+		Excel.cell(sheet, row, col++, stat.getMean());
+		Excel.cell(sheet, row, col++, stat.getStandardDeviation());
+		Excel.cell(sheet, row, col++, stat.getMinimum());
+		Excel.cell(sheet, row, col++, stat.getMaximum());
+		Excel.cell(sheet, row, col++, stat.getMedian());
+		Excel.cell(sheet, row, col++, stat.getPercentileValue(5));
+		Excel.cell(sheet, row, col++, stat.getPercentileValue(95));
+		for (int i = 0; i < values.size(); i++)
+			Excel.cell(sheet, row, col++, values.get(i).doubleValue());
 	}
 
 }
