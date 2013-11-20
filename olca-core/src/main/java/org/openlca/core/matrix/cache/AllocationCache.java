@@ -96,6 +96,7 @@ class AllocationCache {
 			factor.setMethod(AllocationMethod.valueOf(typeStr));
 			factor.setProcessId(rs.getLong("f_process"));
 			factor.setProductId(rs.getLong("f_product"));
+			factor.setValue(rs.getDouble("value"));
 			long exchangeId = rs.getLong("f_exchange");
 			if (!rs.wasNull())
 				factor.setExchangeId(exchangeId);
