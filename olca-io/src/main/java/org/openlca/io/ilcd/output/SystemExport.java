@@ -46,6 +46,7 @@ public class SystemExport {
 	}
 
 	public Process run(ProductSystem system) throws DataStoreException {
+		this.system = system;
 		log.trace("Run product system export with {}", system);
 		if (!canRun()) {
 			log.error("System {} is not valid and cannot exported", system);
@@ -53,6 +54,7 @@ public class SystemExport {
 		}
 		Process process = createProcess();
 		dataStore.put(process, system.getRefId());
+		this.system = null;
 		return process;
 	}
 
@@ -153,6 +155,8 @@ public class SystemExport {
 	}
 
 	private boolean canRun() {
+		if (system == null)
+			return false;
 		return system.getReferenceExchange() != null
 				&& system.getReferenceProcess() != null;
 	}
