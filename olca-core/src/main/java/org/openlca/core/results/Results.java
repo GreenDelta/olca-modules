@@ -18,7 +18,7 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 /**
  * A helper class for generating result data.
  */
-final class Results {
+public final class Results {
 
 	public static Set<ProcessDescriptor> getProcessDescriptors(
 			ProductIndex index, EntityCache cache) {
