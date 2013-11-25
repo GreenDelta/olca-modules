@@ -149,7 +149,7 @@ public class InventoryResultExport implements Runnable {
 		writer.writeImpactRowHeader(sheet, 2);
 		int row = 3;
 		for (ImpactCategoryDescriptor impact : impacts) {
-			writer.writeImpactRowHeader(sheet, row);
+			writer.writeImpactRowInfo(sheet, row, impact);
 			double val = result.getImpactResult(impact.getId());
 			Excel.cell(sheet, row, CellWriter.IMPACT_INFO_SIZE + 1, val);
 			row++;
