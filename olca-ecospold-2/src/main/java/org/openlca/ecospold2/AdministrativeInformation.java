@@ -4,10 +4,21 @@ import org.jdom2.Element;
 
 public class AdministrativeInformation {
 
+	private DataEntryBy dataEntryBy;
+
+	public void setDataEntryBy(DataEntryBy dataEntryBy) {
+		this.dataEntryBy = dataEntryBy;
+	}
+
+	public DataEntryBy getDataEntryBy() {
+		return dataEntryBy;
+	}
+
 	static AdministrativeInformation fromXml(Element e) {
 		if (e == null)
 			return null;
-		AdministrativeInformation administrativeinformation = new AdministrativeInformation();
+		AdministrativeInformation info = new AdministrativeInformation();
+		info.dataEntryBy = DataEntryBy.fromXml(In.child(e, "dataEntryBy"));
 
 		// // dataEntryBy
 		// administrativeinformation.dataEntryBy = In.childText(e,
@@ -28,13 +39,14 @@ public class AdministrativeInformation {
 		// administrativeinformation.fileAttributes = e
 		// .getAttributeValue("fileAttributes");
 
-		return administrativeinformation;
+		return info;
 	}
 
 	Element toXml() {
-		Element element = new Element("administrativeinformation", Out.NS);
+		Element element = new Element("administrativeInformation", Out.NS);
 
-		// if (dataEntryBy != null)
+		if (dataEntryBy != null)
+			element.addContent(dataEntryBy.toXml());
 		// Out.addChild(element, "dataEntryBy", dataEntryBy);
 		// // element.setAttribute("dataEntryBy", dataEntryBy);
 		//

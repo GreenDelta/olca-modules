@@ -190,7 +190,7 @@ public class DataSet {
 		if (representativeness != null)
 			mav.addContent(representativeness.toXml());
 		if (administrativeInformation != null)
-			Out.addChild(dataSetElement, "administrativeInformation");
+			dataSetElement.addContent(administrativeInformation.toXml());
 		return document;
 	}
 
