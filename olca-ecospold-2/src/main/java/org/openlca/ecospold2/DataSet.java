@@ -14,7 +14,8 @@ public class DataSet {
 	private Technology technology;
 	private TimePeriod timePeriod;
 	private MacroEconomicScenario macroEconomicScenario;
-
+	private Representativeness representativeness;
+	private AdministrativeInformation administrativeInformation;
 	private List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
 	private List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
 	private List<Parameter> parameters = new ArrayList<>();
@@ -76,6 +77,23 @@ public class DataSet {
 		return parameters;
 	}
 
+	public Representativeness getRepresentativeness() {
+		return representativeness;
+	}
+
+	public void setRepresentativeness(Representativeness representativeness) {
+		this.representativeness = representativeness;
+	}
+
+	public AdministrativeInformation getAdministrativeInformation() {
+		return administrativeInformation;
+	}
+
+	public void setAdministrativeInformation(
+			AdministrativeInformation administrativeInformation) {
+		this.administrativeInformation = administrativeInformation;
+	}
+
 	static DataSet fromXml(Document doc) {
 		Element root = getRootElement(doc);
 		if (root == null)
@@ -83,6 +101,10 @@ public class DataSet {
 		DataSet dataSet = new DataSet();
 		readActivityDescription(root, dataSet);
 		readFlowData(root, dataSet);
+		dataSet.representativeness = Representativeness.fromXml(In.child(root,
+				"modellingAndValidation", "representativeness"));
+		dataSet.administrativeInformation = AdministrativeInformation
+				.fromXml(In.child(root, "administrativeInformation"));
 		return dataSet;
 	}
 
@@ -164,6 +186,11 @@ public class DataSet {
 			descriptionElement.addContent(macroEconomicScenario.toXml());
 		Element flowData = Out.addChild(dataSetElement, "flowData");
 		writeFlowData(flowData);
+		Element mav = Out.addChild(dataSetElement, "modellingAndValidation");
+		if (representativeness != null)
+			mav.addContent(representativeness.toXml());
+		if (administrativeInformation != null)
+			Out.addChild(dataSetElement, "administrativeInformation");
 		return document;
 	}
 
