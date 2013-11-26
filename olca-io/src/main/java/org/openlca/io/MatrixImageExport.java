@@ -64,6 +64,10 @@ public class MatrixImageExport {
 				double val = matrix.getEntry(row, col);
 				if (val == 0)
 					continue;
+				if (val < 0)
+					graphics.setColor(Color.RED);
+				else
+					graphics.setColor(Color.BLUE);
 				graphics.fillRect(col * colWidth, row * rowHeight, colWidth,
 						rowHeight);
 			}
