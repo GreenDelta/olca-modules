@@ -86,6 +86,6 @@ public class ReaderTest {
 	private DataSet read(String file) throws Exception {
 		log.info("parse file " + file);
 		InputStream stream = getClass().getResourceAsStream(file);
-		return EcoSpold2.read(stream);
+		return EcoSpold2.readDataSet(stream);
 	}
 }
