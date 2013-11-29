@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<?xml-stylesheet type="text/xsl" href="../../Tools/Transformations/schemadoc/EcoSpold02SchemaDocumentation.Master.xsl"?>
+<xsd:schema xmlns="http://www.EcoInvent.org/EcoSpold02" xmlns:es="http://www.EcoInvent.org/EcoSpold02" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.EcoInvent.org/EcoSpold02" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.12">
+	<xsd:include schemaLocation="../EcoSpold02DataTypes.xsd"/>
+	<xsd:complexType name="TValidClassificationValue">
+		<xsd:annotation>
+			<xsd:documentation>A valid value within a classification.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString120" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5170</fieldId>
+						<uniqueTranslatedValue>1</uniqueTranslatedValue>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the classification value, e.g. 01:Crop and animal production, hunting and related service activities.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5180</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Description of the classification value.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5160</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Unique identifier for this classification system value.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TValidClassificationSystem">
+		<xsd:annotation>
+			<xsd:documentation>For the validation of the activityClassification in ecoSpold2 datasets. A classifications.xml file contains different classifications schemes. Each with a different name and a list of valid values for this classification.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString255" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5120</fieldId>
+						<uniqueTranslatedValue>1</uniqueTranslatedValue>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the classification system used, e.g. ISIC Rev. 4.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5150</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Description of the classification system.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="classificationValue" type="TValidClassificationValue" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5125</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>A specific class within the classification system that can be assigned to activities or products depending on the type of the classification system (relates to field 5160).</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5115</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Unique identifier for this classification system.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="type" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5130</fieldId>
+					<options>1 = activity classification, 2 = product classification, 3 = activity and product classification</options>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates to what kind of target this classification system can be applied.</xsd:documentation>
+				<xsd:documentation>1 = classification system is valid for activities.</xsd:documentation>
+				<xsd:documentation>2 = classification system is valid for products.</xsd:documentation>
+				<xsd:documentation>3 = classification system is valid for both activities and products.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="1"/>
+					<xsd:maxInclusive value="3"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TValidClassificationSystems">
+		<xsd:annotation>
+			<xsd:documentation>Classifications define master data for the ecoSpold2 format. They will be used for the validation of the activityClassification in ecoSpold2 datasets. A classifications.xml file contains different classifications schemes. Each with a different name and a list of valid values for this classification.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="contextName" type="TString80" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5106</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the context referenced by field 3880.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="classificationSystem" type="TValidClassificationSystem" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5110</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>A list of valid classifications and their values. This element provides hierarchical grouping only and contains no information on its own. See details in complex data type TValidClassificationSystem.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="originalSource" type="xsd:anyURI" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5100</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the location of the original document. Can be used to verify the data and/or to check for updates in the future.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: with a major update (e.g. every second year) the major release number is increased by one (1.00, 2.00, etc.).</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5101</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: minor updates (corrected errors) within the period of two major updates increase the minor release version.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5102</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision version number is used to discern different versions during the working period until the dataset is entered into the database). The revision is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5103</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision Version number is used to discern different versions during the working period until the dataset is entered into the database). The revision  is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5104</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="contextId" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5105</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the master data file.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="validClassificationSystems" type="TValidClassificationSystems">
+		<xsd:unique name="pkClassificationValue">
+			<xsd:selector xpath="es:classificationSystem/es:classificationValue/es:name"/>
+			<xsd:field xpath="."/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>

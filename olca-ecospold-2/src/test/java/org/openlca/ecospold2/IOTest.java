@@ -29,4 +29,14 @@ public class IOTest {
 		EcoSpold2.writePersons(list, file);
 	}
 
+	@Test
+	public void testSourceListIO() throws Exception {
+		SourceList list = EcoSpold2.readSources(IOTest.class
+				.getResourceAsStream("Sources.xml"));
+		File file = new File(System.getProperty("java.io.tmpdir")
+				+ "/_es2_test_sources_file.xml");
+		System.out.println("written to file: " + file);
+		EcoSpold2.writeSources(list, file);
+	}
+
 }

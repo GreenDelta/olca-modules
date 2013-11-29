@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<?xml-stylesheet type="text/xsl" href="../../Tools/Transformations/schemadoc/EcoSpold02SchemaDocumentation.Master.xsl"?>
+<xsd:schema xmlns="http://www.EcoInvent.org/EcoSpold02" xmlns:es="http://www.EcoInvent.org/EcoSpold02" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://www.EcoInvent.org/EcoSpold02" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.12">
+	<xsd:include schemaLocation="../EcoSpold02DataTypes.xsd"/>
+	<xsd:complexType name="TValidParameter">
+		<xsd:annotation>
+			<xsd:documentation>Format to specify a parameter of exchanges.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString80" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7025</fieldId>
+						<uniqueTranslatedValue>1</uniqueTranslatedValue>
+					</xsd:appinfo>
+					<xsd:documentation>Descriptive name of the parameter.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="unitName" type="TString40" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7035</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Unit name of the amount.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7050</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>A comment can be made about each parameter.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7020</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>The unique identifier for the parameter. It is referenced by field 1705 in activity datasets.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="defaultVariableName" type="TVariableName" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7040</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>The default variable name is a suggestion that should be used when a new parameter is added to a dataset based on this master data entry.</xsd:documentation>
+				<xsd:documentation>Variable names must start with a character (a-z) and may contain characters, numbers and underscores (_). Variable names are not case sensitive (calorific_Value equals Calorific_value).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>3706</spoldID>
+					<fieldId>7030</fieldId>
+					<referenceToComplexType>TValidUnit</referenceToComplexType>
+					<propertyNameForReference>ValidUnit</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the unit of the amount.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7031</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidUnitContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the unit.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the document itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TValidParameters">
+		<xsd:annotation>
+			<xsd:documentation>Comprises all parameters used in the database.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="contextName" type="TString80" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7006</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the context referenced by field 3880.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="requiredContext" type="TRequiredContextReference" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7007</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Reference to context required to load this document with all its master data references intact. </xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="parameter" type="TValidParameter" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7010</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Contains multiple entries of valid parameters. This element provides hierarchical grouping only and contains no information on its own. For details see complex type TValidParameter below.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkNameLang">
+					<xsd:selector xpath="es:name"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkCommentLang">
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="originalSource" type="xsd:anyURI" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7000</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the location of the original document. Can be used to verify the data and/or to check for updates in the future.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: with a major update (e.g. every second year) the major release number is increased by one (1.00, 2.00, etc.).</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7001</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: minor updates (corrected errors) within the period of two major updates increase the minor release version.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7002</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision version number is used to discern different versions during the working period until the dataset is entered into the database). The revision is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7003</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision Version number is used to discern different versions during the working period until the dataset is entered into the database). The revision  is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7004</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="contextId" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7005</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the master data file.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="validParameters" type="TValidParameters">
+		<xsd:unique name="pkParameterId">
+			<xsd:selector xpath="es:parameter"/>
+			<xsd:field xpath="@id"/>
+		</xsd:unique>
+		<xsd:unique name="pkParameterDefaultVariableName">
+			<xsd:selector xpath="es:parameter"/>
+			<xsd:field xpath="@defaultVariableName"/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>

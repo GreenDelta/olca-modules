@@ -14,6 +14,11 @@ Dependencies
 Internally, we use [JDOM 2](https://github.com/hunterhacker/jdom) to map XML to
 the domain model and back again.
 
-TODO
-----
-* master data
+License
+-------
+The Java API of this project is licensed under the 
+[Mozilla Public License, v. 2.0](http://mozilla.org/MPL/2.0/). This project 
+also contains the EcoSpold 2 schema files wich are available from the
+[ecoinvent website](http://www.ecoinvent.org/). These schema files are licensed
+under the [EcoSpold Public License Version 1.0](http://www.ecoinvent.org/fileadmin/documents/en/espl.pdf).
+

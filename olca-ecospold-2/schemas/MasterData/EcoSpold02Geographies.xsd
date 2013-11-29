@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<?xml-stylesheet type="text/xsl" href="../../Tools/Transformations/schemadoc/EcoSpold02SchemaDocumentation.Master.xsl"?>
+<xsd:schema xmlns="http://www.EcoInvent.org/EcoSpold02" xmlns:es="http://www.EcoInvent.org/EcoSpold02" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://www.EcoInvent.org/EcoSpold02" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.12">
+	<xsd:include schemaLocation="../EcoSpold02DataTypes.xsd"/>
+	<xsd:complexType name="TValidGeography">
+		<xsd:annotation>
+			<xsd:documentation>A valid geography contains several region and/or country codes and may contain a KML definition of the geography.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString255" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5620</fieldId>
+						<uniqueTranslatedValue>1</uniqueTranslatedValue>
+					</xsd:appinfo>
+					<xsd:documentation>Name of geographical geography.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="shortname" type="TString40" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5625</fieldId>
+						<uniqueTranslatedValue>2</uniqueTranslatedValue>
+					</xsd:appinfo>
+					<xsd:documentation>Shortname describing the geography that may be used in EcoSpold documents.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="comment" type="TTextAndImage" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5680</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Description of geographical geography.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkCommentIndex">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that all indices used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:text|es:imageUrl"/>
+					<xsd:field xpath="@index"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkCommentVariableName">
+					<xsd:annotation>
+						<xsd:documentation>This constraint ensures that the variable names used for the TextAndImage element are unique.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:selector xpath="es:variable"/>
+					<xsd:field xpath="@name"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:element name="kml" type="TKml" minOccurs="0">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5670</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>A geographical geography, described using the KML standard, as used in Google Earth and numerous other geographic information interaction systems. KML is an open standard, approved and maintained by the Open Geospatial Consortium. KML files always use the WGS 84 spatial reference system, with coordinates of latitude, longitude pairs.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5615</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Universally Unique Identifier. This is referenced by field 400 in an activity dataset.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="longitude" type="TFloatNumber">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5630</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Longitude, in decimal form. </xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="latitude" type="TFloatNumber">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5635</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Latitude, in decimal form.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="ISOTwoLetterCode">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5640</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>ISO 3166-1 alpha-2 Country Codes. Ecospold currently uses the ISO 2 letter country codes, although their country definitions, and hence their country codes are not up to date. This is especially a problem in the area of former Yugoslavia, where the code cs, formerly used for Czechoslovakia, is now used for Serbia and Montenegro.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:length value="2"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="ISOThreeLetterCode">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5645</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>ISO 3166-1 alpha-3 Country Codes. These codes allow the identification of regions within countries, e.g. the Canary Islands. Included in ecospold to facilitate interaction with external data sources.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:length value="3"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="UNCode" type="xsd:integer">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5650</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>UN / ISO 3166-1 numeric Country Code. A numeric code used by the United Nations statistical office. These codes are also standardized as ISO 3166-1 numeric. They also includes some economic groupings that are useful to ecospold, e.g. transition countries. Included in ecospold to facilitate interaction with external data sources, and to allow easy reproduction of Ecospold 1.0 regions. Numeric codes offer a good alternative for languages with non-Roman alphabets.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="UNRegionCode" type="xsd:integer">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5655</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>United Nations regional code. A numeric code used to represent continent-scale regions, e.g. Americas. </xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="UNSubregionCode" type="xsd:integer">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5660</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>United Nation sub-regional code. A numeric code used to represent regions within continents, e.g. Micronesia. </xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TKml">
+		<xsd:annotation>
+			<xsd:documentation>Geographical definition, described using the KML standard, as used in Google Earth and numerous other geographic information interaction systems. KML is an open standard, approved and maintained by the Open Geospatial Consortium. KML files always use the WGS 84 spatial reference system, with coordinates of latitude and longitude pairs.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TValidGeographies">
+		<xsd:annotation>
+			<xsd:documentation>A list of all valid geographies used by EcoSpold02 datasets.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="contextName" type="TString80" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5606</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the context referenced by field 3880.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="geography" type="TValidGeography" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5610</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>A valid geography contains several region and/or country codes and may contain a KML definition of the geography. This element provides hierarchical grouping only and contains no information on its own. See details in complex data type TValidGeography.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkNameLang">
+					<xsd:selector xpath="es:name"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkShortnameLang">
+					<xsd:selector xpath="es:shortname"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="originalSource" type="xsd:anyURI" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5600</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the geography of the original document. Can be used to verify the data and/or to check for updates in the future.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: with a major update (e.g. every second year) the major release number is increased by one (1.00, 2.00, etc.).</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5601</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: minor updates (corrected errors) within the period of two major updates increase the minor release version.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5602</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision version number is used to discern different versions during the working period until the dataset is entered into the database). The revision is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5603</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision Version number is used to discern different versions during the working period until the dataset is entered into the database). The revision  is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5604</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="contextId" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5605</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the master data file.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="validGeographies" type="TValidGeographies">
+		<xsd:unique name="pkGeographyId">
+			<xsd:selector xpath="es:geography"/>
+			<xsd:field xpath="@id"/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>

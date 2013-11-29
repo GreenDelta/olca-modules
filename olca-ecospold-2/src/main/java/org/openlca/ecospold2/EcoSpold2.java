@@ -35,6 +35,16 @@ public class EcoSpold2 {
 		return PersonList.fromXml(readDoc(file));
 	}
 
+	/** Reads a list of sources from a master-data file with sources. */
+	public static SourceList readSources(InputStream is) throws Exception {
+		return SourceList.fromXml(readDoc(is));
+	}
+
+	/** Reads a list of sources from a master-data file with sources. */
+	public static SourceList readSources(File file) throws Exception {
+		return SourceList.fromXml(readDoc(file));
+	}
+
 	private static Document readDoc(File file) throws Exception {
 		try (FileInputStream in = new FileInputStream(file)) {
 			return readDoc(in);
@@ -67,6 +77,18 @@ public class EcoSpold2 {
 
 	/** Writes a person list to an EcoSpold 02 master data file. */
 	public static void writePersons(PersonList list, OutputStream out)
+			throws Exception {
+		writeDoc(out, list.toXml());
+	}
+
+	/** Writes a source list to an EcoSpold 02 master data file. */
+	public static void writeSources(SourceList list, File file)
+			throws Exception {
+		writeDoc(file, list.toXml());
+	}
+
+	/** Writes a source list to an EcoSpold 02 master data file. */
+	public static void writeSources(SourceList list, OutputStream out)
 			throws Exception {
 		writeDoc(out, list.toXml());
 	}
