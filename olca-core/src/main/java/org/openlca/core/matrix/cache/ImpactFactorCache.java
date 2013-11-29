@@ -108,9 +108,9 @@ public class ImpactFactorCache {
 					.getFlowPropertyFactor(propertyFactorId);
 			long unitId = record.getLong("f_unit");
 			double unitFactor = conversionTable.getUnitFactor(unitId);
-			if (propertyFactor == 0)
+			if (unitFactor == 0)
 				return 0;
-			return unitFactor / propertyFactor;
+			return propertyFactor / unitFactor;
 		}
 
 	}
