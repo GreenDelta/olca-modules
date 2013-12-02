@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.core.model.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +99,17 @@ class IsicTree {
 		private String name;
 		private IsicNode parent;
 		private List<IsicNode> childs = new ArrayList<>();
+		private Category category;
+
+		/** Set the corresponding openLCA category */
+		void setCategory(Category category) {
+			this.category = category;
+		}
+
+		/** Set the corresponding openLCA category */
+		Category getCategory() {
+			return category;
+		}
 
 		public IsicNode getParent() {
 			return parent;
