@@ -25,4 +25,5 @@ public class IsicTreeTest {
 		Assert.assertEquals("S", node.getParent().getParent().getParent()
 				.getCode());
 	}
+
 }

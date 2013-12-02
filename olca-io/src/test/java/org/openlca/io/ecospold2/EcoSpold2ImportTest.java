@@ -18,7 +18,6 @@ import org.openlca.io.TestSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
@@ -62,18 +61,31 @@ public class EcoSpold2ImportTest {
 	public void testFormulaImported() {
 		Process process = dao.getForRefId(REF_ID);
 		String formula = process.getQuantitativeReference().getAmountFormula();
-		Assert.assertEquals("23 + SUM(8;2)", formula);
+		Assert.assertEquals("p", formula); // a parameter p = 23 + SUM(8;2) is
+											// created
 	}
 
 	@Test
 	public void testParameterImported() {
 		Process process = dao.getForRefId(REF_ID);
 		List<Parameter> parameters = process.getParameters();
-		Assert.assertEquals(2, parameters.size());
+		Assert.assertEquals(3, parameters.size());
 		for (Parameter parameter : parameters) {
-			Assert.assertTrue(Objects.equal("vehicle_life", parameter.getName())
-					|| Objects.equal("allard_mine_area_yearly_growth",
-							parameter.getName()));
+			String name = parameter.getName();
+			switch (name) {
+			case "vehicle_life":
+				Assert.assertEquals(23, parameter.getValue(), 1e-16);
+				break;
+			case "p":
+				Assert.assertEquals("23 + SUM(8;2)", parameter.getFormula());
+				break;
+			case "allard_mine_area_yearly_growth":
+				Assert.assertEquals(1, parameter.getValue(), 1e-16);
+				break;
+			default:
+				Assert.fail("unknown parameter: " + parameter.getName());
+				break;
+			}
 		}
 	}
 
