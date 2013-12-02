@@ -33,26 +33,46 @@ public class DerbyDatabase implements IDatabase {
 	private boolean closed = false;
 	private BoneCP connectionPool;
 
+	public static DerbyDatabase createInMemory(DatabaseContent content) {
+		return new DerbyDatabase(content);
+	}
+
+	/** Creates an in-memory database. */
+	private DerbyDatabase(DatabaseContent content) {
+		registerDriver();
+		String name = "olcaInMemDB"
+				+ Integer.toHexString((int) (Math.random() * 1000));
+		log.trace("create in memory database");
+		url = "jdbc:derby:memory:" + name + ";create=true";
+		createNew(url);
+		fill(content);
+		connect();
+	}
+
 	public DerbyDatabase(File folder) {
+		registerDriver();
 		this.folder = folder;
 		boolean create = !folder.exists();
 		log.info("initialize database folder {}, create={}", folder, create);
 		url = "jdbc:derby:" + folder.getAbsolutePath().replace('\\', '/');
 		log.trace("database url: {}", url);
+		if (create)
+			createNew(url + ";create=true");
+		connect();
+	}
+
+	private void registerDriver() {
 		try {
 			DriverManager.registerDriver(new EmbeddedDriver());
 		} catch (Exception e) {
-			throw new RuntimeException("Could not load driver", e);
+			throw new RuntimeException("Could not register driver", e);
 		}
-		if (create)
-			createNew(url);
-		connect();
 	}
 
 	private void createNew(String url) {
 		log.info("create new database {}", url);
 		try {
-			Connection con = DriverManager.getConnection(url + ";create=true");
+			Connection con = DriverManager.getConnection(url);
 			con.close();
 			ScriptRunner runner = new ScriptRunner(this);
 			runner.run(Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
@@ -169,14 +189,18 @@ public class DerbyDatabase implements IDatabase {
 
 	@Override
 	public String getName() {
-		return folder.getName();
+		if (folder != null)
+			return folder.getName();
+		else
+			return "in-memory";
 	}
 
 	/** Closes the database and deletes the underlying folder. */
 	public void delete() throws Exception {
 		if (!closed)
 			close();
-		delete(folder);
+		if (folder != null)
+			delete(folder);
 	}
 
 	private void delete(File folder) {
