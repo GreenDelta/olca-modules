@@ -1,11 +1,11 @@
 // a Groovy template for generating the object<->xml mappings
 
-type = "DataGenerator"
+type = "Source"
 
-fields = ["personId", "personName", "personEmail", "publishedSourceId",
-            "publishedSourceYear", "publishedSourceFirstAuthor",
-            "isCopyrightProtected", "pageNumbers", "accessRestrictedTo",
-            "companyId", "companyCode"]
+fields = ["id", "sourceType", "year", "volumeNo",
+            "firstAuthor", "additionalAuthors",
+            "title", "titleOfAnthology", "placeOfPublications",
+            "publisher", "issueNo", "journal", "namesOfEditors", "comment"]
 
 // field declarations template
 println "// TODO: check the field types, by default these are strings"
@@ -24,8 +24,8 @@ println """
 
 fields.each {field ->
 println """
-       ${type.toLowerCase()}.${field} = In.childText(e, "$field"); 
-        ${type.toLowerCase()}.${field} = e.getAttributeValue("$field");
+       // ${type.toLowerCase()}.${field} = In.childText(e, "$field"); 
+       ${type.toLowerCase()}.${field} = e.getAttributeValue("$field");
 """
 }
         
@@ -48,11 +48,12 @@ println """
 fields.each { field ->
         println"""
             if($field != null)
-                Out.addChild(element, "$field", $field);
-                // element.setAttribute("$field", $field);
+                // Out.addChild(element, "$field", $field);
+                element.setAttribute("$field", $field);
         """
 }
 println """
         return element;
     }
 """ 
+
