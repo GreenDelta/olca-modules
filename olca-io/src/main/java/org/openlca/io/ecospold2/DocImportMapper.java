@@ -1,11 +1,15 @@
 package org.openlca.io.ecospold2;
 
+import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.ecospold2.Activity;
+import org.openlca.ecospold2.AdministrativeInformation;
+import org.openlca.ecospold2.DataEntryBy;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.Technology;
@@ -37,6 +41,7 @@ class DocImportMapper {
 		mapTechnology(dataSet, doc);
 		mapGeography(dataSet.getGeography(), process);
 		mapTime(dataSet.getTimePeriod(), doc);
+		mapAdminInfo(dataSet.getAdministrativeInformation(), doc);
 	}
 
 	private void mapTechnology(DataSet dataSet, ProcessDocumentation doc) {
@@ -74,6 +79,23 @@ class DocImportMapper {
 		doc.setValidFrom(timePeriod.getStartDate());
 		doc.setValidUntil(timePeriod.getEndDate());
 		doc.setTime(timePeriod.getComment());
+	}
+
+	private void mapAdminInfo(AdministrativeInformation adminInfo,
+			ProcessDocumentation doc) {
+		if (adminInfo.getDataEntryBy() == null)
+			return;
+		DataEntryBy dataEntry = adminInfo.getDataEntryBy();
+		ActorDao dao = new ActorDao(database);
+		Actor actor = dao.getForRefId(dataEntry.getPersonId());
+		if (actor == null) {
+			actor = new Actor();
+			actor.setRefId(dataEntry.getPersonId());
+			actor.setEmail(dataEntry.getPersonEmail());
+			actor.setName(dataEntry.getPersonName());
+			actor = dao.insert(actor);
+		}
+		doc.setDataGenerator(actor);
 	}
 
 }
