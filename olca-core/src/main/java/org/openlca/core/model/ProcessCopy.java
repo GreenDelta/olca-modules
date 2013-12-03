@@ -28,25 +28,11 @@ class ProcessCopy {
 
 	private void copyExchanges(Process self, Process other) {
 		for (Exchange exchange : self.getExchanges()) {
-			Exchange otherExchange = new Exchange();
-			copyExchangeFields(exchange, otherExchange);
-			other.getExchanges().add(otherExchange);
-			if (exchange.equals(self.getQuantitativeReference())) {
-				other.setQuantitativeReference(otherExchange);
-			}
+			Exchange clone = exchange.clone();
+			other.getExchanges().add(clone);
+			if (exchange.equals(self.getQuantitativeReference()))
+				other.setQuantitativeReference(clone);
 		}
-	}
-
-	private void copyExchangeFields(Exchange self, Exchange other) {
-		other.setAvoidedProduct(self.isAvoidedProduct());
-		other.setAmountFormula(self.getAmountFormula());
-		other.setAmountValue(self.getAmountValue());
-		if (self.getUncertainty() != null)
-			other.setUncertainty(self.getUncertainty().clone());
-		other.setFlow(self.getFlow());
-		other.setFlowPropertyFactor(self.getFlowPropertyFactor());
-		other.setInput(self.isInput());
-		other.setUnit(self.getUnit());
 	}
 
 	private void copyParameters(Process self, Process other) {
