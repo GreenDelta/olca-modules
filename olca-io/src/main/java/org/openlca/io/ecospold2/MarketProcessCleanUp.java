@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
@@ -104,29 +103,23 @@ public class MarketProcessCleanUp implements Runnable {
 	}
 
 	private void mergeDuplicates(Process process) {
-		Pair<Exchange, Exchange> pair = null;
-		while ((pair = findDuplicate(process)) != null) {
-			Exchange first = pair.getLeft();
-			Exchange second = pair.getRight();
-			second.setAmountValue(first.getAmountValue()
-					+ second.getAmountValue());
-			process.getExchanges().remove(first);
-			second.setUncertainty(null); // TODO: combine distribution values?
-		}
-	}
-
-	private Pair<Exchange, Exchange> findDuplicate(Process process) {
-		for (Exchange first : process.getExchanges()) {
+		List<Exchange> exchanges = process.getExchanges();
+		List<Exchange> duplicates = new ArrayList<>();
+		for (int i = 0; i < exchanges.size(); i++) {
+			Exchange first = process.getExchanges().get(i);
 			if (Objects.equals(first, process.getQuantitativeReference()))
 				continue;
-			for (Exchange second : process.getExchanges()) {
-				if (Objects.equals(first, second))
+			for (int j = i + 1; j < exchanges.size(); j++) {
+				Exchange second = process.getExchanges().get(j);
+				if (!isDuplicate(first, second))
 					continue;
-				if (isDuplicate(first, second))
-					return Pair.of(first, second);
+				second.setAmountValue(first.getAmountValue()
+						+ second.getAmountValue());
+				second.setUncertainty(null); // TODO: combine values?
+				duplicates.add(first);
 			}
 		}
-		return null;
+		process.getExchanges().removeAll(duplicates);
 	}
 
 	private boolean isDuplicate(Exchange first, Exchange second) {
