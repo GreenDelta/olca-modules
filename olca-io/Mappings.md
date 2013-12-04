@@ -36,12 +36,12 @@ database or created during the import.
 
 #### Representativeness
 
-@percent (double, optional) | *no corresponding field*
-@systemModelId (UUID, *required* ) | *no corresponding field* / default value
-@systemModelContextId (UUID, optional ) | *no corresponding field*
-systemModelName (string, required) | *no corresponding field* / default value
-samplingProcedure (string, optional) | ProcessDocumentation/Sampling
-extrapolations (string, optional) | ProcessDocumentation/DataTreatment
+| @percent (double, optional) | *no corresponding field*
+| @systemModelId (UUID, *required* ) | *no corresponding field* / default value
+| @systemModelContextId (UUID, optional ) | *no corresponding field*
+| systemModelName (string, required) | *no corresponding field* / default value
+| samplingProcedure (string, optional) | ProcessDocumentation/Sampling
+| extrapolations (string, optional) | ProcessDocumentation/DataTreatment
 
 #### Review
 
