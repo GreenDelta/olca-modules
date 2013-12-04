@@ -142,15 +142,19 @@ public abstract class Exchange {
 	}
 
 	protected void writeValues(Element element) {
-		element.setAttribute("id", id);
-		element.setAttribute("unitId", unitId);
+		if (id != null)
+			element.setAttribute("id", id);
+		if (unitId != null)
+			element.setAttribute("unitId", unitId);
 		element.setAttribute("amount", Double.toString(amount));
 		if (mathematicalRelation != null)
 			element.setAttribute("mathematicalRelation", mathematicalRelation);
 		if (variableName != null)
 			element.setAttribute("variableName", variableName);
-		Out.addChild(element, "name", name);
-		Out.addChild(element, "unitName", unitName);
+		if (name != null)
+			Out.addChild(element, "name", name);
+		if (unitName != null)
+			Out.addChild(element, "unitName", unitName);
 		if (comment != null)
 			Out.addChild(element, "comment", comment);
 		if (uncertainty != null)

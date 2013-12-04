@@ -11,6 +11,9 @@ class Out {
 	static final Namespace NS = Namespace
 			.getNamespace("http://www.EcoInvent.org/EcoSpold02");
 
+	static final Namespace EXT_NS = Namespace
+			.getNamespace("http://openlca.org/ecospold2-extensions");
+
 	static Element addChild(Element parent, String name) {
 		Element child = new Element(name, NS);
 		parent.addContent(child);

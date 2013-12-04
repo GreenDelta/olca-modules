@@ -1,17 +1,36 @@
 package org.openlca.io.ecospold2.output;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowType;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ecospold2.Activity;
+import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.EcoSpold2;
+import org.openlca.ecospold2.ElementaryExchange;
+import org.openlca.ecospold2.Geography;
+import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.MacroEconomicScenario;
+import org.openlca.ecospold2.Technology;
+import org.openlca.ecospold2.TimePeriod;
 import org.slf4j.Logger;
+
+import com.google.common.base.Joiner;
 
 /**
  * Exports a set of processes to the EcoSpold 2 data format to a directory. The
@@ -27,6 +46,7 @@ public class EcoSpold2Export implements Runnable {
 	private File dir;
 	private IDatabase database;
 	private List<ProcessDescriptor> descriptors;
+	private HashSet<Object> masterData;
 
 	public EcoSpold2Export(File dir, IDatabase database,
 			List<ProcessDescriptor> descriptors) {
@@ -38,6 +58,7 @@ public class EcoSpold2Export implements Runnable {
 	@Override
 	public void run() {
 		try {
+			masterData = new HashSet<>();
 			File activityDir = new File(dir, "Activities");
 			if (!activityDir.exists())
 				activityDir.mkdirs();
@@ -47,16 +68,30 @@ public class EcoSpold2Export implements Runnable {
 		}
 	}
 
-	private void exportProcesses(File activityDir) {
+	private void exportProcesses(File activityDir) throws Exception {
 		for (ProcessDescriptor descriptor : descriptors) {
-			String fileName = descriptor.getRefId() == null ? UUID.randomUUID()
-					.toString() : descriptor.getRefId();
-			File file = new File(activityDir, fileName + ".spold");
 			ProcessDao dao = new ProcessDao(database);
 			Process process = dao.getForId(descriptor.getId());
+			if (process == null)
+				continue;
 			DataSet dataSet = new DataSet();
 			Activity activity = createActivity(process);
-
+			dataSet.setActivity(activity);
+			if (process.getCategory() != null)
+				dataSet.getClassifications().add(
+						convertCategory(process.getCategory()));
+			mapGeography(process, dataSet);
+			addEconomicScenario(dataSet);
+			mapExchanges(process, dataSet);
+			if (process.getDocumentation() != null) {
+				ProcessDocumentation doc = process.getDocumentation();
+				mapTechnology(doc, dataSet);
+				mapTime(doc, dataSet);
+			}
+			String fileName = process.getRefId() == null ? UUID.randomUUID()
+					.toString() : process.getRefId();
+			File file = new File(activityDir, fileName + ".spold");
+			EcoSpold2.writeDataSet(dataSet, file);
 		}
 	}
 
@@ -70,5 +105,125 @@ public class EcoSpold2Export implements Runnable {
 		activity.setSpecialActivityType(0); // default
 		activity.setGeneralComment(process.getDescription());
 		return activity;
+	}
+
+	private Classification convertCategory(Category category) {
+		if (category == null)
+			return null;
+		Classification classification = new Classification();
+		classification.setClassificationId(category.getRefId());
+		classification.setClassificationSystem("openLCA");
+		List<String> path = new ArrayList<>();
+		Category c = category;
+		while (c != null) {
+			path.add(0, c.getName());
+			c = c.getParentCategory();
+		}
+		classification.setClassificationValue(Joiner.on('/').skipNulls()
+				.join(path));
+		return classification;
+	}
+
+	private void mapGeography(Process process, DataSet dataSet) {
+		Geography geography = new Geography();
+		if (process.getDocumentation() != null)
+			geography.setComment(process.getDocumentation().getGeography());
+		if (process.getLocation() != null) {
+			Location location = process.getLocation();
+			masterData.add(location);
+			geography.setId(location.getRefId());
+			geography.setShortName(location.getCode());
+		}
+		dataSet.setGeography(geography);
+	}
+
+	private void mapTechnology(ProcessDocumentation doc, DataSet dataSet) {
+		Technology technology = new Technology();
+		technology.setComment(doc.getTechnology());
+		technology.setTechnologyLevel(0);
+		dataSet.setTechnology(technology);
+	}
+
+	private void mapTime(ProcessDocumentation doc, DataSet dataSet) {
+		TimePeriod timePeriod = new TimePeriod();
+		timePeriod.setComment(doc.getTime());
+		timePeriod.setDataValid(true);
+		timePeriod.setEndDate(doc.getValidUntil());
+		timePeriod.setStartDate(doc.getValidFrom());
+		dataSet.setTimePeriod(timePeriod);
+	}
+
+	private void addEconomicScenario(DataSet dataSet) {
+		MacroEconomicScenario scenario = new MacroEconomicScenario();
+		scenario.setId("d9f57f0a-a01f-42eb-a57b-8f18d6635801");
+		scenario.setName("Business-as-Usual");
+		dataSet.setMacroEconomicScenario(scenario);
+	}
+
+	private void mapExchanges(Process process, DataSet dataSet) {
+		for (Exchange exchange : process.getExchanges()) {
+			if (!isValid(exchange))
+				continue;
+			org.openlca.ecospold2.Exchange e2Exchange = null;
+			Flow flow = exchange.getFlow();
+			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
+				e2Exchange = createElementaryExchange(exchange);
+				dataSet.getElementaryExchanges().add(
+						(ElementaryExchange) e2Exchange);
+			} else {
+				e2Exchange = createIntermediateExchange(exchange, process);
+				dataSet.getIntermediateExchanges().add(
+						(IntermediateExchange) e2Exchange);
+			}
+			mapExchange(exchange, e2Exchange);
+		}
+	}
+
+	private boolean isValid(Exchange exchange) {
+		return exchange.getFlow() != null
+				&& exchange.getFlowPropertyFactor() != null
+				&& exchange.getUnit() != null;
+	}
+
+	private org.openlca.ecospold2.Exchange createElementaryExchange(
+			Exchange exchange) {
+		ElementaryExchange e2Ex = new ElementaryExchange();
+		return e2Ex;
+	}
+
+	private org.openlca.ecospold2.Exchange createIntermediateExchange(
+			Exchange exchange, Process process) {
+		IntermediateExchange e2Ex = new IntermediateExchange();
+		if (exchange.isInput())
+			e2Ex.setInputGroup(5);
+		else {
+			if (Objects.equals(exchange, process.getQuantitativeReference()))
+				e2Ex.setOutputGroup(0);
+			else if (exchange.getFlow().getFlowType() == FlowType.WASTE_FLOW)
+				e2Ex.setOutputGroup(3);
+			else
+				e2Ex.setOutputGroup(2);
+		}
+		e2Ex.setIntermediateExchangeId(exchange.getFlow().getRefId());
+		ProcessDescriptor provider = getDefaultProvider(exchange);
+		if (provider != null)
+			e2Ex.setActivityLinkId(provider.getRefId());
+		if (exchange.getFlow().getCategory() != null)
+			e2Ex.getClassifications().add(
+					convertCategory(exchange.getFlow().getCategory()));
+		return e2Ex;
+	}
+
+	private ProcessDescriptor getDefaultProvider(Exchange exchange) {
+		if (!exchange.isInput() || exchange.getDefaultProviderId() == 0)
+			return null;
+		ProcessDao dao = new ProcessDao(database);
+		return dao.getDescriptor(exchange.getDefaultProviderId());
+	}
+
+	private void mapExchange(Exchange exchange,
+			org.openlca.ecospold2.Exchange e2Exchange) {
+		// TODO Auto-generated method stub
+
 	}
 }

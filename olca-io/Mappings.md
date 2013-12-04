@@ -14,6 +14,8 @@ http://www.ecoinvent.org/data-providers/how-to-submit-data/ecospold2/.
 
 #### Activity
 
+Field mappings: 
+
 - activityName (string, #r)
 --- [+] Process.name
 
@@ -76,21 +78,133 @@ http://www.ecoinvent.org/data-providers/how-to-submit-data/ecospold2/.
 
 #### Classification
 
+Field mappings: 
+
+- classificationSystem
+--- [-] *no corresponding field* - but we use this field to tag openLCA
+categories
+
+- classificationValue
+--- [+] Category.name
+
+- @classificationId
+--- [+] Category.refId
+
+- @classificationContextId
+--- [-] *no corresponding field*
+
+
 #### Geography
+
+- @geographyId
+--- [+] Process.Location.refId
+
+- @geographyContextId
+--- [-] *no corresponding field*
+
+- shortname
+--- [+] Process.Location.code
+
+- comment
+--- [+] ProcessDocumentation.geography
 
 #### Technology
 
+- @technologyLevel
+--- [-] *no corresponding field*
+
+- comment
+--- [+] ProcessDocumentation.technology
+
 #### Time period
+
+- @startDate
+--- [+] ProcessDocumentation.validFrom
+
+- @endDate
+--- [+] ProcessDocumentation.validUntil
+
+- @isDataValidForEntirePeriod
+--- [-] *no corresponding field*
+
+- comment
+--- [+] ProcessDocumentation.time
 
 #### Macro-economic scenario
 
+- @macroEconomicScenarioId
+--- [-] *no corresponding field*
+
+- @macroEconomicScenarioContextId
+--- [-] *no corresponding field*
+
+- @name
+--- [-] *no corresponding field*
+
+- @comment
+--- [-] *no corresponding field*
 
 ### Flow data
 
+#### Exchanges
+
+
+
 #### Intermediate exchanges
 
-| @id (UUID, required) | in openLCA we use generate integer IDs for exchanges
-| @unitId (UUID, required)
+- inputGroup
+--- [+] Exchange.Flow.flowType
+
+- outputGroup
+--- [+] Exchange.Flow.flowType / Process.quantitativeReference
+
+- @intermediateExchangeId
+--- [+] Exchange.Flow.refId
+
+- @intermediateExchangeContextId
+--- [-] *no corresponding field*
+
+- @activityLinkId
+--- [+] Exchange.defaultProvider.refId
+
+@activityLinkContextId
+--- [-] *no corresponding field*
+
+@activityLinkIdOverwrittenByChild
+--- [-] *no corresponding field*
+
+@productionVolumeAmount
+--- [-] *no corresponding field*
+
+@productionVolumeSourceIdOverwrittenByChild
+--- [-] *no corresponding field*
+
+@productionVolumeVariableName
+--- [-] *no corresponding field*
+
+@productionVolumeSourceId
+--- [-] *no corresponding field*
+
+@productionVolumeMathematicalRelation
+--- [-] *no corresponding field*
+
+@productionVolumeComment
+--- [-] *no corresponding field*
+
+@productionVolumeSourceContextId
+--- [-] *no corresponding field*
+
+@productionVolumeSourceYear
+--- [-] *no corresponding field*
+
+@productionVolumeSourceFirstAuthor
+--- [-] *no corresponding field*
+
+productionVolumeUncertainty
+--- [-] *no corresponding field*
+
+classification
+--- [+] Exchange.Flow.category
 
 #### Elementary exchanges
 

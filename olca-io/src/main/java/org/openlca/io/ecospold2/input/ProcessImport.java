@@ -12,6 +12,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold2.Activity;
@@ -100,15 +101,7 @@ class ProcessImport {
 		Activity activity = dataSet.getActivity();
 		Process process = new Process();
 		process.setRefId(refId);
-		process.setName(activity.getName());
-		String description = Joiner
-				.on(" ")
-				.skipNulls()
-				.join(activity.getGeneralComment(),
-						activity.getIncludedActivitiesStart(),
-						activity.getIncludedActivitiesEnd(),
-						activity.getAllocationComment());
-		process.setDescription(description);
+		setMetaData(activity, process);
 		setCategory(dataSet, process);
 		if (config.withParameters)
 			process.getParameters().addAll(Parameters.fetch(dataSet, config));
@@ -121,6 +114,21 @@ class ProcessImport {
 		database.createDao(Process.class).insert(process);
 		index.putProcessId(refId, process.getId());
 		flushLinkQueue(process);
+	}
+
+	private void setMetaData(Activity activity, Process process) {
+		process.setName(activity.getName());
+		ProcessType type = activity.getType() == 2 ? ProcessType.LCI_RESULT
+				: ProcessType.UNIT_PROCESS;
+		process.setProcessType(type);
+		String description = Joiner
+				.on(" ")
+				.skipNulls()
+				.join(activity.getGeneralComment(),
+						activity.getIncludedActivitiesStart(),
+						activity.getIncludedActivitiesEnd(),
+						activity.getAllocationComment());
+		process.setDescription(description);
 	}
 
 	private void flushLinkQueue(Process process) {

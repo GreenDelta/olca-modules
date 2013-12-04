@@ -37,7 +37,8 @@ public class ElementaryExchange extends Exchange {
 	Element toXml() {
 		Element element = new Element("elementaryExchange", Out.NS);
 		writeValues(element);
-		element.setAttribute("elementaryExchangeId", elementaryExchangeId);
+		if (elementaryExchangeId != null)
+			element.setAttribute("elementaryExchangeId", elementaryExchangeId);
 		if (compartment != null)
 			element.addContent(compartment.toXml());
 		writeInputOutputGroup(element);
