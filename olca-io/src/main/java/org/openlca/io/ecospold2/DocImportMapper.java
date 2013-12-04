@@ -12,6 +12,7 @@ import org.openlca.ecospold2.AdministrativeInformation;
 import org.openlca.ecospold2.DataEntryBy;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.Geography;
+import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.io.KeyGen;
@@ -42,6 +43,15 @@ class DocImportMapper {
 		mapGeography(dataSet.getGeography(), process);
 		mapTime(dataSet.getTimePeriod(), doc);
 		mapAdminInfo(dataSet.getAdministrativeInformation(), doc);
+		mapRepresentativeness(dataSet.getRepresentativeness(), doc);
+	}
+
+	private void mapRepresentativeness(Representativeness repri,
+			ProcessDocumentation doc) {
+		if (repri == null)
+			return;
+		doc.setDataTreatment(repri.getExtrapolations());
+		doc.setSampling(repri.getSamplingProcedure());
 	}
 
 	private void mapTechnology(DataSet dataSet, ProcessDocumentation doc) {
@@ -83,7 +93,7 @@ class DocImportMapper {
 
 	private void mapAdminInfo(AdministrativeInformation adminInfo,
 			ProcessDocumentation doc) {
-		if (adminInfo.getDataEntryBy() == null)
+		if (adminInfo == null || adminInfo.getDataEntryBy() == null)
 			return;
 		DataEntryBy dataEntry = adminInfo.getDataEntryBy();
 		ActorDao dao = new ActorDao(database);
