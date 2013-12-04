@@ -19,8 +19,6 @@ import org.openlca.io.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-
 /**
  * Maps the process documentation from an EcoSpold 02 data set to an openLCA
  * data set.
@@ -59,14 +57,7 @@ class DocImportMapper {
 		Technology technology = dataSet.getTechnology();
 		if (activity == null || technology == null)
 			return;
-		String techText = Joiner
-				.on(" ")
-				.skipNulls()
-				.join(technology.getComment(),
-						activity.getIncludedActivitiesStart(),
-						activity.getIncludedActivitiesEnd(),
-						activity.getAllocationComment());
-		doc.setTechnology(techText);
+		doc.setTechnology(technology.getComment());
 	}
 
 	private void mapGeography(Geography geography, Process process) {

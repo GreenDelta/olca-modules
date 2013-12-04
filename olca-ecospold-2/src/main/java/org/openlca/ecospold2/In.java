@@ -115,6 +115,12 @@ class In {
 		}
 	}
 
+	public static Boolean optionalBool(String val) {
+		if (val == null)
+			return null;
+		return bool(val);
+	}
+
 	public static Date date(String val, String pattern) {
 		if (val == null)
 			return null;
@@ -139,6 +145,12 @@ class In {
 			log.log(Level.WARNING, "Failed to parse integer " + val, e);
 			return -1;
 		}
+	}
+
+	public static Integer optionalInteger(String val) {
+		if (val == null)
+			return null;
+		return integer(val);
 	}
 
 	private static class ElementComparator implements Comparator<Element> {

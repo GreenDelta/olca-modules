@@ -24,6 +24,8 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+
 class ProcessImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -99,6 +101,14 @@ class ProcessImport {
 		Process process = new Process();
 		process.setRefId(refId);
 		process.setName(activity.getName());
+		String description = Joiner
+				.on(" ")
+				.skipNulls()
+				.join(activity.getGeneralComment(),
+						activity.getIncludedActivitiesStart(),
+						activity.getIncludedActivitiesEnd(),
+						activity.getAllocationComment());
+		process.setDescription(description);
 		setCategory(dataSet, process);
 		if (config.withParameters)
 			process.getParameters().addAll(Parameters.fetch(dataSet, config));
