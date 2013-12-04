@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold2;
+package org.openlca.io.ecospold2.input;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,7 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.TestSession;
-import org.openlca.io.ecospold2.IsicTree.IsicNode;
+import org.openlca.io.ecospold2.input.IsicTree.IsicNode;
 
 public class IsicTreeTest {
 

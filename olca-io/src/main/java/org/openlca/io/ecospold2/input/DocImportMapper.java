@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold2;
+package org.openlca.io.ecospold2.input;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.IDatabase;

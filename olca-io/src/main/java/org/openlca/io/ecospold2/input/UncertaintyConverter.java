@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold2;
+package org.openlca.io.ecospold2.input;
 
 import org.openlca.core.model.Uncertainty;
 import org.openlca.ecospold2.LogNormal;

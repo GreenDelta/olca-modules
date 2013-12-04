@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold2;
+package org.openlca.io.ecospold2.input;
 
 /**
  * Import configuration for EcoSpold 02 data sets.

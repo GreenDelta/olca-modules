@@ -27,6 +27,9 @@ database or created during the import.
 
 #### Intermediate exchanges
 
+| @id (UUID, required) | in openLCA we use generate integer IDs for exchanges
+| @unitId (UUID, required)
+
 #### Elementary exchanges
 
 #### Parameters
@@ -34,7 +37,7 @@ database or created during the import.
 
 ### Modelling and validation
 
-#### Representativeness
+#### Representativeness (optional)
 
 | @percent (double, optional) | *no corresponding field*
 | @systemModelId (UUID, *required* ) | *no corresponding field* / default value
@@ -43,7 +46,9 @@ database or created during the import.
 | samplingProcedure (string, optional) | ProcessDocumentation/Sampling
 | extrapolations (string, optional) | ProcessDocumentation/DataTreatment
 
-#### Review
+#### Review (optional)
+
+| @reviewerId 
 
 
 | EcoSpold field | openLCA field |

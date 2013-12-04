@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold2;
+package org.openlca.io.ecospold2.input;
 
 import java.io.Closeable;
 import java.io.File;

@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.openlca.core.database.DatabaseContent;
 import org.openlca.core.database.derby.DerbyDatabase;
-import org.openlca.io.ecospold2.EcoSpold2Import;
+import org.openlca.io.ecospold2.input.EcoSpold2Import;
 
 /**
  * A sample for importing an EcoSpold 02 database into openLCA via API.

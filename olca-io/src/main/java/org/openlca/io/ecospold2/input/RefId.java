@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold2;
+package org.openlca.io.ecospold2.input;
 
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.IntermediateExchange;

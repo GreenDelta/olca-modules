@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold2;
+package org.openlca.io.ecospold2.input;
 
 import java.util.List;
 import java.util.Stack;
@@ -7,7 +7,7 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.io.ecospold2.IsicTree.IsicNode;
+import org.openlca.io.ecospold2.input.IsicTree.IsicNode;
 
 /**
  * Adds ISIC top-level categories to existing ISIC categories. In ecoinvent 3

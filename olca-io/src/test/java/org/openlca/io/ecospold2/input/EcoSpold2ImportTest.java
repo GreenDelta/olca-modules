@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold2;
+package org.openlca.io.ecospold2.input;
 
 import java.io.File;
 import java.util.List;
@@ -15,6 +15,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.io.TestSession;
+import org.openlca.io.ecospold2.input.EcoSpold2Import;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
