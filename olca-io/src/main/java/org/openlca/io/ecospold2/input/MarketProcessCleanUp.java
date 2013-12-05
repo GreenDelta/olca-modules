@@ -1,13 +1,15 @@
 package org.openlca.io.ecospold2.input;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.NativeSql.QueryResultHandler;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
@@ -19,9 +21,10 @@ public class MarketProcessCleanUp implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final ProcessDao dao;
-	private Set<Long> marketProcessIds = new HashSet<>();
+	private final IDatabase database;
 
 	public MarketProcessCleanUp(IDatabase database) {
+		this.database = database;
 		this.dao = new ProcessDao(database);
 	}
 
@@ -29,51 +32,93 @@ public class MarketProcessCleanUp implements Runnable {
 	public void run() {
 		log.trace("run market process clean up");
 		try {
-			List<ProcessDescriptor> descriptors = dao.getDescriptors();
-			for (ProcessDescriptor descriptor : descriptors) {
-				if (descriptor.getName().toLowerCase()
-						.startsWith("market for "))
-					marketProcessIds.add(descriptor.getId());
-			}
-			log.trace("{} market processes in {} processes found",
-					marketProcessIds.size(), descriptors.size());
+			List<ProcessDescriptor> marketProcesses = getMarketProcesses();
 			int i = 0;
-			for (ProcessDescriptor descriptor : descriptors) {
-				includeMarkets(descriptor);
+			for (ProcessDescriptor descriptor : marketProcesses) {
+				Process marketProcess = dao.getForId(descriptor.getId());
+				log.trace("replace market process {}", descriptor);
+				marketProcess = fixSelfLoop(marketProcess);
+				replaceMarket(marketProcess);
 				i++;
-				log.trace("finished {} of {}", i, descriptors.size());
+				log.trace("finished {} of {}", i, marketProcesses.size());
 			}
 		} catch (Exception e) {
 			log.error("failed to remove market processes in supply chain", e);
 		}
 	}
 
-	private void includeMarkets(ProcessDescriptor descriptor) {
-		Process process = dao.getForId(descriptor.getId());
-		log.trace("include market processes in {}", process);
-		List<Exchange> newExchanges = new ArrayList<>();
-		List<Exchange> droppedInputs = new ArrayList<>();
-		for (Exchange input : process.getExchanges()) {
-			if (!input.isInput() || input.getDefaultProviderId() == 0)
+	private List<ProcessDescriptor> getMarketProcesses() {
+		List<ProcessDescriptor> descriptors = dao.getDescriptors();
+		List<ProcessDescriptor> marketProcesses = new ArrayList<>();
+		for (ProcessDescriptor descriptor : descriptors) {
+			if (descriptor.getName().toLowerCase().startsWith("market for "))
+				marketProcesses.add(descriptor);
+		}
+		log.trace("{} market processes in {} processes found",
+				marketProcesses.size(), descriptors.size());
+		return marketProcesses;
+	}
+
+	private Process fixSelfLoop(Process marketProcess) {
+		Exchange qRef = marketProcess.getQuantitativeReference();
+		Exchange loopInput = null;
+		for (Exchange input : marketProcess.getExchanges()) {
+			if (!input.isInput())
 				continue;
-			if (!marketProcessIds.contains(input.getDefaultProviderId()))
+			if (input.getDefaultProviderId() == marketProcess.getId()) {
+				loopInput = input;
+				break;
+			}
+		}
+		if (loopInput == null)
+			return marketProcess;
+		qRef.setAmountValue(qRef.getAmountValue() - loopInput.getAmountValue());
+		marketProcess.getExchanges().remove(loopInput);
+		log.trace("fixed self loop in {}", marketProcess);
+		return dao.update(marketProcess);
+	}
+
+	private void replaceMarket(Process marketProcess) throws Exception {
+		List<Long> usedIds = getWhereUsed(marketProcess);
+		log.trace("replace {} in {} processes", marketProcess, usedIds.size());
+		for (long id : usedIds) {
+			Process process = dao.getForId(id);
+			log.trace("include market processes in {}", process);
+			Exchange input = null;
+			for (Exchange exchange : process.getExchanges()) {
+				if (exchange.getDefaultProviderId() == marketProcess.getId()) {
+					input = exchange;
+					break;
+				}
+			}
+			if (input == null)
 				continue;
-			List<Exchange> marketExchanges = getMarketExchanges(input);
+			List<Exchange> marketExchanges = getMarketExchanges(input,
+					marketProcess);
 			if (marketExchanges.isEmpty())
 				continue;
-			newExchanges.addAll(marketExchanges);
-			droppedInputs.add(input);
-		}
-		if (!droppedInputs.isEmpty()) {
-			process.getExchanges().removeAll(droppedInputs);
-			process.getExchanges().addAll(newExchanges);
+			process.getExchanges().addAll(marketExchanges);
+			process.getExchanges().remove(input);
 			mergeDuplicates(process);
 			dao.update(process);
 		}
 	}
 
-	private List<Exchange> getMarketExchanges(Exchange input) {
-		Process market = dao.getForId(input.getDefaultProviderId());
+	private List<Long> getWhereUsed(Process marketProcess) throws Exception {
+		String query = "select distinct f_owner from tbl_exchanges where "
+				+ "f_default_provider = " + marketProcess.getId();
+		final List<Long> list = new ArrayList<>();
+		NativeSql.on(database).query(query, new QueryResultHandler() {
+			@Override
+			public boolean nextResult(ResultSet result) throws SQLException {
+				list.add(result.getLong(1));
+				return true;
+			}
+		});
+		return list;
+	}
+
+	private List<Exchange> getMarketExchanges(Exchange input, Process market) {
 		if (!matches(market, input))
 			return Collections.emptyList();
 		Exchange marketRef = market.getQuantitativeReference();
