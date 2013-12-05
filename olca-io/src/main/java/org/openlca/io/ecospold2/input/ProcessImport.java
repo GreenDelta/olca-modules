@@ -21,6 +21,7 @@ import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.io.KeyGen;
+import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

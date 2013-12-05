@@ -148,7 +148,80 @@ categories
 
 #### Exchanges
 
+- name
+--- [+] Exchange.Flow.name
 
+- @id
+--- [+] Exchange.id
+
+- @amount
+--- [+] Exchange.amountValue
+
+- @unitId
+--- [+] Exchange.Unit.refId
+
+- @unitContextId
+--- [-] *no corresponding field*
+
+- unitName
+--- [+] Exchange.Unit.name
+
+- @variableName
+--- [-] *no corresponding field*
+
+- @isCalculatedAmount
+--- [-] *no corresponding field*
+
+- @mathematicalRelation
+--- [+] Exchange.amountFormula
+
+- @casNumber
+--- [+] Exchange.Flow.casNumber
+
+- comment
+--- [-] *no corresponding field*
+
+- @sourceId
+--- [-] *no corresponding field*
+
+- @sourceContextId
+--- [-] *no corresponding field*
+
+- @sourceIdOverwrittenByChild
+--- [-] *no corresponding field*
+
+- @sourceYear
+--- [-] *no corresponding field*
+
+- @sourceFirstAuthor
+--- [-] *no corresponding field*
+
+- @pageNumbers
+--- [-] *no corresponding field*
+
+- @specificAllocationPropertyId
+--- [-] *no corresponding field*
+
+- @specificAllocationPropertyContextId
+--- [-] *no corresponding field*
+
+- @specificAllocationPropertyIdOverwrittenByChild
+--- [-] *no corresponding field*
+
+- transferCoefficient
+--- [-] *no corresponding field*
+
+- uncertainty
+--- [+] Exchange.uncertainty
+
+- property
+--- [+] Exchange.Flow.flowPropertyFactors (*)
+
+- tag
+--- [-] *no corresponding field*
+
+- synonym
+--- [-] *no corresponding field*
 
 #### Intermediate exchanges
 
@@ -167,46 +240,64 @@ categories
 - @activityLinkId
 --- [+] Exchange.defaultProvider.refId
 
-@activityLinkContextId
+- @activityLinkContextId
 --- [-] *no corresponding field*
 
-@activityLinkIdOverwrittenByChild
+- @activityLinkIdOverwrittenByChild
 --- [-] *no corresponding field*
 
-@productionVolumeAmount
+- @productionVolumeAmount
 --- [-] *no corresponding field*
 
-@productionVolumeSourceIdOverwrittenByChild
+- @productionVolumeSourceIdOverwrittenByChild
 --- [-] *no corresponding field*
 
-@productionVolumeVariableName
+- @productionVolumeVariableName
 --- [-] *no corresponding field*
 
-@productionVolumeSourceId
+- @productionVolumeSourceId
 --- [-] *no corresponding field*
 
-@productionVolumeMathematicalRelation
+- @productionVolumeMathematicalRelation
 --- [-] *no corresponding field*
 
-@productionVolumeComment
+- @productionVolumeComment
 --- [-] *no corresponding field*
 
-@productionVolumeSourceContextId
+- @productionVolumeSourceContextId
 --- [-] *no corresponding field*
 
-@productionVolumeSourceYear
+- @productionVolumeSourceYear
 --- [-] *no corresponding field*
 
-@productionVolumeSourceFirstAuthor
+- @productionVolumeSourceFirstAuthor
 --- [-] *no corresponding field*
 
-productionVolumeUncertainty
+- productionVolumeUncertainty
 --- [-] *no corresponding field*
 
-classification
+- classification
 --- [+] Exchange.Flow.category
 
 #### Elementary exchanges
+
+- inputGroup
+--- [+] Exchange.Flow.flowType
+
+- outputGroup
+--- [+] Exchange.Flow.flowType
+
+- @elementaryExchangeId
+--- [+] Exchange.Flow.refId
+
+- @elementaryExchangeContextId
+--- [-] *no corresponding field*
+
+- compartment
+--- [+] Exchange.Flow.category
+
+- @formula
+--- [+] Exchange.Flow.formula
 
 #### Parameters
 

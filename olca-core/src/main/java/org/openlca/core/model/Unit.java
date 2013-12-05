@@ -4,11 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-/**
- * <p style="margin-top: 0">
- * An unit of measurement (i.e. kg)
- * </p>
- */
 @Entity
 @Table(name = "tbl_units")
 public class Unit extends RootEntity {

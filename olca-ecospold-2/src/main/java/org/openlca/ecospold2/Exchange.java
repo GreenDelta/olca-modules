@@ -14,6 +14,7 @@ public abstract class Exchange {
 	private String unitName;
 	private String variableName;
 	private String mathematicalRelation;
+	private String casNumber;
 	private String comment;
 	private Uncertainty uncertainty;
 	private List<Property> properties = new ArrayList<>();
@@ -66,6 +67,14 @@ public abstract class Exchange {
 
 	public void setMathematicalRelation(String mathematicalRelation) {
 		this.mathematicalRelation = mathematicalRelation;
+	}
+
+	public void setCasNumber(String casNumber) {
+		this.casNumber = casNumber;
+	}
+
+	public String getCasNumber() {
+		return casNumber;
 	}
 
 	public String getComment() {
@@ -124,7 +133,7 @@ public abstract class Exchange {
 		setComment(In.childText(element, "comment"));
 		setUnitId(element.getAttributeValue("unitId"));
 		setUncertainty(Uncertainty.fromXml(In.child(element, "uncertainty")));
-
+		setCasNumber(element.getAttributeValue("casNumber"));
 		List<Element> propElems = In.childs(element, "property");
 		for (Element propElem : propElems) {
 			Property property = Property.fromXml(propElem);
@@ -151,6 +160,8 @@ public abstract class Exchange {
 			element.setAttribute("mathematicalRelation", mathematicalRelation);
 		if (variableName != null)
 			element.setAttribute("variableName", variableName);
+		if (casNumber != null)
+			element.setAttribute("casNumber", casNumber);
 		if (name != null)
 			Out.addChild(element, "name", name);
 		if (unitName != null)
