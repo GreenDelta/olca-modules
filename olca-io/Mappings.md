@@ -301,6 +301,41 @@ categories
 
 #### Parameters
 
+- name
+--- [-] *no corresponding field*
+
+- @id
+--- [+] Parameter.id
+
+- @parameterContextId
+--- [-] *no corresponding field*
+
+- @amount
+--- [+] Parameter.value
+
+- @parameterContextId
+--- [-] *no corresponding field*
+
+- @unitId
+--- [-] *no corresponding field*
+
+- @unitContextId
+--- [-] *no corresponding field*
+
+- unitName
+--- [-] *no corresponding field*
+
+- @variableName
+--- [+] Parameter.name
+
+- @unitIdOverwrittenByChild
+--- [-] *no corresponding field*
+
+- @mathematicalRelation
+--- [+] Parameter.name
+
+- @isCalculatedAmount
+--- [+]
 
 ### Modelling and validation
 

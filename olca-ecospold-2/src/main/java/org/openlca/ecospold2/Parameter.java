@@ -10,6 +10,8 @@ public class Parameter {
 	private String name;
 	private String unitName;
 	private String mathematicalRelation;
+	private Boolean isCalculatedAmount;
+	private String scope; // extension
 
 	public String getId() {
 		return id;
@@ -59,6 +61,22 @@ public class Parameter {
 		this.mathematicalRelation = mathematicalRelation;
 	}
 
+	public void setIsCalculatedAmount(Boolean isCalculatedAmount) {
+		this.isCalculatedAmount = isCalculatedAmount;
+	}
+
+	public Boolean getIsCalculatedAmount() {
+		return isCalculatedAmount;
+	}
+
+	public void setScope(String scope) {
+		this.scope = scope;
+	}
+
+	public String getScope() {
+		return scope;
+	}
+
 	static Parameter fromXml(Element e) {
 		if (e == null)
 			return null;
@@ -69,6 +87,9 @@ public class Parameter {
 		p.unitName = In.childText(e, "unitName");
 		p.variableName = e.getAttributeValue("variableName");
 		p.mathematicalRelation = e.getAttributeValue("mathematicalRelation");
+		p.isCalculatedAmount = In.optionalBool(e
+				.getAttributeValue("isCalculatedAmount"));
+		p.scope = e.getChildText("scope", Out.EXT_NS);
 		return p;
 	}
 
@@ -80,6 +101,13 @@ public class Parameter {
 			e.setAttribute("variableName", variableName);
 		if (mathematicalRelation != null)
 			e.setAttribute("mathematicalRelation", mathematicalRelation);
+		if (isCalculatedAmount != null)
+			e.setAttribute("isCalculatedAmount", isCalculatedAmount.toString());
+		if (scope != null) {
+			Element scopeElement = new Element("scope", Out.EXT_NS);
+			scopeElement.setText(scope);
+			e.addContent(scopeElement);
+		}
 		Out.addChild(e, "name", name);
 		Out.addChild(e, "unitName", unitName);
 		return e;

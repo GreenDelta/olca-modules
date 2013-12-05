@@ -64,10 +64,12 @@ public class MarketProcessCleanUp implements Runnable {
 			newExchanges.addAll(marketExchanges);
 			droppedInputs.add(input);
 		}
-		process.getExchanges().removeAll(droppedInputs);
-		process.getExchanges().addAll(newExchanges);
-		mergeDuplicates(process);
-		dao.update(process);
+		if (!droppedInputs.isEmpty()) {
+			process.getExchanges().removeAll(droppedInputs);
+			process.getExchanges().addAll(newExchanges);
+			mergeDuplicates(process);
+			dao.update(process);
+		}
 	}
 
 	private List<Exchange> getMarketExchanges(Exchange input) {

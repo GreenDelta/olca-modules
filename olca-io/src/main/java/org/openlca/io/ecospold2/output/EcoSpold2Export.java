@@ -7,12 +7,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
@@ -86,6 +88,7 @@ public class EcoSpold2Export implements Runnable {
 			mapGeography(process, dataSet);
 			addEconomicScenario(dataSet);
 			mapExchanges(process, dataSet);
+			mapParameters(process, dataSet);
 			if (process.getDocumentation() != null) {
 				ProcessDocumentation doc = process.getDocumentation();
 				mapTechnology(doc, dataSet);
@@ -260,5 +263,21 @@ public class EcoSpold2Export implements Runnable {
 		e2Exchange.setCasNumber(exchange.getFlow().getCasNumber());
 		e2Exchange.setUncertainty(UncertaintyConverter.fromOpenLCA(exchange
 				.getUncertainty()));
+	}
+
+	private void mapParameters(Process process, DataSet dataSet) {
+		List<Parameter> parameters = new ArrayList<>();
+		parameters.addAll(process.getParameters());
+		ParameterDao dao = new ParameterDao(database);
+		parameters.addAll(dao.getGlobalParameters());
+		for (Parameter param : parameters) {
+			org.openlca.ecospold2.Parameter e2Param = new org.openlca.ecospold2.Parameter();
+			e2Param.setName(param.getName());
+			e2Param.setId(new UUID(param.getId(), 0L).toString());
+			e2Param.setAmount(param.getValue());
+			e2Param.setVariableName(param.getName());
+			e2Param.setMathematicalRelation(param.getFormula());
+			dataSet.getParameters().add(e2Param);
+		}
 	}
 }
