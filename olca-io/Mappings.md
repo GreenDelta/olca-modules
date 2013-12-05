@@ -335,13 +335,20 @@ categories
 --- [+] Parameter.name
 
 - @isCalculatedAmount
---- [+]
+--- [+] Parameter.inputParameter
+
+- uncertainty
+--- [-] *no corresponding field* (* will be added soon)
+
+- comment
+--- [-] *no corresponding field* 
 
 ### Modelling and validation
 
 #### Representativeness (optional)
 
-| @percent (double, optional) | *no corresponding field*
+- @percent (double, optional)
+--- *no corresponding field*
 | @systemModelId (UUID, *required* ) | *no corresponding field* / default value
 | @systemModelContextId (UUID, optional ) | *no corresponding field*
 | systemModelName (string, required) | *no corresponding field* / default value

@@ -277,6 +277,9 @@ public class EcoSpold2Export implements Runnable {
 			e2Param.setAmount(param.getValue());
 			e2Param.setVariableName(param.getName());
 			e2Param.setMathematicalRelation(param.getFormula());
+			e2Param.setIsCalculatedAmount(!param.isInputParameter());
+			if (param.getScope() != null)
+				e2Param.setScope(param.getScope().name());
 			dataSet.getParameters().add(e2Param);
 		}
 	}
