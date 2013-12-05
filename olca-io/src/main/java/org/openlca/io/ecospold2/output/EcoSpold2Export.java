@@ -30,6 +30,7 @@ import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.MacroEconomicScenario;
+import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.io.ecospold2.UncertaintyConverter;
@@ -93,6 +94,7 @@ public class EcoSpold2Export implements Runnable {
 				ProcessDocumentation doc = process.getDocumentation();
 				mapTechnology(doc, dataSet);
 				mapTime(doc, dataSet);
+				mapRepresentativeness(doc, dataSet);
 			}
 			String fileName = process.getRefId() == null ? UUID.randomUUID()
 					.toString() : process.getRefId();
@@ -282,5 +284,14 @@ public class EcoSpold2Export implements Runnable {
 				e2Param.setScope(param.getScope().name());
 			dataSet.getParameters().add(e2Param);
 		}
+	}
+
+	private void mapRepresentativeness(ProcessDocumentation doc, DataSet dataSet) {
+		Representativeness repri = new Representativeness();
+		repri.setSystemModelId("06590a66-662a-4885-8494-ad0cf410f956");
+		repri.setSystemModelName("Allocation, ecoinvent default");
+		repri.setSamplingProcedure(doc.getSampling());
+		repri.setExtrapolations(doc.getDataTreatment());
+		dataSet.setRepresentativeness(repri);
 	}
 }

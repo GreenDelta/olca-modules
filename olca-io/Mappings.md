@@ -348,20 +348,24 @@ categories
 #### Representativeness (optional)
 
 - @percent (double, optional)
---- *no corresponding field*
-| @systemModelId (UUID, *required* ) | *no corresponding field* / default value
-| @systemModelContextId (UUID, optional ) | *no corresponding field*
-| systemModelName (string, required) | *no corresponding field* / default value
-| samplingProcedure (string, optional) | ProcessDocumentation/Sampling
-| extrapolations (string, optional) | ProcessDocumentation/DataTreatment
+--- [-] *no corresponding field* 
+
+- @systemModelId (UUID, *required* ) 
+--- [-] *no corresponding field* 
+
+- @systemModelContextId (UUID, optional ) 
+--- [-] *no corresponding field* 
+
+- systemModelName (string, required) 
+--- [-] *no corresponding field* 
+
+- samplingProcedure (string, optional) 
+--- [+] ProcessDocumentation.sampling
+
+- extrapolations (string, optional) 
+--- [+] ProcessDocumentation.dataTreatment
 
 #### Review (optional)
+ TODO
+ 
 
-| @reviewerId 
-
-
-| EcoSpold field | openLCA field |
-|----------------|---------------|
-|Representativeness/Extrapolations | ProcessDocumentation/DataTreatment|
-|Representativeness/Percent (double) | #no field# |
-|Representativeness/SamplingProcedure | ProcessDocumentation/Sampling|
