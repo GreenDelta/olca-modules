@@ -39,12 +39,9 @@ public class MarketProcessCleanUp implements Runnable {
 					marketProcessIds.size(), descriptors.size());
 			int i = 0;
 			for (ProcessDescriptor descriptor : descriptors) {
-				if (!marketProcessIds.contains(descriptor.getId())) {
-					includeMarkets(descriptor);
-					i++;
-					log.trace("finished {} of {}", i, descriptors.size()
-							- marketProcessIds.size());
-				}
+				includeMarkets(descriptor);
+				i++;
+				log.trace("finished {} of {}", i, descriptors.size());
 			}
 		} catch (Exception e) {
 			log.error("failed to remove market processes in supply chain", e);
