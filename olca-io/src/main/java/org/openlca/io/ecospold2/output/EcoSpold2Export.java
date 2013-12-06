@@ -294,4 +294,5 @@ public class EcoSpold2Export implements Runnable {
 		repri.setExtrapolations(doc.getDataTreatment());
 		dataSet.setRepresentativeness(repri);
 	}
+
 }
