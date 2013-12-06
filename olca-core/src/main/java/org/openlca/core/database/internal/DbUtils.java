@@ -16,7 +16,7 @@ public class DbUtils {
 
 	public static int getVersion(IDatabase database) {
 		try {
-			final int[] version = new int[0];
+			final int[] version = new int[1];
 			NativeSql.on(database).query("select version from openlca_version",
 					new QueryResultHandler() {
 						@Override
