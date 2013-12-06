@@ -25,7 +25,7 @@ import org.openlca.simapro.csv.model.SPPedigreeMatrix;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProductFlow;
 import org.openlca.simapro.csv.model.SPQuantity;
-import org.openlca.simapro.csv.model.SPReferenceProduct;
+import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPSystemDescription;
 import org.openlca.simapro.csv.model.SPSystemDescriptionEntry;
@@ -562,7 +562,7 @@ public class CSVReader {
 	 * @throws IOException
 	 */
 	private SPProcess readProcess(BufferedReader reader) throws IOException {
-		List<SPReferenceProduct> referenceProducts = new ArrayList<SPReferenceProduct>();
+		List<SPProduct> referenceProducts = new ArrayList<SPProduct>();
 		String subCategory = null;
 		String line = null;
 
@@ -662,7 +662,7 @@ public class CSVReader {
 	}
 
 	/**
-	 * Reads the information relevant for a {@link SPReferenceProduct}
+	 * Reads the information relevant for a {@link SPProduct}
 	 * 
 	 * @param line
 	 *            The line containing the flow information
@@ -670,7 +670,7 @@ public class CSVReader {
 	 *         line
 	 * @throws IOException
 	 */
-	private SPReferenceProduct readReference(String line) {
+	private SPProduct readReference(String line) {
 		line += "; ";
 		String split[] = line.split(";");
 		String name = split[0];
@@ -685,7 +685,7 @@ public class CSVReader {
 			comment += ";" + split[i];
 		}
 
-		return new SPReferenceProduct(name, unit, formula,
+		return new SPProduct(name, unit, formula,
 				Double.parseDouble(allocation.replace(',', '.')), wasteType,
 				comment, category);
 	}

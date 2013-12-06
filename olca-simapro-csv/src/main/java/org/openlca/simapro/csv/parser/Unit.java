@@ -1,6 +1,7 @@
 package org.openlca.simapro.csv.parser;
 
 import org.openlca.simapro.csv.model.SPUnit;
+import org.openlca.simapro.csv.parser.exception.CSVParserException;
 
 public class Unit {
 
@@ -13,7 +14,7 @@ public class Unit {
 
 		String name = split[0];
 		String quantityName = split[1];
-		String conversionFactor = split[2];
+		String conversionFactor = split[2].replace(",", ".");
 		String referenceUnit = split[3];
 
 		for (int i = 4; i < (split.length - 1); i++) {

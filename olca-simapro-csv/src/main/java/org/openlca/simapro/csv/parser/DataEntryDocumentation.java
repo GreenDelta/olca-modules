@@ -5,6 +5,7 @@ import java.util.Queue;
 import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
+import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPSystemDescription;
 import org.openlca.simapro.csv.model.SPSystemDescriptionEntry;
 import org.openlca.simapro.csv.model.types.BoundaryWithNature;
@@ -24,9 +25,11 @@ import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
 public class DataEntryDocumentation {
 
 	private String csvSeperator;
+	private SPReferenceData referenceData;
 
-	DataEntryDocumentation(String csvSeperator) {
+	DataEntryDocumentation(String csvSeperator, SPReferenceData referenceData) {
 		this.csvSeperator = csvSeperator;
+		this.referenceData = referenceData;
 	}
 
 	private void systemDescriptionEntry(String line,
@@ -53,20 +56,23 @@ public class DataEntryDocumentation {
 			SPDocumentation documentation) {
 		while (!lines.isEmpty() && !lines.peek().equals("")) {
 			String line = lines.poll();
-			String lrName = null;
-			String lrComment = null;
+			String name = null;
+			String comment = null;
 			if (line.contains(csvSeperator)) {
-				lrName = line.substring(0, line.indexOf(csvSeperator));
+				name = line.substring(0, line.indexOf(csvSeperator));
 				if (!line.endsWith(csvSeperator)) {
-					lrComment = line.substring(line.indexOf(csvSeperator) + 1);
+					comment = line.substring(line.indexOf(csvSeperator) + 1);
 				}
 			} else {
-				lrName = line;
+				name = line;
 			}
-			SPLiteratureReference literatureReference = new SPLiteratureReference(
-					lrName, null, null);
+			SPLiteratureReference literatureReference = referenceData
+					.getLiteratureReferences().get(name);
+			if (literatureReference == null)
+				literatureReference = new SPLiteratureReference(name, null,
+						null);
 			documentation.add(new SPLiteratureReferenceEntry(
-					literatureReference, lrComment));
+					literatureReference, comment));
 		}
 	}
 

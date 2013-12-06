@@ -1,18 +1,17 @@
 package org.openlca.simapro.csv.model;
 
+import org.openlca.simapro.csv.model.types.ProcessCategory;
 import org.openlca.simapro.csv.model.types.ProductFlowType;
 
 /**
  * This class represents a product input in SimaPro
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public class SPProductFlow extends SPFlow {
 
 	private IDistribution distribution;
 	private ProductFlowType type;
+	private ProcessCategory processCategory;
+	private String referenceCategory;
 
 	public SPProductFlow(ProductFlowType type, String name, String unit,
 			String amount) {
@@ -43,6 +42,30 @@ public class SPProductFlow extends SPFlow {
 
 	public void setType(ProductFlowType type) {
 		this.type = type;
+	}
+
+	public ProcessCategory getProcessCategory() {
+		return processCategory;
+	}
+
+	public void setProcessCategory(ProcessCategory processCategory) {
+		this.processCategory = processCategory;
+	}
+
+	public String getReferenceCategory() {
+		return referenceCategory;
+	}
+
+	public void setReferenceCategory(String referenceCategory) {
+		this.referenceCategory = referenceCategory;
+	}
+
+	public boolean hasReferenceData() {
+		if (referenceCategory == null)
+			return false;
+		if (processCategory == null)
+			return false;
+		return true;
 	}
 
 }

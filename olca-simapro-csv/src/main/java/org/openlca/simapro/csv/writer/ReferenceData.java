@@ -83,7 +83,7 @@ class ReferenceData {
 
 	private void writeLiteratureReference() throws IOException {
 		for (SPLiteratureReference literatureReference : referenceData
-				.getLiteratureReferences()) {
+				.getLiteratureReferences().values()) {
 			writer.writeln("Literature reference");
 			writer.newLine();
 			writer.writeEntry("Name", literatureReference.getName());

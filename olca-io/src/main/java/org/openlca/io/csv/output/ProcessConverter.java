@@ -4,7 +4,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPProcess;
-import org.openlca.simapro.csv.model.SPReferenceProduct;
+import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.types.ElementaryFlowType;
 
 class ProcessConverter {
@@ -18,9 +18,9 @@ class ProcessConverter {
 		return spProcess;
 	}
 
-	private SPReferenceProduct referenceProduct() {
+	private SPProduct referenceProduct() {
 		Exchange exchange = process.getQuantitativeReference();
-		SPReferenceProduct product = new SPReferenceProduct(exchange.getFlow()
+		SPProduct product = new SPProduct(exchange.getFlow()
 				.getName(), exchange.getUnit().getName(),
 				String.valueOf(exchange.getAmountValue()));
 		product.setCategory(process.getCategory().getName());

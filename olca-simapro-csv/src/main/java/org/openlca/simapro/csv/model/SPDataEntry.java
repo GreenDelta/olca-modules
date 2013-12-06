@@ -8,12 +8,10 @@ import org.openlca.simapro.csv.model.types.ProductFlowType;
 
 /**
  * This class represents a SimaPro data entry (can be {@link SPProcess} or
- * {@link SPWasteTreatment}
-<<<<<<< Updated upstream
-=======
+ * {@link SPWasteTreatment} <<<<<<< Updated upstream =======
  * 
  * 
->>>>>>> Stashed changes
+ * >>>>>>> Stashed changes
  */
 public abstract class SPDataEntry {
 
@@ -21,7 +19,6 @@ public abstract class SPDataEntry {
 	private List<SPInputParameter> inputParameters = new ArrayList<SPInputParameter>();
 	private List<SPElementaryFlow> elementaryFlows = new ArrayList<SPElementaryFlow>();
 	private List<SPProductFlow> productFlows = new ArrayList<SPProductFlow>();
-	private List<SPWasteToTreatmentFlow> wasteToTreatmentFlows = new ArrayList<SPWasteToTreatmentFlow>();
 
 	private SPDocumentation documentation;
 	private String subCategory;
@@ -40,10 +37,6 @@ public abstract class SPDataEntry {
 
 	public void add(SPProductFlow flow) {
 		productFlows.add(flow);
-	}
-
-	public void add(SPWasteToTreatmentFlow flow) {
-		wasteToTreatmentFlows.add(flow);
 	}
 
 	public SPCalculatedParameter[] getCalculatedParameters() {
@@ -100,12 +93,6 @@ public abstract class SPDataEntry {
 	public SPElementaryFlow[] getElementaryFlows() {
 		return elementaryFlows.toArray(new SPElementaryFlow[elementaryFlows
 				.size()]);
-	}
-
-	public SPWasteToTreatmentFlow[] getWasteToTreatmentFlows() {
-		return wasteToTreatmentFlows
-				.toArray(new SPWasteToTreatmentFlow[wasteToTreatmentFlows
-						.size()]);
 	}
 
 	public boolean containsInputParameter(String name) {

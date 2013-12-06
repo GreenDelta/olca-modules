@@ -2,10 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents the main output of a process
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public class SPProduct extends SPFlow {
 

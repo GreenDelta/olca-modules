@@ -1,5 +1,6 @@
 package org.openlca.core.database;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +46,8 @@ public class Query {
 		if (name == null)
 			return null;
 		String jpql = "select e from " + type.getSimpleName()
-				+ " e where e.name = '" + name + "'";
-		return getAll(type, jpql);
+				+ " e where e.name = :name";
+		return getAll(type, jpql, Collections.singletonMap("name", name));
 	}
 
 	public <T> List<T> getAll(Class<T> type, String jpql) {

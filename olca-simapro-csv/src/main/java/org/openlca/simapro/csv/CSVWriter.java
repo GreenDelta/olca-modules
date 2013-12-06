@@ -21,14 +21,13 @@ import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
 import org.openlca.simapro.csv.model.SPLogNormalDistribution;
 import org.openlca.simapro.csv.model.SPProcess;
+import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
 import org.openlca.simapro.csv.model.SPQuantity;
-import org.openlca.simapro.csv.model.SPReferenceProduct;
 import org.openlca.simapro.csv.model.SPSystemDescription;
 import org.openlca.simapro.csv.model.SPSystemDescriptionEntry;
 import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
-import org.openlca.simapro.csv.model.SPWasteToTreatmentFlow;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.types.BoundaryWithNature;
 import org.openlca.simapro.csv.model.types.CutOffRule;
@@ -49,11 +48,9 @@ import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
 
 /**
  * The CSV writer creates a new SimaPro CSV file and writes the given data set
- * into it
-<<<<<<< Updated upstream
-=======
+ * into it <<<<<<< Updated upstream =======
  * 
->>>>>>> Stashed changes
+ * >>>>>>> Stashed changes
  */
 @Deprecated
 public class CSVWriter {
@@ -261,29 +258,13 @@ public class CSVWriter {
 	}
 
 	/**
-	 * Creates the flow line for a waste to treatment flow
-	 * 
-	 * @param flow
-	 * @return line
-	 */
-	private String getWasteToTreatmentLine(SPWasteToTreatmentFlow flow) {
-		String line = flow.getName() + ";" + flow.getUnit() + ";"
-				+ flow.getAmount() + ";"
-				+ flow.getDistributionType().getValue() + ";"
-				+ flow.getStandardDeviation() + ";" + flow.getMin() + ";"
-				+ flow.getMax() + ";";
-
-		return line;
-	}
-
-	/**
 	 * Creates the product line for a process
 	 * 
 	 * @param product
 	 *            The reference product flow of the process
 	 * @return The product line for a process in a CSV file
 	 */
-	private String getProductLine(SPReferenceProduct product, String subCategory) {
+	private String getProductLine(SPProduct product, String subCategory) {
 		String line = product.getName() + ";" + product.getUnit() + ";"
 				+ product.getAmount().replace('.', separator) + ";"
 				+ product.getAllocation() + ";";
@@ -589,7 +570,7 @@ public class CSVWriter {
 			writeDocumentation(process.getDocumentation(), true);
 
 		writeln("Products");
-		for (SPReferenceProduct product : process.getReferenceProducts()) {
+		for (SPProduct product : process.getByProducts()) {
 			writeln(getProductLine(product, process.getSubCategory()));
 		}
 		writer.newLine();
@@ -672,9 +653,11 @@ public class CSVWriter {
 		writer.newLine();
 
 		writeln("Waste to treatment");
-		for (SPWasteToTreatmentFlow flow : process.getWasteToTreatmentFlows()) {
-			writeln(getWasteToTreatmentLine(flow));
+		for (SPProductFlow product : process
+				.getProductFlows(ProductFlowType.WASTE_TREATMENT)) {
+			writeln(getProductLine(product));
 		}
+
 		writer.newLine();
 
 		writeln("Input parameters");
@@ -856,10 +839,11 @@ public class CSVWriter {
 		writer.newLine();
 
 		writeln("Waste to treatment");
-		for (SPWasteToTreatmentFlow flow : wasteTreatment
-				.getWasteToTreatmentFlows()) {
-			writeln(getWasteToTreatmentLine(flow));
+		for (SPProductFlow product : wasteTreatment
+				.getProductFlows(ProductFlowType.WASTE_TREATMENT)) {
+			writeln(getProductLine(product));
 		}
+
 		writer.newLine();
 
 		writeln("Input parameters");

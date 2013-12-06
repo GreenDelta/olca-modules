@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPProcess;
-import org.openlca.simapro.csv.model.SPReferenceProduct;
+import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.types.ProcessCategory;
 import org.openlca.simapro.csv.model.types.ProcessType;
@@ -63,7 +63,7 @@ public class ReadWriteTest {
 	public void testProcess() throws Exception {
 		SPDataSet dataSet = new SPDataSet(project);
 		SPUnit unit = new SPUnit("kg");
-		SPReferenceProduct product = new SPReferenceProduct("product", "unit",
+		SPProduct product = new SPProduct("product", "unit",
 				"1");
 		SPDocumentation doc = new SPDocumentation("process",
 				ProcessCategory.MATERIAL, ProcessType.UNIT_PROCESS);
@@ -71,7 +71,7 @@ public class ReadWriteTest {
 		dataSet.add(process);
 		SPDataSet dataSetCopy = writeRead(dataSet);
 		assertEquals("product",
-				dataSetCopy.getProcesses()[0].getReferenceProducts()[0]
+				dataSetCopy.getProcesses()[0].getByProducts()[0]
 						.getName());
 	}
 

@@ -8,23 +8,33 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 import org.openlca.simapro.csv.model.SPDataEntry;
+import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.types.ElementaryFlowType;
 import org.openlca.simapro.csv.model.types.ParameterType;
+import org.openlca.simapro.csv.parser.exception.CSVMultipleLiteratureReferenceNameException;
+import org.openlca.simapro.csv.parser.exception.CSVMultipleProcessNameException;
+import org.openlca.simapro.csv.parser.exception.CSVParserException;
 
 public class CSVParser {
 
 	private String csvSeperator;
-	private String decimalSeparator; // TODO
-	private String dateSeparator; // TODO
+	// private String decimalSeparator; // TODO
+	// private String dateSeparator; // TODO
 	private String encoding = "windows-1252";
+	private File file;
 	private BufferedReader reader;
 	private SPReferenceData referenceData;
-	private File file;
+	private Map<String, String[]> index;
+	private FlowParser flowParser;
 
 	public CSVParser(File file) {
 		this.file = file;
@@ -38,14 +48,78 @@ public class CSVParser {
 		this.encoding = encoding;
 	}
 
-	public SPReferenceData start() throws IOException, CSVParserException {
+	public SPReferenceData getReferenceData() {
+		return referenceData;
+	}
+
+	public Map<String, String[]> getIndex() {
+		return index;
+	}
+
+	public void start() throws IOException, CSVParserException {
+		index = createProductIndex();
+		reader = createBufferedReader();
+		flowParser = new FlowParser(csvSeperator, index);
+		reader.close();
 		reader = createBufferedReader();
 		readHeader();
 		referenceData = new SPReferenceData();
 		readReferenceData();
 		reader.close();
 		reader = createBufferedReader();
-		return referenceData;
+	}
+
+	public boolean hasNext() throws IOException {
+		while ((currentLine = reader.readLine()) != null)
+			if (currentLine.equals("Process")) {
+				break;
+			}
+		return "Process".equals(currentLine);
+	}
+
+	public SPDataEntry next() throws CSVParserException, IOException {
+		if (!"Process".equals(currentLine))
+			if (!hasNext())
+				return null;
+		return new DataEntry(csvSeperator, flowParser, referenceData)
+				.parse(readNextPart());
+	}
+
+	public void close() throws IOException {
+		reader.close();
+	}
+
+	/**
+	 * @return key: product name / waste specification name
+	 * 
+	 *         value: String[] with a category tree
+	 * 
+	 * @throws IOException
+	 * @throws CSVParserException
+	 */
+	private Map<String, String[]> createProductIndex() throws IOException,
+			CSVParserException {
+		Map<String, String[]> index = new HashMap<String, String[]>();
+		Set<String> multipleNames = new HashSet<>();
+		reader = createBufferedReader();
+		readHeader();
+		while (hasNext()) {
+			Object[] entry = nextIndexEntry();
+			if (entry == null)
+				continue;
+			String name = (String) entry[0];
+			if (index.containsKey(name))
+				multipleNames.add(name);
+			index.put(name, (String[]) entry[1]);
+		}
+		if (!multipleNames.isEmpty()) {
+			StringBuilder message = new StringBuilder();
+			message.append("The following names occur more than once:");
+			for (String name : multipleNames)
+				message.append("\n" + name);
+			throw new CSVMultipleProcessNameException(message.toString());
+		}
+		return index;
 	}
 
 	private BufferedReader createBufferedReader()
@@ -61,19 +135,11 @@ public class CSVParser {
 
 	private String currentLine;
 
-	public boolean hasNext() throws IOException {
-		while ((currentLine = reader.readLine()) != null)
-			if (currentLine.equals("Process")) {
-				break;
-			}
-		return "Process".equals(currentLine);
-	}
-
-	public SPDataEntry next() throws CSVParserException, IOException {
+	private Object[] nextIndexEntry() throws CSVParserException, IOException {
 		if (!"Process".equals(currentLine))
 			if (!hasNext())
 				return null;
-		return new DataEntry(csvSeperator).parse(readNextPart());
+		return IndexEntry.parse(readNextPart(), csvSeperator);
 	}
 
 	private void readReferenceData() throws IOException, CSVParserException {
@@ -85,7 +151,11 @@ public class CSVParser {
 						readNextPart(), csvSeperator));
 				break;
 			case "Literature reference":
-				referenceData.add(LiteratureReference.parse(readNextPart()));
+				SPLiteratureReference reference = LiteratureReference
+						.parse(readNextPart());
+				if (referenceData.add(reference.getName(), reference))
+					throw new CSVMultipleLiteratureReferenceNameException(
+							reference.getName());
 				break;
 			case "Quantities":
 				parseAndNotify(ObjectType.QUANTITIES);
@@ -138,8 +208,8 @@ public class CSVParser {
 		Queue<String> lines = readNextPart();
 		while (!lines.isEmpty()
 				&& !(lines.peek().equals("") || lines.peek().equals("End"))) {
-			referenceData.add(Flows.parseSubstance(lines.poll(), csvSeperator,
-					type));
+			referenceData.add(FlowParser.parseSubstance(lines.poll(),
+					csvSeperator, type));
 		}
 	}
 

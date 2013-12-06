@@ -7,21 +7,26 @@ import java.util.Queue;
 import org.openlca.simapro.csv.model.SPDataEntry;
 import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPProcess;
-import org.openlca.simapro.csv.model.SPProductFlow;
-import org.openlca.simapro.csv.model.SPReferenceProduct;
-import org.openlca.simapro.csv.model.SPWasteSpecification;
+import org.openlca.simapro.csv.model.SPProduct;
+import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.types.ElementaryFlowType;
 import org.openlca.simapro.csv.model.types.ParameterType;
 import org.openlca.simapro.csv.model.types.ProcessCategory;
 import org.openlca.simapro.csv.model.types.ProductFlowType;
+import org.openlca.simapro.csv.parser.exception.CSVParserException;
 
 class DataEntry {
 
 	private String csvSeperator;
+	private FlowParser flowParser;
+	SPReferenceData referenceData;
 
-	public DataEntry(String csvSeperator) {
+	DataEntry(String csvSeperator, FlowParser flowParser,
+			SPReferenceData referenceData) {
 		this.csvSeperator = csvSeperator;
+		this.flowParser = flowParser;
+		this.referenceData = referenceData;
 	}
 
 	private SPWasteTreatment readWasteTreatment(String line)
@@ -40,38 +45,14 @@ class DataEntry {
 			subCategory = subCategory.substring(0,
 					subCategory.indexOf(csvSeperator));
 		}
-		return new SPWasteTreatment(readWasteSpecification(line), subCategory,
-				null);
-	}
-
-	private SPWasteSpecification readWasteSpecification(String line)
-			throws CSVParserException {
-		line += csvSeperator + " ";
-		String split[] = line.split(csvSeperator);
-
-		if (split.length < 6)
-			throw new CSVParserException("Error in waste specification line: "
-					+ line);
-
-		String name = split[0];
-		String unit = split[1];
-		String formula = split[2];
-		String wasteType = split[3];
-		String category = split[4];
-		String comment = split[5];
-
-		for (int i = 6; i < (split.length - 1); i++) {
-			comment += csvSeperator + split[i];
-		}
-
-		return new SPWasteSpecification(name, unit, formula, wasteType,
-				comment, category);
+		return new SPWasteTreatment(flowParser.readWasteSpecification(line),
+				subCategory, null);
 	}
 
 	private SPProcess readProcess(Queue<String> lines)
 			throws CSVParserException {
 		SPProcess process = null;
-		List<SPReferenceProduct> referenceProducts = new ArrayList<SPReferenceProduct>();
+		List<SPProduct> referenceProducts = new ArrayList<SPProduct>();
 		String subCategory = null;
 
 		if (lines.isEmpty() || lines.peek().equals(""))
@@ -91,7 +72,8 @@ class DataEntry {
 							subCategory.indexOf(csvSeperator));
 				}
 			}
-			referenceProducts.add(readReference(lines.poll()));
+			referenceProducts
+					.add(flowParser.readReferenceProduct(lines.poll()));
 		}
 		process = new SPProcess(referenceProducts.get(0), subCategory, null);
 		for (int i = 1; i < referenceProducts.size(); i++)
@@ -99,69 +81,27 @@ class DataEntry {
 		return process;
 	}
 
-	private SPReferenceProduct readReference(String line)
-			throws CSVParserException {
-		line += csvSeperator + " ";
-		String split[] = line.split(csvSeperator);
-		if (split.length < 7)
-			throw new CSVParserException("Error in product line: " + line);
-		String name = split[0];
-		String unit = split[1];
-		String formula = split[2];
-		String allocation = Utils.formatNumber(split[3]);
-		String wasteType = split[4];
-		String category = split[5];
-		String comment = split[6];
-
-		for (int i = 7; i < (split.length - 1); i++)
-			comment += csvSeperator + split[i];
-
-		return new SPReferenceProduct(name, unit, formula,
-				Double.parseDouble(allocation), wasteType, comment, category);
-	}
-
 	private void addElementaryFlows(SPDataEntry entry, ElementaryFlowType type,
 			Queue<String> lines) throws CSVParserException {
 		while (!lines.isEmpty() && !lines.peek().equals(""))
-			entry.add(Flows.parseElementaryFlow(lines.poll(), csvSeperator,
-					type));
+			entry.add(flowParser.parseElementaryFlow(lines.poll(), type));
 	}
 
 	private void addProductFlows(SPDataEntry entry, ProductFlowType type,
 			Queue<String> lines) throws CSVParserException {
 		while (!lines.isEmpty() && !lines.peek().equals(""))
-			entry.add(getProductFlow(lines.poll(), csvSeperator, type));
+			entry.add(flowParser.getProductFlow(lines.poll(), type));
 
-	}
-
-	private SPProductFlow getProductFlow(String line, String csvSeperator,
-			ProductFlowType type) throws CSVParserException {
-		line += csvSeperator + " ";
-		String split[] = line.split(csvSeperator);
-		if (split.length < 8)
-			throw new CSVParserException("Error in " + type.getValue()
-					+ " line: " + line);
-		String name = split[0];
-		String unit = split[1];
-		String formula = split[2];
-		String distribution = split[3];
-		String dValue1 = Utils.formatNumber(split[4]);
-		String dValue2 = Utils.formatNumber(split[5]);
-		String dValue3 = Utils.formatNumber(split[6]);
-		String comment = split[7];
-
-		for (int i = 8; i < (split.length - 1); i++)
-			comment += csvSeperator + split[i];
-
-		return new SPProductFlow(type, name, unit, formula, comment,
-				Utils.createDistibution(distribution, dValue1, dValue2,
-						dValue3, comment));
 	}
 
 	SPDataEntry parse(Queue<String> lines) throws CSVParserException {
 		SPDataEntry entry = null;
-		SPDocumentation documentation = new DataEntryDocumentation(csvSeperator)
-				.parse(lines);
+		SPDocumentation documentation = new DataEntryDocumentation(
+				csvSeperator, referenceData).parse(lines);
+
+		// TODO implement parse waste scenario
+		if (documentation.getCategory() == ProcessCategory.WASTE_SCENARIO)
+			throw new CSVParserException("Waste scenarios not implemented.");
 
 		if (documentation.getCategory() == ProcessCategory.WASTE_TREATMENT) {
 			if (!lines.isEmpty())

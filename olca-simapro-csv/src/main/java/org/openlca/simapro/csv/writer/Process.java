@@ -9,10 +9,9 @@ import org.openlca.simapro.csv.model.SPDataEntry;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPProcess;
+import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
-import org.openlca.simapro.csv.model.SPReferenceProduct;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
-import org.openlca.simapro.csv.model.SPWasteToTreatmentFlow;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.types.ElementaryFlowType;
 import org.openlca.simapro.csv.model.types.ProductFlowType;
@@ -46,8 +45,8 @@ class Process {
 			throws IOException {
 		if (dataEntry instanceof SPProcess) {
 			writer.writeln("Products");
-			for (SPReferenceProduct product : SPProcess.class.cast(dataEntry)
-					.getReferenceProducts())
+			for (SPProduct product : SPProcess.class.cast(dataEntry)
+					.getByProducts())
 				writer.writeln(getProductLine(product,
 						SPProcess.class.cast(dataEntry).getSubCategory()));
 		} else if (dataEntry instanceof SPWasteTreatment) {
@@ -115,8 +114,9 @@ class Process {
 			writer.writeln(getElementaryFlowLine(flow));
 		writer.newLine();
 		writer.writeln("Waste to treatment");
-		for (SPWasteToTreatmentFlow flow : dataEntry.getWasteToTreatmentFlows())
-			writer.writeln(getWasteToTreatmentLine(flow));
+		for (SPProductFlow product : dataEntry
+				.getProductFlows(ProductFlowType.WASTE_TREATMENT))
+			writer.writeln(getProductLine(product));
 		writer.newLine();
 		writer.writeln("Input parameters");
 		for (SPInputParameter parameter : dataEntry.getInputParameters())
@@ -145,7 +145,7 @@ class Process {
 		return line;
 	}
 
-	private String getProductLine(SPReferenceProduct product, String subCategory) {
+	private String getProductLine(SPProduct product, String subCategory) {
 		String line = product.getName() + csvSeperator + product.getUnit()
 				+ csvSeperator
 				+ product.getAmount().replace('.', decimalSeperator)
@@ -181,16 +181,6 @@ class Process {
 				+ WriterUtils.getDistributionPart(flow.getDistribution(),
 						csvSeperator, decimalSeperator)
 				+ comment(flow.getComment());
-		return line;
-	}
-
-	private String getWasteToTreatmentLine(SPWasteToTreatmentFlow flow) {
-		String line = flow.getName() + csvSeperator + flow.getUnit()
-				+ csvSeperator + flow.getAmount() + csvSeperator
-				+ flow.getDistributionType().getValue() + csvSeperator
-				+ flow.getStandardDeviation() + csvSeperator + flow.getMin()
-				+ csvSeperator + flow.getMax() + csvSeperator;
-
 		return line;
 	}
 

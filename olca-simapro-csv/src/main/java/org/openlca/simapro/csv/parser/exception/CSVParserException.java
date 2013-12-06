@@ -1,4 +1,4 @@
-package org.openlca.simapro.csv.parser;
+package org.openlca.simapro.csv.parser.exception;
 
 public class CSVParserException extends Exception {
 

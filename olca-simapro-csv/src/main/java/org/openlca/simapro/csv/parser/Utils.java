@@ -18,7 +18,6 @@ final class Utils {
 	static String replaceCSVSeperator(String value, String csvSeperator) {
 		if (value == null)
 			return null;
-
 		return value.replace(csvSeperator, "");
 	}
 

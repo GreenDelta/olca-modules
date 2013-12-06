@@ -1,20 +1,30 @@
 package org.openlca.simapro.csv.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SPReferenceData {
 
 	private SPSystemDescription systemDescription;
-	private List<SPLiteratureReference> literatureReferences = new ArrayList<>();
+	private Map<String, SPLiteratureReference> literatureReferences = new HashMap<>();
 	private List<SPQuantity> quantities = new ArrayList<>();
 	private List<SPUnit> units = new ArrayList<>();
 	private List<SPSubstance> substances = new ArrayList<>();
 	private List<SPInputParameter> inputParameters = new ArrayList<>();
 	private List<SPCalculatedParameter> calculatedParameters = new ArrayList<>();
 
-	public void add(SPLiteratureReference literatureReference) {
-		literatureReferences.add(literatureReference);
+	/**
+	 * 
+	 * @param key
+	 * @param literatureReference
+	 * @return true if the given key contains in the map, otherwise false.
+	 */
+	public boolean add(String key, SPLiteratureReference literatureReference) {
+		boolean result = literatureReferences.containsKey(key);
+		literatureReferences.put(key, literatureReference);
+		return result;
 	}
 
 	public void add(SPQuantity quantity) {
@@ -86,12 +96,12 @@ public class SPReferenceData {
 		this.calculatedParameters = calculatedParameters;
 	}
 
-	public List<SPLiteratureReference> getLiteratureReferences() {
+	public Map<String, SPLiteratureReference> getLiteratureReferences() {
 		return literatureReferences;
 	}
 
 	public void setLiteratureReferences(
-			List<SPLiteratureReference> literatureReferences) {
+			Map<String, SPLiteratureReference> literatureReferences) {
 		this.literatureReferences = literatureReferences;
 	}
 
