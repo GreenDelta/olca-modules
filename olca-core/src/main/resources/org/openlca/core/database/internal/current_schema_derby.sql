@@ -9,6 +9,7 @@
 -- CREATE DATABASE openlca;
 -- USE openlca;
 
+
 CREATE TABLE SEQUENCE (	
 	SEQ_NAME VARCHAR(255) NOT NULL,
 	SEQ_COUNT BIGINT
@@ -16,15 +17,13 @@ CREATE TABLE SEQUENCE (
 INSERT INTO SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES('entity_seq', 0);
 
 
--- current database version
 CREATE TABLE openlca_version (
-
-	id VARCHAR(36) NOT NULL,
-	version VARCHAR(255),	
-	name VARCHAR(255), 
 	
-	PRIMARY KEY (ID)
+	version SMALLINT	
+	
 );
+INSERT INTO openlca_version (version) VALUES (1);
+
 
 CREATE TABLE tbl_categories (
 
@@ -494,6 +493,3 @@ CREATE TABLE tbl_process_group_sets (
 	PRIMARY KEY (id)	
 ) ;
 
--- the version entry
-INSERT INTO openlca_version(id, version, name) 
-	VALUES('b3dae112-8c6f-4c0e-9843-4758af2441cc', '1.4.0', 'openLCA');

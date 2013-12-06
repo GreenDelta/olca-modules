@@ -11,6 +11,7 @@ import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.internal.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,6 +122,7 @@ public class MySQLDatabase implements IDatabase {
 		return new BaseDao<>(clazz, this);
 	}
 
+	@Override
 	public String getName() {
 		if (url == null)
 			return null;
@@ -128,5 +130,10 @@ public class MySQLDatabase implements IDatabase {
 		if (parts.length < 2)
 			return null;
 		return parts[parts.length - 1].trim();
+	}
+
+	@Override
+	public int getVersion() {
+		return DbUtils.getVersion(this);
 	}
 }

@@ -16,6 +16,7 @@ import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.DatabaseContent;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.internal.DbUtils;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
 import org.slf4j.Logger;
@@ -193,6 +194,11 @@ public class DerbyDatabase implements IDatabase {
 			return folder.getName();
 		else
 			return "in-memory";
+	}
+
+	@Override
+	public int getVersion() {
+		return DbUtils.getVersion(this);
 	}
 
 	/** Closes the database and deletes the underlying folder. */

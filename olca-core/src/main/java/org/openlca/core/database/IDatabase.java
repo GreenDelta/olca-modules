@@ -33,4 +33,6 @@ public interface IDatabase extends Closeable {
 	 */
 	public String getName();
 
+	public int getVersion();
+
 }
