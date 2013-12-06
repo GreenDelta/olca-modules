@@ -8,6 +8,7 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Uncertainty;
 
 public class ParameterIOTests {
 
@@ -40,6 +41,7 @@ public class ParameterIOTests {
 		param.setScope(ParameterScope.PROCESS);
 		param.setName("p_734564");
 		param.setValue(42);
+		param.setUncertainty(Uncertainty.normal(42, 2));
 		process.getParameters().add(param);
 		ProcessDao dao = new ProcessDao(database);
 		dao.insert(process);
@@ -60,6 +62,7 @@ public class ParameterIOTests {
 		redef.setName("a");
 		redef.setProcessId(123L);
 		redef.setValue(42);
+		redef.setUncertainty(Uncertainty.normal(42, 2));
 		system.getParameterRedefs().add(redef);
 		ProductSystemDao dao = new ProductSystemDao(database);
 		dao.insert(system);

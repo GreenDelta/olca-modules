@@ -373,7 +373,6 @@ CREATE TABLE tbl_impact_factors (
 );
 CREATE INDEX idx_impact_factor_flow ON tbl_impact_factors(f_flow);
 
--- normalisation and weighting sets of impact methods
 
 CREATE TABLE tbl_normalisation_weighting_sets (
 
@@ -386,8 +385,6 @@ CREATE TABLE tbl_normalisation_weighting_sets (
 
 );
 
-
--- factors of normalisation and weighting sets of impact methods
 
 CREATE TABLE tbl_normalisation_weighting_factors (
 
@@ -413,6 +410,14 @@ CREATE TABLE tbl_parameters (
 	value DOUBLE, 
 	formula VARCHAR(1000),
 	
+	distribution_type INTEGER default 0, 
+	parameter1_value DOUBLE, 
+	parameter1_formula VARCHAR(1000), 
+	parameter2_value DOUBLE, 
+	parameter2_formula VARCHAR(1000), 
+	parameter3_value DOUBLE, 
+	parameter3_formula VARCHAR(1000), 
+	
 	PRIMARY KEY (id)
 );
 
@@ -423,6 +428,14 @@ CREATE TABLE tbl_parameter_redefs (
 	f_owner BIGINT, 
 	f_process BIGINT,
 	value DOUBLE,
+	
+	distribution_type INTEGER default 0, 
+	parameter1_value DOUBLE, 
+	parameter1_formula VARCHAR(1000), 
+	parameter2_value DOUBLE, 
+	parameter2_formula VARCHAR(1000), 
+	parameter3_value DOUBLE, 
+	parameter3_formula VARCHAR(1000), 
 	
 	PRIMARY KEY (id)
 );
@@ -469,6 +482,7 @@ CREATE TABLE tbl_mappings (
 	PRIMARY KEY (id)	
 );
 
+
 CREATE TABLE tbl_cost_categories (	
 	id BIGINT NOT NULL,
 	name VARCHAR(255),
@@ -476,6 +490,7 @@ CREATE TABLE tbl_cost_categories (
 	fix SMALLINT default 0,
 	PRIMARY KEY (id)
 ) ;
+
 
 CREATE TABLE tbl_process_cost_entries (
 	id BIGINT NOT NULL,
@@ -485,6 +500,7 @@ CREATE TABLE tbl_process_cost_entries (
 	amount DOUBLE,	
 	PRIMARY KEY (id)
 ) ;
+
 
 CREATE TABLE tbl_process_group_sets (
 	id BIGINT NOT NULL,

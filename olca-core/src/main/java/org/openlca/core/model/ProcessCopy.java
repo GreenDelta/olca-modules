@@ -37,12 +37,7 @@ class ProcessCopy {
 
 	private void copyParameters(Process self, Process other) {
 		for (Parameter parameter : self.getParameters()) {
-			Parameter p = new Parameter();
-			p.setDescription(parameter.getDescription());
-			p.setName(parameter.getName());
-			p.setScope(ParameterScope.PROCESS);
-			p.setFormula(parameter.getFormula());
-			p.setValue(parameter.getValue());
+			Parameter p = parameter.clone();
 			other.getParameters().add(p);
 		}
 	}
