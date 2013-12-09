@@ -50,10 +50,11 @@ class ProcessParameterConversion {
 		Parameter param = new Parameter();
 		param.setScope(scope);
 		param.setName(iParameter.getName());
-		Double mean = iParameter.getMeanValue();
 		param.setDescription(LangString.getLabel(iParameter.getComment()));
+		Double mean = iParameter.getMeanValue();
 		if (mean != null)
 			param.setValue(mean);
+		new UncertaintyConverter().map(iParameter, param);
 		param.setInputParameter(true);
 		if (hasFormula(iParameter) && scope == ParameterScope.PROCESS) {
 			param.setFormula(iParameter.getFormula());
