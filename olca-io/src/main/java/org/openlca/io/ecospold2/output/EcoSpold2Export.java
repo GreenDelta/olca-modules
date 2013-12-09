@@ -282,6 +282,8 @@ public class EcoSpold2Export implements Runnable {
 			e2Param.setIsCalculatedAmount(!param.isInputParameter());
 			if (param.getScope() != null)
 				e2Param.setScope(param.getScope().name());
+			e2Param.setUncertainty(UncertaintyConverter.fromOpenLCA(param
+					.getUncertainty()));
 			dataSet.getParameters().add(e2Param);
 		}
 	}

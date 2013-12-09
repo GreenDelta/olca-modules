@@ -47,8 +47,10 @@ public class Geography {
 
 	Element toXml() {
 		Element element = new Element("geography", Out.NS);
-		element.setAttribute("geographyId", id);
-		Out.addChild(element, "shortname", shortName);
+		if (id != null)
+			element.setAttribute("geographyId", id);
+		if (shortName != null)
+			Out.addChild(element, "shortname", shortName);
 		if (comment != null) {
 			Element commentElement = Out.addChild(element, "comment");
 			Out.addIndexedText(commentElement, comment);

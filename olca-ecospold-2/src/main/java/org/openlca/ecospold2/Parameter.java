@@ -11,7 +11,10 @@ public class Parameter {
 	private String unitName;
 	private String mathematicalRelation;
 	private Boolean isCalculatedAmount;
-	private String scope; // extension
+
+	// extensions
+	private String scope;
+	private Uncertainty uncertainty;
 
 	public String getId() {
 		return id;
@@ -77,6 +80,14 @@ public class Parameter {
 		return scope;
 	}
 
+	public Uncertainty getUncertainty() {
+		return uncertainty;
+	}
+
+	public void setUncertainty(Uncertainty uncertainty) {
+		this.uncertainty = uncertainty;
+	}
+
 	static Parameter fromXml(Element e) {
 		if (e == null)
 			return null;
@@ -90,6 +101,7 @@ public class Parameter {
 		p.isCalculatedAmount = In.optionalBool(e
 				.getAttributeValue("isCalculatedAmount"));
 		p.scope = e.getChildText("scope", Out.EXT_NS);
+		p.uncertainty = Uncertainty.fromXml(In.child(e, "uncertainty"));
 		return p;
 	}
 
@@ -108,6 +120,8 @@ public class Parameter {
 			scopeElement.setText(scope);
 			e.addContent(scopeElement);
 		}
+		if (uncertainty != null)
+			e.addContent(uncertainty.toXml());
 		Out.addChild(e, "name", name);
 		Out.addChild(e, "unitName", unitName);
 		return e;

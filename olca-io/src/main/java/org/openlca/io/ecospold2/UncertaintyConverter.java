@@ -75,7 +75,7 @@ public class UncertaintyConverter {
 	 * </code>
 	 * 
 	 */
-	public static Uncertainty toOpenLCA(LogNormal logNormal) {
+	private static Uncertainty toOpenLCA(LogNormal logNormal) {
 		if (logNormal == null)
 			return null;
 		// a variance can be never smaller 0, but better we check this
@@ -100,7 +100,7 @@ public class UncertaintyConverter {
 		return logNormal;
 	}
 
-	public static Uncertainty toOpenLCA(Normal normal) {
+	private static Uncertainty toOpenLCA(Normal normal) {
 		if (normal == null)
 			return null;
 		double mean = normal.getMeanValue();
@@ -124,7 +124,7 @@ public class UncertaintyConverter {
 		return normal;
 	}
 
-	public static Uncertainty toOpenLCA(Triangular triangular) {
+	private static Uncertainty toOpenLCA(Triangular triangular) {
 		if (triangular == null)
 			return null;
 		return Uncertainty.triangle(triangular.getMinValue(),
@@ -144,7 +144,7 @@ public class UncertaintyConverter {
 		return triangular;
 	}
 
-	public static Uncertainty toOpenLCA(Uniform uniform) {
+	private static Uncertainty toOpenLCA(Uniform uniform) {
 		if (uniform == null)
 			return null;
 		return Uncertainty

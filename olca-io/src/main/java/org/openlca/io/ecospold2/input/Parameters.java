@@ -8,6 +8,7 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.Exchange;
 import org.openlca.ecospold2.Property;
+import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
 
 final class Parameters {
@@ -39,6 +40,8 @@ final class Parameters {
 			olcaParam.setName(param.getVariableName());
 			olcaParam.setScope(ParameterScope.PROCESS);
 			olcaParam.setValue(param.getAmount());
+			olcaParam.setUncertainty(UncertaintyConverter.toOpenLCA(param
+					.getUncertainty()));
 			String formula = param.getMathematicalRelation();
 			if (config.withParameterFormulas && isValid(formula, config)) {
 				olcaParam.setFormula(formula.trim());
