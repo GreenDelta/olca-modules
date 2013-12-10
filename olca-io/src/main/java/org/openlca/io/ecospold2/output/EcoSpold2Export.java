@@ -2,6 +2,7 @@ package org.openlca.io.ecospold2.output;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -9,6 +10,7 @@ import java.util.UUID;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -18,21 +20,27 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ecospold2.Activity;
+import org.openlca.ecospold2.AdministrativeInformation;
 import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.Compartment;
+import org.openlca.ecospold2.DataEntryBy;
+import org.openlca.ecospold2.DataGenerator;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
+import org.openlca.ecospold2.FileAttributes;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.MacroEconomicScenario;
 import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
+import org.openlca.io.KeyGen;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.slf4j.Logger;
 
@@ -78,8 +86,12 @@ public class EcoSpold2Export implements Runnable {
 		for (ProcessDescriptor descriptor : descriptors) {
 			ProcessDao dao = new ProcessDao(database);
 			Process process = dao.getForId(descriptor.getId());
-			if (process == null)
+			ProcessDocumentation doc = process.getDocumentation();
+			if (process == null || doc == null) {
+				log.warn("no process entity or documentation for {} found",
+						descriptor);
 				continue;
+			}
 			DataSet dataSet = new DataSet();
 			Activity activity = createActivity(process);
 			dataSet.setActivity(activity);
@@ -88,14 +100,12 @@ public class EcoSpold2Export implements Runnable {
 						convertCategory(process.getCategory()));
 			mapGeography(process, dataSet);
 			addEconomicScenario(dataSet);
+			mapTechnology(doc, dataSet);
+			mapTime(doc, dataSet);
+			mapRepresentativeness(doc, dataSet);
 			mapExchanges(process, dataSet);
 			mapParameters(process, dataSet);
-			if (process.getDocumentation() != null) {
-				ProcessDocumentation doc = process.getDocumentation();
-				mapTechnology(doc, dataSet);
-				mapTime(doc, dataSet);
-				mapRepresentativeness(doc, dataSet);
-			}
+			mapAdminInfo(doc, dataSet);
 			String fileName = process.getRefId() == null ? UUID.randomUUID()
 					.toString() : process.getRefId();
 			File file = new File(activityDir, fileName + ".spold");
@@ -142,6 +152,9 @@ public class EcoSpold2Export implements Runnable {
 			masterData.locations.add(location);
 			geography.setId(location.getRefId());
 			geography.setShortName(location.getCode());
+		} else {
+			geography.setId(KeyGen.get("GLO"));
+			geography.setShortName("GLO");
 		}
 		dataSet.setGeography(geography);
 	}
@@ -157,8 +170,14 @@ public class EcoSpold2Export implements Runnable {
 		TimePeriod timePeriod = new TimePeriod();
 		timePeriod.setComment(doc.getTime());
 		timePeriod.setDataValid(true);
-		timePeriod.setEndDate(doc.getValidUntil());
-		timePeriod.setStartDate(doc.getValidFrom());
+		if (doc.getValidUntil() != null)
+			timePeriod.setEndDate(doc.getValidUntil());
+		else
+			timePeriod.setEndDate(new Date());
+		if (doc.getValidFrom() != null)
+			timePeriod.setStartDate(doc.getValidFrom());
+		else
+			timePeriod.setStartDate(doc.getValidFrom());
 		dataSet.setTimePeriod(timePeriod);
 	}
 
@@ -295,6 +314,77 @@ public class EcoSpold2Export implements Runnable {
 		repri.setSamplingProcedure(doc.getSampling());
 		repri.setExtrapolations(doc.getDataTreatment());
 		dataSet.setRepresentativeness(repri);
+	}
+
+	private void mapAdminInfo(ProcessDocumentation doc, DataSet dataSet) {
+		AdministrativeInformation adminInfo = new AdministrativeInformation();
+		dataSet.setAdministrativeInformation(adminInfo);
+		mapDataEntry(doc.getDataDocumentor(), adminInfo);
+		mapDataGenerator(doc, adminInfo);
+		mapFileAttributes(doc, adminInfo);
+	}
+
+	private void mapDataEntry(Actor dataDocumentor,
+			AdministrativeInformation adminInfo) {
+		DataEntryBy dataEntryBy = new DataEntryBy();
+		adminInfo.setDataEntryBy(dataEntryBy);
+		if (dataDocumentor == null) {
+			dataEntryBy.setIsActiveAuthor(false);
+			dataEntryBy.setPersonEmail("no@email.com");
+			dataEntryBy.setPersonId("788d0176-a69c-4de0-a5d3-259866b6b100");
+			dataEntryBy.setPersonName("[Current User]");
+		} else {
+			dataEntryBy.setPersonEmail(dataDocumentor.getEmail());
+			dataEntryBy.setPersonId(dataDocumentor.getRefId());
+			dataEntryBy.setPersonName(dataDocumentor.getName());
+		}
+	}
+
+	private void mapDataGenerator(ProcessDocumentation doc,
+			AdministrativeInformation adminInfo) {
+		DataGenerator dataGenerator = new DataGenerator();
+		adminInfo.setDataGenerator(dataGenerator);
+		Actor actor = doc.getDataGenerator();
+		if (actor == null) {
+			dataGenerator.setPersonEmail("no@email.com");
+			dataGenerator.setPersonId("788d0176-a69c-4de0-a5d3-259866b6b100");
+			dataGenerator.setPersonName("[Current User]");
+		} else {
+			dataGenerator.setPersonEmail(actor.getEmail());
+			dataGenerator.setPersonId(actor.getRefId());
+			dataGenerator.setPersonName(actor.getName());
+		}
+		Source source = doc.getPublication();
+		if (source != null) {
+			dataGenerator.setPublishedSourceId(source.getRefId());
+			dataGenerator.setPublishedSourceFirstAuthor(source.getName());
+			if (source.getYear() != null)
+				dataGenerator.setPublishedSourceYear(source.getYear()
+						.intValue());
+		}
+		dataGenerator.setCopyrightProtected(doc.isCopyright());
+	}
+
+	private void mapFileAttributes(ProcessDocumentation doc,
+			AdministrativeInformation adminInfo) {
+		FileAttributes atts = new FileAttributes();
+		adminInfo.setFileAttributes(atts);
+		atts.setMajorRelease(1);
+		atts.setMajorRevision(0);
+		atts.setMinorRelease(1);
+		atts.setMinorRevision(0);
+		atts.setDefaultLanguage("en");
+		if (doc.getCreationDate() != null)
+			atts.setCreationTimestamp(doc.getCreationDate());
+		else
+			atts.setCreationTimestamp(new Date());
+		if (doc.getLastChange() != null)
+			atts.setLastEditTimestamp(doc.getLastChange());
+		else
+			atts.setLastEditTimestamp(new Date());
+		atts.setInternalSchemaVersion("1.0");
+		atts.setFileGenerator("openLCA");
+		atts.setFileTimestamp(new Date());
 	}
 
 }

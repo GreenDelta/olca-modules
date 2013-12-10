@@ -16,6 +16,22 @@ public class AdministrativeInformation {
 		return dataEntryBy;
 	}
 
+	public DataGenerator getDataGenerator() {
+		return dataGenerator;
+	}
+
+	public void setDataGenerator(DataGenerator dataGenerator) {
+		this.dataGenerator = dataGenerator;
+	}
+
+	public FileAttributes getFileAttributes() {
+		return fileAttributes;
+	}
+
+	public void setFileAttributes(FileAttributes fileAttributes) {
+		this.fileAttributes = fileAttributes;
+	}
+
 	static AdministrativeInformation fromXml(Element e) {
 		if (e == null)
 			return null;
