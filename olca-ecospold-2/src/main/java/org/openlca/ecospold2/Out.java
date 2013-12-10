@@ -42,4 +42,8 @@ class Out {
 		SimpleDateFormat format = new SimpleDateFormat(pattern);
 		return format.format(date);
 	}
+
+	static String integer(int i) {
+		return Integer.toString(i);
+	}
 }

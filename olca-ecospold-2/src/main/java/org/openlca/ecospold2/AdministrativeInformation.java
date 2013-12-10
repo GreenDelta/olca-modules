@@ -6,6 +6,7 @@ public class AdministrativeInformation {
 
 	private DataEntryBy dataEntryBy;
 	private DataGenerator dataGenerator;
+	private FileAttributes fileAttributes;
 
 	public void setDataEntryBy(DataEntryBy dataEntryBy) {
 		this.dataEntryBy = dataEntryBy;
@@ -22,6 +23,8 @@ public class AdministrativeInformation {
 		info.dataEntryBy = DataEntryBy.fromXml(In.child(e, "dataEntryBy"));
 		info.dataGenerator = DataGenerator.fromXml(In.child(e,
 				"dataGeneratorAndPublication"));
+		info.fileAttributes = FileAttributes.fromXml(In.child(e,
+				"fileAttributes"));
 		return info;
 	}
 
@@ -31,6 +34,8 @@ public class AdministrativeInformation {
 			element.addContent(dataEntryBy.toXml());
 		if (dataGenerator != null)
 			element.addContent(dataGenerator.toXml());
+		if (fileAttributes != null)
+			element.addContent(fileAttributes.toXml());
 		return element;
 	}
 

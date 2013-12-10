@@ -49,9 +49,9 @@ public class TimePeriod {
 			return null;
 		TimePeriod timePeriod = new TimePeriod();
 		String startString = e.getAttributeValue("startDate");
-		timePeriod.startDate = In.date(startString, "yyyy-MM-dd");
+		timePeriod.startDate = In.date(startString, IO.XML_DATE);
 		String endString = e.getAttributeValue("endDate");
-		timePeriod.endDate = In.date(endString, "yyyy-MM-dd");
+		timePeriod.endDate = In.date(endString, IO.XML_DATE);
 		timePeriod.dataValid = In.bool(e
 				.getAttributeValue("isDataValidForEntirePeriod"));
 		List<Element> elements = In.childs(e, "comment", "text");
@@ -62,9 +62,9 @@ public class TimePeriod {
 	Element toXml() {
 		Element element = new Element("timePeriod", Out.NS);
 		if (startDate != null)
-			element.setAttribute("startDate", Out.date(startDate, "yyyy-MM-dd"));
+			element.setAttribute("startDate", Out.date(startDate, IO.XML_DATE));
 		if (endDate != null)
-			element.setAttribute("endDate", Out.date(endDate, "yyyy-MM-dd"));
+			element.setAttribute("endDate", Out.date(endDate, IO.XML_DATE));
 		element.setAttribute("isDataValidForEntirePeriod",
 				Boolean.toString(dataValid));
 		if (comment != null) {
