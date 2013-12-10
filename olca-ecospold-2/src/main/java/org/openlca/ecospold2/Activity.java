@@ -216,7 +216,7 @@ public class Activity {
 	}
 
 	Element toXml() {
-		Element e = new Element("activity", Out.NS);
+		Element e = new Element("activity", IO.NS);
 		e.setAttribute("id", id);
 
 		if (activityNameId != null)

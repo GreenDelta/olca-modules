@@ -45,7 +45,7 @@ public class ElementaryExchange extends Exchange {
 	}
 
 	Element toXml() {
-		Element element = new Element("elementaryExchange", Out.NS);
+		Element element = new Element("elementaryExchange", IO.NS);
 		writeValues(element);
 		if (elementaryExchangeId != null)
 			element.setAttribute("elementaryExchangeId", elementaryExchangeId);

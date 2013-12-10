@@ -167,7 +167,7 @@ public class DataSet {
 	}
 
 	Document toXml() {
-		Element root = new Element("ecoSpold", Out.NS);
+		Element root = new Element("ecoSpold", IO.NS);
 		Document document = new Document(root);
 		Element dataSetElement = Out.addChild(root, "activityDataset");
 		Element descriptionElement = Out.addChild(dataSetElement,

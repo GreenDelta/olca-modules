@@ -83,7 +83,7 @@ public class Property {
 	}
 
 	Element toXml() {
-		Element e = new Element("property", Out.NS);
+		Element e = new Element("property", IO.NS);
 		e.setAttribute("amount", Double.toString(amount));
 		e.setAttribute("propertyId", id);
 		e.setAttribute("unitId", unitId);

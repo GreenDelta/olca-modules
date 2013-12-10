@@ -158,7 +158,7 @@ public class Source {
 	}
 
 	Element toXml() {
-		Element element = new Element("source", Out.NS);
+		Element element = new Element("source", IO.NS);
 		if (id != null)
 			element.setAttribute("id", id);
 		if (sourceType != null)

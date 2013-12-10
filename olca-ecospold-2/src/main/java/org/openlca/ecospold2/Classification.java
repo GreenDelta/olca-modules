@@ -46,7 +46,7 @@ public class Classification {
 	}
 
 	Element toXml() {
-		Element element = new Element("classification", Out.NS);
+		Element element = new Element("classification", IO.NS);
 		element.setAttribute("classificationId", classificationId);
 		Out.addChild(element, "classificationSystem", classificationSystem);
 		Out.addChild(element, "classificationValue", classificationValue);

@@ -29,7 +29,7 @@ public class Technology {
 	}
 
 	Element toXml() {
-		Element element = new Element("technology", Out.NS);
+		Element element = new Element("technology", IO.NS);
 		if (technologyLevel != null)
 			element.setAttribute("technologyLevel", technologyLevel.toString());
 		if (comment != null) {

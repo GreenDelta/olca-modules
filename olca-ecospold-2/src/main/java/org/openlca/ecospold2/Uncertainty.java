@@ -87,7 +87,7 @@ public class Uncertainty {
 	}
 
 	Element toXml() {
-		Element element = new Element("uncertainty", Out.NS);
+		Element element = new Element("uncertainty", IO.NS);
 		if (logNormal != null)
 			element.addContent(logNormal.toXml());
 		if (triangular != null)

@@ -45,7 +45,7 @@ public class AdministrativeInformation {
 	}
 
 	Element toXml() {
-		Element element = new Element("administrativeInformation", Out.NS);
+		Element element = new Element("administrativeInformation", IO.NS);
 		if (dataEntryBy != null)
 			element.addContent(dataEntryBy.toXml());
 		if (dataGenerator != null)

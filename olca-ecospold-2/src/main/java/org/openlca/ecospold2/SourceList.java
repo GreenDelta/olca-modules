@@ -31,7 +31,7 @@ public class SourceList {
 	}
 
 	Document toXml() {
-		Element root = new Element("validSources", Out.NS);
+		Element root = new Element("validSources", IO.NS);
 		Document doc = new Document(root);
 		for (Source s : sources)
 			root.addContent(s.toXml());

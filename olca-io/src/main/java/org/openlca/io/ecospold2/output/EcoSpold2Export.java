@@ -177,7 +177,7 @@ public class EcoSpold2Export implements Runnable {
 		if (doc.getValidFrom() != null)
 			timePeriod.setStartDate(doc.getValidFrom());
 		else
-			timePeriod.setStartDate(doc.getValidFrom());
+			timePeriod.setStartDate(new Date());
 		dataSet.setTimePeriod(timePeriod);
 	}
 

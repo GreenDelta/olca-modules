@@ -33,7 +33,7 @@ public class Uniform {
 	}
 
 	Element toXml() {
-		Element e = new Element("uniform", Out.NS);
+		Element e = new Element("uniform", IO.NS);
 		e.setAttribute("maxValue", Double.toString(maxValue));
 		e.setAttribute("minValue", Double.toString(minValue));
 		return e;

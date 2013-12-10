@@ -31,7 +31,7 @@ public class PersonList {
 	}
 
 	Document toXml() {
-		Element root = new Element("validPersons", Out.NS);
+		Element root = new Element("validPersons", IO.NS);
 		Document document = new Document(root);
 		for (Person p : persons)
 			root.addContent(p.toXml());

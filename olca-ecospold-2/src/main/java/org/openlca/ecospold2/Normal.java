@@ -45,7 +45,7 @@ public class Normal {
 	}
 
 	Element toXml() {
-		Element element = new Element("normal", Out.NS);
+		Element element = new Element("normal", IO.NS);
 		element.setAttribute("meanValue", Double.toString(meanValue));
 		element.setAttribute("variance", Double.toString(variance));
 		element.setAttribute("varianceWithPedigreeUncertainty",

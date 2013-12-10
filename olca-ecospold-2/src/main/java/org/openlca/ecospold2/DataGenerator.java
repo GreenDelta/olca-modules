@@ -132,7 +132,7 @@ public class DataGenerator {
 	}
 
 	Element toXml() {
-		Element element = new Element("dataGeneratorAndPublication", Out.NS);
+		Element element = new Element("dataGeneratorAndPublication", IO.NS);
 
 		if (personId != null)
 			element.setAttribute("personId", personId);

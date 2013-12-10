@@ -55,7 +55,7 @@ public class DataEntryBy {
 	}
 
 	Element toXml() {
-		Element element = new Element("dataEntryBy", Out.NS);
+		Element element = new Element("dataEntryBy", IO.NS);
 		if (personId != null)
 			element.setAttribute("personId", personId);
 		if (isActiveAuthor != null)

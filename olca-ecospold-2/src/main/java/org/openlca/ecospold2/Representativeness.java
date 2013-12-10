@@ -66,7 +66,7 @@ public class Representativeness {
 	}
 
 	Element toXml() {
-		Element element = new Element("representativeness", Out.NS);
+		Element element = new Element("representativeness", IO.NS);
 		if (percent != null)
 			element.setAttribute("percent", Double.toString(percent));
 		if (systemModelId != null)

@@ -60,7 +60,7 @@ public class TimePeriod {
 	}
 
 	Element toXml() {
-		Element element = new Element("timePeriod", Out.NS);
+		Element element = new Element("timePeriod", IO.NS);
 		if (startDate != null)
 			element.setAttribute("startDate", Out.date(startDate, IO.XML_DATE));
 		if (endDate != null)

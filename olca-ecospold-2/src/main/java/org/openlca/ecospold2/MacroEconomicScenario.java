@@ -43,7 +43,7 @@ public class MacroEconomicScenario {
 	}
 
 	Element toXml() {
-		Element e = new Element("macroEconomicScenario", Out.NS);
+		Element e = new Element("macroEconomicScenario", IO.NS);
 		e.setAttribute("macroEconomicScenarioId", id);
 		Out.addChild(e, "name", name);
 		if (comment != null)

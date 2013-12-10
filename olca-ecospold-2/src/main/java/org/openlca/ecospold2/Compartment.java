@@ -44,7 +44,7 @@ public class Compartment {
 	}
 
 	Element toXml() {
-		Element element = new Element("compartment", Out.NS);
+		Element element = new Element("compartment", IO.NS);
 		element.setAttribute("subcompartmentId", subcompartmentId);
 		Out.addChild(element, "compartment", compartment);
 		Out.addChild(element, "subcompartment", subcompartment);

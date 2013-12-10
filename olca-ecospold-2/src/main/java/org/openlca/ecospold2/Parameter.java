@@ -100,13 +100,13 @@ public class Parameter {
 		p.mathematicalRelation = e.getAttributeValue("mathematicalRelation");
 		p.isCalculatedAmount = In.optionalBool(e
 				.getAttributeValue("isCalculatedAmount"));
-		p.scope = e.getChildText("scope", Out.EXT_NS);
+		p.scope = e.getChildText("scope", IO.EXT_NS);
 		p.uncertainty = Uncertainty.fromXml(In.child(e, "uncertainty"));
 		return p;
 	}
 
 	Element toXml() {
-		Element e = new Element("parameter", Out.NS);
+		Element e = new Element("parameter", IO.NS);
 		e.setAttribute("parameterId", id);
 		e.setAttribute("amount", Double.toString(amount));
 		if (variableName != null)
@@ -116,7 +116,7 @@ public class Parameter {
 		if (isCalculatedAmount != null)
 			e.setAttribute("isCalculatedAmount", isCalculatedAmount.toString());
 		if (scope != null) {
-			Element scopeElement = new Element("scope", Out.EXT_NS);
+			Element scopeElement = new Element("scope", IO.EXT_NS);
 			scopeElement.setText(scope);
 			e.addContent(scopeElement);
 		}

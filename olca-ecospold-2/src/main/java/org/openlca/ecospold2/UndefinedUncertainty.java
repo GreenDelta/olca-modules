@@ -44,7 +44,7 @@ public class UndefinedUncertainty {
 	}
 
 	Element toXml() {
-		Element element = new Element("undefined", Out.NS);
+		Element element = new Element("undefined", IO.NS);
 		element.setAttribute("maxValue", Double.toString(maxValue));
 		element.setAttribute("minValue", Double.toString(minValue));
 		element.setAttribute("standardDeviation95",

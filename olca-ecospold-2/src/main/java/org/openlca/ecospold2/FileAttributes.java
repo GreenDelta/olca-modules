@@ -152,7 +152,7 @@ public class FileAttributes {
 
 	Element toXml() {
 
-		Element element = new Element("fileattributes", Out.NS);
+		Element element = new Element("fileAttributes", IO.NS);
 		element.setAttribute("majorRelease", Out.integer(majorRelease));
 		element.setAttribute("minorRelease", Out.integer(minorRelease));
 		element.setAttribute("majorRevision", Out.integer(majorRevision));

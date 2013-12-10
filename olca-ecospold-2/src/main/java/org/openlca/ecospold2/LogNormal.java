@@ -55,7 +55,7 @@ public class LogNormal {
 	}
 
 	Element toXml() {
-		Element element = new Element("lognormal", Out.NS);
+		Element element = new Element("lognormal", IO.NS);
 		element.setAttribute("meanValue", Double.toString(meanValue));
 		element.setAttribute("mu", Double.toString(mu));
 		element.setAttribute("variance", Double.toString(variance));

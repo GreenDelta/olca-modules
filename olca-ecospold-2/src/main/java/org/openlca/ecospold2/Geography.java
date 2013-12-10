@@ -46,7 +46,7 @@ public class Geography {
 	}
 
 	Element toXml() {
-		Element element = new Element("geography", Out.NS);
+		Element element = new Element("geography", IO.NS);
 		if (id != null)
 			element.setAttribute("geographyId", id);
 		if (shortName != null)

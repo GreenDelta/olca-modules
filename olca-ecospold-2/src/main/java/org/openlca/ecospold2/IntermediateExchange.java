@@ -49,7 +49,7 @@ public class IntermediateExchange extends Exchange {
 	}
 
 	Element toXml() {
-		Element element = new Element("intermediateExchange", Out.NS);
+		Element element = new Element("intermediateExchange", IO.NS);
 		if (intermediateExchangeId != null)
 			element.setAttribute("intermediateExchangeId",
 					intermediateExchangeId);

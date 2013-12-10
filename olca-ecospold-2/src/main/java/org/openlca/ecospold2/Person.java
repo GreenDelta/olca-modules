@@ -93,7 +93,7 @@ public class Person {
 	}
 
 	Element toXml() {
-		Element element = new Element("person", Out.NS);
+		Element element = new Element("person", IO.NS);
 
 		if (id != null)
 			element.setAttribute("id", id);
