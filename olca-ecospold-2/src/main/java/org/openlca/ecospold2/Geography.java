@@ -3,6 +3,7 @@ package org.openlca.ecospold2;
 import java.util.List;
 
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class Geography {
 
@@ -46,7 +47,11 @@ public class Geography {
 	}
 
 	Element toXml() {
-		Element element = new Element("geography", IO.NS);
+		return toXml(IO.NS);
+	}
+
+	Element toXml(Namespace ns) {
+		Element element = new Element("geography", ns);
 		if (id != null)
 			element.setAttribute("geographyId", id);
 		if (shortName != null)

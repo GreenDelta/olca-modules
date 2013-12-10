@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class IntermediateExchange extends Exchange {
 
@@ -49,7 +50,11 @@ public class IntermediateExchange extends Exchange {
 	}
 
 	Element toXml() {
-		Element element = new Element("intermediateExchange", IO.NS);
+		return toXml(IO.NS);
+	}
+
+	Element toXml(Namespace ns) {
+		Element element = new Element("intermediateExchange", ns);
 		if (intermediateExchangeId != null)
 			element.setAttribute("intermediateExchangeId",
 					intermediateExchangeId);
@@ -57,7 +62,7 @@ public class IntermediateExchange extends Exchange {
 			element.setAttribute("activityLinkId", activityLinkId);
 		writeValues(element);
 		for (Classification classification : classifications)
-			element.addContent(classification.toXml());
+			element.addContent(classification.toXml(ns));
 		writeInputOutputGroup(element);
 		return element;
 	}

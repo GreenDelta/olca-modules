@@ -114,7 +114,7 @@ public class EcoSpold2Export implements Runnable {
 		Activity activity = new Activity();
 		activity.setName(process.getName());
 		activity.setId(process.getRefId());
-		activity.setActivityNameId(process.getRefId());
+		activity.setActivityNameId(UUID.randomUUID().toString());
 		int type = process.getProcessType() == ProcessType.LCI_RESULT ? 2 : 1;
 		activity.setType(type);
 		activity.setSpecialActivityType(0); // default

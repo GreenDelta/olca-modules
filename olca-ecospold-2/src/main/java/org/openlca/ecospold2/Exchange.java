@@ -9,7 +9,8 @@ public abstract class Exchange {
 
 	private String id;
 	private String unitId;
-	private double amount;
+	private Double amount; // amount is a reference type because it can be
+							// optional in master data
 	private String name;
 	private String unitName;
 	private String variableName;
@@ -37,11 +38,11 @@ public abstract class Exchange {
 		this.unitId = unitId;
 	}
 
-	public double getAmount() {
+	public Double getAmount() {
 		return amount;
 	}
 
-	public void setAmount(double amount) {
+	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
 
@@ -122,8 +123,7 @@ public abstract class Exchange {
 	}
 
 	protected void readValues(Element element) {
-		String amount = element.getAttributeValue("amount");
-		setAmount(In.decimal(amount));
+		setAmount(In.optionalDecimal(element.getAttributeValue("amount")));
 		setId(element.getAttributeValue("id"));
 		setMathematicalRelation(element
 				.getAttributeValue("mathematicalRelation"));
@@ -155,7 +155,8 @@ public abstract class Exchange {
 			element.setAttribute("id", id);
 		if (unitId != null)
 			element.setAttribute("unitId", unitId);
-		element.setAttribute("amount", Double.toString(amount));
+		if (amount != null)
+			element.setAttribute("amount", amount.toString());
 		if (mathematicalRelation != null)
 			element.setAttribute("mathematicalRelation", mathematicalRelation);
 		if (variableName != null)

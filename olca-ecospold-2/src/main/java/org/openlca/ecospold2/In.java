@@ -153,6 +153,12 @@ class In {
 		return integer(val);
 	}
 
+	public static Double optionalDecimal(String val) {
+		if (val == null)
+			return null;
+		return decimal(val);
+	}
+
 	private static class ElementComparator implements Comparator<Element> {
 
 		@Override
