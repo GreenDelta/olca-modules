@@ -21,8 +21,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.AdministrativeInformation;
@@ -60,7 +58,6 @@ public class EcoSpold2Export implements Runnable {
 	private File dir;
 	private IDatabase database;
 	private List<ProcessDescriptor> descriptors;
-	private MasterData masterData;
 
 	public EcoSpold2Export(File dir, IDatabase database,
 			List<ProcessDescriptor> descriptors) {
@@ -72,7 +69,6 @@ public class EcoSpold2Export implements Runnable {
 	@Override
 	public void run() {
 		try {
-			masterData = new MasterData();
 			File activityDir = new File(dir, "Activities");
 			if (!activityDir.exists())
 				activityDir.mkdirs();
@@ -106,6 +102,7 @@ public class EcoSpold2Export implements Runnable {
 			mapExchanges(process, dataSet);
 			mapParameters(process, dataSet);
 			mapAdminInfo(doc, dataSet);
+			MasterData.map(process, dataSet);
 			String fileName = process.getRefId() == null ? UUID.randomUUID()
 					.toString() : process.getRefId();
 			File file = new File(activityDir, fileName + ".spold");
@@ -139,7 +136,6 @@ public class EcoSpold2Export implements Runnable {
 		}
 		classification.setClassificationValue(Joiner.on('/').skipNulls()
 				.join(path));
-		masterData.classifications.add(category);
 		return classification;
 	}
 
@@ -149,7 +145,6 @@ public class EcoSpold2Export implements Runnable {
 			geography.setComment(process.getDocumentation().getGeography());
 		if (process.getLocation() != null) {
 			Location location = process.getLocation();
-			masterData.locations.add(location);
 			geography.setId(location.getRefId());
 			geography.setShortName(location.getCode());
 		} else {
@@ -194,14 +189,11 @@ public class EcoSpold2Export implements Runnable {
 				continue;
 			org.openlca.ecospold2.Exchange e2Exchange = null;
 			Flow flow = exchange.getFlow();
-			FlowDescriptor descriptor = Descriptors.toDescriptor(flow);
 			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
-				masterData.elementaryFlows.add(descriptor);
 				e2Exchange = createElementaryExchange(exchange);
 				dataSet.getElementaryExchanges().add(
 						(ElementaryExchange) e2Exchange);
 			} else {
-				masterData.technosphereFlows.add(descriptor);
 				e2Exchange = createIntermediateExchange(exchange, process);
 				dataSet.getIntermediateExchanges().add(
 						(IntermediateExchange) e2Exchange);
@@ -239,7 +231,6 @@ public class EcoSpold2Export implements Runnable {
 		compartment.setSubcompartment(category.getName());
 		if (category.getParentCategory() != null)
 			compartment.setCompartment(category.getParentCategory().getName());
-		masterData.compartments.add(category);
 		return compartment;
 	}
 

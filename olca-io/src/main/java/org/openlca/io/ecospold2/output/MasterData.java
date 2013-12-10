@@ -1,22 +1,33 @@
 package org.openlca.io.ecospold2.output;
 
-import java.util.HashSet;
+import org.openlca.core.model.Process;
+import org.openlca.ecospold2.ActivityName;
+import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.UserMasterData;
 
-import org.openlca.core.model.Category;
-import org.openlca.core.model.Location;
-import org.openlca.core.model.descriptors.ActorDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.SourceDescriptor;
-
-/** The collected master data from an export. */
 class MasterData {
 
-	HashSet<Location> locations = new HashSet<>();
-	HashSet<Category> classifications = new HashSet<>();
-	HashSet<Category> compartments = new HashSet<>();
-	HashSet<FlowDescriptor> elementaryFlows = new HashSet<>();
-	HashSet<FlowDescriptor> technosphereFlows = new HashSet<>();
-	HashSet<ActorDescriptor> contacts = new HashSet<>();
-	HashSet<SourceDescriptor> sources = new HashSet<>();
+	private Process process;
+	private DataSet dataSet;
+
+	private MasterData(Process process, DataSet dataSet) {
+		this.process = process;
+		this.dataSet = dataSet;
+	}
+
+	public static void map(Process process, DataSet dataSet) {
+		new MasterData(process, dataSet).map();
+	}
+
+	private void map() {
+		UserMasterData masterData = new UserMasterData();
+		dataSet.setMasterData(masterData);
+
+		ActivityName activityName = new ActivityName();
+		masterData.getActivityNames().add(activityName);
+		activityName.setId(process.getRefId());
+		activityName.setName(process.getName());
+
+	}
 
 }

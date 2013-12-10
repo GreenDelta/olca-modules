@@ -9,13 +9,13 @@ import org.jdom2.Namespace;
 class Out {
 
 	static Element addChild(Element parent, String name) {
-		Element child = new Element(name, IO.NS);
+		Element child = new Element(name, parent.getNamespace());
 		parent.addContent(child);
 		return child;
 	}
 
 	static Element addChild(Element parent, String name, String text) {
-		Element child = new Element(name, IO.NS);
+		Element child = new Element(name, parent.getNamespace());
 		parent.addContent(child);
 		child.setAttribute("lang", "en", Namespace.XML_NAMESPACE);
 		child.setText(text);
@@ -23,7 +23,7 @@ class Out {
 	}
 
 	static void addIndexedText(Element parent, String text) {
-		Element child = new Element("text", IO.NS);
+		Element child = new Element("text", parent.getNamespace());
 		child.setText(text);
 		child.setAttribute("index", "1");
 		child.setAttribute("lang", "en", Namespace.XML_NAMESPACE);

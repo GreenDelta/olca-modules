@@ -19,6 +19,7 @@ public class DataSet {
 	private List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
 	private List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
 	private List<Parameter> parameters = new ArrayList<>();
+	private UserMasterData masterData;
 
 	public Activity getActivity() {
 		return activity;
@@ -92,6 +93,14 @@ public class DataSet {
 	public void setAdministrativeInformation(
 			AdministrativeInformation administrativeInformation) {
 		this.administrativeInformation = administrativeInformation;
+	}
+
+	public void setMasterData(UserMasterData masterData) {
+		this.masterData = masterData;
+	}
+
+	public UserMasterData getMasterData() {
+		return masterData;
 	}
 
 	static DataSet fromXml(Document doc) {
@@ -191,6 +200,8 @@ public class DataSet {
 			mav.addContent(representativeness.toXml());
 		if (administrativeInformation != null)
 			dataSetElement.addContent(administrativeInformation.toXml());
+		if (masterData != null)
+			root.addContent(masterData.toXml());
 		return document;
 	}
 
