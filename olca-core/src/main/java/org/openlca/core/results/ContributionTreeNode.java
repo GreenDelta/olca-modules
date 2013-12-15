@@ -9,6 +9,7 @@ public class ContributionTreeNode {
 
 	private LongPair processProduct;
 	private double amount;
+	private double share;
 	private List<ContributionTreeNode> children = new ArrayList<>();
 
 	public LongPair getProcessProduct() {
@@ -29,6 +30,14 @@ public class ContributionTreeNode {
 
 	public List<ContributionTreeNode> getChildren() {
 		return children;
+	}
+
+	protected double getShare() {
+		return share;
+	}
+
+	protected void setShare(double share) {
+		this.share = share;
 	}
 
 }
