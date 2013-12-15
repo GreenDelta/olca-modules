@@ -52,7 +52,7 @@ class ContributionTreeCalculator {
 			for (LongPair provider : links.get(node.product)) {
 				double linkShare = linkContributions.getShare(provider,
 						node.product);
-				double share = linkShare * node.share;
+				double share = linkShare; // * node.share;
 				ProtoNode child = new ProtoNode(provider, share);
 				node.childs.add(child);
 				if (!handled.contains(provider) && !queue.contains(child))

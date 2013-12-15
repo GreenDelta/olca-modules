@@ -1,16 +1,11 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.math3.util.Pair;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.util.Doubles;
 
 /**
  * Calculates the contributions of process products that are inputs in other
@@ -67,47 +62,22 @@ public class LinkContributions {
 
 	private void calculateShares(IMatrix matrix, ProductIndex index,
 			double[] scalingFactors) {
-		Map<LongPair, List<LongPair>> groupedLinks = groupLinks(index);
-		for (LongPair output : groupedLinks.keySet()) {
-			List<LongPair> inputs = groupedLinks.get(output);
-			if (inputs == null || inputs.isEmpty())
+		for (int i = 0; i < index.size(); i++) {
+			LongPair outProduct = index.getProductAt(i);
+			double outVal = scalingFactors[i] * matrix.getEntry(i, i);
+			if (outVal == 0)
 				continue;
-			if (inputs.size() == 1) {
-				putShare(output, inputs.get(0), 1);
-				continue;
-			}
-			double[] inputAmounts = new double[inputs.size()];
-			for (int i = 0; i < inputs.size(); i++) {
-				LongPair input = inputs.get(i);
-				List<LongPair> columns = index.getProducts(input.getFirst());
-				for (LongPair column : columns) {
-					double val = getValue(matrix, output, column, index,
-							scalingFactors);
-					inputAmounts[i] += val;
-				}
-			}
-			double sum = Doubles.sum(inputAmounts);
-			if (sum == 0)
-				continue;
-			for (int i = 0; i < inputs.size(); i++) {
-				double share = inputAmounts[i] / sum;
-				putShare(output, inputs.get(i), share);
+			for (int k = 0; k < index.size(); k++) {
+				if (k == i)
+					continue;
+				double rawInVal = matrix.getEntry(i, k);
+				if (rawInVal == 0)
+					continue;
+				double contr = -(scalingFactors[k] * rawInVal) / outVal;
+				LongPair inProduct = index.getProductAt(k);
+				putShare(outProduct, inProduct, contr);
 			}
 		}
-	}
-
-	private double getValue(IMatrix matrix, LongPair row, LongPair col,
-			ProductIndex idx, double[] scalingFactors) {
-		int _row = idx.getIndex(row);
-		int _col = idx.getIndex(col);
-		if (_row < 0 || _col < 0)
-			return 0;
-		if (_row >= matrix.getRowDimension()
-				|| _col >= matrix.getColumnDimension())
-			return 0;
-		double val = matrix.getEntry(_row, _col);
-		double s = scalingFactors[_col];
-		return val * s;
 	}
 
 	private void putShare(LongPair output, LongPair input, double share) {
@@ -127,29 +97,6 @@ public class LinkContributions {
 			else
 				map.put(inputProcess, 1d); // assert v <= 1
 		}
-	}
-
-	/** Groups the links with equal output products. */
-	private Map<LongPair, List<LongPair>> groupLinks(ProductIndex index) {
-		List<Pair<LongPair, LongPair>> links = new ArrayList<>();
-		for (LongPair input : index.getLinkedInputs()) {
-			LongPair output = index.getLinkedOutput(input);
-			if (output == null)
-				continue;
-			links.add(new Pair<>(output, input));
-		}
-		Map<LongPair, List<LongPair>> groups = new HashMap<>();
-		for (Pair<LongPair, LongPair> link : links) {
-			LongPair output = link.getFirst();
-			LongPair input = link.getSecond();
-			List<LongPair> inputs = groups.get(output);
-			if (inputs == null) {
-				inputs = new ArrayList<>();
-				groups.put(output, inputs);
-			}
-			inputs.add(input);
-		}
-		return groups;
 	}
 
 }
