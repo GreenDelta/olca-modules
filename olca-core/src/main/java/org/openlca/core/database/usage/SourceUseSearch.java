@@ -2,11 +2,12 @@ package org.openlca.core.database.usage;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.Query;
-import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
@@ -27,27 +28,20 @@ class SourceUseSearch implements IUseSearch<SourceDescriptor> {
 	public List<BaseDescriptor> findUses(SourceDescriptor source) {
 		if (source == null)
 			return Collections.emptyList();
-		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id, p.quantitativeReference.id "
-				+ " from Process p "
-				+ " left join doc.sources s"
-				+ " where p.documentation.publication.id = :sourceId or s.id = :sourceId";
+		String jpql = "select p.id from Process p "
+				+ " left join p.documentation.sources s"
+				+ " where p.documentation.publication.id = :sourceId "
+				+ " or s.id = :sourceId";
 		try {
-			List<Object[]> results = Query.on(database).getAll(Object[].class,
-					jpql, Collections.singletonMap("sourceId", source.getId()));
-			List<BaseDescriptor> descriptors = new ArrayList<>();
-			for (Object[] result : results) {
-				ProcessDescriptor d = new ProcessDescriptor();
-				d.setId((Long) result[0]);
-				d.setName((String) result[1]);
-				d.setDescription((String) result[2]);
-				d.setProcessType((ProcessType) result[3]);
-				d.setInfrastructureProcess((Boolean) result[4]);
-				d.setLocation((Long) result[5]);
-				d.setCategory((Long) result[6]);
-				d.setQuantitativeReference((Long) result[7]);
-				descriptors.add(d);
-			}
-			return descriptors;
+			List<Long> results = Query.on(database).getAll(Long.class, jpql,
+					Collections.singletonMap("sourceId", source.getId()));
+			HashSet<Long> ids = new HashSet<>();
+			ids.addAll(results);
+			ProcessDao dao = new ProcessDao(database);
+			List<ProcessDescriptor> descriptors = dao.getDescriptors(ids);
+			List<BaseDescriptor> list = new ArrayList<>(descriptors.size());
+			list.addAll(descriptors);
+			return list;
 		} catch (Exception e) {
 			log.error("Failed to search for source use in processes", e);
 			return Collections.emptyList();
