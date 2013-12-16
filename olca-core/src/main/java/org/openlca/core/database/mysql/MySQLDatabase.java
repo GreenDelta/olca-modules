@@ -9,7 +9,9 @@ import javax.persistence.EntityManagerFactory;
 
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.internal.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +30,22 @@ public class MySQLDatabase implements IDatabase {
 	private String user;
 	private String password;
 	private BoneCP connectionPool;
+	private final String persistenceUnit;
 
 	public MySQLDatabase(String url, String user, String password) {
+		this(url, user, password, "openLCA");
+	}
+
+	public MySQLDatabase(String url, String user, String password,
+			String persistenceUnit) {
+		this.persistenceUnit = persistenceUnit;
 		this.url = url;
+		if (!this.url.contains("rewriteBatchedStatements")
+				&& this.url.contains("useServerPrepStmts")) {
+			this.url += "&rewriteBatchedStatements=true"
+					+ "&useServerPrepStmts=false";
+			log.trace("modified URL optimized for batch updates: {}", this.url);
+		}
 		this.user = user;
 		this.password = password;
 		connect();
@@ -46,7 +61,7 @@ public class MySQLDatabase implements IDatabase {
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "MySQL");
 		entityFactory = new PersistenceProvider().createEntityManagerFactory(
-				"openLCA", map);
+				persistenceUnit, map);
 		initConnectionPool();
 	}
 
@@ -59,6 +74,7 @@ public class MySQLDatabase implements IDatabase {
 			connectionPool = new BoneCP(config);
 		} catch (Exception e) {
 			log.error("failed to initialize connection pool", e);
+			throw new DatabaseException("Could not create a connection", e);
 		}
 	}
 
@@ -73,7 +89,7 @@ public class MySQLDatabase implements IDatabase {
 		try {
 			if (connectionPool != null) {
 				Connection con = connectionPool.getConnection();
-				con.setAutoCommit(true);
+				con.setAutoCommit(false);
 				return con;
 			} else {
 				log.warn("no connection pool set up for {}", url);
@@ -106,6 +122,7 @@ public class MySQLDatabase implements IDatabase {
 		return new BaseDao<>(clazz, this);
 	}
 
+	@Override
 	public String getName() {
 		if (url == null)
 			return null;
@@ -113,5 +130,10 @@ public class MySQLDatabase implements IDatabase {
 		if (parts.length < 2)
 			return null;
 		return parts[parts.length - 1].trim();
+	}
+
+	@Override
+	public int getVersion() {
+		return DbUtils.getVersion(this);
 	}
 }

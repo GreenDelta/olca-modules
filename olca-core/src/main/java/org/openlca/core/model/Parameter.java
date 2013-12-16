@@ -1,6 +1,7 @@
 package org.openlca.core.model;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -31,6 +32,9 @@ public class Parameter extends AbstractEntity {
 	@Column(name = "formula")
 	private String formula;
 
+	@Embedded
+	private Uncertainty uncertainty;
+
 	/**
 	 * Returns true if the given name is a valid identifier for a parameter. We
 	 * allow the same rules as for Java identifiers.
@@ -49,6 +53,20 @@ public class Parameter extends AbstractEntity {
 				return false;
 		}
 		return true;
+	}
+
+	@Override
+	public Parameter clone() {
+		Parameter clone = new Parameter();
+		clone.setDescription(getDescription());
+		clone.setFormula(getFormula());
+		clone.setInputParameter(isInputParameter());
+		clone.setName(getName());
+		clone.setScope(getScope());
+		if (getUncertainty() != null)
+			clone.setUncertainty(getUncertainty().clone());
+		clone.setValue(getValue());
+		return clone;
 	}
 
 	public String getDescription() {
@@ -97,6 +115,14 @@ public class Parameter extends AbstractEntity {
 
 	public ParameterScope getScope() {
 		return scope;
+	}
+
+	public Uncertainty getUncertainty() {
+		return uncertainty;
+	}
+
+	public void setUncertainty(Uncertainty uncertainty) {
+		this.uncertainty = uncertainty;
 	}
 
 	@Override

@@ -1,20 +1,9 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
-
 package org.openlca.io.ilcd.output;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.ClassificationInformation;
@@ -31,12 +20,10 @@ import org.openlca.ilcd.util.UnitGroupBuilder;
 public class UnitGroupExport {
 
 	private UnitGroup unitGroup;
-	private IDatabase database;
 	private DataStore dataStore;
 	private String baseUri;
 
-	public UnitGroupExport(IDatabase database, DataStore dataStore) {
-		this.database = database;
+	public UnitGroupExport(DataStore dataStore) {
 		this.dataStore = dataStore;
 	}
 
@@ -46,6 +33,7 @@ public class UnitGroupExport {
 
 	public org.openlca.ilcd.units.UnitGroup run(UnitGroup unitGroup)
 			throws DataStoreException {
+		this.unitGroup = unitGroup;
 		DataSetInformation dataSetInfo = makeDataSetInfo();
 		List<org.openlca.ilcd.units.Unit> iUnits = makeUnits();
 		org.openlca.ilcd.units.UnitGroup iUnitGroup = UnitGroupBuilder
@@ -53,6 +41,7 @@ public class UnitGroupExport {
 				.withDataSetInfo(dataSetInfo).withReferenceUnitId(0)
 				.withUnits(iUnits).getUnitGroup();
 		dataStore.put(iUnitGroup, unitGroup.getRefId());
+		this.unitGroup = null;
 		return iUnitGroup;
 	}
 

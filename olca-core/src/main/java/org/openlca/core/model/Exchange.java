@@ -144,4 +144,22 @@ public class Exchange extends AbstractEntity {
 				+ amountValue + ", unit=" + unit + "]";
 	}
 
+	@Override
+	public Exchange clone() {
+		Exchange clone = new Exchange();
+		clone.setAmountFormula(this.getAmountFormula());
+		clone.setAmountValue(this.getAmountValue());
+		clone.setAvoidedProduct(this.isAvoidedProduct());
+		clone.setBaseUncertainty(this.getBaseUncertainty());
+		clone.setDefaultProviderId(this.getDefaultProviderId());
+		clone.setFlow(this.getFlow());
+		clone.setFlowPropertyFactor(this.getFlowPropertyFactor());
+		clone.setInput(this.isInput());
+		clone.setPedigreeUncertainty(this.getPedigreeUncertainty());
+		if (this.getUncertainty() != null)
+			clone.setUncertainty(this.getUncertainty().clone());
+		clone.setUnit(this.getUnit());
+		return clone;
+	}
+
 }

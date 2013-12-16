@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-import org.openlca.core.model.Indexable;
 import org.openlca.core.model.ProcessGroup;
 import org.openlca.core.model.ProcessGroupSet;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * A group of processes for result analysis. If this group is tagged as rest it
  * contains all processes that are not assigned to other groups.
  */
-public class ProcessGrouping implements Indexable {
+public class ProcessGrouping {
 
 	private String name;
 	private List<ProcessDescriptor> processes = new ArrayList<>();
@@ -43,15 +43,9 @@ public class ProcessGrouping implements Indexable {
 	}
 
 	@Override
-	public String getRefId() {
-		return name != null ? name : "no name";
-	}
-
-	@Override
 	public int hashCode() {
-		String id = getRefId();
-		if (id != null)
-			return id.hashCode();
+		if (name != null)
+			return name.hashCode();
 		return super.hashCode();
 	}
 
@@ -64,13 +58,7 @@ public class ProcessGrouping implements Indexable {
 		if (!(obj instanceof ProcessGrouping))
 			return false;
 		ProcessGrouping other = (ProcessGrouping) obj;
-		String id = getRefId();
-		String otherId = other.getRefId();
-		if (id == null && otherId == null)
-			return true;
-		if (id == null || otherId == null)
-			return false;
-		return id.equals(otherId);
+		return Objects.equals(this.name, other.name);
 	}
 
 	/**

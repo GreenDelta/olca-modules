@@ -1,9 +1,9 @@
 package org.openlca.core.results;
 
-import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.matrices.LongIndex;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.math.IMatrix;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.LongIndex;
+import org.openlca.core.matrix.ProductIndex;
 
 /**
  * The result type of a normal inventory calculation. The flow result vector is
@@ -21,9 +21,9 @@ public class InventoryResult {
 	private ProductIndex productIndex;
 	private FlowIndex flowIndex;
 	private LongIndex impactIndex;
-	private double[] flowResultVector;
-	private double[] impactResultVector;
-	private double[] scalingFactors;
+	private IMatrix flowResultVector;
+	private IMatrix impactResultVector;
+	private IMatrix scalingVector;
 
 	// result generators
 	private InventoryFlowResults flowResults;
@@ -53,16 +53,16 @@ public class InventoryResult {
 		this.impactIndex = impactIndex;
 	}
 
-	public void setFlowResultVector(double[] flowResultVector) {
+	public void setFlowResultVector(IMatrix flowResultVector) {
 		this.flowResultVector = flowResultVector;
 	}
 
-	public void setImpactResultVector(double[] impactResultVector) {
+	public void setImpactResultVector(IMatrix impactResultVector) {
 		this.impactResultVector = impactResultVector;
 	}
 
-	public void setScalingFactors(double[] scalingFactors) {
-		this.scalingFactors = scalingFactors;
+	public void setScalingVector(IMatrix scalingVector) {
+		this.scalingVector = scalingVector;
 	}
 
 	public ProductIndex getProductIndex() {
@@ -77,30 +77,24 @@ public class InventoryResult {
 		return impactIndex;
 	}
 
-	public double[] getFlowResultVector() {
-		if (flowResultVector == null)
-			return new double[0];
-		double[] vals = new double[flowResultVector.length];
-		for (int i = 0; i < vals.length; i++) {
-			long flowId = flowIndex.getFlowAt(i);
-			vals[i] = adoptFlowResult(flowResultVector[i], flowId);
-		}
-		return vals;
+	public IMatrix getFlowResultVector() {
+		return flowResultVector;
 	}
 
-	public double[] getImpactResultVector() {
+	public IMatrix getImpactResultVector() {
 		return impactResultVector;
 	}
 
-	public double[] getScalingFactors() {
-		return scalingFactors;
+	public IMatrix getScalingVector() {
+		return scalingVector;
 	}
 
 	public double getFlowResult(long flowId) {
 		int idx = flowIndex.getIndex(flowId);
-		if (idx < 0 || idx >= flowResultVector.length)
+		if (idx < 0 || idx >= flowResultVector.getRowDimension())
 			return 0;
-		return adoptFlowResult(flowResultVector[idx], flowId);
+		double val = flowResultVector.getEntry(idx, 0);
+		return adoptFlowResult(val, flowId);
 	}
 
 	private double adoptFlowResult(double value, long flowId) {
@@ -112,23 +106,17 @@ public class InventoryResult {
 
 	public boolean hasImpactResults() {
 		return impactIndex != null && !impactIndex.isEmpty()
-				&& impactResultVector != null && impactResultVector.length > 0;
-	}
-
-	public double getScalingFactor(LongPair processProduct) {
-		int idx = productIndex.getIndex(processProduct);
-		if (idx < 0 || idx >= scalingFactors.length)
-			return 0;
-		return scalingFactors[idx];
+				&& impactResultVector != null
+				&& impactResultVector.getRowDimension() > 0;
 	}
 
 	public double getImpactResult(long impactCategoryId) {
 		if (!hasImpactResults())
 			return 0;
 		int idx = impactIndex.getIndex(impactCategoryId);
-		if (idx < 0 || idx >= impactResultVector.length)
+		if (idx < 0 || idx >= impactResultVector.getRowDimension())
 			return 0;
-		return impactResultVector[idx];
+		return impactResultVector.getEntry(idx, 0);
 	}
 
 }

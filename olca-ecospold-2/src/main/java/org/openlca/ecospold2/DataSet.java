@@ -14,10 +14,12 @@ public class DataSet {
 	private Technology technology;
 	private TimePeriod timePeriod;
 	private MacroEconomicScenario macroEconomicScenario;
-
+	private Representativeness representativeness;
+	private AdministrativeInformation administrativeInformation;
 	private List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
 	private List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
 	private List<Parameter> parameters = new ArrayList<>();
+	private UserMasterData masterData;
 
 	public Activity getActivity() {
 		return activity;
@@ -76,6 +78,31 @@ public class DataSet {
 		return parameters;
 	}
 
+	public Representativeness getRepresentativeness() {
+		return representativeness;
+	}
+
+	public void setRepresentativeness(Representativeness representativeness) {
+		this.representativeness = representativeness;
+	}
+
+	public AdministrativeInformation getAdministrativeInformation() {
+		return administrativeInformation;
+	}
+
+	public void setAdministrativeInformation(
+			AdministrativeInformation administrativeInformation) {
+		this.administrativeInformation = administrativeInformation;
+	}
+
+	public void setMasterData(UserMasterData masterData) {
+		this.masterData = masterData;
+	}
+
+	public UserMasterData getMasterData() {
+		return masterData;
+	}
+
 	static DataSet fromXml(Document doc) {
 		Element root = getRootElement(doc);
 		if (root == null)
@@ -83,6 +110,10 @@ public class DataSet {
 		DataSet dataSet = new DataSet();
 		readActivityDescription(root, dataSet);
 		readFlowData(root, dataSet);
+		dataSet.representativeness = Representativeness.fromXml(In.child(root,
+				"modellingAndValidation", "representativeness"));
+		dataSet.administrativeInformation = AdministrativeInformation
+				.fromXml(In.child(root, "administrativeInformation"));
 		return dataSet;
 	}
 
@@ -145,7 +176,7 @@ public class DataSet {
 	}
 
 	Document toXml() {
-		Element root = new Element("ecoSpold", Out.NS);
+		Element root = new Element("ecoSpold", IO.NS);
 		Document document = new Document(root);
 		Element dataSetElement = Out.addChild(root, "activityDataset");
 		Element descriptionElement = Out.addChild(dataSetElement,
@@ -164,6 +195,13 @@ public class DataSet {
 			descriptionElement.addContent(macroEconomicScenario.toXml());
 		Element flowData = Out.addChild(dataSetElement, "flowData");
 		writeFlowData(flowData);
+		Element mav = Out.addChild(dataSetElement, "modellingAndValidation");
+		if (representativeness != null)
+			mav.addContent(representativeness.toXml());
+		if (administrativeInformation != null)
+			dataSetElement.addContent(administrativeInformation.toXml());
+		if (masterData != null)
+			root.addContent(masterData.toXml());
 		return document;
 	}
 

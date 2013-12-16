@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<?xml-stylesheet type="text/xsl" href="../../Tools/Transformations/schemadoc/EcoSpold02SchemaDocumentation.Master.xsl"?>
+<xsd:schema xmlns="http://www.EcoInvent.org/EcoSpold02" xmlns:es="http://www.EcoInvent.org/EcoSpold02" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://www.EcoInvent.org/EcoSpold02" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.12">
+	<xsd:include schemaLocation="../EcoSpold02DataTypes.xsd"/>
+	<xsd:complexType name="TValidSource">
+		<xsd:annotation>
+			<xsd:documentation>Contains information about author(s), title, kind of publication, place of publication, name of editors (if any), etc..</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>803</spoldID>
+						<fieldId>3240</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Free text for additional description of the source. It may contain a brief summary of the publication and the kind of medium used (e.g. CD-ROM, hard copy)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>801</spoldID>
+					<fieldId>3110</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>ID number to identify the source. It is referenced by various "sourceId" attributes, e.g. 2370, 1120, 2440, 3520.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="sourceType" default="0">
+			<xsd:annotation>
+				<xsd:documentation>Indicates the kind of source.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>802</spoldID>
+					<fieldId>3220</fieldId>
+					<options>0 = Undefined (default); 1 = Article; 2 = Chapters in anthology; 3 = Separate publication; 4 = Measurement on site; 5 = Oral communication; 6 = Personal written communication; 7 = Questionnaries</options>
+					<unique>1</unique>
+					<enumeration/>
+				</xsd:appinfo>
+				<xsd:documentation>The codes are: 0=Undefined (default). 1=Article. 2=Chapters in anthology. 3=Seperate publication. 4=Measurement on site. 5=Oral communication. 6=Personal written communication. 7=Questionnaries.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="0"/>
+					<xsd:maxInclusive value="7"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="year" type="TBaseString30" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1004</spoldID>
+					<fieldId>3210</fieldId>
+					<unique>1</unique>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the year of publication and communication, respectively.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="volumeNo" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1012</spoldID>
+					<fieldId>3195</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the volume of the journal an article is published in.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="1"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="firstAuthor" type="TBaseString40" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1002</spoldID>
+					<fieldId>3130</fieldId>
+					<unique>1</unique>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the first author by surname and abbreviated name (e.g., Einstein A.). In case of measurement on site, oral communication, personal written communication and questionnaries ('sourceType'=4, 5, 6, 7) the name of the communicating person is mentioned here.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="additionalAuthors" type="TBaseString255" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1003</spoldID>
+					<fieldId>3140</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>List of additional authors (surname and abbreviated name, e.g. Newton I.), separated by commas. 'Et al.' may be used, if more than five additonal authors contributed to the cited publication.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="title" type="TBaseString255" use="required">
+			<xsd:annotation>
+				<xsd:documentation>Contains the complete title of the publication.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>1005</spoldID>
+					<fieldId>3120</fieldId>
+					<unique>1</unique>
+				</xsd:appinfo>
+				<xsd:documentation>Measurement on site: write "Measurement documentation of company XY".</xsd:documentation>
+				<xsd:documentation>Oral communication: write "Oral communication, company XY".</xsd:documentation>
+				<xsd:documentation>Personal written communication: write: "personal written communication, Mr./Mrs. XY, company Z".</xsd:documentation>
+				<xsd:documentation>Questionnaires: write "Questionnaire, filled in by Mr./Mrs. XY, company Z".</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="shortName" type="TBaseString80">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>3100</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>A shortname based on title for list views etc.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="pageNumbers" type="TBaseString30" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1006</spoldID>
+					<fieldId>3230</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>If an article or a chapter in an anthology, list the relevant page numbers. In case of separate publications the total number of pages may be entered.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="namesOfEditors" type="TBaseString255" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1007</spoldID>
+					<fieldId>3150</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Contains the names of the editors (if any).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="titleOfAnthology" type="TBaseString255" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1008</spoldID>
+					<fieldId>3160</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>If the publication is a chapter in an anthology, the title of the anthology is reported here.</xsd:documentation>
+				<xsd:documentation>For the reports of the ecoinvent context 'Final report ecoinvent 2000' is written here.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="placeOfPublications" type="TBaseString32000">
+			<xsd:annotation>
+				<xsd:documentation>Indicates the place(s) of publication. In case of measurements on site, oral communication, personal written communication or questionnaires, it is the location of the company which provided the information. If available via the web add the web-address.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>1009</spoldID>
+					<fieldId>3200</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="publisher" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1010</spoldID>
+					<fieldId>3170</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Lists the name of the publisher (if any).</xsd:documentation>
+				<xsd:documentation>In case of the ecoinvent context it is the 'Swiss Centre for Life Cycle Inventories'.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="journal" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1011</spoldID>
+					<fieldId>3180</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the name of the journal an article is published in.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="issueNo" type="TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>1013</spoldID>
+					<fieldId>3190</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Indicates the issue number of the journal an article is published in.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TValidSources">
+		<xsd:annotation>
+			<xsd:documentation>Comprises information about authors, title and place of publication.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="contextName" type="TString80" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>6106</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the context referenced by field 3880.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="source" type="TValidSource" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>6110</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Contains multiple entries of valid sources. This element provides hierarchical grouping only and contains no information on its own. For details see complex type TValidSource below.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkCommentLang">
+					<xsd:selector xpath="es:comment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="originalSource" type="xsd:anyURI" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>6100</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the location of the original document. Can be used to verify the data and/or to check for updates in the future.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: with a major update (e.g. every second year) the major release number is increased by one (1.00, 2.00, etc.).</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>6101</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: minor updates (corrected errors) within the period of two major updates increase the minor release version.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>6102</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision version number is used to discern different versions during the working period until the dataset is entered into the database). The revision is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>6103</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision Version number is used to discern different versions during the working period until the dataset is entered into the database). The revision  is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>6104</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="contextId" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>6105</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the master data file.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="validSources" type="TValidSources">
+		<xsd:unique name="pkSourceId">
+			<xsd:selector xpath="es:source"/>
+			<xsd:field xpath="@id"/>
+		</xsd:unique>
+		<xsd:unique name="pkSourceNameYearType">
+			<xsd:selector xpath="es:source"/>
+			<xsd:field xpath="@title"/>
+			<xsd:field xpath="@year"/>
+			<xsd:field xpath="@sourceType"/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>

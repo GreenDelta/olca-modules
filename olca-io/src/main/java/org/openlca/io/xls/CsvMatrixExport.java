@@ -8,12 +8,12 @@ import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.ProductSystems;
-import org.openlca.core.matrices.ExchangeCell;
-import org.openlca.core.matrices.ExchangeMatrix;
-import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.matrices.Inventory;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.ExchangeCell;
+import org.openlca.core.matrix.ExchangeMatrix;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
@@ -34,7 +34,7 @@ public class CsvMatrixExport implements Runnable {
 
 	public CsvMatrixExport(CsvMatrixExportData data) {
 		this.data = data;
-		cache = data.getCache();
+		cache = data.getEntityCache();
 		separator = data.getColumnSeperator();
 		point = data.getDecimalSeparator();
 	}
@@ -48,7 +48,7 @@ public class CsvMatrixExport implements Runnable {
 		}
 		log.trace("Build inventory matrix");
 		Inventory inventory = ProductSystems.createInventory(
-				data.getProductSystem(), data.getDatabase());
+				data.getProductSystem(), data.getMatrixCache());
 		tryEvalFormulas(inventory);
 		log.trace("Write technology matrix");
 		writeTechFile(inventory);

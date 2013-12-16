@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrices.LongPair;
+import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 

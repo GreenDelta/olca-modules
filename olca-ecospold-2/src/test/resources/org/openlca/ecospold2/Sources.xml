@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<validSources 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="../../../../../../schemas/MasterData/EcoSpold02Sources.xsd"
+	majorRelease="3" 
+	minorRelease="0" 
+	majorRevision="0" 
+	minorRevision="280"
+	contextId="de659012-50c4-4e96-b54a-fc781bf987ab" xmlns="http://www.EcoInvent.org/EcoSpold02">
+	<contextName xml:lang="en">ecoinvent</contextName>
+	<source 
+		id="1c15f773-97c3-4c00-a508-5e50ae5f6cec" 
+		sourceType="4"
+		year="2007" 
+		volumeNo="12" 
+		firstAuthor="firstAuthor" 
+		additionalAuthors="additionalAuthors"
+		title="title" 
+		titleOfAnthology="titleOfAnthology"
+		placeOfPublications="placeOfPublications" 
+		publisher="publisher"
+		issueNo="issueNo"
+		journal="journal"
+		namesOfEditors="namesOfEditors">
+		<comment xml:lang="en">comment 1</comment>
+		<comment>comment 2</comment>
+	</source>
+	<source 
+		id="1c15f773-97c3-4c00-a508-5e50ae5f6ce2" 
+		sourceType="4"
+		year="2007" 
+		volumeNo="12" 
+		firstAuthor="firstAuthor" 
+		additionalAuthors="additionalAuthors"
+		title="title" 
+		titleOfAnthology="titleOfAnthology"
+		placeOfPublications="placeOfPublications" 
+		publisher="publisher"
+		issueNo="issueNo"
+		journal="journal"
+		namesOfEditors="namesOfEditors">
+		<comment xml:lang="en">comment 1</comment>
+		<comment>comment 2</comment>
+	</source>
+</validSources>

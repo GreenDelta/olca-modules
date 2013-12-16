@@ -9,14 +9,6 @@ import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
-import org.openlca.ecospold2.Activity;
-import org.openlca.ecospold2.Classification;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.EcoSpold2;
-import org.openlca.ecospold2.ElementaryExchange;
-import org.openlca.ecospold2.Geography;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.Technology;
 
 @RunWith(Theories.class)
 public class ReaderTest {
@@ -94,6 +86,6 @@ public class ReaderTest {
 	private DataSet read(String file) throws Exception {
 		log.info("parse file " + file);
 		InputStream stream = getClass().getResourceAsStream(file);
-		return EcoSpold2.read(stream);
+		return EcoSpold2.readDataSet(stream);
 	}
 }

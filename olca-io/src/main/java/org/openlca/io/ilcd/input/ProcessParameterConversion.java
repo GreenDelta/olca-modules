@@ -50,16 +50,28 @@ class ProcessParameterConversion {
 		Parameter param = new Parameter();
 		param.setScope(scope);
 		param.setName(iParameter.getName());
-		Double mean = iParameter.getMeanValue();
 		param.setDescription(LangString.getLabel(iParameter.getComment()));
+		Double mean = iParameter.getMeanValue();
 		if (mean != null)
 			param.setValue(mean);
+		new UncertaintyConverter().map(iParameter, param);
 		param.setInputParameter(true);
-		if (iParameter.getFormula() != null && scope == ParameterScope.PROCESS) {
+		if (hasFormula(iParameter) && scope == ParameterScope.PROCESS) {
 			param.setFormula(iParameter.getFormula());
 			param.setInputParameter(false);
 		}
 		return param;
+	}
+
+	private boolean hasFormula(org.openlca.ilcd.processes.Parameter iParameter) {
+		if (iParameter.getFormula() == null)
+			return false;
+		try {
+			Double.parseDouble(iParameter.getFormula());
+			return false; // the "formula" is a plain number
+		} catch (Exception e) {
+			return true; // not a number
+		}
 	}
 
 	private boolean isGlobal(org.openlca.ilcd.processes.Parameter iParameter) {

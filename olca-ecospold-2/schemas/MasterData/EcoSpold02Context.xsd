@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<?xml-stylesheet type="text/xsl" href="../../Tools/Transformations/schemadoc/EcoSpold02SchemaDocumentation.Master.xsl"?>
+<xsd:schema xmlns:es="http://www.EcoInvent.org/EcoSpold02" xmlns="http://www.EcoInvent.org/EcoSpold02" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.EcoInvent.org/EcoSpold02" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.12">
+	<xsd:include schemaLocation="../EcoSpold02DataTypes.xsd"/>
+	<xsd:complexType name="TValidContext">
+		<xsd:annotation>
+			<xsd:documentation>Defines the context of a ecoSpold02 distribution, database or library.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString80" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7520</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the context</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="requiredContext" type="TRequiredContextReference" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7535</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>References to master data files that are needed to open a dataset from this context.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>7540</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>A description of the context.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="originalSource" type="xsd:anyURI" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7500</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the location of the original document. Can be used to verify the data and/or to check for updates in the future.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: with a major update (e.g. every second year) the major release number is increased by one (1.00, 2.00, etc.).</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7501</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: minor updates (corrected errors) within the period of two major updates increase the minor release version.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7502</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision version number is used to discern different versions during the working period until the dataset is entered into the database). The revision is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7503</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision Version number is used to discern different versions during the working period until the dataset is entered into the database). The revision  is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7504</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="id" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>7515</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Unique identifier of the context.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="validContext" type="TValidContext">
+		<xsd:unique name="pkContextId">
+			<xsd:selector xpath="."/>
+			<xsd:field xpath="@id"/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>

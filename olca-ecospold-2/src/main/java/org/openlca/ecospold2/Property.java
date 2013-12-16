@@ -9,6 +9,8 @@ public class Property {
 	private String unitId;
 	private String name;
 	private String unitName;
+	private String variableName;
+	private String mathematicalRelation;
 
 	public String getId() {
 		return id;
@@ -50,6 +52,22 @@ public class Property {
 		this.unitName = unitName;
 	}
 
+	public String getVariableName() {
+		return variableName;
+	}
+
+	public void setVariableName(String variableName) {
+		this.variableName = variableName;
+	}
+
+	public String getMathematicalRelation() {
+		return mathematicalRelation;
+	}
+
+	public void setMathematicalRelation(String mathematicalRelation) {
+		this.mathematicalRelation = mathematicalRelation;
+	}
+
 	static Property fromXml(Element e) {
 		if (e == null)
 			return null;
@@ -59,14 +77,20 @@ public class Property {
 		p.name = In.childText(e, "name");
 		p.unitId = e.getAttributeValue("unitId");
 		p.unitName = In.childText(e, "unitName");
+		p.mathematicalRelation = e.getAttributeValue("mathematicalRelation");
+		p.variableName = e.getAttributeValue("variableName");
 		return p;
 	}
 
 	Element toXml() {
-		Element e = new Element("property", Out.NS);
+		Element e = new Element("property", IO.NS);
 		e.setAttribute("amount", Double.toString(amount));
 		e.setAttribute("propertyId", id);
 		e.setAttribute("unitId", unitId);
+		if (mathematicalRelation != null)
+			e.setAttribute("mathematicalRelation", mathematicalRelation);
+		if (variableName != null)
+			e.setAttribute("variableName", variableName);
 		Out.addChild(e, "name", name);
 		Out.addChild(e, "unitName", unitName);
 		return e;

@@ -14,7 +14,9 @@ import org.apache.derby.jdbc.EmbeddedDriver;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.DatabaseContent;
+import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.internal.DbUtils;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
 import org.slf4j.Logger;
@@ -32,31 +34,52 @@ public class DerbyDatabase implements IDatabase {
 	private boolean closed = false;
 	private BoneCP connectionPool;
 
+	public static DerbyDatabase createInMemory(DatabaseContent content) {
+		return new DerbyDatabase(content);
+	}
+
+	/** Creates an in-memory database. */
+	private DerbyDatabase(DatabaseContent content) {
+		registerDriver();
+		String name = "olcaInMemDB"
+				+ Integer.toHexString((int) (Math.random() * 1000));
+		log.trace("create in memory database");
+		url = "jdbc:derby:memory:" + name + ";create=true";
+		createNew(url);
+		fill(content);
+		connect();
+	}
+
 	public DerbyDatabase(File folder) {
+		registerDriver();
 		this.folder = folder;
 		boolean create = !folder.exists();
 		log.info("initialize database folder {}, create={}", folder, create);
 		url = "jdbc:derby:" + folder.getAbsolutePath().replace('\\', '/');
 		log.trace("database url: {}", url);
+		if (create)
+			createNew(url + ";create=true");
+		connect();
+	}
+
+	private void registerDriver() {
 		try {
 			DriverManager.registerDriver(new EmbeddedDriver());
 		} catch (Exception e) {
-			throw new RuntimeException("Could not load driver", e);
+			throw new RuntimeException("Could not register driver", e);
 		}
-		if (create)
-			createNew(url);
-		connect();
 	}
 
 	private void createNew(String url) {
 		log.info("create new database {}", url);
 		try {
-			Connection con = DriverManager.getConnection(url + ";create=true");
-			ScriptRunner runner = new ScriptRunner(con);
-			runner.run(Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
+			Connection con = DriverManager.getConnection(url);
 			con.close();
+			ScriptRunner runner = new ScriptRunner(this);
+			runner.run(Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
 		} catch (Exception e) {
 			log.error("failed to create database", e);
+			throw new DatabaseException("Failed to create database", e);
 		}
 	}
 
@@ -72,10 +95,9 @@ public class DerbyDatabase implements IDatabase {
 			resource = Resource.REF_DATA_UNITS;
 		if (resource == null)
 			return;
-		try (Connection con = createConnection()) {
-			ScriptRunner runner = new ScriptRunner(con);
+		try {
+			ScriptRunner runner = new ScriptRunner(this);
 			runner.run(resource.getStream(), "utf-8");
-			con.commit();
 		} catch (Exception e) {
 			log.error("failed to fill database with  content", e);
 		}
@@ -101,6 +123,7 @@ public class DerbyDatabase implements IDatabase {
 			connectionPool = new BoneCP(config);
 		} catch (Exception e) {
 			log.error("failed to initialize connection pool", e);
+			throw new DatabaseException("Could not create a connection", e);
 		}
 	}
 
@@ -143,7 +166,7 @@ public class DerbyDatabase implements IDatabase {
 		try {
 			if (connectionPool != null) {
 				Connection con = connectionPool.getConnection();
-				con.setAutoCommit(true);
+				con.setAutoCommit(false);
 				return con;
 			} else {
 				log.warn("no connection pool set up for {}", url);
@@ -167,14 +190,23 @@ public class DerbyDatabase implements IDatabase {
 
 	@Override
 	public String getName() {
-		return folder.getName();
+		if (folder != null)
+			return folder.getName();
+		else
+			return "in-memory";
+	}
+
+	@Override
+	public int getVersion() {
+		return DbUtils.getVersion(this);
 	}
 
 	/** Closes the database and deletes the underlying folder. */
 	public void delete() throws Exception {
 		if (!closed)
 			close();
-		delete(folder);
+		if (folder != null)
+			delete(folder);
 	}
 
 	private void delete(File folder) {

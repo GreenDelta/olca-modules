@@ -5,25 +5,20 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrices.FlowIndex;
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.AnalysisResult;
-import org.openlca.io.CategoryPair;
-import org.openlca.io.DisplayValues;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -38,28 +33,17 @@ import org.slf4j.LoggerFactory;
  */
 public class AnalysisResultExport {
 
-	/** Number of attributes of the flow information. */
-	final int FLOW_INFO_SIZE = 5;
-
-	/** Number of attributes of the process information. */
-	final int PROCESS_INFO_SIZE = 3;
-
-	/** Number of attributes of the impact category information. */
-	final int IMPACT_INFO_SIZE = 3;
-
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private ProductSystem system;
 	private File file;
 	private EntityCache cache;
 	private AnalysisResult result;
-	private CellStyle headerStyle;
-	private SXSSFWorkbook workbook;
 
+	private SXSSFWorkbook workbook;
+	private CellWriter writer;
 	private List<ProcessDescriptor> processes;
 	private List<ImpactCategoryDescriptor> impacts;
 	private List<FlowDescriptor> flows;
-
-	private HashMap<Long, String> flowUnits = new HashMap<>();
 
 	public AnalysisResultExport(ProductSystem system, File file,
 			EntityCache cache) {
@@ -79,13 +63,17 @@ public class AnalysisResultExport {
 		prepareImpacts();
 		workbook = new SXSSFWorkbook(-1); // no default flushing (see
 											// Excel.cell)!
-		headerStyle = Excel.headerStyle(workbook);
+		writer = new CellWriter(cache, workbook);
 		writeInventorySheets(result);
 		writeImpactSheets(result);
 		try (FileOutputStream fos = new FileOutputStream(file)) {
 			workbook.write(fos);
 			fos.flush();
 		}
+	}
+
+	CellWriter getWriter() {
+		return writer;
 	}
 
 	private void writeInventorySheets(AnalysisResult result) {
@@ -158,11 +146,6 @@ public class AnalysisResultExport {
 		impacts = Utils.sortImpacts(set);
 	}
 
-	/** Get the header style of the workbook. */
-	CellStyle getHeaderStyle() {
-		return headerStyle;
-	}
-
 	/** Visit the sorted flows of the analysis result. */
 	void visitFlows(FlowVisitor visitor) {
 		FlowIndex index = result.getFlowIndex();
@@ -188,12 +171,12 @@ public class AnalysisResultExport {
 
 	private void fillInfoSheet(Sheet sheet) {
 		Exchange refExchange = system.getReferenceExchange();
-		header(sheet, 1, 1, "Analysis result");
-		header(sheet, 2, 1, "Product system");
+		writer.header(sheet, 1, 1, "Analysis result");
+		writer.header(sheet, 2, 1, "Product system");
 		Excel.cell(sheet, 2, 2, system.getName());
-		header(sheet, 3, 1, "Demand - product");
+		writer.header(sheet, 3, 1, "Demand - product");
 		Excel.cell(sheet, 3, 2, refExchange.getFlow().getName());
-		header(sheet, 4, 1, "Demand - value");
+		writer.header(sheet, 4, 1, "Demand - value");
 		Excel.cell(sheet, 4, 2, system.getTargetAmount() + " "
 				+ system.getTargetUnit().getName());
 		// Excel.autoSize(sheet, 1, 2);
@@ -211,9 +194,9 @@ public class AnalysisResultExport {
 		FlowIndex flowIndex = result.getFlowIndex();
 		int rowNo = startRow;
 		String section = inputs ? "Inputs" : "Outputs";
-		Excel.cell(sheet, rowNo++, 1, section).setCellStyle(headerStyle);
-		writeFlowRowHeader(sheet, rowNo);
-		Excel.cell(sheet, rowNo++, 6, "Result").setCellStyle(headerStyle);
+		writer.header(sheet, rowNo++, 1, section);
+		writer.writeFlowRowHeader(sheet, rowNo);
+		writer.header(sheet, rowNo++, 6, "Result");
 		for (FlowDescriptor flow : flows) {
 			boolean input = flowIndex.isInput(flow.getId());
 			if (input != inputs)
@@ -221,149 +204,16 @@ public class AnalysisResultExport {
 			double amount = result.getTotalFlowResult(refProcess, flow.getId());
 			if (amount == 0)
 				continue;
-			writeFlowRowInfo(sheet, rowNo, flow);
+			writer.writeFlowRowInfo(sheet, rowNo, flow);
 			Excel.cell(sheet, rowNo, 6, amount);
 			rowNo++;
 		}
 		return rowNo;
 	}
 
-	/**
-	 * Writes the process information header into the given column starting at
-	 * row 1. The next free row is 1 + PROCESS_INFO_SIZE.
-	 */
-	void writeProcessColHeader(Sheet sheet, int col) {
-		int row = 1;
-		header(sheet, row++, col, "Process UUID");
-		header(sheet, row++, col, "Process");
-		header(sheet, row++, col, "Location");
-	}
-
-	/**
-	 * Writes the process information header into the given row starting at
-	 * column 1. The next free column is 1 + PROCESS_INFO_SIZE.
-	 */
-	void writeProcessRowHeader(Sheet sheet, int row) {
-		int col = 1;
-		header(sheet, row, col++, "Process UUID");
-		header(sheet, row, col++, "Process");
-		header(sheet, row, col++, "Location");
-	}
-
-	/** Writes the process information into the given column starting at row 1. */
-	void writeProcessColInfo(Sheet sheet, int col, ProcessDescriptor process) {
-		int row = 1;
-		Excel.cell(sheet, row++, col, process.getRefId());
-		Excel.cell(sheet, row++, col, process.getName());
-		if (process.getLocation() != null) {
-			Location loc = cache.get(Location.class, process.getLocation());
-			String code = loc == null ? "" : loc.getCode();
-			Excel.cell(sheet, row, col, code);
-		}
-	}
-
-	/** Writes the process information into the given row starting at column 1. */
-	void writeProcessRowInfo(Sheet sheet, int row, ProcessDescriptor process) {
-		int col = 1;
-		Excel.cell(sheet, row, col++, process.getRefId());
-		Excel.cell(sheet, row, col++, process.getName());
-		if (process.getLocation() != null) {
-			Location loc = cache.get(Location.class, process.getLocation());
-			String code = loc == null ? "" : loc.getCode();
-			Excel.cell(sheet, row, col++, code);
-		}
-	}
-
-	/**
-	 * Writes the impact category header into the given column starting at row
-	 * 1. The next free row is 1 + IMPACT_INFO_SIZE.
-	 */
-	void writeImpactColHeader(Sheet sheet, int col) {
-		int row = 1;
-		header(sheet, row++, col, "Impact category UUID");
-		header(sheet, row++, col, "Impact category");
-		header(sheet, row++, col, "Reference unit");
-	}
-
-	/**
-	 * Writes the impact category information into the given column starting at
-	 * row 1.
-	 */
-	void writeImpactColInfo(Sheet sheet, int col,
-			ImpactCategoryDescriptor impact) {
-		int row = 1;
-		Excel.cell(sheet, row++, col, impact.getRefId());
-		Excel.cell(sheet, row++, col, impact.getName());
-		Excel.cell(sheet, row++, col, impact.getReferenceUnit());
-	}
-
-	/**
-	 * Writes the impact category header into the given row starting at column
-	 * 1. The next free column is 1 + IMPACT_INFO_SIZE.
-	 */
-	void writeImpactRowHeader(Sheet sheet, int row) {
-		int col = 1;
-		header(sheet, row, col++, "Impact category UUID");
-		header(sheet, row, col++, "Impact category");
-		header(sheet, row, col++, "Reference unit");
-	}
-
-	/**
-	 * Writes the impact category information into the given row starting at
-	 * column 1.
-	 */
-	void writeImpactRowInfo(Sheet sheet, int row,
-			ImpactCategoryDescriptor impact) {
-		int col = 1;
-		Excel.cell(sheet, row, col++, impact.getId());
-		Excel.cell(sheet, row, col++, impact.getName());
-		Excel.cell(sheet, row, col++, impact.getReferenceUnit());
-	}
-
-	/**
-	 * Writes the flow-information header into the given row starting at column
-	 * 1. The next free column is 1 + FLOW_INFO_SIZE.
-	 */
-	void writeFlowRowHeader(Sheet sheet, int row) {
-		int col = 1;
-		header(sheet, row, col++, "Flow UUID");
-		header(sheet, row, col++, "Flow");
-		header(sheet, row, col++, "Category");
-		header(sheet, row, col++, "Sub-category");
-		header(sheet, row, col++, "Unit");
-	}
-
-	/**
-	 * Writes the given flow information into the given row starting at column
-	 * 1. The next free column is 1 + FLOW_INFO_SIZE.
-	 */
-	void writeFlowRowInfo(Sheet sheet, int row, FlowDescriptor flow) {
-		int col = 1;
-		Excel.cell(sheet, row, col++, flow.getRefId());
-		Excel.cell(sheet, row, col++, flow.getName());
-		CategoryPair flowCat = CategoryPair.create(flow, cache);
-		Excel.cell(sheet, row, col++, flowCat.getCategory());
-		Excel.cell(sheet, row, col++, flowCat.getSubCategory());
-		Excel.cell(sheet, row, col++, flowUnit(flow));
-	}
-
-	/** Makes a header entry in the given row and column. */
-	void header(Sheet sheet, int row, int col, String val) {
-		Excel.cell(sheet, row, col, val).setCellStyle(headerStyle);
-	}
-
 	/** Visitor for the flows in the analysis result. */
 	interface FlowVisitor {
 		void next(FlowDescriptor flow, boolean input);
-	}
-
-	private String flowUnit(FlowDescriptor flow) {
-		String unit = flowUnits.get(flow.getId());
-		if (unit != null)
-			return unit;
-		unit = DisplayValues.referenceUnit(flow, cache);
-		flowUnits.put(flow.getId(), unit == null ? "" : unit);
-		return unit;
 	}
 
 }

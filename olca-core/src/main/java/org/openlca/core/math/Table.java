@@ -5,12 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.core.model.Indexable;
-
 /**
  * A data structure for strong double values in a flexible table like structure.
  */
-public class Table<R extends Indexable, C extends Indexable> {
+public class Table<R, C> {
 
 	private Index<R> rows;
 	private Index<C> columns;

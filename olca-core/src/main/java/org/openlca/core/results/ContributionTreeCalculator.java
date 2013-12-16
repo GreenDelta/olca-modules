@@ -1,15 +1,14 @@
 package org.openlca.core.results;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.Set;
+import java.util.List;
+import java.util.Stack;
 
-import org.apache.commons.math3.util.Pair;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -25,40 +24,15 @@ class ContributionTreeCalculator {
 
 	private AnalysisResult result;
 	private LinkContributions linkContributions;
+	private Multimap<LongPair, LongPair> links;
 	private boolean skipNegatives = false;
 	private boolean skipNulls = false;
-	private ProtoNode root;
 
 	public ContributionTreeCalculator(AnalysisResult result,
 			LinkContributions linkContributions) {
 		this.result = result;
 		this.linkContributions = linkContributions;
-		buildProtoTree();
-	}
-
-	private void buildProtoTree() {
-
-		ProductIndex index = result.getProductIndex();
-		LongPair refProduct = index.getRefProduct();
-		root = new ProtoNode(refProduct, 1d);
-		Queue<ProtoNode> queue = new ArrayDeque<>();
-		queue.add(root);
-		Set<LongPair> handled = new HashSet<>();
-		Multimap<LongPair, LongPair> links = makeLinks(index);
-
-		while (!queue.isEmpty()) {
-			ProtoNode node = queue.poll();
-			handled.add(node.product);
-			for (LongPair provider : links.get(node.product)) {
-				double linkShare = linkContributions.getShare(provider,
-						node.product);
-				double share = linkShare * node.share;
-				ProtoNode child = new ProtoNode(provider, share);
-				node.childs.add(child);
-				if (!handled.contains(provider) && !queue.contains(child))
-					queue.add(child);
-			}
-		}
+		this.links = makeLinks(result.getProductIndex());
 	}
 
 	private Multimap<LongPair, LongPair> makeLinks(ProductIndex index) {
@@ -91,41 +65,61 @@ class ContributionTreeCalculator {
 	}
 
 	private ContributionTree calculate(ResultFetch fn) {
+
 		ContributionTree tree = new ContributionTree();
 		tree.setReference(fn.getReference());
-		ContributionTreeNode node = createNode(root, fn);
-		tree.setRoot(node);
-		Pair<ProtoNode, ContributionTreeNode> rootPair = new Pair<>(root, node);
-		Queue<Pair<ProtoNode, ContributionTreeNode>> queue = new ArrayDeque<>();
-		queue.add(rootPair);
+		ContributionTreeNode root = new ContributionTreeNode();
+		LongPair refProduct = result.getProductIndex().getRefProduct();
+		root.setShare(1d);
+		root.setProcessProduct(refProduct);
+		root.setAmount(fn.getTotalAmount(refProduct));
+		tree.setRoot(root);
 
-		while (!queue.isEmpty()) {
-			Pair<ProtoNode, ContributionTreeNode> pair = queue.poll();
-			for (ProtoNode childProto : pair.getFirst().childs) {
-				ContributionTreeNode newChild = createNode(childProto, fn);
-				if (newChild == null)
-					continue;
-				pair.getSecond().getChildren().add(newChild);
-				Pair<ProtoNode, ContributionTreeNode> nextPair = new Pair<>(
-						childProto, newChild);
-				queue.add(nextPair);
+		NodeSorter sorter = new NodeSorter();
+		Stack<ContributionTreeNode> stack = new Stack<>();
+		stack.push(root);
+		HashSet<LongPair> handled = new HashSet<>();
+		handled.add(refProduct);
+
+		while (!stack.isEmpty()) {
+
+			ContributionTreeNode node = stack.pop();
+			List<ContributionTreeNode> childs = createChildNodes(node, fn);
+			Collections.sort(childs, sorter);
+			node.getChildren().addAll(childs);
+
+			for (int i = childs.size() - 1; i >= 0; i--) {
+				// push in reverse order, so that the highest contribution is
+				// on the top
+				ContributionTreeNode child = childs.get(i);
+				if (!handled.contains(child.getProcessProduct())) {
+					stack.push(child);
+					handled.add(child.getProcessProduct());
+				}
 			}
 		}
 		return tree;
 	}
 
-	private ContributionTreeNode createNode(ProtoNode protoNode,
-			ResultFetch fetch) {
-		double amount = protoNode.share
-				* fetch.getTotalAmount(protoNode.product);
-		if (amount == 0 && skipNulls)
-			return null;
-		if (amount < 0 && skipNegatives)
-			return null;
-		ContributionTreeNode node = new ContributionTreeNode();
-		node.setAmount(amount);
-		node.setProcessProduct(protoNode.product);
-		return node;
+	private List<ContributionTreeNode> createChildNodes(
+			ContributionTreeNode parent, ResultFetch fn) {
+		List<ContributionTreeNode> childNodes = new ArrayList<>();
+		LongPair recipient = parent.getProcessProduct();
+		for (LongPair provider : links.get(recipient)) {
+			double share = linkContributions.getShare(provider, recipient)
+					* parent.getShare();
+			double amount = share * fn.getTotalAmount(provider);
+			if (amount == 0 && skipNulls)
+				continue;
+			if (amount < 0 && skipNegatives)
+				continue;
+			ContributionTreeNode node = new ContributionTreeNode();
+			node.setShare(share);
+			node.setAmount(amount);
+			node.setProcessProduct(provider);
+			childNodes.add(node);
+		}
+		return childNodes;
 	}
 
 	private interface ResultFetch {
@@ -177,32 +171,11 @@ class ContributionTreeCalculator {
 		}
 	}
 
-	private class ProtoNode {
-
-		private final double share;
-		private final LongPair product;
-		private final ArrayList<ProtoNode> childs = new ArrayList<>();
-
-		public ProtoNode(LongPair product, double share) {
-			this.product = product;
-			this.share = share;
-		}
-
+	private class NodeSorter implements Comparator<ContributionTreeNode> {
 		@Override
-		public int hashCode() {
-			return product.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == null)
-				return false;
-			if (obj == this)
-				return true;
-			if (!getClass().equals(obj.getClass()))
-				return false;
-			ProtoNode other = (ProtoNode) obj;
-			return Objects.equals(this.product, other.product);
+		public int compare(ContributionTreeNode node1,
+				ContributionTreeNode node2) {
+			return Double.compare(node2.getAmount(), node1.getAmount());
 		}
 	}
 

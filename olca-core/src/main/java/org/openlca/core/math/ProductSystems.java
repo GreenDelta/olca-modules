@@ -1,10 +1,10 @@
 package org.openlca.core.math;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrices.Inventory;
-import org.openlca.core.matrices.InventoryBuilder;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.Inventory;
+import org.openlca.core.matrix.InventoryBuilder;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -46,16 +46,16 @@ public class ProductSystems {
 	}
 
 	public static Inventory createInventory(ProductSystem system,
-			IDatabase database) {
+			MatrixCache matrixCache) {
 		ProductIndex index = createProductIndex(system);
 		AllocationMethod method = AllocationMethod.USE_DEFAULT;
-		return new InventoryBuilder(database).build(index, method);
+		return new InventoryBuilder(matrixCache).build(index, method);
 	}
 
 	public static Inventory createInventory(ProductSystem system,
-			AllocationMethod allocationMethod, IDatabase database) {
+			AllocationMethod allocationMethod, MatrixCache matrixCache) {
 		ProductIndex index = createProductIndex(system);
-		return new InventoryBuilder(database).build(index, allocationMethod);
+		return new InventoryBuilder(matrixCache).build(index, allocationMethod);
 	}
 
 }

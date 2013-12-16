@@ -1,19 +1,12 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
-
 package org.openlca.core.database.internal;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 
 /**
  * A class for running a SQL scripts with insert, update, delete, and DDL
@@ -21,21 +14,21 @@ import java.sql.Statement;
  */
 public class ScriptRunner implements ScriptHandler {
 
-	private Statement statement;
-	private Connection con;
+	private final int MAX_BATCH_SIZE = 1000;
+	private IDatabase database;
+	private List<String> statements = new ArrayList<>();
 
-	public ScriptRunner(Connection con) {
-		this.con = con;
+	public ScriptRunner(IDatabase database) {
+		this.database = database;
 	}
 
 	public void run(InputStream scriptStream, String encoding) throws Exception {
 		try {
-			statement = con.createStatement();
 			InputStreamReader reader = new InputStreamReader(scriptStream,
 					encoding);
 			ScriptParser parser = new ScriptParser(this);
 			parser.parse(reader);
-			statement.close();
+			execBatch();
 		} catch (Exception e) {
 			throw new Exception("Cannot execute script: " + e.getMessage(), e);
 		}
@@ -43,10 +36,15 @@ public class ScriptRunner implements ScriptHandler {
 
 	@Override
 	public void statement(String query) throws Exception {
-		try {
-			statement.executeUpdate(query);
-		} catch (Exception e) {
-			throw new Exception("Cannot execute statement: " + query, e);
-		}
+		statements.add(query);
+		if (statements.size() >= MAX_BATCH_SIZE)
+			execBatch();
+	}
+
+	private void execBatch() throws Exception {
+		if (statements.isEmpty())
+			return;
+		NativeSql.on(database).batchUpdate(statements);
+		statements.clear();
 	}
 }

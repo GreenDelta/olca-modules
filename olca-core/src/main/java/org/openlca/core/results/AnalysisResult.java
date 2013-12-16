@@ -3,10 +3,10 @@ package org.openlca.core.results;
 import java.util.List;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.matrices.LongIndex;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.LongIndex;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
 
 /**
  * The result of an analysis of a product system.
@@ -73,8 +73,16 @@ public class AnalysisResult {
 		this.singleFlowResults = singleResult;
 	}
 
+	public IMatrix getSingleResult() {
+		return singleFlowResults;
+	}
+
 	public void setTotalResult(IMatrix totalResult) {
 		this.totalFlowResults = totalResult;
+	}
+
+	public IMatrix getTotalResult() {
+		return totalFlowResults;
 	}
 
 	public void setSingleImpactResult(IMatrix singleImpactResult) {

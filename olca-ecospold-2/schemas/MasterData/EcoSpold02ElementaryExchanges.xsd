@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+The contents of this file are subject to the EcoSpold Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.ecoinvent.ch.
+Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+The Original Code consists of the EcoSpold data format and EcoSpold Access.
+The Original Code was created by the ecoinvent Centre, Switzerland (Swiss Centre for Life Cycle Inventories) and ifu Hamburg GmbH, Germany. Portions created by the ecoinvent Centre and ifu Hamburg GmbH are Copyright (C) ecoinvent Centre. All Rights Reserved.
+-->
+<?xml-stylesheet type="text/xsl" href="../../Tools/Transformations/schemadoc/EcoSpold02SchemaDocumentation.Master.xsl"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:es="http://www.EcoInvent.org/EcoSpold02" xmlns="http://www.EcoInvent.org/EcoSpold02" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://www.EcoInvent.org/EcoSpold02" elementFormDefault="qualified" attributeFormDefault="unqualified" version="2.0.12">
+	<xsd:include schemaLocation="../EcoSpold02DataTypes.xsd"/>
+	<xsd:complexType name="TValidElementaryExchange">
+		<xsd:annotation>
+			<xsd:documentation>Exchanges with Environment, contains the list of valid elementary exchanges and their properties. An exchange is solely identified by its name and there must not be two exchanges with the same name but different units.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="TString120" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>401</spoldID>
+						<fieldId>5430</fieldId>
+						<uniqueTranslatedValue>1</uniqueTranslatedValue>
+					</xsd:appinfo>
+					<xsd:documentation>Name of the elementary exchange.</xsd:documentation>
+					<xsd:documentation>For elementary flows name, compartment and subcompartment are used as the discriminating elements. </xsd:documentation>
+					<xsd:documentation>The nomenclature of the SETAC WG 'Data quality and data availability' is used for elementary flows as far as possible.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="unitName" type="es:TString40" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5454</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>Unit name of the amount of the elementary exchange.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="compartment" type="TCompartment">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>495</spoldID>
+						<fieldId>5440</fieldId>
+						<uniqueTranslatedValue>1</uniqueTranslatedValue>
+					</xsd:appinfo>
+					<xsd:documentation>Compartment is used to structure the content of the database (together with Subcompartment). It is required for the identification of elementary flows.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="comment" type="TString32000" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>492</spoldID>
+						<fieldId>5475</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Free text for general information about the elementary exchange.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="synonym" type="TSynonym" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>491</spoldID>
+						<fieldId>5460</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>List of synonyms for the name. Contrary to normal multi language strings, synonyms may contain more than one element with the same xml:lang attribute value.</xsd:documentation>
+					<xsd:documentation>0..n entries are allowed with a max. length of 80 each.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="property" type="TProperty" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5465</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Structure to define flow properties of exchanges unit processes.</xsd:documentation>
+					<xsd:documentation>for the format definition see below.</xsd:documentation>
+					<xsd:documentation>These are default values that can be over-written by a specific entry for the same property in a specific dataset.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkPropertyNameLang">
+					<xsd:selector xpath="es:name"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5420</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Universally unique identifier for each elementary exchange. This is referenced by field 1615 in an activity dataset.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitId" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>3706</spoldID>
+					<fieldId>5450</fieldId>
+					<referenceToComplexType>TValidUnit</referenceToComplexType>
+					<propertyNameForReference>ValidUnit</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the unit of the amount.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="unitContextId" type="TUuid" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5451</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidUnitContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the unit.</xsd:documentation>
+				<xsd:documentation>If this attribute is omitted the context of the document itself will be used instead.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="formula" type="es:TBaseString40" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>499</spoldID>
+					<fieldId>5455</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Chemical formula (e.g. sum formula) may be entered. </xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="casNumber" type="TCasNumber" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>502</spoldID>
+					<fieldId>5458</fieldId>
+					<options>zero fill from front</options>
+				</xsd:appinfo>
+				<xsd:appinfo>Zero fill from front.</xsd:appinfo>
+				<xsd:documentation>Indicates the number according to the Chemical Abstract Service (CAS). The Format of the CAS-number: 000000-00-0, where the first string of digits needs not to be complete (i.e. less than six digits are admitted).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="defaultVariableName" type="TVariableName" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5470</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>The default variable name is a suggestion that should be used when a new exchange is added to a dataset based on this master data entry.</xsd:documentation>
+				<xsd:documentation>Variable names must start with a character (a-z) and may contain characters, numbers and underscores (_). Variable names are not case sensitive (calorific_Value equals Calorific_value).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="TValidElementaryExchanges">
+		<xsd:sequence>
+			<xsd:element name="contextName" type="TString80" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5406</fieldId>
+						<redundantMasterDataField/>
+					</xsd:appinfo>
+					<xsd:documentation>The name of the context referenced by field 3880.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="requiredContext" type="TRequiredContextReference" minOccurs="0" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5407</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>Reference to context required to load this document with all its master data references intact. </xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="elementaryExchange" type="TValidElementaryExchange" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:appinfo>
+						<spoldID>new</spoldID>
+						<fieldId>5410</fieldId>
+					</xsd:appinfo>
+					<xsd:documentation>A list of valid elementary exchanges. This element provides hierarchical grouping only and contains no information on its own. See details in complex data type TValidElementaryExchange.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:unique name="pkNameLang">
+					<xsd:selector xpath="es:name"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkCompartmentLang">
+					<xsd:selector xpath="es:compartment/compartment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkSubcompartmentLang">
+					<xsd:selector xpath="es:compartment/es:subcompartment"/>
+					<xsd:field xpath="@xml:lang"/>
+				</xsd:unique>
+				<xsd:unique name="pkPropertyId">
+					<xsd:selector xpath="es:property"/>
+					<xsd:field xpath="@propertyId"/>
+				</xsd:unique>
+				<xsd:unique name="pkPropertyVarname">
+					<xsd:selector xpath="es:property"/>
+					<xsd:field xpath="@variableName"/>
+				</xsd:unique>
+			</xsd:element>
+			<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:attribute name="originalSource" type="xsd:anyURI" use="optional">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5400</fieldId>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the location of the original document. Can be used to verify the data and/or to check for updates in the future.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: with a major update (e.g. every second year) the major release number is increased by one (1.00, 2.00, etc.).</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5401</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRelease" type="xsd:integer" use="required">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The release version number is used as follows: minor updates (corrected errors) within the period of two major updates increase the minor release version.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5402</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="majorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision version number is used to discern different versions during the working period until the dataset is entered into the database). The revision is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5403</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="minorRevision" type="xsd:integer" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>This version number can be used to make sure that the necessary master data entries are present for an activity. They are referenced by the valid... elements of the fileAttributes element in activity datasets. The revision Version number is used to discern different versions during the working period until the dataset is entered into the database). The revision  is generated automatically with each change made in the dataset or related file.</xsd:documentation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5404</fieldId>
+				</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="contextId" type="TUuid" use="required">
+			<xsd:annotation>
+				<xsd:appinfo>
+					<spoldID>new</spoldID>
+					<fieldId>5405</fieldId>
+					<referenceToComplexType>TValidContext</referenceToComplexType>
+					<propertyNameForReference>ValidContext</propertyNameForReference>
+				</xsd:appinfo>
+				<xsd:documentation>Reference to the context of the master data file.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="validElementaryExchanges" type="TValidElementaryExchanges">
+		<xsd:unique name="pkExchangeId">
+			<xsd:selector xpath="es:elementaryExchange"/>
+			<xsd:field xpath="@id"/>
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>

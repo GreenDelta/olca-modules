@@ -29,18 +29,19 @@ class AnalysisTotalImpact {
 	}
 
 	private void doIt() {
-		int col = export.IMPACT_INFO_SIZE + 1;
-		export.writeImpactRowHeader(sheet, 1);
-		export.header(sheet, 1, col, "Result");
+		int col = CellWriter.IMPACT_INFO_SIZE + 1;
+		export.getWriter().writeImpactRowHeader(sheet, 1);
+		export.getWriter().header(sheet, 1, col, "Result");
 		int row = 2;
 		long refProcess = result.getProductIndex().getRefProduct().getFirst();
 		for (ImpactCategoryDescriptor impact : export.getImpacts()) {
-			export.writeImpactRowInfo(sheet, row, impact);
+			export.getWriter().writeImpactRowInfo(sheet, row, impact);
 			double val = result
 					.getTotalImpactResult(refProcess, impact.getId());
 			Excel.cell(sheet, row, col, val);
 			row++;
 		}
+		// there are problems with auto-size when the sheet is streamed
 		// Excel.autoSize(sheet, 1, 2, 3, 4);
 	}
 

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrices.LongIndex;
+import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.model.CostCategory;
 
 public final class CostResults {

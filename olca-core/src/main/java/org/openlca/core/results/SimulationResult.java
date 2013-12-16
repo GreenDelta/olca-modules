@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.matrices.LongIndex;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.LongIndex;
 
 public class SimulationResult {
 
@@ -72,6 +72,16 @@ public class SimulationResult {
 		if (idx < 0)
 			return Collections.emptyList();
 		return categoryResults[idx];
+	}
+
+	public int getNumberOfRuns() {
+		if (flowResults == null || flowResults.length == 0)
+			return 0;
+		List<Double> first = flowResults[0];
+		if (first == null)
+			return 0;
+		else
+			return first.size();
 	}
 
 }

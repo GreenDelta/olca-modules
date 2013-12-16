@@ -1,12 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
 package org.openlca.core.model;
 
 import java.util.ArrayList;
@@ -39,8 +30,8 @@ public class ProductSystem extends CategorizedEntity {
 	@JoinColumn(name = "f_owner")
 	private final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_product_system")
+	@ElementCollection
+	@CollectionTable(name = "tbl_process_links", joinColumns = @JoinColumn(name = "f_product_system"))
 	private final List<ProcessLink> processLinks = new ArrayList<>();
 
 	@OneToOne
@@ -88,66 +79,6 @@ public class ProductSystem extends CategorizedEntity {
 				.setTargetFlowPropertyFactor(getTargetFlowPropertyFactor());
 		productSystem.setTargetUnit(getTargetUnit());
 		return productSystem;
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Searches for links where the process with the given id is recipient
-	 * </p>
-	 * 
-	 * @param processId
-	 *            The id of the process to search links for
-	 * 
-	 * @return <p style="margin-top: 0">
-	 *         The links where the process with the given id is recipient
-	 *         </p>
-	 */
-	public ProcessLink[] getIncomingLinks(long processId) {
-		List<ProcessLink> incoming = new ArrayList<>();
-		for (ProcessLink link : getProcessLinks(processId))
-			if (link.getRecipientId() == processId)
-				incoming.add(link);
-		return incoming.toArray(new ProcessLink[incoming.size()]);
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Searches for links where the process with the given id is provider
-	 * </p>
-	 * 
-	 * @param processId
-	 *            The id of the process to search links for
-	 * 
-	 * @return <p style="margin-top: 0">
-	 *         The links where the process with the given id is provider
-	 *         </p>
-	 */
-	public ProcessLink[] getOutgoingLinks(long processId) {
-		List<ProcessLink> outgoing = new ArrayList<>();
-		for (ProcessLink link : getProcessLinks(processId))
-			if (link.getProviderId() == processId)
-				outgoing.add(link);
-		return outgoing.toArray(new ProcessLink[outgoing.size()]);
-	}
-
-	/**
-	 * <p style="margin-top: 0">
-	 * Getter of the process links for the given process id
-	 * 
-	 * @param processId
-	 *            The id of the process to search process links for
-	 * 
-	 * @return All process links having the process with the given id as
-	 *         provider or recipient
-	 *         </p>
-	 */
-	public ProcessLink[] getProcessLinks(long processId) {
-		List<ProcessLink> processLinks = new ArrayList<>();
-		for (ProcessLink processLink : getProcessLinks())
-			if (processLink.getProviderId() == processId
-					|| processLink.getRecipientId() == processId)
-				processLinks.add(processLink);
-		return processLinks.toArray(new ProcessLink[processLinks.size()]);
 	}
 
 	public Exchange getReferenceExchange() {

@@ -1,23 +1,9 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
 package org.openlca.core.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-/**
- * <p style="margin-top: 0">
- * An unit of measurement (i.e. kg)
- * </p>
- */
 @Entity
 @Table(name = "tbl_units")
 public class Unit extends RootEntity {
@@ -52,6 +38,11 @@ public class Unit extends RootEntity {
 
 	public void setConversionFactor(double conversionFactor) {
 		this.conversionFactor = conversionFactor;
+	}
+
+	@Override
+	public String toString() {
+		return "Unit [id=" + getId() + ", name=" + getName() + "]";
 	}
 
 }

@@ -114,7 +114,7 @@ class ExportDispatch {
 		try {
 			if (!target.contains(org.openlca.ilcd.units.UnitGroup.class,
 					unitGroup.getRefId())) {
-				UnitGroupExport export = new UnitGroupExport(database, target);
+				UnitGroupExport export = new UnitGroupExport(target);
 				export.run(unitGroup);
 			}
 			return DataSetRef.makeRef(unitGroup);

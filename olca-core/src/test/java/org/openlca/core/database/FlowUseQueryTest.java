@@ -1,6 +1,6 @@
 package org.openlca.core.database;
 
-import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -37,9 +37,9 @@ public class FlowUseQueryTest {
 
 	@Test
 	public void testNotUsed() {
-		List<Long> providerIds = dao.getProviders(flow.getId());
+		Set<Long> providerIds = dao.getProviders(flow.getId());
 		Assert.assertTrue(providerIds.isEmpty());
-		List<Long> recipientIds = dao.getRecipients(flow.getId());
+		Set<Long> recipientIds = dao.getRecipients(flow.getId());
 		Assert.assertTrue(recipientIds.isEmpty());
 	}
 
@@ -50,10 +50,10 @@ public class FlowUseQueryTest {
 		exchange.setInput(false);
 		process.getExchanges().add(exchange);
 		processDao.update(process);
-		List<Long> providerIds = dao.getProviders(flow.getId());
+		Set<Long> providerIds = dao.getProviders(flow.getId());
 		Assert.assertEquals(1, providerIds.size());
 		Assert.assertTrue(providerIds.contains(process.getId()));
-		List<Long> recipientIds = dao.getRecipients(flow.getId());
+		Set<Long> recipientIds = dao.getRecipients(flow.getId());
 		Assert.assertTrue(recipientIds.isEmpty());
 	}
 
@@ -64,9 +64,9 @@ public class FlowUseQueryTest {
 		exchange.setInput(true);
 		process.getExchanges().add(exchange);
 		processDao.update(process);
-		List<Long> providerIds = dao.getProviders(flow.getId());
+		Set<Long> providerIds = dao.getProviders(flow.getId());
 		Assert.assertTrue(providerIds.isEmpty());
-		List<Long> recipientIds = dao.getRecipients(flow.getId());
+		Set<Long> recipientIds = dao.getRecipients(flow.getId());
 		Assert.assertEquals(1, recipientIds.size());
 		Assert.assertTrue(recipientIds.contains(process.getId()));
 	}

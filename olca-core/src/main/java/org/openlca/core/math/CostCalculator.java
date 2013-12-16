@@ -1,9 +1,9 @@
 package org.openlca.core.math;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrices.CostMatrix;
-import org.openlca.core.matrices.CostMatrixBuilder;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.matrix.CostMatrix;
+import org.openlca.core.matrix.CostMatrixBuilder;
+import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.results.CostResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +12,12 @@ import org.slf4j.LoggerFactory;
 public class CostCalculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
+	private MatrixCache matrixCache;
+	private final IMatrixFactory factory;
 
-	public CostCalculator(IDatabase database) {
-		this.database = database;
+	public CostCalculator(MatrixCache matrixCache, IMatrixFactory factory) {
+		this.matrixCache = matrixCache;
+		this.factory = factory;
 	}
 
 	/**
@@ -26,7 +28,8 @@ public class CostCalculator {
 		CostResult result = new CostResult();
 		result.setProductIndex(index);
 		try {
-			CostMatrixBuilder builder = new CostMatrixBuilder(database);
+			CostMatrixBuilder builder = new CostMatrixBuilder(matrixCache,
+					factory);
 			CostMatrix matrix = builder.build(index);
 			if (matrix.hasVarCosts())
 				calculateVarCosts(matrix, s, result);
@@ -41,10 +44,11 @@ public class CostCalculator {
 	private void calculateVarCosts(CostMatrix matrix, double[] s,
 			CostResult result) {
 		IMatrix varCosts = matrix.getVariableCostMatrix();
-		IMatrix scalingVector = MatrixFactory.create(s.length, 1);
+		IMatrix scalingVector = factory.create(s.length, 1);
 		for (int row = 0; row < s.length; row++)
 			scalingVector.setEntry(row, 0, s[row]);
-		IMatrix varResult = varCosts.multiply(scalingVector);
+		ISolver solver = factory.getDefaultSolver();
+		IMatrix varResult = solver.multiply(varCosts, scalingVector);
 		result.setVarCostCategoryIndex(matrix.getVarCostCategoryIndex());
 		result.setVarCostResults(varResult.getColumn(0));
 	}

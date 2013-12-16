@@ -12,6 +12,8 @@ import java.util.UUID;
  */
 public class KeyGen {
 
+	public static final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
+
 	public static String get(String... names) {
 		if (names == null || names.length == 0)
 			return UUID.nameUUIDFromBytes(new byte[0]).toString();

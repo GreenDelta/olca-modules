@@ -7,9 +7,8 @@ import java.util.List;
 
 /**
  * Maps a set off n sequentially added objects to an index 0 <= i < n, where the
- * first added value gets the index 0 and the last n-1. The index class is one
- * of the main data structure to map objects to rows and columns in the matrix
- * method.
+ * first added value gets the index 0 and the last n-1. The content type of the
+ * index must implement the hash and equals function appropriately.
  */
 public class Index<T> {
 

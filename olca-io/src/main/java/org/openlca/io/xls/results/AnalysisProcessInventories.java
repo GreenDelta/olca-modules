@@ -28,8 +28,8 @@ class AnalysisProcessInventories {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
-		inputStartRow = export.PROCESS_INFO_SIZE + 2;
-		firstValCol = export.FLOW_INFO_SIZE + 1;
+		inputStartRow = CellWriter.PROCESS_INFO_SIZE + 2;
+		firstValCol = CellWriter.FLOW_INFO_SIZE + 1;
 	}
 
 	public static void write(Sheet sheet, AnalysisResult result,
@@ -38,26 +38,28 @@ class AnalysisProcessInventories {
 	}
 
 	private void doIt() {
-		export.writeProcessColHeader(sheet, export.FLOW_INFO_SIZE);
+		export.getWriter().writeProcessColHeader(sheet,
+				CellWriter.FLOW_INFO_SIZE);
 
 		// inputs
-		Excel.cell(sheet, export.PROCESS_INFO_SIZE, 1, "Inputs").setCellStyle(
-				export.getHeaderStyle());
-		export.writeFlowRowHeader(sheet, export.PROCESS_INFO_SIZE + 1);
+		export.getWriter().header(sheet, CellWriter.PROCESS_INFO_SIZE, 1,
+				"Inputs");
+		export.getWriter().writeFlowRowHeader(sheet,
+				CellWriter.PROCESS_INFO_SIZE + 1);
 		FlowInfoWriter inputInfoWriter = new FlowInfoWriter(true, inputStartRow);
 		export.visitFlows(inputInfoWriter);
 		int nextRow = inputInfoWriter.currentRow + 1;
 
 		// outputs
-		Excel.cell(sheet, nextRow++, 1, "Outputs").setCellStyle(
-				export.getHeaderStyle());
-		export.writeFlowRowHeader(sheet, nextRow++);
+		export.getWriter().header(sheet, nextRow++, 1, "Outputs");
+		export.getWriter().writeFlowRowHeader(sheet, nextRow++);
 		outputStartRow = nextRow;
 		FlowInfoWriter outputInfoWriter = new FlowInfoWriter(false,
 				outputStartRow);
 		export.visitFlows(outputInfoWriter);
 
 		writeValues();
+		// there are problems with auto-size when the sheet is streamed
 		// Excel.autoSize(sheet, 1, 2, 3, 4, 5, 6, 7);
 	}
 
@@ -66,7 +68,7 @@ class AnalysisProcessInventories {
 		ValueWriter inputWriter = new ValueWriter(true, inputStartRow);
 		ValueWriter outputWriter = new ValueWriter(false, outputStartRow);
 		for (ProcessDescriptor p : export.getProcesses()) {
-			export.writeProcessColInfo(sheet, col, p);
+			export.getWriter().writeProcessColInfo(sheet, col, p);
 			inputWriter.setProcess(p, col);
 			outputWriter.setProcess(p, col);
 			export.visitFlows(inputWriter);
@@ -89,7 +91,7 @@ class AnalysisProcessInventories {
 		public void next(FlowDescriptor flow, boolean input) {
 			if (input != forInputs)
 				return;
-			export.writeFlowRowInfo(sheet, currentRow, flow);
+			export.getWriter().writeFlowRowInfo(sheet, currentRow, flow);
 			currentRow++;
 		}
 	}

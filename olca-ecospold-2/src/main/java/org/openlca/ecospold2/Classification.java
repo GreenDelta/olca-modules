@@ -1,6 +1,7 @@
 package org.openlca.ecospold2;
 
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class Classification {
 
@@ -46,7 +47,11 @@ public class Classification {
 	}
 
 	Element toXml() {
-		Element element = new Element("classification", Out.NS);
+		return toXml(IO.NS);
+	}
+
+	Element toXml(Namespace ns) {
+		Element element = new Element("classification", ns);
 		element.setAttribute("classificationId", classificationId);
 		Out.addChild(element, "classificationSystem", classificationSystem);
 		Out.addChild(element, "classificationValue", classificationValue);

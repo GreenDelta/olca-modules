@@ -9,6 +9,12 @@ public class Parameter {
 	private double amount;
 	private String name;
 	private String unitName;
+	private String mathematicalRelation;
+	private Boolean isCalculatedAmount;
+
+	// extensions
+	private String scope;
+	private Uncertainty uncertainty;
 
 	public String getId() {
 		return id;
@@ -50,6 +56,38 @@ public class Parameter {
 		this.unitName = unitName;
 	}
 
+	public String getMathematicalRelation() {
+		return mathematicalRelation;
+	}
+
+	public void setMathematicalRelation(String mathematicalRelation) {
+		this.mathematicalRelation = mathematicalRelation;
+	}
+
+	public void setIsCalculatedAmount(Boolean isCalculatedAmount) {
+		this.isCalculatedAmount = isCalculatedAmount;
+	}
+
+	public Boolean getIsCalculatedAmount() {
+		return isCalculatedAmount;
+	}
+
+	public void setScope(String scope) {
+		this.scope = scope;
+	}
+
+	public String getScope() {
+		return scope;
+	}
+
+	public Uncertainty getUncertainty() {
+		return uncertainty;
+	}
+
+	public void setUncertainty(Uncertainty uncertainty) {
+		this.uncertainty = uncertainty;
+	}
+
 	static Parameter fromXml(Element e) {
 		if (e == null)
 			return null;
@@ -59,14 +97,31 @@ public class Parameter {
 		p.name = In.childText(e, "name");
 		p.unitName = In.childText(e, "unitName");
 		p.variableName = e.getAttributeValue("variableName");
+		p.mathematicalRelation = e.getAttributeValue("mathematicalRelation");
+		p.isCalculatedAmount = In.optionalBool(e
+				.getAttributeValue("isCalculatedAmount"));
+		p.scope = e.getChildText("scope", IO.EXT_NS);
+		p.uncertainty = Uncertainty.fromXml(In.child(e, "uncertainty"));
 		return p;
 	}
 
 	Element toXml() {
-		Element e = new Element("parameter", Out.NS);
+		Element e = new Element("parameter", IO.NS);
 		e.setAttribute("parameterId", id);
 		e.setAttribute("amount", Double.toString(amount));
-		e.setAttribute("variableName", variableName);
+		if (variableName != null)
+			e.setAttribute("variableName", variableName);
+		if (mathematicalRelation != null)
+			e.setAttribute("mathematicalRelation", mathematicalRelation);
+		if (isCalculatedAmount != null)
+			e.setAttribute("isCalculatedAmount", isCalculatedAmount.toString());
+		if (scope != null) {
+			Element scopeElement = new Element("scope", IO.EXT_NS);
+			scopeElement.setText(scope);
+			e.addContent(scopeElement);
+		}
+		if (uncertainty != null)
+			e.addContent(uncertainty.toXml());
 		Out.addChild(e, "name", name);
 		Out.addChild(e, "unitName", unitName);
 		return e;

@@ -9,10 +9,13 @@ public abstract class Exchange {
 
 	private String id;
 	private String unitId;
-	private double amount;
+	private Double amount; // amount is a reference type because it can be
+							// optional in master data
 	private String name;
 	private String unitName;
+	private String variableName;
 	private String mathematicalRelation;
+	private String casNumber;
 	private String comment;
 	private Uncertainty uncertainty;
 	private List<Property> properties = new ArrayList<>();
@@ -35,11 +38,11 @@ public abstract class Exchange {
 		this.unitId = unitId;
 	}
 
-	public double getAmount() {
+	public Double getAmount() {
 		return amount;
 	}
 
-	public void setAmount(double amount) {
+	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
 
@@ -65,6 +68,14 @@ public abstract class Exchange {
 
 	public void setMathematicalRelation(String mathematicalRelation) {
 		this.mathematicalRelation = mathematicalRelation;
+	}
+
+	public void setCasNumber(String casNumber) {
+		this.casNumber = casNumber;
+	}
+
+	public String getCasNumber() {
+		return casNumber;
 	}
 
 	public String getComment() {
@@ -99,18 +110,30 @@ public abstract class Exchange {
 		this.outputGroup = outputGroup;
 	}
 
+	public String getVariableName() {
+		return variableName;
+	}
+
+	public void setVariableName(String variableName) {
+		this.variableName = variableName;
+	}
+
+	public List<Property> getProperties() {
+		return properties;
+	}
+
 	protected void readValues(Element element) {
-		String amount = element.getAttributeValue("amount");
-		setAmount(In.decimal(amount));
+		setAmount(In.optionalDecimal(element.getAttributeValue("amount")));
 		setId(element.getAttributeValue("id"));
 		setMathematicalRelation(element
 				.getAttributeValue("mathematicalRelation"));
+		setVariableName(element.getAttributeValue("variableName"));
 		setName(In.childText(element, "name"));
 		setUnitName(In.childText(element, "unitName"));
 		setComment(In.childText(element, "comment"));
 		setUnitId(element.getAttributeValue("unitId"));
 		setUncertainty(Uncertainty.fromXml(In.child(element, "uncertainty")));
-
+		setCasNumber(element.getAttributeValue("casNumber"));
 		List<Element> propElems = In.childs(element, "property");
 		for (Element propElem : propElems) {
 			Property property = Property.fromXml(propElem);
@@ -128,13 +151,22 @@ public abstract class Exchange {
 	}
 
 	protected void writeValues(Element element) {
-		element.setAttribute("id", id);
-		element.setAttribute("unitId", unitId);
-		element.setAttribute("amount", Double.toString(amount));
+		if (id != null)
+			element.setAttribute("id", id);
+		if (unitId != null)
+			element.setAttribute("unitId", unitId);
+		if (amount != null)
+			element.setAttribute("amount", amount.toString());
 		if (mathematicalRelation != null)
 			element.setAttribute("mathematicalRelation", mathematicalRelation);
-		Out.addChild(element, "name", name);
-		Out.addChild(element, "unitName", unitName);
+		if (variableName != null)
+			element.setAttribute("variableName", variableName);
+		if (casNumber != null)
+			element.setAttribute("casNumber", casNumber);
+		if (name != null)
+			Out.addChild(element, "name", name);
+		if (unitName != null)
+			Out.addChild(element, "unitName", unitName);
 		if (comment != null)
 			Out.addChild(element, "comment", comment);
 		if (uncertainty != null)

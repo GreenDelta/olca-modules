@@ -2,14 +2,16 @@ package org.openlca.core.results;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.TestSession;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.InventorySolver;
-import org.openlca.core.math.MatrixFactory;
-import org.openlca.core.matrices.FlowIndex;
-import org.openlca.core.matrices.InventoryMatrix;
-import org.openlca.core.matrices.LongPair;
-import org.openlca.core.matrices.ProductIndex;
+import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.math.InventoryCalculator;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.util.MatrixUtils;
 
 public class ContributionTreeTest {
 
@@ -28,14 +30,16 @@ public class ContributionTreeTest {
 		flowIndex.putOutputFlow(4);
 		matrix.setFlowIndex(flowIndex);
 
-		IMatrix techMatrix = MatrixFactory.create(new double[][] { { 1, 0, 0 },
-				{ -1, 1, 0 }, { -1, 0, 1 } });
+		IMatrixFactory factory = TestSession.getMatrixFactory();
+		IMatrix techMatrix = MatrixUtils.create(new double[][] { { 1, 0, 0 },
+				{ -1, 1, 0 }, { -1, 0, 1 } }, factory);
 		matrix.setTechnologyMatrix(techMatrix);
-		IMatrix enviMatrix = MatrixFactory.create(new double[][] { { 0, 0.5,
-				0.5 } });
+		IMatrix enviMatrix = MatrixUtils.create(
+				new double[][] { { 0, 0.5, 0.5 } }, factory);
 		matrix.setInterventionMatrix(enviMatrix);
 
-		AnalysisResult result = new InventorySolver().analyse(matrix);
+		AnalysisResult result = new InventoryCalculator(factory)
+				.analyse(matrix);
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setId(4);
 

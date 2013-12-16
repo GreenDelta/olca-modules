@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrices.FlowIndex;
+import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.Contribution;

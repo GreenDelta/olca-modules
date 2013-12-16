@@ -3,14 +3,14 @@ package org.openlca.io.ilcd.output;
 import java.math.BigDecimal;
 
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
 import org.openlca.ilcd.util.ExchangeExtension;
 
 /**
- * Maps the uncertainty information from an openLCA exchange to an ILCD
- * exchange.
+ * Maps the uncertainty information from exchanges and parameters.
  */
 class UncertaintyConverter {
 
@@ -38,6 +38,30 @@ class UncertaintyConverter {
 		}
 	}
 
+	public void map(Parameter oParameter,
+			org.openlca.ilcd.processes.Parameter iParameter) {
+		Uncertainty uncertainty = oParameter.getUncertainty();
+		if (uncertainty == null
+				|| uncertainty.getDistributionType() == UncertaintyType.NONE)
+			return;
+		switch (uncertainty.getDistributionType()) {
+		case LOG_NORMAL:
+			mapLogNormal(oParameter, iParameter);
+			break;
+		case NORMAL:
+			mapNormal(oParameter, iParameter);
+			break;
+		case TRIANGLE:
+			mapTriangle(oParameter, iParameter);
+			break;
+		case UNIFORM:
+			mapUniform(oParameter, iParameter);
+			break;
+		default:
+			break;
+		}
+	}
+
 	private void mapLogNormal(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		Double param = getUncertaintyParam(2, oExchange);
@@ -49,6 +73,17 @@ class UncertaintyConverter {
 				.setUncertaintyDistribution(UncertaintyDistribution.LOG_NORMAL);
 	}
 
+	private void mapLogNormal(Parameter oParameter,
+			org.openlca.ilcd.processes.Parameter iParameter) {
+		Double std = oParameter.getUncertainty().getParameter2Value();
+		if (std == null)
+			return;
+		BigDecimal stdDec = new BigDecimal(std);
+		iParameter.setRelativeStandardDeviation95In(stdDec);
+		iParameter
+				.setUncertaintyDistributionType(UncertaintyDistribution.LOG_NORMAL);
+	}
+
 	private void mapNormal(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		Double param = getUncertaintyParam(2, oExchange);
@@ -57,6 +92,17 @@ class UncertaintyConverter {
 		BigDecimal decimal = new BigDecimal(param);
 		iExchange.setRelativeStandardDeviation95In(decimal);
 		iExchange.setUncertaintyDistribution(UncertaintyDistribution.NORMAL);
+	}
+
+	private void mapNormal(Parameter oParameter,
+			org.openlca.ilcd.processes.Parameter iParameter) {
+		Double std = oParameter.getUncertainty().getParameter2Value();
+		if (std == null)
+			return;
+		BigDecimal stdDec = new BigDecimal(std);
+		iParameter.setRelativeStandardDeviation95In(stdDec);
+		iParameter
+				.setUncertaintyDistributionType(UncertaintyDistribution.NORMAL);
 	}
 
 	private void mapTriangular(Exchange oExchange,
@@ -73,6 +119,21 @@ class UncertaintyConverter {
 				.setUncertaintyDistribution(UncertaintyDistribution.TRIANGULAR);
 	}
 
+	private void mapTriangle(Parameter oParameter,
+			org.openlca.ilcd.processes.Parameter iParameter) {
+		Double min = oParameter.getUncertainty().getParameter1Value();
+		// Double mode = oParameter.getUncertainty().getParameter2Value();
+		// TODO: ILCD do not provide a field for the mode, we have to add
+		// an extension to the format
+		Double max = oParameter.getUncertainty().getParameter3Value();
+		if (min == null || max == null)
+			return;
+		iParameter.setMinimumValue(min);
+		iParameter.setMaximumValue(max);
+		iParameter
+				.setUncertaintyDistributionType(UncertaintyDistribution.TRIANGULAR);
+	}
+
 	private void mapUniform(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		Double param1 = getUncertaintyParam(1, oExchange);
@@ -82,6 +143,18 @@ class UncertaintyConverter {
 		iExchange.setMinimumAmount(param1);
 		iExchange.setMaximumAmount(param2);
 		iExchange.setUncertaintyDistribution(UncertaintyDistribution.UNIFORM);
+	}
+
+	private void mapUniform(Parameter oParameter,
+			org.openlca.ilcd.processes.Parameter iParameter) {
+		Double min = oParameter.getUncertainty().getParameter1Value();
+		Double max = oParameter.getUncertainty().getParameter2Value();
+		if (min == null || max == null)
+			return;
+		iParameter.setMinimumValue(min);
+		iParameter.setMaximumValue(max);
+		iParameter
+				.setUncertaintyDistributionType(UncertaintyDistribution.UNIFORM);
 	}
 
 	private Double getUncertaintyParam(int param, Exchange oExchange) {

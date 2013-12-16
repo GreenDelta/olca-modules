@@ -5,24 +5,32 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.database.mysql.MySQLDatabase;
-import org.openlca.jblas.Library;
+import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.math.JavaMatrixFactory;
 
 public class TestSession {
 
 	private static IDatabase mysqlDatabase;
 	private static IDatabase derbyDatabase;
+	private static IMatrixFactory matrixFactory;
 
 	public static IDatabase getDefaultDatabase() {
 		return getDerbyDatabase();
 	}
 
-	/** Tries to load the native BLAS library if it is not yet done. */
-	public static void prefereBlas() {
-		if (Library.isLoaded())
-			return;
-		String tmpDirPath = System.getProperty("java.io.tmpdir");
-		File tempDir = new File(tmpDirPath);
-		Library.loadFromDir(tempDir);
+	public static IMatrixFactory getMatrixFactory() {
+		if (matrixFactory != null)
+			return matrixFactory;
+		// if (!Library.isLoaded()) {
+		// String tmpDirPath = System.getProperty("java.io.tmpdir");
+		// File tempDir = new File(tmpDirPath);
+		// Library.loadFromDir(tempDir);
+		// }
+		// if (Library.isLoaded())
+		// matrixFactory = new BlasMatrixFactory();
+		// else
+		matrixFactory = new JavaMatrixFactory();
+		return matrixFactory;
 	}
 
 	public static IDatabase getMySQLDatabase() {

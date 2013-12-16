@@ -12,8 +12,8 @@ a bit old. The version that openLCA currently uses is v34 which you can
 get from the [ojalgo](http://ojalgo.org/) web-site and install via Maven 
 into your local repository:
 
-    mvn install:install-file -Dfile=ojalgo-34.0.jar -DgroupId=org.ojalgo \
-    -DartifactId=ojalgo -Dversion=34.0 -Dpackaging=jar
+    mvn install:install-file -Dfile=ojalgo-34.8.jar -DgroupId=org.ojalgo \
+    -DartifactId=ojalgo -Dversion=34.8 -Dpackaging=jar
 
 On some platforms you may have to [quote the arguments](http://bit.ly/18k1Bli). 
 

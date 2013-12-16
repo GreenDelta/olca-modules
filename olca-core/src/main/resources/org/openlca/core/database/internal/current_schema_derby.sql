@@ -9,6 +9,7 @@
 -- CREATE DATABASE openlca;
 -- USE openlca;
 
+
 CREATE TABLE SEQUENCE (	
 	SEQ_NAME VARCHAR(255) NOT NULL,
 	SEQ_COUNT BIGINT
@@ -16,15 +17,13 @@ CREATE TABLE SEQUENCE (
 INSERT INTO SEQUENCE(SEQ_NAME, SEQ_COUNT) VALUES('entity_seq', 0);
 
 
--- current database version
 CREATE TABLE openlca_version (
-
-	id VARCHAR(36) NOT NULL,
-	version VARCHAR(255),	
-	name VARCHAR(255), 
 	
-	PRIMARY KEY (ID)
+	version SMALLINT	
+	
 );
+INSERT INTO openlca_version (version) VALUES (1);
+
 
 CREATE TABLE tbl_categories (
 
@@ -252,17 +251,17 @@ CREATE TABLE tbl_exchanges (
 	is_input SMALLINT default 0, 
 	f_flow_property_factor BIGINT, 
 	resulting_amount_value DOUBLE, 
-	resulting_amount_formula VARCHAR(255), 
+	resulting_amount_formula VARCHAR(1000), 
 	avoided_product SMALLINT default 0,
 	f_default_provider BIGINT,
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
-	parameter1_formula VARCHAR(255), 
+	parameter1_formula VARCHAR(1000), 
 	parameter2_value DOUBLE, 
-	parameter2_formula VARCHAR(255), 
+	parameter2_formula VARCHAR(1000), 
 	parameter3_value DOUBLE, 
-	parameter3_formula VARCHAR(255), 
+	parameter3_formula VARCHAR(1000), 
 	
 	pedigree_uncertainty VARCHAR(50),
 	base_uncertainty DOUBLE,
@@ -318,16 +317,13 @@ CREATE TABLE tbl_product_system_processes (
 
 CREATE TABLE tbl_process_links (
 
-	id BIGINT NOT NULL, 
 	f_product_system BIGINT, 
 	f_provider BIGINT, 
 	f_recipient BIGINT, 
-	f_flow BIGINT, 
-	
-	PRIMARY KEY (id)
+	f_flow BIGINT 
 	
 );
-
+CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 
 CREATE TABLE tbl_impact_methods (
 
@@ -366,18 +362,17 @@ CREATE TABLE tbl_impact_factors (
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
-	parameter1_formula VARCHAR(255), 
+	parameter1_formula VARCHAR(1000), 
 	parameter2_value DOUBLE, 
-	parameter2_formula VARCHAR(255), 
+	parameter2_formula VARCHAR(1000), 
 	parameter3_value DOUBLE, 
-	parameter3_formula VARCHAR(255), 
+	parameter3_formula VARCHAR(1000), 
 	
 	PRIMARY KEY (id)
 
 );
 CREATE INDEX idx_impact_factor_flow ON tbl_impact_factors(f_flow);
 
--- normalisation and weighting sets of impact methods
 
 CREATE TABLE tbl_normalisation_weighting_sets (
 
@@ -390,8 +385,6 @@ CREATE TABLE tbl_normalisation_weighting_sets (
 
 );
 
-
--- factors of normalisation and weighting sets of impact methods
 
 CREATE TABLE tbl_normalisation_weighting_factors (
 
@@ -415,7 +408,15 @@ CREATE TABLE tbl_parameters (
 	f_owner BIGINT, 
 	scope VARCHAR(255), 
 	value DOUBLE, 
-	formula VARCHAR(255),
+	formula VARCHAR(1000),
+	
+	distribution_type INTEGER default 0, 
+	parameter1_value DOUBLE, 
+	parameter1_formula VARCHAR(1000), 
+	parameter2_value DOUBLE, 
+	parameter2_formula VARCHAR(1000), 
+	parameter3_value DOUBLE, 
+	parameter3_formula VARCHAR(1000), 
 	
 	PRIMARY KEY (id)
 );
@@ -427,6 +428,14 @@ CREATE TABLE tbl_parameter_redefs (
 	f_owner BIGINT, 
 	f_process BIGINT,
 	value DOUBLE,
+	
+	distribution_type INTEGER default 0, 
+	parameter1_value DOUBLE, 
+	parameter1_formula VARCHAR(1000), 
+	parameter2_value DOUBLE, 
+	parameter2_formula VARCHAR(1000), 
+	parameter3_value DOUBLE, 
+	parameter3_formula VARCHAR(1000), 
 	
 	PRIMARY KEY (id)
 );
@@ -461,6 +470,7 @@ CREATE TABLE tbl_project_variants (
 	PRIMARY KEY (id)	
 );
 
+
 CREATE TABLE tbl_cost_categories (	
 	id BIGINT NOT NULL,
 	name VARCHAR(255),
@@ -468,6 +478,7 @@ CREATE TABLE tbl_cost_categories (
 	fix SMALLINT default 0,
 	PRIMARY KEY (id)
 ) ;
+
 
 CREATE TABLE tbl_process_cost_entries (
 	id BIGINT NOT NULL,
@@ -477,6 +488,7 @@ CREATE TABLE tbl_process_cost_entries (
 	amount DOUBLE,	
 	PRIMARY KEY (id)
 ) ;
+
 
 CREATE TABLE tbl_process_group_sets (
 	id BIGINT NOT NULL,
@@ -502,6 +514,3 @@ CREATE TABLE `tbl_mapping_contents` (
   PRIMARY KEY (id)
 ) ;
 
--- the version entry
-INSERT INTO openlca_version(id, version, name) 
-	VALUES('b3dae112-8c6f-4c0e-9843-4758af2441cc', '1.4.0', 'openLCA');

@@ -1,6 +1,7 @@
 package org.openlca.core.model;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -21,12 +22,17 @@ public class ParameterRedef extends AbstractEntity {
 	@Column(name = "value")
 	private double value;
 
+	@Embedded
+	private Uncertainty uncertainty;
+
 	@Override
 	public ParameterRedef clone() {
 		ParameterRedef clone = new ParameterRedef();
 		clone.setName(getName());
 		clone.setProcessId(getProcessId());
 		clone.setValue(getValue());
+		if (getUncertainty() != null)
+			clone.setUncertainty(getUncertainty().clone());
 		return clone;
 	}
 
@@ -52,6 +58,14 @@ public class ParameterRedef extends AbstractEntity {
 
 	public void setValue(double value) {
 		this.value = value;
+	}
+
+	public Uncertainty getUncertainty() {
+		return uncertainty;
+	}
+
+	public void setUncertainty(Uncertainty uncertainty) {
+		this.uncertainty = uncertainty;
 	}
 
 }

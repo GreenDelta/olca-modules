@@ -65,6 +65,7 @@ class ProcessParameterConversion {
 		iParameter.setName(oParam.getName());
 		iParameter.setFormula(oParam.getFormula());
 		iParameter.setMeanValue(oParam.getValue());
+		new UncertaintyConverter().map(oParam, iParameter);
 		if (Strings.notEmpty(oParam.getDescription())) {
 			iParameter.getComment().add(
 					LangString.label(oParam.getDescription()));

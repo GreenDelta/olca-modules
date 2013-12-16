@@ -66,7 +66,7 @@ public class PedigreeMatrix {
 	}
 
 	Element toXml() {
-		Element element = new Element("pedigreeMatrix", Out.NS);
+		Element element = new Element("pedigreeMatrix", IO.NS);
 		element.setAttribute("completeness", Integer.toString(completeness));
 		element.setAttribute("furtherTechnologyCorrelation",
 				Integer.toString(furtherTechnologyCorrelation));

@@ -23,35 +23,7 @@ public interface IMatrix {
 	/** Get the column values of the given row. */
 	double[] getRow(int i);
 
-	/**
-	 * Performs a matrix multiplication with this matrix and the given matrix
-	 * and returns the result as new matrix.
-	 */
-	IMatrix multiply(IMatrix with);
-
-	/**
-	 * Performs a matrix addition with this matrix and the given matrix and
-	 * returns the result as new matrix.
-	 */
-	IMatrix add(IMatrix toAdd);
-
-	/**
-	 * Solves the linear equation system A * X = B, where A is the matrix on
-	 * which this method is called, B is the argument of this method, and X is
-	 * returned.
-	 */
-	IMatrix solve(IMatrix b);
-
-	/** Calculates the inverse of this matrix and returns it. */
-	IMatrix getInverse();
-
 	/** Creates a copy of this matrix and returns it */
 	IMatrix copy();
-
-	/**
-	 * Performs a matrix subtraction with this matrix and the given matrix and
-	 * returns the result as new matrix.
-	 */
-	IMatrix subtract(IMatrix b);
 
 }

@@ -28,8 +28,8 @@ class AnalysisFlowImpacts {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
-		startRow = export.IMPACT_INFO_SIZE + 1;
-		startCol = export.FLOW_INFO_SIZE;
+		startRow = CellWriter.IMPACT_INFO_SIZE + 1;
+		startCol = CellWriter.FLOW_INFO_SIZE;
 	}
 
 	public static void write(Sheet sheet, AnalysisResult result,
@@ -38,21 +38,22 @@ class AnalysisFlowImpacts {
 	}
 
 	private void doIt() {
-		export.writeImpactColHeader(sheet, startCol);
-		export.writeFlowRowHeader(sheet, startRow);
+		export.getWriter().writeImpactColHeader(sheet, startCol);
+		export.getWriter().writeFlowRowHeader(sheet, startRow);
 		export.visitFlows(new FlowInfoWriter());
 		FlowImpactContribution contribution = new FlowImpactContribution(
 				result, export.getCache());
 		FlowValueWriter valueWriter = new FlowValueWriter();
 		int col = startCol + 1;
 		for (ImpactCategoryDescriptor impact : export.getImpacts()) {
-			export.writeImpactColInfo(sheet, col, impact);
+			export.getWriter().writeImpactColInfo(sheet, col, impact);
 			ContributionSet<FlowDescriptor> contributions = contribution
 					.calculate(impact);
 			valueWriter.setNext(contributions, col);
 			export.visitFlows(valueWriter);
 			col++;
 		}
+		// there are problems with auto-size when the sheet is streamed
 		// Excel.autoSize(sheet, 1, 2, 3, 4, 5, 6);
 	}
 
@@ -62,7 +63,7 @@ class AnalysisFlowImpacts {
 
 		@Override
 		public void next(FlowDescriptor flow, boolean input) {
-			export.writeFlowRowInfo(sheet, row++, flow);
+			export.getWriter().writeFlowRowInfo(sheet, row++, flow);
 		}
 	}
 
