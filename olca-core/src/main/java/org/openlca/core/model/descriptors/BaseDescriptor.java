@@ -90,7 +90,7 @@ public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " [id=" + id + ", name=" + name
-				+ "type=" + type + "]";
+				+ ", type=" + type + "]";
 	}
 
 }
