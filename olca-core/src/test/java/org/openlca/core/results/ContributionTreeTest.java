@@ -19,7 +19,7 @@ public class ContributionTreeTest {
 	public void testSimpleTree() {
 
 		InventoryMatrix matrix = new InventoryMatrix();
-		ProductIndex productIndex = new ProductIndex(LongPair.of(1, 1), 1.0);
+		ProductIndex productIndex = new ProductIndex(LongPair.of(1, 1));
 		productIndex.put(LongPair.of(2, 2));
 		productIndex.put(LongPair.of(3, 3));
 		productIndex.putLink(LongPair.of(1, 2), LongPair.of(2, 2));

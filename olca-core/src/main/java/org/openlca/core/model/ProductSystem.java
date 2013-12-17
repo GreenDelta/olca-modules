@@ -16,12 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-/**
- * <p style="margin-top: 0">
- * A product system is a connection between different processes which at the end
- * produces one product
- * </p>
- */
 @Entity
 @Table(name = "tbl_product_systems")
 public class ProductSystem extends CategorizedEntity {
@@ -99,17 +93,6 @@ public class ProductSystem extends CategorizedEntity {
 
 	public Unit getTargetUnit() {
 		return targetUnit;
-	}
-
-	/**
-	 * Getter of the converted target amount
-	 * 
-	 * @return The target amount multiplied with the unit conversion factor
-	 *         divided by the flow property conversion factor
-	 */
-	public double getConvertedTargetAmount() {
-		return targetAmount / targetFlowPropertyFactor.getConversionFactor()
-				* targetUnit.getConversionFactor();
 	}
 
 	public List<ParameterRedef> getParameterRedefs() {

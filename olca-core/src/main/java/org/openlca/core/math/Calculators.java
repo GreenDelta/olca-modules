@@ -38,6 +38,7 @@ final class Calculators {
 		if (method == null)
 			method = AllocationMethod.NONE;
 		ProductIndex productIndex = ProductSystems.createProductIndex(system);
+        productIndex.setDemand(ReferenceAmount.get(setup));
 		InventoryBuilder inventoryBuilder = new InventoryBuilder(cache);
 		Inventory inventory = inventoryBuilder.build(productIndex, method);
 		FormulaInterpreter interpreter = FormulaInterpreterBuilder.build(

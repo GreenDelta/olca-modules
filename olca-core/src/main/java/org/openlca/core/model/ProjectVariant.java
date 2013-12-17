@@ -21,8 +21,8 @@ public class ProjectVariant extends AbstractEntity {
     private Unit unit;
 
     @OneToOne
-    @JoinColumn(name = "f_flow_property")
-    private FlowProperty flowProperty;
+    @JoinColumn(name = "f_flow_property_factor")
+    private FlowPropertyFactor flowPropertyFactor;
 
     @Column(name = "amount")
     private double amount;
@@ -73,20 +73,20 @@ public class ProjectVariant extends AbstractEntity {
         this.unit = unit;
     }
 
-    public FlowProperty getFlowProperty() {
-        return flowProperty;
-    }
-
-    public void setFlowProperty(FlowProperty flowProperty) {
-        this.flowProperty = flowProperty;
-    }
-
     public double getAmount() {
         return amount;
     }
 
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    public FlowPropertyFactor getFlowPropertyFactor() {
+        return flowPropertyFactor;
+    }
+
+    public void setFlowPropertyFactor(FlowPropertyFactor flowPropertyFactor) {
+        this.flowPropertyFactor = flowPropertyFactor;
     }
 
     public AllocationMethod getAllocationMethod() {
