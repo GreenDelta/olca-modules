@@ -26,10 +26,10 @@ final class Calculators {
 	 * and flows.
 	 */
 	static ImpactTable createImpactTable(ImpactMethodDescriptor method,
-			FlowIndex flowIndex, MatrixCache matrixCache) {
+	                                     FlowIndex flowIndex,
+	                                     MatrixCache matrixCache) {
 		ImpactTableBuilder builder = new ImpactTableBuilder(matrixCache);
-		ImpactTable table = builder.build(method.getId(), flowIndex);
-		return table;
+		return builder.build(method.getId(), flowIndex);
 	}
 
 	static Inventory createInventory(CalculationSetup setup, MatrixCache cache) {
@@ -38,7 +38,7 @@ final class Calculators {
 		if (method == null)
 			method = AllocationMethod.NONE;
 		ProductIndex productIndex = ProductSystems.createProductIndex(system);
-        productIndex.setDemand(ReferenceAmount.get(setup));
+		productIndex.setDemand(ReferenceAmount.get(setup));
 		InventoryBuilder inventoryBuilder = new InventoryBuilder(cache);
 		Inventory inventory = inventoryBuilder.build(productIndex, method);
 		FormulaInterpreter interpreter = FormulaInterpreterBuilder.build(
