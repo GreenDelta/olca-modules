@@ -32,7 +32,7 @@ public class IsicTreeTest {
 	}
 
 	@Test
-	public void testSyncCategories() {
+	public void testSyncFlowCategories() {
 		IDatabase database = TestSession.getDerbyDatabase();
 		CategoryDao dao = new CategoryDao(database);
 		Category cat = new Category();
@@ -43,6 +43,22 @@ public class IsicTreeTest {
 		cat = dao.getForId(cat.getId());
 		Assert.assertNotNull(cat.getParentCategory());
 		Assert.assertEquals("012:Growing of perennial crops", cat
+				.getParentCategory().getName());
+	}
+
+	@Test
+	public void testSyncProcessCategories() {
+		IDatabase database = TestSession.getDerbyDatabase();
+		CategoryDao dao = new CategoryDao(database);
+		Category cat = new Category();
+		String catName = "01:Crop and animal production, hunting and related service activities";
+		cat.setName(catName);
+		cat.setModelType(ModelType.PROCESS);
+		cat = dao.insert(cat);
+		new IsicCategoryTreeSync(database, ModelType.PROCESS).run();
+		cat = dao.getForId(cat.getId());
+		Assert.assertNotNull(cat.getParentCategory());
+		Assert.assertEquals("A:Agriculture, forestry and fishing", cat
 				.getParentCategory().getName());
 	}
 
