@@ -466,7 +466,11 @@ CREATE TABLE tbl_project_variants (
 	f_project BIGINT,
 	name VARCHAR(255), 
 	f_product_system BIGINT,
-	
+	f_unit BIGINT,
+	f_flow_property BIGINT,
+	amount DOUBLE,
+	allocation_method VARCHAR(255),
+
 	PRIMARY KEY (id)	
 );
 

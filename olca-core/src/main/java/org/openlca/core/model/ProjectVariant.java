@@ -3,13 +3,7 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "tbl_project_variants")
@@ -21,6 +15,21 @@ public class ProjectVariant extends AbstractEntity {
 	@OneToOne
 	@JoinColumn(name = "f_product_system")
 	private ProductSystem productSystem;
+
+    @OneToOne
+    @JoinColumn(name = "f_unit")
+    private Unit unit;
+
+    @OneToOne
+    @JoinColumn(name = "f_flow_property")
+    private FlowProperty flowProperty;
+
+    @Column(name = "amount")
+    private double amount;
+
+    @Column(name = "allocation_method")
+    @Enumerated(EnumType.STRING)
+    private AllocationMethod allocationMethod;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
@@ -55,4 +64,36 @@ public class ProjectVariant extends AbstractEntity {
 	public List<ParameterRedef> getParameterRedefs() {
 		return parameterRedefs;
 	}
+
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+
+    public FlowProperty getFlowProperty() {
+        return flowProperty;
+    }
+
+    public void setFlowProperty(FlowProperty flowProperty) {
+        this.flowProperty = flowProperty;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public AllocationMethod getAllocationMethod() {
+        return allocationMethod;
+    }
+
+    public void setAllocationMethod(AllocationMethod allocationMethod) {
+        this.allocationMethod = allocationMethod;
+    }
 }
