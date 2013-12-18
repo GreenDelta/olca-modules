@@ -116,6 +116,8 @@ class ReferenceDataImporter {
 
 	private void convertUnits() {
 		for (SPUnit spUnit : referenceData.getUnits()) {
+			if (spUnit.getName().equals("ton"))
+				System.out.println();
 			Unit unit = find(spUnit);
 			if (unit == null) {
 				unit = convert(spUnit);
@@ -123,6 +125,7 @@ class ReferenceDataImporter {
 						.getQuantity());
 				unitGroup.getUnits().add(unit);
 				unitGroup = unitGroupDao.update(unitGroup);
+				unit = unitGroup.getUnit(unit.getName());
 			}
 			cache.unitMap.put(spUnit.getName(), unit);
 		}
@@ -186,10 +189,9 @@ class ReferenceDataImporter {
 		Unit unit = null;
 		List<Unit> list = unitDao.getForName(spUnit.getName());
 		for (Unit u : list) {
-			if (u.getConversionFactor() == spUnit.getConversionFactor()) {
-				unit = u;
-				break;
-			}
+			// TODO: check
+			unit = u;
+			break;
 		}
 		return unit;
 	}
