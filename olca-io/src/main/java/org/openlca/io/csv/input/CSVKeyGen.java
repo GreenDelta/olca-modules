@@ -8,6 +8,7 @@ import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.types.ProcessCategory;
+import org.openlca.simapro.csv.model.types.SubCompartment;
 
 public class CSVKeyGen {
 
@@ -34,7 +35,10 @@ public class CSVKeyGen {
 		vals[1] = elementaryFlow.getUnit();
 		vals[2] = elementaryFlow.getType().getSubstance();
 		vals[3] = elementaryFlow.getUnit();
-		vals[4] = elementaryFlow.getSubCompartment().getValue();
+		if (elementaryFlow.getSubCompartment() != null)
+			vals[4] = elementaryFlow.getSubCompartment().getValue();
+		else
+			vals[4] = SubCompartment.UNSPECIFIED.getValue();
 		return KeyGen.get(vals);
 	}
 
