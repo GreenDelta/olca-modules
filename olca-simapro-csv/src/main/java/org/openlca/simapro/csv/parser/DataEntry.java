@@ -9,6 +9,7 @@ import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPReferenceData;
+import org.openlca.simapro.csv.model.SPWasteScenario;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.types.ElementaryFlowType;
 import org.openlca.simapro.csv.model.types.ParameterType;
@@ -100,8 +101,10 @@ class DataEntry {
 				csvSeperator, referenceData).parse(lines);
 
 		// TODO implement parse waste scenario
-		if (documentation.getCategory() == ProcessCategory.WASTE_SCENARIO)
-			throw new CSVParserException("Waste scenarios not implemented.");
+		if (documentation.getCategory() == ProcessCategory.WASTE_SCENARIO) {
+			System.err.println("Waste scenarios not implemented. !!!");
+			return new SPWasteScenario();
+		}
 
 		if (documentation.getCategory() == ProcessCategory.WASTE_TREATMENT) {
 			if (!lines.isEmpty())
