@@ -9,7 +9,7 @@ import org.openlca.simapro.csv.model.types.SubCompartment;
 public class SPElementaryFlow extends SPFlow {
 
 	private IDistribution distribution;
-	private SubCompartment subCompartment;
+	private SubCompartment subCompartment = SubCompartment.UNSPECIFIED;
 	private ElementaryFlowType type;
 
 	public SPElementaryFlow(ElementaryFlowType type, String name, String unit,
