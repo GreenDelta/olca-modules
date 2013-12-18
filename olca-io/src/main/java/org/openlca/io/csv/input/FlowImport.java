@@ -189,7 +189,7 @@ public class FlowImport {
 
 	private void setAmount(Exchange exchange, String amount) {
 		if (Utils.isNumeric(amount))
-			exchange.setAmountValue(Double.parseDouble(amount));
+			exchange.setAmountValue(Double.parseDouble(amount.replace(",", ".")));
 		else
 			exchange.setAmountFormula(amount);
 	}
@@ -241,7 +241,7 @@ public class FlowImport {
 		if (!Utils.isNumeric(amount))
 			return;
 		exchange.setUncertainty(convertUncertainty(distribution,
-				Double.parseDouble(amount)));
+				Double.parseDouble(amount.replace(",", "."))));
 		String pedigree = getPedigreeString(distribution);
 		if (pedigree != null)
 			exchange.setPedigreeUncertainty(pedigree);
@@ -426,10 +426,15 @@ public class FlowImport {
 				wasteSpecification.getCategory()));
 		if (Utils.nullCheck(wasteSpecification.getComment()))
 			flow.setDescription(wasteSpecification.getComment());
+		flowDao.insert(flow);
 		return flow;
 	}
 
 	private String mapSubcompartmentCategory(SubCompartment subCompartment) {
+		// TODO:
+		if (subCompartment == null)
+			subCompartment = SubCompartment.UNSPECIFIED;
+
 		String subCategoryName = null;
 		switch (subCompartment) {
 		case AIRBORNE_HIGH_POP:
