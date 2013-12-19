@@ -496,21 +496,3 @@ CREATE TABLE tbl_process_group_sets (
 	groups_blob BLOB(16 M),		
 	PRIMARY KEY (id)	
 ) ;
-
-CREATE TABLE `tbl_mappings` (
-  id VARCHAR(50) NOT NULL,
-  input SMALLINT default 0,
-  model_type VARCHAR(50) DEFAULT NULL,
-  format VARCHAR(50) DEFAULT NULL,
-  f_olca_content VARCHAR(50) DEFAULT '',
-  f_content VARCHAR(50) DEFAULT '',
-  PRIMARY KEY (id)
-) ;
-
-CREATE TABLE `tbl_mapping_contents` (
-  id int(11) unsigned NOT NULL AUTO_INCREMENT,
-  content VARCHAR(100) DEFAULT NULL,
-  discriminator VARCHAR(20) DEFAULT NULL,
-  PRIMARY KEY (id)
-) ;
-
