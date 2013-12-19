@@ -466,7 +466,23 @@ CREATE TABLE tbl_project_variants (
 	f_project BIGINT,
 	name VARCHAR(255), 
 	f_product_system BIGINT,
-	
+	f_unit BIGINT,
+	f_flow_property_factor BIGINT,
+	amount DOUBLE,
+	allocation_method VARCHAR(255),
+
+	PRIMARY KEY (id)	
+);
+
+
+CREATE TABLE tbl_mappings (
+	id VARCHAR(50) NOT NULL,
+	map_type VARCHAR(50),	
+	format VARCHAR(50),	
+	external_key VARCHAR(255),	
+	external_name VARCHAR(255),	
+	olca_id VARCHAR(36),	
+	factor DOUBLE,		
 	PRIMARY KEY (id)	
 );
 
@@ -496,3 +512,4 @@ CREATE TABLE tbl_process_group_sets (
 	groups_blob BLOB(16 M),		
 	PRIMARY KEY (id)	
 ) ;
+

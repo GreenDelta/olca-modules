@@ -27,6 +27,10 @@ public class ProjectCalculator {
 		for (ProjectVariant v : project.getVariants()) {
 			CalculationSetup setup = new CalculationSetup(v.getProductSystem(),
 					CalculationSetup.QUICK_RESULT);
+            setup.setUnit(v.getUnit());
+            setup.setFlowPropertyFactor(v.getFlowPropertyFactor());
+            setup.setAmount(v.getAmount());
+            setup.setAllocationMethod(v.getAllocationMethod());
 			setup.setImpactMethod(method);
 			setup.setNwSet(nwSet);
 			setup.getParameterRedefs().addAll(v.getParameterRedefs());

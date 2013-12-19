@@ -36,8 +36,10 @@ public interface IUseSearch<T extends BaseDescriptor> {
 				return (IUseSearch<T>) new ProcessUseSearch(database);
 			case LOCATION:
 				return (IUseSearch<T>) new LocationUseSearch(database);
+			case IMPACT_METHOD:
+				return (IUseSearch<T>) new ImpactMethodUseSearch(database);
 			default:
-				return null;
+				return new EmptyUseSearch<T>();
 			}
 		}
 	}

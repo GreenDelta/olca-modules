@@ -37,7 +37,8 @@ public class ProductIndexBuilder {
 
 	public ProductIndex build(LongPair refProduct, double demand) {
 		log.trace("build product index for {}", refProduct);
-		ProductIndex index = new ProductIndex(refProduct, demand);
+		ProductIndex index = new ProductIndex(refProduct);
+        index.setDemand(demand);
 		List<LongPair> block = new ArrayList<>();
 		block.add(refProduct);
 		HashSet<LongPair> handled = new HashSet<>();
@@ -127,8 +128,6 @@ public class ProductIndexBuilder {
 		ProcessType newOptionType = processTable.getType(newOption.getFirst());
 		if (candidateType == preferredType && newOptionType != preferredType)
 			return false;
-		if (candidateType != preferredType && newOptionType == preferredType)
-			return true;
-		return false;
-	}
+        return candidateType != preferredType && newOptionType == preferredType;
+    }
 }

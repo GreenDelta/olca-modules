@@ -466,7 +466,23 @@ CREATE TABLE tbl_project_variants (
 	f_project BIGINT,
 	name VARCHAR(255), 
 	f_product_system BIGINT,
+	f_unit BIGINT,
+    f_flow_property_factor BIGINT,
+    amount DOUBLE,
+    allocation_method VARCHAR(255),
 	
+	PRIMARY KEY (id)	
+);
+
+
+CREATE TABLE tbl_mappings (
+	id VARCHAR(50) NOT NULL,
+	map_type VARCHAR(50),	
+	format VARCHAR(50),	
+	external_key VARCHAR(255),	
+	external_name VARCHAR(255),	
+	olca_id VARCHAR(36),	
+	factor DOUBLE,		
 	PRIMARY KEY (id)	
 );
 
@@ -496,22 +512,4 @@ CREATE TABLE tbl_process_group_sets (
 	groups_blob MEDIUMBLOB,		
 	PRIMARY KEY (id)	
 ) ;
-
-CREATE TABLE `tbl_mappings` (
-  id VARCHAR(50) NOT NULL,
-  input TINYINT(1) DEFAULT NULL,
-  model_type VARCHAR(50) DEFAULT NULL,
-  format VARCHAR(50) DEFAULT NULL,
-  f_olca_content VARCHAR(50) DEFAULT '',
-  f_content VARCHAR(50) DEFAULT '',
-  PRIMARY KEY (id)
-) ;
-
-CREATE TABLE `tbl_mapping_contents` (
-  id int(11) unsigned NOT NULL AUTO_INCREMENT,
-  content VARCHAR(100) DEFAULT NULL,
-  discriminator VARCHAR(20) DEFAULT NULL,
-  PRIMARY KEY (id)
-) ;
-
 

@@ -1,13 +1,13 @@
 package org.openlca.io.ecospold2.input;
 
-import java.util.List;
-import java.util.Stack;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.ecospold2.input.IsicTree.IsicNode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Adds ISIC top-level categories to existing ISIC categories. In ecoinvent 3
@@ -30,48 +30,56 @@ public class IsicCategoryTreeSync implements Runnable {
 		IsicTree isicTree = IsicTree.fromFile(getClass().getResourceAsStream(
 				"isic_codes_rev4.txt"));
 		List<Category> roots = dao.getRootCategories(type);
+		List<IsicNode> assignedNodes = new ArrayList<>();
 		for (Category root : roots) {
 			IsicNode node = findNode(root, isicTree);
-			if (node == null || node.getCategory() != null)
+			if (node == null)
 				continue;
-			syncPath(node, root);
+			node.setCategory(root);
+			assignedNodes.add(node);
 		}
+		for (IsicNode assignedNode : assignedNodes)
+			syncPath(assignedNode);
+		for (IsicNode root : isicTree.getRoots())
+			syncWithDatabase(root);
 	}
 
-	private void syncPath(IsicNode node, Category oldRoot) {
-		node.setCategory(oldRoot);
-		if (node.getParent() == null)
+	private void syncWithDatabase(IsicNode root) {
+		Category category = root.getCategory();
+		if (category == null)
 			return;
-		Stack<IsicNode> stack = new Stack<>();
-		IsicNode root = node;
-		while (root.getParent() != null) {
-			stack.push(root.getParent());
-			root = root.getParent();
+		if (category.getId() == 0L) {
+			category = dao.insert(category);
+			root.setCategory(category);
 		}
-		createCategories(stack);
-		Category newParentCategory = node.getParent().getCategory();
-		oldRoot.setParentCategory(newParentCategory);
-		newParentCategory.getChildCategories().add(oldRoot);
-		dao.update(root.getCategory());
-	}
-
-	private void createCategories(Stack<IsicNode> stack) {
-		while (!stack.isEmpty()) {
-			IsicNode n = stack.pop();
-			if (n.getCategory() != null)
-				continue;
-			Category category = toCategory(n);
-			dao.insert(category);
-			n.setCategory(category);
-			if (n.getParent() != null) {
-				category.setParentCategory(n.getParent().getCategory());
-				n.getParent().getCategory().getChildCategories().add(category);
-				dao.update(n.getParent().getCategory());
+		for (IsicNode childNode : root.getChilds()) {
+			if (childNode.getCategory() != null) {
+				syncWithDatabase(childNode);
+				category.getChildCategories().add(childNode.getCategory());
+				childNode.getCategory().setParentCategory(category);
 			}
 		}
+		category = dao.update(category);
+		root.setCategory(category);
 	}
 
-	/** Finds the ISIC node for the given category. */
+	private void syncPath(IsicNode node) {
+		if (node.getParent() == null)
+			return;
+		IsicNode parent = node.getParent();
+		while (parent != null) {
+			Category parentCategory = parent.getCategory();
+			if (parentCategory == null) {
+				parentCategory = createCategory(parent);
+				parent.setCategory(parentCategory);
+			}
+			parent = parent.getParent();
+		}
+	}
+
+	/**
+	 * Finds the ISIC node for the given category.
+	 */
 	private IsicNode findNode(Category category, IsicTree isicTree) {
 		if (!category.getName().contains(":"))
 			return null;
@@ -79,11 +87,12 @@ public class IsicCategoryTreeSync implements Runnable {
 		return isicTree.findNode(code);
 	}
 
-	private Category toCategory(IsicNode node) {
+	private Category createCategory(IsicNode node) {
 		Category category = new Category();
 		category.setModelType(type);
 		category.setName(node.getCode() + ":" + node.getName());
 		category.setRefId(org.openlca.io.KeyGen.get(category.getName()));
 		return category;
 	}
+
 }

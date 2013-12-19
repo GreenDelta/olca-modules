@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -150,8 +151,9 @@ public class SystemExport {
 		DataSetReference flowRef = ExportDispatch.forwardExportCheck(
 				refExchange.getFlow(), database, dataStore);
 		exchange.setFlow(flowRef);
-		exchange.setMeanAmount(system.getConvertedTargetAmount());
-		exchange.setResultingAmount(system.getConvertedTargetAmount());
+		double refAmount = ReferenceAmount.get(system);
+		exchange.setMeanAmount(refAmount);
+		exchange.setResultingAmount(refAmount);
 	}
 
 	private boolean canRun() {

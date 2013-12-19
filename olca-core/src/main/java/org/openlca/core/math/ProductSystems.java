@@ -31,8 +31,9 @@ public class ProductSystems {
 		Exchange refExchange = system.getReferenceExchange();
 		Flow refFlow = refExchange.getFlow();
 		LongPair refProduct = new LongPair(refProcess.getId(), refFlow.getId());
-		double demand = system.getConvertedTargetAmount();
-		ProductIndex index = new ProductIndex(refProduct, demand);
+		double demand = ReferenceAmount.get(system);
+		ProductIndex index = new ProductIndex(refProduct);
+        index.setDemand(demand);
 		for (ProcessLink link : system.getProcessLinks()) {
 			long flow = link.getFlowId();
 			long provider = link.getProviderId();

@@ -29,7 +29,7 @@ public class LinkContributionsTest {
 				{ 0, -0.5, -0.5, 1 } }, factory);
 		// @formatter:on
 
-		ProductIndex index = new ProductIndex(LongPair.of(1, 1), 1.0);
+		ProductIndex index = new ProductIndex(LongPair.of(1, 1));
 		index.put(LongPair.of(2, 2));
 		index.put(LongPair.of(3, 3));
 		index.put(LongPair.of(4, 4));
@@ -59,7 +59,7 @@ public class LinkContributionsTest {
 		IMatrixFactory factory = TestSession.getMatrixFactory();
 		int size = 4000;
 		IMatrix techMatrix = factory.create(size, size);
-		ProductIndex index = new ProductIndex(LongPair.of(1, 1), 1.0);
+		ProductIndex index = new ProductIndex(LongPair.of(1, 1));
 		double[] s = new double[size];
 		for (int i = 0; i < size; i++) {
 			index.put(LongPair.of(i + 1, i + 1));

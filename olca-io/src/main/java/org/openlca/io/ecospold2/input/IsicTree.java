@@ -19,6 +19,10 @@ class IsicTree {
 
 	private List<IsicNode> roots = new ArrayList<>();
 
+	public List<IsicNode> getRoots() {
+		return roots;
+	}
+
 	public IsicNode findNode(String code) {
 		if (code == null)
 			return null;
