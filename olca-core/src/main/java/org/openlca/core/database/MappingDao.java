@@ -1,6 +1,10 @@
 package org.openlca.core.database;
 
-import org.openlca.core.model.mapping.Mapping;
+import org.openlca.core.model.Mapping;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MappingDao extends BaseDao<Mapping> {
 
@@ -8,15 +12,21 @@ public class MappingDao extends BaseDao<Mapping> {
 		super(Mapping.class, database);
 	}
 
-//	public List<Mapping> getAll(boolean input, MapFormat format, ModelType type)
-//			throws Exception {
-//		String jpql = "select m from Mapping m where m.input = :input and "
-//				+ "m.format = :format and m.mapType = :type";
-//		Map<String, Object> args = new HashMap<>();
-//		args.put("input", input);
-//		args.put("format", format);
-//		args.put("type", type);
-//		return getAll(jpql, args);
-//	}
+	public List<Mapping> getAllForImport(String mappingType) {
+		return getAll(mappingType, true);
+	}
+
+	public List<Mapping> getAllForExport(String mappingType) {
+		return getAll(mappingType, false);
+	}
+
+	private List<Mapping> getAll(String mappingType, boolean forImport) {
+		String jpql = "select m from Mapping m where m.forImport = :forImport and "
+				+ "m.mappingType = :mappingType";
+		Map<String, Object> args = new HashMap<>();
+		args.put("forImport", forImport);
+		args.put("mappingType", mappingType);
+		return getAll(jpql, args);
+	}
 
 }

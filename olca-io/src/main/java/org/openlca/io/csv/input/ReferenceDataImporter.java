@@ -24,6 +24,8 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.io.Categories;
+import org.openlca.io.UnitMapping;
+import org.openlca.io.UnitMappingEntry;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPReferenceData;
@@ -43,6 +45,7 @@ class ReferenceDataImporter {
 	private ParameterDao parameterDao;
 	private FormulaInterpreter interpreter;
 	private IDatabase database;
+	private UnitMapping unitMapping;
 
 	ReferenceDataImporter(IDatabase database, FormulaInterpreter interpreter) {
 		cache = new CSVImportCache();
@@ -53,6 +56,7 @@ class ReferenceDataImporter {
 		parameterDao = new ParameterDao(database);
 		this.database = database;
 		this.interpreter = interpreter;
+		this.unitMapping = UnitMapping.createDefault(database);
 	}
 
 	CSVImportCache importData(SPReferenceData referenceData)
@@ -81,8 +85,11 @@ class ReferenceDataImporter {
 
 		// TODO: check conversion factor
 		for (Map.Entry<String, SPUnit> entry : quantities.entrySet()) {
-			UnitGroup unitGroup = unitGroupDao.getForUnit(entry.getValue()
-					.getName());
+			UnitMappingEntry unitMappingEntry = unitMapping.getEntry(entry
+					.getValue().getName());
+			UnitGroup unitGroup = null;
+			if (unitMappingEntry != null)
+				unitGroup = unitMappingEntry.getUnitGroup();
 			if (unitGroup == null) {
 				unitGroup = new UnitGroup();
 				unitGroup.setCategory(Categories.findOrCreateRoot(database,

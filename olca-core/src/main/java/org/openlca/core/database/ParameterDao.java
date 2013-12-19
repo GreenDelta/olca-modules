@@ -20,13 +20,4 @@ public class ParameterDao extends BaseDao<Parameter> {
 		return getAll(jpql, args);
 	}
 
-	public List<Parameter> getAll(String name, ParameterScope type) {
-		String jpql = "select p from Parameter p where lower(p.name) = "
-				+ "lower(:name) and p.type = :type";
-		Map<String, Object> args = new HashMap<>();
-		args.put("name", name);
-		args.put("type", type);
-		return getAll(jpql, args);
-	}
-
 }

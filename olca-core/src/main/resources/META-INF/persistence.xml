@@ -40,9 +40,7 @@
 		<class>org.openlca.core.model.CostCategory</class>
 		<class>org.openlca.core.model.ProcessCostEntry</class>
 		<class>org.openlca.core.model.ProductCostEntry</class>
-		<class>org.openlca.core.model.mapping.Mapping</class>
-		<class>org.openlca.core.model.mapping.content.MappingContent</class>
-		<class>org.openlca.core.model.mapping.content.ES1FlowContent</class>
+		<class>org.openlca.core.model.Mapping</class>
 
 		<properties>
 			<property name="eclipselink.connection-pool.default.max"
