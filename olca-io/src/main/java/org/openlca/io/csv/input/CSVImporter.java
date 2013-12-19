@@ -59,7 +59,8 @@ public class CSVImporter implements FileImport {
 			CSVParser parser = new CSVParser(file);
 			FormulaInterpreter interpreter = createWithGlobalParameter(database);
 			dataImporter = new ReferenceDataImporter(database, interpreter);
-			processImporter = new ProcessImport(database, interpreter);
+			// TODO implement the checkbox process or product name in the wizard
+			processImporter = new ProcessImport(database, interpreter, false);
 			try {
 				parser.start();
 				SPReferenceData referenceData = parser.getReferenceData();

@@ -86,7 +86,8 @@ public class FlowImport {
 			process.getExchanges().add(exchange);
 			exchange.setFlow(flow);
 			exchange.setAvoidedProduct(false);
-			exchange.setUnit(cache.unitMap.get(elementaryFlow.getUnit()));
+			exchange.setUnit(unitMapping.getEntry(elementaryFlow.getUnit())
+					.getUnit());
 			setFlowPropertyFactor(exchange, elementaryFlow.getUnit());
 
 			if (elementaryFlow.getType() == ElementaryFlowType.RESOURCE)
@@ -106,7 +107,8 @@ public class FlowImport {
 			process.getExchanges().add(exchange);
 			exchange.setFlow(flow);
 			setFlowPropertyFactor(exchange, productFlow.getUnit());
-			exchange.setUnit(cache.unitMap.get(productFlow.getUnit()));
+			exchange.setUnit(unitMapping.getEntry(productFlow.getUnit())
+					.getUnit());
 			if (productFlow.getType() == ProductFlowType.AVOIDED_PRODUCT)
 				exchange.setAvoidedProduct(true);
 			if (productFlow.getType() == ProductFlowType.WASTE_TREATMENT)
@@ -126,7 +128,7 @@ public class FlowImport {
 		process.setQuantitativeReference(exchange);
 		exchange.setFlow(findOrCreate(refProduct));
 		exchange.setInput(false);
-		exchange.setUnit(cache.unitMap.get(refProduct.getUnit()));
+		exchange.setUnit(unitMapping.getEntry(refProduct.getUnit()).getUnit());
 		setFlowPropertyFactor(exchange, refProduct.getUnit());
 		setAmount(exchange, refProduct.getAmount());
 		if (spProcess.getByProducts().length > 0) {
@@ -144,7 +146,7 @@ public class FlowImport {
 			setAmount(exchange, product.getAmount());
 			setFlowPropertyFactor(exchange, product.getUnit());
 			exchange.setInput(false);
-			exchange.setUnit(cache.unitMap.get(product.getUnit()));
+			exchange.setUnit(unitMapping.getEntry(product.getUnit()).getUnit());
 			createAllocation(exchange, product.getAllocation());
 		}
 
@@ -175,7 +177,8 @@ public class FlowImport {
 		process.setQuantitativeReference(exchange);
 		exchange.setFlow(findOrCreate(wasteSpecification));
 		setFlowPropertyFactor(exchange, wasteSpecification.getUnit());
-		exchange.setUnit(cache.unitMap.get(wasteSpecification.getUnit()));
+		exchange.setUnit(unitMapping.getEntry(wasteSpecification.getUnit())
+				.getUnit());
 		setAmount(exchange, wasteSpecification.getAmount());
 		exchange.setInput(false);
 	}

@@ -1,7 +1,6 @@
 package org.openlca.io.csv.input;
 
 import org.openlca.io.KeyGen;
-import org.openlca.simapro.csv.model.SPDataEntry;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPProduct;
@@ -12,18 +11,8 @@ import org.openlca.simapro.csv.model.types.SubCompartment;
 
 public class CSVKeyGen {
 
-	public static String forProcess(SPDataEntry dataEntry) {
-		if (dataEntry == null)
-			KeyGen.get("");
-
-		String[] vals = new String[3];
-		vals[0] = dataEntry.getDocumentation().getName();
-		vals[1] = dataEntry.getDocumentation().getCategory().getValue();
-		if (dataEntry.getSubCategory() != null)
-			vals[2] = dataEntry.getSubCategory();
-		else
-			vals[2] = "";
-		return KeyGen.get(vals);
+	public static String forProcess(String name) {
+		return KeyGen.get(name);
 	}
 
 	public static String forElementaryFlow(SPElementaryFlow elementaryFlow) {

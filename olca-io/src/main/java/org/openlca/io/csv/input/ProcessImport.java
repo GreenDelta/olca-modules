@@ -22,6 +22,7 @@ import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
 import org.openlca.simapro.csv.model.SPProcess;
+import org.openlca.simapro.csv.model.SPWasteScenario;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +39,15 @@ class ProcessImport {
 	private SourceDao sourceDao;
 	private FormulaInterpreter interpreter;
 	private long scopeId = 1000;
+	private boolean useRefNameForProcess;
 
-	ProcessImport(IDatabase database, FormulaInterpreter interpreter) {
+	ProcessImport(IDatabase database, FormulaInterpreter interpreter,
+			boolean useRefNameForProcess) {
 		init(database, interpreter);
 	}
 
 	ProcessImport(IDatabase database, FormulaInterpreter interpreter,
-			CSVImportCache cache) {
+			CSVImportCache cache, boolean useRefNameForProcess) {
 		this.cache = cache;
 		init(database, interpreter);
 	}
@@ -72,7 +75,7 @@ class ProcessImport {
 	}
 
 	private void convert() throws InterpreterException {
-		this.process = new Process();
+		process = new Process();
 		if (!validate())
 			return;
 		scopeId++;
@@ -83,7 +86,7 @@ class ProcessImport {
 		parameters();
 		new FlowImport(database, cache, interpreter, scopeId).importFlows(
 				process, dataEntry);
-		processDao.insert(this.process);
+		processDao.insert(process);
 	}
 
 	private boolean validate() {
@@ -101,16 +104,12 @@ class ProcessImport {
 			log.warn("Documentation in null.");
 			return false;
 		}
-		if (dataEntry.getDocumentation().getName() == null
-				|| "".equals(dataEntry.getDocumentation().getName())) {
-			log.warn("Missing process name.");
-			return false;
-		}
 		return true;
 	}
 
 	private boolean checkAndSetRefId() {
-		String refId = CSVKeyGen.forProcess(dataEntry);
+		setProcessName();
+		String refId = CSVKeyGen.forProcess(process.getName());
 		if (processDao.getForRefId(refId) != null)
 			return true;
 		process.setRefId(refId);
@@ -121,7 +120,6 @@ class ProcessImport {
 		ProcessDocumentation doc = new ProcessDocumentation();
 		process.setDocumentation(doc);
 		SPDocumentation spDoc = dataEntry.getDocumentation();
-		process.setName(dataEntry.getDocumentation().getName());
 		doc.setTime(spDoc.getTimePeriod().getValue());
 		doc.setTechnology(spDoc.getTechnology().getValue());
 		process.setInfrastructureProcess(spDoc.isInfrastructureProcess());
@@ -131,6 +129,24 @@ class ProcessImport {
 		process.setCategory(Utils.createCategoryTree(database,
 				ModelType.PROCESS, dataEntry.getDocumentation().getCategory()
 						.getValue(), dataEntry.getSubCategory()));
+	}
+
+	private void setProcessName() {
+		if (dataEntry.getDocumentation().getName() == null
+				|| "".equals(dataEntry.getDocumentation().getName())
+				|| useRefNameForProcess) {
+			if (dataEntry instanceof SPProcess) {
+				SPProcess process = (SPProcess) dataEntry;
+				this.process.setName(process.getReferenceProduct().getName());
+			} else if (dataEntry instanceof SPWasteTreatment) {
+				SPWasteTreatment treatment = (SPWasteTreatment) dataEntry;
+				process.setName(treatment.getWasteSpecification().getName());
+			} else if (database instanceof SPWasteScenario) {
+				// TODO:
+			}
+		} else {
+			process.setName(dataEntry.getDocumentation().getName());
+		}
 	}
 
 	private void setDescription(SPDocumentation spDocumentation) {
