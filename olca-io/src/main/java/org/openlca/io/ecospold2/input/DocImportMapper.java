@@ -152,6 +152,8 @@ class DocImportMapper {
 				title.append(gen.getPublishedSourceYear());
 				shortTitle.append(gen.getPublishedSourceYear());
 			}
+			source.setTextReference(title.toString());
+			source.setName(shortTitle.toString());
 			source = dao.insert(source);
 		}
 		doc.setPublication(source);
