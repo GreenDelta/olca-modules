@@ -95,7 +95,7 @@ class In {
 		if (val == null)
 			return 0;
 		try {
-			return Double.parseDouble(val);
+			return Double.parseDouble(val.trim());
 		} catch (Exception e) {
 			Logger log = Logger.getGlobal();
 			log.log(Level.WARNING, "Failed to parse double " + val, e);
@@ -107,7 +107,7 @@ class In {
 		if (val == null)
 			return false;
 		try {
-			return Boolean.parseBoolean(val);
+			return Boolean.parseBoolean(val.trim());
 		} catch (Exception e) {
 			Logger log = Logger.getGlobal();
 			log.log(Level.WARNING, "Failed to parse boolean " + val, e);
@@ -126,7 +126,7 @@ class In {
 			return null;
 		try {
 			SimpleDateFormat format = new SimpleDateFormat(pattern);
-			return format.parse(val);
+			return format.parse(val.trim());
 		} catch (Exception e) {
 			Logger log = Logger.getGlobal();
 			log.log(Level.WARNING, "Failed to parse date " + val + " format "
@@ -139,7 +139,7 @@ class In {
 		if (val == null)
 			return -1;
 		try {
-			return Integer.parseInt(val);
+			return Integer.parseInt(val.trim());
 		} catch (Exception e) {
 			Logger log = Logger.getGlobal();
 			log.log(Level.WARNING, "Failed to parse integer " + val, e);
