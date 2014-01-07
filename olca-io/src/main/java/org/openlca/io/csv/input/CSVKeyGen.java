@@ -23,11 +23,10 @@ public class CSVKeyGen {
 		vals[0] = elementaryFlow.getName();
 		vals[1] = elementaryFlow.getUnit();
 		vals[2] = elementaryFlow.getType().getSubstance();
-		vals[3] = elementaryFlow.getUnit();
 		if (elementaryFlow.getSubCompartment() != null)
-			vals[4] = elementaryFlow.getSubCompartment().getValue();
+			vals[3] = elementaryFlow.getSubCompartment().getValue();
 		else
-			vals[4] = SubCompartment.UNSPECIFIED.getValue();
+			vals[3] = SubCompartment.UNSPECIFIED.getValue();
 		return KeyGen.get(vals);
 	}
 
