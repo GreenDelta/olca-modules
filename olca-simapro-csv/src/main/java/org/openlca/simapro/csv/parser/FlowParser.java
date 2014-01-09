@@ -78,7 +78,10 @@ class FlowParser {
 			StringBuilder builder = new StringBuilder();
 			for (int i = 1; i < categoryTree.length; i++)
 				builder.append(categoryTree[i] + "\\");
-			flow.setReferenceCategory(builder.toString());
+			String category = builder.toString();
+			if (category.endsWith("\\"))
+				category = category.substring(0, category.length() - 1);
+			flow.setReferenceCategory(category);
 		}
 		return flow;
 	}
