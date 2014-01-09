@@ -27,6 +27,7 @@ public class DatabaseImport implements Runnable {
 			new LocationImport(source, dest, seq).run();
 			new CategoryImport(source, dest, seq).run();
 			new ActorImport(source, dest, seq).run();
+			new SourceImport(source, dest, seq).run();
 		} catch (Exception e) {
 			log.error("Database import failed", e);
 		}

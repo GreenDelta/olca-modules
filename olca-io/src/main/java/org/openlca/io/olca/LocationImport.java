@@ -6,7 +6,7 @@ import org.openlca.core.model.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LocationImport {
+ class LocationImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -21,6 +21,7 @@ public class LocationImport {
 	}
 
 	public void run() {
+		log.trace("import locations");
 		try {
 			for (Location srcLoc : srcDao.getAll()) {
 				if (seq.contains(seq.LOCATION, srcLoc.getRefId()))

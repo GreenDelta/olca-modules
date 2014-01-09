@@ -14,31 +14,30 @@ class ActorImport {
 
 	private ActorDao sourceDao;
 	private ActorDao destDao;
-	private IDatabase dest;
+	private CategoryDao destCategoryDao;
 	private Sequence seq;
 
 	ActorImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.sourceDao = new ActorDao(source);
 		this.destDao = new ActorDao(dest);
-		this.dest = dest;
+		this.destCategoryDao = new CategoryDao(dest);
 		this.seq = seq;
 	}
 
 	public void run() {
+		log.trace("import actors");
 		try {
-			CategoryDao destCategoryDao = new CategoryDao(dest);
 			for (ActorDescriptor descriptor : sourceDao.getDescriptors()) {
 				if (seq.contains(seq.ACTOR, descriptor.getRefId()))
 					continue;
-				createActor(destCategoryDao, descriptor);
+				createActor(descriptor);
 			}
 		} catch (Exception e) {
 			log.error("Actor import failed", e);
 		}
 	}
 
-	private void createActor(CategoryDao destCategoryDao,
-	                         ActorDescriptor descriptor) {
+	private void createActor(ActorDescriptor descriptor) {
 		Actor srcActor = sourceDao.getForId(descriptor.getId());
 		Actor destActor = srcActor.clone();
 		destActor.setRefId(srcActor.getRefId());
