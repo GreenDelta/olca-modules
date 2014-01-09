@@ -73,7 +73,7 @@ public class EcoSpold01Import implements FileImport {
 
 	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping) {
 		this.db = new DB(iDatabase);
-		FlowMap flowMap = new FlowMap(MapType.ECOSPOLD_FLOW);
+		FlowMap flowMap = new FlowMap(MapType.ES1_FLOW);
 		this.flowImport = new FlowImport(db, unitMapping, flowMap);
 	}
 

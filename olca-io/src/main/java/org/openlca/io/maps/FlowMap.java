@@ -23,7 +23,7 @@ public class FlowMap {
 	private HashMap<String, FlowMapEntry> map;
 	private HashMap<String, Flow> cache = new HashMap<>();
 
-	public FlowMap(MapType mapType) {
+	public FlowMap(String mapType) {
 		init(mapType);
 	}
 
@@ -40,7 +40,7 @@ public class FlowMap {
 		return cache.get(id);
 	}
 
-	private void init(MapType mapType) {
+	private void init(String mapType) {
 		log.trace("Initialize flow assignment map {}.", mapType);
 		map = new HashMap<>();
 		try (InputStream is = this.getClass().getResourceAsStream(
@@ -52,13 +52,13 @@ public class FlowMap {
 		}
 	}
 
-	private String mapFileName(MapType mapType) {
+	private String mapFileName(String mapType) {
 		switch (mapType) {
-		case ECOSPOLD_FLOW:
+		case "ECOSPOLD_FLOW":
 			return "ecospold_flow_map.csv";
-		case ECOSPOLD_2_FLOW:
+		case "ECOSPOLD_2_FLOW":
 			return "ecospold_2_flow_map.csv";
-		case ILCD_FLOW:
+		case "ILCD_FLOW":
 			return "ilcd_flow_map.csv";
 		default:
 			return "ecospold_flow_map.csv";

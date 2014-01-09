@@ -58,6 +58,7 @@ public class EcoSpold2Export implements Runnable {
 	private File dir;
 	private IDatabase database;
 	private List<ProcessDescriptor> descriptors;
+	private boolean setRequiredFields = false;
 
 	public EcoSpold2Export(File dir, IDatabase database,
 			List<ProcessDescriptor> descriptors) {
@@ -79,6 +80,7 @@ public class EcoSpold2Export implements Runnable {
 	}
 
 	private void exportProcesses(File activityDir) throws Exception {
+		RequiredFields requiredFields = new RequiredFields();
 		for (ProcessDescriptor descriptor : descriptors) {
 			ProcessDao dao = new ProcessDao(database);
 			Process process = dao.getForId(descriptor.getId());
@@ -103,6 +105,8 @@ public class EcoSpold2Export implements Runnable {
 			mapParameters(process, dataSet);
 			mapAdminInfo(doc, dataSet);
 			MasterData.map(process, dataSet);
+			if (setRequiredFields)
+				requiredFields.check(dataSet);
 			String fileName = process.getRefId() == null ? UUID.randomUUID()
 					.toString() : process.getRefId();
 			File file = new File(activityDir, fileName + ".spold");
