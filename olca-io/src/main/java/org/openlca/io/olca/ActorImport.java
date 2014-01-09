@@ -41,10 +41,12 @@ class ActorImport {
 	                         ActorDescriptor descriptor) {
 		Actor srcActor = sourceDao.getForId(descriptor.getId());
 		Actor destActor = srcActor.clone();
+		destActor.setRefId(srcActor.getRefId());
 		if (srcActor.getCategory() != null) {
-			long catId = seq.get(seq.ACTOR, srcActor.getCategory().getRefId());
+			long catId = seq.get(seq.CATEGORY, srcActor.getCategory().getRefId());
 			destActor.setCategory(destCategoryDao.getForId(catId));
 		}
-		destDao.insert(destActor);
+		destActor = destDao.insert(destActor);
+		seq.put(seq.ACTOR, srcActor.getRefId(), destActor.getId());
 	}
 }

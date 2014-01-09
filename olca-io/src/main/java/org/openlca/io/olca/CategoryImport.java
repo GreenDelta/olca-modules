@@ -75,7 +75,8 @@ class CategoryImport implements Runnable {
 	}
 
 	/**
-	 * Creates a flat copy of the given category.
+	 * Creates a flat copy of the given category. Note that the clone function
+	 * in the category class creates a deep copy.
 	 */
 	private Category copy(Category srcCat) {
 		Category copy = new Category();
