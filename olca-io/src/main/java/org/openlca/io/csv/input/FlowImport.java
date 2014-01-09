@@ -415,6 +415,7 @@ public class FlowImport {
 	private Flow findOrCreate(SPWasteSpecification wasteSpecification) {
 		if (wasteSpecification == null)
 			return null;
+
 		String refId = CSVKeyGen.forWasteSpecification(wasteSpecification,
 				dataEntry.getDocumentation().getCategory());
 		Flow flow = flowDao.getForRefId(refId);
@@ -422,8 +423,9 @@ public class FlowImport {
 			return flow;
 		flow = new Flow();
 		flow.setRefId(refId);
-		flow.setFlowType(FlowType.WASTE_FLOW);
+		flow.setFlowType(FlowType.PRODUCT_FLOW);
 		flow.setName(wasteSpecification.getName());
+		setDefaultFlowProperty(flow, wasteSpecification.getUnit());
 		flow.setCategory(Utils.createCategoryTree(database, ModelType.FLOW,
 				dataEntry.getDocumentation().getCategory().getValue(),
 				wasteSpecification.getCategory()));
