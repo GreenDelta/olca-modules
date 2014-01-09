@@ -6,6 +6,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.SourceDao;
+import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +29,14 @@ class Sequence {
 	int LOCATION = 1;
 	int ACTOR = 2;
 	int SOURCE = 3;
+	int UNIT = 4;
+	int UNIT_GROUP = 5;
 
 	private final HashMap<String, Long>[] sequences;
 
+	@SuppressWarnings("unchecked")
 	public Sequence(IDatabase database) {
-		sequences = new HashMap[4];
+		sequences = new HashMap[6];
 		for (int i = 0; i < sequences.length; i++)
 			sequences[i] = new HashMap<>();
 		init(database);
@@ -42,6 +47,9 @@ class Sequence {
 		index(LOCATION, new LocationDao(database));
 		index(ACTOR, new ActorDao(database));
 		index(SOURCE, new SourceDao(database));
+		index(UNIT, new RootEntityDao<>(Unit.class, BaseDescriptor.class,
+				database));
+		index(UNIT_GROUP, new UnitGroupDao(database));
 	}
 
 	private void index(int type, RootEntityDao<?, ?> dao) {
