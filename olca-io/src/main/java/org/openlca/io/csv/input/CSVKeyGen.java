@@ -20,13 +20,13 @@ public class CSVKeyGen {
 			KeyGen.get("");
 
 		String[] vals = new String[5];
-		vals[0] = elementaryFlow.getName();
-		vals[1] = elementaryFlow.getUnit();
-		vals[2] = elementaryFlow.getType().getSubstance();
+		vals[0] = elementaryFlow.getType().getSubstance();
 		if (elementaryFlow.getSubCompartment() != null)
-			vals[3] = elementaryFlow.getSubCompartment().getValue();
+			vals[1] = elementaryFlow.getSubCompartment().getValue();
 		else
-			vals[3] = SubCompartment.UNSPECIFIED.getValue();
+			vals[1] = SubCompartment.UNSPECIFIED.getValue();
+		vals[2] = elementaryFlow.getName();
+		vals[3] = elementaryFlow.getUnit();
 		return KeyGen.get(vals);
 	}
 
