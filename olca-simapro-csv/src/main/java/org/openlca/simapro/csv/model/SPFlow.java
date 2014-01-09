@@ -2,10 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents the basic information of each flow line in SimaPro
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public abstract class SPFlow {
 
@@ -13,6 +9,10 @@ public abstract class SPFlow {
 	private String amount;
 	private String comment;
 	private String unit;
+
+	public SPFlow() {
+
+	}
 
 	public SPFlow(String amount, String unit) {
 		this.amount = amount;
@@ -52,7 +52,7 @@ public abstract class SPFlow {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}

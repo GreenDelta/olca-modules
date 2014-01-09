@@ -12,7 +12,7 @@ import org.openlca.simapro.csv.parser.CSVParser;
 public class ParseTest {
 
 	public static void main(String[] args) {
-		File file = new File("/Users/imo/Desktop/testProcess.csv");
+		File file = new File("/Users/imo/Downloads/felipe.csv");
 		CSVParser parser = new CSVParser(file);
 
 		try {
@@ -20,19 +20,19 @@ public class ParseTest {
 			Map<String, String[]> index = parser.getIndex();
 
 			for (Map.Entry<String, String[]> entry : index.entrySet()) {
-				System.out.println(entry.getKey());
-				for (String s : entry.getValue())
-					System.out.println(s);
-				System.out.println();
+				// System.out.println(entry.getKey());
+				// for (String s : entry.getValue())
+				// System.out.println(s);
+				// System.out.println();
 			}
 
 			while (parser.hasNext()) {
 				SPDataEntry dataEntry = parser.next();
 				if (dataEntry instanceof SPProcess
 						|| dataEntry instanceof SPWasteTreatment) {
-					System.out.println(dataEntry.getDocumentation().getName());
+					// System.out.println(dataEntry.getDocumentation().getName());
 				} else if (dataEntry instanceof SPWasteScenario) {
-					System.out.println("Waste Scenario");
+					// System.out.println("Waste Scenario");
 				}
 			}
 			parser.close();

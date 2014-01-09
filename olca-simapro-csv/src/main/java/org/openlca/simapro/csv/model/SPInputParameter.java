@@ -2,10 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a process parameter having a double value (no formula)
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public class SPInputParameter extends SPParameter {
 

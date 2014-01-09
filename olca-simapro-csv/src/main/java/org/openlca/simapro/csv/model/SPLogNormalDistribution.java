@@ -13,22 +13,9 @@ import org.openlca.simapro.csv.model.types.DistributionType;
  */
 public class SPLogNormalDistribution implements IDistribution {
 
-	/**
-	 * The squared standard deviation
-	 */
 	private double squaredStandardDeviation = 0;
-
-	/**
-	 * The pedigree matrix of the flow
-	 */
 	private SPPedigreeMatrix pedigreeMatrix;
 
-	/**
-	 * Creates a new logarithmic normal distribution
-	 * 
-	 * @param squaredStandardDeviation
-	 *            The squared standard deviation
-	 */
 	public SPLogNormalDistribution(double squaredStandardDeviation,
 			SPPedigreeMatrix pedigreeMatrix) {
 		this.squaredStandardDeviation = squaredStandardDeviation;
@@ -44,19 +31,10 @@ public class SPLogNormalDistribution implements IDistribution {
 		return parameter;
 	}
 
-	/**
-	 * 
-	 * @return {@link SPPedigreeMatrix}
-	 */
 	public SPPedigreeMatrix getPedigreeMatrix() {
 		return pedigreeMatrix;
 	}
 
-	/**
-	 * Set the pedigree matrix
-	 * 
-	 * @param pedigreeMatrix
-	 */
 	public void setPedigreeMatrix(SPPedigreeMatrix pedigreeMatrix) {
 		this.pedigreeMatrix = pedigreeMatrix;
 	}
@@ -66,12 +44,6 @@ public class SPLogNormalDistribution implements IDistribution {
 		return DistributionType.LOG_NORMAL;
 	}
 
-	/**
-	 * Setter of the squared standard deviation
-	 * 
-	 * @param squaredStandardDeviation
-	 *            The new squared standard deviation
-	 */
 	public void setSquaredStandardDeviation(double squaredStandardDeviation) {
 		this.squaredStandardDeviation = squaredStandardDeviation;
 	}

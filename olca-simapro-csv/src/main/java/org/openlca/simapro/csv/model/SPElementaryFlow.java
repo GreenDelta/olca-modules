@@ -12,6 +12,10 @@ public class SPElementaryFlow extends SPFlow {
 	private SubCompartment subCompartment = SubCompartment.UNSPECIFIED;
 	private ElementaryFlowType type;
 
+	public SPElementaryFlow() {
+
+	}
+
 	public SPElementaryFlow(ElementaryFlowType type, String name, String unit,
 			String amount) {
 		super(amount, unit);

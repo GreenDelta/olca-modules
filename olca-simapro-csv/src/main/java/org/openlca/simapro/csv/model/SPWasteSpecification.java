@@ -2,10 +2,6 @@ package org.openlca.simapro.csv.model;
 
 /**
  * This class represents a waste specification of a waste treatment
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public class SPWasteSpecification extends SPFlow {
 

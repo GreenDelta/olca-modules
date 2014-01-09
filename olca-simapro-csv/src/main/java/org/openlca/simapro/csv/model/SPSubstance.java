@@ -4,10 +4,6 @@ import org.openlca.simapro.csv.model.types.ElementaryFlowType;
 
 /**
  * This class represents a SimaPro substance
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public class SPSubstance {
 
