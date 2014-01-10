@@ -23,7 +23,8 @@ class ProcessCopy {
 		other.setLocation(self.getLocation());
 		other.setProcessType(self.getProcessType());
 		other.setInfrastructureProcess(self.isInfrastructureProcess());
-		other.setDocumentation(self.getDocumentation().clone());
+		if (self.getDocumentation() != null)
+			other.setDocumentation(self.getDocumentation().clone());
 	}
 
 	private void copyExchanges(Process self, Process other) {
