@@ -10,6 +10,7 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -67,8 +68,7 @@ class ProcessImport {
 		switchCategory(srcProcess, destProcess);
 		switchLocation(srcProcess, destProcess);
 		switchExchangeRefs(destProcess);
-		destProcess.getAllocationFactors().clear(); // TODO: remove
-		// TODO: switchAllocationFactors(srcProcess, destProcess);
+		switchAllocationProducts(srcProcess, destProcess);
 		destProcess.getCostEntries().clear(); // TODO: remove
 		// TODO: switchCostCategories(srcProcess, destProcess);
 		switchDocRefs(destProcess);
@@ -148,6 +148,22 @@ class ProcessImport {
 		Unit srcUnit = exchange.getUnit();
 		long unitId = seq.get(seq.UNIT, srcUnit.getRefId());
 		exchange.setUnit(unitDao.getForId(unitId));
+	}
+
+	private void switchAllocationProducts(Process srcProcess, Process destProcess) {
+		 for(AllocationFactor factor : destProcess.getAllocationFactors()) {
+			 long srcProductId = factor.getProductId();
+			 String srcRefId = null;
+			 for(Exchange srcExchange : srcProcess.getExchanges()) {
+				 if(srcExchange.getFlow() == null)
+					 continue;
+				 if(srcExchange.getFlow().getId() == srcProductId) {
+					srcRefId = srcExchange.getFlow().getRefId();
+				 }
+			 }
+			 long destProductId = seq.get(seq.FLOW, srcRefId);
+			 factor.setProductId(destProductId);
+		 }
 	}
 
 	private void switchDocRefs(Process destProcess) {
