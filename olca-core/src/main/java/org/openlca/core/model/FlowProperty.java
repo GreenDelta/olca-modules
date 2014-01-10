@@ -1,5 +1,7 @@
 package org.openlca.core.model;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -23,6 +25,7 @@ public class FlowProperty extends CategorizedEntity {
 	@Override
 	public FlowProperty clone() {
 		FlowProperty flowProperty = new FlowProperty();
+		flowProperty.setRefId(UUID.randomUUID().toString());
 		flowProperty.setName(getName());
 		flowProperty.setCategory(getCategory());
 		flowProperty.setDescription(getDescription());

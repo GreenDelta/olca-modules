@@ -2,6 +2,7 @@ package org.openlca.io.olca;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
@@ -33,12 +34,13 @@ class Sequence {
 	int UNIT = 4;
 	int UNIT_GROUP = 5;
 	int FLOW_PROPERTY = 6;
+	int FLOW = 7;
 
 	private final HashMap<String, Long>[] sequences;
 
 	@SuppressWarnings("unchecked")
 	public Sequence(IDatabase database) {
-		sequences = new HashMap[7];
+		sequences = new HashMap[8];
 		for (int i = 0; i < sequences.length; i++)
 			sequences[i] = new HashMap<>();
 		init(database);
@@ -53,6 +55,7 @@ class Sequence {
 				database));
 		index(UNIT_GROUP, new UnitGroupDao(database));
 		index(FLOW_PROPERTY, new FlowPropertyDao(database));
+		index(FLOW, new FlowDao(database));
 	}
 
 	private void index(int type, RootEntityDao<?, ?> dao) {
