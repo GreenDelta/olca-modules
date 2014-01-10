@@ -24,8 +24,11 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.io.Categories;
+import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
+import org.openlca.io.maps.CSVMapper;
+import org.openlca.io.maps.content.CSVUnitContent;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPReferenceData;
@@ -46,8 +49,10 @@ class ReferenceDataImporter {
 	private FormulaInterpreter interpreter;
 	private IDatabase database;
 	private UnitMapping unitMapping;
+	private CSVMapper mapper;
 
-	ReferenceDataImporter(IDatabase database, FormulaInterpreter interpreter) {
+	ReferenceDataImporter(IDatabase database, CSVMapper mapper,
+			FormulaInterpreter interpreter) {
 		cache = new CSVImportCache();
 		flowPropertyDao = new FlowPropertyDao(database);
 		unitGroupDao = new UnitGroupDao(database);
@@ -57,6 +62,7 @@ class ReferenceDataImporter {
 		this.database = database;
 		this.interpreter = interpreter;
 		this.unitMapping = UnitMapping.createDefault(database);
+		this.mapper = mapper;
 	}
 
 	CSVImportCache importData(SPReferenceData referenceData)
@@ -140,7 +146,7 @@ class ReferenceDataImporter {
 		Unit unit = new Unit();
 		unit.setName(spUnit.getName());
 		unit.setConversionFactor(spUnit.getConversionFactor());
-		unit.setRefId(UUID.randomUUID().toString());
+		unit.setRefId(KeyGen.get(spUnit.getName()));
 		return unit;
 	}
 
@@ -189,6 +195,13 @@ class ReferenceDataImporter {
 	}
 
 	private Unit find(SPUnit spUnit) {
+		CSVUnitContent content = mapper.getUnitContentForImport(spUnit
+				.getName());
+		if (content != null && content.getOlcaRefId() != null) {
+			Unit unit = unitDao.getForRefId(content.getOlcaRefId());
+			if (unit != null)
+				return unit;
+		}
 		List<Unit> list = unitDao.getForName(spUnit.getName());
 		for (Unit unit : list) {
 			// TODO: check

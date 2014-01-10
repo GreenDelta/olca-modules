@@ -15,6 +15,7 @@ import org.openlca.core.model.Source;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.io.KeyGen;
+import org.openlca.io.maps.CSVMapper;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPDataEntry;
 import org.openlca.simapro.csv.model.SPDocumentation;
@@ -40,28 +41,32 @@ class ProcessImport {
 	private FormulaInterpreter interpreter;
 	private long scopeId = 1000;
 	private boolean useRefNameForProcess;
+	CSVMapper mapper;
 
-	ProcessImport(IDatabase database, FormulaInterpreter interpreter,
-			boolean useRefNameForProcess) {
-		init(database, interpreter);
+	ProcessImport(IDatabase database, CSVMapper mapper,
+			FormulaInterpreter interpreter, boolean useRefNameForProcess) {
+		init(database, interpreter, mapper);
 	}
 
-	ProcessImport(IDatabase database, FormulaInterpreter interpreter,
-			CSVImportCache cache, boolean useRefNameForProcess) {
+	ProcessImport(IDatabase database, CSVMapper mapper,
+			FormulaInterpreter interpreter, CSVImportCache cache,
+			boolean useRefNameForProcess) {
 		this.cache = cache;
-		init(database, interpreter);
+		init(database, interpreter, mapper);
 	}
 
 	void setCache(CSVImportCache cache) {
 		this.cache = cache;
 	}
 
-	void init(IDatabase database, FormulaInterpreter interpreter) {
+	void init(IDatabase database, FormulaInterpreter interpreter,
+			CSVMapper mapper) {
 		this.database = database;
 		this.interpreter = interpreter;
 		processDao = new ProcessDao(database);
 		locationDao = new LocationDao(database);
 		sourceDao = new SourceDao(database);
+		this.mapper = mapper;
 	}
 
 	void runImport(SPProcess process) throws Exception {
@@ -84,8 +89,8 @@ class ProcessImport {
 		location();
 		sources();
 		parameters();
-		new FlowImport(database, cache, interpreter, scopeId).importFlows(
-				process, dataEntry);
+		new FlowImport(database, cache, interpreter, scopeId, mapper)
+				.importFlows(process, dataEntry);
 		processDao.insert(process);
 	}
 
@@ -126,7 +131,7 @@ class ProcessImport {
 		if (Utils.nullCheck(spDoc.getDataTreatment()))
 			doc.setDataTreatment(spDoc.getDataTreatment());
 		setDescription(spDoc);
-		process.setCategory(Utils.createCategoryTree(database,
+		process.setCategory(Utils.createCategoryTree(database, mapper,
 				ModelType.PROCESS, dataEntry.getDocumentation().getCategory()
 						.getValue(), dataEntry.getSubCategory()));
 	}
@@ -275,8 +280,8 @@ class ProcessImport {
 		source = new Source();
 		source.setRefId(refId);
 		source.setName(literatureReference.getName());
-		source.setCategory(Utils.createCategoryTree(database, ModelType.SOURCE,
-				null, literatureReference.getCategory()));
+		source.setCategory(Utils.createCategoryTree(database, mapper,
+				ModelType.SOURCE, null, literatureReference.getCategory()));
 		StringBuilder comment = new StringBuilder();
 		if (Utils.nullCheck(literatureReference.getContent()))
 			comment.append(literatureReference.getContent());
