@@ -4,16 +4,16 @@ import org.json.simple.parser.ParseException;
 
 public abstract class AbstractMapContent {
 
-	protected String olcaId;
+	protected String olcaRefId;
 	protected String mapType;
 	protected boolean forImport;
 
-	public String getOlcaId() {
-		return olcaId;
+	public String getOlcaRefId() {
+		return olcaRefId;
 	}
 
-	public void setOlcaId(String olcaId) {
-		this.olcaId = olcaId;
+	public void setOlcaRefId(String olcaId) {
+		this.olcaRefId = olcaId;
 	}
 
 	public String getMapType() {
@@ -35,7 +35,7 @@ public abstract class AbstractMapContent {
 		AbstractMapContent content = (AbstractMapContent) obj;
 		if (!equalsWithNull(content.getMapType(), mapType))
 			return false;
-		if (!equalsWithNull(content.getOlcaId(), olcaId))
+		if (!equalsWithNull(content.getOlcaRefId(), olcaRefId))
 			return false;
 		if (!equalsWithNull(content.toJson(), toJson()))
 			return false;

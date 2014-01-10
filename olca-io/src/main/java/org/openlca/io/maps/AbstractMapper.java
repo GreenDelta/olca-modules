@@ -23,18 +23,18 @@ public abstract class AbstractMapper {
 		Mapping mapping = new Mapping();
 		mapping.setForImport(content.isForImport());
 		mapping.setExternalContent(content.toJson());
-		mapping.setOlcaContent(content.getOlcaId());
+		mapping.setOlcaContent(content.getOlcaRefId());
 		mapping.setMappingType(content.getMapType());
 		if (addToMap(mapping, content.getMapType())) {
 			dao.insert(mapping);
 			return true;
 		} else {
 			System.err.println("Content already exist: " + content.toJson()
-					+ " : " + content.getOlcaId());
+					+ " : " + content.getOlcaRefId());
 			return false;
 		}
 		// TODO: just add to the map (don't check in the database) if you use
-		// several mappers at the same time you can have multiple contents.
+		// several mappers at the same time you can add multiple contents.
 	}
 
 	private boolean addToMap(Mapping mapping, String mapType) {
@@ -67,7 +67,7 @@ public abstract class AbstractMapper {
 		if (mapping == null)
 			return null;
 		content.setForImport(true);
-		content.setOlcaId(mapping.getOlcaContent());
+		content.setOlcaRefId(mapping.getOlcaContent());
 		return content;
 	}
 
@@ -81,7 +81,7 @@ public abstract class AbstractMapper {
 		} catch (ParseException e) {
 			return null;
 		}
-		content.setOlcaId(mapping.getOlcaContent());
+		content.setOlcaRefId(mapping.getOlcaContent());
 		content.setForImport(false);
 		return content;
 	}

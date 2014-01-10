@@ -14,7 +14,8 @@ public final class MapType {
 	public static final String ES2_UNIT = "ES2_UNIT";
 	public static final String ES2_CATEGORY = "ES2_CATEGORY";
 
-	public static final String CSV_FLOW = "CSV_FLOW";
+	public static final String CSV_ELEMENTARY_FLOW = "CSV_ELEMENTARY_FLOW";
+	public static final String CSV_PRODUCT_FLOW = "CSV_PRODUCT_FLOW";
 	public static final String CSV_UNIT = "CSV_UNIT";
 	public static final String CSV_CATEGORY = "CSV_CATEGORY";
 
