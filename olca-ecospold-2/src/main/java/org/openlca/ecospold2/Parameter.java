@@ -115,15 +115,15 @@ public class Parameter {
 			e.setAttribute("mathematicalRelation", mathematicalRelation);
 		if (isCalculatedAmount != null)
 			e.setAttribute("isCalculatedAmount", isCalculatedAmount.toString());
+		if (uncertainty != null)
+			e.addContent(uncertainty.toXml());
+		Out.addChild(e, "name", name);
+		Out.addChild(e, "unitName", unitName);
 		if (scope != null) {
 			Element scopeElement = new Element("scope", IO.EXT_NS);
 			scopeElement.setText(scope);
 			e.addContent(scopeElement);
 		}
-		if (uncertainty != null)
-			e.addContent(uncertainty.toXml());
-		Out.addChild(e, "name", name);
-		Out.addChild(e, "unitName", unitName);
 		return e;
 	}
 
