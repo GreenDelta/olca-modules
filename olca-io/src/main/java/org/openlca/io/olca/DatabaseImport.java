@@ -1,6 +1,8 @@
 package org.openlca.io.olca;
 
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.UnitGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,7 @@ public class DatabaseImport implements Runnable {
 	public void run() {
 		log.trace("run database import from {} to {}", source, dest);
 		try {
+
 			Sequence seq = new Sequence(dest);
 
 			new LocationImport(source, dest, seq).run();
@@ -37,10 +40,27 @@ public class DatabaseImport implements Runnable {
 			unitGroupImport.run();
 			HashMap<String, UnitGroup> requirePropertyUpdate = unitGroupImport
 					.getRequirePropertyUpdate();
-			// TODO: update unit groups after flow property import if required
+			new FlowPropertyImport(source, dest, seq).run();
+			updateUnitGroups(requirePropertyUpdate, seq);
+
 
 		} catch (Exception e) {
 			log.error("Database import failed", e);
+		}
+	}
+
+	/**
+	 * Set the default flow properties in the given unit groups.
+	 */
+	private void updateUnitGroups(HashMap<String, UnitGroup> requireUpdate,
+	                              Sequence seq) {
+		FlowPropertyDao propertyDao = new FlowPropertyDao(dest);
+		UnitGroupDao unitGroupDao = new UnitGroupDao(dest);
+		for (String refId : requireUpdate.keySet()) {
+			UnitGroup unitGroup = requireUpdate.get(refId);
+			long propId = seq.get(seq.FLOW_PROPERTY, refId);
+			unitGroup.setDefaultFlowProperty(propertyDao.getForId(propId));
+			unitGroupDao.update(unitGroup);
 		}
 	}
 }
