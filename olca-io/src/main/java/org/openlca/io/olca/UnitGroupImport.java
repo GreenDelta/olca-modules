@@ -70,13 +70,40 @@ class UnitGroupImport {
 			}
 		}
 		if (updated) {
-			updateAndReIndex(srcGroup, destGroup);
+			destGroup = destDao.update(destGroup);
+			indexUnits(srcGroup, destGroup);
 			log.info("updated unit group {}", destGroup);
 		}
 	}
 
-	private void updateAndReIndex(UnitGroup srcGroup, UnitGroup destGroup) {
-		destGroup = destDao.update(destGroup);
+	private void createUnitGroup(UnitGroupDescriptor descriptor) {
+		UnitGroup srcGroup = srcDao.getForId(descriptor.getId());
+		UnitGroup destGroup = srcGroup.clone();
+		destGroup.setRefId(srcGroup.getRefId());
+		switchUnitRefIds(srcGroup, destGroup);
+		destGroup.setDefaultFlowProperty(null);
+		if (srcGroup.getCategory() != null) {
+			long catId = seq.get(seq.CATEGORY, srcGroup.getCategory().getRefId());
+			destGroup.setCategory(destCategoryDao.getForId(catId));
+		}
+		destGroup = destDao.insert(destGroup);
+		seq.put(seq.UNIT_GROUP, srcGroup.getRefId(), destGroup.getId());
+		indexUnits(srcGroup, destGroup);
+		FlowProperty defaultProperty = srcGroup.getDefaultFlowProperty();
+		if (defaultProperty != null)
+			requirePropertyUpdate.put(defaultProperty.getRefId(), destGroup);
+	}
+
+	private void switchUnitRefIds(UnitGroup srcGroup, UnitGroup destGroup) {
+		for(Unit srcUnit : srcGroup.getUnits()) {
+			Unit destUnit = destGroup.getUnit(srcUnit.getName());
+			if(destUnit == null)
+				continue;
+			destUnit.setRefId(srcUnit.getRefId());
+		}
+	}
+
+	private void indexUnits(UnitGroup srcGroup, UnitGroup destGroup) {
 		for (Unit srcUnit : srcGroup.getUnits()) {
 			Unit destUnit = destGroup.getUnit(srcUnit.getName());
 			if (destUnit == null) {
@@ -86,21 +113,6 @@ class UnitGroupImport {
 			}
 			seq.put(seq.UNIT, srcUnit.getRefId(), destUnit.getId());
 		}
-	}
-
-	private void createUnitGroup(UnitGroupDescriptor descriptor) {
-		UnitGroup srcGroup = srcDao.getForId(descriptor.getId());
-		UnitGroup destGroup = srcGroup.clone();
-		destGroup.setDefaultFlowProperty(null);
-		if (srcGroup.getCategory() != null) {
-			long catId = seq.get(seq.CATEGORY, srcGroup.getCategory().getRefId());
-			destGroup.setCategory(destCategoryDao.getForId(catId));
-		}
-		destGroup = destDao.insert(destGroup);
-		seq.put(seq.UNIT_GROUP, srcGroup.getRefId(), destGroup.getId());
-		FlowProperty defaultProperty = srcGroup.getDefaultFlowProperty();
-		if (defaultProperty != null)
-			requirePropertyUpdate.put(defaultProperty.getRefId(), destGroup);
 	}
 
 }

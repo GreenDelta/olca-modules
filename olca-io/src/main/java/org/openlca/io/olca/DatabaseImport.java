@@ -44,6 +44,7 @@ public class DatabaseImport implements Runnable {
 			updateUnitGroups(requirePropertyUpdate, seq);
 
 			new FlowImport(source, dest, seq).run();
+			new ProcessImport(source, dest, seq).run();
 
 		} catch (Exception e) {
 			log.error("Database import failed", e);

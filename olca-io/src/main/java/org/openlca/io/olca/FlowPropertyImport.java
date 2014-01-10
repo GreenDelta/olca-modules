@@ -36,7 +36,7 @@ class FlowPropertyImport {
 				createFlowProperty(descriptor);
 			}
 		} catch (Exception e) {
-			log.error("failed to import flow properties");
+			log.error("failed to import flow properties", e);
 		}
 	}
 
@@ -56,6 +56,4 @@ class FlowPropertyImport {
 		destProp = destDao.insert(destProp);
 		seq.put(seq.FLOW_PROPERTY, srcProp.getRefId(), destProp.getId());
 	}
-
-
 }

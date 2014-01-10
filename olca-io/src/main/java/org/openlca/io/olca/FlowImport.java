@@ -41,7 +41,7 @@ class FlowImport {
 				createFlow(descriptor);
 			}
 		} catch (Exception e) {
-			log.error("failed to import flows");
+			log.error("failed to import flows", e);
 		}
 	}
 
