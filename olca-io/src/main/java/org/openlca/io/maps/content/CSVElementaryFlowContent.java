@@ -33,6 +33,7 @@ public class CSVElementaryFlowContent extends AbstractMapContent {
 		this.name = name;
 		this.unit = unit;
 		this.type = type;
+		this.subCompartment = subCompartment;
 	}
 
 	public String getName() {
@@ -86,6 +87,8 @@ public class CSVElementaryFlowContent extends AbstractMapContent {
 		map.put(JSON_NAME_NAME, name);
 		map.put(JSON_UNIT_NAME, unit);
 		map.put(JSON_TYPE_NAME, type.getValue());
+		if (subCompartment == null)
+			subCompartment = SubCompartment.UNSPECIFIED;
 		map.put(JSON_SUB_COMPARTMENT_NAME, subCompartment.getValue());
 		return JSONValue.toJSONString(map);
 	}
