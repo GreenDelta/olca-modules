@@ -16,8 +16,8 @@
 	<module>olca-ecospold-2</module>
 	<module>olca-formula</module>
 	<module>olca-ilcd</module>
-	<module>olca-io</module>
 	<module>olca-simapro-csv</module>
+	<module>olca-io</module>
   </modules>
   
 </project>
