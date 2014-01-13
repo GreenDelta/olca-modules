@@ -33,8 +33,6 @@ public abstract class AbstractMapper {
 					+ " : " + content.getOlcaRefId());
 			return false;
 		}
-		// TODO: just add to the map (don't check in the database) if you use
-		// several mappers at the same time you can add multiple contents.
 	}
 
 	private boolean addToMap(Mapping mapping, String mapType) {
@@ -63,7 +61,6 @@ public abstract class AbstractMapper {
 	protected AbstractMapContent getForImport(AbstractMapContent content) {
 		Mapping mapping = importMap
 				.get(content.toJson() + content.getMapType());
-		System.out.println(content.toJson() + content.getMapType());
 		if (mapping == null)
 			return null;
 		content.setForImport(true);
