@@ -6,10 +6,6 @@ import java.util.Map;
 
 /**
  * Enumeration of possible sub compartments
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public enum SubCompartment {
 

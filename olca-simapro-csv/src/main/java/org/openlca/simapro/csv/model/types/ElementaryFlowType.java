@@ -9,10 +9,6 @@ import java.util.Map;
 
 /**
  * Enumeration of possible elementary flow types
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public enum ElementaryFlowType {
 	/**
