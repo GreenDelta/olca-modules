@@ -7,21 +7,17 @@ class BlockInversion {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final int MAX_BLOCK_SIZE;
-	private final IMatrixFactory factory;
+	private final IMatrixFactory<?> factory;
 	private final ISolver solver;
 
-	public BlockInversion(int blockSize, IMatrixFactory factory) {
-		this(blockSize, factory, factory.getDefaultSolver());
-	}
-
-	public BlockInversion(int blockSize, IMatrixFactory factory, ISolver solver) {
+	public BlockInversion(int blockSize, ISolver solver) {
 		this.MAX_BLOCK_SIZE = blockSize;
-		this.factory = factory;
 		this.solver = solver;
+		this.factory = solver.getMatrixFactory();
 	}
 
-	public BlockInversion(IMatrixFactory factory) {
-		this(2500, factory);
+	public BlockInversion(ISolver solver) {
+		this(2500, solver);
 	}
 
 	public IMatrix run(IMatrix a) {

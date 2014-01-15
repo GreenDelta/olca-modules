@@ -45,8 +45,8 @@ public class ImpactFactorMatrix {
 		return rowMap.get(col);
 	}
 
-	public IMatrix createRealMatrix(IMatrixFactory factory) {
-		final IMatrix matrix = factory.create(rows, columns);
+	public <M extends IMatrix> M createRealMatrix(IMatrixFactory<M> factory) {
+		final M matrix = factory.create(rows, columns);
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ImpactFactorCell cell) {

@@ -22,7 +22,8 @@ public class LinkContributionsTest {
 	@Test
 	public void testDoubleLink() {
 
-		IMatrixFactory factory = TestSession.getMatrixFactory();
+		IMatrixFactory<?> factory = TestSession.getDefaultSolver()
+				.getMatrixFactory();
 		// @formatter:off
 		IMatrix techMatrix = MatrixUtils.create(new double[][] {
 				{ 1, 0, 0, 0 }, { -0.5, 1, 0, 0 }, { -0.5, 0, 1, 0 },
@@ -56,7 +57,8 @@ public class LinkContributionsTest {
 	 */
 	@Test
 	public void testBandMatrix() {
-		IMatrixFactory factory = TestSession.getMatrixFactory();
+		IMatrixFactory<?> factory = TestSession.getDefaultSolver()
+				.getMatrixFactory();
 		int size = 4000;
 		IMatrix techMatrix = factory.create(size, size);
 		ProductIndex index = new ProductIndex(LongPair.of(1, 1));

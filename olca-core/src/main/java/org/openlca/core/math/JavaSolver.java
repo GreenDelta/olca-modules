@@ -36,4 +36,9 @@ public class JavaSolver implements ISolver {
 		return javaMatrix.getRealMatrix();
 	}
 
+	@Override
+	public IMatrixFactory<?> getMatrixFactory() {
+		return new JavaMatrixFactory();
+	}
+
 }

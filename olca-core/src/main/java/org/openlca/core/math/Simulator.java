@@ -23,7 +23,8 @@ public class Simulator {
 	private ProductSystem system;
 	private ImpactMethodDescriptor impactMethod;
 	private MatrixCache database;
-	private final IMatrixFactory factory;
+	private final IMatrixFactory<?> factory;
+	private final ISolver matrixSolver;
 
 	private SimulationResult result;
 	private Inventory inventory;
@@ -33,12 +34,13 @@ public class Simulator {
 	private CalculationSetup setup;
 
 	public Simulator(CalculationSetup setup, MatrixCache database,
-			IMatrixFactory factory) {
+			ISolver solver) {
 		this.system = setup.getProductSystem();
 		this.impactMethod = setup.getImpactMethod();
 		this.database = database;
 		this.setup = setup;
-		this.factory = factory;
+		this.factory = solver.getMatrixFactory();
+		this.matrixSolver = solver;
 	}
 
 	public SimulationResult getResult() {
@@ -62,7 +64,7 @@ public class Simulator {
 			if (impactMatrix != null)
 				impactTable.getFactorMatrix().simulate(
 						impactMatrix.getFactorMatrix());
-			InventoryCalculator solver = new InventoryCalculator(factory);
+			InventoryCalculator solver = new InventoryCalculator(matrixSolver);
 			InventoryResult inventoryResult = solver.solve(inventoryMatrix,
 					impactMatrix);
 			appendResults(inventoryResult);

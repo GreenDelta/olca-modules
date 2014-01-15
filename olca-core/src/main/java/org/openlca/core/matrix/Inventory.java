@@ -86,7 +86,7 @@ public class Inventory {
 			interventionMatrix.eval(formulaInterpreter);
 	}
 
-	public InventoryMatrix asMatrix(IMatrixFactory factory) {
+	public InventoryMatrix asMatrix(IMatrixFactory<?> factory) {
 		evalFormulas();
 		InventoryMatrix matrix = new InventoryMatrix();
 		matrix.setFlowIndex(flowIndex);

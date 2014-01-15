@@ -5,32 +5,20 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.database.mysql.MySQLDatabase;
-import org.openlca.core.math.IMatrixFactory;
-import org.openlca.core.math.JavaMatrixFactory;
+import org.openlca.core.math.ISolver;
+import org.openlca.core.math.JavaSolver;
 
 public class TestSession {
 
 	private static IDatabase mysqlDatabase;
 	private static IDatabase derbyDatabase;
-	private static IMatrixFactory matrixFactory;
 
 	public static IDatabase getDefaultDatabase() {
 		return getDerbyDatabase();
 	}
 
-	public static IMatrixFactory getMatrixFactory() {
-		if (matrixFactory != null)
-			return matrixFactory;
-		// if (!Library.isLoaded()) {
-		// String tmpDirPath = System.getProperty("java.io.tmpdir");
-		// File tempDir = new File(tmpDirPath);
-		// Library.loadFromDir(tempDir);
-		// }
-		// if (Library.isLoaded())
-		// matrixFactory = new BlasMatrixFactory();
-		// else
-		matrixFactory = new JavaMatrixFactory();
-		return matrixFactory;
+	public static ISolver getDefaultSolver() {
+		return new JavaSolver();
 	}
 
 	public static IDatabase getMySQLDatabase() {

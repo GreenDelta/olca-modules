@@ -30,7 +30,8 @@ public class ContributionTreeTest {
 		flowIndex.putOutputFlow(4);
 		matrix.setFlowIndex(flowIndex);
 
-		IMatrixFactory factory = TestSession.getMatrixFactory();
+		IMatrixFactory<?> factory = TestSession.getDefaultSolver()
+				.getMatrixFactory();
 		IMatrix techMatrix = MatrixUtils.create(new double[][] { { 1, 0, 0 },
 				{ -1, 1, 0 }, { -1, 0, 1 } }, factory);
 		matrix.setTechnologyMatrix(techMatrix);
@@ -38,8 +39,8 @@ public class ContributionTreeTest {
 				new double[][] { { 0, 0.5, 0.5 } }, factory);
 		matrix.setInterventionMatrix(enviMatrix);
 
-		AnalysisResult result = new InventoryCalculator(factory)
-				.analyse(matrix);
+		AnalysisResult result = new InventoryCalculator(
+				TestSession.getDefaultSolver()).analyse(matrix);
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setId(4);
 
@@ -53,5 +54,4 @@ public class ContributionTreeTest {
 		Assert.assertEquals(0.5, tree.getRoot().getChildren().get(1)
 				.getAmount(), 1e-16);
 	}
-
 }

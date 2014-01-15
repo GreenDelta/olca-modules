@@ -13,16 +13,12 @@ import org.openlca.core.results.LinkContributions;
 
 public class InventoryCalculator {
 
-	private final IMatrixFactory factory;
+	private final IMatrixFactory<?> factory;
 	private final ISolver solver;
 
-	public InventoryCalculator(IMatrixFactory factory) {
-		this(factory, factory.getDefaultSolver());
-	}
-
-	public InventoryCalculator(IMatrixFactory factory, ISolver solver) {
+	public InventoryCalculator(ISolver solver) {
 		this.solver = solver;
-		this.factory = factory;
+		this.factory = solver.getMatrixFactory();
 	}
 
 	public InventoryResult solve(Inventory inventory) {
@@ -95,7 +91,7 @@ public class InventoryCalculator {
 
 		// single results
 		int n = productIndex.size();
-		IMatrix scalingMatrix = factory.createSparse(n, n);
+		IMatrix scalingMatrix = factory.create(n, n);
 		for (int i = 0; i < n; i++) {
 			scalingMatrix.setEntry(i, i, scalingFactors.getEntry(i, 0));
 		}
@@ -104,7 +100,7 @@ public class InventoryCalculator {
 
 		// total results
 		// TODO: self loop correction
-		IMatrix demandMatrix = factory.createSparse(n, n);
+		IMatrix demandMatrix = factory.create(n, n);
 		for (int i = 0; i < productIndex.size(); i++) {
 			double entry = techMatrix.getEntry(i, i);
 			double s = scalingFactors.getEntry(i, 0);
@@ -134,7 +130,7 @@ public class InventoryCalculator {
 	private IMatrix createDemandVector(ProductIndex productIndex) {
 		LongPair refProduct = productIndex.getRefProduct();
 		int idx = productIndex.getIndex(refProduct);
-		IMatrix demandVector = factory.createSparse(productIndex.size(), 1);
+		IMatrix demandVector = factory.create(productIndex.size(), 1);
 		demandVector.setEntry(idx, 0, productIndex.getDemand());
 		return demandVector;
 	}

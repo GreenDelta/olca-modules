@@ -11,26 +11,26 @@ import org.openlca.core.results.ProjectResult;
 
 public class ProjectCalculator {
 
-	private final IMatrixFactory factory;
+	private final ISolver solver;
 	private final MatrixCache matrixCache;
 
-	public ProjectCalculator(MatrixCache matrixCache, IMatrixFactory factory) {
+	public ProjectCalculator(MatrixCache matrixCache, ISolver solver) {
 		this.matrixCache = matrixCache;
-		this.factory = factory;
+		this.solver = solver;
 	}
 
 	public ProjectResult solve(Project project) {
 		ProjectResult result = new ProjectResult();
-		SystemCalculator calculator = new SystemCalculator(matrixCache, factory);
+		SystemCalculator calculator = new SystemCalculator(matrixCache, solver);
 		ImpactMethodDescriptor method = getImpactMethod(project);
 		NormalizationWeightingSet nwSet = getNwSet(project);
 		for (ProjectVariant v : project.getVariants()) {
 			CalculationSetup setup = new CalculationSetup(v.getProductSystem(),
 					CalculationSetup.QUICK_RESULT);
-            setup.setUnit(v.getUnit());
-            setup.setFlowPropertyFactor(v.getFlowPropertyFactor());
-            setup.setAmount(v.getAmount());
-            setup.setAllocationMethod(v.getAllocationMethod());
+			setup.setUnit(v.getUnit());
+			setup.setFlowPropertyFactor(v.getFlowPropertyFactor());
+			setup.setAmount(v.getAmount());
+			setup.setAllocationMethod(v.getAllocationMethod());
 			setup.setImpactMethod(method);
 			setup.setNwSet(nwSet);
 			setup.getParameterRedefs().addAll(v.getParameterRedefs());

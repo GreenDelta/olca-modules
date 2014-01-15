@@ -28,4 +28,9 @@ public interface ISolver {
 	 */
 	IMatrix multiply(IMatrix a, IMatrix b);
 
+	/**
+	 * Returns the matrix factory of this solver.
+	 */
+	IMatrixFactory<?> getMatrixFactory();
+
 }
