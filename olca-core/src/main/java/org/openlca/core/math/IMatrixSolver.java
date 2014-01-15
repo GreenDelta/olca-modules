@@ -42,6 +42,12 @@ public interface IMatrixSolver {
 	double[] multiply(IMatrix m, double[] v);
 
 	/**
+	 * Scales the columns of matrix m with the factors in v. This is equivalent
+	 * to m * diag(v) but can be implemented in a more efficient way.
+	 */
+	void scaleColumns(IMatrix m, double[] v);
+
+	/**
 	 * Returns the matrix factory of this solver.
 	 */
 	IMatrixFactory<?> getMatrixFactory();

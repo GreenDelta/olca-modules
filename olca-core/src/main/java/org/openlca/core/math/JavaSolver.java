@@ -53,4 +53,13 @@ public class JavaSolver implements IMatrixSolver {
 		return new JavaMatrixFactory();
 	}
 
+	@Override
+	public void scaleColumns(IMatrix m, double[] v) {
+		for (int row = 0; row < m.getRowDimension(); row++) {
+			for (int col = 0; col < m.getColumnDimension(); col++) {
+				m.setEntry(row, col, v[col] * m.getEntry(row, col));
+			}
+		}
+	}
+
 }

@@ -84,35 +84,30 @@ public class InventoryCalculator {
 		IMatrix enviMatrix = matrix.getInterventionMatrix();
 
 		IMatrix inverse = solver.invert(techMatrix);
-
-		IMatrix demand = createDemandVector(productIndex);
-		IMatrix scalingFactors = solver.multiply(inverse, demand);
-		// we now that the reference product is always in the first column
-		result.setScalingFactors(scalingFactors.getColumn(0));
+		double[] scalingVector = getScalingVector(inverse, productIndex);
+		result.setScalingFactors(scalingVector);
 
 		// single results
-		int n = productIndex.size();
-		IMatrix scalingMatrix = factory.create(n, n);
-		for (int i = 0; i < n; i++) {
-			scalingMatrix.setEntry(i, i, scalingFactors.getEntry(i, 0));
-		}
-		IMatrix singleResult = solver.multiply(enviMatrix, scalingMatrix);
+		IMatrix singleResult = enviMatrix.copy();
+		solver.scaleColumns(singleResult, scalingVector);
 		result.setSingleResult(singleResult);
 
 		// total results
-		// TODO: self loop correction
-		IMatrix demandMatrix = factory.create(n, n);
+		double[] demands = new double[productIndex.size()];
 		for (int i = 0; i < productIndex.size(); i++) {
 			double entry = techMatrix.getEntry(i, i);
-			double s = scalingFactors.getEntry(i, 0);
-			demandMatrix.setEntry(i, i, s * entry);
+			double s = scalingVector[i];
+			demands[i] = s * entry;
 		}
-		IMatrix totalResult = solver.multiply(
-				solver.multiply(enviMatrix, inverse), demandMatrix);
+		IMatrix totalResult = solver.multiply(enviMatrix, inverse);
+		solver.scaleColumns(totalResult, demands);
 		result.setTotalResult(totalResult);
 
+		// allow GC
+		inverse = null;
+
 		LinkContributions linkContributions = LinkContributions.calculate(
-				techMatrix, productIndex, scalingFactors.getColumn(0));
+				techMatrix, productIndex, scalingVector);
 		result.setLinkContributions(linkContributions);
 
 		if (impactMatrix != null) {
@@ -126,6 +121,16 @@ public class InventoryCalculator {
 		}
 		return result;
 
+	}
+
+	private double[] getScalingVector(IMatrix inverse, ProductIndex productIndex) {
+		LongPair refProduct = productIndex.getRefProduct();
+		int idx = productIndex.getIndex(refProduct);
+		double[] s = inverse.getColumn(idx);
+		double demand = productIndex.getDemand();
+		for (int i = 0; i < s.length; i++)
+			s[i] *= demand;
+		return s;
 	}
 
 	private IMatrix createDemandVector(ProductIndex productIndex) {
