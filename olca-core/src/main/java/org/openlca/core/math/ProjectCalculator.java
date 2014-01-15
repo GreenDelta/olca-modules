@@ -11,10 +11,10 @@ import org.openlca.core.results.ProjectResult;
 
 public class ProjectCalculator {
 
-	private final ISolver solver;
+	private final IMatrixSolver solver;
 	private final MatrixCache matrixCache;
 
-	public ProjectCalculator(MatrixCache matrixCache, ISolver solver) {
+	public ProjectCalculator(MatrixCache matrixCache, IMatrixSolver solver) {
 		this.matrixCache = matrixCache;
 		this.solver = solver;
 	}

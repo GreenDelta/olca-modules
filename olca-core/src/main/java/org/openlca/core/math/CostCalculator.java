@@ -14,9 +14,9 @@ public class CostCalculator {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private MatrixCache matrixCache;
 	private final IMatrixFactory<?> factory;
-	private final ISolver solver;
+	private final IMatrixSolver solver;
 
-	public CostCalculator(MatrixCache matrixCache, ISolver solver) {
+	public CostCalculator(MatrixCache matrixCache, IMatrixSolver solver) {
 		this.matrixCache = matrixCache;
 		this.factory = solver.getMatrixFactory();
 		this.solver = solver;

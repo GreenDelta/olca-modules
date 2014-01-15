@@ -1,16 +1,28 @@
 package org.openlca.core.math;
 
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
 
-public class JavaSolver implements ISolver {
+public class JavaSolver implements IMatrixSolver {
 
 	@Override
-	public IMatrix solve(IMatrix a, IMatrix b) {
-		RealMatrix _a = unwrap(a);
-		RealMatrix _b = unwrap(b);
-		RealMatrix x = new LUDecomposition(_a).getSolver().solve(_b);
-		return new JavaMatrix(x);
+	public double[] solve(IMatrix a, int idx, double d) {
+		RealMatrix A = unwrap(a);
+		RealVector b = new ArrayRealVector(a.getRowDimension());
+		b.setEntry(idx, d);
+		RealVector x = new LUDecomposition(A).getSolver().solve(b);
+		return x.toArray();
+	}
+
+	@Override
+	public double[] multiply(IMatrix m, double[] v) {
+		RealMatrix A = unwrap(m);
+		RealMatrix b = new Array2DRowRealMatrix(v.length, 1);
+		b.setColumn(0, v);
+		return A.multiply(b).getColumn(0);
 	}
 
 	@Override

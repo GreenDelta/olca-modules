@@ -1,6 +1,5 @@
 package org.openlca.core.results;
 
-import org.openlca.core.math.IMatrix;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.matrix.ProductIndex;
@@ -21,9 +20,9 @@ public class InventoryResult {
 	private ProductIndex productIndex;
 	private FlowIndex flowIndex;
 	private LongIndex impactIndex;
-	private IMatrix flowResultVector;
-	private IMatrix impactResultVector;
-	private IMatrix scalingVector;
+	private double[] flowResultVector;
+	private double[] impactResultVector;
+	private double[] scalingVector;
 
 	// result generators
 	private InventoryFlowResults flowResults;
@@ -53,15 +52,15 @@ public class InventoryResult {
 		this.impactIndex = impactIndex;
 	}
 
-	public void setFlowResultVector(IMatrix flowResultVector) {
+	public void setFlowResultVector(double[] flowResultVector) {
 		this.flowResultVector = flowResultVector;
 	}
 
-	public void setImpactResultVector(IMatrix impactResultVector) {
+	public void setImpactResultVector(double[] impactResultVector) {
 		this.impactResultVector = impactResultVector;
 	}
 
-	public void setScalingVector(IMatrix scalingVector) {
+	public void setScalingVector(double[] scalingVector) {
 		this.scalingVector = scalingVector;
 	}
 
@@ -77,23 +76,23 @@ public class InventoryResult {
 		return impactIndex;
 	}
 
-	public IMatrix getFlowResultVector() {
+	public double[] getFlowResultVector() {
 		return flowResultVector;
 	}
 
-	public IMatrix getImpactResultVector() {
+	public double[] getImpactResultVector() {
 		return impactResultVector;
 	}
 
-	public IMatrix getScalingVector() {
+	public double[] getScalingVector() {
 		return scalingVector;
 	}
 
 	public double getFlowResult(long flowId) {
 		int idx = flowIndex.getIndex(flowId);
-		if (idx < 0 || idx >= flowResultVector.getRowDimension())
+		if (idx < 0 || idx >= flowResultVector.length)
 			return 0;
-		double val = flowResultVector.getEntry(idx, 0);
+		double val = flowResultVector[idx];
 		return adoptFlowResult(val, flowId);
 	}
 
@@ -106,17 +105,16 @@ public class InventoryResult {
 
 	public boolean hasImpactResults() {
 		return impactIndex != null && !impactIndex.isEmpty()
-				&& impactResultVector != null
-				&& impactResultVector.getRowDimension() > 0;
+				&& impactResultVector != null && impactResultVector.length > 0;
 	}
 
 	public double getImpactResult(long impactCategoryId) {
 		if (!hasImpactResults())
 			return 0;
 		int idx = impactIndex.getIndex(impactCategoryId);
-		if (idx < 0 || idx >= impactResultVector.getRowDimension())
+		if (idx < 0 || idx >= impactResultVector.length)
 			return 0;
-		return impactResultVector.getEntry(idx, 0);
+		return impactResultVector[idx];
 	}
 
 }

@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.database.mysql.MySQLDatabase;
-import org.openlca.core.math.ISolver;
+import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.math.JavaSolver;
 
 public class TestSession {
@@ -17,7 +17,7 @@ public class TestSession {
 		return getDerbyDatabase();
 	}
 
-	public static ISolver getDefaultSolver() {
+	public static IMatrixSolver getDefaultSolver() {
 		return new JavaSolver();
 	}
 

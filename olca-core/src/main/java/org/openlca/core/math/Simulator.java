@@ -24,7 +24,7 @@ public class Simulator {
 	private ImpactMethodDescriptor impactMethod;
 	private MatrixCache database;
 	private final IMatrixFactory<?> factory;
-	private final ISolver matrixSolver;
+	private final IMatrixSolver matrixSolver;
 
 	private SimulationResult result;
 	private Inventory inventory;
@@ -34,7 +34,7 @@ public class Simulator {
 	private CalculationSetup setup;
 
 	public Simulator(CalculationSetup setup, MatrixCache database,
-			ISolver solver) {
+			IMatrixSolver solver) {
 		this.system = setup.getProductSystem();
 		this.impactMethod = setup.getImpactMethod();
 		this.database = database;
@@ -85,8 +85,7 @@ public class Simulator {
 		}
 		result.appendFlowResults(flowResults);
 		if (result.hasImpactResults())
-			result.appendImpactResults(inventoryResult.getImpactResultVector()
-					.getColumn(0));
+			result.appendImpactResults(inventoryResult.getImpactResultVector());
 	}
 
 	private void setUp() {

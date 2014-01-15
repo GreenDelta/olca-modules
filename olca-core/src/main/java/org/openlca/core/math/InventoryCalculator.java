@@ -14,9 +14,9 @@ import org.openlca.core.results.LinkContributions;
 public class InventoryCalculator {
 
 	private final IMatrixFactory<?> factory;
-	private final ISolver solver;
+	private final IMatrixSolver solver;
 
-	public InventoryCalculator(ISolver solver) {
+	public InventoryCalculator(IMatrixSolver solver) {
 		this.solver = solver;
 		this.factory = solver.getMatrixFactory();
 	}
@@ -39,10 +39,11 @@ public class InventoryCalculator {
 	public InventoryResult solve(InventoryMatrix matrix,
 			ImpactMatrix impactMatrix) {
 		IMatrix techMatrix = matrix.getTechnologyMatrix();
-		IMatrix demand = createDemandVector(matrix.getProductIndex());
-		IMatrix s = solver.solve(techMatrix, demand);
+		ProductIndex productIndex = matrix.getProductIndex();
+		int idx = productIndex.getIndex(productIndex.getRefProduct());
+		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 		IMatrix enviMatrix = matrix.getInterventionMatrix();
-		IMatrix g = solver.multiply(enviMatrix, s);
+		double[] g = solver.multiply(enviMatrix, s);
 
 		InventoryResult result = new InventoryResult();
 		result.setFlowIndex(matrix.getFlowIndex());
@@ -50,7 +51,7 @@ public class InventoryCalculator {
 		result.setProductIndex(matrix.getProductIndex());
 		if (impactMatrix != null) {
 			IMatrix impactFactors = impactMatrix.getFactorMatrix();
-			IMatrix i = solver.multiply(impactFactors, g);
+			double[] i = solver.multiply(impactFactors, g);
 			result.setImpactIndex(impactMatrix.getCategoryIndex());
 			result.setImpactResultVector(i);
 		}

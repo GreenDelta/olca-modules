@@ -12,9 +12,9 @@ public class SystemCalculator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final MatrixCache matrixCache;
-	private final ISolver solver;
+	private final IMatrixSolver solver;
 
-	public SystemCalculator(MatrixCache cache, ISolver solver) {
+	public SystemCalculator(MatrixCache cache, IMatrixSolver solver) {
 		this.matrixCache = cache;
 		this.solver = solver;
 	}
