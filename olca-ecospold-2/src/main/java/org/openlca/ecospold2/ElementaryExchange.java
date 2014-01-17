@@ -1,6 +1,7 @@
 package org.openlca.ecospold2;
 
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class ElementaryExchange extends Exchange {
 
@@ -44,8 +45,8 @@ public class ElementaryExchange extends Exchange {
 		return exchange;
 	}
 
-	Element toXml() {
-		Element element = new Element("elementaryExchange", IO.NS);
+	Element toXml(Namespace ns) {
+		Element element = new Element("elementaryExchange", ns);
 		writeValues(element);
 		if (elementaryExchangeId != null)
 			element.setAttribute("elementaryExchangeId", elementaryExchangeId);
