@@ -33,6 +33,12 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ecospold-1</artifactId>
+			<version>1.0.0</version>			
+		</dependency>
+		
+		<dependency>
+			<groupId>org.openlca</groupId>
+			<artifactId>olca-simapro-csv</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 
@@ -87,6 +93,7 @@
 			<scope>test</scope>
 		</dependency>
 
+		
 	</dependencies>
 
 	<build>

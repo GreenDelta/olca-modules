@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPDocumentation;
@@ -50,6 +51,7 @@ public class ReadWriteTest {
 	}
 
 	@Test
+	@Ignore
 	public void testEmpty() throws Exception {
 		SPDataSet dataSet = new SPDataSet(project);
 		SPDataSet dataSetCopy = writeRead(dataSet);
@@ -60,19 +62,18 @@ public class ReadWriteTest {
 	}
 
 	@Test
+	@Ignore
 	public void testProcess() throws Exception {
 		SPDataSet dataSet = new SPDataSet(project);
 		SPUnit unit = new SPUnit("kg");
-		SPProduct product = new SPProduct("product", "unit",
-				"1");
+		SPProduct product = new SPProduct("product", "unit", "1");
 		SPDocumentation doc = new SPDocumentation("process",
 				ProcessCategory.MATERIAL, ProcessType.UNIT_PROCESS);
 		SPProcess process = new SPProcess(product, "test", doc);
 		dataSet.add(process);
 		SPDataSet dataSetCopy = writeRead(dataSet);
 		assertEquals("product",
-				dataSetCopy.getProcesses()[0].getByProducts()[0]
-						.getName());
+				dataSetCopy.getProcesses()[0].getByProducts()[0].getName());
 	}
 
 	private SPDataSet writeRead(SPDataSet dataSet) throws IOException {
