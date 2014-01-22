@@ -137,10 +137,10 @@ public class DerbyDatabase implements IDatabase {
 		if (connectionPool != null)
 			connectionPool.shutdown();
 		try {
+			DriverManager.getConnection(url + ";shutdown=true");
 			// TODO: single database shutdown throws unexpected
 			// error in eclipse APP - close all connections here
-			// DriverManager.getConnection(url + ";shutdown=true");
-			DriverManager.getConnection("jdbc:derby:;shutdown=true");
+			// DriverManager.getConnection("jdbc:derby:;shutdown=true");
 			System.gc(); // unload embedded driver for possible restarts
 			// see also
 			// http://db.apache.org/derby/docs/10.4/devguide/rdevcsecure26537.html
