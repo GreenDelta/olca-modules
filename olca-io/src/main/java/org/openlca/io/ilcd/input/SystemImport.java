@@ -26,12 +26,9 @@ import org.openlca.ilcd.productmodel.Product;
 import org.openlca.ilcd.productmodel.ProductModel;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.ilcd.util.ProcessInfoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SystemImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 	private DataStore dataStore;
 	private ProcessBag ilcdProcessBag;

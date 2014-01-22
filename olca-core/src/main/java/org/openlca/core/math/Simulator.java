@@ -6,7 +6,6 @@ import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.InventoryResult;
 import org.openlca.core.results.SimulationResult;
@@ -20,7 +19,6 @@ public class Simulator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private ProductSystem system;
 	private ImpactMethodDescriptor impactMethod;
 	private MatrixCache database;
 	private final IMatrixFactory<?> factory;
@@ -35,7 +33,6 @@ public class Simulator {
 
 	public Simulator(CalculationSetup setup, MatrixCache database,
 			IMatrixSolver solver) {
-		this.system = setup.getProductSystem();
 		this.impactMethod = setup.getImpactMethod();
 		this.database = database;
 		this.setup = setup;

@@ -13,14 +13,14 @@ public class SystemExportConfig {
 	private String olcaVersion = "1.4";
 	private final ProductSystem system;
 	private final IDatabase database;
-	private final IMatrixFactory matrixFactory;
+	private final IMatrixFactory<?> matrixFactory;
 	private MatrixCache matrixCache;
 	private EntityCache entityCache;
 	private AllocationMethod allocationMethod;
 	private BaseDescriptor impactMethod;
 
 	public SystemExportConfig(ProductSystem system, IDatabase database,
-			IMatrixFactory matrixFactory) {
+			IMatrixFactory<?> matrixFactory) {
 		this.system = system;
 		this.database = database;
 		this.matrixFactory = matrixFactory;
@@ -78,7 +78,7 @@ public class SystemExportConfig {
 		return database;
 	}
 
-	public IMatrixFactory getMatrixFactory() {
+	public IMatrixFactory<?> getMatrixFactory() {
 		return matrixFactory;
 	}
 

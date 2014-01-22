@@ -6,13 +6,11 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public class AnalysisContributions {
 
-	private final AnalysisResult result;
 	private final LinkContributions linkContributions;
 	private final ContributionTreeCalculator treeCalculator;
 
 	AnalysisContributions(AnalysisResult result,
 			LinkContributions linkContributions) {
-		this.result = result;
 		this.linkContributions = linkContributions;
 		this.treeCalculator = new ContributionTreeCalculator(result,
 				linkContributions);

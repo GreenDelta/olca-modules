@@ -55,7 +55,7 @@ class ProcessImport {
 				else
 					createProcess(descriptor);
 			}
-			// TODO: translate default provider IDs for imported processes
+			switchDefaultProviders();
 		} catch (Exception e) {
 			log.error("failed to import processes", e);
 		}
@@ -151,19 +151,19 @@ class ProcessImport {
 	}
 
 	private void switchAllocationProducts(Process srcProcess, Process destProcess) {
-		 for(AllocationFactor factor : destProcess.getAllocationFactors()) {
-			 long srcProductId = factor.getProductId();
-			 String srcRefId = null;
-			 for(Exchange srcExchange : srcProcess.getExchanges()) {
-				 if(srcExchange.getFlow() == null)
-					 continue;
-				 if(srcExchange.getFlow().getId() == srcProductId) {
+		for (AllocationFactor factor : destProcess.getAllocationFactors()) {
+			long srcProductId = factor.getProductId();
+			String srcRefId = null;
+			for (Exchange srcExchange : srcProcess.getExchanges()) {
+				if (srcExchange.getFlow() == null)
+					continue;
+				if (srcExchange.getFlow().getId() == srcProductId) {
 					srcRefId = srcExchange.getFlow().getRefId();
-				 }
-			 }
-			 long destProductId = seq.get(seq.FLOW, srcRefId);
-			 factor.setProductId(destProductId);
-		 }
+				}
+			}
+			long destProductId = seq.get(seq.FLOW, srcRefId);
+			factor.setProductId(destProductId);
+		}
 	}
 
 	private void switchDocRefs(Process destProcess) {
@@ -196,5 +196,10 @@ class ProcessImport {
 		long id = seq.get(seq.SOURCE, srcSource.getRefId());
 		SourceDao dao = new SourceDao(dest);
 		return dao.getForId(id);
+	}
+
+	private void switchDefaultProviders() {
+
+
 	}
 }

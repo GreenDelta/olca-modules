@@ -133,12 +133,4 @@ public class InventoryCalculator {
 		return s;
 	}
 
-	private IMatrix createDemandVector(ProductIndex productIndex) {
-		LongPair refProduct = productIndex.getRefProduct();
-		int idx = productIndex.getIndex(refProduct);
-		IMatrix demandVector = factory.create(productIndex.size(), 1);
-		demandVector.setEntry(idx, 0, productIndex.getDemand());
-		return demandVector;
-	}
-
 }
