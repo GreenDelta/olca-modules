@@ -1,5 +1,6 @@
 package org.openlca.io.olca;
 
+import gnu.trove.iterator.TLongLongIterator;
 import gnu.trove.map.hash.TLongLongHashMap;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.BaseDao;
@@ -7,6 +8,7 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Actor;
@@ -199,7 +201,26 @@ class ProcessImport {
 	}
 
 	private void switchDefaultProviders() {
+		log.trace("update default providers");
+		dest.getEntityFactory().getCache().evictAll();
+		TLongLongIterator it = srcDestIdMap.iterator();
+		while (it.hasNext()) {
+			it.advance();
+			long sourceId = it.key();
+			long destId = it.value();
+			if (sourceId == destId)
+				continue;
+			updateDefaultProvider(sourceId, destId);
+		}
+	}
 
-
+	private void updateDefaultProvider(long sourceId, long destId) {
+		try {
+			String stmt = "update tbl_exchanges set f_default_provider = "
+					+ destId + "where f_default_provider = " + sourceId;
+			NativeSql.on(dest).runUpdate(stmt);
+		} catch (Exception e) {
+			log.error("failed to update default provider", e);
+		}
 	}
 }

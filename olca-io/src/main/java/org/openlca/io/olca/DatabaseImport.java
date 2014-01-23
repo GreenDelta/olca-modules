@@ -29,6 +29,11 @@ public class DatabaseImport implements Runnable {
 		log.trace("run database import from {} to {}", source, dest);
 		try {
 
+			// TODO: cost categories and process cost entries
+			// TODO: product systems
+			// TODO: LCIA methods
+			// TODO: projects
+
 			Sequence seq = new Sequence(dest);
 
 			new LocationImport(source, dest, seq).run();
