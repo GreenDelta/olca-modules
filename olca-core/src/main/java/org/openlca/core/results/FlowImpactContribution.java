@@ -33,7 +33,11 @@ public class FlowImpactContribution {
 				long flowId = flow.getId();
 				double lciVal = result.getTotalFlowResult(refProcess, flowId);
 				double factor = result.getImpactFactor(impact.getId(), flowId);
-				return factor * lciVal;
+				// The sign of the flow result is already switched in the
+				// result.getTotalFlowResult method for input flows. Thus, we
+				// need to take the absolute value from the LCIA factor as the
+				// factor matrix contains negative values for input flows.
+				return Math.abs(factor) * lciVal;
 			}
 		});
 	}
