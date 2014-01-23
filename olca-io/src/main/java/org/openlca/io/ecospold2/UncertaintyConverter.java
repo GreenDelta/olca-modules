@@ -40,8 +40,10 @@ public class UncertaintyConverter {
 		case UNIFORM:
 			uncertainty.setUniform(createUniform(olca));
 			break;
+		case NONE:
+			return null;
 		default:
-			break;
+			return null;
 		}
 		return uncertainty;
 	}
