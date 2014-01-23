@@ -7,6 +7,7 @@ import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
@@ -37,12 +38,13 @@ class Sequence {
 	int FLOW_PROPERTY = 6;
 	int FLOW = 7;
 	int PROCESS = 8;
+	int PRODUCT_SYSTEM = 9;
 
 	private final HashMap<String, Long>[] sequences;
 
 	@SuppressWarnings("unchecked")
 	public Sequence(IDatabase database) {
-		sequences = new HashMap[9];
+		sequences = new HashMap[10];
 		for (int i = 0; i < sequences.length; i++)
 			sequences[i] = new HashMap<>();
 		init(database);
@@ -59,6 +61,7 @@ class Sequence {
 		index(FLOW_PROPERTY, new FlowPropertyDao(database));
 		index(FLOW, new FlowDao(database));
 		index(PROCESS, new ProcessDao(database));
+		index(PRODUCT_SYSTEM, new ProductSystemDao(database));
 	}
 
 	private void index(int type, RootEntityDao<?, ?> dao) {
