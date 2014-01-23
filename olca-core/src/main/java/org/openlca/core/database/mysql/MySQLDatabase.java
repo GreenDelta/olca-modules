@@ -10,8 +10,8 @@ import javax.persistence.EntityManagerFactory;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.DatabaseException;
+import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.internal.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
