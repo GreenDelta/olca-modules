@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (1);
+INSERT INTO openlca_version (version) VALUES (2);
 
 
 CREATE TABLE tbl_categories (
@@ -325,6 +325,7 @@ CREATE TABLE tbl_process_links (
 );
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 
+
 CREATE TABLE tbl_impact_methods (
 
 	id BIGINT NOT NULL,
@@ -374,25 +375,28 @@ CREATE TABLE tbl_impact_factors (
 CREATE INDEX idx_impact_factor_flow ON tbl_impact_factors(f_flow);
 
 
-CREATE TABLE tbl_normalisation_weighting_sets (
+CREATE TABLE tbl_nw_sets (
 
-	id BIGINT NOT NULL, 
+	id BIGINT NOT NULL,
+    ref_id VARCHAR(36),
+    description CLOB(64 K),
+    name VARCHAR(255),
 	reference_system VARCHAR(255),
 	f_impact_method BIGINT, 
-	unit VARCHAR(255),
+	weighted_score_unit VARCHAR(255),
 	
 	PRIMARY KEY (id)
 
 );
 
 
-CREATE TABLE tbl_normalisation_weighting_factors (
+CREATE TABLE tbl_nw_factors (
 
 	id BIGINT NOT NULL, 
 	weighting_factor DOUBLE, 
 	normalisation_factor DOUBLE,
 	f_impact_category VARCHAR(36),
-	f_normalisation_weighting_set BIGINT, 
+	f_nw_set BIGINT,
 	
 	PRIMARY KEY (id)
 

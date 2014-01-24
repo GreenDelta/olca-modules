@@ -2,7 +2,7 @@ package org.openlca.core.math;
 
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.model.NormalizationWeightingSet;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -23,7 +23,7 @@ public class ProjectCalculator {
 		ProjectResult result = new ProjectResult();
 		SystemCalculator calculator = new SystemCalculator(matrixCache, solver);
 		ImpactMethodDescriptor method = getImpactMethod(project);
-		NormalizationWeightingSet nwSet = getNwSet(project);
+		NwSet nwSet = getNwSet(project);
 		for (ProjectVariant v : project.getVariants()) {
 			CalculationSetup setup = new CalculationSetup(v.getProductSystem(),
 					CalculationSetup.QUICK_RESULT);
@@ -47,11 +47,11 @@ public class ProjectCalculator {
 		return dao.getDescriptor(project.getImpactMethodId());
 	}
 
-	private NormalizationWeightingSet getNwSet(Project project) {
+	private NwSet getNwSet(Project project) {
 		if (project.getNwSetId() == null)
 			return null;
 		return matrixCache.getDatabase()
-				.createDao(NormalizationWeightingSet.class)
+				.createDao(NwSet.class)
 				.getForId(project.getNwSetId());
 	}
 }

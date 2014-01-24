@@ -8,8 +8,8 @@ import java.util.Set;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.model.NormalizationWeightingFactor;
-import org.openlca.core.model.NormalizationWeightingSet;
+import org.openlca.core.model.NwFactor;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -77,16 +77,16 @@ public final class AnalysisImpactResults {
 	}
 
 	public AnalysisImpactResult getResult(ProcessDescriptor process,
-			ImpactCategoryDescriptor impact, NormalizationWeightingSet nwset) {
+			ImpactCategoryDescriptor impact, NwSet nwset) {
 		AnalysisImpactResult r = getResult(process, impact);
-		NormalizationWeightingFactor factor = nwset.getFactor(impact.getId());
+		NwFactor factor = nwset.getFactor(impact.getId());
 		if (factor == null)
 			return r;
-		if (factor.getNormalizationFactor() != null)
-			r.setNormalizationFactor(factor.getNormalizationFactor());
+		if (factor.getNormalisationFactor() != null)
+			r.setNormalizationFactor(factor.getNormalisationFactor());
 		if (factor.getWeightingFactor() != null)
 			r.setWeightingFactor(factor.getWeightingFactor());
-		r.setWeightingUnit(nwset.getUnit());
+		r.setWeightingUnit(nwset.getWeightedScoreUnit());
 		return r;
 	}
 

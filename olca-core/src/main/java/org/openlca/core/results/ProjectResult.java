@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.model.NormalizationWeightingSet;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -83,7 +83,7 @@ public class ProjectResult {
 	}
 
 	public InventoryImpactResult getImpactResult(ProjectVariant variant,
-			ImpactCategoryDescriptor impact, NormalizationWeightingSet nwSet) {
+			ImpactCategoryDescriptor impact, NwSet nwSet) {
 		InventoryResult result = results.get(variant);
 		if (result == null)
 			return null;

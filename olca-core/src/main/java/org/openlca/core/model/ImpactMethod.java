@@ -23,7 +23,7 @@ public class ImpactMethod extends CategorizedEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_impact_method")
-	private final List<NormalizationWeightingSet> normalizationWeightingSets = new ArrayList<>();
+	private final List<NwSet> nwSets = new ArrayList<>();
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
@@ -47,8 +47,8 @@ public class ImpactMethod extends CategorizedEntity {
 		return impactCategories;
 	}
 
-	public List<NormalizationWeightingSet> getNormalizationWeightingSets() {
-		return normalizationWeightingSets;
+	public List<NwSet> getNwSets() {
+		return nwSets;
 	}
 
 	public List<Parameter> getParameters() {

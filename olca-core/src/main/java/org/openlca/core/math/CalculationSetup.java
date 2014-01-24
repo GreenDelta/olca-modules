@@ -5,11 +5,12 @@ import java.util.List;
 
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.NormalizationWeightingSet;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.core.model.descriptors.NwSetDescriptor;
 
 /**
  * A setup for a product system calculation.
@@ -27,7 +28,7 @@ public class CalculationSetup {
 	private FlowPropertyFactor flowPropertyFactor;
 	private Double amount;
 	private ImpactMethodDescriptor impactMethod;
-	private NormalizationWeightingSet nwSet;
+	private NwSetDescriptor nwSet;
 	private AllocationMethod allocationMethod;
 	private int numberOfRuns = -1;
 	private List<ParameterRedef> parameterRedefs = new ArrayList<>();
@@ -63,11 +64,11 @@ public class CalculationSetup {
 		return impactMethod;
 	}
 
-	public void setNwSet(NormalizationWeightingSet nwSet) {
+	public void setNwSet(NwSet nwSet) {
 		this.nwSet = nwSet;
 	}
 
-	public NormalizationWeightingSet getNwSet() {
+	public NwSet getNwSet() {
 		return nwSet;
 	}
 

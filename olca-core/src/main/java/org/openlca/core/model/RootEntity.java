@@ -24,14 +24,6 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 	@Column(name = "ref_id")
 	private String refId;
 
-	public String getRefId() {
-		return refId;
-	}
-
-	public void setRefId(String id) {
-		this.refId = id;
-	}
-
 	@Column(name = "name")
 	private String name;
 
@@ -40,6 +32,14 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 	private String description;
 
 	public abstract Object clone();
+
+	public String getRefId() {
+		return refId;
+	}
+
+	public void setRefId(String id) {
+		this.refId = id;
+	}
 
 	public String getName() {
 		return name;

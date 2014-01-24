@@ -7,8 +7,8 @@ import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.LongIndex;
-import org.openlca.core.model.NormalizationWeightingFactor;
-import org.openlca.core.model.NormalizationWeightingSet;
+import org.openlca.core.model.NwFactor;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public final class InventoryImpactResults {
@@ -39,7 +39,7 @@ public final class InventoryImpactResults {
 		return results;
 	}
 
-	public List<InventoryImpactResult> getAll(NormalizationWeightingSet nwset,
+	public List<InventoryImpactResult> getAll(NwSet nwset,
 			EntityCache cache) {
 		List<InventoryImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor d : getImpacts(cache)) {
@@ -54,21 +54,21 @@ public final class InventoryImpactResults {
 	}
 
 	public InventoryImpactResult get(ImpactCategoryDescriptor d,
-			NormalizationWeightingSet nwset) {
+			NwSet nwset) {
 		double val = result.getImpactResult(d.getId());
 		InventoryImpactResult r = new InventoryImpactResult();
 		r.setImpactCategory(d);
 		r.setValue(val);
 		if (nwset == null)
 			return r;
-		NormalizationWeightingFactor factor = nwset.getFactor(d.getId());
+		NwFactor factor = nwset.getFactor(d.getId());
 		if (factor == null)
 			return r;
-		if (factor.getNormalizationFactor() != null)
-			r.setNormalizationFactor(factor.getNormalizationFactor());
+		if (factor.getNormalisationFactor() != null)
+			r.setNormalizationFactor(factor.getNormalisationFactor());
 		if (factor.getWeightingFactor() != null)
 			r.setWeightingFactor(factor.getWeightingFactor());
-		r.setWeightingUnit(nwset.getUnit());
+		r.setWeightingUnit(nwset.getWeightedScoreUnit());
 		return r;
 	}
 

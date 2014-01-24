@@ -8,7 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.NormalizationWeightingSet;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
@@ -45,36 +45,4 @@ public class ImpactMethodDao extends
 		}
 	}
 
-	public List<NormalizationWeightingSet> getNwSetDescriptors(
-			ImpactMethodDescriptor methodDescriptor) {
-		if (methodDescriptor == null)
-			return Collections.emptyList();
-		String jpql = "select n.id, n.referenceSystem, n.unit from "
-				+ "NormalizationWeightingSet n, ImpactMethod m "
-				+ "where n member of m.normalizationWeightingSets and m.id = :methodId";
-		EntityManager em = createManager();
-		try {
-			TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
-			query.setParameter("methodId", methodDescriptor.getId());
-			return fetchNwSets(query);
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "Failed to get nw-sets", e);
-			return Collections.emptyList();
-		} finally {
-			em.close();
-		}
-	}
-
-	private List<NormalizationWeightingSet> fetchNwSets(
-			TypedQuery<Object[]> query) {
-		List<Object[]> objects = query.getResultList();
-		List<NormalizationWeightingSet> results = new ArrayList<>();
-		for (Object[] object : objects) {
-			NormalizationWeightingSet nwSet = new NormalizationWeightingSet();
-			nwSet.setReferenceSystem((String) object[1]);
-			nwSet.setUnit((String) object[2]);
-			results.add(nwSet);
-		}
-		return results;
-	}
 }
