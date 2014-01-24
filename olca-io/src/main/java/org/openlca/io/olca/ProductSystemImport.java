@@ -1,17 +1,23 @@
 package org.openlca.io.olca;
 
 import gnu.trove.map.hash.TLongLongHashMap;
+import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +26,6 @@ class ProductSystemImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private ProductSystemDao srcDao;
-	private ProductSystemDao destDao;
 	private IDatabase source;
 	private IDatabase dest;
 	private Sequence seq;
@@ -30,7 +35,6 @@ class ProductSystemImport {
 
 	ProductSystemImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new ProductSystemDao(source);
-		this.destDao = new ProductSystemDao(dest);
 		this.source = source;
 		this.dest = dest;
 		this.seq = seq;
@@ -76,11 +80,13 @@ class ProductSystemImport {
 		switchCategory(srcSystem, destSystem);
 		switchRefProcess(srcSystem, destSystem);
 		switchRefExchange(srcSystem, destSystem);
-		// TODO: switchRefFlowProperty
-		// TODO: switchRefUnit
-		// TODO: switchTargetAmount
-		// TODO: switchProcessIds
-		// TODO: switchProcessLinks
+		switchRefUnit(srcSystem, destSystem);
+		switchRefFlowProp(srcSystem, destSystem);
+		switchProcessIds(srcSystem, destSystem);
+		switchProcessLinkIds(destSystem);
+		ProductSystemDao destDao = new ProductSystemDao(dest);
+		destSystem = destDao.insert(destSystem);
+		seq.put(seq.PRODUCT_SYSTEM, srcSystem.getRefId(), destSystem.getId());
 	}
 
 	private void switchCategory(ProductSystem srcSystem, ProductSystem
@@ -119,8 +125,60 @@ class ProductSystemImport {
 	}
 
 	private boolean sameExchange(Exchange srcExchange, Exchange destExchange) {
-		return false; // TODO: not yet implemented
+		if (srcExchange.isInput() != destExchange.isInput())
+			return false;
+		Unit srcUnit = srcExchange.getUnit();
+		Unit destUnit = destExchange.getUnit();
+		Flow srcFlow = srcExchange.getFlow();
+		Flow destFlow = destExchange.getFlow();
+		return srcUnit != null && destUnit != null
+				&& srcFlow != null && destFlow != null
+				&& Strings.nullOrEqual(srcUnit.getRefId(), destUnit.getRefId())
+				&& Strings.nullOrEqual(srcFlow.getRefId(), destFlow.getRefId());
 	}
 
+	private void switchRefUnit(ProductSystem srcSystem, ProductSystem destSystem) {
+		if (srcSystem.getTargetUnit() == null)
+			return;
+		long id = seq.get(seq.UNIT, srcSystem.getTargetUnit().getRefId());
+		BaseDao<Unit> dao = dest.createDao(Unit.class);
+		destSystem.setTargetUnit(dao.getForId(id));
+	}
 
+	private void switchRefFlowProp(ProductSystem srcSystem,
+	                               ProductSystem destSystem) {
+		FlowPropertyFactor srcFac = srcSystem.getTargetFlowPropertyFactor();
+		if (srcFac == null || srcFac.getFlowProperty() == null
+				|| destSystem.getReferenceExchange() == null)
+			return;
+		Flow destFlow = destSystem.getReferenceExchange().getFlow();
+		if (destFlow == null)
+			return;
+		FlowPropertyFactor fac = destFlow.getFactor(srcFac.getFlowProperty());
+		destSystem.setTargetFlowPropertyFactor(fac);
+	}
+
+	private void switchProcessIds(ProductSystem srcSystem,
+	                              ProductSystem destSystem) {
+		destSystem.getProcesses().clear();
+		for (long srcProcessId : srcSystem.getProcesses()) {
+			long destProcessId = processMap.get(srcProcessId);
+			if (destProcessId == 0L)
+				continue;
+			destSystem.getProcesses().add(destProcessId);
+		}
+	}
+
+	private void switchProcessLinkIds(ProductSystem destSystem) {
+		for (ProcessLink link : destSystem.getProcessLinks()) {
+			long destProviderId = processMap.get(link.getProviderId());
+			long destFlowId = flowMap.get(link.getFlowId());
+			long destRecipientId = processMap.get(link.getRecipientId());
+			if (destProviderId == 0 || destFlowId == 0 || destRecipientId == 0)
+				log.warn("could not translate process link {}", link);
+			link.setProviderId(destProviderId);
+			link.setFlowId(destFlowId);
+			link.setRecipientId(destRecipientId);
+		}
+	}
 }
