@@ -395,7 +395,7 @@ CREATE TABLE tbl_nw_factors (
 	id BIGINT NOT NULL, 
 	weighting_factor DOUBLE, 
 	normalisation_factor DOUBLE,
-	f_impact_category VARCHAR(36),
+	f_impact_category BIGINT,
 	f_nw_set BIGINT,
 	
 	PRIMARY KEY (id)
