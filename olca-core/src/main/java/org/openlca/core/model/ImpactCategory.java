@@ -24,14 +24,14 @@ public class ImpactCategory extends RootEntity {
 
 	@Override
 	public ImpactCategory clone() {
-		final ImpactCategory lciaCategory = new ImpactCategory();
-		lciaCategory.setRefId(UUID.randomUUID().toString());
-		lciaCategory.setDescription(getDescription());
-		lciaCategory.setName(getName());
-		lciaCategory.setReferenceUnit(getReferenceUnit());
+		ImpactCategory clone = new ImpactCategory();
+		clone.setRefId(UUID.randomUUID().toString());
+		clone.setDescription(getDescription());
+		clone.setName(getName());
+		clone.setReferenceUnit(getReferenceUnit());
 		for (ImpactFactor lciaFactor : getImpactFactors())
-			lciaCategory.getImpactFactors().add(lciaFactor.clone());
-		return lciaCategory;
+			clone.getImpactFactors().add(lciaFactor.clone());
+		return clone;
 	}
 
 	public String getReferenceUnit() {

@@ -7,9 +7,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-/**
- * A single impact assessment factor.
- */
 @Entity
 @Table(name = "tbl_impact_factors")
 public class ImpactFactor extends AbstractEntity implements Cloneable {
@@ -34,12 +31,14 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 
 	@Override
 	public ImpactFactor clone() {
-		final ImpactFactor lciaFactor = new ImpactFactor();
-		lciaFactor.setFlow(getFlow());
-		lciaFactor.setFlowPropertyFactor(getFlowPropertyFactor());
-		lciaFactor.setUnit(getUnit());
-		lciaFactor.setValue(getValue());
-		return lciaFactor;
+		ImpactFactor clone = new ImpactFactor();
+		clone.setFlow(getFlow());
+		clone.setFlowPropertyFactor(getFlowPropertyFactor());
+		clone.setUnit(getUnit());
+		clone.setValue(getValue());
+		if (getUncertainty() != null)
+			clone.setUncertainty(getUncertainty().clone());
+		return clone;
 	}
 
 	public Flow getFlow() {
