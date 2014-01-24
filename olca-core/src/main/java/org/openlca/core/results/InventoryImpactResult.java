@@ -8,7 +8,6 @@ public class InventoryImpactResult {
 	private double value;
 	private double normalizationFactor = 1;
 	private double weightingFactor = 1;
-	private String weightingUnit;
 
 	void setImpactCategory(ImpactCategoryDescriptor impactCategory) {
 		this.impactCategory = impactCategory;
@@ -24,10 +23,6 @@ public class InventoryImpactResult {
 
 	void setWeightingFactor(double weightingFactor) {
 		this.weightingFactor = weightingFactor;
-	}
-
-	void setWeightingUnit(String weightingUnit) {
-		this.weightingUnit = weightingUnit;
 	}
 
 	public ImpactCategoryDescriptor getImpactCategory() {
@@ -46,7 +41,4 @@ public class InventoryImpactResult {
 		return value / normalizationFactor * weightingFactor;
 	}
 
-	public String getWeightingUnit() {
-		return weightingUnit;
-	}
 }

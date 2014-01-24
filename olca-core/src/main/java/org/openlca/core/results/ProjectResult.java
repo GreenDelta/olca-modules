@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -83,7 +84,7 @@ public class ProjectResult {
 	}
 
 	public InventoryImpactResult getImpactResult(ProjectVariant variant,
-			ImpactCategoryDescriptor impact, NwSet nwSet) {
+			ImpactCategoryDescriptor impact, NwSetTable nwSet) {
 		InventoryResult result = results.get(variant);
 		if (result == null)
 			return null;

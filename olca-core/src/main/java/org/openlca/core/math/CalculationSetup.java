@@ -64,11 +64,11 @@ public class CalculationSetup {
 		return impactMethod;
 	}
 
-	public void setNwSet(NwSet nwSet) {
+	public void setNwSet(NwSetDescriptor nwSet) {
 		this.nwSet = nwSet;
 	}
 
-	public NwSet getNwSet() {
+	public NwSetDescriptor getNwSet() {
 		return nwSet;
 	}
 

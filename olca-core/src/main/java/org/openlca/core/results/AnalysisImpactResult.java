@@ -17,7 +17,6 @@ public class AnalysisImpactResult {
 	private double singleResult;
 	private double normalizationFactor = 1;
 	private double weightingFactor = 1;
-	private String weightingUnit;
 
 	void setImpactCategory(ImpactCategoryDescriptor impactCategory) {
 		this.impactCategory = impactCategory;
@@ -43,10 +42,6 @@ public class AnalysisImpactResult {
 		this.weightingFactor = weightingFactor;
 	}
 
-	void setWeightingUnit(String weightingUnit) {
-		this.weightingUnit = weightingUnit;
-	}
-
 	public ImpactCategoryDescriptor getImpactCategory() {
 		return impactCategory;
 	}
@@ -61,10 +56,6 @@ public class AnalysisImpactResult {
 
 	public double getSingleResult() {
 		return singleResult;
-	}
-
-	public String getWeightingUnit() {
-		return weightingUnit;
 	}
 
 	public double getNormalizedTotalResult() {

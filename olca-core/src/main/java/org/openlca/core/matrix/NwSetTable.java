@@ -1,6 +1,5 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.map.hash.TLongDoubleHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.slf4j.Logger;
@@ -8,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 /**
  * Stores the factors of a normalisation and weighting set. As creating such a
@@ -16,8 +16,11 @@ import java.sql.SQLException;
  */
 public class NwSetTable {
 
-	private final TLongDoubleHashMap weightingFactors = new TLongDoubleHashMap();
-	private final TLongDoubleHashMap normalisationFactors = new TLongDoubleHashMap();
+	private final HashMap<Long, Double> weightFactors = new HashMap<>();
+	private final HashMap<Long, Double> normFactors = new HashMap();
+
+	private boolean hasWeightFactors = false;
+	private boolean hasNormFactors = false;
 
 	/**
 	 * Builds the table by reading the factors for the NW-set with the given ID
@@ -46,25 +49,39 @@ public class NwSetTable {
 			throws SQLException {
 		long categoryId = result.getLong("f_impact_category");
 		double weightingFactor = result.getDouble("weighting_factor");
-		if (!result.wasNull())
-			table.weightingFactors.put(categoryId, weightingFactor);
+		if (!result.wasNull()) {
+			table.weightFactors.put(categoryId, weightingFactor);
+			table.hasWeightFactors = true;
+		}
 		double normalisationFactor = result.getDouble("normalisation_factor");
-		if (!result.wasNull())
-			table.normalisationFactors.put(categoryId, normalisationFactor);
+		if (!result.wasNull()) {
+			table.normFactors.put(categoryId, normalisationFactor);
+			table.hasNormFactors = true;
+		}
+	}
+
+	public boolean hasWeightingFactors() {
+		return hasWeightFactors;
+	}
+
+	public boolean hasNormalisationFactors() {
+		return hasNormFactors;
 	}
 
 	/**
 	 * Get the weighting factor for the given LCIA category.
 	 */
 	public double getWeightingFactor(long impactCategoryId) {
-		return weightingFactors.get(impactCategoryId);
+		Double f = weightFactors.get(impactCategoryId);
+		return f == null ? 0 : f;
 	}
 
 	/**
 	 * Get the normalisation factor for the given LCIA category.
 	 */
 	public double getNormalisationFactor(long impactCategoryId) {
-		return normalisationFactors.get(impactCategoryId);
+		Double f = normFactors.get(impactCategoryId);
+		return f == null ? 0 : f;
 	}
 
 }

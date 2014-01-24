@@ -1,17 +1,16 @@
 package org.openlca.core.results;
 
+import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.LongIndex;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.NwSetTable;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.LongIndex;
-import org.openlca.core.matrix.LongPair;
-import org.openlca.core.model.NwFactor;
-import org.openlca.core.model.NwSet;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 public final class AnalysisImpactResults {
 
@@ -53,7 +52,7 @@ public final class AnalysisImpactResults {
 	}
 
 	public List<AnalysisImpactResult> getForProcess(ProcessDescriptor process,
-			EntityCache cache) {
+	                                                EntityCache cache) {
 		List<AnalysisImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor impact : getImpacts(cache)) {
 			AnalysisImpactResult r = getResult(process, impact);
@@ -63,7 +62,7 @@ public final class AnalysisImpactResults {
 	}
 
 	public AnalysisImpactResult getResult(ProcessDescriptor process,
-			ImpactCategoryDescriptor impact) {
+	                                      ImpactCategoryDescriptor impact) {
 		long processId = process.getId();
 		long impactId = impact.getId();
 		double single = result.getSingleImpactResult(processId, impactId);
@@ -77,16 +76,14 @@ public final class AnalysisImpactResults {
 	}
 
 	public AnalysisImpactResult getResult(ProcessDescriptor process,
-			ImpactCategoryDescriptor impact, NwSet nwset) {
+	                                      ImpactCategoryDescriptor impact,
+	                                      NwSetTable nwset) {
 		AnalysisImpactResult r = getResult(process, impact);
-		NwFactor factor = nwset.getFactor(impact.getId());
-		if (factor == null)
+		if (nwset == null)
 			return r;
-		if (factor.getNormalisationFactor() != null)
-			r.setNormalizationFactor(factor.getNormalisationFactor());
-		if (factor.getWeightingFactor() != null)
-			r.setWeightingFactor(factor.getWeightingFactor());
-		r.setWeightingUnit(nwset.getWeightedScoreUnit());
+		long impactId = impact.getId();
+		r.setNormalizationFactor(nwset.getNormalisationFactor(impactId));
+		r.setWeightingFactor(nwset.getWeightingFactor(impactId));
 		return r;
 	}
 

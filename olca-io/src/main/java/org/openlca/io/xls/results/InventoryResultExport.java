@@ -83,7 +83,7 @@ public class InventoryResultExport implements Runnable {
 		if (setup.getNwSet() == null)
 			Excel.cell(sheet, 4, 2, "none");
 		else
-			Excel.cell(sheet, 3, 2, setup.getNwSet().getReferenceSystem());
+			Excel.cell(sheet, 3, 2, setup.getNwSet().getName());
 		writer.header(sheet, 5, 1, "Allocation method:");
 		Excel.cell(sheet, 5, 2, getAllocationMethod());
 		writer.header(sheet, 6, 1, "Date:");
