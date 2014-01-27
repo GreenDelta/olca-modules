@@ -2,6 +2,7 @@ package org.openlca.core.database.upgrades;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.mysql.MySQLDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,12 +12,32 @@ import java.sql.ResultSet;
 
 class UpgradeUtil {
 
+	private final int TYPE_DERBY = 0;
+	private final int TYPE_MYSQL = 1;
+
+	private final int dbType;
 	private IDatabase database;
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	UpgradeUtil(IDatabase database) {
 		this.database = database;
+		if(database instanceof MySQLDatabase)
+			dbType = TYPE_MYSQL;
+		else
+			dbType = TYPE_DERBY;
+	}
+
+	/** Get the database type for storing long text values. */
+	String getTextType() {
+		switch (dbType) {
+			case TYPE_DERBY:
+				return "CLOB(64 K)";
+			case TYPE_MYSQL:
+				return "TEXT";
+			default:
+				return "CLOB(64 K)";
+		}
 	}
 
 	/**

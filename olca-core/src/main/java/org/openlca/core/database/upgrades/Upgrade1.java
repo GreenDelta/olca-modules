@@ -2,8 +2,6 @@ package org.openlca.core.database.upgrades;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,7 +11,6 @@ import java.util.UUID;
 
 class Upgrade1 implements IUpgrade {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
 	private UpgradeUtil util;
 	private IDatabase database;
 
@@ -39,7 +36,7 @@ class Upgrade1 implements IUpgrade {
 		String tableDef = "CREATE TABLE tbl_nw_sets (" +
 				"id BIGINT NOT NULL, " +
 				"ref_id VARCHAR(36), " +
-				"description CLOB(64 K), " +
+				"description " + util.getTextType() + ", " +
 				"name VARCHAR(255), " +
 				"reference_system VARCHAR(255), " +
 				"f_impact_method BIGINT,  " +
