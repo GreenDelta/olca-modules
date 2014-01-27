@@ -1,6 +1,7 @@
 package org.openlca.core.database.upgrades;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +41,14 @@ public class Upgrades {
 					nextUpgrade.getInitialVersion(),
 					nextUpgrade.getEndVersion());
 			nextUpgrade.exec(database);
+			updateVersion(nextUpgrade.getEndVersion(), database);
 		}
 		log.trace("no more upgrades");
+	}
+
+	private void updateVersion(int version, IDatabase database) throws Exception {
+		NativeSql.on(database).runUpdate("update openlca_version set version = "
+				+ version);
 	}
 
 	private IUpgrade findNextUpgrade(IDatabase database) {
