@@ -381,8 +381,7 @@ CREATE TABLE tbl_nw_sets (
     ref_id VARCHAR(36),
     description CLOB(64 K),
     name VARCHAR(255),
-	reference_system VARCHAR(255),
-	f_impact_method BIGINT, 
+	f_impact_method BIGINT,
 	weighted_score_unit VARCHAR(255),
 	
 	PRIMARY KEY (id)

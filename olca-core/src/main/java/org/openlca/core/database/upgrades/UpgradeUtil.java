@@ -20,9 +20,20 @@ class UpgradeUtil {
 	}
 
 	/**
-	 * Checks if a table with the given name exists in the
-	 * database. If not it is created using the given
-	 * table definition.
+	 * Deletes the table with the given name from the database if it exists.
+	 */
+	void dropTable(String tableName) throws Exception {
+		log.trace("Try to drop table {}", tableName);
+		if (!tableExists(tableName)) {
+			log.trace("Table {} does not exist", tableName);
+		} else {
+			NativeSql.on(database).runUpdate("DROP TABLE " + tableName);
+		}
+	}
+
+	/**
+	 * Checks if a table with the given name exists in the database. If not it
+	 * is created using the given table definition.
 	 */
 	void checkCreateTable(String tableName, String tableDef) throws Exception {
 		log.trace("Check if table {} exists", tableName);
@@ -34,6 +45,9 @@ class UpgradeUtil {
 		}
 	}
 
+	/**
+	 * Returns true if a table with the given name exits.
+	 */
 	boolean tableExists(String tableName) throws Exception {
 		try (Connection con = database.createConnection()) {
 			DatabaseMetaData metaData = con.getMetaData();
@@ -48,6 +62,10 @@ class UpgradeUtil {
 		}
 	}
 
+	/**
+	 * Checks if a column with the given name exists in the table with the
+	 * given name. If not, it is created using the given column definition.
+	 */
 	void checkCreateColumn(String tableName, String columnName,
 	                       String columnDef) throws Exception {
 		log.trace("Check if column {} exists in {}", columnName, tableName);
@@ -60,6 +78,10 @@ class UpgradeUtil {
 		}
 	}
 
+	/**
+	 * Returns true if the column with the given name exists in the table
+	 * with the given name.
+	 */
 	boolean columnExists(String tableName, String columnName) throws Exception {
 		try (Connection con = database.createConnection()) {
 			DatabaseMetaData metaData = con.getMetaData();
@@ -75,6 +97,4 @@ class UpgradeUtil {
 			}
 		}
 	}
-
-
 }

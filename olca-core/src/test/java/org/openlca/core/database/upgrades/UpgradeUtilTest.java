@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.TestSession;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
 
 public class UpgradeUtilTest {
 
@@ -20,7 +19,7 @@ public class UpgradeUtilTest {
 		util.checkCreateTable("upgrade_test_table", tableDef);
 		Assert.assertTrue(util.tableExists("upgrade_test_table"));
 		Assert.assertTrue(util.columnExists("upgrade_test_table", "id"));
-		NativeSql.on(database).runUpdate("drop table upgrade_test_table");
+		util.dropTable("upgrade_test_table");
 		Assert.assertFalse(util.tableExists("upgrade_test_table"));
 	}
 
@@ -34,7 +33,7 @@ public class UpgradeUtilTest {
 		String colDef = "test_col VARCHAR(255)";
 		util.checkCreateColumn("upgrade_test_table", "test_col", colDef);
 		Assert.assertTrue(util.columnExists("upgrade_test_table", "test_col"));
-		NativeSql.on(database).runUpdate("drop table upgrade_test_table");
+		util.dropTable("upgrade_test_table");
 		Assert.assertFalse(util.tableExists("upgrade_test_table"));
 	}
 }

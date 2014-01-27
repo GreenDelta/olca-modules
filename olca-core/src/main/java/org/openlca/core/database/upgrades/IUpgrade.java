@@ -5,7 +5,7 @@ import org.openlca.core.database.IDatabase;
 /**
  * Updates an openLCA database from a defined version to a newer version.
  */
-interface IUpgrade extends Runnable {
+interface IUpgrade {
 
 	/**
 	 * The initial version that the database must have in order to run this
@@ -19,8 +19,8 @@ interface IUpgrade extends Runnable {
 	int getEndVersion();
 
 	/**
-	 * Initializes the update with the database on which the update should run.
+	 * Executes the update on the given database.
 	 */
-	void init(IDatabase database);
+	void exec(IDatabase database) throws Exception;
 
 }
