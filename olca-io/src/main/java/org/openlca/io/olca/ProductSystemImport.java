@@ -10,6 +10,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -84,6 +85,7 @@ class ProductSystemImport {
 		switchRefFlowProp(srcSystem, destSystem);
 		switchProcessIds(srcSystem, destSystem);
 		switchProcessLinkIds(destSystem);
+		switchParameterRedefs(destSystem);
 		ProductSystemDao destDao = new ProductSystemDao(dest);
 		destSystem = destDao.insert(destSystem);
 		seq.put(seq.PRODUCT_SYSTEM, srcSystem.getRefId(), destSystem.getId());
@@ -180,5 +182,12 @@ class ProductSystemImport {
 			link.setFlowId(destFlowId);
 			link.setRecipientId(destRecipientId);
 		}
+	}
+
+	private void switchParameterRedefs(ProductSystem destSystem) {
+		 for(ParameterRedef redef : destSystem.getParameterRedefs()) {
+			 long destProcessId = processMap.get(redef.getProcessId());
+			 redef.setProcessId(destProcessId);
+		 }
 	}
 }
