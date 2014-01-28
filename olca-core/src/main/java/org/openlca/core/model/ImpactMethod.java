@@ -1,6 +1,7 @@
 package org.openlca.core.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,9 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-/**
- * An impact assessment method.
- */
 @Entity
 @Table(name = "tbl_impact_methods")
 public class ImpactMethod extends CategorizedEntity {
@@ -25,22 +23,34 @@ public class ImpactMethod extends CategorizedEntity {
 	@JoinColumn(name = "f_impact_method")
 	private final List<NwSet> nwSets = new ArrayList<>();
 
-	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
-	@JoinColumn(name = "f_owner")
-	private final List<Parameter> parameters = new ArrayList<>();
-
 	@Override
 	public ImpactMethod clone() {
-		ImpactMethod lciaMethod = new ImpactMethod();
-		lciaMethod.setRefId(UUID.randomUUID().toString());
-		lciaMethod.setName(getName());
-		lciaMethod.setCategory(getCategory());
-		lciaMethod.setDescription(getDescription());
-		for (ImpactCategory lciaCategory : getImpactCategories()) {
-			lciaMethod.getImpactCategories().add(lciaCategory.clone());
+		ImpactMethod clone = new ImpactMethod();
+		clone.setRefId(UUID.randomUUID().toString());
+		clone.setName(getName());
+		clone.setCategory(getCategory());
+		clone.setDescription(getDescription());
+		HashMap<ImpactCategory, ImpactCategory> impactMap = new HashMap<>();
+		for (ImpactCategory origCat : getImpactCategories()) {
+			ImpactCategory clonedCat = origCat.clone();
+			impactMap.put(origCat, clonedCat);
+			clone.getImpactCategories().add(clonedCat);
 		}
-		// TODO: clone parameters and nw-sets!
-		return lciaMethod;
+		cloneNwSets(clone, impactMap);
+		return clone;
+	}
+
+	private void cloneNwSets(ImpactMethod clone,
+	                         HashMap<ImpactCategory, ImpactCategory> impactMap) {
+		for(NwSet nwSet : getNwSets()) {
+			NwSet clonedSet = nwSet.clone();
+			clone.getNwSets().add(clonedSet);
+			for(NwFactor factor : nwSet.getFactors()) {
+				ImpactCategory clonedCat = impactMap.get(factor
+						.getImpactCategory());
+				factor.setImpactCategory(clonedCat);
+			}
+		}
 	}
 
 	public List<ImpactCategory> getImpactCategories() {
@@ -49,10 +59,6 @@ public class ImpactMethod extends CategorizedEntity {
 
 	public List<NwSet> getNwSets() {
 		return nwSets;
-	}
-
-	public List<Parameter> getParameters() {
-		return parameters;
 	}
 
 }
