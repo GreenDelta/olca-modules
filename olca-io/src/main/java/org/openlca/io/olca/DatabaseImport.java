@@ -30,7 +30,7 @@ public class DatabaseImport implements Runnable {
 		try {
 
 			// TODO: cost categories and process cost entries
-			// TODO: LCIA methods
+			// TODO: process groups
 			// TODO: projects
 
 			Sequence seq = new Sequence(dest);
@@ -50,6 +50,7 @@ public class DatabaseImport implements Runnable {
 			new FlowImport(source, dest, seq).run();
 			new ProcessImport(source, dest, seq).run();
 			new ProductSystemImport(source, dest, seq).run();
+			new ImpactMethodImport(source, dest, seq).run();
 
 		} catch (Exception e) {
 			log.error("Database import failed", e);

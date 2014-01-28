@@ -5,6 +5,7 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -39,12 +40,13 @@ class Sequence {
 	int FLOW = 7;
 	int PROCESS = 8;
 	int PRODUCT_SYSTEM = 9;
+	int IMPACT_METHOD = 10;
 
 	private final HashMap<String, Long>[] sequences;
 
 	@SuppressWarnings("unchecked")
 	public Sequence(IDatabase database) {
-		sequences = new HashMap[10];
+		sequences = new HashMap[11];
 		for (int i = 0; i < sequences.length; i++)
 			sequences[i] = new HashMap<>();
 		init(database);
@@ -62,6 +64,7 @@ class Sequence {
 		index(FLOW, new FlowDao(database));
 		index(PROCESS, new ProcessDao(database));
 		index(PRODUCT_SYSTEM, new ProductSystemDao(database));
+		index(IMPACT_METHOD, new ImpactMethodDao(database));
 	}
 
 	private void index(int type, RootEntityDao<?, ?> dao) {
@@ -91,5 +94,4 @@ class Sequence {
 	public boolean contains(int type, String refId) {
 		return get(type, refId) != 0;
 	}
-
 }

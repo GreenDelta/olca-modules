@@ -45,7 +45,7 @@ public class ImpactMethod extends CategorizedEntity {
 		for(NwSet nwSet : getNwSets()) {
 			NwSet clonedSet = nwSet.clone();
 			clone.getNwSets().add(clonedSet);
-			for(NwFactor factor : nwSet.getFactors()) {
+			for(NwFactor factor : clonedSet.getFactors()) {
 				ImpactCategory clonedCat = impactMap.get(factor
 						.getImpactCategory());
 				factor.setImpactCategory(clonedCat);
