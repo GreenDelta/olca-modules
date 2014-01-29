@@ -15,13 +15,22 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-/**
- * A helper class for generating result data.
- */
-public final class Results {
+public class BaseResultProvider<T extends BaseResult> {
 
-	public static Set<ProcessDescriptor> getProcessDescriptors(
-			ProductIndex index, EntityCache cache) {
+	protected T result;
+	protected EntityCache cache;
+
+	public BaseResultProvider(T result, EntityCache cache) {
+		this.result = result;
+		this.cache = cache;
+	}
+
+	public T getResult() {
+		return result;
+	}
+
+	public Set<ProcessDescriptor> getProcessDescriptors() {
+		ProductIndex index = result.getProductIndex();
 		if (index == null)
 			return Collections.emptySet();
 		Map<Long, ProcessDescriptor> values = cache.getAll(
@@ -31,8 +40,8 @@ public final class Results {
 		return descriptors;
 	}
 
-	public static Set<FlowDescriptor> getFlowDescriptors(FlowIndex index,
-			EntityCache cache) {
+	public Set<FlowDescriptor> getFlowDescriptors() {
+		FlowIndex index = result.getFlowIndex();
 		if (index == null)
 			return Collections.emptySet();
 		List<Long> ids = new ArrayList<>(index.size());
@@ -45,8 +54,8 @@ public final class Results {
 		return descriptors;
 	}
 
-	public static Set<ImpactCategoryDescriptor> getImpactDescriptors(
-			LongIndex index, EntityCache cache) {
+	public Set<ImpactCategoryDescriptor> getImpactDescriptors() {
+		LongIndex index = result.getImpactIndex();
 		if (index == null)
 			return Collections.emptySet();
 		List<Long> ids = new ArrayList<>(index.size());

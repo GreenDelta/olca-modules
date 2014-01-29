@@ -5,12 +5,12 @@ import java.util.List;
 
 import org.openlca.core.matrix.LongPair;
 
-public class ContributionTreeNode {
+public class UpstreamTreeNode {
 
 	private LongPair processProduct;
 	private double amount;
 	private double share;
-	private List<ContributionTreeNode> children = new ArrayList<>();
+	private List<UpstreamTreeNode> children = new ArrayList<>();
 
 	public LongPair getProcessProduct() {
 		return processProduct;
@@ -28,7 +28,7 @@ public class ContributionTreeNode {
 		this.amount = amount;
 	}
 
-	public List<ContributionTreeNode> getChildren() {
+	public List<UpstreamTreeNode> getChildren() {
 		return children;
 	}
 

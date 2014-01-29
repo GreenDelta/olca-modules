@@ -2,7 +2,7 @@ package org.openlca.core.results;
 
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
-public class InventoryImpactResult {
+public class SimpleImpactResult {
 
 	private ImpactCategoryDescriptor impactCategory;
 	private double value;

@@ -7,12 +7,12 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 public class AnalysisContributions {
 
 	private final LinkContributions linkContributions;
-	private final ContributionTreeCalculator treeCalculator;
+	private final UpstreamTreeCalculator treeCalculator;
 
 	AnalysisContributions(AnalysisResult result,
 			LinkContributions linkContributions) {
 		this.linkContributions = linkContributions;
-		this.treeCalculator = new ContributionTreeCalculator(result,
+		this.treeCalculator = new UpstreamTreeCalculator(result,
 				linkContributions);
 	}
 
@@ -25,11 +25,11 @@ public class AnalysisContributions {
 		return linkContributions.getShare(link);
 	}
 
-	public ContributionTree getTree(FlowDescriptor flow) {
+	public UpstreamTree getTree(FlowDescriptor flow) {
 		return treeCalculator.calculate(flow);
 	}
 
-	public ContributionTree getTree(ImpactCategoryDescriptor impact) {
+	public UpstreamTree getTree(ImpactCategoryDescriptor impact) {
 		return treeCalculator.calculate(impact);
 	}
 

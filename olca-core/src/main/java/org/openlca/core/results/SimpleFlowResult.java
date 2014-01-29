@@ -2,7 +2,7 @@ package org.openlca.core.results;
 
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
-public class InventoryFlowResult {
+public class SimpleFlowResult {
 
 	private FlowDescriptor flow;
 	private boolean input;

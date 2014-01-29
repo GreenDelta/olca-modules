@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.NwSetTable;
-import org.openlca.core.model.NwSet;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -20,9 +19,10 @@ import org.openlca.core.results.Contributions.Function;
  */
 public class ProjectResult {
 
-	private HashMap<ProjectVariant, InventoryResult> results = new HashMap<>();
+	private HashMap<ProjectVariant, SimpleResultProvider<SimpleResult>> results = new HashMap<>();
 
-	public void addResult(ProjectVariant variant, InventoryResult result) {
+	public void addResult(ProjectVariant variant, SimpleResult result) {
+		SimpleResultProvider<SimpleResult>
 		results.put(variant, result);
 	}
 
@@ -30,18 +30,18 @@ public class ProjectResult {
 		return results.keySet();
 	}
 
-	public InventoryResult getResult(ProjectVariant variant) {
+	public SimpleResult getResult(ProjectVariant variant) {
 		return results.get(variant);
 	}
 
 	public Set<FlowDescriptor> getFlows(EntityCache cache) {
 		Set<FlowDescriptor> flows = new HashSet<>();
-		for (InventoryResult result : results.values())
+		for (SimpleResult result : results.values())
 			flows.addAll(result.getFlowResults().getFlows(cache));
 		return flows;
 	}
 
-	public InventoryFlowResult getFlowResult(ProjectVariant variant,
+	public SimpleFlowResult getFlowResult(ProjectVariant variant,
 			FlowDescriptor flow) {
 		InventoryResult result = results.get(variant);
 		if (result == null)
@@ -49,7 +49,7 @@ public class ProjectResult {
 		return result.getFlowResults().get(flow);
 	}
 
-	public List<InventoryFlowResult> getFlowResults(ProjectVariant variant,
+	public List<SimpleFlowResult> getFlowResults(ProjectVariant variant,
 			EntityCache cache) {
 		InventoryResult result = results.get(variant);
 		if (result == null)
@@ -75,7 +75,7 @@ public class ProjectResult {
 		return impacts;
 	}
 
-	public InventoryImpactResult getImpactResult(ProjectVariant variant,
+	public SimpleImpactResult getImpactResult(ProjectVariant variant,
 			ImpactCategoryDescriptor impact) {
 		InventoryResult result = results.get(variant);
 		if (result == null)
@@ -83,7 +83,7 @@ public class ProjectResult {
 		return result.getImpactResults().get(impact);
 	}
 
-	public InventoryImpactResult getImpactResult(ProjectVariant variant,
+	public SimpleImpactResult getImpactResult(ProjectVariant variant,
 			ImpactCategoryDescriptor impact, NwSetTable nwSet) {
 		InventoryResult result = results.get(variant);
 		if (result == null)

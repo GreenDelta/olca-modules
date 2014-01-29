@@ -16,11 +16,7 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-/**
- * Calculates a contribution tree of the processes in a product system to a flow
- * or impact assessment result.
- */
-class ContributionTreeCalculator {
+class UpstreamTreeCalculator {
 
 	private AnalysisResult result;
 	private LinkContributions linkContributions;
@@ -28,7 +24,7 @@ class ContributionTreeCalculator {
 	private boolean skipNegatives = false;
 	private boolean skipNulls = false;
 
-	public ContributionTreeCalculator(AnalysisResult result,
+	public UpstreamTreeCalculator(AnalysisResult result,
 			LinkContributions linkContributions) {
 		this.result = result;
 		this.linkContributions = linkContributions;
@@ -54,21 +50,21 @@ class ContributionTreeCalculator {
 		this.skipNulls = skipNulls;
 	}
 
-	public ContributionTree calculate(FlowDescriptor flow) {
+	public UpstreamTree calculate(FlowDescriptor flow) {
 		FlowResultFetch fn = new FlowResultFetch(flow);
 		return calculate(fn);
 	}
 
-	public ContributionTree calculate(ImpactCategoryDescriptor impact) {
+	public UpstreamTree calculate(ImpactCategoryDescriptor impact) {
 		ImpactResultFetch fn = new ImpactResultFetch(impact);
 		return calculate(fn);
 	}
 
-	private ContributionTree calculate(ResultFetch fn) {
+	private UpstreamTree calculate(ResultFetch fn) {
 
-		ContributionTree tree = new ContributionTree();
+		UpstreamTree tree = new UpstreamTree();
 		tree.setReference(fn.getReference());
-		ContributionTreeNode root = new ContributionTreeNode();
+		UpstreamTreeNode root = new UpstreamTreeNode();
 		LongPair refProduct = result.getProductIndex().getRefProduct();
 		root.setShare(1d);
 		root.setProcessProduct(refProduct);
@@ -76,22 +72,22 @@ class ContributionTreeCalculator {
 		tree.setRoot(root);
 
 		NodeSorter sorter = new NodeSorter();
-		Stack<ContributionTreeNode> stack = new Stack<>();
+		Stack<UpstreamTreeNode> stack = new Stack<>();
 		stack.push(root);
 		HashSet<LongPair> handled = new HashSet<>();
 		handled.add(refProduct);
 
 		while (!stack.isEmpty()) {
 
-			ContributionTreeNode node = stack.pop();
-			List<ContributionTreeNode> childs = createChildNodes(node, fn);
+			UpstreamTreeNode node = stack.pop();
+			List<UpstreamTreeNode> childs = createChildNodes(node, fn);
 			Collections.sort(childs, sorter);
 			node.getChildren().addAll(childs);
 
 			for (int i = childs.size() - 1; i >= 0; i--) {
 				// push in reverse order, so that the highest contribution is
 				// on the top
-				ContributionTreeNode child = childs.get(i);
+				UpstreamTreeNode child = childs.get(i);
 				if (!handled.contains(child.getProcessProduct())) {
 					stack.push(child);
 					handled.add(child.getProcessProduct());
@@ -101,9 +97,9 @@ class ContributionTreeCalculator {
 		return tree;
 	}
 
-	private List<ContributionTreeNode> createChildNodes(
-			ContributionTreeNode parent, ResultFetch fn) {
-		List<ContributionTreeNode> childNodes = new ArrayList<>();
+	private List<UpstreamTreeNode> createChildNodes(UpstreamTreeNode parent,
+			ResultFetch fn) {
+		List<UpstreamTreeNode> childNodes = new ArrayList<>();
 		LongPair recipient = parent.getProcessProduct();
 		for (LongPair provider : links.get(recipient)) {
 			double share = linkContributions.getShare(provider, recipient)
@@ -113,7 +109,7 @@ class ContributionTreeCalculator {
 				continue;
 			if (amount < 0 && skipNegatives)
 				continue;
-			ContributionTreeNode node = new ContributionTreeNode();
+			UpstreamTreeNode node = new UpstreamTreeNode();
 			node.setShare(share);
 			node.setAmount(amount);
 			node.setProcessProduct(provider);
@@ -171,10 +167,9 @@ class ContributionTreeCalculator {
 		}
 	}
 
-	private class NodeSorter implements Comparator<ContributionTreeNode> {
+	private class NodeSorter implements Comparator<UpstreamTreeNode> {
 		@Override
-		public int compare(ContributionTreeNode node1,
-				ContributionTreeNode node2) {
+		public int compare(UpstreamTreeNode node1, UpstreamTreeNode node2) {
 			return Double.compare(node2.getAmount(), node1.getAmount());
 		}
 	}

@@ -46,7 +46,7 @@ public class ContributionTreeTest {
 
 		Assert.assertEquals(1.0, result.getFlowResults().getTotalResult(flow),
 				1e-16);
-		ContributionTree tree = result.getContributions().getTree(flow);
+		UpstreamTree tree = result.getContributions().getTree(flow);
 		Assert.assertEquals(2, tree.getRoot().getChildren().size());
 		Assert.assertEquals(1.0, tree.getRoot().getAmount(), 1e-16);
 		Assert.assertEquals(0.5, tree.getRoot().getChildren().get(0)

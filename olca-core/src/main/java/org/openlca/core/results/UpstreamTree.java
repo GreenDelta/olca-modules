@@ -2,16 +2,20 @@ package org.openlca.core.results;
 
 import org.openlca.core.model.descriptors.BaseDescriptor;
 
-public class ContributionTree {
+/**
+ * Maps the upstream results of the product system graph to a tree where the
+ * root is the reference process of the product system.
+ */
+public class UpstreamTree {
 
-	private ContributionTreeNode root;
+	private UpstreamTreeNode root;
 	private BaseDescriptor reference;
 
-	public ContributionTreeNode getRoot() {
+	public UpstreamTreeNode getRoot() {
 		return root;
 	}
 
-	public void setRoot(ContributionTreeNode root) {
+	public void setRoot(UpstreamTreeNode root) {
 		this.root = root;
 	}
 
