@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.NwSet;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;

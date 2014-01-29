@@ -14,7 +14,9 @@ import org.openlca.core.matrix.ProductIndex;
  * TODO: we could easily add flow contributions to impact categories via the
  * formula C = F * diag(g).
  * 
+ * @deprecated use {@link BaseResult} or {@link IContributionResult}
  */
+@Deprecated
 public class InventoryResult {
 
 	private ProductIndex productIndex;
