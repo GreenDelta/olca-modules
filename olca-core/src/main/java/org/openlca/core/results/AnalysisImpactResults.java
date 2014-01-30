@@ -1,16 +1,13 @@
 package org.openlca.core.results;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 public final class AnalysisImpactResults {
 
@@ -18,17 +15,6 @@ public final class AnalysisImpactResults {
 
 	public AnalysisImpactResults(AnalysisResult result) {
 		this.result = result;
-	}
-
-	public Set<ProcessDescriptor> getProcesses(EntityCache cache) {
-		return Results.getProcessDescriptors(result.getProductIndex(), cache);
-	}
-
-	public Set<ImpactCategoryDescriptor> getImpacts(EntityCache cache) {
-		LongIndex impactIndex = result.getImpactIndex();
-		if (impactIndex == null)
-			return Collections.emptySet();
-		return Results.getImpactDescriptors(impactIndex, cache);
 	}
 
 	/**
@@ -52,7 +38,7 @@ public final class AnalysisImpactResults {
 	}
 
 	public List<AnalysisImpactResult> getForProcess(ProcessDescriptor process,
-	                                                EntityCache cache) {
+			EntityCache cache) {
 		List<AnalysisImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor impact : getImpacts(cache)) {
 			AnalysisImpactResult r = getResult(process, impact);
@@ -62,7 +48,7 @@ public final class AnalysisImpactResults {
 	}
 
 	public AnalysisImpactResult getResult(ProcessDescriptor process,
-	                                      ImpactCategoryDescriptor impact) {
+			ImpactCategoryDescriptor impact) {
 		long processId = process.getId();
 		long impactId = impact.getId();
 		double single = result.getSingleImpactResult(processId, impactId);
@@ -76,8 +62,7 @@ public final class AnalysisImpactResults {
 	}
 
 	public AnalysisImpactResult getResult(ProcessDescriptor process,
-	                                      ImpactCategoryDescriptor impact,
-	                                      NwSetTable nwset) {
+			ImpactCategoryDescriptor impact, NwSetTable nwset) {
 		AnalysisImpactResult r = getResult(process, impact);
 		if (nwset == null)
 			return r;

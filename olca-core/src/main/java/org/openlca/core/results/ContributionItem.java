@@ -1,12 +1,11 @@
 package org.openlca.core.results;
 
-
-/** Generic container for results of a contribution analysis. */
-public class Contribution<T> {
+public class ContributionItem<T> {
 
 	private T item;
 	private double amount;
 	private double share;
+	private boolean rest = false;
 
 	public T getItem() {
 		return item;
@@ -30,6 +29,14 @@ public class Contribution<T> {
 
 	public void setShare(double share) {
 		this.share = share;
+	}
+
+	public boolean isRest() {
+		return rest;
+	}
+
+	public void setRest(boolean rest) {
+		this.rest = rest;
 	}
 
 }

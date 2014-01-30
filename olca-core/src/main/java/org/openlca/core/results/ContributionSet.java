@@ -5,17 +5,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A set of contributions to an overall result. Contains optionally a rest-value
- * which is defined as: </br><code>
- * 
- * rest = result - sum(contributions).
+ * A set of contributions to an overall result.
  */
 public class ContributionSet<T> {
 
-	private double restValue;
-	private List<Contribution<T>> contributions = new ArrayList<>();
+	private List<ContributionItem<T>> contributions = new ArrayList<>();
 
-	public ContributionSet(List<Contribution<T>> contributions) {
+	public ContributionSet(List<ContributionItem<T>> contributions) {
 		this.contributions.addAll(contributions);
 	}
 
@@ -25,22 +21,14 @@ public class ContributionSet<T> {
 		return set;
 	}
 
-	public double getRestValue() {
-		return restValue;
-	}
-
-	public void setRestValue(double restValue) {
-		this.restValue = restValue;
-	}
-
-	public List<Contribution<T>> getContributions() {
+	public List<ContributionItem<T>> getContributions() {
 		return contributions;
 	}
 
-	public Contribution<T> getContribution(T item) {
+	public ContributionItem<T> getContribution(T item) {
 		if (item == null)
 			return null;
-		for (Contribution<T> contribution : contributions) {
+		for (ContributionItem<T> contribution : contributions) {
 			if (item.equals(contribution.getItem()))
 				return contribution;
 		}

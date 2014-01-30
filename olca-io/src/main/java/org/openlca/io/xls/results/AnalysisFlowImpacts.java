@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.AnalysisResult;
-import org.openlca.core.results.Contribution;
+import org.openlca.core.results.ContributionItem;
 import org.openlca.core.results.ContributionSet;
 import org.openlca.core.results.FlowImpactContribution;
 import org.openlca.io.xls.Excel;
@@ -81,7 +81,7 @@ class AnalysisFlowImpacts {
 		}
 
 		public void next(FlowDescriptor flow, boolean input) {
-			Contribution<FlowDescriptor> contribution = contributions
+			ContributionItem<FlowDescriptor> contribution = contributions
 					.getContribution(flow);
 			if (contribution == null)
 				return;

@@ -20,14 +20,14 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	 * Returns the flow results of the inventory results. *No* entries are
 	 * generated for 0-values.
 	 */
-	public List<SimpleFlowResult> getTotalFlowResults() {
+	public List<FlowResult> getTotalFlowResults() {
 		FlowIndex index = result.getFlowIndex();
-		List<SimpleFlowResult> results = new ArrayList<>();
+		List<FlowResult> results = new ArrayList<>();
 		for (FlowDescriptor d : getFlowDescriptors()) {
 			double val = result.getTotalFlowResult(d.getId());
 			if (val == 0)
 				continue;
-			SimpleFlowResult r = new SimpleFlowResult();
+			FlowResult r = new FlowResult();
 			r.setFlow(d);
 			r.setInput(index.isInput(d.getId()));
 			r.setValue(val);
@@ -36,10 +36,10 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 		return results;
 	}
 
-	public SimpleFlowResult getTotalFlowResult(FlowDescriptor flow) {
+	public FlowResult getTotalFlowResult(FlowDescriptor flow) {
 		FlowIndex index = result.getFlowIndex();
 		long flowId = flow.getId();
-		SimpleFlowResult r = new SimpleFlowResult();
+		FlowResult r = new FlowResult();
 		r.setFlow(flow);
 		r.setInput(index.isInput(flowId));
 		double val = result.getTotalFlowResult(flow.getId());
@@ -59,33 +59,33 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	 * Returns the impact category results for the given result. In contrast to
 	 * the flow results, entries are also generated for 0-values.
 	 */
-	public List<SimpleImpactResult> getTotalImpactResults() {
-		List<SimpleImpactResult> results = new ArrayList<>();
+	public List<ImpactResult> getTotalImpactResults() {
+		List<ImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor d : getImpactDescriptors()) {
-			SimpleImpactResult r = getTotalImpactResult(d);
+			ImpactResult r = getTotalImpactResult(d);
 			results.add(r);
 		}
 		return results;
 	}
 
-	public List<SimpleImpactResult> getTotalImpactResults(NwSetTable nwset) {
-		List<SimpleImpactResult> results = new ArrayList<>();
+	public List<ImpactResult> getTotalImpactResults(NwSetTable nwset) {
+		List<ImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor d : getImpactDescriptors()) {
-			SimpleImpactResult r = getTotalImpactResult(d, nwset);
+			ImpactResult r = getTotalImpactResult(d, nwset);
 			results.add(r);
 		}
 		return results;
 	}
 
-	public SimpleImpactResult getTotalImpactResult(
+	public ImpactResult getTotalImpactResult(
 			ImpactCategoryDescriptor impact) {
 		return getTotalImpactResult(impact, null);
 	}
 
-	public SimpleImpactResult getTotalImpactResult(
+	public ImpactResult getTotalImpactResult(
 			ImpactCategoryDescriptor impact, NwSetTable nwset) {
 		double val = result.getTotalImpactResult(impact.getId());
-		SimpleImpactResult r = new SimpleImpactResult();
+		ImpactResult r = new ImpactResult();
 		r.setImpactCategory(impact);
 		r.setValue(val);
 		if (nwset == null) {
