@@ -16,13 +16,18 @@ public final class Contributions {
 	 * contribution amount of this item: <br>
 	 * <code> 
 	 * contributionSet = Contributions.calculate(items, item -> amount)
-	 * </code>
+	 * </code> The share of the contribution item is calculated via: <br>
+	 * <code>
+	 * share = item -> amount / totalAmount
+	 * </code> An contribution item is set as the "rest" item
+	 * (contributionItem.isRest = true) if the item in the collection is null).
 	 */
 	public static <T> ContributionSet<T> calculate(Collection<T> items,
 			double totalAmount, Function<T> fn) {
 		List<ContributionItem<T>> contributions = new ArrayList<>();
 		for (T item : items) {
 			ContributionItem<T> contribution = new ContributionItem<>();
+			contribution.setRest(item == null);
 			contribution.setItem(item);
 			double val = fn.value(item);
 			contribution.setAmount(val);

@@ -3,6 +3,7 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A set of contributions to an overall result.
@@ -26,10 +27,8 @@ public class ContributionSet<T> {
 	}
 
 	public ContributionItem<T> getContribution(T item) {
-		if (item == null)
-			return null;
 		for (ContributionItem<T> contribution : contributions) {
-			if (item.equals(contribution.getItem()))
+			if (Objects.equals(item, contribution.getItem()))
 				return contribution;
 		}
 		return null;

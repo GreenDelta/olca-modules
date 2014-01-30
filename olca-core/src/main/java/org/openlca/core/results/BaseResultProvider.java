@@ -29,6 +29,10 @@ public class BaseResultProvider<T extends BaseResult> {
 		return result;
 	}
 
+	public EntityCache getCache() {
+		return cache;
+	}
+
 	public Set<ProcessDescriptor> getProcessDescriptors() {
 		ProductIndex index = result.getProductIndex();
 		if (index == null)
