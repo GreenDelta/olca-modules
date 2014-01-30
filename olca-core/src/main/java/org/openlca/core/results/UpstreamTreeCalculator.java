@@ -18,13 +18,13 @@ import com.google.common.collect.Multimap;
 
 class UpstreamTreeCalculator {
 
-	private AnalysisResult result;
+	private FullResult result;
 	private LinkContributions linkContributions;
 	private Multimap<LongPair, LongPair> links;
 	private boolean skipNegatives = false;
 	private boolean skipNulls = false;
 
-	public UpstreamTreeCalculator(AnalysisResult result,
+	public UpstreamTreeCalculator(FullResult result,
 			LinkContributions linkContributions) {
 		this.result = result;
 		this.linkContributions = linkContributions;
@@ -129,15 +129,20 @@ class UpstreamTreeCalculator {
 
 		private final FlowDescriptor flow;
 		private final long flowId;
+		private final boolean isInput;
 
 		public FlowResultFetch(FlowDescriptor flow) {
 			this.flow = flow;
 			this.flowId = flow.getId();
+			this.isInput = result.getFlowIndex().isInput(flowId);
 		}
 
 		@Override
 		public double getTotalAmount(LongPair product) {
-			return result.getTotalFlowResult(product, flowId);
+			double val = result.getUpstreamFlowResult(product, flowId);
+			if (val == 0)
+				return 0; // avoid -0 in results
+			return isInput ? -val : val;
 		}
 
 		@Override
@@ -158,7 +163,7 @@ class UpstreamTreeCalculator {
 
 		@Override
 		public double getTotalAmount(LongPair processProduct) {
-			return result.getTotalImpactResult(processProduct, impactId);
+			return result.getUpstreamImpactResult(processProduct, impactId);
 		}
 
 		@Override
