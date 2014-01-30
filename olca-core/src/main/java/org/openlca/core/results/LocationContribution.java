@@ -16,12 +16,12 @@ import org.openlca.core.results.Contributions.Function;
  * Calculates the contributions of the single process results in an analysis
  * result grouped by their locations.
  */
-public class LocationContribution<T extends ContributionResultProvider<?>> {
+public class LocationContribution {
 
-	private T result;
+	private ContributionResultProvider<?> result;
 	private Map<Location, List<ProcessDescriptor>> processIndex = new HashMap<>();
 
-	public LocationContribution(T result) {
+	public LocationContribution(ContributionResultProvider<?> result) {
 		this.result = result;
 		initProcessIndex();
 	}
