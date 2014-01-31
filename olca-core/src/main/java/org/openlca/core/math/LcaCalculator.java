@@ -7,70 +7,116 @@ import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
-import org.openlca.core.results.AnalysisResult;
-import org.openlca.core.results.InventoryResult;
+import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.LinkContributions;
+import org.openlca.core.results.SimpleResult;
 
-public class InventoryCalculator {
+public class LcaCalculator {
 
 	private final IMatrixFactory<?> factory;
 	private final IMatrixSolver solver;
 
-	public InventoryCalculator(IMatrixSolver solver) {
+	public LcaCalculator(IMatrixSolver solver) {
 		this.solver = solver;
 		this.factory = solver.getMatrixFactory();
 	}
 
-	public InventoryResult solve(Inventory inventory) {
-		return solve(inventory, null);
+	public SimpleResult calculateSimple(Inventory inventory) {
+		return calculateSimple(inventory, null);
 	}
 
-	public InventoryResult solve(Inventory inventory, ImpactTable impactTable) {
+	public SimpleResult calculateSimple(Inventory inventory,
+			ImpactTable impactTable) {
 		InventoryMatrix matrix = inventory.asMatrix(factory);
 		ImpactMatrix impactMatrix = impactTable != null ? impactTable
 				.asMatrix(factory) : null;
-		return solve(matrix, impactMatrix);
+		return calculateSimple(matrix, impactMatrix);
 	}
 
-	public InventoryResult solve(InventoryMatrix matrix) {
-		return solve(matrix, null);
+	public SimpleResult calculateSimple(InventoryMatrix matrix) {
+		return calculateSimple(matrix, null);
 	}
 
-	public InventoryResult solve(InventoryMatrix matrix,
+	public SimpleResult calculateSimple(InventoryMatrix matrix,
 			ImpactMatrix impactMatrix) {
+
+		SimpleResult result = new SimpleResult();
+		result.setFlowIndex(matrix.getFlowIndex());
+		result.setProductIndex(matrix.getProductIndex());
+
 		IMatrix techMatrix = matrix.getTechnologyMatrix();
 		ProductIndex productIndex = matrix.getProductIndex();
 		int idx = productIndex.getIndex(productIndex.getRefProduct());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 		IMatrix enviMatrix = matrix.getInterventionMatrix();
-		double[] g = solver.multiply(enviMatrix, s);
 
-		InventoryResult result = new InventoryResult();
-		result.setFlowIndex(matrix.getFlowIndex());
-		result.setFlowResultVector(g);
-		result.setProductIndex(matrix.getProductIndex());
+		double[] g = solver.multiply(enviMatrix, s);
+		result.setTotalFlowResults(g);
+
 		if (impactMatrix != null) {
 			IMatrix impactFactors = impactMatrix.getFactorMatrix();
 			double[] i = solver.multiply(impactFactors, g);
 			result.setImpactIndex(impactMatrix.getCategoryIndex());
-			result.setImpactResultVector(i);
+			result.setTotalImpactResults(i);
 		}
 		return result;
 	}
 
-	public AnalysisResult analyse(Inventory inventory) {
-		return analyse(inventory, null);
+	public ContributionResult calculateContributions(Inventory inventory) {
+		return calculateContributions(inventory, null);
 	}
 
-	public AnalysisResult analyse(Inventory inventory, ImpactTable impactTable) {
+	public ContributionResult calculateContributions(Inventory inventory,
+			ImpactTable impactTable) {
 		InventoryMatrix matrix = inventory.asMatrix(factory);
 		ImpactMatrix impactMatrix = impactTable != null ? impactTable
 				.asMatrix(factory) : null;
-		return analyse(matrix, impactMatrix);
+		return calculateContributions(matrix, impactMatrix);
 	}
 
-	public AnalysisResult analyse(InventoryMatrix matrix) {
-		return analyse(matrix, null);
+	public ContributionResult calculateContributions(InventoryMatrix matrix) {
+		return calculateContributions(matrix, null);
+	}
+
+	public ContributionResult calculateContributions(InventoryMatrix matrix,
+			ImpactMatrix impactMatrix) {
+
+		ContributionResult result = new ContributionResult();
+		result.setFlowIndex(matrix.getFlowIndex());
+		result.setProductIndex(matrix.getProductIndex());
+
+		IMatrix techMatrix = matrix.getTechnologyMatrix();
+		ProductIndex productIndex = matrix.getProductIndex();
+		int idx = productIndex.getIndex(productIndex.getRefProduct());
+		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
+		result.setScalingFactors(s);
+
+		IMatrix enviMatrix = matrix.getInterventionMatrix();
+		IMatrix singleResult = enviMatrix.copy();
+		solver.scaleColumns(singleResult, s);
+		result.setSingleFlowResults(singleResult);
+		double[] g = solver.multiply(enviMatrix, s);
+		result.setTotalFlowResults(g);
+
+		LinkContributions linkContributions = LinkContributions.calculate(
+				techMatrix, productIndex, s);
+		result.setLinkContributions(linkContributions);
+
+		if (impactMatrix != null) {
+			IMatrix impactFactors = impactMatrix.getFactorMatrix();
+			double[] i = solver.multiply(impactFactors, g);
+			result.setImpactIndex(impactMatrix.getCategoryIndex());
+			result.setTotalImpactResults(i);
+			IMatrix singleImpactResult = solver.multiply(impactFactors,
+					singleResult);
+			result.setSingleImpactResults(singleImpactResult);
+
+			IMatrix singleFlowImpacts = impactFactors.copy();
+			solver.scaleColumns(singleFlowImpacts, g);
+			result.setSingleFlowImpacts(singleFlowImpacts);
+
+		}
+		return result;
 	}
 
 	public AnalysisResult analyse(InventoryMatrix matrix,

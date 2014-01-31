@@ -61,7 +61,7 @@ public class Simulator {
 			if (impactMatrix != null)
 				impactTable.getFactorMatrix().simulate(
 						impactMatrix.getFactorMatrix());
-			InventoryCalculator solver = new InventoryCalculator(matrixSolver);
+			LcaCalculator solver = new LcaCalculator(matrixSolver);
 			InventoryResult inventoryResult = solver.solve(inventoryMatrix,
 					impactMatrix);
 			appendResults(inventoryResult);

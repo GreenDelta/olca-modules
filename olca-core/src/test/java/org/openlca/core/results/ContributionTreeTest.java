@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.openlca.core.TestSession;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
-import org.openlca.core.math.InventoryCalculator;
+import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
@@ -39,7 +39,7 @@ public class ContributionTreeTest {
 				new double[][] { { 0, 0.5, 0.5 } }, factory);
 		matrix.setInterventionMatrix(enviMatrix);
 
-		AnalysisResult result = new InventoryCalculator(
+		AnalysisResult result = new LcaCalculator(
 				TestSession.getDefaultSolver()).analyse(matrix);
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setId(4);
