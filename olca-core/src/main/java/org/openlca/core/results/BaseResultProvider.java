@@ -15,7 +15,8 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class BaseResultProvider<T extends BaseResult> {
+public class BaseResultProvider<T extends BaseResult> implements
+		IResultProvider {
 
 	protected T result;
 	protected EntityCache cache;
@@ -33,6 +34,12 @@ public class BaseResultProvider<T extends BaseResult> {
 		return cache;
 	}
 
+	@Override
+	public boolean hasImpactResults() {
+		return result.hasImpactResults();
+	}
+
+	@Override
 	public Set<ProcessDescriptor> getProcessDescriptors() {
 		ProductIndex index = result.getProductIndex();
 		if (index == null)
@@ -44,6 +51,7 @@ public class BaseResultProvider<T extends BaseResult> {
 		return descriptors;
 	}
 
+	@Override
 	public Set<FlowDescriptor> getFlowDescriptors() {
 		FlowIndex index = result.getFlowIndex();
 		if (index == null)
@@ -58,6 +66,7 @@ public class BaseResultProvider<T extends BaseResult> {
 		return descriptors;
 	}
 
+	@Override
 	public Set<ImpactCategoryDescriptor> getImpactDescriptors() {
 		LongIndex index = result.getImpactIndex();
 		if (index == null)
