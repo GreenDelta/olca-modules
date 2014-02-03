@@ -14,7 +14,7 @@ public final class Contributions {
 	 * given total amount. The contribution values and shares are calculated
 	 * with the given amount functions which maps an item to the respective
 	 * contribution amount of this item: <br>
-	 * <code> 
+	 * <code>
 	 * contributionSet = Contributions.calculate(items, item -> amount)
 	 * </code> The share of the contribution item is calculated via: <br>
 	 * <code>
@@ -23,7 +23,7 @@ public final class Contributions {
 	 * (contributionItem.isRest = true) if the item in the collection is null).
 	 */
 	public static <T> ContributionSet<T> calculate(Collection<T> items,
-			double totalAmount, Function<T> fn) {
+	                                               double totalAmount, Function<T> fn) {
 		List<ContributionItem<T>> contributions = new ArrayList<>();
 		for (T item : items) {
 			ContributionItem<T> contribution = new ContributionItem<>();
@@ -38,6 +38,21 @@ public final class Contributions {
 		return new ContributionSet<>(contributions);
 	}
 
+	public static <T> ContributionSet<T> calculate(Collection<T> items,
+	                                               Function<T> fn) {
+		List<ContributionItem<T>> contributions = new ArrayList<>();
+		for (T item : items) {
+			ContributionItem<T> contribution = new ContributionItem<>();
+			contribution.setRest(item == null);
+			contribution.setItem(item);
+			double val = fn.value(item);
+			contribution.setAmount(val);
+			contributions.add(contribution);
+		}
+		calculateShares(contributions);
+		return new ContributionSet<>(contributions);
+	}
+
 	/**
 	 * Calculates the relative shares of the given contribution items.
 	 */
@@ -47,15 +62,11 @@ public final class Contributions {
 			return;
 		double refVal = getRefValue(contributions);
 		for (ContributionItem<?> c : contributions) {
-			double share = share(c.getAmount(), refVal);
-			c.setShare(share);
+			if (refVal == 0)
+				c.setShare(0);
+			else
+				c.setShare(c.getAmount() / refVal);
 		}
-	}
-
-	private static double share(double val, double refValue) {
-		if (refValue == 0)
-			return 0;
-		return (val / refValue);
 	}
 
 	private static double getRefValue(

@@ -1,5 +1,6 @@
 package org.openlca.core.math;
 
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -7,8 +8,8 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
-import org.openlca.core.results.InventoryResult;
-import org.openlca.core.results.ProjectResult;
+import org.openlca.core.results.ContributionResult;
+import org.openlca.core.results.ProjectResultProvider;
 
 public class ProjectCalculator {
 
@@ -20,8 +21,8 @@ public class ProjectCalculator {
 		this.solver = solver;
 	}
 
-	public ProjectResult solve(Project project) {
-		ProjectResult result = new ProjectResult();
+	public ProjectResultProvider solve(Project project, EntityCache cache) {
+		ProjectResultProvider result = new ProjectResultProvider(cache);
 		SystemCalculator calculator = new SystemCalculator(matrixCache, solver);
 		ImpactMethodDescriptor method = getImpactMethod(project);
 		NwSetDescriptor nwSet = getNwSet(project);
@@ -35,8 +36,8 @@ public class ProjectCalculator {
 			setup.setImpactMethod(method);
 			setup.setNwSet(nwSet);
 			setup.getParameterRedefs().addAll(v.getParameterRedefs());
-			InventoryResult inventoryResult = calculator.solve(setup);
-			result.addResult(v, inventoryResult);
+			ContributionResult cr = calculator.calculateContributions(setup);
+			result.addResult(v, cr);
 		}
 		return result;
 	}

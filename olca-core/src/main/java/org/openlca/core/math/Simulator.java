@@ -7,7 +7,7 @@ import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.core.results.InventoryResult;
+import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class Simulator {
 	private CalculationSetup setup;
 
 	public Simulator(CalculationSetup setup, MatrixCache database,
-			IMatrixSolver solver) {
+	                 IMatrixSolver solver) {
 		this.impactMethod = setup.getImpactMethod();
 		this.database = database;
 		this.setup = setup;
@@ -62,7 +62,7 @@ public class Simulator {
 				impactTable.getFactorMatrix().simulate(
 						impactMatrix.getFactorMatrix());
 			LcaCalculator solver = new LcaCalculator(matrixSolver);
-			InventoryResult inventoryResult = solver.solve(inventoryMatrix,
+			SimpleResult inventoryResult = solver.calculateFull(inventoryMatrix,
 					impactMatrix);
 			appendResults(inventoryResult);
 			return true;
@@ -72,29 +72,34 @@ public class Simulator {
 		}
 	}
 
-	private void appendResults(InventoryResult inventoryResult) {
-		FlowIndex flowIndex = result.getFlowIndex();
+	private void appendResults(SimpleResult result) {
+		FlowIndex flowIndex = this.result.getFlowIndex();
 		double[] flowResults = new double[flowIndex.size()];
 		for (long flowId : flowIndex.getFlowIds()) {
 			int idx = flowIndex.getIndex(flowId);
-			// get result adopts the sign for input flow results
-			flowResults[idx] = inventoryResult.getFlowResult(flowId);
+			double val = result.getTotalFlowResult(flowId);
+			if (flowIndex.isInput(flowId))
+				val = -val;
+			flowResults[idx] = val;
 		}
-		result.appendFlowResults(flowResults);
-		if (result.hasImpactResults())
-			result.appendImpactResults(inventoryResult.getImpactResultVector());
+		this.result.appendFlowResults(flowResults);
+		if (this.result.hasImpactResults())
+			this.result.appendImpactResults(result.getTotalImpactResults());
 	}
 
 	private void setUp() {
 		log.trace("set up inventory");
 		inventory = Calculators.createInventory(setup, database);
 		inventoryMatrix = inventory.asMatrix(factory);
-		result = new SimulationResult(inventory.getFlowIndex());
+		result = new SimulationResult();
+		result.setProductIndex(inventory.getProductIndex());
+		result.setFlowIndex(inventory.getFlowIndex());
 		if (impactMethod != null) {
 			ImpactTable impactTable = Calculators.createImpactTable(
 					impactMethod, inventory.getFlowIndex(), database);
-			if (impactTable.isEmpty())
+			if (impactTable.isEmpty()) {
 				return;
+			}
 			this.impactTable = impactTable;
 			this.impactMatrix = impactTable.asMatrix(factory);
 			result.setImpactIndex(impactTable.getCategoryIndex());

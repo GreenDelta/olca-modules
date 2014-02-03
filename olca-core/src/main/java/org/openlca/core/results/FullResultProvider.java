@@ -18,8 +18,7 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	public FullResultProvider(FullResult result, EntityCache cache) {
 		super(result, cache);
 		this.linkContributions = result.linkContributions;
-		this.treeCalculator = new UpstreamTreeCalculator(result,
-				linkContributions);
+		this.treeCalculator = new UpstreamTreeCalculator(result);
 	}
 
 	public List<FlowResult> getUpstreamFlowResults(ProcessDescriptor process) {

@@ -24,10 +24,9 @@ class UpstreamTreeCalculator {
 	private boolean skipNegatives = false;
 	private boolean skipNulls = false;
 
-	public UpstreamTreeCalculator(FullResult result,
-			LinkContributions linkContributions) {
+	public UpstreamTreeCalculator(FullResult result) {
 		this.result = result;
-		this.linkContributions = linkContributions;
+		this.linkContributions = result.getLinkContributions();
 		this.links = makeLinks(result.getProductIndex());
 	}
 

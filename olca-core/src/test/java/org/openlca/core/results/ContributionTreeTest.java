@@ -39,14 +39,16 @@ public class ContributionTreeTest {
 				new double[][] { { 0, 0.5, 0.5 } }, factory);
 		matrix.setInterventionMatrix(enviMatrix);
 
-		AnalysisResult result = new LcaCalculator(
-				TestSession.getDefaultSolver()).analyse(matrix);
+		FullResult result = new LcaCalculator(TestSession.getDefaultSolver())
+				.calculateFull(matrix);
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setId(4);
 
-		Assert.assertEquals(1.0, result.getFlowResults().getTotalResult(flow),
-				1e-16);
-		UpstreamTree tree = result.getContributions().getTree(flow);
+		Assert.assertEquals(1.0, result.getTotalFlowResult(flow.getId()), 1e-16);
+
+		UpstreamTreeCalculator treeCalculator = new UpstreamTreeCalculator(
+				result);
+		UpstreamTree tree = treeCalculator.calculate(flow);
 		Assert.assertEquals(2, tree.getRoot().getChildren().size());
 		Assert.assertEquals(1.0, tree.getRoot().getAmount(), 1e-16);
 		Assert.assertEquals(0.5, tree.getRoot().getChildren().get(0)
