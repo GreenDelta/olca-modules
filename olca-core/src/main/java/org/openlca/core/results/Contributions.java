@@ -2,6 +2,8 @@ package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public final class Contributions {
@@ -83,9 +85,70 @@ public final class Contributions {
 		return Math.max(Math.abs(max), Math.abs(min));
 	}
 
+	public static <T> void sortAscending(List<ContributionItem<T>> items) {
+		Collections.sort(items, new Sorter(true));
+	}
+
+	public static <T> void sortDescending(List<ContributionItem<T>> items) {
+		Collections.sort(items, new Sorter(false));
+	}
+
+	/**
+	 * Returns the top-contributors of the given list ordered by their
+	 * contribution values in descending order. If there are more items than the
+	 * given number (maxItems) a rest-item is created at the bottom of the list
+	 * which gets the sum of the items not in the list. Thus the returned list
+	 * has <code>maxItems</code> entries.
+	 */
+	public static <T> List<ContributionItem<T>> topWithRest(
+			List<ContributionItem<T>> items, int maxItems) {
+		if (items == null)
+			return Collections.emptyList();
+		sortDescending(items);
+		if (items.size() <= maxItems)
+			return items;
+		List<ContributionItem<T>> list = new ArrayList<>();
+		ContributionItem<T> restItem = new ContributionItem<>();
+		restItem.setRest(true);
+		for (int i = 0; i < items.size(); i++) {
+			ContributionItem<T> item = items.get(i);
+			if (i < (maxItems - 1))
+				list.add(item);
+			else {
+				restItem.setAmount(restItem.getAmount() + item.getAmount());
+				restItem.setShare(restItem.getShare() + item.getShare());
+			}
+		}
+		list.add(restItem);
+		return list;
+	}
+
 	public interface Function<T> {
 
 		double value(T t);
 
+	}
+
+	private static class Sorter implements Comparator<ContributionItem<?>> {
+
+		private final boolean ascending;
+
+		public Sorter(boolean ascending) {
+			this.ascending = ascending;
+		}
+
+		@Override
+		public int compare(ContributionItem<?> o1, ContributionItem<?> o2) {
+			if (o1 == null || o2 == null)
+				return 0;
+			if (o1.isRest())
+				return 1;
+			if (o2.isRest())
+				return -1;
+			if (ascending)
+				return Double.compare(o1.getAmount(), o2.getAmount());
+			else
+				return -Double.compare(o1.getAmount(), o2.getAmount());
+		}
 	}
 }
