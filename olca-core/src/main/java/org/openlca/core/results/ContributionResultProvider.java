@@ -24,8 +24,6 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 		for (FlowDescriptor flow : getFlowDescriptors()) {
 			double val = result.getSingleFlowResult(process.getId(),
 					flow.getId());
-			if (val == 0)
-				continue;
 			val = adoptFlowResult(val, flow.getId());
 			FlowResult r = new FlowResult();
 			r.setFlow(flow);

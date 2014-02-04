@@ -17,20 +17,17 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	}
 
 	/**
-	 * Returns the flow results of the inventory results. *No* entries are
-	 * generated for 0-values.
+	 * Returns the flow results of the inventory results.
 	 */
 	public List<FlowResult> getTotalFlowResults() {
 		FlowIndex index = result.getFlowIndex();
 		List<FlowResult> results = new ArrayList<>();
 		for (FlowDescriptor d : getFlowDescriptors()) {
 			double val = result.getTotalFlowResult(d.getId());
-			if (val == 0)
-				continue;
 			FlowResult r = new FlowResult();
 			r.setFlow(d);
 			r.setInput(index.isInput(d.getId()));
-			r.setValue(val);
+			r.setValue(adoptFlowResult(val, d.getId()));
 			results.add(r);
 		}
 		return results;
@@ -43,7 +40,7 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 		r.setFlow(flow);
 		r.setInput(index.isInput(flowId));
 		double val = result.getTotalFlowResult(flow.getId());
-		r.setValue(val);
+		r.setValue(adoptFlowResult(val, flowId));
 		return r;
 	}
 
@@ -77,13 +74,12 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 		return results;
 	}
 
-	public ImpactResult getTotalImpactResult(
-			ImpactCategoryDescriptor impact) {
+	public ImpactResult getTotalImpactResult(ImpactCategoryDescriptor impact) {
 		return getTotalImpactResult(impact, null);
 	}
 
-	public ImpactResult getTotalImpactResult(
-			ImpactCategoryDescriptor impact, NwSetTable nwset) {
+	public ImpactResult getTotalImpactResult(ImpactCategoryDescriptor impact,
+			NwSetTable nwset) {
 		double val = result.getTotalImpactResult(impact.getId());
 		ImpactResult r = new ImpactResult();
 		r.setImpactCategory(impact);

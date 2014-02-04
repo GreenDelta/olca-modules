@@ -25,7 +25,7 @@ public final class Contributions {
 	 * (contributionItem.isRest = true) if the item in the collection is null).
 	 */
 	public static <T> ContributionSet<T> calculate(Collection<T> items,
-	                                               double totalAmount, Function<T> fn) {
+			double totalAmount, Function<T> fn) {
 		List<ContributionItem<T>> contributions = new ArrayList<>();
 		for (T item : items) {
 			ContributionItem<T> contribution = new ContributionItem<>();
@@ -41,7 +41,7 @@ public final class Contributions {
 	}
 
 	public static <T> ContributionSet<T> calculate(Collection<T> items,
-	                                               Function<T> fn) {
+			Function<T> fn) {
 		List<ContributionItem<T>> contributions = new ArrayList<>();
 		for (T item : items) {
 			ContributionItem<T> contribution = new ContributionItem<>();
