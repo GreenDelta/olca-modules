@@ -1,5 +1,20 @@
 package org.openlca.io.xls.results;
 
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.model.Exchange;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.results.FullResultProvider;
+import org.openlca.io.xls.Excel;
+import org.openlca.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -8,22 +23,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.model.Exchange;
-import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.AnalysisResult;
-import org.openlca.io.xls.Excel;
-import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Exports an analysis result to Excel. Because of the size of the results we
  * use the POI streaming API here (SXSSF, see
@@ -31,13 +30,12 @@ import org.slf4j.LoggerFactory;
  * we flush its rows which means that these rows are written to disk and not
  * accessible from memory any more.
  */
-public class AnalysisResultExport {
+public class AnalysisResultExport implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private ProductSystem system;
 	private File file;
-	private EntityCache cache;
-	private AnalysisResult result;
+	private FullResultProvider result;
 
 	private SXSSFWorkbook workbook;
 	private CellWriter writer;
@@ -45,38 +43,45 @@ public class AnalysisResultExport {
 	private List<ImpactCategoryDescriptor> impacts;
 	private List<FlowDescriptor> flows;
 
+	private boolean success = false;
+
 	public AnalysisResultExport(ProductSystem system, File file,
-			EntityCache cache) {
+	                            FullResultProvider result) {
 		this.system = system;
 		this.file = file;
-		this.cache = cache;
-	}
-
-	EntityCache getCache() {
-		return cache;
-	}
-
-	public void run(AnalysisResult result) throws Exception {
 		this.result = result;
-		prepareFlowInfos();
-		prepareProcesses();
-		prepareImpacts();
-		workbook = new SXSSFWorkbook(-1); // no default flushing (see
-											// Excel.cell)!
-		writer = new CellWriter(cache, workbook);
-		writeInventorySheets(result);
-		writeImpactSheets(result);
-		try (FileOutputStream fos = new FileOutputStream(file)) {
-			workbook.write(fos);
-			fos.flush();
+	}
+
+	@Override
+	public void run() {
+		try {
+			prepareFlowInfos();
+			prepareProcesses();
+			prepareImpacts();
+			workbook = new SXSSFWorkbook(-1); // no default flushing (see
+			// Excel.cell)!
+			writer = new CellWriter(result.getCache(), workbook);
+			writeInventorySheets(result);
+			writeImpactSheets(result);
+			try (FileOutputStream fos = new FileOutputStream(file)) {
+				workbook.write(fos);
+				fos.flush();
+			}
+		} catch (Exception e) {
+			log.error("Export failed", e);
+			success = false;
 		}
+	}
+
+	public boolean doneWithSuccess() {
+		return success;
 	}
 
 	CellWriter getWriter() {
 		return writer;
 	}
 
-	private void writeInventorySheets(AnalysisResult result) {
+	private void writeInventorySheets(FullResultProvider result) {
 		SXSSFSheet infoSheet = sheet("info");
 		fillInfoSheet(infoSheet);
 		flush(infoSheet);
@@ -84,21 +89,21 @@ public class AnalysisResultExport {
 		fillTotalInventory(lciSheet);
 		flush(lciSheet);
 		SXSSFSheet lciConSheet = sheet("LCI (contributions)");
-		AnalysisProcessInventories.write(lciConSheet, result, this);
+		SingleProcessInventories.write(lciConSheet, result, this);
 		flush(lciConSheet);
 	}
 
-	private void writeImpactSheets(AnalysisResult result) {
+	private void writeImpactSheets(FullResultProvider result) {
 		if (!result.hasImpactResults())
 			return;
 		SXSSFSheet totalImpactSheet = sheet("LCIA (total)");
-		AnalysisTotalImpact.write(totalImpactSheet, result, this);
+		TotalImpacts.write(totalImpactSheet, result, this);
 		flush(totalImpactSheet);
 		SXSSFSheet singleImpactSheet = sheet("LCIA (contributions)");
-		AnalysisProcessImpacts.write(singleImpactSheet, result, this);
+		ProcessImpacts.write(singleImpactSheet, result, this);
 		flush(singleImpactSheet);
 		SXSSFSheet flowImpactSheet = sheet("LCIA (flows)");
-		AnalysisFlowImpacts.write(flowImpactSheet, result, this);
+		FlowImpacts.write(flowImpactSheet, result, this);
 		flush(flowImpactSheet);
 	}
 
@@ -116,16 +121,15 @@ public class AnalysisResultExport {
 	}
 
 	private void prepareFlowInfos() {
-		Set<FlowDescriptor> set = result.getFlowResults().getFlows(cache);
-		flows = Utils.sortFlows(set, cache);
+		Set<FlowDescriptor> set = result.getFlowDescriptors();
+		flows = Utils.sortFlows(set, result.getCache());
 	}
 
 	private void prepareProcesses() {
-		Set<ProcessDescriptor> procs = result.getFlowResults().getProcesses(
-				cache);
+		Set<ProcessDescriptor> procs = result.getProcessDescriptors();
 		processes = new ArrayList<>(procs);
-		final long refProcess = result.getProductIndex().getRefProduct()
-				.getFirst();
+		final long refProcess = result.getResult().getProductIndex()
+				.getRefProduct().getFirst();
 		Collections.sort(processes, new Comparator<ProcessDescriptor>() {
 			@Override
 			public int compare(ProcessDescriptor o1, ProcessDescriptor o2) {
@@ -141,14 +145,15 @@ public class AnalysisResultExport {
 	private void prepareImpacts() {
 		if (!result.hasImpactResults())
 			return;
-		Set<ImpactCategoryDescriptor> set = result.getImpactResults()
-				.getImpacts(cache);
+		Set<ImpactCategoryDescriptor> set = result.getImpactDescriptors();
 		impacts = Utils.sortImpacts(set);
 	}
 
-	/** Visit the sorted flows of the analysis result. */
+	/**
+	 * Visit the sorted flows of the analysis result.
+	 */
 	void visitFlows(FlowVisitor visitor) {
-		FlowIndex index = result.getFlowIndex();
+		FlowIndex index = result.getResult().getFlowIndex();
 		for (FlowDescriptor flow : flows) {
 			visitor.next(flow, index.isInput(flow.getId()));
 		}
@@ -162,7 +167,9 @@ public class AnalysisResultExport {
 		return processes;
 	}
 
-	/** Returns the sorted impact assessment categories of the result. */
+	/**
+	 * Returns the sorted impact assessment categories of the result.
+	 */
 	List<ImpactCategoryDescriptor> getImpacts() {
 		if (impacts == null)
 			Collections.emptyList();
@@ -190,8 +197,7 @@ public class AnalysisResultExport {
 	}
 
 	private int writeTotalResults(Sheet sheet, int startRow, boolean inputs) {
-		long refProcess = result.getProductIndex().getRefProduct().getFirst();
-		FlowIndex flowIndex = result.getFlowIndex();
+		FlowIndex flowIndex = result.getResult().getFlowIndex();
 		int rowNo = startRow;
 		String section = inputs ? "Inputs" : "Outputs";
 		writer.header(sheet, rowNo++, 1, section);
@@ -201,7 +207,7 @@ public class AnalysisResultExport {
 			boolean input = flowIndex.isInput(flow.getId());
 			if (input != inputs)
 				continue;
-			double amount = result.getTotalFlowResult(refProcess, flow.getId());
+			double amount = result.getTotalFlowResult(flow).getValue();
 			if (amount == 0)
 				continue;
 			writer.writeFlowRowInfo(sheet, rowNo, flow);
@@ -211,7 +217,9 @@ public class AnalysisResultExport {
 		return rowNo;
 	}
 
-	/** Visitor for the flows in the analysis result. */
+	/**
+	 * Visitor for the flows in the analysis result.
+	 */
 	interface FlowVisitor {
 		void next(FlowDescriptor flow, boolean input);
 	}

@@ -2,7 +2,7 @@ package org.openlca.io.xls.results;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.AnalysisResult;
+import org.openlca.core.results.SimpleResultProvider;
 import org.openlca.io.xls.Excel;
 
 /**
@@ -10,22 +10,22 @@ import org.openlca.io.xls.Excel;
  * sheet. The total impact assessment result is the upstream total result of the
  * reference process.
  */
-class AnalysisTotalImpact {
+class TotalImpacts {
 
 	private Sheet sheet;
-	private AnalysisResult result;
+	private SimpleResultProvider<?> result;
 	private AnalysisResultExport export;
 
-	private AnalysisTotalImpact(Sheet sheet, AnalysisResult result,
-			AnalysisResultExport export) {
+	private TotalImpacts(Sheet sheet, SimpleResultProvider<?> result,
+	                     AnalysisResultExport export) {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
 	}
 
-	public static void write(Sheet sheet, AnalysisResult result,
-			AnalysisResultExport export) {
-		new AnalysisTotalImpact(sheet, result, export).doIt();
+	public static void write(Sheet sheet, SimpleResultProvider<?> result,
+	                         AnalysisResultExport export) {
+		new TotalImpacts(sheet, result, export).doIt();
 	}
 
 	private void doIt() {
@@ -33,11 +33,9 @@ class AnalysisTotalImpact {
 		export.getWriter().writeImpactRowHeader(sheet, 1);
 		export.getWriter().header(sheet, 1, col, "Result");
 		int row = 2;
-		long refProcess = result.getProductIndex().getRefProduct().getFirst();
 		for (ImpactCategoryDescriptor impact : export.getImpacts()) {
 			export.getWriter().writeImpactRowInfo(sheet, row, impact);
-			double val = result
-					.getTotalImpactResult(refProcess, impact.getId());
+			double val = result.getTotalImpactResult(impact).getValue();
 			Excel.cell(sheet, row, col, val);
 			row++;
 		}

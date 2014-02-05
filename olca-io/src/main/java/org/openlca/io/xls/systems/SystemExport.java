@@ -1,18 +1,9 @@
 package org.openlca.io.xls.systems;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.ProductSystems;
 import org.openlca.core.matrix.FlowIndex;
@@ -23,10 +14,21 @@ import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.Results;
 import org.openlca.io.xls.Excel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SystemExport {
 
@@ -90,7 +92,7 @@ public class SystemExport {
 	}
 
 	private void createElementaryCoverSheet(Workbook workbook,
-			AllocationMethod allocationMethod) {
+	                                        AllocationMethod allocationMethod) {
 		Sheet sheet = workbook.createSheet("General information");
 		boolean allocated = allocationMethod != null;
 		String subTitle = allocated ? TITLES.ELEMENTARY_ALLOCATED
@@ -120,23 +122,23 @@ public class SystemExport {
 		if (method == null)
 			return "None";
 		switch (method) {
-		case CAUSAL:
-			return "Causal";
-		case ECONOMIC:
-			return "Economic";
-		case NONE:
-			return "None";
-		case PHYSICAL:
-			return "Physical";
-		case USE_DEFAULT:
-			return "As defined in processes";
-		default:
-			return "Unknown";
+			case CAUSAL:
+				return "Causal";
+			case ECONOMIC:
+				return "Economic";
+			case NONE:
+				return "None";
+			case PHYSICAL:
+				return "Physical";
+			case USE_DEFAULT:
+				return "As defined in processes";
+			default:
+				return "Unknown";
 		}
 	}
 
 	private void createProductCoverSheet(Workbook workbook,
-			AllocationMethod allocationMethod) {
+	                                     AllocationMethod allocationMethod) {
 		Sheet sheet = workbook.createSheet("General information");
 
 		boolean allocated = allocationMethod != null;
@@ -159,7 +161,7 @@ public class SystemExport {
 		currentRow = line(sheet, currentRow, "No. of products:", products);
 		currentRow = line(sheet, currentRow, "Matrix dimensions:", dimensions);
 
-		Excel.autoSize(sheet, new int[] { 0, 1 });
+		Excel.autoSize(sheet, new int[]{0, 1});
 	}
 
 	private void createImpactMethodCoverSheet(Workbook workbook) {
@@ -185,11 +187,11 @@ public class SystemExport {
 		currentRow = line(sheet, currentRow, "No. of impact factors:", factors);
 		currentRow = line(sheet, currentRow, "Matrix dimensions:", dimensions);
 
-		Excel.autoSize(sheet, new int[] { 0, 1 });
+		Excel.autoSize(sheet, new int[]{0, 1});
 	}
 
 	private int writeHeaderInformation(Sheet sheet, int currentRow,
-			String subTitle) {
+	                                   String subTitle) {
 		String date = DateFormat.getDateInstance().format(
 				GregorianCalendar.getInstance().getTime());
 
@@ -306,7 +308,7 @@ public class SystemExport {
 	}
 
 	private List<FlowInfo> mapFlowIndices(ExcelHeader header,
-			FlowIndex flowIndex) {
+	                                      FlowIndex flowIndex) {
 		List<FlowInfo> sortedFlows = FlowInfo.getAll(conf, flowIndex);
 		Collections.sort(sortedFlows);
 		int counter = 0;
@@ -319,7 +321,7 @@ public class SystemExport {
 	}
 
 	private List<ProductInfo> mapProductIndices(ExcelHeader header,
-			ProductIndex productIndex) {
+	                                            ProductIndex productIndex) {
 		List<ProductInfo> sortedProducts = ProductInfo.getAll(conf,
 				productIndex);
 		Collections.sort(sortedProducts);
@@ -334,8 +336,8 @@ public class SystemExport {
 
 	private List<ImpactCategoryDescriptor> mapImpactCategoryIndices(
 			ExcelHeader header, LongIndex impactIndex) {
-		Set<ImpactCategoryDescriptor> impacts = Results.getImpactDescriptors(
-				impactIndex, conf.getEntityCache());
+		Set<ImpactCategoryDescriptor> impacts = getImpacts(impactIndex,
+				conf.getEntityCache());
 		List<ImpactCategoryDescriptor> sortedCategories = new ArrayList<>(
 				impacts);
 		Collections.sort(sortedCategories);
@@ -346,6 +348,20 @@ public class SystemExport {
 			counter++;
 		}
 		return sortedCategories;
+	}
+
+	private Set<ImpactCategoryDescriptor> getImpacts(LongIndex index,
+	                                                 EntityCache cache) {
+		if (index == null)
+			return Collections.emptySet();
+		List<Long> ids = new ArrayList<>(index.size());
+		for (long id : index.getKeys())
+			ids.add(id);
+		Map<Long, ImpactCategoryDescriptor> values = cache.getAll(
+				ImpactCategoryDescriptor.class, ids);
+		HashSet<ImpactCategoryDescriptor> descriptors = new HashSet<>();
+		descriptors.addAll(values.values());
+		return descriptors;
 	}
 
 	private IMatrix transpose(IMatrix matrix) {
@@ -410,8 +426,8 @@ public class SystemExport {
 			String UNIT = "Unit";
 			String UUID = "UUID";
 
-			String[] VALUES = new String[] { UUID, CATEGORY, SUB_CATEGORY,
-					NAME, LOCATION, UNIT };
+			String[] VALUES = new String[]{UUID, CATEGORY, SUB_CATEGORY,
+					NAME, LOCATION, UNIT};
 
 		}
 
@@ -427,10 +443,10 @@ public class SystemExport {
 			String PRODUCT_UNIT = "Product/Service unit";
 			String UUID = "UUID";
 
-			String[] VALUES = new String[] { PROCESS_NAME, PRODUCT_NAME,
+			String[] VALUES = new String[]{PROCESS_NAME, PRODUCT_NAME,
 					MULTI_OUTPUT, UUID, INFRASTRUCTURE_PRODUCT,
 					PROCESS_LOCATION, PROCESS_CATEGORY, PROCESS_SUB_CATEGORY,
-					PRODUCT_UNIT };
+					PRODUCT_UNIT};
 
 		}
 
@@ -441,7 +457,7 @@ public class SystemExport {
 			String UNIT = "Unit";
 			String UUID = "UUID";
 
-			String[] VALUES = new String[] { UUID, CATEGORY, METHOD, UNIT };
+			String[] VALUES = new String[]{UUID, CATEGORY, METHOD, UNIT};
 
 		}
 
@@ -465,18 +481,18 @@ public class SystemExport {
 
 		private String getValue(String header) {
 			switch (header) {
-			case HEADERS.FLOW.NAME:
-				return flowInfo.getName();
-			case HEADERS.FLOW.UUID:
-				return flowInfo.getId();
-			case HEADERS.FLOW.LOCATION:
-				return flowInfo.getLocation();
-			case HEADERS.FLOW.CATEGORY:
-				return flowInfo.getCategory();
-			case HEADERS.FLOW.SUB_CATEGORY:
-				return flowInfo.getSubCategory();
-			case HEADERS.FLOW.UNIT:
-				return flowInfo.getUnit();
+				case HEADERS.FLOW.NAME:
+					return flowInfo.getName();
+				case HEADERS.FLOW.UUID:
+					return flowInfo.getId();
+				case HEADERS.FLOW.LOCATION:
+					return flowInfo.getLocation();
+				case HEADERS.FLOW.CATEGORY:
+					return flowInfo.getCategory();
+				case HEADERS.FLOW.SUB_CATEGORY:
+					return flowInfo.getSubCategory();
+				case HEADERS.FLOW.UNIT:
+					return flowInfo.getUnit();
 			}
 			return null;
 		}
@@ -501,25 +517,25 @@ public class SystemExport {
 
 		private String getValue(String header) {
 			switch (header) {
-			case HEADERS.PRODUCT.PROCESS_NAME:
-				return productInfo.getProcess();
-			case HEADERS.PRODUCT.PRODUCT_NAME:
-				return productInfo.getProduct();
-			case HEADERS.PRODUCT.MULTI_OUTPUT:
-				return Boolean.toString(productInfo.isFromMultiOutputProcess());
-			case HEADERS.PRODUCT.UUID:
-				return productInfo.getProductId();
-			case HEADERS.PRODUCT.INFRASTRUCTURE_PRODUCT:
-				return Boolean.toString(productInfo
-						.isFromInfrastructureProcess());
-			case HEADERS.PRODUCT.PROCESS_LOCATION:
-				return productInfo.getProcessLocation();
-			case HEADERS.PRODUCT.PROCESS_CATEGORY:
-				return productInfo.getProcessCategory();
-			case HEADERS.PRODUCT.PROCESS_SUB_CATEGORY:
-				return productInfo.getProcessSubCategory();
-			case HEADERS.PRODUCT.PRODUCT_UNIT:
-				return productInfo.getProductUnit();
+				case HEADERS.PRODUCT.PROCESS_NAME:
+					return productInfo.getProcess();
+				case HEADERS.PRODUCT.PRODUCT_NAME:
+					return productInfo.getProduct();
+				case HEADERS.PRODUCT.MULTI_OUTPUT:
+					return Boolean.toString(productInfo.isFromMultiOutputProcess());
+				case HEADERS.PRODUCT.UUID:
+					return productInfo.getProductId();
+				case HEADERS.PRODUCT.INFRASTRUCTURE_PRODUCT:
+					return Boolean.toString(productInfo
+							.isFromInfrastructureProcess());
+				case HEADERS.PRODUCT.PROCESS_LOCATION:
+					return productInfo.getProcessLocation();
+				case HEADERS.PRODUCT.PROCESS_CATEGORY:
+					return productInfo.getProcessCategory();
+				case HEADERS.PRODUCT.PROCESS_SUB_CATEGORY:
+					return productInfo.getProcessSubCategory();
+				case HEADERS.PRODUCT.PRODUCT_UNIT:
+					return productInfo.getProductUnit();
 			}
 			return null;
 		}
@@ -532,7 +548,7 @@ public class SystemExport {
 		private String methodName;
 
 		private ImpactCategoryHeaderEntry(String methodName,
-				ImpactCategoryDescriptor impactCategory) {
+		                                  ImpactCategoryDescriptor impactCategory) {
 			this.methodName = methodName;
 			this.impactCategory = impactCategory;
 		}
@@ -547,14 +563,14 @@ public class SystemExport {
 
 		private String getValue(String header) {
 			switch (header) {
-			case HEADERS.IMPACT_CATEGORY.CATEGORY:
-				return impactCategory.getName();
-			case HEADERS.IMPACT_CATEGORY.UUID:
-				return impactCategory.getRefId();
-			case HEADERS.IMPACT_CATEGORY.METHOD:
-				return methodName;
-			case HEADERS.IMPACT_CATEGORY.UNIT:
-				return impactCategory.getReferenceUnit();
+				case HEADERS.IMPACT_CATEGORY.CATEGORY:
+					return impactCategory.getName();
+				case HEADERS.IMPACT_CATEGORY.UUID:
+					return impactCategory.getRefId();
+				case HEADERS.IMPACT_CATEGORY.METHOD:
+					return methodName;
+				case HEADERS.IMPACT_CATEGORY.UNIT:
+					return impactCategory.getReferenceUnit();
 			}
 			return null;
 		}

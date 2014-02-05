@@ -27,6 +27,10 @@ public class ProjectResultProvider implements IResultProvider {
 		this.cache = cache;
 	}
 
+	public EntityCache getCache() {
+		return cache;
+	}
+
 	public void addResult(ProjectVariant variant, ContributionResult result) {
 		ContributionResultProvider<?> provider = new ContributionResultProvider<>(
 				result, cache);

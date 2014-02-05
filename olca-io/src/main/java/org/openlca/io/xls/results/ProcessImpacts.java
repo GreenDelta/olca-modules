@@ -3,7 +3,7 @@ package org.openlca.io.xls.results;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.AnalysisResult;
+import org.openlca.core.results.ContributionResultProvider;
 import org.openlca.io.xls.Excel;
 
 /**
@@ -11,17 +11,17 @@ import org.openlca.io.xls.Excel;
  * The export format is a matrix where the processes are listed in the rows and
  * the impact assessment categories in the columns.
  */
-class AnalysisProcessImpacts {
+class ProcessImpacts {
 
 	private Sheet sheet;
-	private AnalysisResult result;
+	private ContributionResultProvider<?> result;
 	private AnalysisResultExport export;
 
 	private int startRow;
 	private int startCol;
 
-	private AnalysisProcessImpacts(Sheet sheet, AnalysisResult result,
-			AnalysisResultExport export) {
+	private ProcessImpacts(Sheet sheet, ContributionResultProvider<?> result,
+	                       AnalysisResultExport export) {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
@@ -29,9 +29,9 @@ class AnalysisProcessImpacts {
 		startCol = CellWriter.PROCESS_INFO_SIZE;
 	}
 
-	public static void write(Sheet sheet, AnalysisResult result,
-			AnalysisResultExport export) {
-		new AnalysisProcessImpacts(sheet, result, export).doIt();
+	public static void write(Sheet sheet, ContributionResultProvider<?> result,
+	                         AnalysisResultExport export) {
+		new ProcessImpacts(sheet, result, export).doIt();
 	}
 
 	private void doIt() {
@@ -43,8 +43,8 @@ class AnalysisProcessImpacts {
 			int row = startRow + 1;
 			for (ProcessDescriptor process : export.getProcesses()) {
 				export.getWriter().writeProcessRowInfo(sheet, row, process);
-				double val = result.getSingleImpactResult(process.getId(),
-						impact.getId());
+				double val = result.getSingleImpactResult(process,
+						impact).getValue();
 				Excel.cell(sheet, row, col, val);
 				row++;
 			}

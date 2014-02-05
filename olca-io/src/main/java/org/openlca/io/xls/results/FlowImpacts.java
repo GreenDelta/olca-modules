@@ -3,10 +3,9 @@ package org.openlca.io.xls.results;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.AnalysisResult;
 import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.ContributionResultProvider;
 import org.openlca.core.results.ContributionSet;
-import org.openlca.core.results.FlowImpactContribution;
 import org.openlca.io.xls.Excel;
 import org.openlca.io.xls.results.AnalysisResultExport.FlowVisitor;
 
@@ -14,17 +13,17 @@ import org.openlca.io.xls.results.AnalysisResultExport.FlowVisitor;
  * Writes the contributions of the flows to the overall impact assessment result
  * into an Excel sheet.
  */
-class AnalysisFlowImpacts {
+class FlowImpacts {
 
 	private Sheet sheet;
-	private AnalysisResult result;
+	private ContributionResultProvider<?> result;
 	private AnalysisResultExport export;
 
 	private int startRow;
 	private int startCol;
 
-	private AnalysisFlowImpacts(Sheet sheet, AnalysisResult result,
-			AnalysisResultExport export) {
+	private FlowImpacts(Sheet sheet, ContributionResultProvider<?> result,
+	                    AnalysisResultExport export) {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
@@ -32,23 +31,21 @@ class AnalysisFlowImpacts {
 		startCol = CellWriter.FLOW_INFO_SIZE;
 	}
 
-	public static void write(Sheet sheet, AnalysisResult result,
-			AnalysisResultExport export) {
-		new AnalysisFlowImpacts(sheet, result, export).doIt();
+	public static void write(Sheet sheet, ContributionResultProvider<?> result,
+	                         AnalysisResultExport export) {
+		new FlowImpacts(sheet, result, export).doIt();
 	}
 
 	private void doIt() {
 		export.getWriter().writeImpactColHeader(sheet, startCol);
 		export.getWriter().writeFlowRowHeader(sheet, startRow);
 		export.visitFlows(new FlowInfoWriter());
-		FlowImpactContribution contribution = new FlowImpactContribution(
-				result, export.getCache());
 		FlowValueWriter valueWriter = new FlowValueWriter();
 		int col = startCol + 1;
 		for (ImpactCategoryDescriptor impact : export.getImpacts()) {
 			export.getWriter().writeImpactColInfo(sheet, col, impact);
-			ContributionSet<FlowDescriptor> contributions = contribution
-					.calculate(impact);
+			ContributionSet<FlowDescriptor> contributions = result
+					.getFlowContributions(impact);
 			valueWriter.setNext(contributions, col);
 			export.visitFlows(valueWriter);
 			col++;
@@ -74,7 +71,7 @@ class AnalysisFlowImpacts {
 		private ContributionSet<FlowDescriptor> contributions;
 
 		private void setNext(ContributionSet<FlowDescriptor> contributions,
-				int col) {
+		                     int col) {
 			this.contributions = contributions;
 			row = startRow + 1;
 			this.col = col;

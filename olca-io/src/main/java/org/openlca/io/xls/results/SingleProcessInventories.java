@@ -3,7 +3,7 @@ package org.openlca.io.xls.results;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.AnalysisResult;
+import org.openlca.core.results.ContributionResultProvider;
 import org.openlca.io.xls.Excel;
 import org.openlca.io.xls.results.AnalysisResultExport.FlowVisitor;
 
@@ -13,18 +13,18 @@ import org.openlca.io.xls.results.AnalysisResultExport.FlowVisitor;
  * sheet. The export format is a matrix where the flows are listed in the rows
  * and the processes with their contributions in the columns.
  */
-class AnalysisProcessInventories {
+class SingleProcessInventories {
 
 	private Sheet sheet;
-	private AnalysisResult result;
+	private ContributionResultProvider<?> result;
 	private AnalysisResultExport export;
 
 	private int inputStartRow;
 	private int firstValCol;
 	private int outputStartRow;
 
-	private AnalysisProcessInventories(Sheet sheet, AnalysisResult result,
-			AnalysisResultExport export) {
+	private SingleProcessInventories(Sheet sheet, ContributionResultProvider<?> result,
+	                                 AnalysisResultExport export) {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
@@ -32,9 +32,9 @@ class AnalysisProcessInventories {
 		firstValCol = CellWriter.FLOW_INFO_SIZE + 1;
 	}
 
-	public static void write(Sheet sheet, AnalysisResult result,
-			AnalysisResultExport export) {
-		new AnalysisProcessInventories(sheet, result, export).doIt();
+	public static void write(Sheet sheet, ContributionResultProvider<?> result,
+	                         AnalysisResultExport export) {
+		new SingleProcessInventories(sheet, result, export).doIt();
 	}
 
 	private void doIt() {
@@ -122,8 +122,7 @@ class AnalysisProcessInventories {
 				return;
 			if (process == null || flow == null)
 				return;
-			double val = result.getSingleFlowResult(process.getId(),
-					flow.getId());
+			double val = result.getSingleFlowResult(process, flow).getValue();
 			Excel.cell(sheet, currentRow, column, val);
 			currentRow++;
 		}
