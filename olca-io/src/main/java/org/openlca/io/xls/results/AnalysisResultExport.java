@@ -67,6 +67,7 @@ public class AnalysisResultExport implements Runnable {
 				workbook.write(fos);
 				fos.flush();
 			}
+			success = true;
 		} catch (Exception e) {
 			log.error("Export failed", e);
 			success = false;

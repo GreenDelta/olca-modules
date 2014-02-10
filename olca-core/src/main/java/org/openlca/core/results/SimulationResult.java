@@ -4,10 +4,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * The results of a Monte-Carlo-Simulation. The single result values of the
+ * simulation runs are stored in an array of lists where the flow- and LCIA
+ * category indices are mapped to the respective array rows and the result
+ * values to the respective list entries.
+ */
 public class SimulationResult extends BaseResult {
 
 	private List<Double>[] flowResults;
 	private List<Double>[] impactResults;
+
+	public List<Double>[] getFlowResults() {
+		return flowResults;
+	}
+
+	public void setFlowResults(List<Double>[] flowResults) {
+		this.flowResults = flowResults;
+	}
+
+	public List<Double>[] getImpactResults() {
+		return impactResults;
+	}
+
+	public void setImpactResults(List<Double>[] impactResults) {
+		this.impactResults = impactResults;
+	}
 
 	@SuppressWarnings("unchecked")
 	public void appendFlowResults(double[] vector) {

@@ -13,7 +13,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.SimulationResult;
+import org.openlca.core.results.SimulationResultProvider;
 import org.openlca.core.results.SimulationStatistics;
 import org.openlca.io.xls.Excel;
 import org.slf4j.Logger;
@@ -24,15 +24,15 @@ public class SimulationResultExport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private SimulationResult result;
+	private SimulationResultProvider<?> result;
 	private EntityCache cache;
 	private int row = 0;
 	private CellWriter writer;
 	private boolean useStreaming = false;
 
-	public SimulationResultExport(SimulationResult result, EntityCache cache) {
+	public SimulationResultExport(SimulationResultProvider<?> result) {
 		this.result = result;
-		this.cache = cache;
+		this.cache = result.getCache();
 	}
 
 	/**
@@ -63,11 +63,11 @@ public class SimulationResultExport {
 		Sheet sheet = workbook.createSheet("Impact Assessment");
 		row = 0;
 		writerImpactHeader(sheet);
-		List<ImpactCategoryDescriptor> impacts = Utils.getSortedImpacts(
-				result.getImpactIndex(), cache);
+		List<ImpactCategoryDescriptor> impacts = Utils.getSortedImpacts(result
+				.getResult().getImpactIndex(), cache);
 		for (ImpactCategoryDescriptor impact : impacts) {
 			writer.writeImpactRowInfo(sheet, row, impact);
-			List<Double> values = result.getImpactResults(impact.getId());
+			List<Double> values = result.getImpactResults(impact);
 			writeValues(sheet, row, CellWriter.IMPACT_INFO_SIZE + 1, values);
 			row++;
 		}
@@ -78,7 +78,7 @@ public class SimulationResultExport {
 	private void writeInventorySheet(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Inventory");
 		row = 0;
-		FlowIndex flowIndex = result.getFlowIndex();
+		FlowIndex flowIndex = result.getResult().getFlowIndex();
 		List<FlowDescriptor> flows = Utils.getSortedFlows(flowIndex, cache);
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
@@ -106,12 +106,12 @@ public class SimulationResultExport {
 	private void writeInventorySection(List<FlowDescriptor> flows,
 			boolean forInputs, Sheet sheet) {
 		writeInventoryHeader(sheet, forInputs);
-		FlowIndex idx = result.getFlowIndex();
+		FlowIndex idx = result.getResult().getFlowIndex();
 		for (FlowDescriptor flow : flows) {
 			if (idx.isInput(flow.getId()) != forInputs)
 				continue;
 			writer.writeFlowRowInfo(sheet, row, flow);
-			List<Double> values = result.getFlowResults(flow.getId());
+			List<Double> values = result.getFlowResults(flow);
 			writeValues(sheet, row, CellWriter.FLOW_INFO_SIZE + 1, values);
 			row++;
 		}

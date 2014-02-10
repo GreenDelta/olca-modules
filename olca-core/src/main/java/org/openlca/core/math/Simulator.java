@@ -73,16 +73,7 @@ public class Simulator {
 	}
 
 	private void appendResults(SimpleResult result) {
-		FlowIndex flowIndex = this.result.getFlowIndex();
-		double[] flowResults = new double[flowIndex.size()];
-		for (long flowId : flowIndex.getFlowIds()) {
-			int idx = flowIndex.getIndex(flowId);
-			double val = result.getTotalFlowResult(flowId);
-			if (flowIndex.isInput(flowId))
-				val = -val;
-			flowResults[idx] = val;
-		}
-		this.result.appendFlowResults(flowResults);
+		this.result.appendFlowResults(result.getTotalFlowResults());
 		if (this.result.hasImpactResults())
 			this.result.appendImpactResults(result.getTotalImpactResults());
 	}
@@ -105,5 +96,4 @@ public class Simulator {
 			result.setImpactIndex(impactTable.getCategoryIndex());
 		}
 	}
-
 }
