@@ -7,6 +7,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.Exchange;
+import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.Property;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
@@ -55,22 +56,50 @@ final class Parameters {
 	private static void fetchFromExchanges(List<? extends Exchange> exchanges,
 			List<Parameter> params, ImportConfig config) {
 		for (Exchange exchange : exchanges) {
+			fetchFromExchange(exchange, params, config);
 			fetchFromProperties(exchange.getProperties(), params, config);
-			if (!canCreate(exchange.getVariableName(), params))
-				continue;
-			Parameter olcaParam = new Parameter();
-			olcaParam.setName(exchange.getVariableName());
-			olcaParam.setScope(ParameterScope.PROCESS);
-			olcaParam.setValue(exchange.getAmount());
-			olcaParam.setDescription(exchange.getUnitName());
-			String formula = exchange.getMathematicalRelation();
-			if (config.withParameterFormulas && isValid(formula, config)) {
-				olcaParam.setFormula(formula.trim());
-				olcaParam.setInputParameter(false);
-			} else
-				olcaParam.setInputParameter(true);
-			params.add(olcaParam);
+			if (exchange instanceof IntermediateExchange)
+				fetchFromProductionVolume((IntermediateExchange) exchange,
+						params, config);
 		}
+	}
+
+	private static void fetchFromExchange(Exchange exchange,
+			List<Parameter> params, ImportConfig config) {
+		if (!canCreate(exchange.getVariableName(), params))
+			return;
+		Parameter olcaParam = new Parameter();
+		olcaParam.setName(exchange.getVariableName());
+		olcaParam.setScope(ParameterScope.PROCESS);
+		olcaParam.setValue(exchange.getAmount());
+		olcaParam.setDescription(exchange.getUnitName());
+		String formula = exchange.getMathematicalRelation();
+		if (config.withParameterFormulas && isValid(formula, config)) {
+			olcaParam.setFormula(formula.trim());
+			olcaParam.setInputParameter(false);
+		} else
+			olcaParam.setInputParameter(true);
+		params.add(olcaParam);
+	}
+
+	private static void fetchFromProductionVolume(
+			IntermediateExchange exchange, List<Parameter> params,
+			ImportConfig config) {
+		String varName = exchange.getProductionVolumeVariableName();
+		Double amount = exchange.getProductionVolumeAmount();
+		String formula = exchange.getProductionVolumeMathematicalRelation();
+		if (!canCreate(exchange.getProductionVolumeVariableName(), params))
+			return;
+		Parameter param = new Parameter();
+		param.setName(varName);
+		param.setScope(ParameterScope.PROCESS);
+		param.setValue(amount == null ? 0d : amount);
+		if (config.withParameterFormulas && isValid(formula, config)) {
+			param.setFormula(formula.trim());
+			param.setInputParameter(false);
+		} else
+			param.setInputParameter(true);
+		params.add(param);
 	}
 
 	private static void fetchFromProperties(List<Property> properties,
@@ -112,7 +141,7 @@ final class Parameters {
 			return false;
 		if (formula.contains(","))
 			return false;
-		if (formula.contains("UnitConversion("))
+		if (formula.contains("UnitConversion"))
 			return false;
 		if (formula.contains("Ref("))
 			return false;
