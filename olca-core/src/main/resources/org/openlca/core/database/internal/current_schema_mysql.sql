@@ -82,7 +82,8 @@ CREATE TABLE tbl_sources (
 	name VARCHAR(255), 
 	source_year SMALLINT, 
 	text_reference TEXT,
-	doi VARCHAR(255), 
+	doi VARCHAR(255),
+	external_file VARCHAR(255), 
 	
 	PRIMARY KEY (id)
 	

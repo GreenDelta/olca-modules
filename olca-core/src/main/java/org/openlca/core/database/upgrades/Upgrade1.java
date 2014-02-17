@@ -1,13 +1,13 @@
 package org.openlca.core.database.upgrades;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 
 class Upgrade1 implements IUpgrade {
 
@@ -30,18 +30,17 @@ class Upgrade1 implements IUpgrade {
 		this.util = new UpgradeUtil(database);
 		createNwSetTable();
 		createNwFactorTable();
+		util.checkCreateColumn("tbl_sources", "external_file",
+				"external_file VARCHAR(255)");
 	}
 
 	private void createNwSetTable() throws Exception {
-		String tableDef = "CREATE TABLE tbl_nw_sets (" +
-				"id BIGINT NOT NULL, " +
-				"ref_id VARCHAR(36), " +
-				"description " + util.getTextType() + ", " +
-				"name VARCHAR(255), " +
-				"reference_system VARCHAR(255), " +
-				"f_impact_method BIGINT,  " +
-				"weighted_score_unit VARCHAR(255), " +
-				"PRIMARY KEY (id))";
+		String tableDef = "CREATE TABLE tbl_nw_sets (" + "id BIGINT NOT NULL, "
+				+ "ref_id VARCHAR(36), " + "description " + util.getTextType()
+				+ ", " + "name VARCHAR(255), "
+				+ "reference_system VARCHAR(255), "
+				+ "f_impact_method BIGINT,  "
+				+ "weighted_score_unit VARCHAR(255), " + "PRIMARY KEY (id))";
 		util.checkCreateTable("tbl_nw_sets", tableDef);
 		copyNwSetTable();
 		util.dropTable("tbl_normalisation_weighting_sets");
@@ -61,29 +60,29 @@ class Upgrade1 implements IUpgrade {
 	}
 
 	private void copyNwSet(final ResultSet result) throws SQLException {
-		String stmt = "insert into tbl_nw_sets (id, ref_id, name, " +
-				"f_impact_method, weighted_score_unit) values (?, ?, ?, ?, ?)";
-		NativeSql.on(database).batchInsert(stmt, 1, new NativeSql.BatchInsertHandler() {
-			@Override
-			public boolean addBatch(int i, PreparedStatement stmt) throws SQLException {
-				stmt.setLong(1, result.getLong("id"));
-				stmt.setString(2, UUID.randomUUID().toString());
-				stmt.setString(3, result.getString("reference_system"));
-				stmt.setLong(4, result.getLong("f_impact_method"));
-				stmt.setString(5, result.getString("unit"));
-				return true;
-			}
-		});
+		String stmt = "insert into tbl_nw_sets (id, ref_id, name, "
+				+ "f_impact_method, weighted_score_unit) values (?, ?, ?, ?, ?)";
+		NativeSql.on(database).batchInsert(stmt, 1,
+				new NativeSql.BatchInsertHandler() {
+					@Override
+					public boolean addBatch(int i, PreparedStatement stmt)
+							throws SQLException {
+						stmt.setLong(1, result.getLong("id"));
+						stmt.setString(2, UUID.randomUUID().toString());
+						stmt.setString(3, result.getString("reference_system"));
+						stmt.setLong(4, result.getLong("f_impact_method"));
+						stmt.setString(5, result.getString("unit"));
+						return true;
+					}
+				});
 	}
 
 	private void createNwFactorTable() throws Exception {
-		String tableDef = "CREATE TABLE tbl_nw_factors (" +
-				" id BIGINT NOT NULL," +
-				" weighting_factor DOUBLE," +
-				" normalisation_factor DOUBLE," +
-				" f_impact_category BIGINT," +
-				" f_nw_set BIGINT," +
-				" PRIMARY KEY (id))";
+		String tableDef = "CREATE TABLE tbl_nw_factors ("
+				+ " id BIGINT NOT NULL," + " weighting_factor DOUBLE,"
+				+ " normalisation_factor DOUBLE,"
+				+ " f_impact_category BIGINT," + " f_nw_set BIGINT,"
+				+ " PRIMARY KEY (id))";
 		util.checkCreateTable("tbl_nw_factors", tableDef);
 		copyNwFactorTable();
 		util.dropTable("tbl_normalisation_weighting_factors");
@@ -103,27 +102,35 @@ class Upgrade1 implements IUpgrade {
 	}
 
 	private void copyNwFactor(final ResultSet result) throws SQLException {
-		String stmt = "insert into tbl_nw_factors(id, weighting_factor, " +
-				"normalisation_factor, f_impact_category, f_nw_set) " +
-				"values (?, ?, ?, ?, ?)";
-		NativeSql.on(database).batchInsert(stmt, 1, new NativeSql.BatchInsertHandler() {
-			@Override
-			public boolean addBatch(int i, PreparedStatement stmt) throws SQLException {
-				stmt.setLong(1, result.getLong("id"));
-				double wf = result.getDouble("weighting_factor");
-				if (result.wasNull())
-					stmt.setNull(2, Types.DOUBLE);
-				else
-					stmt.setDouble(2, wf);
-				double nf = result.getDouble("normalisation_factor");
-				if (result.wasNull())
-					stmt.setNull(3, Types.DOUBLE);
-				else
-					stmt.setDouble(3, nf);
-				stmt.setLong(4, result.getLong("f_impact_category"));
-				stmt.setLong(5, result.getLong("f_normalisation_weighting_set"));
-				return true;
-			}
-		});
+		String stmt = "insert into tbl_nw_factors(id, weighting_factor, "
+				+ "normalisation_factor, f_impact_category, f_nw_set) "
+				+ "values (?, ?, ?, ?, ?)";
+		NativeSql.on(database).batchInsert(stmt, 1,
+				new NativeSql.BatchInsertHandler() {
+					@Override
+					public boolean addBatch(int i, PreparedStatement stmt)
+							throws SQLException {
+						prepareFactorRecord(result, stmt);
+						return true;
+					}
+				});
 	}
+
+	private void prepareFactorRecord(final ResultSet result,
+			PreparedStatement stmt) throws SQLException {
+		stmt.setLong(1, result.getLong("id"));
+		double wf = result.getDouble("weighting_factor");
+		if (result.wasNull())
+			stmt.setNull(2, Types.DOUBLE);
+		else
+			stmt.setDouble(2, wf);
+		double nf = result.getDouble("normalisation_factor");
+		if (result.wasNull())
+			stmt.setNull(3, Types.DOUBLE);
+		else
+			stmt.setDouble(3, nf);
+		stmt.setLong(4, result.getLong("f_impact_category"));
+		stmt.setLong(5, result.getLong("f_normalisation_weighting_set"));
+	}
+
 }
