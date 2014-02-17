@@ -1,6 +1,7 @@
 package org.openlca.core.database;
 
 import java.io.Closeable;
+import java.io.File;
 import java.sql.Connection;
 
 import javax.persistence.EntityManagerFactory;
@@ -37,8 +38,16 @@ public interface IDatabase extends Closeable {
 	/**
 	 * Returns the database name.
 	 */
-	public String getName();
+	String getName();
 
-	public int getVersion();
+	int getVersion();
+
+	/**
+	 * Get a location where external files that belongs this database are stored
+	 * (e.g. PDF or Word documents, shapefiles etc). If there is no such
+	 * location for such files for this database, an implementation can just
+	 * return null.
+	 */
+	File getFileStorageLocation();
 
 }
