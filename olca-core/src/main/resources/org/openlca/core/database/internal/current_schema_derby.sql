@@ -479,8 +479,8 @@ CREATE TABLE tbl_mappings (
 	id VARCHAR(50) NOT NULL,
     for_import SMALLINT default 0,
 	mapping_type VARCHAR(255),
-    olca_content CLOB(64 K),
-    external_content CLOB(64 K),
+    olca_ref_id VARCHAR(36),
+    content CLOB(64 K),
 	PRIMARY KEY (id)
 );
 
