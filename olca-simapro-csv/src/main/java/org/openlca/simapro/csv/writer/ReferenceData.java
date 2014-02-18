@@ -5,7 +5,7 @@ import static org.openlca.simapro.csv.writer.WriterUtils.comment;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
@@ -34,7 +34,7 @@ class ReferenceData {
 
 	void write(SPReferenceData referenceData) throws IOException {
 		this.referenceData = referenceData;
-		substances.addAll(referenceData.getSubstances());
+		substances.addAll(referenceData.getSubstances().values());
 		if (referenceData != null) {
 			writeSystemDescription();
 			writeLiteratureReference();
@@ -103,7 +103,7 @@ class ReferenceData {
 	private void writeQuantities() throws IOException {
 		if (!referenceData.getQuantities().isEmpty()) {
 			writer.writeln("Quantities");
-			for (SPQuantity quantity : referenceData.getQuantities())
+			for (SPQuantity quantity : referenceData.getQuantities().values())
 				writer.writeln(quantity.getName() + csvSeperator
 						+ (quantity.isDimensional() ? "Yes" : "No"));
 			writer.newLine();
@@ -115,7 +115,7 @@ class ReferenceData {
 	private void writeUnits() throws IOException {
 		if (!referenceData.getUnits().isEmpty()) {
 			writer.writeln("Units");
-			for (SPUnit unit : referenceData.getUnits()) {
+			for (SPUnit unit : referenceData.getUnits().values()) {
 				StringBuilder builder = new StringBuilder();
 				builder.append(unit.getName());
 				builder.append(csvSeperator);
@@ -176,7 +176,7 @@ class ReferenceData {
 		if (input) {
 			writer.writeln(name + " Input parameters");
 			for (SPInputParameter parameter : referenceData
-					.getInputParameters())
+					.getInputParameters().values())
 				if (parameter.getType() == parameterType)
 					writer.writeln(WriterUtils.getInputParameterLine(parameter,
 							csvSeperator, writer.decimalSeperator));
@@ -187,7 +187,7 @@ class ReferenceData {
 		if (calc) {
 			writer.writeln(name + " Calculated parameters");
 			for (SPCalculatedParameter parameter : referenceData
-					.getCalculatedParameters())
+					.getCalculatedParameters().values())
 				if (parameter.getType() == parameterType)
 					writer.writeln(WriterUtils.getCalculatedParameterLine(
 							parameter, csvSeperator, writer.decimalSeperator));
@@ -199,8 +199,8 @@ class ReferenceData {
 
 	private boolean containsType(Object parameters, ParameterType type) {
 		@SuppressWarnings("unchecked")
-		List<SPParameter> list = (List<SPParameter>) parameters;
-		for (SPParameter p : list)
+		Map<String, SPParameter> map = (Map<String, SPParameter>) parameters;
+		for (SPParameter p : map.values())
 			if (p.getType() == type)
 				return true;
 		return false;

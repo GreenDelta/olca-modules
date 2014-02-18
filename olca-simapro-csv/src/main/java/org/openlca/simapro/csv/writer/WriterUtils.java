@@ -69,20 +69,22 @@ final class WriterUtils {
 			switch (distribution.getType()) {
 			case LOG_NORMAL:
 				SPLogNormalDistribution logNormalDistribution = (SPLogNormalDistribution) distribution;
-
-				line += distribution
-						.getDistributionParameter(DistributionParameterType.SQUARED_STANDARD_DEVIATION)
+				line += String
+						.valueOf(distribution
+								.getDistributionParameter(DistributionParameterType.SQUARED_STANDARD_DEVIATION))
 						+ csvSeperator
 						+ '0'
 						+ csvSeperator
 						+ '0'
-						+ csvSeperator
-						+ logNormalDistribution.getPedigreeMatrix()
-								.getPedigreeCommentString();
+						+ csvSeperator;
+				if (logNormalDistribution.getPedigreeMatrix() != null)
+					line += logNormalDistribution.getPedigreeMatrix()
+							.getPedigreeCommentString();
 				break;
 			case NORMAL:
-				line += distribution
-						.getDistributionParameter(DistributionParameterType.DOUBLED_STANDARD_DEVIATION)
+				line += String
+						.valueOf(distribution
+								.getDistributionParameter(DistributionParameterType.DOUBLED_STANDARD_DEVIATION))
 						+ csvSeperator
 						+ '0'
 						+ csvSeperator
@@ -92,21 +94,21 @@ final class WriterUtils {
 			case TRIANGLE:
 				line += '0'
 						+ csvSeperator
-						+ distribution
-								.getDistributionParameter(DistributionParameterType.MINIMUM)
+						+ String.valueOf(distribution
+								.getDistributionParameter(DistributionParameterType.MINIMUM))
 						+ csvSeperator
-						+ distribution
-								.getDistributionParameter(DistributionParameterType.MAXIMUM)
+						+ String.valueOf(distribution
+								.getDistributionParameter(DistributionParameterType.MAXIMUM))
 						+ csvSeperator;
 				break;
 			case UNIFORM:
 				line += '0'
 						+ csvSeperator
-						+ distribution
-								.getDistributionParameter(DistributionParameterType.MINIMUM)
+						+ String.valueOf(distribution
+								.getDistributionParameter(DistributionParameterType.MINIMUM))
 						+ csvSeperator
-						+ distribution
-								.getDistributionParameter(DistributionParameterType.MAXIMUM)
+						+ String.valueOf(distribution
+								.getDistributionParameter(DistributionParameterType.MAXIMUM))
 						+ csvSeperator;
 				break;
 			case UNDEFINED:
@@ -117,5 +119,4 @@ final class WriterUtils {
 		}
 		return line;
 	}
-
 }

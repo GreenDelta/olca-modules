@@ -1,19 +1,17 @@
 package org.openlca.simapro.csv.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SPReferenceData {
 
 	private SPSystemDescription systemDescription;
 	private Map<String, SPLiteratureReference> literatureReferences = new HashMap<>();
-	private List<SPQuantity> quantities = new ArrayList<>();
-	private List<SPUnit> units = new ArrayList<>();
-	private List<SPSubstance> substances = new ArrayList<>();
-	private List<SPInputParameter> inputParameters = new ArrayList<>();
-	private List<SPCalculatedParameter> calculatedParameters = new ArrayList<>();
+	private Map<String, SPQuantity> quantities = new HashMap<>();
+	private Map<String, SPUnit> units = new HashMap<>();
+	private Map<String, SPSubstance> substances = new HashMap<>();
+	private Map<String, SPInputParameter> inputParameters = new HashMap<>();
+	private Map<String, SPCalculatedParameter> calculatedParameters = new HashMap<>();
 
 	/**
 	 * 
@@ -28,23 +26,36 @@ public class SPReferenceData {
 	}
 
 	public void add(SPQuantity quantity) {
-		quantities.add(quantity);
+		if (quantity.getReferenceUnit() != null)
+			quantities.put(quantity.getName()
+					+ quantity.getReferenceUnit().getName(), quantity);
+		else
+			quantities.put(quantity.getName(), quantity);
 	}
 
 	public void add(SPUnit unit) {
-		units.add(unit);
+		StringBuilder builder = new StringBuilder();
+		builder.append(unit.getName());
+		builder.append(unit.getConversionFactor());
+		builder.append(unit.getQuantity());
+		builder.append(unit.getReferenceUnit());
+		units.put(builder.toString(), unit);
 	}
 
 	public void add(SPSubstance substance) {
-		substances.add(substance);
+		StringBuilder builder = new StringBuilder();
+		builder.append(substance.getName());
+		builder.append(substance.getFlowType().getValue());
+		builder.append(substance.getReferenceUnit());
+		substances.put(builder.toString(), substance);
 	}
 
 	public void add(SPInputParameter parameter) {
-		inputParameters.add(parameter);
+		inputParameters.put(parameter.getName(), parameter);
 	}
 
 	public void add(SPCalculatedParameter parameter) {
-		calculatedParameters.add(parameter);
+		calculatedParameters.put(parameter.getName(), parameter);
 	}
 
 	public SPSystemDescription getSystemDescription() {
@@ -55,44 +66,44 @@ public class SPReferenceData {
 		this.systemDescription = systemDescription;
 	}
 
-	public List<SPInputParameter> getInputParameters() {
-		return inputParameters;
-	}
-
-	public void setInputParameters(List<SPInputParameter> inputParameters) {
+	public void setInputParameters(Map<String, SPInputParameter> inputParameters) {
 		this.inputParameters = inputParameters;
 	}
 
-	public List<SPQuantity> getQuantities() {
+	public Map<String, SPInputParameter> getInputParameters() {
+		return inputParameters;
+	}
+
+	public Map<String, SPQuantity> getQuantities() {
 		return quantities;
 	}
 
-	public void setQuantities(List<SPQuantity> quantities) {
+	public void setQuantities(Map<String, SPQuantity> quantities) {
 		this.quantities = quantities;
 	}
 
-	public List<SPUnit> getUnits() {
+	public Map<String, SPUnit> getUnits() {
 		return units;
 	}
 
-	public void setUnits(List<SPUnit> units) {
+	public void setUnits(Map<String, SPUnit> units) {
 		this.units = units;
 	}
 
-	public List<SPSubstance> getSubstances() {
+	public Map<String, SPSubstance> getSubstances() {
 		return substances;
 	}
 
-	public void setSubstances(List<SPSubstance> substances) {
+	public void setSubstances(Map<String, SPSubstance> substances) {
 		this.substances = substances;
 	}
 
-	public List<SPCalculatedParameter> getCalculatedParameters() {
+	public Map<String, SPCalculatedParameter> getCalculatedParameters() {
 		return calculatedParameters;
 	}
 
 	public void setCalculatedParameters(
-			List<SPCalculatedParameter> calculatedParameters) {
+			Map<String, SPCalculatedParameter> calculatedParameters) {
 		this.calculatedParameters = calculatedParameters;
 	}
 

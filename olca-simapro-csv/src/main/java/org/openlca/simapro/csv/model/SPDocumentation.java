@@ -21,10 +21,6 @@ import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
 
 /**
  * This class represents the process information of a SimaPro process
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public class SPDocumentation {
 

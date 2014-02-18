@@ -1,5 +1,6 @@
 package org.openlca.simapro.csv;
 
+
 public enum CSVSeperator {
 
 	TAB('\t', "Tab"), COMMA(',', "Comma"), SEMICOLON(';', "Semicolon");
@@ -18,6 +19,19 @@ public enum CSVSeperator {
 
 	public String getName() {
 		return name;
+	}
+
+	public static CSVSeperator forChar(char seperator) {
+		CSVSeperator result = null;
+		int i = 0;
+		while (result == null && i < values().length) {
+			if (values()[i].getSeperator() == (seperator)) {
+				result = values()[i];
+			} else {
+				i++;
+			}
+		}
+		return result;
 	}
 
 }

@@ -33,7 +33,6 @@ class Documentation {
 			writer.writeEntry("Category type",
 					ProcessCategory.WASTE_TREATMENT.getValue());
 		}
-		writer.writeEntry("Process identifier", null);
 		writer.writeEntry(
 				"Type",
 				documentation.getProcessType() != null ? documentation
@@ -133,7 +132,8 @@ class Documentation {
 			systemDescription += writer.csvSeperator.getSeperator()
 					+ documentation.getSystemDescriptionEntry().getComment();
 		}
-		writer.writeEntry("System description", comment(systemDescription));
+		if (systemDescription != null && !systemDescription.equals(""))
+			writer.writeEntry("System description", comment(systemDescription));
 	}
 
 }

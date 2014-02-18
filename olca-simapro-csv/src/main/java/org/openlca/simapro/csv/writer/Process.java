@@ -45,10 +45,13 @@ class Process {
 			throws IOException {
 		if (dataEntry instanceof SPProcess) {
 			writer.writeln("Products");
+			String subCategory = SPProcess.class.cast(dataEntry)
+					.getSubCategory();
+			writer.writeln(getProductLine(SPProcess.class.cast(dataEntry)
+					.getReferenceProduct(), subCategory));
 			for (SPProduct product : SPProcess.class.cast(dataEntry)
 					.getByProducts())
-				writer.writeln(getProductLine(product,
-						SPProcess.class.cast(dataEntry).getSubCategory()));
+				writer.writeln(getProductLine(product, subCategory));
 		} else if (dataEntry instanceof SPWasteTreatment) {
 			writer.writeln("Waste treatment");
 			writer.writeln(getWasteSpecificationLine(SPWasteTreatment.class
@@ -179,8 +182,9 @@ class Process {
 				+ flow.getAmount().replace('.', decimalSeperator)
 				+ csvSeperator
 				+ WriterUtils.getDistributionPart(flow.getDistribution(),
-						csvSeperator, decimalSeperator)
-				+ comment(flow.getComment());
+						csvSeperator, decimalSeperator);
+		if (flow.getComment() != null)
+			line += comment(flow.getComment());
 		return line;
 	}
 

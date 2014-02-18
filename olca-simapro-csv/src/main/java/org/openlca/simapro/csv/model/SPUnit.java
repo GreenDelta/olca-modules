@@ -1,9 +1,7 @@
 package org.openlca.simapro.csv.model;
 
 /**
- * This class represents a SimaPro unit <<<<<<< Updated upstream =======
- * 
- * >>>>>>> Stashed changes
+ * This class represents a SimaPro unit
  */
 public class SPUnit {
 
