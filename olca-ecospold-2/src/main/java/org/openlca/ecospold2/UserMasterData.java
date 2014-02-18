@@ -10,8 +10,10 @@ public class UserMasterData {
 	private List<Unit> units = new ArrayList<>();
 	private List<ActivityName> activityNames = new ArrayList<>();
 	private List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
+	private List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
 	private List<Geography> geographies = new ArrayList<>();
 	private List<ActivityIndexEntry> activityIndexEntries = new ArrayList<>();
+	private List<Parameter> parameters = new ArrayList<>();
 
 	public List<ActivityName> getActivityNames() {
 		return activityNames;
@@ -19,6 +21,10 @@ public class UserMasterData {
 
 	public List<IntermediateExchange> getIntermediateExchanges() {
 		return intermediateExchanges;
+	}
+
+	public List<ElementaryExchange> getElementaryExchanges() {
+		return elementaryExchanges;
 	}
 
 	public List<Unit> getUnits() {
@@ -33,14 +39,30 @@ public class UserMasterData {
 		return geographies;
 	}
 
+	public List<Parameter> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(List<Parameter> parameters) {
+		this.parameters = parameters;
+	}
+
 	public Element toXml() {
 		Element e = new Element("usedUserMasterData", IO.MD_NS);
 		for (Unit unit : units)
 			e.addContent(unit.toXml(IO.MD_NS));
 		for (ActivityName activityName : activityNames)
 			e.addContent(activityName.toXml(IO.MD_NS));
-		for (Geography geography : geographies)
-			e.addContent(geography.toXml(IO.MD_NS));
+		// for (Parameter parameter : parameters) {
+		// e.addContent(parameter.toXml(IO.MD_NS));
+		// }
+		// I think it is not necessary because it is not possible to add own
+		// geographies. You can use only the geogrphies from the master data
+		// files.
+		// for (Geography geography : geographies)
+		// e.addContent(geography.toXml(IO.MD_NS));
+		for (ElementaryExchange elemFlow : elementaryExchanges)
+			e.addContent(elemFlow.toXml(IO.MD_NS));
 		for (IntermediateExchange techFlow : intermediateExchanges)
 			e.addContent(techFlow.toXml(IO.MD_NS));
 		for (ActivityIndexEntry indexEntry : activityIndexEntries)
