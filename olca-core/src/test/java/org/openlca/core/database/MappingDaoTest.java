@@ -37,8 +37,8 @@ public class MappingDaoTest {
 
 	private Mapping getMapping() {
 		Mapping mapping = new Mapping();
-		mapping.setExternalContent("{'name':'kg','uuid':'757..55'}");
-		mapping.setOlcaContent("{'name':'kg','uuid':'111..111'}");
+		mapping.setContent("{'name':'kg','uuid':'757..55'}");
+		mapping.setOlcaRefId("{'name':'kg','uuid':'111..111'}");
 		mapping.setForImport(true);
 		mapping.setMappingType("ECO_SPOLD");
 		mapping = dao.insert(mapping);
