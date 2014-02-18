@@ -14,11 +14,11 @@ public class Mapping extends AbstractEntity {
 	@Column(name = "mapping_type")
 	private String mappingType;
 
-	@Column(name = "olca_content")
-	private String olcaContent;
+	@Column(name = "olca_ref_id")
+	private String olcaRefId;
 
-	@Column(name = "external_content")
-	private String externalContent;
+	@Column(name = "content")
+	private String content;
 
 	public boolean isForImport() {
 		return forImport;
@@ -36,20 +36,20 @@ public class Mapping extends AbstractEntity {
 		this.mappingType = mappingType;
 	}
 
-	public String getOlcaContent() {
-		return olcaContent;
+	public String getOlcaRefId() {
+		return olcaRefId;
 	}
 
-	public void setOlcaContent(String olcaContent) {
-		this.olcaContent = olcaContent;
+	public void setOlcaRefId(String olcaRefId) {
+		this.olcaRefId = olcaRefId;
 	}
 
-	public String getExternalContent() {
-		return externalContent;
+	public String getContent() {
+		return content;
 	}
 
-	public void setExternalContent(String externalContent) {
-		this.externalContent = externalContent;
+	public void setContent(String externalContent) {
+		this.content = externalContent;
 	}
 
 }
