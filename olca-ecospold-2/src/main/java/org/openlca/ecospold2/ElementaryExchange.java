@@ -45,6 +45,10 @@ public class ElementaryExchange extends Exchange {
 		return exchange;
 	}
 
+	Element toXml() {
+		return toXml(IO.NS);
+	}
+
 	Element toXml(Namespace ns) {
 		Element element = new Element("elementaryExchange", ns);
 		writeValues(element);
