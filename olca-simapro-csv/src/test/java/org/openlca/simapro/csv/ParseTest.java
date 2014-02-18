@@ -10,18 +10,44 @@ import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
+import org.openlca.simapro.csv.model.SPReferenceData;
+import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPWasteScenario;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
+import org.openlca.simapro.csv.model.types.SubCompartment;
 import org.openlca.simapro.csv.parser.CSVParser;
 
 public class ParseTest {
 
 	public static void main(String[] args) {
-		File file = new File("/Users/imo/Downloads/felipe.csv");
+		File file = new File("/Users/imo/Desktop/elemflows.csv");
 		CSVParser parser = new CSVParser(file);
 
 		try {
 			parser.start();
+			SPReferenceData data = parser.getReferenceData();
+
+			Set<String> set = new HashSet<>();
+
+			for (SPSubstance substance : data.getSubstances().values()) {
+				for (SubCompartment subCompartment : substance.getFlowType()
+						.getSubCompartments()) {
+					StringBuilder builder = new StringBuilder();
+					builder.append("\"");
+					builder.append(substance.getName());
+					builder.append("\";\"");
+					builder.append(substance.getReferenceUnit());
+					builder.append("\";\"");
+					builder.append(substance.getFlowType().getValue());
+					builder.append("\";\"");
+					builder.append(subCompartment.getValue());
+					builder.append("\";\"");
+					builder.append(substance.getCASNumber());
+					builder.append("\"");
+					set.add(builder.toString());
+				}
+			}
+
 			Map<String, String[]> index = parser.getIndex();
 
 			for (Map.Entry<String, String[]> entry : index.entrySet()) {
@@ -30,8 +56,6 @@ public class ParseTest {
 				// System.out.println(s);
 				// System.out.println();
 			}
-
-			Set<String> set = new HashSet<>();
 
 			while (parser.hasNext()) {
 				SPDataEntry dataEntry = parser.next();
@@ -51,19 +75,20 @@ public class ParseTest {
 						set.add(builder.toString());
 					}
 
-//					
-//					for (SPProductFlow flow : dataEntry.getProductFlows())
-//						set.add(flow.getName());
-//					if (dataEntry instanceof SPProcess) {
-//						SPProcess process = (SPProcess) dataEntry;
-//						for (SPProduct p : process.getByProducts())
-//							set.add(p.getName());
-//						set.add(process.getReferenceProduct().getName());
-//
-//					} else if (dataEntry instanceof SPWasteTreatment) {
-//						SPWasteTreatment treatment = (SPWasteTreatment) dataEntry;
-//						set.add(treatment.getWasteSpecification().getName());
-//					}
+					//
+					// for (SPProductFlow flow : dataEntry.getProductFlows())
+					// set.add(flow.getName());
+					// if (dataEntry instanceof SPProcess) {
+					// SPProcess process = (SPProcess) dataEntry;
+					// for (SPProduct p : process.getByProducts())
+					// set.add(p.getName());
+					// set.add(process.getReferenceProduct().getName());
+					//
+					// } else if (dataEntry instanceof SPWasteTreatment) {
+					// SPWasteTreatment treatment = (SPWasteTreatment)
+					// dataEntry;
+					// set.add(treatment.getWasteSpecification().getName());
+					// }
 
 				} else if (dataEntry instanceof SPWasteScenario) {
 					// System.out.println("Waste Scenario");
