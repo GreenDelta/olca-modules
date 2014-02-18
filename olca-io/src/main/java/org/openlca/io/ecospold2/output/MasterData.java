@@ -1,6 +1,8 @@
 package org.openlca.io.ecospold2.output;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
@@ -9,8 +11,10 @@ import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.ActivityIndexEntry;
 import org.openlca.ecospold2.ActivityName;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.Parameter;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.ecospold2.UserMasterData;
 
@@ -39,6 +43,8 @@ class MasterData {
 		activityName.setName(process.getName());
 		if (dataSet.getGeography() != null)
 			masterData.getGeographies().add(dataSet.getGeography());
+		writeParamters(masterData);
+		writeElementaryFlows(masterData);
 		writeTechFlows(masterData);
 		writeIndexEntry(masterData);
 	}
@@ -55,6 +61,30 @@ class MasterData {
 			es2Unit.setId(olcaUnit.getRefId());
 			es2Unit.setName(olcaUnit.getName());
 			masterData.getUnits().add(es2Unit);
+		}
+	}
+
+	private void writeParamters(UserMasterData masterData) {
+		for (Parameter parameter : dataSet.getParameters()) {
+			Parameter masterParam = new Parameter();
+			masterData.getParameters().add(masterParam);
+			masterParam.setId(parameter.getId());
+			masterParam.setName(parameter.getName());
+			masterParam.setUnitName(parameter.getUnitName());
+		}
+	}
+
+	private void writeElementaryFlows(UserMasterData masterData) {
+		Map<String, ElementaryExchange> exchanges = new HashMap<>();
+		for (ElementaryExchange exchange : dataSet.getElementaryExchanges())
+			exchanges.put(exchange.getElementaryExchangeId(), exchange);
+		for (ElementaryExchange exchange : exchanges.values()) {
+			ElementaryExchange masterFlow = new ElementaryExchange();
+			masterData.getElementaryExchanges().add(masterFlow);
+			masterFlow.setId(exchange.getElementaryExchangeId());
+			masterFlow.setName(exchange.getName());
+			masterFlow.setUnitId(exchange.getUnitId());
+			masterFlow.setUnitName(exchange.getUnitName());
 		}
 	}
 

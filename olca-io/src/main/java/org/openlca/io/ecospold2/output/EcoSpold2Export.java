@@ -3,7 +3,9 @@ package org.openlca.io.ecospold2.output;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -38,8 +40,10 @@ import org.openlca.ecospold2.MacroEconomicScenario;
 import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
-import org.openlca.io.KeyGen;
 import org.openlca.io.ecospold2.UncertaintyConverter;
+import org.openlca.io.maps.MapType;
+import org.openlca.io.maps.MappingBuilder;
+import org.openlca.io.maps.content.ES2ElementaryFlowContent;
 import org.slf4j.Logger;
 
 import com.google.common.base.Joiner;
@@ -58,13 +62,16 @@ public class EcoSpold2Export implements Runnable {
 	private File dir;
 	private IDatabase database;
 	private List<ProcessDescriptor> descriptors;
-	private boolean setRequiredFields = false;
+	private Map<String, ES2ElementaryFlowContent> elemFlowMap;
 
 	public EcoSpold2Export(File dir, IDatabase database,
 			List<ProcessDescriptor> descriptors) {
 		this.dir = dir;
 		this.database = database;
 		this.descriptors = descriptors;
+		MappingBuilder mappingBuilder = new MappingBuilder(database);
+		elemFlowMap = mappingBuilder.buildExportMapping(
+				ES2ElementaryFlowContent.class, MapType.ES2_ELEMENTARY_FLOW);
 	}
 
 	@Override
@@ -80,7 +87,6 @@ public class EcoSpold2Export implements Runnable {
 	}
 
 	private void exportProcesses(File activityDir) throws Exception {
-		RequiredFields requiredFields = new RequiredFields();
 		for (ProcessDescriptor descriptor : descriptors) {
 			ProcessDao dao = new ProcessDao(database);
 			Process process = dao.getForId(descriptor.getId());
@@ -93,9 +99,10 @@ public class EcoSpold2Export implements Runnable {
 			DataSet dataSet = new DataSet();
 			Activity activity = createActivity(process);
 			dataSet.setActivity(activity);
-			if (process.getCategory() != null)
-				dataSet.getClassifications().add(
-						convertCategory(process.getCategory()));
+			// TODO:
+			// if (process.getCategory() != null)
+			// dataSet.getClassifications().add(
+			// convertCategory(process.getCategory()));
 			mapGeography(process, dataSet);
 			addEconomicScenario(dataSet);
 			mapTechnology(doc, dataSet);
@@ -104,9 +111,12 @@ public class EcoSpold2Export implements Runnable {
 			mapExchanges(process, dataSet);
 			mapParameters(process, dataSet);
 			mapAdminInfo(doc, dataSet);
+			// TODO add a check box if want merge or not
+			mergeElemExchanges(dataSet);
+			mergeTechExchanges(dataSet);
 			MasterData.map(process, dataSet);
-			if (setRequiredFields)
-				requiredFields.check(dataSet);
+			// if (setRequiredFields)
+			// requiredFields.check(dataSet);
 			String fileName = process.getRefId() == null ? UUID.randomUUID()
 					.toString() : process.getRefId();
 			File file = new File(activityDir, fileName + ".spold");
@@ -126,6 +136,69 @@ public class EcoSpold2Export implements Runnable {
 		return activity;
 	}
 
+	private void mergeTechExchanges(DataSet dataSet) {
+		Map<String, List<IntermediateExchange>> map = new HashMap<>();
+		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges()) {
+			if (map.containsKey(exchange.getIntermediateExchangeId())) {
+				List<IntermediateExchange> list = map.get(exchange
+						.getIntermediateExchangeId());
+				list.add(exchange);
+			} else {
+				List<IntermediateExchange> list = new ArrayList<>();
+				list.add(exchange);
+				map.put(exchange.getIntermediateExchangeId(), list);
+			}
+		}
+		List<IntermediateExchange> newExchanges = new ArrayList<>();
+		for (List<IntermediateExchange> list : map.values()) {
+			if (list.size() > 1) {
+				double amount = 0;
+				for (IntermediateExchange e : list)
+					amount += e.getAmount();
+				IntermediateExchange exchange = list.get(0);
+				exchange.setAmount(amount);
+				newExchanges.add(exchange);
+			} else {
+				if (!list.isEmpty())
+					newExchanges.add(list.get(0));
+			}
+		}
+		dataSet.getIntermediateExchanges().clear();
+		dataSet.getIntermediateExchanges().addAll(newExchanges);
+	}
+
+	private void mergeElemExchanges(DataSet dataSet) {
+		Map<String, List<ElementaryExchange>> map = new HashMap<>();
+		for (ElementaryExchange exchange : dataSet.getElementaryExchanges()) {
+			if (map.containsKey(exchange.getElementaryExchangeId())) {
+				List<ElementaryExchange> list = map.get(exchange
+						.getElementaryExchangeId());
+				list.add(exchange);
+			} else {
+				List<ElementaryExchange> list = new ArrayList<>();
+				list.add(exchange);
+				map.put(exchange.getElementaryExchangeId(), list);
+			}
+		}
+		List<ElementaryExchange> newExchanges = new ArrayList<>();
+		for (List<ElementaryExchange> list : map.values()) {
+			if (list.size() > 1) {
+				double amount = 0;
+				for (ElementaryExchange e : list)
+					amount += e.getAmount();
+				ElementaryExchange exchange = list.get(0);
+				exchange.setAmount(amount);
+				newExchanges.add(exchange);
+			} else {
+				if (!list.isEmpty())
+					newExchanges.add(list.get(0));
+			}
+		}
+		dataSet.getElementaryExchanges().clear();
+		dataSet.getElementaryExchanges().addAll(newExchanges);
+	}
+
+	// TODO: We can use only the classifications from the master data
 	private Classification convertCategory(Category category) {
 		if (category == null)
 			return null;
@@ -151,8 +224,10 @@ public class EcoSpold2Export implements Runnable {
 			Location location = process.getLocation();
 			geography.setId(location.getRefId());
 			geography.setShortName(location.getCode());
-		} else {
-			geography.setId(KeyGen.get("GLO"));
+		}
+		// TODO: integrate geography mapping
+		if (geography.getId() == null || geography.getShortName() == null) {
+			geography.setId("34dbbff8-88ce-11de-ad60-0019e336be3a");
 			geography.setShortName("GLO");
 		}
 		dataSet.setGeography(geography);
@@ -220,13 +295,21 @@ public class EcoSpold2Export implements Runnable {
 		else
 			e2Ex.setOutputGroup(4);
 		Flow flow = exchange.getFlow();
-		e2Ex.setElementaryExchangeId(flow.getRefId());
+		e2Ex.setElementaryExchangeId(mapElementaryFlow(flow));
 		if (flow.getCategory() != null) {
 			Compartment compartment = convertCompartment(flow.getCategory());
 			e2Ex.setCompartment(compartment);
 		}
 		e2Ex.setFormula(flow.getFormula());
 		return e2Ex;
+	}
+
+	private String mapElementaryFlow(Flow flow) {
+		ES2ElementaryFlowContent content = elemFlowMap.get(flow.getRefId());
+		if (content == null || content.getElementaryExchangeId() == null
+				|| content.getElementaryExchangeId().equals(""))
+			return flow.getRefId();
+		return content.getElementaryExchangeId();
 	}
 
 	private Compartment convertCompartment(Category category) {
@@ -255,9 +338,10 @@ public class EcoSpold2Export implements Runnable {
 		ProcessDescriptor provider = getDefaultProvider(exchange);
 		if (provider != null)
 			e2Ex.setActivityLinkId(provider.getRefId());
-		if (exchange.getFlow().getCategory() != null)
-			e2Ex.getClassifications().add(
-					convertCategory(exchange.getFlow().getCategory()));
+		// TODO: We can use only the classifications from the master data
+		// if (exchange.getFlow().getCategory() != null)
+		// e2Ex.getClassifications().add(
+		// convertCategory(exchange.getFlow().getCategory()));
 		return e2Ex;
 	}
 
@@ -294,6 +378,8 @@ public class EcoSpold2Export implements Runnable {
 			e2Param.setVariableName(param.getName());
 			e2Param.setMathematicalRelation(param.getFormula());
 			e2Param.setIsCalculatedAmount(!param.isInputParameter());
+			// removed because this field does not exist in the schema
+			// documentation
 			if (param.getScope() != null)
 				e2Param.setScope(param.getScope().name());
 			e2Param.setUncertainty(UncertaintyConverter.fromOpenLCA(param
