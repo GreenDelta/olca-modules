@@ -1,6 +1,7 @@
 package org.openlca.ecospold2;
 
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class Parameter {
 
@@ -106,8 +107,15 @@ public class Parameter {
 	}
 
 	Element toXml() {
-		Element e = new Element("parameter", IO.NS);
-		e.setAttribute("parameterId", id);
+		return toXml(IO.NS);
+	}
+
+	Element toXml(Namespace ns) {
+		Element e = new Element("parameter", ns);
+		if (ns == IO.MD_NS)
+			e.setAttribute("id", id);
+		else
+			e.setAttribute("parameterId", id);
 		e.setAttribute("amount", Double.toString(amount));
 		if (variableName != null)
 			e.setAttribute("variableName", variableName);
