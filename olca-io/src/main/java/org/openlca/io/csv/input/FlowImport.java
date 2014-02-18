@@ -25,7 +25,8 @@ import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.io.Categories;
 import org.openlca.io.UnitMapping;
-import org.openlca.io.maps.CSVMapper;
+import org.openlca.io.maps.ImportMap;
+import org.openlca.io.maps.content.CSVElementaryCategoryContent;
 import org.openlca.io.maps.content.CSVElementaryFlowContent;
 import org.openlca.io.maps.content.CSVProductFlowContent;
 import org.openlca.simapro.csv.model.IDistribution;
@@ -58,17 +59,24 @@ public class FlowImport {
 	private UnitMapping unitMapping;
 	private FormulaInterpreter interpreter;
 	private long scopeId;
-	private CSVMapper mapper;
+	private ImportMap<CSVElementaryFlowContent> elemFlowMap;
+	private ImportMap<CSVProductFlowContent> productFlowMap;
+	private ImportMap<CSVElementaryCategoryContent> categoryMap;
 
 	FlowImport(IDatabase database, CSVImportCache cache,
-			FormulaInterpreter interpreter, long scopeId, CSVMapper mapper) {
+			FormulaInterpreter interpreter, long scopeId,
+			ImportMap<CSVElementaryFlowContent> elemFlowMap,
+			ImportMap<CSVProductFlowContent> productFlowMap,
+			ImportMap<CSVElementaryCategoryContent> categoryMap) {
 		this.cache = cache;
 		this.database = database;
 		this.interpreter = interpreter;
 		this.scopeId = scopeId;
 		flowDao = new FlowDao(database);
 		unitMapping = UnitMapping.createDefault(database);
-		this.mapper = mapper;
+		this.elemFlowMap = elemFlowMap;
+		this.productFlowMap = productFlowMap;
+		this.categoryMap = categoryMap;
 	}
 
 	void importFlows(Process process, SPDataEntry dataEntry)
@@ -341,13 +349,8 @@ public class FlowImport {
 	private Flow findOrCreate(SPElementaryFlow elementaryFlow) {
 		if (elementaryFlow == null)
 			return null;
-		CSVElementaryFlowContent content = mapper
-				.getElementaryFlowContentForImport(elementaryFlow.getName(),
-						elementaryFlow.getUnit(), elementaryFlow.getType(),
-						elementaryFlow.getSubCompartment());
-		String refId = null;
-		if (content != null)
-			refId = content.getOlcaRefId();
+		String refId = elemFlowMap.getOlcaId(CSVKeyGen
+				.forElementaryFlow(elementaryFlow));
 		if (refId == null)
 			refId = CSVKeyGen.forElementaryFlow(elementaryFlow);
 		Flow flow = flowDao.getForRefId(refId);
@@ -389,13 +392,10 @@ public class FlowImport {
 				productFlow.setProcessCategory(ProcessCategory.MATERIAL);
 			productFlow.setReferenceCategory("SimaPro not found");
 		}
-		CSVProductFlowContent content = mapper
-				.getProductFlowContentForImport(productFlow.getName());
-		String refId = null;
-		if (content != null)
-			refId = content.getOlcaRefId();
+		String refId = productFlowMap.getOlcaId(CSVKeyGen
+				.forProcess(productFlow.getName()));
 		if (refId == null)
-			refId = CSVKeyGen.forProductFlow(productFlow);
+			refId = CSVKeyGen.forProduct(productFlow.getName());
 		Flow flow = flowDao.getForRefId(refId);
 		if (flow != null)
 			return flow;
@@ -404,7 +404,7 @@ public class FlowImport {
 		flow.setName(productFlow.getName());
 		flow.setFlowType(FlowType.PRODUCT_FLOW);
 		setDefaultFlowProperty(flow, productFlow.getUnit());
-		flow.setCategory(Utils.createCategoryTree(database, mapper,
+		flow.setCategory(Utils.createCategoryTree(database, categoryMap,
 				ModelType.FLOW, productFlow.getProcessCategory().getValue(),
 				productFlow.getReferenceCategory()));
 		if (Utils.nullCheck(productFlow.getComment()))
@@ -416,14 +416,10 @@ public class FlowImport {
 	private Flow findOrCreate(SPProduct product) {
 		if (product == null)
 			return null;
-		CSVProductFlowContent content = mapper
-				.getProductFlowContentForImport(product.getName());
-		String refId = null;
-		if (content != null)
-			refId = content.getOlcaRefId();
+		String refId = productFlowMap.getOlcaId(CSVKeyGen.forProduct(product
+				.getName()));
 		if (refId == null)
-			refId = CSVKeyGen.forProduct(product, dataEntry.getDocumentation()
-					.getCategory());
+			refId = CSVKeyGen.forProduct(product.getName());
 		// TODO: check category
 		Flow flow = flowDao.getForRefId(refId);
 		if (flow != null)
@@ -434,7 +430,7 @@ public class FlowImport {
 		setDefaultFlowProperty(flow, product.getUnit());
 		if (Utils.nullCheck(product.getComment()))
 			flow.setDescription(product.getComment());
-		flow.setCategory(Utils.createCategoryTree(database, mapper,
+		flow.setCategory(Utils.createCategoryTree(database, categoryMap,
 				ModelType.FLOW, dataEntry.getDocumentation().getCategory()
 						.getValue(), product.getCategory()));
 		flow.setFlowType(FlowType.PRODUCT_FLOW);
@@ -445,14 +441,10 @@ public class FlowImport {
 	private Flow findOrCreate(SPWasteSpecification wasteSpecification) {
 		if (wasteSpecification == null)
 			return null;
-		String refId = null;
-		CSVProductFlowContent content = mapper
-				.getProductFlowContentForImport(wasteSpecification.getName());
-		if (content != null)
-			refId = content.getOlcaRefId();
+		String refId = productFlowMap.getOlcaId(CSVKeyGen
+				.forProcess(wasteSpecification.getName()));
 		if (refId == null)
-			refId = CSVKeyGen.forWasteSpecification(wasteSpecification,
-					dataEntry.getDocumentation().getCategory());
+			refId = CSVKeyGen.forProduct(wasteSpecification.getName());
 		Flow flow = flowDao.getForRefId(refId);
 		if (flow != null)
 			return flow;
@@ -461,7 +453,7 @@ public class FlowImport {
 		flow.setFlowType(FlowType.PRODUCT_FLOW);
 		flow.setName(wasteSpecification.getName());
 		setDefaultFlowProperty(flow, wasteSpecification.getUnit());
-		flow.setCategory(Utils.createCategoryTree(database, mapper,
+		flow.setCategory(Utils.createCategoryTree(database, categoryMap,
 				ModelType.FLOW, dataEntry.getDocumentation().getCategory()
 						.getValue(), wasteSpecification.getCategory()));
 		if (Utils.nullCheck(wasteSpecification.getComment()))

@@ -10,8 +10,9 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.io.Categories;
-import org.openlca.io.maps.CSVMapper;
-import org.openlca.io.maps.content.CSVCategoryContent;
+import org.openlca.io.KeyGen;
+import org.openlca.io.maps.ImportMap;
+import org.openlca.io.maps.content.CSVElementaryCategoryContent;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPParameter;
@@ -45,25 +46,22 @@ final class Utils {
 		}
 	}
 
-	static Category createCategoryTree(IDatabase database, CSVMapper mapper,
-			ModelType modelType, String categoryType, String category) {
+	static Category createCategoryTree(IDatabase database,
+			ImportMap<CSVElementaryCategoryContent> map, ModelType modelType,
+			String categoryType, String category) {
 		// TODO set default category
 		CategoryDao dao = new CategoryDao(database);
 		if (categoryType == null && category == null)
 			return null;
-		CSVCategoryContent content = mapper
-				.getCategoryContentForImport(category);
-		if (content != null && content.getOlcaRefId() != null) {
-			Category c = dao.getForRefId(content.getOlcaRefId());
-			if (c != null)
-				return c;
-		}
+		Category c = dao.getForRefId(map.getOlcaId(KeyGen.get(category)));
+		if (c != null)
+			return c;
 		List<String> list = new ArrayList<>();
 		if (categoryType != null)
 			list.add(categoryType);
 		String categories[] = category.split("\\\\");
-		for (String c : categories)
-			list.add(c);
+		for (String cat : categories)
+			list.add(cat);
 		return Categories.findOrAdd(database, modelType,
 				list.toArray(new String[list.size()]));
 	}

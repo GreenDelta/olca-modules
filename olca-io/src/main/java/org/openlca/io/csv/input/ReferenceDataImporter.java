@@ -27,7 +27,9 @@ import org.openlca.io.Categories;
 import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.io.maps.CSVMapper;
+import org.openlca.io.maps.ImportMap;
+import org.openlca.io.maps.MapType;
+import org.openlca.io.maps.MappingBuilder;
 import org.openlca.io.maps.content.CSVUnitContent;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
@@ -49,10 +51,9 @@ class ReferenceDataImporter {
 	private FormulaInterpreter interpreter;
 	private IDatabase database;
 	private UnitMapping unitMapping;
-	private CSVMapper mapper;
+	private ImportMap<CSVUnitContent> importMap;
 
-	ReferenceDataImporter(IDatabase database, CSVMapper mapper,
-			FormulaInterpreter interpreter) {
+	ReferenceDataImporter(IDatabase database, FormulaInterpreter interpreter) {
 		cache = new CSVImportCache();
 		flowPropertyDao = new FlowPropertyDao(database);
 		unitGroupDao = new UnitGroupDao(database);
@@ -62,7 +63,9 @@ class ReferenceDataImporter {
 		this.database = database;
 		this.interpreter = interpreter;
 		this.unitMapping = UnitMapping.createDefault(database);
-		this.mapper = mapper;
+		MappingBuilder mappingBuilder = new MappingBuilder(database);
+		importMap = mappingBuilder.buildImportMapping(CSVUnitContent.class,
+				MapType.CSV_UNIT);
 	}
 
 	CSVImportCache importData(SPReferenceData referenceData)
@@ -79,10 +82,10 @@ class ReferenceDataImporter {
 	private void convertUnitGroups() throws InvalidObjectException {
 		Map<String, SPUnit> quantities = new HashMap<>();
 		Set<String> checkQuantities = new HashSet<>();
-		for (SPUnit unit : referenceData.getUnits())
+		for (SPUnit unit : referenceData.getUnits().values())
 			if (unit.getName().equals(unit.getReferenceUnit()))
 				quantities.put(unit.getQuantity(), unit);
-		for (SPUnit unit : referenceData.getUnits())
+		for (SPUnit unit : referenceData.getUnits().values())
 			checkQuantities.add(unit.getQuantity());
 		for (String q : checkQuantities)
 			if (!quantities.containsKey(q))
@@ -128,7 +131,7 @@ class ReferenceDataImporter {
 	}
 
 	private void convertUnits() {
-		for (SPUnit spUnit : referenceData.getUnits()) {
+		for (SPUnit spUnit : referenceData.getUnits().values()) {
 			Unit unit = find(spUnit);
 			if (unit == null) {
 				unit = convert(spUnit);
@@ -151,7 +154,7 @@ class ReferenceDataImporter {
 	}
 
 	private void convertSubstances() {
-		for (SPSubstance substance : referenceData.getSubstances()) {
+		for (SPSubstance substance : referenceData.getSubstances().values()) {
 			String key = substance.getName()
 					+ substance.getFlowType().getValue();
 			cache.substanceMap.put(key, substance);
@@ -159,7 +162,8 @@ class ReferenceDataImporter {
 	}
 
 	private void convertParameters() {
-		for (SPInputParameter parameter : referenceData.getInputParameters()) {
+		for (SPInputParameter parameter : referenceData.getInputParameters()
+				.values()) {
 			if (!containsParameter(parameter.getName()))
 				parameterDao.insert(Utils.create(parameter,
 						ParameterScope.GLOBAL));
@@ -167,7 +171,7 @@ class ReferenceDataImporter {
 					String.valueOf(parameter.getValue()));
 		}
 		for (SPCalculatedParameter parameter : referenceData
-				.getCalculatedParameters()) {
+				.getCalculatedParameters().values()) {
 			if (!containsParameter(parameter.getName()))
 				parameterDao.insert(Utils.create(parameter,
 						ParameterScope.GLOBAL));
@@ -195,17 +199,16 @@ class ReferenceDataImporter {
 	}
 
 	private Unit find(SPUnit spUnit) {
-		CSVUnitContent content = mapper.getUnitContentForImport(spUnit
-				.getName());
-		if (content != null && content.getOlcaRefId() != null) {
-			Unit unit = unitDao.getForRefId(content.getOlcaRefId());
-			if (unit != null)
-				return unit;
-		}
-		List<Unit> list = unitDao.getForName(spUnit.getName());
-		for (Unit unit : list) {
-			// TODO: check
+
+		Unit unit = unitDao.getForRefId(importMap.getOlcaId(CSVKeyGen
+				.forUnit(spUnit)));
+		if (unit != null)
 			return unit;
+
+		List<Unit> list = unitDao.getForName(spUnit.getName());
+		for (Unit u : list) {
+			// TODO: check
+			return u;
 		}
 		return null;
 	}

@@ -8,7 +8,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
-import org.openlca.io.maps.CSVMapper;
 import org.openlca.simapro.csv.model.SPDataEntry;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPReferenceData;
@@ -58,13 +57,11 @@ public class CSVImporter implements FileImport {
 			if (canceled)
 				break;
 			CSVParser parser = new CSVParser(file);
-			CSVMapper mapper = new CSVMapper(database);
+
 			FormulaInterpreter interpreter = createWithGlobalParameter(database);
-			dataImporter = new ReferenceDataImporter(database, mapper,
-					interpreter);
+			dataImporter = new ReferenceDataImporter(database, interpreter);
 			// TODO implement the checkbox process or product name in the wizard
-			processImporter = new ProcessImport(database, mapper, interpreter,
-					false);
+			processImporter = new ProcessImport(database, interpreter, false);
 			try {
 				parser.start();
 				SPReferenceData referenceData = parser.getReferenceData();

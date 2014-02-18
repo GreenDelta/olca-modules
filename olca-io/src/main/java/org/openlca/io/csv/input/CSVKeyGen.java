@@ -3,10 +3,7 @@ package org.openlca.io.csv.input;
 import org.openlca.io.KeyGen;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
-import org.openlca.simapro.csv.model.SPProduct;
-import org.openlca.simapro.csv.model.SPProductFlow;
-import org.openlca.simapro.csv.model.SPWasteSpecification;
-import org.openlca.simapro.csv.model.types.ProcessCategory;
+import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.types.SubCompartment;
 
 public class CSVKeyGen {
@@ -30,39 +27,34 @@ public class CSVKeyGen {
 		return KeyGen.get(vals);
 	}
 
-	public static String forProductFlow(SPProductFlow productFlow) {
-		if (productFlow == null || !productFlow.hasReferenceData())
-			return KeyGen.get("");
+	// public static String forProductFlow(SPProductFlow productFlow) {
+	// if (productFlow == null || !productFlow.hasReferenceData())
+	// return KeyGen.get("");
+	//
+	// String[] vals = new String[3];
+	// vals[0] = productFlow.getName();
+	// vals[1] = productFlow.getReferenceCategory();
+	// vals[2] = productFlow.getProcessCategory().getValue();
+	// return KeyGen.get(vals);
+	// }
 
-		String[] vals = new String[3];
-		vals[0] = productFlow.getName();
-		vals[1] = productFlow.getReferenceCategory();
-		vals[2] = productFlow.getProcessCategory().getValue();
-		return KeyGen.get(vals);
+	public static String forProduct(String name) {
+		if (name == null)
+			return KeyGen.get("");
+		return KeyGen.get(name);
 	}
 
-	public static String forProduct(SPProduct product, ProcessCategory category) {
-		if (product == null)
-			return KeyGen.get("");
-
-		String[] vals = new String[3];
-		vals[0] = product.getName();
-		vals[1] = product.getCategory();
-		vals[2] = category.getValue();
-		return KeyGen.get(vals);
-	}
-
-	public static String forWasteSpecification(
-			SPWasteSpecification wasteSpecification, ProcessCategory category) {
-		if (wasteSpecification == null)
-			return KeyGen.get("");
-
-		String[] vals = new String[3];
-		vals[0] = wasteSpecification.getName();
-		vals[1] = wasteSpecification.getCategory();
-		vals[2] = category.getValue();
-		return KeyGen.get(vals);
-	}
+//	public static String forWasteSpecification(
+//			SPWasteSpecification wasteSpecification, ProcessCategory category) {
+//		if (wasteSpecification == null)
+//			return KeyGen.get("");
+//
+//		String[] vals = new String[3];
+//		vals[0] = wasteSpecification.getName();
+//		vals[1] = wasteSpecification.getCategory();
+//		vals[2] = category.getValue();
+//		return KeyGen.get(vals);
+//	}
 
 	public static String forSource(SPLiteratureReference literatureReference) {
 		if (literatureReference == null)
@@ -71,6 +63,12 @@ public class CSVKeyGen {
 		vals[0] = literatureReference.getName();
 		vals[1] = literatureReference.getCategory();
 		return KeyGen.get(vals);
+	}
+
+	public static String forUnit(SPUnit unit) {
+		if (unit == null)
+			return KeyGen.get("");
+		return KeyGen.get(unit.getName());
 	}
 
 }

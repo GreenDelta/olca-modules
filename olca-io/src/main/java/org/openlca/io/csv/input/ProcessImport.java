@@ -15,7 +15,12 @@ import org.openlca.core.model.Source;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 import org.openlca.io.KeyGen;
-import org.openlca.io.maps.CSVMapper;
+import org.openlca.io.maps.ImportMap;
+import org.openlca.io.maps.MapType;
+import org.openlca.io.maps.MappingBuilder;
+import org.openlca.io.maps.content.CSVElementaryCategoryContent;
+import org.openlca.io.maps.content.CSVElementaryFlowContent;
+import org.openlca.io.maps.content.CSVProductFlowContent;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPDataEntry;
 import org.openlca.simapro.csv.model.SPDocumentation;
@@ -41,32 +46,38 @@ class ProcessImport {
 	private FormulaInterpreter interpreter;
 	private long scopeId = 1000;
 	private boolean useRefNameForProcess;
-	CSVMapper mapper;
+	private ImportMap<CSVElementaryFlowContent> elemFlowMap;
+	private ImportMap<CSVProductFlowContent> productFlowMap;
+	private ImportMap<CSVElementaryCategoryContent> categoryMap;
 
-	ProcessImport(IDatabase database, CSVMapper mapper,
-			FormulaInterpreter interpreter, boolean useRefNameForProcess) {
-		init(database, interpreter, mapper);
+	ProcessImport(IDatabase database, FormulaInterpreter interpreter,
+			boolean useRefNameForProcess) {
+		init(database, interpreter);
 	}
 
-	ProcessImport(IDatabase database, CSVMapper mapper,
-			FormulaInterpreter interpreter, CSVImportCache cache,
-			boolean useRefNameForProcess) {
+	ProcessImport(IDatabase database, FormulaInterpreter interpreter,
+			CSVImportCache cache, boolean useRefNameForProcess) {
 		this.cache = cache;
-		init(database, interpreter, mapper);
+		init(database, interpreter);
 	}
 
 	void setCache(CSVImportCache cache) {
 		this.cache = cache;
 	}
 
-	void init(IDatabase database, FormulaInterpreter interpreter,
-			CSVMapper mapper) {
+	void init(IDatabase database, FormulaInterpreter interpreter) {
 		this.database = database;
 		this.interpreter = interpreter;
 		processDao = new ProcessDao(database);
 		locationDao = new LocationDao(database);
 		sourceDao = new SourceDao(database);
-		this.mapper = mapper;
+		MappingBuilder mappingBuilder = new MappingBuilder(database);
+		elemFlowMap = mappingBuilder.buildImportMapping(
+				CSVElementaryFlowContent.class, MapType.CSV_ELEMENTARY_FLOW);
+		productFlowMap = mappingBuilder.buildImportMapping(
+				CSVProductFlowContent.class, MapType.CSV_PRODUCT_FLOW);
+		categoryMap = mappingBuilder.buildImportMapping(
+				CSVElementaryCategoryContent.class, MapType.CSV_CATEGORY);
 	}
 
 	void runImport(SPProcess process) throws Exception {
@@ -89,8 +100,8 @@ class ProcessImport {
 		location();
 		sources();
 		parameters();
-		new FlowImport(database, cache, interpreter, scopeId, mapper)
-				.importFlows(process, dataEntry);
+		new FlowImport(database, cache, interpreter, scopeId, elemFlowMap,
+				productFlowMap, categoryMap).importFlows(process, dataEntry);
 		processDao.insert(process);
 	}
 
@@ -131,7 +142,7 @@ class ProcessImport {
 		if (Utils.nullCheck(spDoc.getDataTreatment()))
 			doc.setDataTreatment(spDoc.getDataTreatment());
 		setDescription(spDoc);
-		process.setCategory(Utils.createCategoryTree(database, mapper,
+		process.setCategory(Utils.createCategoryTree(database, categoryMap,
 				ModelType.PROCESS, dataEntry.getDocumentation().getCategory()
 						.getValue(), dataEntry.getSubCategory()));
 	}
@@ -280,7 +291,7 @@ class ProcessImport {
 		source = new Source();
 		source.setRefId(refId);
 		source.setName(literatureReference.getName());
-		source.setCategory(Utils.createCategoryTree(database, mapper,
+		source.setCategory(Utils.createCategoryTree(database, categoryMap,
 				ModelType.SOURCE, null, literatureReference.getCategory()));
 		StringBuilder comment = new StringBuilder();
 		if (Utils.nullCheck(literatureReference.getContent()))
