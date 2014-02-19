@@ -6,10 +6,6 @@ import java.util.Map;
 
 /**
  * Enumeration of possible locations
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
  */
 public enum Geography {
 

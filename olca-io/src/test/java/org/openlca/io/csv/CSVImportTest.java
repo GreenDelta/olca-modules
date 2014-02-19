@@ -10,7 +10,7 @@ public class CSVImportTest {
 
 	public static void main(String[] args) throws Exception {
 		IDatabase database = new MySQLDatabase(
-				"jdbc:mysql://localhost:3306/olca14CSV", "root", "");
+				"jdbc:mysql://localhost:3306/newImport", "root", "");
 
 		File file = new File("/Users/imo/Downloads/felipe.csv");
 		File files[] = new File[1];
