@@ -1,50 +1,22 @@
 package org.openlca.io.maps.content;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.openlca.io.KeyGen;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.openlca.io.maps.MapType;
+public class ES1UnitContent implements IMappingContent {
 
-public class ES1UnitContent extends AbstractMapContent {
+	private String name;
 
-	private static final String JSON_ID_NAME = "id";
-	private String id;
-
-	public ES1UnitContent() {
-		mapType = MapType.ES1_UNIT;
+	public String getName() {
+		return name;
 	}
 
-	public ES1UnitContent(String id) {
-		mapType = MapType.ES1_UNIT;
-		this.id = id;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
-	public void fromJson(String json) throws ParseException {
-		JSONParser parser = new JSONParser();
-		Object object = parser.parse(json);
-		JSONObject jsonObject = (JSONObject) object;
-		id = (String) jsonObject.get(JSON_ID_NAME);
-
-	}
-
-	@Override
-	public String toJson() {
-		Map<String, String> map = new LinkedHashMap<>();
-		map.put(JSON_ID_NAME, id);
-		return JSONValue.toJSONString(map);
+	public String getKey() {
+		return KeyGen.get(name);
 	}
 
 }

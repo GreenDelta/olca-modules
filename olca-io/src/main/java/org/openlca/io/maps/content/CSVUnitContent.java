@@ -1,26 +1,23 @@
 package org.openlca.io.maps.content;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.openlca.io.KeyGen;
+import org.openlca.simapro.csv.model.SPQuantity;
+import org.openlca.simapro.csv.model.SPUnit;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.openlca.io.maps.MapType;
+public class CSVUnitContent implements IMappingContent {
 
-public class CSVUnitContent extends AbstractMapContent {
-
-	private static final String JSON_UNIT_NAME = "unit";
 	private String unit;
+	private double conversionFactor;
+	private SPQuantity quantity;
 
 	public CSVUnitContent() {
-		mapType = MapType.CSV_UNIT;
 	}
 
-	public CSVUnitContent(String unit) {
+	public CSVUnitContent(String unit, double conversionFactor,
+			SPQuantity quantity) {
 		this.unit = unit;
-		mapType = MapType.CSV_UNIT;
+		this.conversionFactor = conversionFactor;
+		this.quantity = quantity;
 	}
 
 	public String getUnit() {
@@ -31,19 +28,25 @@ public class CSVUnitContent extends AbstractMapContent {
 		this.unit = unit;
 	}
 
-	@Override
-	public void fromJson(String json) throws ParseException {
-		JSONParser parser = new JSONParser();
-		Object object = parser.parse(json);
-		JSONObject jsonObject = (JSONObject) object;
-		unit = (String) jsonObject.get(JSON_UNIT_NAME);
+	public SPQuantity getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(SPQuantity quantity) {
+		this.quantity = quantity;
+	}
+
+	public SPUnit createUnit() {
+		SPUnit unit = new SPUnit(this.unit);
+		unit.setConversionFactor(conversionFactor);
+		unit.setQuantity(quantity.getName());
+		unit.setReferenceUnit(quantity.getReferenceUnit().getName());
+		return unit;
 	}
 
 	@Override
-	public String toJson() {
-		Map<String, String> map = new LinkedHashMap<>();
-		map.put(JSON_UNIT_NAME, unit);
-		return JSONValue.toJSONString(map);
+	public String getKey() {
+		return KeyGen.get(unit);
 	}
 
 }

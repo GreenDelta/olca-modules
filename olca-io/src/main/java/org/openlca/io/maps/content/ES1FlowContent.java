@@ -1,41 +1,20 @@
 package org.openlca.io.maps.content;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.openlca.ecospold.IExchange;
+import org.openlca.io.ecospold1.importer.ES1KeyGen;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.openlca.io.maps.MapType;
-
-public class ES1FlowContent extends AbstractMapContent {
-
-	private final static String JSON_NAME_NAME = "name";
-	private final static String JSON_UNIT_NAME = "unit";
-	private final static String JSON_CATEGORY_NAME = "category";
-	private final static String JSON_SUB_CATEGORY_NAME = "subCategory";
-	private final static String JSON_CAS_NUMBER_NAME = "casNumber";
+public class ES1FlowContent implements IMappingContent {
 
 	private String name;
+	private String localName;
 	private String unit;
 	private String category;
 	private String subCategory;
+	private String localCategory;
+	private String localSubCategory;
+	private String location;
 	private String casNumber;
-
-	public ES1FlowContent() {
-		mapType = MapType.ES1_FLOW;
-	}
-
-	public ES1FlowContent(String name, String unit, String category,
-			String subCategory, String casNumber) {
-		mapType = MapType.ES1_FLOW;
-		this.name = name;
-		this.unit = unit;
-		this.category = category;
-		this.subCategory = subCategory;
-		this.casNumber = casNumber;
-	}
+	private double factor;
 
 	public String getName() {
 		return name;
@@ -43,6 +22,14 @@ public class ES1FlowContent extends AbstractMapContent {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getLocalName() {
+		return localName;
+	}
+
+	public void setLocalName(String localName) {
+		this.localName = localName;
 	}
 
 	public String getUnit() {
@@ -69,6 +56,30 @@ public class ES1FlowContent extends AbstractMapContent {
 		this.subCategory = subCategory;
 	}
 
+	public String getLocalCategory() {
+		return localCategory;
+	}
+
+	public void setLocalCategory(String localCategory) {
+		this.localCategory = localCategory;
+	}
+
+	public String getLocalSubCategory() {
+		return localSubCategory;
+	}
+
+	public void setLocalSubCategory(String localSubCategory) {
+		this.localSubCategory = localSubCategory;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
 	public String getCasNumber() {
 		return casNumber;
 	}
@@ -77,27 +88,22 @@ public class ES1FlowContent extends AbstractMapContent {
 		this.casNumber = casNumber;
 	}
 
-	@Override
-	public void fromJson(String json) throws ParseException {
-		JSONParser parser = new JSONParser();
-		Object object = parser.parse(json);
-		JSONObject jsonObject = (JSONObject) object;
-		name = (String) jsonObject.get(JSON_NAME_NAME);
-		unit = (String) jsonObject.get(JSON_UNIT_NAME);
-		category = (String) jsonObject.get(JSON_CATEGORY_NAME);
-		subCategory = (String) jsonObject.get(JSON_SUB_CATEGORY_NAME);
-		casNumber = (String) jsonObject.get(JSON_CAS_NUMBER_NAME);
+	public double getFactor() {
+		return factor;
+	}
+
+	public void setFactor(double factor) {
+		this.factor = factor;
 	}
 
 	@Override
-	public String toJson() {
-		Map<String, String> map = new LinkedHashMap<>();
-		map.put(JSON_NAME_NAME, name);
-		map.put(JSON_UNIT_NAME, unit);
-		map.put(JSON_CATEGORY_NAME, category);
-		map.put(JSON_SUB_CATEGORY_NAME, subCategory);
-		map.put(JSON_CAS_NUMBER_NAME, casNumber);
-		return JSONValue.toJSONString(map);
+	public String getKey() {
+		ES1FlowContent exchange = new ES1FlowContent();
+		exchange.setCategory(category);
+		exchange.setSubCategory(subCategory);
+		exchange.setName(name);
+		exchange.setUnit(unit);
+		return ES1KeyGen.forElementaryFlow((IExchange) exchange);
 	}
 
 }

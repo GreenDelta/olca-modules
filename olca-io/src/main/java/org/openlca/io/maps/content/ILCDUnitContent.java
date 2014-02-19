@@ -1,26 +1,17 @@
 package org.openlca.io.maps.content;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.openlca.ilcd.commons.ClassificationInformation;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.openlca.io.maps.MapType;
+public class ILCDUnitContent implements IMappingContent {
 
-public class ILCDUnitContent extends AbstractMapContent {
-
-	private static final String JSON_UNIT_NAME = "unit";
 	private String unit;
 
 	public ILCDUnitContent() {
-		mapType = MapType.ILCD_UNIT;
+
 	}
 
 	public ILCDUnitContent(String unit) {
 		this.unit = unit;
-		mapType = MapType.ILCD_UNIT;
 	}
 
 	public String getUnit() {
@@ -32,18 +23,9 @@ public class ILCDUnitContent extends AbstractMapContent {
 	}
 
 	@Override
-	public void fromJson(String json) throws ParseException {
-		JSONParser parser = new JSONParser();
-		Object object = parser.parse(json);
-		JSONObject jsonObject = (JSONObject) object;
-		unit = (String) jsonObject.get(JSON_UNIT_NAME);
-	}
-
-	@Override
-	public String toJson() {
-		Map<String, String> map = new LinkedHashMap<>();
-		map.put(JSON_UNIT_NAME, unit);
-		return JSONValue.toJSONString(map);
+	public String getKey() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

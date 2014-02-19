@@ -10,13 +10,17 @@ public final class MapType {
 	public static final String ES1_UNIT = "ES1_UNIT";
 	public static final String ES1_CATEGORY = "ES1_CATEGORY";
 
-	public static final String ES2_FLOW = "ES2_FLOW";
+	public static final String ES2_ELEMENTARY_FLOW = "ES2_ELEMENTARY_FLOW";
+	public static final String ES2_PRODUCT_FLOW = "CSV_PRODUCT_FLOW";
 	public static final String ES2_UNIT = "ES2_UNIT";
 	public static final String ES2_CATEGORY = "ES2_CATEGORY";
 
 	public static final String CSV_ELEMENTARY_FLOW = "CSV_ELEMENTARY_FLOW";
 	public static final String CSV_PRODUCT_FLOW = "CSV_PRODUCT_FLOW";
 	public static final String CSV_UNIT = "CSV_UNIT";
+	public static final String CSV_QUANTITY = "CSV_QUANTITY";
 	public static final String CSV_CATEGORY = "CSV_CATEGORY";
+	public static final String CSV_ELEMENTARY_CATEGORY = "CSV_ELEMENTARY_CATEGORY";
+	public static final String CSV_GEOGRAPHY = "CSV_GEOGRAPHY";
 
 }

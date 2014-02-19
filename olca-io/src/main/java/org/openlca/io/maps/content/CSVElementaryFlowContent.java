@@ -1,37 +1,28 @@
 package org.openlca.io.maps.content;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.openlca.io.maps.MapType;
+import org.openlca.io.csv.input.CSVKeyGen;
+import org.openlca.simapro.csv.model.SPElementaryFlow;
+import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.types.ElementaryFlowType;
 import org.openlca.simapro.csv.model.types.SubCompartment;
 
-public class CSVElementaryFlowContent extends AbstractMapContent {
-
-	private final static String JSON_NAME_NAME = "name";
-	private final static String JSON_UNIT_NAME = "unit";
-	private final static String JSON_TYPE_NAME = "type";
-	private final static String JSON_SUB_COMPARTMENT_NAME = "subCompartment";
+public class CSVElementaryFlowContent implements IMappingContent {
 
 	private String name;
-	private String unit;
+	private SPUnit unit;
+	private String casNumber;
 	private ElementaryFlowType type;
 	private SubCompartment subCompartment;
+	private double factor;
 
 	public CSVElementaryFlowContent() {
-		mapType = MapType.CSV_ELEMENTARY_FLOW;
 	}
 
-	public CSVElementaryFlowContent(String name, String unit,
+	public CSVElementaryFlowContent(String name, SPUnit unit, String casNumber,
 			ElementaryFlowType type, SubCompartment subCompartment) {
-		mapType = MapType.CSV_ELEMENTARY_FLOW;
 		this.name = name;
 		this.unit = unit;
+		this.casNumber = casNumber;
 		this.type = type;
 		this.subCompartment = subCompartment;
 	}
@@ -44,12 +35,20 @@ public class CSVElementaryFlowContent extends AbstractMapContent {
 		this.name = name;
 	}
 
-	public String getUnit() {
+	public SPUnit getUnit() {
 		return unit;
 	}
 
-	public void setUnit(String unit) {
+	public void setUnit(SPUnit unit) {
 		this.unit = unit;
+	}
+
+	public String getCasNumber() {
+		return casNumber;
+	}
+
+	public void setCasNumber(String casNumber) {
+		this.casNumber = casNumber;
 	}
 
 	public ElementaryFlowType getType() {
@@ -64,33 +63,26 @@ public class CSVElementaryFlowContent extends AbstractMapContent {
 		return subCompartment;
 	}
 
+	public double getFactor() {
+		return factor;
+	}
+
+	public void setFactor(double factor) {
+		this.factor = factor;
+	}
+
+	public SPElementaryFlow createFlow() {
+		return new SPElementaryFlow(type, subCompartment, name, unit.getName(),
+				"0");
+	}
+
 	public void setSubCompartment(SubCompartment subCompartment) {
 		this.subCompartment = subCompartment;
 	}
 
 	@Override
-	public void fromJson(String json) throws ParseException {
-		JSONParser parser = new JSONParser();
-		Object object = parser.parse(json);
-		JSONObject jsonObject = (JSONObject) object;
-		name = (String) jsonObject.get(JSON_NAME_NAME);
-		unit = (String) jsonObject.get(JSON_UNIT_NAME);
-		type = ElementaryFlowType.forValue((String) jsonObject
-				.get(JSON_TYPE_NAME));
-		subCompartment = SubCompartment.forValue((String) jsonObject
-				.get(JSON_SUB_COMPARTMENT_NAME));
+	public String getKey() {
+		return CSVKeyGen.forElementaryFlow(new SPElementaryFlow(type,
+				subCompartment, name, unit.getName(), "0"));
 	}
-
-	@Override
-	public String toJson() {
-		Map<String, String> map = new LinkedHashMap<>();
-		map.put(JSON_NAME_NAME, name);
-		map.put(JSON_UNIT_NAME, unit);
-		map.put(JSON_TYPE_NAME, type.getValue());
-		if (subCompartment == null)
-			subCompartment = SubCompartment.UNSPECIFIED;
-		map.put(JSON_SUB_COMPARTMENT_NAME, subCompartment.getValue());
-		return JSONValue.toJSONString(map);
-	}
-
 }
