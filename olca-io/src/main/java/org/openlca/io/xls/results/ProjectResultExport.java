@@ -133,12 +133,12 @@ public class ProjectResultExport {
 	}
 
 	private String processName(ParameterRedef redef) {
-		if (redef.getProcessId() == null)
+		if (redef.getContextId() == null)
 			return "global";
 		ProcessDescriptor p = cache.get(ProcessDescriptor.class,
-				redef.getProcessId());
+				redef.getContextId());
 		if (p == null)
-			return "not found: " + redef.getProcessId();
+			return "not found: " + redef.getContextId();
 		return p.getName();
 	}
 
@@ -174,7 +174,7 @@ public class ProjectResultExport {
 		if (redef1 == null || redef2 == null)
 			return false;
 		return Objects.equals(redef1.getName(), redef2.getName())
-				&& Objects.equals(redef1.getProcessId(), redef2.getProcessId());
+				&& Objects.equals(redef1.getContextId(), redef2.getContextId());
 	}
 
 	private void header(Sheet sheet, int row, int col, String val) {

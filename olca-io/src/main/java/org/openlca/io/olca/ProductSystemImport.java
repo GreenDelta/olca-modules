@@ -186,8 +186,8 @@ class ProductSystemImport {
 
 	private void switchParameterRedefs(ProductSystem destSystem) {
 		 for(ParameterRedef redef : destSystem.getParameterRedefs()) {
-			 long destProcessId = processMap.get(redef.getProcessId());
-			 redef.setProcessId(destProcessId);
+			 long destProcessId = processMap.get(redef.getContextId());
+			 redef.setContextId(destProcessId);
 		 }
 	}
 }

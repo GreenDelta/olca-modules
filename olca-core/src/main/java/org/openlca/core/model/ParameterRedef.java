@@ -6,8 +6,10 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
- * Represents the redefinition of parameters in calculation setups and product
- * systems.
+ * A redefinition of a parameter in a calculation setup or product systems. The
+ * redefinition defines a context for the redefinition which is the process or
+ * LCIA method for which the redefinition is valid. If there is no such context
+ * given it is a redefinition of a global parameter.
  */
 @Entity
 @Table(name = "tbl_parameter_redefs")
@@ -16,8 +18,8 @@ public class ParameterRedef extends AbstractEntity {
 	@Column(name = "name")
 	private String name;
 
-	@Column(name = "f_process")
-	private Long processId;
+	@Column(name = "f_context")
+	private Long conextId;
 
 	@Column(name = "value")
 	private double value;
@@ -29,27 +31,43 @@ public class ParameterRedef extends AbstractEntity {
 	public ParameterRedef clone() {
 		ParameterRedef clone = new ParameterRedef();
 		clone.setName(getName());
-		clone.setProcessId(getProcessId());
+		clone.setContextId(getContextId());
 		clone.setValue(getValue());
 		if (getUncertainty() != null)
 			clone.setUncertainty(getUncertainty().clone());
 		return clone;
 	}
 
+	/**
+	 * Get the name of the parameter that should be redefined.
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Set the name of the parameter that should be redefined.
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public Long getProcessId() {
-		return processId;
+	/**
+	 * Get the ID of the process or LCIA method for which the redefinition is
+	 * valid. If the context ID is null it is a redefinition of a global
+	 * parameter.
+	 */
+	public Long getContextId() {
+		return conextId;
 	}
 
-	public void setProcessId(Long processId) {
-		this.processId = processId;
+	/**
+	 * Set the ID of the process or LCIA method for which the redefinition is
+	 * valid. If the context ID is null it is a redefinition of a global
+	 * parameter.
+	 */
+	public void setContextId(Long contextId) {
+		this.conextId = contextId;
 	}
 
 	public double getValue() {

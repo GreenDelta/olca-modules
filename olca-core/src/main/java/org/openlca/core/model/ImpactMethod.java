@@ -23,6 +23,10 @@ public class ImpactMethod extends CategorizedEntity {
 	@JoinColumn(name = "f_impact_method")
 	private final List<NwSet> nwSets = new ArrayList<>();
 
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_owner")
+	private final List<Parameter> parameters = new ArrayList<>();
+
 	@Override
 	public ImpactMethod clone() {
 		ImpactMethod clone = new ImpactMethod();
@@ -36,16 +40,18 @@ public class ImpactMethod extends CategorizedEntity {
 			impactMap.put(origCat, clonedCat);
 			clone.getImpactCategories().add(clonedCat);
 		}
+		for (Parameter parameter : getParameters())
+			clone.getParameters().add(parameter.clone());
 		cloneNwSets(clone, impactMap);
 		return clone;
 	}
 
 	private void cloneNwSets(ImpactMethod clone,
-	                         HashMap<ImpactCategory, ImpactCategory> impactMap) {
-		for(NwSet nwSet : getNwSets()) {
+			HashMap<ImpactCategory, ImpactCategory> impactMap) {
+		for (NwSet nwSet : getNwSets()) {
 			NwSet clonedSet = nwSet.clone();
 			clone.getNwSets().add(clonedSet);
-			for(NwFactor factor : clonedSet.getFactors()) {
+			for (NwFactor factor : clonedSet.getFactors()) {
 				ImpactCategory clonedCat = impactMap.get(factor
 						.getImpactCategory());
 				factor.setImpactCategory(clonedCat);
@@ -59,6 +65,10 @@ public class ImpactMethod extends CategorizedEntity {
 
 	public List<NwSet> getNwSets() {
 		return nwSets;
+	}
+
+	public List<Parameter> getParameters() {
+		return parameters;
 	}
 
 }

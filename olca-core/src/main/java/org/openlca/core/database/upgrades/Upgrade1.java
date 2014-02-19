@@ -32,6 +32,12 @@ class Upgrade1 implements IUpgrade {
 		createNwFactorTable();
 		util.checkCreateColumn("tbl_sources", "external_file",
 				"external_file VARCHAR(255)");
+		util.checkCreateColumn("tbl_parameters", "external_source",
+				"external_source VARCHAR(255)");
+		util.checkCreateColumn("tbl_parameters", "source_type",
+				"source_type VARCHAR(255)");
+		util.renameColumn("tbl_parameter_redefs", "f_process", "f_context",
+				"BIGINT");
 	}
 
 	private void createNwSetTable() throws Exception {

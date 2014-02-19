@@ -410,6 +410,8 @@ CREATE TABLE tbl_parameters (
 	scope VARCHAR(255), 
 	value DOUBLE, 
 	formula VARCHAR(1000),
+	external_source VARCHAR(255),
+	source_type VARCHAR(255),
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
@@ -427,7 +429,7 @@ CREATE TABLE tbl_parameter_redefs (
 	id BIGINT NOT NULL, 
 	name VARCHAR(255), 
 	f_owner BIGINT, 
-	f_process BIGINT,
+	f_context BIGINT,
 	value DOUBLE,
 	
 	distribution_type INTEGER default 0, 

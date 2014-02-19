@@ -91,7 +91,7 @@ public class FormulaInterpretersTest {
 			{
 				setName("fi_tests_local");
 				setValue(1.3);
-				setProcessId(process.getId());
+				setContextId(process.getId());
 			}
 		});
 		parameterTable.apply(redefs);

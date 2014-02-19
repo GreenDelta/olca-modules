@@ -1,14 +1,15 @@
 package org.openlca.core.database.upgrades;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.mysql.MySQLDatabase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.database.mysql.MySQLDatabase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class UpgradeUtil {
 
@@ -22,7 +23,7 @@ class UpgradeUtil {
 
 	UpgradeUtil(IDatabase database) {
 		this.database = database;
-		if(database instanceof MySQLDatabase)
+		if (database instanceof MySQLDatabase)
 			dbType = TYPE_MYSQL;
 		else
 			dbType = TYPE_DERBY;
@@ -31,12 +32,12 @@ class UpgradeUtil {
 	/** Get the database type for storing long text values. */
 	String getTextType() {
 		switch (dbType) {
-			case TYPE_DERBY:
-				return "CLOB(64 K)";
-			case TYPE_MYSQL:
-				return "TEXT";
-			default:
-				return "CLOB(64 K)";
+		case TYPE_DERBY:
+			return "CLOB(64 K)";
+		case TYPE_MYSQL:
+			return "TEXT";
+		default:
+			return "CLOB(64 K)";
 		}
 	}
 
@@ -84,24 +85,25 @@ class UpgradeUtil {
 	}
 
 	/**
-	 * Checks if a column with the given name exists in the table with the
-	 * given name. If not, it is created using the given column definition.
+	 * Checks if a column with the given name exists in the table with the given
+	 * name. If not, it is created using the given column definition.
 	 */
-	void checkCreateColumn(String tableName, String columnName,
-	                       String columnDef) throws Exception {
+	void checkCreateColumn(String tableName, String columnName, String columnDef)
+			throws Exception {
 		log.trace("Check if column {} exists in {}", columnName, tableName);
 		if (columnExists(tableName, columnName))
 			log.trace("column exists");
 		else {
 			log.info("add column {} to {}", columnName, tableName);
-			String stmt = "ALTER TABLE " + tableName + " ADD COLUMN " + columnDef;
+			String stmt = "ALTER TABLE " + tableName + " ADD COLUMN "
+					+ columnDef;
 			NativeSql.on(database).runUpdate(stmt);
 		}
 	}
 
 	/**
-	 * Returns true if the column with the given name exists in the table
-	 * with the given name.
+	 * Returns true if the column with the given name exists in the table with
+	 * the given name.
 	 */
 	boolean columnExists(String tableName, String columnName) throws Exception {
 		try (Connection con = database.createConnection()) {
@@ -118,4 +120,23 @@ class UpgradeUtil {
 			}
 		}
 	}
+
+	void renameColumn(String table, String oldName, String newName,
+			String dataType) throws Exception {
+		if (columnExists(table, newName))
+			return;
+		log.trace("rename column {}.{} to {}", table, oldName, newName);
+		if (!columnExists(table, oldName)) {
+			log.error("column {}.{} does not exists", table, oldName);
+			return;
+		}
+		String query = null;
+		if (database instanceof DerbyDatabase)
+			query = "RENAME COLUMN " + table + "." + oldName + " TO " + newName;
+		else
+			query = "ALTER TABLE " + table + " CHANGE " + oldName + " "
+					+ newName + " " + dataType;
+		NativeSql.on(database).runUpdate(query);
+	}
+
 }

@@ -35,6 +35,12 @@ public class Parameter extends AbstractEntity {
 	@Embedded
 	private Uncertainty uncertainty;
 
+	@Column(name = "external_source")
+	private String externalSource;
+
+	@Column(name = "source_type")
+	private String sourceType;
+
 	/**
 	 * Returns true if the given name is a valid identifier for a parameter. We
 	 * allow the same rules as for Java identifiers.
@@ -66,6 +72,8 @@ public class Parameter extends AbstractEntity {
 		if (getUncertainty() != null)
 			clone.setUncertainty(getUncertainty().clone());
 		clone.setValue(getValue());
+		clone.setExternalSource(getExternalSource());
+		clone.setSourceType(getSourceType());
 		return clone;
 	}
 
@@ -123,6 +131,22 @@ public class Parameter extends AbstractEntity {
 
 	public void setUncertainty(Uncertainty uncertainty) {
 		this.uncertainty = uncertainty;
+	}
+
+	public String getExternalSource() {
+		return externalSource;
+	}
+
+	public void setExternalSource(String externalSource) {
+		this.externalSource = externalSource;
+	}
+
+	public String getSourceType() {
+		return sourceType;
+	}
+
+	public void setSourceType(String sourceType) {
+		this.sourceType = sourceType;
 	}
 
 	@Override

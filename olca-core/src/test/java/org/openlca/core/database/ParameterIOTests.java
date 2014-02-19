@@ -60,7 +60,7 @@ public class ParameterIOTests {
 		system.setName("test system");
 		ParameterRedef redef = new ParameterRedef();
 		redef.setName("a");
-		redef.setProcessId(123L);
+		redef.setContextId(123L);
 		redef.setValue(42);
 		redef.setUncertainty(Uncertainty.normal(42, 2));
 		system.getParameterRedefs().add(redef);
@@ -68,7 +68,7 @@ public class ParameterIOTests {
 		dao.insert(system);
 		TestSession.emptyCache();
 		ProductSystem alias = dao.getForId(system.getId());
-		Assert.assertTrue(alias.getParameterRedefs().get(0).getProcessId() == 123L);
+		Assert.assertTrue(alias.getParameterRedefs().get(0).getContextId() == 123L);
 		dao.delete(system);
 	}
 

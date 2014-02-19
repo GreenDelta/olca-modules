@@ -89,7 +89,7 @@ public class ParameterTable {
 	 */
 	public void apply(Collection<ParameterRedef> redefs) {
 		for (ParameterRedef redef : redefs) {
-			Long owner = redef.getProcessId();
+			Long owner = redef.getContextId();
 			long scope = owner == null ? 0 : owner;
 			Map<String, ParameterCell> map = entries.get(scope);
 			if (map == null)
