@@ -1,8 +1,6 @@
 package org.openlca.core.math;
 
 import org.openlca.core.matrix.ImpactMatrix;
-import org.openlca.core.matrix.ImpactTable;
-import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
@@ -13,24 +11,10 @@ import org.openlca.core.results.SimpleResult;
 
 public class LcaCalculator {
 
-	private final IMatrixFactory<?> factory;
 	private final IMatrixSolver solver;
 
 	public LcaCalculator(IMatrixSolver solver) {
 		this.solver = solver;
-		this.factory = solver.getMatrixFactory();
-	}
-
-	public SimpleResult calculateSimple(Inventory inventory) {
-		return calculateSimple(inventory, null);
-	}
-
-	public SimpleResult calculateSimple(Inventory inventory,
-			ImpactTable impactTable) {
-		InventoryMatrix matrix = inventory.asMatrix(factory);
-		ImpactMatrix impactMatrix = impactTable != null ? impactTable
-				.asMatrix(factory) : null;
-		return calculateSimple(matrix, impactMatrix);
 	}
 
 	public SimpleResult calculateSimple(InventoryMatrix matrix) {
@@ -38,7 +22,7 @@ public class LcaCalculator {
 	}
 
 	public SimpleResult calculateSimple(InventoryMatrix matrix,
-			ImpactMatrix impactMatrix) {
+	                                    ImpactMatrix impactMatrix) {
 
 		SimpleResult result = new SimpleResult();
 		result.setFlowIndex(matrix.getFlowIndex());
@@ -62,24 +46,12 @@ public class LcaCalculator {
 		return result;
 	}
 
-	public ContributionResult calculateContributions(Inventory inventory) {
-		return calculateContributions(inventory, null);
-	}
-
-	public ContributionResult calculateContributions(Inventory inventory,
-			ImpactTable impactTable) {
-		InventoryMatrix matrix = inventory.asMatrix(factory);
-		ImpactMatrix impactMatrix = impactTable != null ? impactTable
-				.asMatrix(factory) : null;
-		return calculateContributions(matrix, impactMatrix);
-	}
-
 	public ContributionResult calculateContributions(InventoryMatrix matrix) {
 		return calculateContributions(matrix, null);
 	}
 
 	public ContributionResult calculateContributions(InventoryMatrix matrix,
-			ImpactMatrix impactMatrix) {
+	                                                 ImpactMatrix impactMatrix) {
 
 		ContributionResult result = new ContributionResult();
 		result.setFlowIndex(matrix.getFlowIndex());
@@ -119,23 +91,12 @@ public class LcaCalculator {
 		return result;
 	}
 
-	public FullResult calculateFull(Inventory inventory) {
-		return calculateFull(inventory, null);
-	}
-
-	public FullResult calculateFull(Inventory inventory, ImpactTable impactTable) {
-		InventoryMatrix matrix = inventory.asMatrix(factory);
-		ImpactMatrix impactMatrix = impactTable != null ? impactTable
-				.asMatrix(factory) : null;
-		return calculateFull(matrix, impactMatrix);
-	}
-
 	public FullResult calculateFull(InventoryMatrix matrix) {
 		return calculateFull(matrix, null);
 	}
 
 	public FullResult calculateFull(InventoryMatrix matrix,
-			ImpactMatrix impactMatrix) {
+	                                ImpactMatrix impactMatrix) {
 
 		FullResult result = new FullResult();
 		result.setFlowIndex(matrix.getFlowIndex());

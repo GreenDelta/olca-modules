@@ -1,17 +1,20 @@
 package org.openlca.core.math;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.FormulaInterpreterBuilder;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.ImpactTableBuilder;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryBuilder;
+import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.expressions.FormulaInterpreter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Helper methods for the calculators in this package.
@@ -40,13 +43,17 @@ final class Calculators {
 		ProductIndex productIndex = ProductSystems.createProductIndex(system);
 		productIndex.setDemand(ReferenceAmount.get(setup));
 		InventoryBuilder inventoryBuilder = new InventoryBuilder(cache);
-		Inventory inventory = inventoryBuilder.build(productIndex, method);
-		FormulaInterpreter interpreter = FormulaInterpreterBuilder.build(
-				cache.getDatabase(), productIndex.getProcessIds());
-		FormulaInterpreterBuilder
-				.apply(setup.getParameterRedefs(), interpreter);
-		inventory.setFormulaInterpreter(interpreter);
-		return inventory;
+		return inventoryBuilder.build(productIndex, method);
+	}
+
+	static ParameterTable createParameterTable(IDatabase db, CalculationSetup setup,
+	                                           Inventory inventory) {
+		Set<Long> contexts = new HashSet<>();
+		if (setup.getImpactMethod() != null)
+			contexts.add(setup.getImpactMethod().getId());
+		if (inventory.getProductIndex() != null)
+			contexts.addAll(inventory.getProductIndex().getProcessIds());
+		return ParameterTable.build(db, contexts);
 	}
 
 }

@@ -14,7 +14,7 @@ public class ExchangeMatrix {
 	private int rows;
 	private final TIntObjectHashMap<TIntObjectHashMap<ExchangeCell>> cells;
 
-	public ExchangeMatrix(int rows, int columns) {
+	ExchangeMatrix(int rows, int columns) {
 		this.columns = columns;
 		this.rows = rows;
 		cells = new TIntObjectHashMap<>(Constants.DEFAULT_CAPACITY,
@@ -43,7 +43,7 @@ public class ExchangeMatrix {
 		return size / (rows * columns);
 	}
 
-	public void setEntry(int row, int col, ExchangeCell cell) {
+	void setEntry(int row, int col, ExchangeCell cell) {
 		TIntObjectHashMap<ExchangeCell> rowMap = cells.get(row);
 		if (rowMap == null) {
 			rowMap = new TIntObjectHashMap<>(Constants.DEFAULT_CAPACITY,
@@ -53,11 +53,19 @@ public class ExchangeMatrix {
 		rowMap.put(col, cell);
 	}
 
-	public ExchangeCell getEntry(int row, int col) {
+	ExchangeCell getEntry(int row, int col) {
 		TIntObjectHashMap<ExchangeCell> rowMap = cells.get(row);
 		if (rowMap == null)
 			return null;
 		return rowMap.get(col);
+	}
+
+	public double getValue(int row, int col) {
+		ExchangeCell cell = getEntry(row, col);
+		if (cell == null)
+			return 0;
+		else
+			return cell.getMatrixValue();
 	}
 
 	public <M extends IMatrix> M createRealMatrix(IMatrixFactory<M> factory) {
@@ -71,7 +79,7 @@ public class ExchangeMatrix {
 		return matrix;
 	}
 
-	public void eval(final FormulaInterpreter interpreter) {
+	void eval(final FormulaInterpreter interpreter) {
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ExchangeCell cell) {
@@ -80,7 +88,7 @@ public class ExchangeMatrix {
 		});
 	}
 
-	public void apply(final IMatrix matrix) {
+	void apply(final IMatrix matrix) {
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ExchangeCell cell) {
@@ -89,7 +97,7 @@ public class ExchangeMatrix {
 		});
 	}
 
-	public void simulate(final IMatrix matrix) {
+	void simulate(final IMatrix matrix) {
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ExchangeCell cell) {

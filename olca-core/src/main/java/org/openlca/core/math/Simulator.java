@@ -1,14 +1,15 @@
 package org.openlca.core.math;
 
-import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
+import org.openlca.expressions.FormulaInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ public class Simulator {
 
 	private SimulationResult result;
 	private Inventory inventory;
+	private ParameterTable parameterTable;
 	private InventoryMatrix inventoryMatrix;
 	private ImpactTable impactTable;
 	private ImpactMatrix impactMatrix;
@@ -54,10 +56,8 @@ public class Simulator {
 			setUp();
 		try {
 			log.trace("next simulation run");
-			inventory.getInterventionMatrix().simulate(
-					inventoryMatrix.getInterventionMatrix());
-			inventory.getTechnologyMatrix().simulate(
-					inventoryMatrix.getTechnologyMatrix());
+			FormulaInterpreter interpreter = parameterTable.simulate();
+			inventory.simulate(inventoryMatrix, interpreter);
 			if (impactMatrix != null)
 				impactTable.getFactorMatrix().simulate(
 						impactMatrix.getFactorMatrix());
@@ -81,7 +81,9 @@ public class Simulator {
 	private void setUp() {
 		log.trace("set up inventory");
 		inventory = Calculators.createInventory(setup, database);
-		inventoryMatrix = inventory.asMatrix(factory);
+		parameterTable = Calculators.createParameterTable(database.getDatabase(),
+				setup, inventory);
+		inventoryMatrix = inventory.createMatrix(factory);
 		result = new SimulationResult();
 		result.setProductIndex(inventory.getProductIndex());
 		result.setFlowIndex(inventory.getFlowIndex());

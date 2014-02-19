@@ -1,8 +1,9 @@
 package org.openlca.core.math;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -10,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.TestSession;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.FormulaInterpreterBuilder;
+import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
@@ -24,10 +25,17 @@ public class FormulaInterpretersTest {
 	private IDatabase database = TestSession.getDefaultDatabase();
 	private Parameter globalParam;
 	private Process process;
+	private ParameterTable parameterTable;
 	private FormulaInterpreter interpreter;
 
+	/**
+	 * sets the following parameters:
+	 * 
+	 * fi_tests_global = 32
+	 * 
+	 * fi_tests_local = fi_tests_global + 10
+	 */
 	@Before
-	@SuppressWarnings("serial")
 	public void setUp() throws Exception {
 		globalParam = new Parameter();
 		globalParam.setName("fi_tests_global");
@@ -42,12 +50,10 @@ public class FormulaInterpretersTest {
 		localParam.setInputParameter(false);
 		localParam.setScope(ParameterScope.PROCESS);
 		process.getParameters().add(localParam);
-		database.createDao(Process.class).insert(process);
-		interpreter = FormulaInterpreterBuilder.build(database, new HashSet<Long>() {
-			{
-				add(process.getId());
-			}
-		});
+		process = database.createDao(Process.class).insert(process);
+		Set<Long> context = Collections.singleton(process.getId());
+		parameterTable = ParameterTable.build(database, context);
+		interpreter = parameterTable.createInterpreter();
 	}
 
 	@After
@@ -88,9 +94,11 @@ public class FormulaInterpretersTest {
 				setProcessId(process.getId());
 			}
 		});
-		FormulaInterpreterBuilder.apply(redefs, interpreter);
+		parameterTable.apply(redefs);
+		interpreter = parameterTable.createInterpreter();
 		Assert.assertEquals(3.1, interpreter.eval("fi_tests_global"), 1e-16);
 		Scope scope = interpreter.getScope(process.getId());
+		// assure that the formula was deleted
 		Assert.assertEquals(1.3, scope.eval("fi_tests_local"), 1e-16);
 	}
 }
