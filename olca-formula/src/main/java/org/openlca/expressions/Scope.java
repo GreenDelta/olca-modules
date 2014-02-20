@@ -38,6 +38,14 @@ public final class Scope {
 	}
 
 	/**
+	 * Removes all variable bindings from the scope.
+	 */
+	public void clear() {
+		variables.clear();
+		evaluationCalls.clear();
+	}
+
+	/**
 	 * Evaluates the given expression in this scope.
 	 */
 	public double eval(String expression) throws InterpreterException {
