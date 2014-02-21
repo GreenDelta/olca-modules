@@ -36,6 +36,8 @@ class Upgrade1 implements IUpgrade {
 				"external_source VARCHAR(255)");
 		util.checkCreateColumn("tbl_parameters", "source_type",
 				"source_type VARCHAR(255)");
+		util.checkCreateColumn("tbl_impact_factors", "formula",
+				"formula VARCHAR(1000)");
 		util.renameColumn("tbl_parameter_redefs", "f_process", "f_context",
 				"BIGINT");
 	}

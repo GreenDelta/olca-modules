@@ -360,7 +360,8 @@ CREATE TABLE tbl_impact_factors (
 	f_flow BIGINT, 
 	f_flow_property_factor BIGINT, 
 	f_unit BIGINT, 
-	value DOUBLE, 
+	value DOUBLE,
+	formula VARCHAR(1000),
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 

@@ -3,8 +3,10 @@ package org.openlca.core;
 import java.io.File;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.database.mysql.MySQLDatabase;
+import org.openlca.core.database.upgrades.Upgrades;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.math.JavaSolver;
 
@@ -47,6 +49,17 @@ public class TestSession {
 			File tmpDir = new File(tmpDirPath);
 			File folder = new File(tmpDir, dbName);
 			derbyDatabase = new DerbyDatabase(folder);
+			try {
+				// (currently) it should be always possible to run the database
+				// updates on databases that were already updated as the
+				// updated should check if an update is necessary or not. Thus
+				// we reset the version here and test if the updates work.
+				String versionReset = "update openlca_version set version = 1";
+				NativeSql.on(derbyDatabase).runUpdate(versionReset);
+				Upgrades.runUpgrades(derbyDatabase);
+			} catch (Exception e) {
+				throw new RuntimeException("DB-upgrades failed", e);
+			}
 		}
 		return derbyDatabase;
 	}

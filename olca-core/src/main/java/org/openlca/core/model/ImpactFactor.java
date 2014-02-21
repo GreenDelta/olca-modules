@@ -26,6 +26,9 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 	@Column(name = "value")
 	private double value = 1;
 
+	@Column(name = "formula")
+	private String formula;
+
 	@Embedded
 	private Uncertainty uncertainty;
 
@@ -36,6 +39,7 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 		clone.setFlowPropertyFactor(getFlowPropertyFactor());
 		clone.setUnit(getUnit());
 		clone.setValue(getValue());
+		clone.setFormula(getFormula());
 		if (getUncertainty() != null)
 			clone.setUncertainty(getUncertainty().clone());
 		return clone;
@@ -71,6 +75,14 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 
 	public void setValue(double value) {
 		this.value = value;
+	}
+
+	public String getFormula() {
+		return formula;
+	}
+
+	public void setFormula(String formula) {
+		this.formula = formula;
 	}
 
 	public Uncertainty getUncertainty() {
