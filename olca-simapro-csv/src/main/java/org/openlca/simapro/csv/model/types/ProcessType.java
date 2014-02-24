@@ -1,22 +1,9 @@
 package org.openlca.simapro.csv.model.types;
 
-/**
- * Enumeration of SimaPro process types
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
- */
 public enum ProcessType {
 
-	/**
-	 * System process
-	 */
 	SYSTEM("System"),
 
-	/**
-	 * Unit process
-	 */
 	UNIT_PROCESS("Unit process");
 
 	private String value;
@@ -30,16 +17,10 @@ public enum ProcessType {
 	}
 
 	public static ProcessType forValue(String value) {
-		ProcessType type = null;
-		int i = 0;
-		while (type == null && i < values().length) {
-			if (values()[i].getValue().equals(value)) {
-				type = values()[i];
-			} else {
-				i++;
-			}
-		}
-		return type;
+		for (ProcessType type : values())
+			if (type.getValue().equals(value))
+				return type;
+		return null;
 	}
 
 }
