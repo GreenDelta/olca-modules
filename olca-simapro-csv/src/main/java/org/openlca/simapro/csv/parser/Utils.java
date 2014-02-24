@@ -23,45 +23,39 @@ final class Utils {
 
 	static IDistribution createDistibution(String type, String value1,
 			String value2, String value3, String comment) {
-		IDistribution distribution = null;
+		if (type == null)
+			return null;
 		switch (type.toLowerCase()) {
 		case "lognormal":
-			distribution = new SPLogNormalDistribution(
-					Double.parseDouble(value1), getPedigreeMatrix(comment));
-			break;
+			return new SPLogNormalDistribution(Double.parseDouble(value1),
+					getPedigreeMatrix(comment));
 		case "normal":
-			distribution = new SPNormalDistribution(Double.parseDouble(value1));
-			break;
+			return new SPNormalDistribution(Double.parseDouble(value1));
 		case "triangle":
-			distribution = new SPTriangleDistribution(
-					Double.parseDouble(value2), Double.parseDouble(value3));
-			break;
+			return new SPTriangleDistribution(Double.parseDouble(value2),
+					Double.parseDouble(value3));
 		case "uniform":
-			distribution = new SPUniformDistribution(
-					Double.parseDouble(value2), Double.parseDouble(value3));
+			return new SPUniformDistribution(Double.parseDouble(value2),
+					Double.parseDouble(value3));
+		default:
+			return null;
 		}
-		return distribution;
 	}
 
 	private static SPPedigreeMatrix getPedigreeMatrix(String comment) {
-		SPPedigreeMatrix matrix = null;
-		if (comment.startsWith("(")) {
-
-			String[] pedigree = comment.substring(1, comment.indexOf(")"))
-					.split(",");
-			if (pedigree.length == 6) {
-				matrix = new SPPedigreeMatrix();
-				matrix.setReliability(pedigree[0]);
-				matrix.setCompleteness(pedigree[1]);
-				matrix.setTemporalCorrelation(pedigree[2]);
-				matrix.setGeographicalCorrelation(pedigree[3]);
-				matrix.setTechnologicalCorrelation(pedigree[4]);
-				matrix.setSampleSize(pedigree[5]);
-			}
-		} else {
-			// TODO throw exception but at first I have to find out when it must
-			// exist a matrix
-		}
+		if (!comment.startsWith("(") && !comment.contains(")"))
+			return null;
+		String[] pedigree = comment.substring(1, comment.indexOf(")")).split(
+				",");
+		if (pedigree.length != 6)
+			return null;
+		SPPedigreeMatrix matrix = new SPPedigreeMatrix();
+		matrix.setReliability(pedigree[0]);
+		matrix.setCompleteness(pedigree[1]);
+		matrix.setTemporalCorrelation(pedigree[2]);
+		matrix.setGeographicalCorrelation(pedigree[3]);
+		matrix.setTechnologicalCorrelation(pedigree[4]);
+		matrix.setSampleSize(pedigree[5]);
 		return matrix;
 	}
 

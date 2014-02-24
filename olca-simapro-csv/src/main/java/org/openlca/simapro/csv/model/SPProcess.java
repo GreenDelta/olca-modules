@@ -16,7 +16,7 @@ public class SPProcess extends SPDataSet {
 	}
 
 	public SPProcess(SPProduct referenceProduct, String subCategory,
-			SPDocumentation documentation) {
+			SPProcessDocumentation documentation) {
 		this.referenceProduct = referenceProduct;
 		setSubCategory(subCategory);
 		setDocumentation(documentation);

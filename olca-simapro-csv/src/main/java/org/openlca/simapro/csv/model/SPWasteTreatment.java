@@ -12,7 +12,7 @@ public class SPWasteTreatment extends SPDataSet {
 	}
 
 	public SPWasteTreatment(SPWasteSpecification wasteSpecification,
-			String subCategory, SPDocumentation documentation) {
+			String subCategory, SPProcessDocumentation documentation) {
 		this.wasteSpecification = wasteSpecification;
 		setSubCategory(subCategory);
 		setDocumentation(documentation);

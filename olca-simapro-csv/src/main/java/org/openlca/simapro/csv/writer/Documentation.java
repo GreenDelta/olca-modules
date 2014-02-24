@@ -4,8 +4,8 @@ import static org.openlca.simapro.csv.writer.WriterUtils.comment;
 
 import java.io.IOException;
 
-import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
+import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.enums.BoundaryWithNature;
 import org.openlca.simapro.csv.model.enums.CutOffRule;
 import org.openlca.simapro.csv.model.enums.Geography;
@@ -22,8 +22,8 @@ import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
 
 class Documentation {
 
-	void write(SPDocumentation documentation, boolean process, CSVWriter writer)
-			throws IOException {
+	void write(SPProcessDocumentation documentation, boolean process,
+			CSVWriter writer) throws IOException {
 		if (process) {
 			writer.writeEntry("Category type",
 					documentation.getCategory() != null ? documentation
@@ -38,7 +38,7 @@ class Documentation {
 				documentation.getProcessType() != null ? documentation
 						.getProcessType().getValue() : ProcessType.UNIT_PROCESS
 						.getValue());
-		writer.writeEntry("Process name", documentation.getName());
+		writer.writeEntry("SimaProFile name", documentation.getName());
 		writer.writeEntry("Status",
 				documentation.getStatus() != null ? documentation.getStatus()
 						.getValue() : Status.FINISHED.getValue());
@@ -97,12 +97,12 @@ class Documentation {
 		writer.writeln("Literature references");
 		boolean atLeastOneReference = false;
 		for (SPLiteratureReferenceEntry entry : documentation
-				.getLiteratureReferencesEntries()) {
+				.getLiteratureReferenceEntries()) {
 			String literatureReference = entry.getLiteratureReference() != null ? entry
 					.getLiteratureReference().getName() : null;
 			if (literatureReference != null && !literatureReference.equals("")
 					&& entry.getComment() != null) {
-				literatureReference += writer.csvSeperator.getSeperator()
+				literatureReference += writer.getSeparator()
 						+ comment(entry.getComment());
 			}
 			if (literatureReference != null && !literatureReference.equals("")) {
@@ -129,7 +129,7 @@ class Documentation {
 		if (systemDescription != null
 				&& !systemDescription.equals("")
 				&& documentation.getSystemDescriptionEntry().getComment() != null) {
-			systemDescription += writer.csvSeperator.getSeperator()
+			systemDescription += writer.getSeparator()
 					+ documentation.getSystemDescriptionEntry().getComment();
 		}
 		if (systemDescription != null && !systemDescription.equals(""))

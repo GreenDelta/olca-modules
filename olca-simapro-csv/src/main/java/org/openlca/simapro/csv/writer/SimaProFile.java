@@ -1,9 +1,5 @@
 package org.openlca.simapro.csv.writer;
 
-import static org.openlca.simapro.csv.writer.WriterUtils.comment;
-
-import java.io.IOException;
-
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
@@ -16,23 +12,27 @@ import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
-class Process {
-	private CSVWriter writer;
-	private char csvSeperator;
-	private char decimalSeperator;
+import java.io.IOException;
 
-	public Process(CSVWriter writer) {
+import static org.openlca.simapro.csv.writer.WriterUtils.comment;
+
+class SimaProFile {
+	private CSVWriter writer;
+	private char csvSeparator;
+	private char decimalSeparator;
+
+	public SimaProFile(CSVWriter writer) {
 		this.writer = writer;
-		this.csvSeperator = writer.csvSeperator.getSeperator();
-		this.decimalSeperator = writer.decimalSeperator;
+		this.csvSeparator = writer.getSeparator();
+		this.decimalSeparator = writer.getDecimalSeparator();
 	}
 
 	void write(SPDataSet dataEntry) throws IOException {
-		writer.writeln("Process");
+		writer.writeln("SimaProFile");
 		writer.newLine();
 		if (dataEntry.getDocumentation() != null)
 			new Documentation().write(dataEntry.getDocumentation(),
-					dataEntry instanceof SPProcess ? true : false, writer);
+					dataEntry instanceof SPProcess, writer);
 		writer.newLine();
 		writeReferenceProducts(dataEntry);
 		writer.newLine();
@@ -124,35 +124,35 @@ class Process {
 		writer.writeln("Input parameters");
 		for (SPInputParameter parameter : dataEntry.getInputParameters())
 			writer.writeln(WriterUtils.getInputParameterLine(parameter,
-					csvSeperator, decimalSeperator));
+					csvSeparator, decimalSeparator));
 		writer.newLine();
 		writer.writeln("Calculated parameters");
 		for (SPCalculatedParameter parameter : dataEntry
 				.getCalculatedParameters())
 			writer.writeln(WriterUtils.getCalculatedParameterLine(parameter,
-					csvSeperator, decimalSeperator));
+					csvSeparator, decimalSeparator));
 		writer.newLine();
 	}
 
 	private String getProductLine(SPProductFlow product) {
 		String line = product.getName()
-				+ csvSeperator
+				+ csvSeparator
 				+ product.getUnit()
-				+ csvSeperator
-				+ product.getAmount().replace('.', decimalSeperator)
-				+ csvSeperator
+				+ csvSeparator
+				+ product.getAmount().replace('.', decimalSeparator)
+				+ csvSeparator
 				+ WriterUtils.getDistributionPart(product.getDistribution(),
-						csvSeperator, decimalSeperator);
+				csvSeparator, decimalSeparator);
 		if (product.getComment() != null)
 			line += comment(product.getComment());
 		return line;
 	}
 
 	private String getProductLine(SPProduct product, String subCategory) {
-		String line = product.getName() + csvSeperator + product.getUnit()
-				+ csvSeperator
-				+ product.getAmount().replace('.', decimalSeperator)
-				+ csvSeperator + product.getAllocation() + csvSeperator;
+		String line = product.getName() + csvSeparator + product.getUnit()
+				+ csvSeparator
+				+ product.getAmount().replace('.', decimalSeparator)
+				+ csvSeparator + product.getAllocation() + csvSeparator;
 
 		if (product.getWasteType() != null
 				&& !product.getWasteType().equals("")) {
@@ -160,29 +160,29 @@ class Process {
 		} else {
 			line += "not defined";
 		}
-		line += csvSeperator;
+		line += csvSeparator;
 		if (subCategory != null) {
 			line += subCategory;
 		} else {
 			line += "Others";
 		}
-		line += csvSeperator;
+		line += csvSeparator;
 
 		return line;
 	}
 
 	private String getElementaryFlowLine(SPElementaryFlow flow) {
-		String line = flow.getName() + csvSeperator;
+		String line = flow.getName() + csvSeparator;
 		if (flow.getSubCompartment() != null) {
 			line += flow.getSubCompartment().getValue();
 		}
-		line += csvSeperator
+		line += csvSeparator
 				+ flow.getUnit()
-				+ csvSeperator
-				+ flow.getAmount().replace('.', decimalSeperator)
-				+ csvSeperator
+				+ csvSeparator
+				+ flow.getAmount().replace('.', decimalSeparator)
+				+ csvSeparator
 				+ WriterUtils.getDistributionPart(flow.getDistribution(),
-						csvSeperator, decimalSeperator);
+				csvSeparator, decimalSeparator);
 		if (flow.getComment() != null)
 			line += comment(flow.getComment());
 		return line;
@@ -190,24 +190,24 @@ class Process {
 
 	private String getWasteSpecificationLine(
 			SPWasteSpecification wasteSpecification, String subCategory) {
-		String line = wasteSpecification.getName() + csvSeperator
-				+ wasteSpecification.getUnit() + csvSeperator
-				+ wasteSpecification.getAmount().replace('.', decimalSeperator)
-				+ csvSeperator;
+		String line = wasteSpecification.getName() + csvSeparator
+				+ wasteSpecification.getUnit() + csvSeparator
+				+ wasteSpecification.getAmount().replace('.', decimalSeparator)
+				+ csvSeparator;
 		if (wasteSpecification.getWasteType() != null
 				&& !wasteSpecification.getWasteType().equals("")) {
 			line += wasteSpecification.getWasteType();
 		} else {
 			line += "All waste types";
 		}
-		line += csvSeperator + "Others";
+		line += csvSeparator + "Others";
 		if (subCategory != null) {
 			line += subCategory;
 		}
-		line += csvSeperator;
+		line += csvSeparator;
 		if (wasteSpecification.getComment() != null)
 			line += comment(wasteSpecification.getComment());
-		line += csvSeperator;
+		line += csvSeparator;
 		return line;
 	}
 

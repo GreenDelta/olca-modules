@@ -29,7 +29,7 @@ class ReferenceData {
 
 	public ReferenceData(CSVWriter writer) {
 		this.writer = writer;
-		csvSeperator = writer.csvSeperator.getSeperator();
+		csvSeperator = writer.getSeparator();
 	}
 
 	void write(SPReferenceData referenceData) throws IOException {
@@ -179,7 +179,7 @@ class ReferenceData {
 					.getInputParameters().values())
 				if (parameter.getType() == parameterType)
 					writer.writeln(WriterUtils.getInputParameterLine(parameter,
-							csvSeperator, writer.decimalSeperator));
+							csvSeperator, writer.getDecimalSeparator()));
 			writer.newLine();
 			writer.writeln("End");
 			writer.newLine();
@@ -190,7 +190,8 @@ class ReferenceData {
 					.getCalculatedParameters().values())
 				if (parameter.getType() == parameterType)
 					writer.writeln(WriterUtils.getCalculatedParameterLine(
-							parameter, csvSeperator, writer.decimalSeperator));
+							parameter, csvSeperator,
+							writer.getDecimalSeparator()));
 			writer.newLine();
 			writer.writeln("End");
 			writer.newLine();

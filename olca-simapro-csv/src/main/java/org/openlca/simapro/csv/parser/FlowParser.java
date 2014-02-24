@@ -2,6 +2,7 @@ package org.openlca.simapro.csv.parser;
 
 import java.util.Map;
 
+import org.openlca.simapro.csv.model.IDistribution;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
@@ -25,30 +26,31 @@ class FlowParser {
 
 	SPElementaryFlow parseElementaryFlow(String line, ElementaryFlowType type)
 			throws CSVParserException {
-
 		line += csvSeperator + " ";
 		String split[] = line.split(csvSeperator);
 		if (split.length < 9)
 			throw new CSVParserException("Error in " + type.getValue()
 					+ " line: " + line);
 
-		String name = split[0];
-		String subCompartment = split[1];
-		String unit = split[2];
-		String formula = split[3];
-		String distribution = split[4];
-		String dValue1 = Utils.formatNumber(split[5]);
-		String dValue2 = Utils.formatNumber(split[6]);
-		String dValue3 = Utils.formatNumber(split[7]);
-		String comment = split[8];
+		SPElementaryFlow flow = new SPElementaryFlow();
+		flow.setName(split[0]);
+		flow.setSubCompartment(SubCompartment.forValue(split[1]));
+		flow.setUnit(split[2]);
+		flow.setAmount(split[3]);
+		IDistribution d = readDistribution(split, 4);
+		flow.setDistribution(d);
+		return flow;
+	}
 
-		for (int i = 9; i < (split.length - 1); i++) {
-			comment += csvSeperator + split[i];
-		}
-		return new SPElementaryFlow(type,
-				SubCompartment.forValue(subCompartment), name, unit, formula,
-				comment, Utils.createDistibution(distribution, dValue1,
-						dValue2, dValue3, comment));
+	private IDistribution readDistribution(String[] entries, int start) {
+		String type = entries[start];
+		String value1 = Utils.formatNumber(entries[start + 1]);
+		String value2 = Utils.formatNumber(entries[start + 2]);
+		String value3 = Utils.formatNumber(entries[start + 3]);
+		String comment = entries[start + 4];
+		for (int i = start + 5; i < (entries.length - 1); i++)
+			comment += csvSeperator + entries[i];
+		return Utils.createDistibution(type, value1, value2, value3, comment);
 	}
 
 	SPProductFlow getProductFlow(String line, ProductFlowType type)
@@ -58,32 +60,28 @@ class FlowParser {
 		if (split.length < 8)
 			throw new CSVParserException("Error in " + type.getValue()
 					+ " line: " + line);
-		String name = split[0];
-		String unit = split[1];
-		String formula = split[2];
-		String distribution = split[3];
-		String dValue1 = Utils.formatNumber(split[4]);
-		String dValue2 = Utils.formatNumber(split[5]);
-		String dValue3 = Utils.formatNumber(split[6]);
-		String comment = split[7];
-
-		for (int i = 8; i < (split.length - 1); i++)
-			comment += csvSeperator + split[i];
-		SPProductFlow flow = new SPProductFlow(type, name, unit, formula,
-				comment, Utils.createDistibution(distribution, dValue1,
-						dValue2, dValue3, comment));
-		String[] categoryTree = index.get(name);
-		if (categoryTree != null) {
-			flow.setProcessCategory(ProcessCategory.forValue(categoryTree[0]));
-			StringBuilder builder = new StringBuilder();
-			for (int i = 1; i < categoryTree.length; i++)
-				builder.append(categoryTree[i] + "\\");
-			String category = builder.toString();
-			if (category.endsWith("\\"))
-				category = category.substring(0, category.length() - 1);
-			flow.setReferenceCategory(category);
-		}
+		SPProductFlow flow = new SPProductFlow();
+		flow.setName(split[0]);
+		flow.setUnit(split[1]);
+		flow.setAmount(split[2]);
+		IDistribution d = readDistribution(split, 3);
+		flow.setDistribution(d);
+		setFlowCategory(flow);
 		return flow;
+	}
+
+	private void setFlowCategory(SPProductFlow flow) {
+		String[] categoryTree = index.get(flow.getName());
+		if (categoryTree == null)
+			return;
+		flow.setProcessCategory(ProcessCategory.forValue(categoryTree[0]));
+		StringBuilder builder = new StringBuilder();
+		for (int i = 1; i < categoryTree.length; i++)
+			builder.append(categoryTree[i] + "\\");
+		String category = builder.toString();
+		if (category.endsWith("\\"))
+			category = category.substring(0, category.length() - 1);
+		flow.setReferenceCategory(category);
 	}
 
 	SPProduct readReferenceProduct(String line) throws CSVParserException {
@@ -91,41 +89,39 @@ class FlowParser {
 		String split[] = line.split(csvSeperator);
 		if (split.length < 7)
 			throw new CSVParserException("Error in product line: " + line);
-		String name = split[0];
-		String unit = split[1];
-		String formula = split[2];
-		String allocation = Utils.formatNumber(split[3]);
-		String wasteType = split[4];
-		String category = split[5];
+		SPProduct product = new SPProduct();
+		product.setName(split[0]);
+		product.setUnit(split[1]);
+		product.setAmount(split[2]);
+		product.setAllocation(Double.parseDouble(Utils.formatNumber(split[3])));
+		product.setWasteType(split[4]);
+		product.setCategory(split[5]);
 		String comment = split[6];
-
 		for (int i = 7; i < (split.length - 1); i++)
 			comment += csvSeperator + split[i];
-		return new SPProduct(name, unit, formula,
-				Double.parseDouble(allocation), wasteType, comment, category);
+		product.setComment(comment);
+		return product;
 	}
 
 	SPWasteSpecification readWasteSpecification(String line)
 			throws CSVParserException {
 		line += csvSeperator + " ";
 		String split[] = line.split(csvSeperator);
-
 		if (split.length < 6)
 			throw new CSVParserException("Error in waste specification line: "
 					+ line);
-
-		String name = split[0];
-		String unit = split[1];
-		String formula = split[2];
-		String wasteType = split[3];
-		String category = split[4];
+		SPWasteSpecification waste = new SPWasteSpecification();
+		waste.setName(split[0]);
+		waste.setUnit(split[1]);
+		waste.setAmount(split[2]);
+		waste.setWasteType(split[3]);
+		waste.setCategory(split[4]);
 		String comment = split[5];
-
 		for (int i = 6; i < (split.length - 1); i++) {
 			comment += csvSeperator + split[i];
 		}
-		return new SPWasteSpecification(name, unit, formula, wasteType,
-				comment, category);
+		waste.setComment(comment);
+		return waste;
 	}
 
 	static SPSubstance parseSubstance(String line, String csvSeperator,

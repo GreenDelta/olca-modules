@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Queue;
 
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPDocumentation;
+import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPReferenceData;
@@ -98,7 +98,7 @@ class DataEntry {
 
 	SPDataSet parse(Queue<String> lines) throws CSVParserException {
 		SPDataSet entry = null;
-		SPDocumentation documentation = new DataEntryDocumentation(
+		SPProcessDocumentation documentation = new DataEntryDocumentation(
 				csvSeperator, referenceData).parse(lines);
 
 		// TODO implement parse waste scenario

@@ -2,9 +2,9 @@ package org.openlca.simapro.csv.parser;
 
 import java.util.Queue;
 
-import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
+import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPSystemDescription;
 import org.openlca.simapro.csv.model.SPSystemDescriptionEntry;
@@ -33,7 +33,7 @@ public class DataEntryDocumentation {
 	}
 
 	private void systemDescriptionEntry(String line,
-			SPDocumentation documentation) {
+			SPProcessDocumentation documentation) {
 		SPSystemDescriptionEntry entry = null;
 		String sdName = null;
 		String sdComment = null;
@@ -53,7 +53,7 @@ public class DataEntryDocumentation {
 	}
 
 	private void literatureReferenceEntries(Queue<String> lines,
-			SPDocumentation documentation) {
+			SPProcessDocumentation documentation) {
 		while (!lines.isEmpty() && !lines.peek().equals("")) {
 			String line = lines.poll();
 			String name = null;
@@ -71,13 +71,15 @@ public class DataEntryDocumentation {
 			if (literatureReference == null)
 				literatureReference = new SPLiteratureReference(name, null,
 						null);
-			documentation.add(new SPLiteratureReferenceEntry(
-					literatureReference, comment));
+			documentation.getLiteratureReferenceEntries()
+					.add(new SPLiteratureReferenceEntry(literatureReference,
+							comment));
 		}
 	}
 
-	SPDocumentation parse(Queue<String> lines) {
-		SPDocumentation documentation = new SPDocumentation(null, null, null);
+	SPProcessDocumentation parse(Queue<String> lines) {
+		SPProcessDocumentation documentation = new SPProcessDocumentation(null,
+				null, null);
 		while (!lines.isEmpty()
 				&& !(lines.peek().equals("Products") || lines.peek().equals(
 						"Waste treatment"))) {
@@ -89,7 +91,7 @@ public class DataEntryDocumentation {
 				documentation.setCategory(ProcessCategory.forValue(valueLine));
 				lines.remove();
 				break;
-			case "Process identifier":
+			case "SimaProFile identifier":
 				documentation.setIdentifier(valueLine);
 				lines.remove();
 				break;
@@ -97,7 +99,7 @@ public class DataEntryDocumentation {
 				documentation.setProcessType(ProcessType.forValue(valueLine));
 				lines.remove();
 				break;
-			case "Process name":
+			case "SimaProFile name":
 				documentation.setName(lines.poll());
 				break;
 			case "Status":

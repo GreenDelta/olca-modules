@@ -9,19 +9,6 @@ public class SPWasteSpecification extends SPFlow {
 
 	private String category;
 
-	public SPWasteSpecification(String name, String unit, String amount) {
-		super(amount, unit);
-		this.name = name;
-	}
-
-	public SPWasteSpecification(String name, String unit, String amount,
-			String wasteType, String comment, String category) {
-		super(amount, unit, comment);
-		this.name = name;
-		this.wasteType = wasteType;
-		this.category = category;
-	}
-
 	public String getWasteType() {
 		return wasteType;
 	}

@@ -24,7 +24,6 @@ import org.openlca.io.maps.content.CSVGeographyContent;
 import org.openlca.io.maps.content.CSVQuantityContent;
 import org.openlca.io.maps.content.CSVUnitContent;
 import org.openlca.simapro.csv.model.IDistribution;
-import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
@@ -32,6 +31,7 @@ import org.openlca.simapro.csv.model.SPLogNormalDistribution;
 import org.openlca.simapro.csv.model.SPNormalDistribution;
 import org.openlca.simapro.csv.model.SPPedigreeMatrix;
 import org.openlca.simapro.csv.model.SPProcess;
+import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
 import org.openlca.simapro.csv.model.SPQuantity;
@@ -89,8 +89,8 @@ class ProcessConverter {
 	}
 
 	private void generalInformations() {
-		SPDocumentation documentation = new SPDocumentation(process.getName(),
-				ProcessCategory.MATERIAL, getType());
+		SPProcessDocumentation documentation = new SPProcessDocumentation(
+				process.getName(), ProcessCategory.MATERIAL, getType());
 		spProcess.setDocumentation(documentation);
 		documentation.setComment(process.getDescription());
 		documentation.setCreationDate(process.getDocumentation()
@@ -130,7 +130,7 @@ class ProcessConverter {
 		return ProcessType.SYSTEM;
 	}
 
-	private void geography(SPDocumentation documentation) {
+	private void geography(SPProcessDocumentation documentation) {
 		CSVGeographyContent content = geoMap.get(process.getLocation()
 				.getRefId());
 		if (content != null)
@@ -175,6 +175,7 @@ class ProcessConverter {
 					|| exchange.getFlow().getFlowType() != FlowType.WASTE_FLOW)
 				continue;
 			Flow olcaFlow = exchange.getFlow();
+
 			SPProductFlow productFlow = new SPProductFlow(null,
 					olcaFlow.getName(), map(exchange.getUnit()).getName(),
 					String.valueOf(exchange.getAmountValue()));
@@ -185,7 +186,6 @@ class ProcessConverter {
 
 	private ProductFlowType getProductFlowType(Exchange exchange) {
 		if (exchange.isInput())
-			// TODO: maybe find out which flows are electricity inputs.
 			return ProductFlowType.MATERIAL_INPUT;
 		else
 			return ProductFlowType.AVOIDED_PRODUCT;
@@ -286,35 +286,25 @@ class ProcessConverter {
 		return content.getQuantity();
 	}
 
-	private IDistribution convertDistribition(Uncertainty uncertainty,
+	private IDistribution convertDistribition(Uncertainty u,
 			String pedigreeMatrix) {
-		if (uncertainty == null)
+		if (u == null || u.getDistributionType() == null)
 			return null;
-		IDistribution distribution = null;
-		switch (uncertainty.getDistributionType()) {
+		switch (u.getDistributionType()) {
 		case LOG_NORMAL:
-			distribution = new SPLogNormalDistribution(
-					uncertainty.getParameter2Value(),
+			return new SPLogNormalDistribution(u.getParameter2Value(),
 					convertPedigreeMatrix(pedigreeMatrix));
-			break;
 		case NORMAL:
-			distribution = new SPNormalDistribution(
-					uncertainty.getParameter2Value());
-			break;
+			return new SPNormalDistribution(u.getParameter2Value());
 		case TRIANGLE:
-			distribution = new SPTriangleDistribution(
-					uncertainty.getParameter1Value(),
-					uncertainty.getParameter3Value());
-			break;
+			return new SPTriangleDistribution(u.getParameter1Value(),
+					u.getParameter3Value());
 		case UNIFORM:
-			distribution = new SPUniformDistribution(
-					uncertainty.getParameter1Value(),
-					uncertainty.getParameter2Value());
-			break;
-		case NONE:
-			break;
+			return new SPUniformDistribution(u.getParameter1Value(),
+					u.getParameter2Value());
+		default:
+			return null;
 		}
-		return distribution;
 	}
 
 	private SPPedigreeMatrix convertPedigreeMatrix(String pedigreeMatrix) {

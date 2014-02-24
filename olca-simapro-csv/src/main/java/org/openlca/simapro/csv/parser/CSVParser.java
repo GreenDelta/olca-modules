@@ -71,14 +71,14 @@ public class CSVParser {
 
 	public boolean hasNext() throws IOException {
 		while ((currentLine = reader.readLine()) != null)
-			if (currentLine.equals("Process")) {
+			if (currentLine.equals("SimaProFile")) {
 				break;
 			}
-		return "Process".equals(currentLine);
+		return "SimaProFile".equals(currentLine);
 	}
 
 	public SPDataSet next() throws CSVParserException, IOException {
-		if (!"Process".equals(currentLine))
+		if (!"SimaProFile".equals(currentLine))
 			if (!hasNext())
 				return null;
 		return new DataEntry(csvSeperator, flowParser, referenceData)
@@ -136,7 +136,7 @@ public class CSVParser {
 	private String currentLine;
 
 	private Object[] nextIndexEntry() throws CSVParserException, IOException {
-		if (!"Process".equals(currentLine))
+		if (!"SimaProFile".equals(currentLine))
 			if (!hasNext())
 				return null;
 		return IndexEntry.parse(readNextPart(), csvSeperator);

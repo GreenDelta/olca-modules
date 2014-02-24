@@ -3,30 +3,12 @@ package org.openlca.simapro.csv.model;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
-/**
- * This class represents a product input in SimaPro
- */
 public class SPProductFlow extends SPFlow {
 
 	private IDistribution distribution;
 	private ProductFlowType type;
 	private ProcessCategory processCategory;
 	private String referenceCategory;
-
-	public SPProductFlow(ProductFlowType type, String name, String unit,
-			String amount) {
-		super(amount, unit);
-		this.type = type;
-		this.name = name;
-	}
-
-	public SPProductFlow(ProductFlowType type, String name, String unit,
-			String amount, String comment, IDistribution distribution) {
-		super(amount, unit, comment);
-		this.type = type;
-		this.name = name;
-		this.distribution = distribution;
-	}
 
 	public IDistribution getDistribution() {
 		return distribution;

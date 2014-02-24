@@ -23,11 +23,11 @@ import org.openlca.io.maps.content.CSVElementaryFlowContent;
 import org.openlca.io.maps.content.CSVProductFlowContent;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
 import org.openlca.simapro.csv.model.SPProcess;
+import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPWasteScenario;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.slf4j.Logger;
@@ -135,7 +135,7 @@ class ProcessImport {
 	private void setDefaults() {
 		ProcessDocumentation doc = new ProcessDocumentation();
 		process.setDocumentation(doc);
-		SPDocumentation spDoc = dataEntry.getDocumentation();
+		SPProcessDocumentation spDoc = dataEntry.getDocumentation();
 		doc.setTime(spDoc.getTimePeriod().getValue());
 		doc.setTechnology(spDoc.getTechnology().getValue());
 		process.setInfrastructureProcess(spDoc.isInfrastructureProcess());
@@ -165,7 +165,7 @@ class ProcessImport {
 		}
 	}
 
-	private void setDescription(SPDocumentation spDocumentation) {
+	private void setDescription(SPProcessDocumentation spDocumentation) {
 		if (spDocumentation == null)
 			return;
 		StringBuilder builder = new StringBuilder();
@@ -231,7 +231,7 @@ class ProcessImport {
 
 	private void sources() {
 		for (SPLiteratureReferenceEntry entry : dataEntry.getDocumentation()
-				.getLiteratureReferencesEntries())
+				.getLiteratureReferenceEntries())
 			process.getDocumentation().getSources()
 					.add(findOrCreate(entry.getLiteratureReference()));
 	}

@@ -12,18 +12,18 @@ public abstract class SPDataSet {
 	private List<SPInputParameter> inputParameters = new ArrayList<>();
 	private List<SPElementaryFlow> elementaryFlows = new ArrayList<>();
 	private List<SPProductFlow> productFlows = new ArrayList<>();
-	private SPDocumentation documentation;
+	private SPProcessDocumentation documentation;
 	private String subCategory;
 
 	public List<SPCalculatedParameter> getCalculatedParameters() {
 		return calculatedParameters;
 	}
 
-	public SPDocumentation getDocumentation() {
+	public SPProcessDocumentation getDocumentation() {
 		return documentation;
 	}
 
-	public void setDocumentation(SPDocumentation documentation) {
+	public void setDocumentation(SPProcessDocumentation documentation) {
 		this.documentation = documentation;
 	}
 
