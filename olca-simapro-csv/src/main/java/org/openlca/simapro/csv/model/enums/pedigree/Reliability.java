@@ -1,4 +1,4 @@
-package org.openlca.simapro.csv.model.pedigreetypes;
+package org.openlca.simapro.csv.model.enums.pedigree;
 
 public enum Reliability {
 

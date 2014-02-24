@@ -14,7 +14,7 @@ import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPWasteScenario;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
-import org.openlca.simapro.csv.model.types.SubCompartment;
+import org.openlca.simapro.csv.model.enums.SubCompartment;
 import org.openlca.simapro.csv.parser.CSVParser;
 
 public class ParseTest {

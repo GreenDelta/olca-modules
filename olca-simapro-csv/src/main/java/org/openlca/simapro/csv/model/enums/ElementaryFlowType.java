@@ -1,4 +1,4 @@
-package org.openlca.simapro.csv.model.types;
+package org.openlca.simapro.csv.model.enums;
 
 import java.util.ArrayList;
 import java.util.Arrays;

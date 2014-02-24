@@ -1,7 +1,7 @@
 package org.openlca.simapro.csv.model;
 
-import org.openlca.simapro.csv.model.types.DistributionParameterType;
-import org.openlca.simapro.csv.model.types.DistributionType;
+import org.openlca.simapro.csv.model.enums.DistributionParameterType;
+import org.openlca.simapro.csv.model.enums.DistributionType;
 
 /**
  * This class represents a SimaPro uncertainty distribution

@@ -17,8 +17,8 @@ import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPSystemDescription;
 import org.openlca.simapro.csv.model.SPUnit;
-import org.openlca.simapro.csv.model.types.ElementaryFlowType;
-import org.openlca.simapro.csv.model.types.ParameterType;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.ParameterType;
 
 class ReferenceData {
 

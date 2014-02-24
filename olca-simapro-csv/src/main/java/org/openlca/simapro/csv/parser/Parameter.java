@@ -2,7 +2,7 @@ package org.openlca.simapro.csv.parser;
 
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
-import org.openlca.simapro.csv.model.types.ParameterType;
+import org.openlca.simapro.csv.model.enums.ParameterType;
 
 final class Parameter {
 	static SPCalculatedParameter parseCalculatedParameter(String line,

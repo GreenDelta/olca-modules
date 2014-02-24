@@ -1,7 +1,7 @@
 package org.openlca.simapro.csv.model;
 
-import org.openlca.simapro.csv.model.types.ElementaryFlowType;
-import org.openlca.simapro.csv.model.types.SubCompartment;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.SubCompartment;
 
 /**
  * This class represents an elementary flow in SimaPro

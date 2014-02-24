@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import org.openlca.simapro.csv.model.types.ProcessCategory;
+import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
 
 final class IndexEntry {

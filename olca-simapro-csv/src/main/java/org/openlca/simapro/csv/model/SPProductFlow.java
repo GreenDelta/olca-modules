@@ -1,7 +1,7 @@
 package org.openlca.simapro.csv.model;
 
-import org.openlca.simapro.csv.model.types.ProcessCategory;
-import org.openlca.simapro.csv.model.types.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ProcessCategory;
+import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
 /**
  * This class represents a product input in SimaPro

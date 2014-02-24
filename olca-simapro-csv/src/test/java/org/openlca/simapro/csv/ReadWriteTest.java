@@ -13,8 +13,8 @@ import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPUnit;
-import org.openlca.simapro.csv.model.types.ProcessCategory;
-import org.openlca.simapro.csv.model.types.ProcessType;
+import org.openlca.simapro.csv.model.enums.ProcessCategory;
+import org.openlca.simapro.csv.model.enums.ProcessType;
 
 public class ReadWriteTest {
 

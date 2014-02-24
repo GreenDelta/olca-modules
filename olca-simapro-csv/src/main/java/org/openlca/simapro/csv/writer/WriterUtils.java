@@ -6,8 +6,8 @@ import org.openlca.simapro.csv.model.IDistribution;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPLogNormalDistribution;
-import org.openlca.simapro.csv.model.types.DistributionParameterType;
-import org.openlca.simapro.csv.model.types.DistributionType;
+import org.openlca.simapro.csv.model.enums.DistributionParameterType;
+import org.openlca.simapro.csv.model.enums.DistributionType;
 
 final class WriterUtils {
 

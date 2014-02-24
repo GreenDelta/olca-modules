@@ -3,8 +3,8 @@ package org.openlca.simapro.csv.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.simapro.csv.model.types.ElementaryFlowType;
-import org.openlca.simapro.csv.model.types.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
 /**
  * This class represents a SimaPro data entry (can be {@link SPProcess} or

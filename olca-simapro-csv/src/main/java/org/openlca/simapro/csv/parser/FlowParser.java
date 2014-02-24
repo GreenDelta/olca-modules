@@ -7,10 +7,10 @@ import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
 import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
-import org.openlca.simapro.csv.model.types.ElementaryFlowType;
-import org.openlca.simapro.csv.model.types.ProcessCategory;
-import org.openlca.simapro.csv.model.types.ProductFlowType;
-import org.openlca.simapro.csv.model.types.SubCompartment;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.ProcessCategory;
+import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.SubCompartment;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
 
 class FlowParser {

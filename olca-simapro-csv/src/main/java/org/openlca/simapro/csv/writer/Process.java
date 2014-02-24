@@ -13,8 +13,8 @@ import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
-import org.openlca.simapro.csv.model.types.ElementaryFlowType;
-import org.openlca.simapro.csv.model.types.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
 class Process {
 	private CSVWriter writer;

@@ -6,19 +6,19 @@ import java.io.IOException;
 
 import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
-import org.openlca.simapro.csv.model.types.BoundaryWithNature;
-import org.openlca.simapro.csv.model.types.CutOffRule;
-import org.openlca.simapro.csv.model.types.Geography;
-import org.openlca.simapro.csv.model.types.ProcessAllocation;
-import org.openlca.simapro.csv.model.types.ProcessCategory;
-import org.openlca.simapro.csv.model.types.ProcessType;
-import org.openlca.simapro.csv.model.types.Representativeness;
-import org.openlca.simapro.csv.model.types.Status;
-import org.openlca.simapro.csv.model.types.Substitution;
-import org.openlca.simapro.csv.model.types.SystemBoundary;
-import org.openlca.simapro.csv.model.types.Technology;
-import org.openlca.simapro.csv.model.types.TimePeriod;
-import org.openlca.simapro.csv.model.types.WasteTreatmentAllocation;
+import org.openlca.simapro.csv.model.enums.BoundaryWithNature;
+import org.openlca.simapro.csv.model.enums.CutOffRule;
+import org.openlca.simapro.csv.model.enums.Geography;
+import org.openlca.simapro.csv.model.enums.ProcessAllocation;
+import org.openlca.simapro.csv.model.enums.ProcessCategory;
+import org.openlca.simapro.csv.model.enums.ProcessType;
+import org.openlca.simapro.csv.model.enums.Representativeness;
+import org.openlca.simapro.csv.model.enums.Status;
+import org.openlca.simapro.csv.model.enums.Substitution;
+import org.openlca.simapro.csv.model.enums.SystemBoundary;
+import org.openlca.simapro.csv.model.enums.Technology;
+import org.openlca.simapro.csv.model.enums.TimePeriod;
+import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
 
 class Documentation {
 

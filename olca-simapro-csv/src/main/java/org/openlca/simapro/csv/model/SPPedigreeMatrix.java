@@ -3,12 +3,12 @@ package org.openlca.simapro.csv.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.openlca.simapro.csv.model.pedigreetypes.Completeness;
-import org.openlca.simapro.csv.model.pedigreetypes.TechnologicalCorrelation;
-import org.openlca.simapro.csv.model.pedigreetypes.GeographicalCorrelation;
-import org.openlca.simapro.csv.model.pedigreetypes.Reliability;
-import org.openlca.simapro.csv.model.pedigreetypes.SampleSize;
-import org.openlca.simapro.csv.model.pedigreetypes.TemporalCorrelation;
+import org.openlca.simapro.csv.model.enums.pedigree.Completeness;
+import org.openlca.simapro.csv.model.enums.pedigree.GeographicalCorrelation;
+import org.openlca.simapro.csv.model.enums.pedigree.Reliability;
+import org.openlca.simapro.csv.model.enums.pedigree.SampleSize;
+import org.openlca.simapro.csv.model.enums.pedigree.TechnologicalCorrelation;
+import org.openlca.simapro.csv.model.enums.pedigree.TemporalCorrelation;
 
 public class SPPedigreeMatrix {
 

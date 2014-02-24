@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model;
 
-import org.openlca.simapro.csv.model.types.ParameterType;
+import org.openlca.simapro.csv.model.enums.ParameterType;
 
 public class SPParameter {
 

@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model;
 
-import org.openlca.simapro.csv.model.types.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
 /**
  * This class represents a SimaPro substance
