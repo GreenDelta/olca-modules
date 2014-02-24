@@ -1,5 +1,9 @@
 package org.openlca.simapro.csv.writer;
 
+import static org.openlca.simapro.csv.writer.WriterUtils.comment;
+
+import java.io.IOException;
+
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
@@ -12,11 +16,8 @@ import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
-import java.io.IOException;
-
-import static org.openlca.simapro.csv.writer.WriterUtils.comment;
-
 class SimaProFile {
+
 	private CSVWriter writer;
 	private char csvSeparator;
 	private char decimalSeparator;
@@ -28,7 +29,7 @@ class SimaProFile {
 	}
 
 	void write(SPDataSet dataEntry) throws IOException {
-		writer.writeln("SimaProFile");
+		writer.writeln("Process");
 		writer.newLine();
 		if (dataEntry.getDocumentation() != null)
 			new Documentation().write(dataEntry.getDocumentation(),
@@ -37,12 +38,12 @@ class SimaProFile {
 		writeReferenceProducts(dataEntry);
 		writer.newLine();
 		writeExchanges(dataEntry);
+		writeParameters(dataEntry);
 		writer.writeln("End");
 		writer.newLine();
 	}
 
-	private void writeReferenceProducts(SPDataSet dataEntry)
-			throws IOException {
+	private void writeReferenceProducts(SPDataSet dataEntry) throws IOException {
 		if (dataEntry instanceof SPProcess) {
 			writer.writeln("Products");
 			String subCategory = SPProcess.class.cast(dataEntry)
@@ -61,66 +62,33 @@ class SimaProFile {
 	}
 
 	private void writeExchanges(SPDataSet dataEntry) throws IOException {
-		writer.writeln("Avoided products");
-		for (SPProductFlow product : dataEntry
-				.getProductFlows(ProductFlowType.AVOIDED_PRODUCT))
-			writer.writeln(getProductLine(product));
-		writer.newLine();
-		writer.writeln("Resources");
-		for (SPElementaryFlow flow : dataEntry
-				.getElementaryFlows(ElementaryFlowType.RESOURCE))
-			writer.writeln(getElementaryFlowLine(flow));
-		writer.newLine();
-		writer.writeln("Materials/fuels");
-		for (SPProductFlow product : dataEntry
-				.getProductFlows(ProductFlowType.MATERIAL_INPUT))
-			writer.writeln(getProductLine(product));
-		writer.newLine();
-		writer.writeln("Electricity/heat");
-		for (SPProductFlow product : dataEntry
-				.getProductFlows(ProductFlowType.ELECTRICITY_INPUT))
-			writer.writeln(getProductLine(product));
-		writer.newLine();
-		writer.writeln("Emissions to air");
-		for (SPElementaryFlow flow : dataEntry
-				.getElementaryFlows(ElementaryFlowType.EMISSION_TO_AIR))
-			writer.writeln(getElementaryFlowLine(flow));
-		writer.newLine();
-		writer.writeln("Emissions to water");
-		for (SPElementaryFlow flow : dataEntry
-				.getElementaryFlows(ElementaryFlowType.EMISSION_TO_WATER))
-			writer.writeln(getElementaryFlowLine(flow));
-		writer.newLine();
-		writer.writeln("Emissions to soil");
-		for (SPElementaryFlow flow : dataEntry
-				.getElementaryFlows(ElementaryFlowType.EMISSION_TO_SOIL))
-			writer.writeln(getElementaryFlowLine(flow));
-		writer.newLine();
-		writer.writeln("Final waste flows");
-		for (SPElementaryFlow flow : dataEntry
-				.getElementaryFlows(ElementaryFlowType.FINAL_WASTE))
-			writer.writeln(getElementaryFlowLine(flow));
-		writer.newLine();
-		writer.writeln("Non material emissions");
-		for (SPElementaryFlow flow : dataEntry
-				.getElementaryFlows(ElementaryFlowType.NON_MATERIAL_EMISSIONS))
-			writer.writeln(getElementaryFlowLine(flow));
-		writer.newLine();
-		writer.writeln("Social issues");
-		for (SPElementaryFlow flow : dataEntry
-				.getElementaryFlows(ElementaryFlowType.SOCIAL_ISSUE))
-			writer.writeln(getElementaryFlowLine(flow));
-		writer.newLine();
-		writer.writeln("Economic issues");
-		for (SPElementaryFlow flow : dataEntry
-				.getElementaryFlows(ElementaryFlowType.ECONOMIC_ISSUE))
-			writer.writeln(getElementaryFlowLine(flow));
-		writer.newLine();
-		writer.writeln("Waste to treatment");
-		for (SPProductFlow product : dataEntry
-				.getProductFlows(ProductFlowType.WASTE_TREATMENT))
-			writer.writeln(getProductLine(product));
-		writer.newLine();
+		writeProductFlows(dataEntry, "Avoided products",
+				ProductFlowType.AVOIDED_PRODUCT);
+		writeElemFlows(dataEntry, "Resources", ElementaryFlowType.RESOURCE);
+		writeProductFlows(dataEntry, "Materials/fuels",
+				ProductFlowType.MATERIAL_INPUT);
+		writeProductFlows(dataEntry, "Electricity/heat",
+				ProductFlowType.ELECTRICITY_INPUT);
+		writeElemFlows(dataEntry, "Emissions to air",
+				ElementaryFlowType.EMISSION_TO_AIR);
+		writeElemFlows(dataEntry, "Emissions to water",
+				ElementaryFlowType.EMISSION_TO_WATER);
+		writeElemFlows(dataEntry, "Emissions to soil",
+				ElementaryFlowType.EMISSION_TO_SOIL);
+		writeElemFlows(dataEntry, "Final waste flows",
+				ElementaryFlowType.FINAL_WASTE);
+		writeElemFlows(dataEntry, "Non material emissions",
+				ElementaryFlowType.NON_MATERIAL_EMISSIONS);
+		writeElemFlows(dataEntry, "Social issues",
+				ElementaryFlowType.SOCIAL_ISSUE);
+		writeElemFlows(dataEntry, "Economic issues",
+				ElementaryFlowType.ECONOMIC_ISSUE);
+		writeProductFlows(dataEntry, "Waste to treatment",
+				ProductFlowType.WASTE_TREATMENT);
+
+	}
+
+	private void writeParameters(SPDataSet dataEntry) throws IOException {
 		writer.writeln("Input parameters");
 		for (SPInputParameter parameter : dataEntry.getInputParameters())
 			writer.writeln(WriterUtils.getInputParameterLine(parameter,
@@ -134,15 +102,31 @@ class SimaProFile {
 		writer.newLine();
 	}
 
+	private void writeProductFlows(SPDataSet dataEntry, String header,
+			ProductFlowType type) throws IOException {
+		writer.writeln(header);
+		for (SPProductFlow product : dataEntry.getProductFlows(type))
+			writer.writeln(getProductLine(product));
+		writer.newLine();
+	}
+
+	private void writeElemFlows(SPDataSet dataEntry, String header,
+			ElementaryFlowType type) throws IOException {
+		writer.writeln(header);
+		for (SPElementaryFlow flow : dataEntry.getElementaryFlows(type))
+			writer.writeln(getElementaryFlowLine(flow));
+		writer.newLine();
+	}
+
 	private String getProductLine(SPProductFlow product) {
 		String line = product.getName()
 				+ csvSeparator
 				+ product.getUnit()
 				+ csvSeparator
-				+ product.getAmount().replace('.', decimalSeparator)
+				+ number(product.getAmount())
 				+ csvSeparator
 				+ WriterUtils.getDistributionPart(product.getDistribution(),
-				csvSeparator, decimalSeparator);
+						csvSeparator, decimalSeparator);
 		if (product.getComment() != null)
 			line += comment(product.getComment());
 		return line;
@@ -150,9 +134,8 @@ class SimaProFile {
 
 	private String getProductLine(SPProduct product, String subCategory) {
 		String line = product.getName() + csvSeparator + product.getUnit()
-				+ csvSeparator
-				+ product.getAmount().replace('.', decimalSeparator)
-				+ csvSeparator + product.getAllocation() + csvSeparator;
+				+ csvSeparator + number(product.getAmount()) + csvSeparator
+				+ product.getAllocation() + csvSeparator;
 
 		if (product.getWasteType() != null
 				&& !product.getWasteType().equals("")) {
@@ -179,10 +162,10 @@ class SimaProFile {
 		line += csvSeparator
 				+ flow.getUnit()
 				+ csvSeparator
-				+ flow.getAmount().replace('.', decimalSeparator)
+				+ number(flow.getAmount())
 				+ csvSeparator
 				+ WriterUtils.getDistributionPart(flow.getDistribution(),
-				csvSeparator, decimalSeparator);
+						csvSeparator, decimalSeparator);
 		if (flow.getComment() != null)
 			line += comment(flow.getComment());
 		return line;
@@ -192,8 +175,7 @@ class SimaProFile {
 			SPWasteSpecification wasteSpecification, String subCategory) {
 		String line = wasteSpecification.getName() + csvSeparator
 				+ wasteSpecification.getUnit() + csvSeparator
-				+ wasteSpecification.getAmount().replace('.', decimalSeparator)
-				+ csvSeparator;
+				+ number(wasteSpecification.getAmount()) + csvSeparator;
 		if (wasteSpecification.getWasteType() != null
 				&& !wasteSpecification.getWasteType().equals("")) {
 			line += wasteSpecification.getWasteType();
@@ -209,6 +191,13 @@ class SimaProFile {
 			line += comment(wasteSpecification.getComment());
 		line += csvSeparator;
 		return line;
+	}
+
+	private String number(String val) {
+		if (val == null)
+			return "0";
+		else
+			return val.replace('.', decimalSeparator);
 	}
 
 }

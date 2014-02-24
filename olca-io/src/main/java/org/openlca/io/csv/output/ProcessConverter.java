@@ -151,16 +151,17 @@ class ProcessConverter {
 			if (!"".equals(source.getDescription()))
 				reference.setContent(source.getDescription());
 			referenceData.add(source.getName(), reference);
-			spProcess.getDocumentation().add(
-					new SPLiteratureReferenceEntry(reference));
+			spProcess.getDocumentation().getLiteratureReferenceEntries()
+					.add(new SPLiteratureReferenceEntry(reference));
 		}
 	}
 
 	private SPProduct referenceProduct() {
 		Exchange exchange = process.getQuantitativeReference();
-		SPProduct product = new SPProduct(exchange.getFlow().getName(), map(
-				exchange.getUnit()).getName(), String.valueOf(exchange
-				.getAmountValue()));
+		SPProduct product = new SPProduct();
+		product.setName(exchange.getFlow().getName());
+		product.setUnit(map(exchange.getUnit()).getName());
+		product.setAmount(String.valueOf(exchange.getAmountValue()));
 		// TODO create a category tree
 		// product.setCategory(process.getCategory().getName());
 		product.setCategory("Others");
@@ -175,10 +176,10 @@ class ProcessConverter {
 					|| exchange.getFlow().getFlowType() != FlowType.WASTE_FLOW)
 				continue;
 			Flow olcaFlow = exchange.getFlow();
-
-			SPProductFlow productFlow = new SPProductFlow(null,
-					olcaFlow.getName(), map(exchange.getUnit()).getName(),
-					String.valueOf(exchange.getAmountValue()));
+			SPProductFlow productFlow = new SPProductFlow();
+			productFlow.setName(olcaFlow.getName());
+			productFlow.setUnit(map(exchange.getUnit()).getName());
+			productFlow.setAmount(String.valueOf(exchange.getAmountValue()));
 			productFlow.setType(getProductFlowType(exchange));
 			spProcess.getProductFlows().add(productFlow);
 		}
@@ -232,9 +233,10 @@ class ProcessConverter {
 
 	private SPElementaryFlow createElementaryFlow(Exchange exchange) {
 		Flow olcaFlow = exchange.getFlow();
-		SPElementaryFlow flow = new SPElementaryFlow(null, olcaFlow.getName(),
-				map(exchange.getUnit()).getName(), String.valueOf(exchange
-						.getAmountValue()));
+		SPElementaryFlow flow = new SPElementaryFlow();
+		flow.setName(olcaFlow.getName());
+		flow.setUnit(map(exchange.getUnit()).getName());
+		flow.setAmount(String.valueOf(exchange.getAmountValue()));
 		CSVElementaryCategoryContent categoryContent = categoryMap.get(olcaFlow
 				.getCategory().getRefId());
 		if (categoryContent != null) {

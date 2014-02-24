@@ -72,8 +72,13 @@ public class CSVElementaryFlowContent implements IMappingContent {
 	}
 
 	public SPElementaryFlow createFlow() {
-		return new SPElementaryFlow(type, subCompartment, name, unit.getName(),
-				"0");
+		SPElementaryFlow flow = new SPElementaryFlow();
+		flow.setType(type);
+		flow.setSubCompartment(subCompartment);
+		flow.setName(name);
+		flow.setUnit(unit.getName());
+		flow.setAmount("0");
+		return flow;
 	}
 
 	public void setSubCompartment(SubCompartment subCompartment) {
@@ -82,7 +87,6 @@ public class CSVElementaryFlowContent implements IMappingContent {
 
 	@Override
 	public String getKey() {
-		return CSVKeyGen.forElementaryFlow(new SPElementaryFlow(type,
-				subCompartment, name, unit.getName(), "0"));
+		return CSVKeyGen.forElementaryFlow(createFlow());
 	}
 }

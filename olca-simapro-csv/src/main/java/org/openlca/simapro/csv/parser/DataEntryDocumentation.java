@@ -91,7 +91,7 @@ public class DataEntryDocumentation {
 				documentation.setCategory(ProcessCategory.forValue(valueLine));
 				lines.remove();
 				break;
-			case "SimaProFile identifier":
+			case "Process identifier":
 				documentation.setIdentifier(valueLine);
 				lines.remove();
 				break;
@@ -99,7 +99,7 @@ public class DataEntryDocumentation {
 				documentation.setProcessType(ProcessType.forValue(valueLine));
 				lines.remove();
 				break;
-			case "SimaProFile name":
+			case "Process name":
 				documentation.setName(lines.poll());
 				break;
 			case "Status":

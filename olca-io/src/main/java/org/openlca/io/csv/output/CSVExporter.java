@@ -1,7 +1,6 @@
 package org.openlca.io.csv.output;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.simapro.csv.CSVSeperator;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.writer.CSVWriter;
@@ -25,15 +23,13 @@ public class CSVExporter implements Runnable {
 	private List<ProcessDescriptor> processes;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public CSVExporter(IDatabase database, File file, char seperator,
+	public CSVExporter(IDatabase database, File file, char separator,
 			List<ProcessDescriptor> processes) throws IOException {
-		if (CSVSeperator.forChar(seperator) == null)
-			throw new IllegalArgumentException("Wrong seperator type: "
-					+ seperator);
 		converter = new ProcessConverter(database,
 				(referenceData = new SPReferenceData()));
-		writer = new CSVWriter(new FileWriter(file),
-				CSVSeperator.forChar(seperator), '.');
+		writer = new CSVWriter(file);
+		writer.setSeparator(separator);
+		writer.setDecimalSeparator('.');
 		writer.writeHeader("openLCA Export");
 		processDao = new ProcessDao(database);
 		this.processes = processes;

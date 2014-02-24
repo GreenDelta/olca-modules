@@ -38,7 +38,7 @@ class Documentation {
 				documentation.getProcessType() != null ? documentation
 						.getProcessType().getValue() : ProcessType.UNIT_PROCESS
 						.getValue());
-		writer.writeEntry("SimaProFile name", documentation.getName());
+		writer.writeEntry("Process name", documentation.getName());
 		writer.writeEntry("Status",
 				documentation.getStatus() != null ? documentation.getStatus()
 						.getValue() : Status.FINISHED.getValue());

@@ -28,9 +28,8 @@ public enum ProcessCategory {
 
 	public static ProcessCategory forValue(String value) {
 		for (ProcessCategory category : values())
-			if (category.getValue().equals(value))
+			if (category.getValue().equalsIgnoreCase((value)))
 				return category;
 		return null;
 	}
-
 }
