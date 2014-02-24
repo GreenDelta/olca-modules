@@ -22,7 +22,7 @@ import org.openlca.io.maps.content.CSVElementaryCategoryContent;
 import org.openlca.io.maps.content.CSVElementaryFlowContent;
 import org.openlca.io.maps.content.CSVProductFlowContent;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
-import org.openlca.simapro.csv.model.SPDataEntry;
+import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
@@ -38,7 +38,7 @@ class ProcessImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private CSVImportCache cache;
 	private Process process;
-	private SPDataEntry dataEntry;
+	private SPDataSet dataEntry;
 	private ProcessDao processDao;
 	private LocationDao locationDao;
 	private IDatabase database;

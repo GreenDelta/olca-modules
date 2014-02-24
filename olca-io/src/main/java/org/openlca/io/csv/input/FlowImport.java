@@ -30,7 +30,7 @@ import org.openlca.io.maps.content.CSVElementaryCategoryContent;
 import org.openlca.io.maps.content.CSVElementaryFlowContent;
 import org.openlca.io.maps.content.CSVProductFlowContent;
 import org.openlca.simapro.csv.model.IDistribution;
-import org.openlca.simapro.csv.model.SPDataEntry;
+import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPLogNormalDistribution;
 import org.openlca.simapro.csv.model.SPPedigreeMatrix;
@@ -52,7 +52,7 @@ public class FlowImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
-	private SPDataEntry dataEntry;
+	private SPDataSet dataEntry;
 	private Process process;
 	private CSVImportCache cache;
 	private FlowDao flowDao;
@@ -79,7 +79,7 @@ public class FlowImport {
 		this.categoryMap = categoryMap;
 	}
 
-	void importFlows(Process process, SPDataEntry dataEntry)
+	void importFlows(Process process, SPDataSet dataEntry)
 			throws InterpreterException {
 		this.process = process;
 		this.dataEntry = dataEntry;

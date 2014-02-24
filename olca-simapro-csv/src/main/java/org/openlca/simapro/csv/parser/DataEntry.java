@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import org.openlca.simapro.csv.model.SPDataEntry;
+import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPDocumentation;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProduct;
@@ -82,23 +82,22 @@ class DataEntry {
 		return process;
 	}
 
-	private void addElementaryFlows(SPDataEntry entry, ElementaryFlowType type,
+	private void addElementaryFlows(SPDataSet entry, ElementaryFlowType type,
 			Queue<String> lines) throws CSVParserException {
 		while (!lines.isEmpty() && !lines.peek().equals(""))
 			entry.getElementaryFlows().add(
 					flowParser.parseElementaryFlow(lines.poll(), type));
 	}
 
-	private void addProductFlows(SPDataEntry entry, ProductFlowType type,
+	private void addProductFlows(SPDataSet entry, ProductFlowType type,
 			Queue<String> lines) throws CSVParserException {
 		while (!lines.isEmpty() && !lines.peek().equals(""))
-			entry.getProductFlows().add(
-					flowParser.getProductFlow(lines.poll(), type));
+			entry.getProductFlows().add(flowParser.getProductFlow(lines.poll(), type));
 
 	}
 
-	SPDataEntry parse(Queue<String> lines) throws CSVParserException {
-		SPDataEntry entry = null;
+	SPDataSet parse(Queue<String> lines) throws CSVParserException {
+		SPDataSet entry = null;
 		SPDocumentation documentation = new DataEntryDocumentation(
 				csvSeperator, referenceData).parse(lines);
 

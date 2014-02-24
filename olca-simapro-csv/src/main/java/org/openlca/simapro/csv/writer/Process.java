@@ -5,7 +5,7 @@ import static org.openlca.simapro.csv.writer.WriterUtils.comment;
 import java.io.IOException;
 
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
-import org.openlca.simapro.csv.model.SPDataEntry;
+import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPProcess;
@@ -27,7 +27,7 @@ class Process {
 		this.decimalSeperator = writer.decimalSeperator;
 	}
 
-	void write(SPDataEntry dataEntry) throws IOException {
+	void write(SPDataSet dataEntry) throws IOException {
 		writer.writeln("Process");
 		writer.newLine();
 		if (dataEntry.getDocumentation() != null)
@@ -41,7 +41,7 @@ class Process {
 		writer.newLine();
 	}
 
-	private void writeReferenceProducts(SPDataEntry dataEntry)
+	private void writeReferenceProducts(SPDataSet dataEntry)
 			throws IOException {
 		if (dataEntry instanceof SPProcess) {
 			writer.writeln("Products");
@@ -60,7 +60,7 @@ class Process {
 		}
 	}
 
-	private void writeExchanges(SPDataEntry dataEntry) throws IOException {
+	private void writeExchanges(SPDataSet dataEntry) throws IOException {
 		writer.writeln("Avoided products");
 		for (SPProductFlow product : dataEntry
 				.getProductFlows(ProductFlowType.AVOIDED_PRODUCT))

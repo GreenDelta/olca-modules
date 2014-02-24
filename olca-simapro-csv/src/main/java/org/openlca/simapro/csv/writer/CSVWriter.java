@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.openlca.simapro.csv.CSVSeperator;
-import org.openlca.simapro.csv.model.SPDataEntry;
+import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPReferenceData;
 
 public class CSVWriter extends BufferedWriter {
@@ -51,7 +51,7 @@ public class CSVWriter extends BufferedWriter {
 		writeln("{Short date format: M/d/yyyy}");
 	}
 
-	public void write(SPDataEntry dataEntry) throws IOException {
+	public void write(SPDataSet dataEntry) throws IOException {
 		process.write(dataEntry);
 	}
 

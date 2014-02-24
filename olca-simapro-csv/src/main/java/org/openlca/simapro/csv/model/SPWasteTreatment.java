@@ -3,7 +3,7 @@ package org.openlca.simapro.csv.model;
 /**
  * This class represents a SimaPro waste treatment
  */
-public class SPWasteTreatment extends SPDataEntry {
+public class SPWasteTreatment extends SPDataSet {
 
 	private SPWasteSpecification wasteSpecification;
 	

@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.openlca.simapro.csv.model.SPDataEntry;
+import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
@@ -77,7 +77,7 @@ public class CSVParser {
 		return "Process".equals(currentLine);
 	}
 
-	public SPDataEntry next() throws CSVParserException, IOException {
+	public SPDataSet next() throws CSVParserException, IOException {
 		if (!"Process".equals(currentLine))
 			if (!hasNext())
 				return null;

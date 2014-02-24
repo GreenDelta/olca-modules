@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.openlca.simapro.csv.model.SPDataEntry;
+import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProduct;
@@ -58,7 +58,7 @@ public class ParseTest {
 			}
 
 			while (parser.hasNext()) {
-				SPDataEntry dataEntry = parser.next();
+				SPDataSet dataEntry = parser.next();
 				if (dataEntry instanceof SPProcess
 						|| dataEntry instanceof SPWasteTreatment) {
 					for (SPElementaryFlow flow : dataEntry.getElementaryFlows()) {

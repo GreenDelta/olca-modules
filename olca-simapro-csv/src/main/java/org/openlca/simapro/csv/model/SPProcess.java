@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * This class represents a SimaPro process
  */
-public class SPProcess extends SPDataEntry {
+public class SPProcess extends SPDataSet {
 
 	private SPProduct referenceProduct = null;
 	private List<SPProduct> byProducts = new ArrayList<SPProduct>();

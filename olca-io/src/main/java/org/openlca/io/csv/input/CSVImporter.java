@@ -8,7 +8,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
-import org.openlca.simapro.csv.model.SPDataEntry;
+import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
@@ -68,7 +68,7 @@ public class CSVImporter implements FileImport {
 				CSVImportCache cache = dataImporter.importData(referenceData);
 				processImporter.setCache(cache);
 				while (parser.hasNext()) {
-					SPDataEntry dataEntry = parser.next();
+					SPDataSet dataEntry = parser.next();
 					fireEvent(dataEntry);
 					if (dataEntry instanceof SPProcess)
 						processImporter.runImport((SPProcess) dataEntry);
@@ -86,7 +86,7 @@ public class CSVImporter implements FileImport {
 		}
 	}
 
-	private void fireEvent(SPDataEntry dataEntry) {
+	private void fireEvent(SPDataSet dataEntry) {
 		if (eventBus == null || dataEntry == null
 				|| dataEntry.getDocumentation() == null
 				|| dataEntry.getDocumentation().getName() == null)
