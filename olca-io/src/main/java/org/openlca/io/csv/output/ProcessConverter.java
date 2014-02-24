@@ -338,7 +338,7 @@ class ProcessConverter {
 						.setReliability(String.valueOf(entry.getValue()));
 				break;
 			case TECHNOLOGY:
-				spPedigreeMatrix.setFurtherTechnologicalCorrelation(String
+				spPedigreeMatrix.setTechnologicalCorrelation(String
 						.valueOf(entry.getValue()));
 				break;
 			case TIME:

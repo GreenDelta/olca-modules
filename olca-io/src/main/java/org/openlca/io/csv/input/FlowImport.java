@@ -333,9 +333,8 @@ public class FlowImport {
 		matrix.put(PedigreeMatrixRow.GEOGRAPHY,
 				getSPPedigreeValue(spPedigreeMatrix.geographicalCorrelation
 						.getKey()));
-		matrix.put(
-				PedigreeMatrixRow.TECHNOLOGY,
-				getSPPedigreeValue(spPedigreeMatrix.furtherTechnologicalCorrelation
+		matrix.put(PedigreeMatrixRow.TECHNOLOGY,
+				getSPPedigreeValue(spPedigreeMatrix.technologicalCorrelation
 						.getKey()));
 		return PedigreeMatrix.toString(matrix);
 	}

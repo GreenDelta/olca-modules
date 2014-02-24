@@ -55,7 +55,7 @@ final class Utils {
 				matrix.setCompleteness(pedigree[1]);
 				matrix.setTemporalCorrelation(pedigree[2]);
 				matrix.setGeographicalCorrelation(pedigree[3]);
-				matrix.setFurtherTechnologicalCorrelation(pedigree[4]);
+				matrix.setTechnologicalCorrelation(pedigree[4]);
 				matrix.setSampleSize(pedigree[5]);
 			}
 		} else {

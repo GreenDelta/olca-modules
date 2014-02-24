@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openlca.simapro.csv.model.pedigreetypes.Completeness;
-import org.openlca.simapro.csv.model.pedigreetypes.FurtherTechnologicalCorrelation;
+import org.openlca.simapro.csv.model.pedigreetypes.TechnologicalCorrelation;
 import org.openlca.simapro.csv.model.pedigreetypes.GeographicalCorrelation;
 import org.openlca.simapro.csv.model.pedigreetypes.Reliability;
 import org.openlca.simapro.csv.model.pedigreetypes.SampleSize;
@@ -18,7 +18,7 @@ public class SPPedigreeMatrix {
 	public Completeness completeness = Completeness.NA;
 	public TemporalCorrelation temporalCorrelation = TemporalCorrelation.NA;
 	public GeographicalCorrelation geographicalCorrelation = GeographicalCorrelation.NA;
-	public FurtherTechnologicalCorrelation furtherTechnologicalCorrelation = FurtherTechnologicalCorrelation.NA;
+	public TechnologicalCorrelation technologicalCorrelation = TechnologicalCorrelation.NA;
 	public SampleSize sampleSize = SampleSize.NA;
 
 	public SPPedigreeMatrix() {
@@ -41,7 +41,7 @@ public class SPPedigreeMatrix {
 		builder.append(",");
 		builder.append(geographicalCorrelation.getKey());
 		builder.append(",");
-		builder.append(furtherTechnologicalCorrelation.getKey());
+		builder.append(technologicalCorrelation.getKey());
 		builder.append(",");
 		builder.append(sampleSize.getKey());
 		builder.append(")");
@@ -58,7 +58,7 @@ public class SPPedigreeMatrix {
 		double u4 = Math.pow(Math.log(geographicalCorrelation.getIndicator()),
 				2);
 		double u5 = Math.pow(
-				Math.log(furtherTechnologicalCorrelation.getIndicator()), 2);
+				Math.log(technologicalCorrelation.getIndicator()), 2);
 		double u6 = Math.pow(Math.log(sampleSize.getIndicator()), 2);
 		double ub = Math.pow(Math.log(1.05), 2);
 
@@ -93,31 +93,31 @@ public class SPPedigreeMatrix {
 		}
 	}
 
-	public void setFurtherTechnologicalCorrelation(String pedigree) {
+	public void setTechnologicalCorrelation(String pedigree) {
 		if (pedigreeContain.contains(pedigree)) {
 			switch (Integer.parseInt(pedigree)) {
 			case 1:
-				furtherTechnologicalCorrelation = FurtherTechnologicalCorrelation.ONE;
+				technologicalCorrelation = TechnologicalCorrelation.ONE;
 				break;
 
 			case 2:
-				furtherTechnologicalCorrelation = FurtherTechnologicalCorrelation.TWO;
+				technologicalCorrelation = TechnologicalCorrelation.TWO;
 				break;
 
 			case 3:
-				furtherTechnologicalCorrelation = FurtherTechnologicalCorrelation.THREE;
+				technologicalCorrelation = TechnologicalCorrelation.THREE;
 				break;
 
 			case 4:
-				furtherTechnologicalCorrelation = FurtherTechnologicalCorrelation.FOUR;
+				technologicalCorrelation = TechnologicalCorrelation.FOUR;
 				break;
 
 			case 5:
-				furtherTechnologicalCorrelation = FurtherTechnologicalCorrelation.FIVE;
+				technologicalCorrelation = TechnologicalCorrelation.FIVE;
 				break;
 			}
 		} else {
-			furtherTechnologicalCorrelation = FurtherTechnologicalCorrelation.NA;
+			technologicalCorrelation = TechnologicalCorrelation.NA;
 		}
 	}
 

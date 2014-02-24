@@ -1,33 +1,18 @@
 package org.openlca.simapro.csv.model.pedigreetypes;
 
 public enum SampleSize {
-	/**
-	 * na
-	 */
+
 	NA("na", "Unspecified", 1),
 
-	/**
-	 * one
-	 */
-	ONE("1", ">100, continous measurement, balance of pruchased product", 1),
+	ONE("1", ">100, continuous measurement, balance of purchased product", 1),
 
-	/**
-	 * two
-	 */
 	TWO("2", ">20", 1.02),
 
-	/**
-	 * three
-	 */
-	THREE("3", "> 10, aggrefated figure in env. report", 1.05),
-	/**
-	 * four
-	 */
+	THREE("3", "> 10, aggregated figure in env. report", 1.05),
+
 	FOUR("4", ">=3", 1.1),
-	/**
-	 * five
-	 */
-	FIVE("5", "uknown", 1.2);
+
+	FIVE("5", "unknown", 1.2);
 
 	private String key;
 	private String value;
