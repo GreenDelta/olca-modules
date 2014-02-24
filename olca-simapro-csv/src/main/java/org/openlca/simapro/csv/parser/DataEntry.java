@@ -85,13 +85,15 @@ class DataEntry {
 	private void addElementaryFlows(SPDataEntry entry, ElementaryFlowType type,
 			Queue<String> lines) throws CSVParserException {
 		while (!lines.isEmpty() && !lines.peek().equals(""))
-			entry.add(flowParser.parseElementaryFlow(lines.poll(), type));
+			entry.getElementaryFlows().add(
+					flowParser.parseElementaryFlow(lines.poll(), type));
 	}
 
 	private void addProductFlows(SPDataEntry entry, ProductFlowType type,
 			Queue<String> lines) throws CSVParserException {
 		while (!lines.isEmpty() && !lines.peek().equals(""))
-			entry.add(flowParser.getProductFlow(lines.poll(), type));
+			entry.getProductFlows().add(
+					flowParser.getProductFlow(lines.poll(), type));
 
 	}
 
@@ -163,14 +165,16 @@ class DataEntry {
 				break;
 			case "Input parameters":
 				while (!lines.isEmpty() && !lines.peek().equals("")) {
-					entry.add(Parameter.parseInputParameter(lines.poll(),
-							csvSeperator, ParameterType.LOCAL));
+					entry.getInputParameters().add(
+							Parameter.parseInputParameter(lines.poll(),
+									csvSeperator, ParameterType.LOCAL));
 				}
 				break;
 			case "Calculated parameters":
 				while (!lines.isEmpty() && !lines.peek().equals("")) {
-					entry.add(Parameter.parseCalculatedParameter(lines.poll(),
-							csvSeperator, ParameterType.LOCAL));
+					entry.getCalculatedParameters().add(
+							Parameter.parseCalculatedParameter(lines.poll(),
+									csvSeperator, ParameterType.LOCAL));
 				}
 				break;
 			default:

@@ -3,8 +3,8 @@ package org.openlca.io.maps.content;
 import org.openlca.io.csv.input.CSVKeyGen;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPUnit;
-import org.openlca.simapro.csv.model.types.ElementaryFlowType;
-import org.openlca.simapro.csv.model.types.SubCompartment;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.SubCompartment;
 
 public class CSVElementaryFlowContent implements IMappingContent {
 

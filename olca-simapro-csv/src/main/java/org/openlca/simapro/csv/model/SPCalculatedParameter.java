@@ -1,13 +1,5 @@
 package org.openlca.simapro.csv.model;
 
-/**
- * This class represents a process parameter with expression (can be a double
- * value or a formula)
-<<<<<<< Updated upstream
-=======
- * 
->>>>>>> Stashed changes
- */
 public class SPCalculatedParameter extends SPParameter {
 
 	private String expression;

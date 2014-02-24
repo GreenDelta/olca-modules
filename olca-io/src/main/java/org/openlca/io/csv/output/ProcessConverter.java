@@ -40,11 +40,11 @@ import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPTriangleDistribution;
 import org.openlca.simapro.csv.model.SPUniformDistribution;
 import org.openlca.simapro.csv.model.SPUnit;
-import org.openlca.simapro.csv.model.types.ElementaryFlowType;
-import org.openlca.simapro.csv.model.types.Geography;
-import org.openlca.simapro.csv.model.types.ProcessCategory;
-import org.openlca.simapro.csv.model.types.ProcessType;
-import org.openlca.simapro.csv.model.types.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.Geography;
+import org.openlca.simapro.csv.model.enums.ProcessCategory;
+import org.openlca.simapro.csv.model.enums.ProcessType;
+import org.openlca.simapro.csv.model.enums.ProductFlowType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,7 +179,7 @@ class ProcessConverter {
 					olcaFlow.getName(), map(exchange.getUnit()).getName(),
 					String.valueOf(exchange.getAmountValue()));
 			productFlow.setType(getProductFlowType(exchange));
-			spProcess.add(productFlow);
+			spProcess.getProductFlows().add(productFlow);
 		}
 	}
 
@@ -226,7 +226,7 @@ class ProcessConverter {
 			substance.setFlowType(flow.getType());
 			substance.setCASNumber(casNumber);
 			referenceData.add(substance);
-			spProcess.add(flow);
+			spProcess.getElementaryFlows().add(flow);
 		}
 	}
 

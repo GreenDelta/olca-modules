@@ -7,7 +7,7 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.simapro.csv.model.SPSubstance;
-import org.openlca.simapro.csv.model.types.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
 import com.google.common.reflect.Parameter;
 

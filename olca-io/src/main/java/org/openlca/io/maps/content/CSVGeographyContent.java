@@ -1,7 +1,7 @@
 package org.openlca.io.maps.content;
 
 import org.openlca.io.KeyGen;
-import org.openlca.simapro.csv.model.types.Geography;
+import org.openlca.simapro.csv.model.enums.Geography;
 
 public class CSVGeographyContent implements IMappingContent {
 

@@ -237,10 +237,10 @@ class ProcessImport {
 	}
 
 	private void processType() {
-		org.openlca.simapro.csv.model.types.ProcessType processType = dataEntry
+		org.openlca.simapro.csv.model.enums.ProcessType processType = dataEntry
 				.getDocumentation().getProcessType();
 		if (processType != null
-				&& processType == org.openlca.simapro.csv.model.types.ProcessType.SYSTEM) {
+				&& processType == org.openlca.simapro.csv.model.enums.ProcessType.SYSTEM) {
 			process.setProcessType(ProcessType.LCI_RESULT);
 		} else {
 			process.setProcessType(ProcessType.UNIT_PROCESS);

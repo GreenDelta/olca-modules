@@ -4,7 +4,7 @@ import org.openlca.io.KeyGen;
 import org.openlca.simapro.csv.model.SPElementaryFlow;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPUnit;
-import org.openlca.simapro.csv.model.types.SubCompartment;
+import org.openlca.simapro.csv.model.enums.SubCompartment;
 
 public class CSVKeyGen {
 
