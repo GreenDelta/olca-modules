@@ -54,25 +54,22 @@ public class ProductSystem extends CategorizedEntity {
 
 	@Override
 	public ProductSystem clone() {
-		final ProductSystem productSystem = new ProductSystem();
-		productSystem.setCategory(getCategory());
-		productSystem.setDescription(getDescription());
-		productSystem.setRefId(UUID.randomUUID().toString());
-		productSystem.setName(getName());
-		productSystem.setReferenceExchange(getReferenceExchange());
-		productSystem.setReferenceProcess(getReferenceProcess());
-		productSystem.setTargetAmount(getTargetAmount());
-		for (Long process : getProcesses())
-			productSystem.getProcesses().add(process);
+		ProductSystem clone = new ProductSystem();
+		clone.setCategory(getCategory());
+		clone.setDescription(getDescription());
+		clone.setRefId(UUID.randomUUID().toString());
+		clone.setName(getName());
+		clone.setReferenceExchange(getReferenceExchange());
+		clone.setReferenceProcess(getReferenceProcess());
+		clone.setTargetAmount(getTargetAmount());
+		clone.getProcesses().addAll(getProcesses());
 		for (ProcessLink processLink : getProcessLinks())
-			productSystem.getProcessLinks().add(processLink.clone());
-		for (ParameterRedef redef : getParameterRedefs()) {
-			productSystem.getParameterRedefs().add(redef.clone());
-		}
-		productSystem
-				.setTargetFlowPropertyFactor(getTargetFlowPropertyFactor());
-		productSystem.setTargetUnit(getTargetUnit());
-		return productSystem;
+			clone.getProcessLinks().add(processLink.clone());
+		for (ParameterRedef redef : getParameterRedefs())
+			clone.getParameterRedefs().add(redef.clone());
+		clone.setTargetFlowPropertyFactor(getTargetFlowPropertyFactor());
+		clone.setTargetUnit(getTargetUnit());
+		return clone;
 	}
 
 	public Exchange getReferenceExchange() {

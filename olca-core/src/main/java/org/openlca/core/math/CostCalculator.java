@@ -13,11 +13,13 @@ public class CostCalculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private MatrixCache matrixCache;
-	private final IMatrixFactory factory;
+	private final IMatrixFactory<?> factory;
+	private final IMatrixSolver solver;
 
-	public CostCalculator(MatrixCache matrixCache, IMatrixFactory factory) {
+	public CostCalculator(MatrixCache matrixCache, IMatrixSolver solver) {
 		this.matrixCache = matrixCache;
-		this.factory = factory;
+		this.factory = solver.getMatrixFactory();
+		this.solver = solver;
 	}
 
 	/**
@@ -47,7 +49,6 @@ public class CostCalculator {
 		IMatrix scalingVector = factory.create(s.length, 1);
 		for (int row = 0; row < s.length; row++)
 			scalingVector.setEntry(row, 0, s[row]);
-		ISolver solver = factory.getDefaultSolver();
 		IMatrix varResult = solver.multiply(varCosts, scalingVector);
 		result.setVarCostCategoryIndex(matrix.getVarCostCategoryIndex());
 		result.setVarCostResults(varResult.getColumn(0));

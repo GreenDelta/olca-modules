@@ -5,7 +5,7 @@ import org.openlca.core.math.IMatrixFactory;
 
 public class MatrixUtils {
 
-	public static IMatrix create(double[][] data, IMatrixFactory factory) {
+	public static IMatrix create(double[][] data, IMatrixFactory<?> factory) {
 		int rows = data.length;
 		int cols = 1;
 		for (int row = 0; row < rows; row++) {

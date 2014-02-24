@@ -1,13 +1,5 @@
 package org.openlca.io.xls.results;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -18,9 +10,17 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.ProjectResult;
+import org.openlca.core.results.ProjectResultProvider;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 public class ProjectResultExport {
 
@@ -42,15 +42,15 @@ public class ProjectResultExport {
 				});
 	}
 
-	public void run(ProjectResult result) throws Exception {
+	public void run(ProjectResultProvider result) throws Exception {
 		Workbook workbook = new XSSFWorkbook();
 		headerStyle = Excel.headerStyle(workbook);
 		writeInfoSheet(workbook);
 		Sheet inventorySheet = workbook.createSheet("LCI Results");
-		ProjectInventories.write(result, cache, inventorySheet, headerStyle);
-		if (result.getImpacts(cache).size() > 0) {
+		ProjectInventories.write(result, inventorySheet, headerStyle);
+		if (result.hasImpactResults()) {
 			Sheet impactSheet = workbook.createSheet("LCIA Results");
-			ProjectImpacts.write(result, cache, impactSheet, headerStyle);
+			ProjectImpacts.write(result, impactSheet, headerStyle);
 		}
 		try (FileOutputStream fos = new FileOutputStream(file)) {
 			workbook.write(fos);
@@ -133,12 +133,12 @@ public class ProjectResultExport {
 	}
 
 	private String processName(ParameterRedef redef) {
-		if (redef.getProcessId() == null)
+		if (redef.getContextId() == null)
 			return "global";
 		ProcessDescriptor p = cache.get(ProcessDescriptor.class,
-				redef.getProcessId());
+				redef.getContextId());
 		if (p == null)
-			return "not found: " + redef.getProcessId();
+			return "not found: " + redef.getContextId();
 		return p.getName();
 	}
 
@@ -161,7 +161,7 @@ public class ProjectResultExport {
 	}
 
 	private ParameterRedef findRedef(ParameterRedef redef,
-			List<ParameterRedef> redefs) {
+	                                 List<ParameterRedef> redefs) {
 		for (ParameterRedef contained : redefs)
 			if (eq(redef, contained))
 				return contained;
@@ -174,7 +174,7 @@ public class ProjectResultExport {
 		if (redef1 == null || redef2 == null)
 			return false;
 		return Objects.equals(redef1.getName(), redef2.getName())
-				&& Objects.equals(redef1.getProcessId(), redef2.getProcessId());
+				&& Objects.equals(redef1.getContextId(), redef2.getContextId());
 	}
 
 	private void header(Sheet sheet, int row, int col, String val) {

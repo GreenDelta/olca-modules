@@ -19,8 +19,8 @@
 		<class>org.openlca.core.model.ImpactMethod</class>
 		<class>org.openlca.core.model.Location</class>
 		<class>org.openlca.core.model.ModelingAndValidation</class>
-		<class>org.openlca.core.model.NormalizationWeightingSet</class>
-		<class>org.openlca.core.model.NormalizationWeightingFactor</class>
+		<class>org.openlca.core.model.NwSet</class>
+		<class>org.openlca.core.model.NwFactor</class>
 		<class>org.openlca.core.model.Parameter</class>
 		<class>org.openlca.core.model.ParameterRedef</class>
 		<class>org.openlca.core.model.Process</class>

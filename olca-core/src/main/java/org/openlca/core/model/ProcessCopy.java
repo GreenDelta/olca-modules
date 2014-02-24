@@ -1,44 +1,70 @@
 package org.openlca.core.model;
 
+import java.util.Objects;
 import java.util.UUID;
 
 class ProcessCopy {
 
-	public Process create(Process self) {
-		Process other = new Process();
-		other.setRefId(UUID.randomUUID().toString());
-		other.setName(self.getName());
-		copyFields(self, other);
-		copyParameters(self, other);
-		copyExchanges(self, other);
-		for (AllocationFactor factor : self.getAllocationFactors())
-			other.getAllocationFactors().add(factor.clone());
-		return other;
+	public Process create(Process origin) {
+		Process copy = new Process();
+		copy.setRefId(UUID.randomUUID().toString());
+		copy.setName(origin.getName());
+		copyFields(origin, copy);
+		copyParameters(origin, copy);
+		copyExchanges(origin, copy);
+		copyAllocationFactors(origin, copy);
+		return copy;
 	}
 
-	private void copyFields(Process self, Process other) {
-		other.setDefaultAllocationMethod(self.getDefaultAllocationMethod());
-		other.setCategory(self.getCategory());
-		other.setDescription(self.getDescription());
-		other.setLocation(self.getLocation());
-		other.setProcessType(self.getProcessType());
-		other.setInfrastructureProcess(self.isInfrastructureProcess());
-		other.setDocumentation(self.getDocumentation().clone());
+	private void copyFields(Process origin, Process copy) {
+		copy.setDefaultAllocationMethod(origin.getDefaultAllocationMethod());
+		copy.setCategory(origin.getCategory());
+		copy.setDescription(origin.getDescription());
+		copy.setLocation(origin.getLocation());
+		copy.setProcessType(origin.getProcessType());
+		copy.setInfrastructureProcess(origin.isInfrastructureProcess());
+		if (origin.getDocumentation() != null)
+			copy.setDocumentation(origin.getDocumentation().clone());
 	}
 
-	private void copyExchanges(Process self, Process other) {
-		for (Exchange exchange : self.getExchanges()) {
+	private void copyExchanges(Process origin, Process copy) {
+		for (Exchange exchange : origin.getExchanges()) {
 			Exchange clone = exchange.clone();
-			other.getExchanges().add(clone);
-			if (exchange.equals(self.getQuantitativeReference()))
-				other.setQuantitativeReference(clone);
+			copy.getExchanges().add(clone);
+			if (exchange.equals(origin.getQuantitativeReference()))
+				copy.setQuantitativeReference(clone);
 		}
 	}
 
-	private void copyParameters(Process self, Process other) {
-		for (Parameter parameter : self.getParameters()) {
+	private void copyParameters(Process origin, Process copy) {
+		for (Parameter parameter : origin.getParameters()) {
 			Parameter p = parameter.clone();
-			other.getParameters().add(p);
+			copy.getParameters().add(p);
 		}
+	}
+
+	private void copyAllocationFactors(Process origin, Process copy) {
+		for (AllocationFactor factor : origin.getAllocationFactors()) {
+			AllocationFactor clone = factor.clone();
+			// not that the cloned factor has a reference to an exchange of
+			// the original process
+			Exchange copyExchange = findExchange(clone.getExchange(), copy);
+			clone.setExchange(copyExchange);
+			copy.getAllocationFactors().add(clone);
+		}
+	}
+
+	private Exchange findExchange(Exchange origin, Process processCopy) {
+		if(origin == null)
+			return null;
+		for(Exchange copy : processCopy.getExchanges()) {
+			boolean equal = origin.isInput() == copy.isInput()
+					&& Objects.equals(origin.getFlow(), copy.getFlow())
+					&& origin.getAmountValue() == copy.getAmountValue()
+					&& Objects.equals(origin.getUnit(), copy.getUnit());
+			if(equal)
+				return copy;
+		}
+		return null;
 	}
 }

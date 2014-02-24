@@ -30,7 +30,9 @@ public enum ModelType {
 
 	CATEGORY(Category.class),
 
-	LOCATION(Location.class);
+	LOCATION(Location.class),
+
+	NW_SET(NwSet.class);
 
 	final Class<?> modelClass;
 

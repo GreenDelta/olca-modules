@@ -1,17 +1,19 @@
 package org.openlca.io.xls.systems;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.results.Results;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
 import org.openlca.util.Strings;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A class for showing the essential information of a flow to the user.
@@ -27,9 +29,8 @@ class FlowInfo implements Comparable<FlowInfo> {
 	private String location;
 
 	public static List<FlowInfo> getAll(SystemExportConfig conf, FlowIndex index) {
-		Set<FlowDescriptor> flows = Results.getFlowDescriptors(index,
-				conf.getEntityCache());
 		EntityCache cache = conf.getEntityCache();
+		Set<FlowDescriptor> flows = getFlowDescriptors(cache, index);
 		List<FlowInfo> infos = new ArrayList<>();
 		for (FlowDescriptor flow : flows) {
 			CategoryPair catPair = CategoryPair.create(flow, cache);
@@ -50,6 +51,19 @@ class FlowInfo implements Comparable<FlowInfo> {
 			infos.add(info);
 		}
 		return infos;
+	}
+
+	private static Set<FlowDescriptor> getFlowDescriptors(EntityCache cache,
+	                                                      FlowIndex index) {
+		if (index == null)
+			return Collections.emptySet();
+		List<Long> ids = new ArrayList<>(index.size());
+		for (long id : index.getFlowIds())
+			ids.add(id);
+		Map<Long, FlowDescriptor> values = cache.getAll(FlowDescriptor.class, ids);
+		HashSet<FlowDescriptor> descriptors = new HashSet<>();
+		descriptors.addAll(values.values());
+		return descriptors;
 	}
 
 	public long getRealId() {

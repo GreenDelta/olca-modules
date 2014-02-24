@@ -20,14 +20,14 @@ public class CostMatrixBuilder {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private final MatrixCache matrixCache;
-	private final IMatrixFactory factory;
+	private final IMatrixFactory<?> factory;
 	private TLongObjectHashMap<CostCategory> costCategories;
 	private Multimap<LongPair, CalcCostEntry> costEntries = HashMultimap
 			.create();
 	private LongIndex fixCostCategoryIndex;
 	private LongIndex varCostCategoryIndex;
 
-	public CostMatrixBuilder(MatrixCache matrixCache, IMatrixFactory factory) {
+	public CostMatrixBuilder(MatrixCache matrixCache, IMatrixFactory<?> factory) {
 		this.matrixCache = matrixCache;
 		this.factory = factory;
 	}

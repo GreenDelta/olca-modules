@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -21,36 +18,28 @@ import org.openlca.core.results.Contributions.Function;
  */
 public class LocationContribution {
 
-	private AnalysisResult result;
+	private ContributionResultProvider<?> result;
 	private Map<Location, List<ProcessDescriptor>> processIndex = new HashMap<>();
-	private Location defaultLocation;
 
-	public LocationContribution(AnalysisResult result, String defaultName,
-			EntityCache cache) {
+	public LocationContribution(ContributionResultProvider<?> result) {
 		this.result = result;
-		defaultLocation = new Location();
-		defaultLocation.setCode(defaultName);
-		defaultLocation.setName(defaultName);
-		defaultLocation.setRefId(UUID.randomUUID().toString());
-		initProcessIndex(cache);
+		initProcessIndex();
 	}
 
-	private void initProcessIndex(EntityCache cache) {
-		if (result == null || result.getProductIndex() == null)
+	private void initProcessIndex() {
+		if (result == null)
 			return;
-		ProductIndex index = result.getProductIndex();
-		for (int i = 0; i < index.size(); i++) {
-			LongPair processProduct = index.getProductAt(i);
-			ProcessDescriptor p = cache.get(ProcessDescriptor.class,
-					processProduct.getFirst());
-			Location loc = p.getLocation() == null ? defaultLocation : cache
-					.get(Location.class, p.getLocation());
+		EntityCache cache = result.getCache();
+		for (ProcessDescriptor process : result.getProcessDescriptors()) {
+			Location loc = null;
+			if (process.getLocation() != null)
+				loc = cache.get(Location.class, process.getLocation());
 			List<ProcessDescriptor> list = processIndex.get(loc);
 			if (list == null) {
 				list = new ArrayList<>();
 				processIndex.put(loc, list);
 			}
-			list.add(p);
+			list.add(process);
 		}
 	}
 
@@ -58,15 +47,16 @@ public class LocationContribution {
 	public ContributionSet<Location> calculate(final FlowDescriptor flow) {
 		if (flow == null || result == null)
 			return ContributionSet.empty();
-		return Contributions.calculate(processIndex.keySet(),
+		double total = result.getTotalFlowResult(flow).getValue();
+		return Contributions.calculate(processIndex.keySet(), total,
 				new Function<Location>() {
 					@Override
 					public double value(Location loc) {
 						List<ProcessDescriptor> list = processIndex.get(loc);
 						double amount = 0;
 						for (ProcessDescriptor p : list)
-							amount += result.getSingleFlowResult(p.getId(),
-									flow.getId());
+							amount += result.getSingleFlowResult(p, flow)
+									.getValue();
 						return amount;
 					}
 				});
@@ -77,15 +67,16 @@ public class LocationContribution {
 			final ImpactCategoryDescriptor impact) {
 		if (impact == null || result == null)
 			return ContributionSet.empty();
-		return Contributions.calculate(processIndex.keySet(),
+		double total = result.getTotalImpactResult(impact).getValue();
+		return Contributions.calculate(processIndex.keySet(), total,
 				new Function<Location>() {
 					@Override
 					public double value(Location loc) {
 						List<ProcessDescriptor> list = processIndex.get(loc);
 						double amount = 0;
 						for (ProcessDescriptor p : list)
-							amount += result.getSingleImpactResult(p.getId(),
-									impact.getId());
+							amount += result.getSingleImpactResult(p, impact)
+									.getValue();
 						return amount;
 					}
 				});

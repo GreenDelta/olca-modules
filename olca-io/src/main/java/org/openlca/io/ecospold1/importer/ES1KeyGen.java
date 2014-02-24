@@ -10,8 +10,10 @@ import org.openlca.io.KeyGen;
 /**
  * Generator for name-based UUIDs (version 3) for EcoSpold 01 entities.
  * 
- * See <a href="http://openlca.org/documentation/index.php/OpenLCA_Help">
- * http://openlca.org/documentation/index.php/OpenLCA_Help</a> TODO: update link
+ * See <a href=
+ * "http://openlca.org/documentation/index.php/UUIDs_for_EcoSpold_01_data_sets">
+ * http
+ * ://openlca.org/documentation/index.php/UUIDs_for_EcoSpold_01_data_sets</a>.
  */
 public class ES1KeyGen {
 

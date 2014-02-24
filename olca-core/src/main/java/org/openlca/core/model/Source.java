@@ -21,17 +21,21 @@ public class Source extends CategorizedEntity {
 	@Column(name = "source_year")
 	private Short year;
 
+	@Column(name = "external_file")
+	private String externalFile;
+
 	@Override
 	public Source clone() {
-		Source source = new Source();
-		source.setRefId(UUID.randomUUID().toString());
-		source.setName(getName());
-		source.setCategory(getCategory());
-		source.setDescription(getDescription());
-		source.setDoi(getDoi());
-		source.setTextReference(getTextReference());
-		source.setYear(getYear());
-		return source;
+		Source clone = new Source();
+		clone.setRefId(UUID.randomUUID().toString());
+		clone.setName(getName());
+		clone.setCategory(getCategory());
+		clone.setDescription(getDescription());
+		clone.setDoi(getDoi());
+		clone.setTextReference(getTextReference());
+		clone.setYear(getYear());
+		clone.setExternalFile(getExternalFile());
+		return clone;
 	}
 
 	public String getDoi() {
@@ -56,6 +60,14 @@ public class Source extends CategorizedEntity {
 
 	public void setYear(Short year) {
 		this.year = year;
+	}
+
+	public String getExternalFile() {
+		return externalFile;
+	}
+
+	public void setExternalFile(String externalFile) {
+		this.externalFile = externalFile;
 	}
 
 }

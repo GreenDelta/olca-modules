@@ -16,8 +16,8 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.NormalizationWeightingFactor;
-import org.openlca.core.model.NormalizationWeightingSet;
+import org.openlca.core.model.NwFactor;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessCostEntry;
@@ -54,8 +54,8 @@ public class BaseDaoTest {
 		ImpactFactor.class,
 		ImpactMethod.class,
 		Location.class,
-		NormalizationWeightingFactor.class,
-		NormalizationWeightingSet.class,
+		NwFactor.class,
+		NwSet.class,
 		Parameter.class,
 		Process.class,
 		ProcessGroupSet.class,

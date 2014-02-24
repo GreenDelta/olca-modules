@@ -1,5 +1,6 @@
 package org.openlca.core.database.mysql;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.HashMap;
@@ -10,8 +11,8 @@ import javax.persistence.EntityManagerFactory;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.DatabaseException;
+import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.internal.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ public class MySQLDatabase implements IDatabase {
 	private String password;
 	private BoneCP connectionPool;
 	private final String persistenceUnit;
+	private File fileStorageLocation;
 
 	public MySQLDatabase(String url, String user, String password) {
 		this(url, user, password, "openLCA");
@@ -76,6 +78,15 @@ public class MySQLDatabase implements IDatabase {
 			log.error("failed to initialize connection pool", e);
 			throw new DatabaseException("Could not create a connection", e);
 		}
+	}
+
+	@Override
+	public File getFileStorageLocation() {
+		return fileStorageLocation;
+	}
+
+	public void setFileStorageLocation(File fileStorageLocation) {
+		this.fileStorageLocation = fileStorageLocation;
 	}
 
 	@Override

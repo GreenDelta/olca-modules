@@ -38,7 +38,7 @@ public class ImpactTable {
 		this.factorMatrix = factorMatrix;
 	}
 
-	public ImpactMatrix asMatrix(IMatrixFactory factory) {
+	public ImpactMatrix asMatrix(IMatrixFactory<?> factory) {
 		ImpactMatrix matrix = new ImpactMatrix();
 		matrix.setCategoryIndex(categoryIndex);
 		if (factorMatrix != null)

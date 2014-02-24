@@ -1,7 +1,7 @@
 // ported from the xReporter project
 package org.openlca.expressions;
 
-class VariableFunction implements Expression {
+public class VariableFunction implements Expression {
 
 	protected String variableName;
 	protected String position;
@@ -9,6 +9,10 @@ class VariableFunction implements Expression {
 
 	public VariableFunction(String variableName) {
 		this.variableName = variableName;
+	}
+
+	public String getVariableName() {
+		return variableName;
 	}
 
 	@Override

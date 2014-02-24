@@ -6,7 +6,7 @@ import org.openlca.core.model.UncertaintyType;
 /**
  * The cell value is negative if the factor is related to an input flow.
  */
-public class ImpactFactorCell {
+class ImpactFactorCell {
 
 	private final boolean inputFlow;
 	private final CalcImpactFactor factor;
@@ -17,14 +17,14 @@ public class ImpactFactorCell {
 		this.inputFlow = inputFlow;
 	}
 
-	public double getMatrixValue() {
+	double getMatrixValue() {
 		if (factor == null)
 			return 0;
 		double amount = factor.getAmount() * factor.getConversionFactor();
 		return inputFlow ? -amount : amount;
 	}
 
-	public double getNextSimulationValue() {
+	double getNextSimulationValue() {
 		UncertaintyType type = factor.getUncertaintyType();
 		if (type == null || type == UncertaintyType.NONE)
 			return getMatrixValue();

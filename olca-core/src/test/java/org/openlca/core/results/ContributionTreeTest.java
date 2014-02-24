@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.openlca.core.TestSession;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
-import org.openlca.core.math.InventoryCalculator;
+import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
@@ -30,7 +30,8 @@ public class ContributionTreeTest {
 		flowIndex.putOutputFlow(4);
 		matrix.setFlowIndex(flowIndex);
 
-		IMatrixFactory factory = TestSession.getMatrixFactory();
+		IMatrixFactory<?> factory = TestSession.getDefaultSolver()
+				.getMatrixFactory();
 		IMatrix techMatrix = MatrixUtils.create(new double[][] { { 1, 0, 0 },
 				{ -1, 1, 0 }, { -1, 0, 1 } }, factory);
 		matrix.setTechnologyMatrix(techMatrix);
@@ -38,14 +39,16 @@ public class ContributionTreeTest {
 				new double[][] { { 0, 0.5, 0.5 } }, factory);
 		matrix.setInterventionMatrix(enviMatrix);
 
-		AnalysisResult result = new InventoryCalculator(factory)
-				.analyse(matrix);
+		FullResult result = new LcaCalculator(TestSession.getDefaultSolver())
+				.calculateFull(matrix);
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setId(4);
 
-		Assert.assertEquals(1.0, result.getFlowResults().getTotalResult(flow),
-				1e-16);
-		ContributionTree tree = result.getContributions().getTree(flow);
+		Assert.assertEquals(1.0, result.getTotalFlowResult(flow.getId()), 1e-16);
+
+		UpstreamTreeCalculator treeCalculator = new UpstreamTreeCalculator(
+				result);
+		UpstreamTree tree = treeCalculator.calculate(flow);
 		Assert.assertEquals(2, tree.getRoot().getChildren().size());
 		Assert.assertEquals(1.0, tree.getRoot().getAmount(), 1e-16);
 		Assert.assertEquals(0.5, tree.getRoot().getChildren().get(0)
@@ -53,5 +56,4 @@ public class ContributionTreeTest {
 		Assert.assertEquals(0.5, tree.getRoot().getChildren().get(1)
 				.getAmount(), 1e-16);
 	}
-
 }

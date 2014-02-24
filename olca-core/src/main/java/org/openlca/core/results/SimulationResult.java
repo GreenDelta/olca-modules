@@ -4,47 +4,45 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.LongIndex;
+/**
+ * The results of a Monte-Carlo-Simulation. The single result values of the
+ * simulation runs are stored in an array of lists where the flow- and LCIA
+ * category indices are mapped to the respective array rows and the result
+ * values to the respective list entries.
+ */
+public class SimulationResult extends BaseResult {
 
-public class SimulationResult {
-
-	private FlowIndex flowIndex;
-	private LongIndex impactIndex;
 	private List<Double>[] flowResults;
-	private List<Double>[] categoryResults;
+	private List<Double>[] impactResults;
+
+	public List<Double>[] getFlowResults() {
+		return flowResults;
+	}
+
+	public void setFlowResults(List<Double>[] flowResults) {
+		this.flowResults = flowResults;
+	}
+
+	public List<Double>[] getImpactResults() {
+		return impactResults;
+	}
+
+	public void setImpactResults(List<Double>[] impactResults) {
+		this.impactResults = impactResults;
+	}
 
 	@SuppressWarnings("unchecked")
-	public SimulationResult(FlowIndex flowIndex) {
-		this.flowIndex = flowIndex;
-		flowResults = new List[flowIndex.size()];
-	}
-
-	public FlowIndex getFlowIndex() {
-		return flowIndex;
-	}
-
-	public boolean hasImpactResults() {
-		return impactIndex != null && !impactIndex.isEmpty();
-	}
-
-	@SuppressWarnings("unchecked")
-	public void setImpactIndex(LongIndex index) {
-		this.impactIndex = index;
-		if (index != null)
-			categoryResults = new List[index.size()];
-	}
-
-	public LongIndex getImpactIndex() {
-		return impactIndex;
-	}
-
 	public void appendFlowResults(double[] vector) {
+		if (flowResults == null)
+			flowResults = new List[flowIndex.size()];
 		appendResults(vector, flowResults);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void appendImpactResults(double[] vector) {
-		appendResults(vector, categoryResults);
+		if (impactResults == null)
+			impactResults = new List[impactIndex.size()];
+		appendResults(vector, impactResults);
 	}
 
 	private void appendResults(double[] vector, List<Double>[] results) {
@@ -71,7 +69,7 @@ public class SimulationResult {
 		int idx = impactIndex.getIndex(impactCategoryId);
 		if (idx < 0)
 			return Collections.emptyList();
-		return categoryResults[idx];
+		return impactResults[idx];
 	}
 
 	public int getNumberOfRuns() {

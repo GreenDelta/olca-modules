@@ -15,8 +15,8 @@ import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.DatabaseContent;
 import org.openlca.core.database.DatabaseException;
+import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.internal.DbUtils;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
 import org.slf4j.Logger;
@@ -53,13 +53,27 @@ public class DerbyDatabase implements IDatabase {
 	public DerbyDatabase(File folder) {
 		registerDriver();
 		this.folder = folder;
-		boolean create = !folder.exists();
+		boolean create = shouldCreateNew(folder);
 		log.info("initialize database folder {}, create={}", folder, create);
 		url = "jdbc:derby:" + folder.getAbsolutePath().replace('\\', '/');
 		log.trace("database url: {}", url);
 		if (create)
 			createNew(url + ";create=true");
 		connect();
+	}
+
+	private boolean shouldCreateNew(File folder) {
+		// see the Derby folder specification:
+		// http://db.apache.org/derby/docs/10.0/manuals/develop/develop13.html
+		if (!folder.exists())
+			return true;
+		File log = new File(folder, "log");
+		if (!log.exists())
+			return true;
+		File seg0 = new File(folder, "seg0");
+		if (!seg0.exists())
+			return true;
+		return false;
 	}
 
 	private void registerDriver() {
@@ -81,6 +95,26 @@ public class DerbyDatabase implements IDatabase {
 			log.error("failed to create database", e);
 			throw new DatabaseException("Failed to create database", e);
 		}
+	}
+
+	/**
+	 * Returns the Derby database directory (see
+	 * http://db.apache.org/derby/docs/10.0/manuals/develop/develop13.html). The
+	 * name of the directory is equal to the database name.
+	 */
+	public File getDatabaseDirectory() {
+		return folder;
+	}
+
+	/**
+	 * Returns the folder '_olca_' within the database directory. If this folder
+	 * does not exist is created when this method is called.
+	 */
+	public File getFileStorageLocation() {
+		File dir = new File(folder, "_olca_");
+		if (!dir.exists())
+			dir.mkdirs();
+		return dir;
 	}
 
 	/** Fill the database with the given content. */
@@ -137,10 +171,10 @@ public class DerbyDatabase implements IDatabase {
 		if (connectionPool != null)
 			connectionPool.shutdown();
 		try {
+			DriverManager.getConnection(url + ";shutdown=true");
 			// TODO: single database shutdown throws unexpected
 			// error in eclipse APP - close all connections here
-			// DriverManager.getConnection(url + ";shutdown=true");
-			DriverManager.getConnection("jdbc:derby:;shutdown=true");
+			// DriverManager.getConnection("jdbc:derby:;shutdown=true");
 			System.gc(); // unload embedded driver for possible restarts
 			// see also
 			// http://db.apache.org/derby/docs/10.4/devguide/rdevcsecure26537.html

@@ -26,8 +26,6 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private IProgressMonitor progressMonitor;
-
 	private MatrixCache matrixCache;
 	private IDatabase database;
 	private boolean preferSystemProcesses;
@@ -40,7 +38,6 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 	}
 
 	public void setProgressMonitor(IProgressMonitor progressMonitor) {
-		this.progressMonitor = progressMonitor;
 	}
 
 	@Override

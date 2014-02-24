@@ -10,6 +10,9 @@ public class IntermediateExchange extends Exchange {
 
 	private String intermediateExchangeId;
 	private String activityLinkId;
+	private Double productionVolumeAmount;
+	private String productionVolumeVariableName;
+	private String productionVolumeMathematicalRelation;
 	private List<Classification> classifications = new ArrayList<>();
 
 	public String getIntermediateExchangeId() {
@@ -28,6 +31,32 @@ public class IntermediateExchange extends Exchange {
 		this.activityLinkId = activityLinkId;
 	}
 
+	public Double getProductionVolumeAmount() {
+		return productionVolumeAmount;
+	}
+
+	public void setProductionVolumeAmount(Double productionVolumeAmount) {
+		this.productionVolumeAmount = productionVolumeAmount;
+	}
+
+	public String getProductionVolumeVariableName() {
+		return productionVolumeVariableName;
+	}
+
+	public void setProductionVolumeVariableName(
+			String productionVolumeVariableName) {
+		this.productionVolumeVariableName = productionVolumeVariableName;
+	}
+
+	public String getProductionVolumeMathematicalRelation() {
+		return productionVolumeMathematicalRelation;
+	}
+
+	public void setProductionVolumeMathematicalRelation(
+			String productionVolumeMathematicalRelation) {
+		this.productionVolumeMathematicalRelation = productionVolumeMathematicalRelation;
+	}
+
 	public List<Classification> getClassifications() {
 		return classifications;
 	}
@@ -40,6 +69,12 @@ public class IntermediateExchange extends Exchange {
 		exchange.setActivityLinkId(e.getAttributeValue("activityLinkId"));
 		exchange.setIntermediateExchangeId(e
 				.getAttributeValue("intermediateExchangeId"));
+		exchange.setProductionVolumeAmount(In.optionalDecimal(e
+				.getAttributeValue("productionVolumeAmount")));
+		exchange.setProductionVolumeMathematicalRelation(e
+				.getAttributeValue("productionVolumeMathematicalRelation"));
+		exchange.setProductionVolumeVariableName(e
+				.getAttributeValue("productionVolumeVariableName"));
 		List<Element> classElements = In.childs(e, "classification");
 		for (Element classElement : classElements) {
 			Classification classification = Classification
@@ -60,6 +95,15 @@ public class IntermediateExchange extends Exchange {
 					intermediateExchangeId);
 		if (activityLinkId != null)
 			element.setAttribute("activityLinkId", activityLinkId);
+		if (productionVolumeAmount != null)
+			element.setAttribute("productionVolumeAmount",
+					productionVolumeAmount.toString());
+		if (productionVolumeMathematicalRelation != null)
+			element.setAttribute("productionVolumeMathematicalRelation",
+					productionVolumeMathematicalRelation);
+		if (productionVolumeVariableName != null)
+			element.setAttribute("productionVolumeVariableName",
+					productionVolumeVariableName);
 		writeValues(element);
 		for (Classification classification : classifications)
 			element.addContent(classification.toXml(ns));

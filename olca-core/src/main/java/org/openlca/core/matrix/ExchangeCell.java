@@ -8,7 +8,7 @@ import org.openlca.expressions.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExchangeCell {
+class ExchangeCell {
 
 	private final CalcExchange exchange;
 	private NumberGenerator generator;
@@ -18,15 +18,11 @@ public class ExchangeCell {
 		this.exchange = exchange;
 	}
 
-	public CalcExchange getExchange() {
-		return exchange;
-	}
-
 	void setAllocationFactor(double allocationFactor) {
 		this.allocationFactor = allocationFactor;
 	}
 
-	public void eval(FormulaInterpreter interpreter) {
+	void eval(FormulaInterpreter interpreter) {
 		if (interpreter == null)
 			return;
 		try {
@@ -61,7 +57,7 @@ public class ExchangeCell {
 		}
 	}
 
-	public double getMatrixValue() {
+	double getMatrixValue() {
 		if (exchange == null)
 			return 0;
 		double amount = exchange.getAmount() * allocationFactor
@@ -72,7 +68,7 @@ public class ExchangeCell {
 			return amount;
 	}
 
-	public double getNextSimulationValue() {
+	double getNextSimulationValue() {
 		UncertaintyType type = exchange.getUncertaintyType();
 		if (type == null || type == UncertaintyType.NONE)
 			return getMatrixValue();

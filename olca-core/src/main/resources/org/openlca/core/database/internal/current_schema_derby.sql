@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (1);
+INSERT INTO openlca_version (version) VALUES (2);
 
 
 CREATE TABLE tbl_categories (
@@ -82,7 +82,8 @@ CREATE TABLE tbl_sources (
 	name VARCHAR(255), 
 	source_year SMALLINT, 
 	text_reference CLOB(64 K), 
-	doi VARCHAR(255), 
+	doi VARCHAR(255),
+	external_file VARCHAR(255),
 	
 	PRIMARY KEY (id)
 	
@@ -325,6 +326,7 @@ CREATE TABLE tbl_process_links (
 );
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 
+
 CREATE TABLE tbl_impact_methods (
 
 	id BIGINT NOT NULL,
@@ -358,7 +360,8 @@ CREATE TABLE tbl_impact_factors (
 	f_flow BIGINT, 
 	f_flow_property_factor BIGINT, 
 	f_unit BIGINT, 
-	value DOUBLE, 
+	value DOUBLE,
+	formula VARCHAR(1000),
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
@@ -374,25 +377,27 @@ CREATE TABLE tbl_impact_factors (
 CREATE INDEX idx_impact_factor_flow ON tbl_impact_factors(f_flow);
 
 
-CREATE TABLE tbl_normalisation_weighting_sets (
+CREATE TABLE tbl_nw_sets (
 
-	id BIGINT NOT NULL, 
-	reference_system VARCHAR(255),
-	f_impact_method BIGINT, 
-	unit VARCHAR(255),
+	id BIGINT NOT NULL,
+    ref_id VARCHAR(36),
+    description CLOB(64 K),
+    name VARCHAR(255),
+	f_impact_method BIGINT,
+	weighted_score_unit VARCHAR(255),
 	
 	PRIMARY KEY (id)
 
 );
 
 
-CREATE TABLE tbl_normalisation_weighting_factors (
+CREATE TABLE tbl_nw_factors (
 
 	id BIGINT NOT NULL, 
 	weighting_factor DOUBLE, 
 	normalisation_factor DOUBLE,
-	f_impact_category VARCHAR(36),
-	f_normalisation_weighting_set BIGINT, 
+	f_impact_category BIGINT,
+	f_nw_set BIGINT,
 	
 	PRIMARY KEY (id)
 
@@ -409,6 +414,8 @@ CREATE TABLE tbl_parameters (
 	scope VARCHAR(255), 
 	value DOUBLE, 
 	formula VARCHAR(1000),
+	external_source VARCHAR(255),
+	source_type VARCHAR(255),
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
@@ -426,7 +433,7 @@ CREATE TABLE tbl_parameter_redefs (
 	id BIGINT NOT NULL, 
 	name VARCHAR(255), 
 	f_owner BIGINT, 
-	f_process BIGINT,
+	f_context BIGINT,
 	value DOUBLE,
 	
 	distribution_type INTEGER default 0, 

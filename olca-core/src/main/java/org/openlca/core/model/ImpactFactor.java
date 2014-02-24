@@ -7,9 +7,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-/**
- * A single impact assessment factor.
- */
 @Entity
 @Table(name = "tbl_impact_factors")
 public class ImpactFactor extends AbstractEntity implements Cloneable {
@@ -29,17 +26,23 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 	@Column(name = "value")
 	private double value = 1;
 
+	@Column(name = "formula")
+	private String formula;
+
 	@Embedded
 	private Uncertainty uncertainty;
 
 	@Override
 	public ImpactFactor clone() {
-		final ImpactFactor lciaFactor = new ImpactFactor();
-		lciaFactor.setFlow(getFlow());
-		lciaFactor.setFlowPropertyFactor(getFlowPropertyFactor());
-		lciaFactor.setUnit(getUnit());
-		lciaFactor.setValue(getValue());
-		return lciaFactor;
+		ImpactFactor clone = new ImpactFactor();
+		clone.setFlow(getFlow());
+		clone.setFlowPropertyFactor(getFlowPropertyFactor());
+		clone.setUnit(getUnit());
+		clone.setValue(getValue());
+		clone.setFormula(getFormula());
+		if (getUncertainty() != null)
+			clone.setUncertainty(getUncertainty().clone());
+		return clone;
 	}
 
 	public Flow getFlow() {
@@ -72,6 +75,14 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 
 	public void setValue(double value) {
 		this.value = value;
+	}
+
+	public String getFormula() {
+		return formula;
+	}
+
+	public void setFormula(String formula) {
+		this.formula = formula;
 	}
 
 	public Uncertainty getUncertainty() {

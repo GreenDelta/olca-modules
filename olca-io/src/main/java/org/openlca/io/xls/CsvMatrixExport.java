@@ -8,7 +8,6 @@ import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.ProductSystems;
-import org.openlca.core.matrix.ExchangeCell;
 import org.openlca.core.matrix.ExchangeMatrix;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.Inventory;
@@ -49,21 +48,11 @@ public class CsvMatrixExport implements Runnable {
 		log.trace("Build inventory matrix");
 		Inventory inventory = ProductSystems.createInventory(
 				data.getProductSystem(), data.getMatrixCache());
-		tryEvalFormulas(inventory);
 		log.trace("Write technology matrix");
 		writeTechFile(inventory);
 		log.trace("Write intervention matrix");
 		writeEnviFile(inventory);
 		log.trace("Export done");
-	}
-
-	private void tryEvalFormulas(Inventory inventory) {
-		log.trace("evaluate formulas");
-		try {
-			inventory.evalFormulas();
-		} catch (Exception e) {
-			log.error("formula evaluation failed", e);
-		}
 	}
 
 	private void writeTechFile(Inventory inventory) {
@@ -88,8 +77,7 @@ public class CsvMatrixExport implements Runnable {
 			writeCategory(flow, buffer);
 			sep(buffer);
 			for (int col = 0; col < size; col++) {
-				ExchangeCell cell = techMatrix.getEntry(row, col);
-				double val = cell == null ? 0 : cell.getMatrixValue();
+				double val = techMatrix.getValue(row, col);
 				writeValue(val, buffer);
 				sep(buffer, col, size);
 			}
@@ -121,8 +109,7 @@ public class CsvMatrixExport implements Runnable {
 			writeCategory(flow, buffer);
 			sep(buffer);
 			for (int col = 0; col < columns; col++) {
-				ExchangeCell cell = matrix.getEntry(row, col);
-				double val = cell == null ? 0 : cell.getMatrixValue();
+				double val = matrix.getValue(row, col);
 				writeValue(val, buffer);
 				sep(buffer, col, columns);
 			}

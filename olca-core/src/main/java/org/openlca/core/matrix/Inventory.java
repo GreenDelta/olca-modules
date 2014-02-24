@@ -15,7 +15,6 @@ public class Inventory {
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 	private AllocationMethod allocationMethod;
-	private FormulaInterpreter formulaInterpreter;
 
 	public boolean isEmpty() {
 		return productIndex == null || productIndex.size() == 0
@@ -24,27 +23,19 @@ public class Inventory {
 				|| interventionMatrix == null || interventionMatrix.isEmpty();
 	}
 
-	public FormulaInterpreter getFormulaInterpreter() {
-		return formulaInterpreter;
-	}
-
-	public void setFormulaInterpreter(FormulaInterpreter formulaInterpreter) {
-		this.formulaInterpreter = formulaInterpreter;
-	}
-
-	public void setAllocationMethod(AllocationMethod allocationMethod) {
-		this.allocationMethod = allocationMethod;
-	}
-
 	public AllocationMethod getAllocationMethod() {
 		return allocationMethod;
+	}
+
+	void setAllocationMethod(AllocationMethod allocationMethod) {
+		this.allocationMethod = allocationMethod;
 	}
 
 	public ProductIndex getProductIndex() {
 		return productIndex;
 	}
 
-	public void setProductIndex(ProductIndex productIndex) {
+	void setProductIndex(ProductIndex productIndex) {
 		this.productIndex = productIndex;
 	}
 
@@ -52,7 +43,7 @@ public class Inventory {
 		return flowIndex;
 	}
 
-	public void setFlowIndex(FlowIndex flowIndex) {
+	void setFlowIndex(FlowIndex flowIndex) {
 		this.flowIndex = flowIndex;
 	}
 
@@ -60,7 +51,7 @@ public class Inventory {
 		return technologyMatrix;
 	}
 
-	public void setTechnologyMatrix(ExchangeMatrix technologyMatrix) {
+	void setTechnologyMatrix(ExchangeMatrix technologyMatrix) {
 		this.technologyMatrix = technologyMatrix;
 	}
 
@@ -68,26 +59,17 @@ public class Inventory {
 		return interventionMatrix;
 	}
 
-	public void setInterventionMatrix(ExchangeMatrix interventionMatrix) {
+	void setInterventionMatrix(ExchangeMatrix interventionMatrix) {
 		this.interventionMatrix = interventionMatrix;
 	}
 
-	/**
-	 * Evaluates the formulas in the exchange matrices of this inventory using
-	 * the formula interpreter that is bound to this inventory. Does nothing if
-	 * there is no interpreter set or if the exchange matrices are NULL.
-	 */
-	public void evalFormulas() {
-		if (formulaInterpreter == null)
-			return;
-		if (technologyMatrix != null)
-			technologyMatrix.eval(formulaInterpreter);
-		if (interventionMatrix != null)
-			interventionMatrix.eval(formulaInterpreter);
+	public InventoryMatrix createMatrix(IMatrixFactory<?> factory) {
+		return createMatrix(factory, null);
 	}
 
-	public InventoryMatrix asMatrix(IMatrixFactory factory) {
-		evalFormulas();
+	public InventoryMatrix createMatrix(IMatrixFactory<?> factory,
+			FormulaInterpreter interpreter) {
+		evalFormulas(interpreter);
 		InventoryMatrix matrix = new InventoryMatrix();
 		matrix.setFlowIndex(flowIndex);
 		matrix.setProductIndex(productIndex);
@@ -96,6 +78,35 @@ public class Inventory {
 		IMatrix techMatrix = technologyMatrix.createRealMatrix(factory);
 		matrix.setTechnologyMatrix(techMatrix);
 		return matrix;
+	}
+
+	/**
+	 * Re-evaluates the parameters and formulas in the inventory (because the
+	 * may changed), generates new values for the entries that have an
+	 * uncertainty distribution and set these values to the entries of the given
+	 * matrix. The given matrix and this inventory have to match exactly in size
+	 * (so normally you first call createMatrix and than simulate).
+	 */
+	public void simulate(InventoryMatrix matrix, FormulaInterpreter interpreter) {
+		evalFormulas(interpreter);
+		if (technologyMatrix != null)
+			technologyMatrix.simulate(matrix.getTechnologyMatrix());
+		if (interventionMatrix != null)
+			interventionMatrix.simulate(matrix.getInterventionMatrix());
+	}
+
+	/**
+	 * Evaluates the formulas in the exchange matrices of this inventory using
+	 * the formula interpreter that is bound to this inventory. Does nothing if
+	 * there is no interpreter set or if the exchange matrices are NULL.
+	 */
+	void evalFormulas(FormulaInterpreter interpreter) {
+		if (interpreter == null)
+			return;
+		if (technologyMatrix != null)
+			technologyMatrix.eval(interpreter);
+		if (interventionMatrix != null)
+			interventionMatrix.eval(interpreter);
 	}
 
 }

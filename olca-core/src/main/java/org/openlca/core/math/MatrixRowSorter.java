@@ -13,11 +13,11 @@ import java.util.List;
  */
 public class MatrixRowSorter {
 
-	private IMatrixFactory factory;
+	private IMatrixFactory<?> factory;
 	private IMatrix original;
 	private TIntIntHashMap indexMap;
 
-	public MatrixRowSorter(IMatrix original, IMatrixFactory factory) {
+	public MatrixRowSorter(IMatrix original, IMatrixFactory<?> factory) {
 		this.original = original;
 		this.factory = factory;
 	}

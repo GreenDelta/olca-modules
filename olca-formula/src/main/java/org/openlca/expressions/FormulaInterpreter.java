@@ -12,6 +12,15 @@ public class FormulaInterpreter {
 	}
 
 	/**
+	 * Removes all local scopes and all variable bindings of the global scope
+	 * from this interpreter.
+	 */
+	public void clear() {
+		globalScope.clear();
+		scopes.clear();
+	}
+
+	/**
 	 * Evaluates the given expression in the global scope of the interpreter.
 	 * This is equivalent to
 	 * <code>interpreter.getGlobalScope().eval(expression)</code>.
