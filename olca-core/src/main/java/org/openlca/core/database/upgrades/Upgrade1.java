@@ -40,15 +40,36 @@ class Upgrade1 implements IUpgrade {
 				"formula VARCHAR(1000)");
 		util.renameColumn("tbl_parameter_redefs", "f_process", "f_context",
 				"BIGINT");
+		updateMappingTable();
+	}
+
+	private void updateMappingTable() throws Exception {
+		util.dropTable("tbl_mappings");
+		// @formatter:off
+		String tableDef = "CREATE TABLE tbl_mappings ( " 
+				+ " id BIGINT NOT NULL," 
+				+ " for_import SMALLINT default 0," 
+				+ " format VARCHAR(255),"
+				+ " olca_ref_id VARCHAR(36),"
+				+ " model_type VARCHAR(255),"
+				+ " content " + util.getTextType() + ","
+				+ " PRIMARY KEY (id))";
+		// @formatter:on
+		util.checkCreateTable("tbl_mappings", tableDef);
 	}
 
 	private void createNwSetTable() throws Exception {
-		String tableDef = "CREATE TABLE tbl_nw_sets (" + "id BIGINT NOT NULL, "
-				+ "ref_id VARCHAR(36), " + "description " + util.getTextType()
-				+ ", " + "name VARCHAR(255), "
+		// @formatter:off
+		String tableDef = "CREATE TABLE tbl_nw_sets (" 
+				+ "id BIGINT NOT NULL, "
+				+ "ref_id VARCHAR(36), " 
+				+ "description " + util.getTextType() + ", " 
+				+ "name VARCHAR(255), "
 				+ "reference_system VARCHAR(255), "
 				+ "f_impact_method BIGINT,  "
-				+ "weighted_score_unit VARCHAR(255), " + "PRIMARY KEY (id))";
+				+ "weighted_score_unit VARCHAR(255), " 
+				+ "PRIMARY KEY (id))";
+		// @formatter:on
 		util.checkCreateTable("tbl_nw_sets", tableDef);
 		copyNwSetTable();
 		util.dropTable("tbl_normalisation_weighting_sets");

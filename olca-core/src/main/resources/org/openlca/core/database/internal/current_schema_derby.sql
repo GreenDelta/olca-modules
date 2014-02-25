@@ -483,10 +483,11 @@ CREATE TABLE tbl_project_variants (
 
 
 CREATE TABLE tbl_mappings (
-	id VARCHAR(50) NOT NULL,
+	id BIGINT NOT NULL,
     for_import SMALLINT default 0,
-	mapping_type VARCHAR(255),
+	format VARCHAR(255),
     olca_ref_id VARCHAR(36),
+    model_type VARCHAR(255),
     content CLOB(64 K),
 	PRIMARY KEY (id)
 );
