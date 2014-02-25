@@ -7,6 +7,7 @@ import org.openlca.io.maps.content.IMappingContent;
 
 import com.google.gson.Gson;
 
+@Deprecated
 public class MappingImporter {
 
 	private MappingDao dao;
@@ -33,7 +34,7 @@ public class MappingImporter {
 		mapping.setForImport(forImport);
 		mapping.setOlcaRefId(olcaRefId);
 		mapping.setContent(gson.toJson(content));
-		mapping.setMappingType(mappingType);
+		// mapping.setMappingType(mappingType);
 		dao.insert(mapping);
 	}
 
