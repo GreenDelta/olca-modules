@@ -24,6 +24,7 @@ public class RefDataImport implements Runnable {
 			database.getEntityFactory().getCache().evictAll();
 			seq = new Seq(database);
 			importFile("categories.csv", new CategoryImport());
+			importFile("units.csv", new UnitImport());
 			database.getEntityFactory().getCache().evictAll();
 		} catch (Exception e) {
 			log.error("Reference data import failed", e);

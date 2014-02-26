@@ -39,12 +39,15 @@ abstract class Import {
 		CellProcessor[] processors = getCellProcessors();
 		List<Object> values;
 		while ((values = next(processors, csvReader)) != null) {
-			nextBatch.add(values);
+			if (isValid(values))
+				nextBatch.add(values);
 			if (nextBatch.size() > 2000)
 				execBatch(database);
 		}
 		execBatch(database);
 	}
+
+	protected abstract boolean isValid(List<Object> values);
 
 	private List<Object> next(CellProcessor[] processors, CsvListReader csvReader) {
 		try {
@@ -75,6 +78,16 @@ abstract class Import {
 			return null;
 		else
 			return val.toString();
+	}
+
+	protected double getDouble(List<Object> values, int i) {
+		if (values == null || i >= values.size())
+			return 0;
+		Object val = values.get(i);
+		if (val instanceof Number)
+			return ((Number) val).doubleValue();
+		else
+			return 0;
 	}
 
 	protected abstract String getStatement();

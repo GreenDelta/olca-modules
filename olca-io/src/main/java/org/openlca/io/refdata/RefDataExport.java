@@ -23,6 +23,7 @@ public class RefDataExport implements Runnable {
 			if (!dir.exists())
 				dir.mkdirs();
 			export("categories.csv", new CategoryExport());
+			export("units.csv", new UnitExport());
 		} catch (Exception e) {
 			log.error("Reference data export failed", e);
 		}

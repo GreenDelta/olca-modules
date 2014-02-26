@@ -7,24 +7,38 @@ properties:
 
 * files should be utf-8 encoded
 * columns should be separated by semicolon: ;
-* strings should be enclosed in double quotes: "
+* strings should be enclosed in double quotes if it is necessary: "
 * the decimal separator of numbers should be a point: .
 * the files should not contain column headers
 
+
 Categories
 ----------
-Categories are written to and read from the file `categories.csv` which has the
-following columns:
+File:       `categories.csv`      
+Content:    all categories
+Columns:
 
-1) the reference ID of the category (UUID; required)
-2) the name of the category (string; required)
-3) a description of the category (string; optional)
-4) the model type of the category (enumeration: "PROJECT", "PRODUCT_SYSTEM", 
+0. reference ID (UUID; required)
+1. name (string; required)
+2. description (string; optional)
+3. model type of the category (enumeration: "PROJECT", "PRODUCT_SYSTEM", 
    "IMPACT_METHOD", "PROCESS", "FLOW", "FLOW_PROPERTY", "UNIT_GROUP"; required)
-5) the reference ID of the parent category (UUID, optional)
+4. reference ID of the parent category (UUID, optional)
+
 
 Units
 -----
+File:       `units.csv`
+Content:    all reference units
+Columns:
+
+0. reference ID (UUID; required)
+1. name (string; required)
+2. description (string; optional)
+3. conversion factor (double; required)
+4. synonyms (string: list separated by semicolon; optional)
+5. reference ID of unit group (UUID, required)
+
 
 
 
