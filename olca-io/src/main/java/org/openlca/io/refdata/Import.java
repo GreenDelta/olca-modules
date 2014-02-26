@@ -90,6 +90,16 @@ abstract class Import {
 			return 0;
 	}
 
+	protected  int getInt(List<Object> values, int i) {
+		if (values == null || i >= values.size())
+			return 0;
+		Object val = values.get(i);
+		if (val instanceof Number)
+			return ((Number) val).intValue();
+		else
+			return 0;
+	}
+
 	protected abstract String getStatement();
 
 	protected abstract CellProcessor[] getCellProcessors();

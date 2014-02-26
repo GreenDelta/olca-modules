@@ -25,6 +25,7 @@ public class RefDataExport implements Runnable {
 			export("categories.csv", new CategoryExport());
 			export("units.csv", new UnitExport());
 			export("unit_groups.csv", new UnitGroupExport());
+			export("flow_properties.csv", new FlowPropertyExport());
 		} catch (Exception e) {
 			log.error("Reference data export failed", e);
 		}

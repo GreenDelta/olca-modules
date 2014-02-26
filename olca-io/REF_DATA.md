@@ -54,9 +54,17 @@ Columns:
 5. reference unit ID (UUID, required)
 
 
+Flow properties
+---------------
+File:       `flow_properties.csv`
+Content:    all flow properties
+Columns:
 
-
-
-
+0. reference ID (UUID, required)
+1. name (string, required)
+2. description (string; optional)
+3. category ID (UUID, optional)
+4. unit group ID (UUID, required)
+5. flow property type (integer enum: 0=economic, 1=physical; required)
 
 

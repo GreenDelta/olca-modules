@@ -29,7 +29,7 @@ class UnitImport extends Import {
 				optional, // description
 				number, // conversion factor
 				optional, // synonyms
-				notEmpty, // unit group
+				notEmpty // unit group
 		};
 	}
 
