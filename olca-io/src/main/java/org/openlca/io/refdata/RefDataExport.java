@@ -1,10 +1,10 @@
 package org.openlca.io.refdata;
 
-import java.io.File;
-
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 public class RefDataExport implements Runnable {
 
@@ -19,13 +19,21 @@ public class RefDataExport implements Runnable {
 
 	@Override
 	public void run() {
-		if (!dir.exists())
-			dir.mkdirs();
-		File categoryFile = new File(dir, "categories.csv");
-		if (categoryFile.exists()) {
-			log.warn("the category file already exists; did not changed it");
+		try {
+			if (!dir.exists())
+				dir.mkdirs();
+			export("categories.csv", new CategoryExport());
+		} catch (Exception e) {
+			log.error("Reference data export failed", e);
+		}
+	}
+
+	private void export(String fileName, Export export) {
+		File file = new File(dir, fileName);
+		if (file.exists()) {
+			log.warn("the file already exists; did not changed it");
 		} else {
-			new CategoryExport(categoryFile, database).run();
+			export.run(file, database);
 		}
 	}
 }

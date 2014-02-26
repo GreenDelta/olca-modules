@@ -13,7 +13,7 @@ properties:
 
 Categories
 ----------
-Categories are written and read from the file `categories.csv` which has the
+Categories are written to and read from the file `categories.csv` which has the
 following columns:
 
 1) the reference ID of the category (UUID; required)
@@ -23,6 +23,8 @@ following columns:
    "IMPACT_METHOD", "PROCESS", "FLOW", "FLOW_PROPERTY", "UNIT_GROUP"; required)
 5) the reference ID of the parent category (UUID, optional)
 
+Units
+-----
 
 
 
