@@ -40,6 +40,23 @@ Columns:
 5. reference ID of unit group (UUID, required)
 
 
+Unit groups
+-----------
+File:       `unit_groups.csv`
+Content:    all unit groups
+Columns:
+
+0. reference ID (UUID, required)
+1. name (string, required)
+2. description (string; optional)
+3. category ID (UUID, optional)
+4. default flow property ID (UUID, optional)
+5. reference unit ID (UUID, required)
+
+
+
+
+
 
 
 

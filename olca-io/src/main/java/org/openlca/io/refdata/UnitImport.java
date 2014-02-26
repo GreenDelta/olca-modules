@@ -9,7 +9,7 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-public class UnitImport extends Import {
+class UnitImport extends Import {
 
 	@Override
 	protected String getStatement() {
