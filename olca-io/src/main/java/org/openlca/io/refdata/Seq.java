@@ -1,14 +1,5 @@
 package org.openlca.io.refdata;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicLong;
-
-import javax.persistence.Table;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NativeSql.QueryResultHandler;
@@ -16,12 +7,20 @@ import org.openlca.core.model.ModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.Table;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicLong;
+
 class Seq {
 
-	private final ModelType[] TYPES = { ModelType.CATEGORY, ModelType.UNIT,
-			ModelType.UNIT_GROUP, ModelType.FLOW_PROPERTY, ModelType.FLOW,
-			ModelType.IMPACT_CATEGORY, ModelType.IMPACT_METHOD,
-			ModelType.NW_SET };
+	private final ModelType[] TYPES = {ModelType.LOCATION, ModelType.CATEGORY,
+			ModelType.UNIT, ModelType.UNIT_GROUP, ModelType.FLOW_PROPERTY,
+			ModelType.FLOW, ModelType.IMPACT_CATEGORY, ModelType.IMPACT_METHOD,
+			ModelType.NW_SET};
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase db;

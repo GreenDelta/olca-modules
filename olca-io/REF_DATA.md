@@ -12,10 +12,21 @@ properties:
 * the files should not contain column headers
 
 
+Locations
+---------
+File:       `locations.csv`
+Columns:
+
+0. reference ID (UUID, required)
+1. name (string, required)
+2. description (string, optional) 
+3. code (string, required)
+4. latitude (double, required)
+5. longitude (double, required)
+
 Categories
 ----------
 File:       `categories.csv`      
-Content:    all categories
 Columns:
 
 0. reference ID (UUID; required)
@@ -29,7 +40,6 @@ Columns:
 Units
 -----
 File:       `units.csv`
-Content:    all reference units
 Columns:
 
 0. reference ID (UUID; required)
@@ -43,7 +53,6 @@ Columns:
 Unit groups
 -----------
 File:       `unit_groups.csv`
-Content:    all unit groups
 Columns:
 
 0. reference ID (UUID, required)
@@ -57,7 +66,6 @@ Columns:
 Flow properties
 ---------------
 File:       `flow_properties.csv`
-Content:    all flow properties
 Columns:
 
 0. reference ID (UUID, required)

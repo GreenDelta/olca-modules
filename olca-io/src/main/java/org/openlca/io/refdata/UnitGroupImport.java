@@ -47,7 +47,7 @@ class UnitGroupImport extends Import {
 	protected void setValues(PreparedStatement statement, List<Object> vals)
 			throws Exception {
 		String refId = getString(vals, 0);
-		long id = seq.get(ModelType.CATEGORY, refId);
+		long id = seq.get(ModelType.UNIT_GROUP, refId);
 		statement.setLong(1, id);
 		statement.setString(2, refId);
 		statement.setString(3, getString(vals, 1));

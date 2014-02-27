@@ -23,6 +23,7 @@ public class RefDataImport implements Runnable {
 		try {
 			database.getEntityFactory().getCache().evictAll();
 			seq = new Seq(database);
+			importFile("locations.csv", new LocationImport());
 			importFile("categories.csv", new CategoryImport());
 			importFile("units.csv", new UnitImport());
 			importFile("unit_groups.csv", new UnitGroupImport());
