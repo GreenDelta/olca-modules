@@ -109,3 +109,16 @@ Columns:
 1. name (string, required)
 2. description (string, optional)
 3. category ID (UUID, optional)
+
+
+LCIA categories
+---------------
+File:       `lcia_categories.csv`
+Columns:
+
+0. reference ID (UUID, required)
+1. name (string, required)
+2. description (string, optional)
+3. reference unit (string, required)
+4. LCIA method ID (UUID, required)
+
