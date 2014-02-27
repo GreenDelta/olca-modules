@@ -57,7 +57,7 @@ Columns:
 
 0. reference ID (UUID, required)
 1. name (string, required)
-2. description (string; optional)
+2. description (string, optional)
 3. category ID (UUID, optional)
 4. default flow property ID (UUID, optional)
 5. reference unit ID (UUID, required)
@@ -70,9 +70,31 @@ Columns:
 
 0. reference ID (UUID, required)
 1. name (string, required)
-2. description (string; optional)
+2. description (string, optional)
 3. category ID (UUID, optional)
 4. unit group ID (UUID, required)
 5. flow property type (integer enum: 0=economic, 1=physical; required)
 
 
+Flows
+-----
+File:       `flows.csv`
+Columns:
+
+0. reference ID (UUID, required)
+1. name (string, required)
+2. description (string, optional)
+3. category ID (UUID, optional)
+4. flow type (enumeration: 'ELEMENTARY_FLOW', 'PRODUCT_FLOW', 'WASTE_FLOW'; required)
+5. CAS number (string, optional)
+6. formula (string, optional)
+7. reference flow property (UUID, required)
+
+
+Flow property factors (relations between flows and flow properties)
+------------------------------------------------------------------
+File:       `flow_property_factors.csv`
+
+0. flow ID (UUID, required)
+1. flow property ID (UUID, required)
+2. factor (double, required) (1 if it is the reference flow property)
