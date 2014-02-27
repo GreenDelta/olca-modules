@@ -28,6 +28,7 @@ public class RefDataImport implements Runnable {
 			importFile("units.csv", new UnitImport());
 			importFile("unit_groups.csv", new UnitGroupImport());
 			importFile("flow_properties.csv", new FlowPropertyImport());
+			importFile("flows.csv", new FlowImport());
 			database.getEntityFactory().getCache().evictAll();
 		} catch (Exception e) {
 			log.error("Reference data import failed", e);
