@@ -98,3 +98,14 @@ File:       `flow_property_factors.csv`
 0. flow ID (UUID, required)
 1. flow property ID (UUID, required)
 2. factor (double, required) (1 if it is the reference flow property)
+
+
+LCIA methods
+------------
+File:       `lcia_methods.csv`
+Columns:
+
+0. reference ID (UUID, required)
+1. name (string, required)
+2. description (string, optional)
+3. category ID (UUID, optional)

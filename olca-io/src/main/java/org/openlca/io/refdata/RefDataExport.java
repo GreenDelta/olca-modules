@@ -29,6 +29,7 @@ public class RefDataExport implements Runnable {
 			export("flow_properties.csv", new FlowPropertyExport());
 			export("flows.csv", new FlowExport());
 			export("flow_property_factors.csv", new FlowPropertyFactorExport());
+			export("lcia_methods.csv", new ImpactMethodExport());
 		} catch (Exception e) {
 			log.error("Reference data export failed", e);
 		}
