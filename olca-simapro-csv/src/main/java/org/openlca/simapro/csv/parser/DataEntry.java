@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Queue;
 
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPProcess;
+import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPWasteScenario;
@@ -16,8 +16,12 @@ import org.openlca.simapro.csv.model.enums.ParameterType;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class DataEntry {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private String csvSeperator;
 	private FlowParser flowParser;
@@ -92,32 +96,13 @@ class DataEntry {
 	private void addProductFlows(SPDataSet entry, ProductFlowType type,
 			Queue<String> lines) throws CSVParserException {
 		while (!lines.isEmpty() && !lines.peek().equals(""))
-			entry.getProductFlows().add(flowParser.getProductFlow(lines.poll(), type));
+			entry.getProductFlows().add(
+					flowParser.getProductFlow(lines.poll(), type));
 
 	}
 
-	SPDataSet parse(Queue<String> lines) throws CSVParserException {
-		SPDataSet entry = null;
-		SPProcessDocumentation documentation = new DataEntryDocumentation(
-				csvSeperator, referenceData).parse(lines);
-
-		// TODO implement parse waste scenario
-		if (documentation.getCategory() == ProcessCategory.WASTE_SCENARIO) {
-			System.err.println("Waste scenarios not implemented. !!!");
-			return new SPWasteScenario();
-		}
-
-		if (documentation.getCategory() == ProcessCategory.WASTE_TREATMENT) {
-			if (!lines.isEmpty())
-				lines.remove();
-			entry = readWasteTreatment(lines.poll());
-		} else {
-			if (!lines.isEmpty())
-				lines.remove();
-			entry = readProcess(lines);
-		}
-		entry.setDocumentation(documentation);
-
+	SPDataSet parse(Queue<String> lines) throws Exception {
+		SPDataSet entry = initDataSet(lines);
 		while (!lines.isEmpty()) {
 			switch (lines.poll()) {
 			case "Avoided products":
@@ -177,11 +162,30 @@ class DataEntry {
 				}
 				break;
 			default:
-				// TODO if line not "" maybe throw exception?
 				break;
 			}
 		}
 		return entry;
 	}
 
+	private SPDataSet initDataSet(Queue<String> lines) throws Exception {
+		SPProcessDocumentation documentation = new DataEntryDocumentation(
+				csvSeperator, referenceData).parse(lines);
+		SPDataSet entry = null;
+		ProcessCategory category = documentation.getCategory();
+		if (category == ProcessCategory.WASTE_SCENARIO) {
+			log.warn("waste scenarios are not fully implemented");
+			entry = new SPWasteScenario();
+		} else if (category == ProcessCategory.WASTE_TREATMENT) {
+			if (!lines.isEmpty())
+				lines.remove();
+			entry = readWasteTreatment(lines.poll());
+		} else {
+			if (!lines.isEmpty())
+				lines.remove();
+			entry = readProcess(lines);
+		}
+		entry.setDocumentation(documentation);
+		return entry;
+	}
 }

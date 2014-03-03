@@ -77,7 +77,7 @@ public class CSVParser {
 		return "Process".equals(currentLine);
 	}
 
-	public SPDataSet next() throws CSVParserException, IOException {
+	public SPDataSet next() throws Exception {
 		if (!"Process".equals(currentLine))
 			if (!hasNext())
 				return null;

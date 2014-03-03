@@ -91,8 +91,9 @@ Columns:
 7. reference flow property (UUID, required)
 
 
-Flow property factors (relations between flows and flow properties)
-------------------------------------------------------------------
+Flow property factors 
+---------------------
+(relations between flows and flow properties)
 File:       `flow_property_factors.csv`
 
 0. flow ID (UUID, required)
@@ -121,4 +122,19 @@ Columns:
 2. description (string, optional)
 3. reference unit (string, required)
 4. LCIA method ID (UUID, required)
+
+
+LCIA factors
+------------
+
+File:       `lcia_factors.csv`
+
+Columns:
+
+0. reference ID of the LCIA category (UUID, required)
+1. reference ID of the flow (UUID, required)
+2. reference ID of the flow's property (UUID, required)
+3. reference ID of the flow's unit (UUID, required)
+4. value of the factor (double, required)
+
 
