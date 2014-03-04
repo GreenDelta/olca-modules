@@ -1,62 +1,41 @@
 package org.openlca.simapro.csv.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.openlca.simapro.csv.CsvUtils;
 
-/**
- * This class represents a SimaPro quantity
- */
 public class SPQuantity {
 
-	private boolean dimensional = true;
+	private boolean withDimension = true;
 	private String name;
-	private SPUnit referenceUnit;
-
-	private List<SPUnit> units = new ArrayList<SPUnit>();
-
-	public SPQuantity(String name, SPUnit referenceUnit) {
-		this.name = name;
-		this.referenceUnit = referenceUnit;
-		this.units.add(referenceUnit);
-	}
-
-	public SPQuantity(String name, SPUnit referenceUnit, boolean dimensional) {
-		this.name = name;
-		this.referenceUnit = referenceUnit;
-		this.dimensional = dimensional;
-		this.units.add(referenceUnit);
-	}
-
-	public void add(SPUnit unit) {
-		this.units.add(unit);
-	}
 
 	public String getName() {
 		return name;
-	}
-
-	public SPUnit getReferenceUnit() {
-		return referenceUnit;
-	}
-
-	public SPUnit[] getUnits() {
-		return units.toArray(new SPUnit[units.size()]);
-	}
-
-	public boolean isDimensional() {
-		return dimensional;
-	}
-
-	public void setDimensional(boolean dimensional) {
-		this.dimensional = dimensional;
 	}
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public void setReferenceUnit(SPUnit referenceUnit) {
-		this.referenceUnit = referenceUnit;
+	public boolean isWithDimension() {
+		return withDimension;
+	}
+
+	public void setWithDimension(boolean withDimension) {
+		this.withDimension = withDimension;
+	}
+
+	public static SPQuantity fromLine(String line, String separator) {
+		String[] columns = CsvUtils.split(line, separator);
+		SPQuantity quantity = new SPQuantity();
+		quantity.name = CsvUtils.get(columns, 0);
+		String dimStr = CsvUtils.get(columns, 1);
+		if (dimStr != null)
+			quantity.withDimension = dimStr.equalsIgnoreCase("yes");
+		return quantity;
+	}
+
+	public String toLine(String separator) {
+		return CsvUtils.getJoiner(separator).join(name,
+				withDimension ? "Yes" : "No");
 	}
 
 }
