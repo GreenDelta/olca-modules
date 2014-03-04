@@ -31,7 +31,7 @@ import org.openlca.io.maps.content.SPElementaryFlowContent;
 import org.openlca.io.maps.content.CSVProductFlowContent;
 import org.openlca.simapro.csv.model.IDistribution;
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPElementaryFlow;
+import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPLogNormalDistribution;
 import org.openlca.simapro.csv.model.SPPedigreeMatrix;
 import org.openlca.simapro.csv.model.SPProcess;
@@ -40,7 +40,7 @@ import org.openlca.simapro.csv.model.SPProductFlow;
 import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
-import org.openlca.simapro.csv.model.enums.DistributionParameterType;
+import org.openlca.simapro.csv.model.enums.DistributionParameter;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
@@ -93,7 +93,7 @@ public class FlowImport {
 	}
 
 	private void elementaryExchanges() {
-		for (SPElementaryFlow elementaryFlow : dataEntry.getElementaryFlows()) {
+		for (SPElementaryExchange elementaryFlow : dataEntry.getElementaryFlows()) {
 			Flow flow = findOrCreate(elementaryFlow);
 			Exchange exchange = new Exchange();
 			process.getExchanges().add(exchange);
@@ -232,7 +232,7 @@ public class FlowImport {
 		return null;
 	}
 
-	private Category getElementaryFlowCategory(SPElementaryFlow elementaryFlow) {
+	private Category getElementaryFlowCategory(SPElementaryExchange elementaryFlow) {
 		String compartment = mapCompartmentCategory(elementaryFlow.getType());
 		String subCompartment = mapSubcompartmentCategory(elementaryFlow
 				.getSubCompartment());
@@ -276,7 +276,7 @@ public class FlowImport {
 			uncertainty.setParameter1Value(0.0);
 			uncertainty
 					.setParameter2Value(distribution
-							.getDistributionParameter(DistributionParameterType.SQUARED_STANDARD_DEVIATION));
+							.getDistributionParameter(DistributionParameter.SQUARED_STANDARD_DEVIATION));
 			break;
 		case NORMAL:
 			uncertainty.setDistributionType(UncertaintyType.NORMAL);
@@ -284,26 +284,26 @@ public class FlowImport {
 			uncertainty.setParameter1Value(0.0);
 			uncertainty
 					.setParameter2Value(distribution
-							.getDistributionParameter(DistributionParameterType.DOUBLED_STANDARD_DEVIATION));
+							.getDistributionParameter(DistributionParameter.DOUBLED_STANDARD_DEVIATION));
 			break;
 		case TRIANGLE:
 			uncertainty.setDistributionType(UncertaintyType.TRIANGLE);
 			uncertainty
 					.setParameter1Value(distribution
-							.getDistributionParameter(DistributionParameterType.MINIMUM));
+							.getDistributionParameter(DistributionParameter.MINIMUM));
 			uncertainty.setParameter2Value(exchangeAmount);
 			uncertainty
 					.setParameter3Value(distribution
-							.getDistributionParameter(DistributionParameterType.MAXIMUM));
+							.getDistributionParameter(DistributionParameter.MAXIMUM));
 			break;
 		case UNIFORM:
 			uncertainty.setDistributionType(UncertaintyType.UNIFORM);
 			uncertainty
 					.setParameter1Value(distribution
-							.getDistributionParameter(DistributionParameterType.MINIMUM));
+							.getDistributionParameter(DistributionParameter.MINIMUM));
 			uncertainty
 					.setParameter2Value(distribution
-							.getDistributionParameter(DistributionParameterType.MAXIMUM));
+							.getDistributionParameter(DistributionParameter.MAXIMUM));
 			break;
 		case UNDEFINED:
 			uncertainty.setDistributionType(UncertaintyType.NONE);
@@ -345,7 +345,7 @@ public class FlowImport {
 		return Integer.valueOf(value);
 	}
 
-	private Flow findOrCreate(SPElementaryFlow elementaryFlow) {
+	private Flow findOrCreate(SPElementaryExchange elementaryFlow) {
 		if (elementaryFlow == null)
 			return null;
 		String refId = elemFlowMap.getOlcaId(CSVKeyGen

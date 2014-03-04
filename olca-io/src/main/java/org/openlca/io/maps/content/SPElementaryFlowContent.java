@@ -1,8 +1,7 @@
 package org.openlca.io.maps.content;
 
 import org.openlca.io.csv.input.CSVKeyGen;
-import org.openlca.simapro.csv.model.SPElementaryFlow;
-import org.openlca.simapro.csv.model.SPUnit;
+import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.SubCompartment;
 
@@ -24,11 +23,11 @@ public class SPElementaryFlowContent implements IMappingContent {
 		this.name = name;
 	}
 
-	public SPUnit getUnit() {
+	public String getUnit() {
 		return unit;
 	}
 
-	public void setUnit(SPUnit unit) {
+	public void setUnit(String unit) {
 		this.unit = unit;
 	}
 
@@ -60,8 +59,8 @@ public class SPElementaryFlowContent implements IMappingContent {
 		this.factor = factor;
 	}
 
-	public SPElementaryFlow createFlow() {
-		SPElementaryFlow flow = new SPElementaryFlow();
+	public SPElementaryExchange createFlow() {
+		SPElementaryExchange flow = new SPElementaryExchange();
 		flow.setType(ElementaryFlowType.forValue(compartment));
 		flow.setSubCompartment(subCompartment);
 		flow.setName(name);

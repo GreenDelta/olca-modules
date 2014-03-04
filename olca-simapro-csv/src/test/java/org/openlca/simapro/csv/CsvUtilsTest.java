@@ -15,4 +15,18 @@ public class CsvUtilsTest {
 		Assert.assertArrayEquals(new String[] { "a", "b", "", "c" },
 				CsvUtils.split("a;b;;c", ";"));
 	}
+
+	@Test
+	public void testPedigreeUncertainty() {
+		Assert.assertEquals(null, CsvUtils.getPedigreeUncertainty(null));
+		Assert.assertEquals(null, CsvUtils.getPedigreeUncertainty("(1;58,34)"));
+		Assert.assertEquals("(3,5,5,3,2,na)",
+				CsvUtils.getPedigreeUncertainty("(3,5,5,3,2,na), Literature"));
+		Assert.assertEquals(
+				"(3, 5,	5 ,3,2,  na)",
+				CsvUtils.getPedigreeUncertainty("uncertainty = (3, 5,	5 ,3,2,  na) , Literature"));
+		Assert.assertEquals(
+				"(na,na,na,na,na,na)",
+				CsvUtils.getPedigreeUncertainty("uncertainty = (na,na,na,na,na,na) , Literature"));
+	}
 }

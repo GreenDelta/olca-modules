@@ -24,7 +24,7 @@ import org.openlca.io.maps.content.CSVGeographyContent;
 import org.openlca.io.maps.content.CSVQuantityContent;
 import org.openlca.io.maps.content.CSVUnitContent;
 import org.openlca.simapro.csv.model.IDistribution;
-import org.openlca.simapro.csv.model.SPElementaryFlow;
+import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
 import org.openlca.simapro.csv.model.SPLogNormalDistribution;
@@ -197,7 +197,7 @@ class ProcessConverter {
 			if (exchange.getFlow().getFlowType() != FlowType.ELEMENTARY_FLOW)
 				continue;
 			String casNumber = null;
-			SPElementaryFlow flow = null;
+			SPElementaryExchange flow = null;
 			SPElementaryFlowContent content = elemMap.get(exchange.getFlow()
 					.getRefId());
 			if (content != null) {
@@ -231,9 +231,9 @@ class ProcessConverter {
 		}
 	}
 
-	private SPElementaryFlow createElementaryFlow(Exchange exchange) {
+	private SPElementaryExchange createElementaryFlow(Exchange exchange) {
 		Flow olcaFlow = exchange.getFlow();
-		SPElementaryFlow flow = new SPElementaryFlow();
+		SPElementaryExchange flow = new SPElementaryExchange();
 		flow.setName(olcaFlow.getName());
 		flow.setUnit(map(exchange.getUnit()).getName());
 		flow.setAmount(String.valueOf(exchange.getAmountValue()));

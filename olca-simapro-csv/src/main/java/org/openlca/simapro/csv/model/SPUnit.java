@@ -1,20 +1,13 @@
 package org.openlca.simapro.csv.model;
 
+import org.openlca.simapro.csv.CsvUtils;
+
 public class SPUnit {
 
 	private double conversionFactor = 1;
 	private String name;
 	private String referenceUnit;
 	private String quantity;
-
-	public SPUnit(String name) {
-		this.name = name;
-	}
-
-	public SPUnit(String name, double conversionFactor) {
-		this.name = name;
-		this.conversionFactor = conversionFactor;
-	}
 
 	public double getConversionFactor() {
 		return conversionFactor;
@@ -46,6 +39,22 @@ public class SPUnit {
 
 	public void setReferenceUnit(String unit) {
 		this.referenceUnit = unit;
+	}
+
+	public static SPUnit fromLine(String line, String separator) {
+		String[] columns = CsvUtils.split(line, separator);
+		SPUnit unit = new SPUnit();
+		unit.name = CsvUtils.get(columns, 0);
+		unit.quantity = CsvUtils.get(columns, 1);
+		Double f = CsvUtils.getDouble(columns, 2);
+		unit.conversionFactor = f != null ? f : 1d;
+		unit.referenceUnit = CsvUtils.get(columns, 3);
+		return unit;
+	}
+
+	public String toLine(String separator) {
+		return CsvUtils.getJoiner(separator).join(name, quantity,
+				conversionFactor, referenceUnit);
 	}
 
 }

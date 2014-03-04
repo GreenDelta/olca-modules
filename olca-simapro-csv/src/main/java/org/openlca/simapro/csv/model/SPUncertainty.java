@@ -32,45 +32,45 @@ import org.openlca.simapro.csv.model.enums.DistributionType;
  * <li>Uniform: maximum
  * </ul>
  */
-public class SPUncertaintyDistribution {
+public class SPUncertainty {
 
 	private DistributionType type;
 	private Double param1;
 	private Double param2;
 	private Double param3;
 
-	public static SPUncertaintyDistribution normal(double doubledSD) {
-		SPUncertaintyDistribution distribution = new SPUncertaintyDistribution();
+	public static SPUncertainty normal(double doubledSD) {
+		SPUncertainty distribution = new SPUncertainty();
 		distribution.param1 = doubledSD;
 		distribution.type = DistributionType.NORMAL;
 		return distribution;
 	}
 
-	public static SPUncertaintyDistribution logNormal(double squaredSD) {
-		SPUncertaintyDistribution distribution = new SPUncertaintyDistribution();
+	public static SPUncertainty logNormal(double squaredSD) {
+		SPUncertainty distribution = new SPUncertainty();
 		distribution.param1 = squaredSD;
 		distribution.type = DistributionType.LOG_NORMAL;
 		return distribution;
 	}
 
-	public static SPUncertaintyDistribution uniform(double min, double max) {
-		SPUncertaintyDistribution distribution = new SPUncertaintyDistribution();
+	public static SPUncertainty uniform(double min, double max) {
+		SPUncertainty distribution = new SPUncertainty();
 		distribution.param2 = min;
 		distribution.param3 = max;
 		distribution.type = DistributionType.UNIFORM;
 		return distribution;
 	}
 
-	public static SPUncertaintyDistribution triangle(double min, double max) {
-		SPUncertaintyDistribution distribution = new SPUncertaintyDistribution();
+	public static SPUncertainty triangle(double min, double max) {
+		SPUncertainty distribution = new SPUncertainty();
 		distribution.param2 = min;
 		distribution.param3 = max;
 		distribution.type = DistributionType.TRIANGLE;
 		return distribution;
 	}
 
-	public static SPUncertaintyDistribution undefined() {
-		SPUncertaintyDistribution distribution = new SPUncertaintyDistribution();
+	public static SPUncertainty undefined() {
+		SPUncertainty distribution = new SPUncertainty();
 		distribution.type = DistributionType.UNDEFINED;
 		return distribution;
 	}
@@ -100,19 +100,19 @@ public class SPUncertaintyDistribution {
 	 * Reads the uncertainty distribution from the given CSV line starting at
 	 * the given offset position.
 	 */
-	public static SPUncertaintyDistribution fromCsv(String[] line, int offset) {
+	public static SPUncertainty fromCsv(String[] line, int offset) {
 		String typeString = CsvUtils.get(line, offset);
 		if (typeString == null || typeString.isEmpty())
-			return SPUncertaintyDistribution.undefined();
+			return SPUncertainty.undefined();
 		DistributionType type = DistributionType.fromValue(typeString);
 		if (type == null)
-			return SPUncertaintyDistribution.undefined();
+			return SPUncertainty.undefined();
 		return fromCsv(line, offset, type);
 	}
 
-	private static SPUncertaintyDistribution fromCsv(String[] line, int offset,
+	private static SPUncertainty fromCsv(String[] line, int offset,
 			DistributionType type) {
-		SPUncertaintyDistribution dist = new SPUncertaintyDistribution();
+		SPUncertainty dist = new SPUncertainty();
 		dist.type = type;
 		switch (type) {
 		case LOG_NORMAL:

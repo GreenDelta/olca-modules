@@ -1,7 +1,12 @@
 package org.openlca.simapro.csv;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
 
 /**
  * Utility functions for reading and writing SimaPro data sets.
@@ -9,6 +14,23 @@ import org.slf4j.LoggerFactory;
 public class CsvUtils {
 
 	private CsvUtils() {
+	}
+
+	public static Joiner getJoiner(String separator) {
+		return Joiner.on(separator).useForNull("");
+	}
+
+	public static String getPedigreeUncertainty(String comment) {
+		if (comment == null)
+			return null;
+		String pattern = "\\(\\s*([1-5]|na)\\s*,\\s*([1-5]|na)\\s*,\\s*([1-5]|na)"
+				+ "\\s*,\\s*([1-5]|na)\\s*,\\s*([1-5]|na)\\s*,\\s*([1-5]|na)\\s*\\)";
+		Matcher matcher = Pattern.compile(pattern).matcher(comment);
+		boolean match = matcher.find();
+		if (!match)
+			return null;
+		else
+			return matcher.group();
 	}
 
 	public static String[] split(String line, String separator) {

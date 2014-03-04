@@ -2,15 +2,15 @@ package org.openlca.simapro.csv.model;
 
 public class SPInputParameter extends SPParameter {
 
-	private SPUncertaintyDistribution distribution;
+	private SPUncertainty distribution;
 	private double value = 0;
 	private boolean hidden = false;
 
-	public SPUncertaintyDistribution getDistribution() {
+	public SPUncertainty getDistribution() {
 		return distribution;
 	}
 
-	public void setDistribution(SPUncertaintyDistribution distribution) {
+	public void setDistribution(SPUncertainty distribution) {
 		this.distribution = distribution;
 	}
 

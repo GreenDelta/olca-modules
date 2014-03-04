@@ -36,8 +36,7 @@ public class SPElementaryExchange extends SPExchange {
 		exchange.setSubCompartment(CsvUtils.get(columns, 1));
 		exchange.setUnit(CsvUtils.get(columns, 2));
 		exchange.setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 3)));
-		SPUncertaintyDistribution uncertainty = SPUncertaintyDistribution
-				.fromCsv(columns, 4);
+		SPUncertainty uncertainty = SPUncertainty.fromCsv(columns, 4);
 		exchange.setUncertaintyDistribution(uncertainty);
 
 		// TODO: comment + pedigree

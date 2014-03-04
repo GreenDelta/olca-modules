@@ -1,7 +1,7 @@
 package org.openlca.io.csv.input;
 
 import org.openlca.io.KeyGen;
-import org.openlca.simapro.csv.model.SPElementaryFlow;
+import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.enums.SubCompartment;
@@ -12,7 +12,7 @@ public class CSVKeyGen {
 		return KeyGen.get(name);
 	}
 
-	public static String forElementaryFlow(SPElementaryFlow elementaryFlow) {
+	public static String forElementaryFlow(SPElementaryExchange elementaryFlow) {
 		if (elementaryFlow == null)
 			KeyGen.get("");
 

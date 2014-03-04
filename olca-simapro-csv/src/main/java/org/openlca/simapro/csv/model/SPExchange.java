@@ -9,7 +9,8 @@ abstract class SPExchange {
 	private String amount;
 	private String comment;
 	private String unit;
-	private SPUncertaintyDistribution uncertaintyDistribution;
+	private SPUncertainty uncertaintyDistribution;
+	private String pedigreeUncertainty;
 
 	public String getAmount() {
 		return amount;
@@ -43,12 +44,20 @@ abstract class SPExchange {
 		return name;
 	}
 
-	public SPUncertaintyDistribution getUncertaintyDistribution() {
+	public SPUncertainty getUncertaintyDistribution() {
 		return uncertaintyDistribution;
 	}
 
 	public void setUncertaintyDistribution(
-			SPUncertaintyDistribution uncertaintyDistribution) {
+			SPUncertainty uncertaintyDistribution) {
 		this.uncertaintyDistribution = uncertaintyDistribution;
+	}
+
+	public String getPedigreeUncertainty() {
+		return pedigreeUncertainty;
+	}
+
+	public void setPedigreeUncertainty(String pedigreeUncertainty) {
+		this.pedigreeUncertainty = pedigreeUncertainty;
 	}
 }

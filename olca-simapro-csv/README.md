@@ -5,8 +5,7 @@ CSV format.
 
 TODO
 ----
-* The writer currently creates a file in the given directory with the
-  name of the data set's project as file name. Maybe it would be better
-  if the method would accept a CSV file which is written.
-* The CSVReader currently loads the complete data set into memory; the
-  alternative CSVParser should be merged with the reader.
+* The first version of that API contained a much more functionality regarding 
+  the pedigree matrix but the code may is a bit to complicated (see the archive
+  folder). The current implementation handles the pedigree information just as
+  a string.  
