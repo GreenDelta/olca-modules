@@ -15,8 +15,7 @@ final class SystemDescription {
 
 			String caseLine = lines.poll();
 			// TODO check why replace
-			String valueLine = Utils.replaceCSVSeperator(lines.peek(),
-					csvSeperator);
+			String valueLine = lines.peek();
 
 			switch (caseLine) {
 			case "Name":

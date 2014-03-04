@@ -105,7 +105,7 @@ class ReferenceData {
 			writer.writeln("Quantities");
 			for (SPQuantity quantity : referenceData.getQuantities().values())
 				writer.writeln(quantity.getName() + csvSeperator
-						+ (quantity.isDimensional() ? "Yes" : "No"));
+						+ (quantity.isWithDimension() ? "Yes" : "No"));
 			writer.newLine();
 			writer.writeln("End");
 			writer.newLine();

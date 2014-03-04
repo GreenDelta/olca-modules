@@ -2,13 +2,13 @@ package org.openlca.simapro.csv.parser;
 
 import java.util.Map;
 
+import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPProduct;
-import org.openlca.simapro.csv.model.SPProductFlow;
+import org.openlca.simapro.csv.model.SPProductInput;
 import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
 
@@ -23,42 +23,17 @@ class FlowParser {
 	}
 
 	SPElementaryExchange parseElementaryFlow(String line,
-			ElementaryFlowType type) throws CSVParserException {
+			ElementaryFlowType type) {
 		SPElementaryExchange exchange = SPElementaryExchange.fromCsv(line,
 				csvSeperator);
 		exchange.setType(type);
 		return exchange;
 	}
 
-	SPProductFlow getProductFlow(String line, ProductFlowType type)
-			throws CSVParserException {
-		line += csvSeperator + " ";
-		String split[] = line.split(csvSeperator);
-		if (split.length < 8)
-			throw new CSVParserException("Error in " + type.getHeader()
-					+ " line: " + line);
-		SPProductFlow flow = new SPProductFlow();
-		flow.setName(split[0]);
-		flow.setUnit(split[1]);
-		flow.setAmount(split[2]);
-		IDistribution d = readDistribution(split, 3);
-		flow.setDistribution(d);
-		setFlowCategory(flow);
-		return flow;
-	}
-
-	private void setFlowCategory(SPProductFlow flow) {
-		String[] categoryTree = index.get(flow.getName());
-		if (categoryTree == null)
-			return;
-		flow.setProcessCategory(ProcessCategory.forValue(categoryTree[0]));
-		StringBuilder builder = new StringBuilder();
-		for (int i = 1; i < categoryTree.length; i++)
-			builder.append(categoryTree[i] + "\\");
-		String category = builder.toString();
-		if (category.endsWith("\\"))
-			category = category.substring(0, category.length() - 1);
-		flow.setReferenceCategory(category);
+	SPProductInput getProductFlow(String line, ProductFlowType type) {
+		SPProductInput input = SPProductInput.fromCsv(line, csvSeperator);
+		input.setType(type);
+		return input;
 	}
 
 	SPProduct readReferenceProduct(String line) throws CSVParserException {
@@ -70,7 +45,8 @@ class FlowParser {
 		product.setName(split[0]);
 		product.setUnit(split[1]);
 		product.setAmount(split[2]);
-		product.setAllocation(Double.parseDouble(Utils.formatNumber(split[3])));
+		product.setAllocation(Double.parseDouble(CsvUtils
+				.formatNumber(split[3])));
 		product.setWasteType(split[4]);
 		product.setCategory(split[5]);
 		String comment = split[6];

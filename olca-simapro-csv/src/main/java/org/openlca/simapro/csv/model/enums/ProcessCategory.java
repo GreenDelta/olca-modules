@@ -1,5 +1,8 @@
 package org.openlca.simapro.csv.model.enums;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public enum ProcessCategory {
 
 	MATERIAL("Material"),
@@ -30,6 +33,8 @@ public enum ProcessCategory {
 		for (ProcessCategory category : values())
 			if (category.getValue().equalsIgnoreCase((value)))
 				return category;
+		Logger log = LoggerFactory.getLogger(ProcessCategory.class);
+		log.warn("unknown product category {}; returning NULL", value);
 		return null;
 	}
 }

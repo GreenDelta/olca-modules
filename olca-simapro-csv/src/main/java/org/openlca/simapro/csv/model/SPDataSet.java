@@ -11,7 +11,7 @@ public abstract class SPDataSet {
 	private List<SPCalculatedParameter> calculatedParameters = new ArrayList<>();
 	private List<SPInputParameter> inputParameters = new ArrayList<>();
 	private List<SPElementaryExchange> elementaryFlows = new ArrayList<>();
-	private List<SPProductFlow> productFlows = new ArrayList<>();
+	private List<SPProductInput> productFlows = new ArrayList<>();
 	private SPProcessDocumentation documentation;
 	private String subCategory;
 
@@ -44,13 +44,13 @@ public abstract class SPDataSet {
 		return inputParameters;
 	}
 
-	public List<SPProductFlow> getProductFlows() {
+	public List<SPProductInput> getProductFlows() {
 		return productFlows;
 	}
 
-	public List<SPProductFlow> getProductFlows(ProductFlowType type) {
-		List<SPProductFlow> list = new ArrayList<SPProductFlow>();
-		for (SPProductFlow flow : this.productFlows) {
+	public List<SPProductInput> getProductFlows(ProductFlowType type) {
+		List<SPProductInput> list = new ArrayList<SPProductInput>();
+		for (SPProductInput flow : this.productFlows) {
 			if (flow.getType() == type)
 				list.add(flow);
 		}

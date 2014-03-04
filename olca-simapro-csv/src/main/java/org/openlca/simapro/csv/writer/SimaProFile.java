@@ -10,7 +10,7 @@ import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProduct;
-import org.openlca.simapro.csv.model.SPProductFlow;
+import org.openlca.simapro.csv.model.SPProductInput;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
@@ -93,7 +93,7 @@ class SimaProFile {
 	private void writeProductFlows(SPDataSet dataEntry, ProductFlowType type)
 			throws IOException {
 		writer.writeln(type.getHeader());
-		for (SPProductFlow product : dataEntry.getProductFlows(type))
+		for (SPProductInput product : dataEntry.getProductFlows(type))
 			writer.writeln(getProductLine(product));
 		writer.newLine();
 	}
@@ -106,18 +106,8 @@ class SimaProFile {
 		writer.newLine();
 	}
 
-	private String getProductLine(SPProductFlow product) {
-		String line = product.getName()
-				+ csvSeparator
-				+ product.getUnit()
-				+ csvSeparator
-				+ number(product.getAmount())
-				+ csvSeparator
-				+ WriterUtils.getDistributionPart(product.getDistribution(),
-						csvSeparator, decimalSeparator);
-		if (product.getComment() != null)
-			line += comment(product.getComment());
-		return line;
+	private String getProductLine(SPProductInput product) {
+		return product.toCsv(Character.toString(csvSeparator));
 	}
 
 	private String getProductLine(SPProduct product, String subCategory) {
@@ -143,20 +133,7 @@ class SimaProFile {
 	}
 
 	private String getElementaryFlowLine(SPElementaryExchange flow) {
-		String line = flow.getName() + csvSeparator;
-		if (flow.getSubCompartment() != null) {
-			line += flow.getSubCompartment();
-		}
-		line += csvSeparator
-				+ flow.getUnit()
-				+ csvSeparator
-				+ number(flow.getAmount())
-				+ csvSeparator
-				+ WriterUtils.getDistributionPart(flow.getDistribution(),
-						csvSeparator, decimalSeparator);
-		if (flow.getComment() != null)
-			line += comment(flow.getComment());
-		return line;
+		return flow.toCsv(Character.toString(csvSeparator));
 	}
 
 	private String getWasteSpecificationLine(

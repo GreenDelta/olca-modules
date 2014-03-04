@@ -33,7 +33,7 @@ import org.openlca.simapro.csv.model.SPPedigreeMatrix;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPProduct;
-import org.openlca.simapro.csv.model.SPProductFlow;
+import org.openlca.simapro.csv.model.SPProductInput;
 import org.openlca.simapro.csv.model.SPQuantity;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPSubstance;
@@ -176,7 +176,7 @@ class ProcessConverter {
 					|| exchange.getFlow().getFlowType() != FlowType.WASTE_FLOW)
 				continue;
 			Flow olcaFlow = exchange.getFlow();
-			SPProductFlow productFlow = new SPProductFlow();
+			SPProductInput productFlow = new SPProductInput();
 			productFlow.setName(olcaFlow.getName());
 			productFlow.setUnit(map(exchange.getUnit()).getName());
 			productFlow.setAmount(String.valueOf(exchange.getAmountValue()));

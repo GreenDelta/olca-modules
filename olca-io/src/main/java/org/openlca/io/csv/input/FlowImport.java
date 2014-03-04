@@ -36,7 +36,7 @@ import org.openlca.simapro.csv.model.SPLogNormalDistribution;
 import org.openlca.simapro.csv.model.SPPedigreeMatrix;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProduct;
-import org.openlca.simapro.csv.model.SPProductFlow;
+import org.openlca.simapro.csv.model.SPProductInput;
 import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
@@ -114,7 +114,7 @@ public class FlowImport {
 	}
 
 	private void productExchanges() {
-		for (SPProductFlow productFlow : dataEntry.getProductFlows()) {
+		for (SPProductInput productFlow : dataEntry.getProductFlows()) {
 			Flow flow = findOrCreate(productFlow);
 			Exchange exchange = new Exchange();
 			process.getExchanges().add(exchange);
@@ -378,7 +378,7 @@ public class FlowImport {
 		return flow;
 	}
 
-	private Flow findOrCreate(SPProductFlow productFlow) {
+	private Flow findOrCreate(SPProductInput productFlow) {
 		if (productFlow == null)
 			return null;
 		if (!productFlow.hasReferenceData()) {
