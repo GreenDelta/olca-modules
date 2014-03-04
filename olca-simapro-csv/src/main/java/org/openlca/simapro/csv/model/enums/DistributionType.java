@@ -1,38 +1,42 @@
 package org.openlca.simapro.csv.model.enums;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Allowed uncertainty distribution types in SimaPro.
+ */
 public enum DistributionType {
 
-	LOG_NORMAL("Lognormal",
-			new DistributionParameterType[]{DistributionParameterType.SQUARED_STANDARD_DEVIATION}),
+	LOG_NORMAL("Lognormal"),
 
-	NORMAL("Normal",
-			new DistributionParameterType[]{DistributionParameterType.DOUBLED_STANDARD_DEVIATION}),
+	NORMAL("Normal"),
 
-	TRIANGLE("Triangle", new DistributionParameterType[]{
-			DistributionParameterType.MINIMUM,
-			DistributionParameterType.MAXIMUM}),
+	TRIANGLE("Triangle"),
 
-	UNDEFINED("Undefined", new DistributionParameterType[0]),
+	UNIFORM("Uniform"),
 
-	UNIFORM("Uniform", new DistributionParameterType[]{
-			DistributionParameterType.MINIMUM,
-			DistributionParameterType.MAXIMUM});
+	UNDEFINED("Undefined");
 
-	private DistributionParameterType[] parameterTypes;
-	private String value;
+	private final String value;
 
-	private DistributionType(String value,
-	                         DistributionParameterType[] parameterTypes) {
+	private DistributionType(String value) {
 		this.value = value;
-		this.parameterTypes = parameterTypes;
-	}
-
-	public DistributionParameterType[] getParameterTypes() {
-		return parameterTypes;
 	}
 
 	public String getValue() {
 		return value;
+	}
+
+	public static DistributionType fromValue(String value) {
+		for (DistributionType type : values()) {
+			if (type.value.equalsIgnoreCase(value))
+				return type;
+		}
+		Logger log = LoggerFactory.getLogger(DistributionType.class);
+		log.warn("unknown distribution type value {}, returning undifined",
+				value);
+		return UNDEFINED;
 	}
 
 }

@@ -9,12 +9,6 @@ import org.openlca.simapro.csv.model.SPUniformDistribution;
 
 final class Utils {
 
-	static String formatNumber(String value) {
-		if (value == null)
-			return null;
-		return value.replace(",", ".");
-	}
-
 	static String replaceCSVSeperator(String value, String csvSeperator) {
 		if (value == null)
 			return null;

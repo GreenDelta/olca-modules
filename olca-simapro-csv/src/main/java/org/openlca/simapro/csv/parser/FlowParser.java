@@ -3,7 +3,7 @@ package org.openlca.simapro.csv.parser;
 import java.util.Map;
 
 import org.openlca.simapro.csv.model.IDistribution;
-import org.openlca.simapro.csv.model.SPElementaryFlow;
+import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
 import org.openlca.simapro.csv.model.SPSubstance;
@@ -23,7 +23,7 @@ class FlowParser {
 		this.index = index;
 	}
 
-	SPElementaryFlow parseElementaryFlow(String line, ElementaryFlowType type)
+	SPElementaryExchange parseElementaryFlow(String line, ElementaryFlowType type)
 			throws CSVParserException {
 		line += csvSeperator + " ";
 		String split[] = line.split(csvSeperator);
@@ -31,7 +31,7 @@ class FlowParser {
 			throw new CSVParserException("Error in " + type.getExchangeHeader()
 					+ " line: " + line);
 
-		SPElementaryFlow flow = new SPElementaryFlow();
+		SPElementaryExchange flow = new SPElementaryExchange();
 		flow.setName(split[0]);
 		flow.setSubCompartment(split[1]);
 		flow.setUnit(split[2]);

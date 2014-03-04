@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPElementaryFlow;
+import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProduct;
@@ -101,7 +101,7 @@ class SimaProFile {
 	private void writeElemFlows(SPDataSet dataEntry, ElementaryFlowType type)
 			throws IOException {
 		writer.writeln(type.getExchangeHeader());
-		for (SPElementaryFlow flow : dataEntry.getElementaryFlows(type))
+		for (SPElementaryExchange flow : dataEntry.getElementaryFlows(type))
 			writer.writeln(getElementaryFlowLine(flow));
 		writer.newLine();
 	}
@@ -142,7 +142,7 @@ class SimaProFile {
 		return line;
 	}
 
-	private String getElementaryFlowLine(SPElementaryFlow flow) {
+	private String getElementaryFlowLine(SPElementaryExchange flow) {
 		String line = flow.getName() + csvSeparator;
 		if (flow.getSubCompartment() != null) {
 			line += flow.getSubCompartment();

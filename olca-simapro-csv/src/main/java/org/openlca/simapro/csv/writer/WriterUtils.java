@@ -6,7 +6,7 @@ import org.openlca.simapro.csv.model.IDistribution;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPLogNormalDistribution;
-import org.openlca.simapro.csv.model.enums.DistributionParameterType;
+import org.openlca.simapro.csv.model.enums.DistributionParameter;
 import org.openlca.simapro.csv.model.enums.DistributionType;
 
 final class WriterUtils {
@@ -71,7 +71,7 @@ final class WriterUtils {
 				SPLogNormalDistribution logNormalDistribution = (SPLogNormalDistribution) distribution;
 				line += String
 						.valueOf(distribution
-								.getDistributionParameter(DistributionParameterType.SQUARED_STANDARD_DEVIATION))
+								.getDistributionParameter(DistributionParameter.SQUARED_STANDARD_DEVIATION))
 						+ csvSeperator
 						+ '0'
 						+ csvSeperator
@@ -84,7 +84,7 @@ final class WriterUtils {
 			case NORMAL:
 				line += String
 						.valueOf(distribution
-								.getDistributionParameter(DistributionParameterType.DOUBLED_STANDARD_DEVIATION))
+								.getDistributionParameter(DistributionParameter.DOUBLED_STANDARD_DEVIATION))
 						+ csvSeperator
 						+ '0'
 						+ csvSeperator
@@ -95,20 +95,20 @@ final class WriterUtils {
 				line += '0'
 						+ csvSeperator
 						+ String.valueOf(distribution
-								.getDistributionParameter(DistributionParameterType.MINIMUM))
+								.getDistributionParameter(DistributionParameter.MINIMUM))
 						+ csvSeperator
 						+ String.valueOf(distribution
-								.getDistributionParameter(DistributionParameterType.MAXIMUM))
+								.getDistributionParameter(DistributionParameter.MAXIMUM))
 						+ csvSeperator;
 				break;
 			case UNIFORM:
 				line += '0'
 						+ csvSeperator
 						+ String.valueOf(distribution
-								.getDistributionParameter(DistributionParameterType.MINIMUM))
+								.getDistributionParameter(DistributionParameter.MINIMUM))
 						+ csvSeperator
 						+ String.valueOf(distribution
-								.getDistributionParameter(DistributionParameterType.MAXIMUM))
+								.getDistributionParameter(DistributionParameter.MAXIMUM))
 						+ csvSeperator;
 				break;
 			case UNDEFINED:
