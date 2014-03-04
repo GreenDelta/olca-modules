@@ -19,7 +19,7 @@ import org.openlca.io.maps.ImportMap;
 import org.openlca.io.maps.MapType;
 import org.openlca.io.maps.MappingBuilder;
 import org.openlca.io.maps.content.CSVElementaryCategoryContent;
-import org.openlca.io.maps.content.CSVElementaryFlowContent;
+import org.openlca.io.maps.content.SPElementaryFlowContent;
 import org.openlca.io.maps.content.CSVProductFlowContent;
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPDataSet;
@@ -46,7 +46,7 @@ class ProcessImport {
 	private FormulaInterpreter interpreter;
 	private long scopeId = 1000;
 	private boolean useRefNameForProcess;
-	private ImportMap<CSVElementaryFlowContent> elemFlowMap;
+	private ImportMap<SPElementaryFlowContent> elemFlowMap;
 	private ImportMap<CSVProductFlowContent> productFlowMap;
 	private ImportMap<CSVElementaryCategoryContent> categoryMap;
 
@@ -73,7 +73,7 @@ class ProcessImport {
 		sourceDao = new SourceDao(database);
 		MappingBuilder mappingBuilder = new MappingBuilder(database);
 		elemFlowMap = mappingBuilder.buildImportMapping(
-				CSVElementaryFlowContent.class, MapType.CSV_ELEMENTARY_FLOW);
+				SPElementaryFlowContent.class, MapType.CSV_ELEMENTARY_FLOW);
 		productFlowMap = mappingBuilder.buildImportMapping(
 				CSVProductFlowContent.class, MapType.CSV_PRODUCT_FLOW);
 		categoryMap = mappingBuilder.buildImportMapping(

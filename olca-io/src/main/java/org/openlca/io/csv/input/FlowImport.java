@@ -27,7 +27,7 @@ import org.openlca.io.Categories;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.maps.ImportMap;
 import org.openlca.io.maps.content.CSVElementaryCategoryContent;
-import org.openlca.io.maps.content.CSVElementaryFlowContent;
+import org.openlca.io.maps.content.SPElementaryFlowContent;
 import org.openlca.io.maps.content.CSVProductFlowContent;
 import org.openlca.simapro.csv.model.IDistribution;
 import org.openlca.simapro.csv.model.SPDataSet;
@@ -59,13 +59,13 @@ public class FlowImport {
 	private UnitMapping unitMapping;
 	private FormulaInterpreter interpreter;
 	private long scopeId;
-	private ImportMap<CSVElementaryFlowContent> elemFlowMap;
+	private ImportMap<SPElementaryFlowContent> elemFlowMap;
 	private ImportMap<CSVProductFlowContent> productFlowMap;
 	private ImportMap<CSVElementaryCategoryContent> categoryMap;
 
 	FlowImport(IDatabase database, CSVImportCache cache,
 			FormulaInterpreter interpreter, long scopeId,
-			ImportMap<CSVElementaryFlowContent> elemFlowMap,
+			ImportMap<SPElementaryFlowContent> elemFlowMap,
 			ImportMap<CSVProductFlowContent> productFlowMap,
 			ImportMap<CSVElementaryCategoryContent> categoryMap) {
 		this.cache = cache;

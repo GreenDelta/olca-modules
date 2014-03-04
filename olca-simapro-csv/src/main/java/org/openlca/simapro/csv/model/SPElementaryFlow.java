@@ -1,19 +1,18 @@
 package org.openlca.simapro.csv.model;
 
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.SubCompartment;
 
 public class SPElementaryFlow extends SPFlow {
 
 	private IDistribution distribution;
-	private SubCompartment subCompartment = SubCompartment.UNSPECIFIED;
+	private String subCompartment;
 	private ElementaryFlowType type;
 
 	public IDistribution getDistribution() {
 		return distribution;
 	}
 
-	public SubCompartment getSubCompartment() {
+	public String getSubCompartment() {
 		return subCompartment;
 	}
 
@@ -25,7 +24,7 @@ public class SPElementaryFlow extends SPFlow {
 		this.distribution = distribution;
 	}
 
-	public void setSubCompartment(SubCompartment subCompartment) {
+	public void setSubCompartment(String subCompartment) {
 		this.subCompartment = subCompartment;
 	}
 

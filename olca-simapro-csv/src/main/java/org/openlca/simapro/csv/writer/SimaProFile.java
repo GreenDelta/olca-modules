@@ -62,30 +62,18 @@ class SimaProFile {
 	}
 
 	private void writeExchanges(SPDataSet dataEntry) throws IOException {
-		writeProductFlows(dataEntry, "Avoided products",
-				ProductFlowType.AVOIDED_PRODUCT);
-		writeElemFlows(dataEntry, "Resources", ElementaryFlowType.RESOURCE);
-		writeProductFlows(dataEntry, "Materials/fuels",
-				ProductFlowType.MATERIAL_INPUT);
-		writeProductFlows(dataEntry, "Electricity/heat",
-				ProductFlowType.ELECTRICITY_INPUT);
-		writeElemFlows(dataEntry, "Emissions to air",
-				ElementaryFlowType.EMISSION_TO_AIR);
-		writeElemFlows(dataEntry, "Emissions to water",
-				ElementaryFlowType.EMISSION_TO_WATER);
-		writeElemFlows(dataEntry, "Emissions to soil",
-				ElementaryFlowType.EMISSION_TO_SOIL);
-		writeElemFlows(dataEntry, "Final waste flows",
-				ElementaryFlowType.FINAL_WASTE);
-		writeElemFlows(dataEntry, "Non material emissions",
-				ElementaryFlowType.NON_MATERIAL_EMISSIONS);
-		writeElemFlows(dataEntry, "Social issues",
-				ElementaryFlowType.SOCIAL_ISSUE);
-		writeElemFlows(dataEntry, "Economic issues",
-				ElementaryFlowType.ECONOMIC_ISSUE);
-		writeProductFlows(dataEntry, "Waste to treatment",
-				ProductFlowType.WASTE_TREATMENT);
-
+		writeProductFlows(dataEntry, ProductFlowType.AVOIDED_PRODUCTS);
+		writeElemFlows(dataEntry, ElementaryFlowType.RESOURCES);
+		writeProductFlows(dataEntry, ProductFlowType.MATERIAL_FUELS);
+		writeProductFlows(dataEntry, ProductFlowType.ELECTRICITY_HEAT);
+		writeElemFlows(dataEntry, ElementaryFlowType.EMISSIONS_TO_AIR);
+		writeElemFlows(dataEntry, ElementaryFlowType.EMISSIONS_TO_WATER);
+		writeElemFlows(dataEntry, ElementaryFlowType.EMISSIONS_TO_SOIL);
+		writeElemFlows(dataEntry, ElementaryFlowType.FINAL_WASTE_FLOWS);
+		writeElemFlows(dataEntry, ElementaryFlowType.NON_MATERIAL_EMISSIONS);
+		writeElemFlows(dataEntry, ElementaryFlowType.SOCIAL_ISSUES);
+		writeElemFlows(dataEntry, ElementaryFlowType.ECONOMIC_ISSUES);
+		writeProductFlows(dataEntry, ProductFlowType.WASTE_TO_TREATMENT);
 	}
 
 	private void writeParameters(SPDataSet dataEntry) throws IOException {
@@ -102,17 +90,17 @@ class SimaProFile {
 		writer.newLine();
 	}
 
-	private void writeProductFlows(SPDataSet dataEntry, String header,
-			ProductFlowType type) throws IOException {
-		writer.writeln(header);
+	private void writeProductFlows(SPDataSet dataEntry, ProductFlowType type)
+			throws IOException {
+		writer.writeln(type.getValue());
 		for (SPProductFlow product : dataEntry.getProductFlows(type))
 			writer.writeln(getProductLine(product));
 		writer.newLine();
 	}
 
-	private void writeElemFlows(SPDataSet dataEntry, String header,
-			ElementaryFlowType type) throws IOException {
-		writer.writeln(header);
+	private void writeElemFlows(SPDataSet dataEntry, ElementaryFlowType type)
+			throws IOException {
+		writer.writeln(type.getValue());
 		for (SPElementaryFlow flow : dataEntry.getElementaryFlows(type))
 			writer.writeln(getElementaryFlowLine(flow));
 		writer.newLine();
@@ -157,7 +145,7 @@ class SimaProFile {
 	private String getElementaryFlowLine(SPElementaryFlow flow) {
 		String line = flow.getName() + csvSeparator;
 		if (flow.getSubCompartment() != null) {
-			line += flow.getSubCompartment().getValue();
+			line += flow.getSubCompartment();
 		}
 		line += csvSeparator
 				+ flow.getUnit()

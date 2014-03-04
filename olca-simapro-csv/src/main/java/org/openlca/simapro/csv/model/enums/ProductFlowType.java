@@ -1,14 +1,17 @@
 package org.openlca.simapro.csv.model.enums;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public enum ProductFlowType {
 
-	AVOIDED_PRODUCT("Avoided product"),
+	AVOIDED_PRODUCTS("Avoided products"),
 
-	ELECTRICITY_INPUT("Electricity/heat"),
+	ELECTRICITY_HEAT("Electricity/heat"),
 
-	MATERIAL_INPUT("Material/fuels"),
+	MATERIAL_FUELS("Materials/fuels"),
 
-	WASTE_TREATMENT("Waste treatment");
+	WASTE_TO_TREATMENT("Waste to treatment");
 
 	private String value;
 
@@ -22,8 +25,10 @@ public enum ProductFlowType {
 
 	public static ProductFlowType forValue(String value) {
 		for (ProductFlowType type : values())
-			if (type.getValue().equals(value))
+			if (type.getValue().equalsIgnoreCase(value))
 				return type;
+		Logger log = LoggerFactory.getLogger(value);
+		log.warn("unknown product type {}; returning NULL", value);
 		return null;
 	}
 

@@ -19,7 +19,7 @@ import org.openlca.io.UnitMapping;
 import org.openlca.io.maps.MapType;
 import org.openlca.io.maps.MappingBuilder;
 import org.openlca.io.maps.content.CSVElementaryCategoryContent;
-import org.openlca.io.maps.content.CSVElementaryFlowContent;
+import org.openlca.io.maps.content.SPElementaryFlowContent;
 import org.openlca.io.maps.content.CSVGeographyContent;
 import org.openlca.io.maps.content.CSVQuantityContent;
 import org.openlca.io.maps.content.CSVUnitContent;
@@ -55,7 +55,7 @@ class ProcessConverter {
 	private Process process;
 	private SPReferenceData referenceData;
 	private Map<String, CSVGeographyContent> geoMap;
-	private Map<String, CSVElementaryFlowContent> elemMap;
+	private Map<String, SPElementaryFlowContent> elemMap;
 	private Map<String, CSVElementaryCategoryContent> categoryMap;
 	private Map<String, CSVUnitContent> unitMap;
 	private Map<String, CSVQuantityContent> quantityMap;
@@ -68,7 +68,7 @@ class ProcessConverter {
 		geoMap = mappingBuilder.buildExportMapping(CSVGeographyContent.class,
 				MapType.CSV_GEOGRAPHY);
 		elemMap = mappingBuilder.buildExportMapping(
-				CSVElementaryFlowContent.class, MapType.CSV_ELEMENTARY_FLOW);
+				SPElementaryFlowContent.class, MapType.CSV_ELEMENTARY_FLOW);
 		categoryMap = mappingBuilder.buildExportMapping(
 				CSVElementaryCategoryContent.class,
 				MapType.CSV_ELEMENTARY_CATEGORY);
@@ -198,7 +198,7 @@ class ProcessConverter {
 				continue;
 			String casNumber = null;
 			SPElementaryFlow flow = null;
-			CSVElementaryFlowContent content = elemMap.get(exchange.getFlow()
+			SPElementaryFlowContent content = elemMap.get(exchange.getFlow()
 					.getRefId());
 			if (content != null) {
 				flow = content.createFlow();

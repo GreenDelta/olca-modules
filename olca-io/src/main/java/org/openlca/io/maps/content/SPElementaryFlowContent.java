@@ -6,26 +6,15 @@ import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.SubCompartment;
 
-public class CSVElementaryFlowContent implements IMappingContent {
+public class SPElementaryFlowContent implements IMappingContent {
 
 	private String name;
-	private SPUnit unit;
+	private String compartment;
+	private String subCompartment;
+	private String unit;
 	private String casNumber;
-	private ElementaryFlowType type;
-	private SubCompartment subCompartment;
-	private double factor;
 
-	public CSVElementaryFlowContent() {
-	}
-
-	public CSVElementaryFlowContent(String name, SPUnit unit, String casNumber,
-			ElementaryFlowType type, SubCompartment subCompartment) {
-		this.name = name;
-		this.unit = unit;
-		this.casNumber = casNumber;
-		this.type = type;
-		this.subCompartment = subCompartment;
-	}
+	private double conversionFactor;
 
 	public String getName() {
 		return name;
@@ -73,7 +62,7 @@ public class CSVElementaryFlowContent implements IMappingContent {
 
 	public SPElementaryFlow createFlow() {
 		SPElementaryFlow flow = new SPElementaryFlow();
-		flow.setType(type);
+		flow.setType(ElementaryFlowType.forValue(compartment));
 		flow.setSubCompartment(subCompartment);
 		flow.setName(name);
 		flow.setUnit(unit.getName());

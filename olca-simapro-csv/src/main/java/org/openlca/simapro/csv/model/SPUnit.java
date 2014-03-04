@@ -1,8 +1,5 @@
 package org.openlca.simapro.csv.model;
 
-/**
- * This class represents a SimaPro unit
- */
 public class SPUnit {
 
 	private double conversionFactor = 1;
