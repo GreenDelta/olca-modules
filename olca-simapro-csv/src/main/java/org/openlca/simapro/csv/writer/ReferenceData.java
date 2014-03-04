@@ -5,13 +5,11 @@ import static org.openlca.simapro.csv.writer.WriterUtils.comment;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPLiteratureReference;
-import org.openlca.simapro.csv.model.SPParameter;
 import org.openlca.simapro.csv.model.SPQuantity;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPSubstance;
@@ -196,15 +194,6 @@ class ReferenceData {
 			writer.writeln("End");
 			writer.newLine();
 		}
-	}
-
-	private boolean containsType(Object parameters, ParameterType type) {
-		@SuppressWarnings("unchecked")
-		Map<String, SPParameter> map = (Map<String, SPParameter>) parameters;
-		for (SPParameter p : map.values())
-			if (p.getType() == type)
-				return true;
-		return false;
 	}
 
 	private boolean containsType(ElementaryFlowType type) {

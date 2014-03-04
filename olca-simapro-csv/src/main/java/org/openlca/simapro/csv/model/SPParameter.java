@@ -2,11 +2,11 @@ package org.openlca.simapro.csv.model;
 
 import org.openlca.simapro.csv.model.enums.ParameterType;
 
-public class SPParameter {
+abstract class SPParameter {
 
-	protected String name;
-	protected String comment;
-	protected ParameterType type;
+	private String name;
+	private String comment;
+	private ParameterType type;
 
 	public String getName() {
 		return name;
