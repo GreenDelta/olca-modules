@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * @author Besitzer
- * 
+ * Allowed types of product flows in SimaPro. In a SimaPro CSV file, product
+ * exchanges are divided into sections of these types where each section starts
+ * with the CSV header indicating the type.
  */
 public enum ProductFlowType {
 
@@ -26,16 +26,16 @@ public enum ProductFlowType {
 		this.header = header;
 	}
 
-	public String getValue() {
-		return value;
+	public String getHeader() {
+		return header;
 	}
 
-	public static ProductFlowType forValue(String value) {
+	public static ProductFlowType forHeader(String header) {
 		for (ProductFlowType type : values())
-			if (type.getValue().equalsIgnoreCase(value))
+			if (type.getHeader().equalsIgnoreCase(header))
 				return type;
-		Logger log = LoggerFactory.getLogger(value);
-		log.warn("unknown product type {}; returning NULL", value);
+		Logger log = LoggerFactory.getLogger(ProductFlowType.class);
+		log.warn("unknown product type header {}; returning NULL", header);
 		return null;
 	}
 

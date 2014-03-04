@@ -45,7 +45,7 @@ public class SPReferenceData {
 	public void add(SPSubstance substance) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(substance.getName());
-		builder.append(substance.getFlowType().getValue());
+		builder.append(substance.getFlowType().getExchangeHeader());
 		builder.append(substance.getReferenceUnit());
 		substances.put(builder.toString(), substance);
 	}

@@ -3,7 +3,7 @@ package org.openlca.simapro.csv.model;
 /**
  * This class represents a waste specification of a waste treatment
  */
-public class SPWasteSpecification extends SPFlow {
+public class SPWasteSpecification extends SPExchange {
 
 	private String wasteType;
 

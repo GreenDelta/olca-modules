@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model;
 
-public class SPProduct extends SPFlow {
+public class SPProduct extends SPExchange {
 
 	private double allocation = 100;
 	private String wasteType;

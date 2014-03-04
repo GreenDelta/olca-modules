@@ -11,7 +11,6 @@ import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
-import org.openlca.simapro.csv.model.enums.SubCompartment;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
 
 class FlowParser {
@@ -29,12 +28,12 @@ class FlowParser {
 		line += csvSeperator + " ";
 		String split[] = line.split(csvSeperator);
 		if (split.length < 9)
-			throw new CSVParserException("Error in " + type.getValue()
+			throw new CSVParserException("Error in " + type.getExchangeHeader()
 					+ " line: " + line);
 
 		SPElementaryFlow flow = new SPElementaryFlow();
 		flow.setName(split[0]);
-		flow.setSubCompartment(SubCompartment.forValue(split[1]));
+		flow.setSubCompartment(split[1]);
 		flow.setUnit(split[2]);
 		flow.setAmount(split[3]);
 		IDistribution d = readDistribution(split, 4);
@@ -58,7 +57,7 @@ class FlowParser {
 		line += csvSeperator + " ";
 		String split[] = line.split(csvSeperator);
 		if (split.length < 8)
-			throw new CSVParserException("Error in " + type.getValue()
+			throw new CSVParserException("Error in " + type.getHeader()
 					+ " line: " + line);
 		SPProductFlow flow = new SPProductFlow();
 		flow.setName(split[0]);

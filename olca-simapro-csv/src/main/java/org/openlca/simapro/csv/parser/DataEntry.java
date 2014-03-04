@@ -106,46 +106,48 @@ class DataEntry {
 		while (!lines.isEmpty()) {
 			switch (lines.poll()) {
 			case "Avoided products":
-				addProductFlows(entry, ProductFlowType.AVOIDED_PRODUCT, lines);
+				addProductFlows(entry, ProductFlowType.AVOIDED_PRODUCTS, lines);
 				break;
 			case "Resources":
-				addElementaryFlows(entry, ElementaryFlowType.RESOURCE, lines);
+				addElementaryFlows(entry, ElementaryFlowType.RESOURCES, lines);
 				break;
 			case "Materials/fuels":
-				addProductFlows(entry, ProductFlowType.MATERIAL_INPUT, lines);
+				addProductFlows(entry, ProductFlowType.MATERIAL_FUELS, lines);
 				break;
 			case "Electricity/heat":
-				addProductFlows(entry, ProductFlowType.ELECTRICITY_INPUT, lines);
+				addProductFlows(entry, ProductFlowType.ELECTRICITY_HEAT, lines);
 				break;
 			case "Emissions to air":
-				addElementaryFlows(entry, ElementaryFlowType.EMISSION_TO_AIR,
+				addElementaryFlows(entry, ElementaryFlowType.EMISSIONS_TO_AIR,
 						lines);
 				break;
 			case "Emissions to water":
-				addElementaryFlows(entry, ElementaryFlowType.EMISSION_TO_WATER,
-						lines);
+				addElementaryFlows(entry,
+						ElementaryFlowType.EMISSIONS_TO_WATER, lines);
 				break;
 			case "Emissions to soil":
-				addElementaryFlows(entry, ElementaryFlowType.EMISSION_TO_SOIL,
+				addElementaryFlows(entry, ElementaryFlowType.EMISSIONS_TO_SOIL,
 						lines);
 				break;
 			case "Final waste flows":
-				addElementaryFlows(entry, ElementaryFlowType.FINAL_WASTE, lines);
+				addElementaryFlows(entry, ElementaryFlowType.FINAL_WASTE_FLOWS,
+						lines);
 				break;
 			case "Non material emissions":
 				addElementaryFlows(entry,
 						ElementaryFlowType.NON_MATERIAL_EMISSIONS, lines);
 				break;
 			case "Social issues":
-				addElementaryFlows(entry, ElementaryFlowType.SOCIAL_ISSUE,
+				addElementaryFlows(entry, ElementaryFlowType.SOCIAL_ISSUES,
 						lines);
 				break;
 			case "Economic issues":
-				addElementaryFlows(entry, ElementaryFlowType.ECONOMIC_ISSUE,
+				addElementaryFlows(entry, ElementaryFlowType.ECONOMIC_ISSUES,
 						lines);
 				break;
 			case "Waste to treatment":
-				addProductFlows(entry, ProductFlowType.WASTE_TREATMENT, lines);
+				addProductFlows(entry, ProductFlowType.WASTE_TO_TREATMENT,
+						lines);
 				break;
 			case "Input parameters":
 				while (!lines.isEmpty() && !lines.peek().equals("")) {

@@ -3,7 +3,7 @@ package org.openlca.simapro.csv.model;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
-public class SPProductFlow extends SPFlow {
+public class SPProductFlow extends SPExchange {
 
 	private IDistribution distribution;
 	private ProductFlowType type;

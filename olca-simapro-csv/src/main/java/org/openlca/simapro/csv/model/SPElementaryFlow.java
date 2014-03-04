@@ -2,7 +2,7 @@ package org.openlca.simapro.csv.model;
 
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
-public class SPElementaryFlow extends SPFlow {
+public class SPElementaryFlow extends SPExchange {
 
 	private IDistribution distribution;
 	private String subCompartment;

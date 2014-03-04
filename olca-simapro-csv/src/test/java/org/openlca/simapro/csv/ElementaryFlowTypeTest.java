@@ -28,7 +28,6 @@ public class ElementaryFlowTypeTest {
 			"Social issues",
 			"Economic issues"			
 	};
-	
 	//@formatter:on
 
 	@Test

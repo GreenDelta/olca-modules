@@ -1,8 +1,12 @@
 package org.openlca.simapro.csv.model;
 
-public abstract class SPFlow {
+/**
+ * Defines the common fields of a SimaPro exchange.
+ * 
+ */
+abstract class SPExchange {
 
-	protected String name;
+	private String name;
 	private String amount;
 	private String comment;
 	private String unit;

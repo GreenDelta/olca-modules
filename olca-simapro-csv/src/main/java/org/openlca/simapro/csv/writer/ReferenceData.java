@@ -134,7 +134,7 @@ class ReferenceData {
 
 	private void writeSubstances(ElementaryFlowType type) throws IOException {
 		if (containsType(type)) {
-			writer.writeln(type.getValue());
+			writer.writeln(type.getReferenceHeader());
 			Iterator<SPSubstance> itr = substances.iterator();
 			while (itr.hasNext()) {
 				SPSubstance substance = itr.next();

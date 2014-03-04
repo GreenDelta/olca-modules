@@ -164,25 +164,25 @@ public class CSVParser {
 				parseAndNotify(ObjectType.UNITS);
 				break;
 			case "Raw materials":
-				parseAndNotify(ElementaryFlowType.RESOURCE);
+				parseAndNotify(ElementaryFlowType.RESOURCES);
 				break;
 			case "Airborne emissions":
-				parseAndNotify(ElementaryFlowType.EMISSION_TO_AIR);
+				parseAndNotify(ElementaryFlowType.EMISSIONS_TO_AIR);
 				break;
 			case "Waterborne emissions":
-				parseAndNotify(ElementaryFlowType.EMISSION_TO_WATER);
+				parseAndNotify(ElementaryFlowType.EMISSIONS_TO_WATER);
 				break;
 			case "Final waste flows":
-				parseAndNotify(ElementaryFlowType.FINAL_WASTE);
+				parseAndNotify(ElementaryFlowType.FINAL_WASTE_FLOWS);
 				break;
 			case "Emissions to soil":
-				parseAndNotify(ElementaryFlowType.EMISSION_TO_SOIL);
+				parseAndNotify(ElementaryFlowType.EMISSIONS_TO_SOIL);
 				break;
 			case "Social issues":
-				parseAndNotify(ElementaryFlowType.SOCIAL_ISSUE);
+				parseAndNotify(ElementaryFlowType.SOCIAL_ISSUES);
 				break;
 			case "Economic issues":
-				parseAndNotify(ElementaryFlowType.ECONOMIC_ISSUE);
+				parseAndNotify(ElementaryFlowType.ECONOMIC_ISSUES);
 				break;
 			case "Non material emissions":
 				parseAndNotify(ElementaryFlowType.NON_MATERIAL_EMISSIONS);

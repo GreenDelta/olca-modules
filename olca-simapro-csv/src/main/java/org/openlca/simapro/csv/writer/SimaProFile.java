@@ -92,7 +92,7 @@ class SimaProFile {
 
 	private void writeProductFlows(SPDataSet dataEntry, ProductFlowType type)
 			throws IOException {
-		writer.writeln(type.getValue());
+		writer.writeln(type.getHeader());
 		for (SPProductFlow product : dataEntry.getProductFlows(type))
 			writer.writeln(getProductLine(product));
 		writer.newLine();
@@ -100,7 +100,7 @@ class SimaProFile {
 
 	private void writeElemFlows(SPDataSet dataEntry, ElementaryFlowType type)
 			throws IOException {
-		writer.writeln(type.getValue());
+		writer.writeln(type.getExchangeHeader());
 		for (SPElementaryFlow flow : dataEntry.getElementaryFlows(type))
 			writer.writeln(getElementaryFlowLine(flow));
 		writer.newLine();
