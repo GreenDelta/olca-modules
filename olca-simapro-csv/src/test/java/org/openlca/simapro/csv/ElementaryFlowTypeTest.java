@@ -7,7 +7,7 @@ import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 public class ElementaryFlowTypeTest {
 
 	//@formatter:off
-	private String[] values = {
+	private String[] exchangeHeaders = {
 			"Resources",
 			"Emissions to air",
 			"Emissions to water",
@@ -17,19 +17,45 @@ public class ElementaryFlowTypeTest {
 			"Social issues",
 			"Economic issues"			
 	};
+	
+	private String[] referenceHeaders = {
+			"Raw materials",
+			"Airborne emissions",
+			"Waterborne emissions",
+			"Final waste flows",
+			"Emissions to soil",
+			"Non material emissions",
+			"Social issues",
+			"Economic issues"			
+	};
+	
 	//@formatter:on
 
 	@Test
 	public void testEnumSize() {
-		Assert.assertEquals(values.length, ElementaryFlowType.values().length);
+		Assert.assertEquals(exchangeHeaders.length,
+				ElementaryFlowType.values().length);
+		Assert.assertEquals(referenceHeaders.length,
+				ElementaryFlowType.values().length);
 	}
 
 	@Test
-	public void testEnumContents() {
-		for (String value : values) {
-			ElementaryFlowType type = ElementaryFlowType.forValue(value);
+	public void testExchangeHeaders() {
+		for (String header : exchangeHeaders) {
+			ElementaryFlowType type = ElementaryFlowType
+					.forExchangeHeader(header);
 			Assert.assertNotNull(type);
-			Assert.assertEquals(value, type.getValue());
+			Assert.assertEquals(header, type.getExchangeHeader());
+		}
+	}
+
+	@Test
+	public void testReferenceHeaders() {
+		for (String header : referenceHeaders) {
+			ElementaryFlowType type = ElementaryFlowType
+					.forReferenceHeader(header);
+			Assert.assertNotNull(type);
+			Assert.assertEquals(header, type.getReferenceHeader());
 		}
 	}
 }

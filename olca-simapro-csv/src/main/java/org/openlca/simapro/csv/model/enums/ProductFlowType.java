@@ -3,7 +3,14 @@ package org.openlca.simapro.csv.model.enums;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @author Besitzer
+ * 
+ */
 public enum ProductFlowType {
+
+	PRODUCTS("Products"),
 
 	AVOIDED_PRODUCTS("Avoided products"),
 
@@ -13,10 +20,10 @@ public enum ProductFlowType {
 
 	WASTE_TO_TREATMENT("Waste to treatment");
 
-	private String value;
+	private final String header;
 
-	private ProductFlowType(String value) {
-		this.value = value;
+	private ProductFlowType(String header) {
+		this.header = header;
 	}
 
 	public String getValue() {
