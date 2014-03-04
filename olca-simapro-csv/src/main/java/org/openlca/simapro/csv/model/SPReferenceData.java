@@ -26,11 +26,7 @@ public class SPReferenceData {
 	}
 
 	public void add(SPQuantity quantity) {
-		if (quantity.getReferenceUnit() != null)
-			quantities.put(quantity.getName()
-					+ quantity.getReferenceUnit().getName(), quantity);
-		else
-			quantities.put(quantity.getName(), quantity);
+		quantities.put(quantity.getName(), quantity);
 	}
 
 	public void add(SPUnit unit) {

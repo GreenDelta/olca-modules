@@ -148,4 +148,11 @@ public class SPUncertainty {
 		CsvUtils.set(param3Str, line, offset + 3);
 	}
 
+	public static void undefinedToCsv(String[] line, int offset) {
+		CsvUtils.set(DistributionType.UNDEFINED.getValue(), line, offset);
+		CsvUtils.set("0", line, offset + 1);
+		CsvUtils.set("0", line, offset + 2);
+		CsvUtils.set("0", line, offset + 3);
+	}
+
 }

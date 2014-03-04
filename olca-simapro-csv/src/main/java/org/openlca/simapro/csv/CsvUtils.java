@@ -77,4 +77,16 @@ public class CsvUtils {
 		return value.replace(",", ".");
 	}
 
+	public static String readMultilines(String multilineString) {
+		if (multilineString == null)
+			return null;
+		return multilineString.replace(((char) 127), '\n');
+	}
+
+	public static String writeMultilines(String multilineString) {
+		if (multilineString == null)
+			return null;
+		return multilineString.replace('\n', ((char) 127));
+	}
+
 }

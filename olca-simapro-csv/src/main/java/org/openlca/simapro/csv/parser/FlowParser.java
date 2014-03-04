@@ -2,7 +2,6 @@ package org.openlca.simapro.csv.parser;
 
 import java.util.Map;
 
-import org.openlca.simapro.csv.model.IDistribution;
 import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductFlow;
@@ -23,33 +22,12 @@ class FlowParser {
 		this.index = index;
 	}
 
-	SPElementaryExchange parseElementaryFlow(String line, ElementaryFlowType type)
-			throws CSVParserException {
-		line += csvSeperator + " ";
-		String split[] = line.split(csvSeperator);
-		if (split.length < 9)
-			throw new CSVParserException("Error in " + type.getExchangeHeader()
-					+ " line: " + line);
-
-		SPElementaryExchange flow = new SPElementaryExchange();
-		flow.setName(split[0]);
-		flow.setSubCompartment(split[1]);
-		flow.setUnit(split[2]);
-		flow.setAmount(split[3]);
-		IDistribution d = readDistribution(split, 4);
-		flow.setDistribution(d);
-		return flow;
-	}
-
-	private IDistribution readDistribution(String[] entries, int start) {
-		String type = entries[start];
-		String value1 = Utils.formatNumber(entries[start + 1]);
-		String value2 = Utils.formatNumber(entries[start + 2]);
-		String value3 = Utils.formatNumber(entries[start + 3]);
-		String comment = entries[start + 4];
-		for (int i = start + 5; i < (entries.length - 1); i++)
-			comment += csvSeperator + entries[i];
-		return Utils.createDistibution(type, value1, value2, value3, comment);
+	SPElementaryExchange parseElementaryFlow(String line,
+			ElementaryFlowType type) throws CSVParserException {
+		SPElementaryExchange exchange = SPElementaryExchange.fromCsv(line,
+				csvSeperator);
+		exchange.setType(type);
+		return exchange;
 	}
 
 	SPProductFlow getProductFlow(String line, ProductFlowType type)
