@@ -79,9 +79,8 @@ public class FileHeaderReader {
 
 	private void openFile() throws Exception {
 		log.trace("open file {}; encoding = {}", file, charset);
-		try (FileInputStream stream = new FileInputStream(file)) {
-			reader = new InputStreamReader(stream, charset);
-		}
+		FileInputStream stream = new FileInputStream(file);
+		reader = new InputStreamReader(stream, charset);
 	}
 
 	private String triml(String prefix, String entry) {

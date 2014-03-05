@@ -25,10 +25,9 @@ public class BlockReader implements Closeable {
 
 	public BlockReader(File file, String charset) throws IOException {
 		log.trace("open file {}; encoding = {}", file, charset);
-		try (FileInputStream stream = new FileInputStream(file)) {
-			Reader reader = new InputStreamReader(stream, charset);
-			this.buffer = new BufferedReader(reader);
-		}
+		FileInputStream stream = new FileInputStream(file);
+		Reader reader = new InputStreamReader(stream, charset);
+		this.buffer = new BufferedReader(reader);
 	}
 
 	public BlockReader(Reader reader) {
@@ -37,6 +36,7 @@ public class BlockReader implements Closeable {
 
 	@Override
 	public void close() throws IOException {
+		log.trace("close reader");
 		buffer.close();
 	}
 
