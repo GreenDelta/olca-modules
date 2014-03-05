@@ -30,8 +30,58 @@ header reader which just reads this information from a file:
 	SPFileHeader header = reader.read();
 	
 
+Blocks and sections
+------------------
+After the header a SimaPro CSV file contains a set of blocks with data. Each
+data block starts with a header and ends with the keyword `End`. For example
+the following is a block with quantity entries. 
 
+	Quantities
+	Mass;Yes
+	Length;Yes
+
+	End
 	
+A block can contain data rows directly, like in the example above, or contain
+sections with data rows. For example a process block starts with the header
+`Process` and contains a set of sections like `Category type`, 
+`Process identifier`, etc: 
+
+	Process
+	
+	Category type
+	material
+	
+	Process identifier
+	DefaultX25250700002
+	
+	Type
+	Unit process
+	
+	...
+	
+	End
+
+As for the blocks each section has a header but it does not end with the keyword 
+`End` but with an empty line. Data rows of a block or section are directly 
+located in the next line under the header. A section of a block starts with an
+empty line.
+
+Accordingly to this model we have the classes `Block` and `Section` in this API.
+The name of a section is unique within a block. Thus, we can store the sections
+in a map within a block that maps the section title to the section content:  
+
+	Block block = ...
+	Section section = block.getSection(<section name>);
+	if(section != null) {
+		// note that data rows in blocks and sections are live lists
+		for(String dataRow : section.getDataRows()) {
+			...
+		}
+	}
+	
+
+
 File encoding
 -------------
 SimaPro is a Windows program and thus we use 

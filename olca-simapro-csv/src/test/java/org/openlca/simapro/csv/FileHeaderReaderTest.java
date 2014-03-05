@@ -38,5 +38,4 @@ public class FileHeaderReaderTest {
 		Assert.assertEquals(".", header.getDataSeparator());
 		Assert.assertEquals("dd.MM.yyyy", header.getShortDateFormat());
 	}
-
 }
