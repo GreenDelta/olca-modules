@@ -1,4 +1,4 @@
-package org.openlca.simapro.csv.parser;
+package org.openlca.simapro.csv.reader;
 
 import java.util.ArrayList;
 import java.util.List;

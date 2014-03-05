@@ -1,4 +1,18 @@
-package org.openlca.simapro.csv.parser;
+package org.openlca.simapro.csv.reader;
+
+import org.openlca.simapro.csv.CsvUtils;
+import org.openlca.simapro.csv.model.SPDataSet;
+import org.openlca.simapro.csv.model.SPLiteratureReference;
+import org.openlca.simapro.csv.model.SPQuantity;
+import org.openlca.simapro.csv.model.SPReferenceData;
+import org.openlca.simapro.csv.model.SPUnit;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.ParameterType;
+import org.openlca.simapro.csv.parser.exception.CSVMultipleLiteratureReferenceNameException;
+import org.openlca.simapro.csv.parser.exception.CSVMultipleProcessNameException;
+import org.openlca.simapro.csv.parser.exception.CSVParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,19 +29,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPLiteratureReference;
-import org.openlca.simapro.csv.model.SPQuantity;
-import org.openlca.simapro.csv.model.SPReferenceData;
-import org.openlca.simapro.csv.model.SPUnit;
-import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.ParameterType;
-import org.openlca.simapro.csv.parser.exception.CSVMultipleLiteratureReferenceNameException;
-import org.openlca.simapro.csv.parser.exception.CSVMultipleProcessNameException;
-import org.openlca.simapro.csv.parser.exception.CSVParserException;
-
 public class CSVParser {
 
+	private Logger log = LoggerFactory.getLogger(getClass());
+
+	private String currentLine;
 	private String csvSeperator;
 	// private String decimalSeparator; // TODO
 	// private String dateSeparator; // TODO
@@ -101,6 +107,7 @@ public class CSVParser {
 	 */
 	private Map<String, String[]> createProductIndex() throws IOException,
 			CSVParserException {
+		log.trace("create product index");
 		Map<String, String[]> index = new HashMap<String, String[]>();
 		Set<String> multipleNames = new HashSet<>();
 		reader = createBufferedReader();
@@ -134,8 +141,6 @@ public class CSVParser {
 					new FileInputStream(file), encoding));
 		return reader;
 	}
-
-	private String currentLine;
 
 	private Object[] nextIndexEntry() throws CSVParserException, IOException {
 		if (!"Process".equals(currentLine))
@@ -251,8 +256,10 @@ public class CSVParser {
 	private Queue<String> readNextPart() throws IOException {
 		Queue<String> lines = new LinkedList<String>();
 		String line;
-		while ((line = reader.readLine()) != null && !line.equals("End")) {
-			lines.add(line.replace(((char) 127) + "", "\n"));
+		while ((line = reader.readLine()) != null) {
+			if (line.equals("End"))
+				break;
+			lines.add(CsvUtils.readMultilines(line));
 		}
 		return lines;
 	}

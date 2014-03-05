@@ -1,4 +1,4 @@
-package org.openlca.simapro.csv.parser;
+package org.openlca.simapro.csv.reader;
 
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;

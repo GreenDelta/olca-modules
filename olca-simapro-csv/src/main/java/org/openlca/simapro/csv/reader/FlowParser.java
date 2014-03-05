@@ -1,6 +1,4 @@
-package org.openlca.simapro.csv.parser;
-
-import java.util.Map;
+package org.openlca.simapro.csv.reader;
 
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.SPElementaryExchange;
@@ -11,13 +9,20 @@ import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 class FlowParser {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private String csvSeperator;
 	private Map<String, String[]> index;
 
 	FlowParser(String csvSeperator, Map<String, String[]> index) {
+		log.trace("create flow parser with separator: {}", csvSeperator);
 		this.csvSeperator = csvSeperator;
 		this.index = index;
 	}

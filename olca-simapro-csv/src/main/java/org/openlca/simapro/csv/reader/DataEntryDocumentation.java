@@ -1,4 +1,4 @@
-package org.openlca.simapro.csv.parser;
+package org.openlca.simapro.csv.reader;
 
 import java.util.Queue;
 
@@ -25,11 +25,11 @@ import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
 public class DataEntryDocumentation {
 
 	private String csvSeperator;
-	private SPReferenceData referenceData;
+	private SPReferenceData refData;
 
 	DataEntryDocumentation(String csvSeperator, SPReferenceData referenceData) {
 		this.csvSeperator = csvSeperator;
-		this.referenceData = referenceData;
+		this.refData = referenceData;
 	}
 
 	private void systemDescriptionEntry(String line,
@@ -52,6 +52,113 @@ public class DataEntryDocumentation {
 		}
 	}
 
+	SPProcessDocumentation parse(Queue<String> lines) {
+		SPProcessDocumentation documentation = new SPProcessDocumentation(null,
+				null, null);
+		while (!lines.isEmpty()) {
+			if (lines.peek().equals("Products"))
+				break;
+			if (lines.peek().equals("Waste treatment"))
+				break;
+
+			String headerLine = lines.poll();
+			if (lines.isEmpty())
+				break;
+
+			switch (headerLine) {
+			case "Category type":
+				documentation
+						.setCategory(ProcessCategory.forValue(lines.poll()));
+				break;
+			case "Process identifier":
+				documentation.setIdentifier(lines.poll());
+				break;
+			case "Type":
+				documentation
+						.setProcessType(ProcessType.forValue(lines.poll()));
+				break;
+			case "Process name":
+				documentation.setName(lines.poll());
+				break;
+			case "Status":
+				documentation.setStatus(Status.forValue(lines.poll()));
+				break;
+			case "Time period":
+				documentation.setTimePeriod(TimePeriod.forValue(lines.poll()));
+				break;
+			case "Geography":
+				documentation.setGeography(Geography.forValue(lines.poll()));
+				break;
+			case "Technology":
+				documentation.setTechnology(Technology.forValue(lines.poll()));
+				break;
+			case "Representativeness":
+				documentation.setRepresentativeness(Representativeness
+						.forValue(lines.poll()));
+				break;
+			case "Multiple output allocation":
+				documentation.setProcessAllocation(ProcessAllocation
+						.forValue(lines.poll()));
+				break;
+			case "Substitution allocation":
+				documentation.setSubstitution(Substitution.forValue(lines
+						.poll()));
+				break;
+			case "Cut off rules":
+				documentation.setCutOffRule(CutOffRule.forValue(lines.poll()));
+				break;
+			case "Capital goods":
+				documentation.setSystemBoundary(SystemBoundary.forValue(lines
+						.poll()));
+				break;
+			case "Boundary with nature":
+				documentation.setBoundaryWithNature(BoundaryWithNature
+						.forValue(lines.poll()));
+				break;
+			case "Waste treatment allocation":
+				documentation
+						.setWasteTreatmentAllocation(WasteTreatmentAllocation
+								.forValue(lines.poll()));
+				break;
+			case "Infrastructure":
+				documentation.setInfrastructureProcess(lines.poll().equals(
+						"Yes") ? true : false);
+				break;
+			case "Date":
+				documentation.setCreationDate(lines.poll());
+				break;
+			case "Record":
+				documentation.setRecord(lines.poll());
+				break;
+			case "Generator":
+				documentation.setGenerator(lines.poll());
+				break;
+			case "Collection method":
+				documentation.setCollectionMethod(lines.poll());
+				break;
+			case "Data treatment":
+				documentation.setDataTreatment(lines.poll());
+				break;
+			case "Verification":
+				documentation.setVerification(lines.poll());
+				break;
+			case "Comment":
+				documentation.setComment(lines.poll());
+				break;
+			case "Allocation rules":
+				documentation.setAllocationRules(lines.poll());
+				break;
+			case "System description":
+				systemDescriptionEntry(lines.poll(), documentation);
+				break;
+			case "Literature references":
+				literatureReferenceEntries(lines, documentation);
+				break;
+			}
+		}
+		return documentation;
+	}
+
 	private void literatureReferenceEntries(Queue<String> lines,
 			SPProcessDocumentation documentation) {
 		while (!lines.isEmpty() && !lines.peek().equals("")) {
@@ -66,124 +173,12 @@ public class DataEntryDocumentation {
 			} else {
 				name = line;
 			}
-			SPLiteratureReference literatureReference = referenceData
-					.getLiteratureReferences().get(name);
-			if (literatureReference == null)
-				literatureReference = new SPLiteratureReference(name, null,
-						null);
-			documentation.getLiteratureReferenceEntries()
-					.add(new SPLiteratureReferenceEntry(literatureReference,
-							comment));
+			SPLiteratureReference reference = refData.getLiteratureReferences()
+					.get(name);
+			if (reference == null)
+				reference = new SPLiteratureReference(name, null, null);
+			documentation.getLiteratureReferenceEntries().add(
+					new SPLiteratureReferenceEntry(reference, comment));
 		}
-	}
-
-	SPProcessDocumentation parse(Queue<String> lines) {
-		SPProcessDocumentation documentation = new SPProcessDocumentation(null,
-				null, null);
-		while (!lines.isEmpty()) {
-			if (lines.peek().equals("Products"))
-				break;
-			if (lines.peek().equals("Waste treatment"))
-				break;
-
-			String headerLine = lines.poll();
-			if (lines.isEmpty())
-				break;
-			String valueLine = lines.poll();
-			if (headerLine == null || valueLine == null)
-				break;
-
-			valueLine = valueLine.replaceAll(csvSeperator, ""); // TODO: why?
-
-			switch (headerLine) {
-			case "Category type":
-				documentation.setCategory(ProcessCategory.forValue(valueLine));
-				break;
-			case "Process identifier":
-				documentation.setIdentifier(valueLine);
-				break;
-			case "Type":
-				documentation.setProcessType(ProcessType.forValue(valueLine));
-				break;
-			case "Process name":
-				documentation.setName(valueLine);
-				break;
-			case "Status":
-				documentation.setStatus(Status.forValue(valueLine));
-				break;
-			case "Time period":
-				documentation.setTimePeriod(TimePeriod.forValue(valueLine));
-				break;
-			case "Geography":
-				documentation.setGeography(Geography.forValue(valueLine));
-				break;
-			case "Technology":
-				documentation.setTechnology(Technology.forValue(valueLine));
-				break;
-			case "Representativeness":
-				documentation.setRepresentativeness(Representativeness
-						.forValue(valueLine));
-				break;
-			case "Multiple output allocation":
-				documentation.setProcessAllocation(ProcessAllocation
-						.forValue(valueLine));
-				break;
-			case "Substitution allocation":
-				documentation.setSubstitution(Substitution.forValue(valueLine));
-				break;
-			case "Cut off rules":
-				documentation.setCutOffRule(CutOffRule.forValue(valueLine));
-				break;
-			case "Capital goods":
-				documentation.setSystemBoundary(SystemBoundary
-						.forValue(valueLine));
-				break;
-			case "Boundary with nature":
-				documentation.setBoundaryWithNature(BoundaryWithNature
-						.forValue(valueLine));
-				break;
-			case "Waste treatment allocation":
-				documentation
-						.setWasteTreatmentAllocation(WasteTreatmentAllocation
-								.forValue(valueLine));
-				break;
-			case "Infrastructure":
-				documentation
-						.setInfrastructureProcess(valueLine.equals("Yes") ? true
-								: false);
-				break;
-			case "Date":
-				documentation.setCreationDate(valueLine);
-				break;
-			case "Record":
-				documentation.setRecord(valueLine);
-				break;
-			case "Generator":
-				documentation.setGenerator(valueLine);
-				break;
-			case "Collection method":
-				documentation.setCollectionMethod(valueLine);
-				break;
-			case "Data treatment":
-				documentation.setDataTreatment(valueLine);
-				break;
-			case "Verification":
-				documentation.setVerification(valueLine);
-				break;
-			case "Comment":
-				documentation.setComment(valueLine);
-				break;
-			case "Allocation rules":
-				documentation.setAllocationRules(valueLine);
-				break;
-			case "System description":
-				systemDescriptionEntry(valueLine, documentation);
-				break;
-			case "Literature references":
-				literatureReferenceEntries(lines, documentation);
-				break;
-			}
-		}
-		return documentation;
 	}
 }

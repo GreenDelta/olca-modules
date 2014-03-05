@@ -12,7 +12,7 @@ import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
-import org.openlca.simapro.csv.parser.CSVParser;
+import org.openlca.simapro.csv.reader.CSVParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
