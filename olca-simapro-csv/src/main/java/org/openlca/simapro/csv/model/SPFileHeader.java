@@ -81,7 +81,7 @@ public class SPFileHeader {
 		return dataSeparator;
 	}
 
-	public void setDataSeparator(String dataSeparator) {
+	public void setDateSeparator(String dataSeparator) {
 		this.dataSeparator = dataSeparator;
 	}
 

@@ -5,6 +5,7 @@ There is no formal specification of the format available but it is quite easy to
 understand it when you export data sets from SimaPro and look into the files. In
 the following the overall structure of the format and this API are described. 
 
+
 The file header
 ---------------
 Each data set starts with a file header which looks like this:
@@ -28,6 +29,15 @@ header reader which just reads this information from a file:
 	FileHeaderReader reader = new FileHeaderReader(<file or reader>);
 	SPFileHeader header = reader.read();
 	
+
+
+	
+File encoding
+-------------
+SimaPro is a Windows program and thus we use 
+[Windows-1252](http://en.wikipedia.org/wiki/Windows-1252) as default file 
+encoding for reading and writing. However, you can set the file encoding in the
+constructor calls of the respective readers and writers.
 
 
 
