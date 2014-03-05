@@ -80,6 +80,15 @@ in a map within a block that maps the section title to the section content:
 		}
 	}
 	
+For accessing these blocks and sections from a file there is a block reader in
+this API. You can use the `BlockReader` like a standard `BufferedReader`:
+
+	try (BlockReader reader = new BlockReader(s)) {
+		Block block = null;
+		while ((block = reader.read()) != null) {
+			// do something with the block
+		}
+	}
 
 
 File encoding

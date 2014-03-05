@@ -20,4 +20,9 @@ public class Section {
 		return dataRows;
 	}
 
+	@Override
+	public String toString() {
+		return "Section [header=" + header + "]";
+	}
+
 }

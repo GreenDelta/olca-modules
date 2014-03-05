@@ -3,11 +3,8 @@ package org.openlca.simapro.csv.reader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 
 import org.openlca.simapro.csv.model.SPFileHeader;
 import org.slf4j.Logger;
@@ -80,8 +77,7 @@ public class FileHeaderReader {
 			header.setShortDateFormat(triml("Short date format: ", line));
 	}
 
-	private void openFile() throws UnsupportedEncodingException, IOException,
-			FileNotFoundException {
+	private void openFile() throws Exception {
 		log.trace("open file {}; encoding = {}", file, charset);
 		try (FileInputStream stream = new FileInputStream(file)) {
 			reader = new InputStreamReader(stream, charset);

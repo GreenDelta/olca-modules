@@ -38,4 +38,9 @@ public class Block {
 		return sections.get(header);
 	}
 
+	@Override
+	public String toString() {
+		return "Block [header=" + header + "]";
+	}
+
 }
