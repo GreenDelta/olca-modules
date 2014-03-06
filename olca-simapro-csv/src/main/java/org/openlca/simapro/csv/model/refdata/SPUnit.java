@@ -1,8 +1,11 @@
-package org.openlca.simapro.csv.model;
+package org.openlca.simapro.csv.model.refdata;
 
 import org.openlca.simapro.csv.CsvUtils;
+import org.openlca.simapro.csv.model.IDataRow;
+import org.openlca.simapro.csv.model.annotations.BlockRow;
 
-public class SPUnit {
+@BlockRow("Units")
+public class SPUnit implements IDataRow {
 
 	private double conversionFactor = 1;
 	private String name;
@@ -41,15 +44,14 @@ public class SPUnit {
 		this.referenceUnit = unit;
 	}
 
-	public static SPUnit fromLine(String line, String separator) {
+	@Override
+	public void fill(String line, String separator) {
 		String[] columns = CsvUtils.split(line, separator);
-		SPUnit unit = new SPUnit();
-		unit.name = CsvUtils.get(columns, 0);
-		unit.quantity = CsvUtils.get(columns, 1);
+		name = CsvUtils.get(columns, 0);
+		quantity = CsvUtils.get(columns, 1);
 		Double f = CsvUtils.getDouble(columns, 2);
-		unit.conversionFactor = f != null ? f : 1d;
-		unit.referenceUnit = CsvUtils.get(columns, 3);
-		return unit;
+		conversionFactor = f != null ? f : 1d;
+		referenceUnit = CsvUtils.get(columns, 3);
 	}
 
 	public String toLine(String separator) {

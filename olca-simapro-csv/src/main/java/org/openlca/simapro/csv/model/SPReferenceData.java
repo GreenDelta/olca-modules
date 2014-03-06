@@ -3,6 +3,10 @@ package org.openlca.simapro.csv.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openlca.simapro.csv.model.refdata.SPElementaryFlow;
+import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.SPUnit;
+
 /*
  * TODO:
  * [Literature reference, 
@@ -31,7 +35,7 @@ public class SPReferenceData {
 	private Map<String, SPLiteratureReference> literatureReferences = new HashMap<>();
 	private Map<String, SPQuantity> quantities = new HashMap<>();
 	private Map<String, SPUnit> units = new HashMap<>();
-	private Map<String, SPSubstance> substances = new HashMap<>();
+	private Map<String, SPElementaryFlow> substances = new HashMap<>();
 	private Map<String, SPInputParameter> inputParameters = new HashMap<>();
 	private Map<String, SPCalculatedParameter> calculatedParameters = new HashMap<>();
 
@@ -60,7 +64,7 @@ public class SPReferenceData {
 		units.put(builder.toString(), unit);
 	}
 
-	public void add(SPSubstance substance) {
+	public void add(SPElementaryFlow substance) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(substance.getName());
 		builder.append(substance.getFlowType().getExchangeHeader());
@@ -108,11 +112,11 @@ public class SPReferenceData {
 		this.units = units;
 	}
 
-	public Map<String, SPSubstance> getSubstances() {
+	public Map<String, SPElementaryFlow> getSubstances() {
 		return substances;
 	}
 
-	public void setSubstances(Map<String, SPSubstance> substances) {
+	public void setSubstances(Map<String, SPElementaryFlow> substances) {
 		this.substances = substances;
 	}
 

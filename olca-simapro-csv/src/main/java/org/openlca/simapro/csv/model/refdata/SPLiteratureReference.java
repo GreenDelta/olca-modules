@@ -1,4 +1,4 @@
-package org.openlca.simapro.csv.model;
+package org.openlca.simapro.csv.model.refdata;
 
 import org.openlca.simapro.csv.model.annotations.BlockModel;
 import org.openlca.simapro.csv.model.annotations.SectionValue;

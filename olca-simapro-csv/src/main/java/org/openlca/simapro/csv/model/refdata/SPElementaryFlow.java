@@ -1,18 +1,15 @@
-package org.openlca.simapro.csv.model;
+package org.openlca.simapro.csv.model.refdata;
 
+import org.openlca.simapro.csv.CsvUtils;
+import org.openlca.simapro.csv.model.IDataRow;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
-/**
- * This class represents a SimaPro substance
- */
-public class SPSubstance {
+public abstract class SPElementaryFlow implements IDataRow {
 
 	private String name;
 	private String referenceUnit;
 	private String casNumber;
 	private String comment;
-
-	ElementaryFlowType flowType;
 
 	public String getComment() {
 		return comment;
@@ -34,17 +31,6 @@ public class SPSubstance {
 		return referenceUnit;
 	}
 
-	public SPSubstance(String name, String referenceUnit) {
-		this.name = name;
-		this.referenceUnit = referenceUnit;
-	}
-
-	public SPSubstance(String name, String referenceUnit, String casNumber) {
-		this.name = name;
-		this.referenceUnit = referenceUnit;
-		this.casNumber = casNumber;
-	}
-
 	public void setCASNumber(String casNumber) {
 		this.casNumber = casNumber;
 	}
@@ -57,11 +43,15 @@ public class SPSubstance {
 		this.referenceUnit = referenceUnit;
 	}
 
-	public ElementaryFlowType getFlowType() {
-		return flowType;
+	public abstract ElementaryFlowType getFlowType();
+
+	@Override
+	public void fill(String line, String separator) {
+		String[] columns = CsvUtils.split(line, separator);
+		name = CsvUtils.get(columns, 0);
+		referenceUnit = CsvUtils.get(columns, 1);
+		casNumber = CsvUtils.get(columns, 2);
+		comment = CsvUtils.get(columns, 3);
 	}
 
-	public void setFlowType(ElementaryFlowType flowType) {
-		this.flowType = flowType;
-	}
 }

@@ -2,12 +2,12 @@ package org.openlca.simapro.csv.reader;
 
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPQuantity;
 import org.openlca.simapro.csv.model.SPReferenceData;
-import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
+import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.SPUnit;
 import org.openlca.simapro.csv.parser.exception.CSVMultipleLiteratureReferenceNameException;
 import org.openlca.simapro.csv.parser.exception.CSVMultipleProcessNameException;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;

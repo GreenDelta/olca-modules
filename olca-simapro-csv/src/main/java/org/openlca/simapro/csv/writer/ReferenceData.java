@@ -9,21 +9,21 @@ import java.util.Queue;
 
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
-import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPQuantity;
 import org.openlca.simapro.csv.model.SPReferenceData;
-import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPSystemDescription;
-import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
+import org.openlca.simapro.csv.model.refdata.SPElementaryFlow;
+import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.SPUnit;
 
 class ReferenceData {
 
 	private CSVWriter writer;
 	private char csvSeperator;
 	private SPReferenceData referenceData = null;
-	private Queue<SPSubstance> substances = new LinkedList<>();
+	private Queue<SPElementaryFlow> substances = new LinkedList<>();
 
 	public ReferenceData(CSVWriter writer) {
 		this.writer = writer;
@@ -133,9 +133,9 @@ class ReferenceData {
 	private void writeSubstances(ElementaryFlowType type) throws IOException {
 		if (containsType(type)) {
 			writer.writeln(type.getReferenceHeader());
-			Iterator<SPSubstance> itr = substances.iterator();
+			Iterator<SPElementaryFlow> itr = substances.iterator();
 			while (itr.hasNext()) {
-				SPSubstance substance = itr.next();
+				SPElementaryFlow substance = itr.next();
 				if (substance.getFlowType() == type) {
 					if (substance.getCASNumber() == null)
 						substance.setCASNumber("");
@@ -197,7 +197,7 @@ class ReferenceData {
 	}
 
 	private boolean containsType(ElementaryFlowType type) {
-		for (SPSubstance substance : substances)
+		for (SPElementaryFlow substance : substances)
 			if (substance.getFlowType() == type)
 				return true;
 		return false;

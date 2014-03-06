@@ -1,5 +1,7 @@
 package org.openlca.simapro.csv.model;
 
+import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+
 
 /**
  * This class represents a literature reference entry in the process

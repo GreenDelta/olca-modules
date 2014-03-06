@@ -2,7 +2,6 @@ package org.openlca.simapro.csv.reader;
 
 import java.util.Queue;
 
-import org.openlca.simapro.csv.model.SPLiteratureReference;
 import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
 import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPReferenceData;
@@ -21,6 +20,7 @@ import org.openlca.simapro.csv.model.enums.SystemBoundary;
 import org.openlca.simapro.csv.model.enums.Technology;
 import org.openlca.simapro.csv.model.enums.TimePeriod;
 import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
+import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
 
 public class DataEntryDocumentation {
 

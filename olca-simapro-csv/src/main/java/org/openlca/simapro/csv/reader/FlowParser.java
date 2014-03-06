@@ -4,10 +4,10 @@ import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductInput;
-import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.refdata.SPElementaryFlow;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +82,7 @@ class FlowParser {
 		return waste;
 	}
 
-	static SPSubstance parseSubstance(String line, String csvSeperator,
+	static SPElementaryFlow parseSubstance(String line, String csvSeperator,
 			ElementaryFlowType type) {
 		line += csvSeperator + " ";
 		String split[] = line.split(csvSeperator);
@@ -95,7 +95,7 @@ class FlowParser {
 			comment += csvSeperator + split[i];
 		}
 
-		SPSubstance substance = new SPSubstance(name, referenceUnit);
+		SPElementaryFlow substance = new SPElementaryFlow(name, referenceUnit);
 		substance.setReferenceUnit(referenceUnit);
 		substance.setCASNumber(cas);
 		substance.setComment(comment);

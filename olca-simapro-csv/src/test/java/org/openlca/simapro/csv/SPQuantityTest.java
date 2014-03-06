@@ -1,17 +1,17 @@
 package org.openlca.simapro.csv;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.StringReader;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.simapro.csv.model.Block;
 import org.openlca.simapro.csv.model.SPQuantity;
 import org.openlca.simapro.csv.reader.BlockReader;
 import org.openlca.simapro.csv.reader.BlockUnmarshaller;
+
+import java.io.StringReader;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SPQuantityTest {
 

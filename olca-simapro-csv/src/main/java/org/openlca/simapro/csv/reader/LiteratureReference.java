@@ -2,7 +2,7 @@ package org.openlca.simapro.csv.reader;
 
 import java.util.Queue;
 
-import org.openlca.simapro.csv.model.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
 
 final class LiteratureReference {
 
