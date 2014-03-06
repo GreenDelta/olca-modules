@@ -3,6 +3,28 @@ package org.openlca.simapro.csv.model;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+ * TODO:
+ * [Literature reference, 
+ * Airborne emissions, 
+ * Project Calculated parameters, 
+ * Database Input parameters, 
+ * Raw materials, 
+ * Waterborne emissions, 
+ * Quantities, 
+ * Units, 
+ * Process products + waste flows, 
+ * System description, 
+ * Project Input parameters, 
+ * Database Calculated parameters, 
+ * Emissions to soil
+ * 
+ * ]
+
+ * 
+ * 
+ */
+
 public class SPReferenceData {
 
 	private SPSystemDescription systemDescription;

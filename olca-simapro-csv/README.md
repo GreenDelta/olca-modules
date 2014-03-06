@@ -91,6 +91,11 @@ this API. You can use the `BlockReader` like a standard `BufferedReader`:
 	}
 
 
+Reference data
+--------------
+
+
+
 File encoding
 -------------
 SimaPro is a Windows program and thus we use 
@@ -99,6 +104,10 @@ encoding for reading and writing. However, you can set the file encoding in the
 constructor calls of the respective readers and writers.
 
 
+Encoding multi-line strings
+---------------------------
+
+TODO: add doc
 
 
 TODO

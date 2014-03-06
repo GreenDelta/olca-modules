@@ -1,27 +1,37 @@
 package org.openlca.simapro.csv.model;
 
-/**
- * This class represents a SimaPro literature reference
- */
+import org.openlca.simapro.csv.model.annotations.BlockModel;
+import org.openlca.simapro.csv.model.annotations.SectionValue;
+
+@BlockModel("Literature reference")
 public class SPLiteratureReference {
 
-	private String category;
-	private String content;
+	@SectionValue("Name")
 	private String name;
-	private String documentLink;
 
-	public SPLiteratureReference(String name, String content, String category) {
-		this.name = name;
-		this.content = content;
-		this.category = category;
-	}
+	@SectionValue("Documentation link")
+	private String documentationLink;
 
-	public String getContent() {
-		return content;
-	}
+	@SectionValue("Category")
+	private String category;
+
+	@SectionValue("Description")
+	private String description;
 
 	public String getName() {
 		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDocumentationLink() {
+		return documentationLink;
+	}
+
+	public void setDocumentationLink(String documentationLink) {
+		this.documentationLink = documentationLink;
 	}
 
 	public String getCategory() {
@@ -32,20 +42,17 @@ public class SPLiteratureReference {
 		this.category = category;
 	}
 
-	public void setContent(String content) {
-		this.content = content;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
-	public void setDocumentLink(String documentLink) {
-		this.documentLink = documentLink;
-	}
-
-	public String getDocumentLink() {
-		return documentLink;
+	@Override
+	public String toString() {
+		return "SPLiteratureReference [name=" + name + "]";
 	}
 
 }
