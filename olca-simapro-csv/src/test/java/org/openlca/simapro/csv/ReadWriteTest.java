@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.simapro.csv.model.SPProcess;
-import org.openlca.simapro.csv.model.SPProduct;
+import org.openlca.simapro.csv.model.process.SPProductOutput;
 import org.openlca.simapro.csv.writer.CSVWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class ReadWriteTest {
 	@Test
 	public void testEmpty() throws Exception {
 		CSVWriter writer = new CSVWriter(tempFile);
-		SPProduct product = new SPProduct();
+		SPProductOutput product = new SPProductOutput();
 		SPProcess process = new SPProcess(product);
 		writer.write(process);
 		writer.close();

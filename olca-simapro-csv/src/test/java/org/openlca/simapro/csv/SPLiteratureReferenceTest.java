@@ -1,13 +1,13 @@
 package org.openlca.simapro.csv;
 
+import java.io.StringReader;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.simapro.csv.model.Block;
 import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
 import org.openlca.simapro.csv.reader.BlockReader;
 import org.openlca.simapro.csv.reader.BlockUnmarshaller;
-
-import java.io.StringReader;
 
 public class SPLiteratureReferenceTest {
 
@@ -38,7 +38,7 @@ public class SPLiteratureReferenceTest {
 		reader.close();
 		BlockUnmarshaller unmarshaller = new BlockUnmarshaller();
 		SPLiteratureReference reference = unmarshaller.unmarshall(block,
-				SPLiteratureReference.class);
+				SPLiteratureReference.class, ";");
 		Assert.assertEquals("Ecoinvent 3", reference.getName());
 		Assert.assertEquals("http://www.ecoinvent.org",
 				reference.getDocumentationLink());

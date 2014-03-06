@@ -9,12 +9,12 @@ import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPInputParameter;
 import org.openlca.simapro.csv.model.SPProcess;
-import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPProductInput;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.process.SPProductOutput;
 
 class SimaProFile {
 
@@ -50,7 +50,7 @@ class SimaProFile {
 					.getSubCategory();
 			writer.writeln(getProductLine(SPProcess.class.cast(dataEntry)
 					.getReferenceProduct(), subCategory));
-			for (SPProduct product : SPProcess.class.cast(dataEntry)
+			for (SPProductOutput product : SPProcess.class.cast(dataEntry)
 					.getByProducts())
 				writer.writeln(getProductLine(product, subCategory));
 		} else if (dataEntry instanceof SPWasteTreatment) {
@@ -110,7 +110,7 @@ class SimaProFile {
 		return product.toCsv(Character.toString(csvSeparator));
 	}
 
-	private String getProductLine(SPProduct product, String subCategory) {
+	private String getProductLine(SPProductOutput product, String subCategory) {
 		String line = product.getName() + csvSeparator + product.getUnit()
 				+ csvSeparator + number(product.getAmount()) + csvSeparator
 				+ product.getAllocation() + csvSeparator;

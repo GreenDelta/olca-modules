@@ -2,9 +2,9 @@ package org.openlca.simapro.csv.model.refdata;
 
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.IDataRow;
-import org.openlca.simapro.csv.model.annotations.BlockRow;
+import org.openlca.simapro.csv.model.annotations.BlockRows;
 
-@BlockRow("Units")
+@BlockRows("Units")
 public class SPUnit implements IDataRow {
 
 	private double conversionFactor = 1;

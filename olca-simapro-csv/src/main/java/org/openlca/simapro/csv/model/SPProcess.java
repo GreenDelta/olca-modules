@@ -3,39 +3,41 @@ package org.openlca.simapro.csv.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.simapro.csv.model.process.SPProductOutput;
+
 /**
  * This class represents a SimaPro process
  */
 public class SPProcess extends SPDataSet {
 
-	private SPProduct referenceProduct = null;
-	private List<SPProduct> byProducts = new ArrayList<SPProduct>();
+	private SPProductOutput referenceProduct = null;
+	private List<SPProductOutput> byProducts = new ArrayList<SPProductOutput>();
 
-	public SPProcess(SPProduct referenceProduct) {
+	public SPProcess(SPProductOutput referenceProduct) {
 		this.referenceProduct = referenceProduct;
 	}
 
-	public SPProcess(SPProduct referenceProduct, String subCategory,
+	public SPProcess(SPProductOutput referenceProduct, String subCategory,
 			SPProcessDocumentation documentation) {
 		this.referenceProduct = referenceProduct;
 		setSubCategory(subCategory);
 		setDocumentation(documentation);
 	}
 
-	public SPProduct getReferenceProduct() {
+	public SPProductOutput getReferenceProduct() {
 		return referenceProduct;
 	}
 
-	public void setReferenceProduct(SPProduct referenceProduct) {
+	public void setReferenceProduct(SPProductOutput referenceProduct) {
 		this.referenceProduct = referenceProduct;
 	}
 
-	public void add(SPProduct byProduct) {
+	public void add(SPProductOutput byProduct) {
 		byProducts.add(byProduct);
 	}
 
-	public SPProduct[] getByProducts() {
-		return byProducts.toArray(new SPProduct[byProducts.size()]);
+	public SPProductOutput[] getByProducts() {
+		return byProducts.toArray(new SPProductOutput[byProducts.size()]);
 	}
 
 	public SPExchange[] getFlows() {

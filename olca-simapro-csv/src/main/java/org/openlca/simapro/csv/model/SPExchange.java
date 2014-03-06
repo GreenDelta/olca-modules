@@ -3,7 +3,7 @@ package org.openlca.simapro.csv.model;
 /**
  * Defines the common fields of a SimaPro exchange.
  */
-abstract class SPExchange {
+public abstract class SPExchange {
 
 	private String name;
 	private String amount;
@@ -48,8 +48,7 @@ abstract class SPExchange {
 		return uncertaintyDistribution;
 	}
 
-	public void setUncertaintyDistribution(
-			SPUncertainty uncertaintyDistribution) {
+	public void setUncertaintyDistribution(SPUncertainty uncertaintyDistribution) {
 		this.uncertaintyDistribution = uncertaintyDistribution;
 	}
 

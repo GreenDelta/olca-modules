@@ -1,10 +1,10 @@
-package org.openlca.simapro.csv.model;
+package org.openlca.simapro.csv.model.refdata;
 
+import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
-import org.openlca.simapro.csv.model.annotations.BlockRow;
+import org.openlca.simapro.csv.model.IDataRow;
 
-@BlockRow("Quantities")
-public class SPQuantity implements IDataRow {
+public class Quantity implements IDataRow {
 
 	private boolean withDimension = true;
 	private String name;
@@ -31,8 +31,8 @@ public class SPQuantity implements IDataRow {
 	}
 
 	@Override
-	public void fill(String line, String separator) {
-		String[] columns = CsvUtils.split(line, separator);
+	public void fill(String line, CsvConfig config) {
+		String[] columns = CsvUtils.split(line, config.getSeparator());
 		name = CsvUtils.get(columns, 0);
 		String dimStr = CsvUtils.get(columns, 1);
 		if (dimStr != null)

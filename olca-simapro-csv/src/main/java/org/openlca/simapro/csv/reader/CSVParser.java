@@ -2,11 +2,11 @@ package org.openlca.simapro.csv.reader;
 
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPQuantity;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
 import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.Quantity;
 import org.openlca.simapro.csv.model.refdata.SPUnit;
 import org.openlca.simapro.csv.parser.exception.CSVMultipleLiteratureReferenceNameException;
 import org.openlca.simapro.csv.parser.exception.CSVMultipleProcessNameException;
@@ -243,7 +243,7 @@ public class CSVParser {
 						csvSeperator, ParameterType.DATABASE));
 				break;
 			case QUANTITIES:
-				referenceData.add(SPQuantity.fromLine(lines.poll(),
+				referenceData.add(Quantity.fromLine(lines.poll(),
 						csvSeperator));
 				break;
 			case UNITS:

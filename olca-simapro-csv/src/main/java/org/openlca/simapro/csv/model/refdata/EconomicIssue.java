@@ -1,9 +1,9 @@
 package org.openlca.simapro.csv.model.refdata;
 
-import org.openlca.simapro.csv.model.annotations.BlockRow;
+import org.openlca.simapro.csv.model.annotations.BlockRows;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
-@BlockRow("Economic issues")
+@BlockRows("Economic issues")
 public class EconomicIssue extends SPElementaryFlow {
 
 	@Override

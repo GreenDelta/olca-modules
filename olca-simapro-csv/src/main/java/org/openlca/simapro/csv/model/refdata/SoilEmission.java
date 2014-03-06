@@ -1,9 +1,9 @@
 package org.openlca.simapro.csv.model.refdata;
 
-import org.openlca.simapro.csv.model.annotations.BlockRow;
+import org.openlca.simapro.csv.model.annotations.BlockRows;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
-@BlockRow("Emissions to soil")
+@BlockRows("Emissions to soil")
 public class SoilEmission extends SPElementaryFlow {
 
 	@Override

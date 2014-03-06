@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openlca.simapro.csv.model.refdata.SPElementaryFlow;
 import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.Quantity;
 import org.openlca.simapro.csv.model.refdata.SPUnit;
 
 /*
@@ -33,7 +34,7 @@ public class SPReferenceData {
 
 	private SPSystemDescription systemDescription;
 	private Map<String, SPLiteratureReference> literatureReferences = new HashMap<>();
-	private Map<String, SPQuantity> quantities = new HashMap<>();
+	private Map<String, Quantity> quantities = new HashMap<>();
 	private Map<String, SPUnit> units = new HashMap<>();
 	private Map<String, SPElementaryFlow> substances = new HashMap<>();
 	private Map<String, SPInputParameter> inputParameters = new HashMap<>();
@@ -51,7 +52,7 @@ public class SPReferenceData {
 		return result;
 	}
 
-	public void add(SPQuantity quantity) {
+	public void add(Quantity quantity) {
 		quantities.put(quantity.getName(), quantity);
 	}
 
@@ -96,11 +97,11 @@ public class SPReferenceData {
 		return inputParameters;
 	}
 
-	public Map<String, SPQuantity> getQuantities() {
+	public Map<String, Quantity> getQuantities() {
 		return quantities;
 	}
 
-	public void setQuantities(Map<String, SPQuantity> quantities) {
+	public void setQuantities(Map<String, Quantity> quantities) {
 		this.quantities = quantities;
 	}
 

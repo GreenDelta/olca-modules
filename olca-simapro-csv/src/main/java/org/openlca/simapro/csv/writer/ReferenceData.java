@@ -9,13 +9,13 @@ import java.util.Queue;
 
 import org.openlca.simapro.csv.model.SPCalculatedParameter;
 import org.openlca.simapro.csv.model.SPInputParameter;
-import org.openlca.simapro.csv.model.SPQuantity;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPSystemDescription;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
 import org.openlca.simapro.csv.model.refdata.SPElementaryFlow;
 import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.Quantity;
 import org.openlca.simapro.csv.model.refdata.SPUnit;
 
 class ReferenceData {
@@ -101,7 +101,7 @@ class ReferenceData {
 	private void writeQuantities() throws IOException {
 		if (!referenceData.getQuantities().isEmpty()) {
 			writer.writeln("Quantities");
-			for (SPQuantity quantity : referenceData.getQuantities().values())
+			for (Quantity quantity : referenceData.getQuantities().values())
 				writer.writeln(quantity.getName() + csvSeperator
 						+ (quantity.isWithDimension() ? "Yes" : "No"));
 			writer.newLine();

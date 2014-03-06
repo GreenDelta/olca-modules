@@ -7,7 +7,6 @@ import java.util.Queue;
 import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProcessDocumentation;
-import org.openlca.simapro.csv.model.SPProduct;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPWasteScenario;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
@@ -15,6 +14,7 @@ import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.process.SPProductOutput;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ class DataEntry {
 	private SPProcess readProcess(Queue<String> lines)
 			throws CSVParserException {
 		SPProcess process = null;
-		List<SPProduct> referenceProducts = new ArrayList<SPProduct>();
+		List<SPProductOutput> referenceProducts = new ArrayList<SPProductOutput>();
 		String subCategory = null;
 
 		if (lines.isEmpty() || lines.peek().equals(""))

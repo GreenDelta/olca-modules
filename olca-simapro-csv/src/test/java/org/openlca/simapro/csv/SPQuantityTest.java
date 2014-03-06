@@ -1,17 +1,17 @@
 package org.openlca.simapro.csv;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.openlca.simapro.csv.model.Block;
-import org.openlca.simapro.csv.model.SPQuantity;
-import org.openlca.simapro.csv.reader.BlockReader;
-import org.openlca.simapro.csv.reader.BlockUnmarshaller;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+import org.junit.Test;
+import org.openlca.simapro.csv.model.refdata.Quantity;
+import org.openlca.simapro.csv.model.refdata.QuantityBlock;
+import org.openlca.simapro.csv.reader.BlockReader;
+import org.openlca.simapro.csv.reader.ModelReader;
 
 public class SPQuantityTest {
 
@@ -27,10 +27,11 @@ public class SPQuantityTest {
 	@Test
 	public void testUnmarshallBlock() throws Exception {
 		BlockReader reader = new BlockReader(new StringReader(text));
-		Block block = reader.read();
-		reader.close();
-		List<SPQuantity> quantities = new BlockUnmarshaller().unmarshallRows(
-				block, SPQuantity.class, ";");
+		ModelReader modelReader = new ModelReader(reader,
+				CsvConfig.getDefault(), QuantityBlock.class);
+		QuantityBlock model = (QuantityBlock) modelReader.read();
+		modelReader.close();
+		List<Quantity> quantities = model.getQuantities();
 		Assert.assertEquals(2, quantities.size());
 		Assert.assertEquals("Mass", quantities.get(0).getName());
 		Assert.assertEquals("Length", quantities.get(1).getName());
@@ -39,15 +40,15 @@ public class SPQuantityTest {
 	@Test
 	public void testFromLine() {
 		String line = "Mass;Yes";
-		SPQuantity quantity = new SPQuantity();
-		quantity.fill(line, ";");
+		Quantity quantity = new Quantity();
+		quantity.fill(line, CsvConfig.getDefault());
 		assertEquals("Mass", quantity.getName());
 		assertTrue(quantity.isWithDimension());
 	}
 
 	@Test
 	public void testToLine() {
-		SPQuantity quantity = new SPQuantity();
+		Quantity quantity = new Quantity();
 		quantity.setName("Mass");
 		quantity.setWithDimension(true);
 		assertEquals("Mass;Yes", quantity.toLine(";"));
