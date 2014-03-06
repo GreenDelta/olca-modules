@@ -1,0 +1,233 @@
+{SimaPro 8.0}
+{processes}
+{Date: 05.03.2014}
+{Time: 09:27:45}
+{Project: Test}
+{CSV Format version: 7.0.0}
+{CSV separator: Semicolon}
+{Decimal separator: ,}
+{Date separator: .}
+{Short date format: dd.MM.yyyy}
+
+Process
+
+Category type
+material
+
+Process identifier
+DefaultX25250700002
+
+Type
+Unit process
+
+Process name
+Test process
+
+Status
+Draft
+
+Time period
+2005-2009
+
+Geography
+Mixed data
+
+Technology
+Worst case
+
+Representativeness
+Theoretical calculation
+
+Multiple output allocation
+Physical causality
+
+Substitution allocation
+Actual substitution
+
+Cut off rules
+Less than 1% (physical criteria)
+
+Capital goods
+First order (only primary flows)
+
+Boundary with nature
+Agricultural production is part of production system
+
+Infrastructure
+No
+
+Date
+24.02.2014
+
+Record
+
+
+Generator
+
+
+Literature references
+
+
+Collection method
+
+
+Data treatment
+
+
+Verification
+
+
+Comment
+
+
+Allocation rules
+
+
+System description
+;
+
+Products
+my product;kg;0,5;100;not defined;Agricultural;
+
+Avoided products
+
+Resources
+Acids;;kg;1;Undefined;0;0;0;
+
+Materials/fuels
+
+Electricity/heat
+
+Emissions to air
+(+-)-Citronellol;low. pop.;kg;1;Lognormal;2;0;0;(1,2,3,4,5)with comment
+
+Emissions to water
+(1r,4r)-(+)-Camphor;lake;kg;1;Normal;3;0;0;
+
+Emissions to soil
+1'-Acetoxysafrole;forestry;kg;1;Triangle;0;1;5;
+
+Final waste flows
+Asbestos;;kg;1;Uniform;0;1;2;
+
+Non material emissions
+Noise from bus km;;km;1;Undefined;0;0;0;
+
+Social issues
+venting of argon, crude, liquid;;kg;1;Undefined;0;0;0;
+
+Economic issues
+Sample economic issue;;kg;1;Undefined;0;0;0;
+
+Waste to treatment
+
+Input parameters
+input_param;23,4;Uniform;0;13;33;No;this is the parameter commentis this presented in multiple lines?we should even be able tu use äöü
+
+Calculated parameters
+calc_param;input_param ^ 2;comment for calc_param
+
+End
+
+Quantities
+Mass;Yes
+Length;Yes
+
+End
+
+
+Units
+kg;Mass;1;kg
+g;Mass;0,001;kg
+ton;Mass;1000;kg
+µg;Mass;0,000000001;kg
+mg;Mass;0,000001;kg
+Mtn;Mass;1000000000;kg
+kton;Mass;1000000;kg
+ng;Mass;1,0E-12;kg
+pg;Mass;1,0E-15;kg
+lb;Mass;0,4535924;kg
+oz;Mass;0,02834952;kg
+tn.sh;Mass;907,1848;kg
+tn.lg;Mass;1016,047;kg
+km;Length;1000;m
+m;Length;1;m
+cm;Length;0,01;m
+dm;Length;0,1;m
+mm;Length;0,001;m
+µm;Length;0,000001;m
+ft;Length;0,3048;m
+inch;Length;0,0254;m
+yard;Length;0,9144;m
+mile;Length;1609,35;m
+
+End
+
+
+Raw materials
+Acids;kg;;
+
+End
+
+
+Airborne emissions
+(+-)-Citronellol;kg;026489-01-0;
+
+End
+
+
+Waterborne emissions
+(1r,4r)-(+)-Camphor;kg;000464-49-3;
+
+End
+
+
+Final waste flows
+Asbestos;kg;;
+
+End
+
+
+Emissions to soil
+1'-Acetoxysafrole;kg;034627-78-6;No formula available
+
+End
+
+
+Non material emissions
+Noise from bus km;km;;
+
+End
+
+
+Social issues
+venting of argon, crude, liquid;kg;;
+
+End
+
+
+Economic issues
+Sample economic issue;kg;;
+
+End
+
+
+Database Input parameters
+db_input_param;1;Lognormal;1;0;0;No;database parameter
+
+End
+
+Database Calculated parameters
+db_calc_param;db_input_param * 3;calculated database parameter
+
+End
+
+Project Input parameters
+proj_input_param;32;Uniform;1;10;35;No;project input parameter
+
+End
+
+Project Calculated parameters
+proj_calc_param;db_input_param *4;project calculated parameter
+
+End

@@ -1,12 +1,15 @@
 package org.openlca.simapro.csv;
 
 import java.io.StringReader;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.simapro.csv.model.Block;
+import org.openlca.simapro.csv.model.refdata.UnitBlock;
 import org.openlca.simapro.csv.model.refdata.UnitRow;
 import org.openlca.simapro.csv.reader.BlockReader;
+import org.openlca.simapro.csv.reader.BlockUnmarshaller;
 
 public class UnitBlockTest {
 
@@ -24,11 +27,12 @@ public class UnitBlockTest {
 		BlockReader reader = new BlockReader(new StringReader(text));
 		Block block = reader.read();
 		reader.close();
-		// List<UnitRow> rows = new BlockUnmarshaller(config).unmarshall(block,
-		// UnitBloc.class, ";");
-		// Assert.assertEquals(3, rows.size());
-		// Assert.assertEquals("kg", rows.get(0).getName());
-		// Assert.assertEquals(1000, rows.get(2).getConversionFactor(), 1e-16);
+		UnitBlock model = new BlockUnmarshaller(config).unmarshall(block,
+				UnitBlock.class);
+		List<UnitRow> rows = model.getUnits();
+		Assert.assertEquals(3, rows.size());
+		Assert.assertEquals("kg", rows.get(0).getName());
+		Assert.assertEquals(1000, rows.get(2).getConversionFactor(), 1e-16);
 	}
 
 	@Test

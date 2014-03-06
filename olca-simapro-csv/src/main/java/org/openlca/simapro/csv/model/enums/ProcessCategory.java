@@ -3,21 +3,21 @@ package org.openlca.simapro.csv.model.enums;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public enum ProcessCategory {
+public enum ProcessCategory implements ValueEnum {
 
-	MATERIAL("Material"),
+	MATERIAL("material"),
 
-	ENERGY("Energy"),
+	ENERGY("energy"),
 
-	TRANSPORT("Transport"),
+	TRANSPORT("transport"),
 
-	PROCESSING("Processing"),
+	PROCESSING("processing"),
 
-	USE("Use"),
+	USE("use"),
 
-	WASTE_SCENARIO("Waste scenario"),
+	WASTE_SCENARIO("waste scenario"),
 
-	WASTE_TREATMENT("Waste treatment");
+	WASTE_TREATMENT("waste treatment");
 
 	private String value;
 
@@ -25,6 +25,7 @@ public enum ProcessCategory {
 		this.value = value;
 	}
 
+	@Override
 	public String getValue() {
 		return value;
 	}

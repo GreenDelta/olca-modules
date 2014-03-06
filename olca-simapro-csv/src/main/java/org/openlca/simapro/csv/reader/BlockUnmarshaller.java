@@ -12,6 +12,7 @@ import org.openlca.simapro.csv.model.Section;
 import org.openlca.simapro.csv.model.annotations.BlockRows;
 import org.openlca.simapro.csv.model.annotations.SectionRows;
 import org.openlca.simapro.csv.model.annotations.SectionValue;
+import org.openlca.simapro.csv.model.enums.ValueEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,9 +138,31 @@ public class BlockUnmarshaller {
 				return;
 			String val = section.getDataRows().get(0);
 			field.setAccessible(true);
-			field.set(model, val);
+			Class<?> type = field.getType();
+			if (type.equals(String.class))
+				field.set(model, val);
+			else if (ValueEnum.class.isAssignableFrom(type)) {
+				setEnumValue(field, type, val);
+			} else
+				log.error("can only set section values to strings and "
+						+ "enumerations that implement ValueEnum");
 		} catch (Exception e) {
 			log.error("failed to set value on field " + field, e);
+		}
+	}
+
+	private void setEnumValue(Field field, Class<?> type, String val)
+			throws Exception {
+		if (val == null)
+			return;
+		for (Object o : type.getEnumConstants()) {
+			if (!(o instanceof ValueEnum))
+				continue;
+			ValueEnum e = (ValueEnum) o;
+			if (val.equalsIgnoreCase(e.getValue())) {
+				field.set(model, e);
+				break;
+			}
 		}
 	}
 }
