@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum Technology {
+public enum Technology implements ValueEnum {
 
 	AVERAGE_TECHNOLOGY("Average technology"),
 
@@ -31,9 +31,9 @@ public enum Technology {
 	}
 
 	public static Technology forValue(String value) {
-		for(Technology technology : values())
-		if(technology.getValue().equals(value))
-			return technology;
+		for (Technology technology : values())
+			if (technology.getValue().equals(value))
+				return technology;
 		return UNSPECIFIED;
 	}
 

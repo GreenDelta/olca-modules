@@ -2,48 +2,31 @@ package org.openlca.simapro.csv.model;
 
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
-import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
-public class ElementaryExchangeRow extends SPExchange {
+public class ElementaryExchangeRow extends SPExchange implements IDataRow {
 
 	private String subCompartment;
-	private ElementaryFlowType type;
 
 	public String getSubCompartment() {
 		return subCompartment;
-	}
-
-	public ElementaryFlowType getType() {
-		return type;
 	}
 
 	public void setSubCompartment(String subCompartment) {
 		this.subCompartment = subCompartment;
 	}
 
-	public void setType(ElementaryFlowType type) {
-		this.type = type;
-	}
-
-	/**
-	 * Reads an elementary exchange from the given line using the given CSV
-	 * separator. Note that the elementary flow type cannot be derived from the
-	 * line.
-	 */
-	public static ElementaryExchangeRow fromCsv(String line, CsvConfig config) {
+	@Override
+	public void fill(String line, CsvConfig config) {
 		String[] columns = CsvUtils.split(line, config);
-		ElementaryExchangeRow exchange = new ElementaryExchangeRow();
-		exchange.setName(CsvUtils.get(columns, 0));
-		exchange.setSubCompartment(CsvUtils.get(columns, 1));
-		exchange.setUnit(CsvUtils.get(columns, 2));
-		exchange.setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 3)));
+		setName(CsvUtils.get(columns, 0));
+		setSubCompartment(CsvUtils.get(columns, 1));
+		setUnit(CsvUtils.get(columns, 2));
+		setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 3)));
 		SPUncertainty uncertainty = SPUncertainty.fromCsv(columns, 4);
-		exchange.setUncertaintyDistribution(uncertainty);
+		setUncertaintyDistribution(uncertainty);
 		String comment = CsvUtils.readMultilines(CsvUtils.get(columns, 8));
-		exchange.setComment(comment);
-		exchange.setPedigreeUncertainty(CsvUtils
-				.getPedigreeUncertainty(comment));
-		return exchange;
+		setComment(comment);
+		setPedigreeUncertainty(CsvUtils.getPedigreeUncertainty(comment));
 	}
 
 	public String toCsv(CsvConfig config) {

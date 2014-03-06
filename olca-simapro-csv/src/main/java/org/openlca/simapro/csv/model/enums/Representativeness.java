@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum Representativeness {
+public enum Representativeness implements ValueEnum {
 
 	AVERAGE_FROM_A_SPECIFIC_PROCESS("Average from a specific process"),
 

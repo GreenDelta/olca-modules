@@ -1,10 +1,12 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum BoundaryWithNature {
+public enum BoundaryWithNature implements ValueEnum {
 
-	AGRICULTURAL_NATURAL_SYSTEM("Agricultural production is part of natural systems"),
+	AGRICULTURAL_NATURAL_SYSTEM(
+			"Agricultural production is part of natural systems"),
 
-	AGRICULTURAL_PRODUCTION_SYSTEM("Agricultural production is part of production system"),
+	AGRICULTURAL_PRODUCTION_SYSTEM(
+			"Agricultural production is part of production system"),
 
 	NOT_APPLICABLE("Not applicable"),
 

@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum ProcessType {
+public enum ProcessType implements ValueEnum {
 
 	SYSTEM("System"),
 

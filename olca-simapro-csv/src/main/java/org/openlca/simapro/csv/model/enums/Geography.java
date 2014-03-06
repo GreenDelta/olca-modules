@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum Geography {
+public enum Geography implements ValueEnum {
 
 	AFRICA("Africa"),
 

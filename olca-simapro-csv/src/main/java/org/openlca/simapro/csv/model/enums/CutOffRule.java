@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum CutOffRule {
+public enum CutOffRule implements ValueEnum {
 
 	ENVIRONMENTAL_RELEVANCE_LESS_THAN_1(
 			"Less than 1% (environmental relevance)"),
@@ -33,8 +33,8 @@ public enum CutOffRule {
 	}
 
 	public static CutOffRule forValue(String value) {
-		for(CutOffRule rule : values()) {
-			if(rule.getValue().equals(value))
+		for (CutOffRule rule : values()) {
+			if (rule.getValue().equals(value))
 				return rule;
 		}
 		return UNSPECIFIED;

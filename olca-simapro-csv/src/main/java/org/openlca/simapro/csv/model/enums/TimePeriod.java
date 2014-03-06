@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum TimePeriod {
+public enum TimePeriod implements ValueEnum {
 
 	MIXED_DATA("Mixed data"),
 
@@ -30,6 +30,7 @@ public enum TimePeriod {
 		this.value = value;
 	}
 
+	@Override
 	public String getValue() {
 		return value;
 	}

@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum Status {
+public enum Status implements ValueEnum {
 
 	DRAFT("Draft"),
 

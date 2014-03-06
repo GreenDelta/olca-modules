@@ -1,10 +1,5 @@
 package org.openlca.simapro.csv.reader;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.List;
-
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.model.Block;
 import org.openlca.simapro.csv.model.IDataRow;
@@ -15,6 +10,11 @@ import org.openlca.simapro.csv.model.annotations.SectionValue;
 import org.openlca.simapro.csv.model.enums.ValueEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
 
 public class BlockUnmarshaller {
 
@@ -161,8 +161,9 @@ public class BlockUnmarshaller {
 			ValueEnum e = (ValueEnum) o;
 			if (val.equalsIgnoreCase(e.getValue())) {
 				field.set(model, e);
-				break;
+				return;
 			}
 		}
+		log.error("did not find an enum value for {} at field {}", val, field);
 	}
 }

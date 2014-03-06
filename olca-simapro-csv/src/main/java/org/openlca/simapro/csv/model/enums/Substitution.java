@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum Substitution {
+public enum Substitution implements ValueEnum {
 
 	ACTUAL_SUBSTITUTION("Actual substitution"),
 

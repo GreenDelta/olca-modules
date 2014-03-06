@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model.enums;
 
-public enum ProcessAllocation {
+public enum ProcessAllocation implements ValueEnum {
 
 	NOT_APPLICABLE("Not applicable"),
 

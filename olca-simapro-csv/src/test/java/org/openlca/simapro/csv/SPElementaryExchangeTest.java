@@ -15,8 +15,8 @@ public class SPElementaryExchangeTest {
 	public void testFromCsv() {
 		String line = "Methane, fossil;high. pop.;kg;0,00011855;Lognormal;"
 				+ "2,3802;0;0;(4,5,5,5,5,na)(4,5,na,na,na,na), Estimation";
-		ElementaryExchangeRow exchange = ElementaryExchangeRow.fromCsv(line,
-				config);
+		ElementaryExchangeRow exchange = new ElementaryExchangeRow();
+		exchange.fill(line, config);
 		assertEquals("Methane, fossil", exchange.getName());
 		assertEquals("high. pop.", exchange.getSubCompartment());
 		assertEquals("kg", exchange.getUnit());

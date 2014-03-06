@@ -19,28 +19,17 @@ import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
 
 public class SPProcessDocumentation {
 
-	private String identifier;
 	private String allocationRules;
-	private BoundaryWithNature boundaryWithNature;
-	private ProcessCategory category;
 	private String collectionMethod;
 	private String comment;
 	private String creationDate;
-	private CutOffRule cutOffRule;
 	private String dataTreatment;
 	private String generator;
-	private Geography geography;
-	private String name;
-	private ProcessAllocation processAllocation;
-	private ProcessType processType;
+
 	private String record;
-	private Representativeness representativeness;
-	private Status status;
-	private Substitution substitution;
 	private SystemBoundary systemBoundary;
 	private SPSystemDescriptionEntry systemDescriptionEntry;
-	private Technology technology;
-	private TimePeriod timePeriod;
+
 	private String verification;
 	private WasteTreatmentAllocation wasteTreatmentAllocation;
 	private boolean infrastructureProcess;
