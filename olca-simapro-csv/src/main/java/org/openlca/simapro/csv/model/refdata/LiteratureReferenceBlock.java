@@ -4,7 +4,7 @@ import org.openlca.simapro.csv.model.annotations.BlockModel;
 import org.openlca.simapro.csv.model.annotations.SectionValue;
 
 @BlockModel("Literature reference")
-public class SPLiteratureReference {
+public class LiteratureReferenceBlock {
 
 	@SectionValue("Name")
 	private String name;

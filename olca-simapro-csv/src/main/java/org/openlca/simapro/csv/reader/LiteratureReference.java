@@ -2,12 +2,12 @@ package org.openlca.simapro.csv.reader;
 
 import java.util.Queue;
 
-import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 
 final class LiteratureReference {
 
-	static SPLiteratureReference parse(Queue<String> lines) {
-		SPLiteratureReference literatureReference = new SPLiteratureReference(
+	static LiteratureReferenceBlock parse(Queue<String> lines) {
+		LiteratureReferenceBlock literatureReference = new LiteratureReferenceBlock(
 				null, null, null);
 
 		while (!lines.isEmpty()) {

@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model;
 
-import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 
 
 /**
@@ -14,13 +14,13 @@ import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
 public class SPLiteratureReferenceEntry {
 
 	private String comment;
-	private SPLiteratureReference literatureReference;
+	private LiteratureReferenceBlock literatureReference;
 
-	public SPLiteratureReferenceEntry(SPLiteratureReference reference) {
+	public SPLiteratureReferenceEntry(LiteratureReferenceBlock reference) {
 		this.literatureReference = reference;
 	}
 
-	public SPLiteratureReferenceEntry(SPLiteratureReference reference,
+	public SPLiteratureReferenceEntry(LiteratureReferenceBlock reference,
 			String comment) {
 		this.literatureReference = reference;
 		this.comment = comment;
@@ -30,7 +30,7 @@ public class SPLiteratureReferenceEntry {
 		return comment;
 	}
 
-	public SPLiteratureReference getLiteratureReference() {
+	public LiteratureReferenceBlock getLiteratureReference() {
 		return literatureReference;
 	}
 
@@ -38,7 +38,7 @@ public class SPLiteratureReferenceEntry {
 		this.comment = comment;
 	}
 
-	public void setLiteratureReference(SPLiteratureReference literatureReference) {
+	public void setLiteratureReference(LiteratureReferenceBlock literatureReference) {
 		this.literatureReference = literatureReference;
 	}
 

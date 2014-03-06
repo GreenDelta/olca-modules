@@ -1,10 +1,11 @@
 package org.openlca.simapro.csv.model.process;
 
+import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.IDataRow;
 import org.openlca.simapro.csv.model.SPExchange;
 
-public class SPProductOutput extends SPExchange implements IDataRow {
+public class ProductOutputRow extends SPExchange implements IDataRow {
 
 	private double allocation = 100;
 	private String wasteType;
@@ -35,8 +36,8 @@ public class SPProductOutput extends SPExchange implements IDataRow {
 	}
 
 	@Override
-	public void fill(String line, String separator) {
-		String[] columns = CsvUtils.split(line, separator);
+	public void fill(String line, CsvConfig config) {
+		String[] columns = CsvUtils.split(line, config);
 		setName(CsvUtils.get(columns, 0));
 		setUnit(CsvUtils.get(columns, 1));
 		setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 2)));

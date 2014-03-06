@@ -1,9 +1,10 @@
 package org.openlca.simapro.csv.model;
 
+import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
-public class SPProductInput extends SPExchange {
+public class ProductInputRow extends SPExchange {
 
 	private ProductFlowType type;
 
@@ -15,9 +16,9 @@ public class SPProductInput extends SPExchange {
 		this.type = type;
 	}
 
-	public static SPProductInput fromCsv(String line, String separator) {
-		String[] columns = CsvUtils.split(line, separator);
-		SPProductInput input = new SPProductInput();
+	public static ProductInputRow fromCsv(String line, CsvConfig config) {
+		String[] columns = CsvUtils.split(line, config);
+		ProductInputRow input = new ProductInputRow();
 		input.setName(CsvUtils.get(columns, 0));
 		input.setUnit(CsvUtils.get(columns, 1));
 		input.setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 2)));
@@ -29,7 +30,7 @@ public class SPProductInput extends SPExchange {
 		return input;
 	}
 
-	public String toCsv(String separator) {
+	public String toCsv(CsvConfig config) {
 		String[] line = new String[8];
 		line[0] = getName();
 		line[1] = getUnit();
@@ -45,7 +46,7 @@ public class SPProductInput extends SPExchange {
 		if (pedigree != null && !comment.contains(pedigree))
 			comment = pedigree + "\n" + comment;
 		line[7] = CsvUtils.writeMultilines(comment);
-		return CsvUtils.getJoiner(separator).join(line);
+		return CsvUtils.getJoiner(config).join(line);
 	}
 
 }

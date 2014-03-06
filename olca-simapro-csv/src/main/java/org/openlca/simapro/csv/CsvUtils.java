@@ -16,8 +16,8 @@ public class CsvUtils {
 	private CsvUtils() {
 	}
 
-	public static Joiner getJoiner(String separator) {
-		return Joiner.on(separator).useForNull("");
+	public static Joiner getJoiner(CsvConfig config) {
+		return Joiner.on(config.getSeparator()).useForNull("");
 	}
 
 	public static String getPedigreeUncertainty(String comment) {
@@ -33,12 +33,12 @@ public class CsvUtils {
 			return matcher.group();
 	}
 
-	public static String[] split(String line, String separator) {
+	public static String[] split(String line, CsvConfig config) {
 		if (line == null)
 			return new String[0];
-		if (separator == null)
+		if (config == null || config.getSeparator() == null)
 			return new String[] { line };
-		return line.split(separator);
+		return line.split(config.getSeparator());
 	}
 
 	public static String get(String[] columns, int col) {

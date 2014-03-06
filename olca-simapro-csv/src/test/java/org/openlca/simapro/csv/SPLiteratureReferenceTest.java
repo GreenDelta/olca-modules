@@ -5,7 +5,7 @@ import java.io.StringReader;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.simapro.csv.model.Block;
-import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.reader.BlockReader;
 import org.openlca.simapro.csv.reader.BlockUnmarshaller;
 
@@ -36,9 +36,10 @@ public class SPLiteratureReferenceTest {
 		BlockReader reader = new BlockReader(new StringReader(text));
 		Block block = reader.read();
 		reader.close();
-		BlockUnmarshaller unmarshaller = new BlockUnmarshaller();
-		SPLiteratureReference reference = unmarshaller.unmarshall(block,
-				SPLiteratureReference.class, ";");
+		BlockUnmarshaller unmarshaller = new BlockUnmarshaller(
+				CsvConfig.getDefault());
+		LiteratureReferenceBlock reference = unmarshaller.unmarshall(block,
+				LiteratureReferenceBlock.class);
 		Assert.assertEquals("Ecoinvent 3", reference.getName());
 		Assert.assertEquals("http://www.ecoinvent.org",
 				reference.getDocumentationLink());

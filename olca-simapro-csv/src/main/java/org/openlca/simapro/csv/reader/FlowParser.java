@@ -1,13 +1,13 @@
 package org.openlca.simapro.csv.reader;
 
 import org.openlca.simapro.csv.CsvUtils;
-import org.openlca.simapro.csv.model.SPElementaryExchange;
-import org.openlca.simapro.csv.model.SPProductInput;
+import org.openlca.simapro.csv.model.ElementaryExchangeRow;
+import org.openlca.simapro.csv.model.ProductInputRow;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
-import org.openlca.simapro.csv.model.process.SPProductOutput;
-import org.openlca.simapro.csv.model.refdata.SPElementaryFlow;
+import org.openlca.simapro.csv.model.process.ProductOutputRow;
+import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,26 +27,26 @@ class FlowParser {
 		this.index = index;
 	}
 
-	SPElementaryExchange parseElementaryFlow(String line,
+	ElementaryExchangeRow parseElementaryFlow(String line,
 			ElementaryFlowType type) {
-		SPElementaryExchange exchange = SPElementaryExchange.fromCsv(line,
+		ElementaryExchangeRow exchange = ElementaryExchangeRow.fromCsv(line,
 				csvSeperator);
 		exchange.setType(type);
 		return exchange;
 	}
 
-	SPProductInput getProductFlow(String line, ProductFlowType type) {
-		SPProductInput input = SPProductInput.fromCsv(line, csvSeperator);
+	ProductInputRow getProductFlow(String line, ProductFlowType type) {
+		ProductInputRow input = ProductInputRow.fromCsv(line, csvSeperator);
 		input.setType(type);
 		return input;
 	}
 
-	SPProductOutput readReferenceProduct(String line) throws CSVParserException {
+	ProductOutputRow readReferenceProduct(String line) throws CSVParserException {
 		line += csvSeperator + " ";
 		String split[] = line.split(csvSeperator);
 		if (split.length < 7)
 			throw new CSVParserException("Error in product line: " + line);
-		SPProductOutput product = new SPProductOutput();
+		ProductOutputRow product = new ProductOutputRow();
 		product.setName(split[0]);
 		product.setUnit(split[1]);
 		product.setAmount(split[2]);
@@ -82,7 +82,7 @@ class FlowParser {
 		return waste;
 	}
 
-	static SPElementaryFlow parseSubstance(String line, String csvSeperator,
+	static ElementaryFlowRow parseSubstance(String line, String csvSeperator,
 			ElementaryFlowType type) {
 		line += csvSeperator + " ";
 		String split[] = line.split(csvSeperator);
@@ -95,7 +95,7 @@ class FlowParser {
 			comment += csvSeperator + split[i];
 		}
 
-		SPElementaryFlow substance = new SPElementaryFlow(name, referenceUnit);
+		ElementaryFlowRow substance = new ElementaryFlowRow(name, referenceUnit);
 		substance.setReferenceUnit(referenceUnit);
 		substance.setCASNumber(cas);
 		substance.setComment(comment);

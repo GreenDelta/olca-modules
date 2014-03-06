@@ -51,7 +51,7 @@ public class SPQuantityTest {
 		Quantity quantity = new Quantity();
 		quantity.setName("Mass");
 		quantity.setWithDimension(true);
-		assertEquals("Mass;Yes", quantity.toLine(";"));
+		assertEquals("Mass;Yes", quantity.toLine(CsvConfig.getDefault()));
 	}
 
 }

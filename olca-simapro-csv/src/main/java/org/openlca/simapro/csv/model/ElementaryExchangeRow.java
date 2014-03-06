@@ -1,9 +1,10 @@
 package org.openlca.simapro.csv.model;
 
+import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
-public class SPElementaryExchange extends SPExchange {
+public class ElementaryExchangeRow extends SPExchange {
 
 	private String subCompartment;
 	private ElementaryFlowType type;
@@ -29,9 +30,9 @@ public class SPElementaryExchange extends SPExchange {
 	 * separator. Note that the elementary flow type cannot be derived from the
 	 * line.
 	 */
-	public static SPElementaryExchange fromCsv(String line, String separator) {
-		String[] columns = CsvUtils.split(line, separator);
-		SPElementaryExchange exchange = new SPElementaryExchange();
+	public static ElementaryExchangeRow fromCsv(String line, CsvConfig config) {
+		String[] columns = CsvUtils.split(line, config);
+		ElementaryExchangeRow exchange = new ElementaryExchangeRow();
 		exchange.setName(CsvUtils.get(columns, 0));
 		exchange.setSubCompartment(CsvUtils.get(columns, 1));
 		exchange.setUnit(CsvUtils.get(columns, 2));
@@ -45,7 +46,7 @@ public class SPElementaryExchange extends SPExchange {
 		return exchange;
 	}
 
-	public String toCsv(String separator) {
+	public String toCsv(CsvConfig config) {
 		String[] line = new String[9];
 		line[0] = getName();
 		line[1] = subCompartment;
@@ -62,6 +63,6 @@ public class SPElementaryExchange extends SPExchange {
 		if (pedigree != null && !comment.contains(pedigree))
 			comment = pedigree + "\n" + comment;
 		line[8] = CsvUtils.writeMultilines(comment);
-		return CsvUtils.getJoiner(separator).join(line);
+		return CsvUtils.getJoiner(config).join(line);
 	}
 }

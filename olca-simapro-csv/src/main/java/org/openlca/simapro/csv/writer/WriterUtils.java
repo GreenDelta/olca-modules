@@ -3,8 +3,8 @@ package org.openlca.simapro.csv.writer;
 import java.io.IOException;
 
 import org.openlca.simapro.csv.model.IDistribution;
-import org.openlca.simapro.csv.model.SPCalculatedParameter;
-import org.openlca.simapro.csv.model.SPInputParameter;
+import org.openlca.simapro.csv.model.CalculatedParameterRow;
+import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.SPLogNormalDistribution;
 import org.openlca.simapro.csv.model.enums.DistributionParameter;
 import org.openlca.simapro.csv.model.enums.DistributionType;
@@ -27,7 +27,7 @@ final class WriterUtils {
 		return "\"" + comment + char127 + "\"";
 	}
 
-	static String getInputParameterLine(SPInputParameter parameter,
+	static String getInputParameterLine(InputParameterRow parameter,
 			char csvSeperator, char decimalSeperator) throws IOException {
 		String line = parameter.getName()
 				+ csvSeperator
@@ -42,7 +42,7 @@ final class WriterUtils {
 		return line;
 	}
 
-	static String getCalculatedParameterLine(SPCalculatedParameter parameter,
+	static String getCalculatedParameterLine(CalculatedParameterRow parameter,
 			char csvSeperator, char decimalSeperator) throws IOException {
 		String line = parameter.getName()
 				+ csvSeperator

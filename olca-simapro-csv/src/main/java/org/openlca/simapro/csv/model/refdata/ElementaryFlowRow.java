@@ -1,10 +1,10 @@
 package org.openlca.simapro.csv.model.refdata;
 
+import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.IDataRow;
-import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
-public abstract class SPElementaryFlow implements IDataRow {
+public class ElementaryFlowRow implements IDataRow {
 
 	private String name;
 	private String referenceUnit;
@@ -43,11 +43,9 @@ public abstract class SPElementaryFlow implements IDataRow {
 		this.referenceUnit = referenceUnit;
 	}
 
-	public abstract ElementaryFlowType getFlowType();
-
 	@Override
-	public void fill(String line, String separator) {
-		String[] columns = CsvUtils.split(line, separator);
+	public void fill(String line, CsvConfig config) {
+		String[] columns = CsvUtils.split(line, config);
 		name = CsvUtils.get(columns, 0);
 		referenceUnit = CsvUtils.get(columns, 1);
 		casNumber = CsvUtils.get(columns, 2);

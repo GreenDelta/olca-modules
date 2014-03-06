@@ -4,16 +4,19 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.simapro.csv.model.SPElementaryExchange;
+import org.openlca.simapro.csv.model.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.enums.DistributionType;
 
 public class SPElementaryExchangeTest {
+
+	private CsvConfig config = CsvConfig.getDefault();
 
 	@Test
 	public void testFromCsv() {
 		String line = "Methane, fossil;high. pop.;kg;0,00011855;Lognormal;"
 				+ "2,3802;0;0;(4,5,5,5,5,na)(4,5,na,na,na,na), Estimation";
-		SPElementaryExchange exchange = SPElementaryExchange.fromCsv(line, ";");
+		ElementaryExchangeRow exchange = ElementaryExchangeRow.fromCsv(line,
+				config);
 		assertEquals("Methane, fossil", exchange.getName());
 		assertEquals("high. pop.", exchange.getSubCompartment());
 		assertEquals("kg", exchange.getUnit());
@@ -25,11 +28,11 @@ public class SPElementaryExchangeTest {
 
 	@Test
 	public void testToCsv() {
-		SPElementaryExchange exchange = new SPElementaryExchange();
+		ElementaryExchangeRow exchange = new ElementaryExchangeRow();
 		exchange.setName("Methane, fossil");
 		exchange.setSubCompartment("high. pop.");
 		exchange.setUnit("kg");
-		String line = exchange.toCsv(";");
+		String line = exchange.toCsv(config);
 		Assert.assertTrue(line.startsWith("Methane, fossil;high. pop.;kg;"));
 	}
 

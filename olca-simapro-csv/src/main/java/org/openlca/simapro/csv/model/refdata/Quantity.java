@@ -25,14 +25,14 @@ public class Quantity implements IDataRow {
 		this.withDimension = withDimension;
 	}
 
-	public String toLine(String separator) {
-		return CsvUtils.getJoiner(separator).join(name,
+	public String toLine(CsvConfig config) {
+		return CsvUtils.getJoiner(config).join(name,
 				withDimension ? "Yes" : "No");
 	}
 
 	@Override
 	public void fill(String line, CsvConfig config) {
-		String[] columns = CsvUtils.split(line, config.getSeparator());
+		String[] columns = CsvUtils.split(line, config);
 		name = CsvUtils.get(columns, 0);
 		String dimStr = CsvUtils.get(columns, 1);
 		if (dimStr != null)

@@ -7,23 +7,23 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.openlca.simapro.csv.model.SPCalculatedParameter;
-import org.openlca.simapro.csv.model.SPInputParameter;
+import org.openlca.simapro.csv.model.CalculatedParameterRow;
+import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPSystemDescription;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
-import org.openlca.simapro.csv.model.refdata.SPElementaryFlow;
-import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.Quantity;
-import org.openlca.simapro.csv.model.refdata.SPUnit;
+import org.openlca.simapro.csv.model.refdata.UnitRow;
 
 class ReferenceData {
 
 	private CSVWriter writer;
 	private char csvSeperator;
 	private SPReferenceData referenceData = null;
-	private Queue<SPElementaryFlow> substances = new LinkedList<>();
+	private Queue<ElementaryFlowRow> substances = new LinkedList<>();
 
 	public ReferenceData(CSVWriter writer) {
 		this.writer = writer;
@@ -80,7 +80,7 @@ class ReferenceData {
 	}
 
 	private void writeLiteratureReference() throws IOException {
-		for (SPLiteratureReference literatureReference : referenceData
+		for (LiteratureReferenceBlock literatureReference : referenceData
 				.getLiteratureReferences().values()) {
 			writer.writeln("Literature reference");
 			writer.newLine();
@@ -113,7 +113,7 @@ class ReferenceData {
 	private void writeUnits() throws IOException {
 		if (!referenceData.getUnits().isEmpty()) {
 			writer.writeln("Units");
-			for (SPUnit unit : referenceData.getUnits().values()) {
+			for (UnitRow unit : referenceData.getUnits().values()) {
 				StringBuilder builder = new StringBuilder();
 				builder.append(unit.getName());
 				builder.append(csvSeperator);
@@ -133,9 +133,9 @@ class ReferenceData {
 	private void writeSubstances(ElementaryFlowType type) throws IOException {
 		if (containsType(type)) {
 			writer.writeln(type.getReferenceHeader());
-			Iterator<SPElementaryFlow> itr = substances.iterator();
+			Iterator<ElementaryFlowRow> itr = substances.iterator();
 			while (itr.hasNext()) {
-				SPElementaryFlow substance = itr.next();
+				ElementaryFlowRow substance = itr.next();
 				if (substance.getFlowType() == type) {
 					if (substance.getCASNumber() == null)
 						substance.setCASNumber("");
@@ -173,7 +173,7 @@ class ReferenceData {
 
 		if (input) {
 			writer.writeln(name + " Input parameters");
-			for (SPInputParameter parameter : referenceData
+			for (InputParameterRow parameter : referenceData
 					.getInputParameters().values())
 				if (parameter.getType() == parameterType)
 					writer.writeln(WriterUtils.getInputParameterLine(parameter,
@@ -184,7 +184,7 @@ class ReferenceData {
 		}
 		if (calc) {
 			writer.writeln(name + " Calculated parameters");
-			for (SPCalculatedParameter parameter : referenceData
+			for (CalculatedParameterRow parameter : referenceData
 					.getCalculatedParameters().values())
 				if (parameter.getType() == parameterType)
 					writer.writeln(WriterUtils.getCalculatedParameterLine(
@@ -197,7 +197,7 @@ class ReferenceData {
 	}
 
 	private boolean containsType(ElementaryFlowType type) {
-		for (SPElementaryFlow substance : substances)
+		for (ElementaryFlowRow substance : substances)
 			if (substance.getFlowType() == type)
 				return true;
 		return false;

@@ -4,17 +4,17 @@ import static org.openlca.simapro.csv.writer.WriterUtils.comment;
 
 import java.io.IOException;
 
-import org.openlca.simapro.csv.model.SPCalculatedParameter;
+import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPElementaryExchange;
-import org.openlca.simapro.csv.model.SPInputParameter;
+import org.openlca.simapro.csv.model.ElementaryExchangeRow;
+import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.SPProcess;
-import org.openlca.simapro.csv.model.SPProductInput;
+import org.openlca.simapro.csv.model.ProductInputRow;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
-import org.openlca.simapro.csv.model.process.SPProductOutput;
+import org.openlca.simapro.csv.model.process.ProductOutputRow;
 
 class SimaProFile {
 
@@ -50,7 +50,7 @@ class SimaProFile {
 					.getSubCategory();
 			writer.writeln(getProductLine(SPProcess.class.cast(dataEntry)
 					.getReferenceProduct(), subCategory));
-			for (SPProductOutput product : SPProcess.class.cast(dataEntry)
+			for (ProductOutputRow product : SPProcess.class.cast(dataEntry)
 					.getByProducts())
 				writer.writeln(getProductLine(product, subCategory));
 		} else if (dataEntry instanceof SPWasteTreatment) {
@@ -78,12 +78,12 @@ class SimaProFile {
 
 	private void writeParameters(SPDataSet dataEntry) throws IOException {
 		writer.writeln("Input parameters");
-		for (SPInputParameter parameter : dataEntry.getInputParameters())
+		for (InputParameterRow parameter : dataEntry.getInputParameters())
 			writer.writeln(WriterUtils.getInputParameterLine(parameter,
 					csvSeparator, decimalSeparator));
 		writer.newLine();
 		writer.writeln("Calculated parameters");
-		for (SPCalculatedParameter parameter : dataEntry
+		for (CalculatedParameterRow parameter : dataEntry
 				.getCalculatedParameters())
 			writer.writeln(WriterUtils.getCalculatedParameterLine(parameter,
 					csvSeparator, decimalSeparator));
@@ -93,7 +93,7 @@ class SimaProFile {
 	private void writeProductFlows(SPDataSet dataEntry, ProductFlowType type)
 			throws IOException {
 		writer.writeln(type.getHeader());
-		for (SPProductInput product : dataEntry.getProductFlows(type))
+		for (ProductInputRow product : dataEntry.getProductFlows(type))
 			writer.writeln(getProductLine(product));
 		writer.newLine();
 	}
@@ -101,16 +101,16 @@ class SimaProFile {
 	private void writeElemFlows(SPDataSet dataEntry, ElementaryFlowType type)
 			throws IOException {
 		writer.writeln(type.getExchangeHeader());
-		for (SPElementaryExchange flow : dataEntry.getElementaryFlows(type))
+		for (ElementaryExchangeRow flow : dataEntry.getElementaryFlows(type))
 			writer.writeln(getElementaryFlowLine(flow));
 		writer.newLine();
 	}
 
-	private String getProductLine(SPProductInput product) {
+	private String getProductLine(ProductInputRow product) {
 		return product.toCsv(Character.toString(csvSeparator));
 	}
 
-	private String getProductLine(SPProductOutput product, String subCategory) {
+	private String getProductLine(ProductOutputRow product, String subCategory) {
 		String line = product.getName() + csvSeparator + product.getUnit()
 				+ csvSeparator + number(product.getAmount()) + csvSeparator
 				+ product.getAllocation() + csvSeparator;
@@ -132,7 +132,7 @@ class SimaProFile {
 		return line;
 	}
 
-	private String getElementaryFlowLine(SPElementaryExchange flow) {
+	private String getElementaryFlowLine(ElementaryExchangeRow flow) {
 		return flow.toCsv(Character.toString(csvSeparator));
 	}
 

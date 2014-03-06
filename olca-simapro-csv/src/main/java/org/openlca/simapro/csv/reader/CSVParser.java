@@ -5,9 +5,9 @@ import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
-import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.Quantity;
-import org.openlca.simapro.csv.model.refdata.SPUnit;
+import org.openlca.simapro.csv.model.refdata.UnitRow;
 import org.openlca.simapro.csv.parser.exception.CSVMultipleLiteratureReferenceNameException;
 import org.openlca.simapro.csv.parser.exception.CSVMultipleProcessNameException;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
@@ -158,7 +158,7 @@ public class CSVParser {
 						readNextPart(), csvSeperator));
 				break;
 			case "Literature reference":
-				SPLiteratureReference reference = LiteratureReference
+				LiteratureReferenceBlock reference = LiteratureReference
 						.parse(readNextPart());
 				if (referenceData.add(reference.getName(), reference))
 					throw new CSVMultipleLiteratureReferenceNameException(
@@ -247,7 +247,7 @@ public class CSVParser {
 						csvSeperator));
 				break;
 			case UNITS:
-				referenceData.add(SPUnit.fromLine(lines.poll(), csvSeperator));
+				referenceData.add(UnitRow.fromLine(lines.poll(), csvSeperator));
 				break;
 			}
 		}

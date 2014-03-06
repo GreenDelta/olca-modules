@@ -20,7 +20,7 @@ import org.openlca.simapro.csv.model.enums.SystemBoundary;
 import org.openlca.simapro.csv.model.enums.Technology;
 import org.openlca.simapro.csv.model.enums.TimePeriod;
 import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
-import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 
 public class DataEntryDocumentation {
 
@@ -173,10 +173,10 @@ public class DataEntryDocumentation {
 			} else {
 				name = line;
 			}
-			SPLiteratureReference reference = refData.getLiteratureReferences()
+			LiteratureReferenceBlock reference = refData.getLiteratureReferences()
 					.get(name);
 			if (reference == null)
-				reference = new SPLiteratureReference(name, null, null);
+				reference = new LiteratureReferenceBlock(name, null, null);
 			documentation.getLiteratureReferenceEntries().add(
 					new SPLiteratureReferenceEntry(reference, comment));
 		}

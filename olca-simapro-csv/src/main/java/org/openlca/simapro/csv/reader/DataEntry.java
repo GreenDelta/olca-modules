@@ -14,7 +14,7 @@ import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
-import org.openlca.simapro.csv.model.process.SPProductOutput;
+import org.openlca.simapro.csv.model.process.ProductOutputRow;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ class DataEntry {
 	private SPProcess readProcess(Queue<String> lines)
 			throws CSVParserException {
 		SPProcess process = null;
-		List<SPProductOutput> referenceProducts = new ArrayList<SPProductOutput>();
+		List<ProductOutputRow> referenceProducts = new ArrayList<ProductOutputRow>();
 		String subCategory = null;
 
 		if (lines.isEmpty() || lines.peek().equals(""))

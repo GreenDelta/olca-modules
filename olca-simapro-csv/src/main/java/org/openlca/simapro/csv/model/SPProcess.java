@@ -3,41 +3,41 @@ package org.openlca.simapro.csv.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.simapro.csv.model.process.SPProductOutput;
+import org.openlca.simapro.csv.model.process.ProductOutputRow;
 
 /**
  * This class represents a SimaPro process
  */
 public class SPProcess extends SPDataSet {
 
-	private SPProductOutput referenceProduct = null;
-	private List<SPProductOutput> byProducts = new ArrayList<SPProductOutput>();
+	private ProductOutputRow referenceProduct = null;
+	private List<ProductOutputRow> byProducts = new ArrayList<ProductOutputRow>();
 
-	public SPProcess(SPProductOutput referenceProduct) {
+	public SPProcess(ProductOutputRow referenceProduct) {
 		this.referenceProduct = referenceProduct;
 	}
 
-	public SPProcess(SPProductOutput referenceProduct, String subCategory,
+	public SPProcess(ProductOutputRow referenceProduct, String subCategory,
 			SPProcessDocumentation documentation) {
 		this.referenceProduct = referenceProduct;
 		setSubCategory(subCategory);
 		setDocumentation(documentation);
 	}
 
-	public SPProductOutput getReferenceProduct() {
+	public ProductOutputRow getReferenceProduct() {
 		return referenceProduct;
 	}
 
-	public void setReferenceProduct(SPProductOutput referenceProduct) {
+	public void setReferenceProduct(ProductOutputRow referenceProduct) {
 		this.referenceProduct = referenceProduct;
 	}
 
-	public void add(SPProductOutput byProduct) {
+	public void add(ProductOutputRow byProduct) {
 		byProducts.add(byProduct);
 	}
 
-	public SPProductOutput[] getByProducts() {
-		return byProducts.toArray(new SPProductOutput[byProducts.size()]);
+	public ProductOutputRow[] getByProducts() {
+		return byProducts.toArray(new ProductOutputRow[byProducts.size()]);
 	}
 
 	public SPExchange[] getFlows() {

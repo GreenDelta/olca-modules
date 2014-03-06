@@ -3,10 +3,10 @@ package org.openlca.simapro.csv.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.simapro.csv.model.refdata.SPElementaryFlow;
-import org.openlca.simapro.csv.model.refdata.SPLiteratureReference;
+import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.Quantity;
-import org.openlca.simapro.csv.model.refdata.SPUnit;
+import org.openlca.simapro.csv.model.refdata.UnitRow;
 
 /*
  * TODO:
@@ -33,12 +33,12 @@ import org.openlca.simapro.csv.model.refdata.SPUnit;
 public class SPReferenceData {
 
 	private SPSystemDescription systemDescription;
-	private Map<String, SPLiteratureReference> literatureReferences = new HashMap<>();
+	private Map<String, LiteratureReferenceBlock> literatureReferences = new HashMap<>();
 	private Map<String, Quantity> quantities = new HashMap<>();
-	private Map<String, SPUnit> units = new HashMap<>();
-	private Map<String, SPElementaryFlow> substances = new HashMap<>();
-	private Map<String, SPInputParameter> inputParameters = new HashMap<>();
-	private Map<String, SPCalculatedParameter> calculatedParameters = new HashMap<>();
+	private Map<String, UnitRow> units = new HashMap<>();
+	private Map<String, ElementaryFlowRow> substances = new HashMap<>();
+	private Map<String, InputParameterRow> inputParameters = new HashMap<>();
+	private Map<String, CalculatedParameterRow> calculatedParameters = new HashMap<>();
 
 	/**
 	 * 
@@ -46,7 +46,7 @@ public class SPReferenceData {
 	 * @param literatureReference
 	 * @return true if the given key contains in the map, otherwise false.
 	 */
-	public boolean add(String key, SPLiteratureReference literatureReference) {
+	public boolean add(String key, LiteratureReferenceBlock literatureReference) {
 		boolean result = literatureReferences.containsKey(key);
 		literatureReferences.put(key, literatureReference);
 		return result;
@@ -56,7 +56,7 @@ public class SPReferenceData {
 		quantities.put(quantity.getName(), quantity);
 	}
 
-	public void add(SPUnit unit) {
+	public void add(UnitRow unit) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(unit.getName());
 		builder.append(unit.getConversionFactor());
@@ -65,19 +65,18 @@ public class SPReferenceData {
 		units.put(builder.toString(), unit);
 	}
 
-	public void add(SPElementaryFlow substance) {
+	public void add(ElementaryFlowRow substance) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(substance.getName());
-		builder.append(substance.getFlowType().getExchangeHeader());
 		builder.append(substance.getReferenceUnit());
 		substances.put(builder.toString(), substance);
 	}
 
-	public void add(SPInputParameter parameter) {
+	public void add(InputParameterRow parameter) {
 		inputParameters.put(parameter.getName(), parameter);
 	}
 
-	public void add(SPCalculatedParameter parameter) {
+	public void add(CalculatedParameterRow parameter) {
 		calculatedParameters.put(parameter.getName(), parameter);
 	}
 
@@ -89,11 +88,11 @@ public class SPReferenceData {
 		this.systemDescription = systemDescription;
 	}
 
-	public void setInputParameters(Map<String, SPInputParameter> inputParameters) {
+	public void setInputParameters(Map<String, InputParameterRow> inputParameters) {
 		this.inputParameters = inputParameters;
 	}
 
-	public Map<String, SPInputParameter> getInputParameters() {
+	public Map<String, InputParameterRow> getInputParameters() {
 		return inputParameters;
 	}
 
@@ -105,37 +104,37 @@ public class SPReferenceData {
 		this.quantities = quantities;
 	}
 
-	public Map<String, SPUnit> getUnits() {
+	public Map<String, UnitRow> getUnits() {
 		return units;
 	}
 
-	public void setUnits(Map<String, SPUnit> units) {
+	public void setUnits(Map<String, UnitRow> units) {
 		this.units = units;
 	}
 
-	public Map<String, SPElementaryFlow> getSubstances() {
+	public Map<String, ElementaryFlowRow> getSubstances() {
 		return substances;
 	}
 
-	public void setSubstances(Map<String, SPElementaryFlow> substances) {
+	public void setSubstances(Map<String, ElementaryFlowRow> substances) {
 		this.substances = substances;
 	}
 
-	public Map<String, SPCalculatedParameter> getCalculatedParameters() {
+	public Map<String, CalculatedParameterRow> getCalculatedParameters() {
 		return calculatedParameters;
 	}
 
 	public void setCalculatedParameters(
-			Map<String, SPCalculatedParameter> calculatedParameters) {
+			Map<String, CalculatedParameterRow> calculatedParameters) {
 		this.calculatedParameters = calculatedParameters;
 	}
 
-	public Map<String, SPLiteratureReference> getLiteratureReferences() {
+	public Map<String, LiteratureReferenceBlock> getLiteratureReferences() {
 		return literatureReferences;
 	}
 
 	public void setLiteratureReferences(
-			Map<String, SPLiteratureReference> literatureReferences) {
+			Map<String, LiteratureReferenceBlock> literatureReferences) {
 		this.literatureReferences = literatureReferences;
 	}
 

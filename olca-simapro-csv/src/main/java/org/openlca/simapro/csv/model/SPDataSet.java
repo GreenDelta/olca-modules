@@ -8,14 +8,14 @@ import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
 public abstract class SPDataSet {
 
-	private List<SPCalculatedParameter> calculatedParameters = new ArrayList<>();
-	private List<SPInputParameter> inputParameters = new ArrayList<>();
-	private List<SPElementaryExchange> elementaryFlows = new ArrayList<>();
-	private List<SPProductInput> productFlows = new ArrayList<>();
+	private List<CalculatedParameterRow> calculatedParameters = new ArrayList<>();
+	private List<InputParameterRow> inputParameters = new ArrayList<>();
+	private List<ElementaryExchangeRow> elementaryFlows = new ArrayList<>();
+	private List<ProductInputRow> productFlows = new ArrayList<>();
 	private SPProcessDocumentation documentation;
 	private String subCategory;
 
-	public List<SPCalculatedParameter> getCalculatedParameters() {
+	public List<CalculatedParameterRow> getCalculatedParameters() {
 		return calculatedParameters;
 	}
 
@@ -27,30 +27,30 @@ public abstract class SPDataSet {
 		this.documentation = documentation;
 	}
 
-	public List<SPElementaryExchange> getElementaryFlows() {
+	public List<ElementaryExchangeRow> getElementaryFlows() {
 		return elementaryFlows;
 	}
 
-	public List<SPElementaryExchange> getElementaryFlows(ElementaryFlowType type) {
-		List<SPElementaryExchange> list = new ArrayList<SPElementaryExchange>();
-		for (SPElementaryExchange flow : this.elementaryFlows) {
+	public List<ElementaryExchangeRow> getElementaryFlows(ElementaryFlowType type) {
+		List<ElementaryExchangeRow> list = new ArrayList<ElementaryExchangeRow>();
+		for (ElementaryExchangeRow flow : this.elementaryFlows) {
 			if (flow.getType() == type)
 				list.add(flow);
 		}
 		return list;
 	}
 
-	public List<SPInputParameter> getInputParameters() {
+	public List<InputParameterRow> getInputParameters() {
 		return inputParameters;
 	}
 
-	public List<SPProductInput> getProductFlows() {
+	public List<ProductInputRow> getProductFlows() {
 		return productFlows;
 	}
 
-	public List<SPProductInput> getProductFlows(ProductFlowType type) {
-		List<SPProductInput> list = new ArrayList<SPProductInput>();
-		for (SPProductInput flow : this.productFlows) {
+	public List<ProductInputRow> getProductFlows(ProductFlowType type) {
+		List<ProductInputRow> list = new ArrayList<ProductInputRow>();
+		for (ProductInputRow flow : this.productFlows) {
 			if (flow.getType() == type)
 				list.add(flow);
 		}

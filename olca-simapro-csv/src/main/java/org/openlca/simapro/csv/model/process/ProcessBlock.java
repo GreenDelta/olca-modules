@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @BlockModel("Process")
-public class SPProcess {
+public class ProcessBlock {
 
 	@SectionRows("Products")
-	private List<SPProductOutput> products = new ArrayList<>();
+	private List<ProductOutputRow> products = new ArrayList<>();
 
-	public List<SPProductOutput> getProducts() {
+	public List<ProductOutputRow> getProducts() {
 		return products;
 	}
 }
