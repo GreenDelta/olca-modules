@@ -3,7 +3,16 @@ olca-simapro-csv
 This is an API for writing and reading data sets in the SimaPro CSV format. 
 There is no formal specification of the format available but it is quite easy to
 understand it when you export data sets from SimaPro and look into the files. In
-the following the overall structure of the format and this API are described. 
+the following the overall structure of the format and this API are described. If
+you just want to get started here is a quick example that prints all process
+names from a SimaPro CSV file:
+
+			SimaProCSV.parse(csvFile, new Object() {
+				@BlockHandler
+				public void handle(ProcessBlock block) {
+					System.out.println(block.getName());
+				}
+			});
 
 
 The file header

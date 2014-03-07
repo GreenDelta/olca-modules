@@ -100,8 +100,6 @@ public class ProcessBlock {
 	@SectionRow("System description")
 	private SystemDescriptionRow systemDescription;
 
-	// TODO: other fields
-
 	@SectionValue("Data treatment")
 	private String dataTreatment;
 
