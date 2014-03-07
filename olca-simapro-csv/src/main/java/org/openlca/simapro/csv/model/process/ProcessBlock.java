@@ -75,6 +75,15 @@ public class ProcessBlock {
 	@SectionValue("Date")
 	private Date date;
 
+	@SectionValue("Record")
+	private String record;
+
+	@SectionValue("Generator")
+	private String generator;
+
+	@SectionRows("Literature references")
+	private List<LiteratureReferenceRow> literatureReferences = new ArrayList<>();
+
 	// TODO: other fields
 
 	@SectionRows("Products")
@@ -353,5 +362,25 @@ public class ProcessBlock {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public String getRecord() {
+		return record;
+	}
+
+	public void setRecord(String record) {
+		this.record = record;
+	}
+
+	public String getGenerator() {
+		return generator;
+	}
+
+	public void setGenerator(String generator) {
+		this.generator = generator;
+	}
+
+	public List<LiteratureReferenceRow> getLiteratureReferences() {
+		return literatureReferences;
 	}
 }

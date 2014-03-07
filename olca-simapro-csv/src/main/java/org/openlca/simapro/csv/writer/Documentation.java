@@ -4,7 +4,6 @@ import static org.openlca.simapro.csv.writer.WriterUtils.comment;
 
 import java.io.IOException;
 
-import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
 import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.enums.BoundaryWithNature;
 import org.openlca.simapro.csv.model.enums.CutOffRule;
@@ -19,6 +18,7 @@ import org.openlca.simapro.csv.model.enums.SystemBoundary;
 import org.openlca.simapro.csv.model.enums.Technology;
 import org.openlca.simapro.csv.model.enums.TimePeriod;
 import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
+import org.openlca.simapro.csv.model.process.LiteratureReferenceRow;
 
 class Documentation {
 
@@ -96,7 +96,7 @@ class Documentation {
 		writer.writeEntry("Generator", comment(documentation.getGenerator()));
 		writer.writeln("Literature references");
 		boolean atLeastOneReference = false;
-		for (SPLiteratureReferenceEntry entry : documentation
+		for (LiteratureReferenceRow entry : documentation
 				.getLiteratureReferenceEntries()) {
 			String literatureReference = entry.getLiteratureReference() != null ? entry
 					.getLiteratureReference().getName() : null;

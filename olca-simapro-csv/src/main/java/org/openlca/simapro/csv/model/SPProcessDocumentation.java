@@ -16,6 +16,7 @@ import org.openlca.simapro.csv.model.enums.SystemBoundary;
 import org.openlca.simapro.csv.model.enums.Technology;
 import org.openlca.simapro.csv.model.enums.TimePeriod;
 import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
+import org.openlca.simapro.csv.model.process.LiteratureReferenceRow;
 
 public class SPProcessDocumentation {
 
@@ -33,7 +34,7 @@ public class SPProcessDocumentation {
 	private String verification;
 	private WasteTreatmentAllocation wasteTreatmentAllocation;
 	private boolean infrastructureProcess;
-	private List<SPLiteratureReferenceEntry> literatureReferenceEntries = new ArrayList<>();
+	private List<LiteratureReferenceRow> literatureReferenceEntries = new ArrayList<>();
 
 	public SPProcessDocumentation(String name, ProcessCategory category,
 			ProcessType type) {
@@ -82,7 +83,7 @@ public class SPProcessDocumentation {
 		return geography;
 	}
 
-	public List<SPLiteratureReferenceEntry> getLiteratureReferenceEntries() {
+	public List<LiteratureReferenceRow> getLiteratureReferenceEntries() {
 		return literatureReferenceEntries;
 	}
 
