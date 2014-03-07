@@ -8,6 +8,7 @@ import java.util.List;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.annotations.BlockModel;
+import org.openlca.simapro.csv.model.annotations.SectionRow;
 import org.openlca.simapro.csv.model.annotations.SectionRows;
 import org.openlca.simapro.csv.model.annotations.SectionValue;
 import org.openlca.simapro.csv.model.enums.BoundaryWithNature;
@@ -95,6 +96,9 @@ public class ProcessBlock {
 
 	@SectionValue("Allocation rules")
 	private String allocationRules;
+
+	@SectionRow("System description")
+	private SystemDescriptionRow systemDescription;
 
 	// TODO: other fields
 
@@ -437,5 +441,13 @@ public class ProcessBlock {
 
 	public void setAllocationRules(String allocationrules) {
 		this.allocationRules = allocationrules;
+	}
+
+	public SystemDescriptionRow getSystemDescription() {
+		return systemDescription;
+	}
+
+	public void setSystemDescription(SystemDescriptionRow systemDescription) {
+		this.systemDescription = systemDescription;
 	}
 }

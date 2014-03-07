@@ -17,6 +17,7 @@ import org.openlca.simapro.csv.model.enums.Technology;
 import org.openlca.simapro.csv.model.enums.TimePeriod;
 import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
 import org.openlca.simapro.csv.model.process.LiteratureReferenceRow;
+import org.openlca.simapro.csv.model.process.SystemDescriptionRow;
 
 public class SPProcessDocumentation {
 
@@ -29,7 +30,7 @@ public class SPProcessDocumentation {
 
 	private String record;
 	private SystemBoundary systemBoundary;
-	private SPSystemDescriptionEntry systemDescriptionEntry;
+	private SystemDescriptionRow systemDescriptionEntry;
 
 	private String verification;
 	private WasteTreatmentAllocation wasteTreatmentAllocation;
@@ -119,7 +120,7 @@ public class SPProcessDocumentation {
 		return systemBoundary;
 	}
 
-	public SPSystemDescriptionEntry getSystemDescriptionEntry() {
+	public SystemDescriptionRow getSystemDescriptionEntry() {
 		return systemDescriptionEntry;
 	}
 
@@ -220,7 +221,7 @@ public class SPProcessDocumentation {
 	}
 
 	public void setSystemDescriptionEntry(
-			SPSystemDescriptionEntry systemDescriptionEntry) {
+			SystemDescriptionRow systemDescriptionEntry) {
 		this.systemDescriptionEntry = systemDescriptionEntry;
 	}
 

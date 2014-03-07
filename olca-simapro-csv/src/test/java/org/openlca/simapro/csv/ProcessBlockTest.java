@@ -135,4 +135,10 @@ public class ProcessBlockTest {
 		assertEquals("Ecoinvent 3", block.getLiteratureReferences().get(0)
 				.getName());
 	}
+
+	@Test
+	public void testSystemDescription() {
+		assertEquals("U.S. LCI Database", block.getSystemDescription()
+				.getName());
+	}
 }

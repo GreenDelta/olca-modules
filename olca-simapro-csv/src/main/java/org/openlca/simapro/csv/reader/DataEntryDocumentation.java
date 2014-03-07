@@ -5,7 +5,6 @@ import java.util.Queue;
 import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPReferenceData;
 import org.openlca.simapro.csv.model.SPSystemDescription;
-import org.openlca.simapro.csv.model.SPSystemDescriptionEntry;
 import org.openlca.simapro.csv.model.enums.BoundaryWithNature;
 import org.openlca.simapro.csv.model.enums.CutOffRule;
 import org.openlca.simapro.csv.model.enums.Geography;
@@ -20,6 +19,7 @@ import org.openlca.simapro.csv.model.enums.Technology;
 import org.openlca.simapro.csv.model.enums.TimePeriod;
 import org.openlca.simapro.csv.model.enums.WasteTreatmentAllocation;
 import org.openlca.simapro.csv.model.process.LiteratureReferenceRow;
+import org.openlca.simapro.csv.model.process.SystemDescriptionRow;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 
 public class DataEntryDocumentation {
@@ -34,7 +34,7 @@ public class DataEntryDocumentation {
 
 	private void systemDescriptionEntry(String line,
 			SPProcessDocumentation documentation) {
-		SPSystemDescriptionEntry entry = null;
+		SystemDescriptionRow entry = null;
 		String sdName = null;
 		String sdComment = null;
 		if (line.contains(csvSeperator)) {
@@ -47,7 +47,7 @@ public class DataEntryDocumentation {
 		SPSystemDescription systemDescription = null;
 		if (!sdName.equals("")) {
 			systemDescription = new SPSystemDescription(sdName, null);
-			entry = new SPSystemDescriptionEntry(systemDescription, sdComment);
+			entry = new SystemDescriptionRow(systemDescription, sdComment);
 			documentation.setSystemDescriptionEntry(entry);
 		}
 	}

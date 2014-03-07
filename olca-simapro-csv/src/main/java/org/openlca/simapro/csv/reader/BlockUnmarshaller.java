@@ -12,6 +12,7 @@ import org.openlca.simapro.csv.model.Block;
 import org.openlca.simapro.csv.model.IDataRow;
 import org.openlca.simapro.csv.model.Section;
 import org.openlca.simapro.csv.model.annotations.BlockRows;
+import org.openlca.simapro.csv.model.annotations.SectionRow;
 import org.openlca.simapro.csv.model.annotations.SectionRows;
 import org.openlca.simapro.csv.model.annotations.SectionValue;
 import org.openlca.simapro.csv.model.enums.ValueEnum;
@@ -43,12 +44,32 @@ public class BlockUnmarshaller {
 				setBlockRows(field);
 			if (field.isAnnotationPresent(SectionValue.class))
 				setSectionValue(field);
+			if (field.isAnnotationPresent(SectionRow.class))
+				setSectionRow(field);
 			if (field.isAnnotationPresent(SectionRows.class))
 				setSectionRows(field);
 		}
 		this.model = null;
 		this.block = null;
 		return modelBlock;
+	}
+
+	private void setSectionRow(Field field) throws Exception {
+		SectionRow sectionRow = field.getAnnotation(SectionRow.class);
+		String sectionHeader = sectionRow.value();
+		Section section = block.getSection(sectionHeader);
+		if (section == null || section.getDataRows().isEmpty())
+			return;
+		Class<?> type = field.getType();
+		if (!(IDataRow.class.isAssignableFrom(type))) {
+			logNoSectionList(field);
+			return;
+		}
+		field.setAccessible(true);
+		IDataRow instance = (IDataRow) type.newInstance();
+		String row = section.getDataRows().get(0);
+		instance.fill(row, config);
+		field.set(model, instance);
 	}
 
 	private void setBlockRows(Field field) {
