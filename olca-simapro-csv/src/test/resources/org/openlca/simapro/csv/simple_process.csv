@@ -1,7 +1,7 @@
 {SimaPro 8.0}
 {processes}
 {Date: 07.03.2014}
-{Time: 14:38:27}
+{Time: 15:52:27}
 {Project: Test}
 {CSV Format version: 7.0.0}
 {CSV separator: Semicolon}
@@ -69,22 +69,22 @@ Literature references
 Ecoinvent 3;is copyright protected: false
 
 Collection method
-
+text for collection method
 
 Data treatment
-
+text for data treatment
 
 Verification
-
+text for verification
 
 Comment
-
+text for comment
 
 Allocation rules
-
+text for allocation rules
 
 System description
-;
+U.S. LCI Database;system description comment
 
 Products
 my product;kg;0,5;100;not defined;Agricultural;
@@ -130,6 +130,44 @@ input_param;23,4;Uniform;0;13;33;No;this is the parameter commentis this presen
 
 Calculated parameters
 calc_param;input_param ^ 2;comment for calc_param
+
+End
+
+
+System description
+
+Name
+U.S. LCI Database
+
+Category
+Others
+
+Description
+"Version 1.60 of the U.S. LCI Database contains around 200 unit process data sets.  The data cover energy, transportation, chemicals, plastics, wood, metals, agricultural products, and some industrial processes.  The data are representative of the U.S. and some data include the U.S. and Canada.  The complete list of all data sets and nomenclature are available from the U.S. LCI Database web site (www.nrel.gov/lci). All products are assigned to categories and subcategories based on the North American Industry Classification System (NAICS, www.census.gov/naics).  The three-digit titles are used for the category names and the six-digit titles are used for the subcategory names.  For inclusion in the SimaPro software, the categories and subcategories have been changed to match those defined by PR� Consultants. The data in the U.S LCI Database has all been reviewed at some level by third parties; however, the database as a whole has not gone through a consistent formal validation process.  A formal review of the entire database will be conducted in the near future. SUPPORTInformation about the U.S. LCI Database can be found in documentation on the project web site (www.nrel.gov/lci).  Send questions not answered by the documentation to lci@nrel.gov.   TERMS OF USEThese U.S. LCI Database Project data (""Data"") are provided by the National Renewable Energy Laboratory (""NREL""), operated by the Alliance for Sustainable Energy, LLC (""Alliance"") for the U.S. Department Of Energy (""DOE"") under Contract No. DE-AC36-08GO28308.  The United States Government (the ""Government"") retains and the user acknowledges that the Government retains a non-exclusive, paid-up, irrevocable, worldwide license to publish or reproduce the published form of these data, or allow others to do so, for Government purposes.Access to and use of these Data shall impose the following obligations on the user, as set forth in this Agreement.  The user is granted the right, without any fee or cost, to use, copy, modify, alter, enhance and distribute these Data for any purpose whatsoever, provided that this entire notice appears in all copies of the Data.  Any modification, alteration or enhancement of these data shall be identified and documented by the user.  Further, the user agrees to credit the DOE/NREL/Alliance in any publication that results from the use of these Data.  The names DOE/NREL/Alliance, however, may not be used in any advertising or publicity to endorse or promote any products or commercial entities unless specific written permission is obtained from DOE/NREL/Alliance.  The user also understands that DOE/NREL/Alliance is not obligated to provide the user with any support, consulting, training or assistance of any kind with regard to the use of these Data or to provide the user with any updates, revisions or new versions of these Data.YOU AGREE TO INDEMNIFY THE GOVERNMENT AND DOE/NREL/ALLIANCE, AND ITS SUBSIDIARIES, AFFILIATES, OFFICERS, AGENTS, AND EMPLOYEES AGAINST ANY CLAIM OR DEMAND, INCLUDING REASONABLE ATTORNEYS' FEES, RELATED TO YOUR USE OF THESE DATA.  THESE DATA ARE PROVIDED BY DOE/NREL/ALLIANCE ""AS IS"" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE GOVERNMENT OR DOE/NREL/ALLIANCE BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THESE DATA.NOTICE:This Data is prepared by Alliance, hereinafter the Contractor, with government funds under Contract DE-AC36-08GO28308 (""Contract"") with the Department of Energy (""DOE""). THESE DATA ARE PROVIDED BY THE CONTRACTOR ""AS IS"" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE CONTRACTOR OR THE U.S. GOVERNMENT BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER, INCLUDING BUT NOT LIMITED TO CLAIMS ASSOCIATED WITH THE LOSS OF DATA OR PROFITS, WHICH MAY RESULT FROM AN ACTION IN CONTRACT, NEGLIGENCE OR OTHER TORTIOUS CLAIM THAT ARISES OUT OF OR IN CONNECTION WITH THE ACCESS, USE OR PERFORMANCE OF THIS DATA."
+
+Sub-systems
+
+
+Cut-off rules
+"Within the defined boundary of a process, the level of detail of the analysis should be sufficient to reveal all significant environmental effects. Effort was not spent on developing data for materials of negligible significance.  The decision rules for this project are as follows:""	Include all material inputs that have a cumulative total of at least 95% of the inputs to the unit process, by mass; ""	Include all material inputs that have a cumulative total of at least 95% of total energy inputs to the unit process; and""	Include any material, no matter how small its mass or energy contribution, that has significant effects in its extraction, manufacture, use or disposal, is highly toxic, or is classed as hazardous waste.The above percentages served as guides. Rules used in individual data sets may differ, but should be documented to ensure transparency."
+
+Energy model
+The database contains several data sets for energy including primary fuel production, combustion of fuels, fuels as feedstock, and electricity generation.  The primary fuel production models include crude oil, natural gas, anthracite coal, bituminous coal, lignite coal, and uranium.  The crude oil, in refinery data set contains the production of diesel, liquefied petroleum gas, gasoline, residual fuel oil, bitumen, kerosene, petroleum coke, and refinery gas.  Electricity generation data sets are available by fuel type, U.S. grid interconnect and U.S. total.
+
+Transport model
+The database contains several data sets for transportation by truck, rail, barge, ocean freighter, and air craft in the U.S. and North America.
+
+Waste model
+
+
+Other assumptions
+
+
+Other information
+ERRORSIf you think you have discovered an error in a dataset, please contact the analyst responsible for the dataset or lci@nrel.gov.  Please describe the error as detailed as possible in order to help correct the error.QUOTATIONSThe U.S. LCI data shall be quoted according to the requirements included in the Terms of Use.
+
+Allocation rules
+There are instances when a unit process produces multiple product outputs, or co-products. In such cases, only a portion of the input and output flows are attributable to each product. Properly allocating flows in these situations is a significant concern in LCI data development since different allocation methods can lead to quite different LCI results for any given product or process. Every effort has been made to provide unallocated modules. This will allow users to apply allocation methods as they see fit or to undertake sensitivity analysis for different methods.  Where allocation is applied the U.S. LCI Database Project adheres to the ISO 14041 three-step hierarchy for co-product.  More information is available in the U.S. LCI Database Project Development Guidelines (www.nrel.gov/lci/publications.html). 
 
 End
 

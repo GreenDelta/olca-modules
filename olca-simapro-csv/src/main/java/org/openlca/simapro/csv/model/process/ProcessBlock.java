@@ -84,7 +84,22 @@ public class ProcessBlock {
 	@SectionRows("Literature references")
 	private List<LiteratureReferenceRow> literatureReferences = new ArrayList<>();
 
+	@SectionValue("Collection method")
+	private String collectionMethod;
+
+	@SectionValue("Verification")
+	private String verification;
+
+	@SectionValue("Comment")
+	private String comment;
+
+	@SectionValue("Allocation rules")
+	private String allocationRules;
+
 	// TODO: other fields
+
+	@SectionValue("Data treatment")
+	private String dataTreatment;
 
 	@SectionRows("Products")
 	private List<ProductOutputRow> products = new ArrayList<>();
@@ -382,5 +397,45 @@ public class ProcessBlock {
 
 	public List<LiteratureReferenceRow> getLiteratureReferences() {
 		return literatureReferences;
+	}
+
+	public String getCollectionMethod() {
+		return collectionMethod;
+	}
+
+	public void setCollectionMethod(String collectionMethod) {
+		this.collectionMethod = collectionMethod;
+	}
+
+	public String getDataTreatment() {
+		return dataTreatment;
+	}
+
+	public void setDataTreatment(String dataTreatment) {
+		this.dataTreatment = dataTreatment;
+	}
+
+	public String getVerification() {
+		return verification;
+	}
+
+	public void setVerification(String verification) {
+		this.verification = verification;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	public String getAllocationRules() {
+		return allocationRules;
+	}
+
+	public void setAllocationRules(String allocationrules) {
+		this.allocationRules = allocationrules;
 	}
 }
