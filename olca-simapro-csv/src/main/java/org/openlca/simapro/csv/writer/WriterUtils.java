@@ -33,7 +33,7 @@ final class WriterUtils {
 				+ csvSeperator
 				+ Double.toString(parameter.getValue()).replace(".",
 						String.valueOf(decimalSeperator)) + csvSeperator;
-		line += getDistributionPart(parameter.getDistribution(), csvSeperator,
+		line += getDistributionPart(parameter.getUncertainty(), csvSeperator,
 				decimalSeperator);
 		line += (parameter.isHidden() ? "Yes" : "No") + csvSeperator;
 		if (parameter.getComment() != null) {

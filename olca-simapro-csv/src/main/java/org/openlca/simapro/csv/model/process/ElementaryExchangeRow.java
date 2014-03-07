@@ -1,9 +1,12 @@
-package org.openlca.simapro.csv.model;
+package org.openlca.simapro.csv.model.process;
 
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
+import org.openlca.simapro.csv.model.IDataRow;
+import org.openlca.simapro.csv.model.ExchangeRow;
+import org.openlca.simapro.csv.model.Uncertainty;
 
-public class ElementaryExchangeRow extends SPExchange implements IDataRow {
+public class ElementaryExchangeRow extends ExchangeRow implements IDataRow {
 
 	private String subCompartment;
 
@@ -22,7 +25,7 @@ public class ElementaryExchangeRow extends SPExchange implements IDataRow {
 		setSubCompartment(CsvUtils.get(columns, 1));
 		setUnit(CsvUtils.get(columns, 2));
 		setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 3)));
-		SPUncertainty uncertainty = SPUncertainty.fromCsv(columns, 4);
+		Uncertainty uncertainty = Uncertainty.fromCsv(columns, 4);
 		setUncertaintyDistribution(uncertainty);
 		String comment = CsvUtils.readMultilines(CsvUtils.get(columns, 8));
 		setComment(comment);
@@ -38,7 +41,7 @@ public class ElementaryExchangeRow extends SPExchange implements IDataRow {
 		if (getUncertaintyDistribution() != null)
 			getUncertaintyDistribution().toCsv(line, 4);
 		else
-			SPUncertainty.undefinedToCsv(line, 4);
+			Uncertainty.undefinedToCsv(line, 4);
 		String comment = getComment();
 		if (comment == null)
 			comment = "";

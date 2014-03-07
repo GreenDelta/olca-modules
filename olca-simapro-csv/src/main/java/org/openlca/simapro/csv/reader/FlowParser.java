@@ -1,11 +1,11 @@
 package org.openlca.simapro.csv.reader;
 
 import org.openlca.simapro.csv.CsvUtils;
-import org.openlca.simapro.csv.model.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.ProductInputRow;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;

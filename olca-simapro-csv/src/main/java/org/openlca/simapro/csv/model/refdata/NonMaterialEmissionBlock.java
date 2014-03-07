@@ -8,7 +8,7 @@ import org.openlca.simapro.csv.model.annotations.BlockRows;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
 @BlockModel("Non material emissions")
-public class NonMaterialEmissionBlock implements ElementaryFlowBlock {
+public class NonMaterialEmissionBlock implements IElementaryFlowBlock {
 
 	@BlockRows
 	private List<ElementaryFlowRow> flows = new ArrayList<>();

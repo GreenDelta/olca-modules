@@ -8,7 +8,7 @@ import org.openlca.simapro.csv.model.annotations.BlockRows;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
 @BlockModel("Social issues")
-public class SocialIssueBlock implements ElementaryFlowBlock {
+public class SocialIssueBlock implements IElementaryFlowBlock {
 
 	@BlockRows
 	private List<ElementaryFlowRow> flows = new ArrayList<>();

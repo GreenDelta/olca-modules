@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 
 public abstract class SPDataSet {
 

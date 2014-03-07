@@ -3,9 +3,9 @@ package org.openlca.simapro.csv.model.process;
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.IDataRow;
-import org.openlca.simapro.csv.model.SPExchange;
+import org.openlca.simapro.csv.model.ExchangeRow;
 
-public class ProductOutputRow extends SPExchange implements IDataRow {
+public class ProductOutputRow extends ExchangeRow implements IDataRow {
 
 	private double allocation = 100;
 	private String wasteType;

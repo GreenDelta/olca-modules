@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
-public interface ElementaryFlowBlock {
+public interface IElementaryFlowBlock {
 
 	ElementaryFlowType getFlowType();
 

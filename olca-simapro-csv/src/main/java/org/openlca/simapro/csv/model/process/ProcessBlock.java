@@ -1,14 +1,16 @@
 package org.openlca.simapro.csv.model.process;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.openlca.simapro.csv.model.ElementaryExchangeRow;
+import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.annotations.BlockModel;
 import org.openlca.simapro.csv.model.annotations.SectionRows;
 import org.openlca.simapro.csv.model.annotations.SectionValue;
 import org.openlca.simapro.csv.model.enums.BoundaryWithNature;
 import org.openlca.simapro.csv.model.enums.CutOffRule;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.Geography;
 import org.openlca.simapro.csv.model.enums.ProcessAllocation;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
@@ -99,6 +101,12 @@ public class ProcessBlock {
 
 	// TODO: waste to treatment
 
+	@SectionRows("Input parameters")
+	private List<InputParameterRow> inputParameters = new ArrayList<>();
+
+	@SectionRows("Calculated parameters")
+	private List<InputParameterRow> calculatedParameters = new ArrayList<>();
+
 	public List<ProductOutputRow> getProducts() {
 		return products;
 	}
@@ -133,6 +141,32 @@ public class ProcessBlock {
 
 	public List<ElementaryExchangeRow> getEconomicIssues() {
 		return economicIssues;
+	}
+
+	public List<ElementaryExchangeRow> getElementaryExchangeRows(
+			ElementaryFlowType type) {
+		if (type == null)
+			return Collections.emptyList();
+		switch (type) {
+		case ECONOMIC_ISSUES:
+			return getEconomicIssues();
+		case EMISSIONS_TO_AIR:
+			return getEmissionsToAir();
+		case EMISSIONS_TO_SOIL:
+			return getEmissionsToSoil();
+		case EMISSIONS_TO_WATER:
+			return getEmissionsToWater();
+		case FINAL_WASTE_FLOWS:
+			return getFinalWasteFlows();
+		case NON_MATERIAL_EMISSIONS:
+			return getNonMaterialEmissions();
+		case RESOURCES:
+			return getResources();
+		case SOCIAL_ISSUES:
+			return getSocialIssues();
+		default:
+			return Collections.emptyList();
+		}
 	}
 
 	public ProcessCategory getCategory() {
@@ -245,5 +279,13 @@ public class ProcessBlock {
 
 	public void setBoundaryWithNature(BoundaryWithNature boundarywithnature) {
 		this.boundaryWithNature = boundarywithnature;
+	}
+
+	public List<InputParameterRow> getInputParameters() {
+		return inputParameters;
+	}
+
+	public List<InputParameterRow> getCalculatedParameters() {
+		return calculatedParameters;
 	}
 }

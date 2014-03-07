@@ -8,7 +8,7 @@ import org.openlca.simapro.csv.model.annotations.BlockRows;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 
 @BlockModel("Final waste flows")
-public class FinalWasteFlowBlock implements ElementaryFlowBlock {
+public class FinalWasteFlowBlock implements IElementaryFlowBlock {
 
 	@BlockRows
 	private List<ElementaryFlowRow> flows = new ArrayList<>();

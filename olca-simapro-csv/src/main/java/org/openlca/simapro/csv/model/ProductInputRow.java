@@ -4,7 +4,7 @@ import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
 
-public class ProductInputRow extends SPExchange {
+public class ProductInputRow extends ExchangeRow {
 
 	private ProductFlowType type;
 
@@ -22,7 +22,7 @@ public class ProductInputRow extends SPExchange {
 		input.setName(CsvUtils.get(columns, 0));
 		input.setUnit(CsvUtils.get(columns, 1));
 		input.setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 2)));
-		SPUncertainty uncertainty = SPUncertainty.fromCsv(columns, 3);
+		Uncertainty uncertainty = Uncertainty.fromCsv(columns, 3);
 		input.setUncertaintyDistribution(uncertainty);
 		String comment = CsvUtils.readMultilines(CsvUtils.get(columns, 7));
 		input.setComment(comment);
@@ -38,7 +38,7 @@ public class ProductInputRow extends SPExchange {
 		if (getUncertaintyDistribution() != null)
 			getUncertaintyDistribution().toCsv(line, 3);
 		else
-			SPUncertainty.undefinedToCsv(line, 3);
+			Uncertainty.undefinedToCsv(line, 3);
 		String comment = getComment();
 		if (comment == null)
 			comment = "";

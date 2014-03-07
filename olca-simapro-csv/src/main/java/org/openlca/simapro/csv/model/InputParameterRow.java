@@ -3,18 +3,20 @@ package org.openlca.simapro.csv.model;
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 
-public class InputParameterRow extends SPParameter {
+public class InputParameterRow implements IDataRow {
 
-	private SPUncertainty distribution;
+	private String name;
+	private String comment;
+	private Uncertainty uncertainty;
 	private double value;
 	private boolean hidden;
 
-	public SPUncertainty getDistribution() {
-		return distribution;
+	public Uncertainty getUncertainty() {
+		return uncertainty;
 	}
 
-	public void setDistribution(SPUncertainty distribution) {
-		this.distribution = distribution;
+	public void setUncertainty(Uncertainty distribution) {
+		this.uncertainty = distribution;
 	}
 
 	public double getValue() {
@@ -33,27 +35,42 @@ public class InputParameterRow extends SPParameter {
 		this.hidden = hidden;
 	}
 
-	public static InputParameterRow fromCsv(String line, CsvConfig config) {
+	public String getName() {
+		return name;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	@Override
+	public void fill(String line, CsvConfig config) {
 		String[] columns = CsvUtils.split(line, config);
-		InputParameterRow param = new InputParameterRow();
-		param.setName(CsvUtils.get(columns, 0));
+		setName(CsvUtils.get(columns, 0));
 		Double val = CsvUtils.getDouble(columns, 1);
-		param.setValue(val == null ? 0 : val);
-		param.setDistribution(SPUncertainty.fromCsv(columns, 2));
+		setValue(val == null ? 0 : val);
+		setUncertainty(Uncertainty.fromCsv(columns, 2));
 		String hiddenStr = CsvUtils.get(columns, 6);
-		param.setHidden(hiddenStr != null && hiddenStr.equalsIgnoreCase("yes"));
-		param.setComment(CsvUtils.readMultilines(CsvUtils.get(columns, 7)));
-		return param;
+		setHidden(hiddenStr != null && hiddenStr.equalsIgnoreCase("yes"));
+		setComment(CsvUtils.readMultilines(CsvUtils.get(columns, 7)));
 	}
 
 	public String toCsv(CsvConfig config) {
 		String[] line = new String[8];
 		line[0] = getName();
 		line[1] = Double.toString(value);
-		if (distribution != null)
-			distribution.toCsv(line, 2);
+		if (uncertainty != null)
+			uncertainty.toCsv(line, 2);
 		else
-			SPUncertainty.undefinedToCsv(line, 2);
+			Uncertainty.undefinedToCsv(line, 2);
 		line[6] = hidden ? "Yes" : "No";
 		line[7] = CsvUtils.writeMultilines(getComment());
 		return CsvUtils.getJoiner(config).join(line);

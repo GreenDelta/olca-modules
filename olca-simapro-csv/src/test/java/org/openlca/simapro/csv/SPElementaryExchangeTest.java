@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.simapro.csv.model.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.enums.DistributionType;
+import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 
 public class SPElementaryExchangeTest {
 

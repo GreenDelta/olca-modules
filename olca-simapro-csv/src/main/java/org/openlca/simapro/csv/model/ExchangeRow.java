@@ -3,13 +3,13 @@ package org.openlca.simapro.csv.model;
 /**
  * Defines the common fields of a SimaPro exchange.
  */
-public abstract class SPExchange {
+public abstract class ExchangeRow implements IDataRow {
 
 	private String name;
 	private String amount;
 	private String comment;
 	private String unit;
-	private SPUncertainty uncertaintyDistribution;
+	private Uncertainty uncertaintyDistribution;
 	private String pedigreeUncertainty;
 
 	public String getAmount() {
@@ -44,11 +44,11 @@ public abstract class SPExchange {
 		return name;
 	}
 
-	public SPUncertainty getUncertaintyDistribution() {
+	public Uncertainty getUncertaintyDistribution() {
 		return uncertaintyDistribution;
 	}
 
-	public void setUncertaintyDistribution(SPUncertainty uncertaintyDistribution) {
+	public void setUncertaintyDistribution(Uncertainty uncertaintyDistribution) {
 		this.uncertaintyDistribution = uncertaintyDistribution;
 	}
 

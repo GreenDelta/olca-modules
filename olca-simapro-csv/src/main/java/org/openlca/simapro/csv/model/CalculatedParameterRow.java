@@ -3,9 +3,27 @@ package org.openlca.simapro.csv.model;
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 
-public class CalculatedParameterRow extends SPParameter {
+public class CalculatedParameterRow implements IDataRow {
 
+	private String name;
 	private String expression;
+	private String comment;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
 	public String getExpression() {
 		return expression;
@@ -15,13 +33,12 @@ public class CalculatedParameterRow extends SPParameter {
 		this.expression = expression;
 	}
 
-	public static CalculatedParameterRow fromCsv(String line, CsvConfig config) {
+	@Override
+	public void fill(String line, CsvConfig config) {
 		String[] columns = CsvUtils.split(line, config);
-		CalculatedParameterRow param = new CalculatedParameterRow();
-		param.setName(CsvUtils.get(columns, 0));
-		param.setExpression(CsvUtils.get(columns, 1));
-		param.setComment(CsvUtils.readMultilines(CsvUtils.get(columns, 3)));
-		return param;
+		setName(CsvUtils.get(columns, 0));
+		setExpression(CsvUtils.get(columns, 1));
+		setComment(CsvUtils.readMultilines(CsvUtils.get(columns, 3)));
 	}
 
 	public String toCsv(CsvConfig config) {

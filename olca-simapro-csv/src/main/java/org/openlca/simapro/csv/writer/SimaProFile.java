@@ -6,7 +6,6 @@ import java.io.IOException;
 
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.ProductInputRow;
@@ -14,6 +13,7 @@ import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 
 class SimaProFile {
