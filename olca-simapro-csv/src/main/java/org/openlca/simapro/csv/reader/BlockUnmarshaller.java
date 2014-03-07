@@ -1,5 +1,12 @@
 package org.openlca.simapro.csv.reader;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.model.Block;
 import org.openlca.simapro.csv.model.IDataRow;
@@ -10,11 +17,6 @@ import org.openlca.simapro.csv.model.annotations.SectionValue;
 import org.openlca.simapro.csv.model.enums.ValueEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.List;
 
 public class BlockUnmarshaller {
 
@@ -137,18 +139,31 @@ public class BlockUnmarshaller {
 			if (section == null || section.getDataRows().isEmpty())
 				return;
 			String val = section.getDataRows().get(0);
+			if (val.isEmpty())
+				return;
 			field.setAccessible(true);
-			Class<?> type = field.getType();
-			if (type.equals(String.class))
-				field.set(model, val);
-			else if (ValueEnum.class.isAssignableFrom(type)) {
-				setEnumValue(field, type, val);
-			} else
-				log.error("can only set section values to strings and "
-						+ "enumerations that implement ValueEnum");
+			setFieldValue(field, val);
 		} catch (Exception e) {
 			log.error("failed to set value on field " + field, e);
 		}
+	}
+
+	private void setFieldValue(Field field, String val)
+			throws IllegalAccessException, Exception {
+		Class<?> type = field.getType();
+		if (type.equals(String.class))
+			field.set(model, val);
+		else if (type.equals(Boolean.class))
+			setBooleanValue(field, val);
+		else if (type.equals(Date.class))
+			setDateValue(field, val);
+		else if (ValueEnum.class.isAssignableFrom(type))
+			setEnumValue(field, type, val);
+		else
+			log.error("at field: {} with value: {}; "
+					+ "can only set section values "
+					+ "to strings, booleans, dates and "
+					+ "enumerations types that implement ValueEnum", field, val);
 	}
 
 	private void setEnumValue(Field field, Class<?> type, String val)
@@ -165,5 +180,25 @@ public class BlockUnmarshaller {
 			}
 		}
 		log.error("did not find an enum value for {} at field {}", val, field);
+	}
+
+	private void setBooleanValue(Field field, String val) throws Exception {
+		String lowerVal = val.toLowerCase();
+		if (lowerVal.equals("yes") || lowerVal.equals(true)
+				|| lowerVal.equals("1"))
+			field.set(model, Boolean.TRUE);
+		else
+			field.set(model, Boolean.FALSE);
+	}
+
+	private void setDateValue(Field field, String val) throws Exception {
+		if (config.getDateFormat() == null) {
+			log.warn("no date-format given in CSV configuration; cannot set "
+					+ "date values");
+			return;
+		}
+		SimpleDateFormat format = new SimpleDateFormat(config.getDateFormat());
+		Date date = format.parse(val);
+		field.set(model, date);
 	}
 }

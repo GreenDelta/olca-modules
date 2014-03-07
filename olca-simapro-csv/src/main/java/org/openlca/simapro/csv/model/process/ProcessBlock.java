@@ -2,6 +2,7 @@ package org.openlca.simapro.csv.model.process;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
@@ -67,6 +68,12 @@ public class ProcessBlock {
 
 	@SectionValue("Boundary with nature")
 	private BoundaryWithNature boundaryWithNature;
+
+	@SectionValue("Infrastructure")
+	private Boolean infrastructure;
+
+	@SectionValue("Date")
+	private Date date;
 
 	// TODO: other fields
 
@@ -330,5 +337,21 @@ public class ProcessBlock {
 
 	public List<CalculatedParameterRow> getCalculatedParameters() {
 		return calculatedParameters;
+	}
+
+	public Boolean getInfrastructure() {
+		return infrastructure;
+	}
+
+	public void setInfrastructure(Boolean infrastructure) {
+		this.infrastructure = infrastructure;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 }

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -112,4 +113,12 @@ public class ProcessBlockTest {
 		assertEquals("input_param", block.getInputParameters().get(0).getName());
 	}
 
+	@Test
+	public void testOtherEntries() {
+		SimpleDateFormat format = new SimpleDateFormat(CsvConfig.getDefault()
+				.getDateFormat());
+		String dateString = format.format(block.getDate());
+		assertEquals("24.02.2014", dateString);
+		assertEquals(false, block.getInfrastructure());
+	}
 }

@@ -92,7 +92,7 @@ class ReferenceData {
 							.getCategory() : "Others");
 			writer.newLine();
 			writer.writeEntry("Description",
-					comment(literatureReference.getContent()));
+					comment(literatureReference.getDescription()));
 			writer.writeln("End");
 			writer.newLine();
 		}
