@@ -1,33 +1,23 @@
-package org.openlca.simapro.csv.model;
+package org.openlca.simapro.csv.model.process;
 
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
-import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.AbstractExchangeRow;
+import org.openlca.simapro.csv.model.Uncertainty;
 
-public class ProductInputRow extends ExchangeRow {
+public class ProductExchangeRow extends AbstractExchangeRow {
 
-	private ProductFlowType type;
-
-	public ProductFlowType getType() {
-		return type;
-	}
-
-	public void setType(ProductFlowType type) {
-		this.type = type;
-	}
-
-	public static ProductInputRow fromCsv(String line, CsvConfig config) {
+	@Override
+	public void fill(String line, CsvConfig config) {
 		String[] columns = CsvUtils.split(line, config);
-		ProductInputRow input = new ProductInputRow();
-		input.setName(CsvUtils.get(columns, 0));
-		input.setUnit(CsvUtils.get(columns, 1));
-		input.setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 2)));
+		setName(CsvUtils.get(columns, 0));
+		setUnit(CsvUtils.get(columns, 1));
+		setAmount(CsvUtils.formatNumber(CsvUtils.get(columns, 2)));
 		Uncertainty uncertainty = Uncertainty.fromCsv(columns, 3);
-		input.setUncertaintyDistribution(uncertainty);
+		setUncertaintyDistribution(uncertainty);
 		String comment = CsvUtils.readMultilines(CsvUtils.get(columns, 7));
-		input.setComment(comment);
-		input.setPedigreeUncertainty(CsvUtils.getPedigreeUncertainty(comment));
-		return input;
+		setComment(comment);
+		setPedigreeUncertainty(CsvUtils.getPedigreeUncertainty(comment));
 	}
 
 	public String toCsv(CsvConfig config) {

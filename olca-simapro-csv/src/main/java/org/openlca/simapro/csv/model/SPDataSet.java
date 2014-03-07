@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ProductType;
 import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 
 public abstract class SPDataSet {
 
 	private List<CalculatedParameterRow> calculatedParameters = new ArrayList<>();
 	private List<InputParameterRow> inputParameters = new ArrayList<>();
 	private List<ElementaryExchangeRow> elementaryFlows = new ArrayList<>();
-	private List<ProductInputRow> productFlows = new ArrayList<>();
+	private List<ProductExchangeRow> productFlows = new ArrayList<>();
 	private SPProcessDocumentation documentation;
 	private String subCategory;
 
@@ -45,13 +46,13 @@ public abstract class SPDataSet {
 		return inputParameters;
 	}
 
-	public List<ProductInputRow> getProductFlows() {
+	public List<ProductExchangeRow> getProductFlows() {
 		return productFlows;
 	}
 
-	public List<ProductInputRow> getProductFlows(ProductFlowType type) {
-		List<ProductInputRow> list = new ArrayList<ProductInputRow>();
-		for (ProductInputRow flow : this.productFlows) {
+	public List<ProductExchangeRow> getProductFlows(ProductType type) {
+		List<ProductExchangeRow> list = new ArrayList<ProductExchangeRow>();
+		for (ProductExchangeRow flow : this.productFlows) {
 			if (flow.getType() == type)
 				list.add(flow);
 		}

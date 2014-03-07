@@ -13,7 +13,7 @@ import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
-import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ProductType;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 import org.openlca.simapro.csv.parser.exception.CSVParserException;
 import org.slf4j.Logger;
@@ -93,7 +93,7 @@ class DataEntry {
 					flowParser.parseElementaryFlow(lines.poll(), type));
 	}
 
-	private void addProductFlows(SPDataSet entry, ProductFlowType type,
+	private void addProductFlows(SPDataSet entry, ProductType type,
 			Queue<String> lines) throws CSVParserException {
 		while (!lines.isEmpty() && !lines.peek().equals(""))
 			entry.getProductFlows().add(
@@ -106,16 +106,16 @@ class DataEntry {
 		while (!lines.isEmpty()) {
 			switch (lines.poll()) {
 			case "Avoided products":
-				addProductFlows(entry, ProductFlowType.AVOIDED_PRODUCTS, lines);
+				addProductFlows(entry, ProductType.AVOIDED_PRODUCTS, lines);
 				break;
 			case "Resources":
 				addElementaryFlows(entry, ElementaryFlowType.RESOURCES, lines);
 				break;
 			case "Materials/fuels":
-				addProductFlows(entry, ProductFlowType.MATERIAL_FUELS, lines);
+				addProductFlows(entry, ProductType.MATERIAL_FUELS, lines);
 				break;
 			case "Electricity/heat":
-				addProductFlows(entry, ProductFlowType.ELECTRICITY_HEAT, lines);
+				addProductFlows(entry, ProductType.ELECTRICITY_HEAT, lines);
 				break;
 			case "Emissions to air":
 				addElementaryFlows(entry, ElementaryFlowType.EMISSIONS_TO_AIR,
@@ -146,7 +146,7 @@ class DataEntry {
 						lines);
 				break;
 			case "Waste to treatment":
-				addProductFlows(entry, ProductFlowType.WASTE_TO_TREATMENT,
+				addProductFlows(entry, ProductType.WASTE_TO_TREATMENT,
 						lines);
 				break;
 			case "Input parameters":

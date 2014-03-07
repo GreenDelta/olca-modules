@@ -8,12 +8,12 @@ import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.SPProcess;
-import org.openlca.simapro.csv.model.ProductInputRow;
 import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ProductType;
 import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 
 class SimaProFile {
@@ -62,10 +62,10 @@ class SimaProFile {
 	}
 
 	private void writeExchanges(SPDataSet dataEntry) throws IOException {
-		writeProductFlows(dataEntry, ProductFlowType.AVOIDED_PRODUCTS);
+		writeProductFlows(dataEntry, ProductType.AVOIDED_PRODUCTS);
 		writeElemFlows(dataEntry, ElementaryFlowType.RESOURCES);
-		writeProductFlows(dataEntry, ProductFlowType.MATERIAL_FUELS);
-		writeProductFlows(dataEntry, ProductFlowType.ELECTRICITY_HEAT);
+		writeProductFlows(dataEntry, ProductType.MATERIAL_FUELS);
+		writeProductFlows(dataEntry, ProductType.ELECTRICITY_HEAT);
 		writeElemFlows(dataEntry, ElementaryFlowType.EMISSIONS_TO_AIR);
 		writeElemFlows(dataEntry, ElementaryFlowType.EMISSIONS_TO_WATER);
 		writeElemFlows(dataEntry, ElementaryFlowType.EMISSIONS_TO_SOIL);
@@ -73,7 +73,7 @@ class SimaProFile {
 		writeElemFlows(dataEntry, ElementaryFlowType.NON_MATERIAL_EMISSIONS);
 		writeElemFlows(dataEntry, ElementaryFlowType.SOCIAL_ISSUES);
 		writeElemFlows(dataEntry, ElementaryFlowType.ECONOMIC_ISSUES);
-		writeProductFlows(dataEntry, ProductFlowType.WASTE_TO_TREATMENT);
+		writeProductFlows(dataEntry, ProductType.WASTE_TO_TREATMENT);
 	}
 
 	private void writeParameters(SPDataSet dataEntry) throws IOException {
@@ -90,10 +90,10 @@ class SimaProFile {
 		writer.newLine();
 	}
 
-	private void writeProductFlows(SPDataSet dataEntry, ProductFlowType type)
+	private void writeProductFlows(SPDataSet dataEntry, ProductType type)
 			throws IOException {
 		writer.writeln(type.getHeader());
-		for (ProductInputRow product : dataEntry.getProductFlows(type))
+		for (ProductExchangeRow product : dataEntry.getProductFlows(type))
 			writer.writeln(getProductLine(product));
 		writer.newLine();
 	}
@@ -106,7 +106,7 @@ class SimaProFile {
 		writer.newLine();
 	}
 
-	private String getProductLine(ProductInputRow product) {
+	private String getProductLine(ProductExchangeRow product) {
 		return product.toCsv(Character.toString(csvSeparator));
 	}
 

@@ -40,18 +40,18 @@ public class SPProcess extends SPDataSet {
 		return byProducts.toArray(new ProductOutputRow[byProducts.size()]);
 	}
 
-	public ExchangeRow[] getFlows() {
-		List<ExchangeRow> flows = new ArrayList<ExchangeRow>();
-		for (ExchangeRow flow : getElementaryFlows()) {
+	public AbstractExchangeRow[] getFlows() {
+		List<AbstractExchangeRow> flows = new ArrayList<AbstractExchangeRow>();
+		for (AbstractExchangeRow flow : getElementaryFlows()) {
 			flows.add(flow);
 		}
-		for (ExchangeRow flow : getProductFlows()) {
+		for (AbstractExchangeRow flow : getProductFlows()) {
 			flows.add(flow);
 		}
-		for (ExchangeRow flow : getByProducts()) {
+		for (AbstractExchangeRow flow : getByProducts()) {
 			flows.add(flow);
 		}
-		return flows.toArray(new ExchangeRow[flows.size()]);
+		return flows.toArray(new AbstractExchangeRow[flows.size()]);
 	}
 
 }

@@ -2,13 +2,12 @@ package org.openlca.simapro.csv;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ProductType;
 
 public class ProductTypeTest {
 
 	//@formatter:off
 	private String[] headers = {
-			"Products",
 			"Avoided products",
 			"Materials/fuels",
 			"Electricity/heat",
@@ -18,13 +17,13 @@ public class ProductTypeTest {
 
 	@Test
 	public void testEnumSize() {
-		Assert.assertEquals(headers.length, ProductFlowType.values().length);
+		Assert.assertEquals(headers.length, ProductType.values().length);
 	}
 
 	@Test
 	public void testHeaders() {
 		for (String header : headers) {
-			ProductFlowType type = ProductFlowType.forHeader(header);
+			ProductType type = ProductType.forHeader(header);
 			Assert.assertNotNull(type);
 			Assert.assertEquals(header, type.getHeader());
 		}

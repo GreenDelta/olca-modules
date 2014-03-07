@@ -1,7 +1,7 @@
 {SimaPro 8.0}
 {processes}
-{Date: 05.03.2014}
-{Time: 09:27:45}
+{Date: 07.03.2014}
+{Time: 14:38:27}
 {Project: Test}
 {CSV Format version: 7.0.0}
 {CSV separator: Semicolon}
@@ -90,13 +90,16 @@ Products
 my product;kg;0,5;100;not defined;Agricultural;
 
 Avoided products
+Wool, at field/US;kg;1;Undefined;0;0;0;
 
 Resources
 Acids;;kg;1;Undefined;0;0;0;
 
 Materials/fuels
+Soy oil, refined, at plant/kg/RNA;kg;0;Undefined;0;0;0;
 
 Electricity/heat
+Electricity, biomass, at power plant/US;kWh;0,1;Undefined;0;0;0;
 
 Emissions to air
 (+-)-Citronellol;low. pop.;kg;1;Lognormal;2;0;0;(1,2,3,4,5)with comment
@@ -120,6 +123,7 @@ Economic issues
 Sample economic issue;;kg;1;Undefined;0;0;0;
 
 Waste to treatment
+Dummy, Disposal, msw, to sanitary landfill/kg/GLO;kg;1;Undefined;0;0;0;
 
 Input parameters
 input_param;23,4;Uniform;0;13;33;No;this is the parameter commentis this presented in multiple lines?we should even be able tu use äöü
@@ -131,6 +135,7 @@ End
 
 Quantities
 Mass;Yes
+Energy;Yes
 Length;Yes
 
 End
@@ -139,14 +144,23 @@ End
 Units
 kg;Mass;1;kg
 g;Mass;0,001;kg
+kWh;Energy;3,6;MJ
+MJ;Energy;1;MJ
 ton;Mass;1000;kg
 µg;Mass;0,000000001;kg
 mg;Mass;0,000001;kg
+GJ;Energy;1000;MJ
+J;Energy;0,000001;MJ
+kJ;Energy;0,001;MJ
 Mtn;Mass;1000000000;kg
+PJ;Energy;1000000000;MJ
+TJ;Energy;1000000;MJ
 kton;Mass;1000000;kg
 ng;Mass;1,0E-12;kg
 pg;Mass;1,0E-15;kg
+MWh;Energy;3600;MJ
 lb;Mass;0,4535924;kg
+Btu;Energy;0,001055696;MJ
 oz;Mass;0,02834952;kg
 tn.sh;Mass;907,1848;kg
 tn.lg;Mass;1016,047;kg
@@ -160,6 +174,8 @@ ft;Length;0,3048;m
 inch;Length;0,0254;m
 yard;Length;0,9144;m
 mile;Length;1609,35;m
+kcal;Energy;0,0041855;MJ
+Wh;Energy;0,0036;MJ
 
 End
 
@@ -223,7 +239,7 @@ db_calc_param;db_input_param * 3;calculated database parameter
 End
 
 Project Input parameters
-proj_input_param;32;Uniform;1;10;35;No;project input parameter
+proj_input_param;32;Uniform;0;10;35;No;project input parameter
 
 End
 

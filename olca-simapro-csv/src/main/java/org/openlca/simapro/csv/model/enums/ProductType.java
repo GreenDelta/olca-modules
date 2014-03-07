@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
  * exchanges are divided into sections of these types where each section starts
  * with the CSV header indicating the type.
  */
-public enum ProductFlowType {
-
-	PRODUCTS("Products"),
+public enum ProductType {
 
 	AVOIDED_PRODUCTS("Avoided products"),
 
@@ -22,7 +20,7 @@ public enum ProductFlowType {
 
 	private final String header;
 
-	private ProductFlowType(String header) {
+	private ProductType(String header) {
 		this.header = header;
 	}
 
@@ -30,11 +28,11 @@ public enum ProductFlowType {
 		return header;
 	}
 
-	public static ProductFlowType forHeader(String header) {
-		for (ProductFlowType type : values())
+	public static ProductType forHeader(String header) {
+		for (ProductType type : values())
 			if (type.getHeader().equalsIgnoreCase(header))
 				return type;
-		Logger log = LoggerFactory.getLogger(ProductFlowType.class);
+		Logger log = LoggerFactory.getLogger(ProductType.class);
 		log.warn("unknown product type header {}; returning NULL", header);
 		return null;
 	}

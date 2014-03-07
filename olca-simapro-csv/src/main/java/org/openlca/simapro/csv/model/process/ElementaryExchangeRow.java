@@ -3,10 +3,10 @@ package org.openlca.simapro.csv.model.process;
 import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.IDataRow;
-import org.openlca.simapro.csv.model.ExchangeRow;
+import org.openlca.simapro.csv.model.AbstractExchangeRow;
 import org.openlca.simapro.csv.model.Uncertainty;
 
-public class ElementaryExchangeRow extends ExchangeRow implements IDataRow {
+public class ElementaryExchangeRow extends AbstractExchangeRow implements IDataRow {
 
 	private String subCompartment;
 

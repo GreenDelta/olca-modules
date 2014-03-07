@@ -13,6 +13,7 @@ import org.openlca.simapro.csv.model.enums.Geography;
 import org.openlca.simapro.csv.model.enums.ProcessAllocation;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProcessType;
+import org.openlca.simapro.csv.model.enums.ProductType;
 import org.openlca.simapro.csv.model.enums.Representativeness;
 import org.openlca.simapro.csv.model.enums.Status;
 import org.openlca.simapro.csv.model.enums.Substitution;
@@ -80,6 +81,26 @@ public class ProcessBlockTest {
 				.get(0).getName());
 		assertEquals("Sample economic issue", block.getEconomicIssues().get(0)
 				.getName());
+	}
+
+	@Test
+	public void testProductRow() {
+		assertEquals(1, block.getProducts().size());
+		assertEquals("my product", block.getProducts().get(0).getName());
+	}
+
+	@Test
+	public void testProductExchanges() {
+		for (ProductType productType : ProductType.values())
+			assertEquals(1, block.getProductExchanges(productType).size());
+		assertEquals("Wool, at field/US", block.getAvoidedProducts().get(0)
+				.getName());
+		assertEquals("Soy oil, refined, at plant/kg/RNA", block
+				.getMaterialsAndFuels().get(0).getName());
+		assertEquals("Electricity, biomass, at power plant/US", block
+				.getElectricityAndHeat().get(0).getName());
+		assertEquals("Dummy, Disposal, msw, to sanitary landfill/kg/GLO", block
+				.getWasteToTreatment().get(0).getName());
 	}
 
 	@Test

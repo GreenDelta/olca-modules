@@ -1,9 +1,5 @@
 package org.openlca.simapro.csv.model;
 
-
-/**
- * Simple implementation of {@link ISystemDescriptionEntry}
- */
 public class SPSystemDescriptionEntry {
 
 	private String comment;

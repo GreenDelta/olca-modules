@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.annotations.BlockModel;
 import org.openlca.simapro.csv.model.annotations.SectionRows;
@@ -15,6 +16,7 @@ import org.openlca.simapro.csv.model.enums.Geography;
 import org.openlca.simapro.csv.model.enums.ProcessAllocation;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProcessType;
+import org.openlca.simapro.csv.model.enums.ProductType;
 import org.openlca.simapro.csv.model.enums.Representativeness;
 import org.openlca.simapro.csv.model.enums.Status;
 import org.openlca.simapro.csv.model.enums.Substitution;
@@ -72,8 +74,18 @@ public class ProcessBlock {
 	private List<ProductOutputRow> products = new ArrayList<>();
 
 	// TODO: waste treatment rows
-	// TODO: avoided products
-	// TODO: product inpouts
+
+	@SectionRows("Avoided products")
+	private List<ProductExchangeRow> avoidedProducts = new ArrayList<>();
+
+	@SectionRows("Materials/fuels")
+	private List<ProductExchangeRow> materialsAndFuels = new ArrayList<>();
+
+	@SectionRows("Electricity/heat")
+	private List<ProductExchangeRow> electricityAndHeat = new ArrayList<>();
+
+	@SectionRows("Waste to treatment")
+	private List<ProductExchangeRow> wasteToTreatment = new ArrayList<>();
 
 	@SectionRows("Resources")
 	private List<ElementaryExchangeRow> resources = new ArrayList<>();
@@ -99,13 +111,11 @@ public class ProcessBlock {
 	@SectionRows("Economic issues")
 	private List<ElementaryExchangeRow> economicIssues = new ArrayList<>();
 
-	// TODO: waste to treatment
-
 	@SectionRows("Input parameters")
 	private List<InputParameterRow> inputParameters = new ArrayList<>();
 
 	@SectionRows("Calculated parameters")
-	private List<InputParameterRow> calculatedParameters = new ArrayList<>();
+	private List<CalculatedParameterRow> calculatedParameters = new ArrayList<>();
 
 	public List<ProductOutputRow> getProducts() {
 		return products;
@@ -164,6 +174,39 @@ public class ProcessBlock {
 			return getResources();
 		case SOCIAL_ISSUES:
 			return getSocialIssues();
+		default:
+			return Collections.emptyList();
+		}
+	}
+
+	public List<ProductExchangeRow> getAvoidedProducts() {
+		return avoidedProducts;
+	}
+
+	public List<ProductExchangeRow> getMaterialsAndFuels() {
+		return materialsAndFuels;
+	}
+
+	public List<ProductExchangeRow> getElectricityAndHeat() {
+		return electricityAndHeat;
+	}
+
+	public List<ProductExchangeRow> getWasteToTreatment() {
+		return wasteToTreatment;
+	}
+
+	public List<ProductExchangeRow> getProductExchanges(ProductType productType) {
+		if (productType == null)
+			return Collections.emptyList();
+		switch (productType) {
+		case AVOIDED_PRODUCTS:
+			return getAvoidedProducts();
+		case ELECTRICITY_HEAT:
+			return getElectricityAndHeat();
+		case MATERIAL_FUELS:
+			return getMaterialsAndFuels();
+		case WASTE_TO_TREATMENT:
+			return getWasteToTreatment();
 		default:
 			return Collections.emptyList();
 		}
@@ -285,7 +328,7 @@ public class ProcessBlock {
 		return inputParameters;
 	}
 
-	public List<InputParameterRow> getCalculatedParameters() {
+	public List<CalculatedParameterRow> getCalculatedParameters() {
 		return calculatedParameters;
 	}
 }

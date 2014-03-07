@@ -3,7 +3,7 @@ package org.openlca.simapro.csv.model;
 /**
  * Defines the common fields of a SimaPro exchange.
  */
-public abstract class ExchangeRow implements IDataRow {
+public abstract class AbstractExchangeRow implements IDataRow {
 
 	private String name;
 	private String amount;
