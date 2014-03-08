@@ -9,7 +9,7 @@ import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.reader.BlockReader;
 import org.openlca.simapro.csv.reader.BlockUnmarshaller;
 
-public class SPLiteratureReferenceTest {
+public class LiteratureReferenceBlockTest {
 
 	//@formatter:off
 	private String text = "" +

@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.openlca.simapro.csv.model.enums.DistributionType;
 import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 
-public class SPProductInputTest {
+public class ProductExchangeRowTest {
 
 	private CsvConfig config = CsvConfig.getDefault();
 

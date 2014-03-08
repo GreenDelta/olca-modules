@@ -8,13 +8,13 @@ import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.SPDataSet;
 import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.SPProcess;
-import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductType;
 import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
+import org.openlca.simapro.csv.model.process.WasteTreatmentRow;
 
 class SimaProFile {
 
@@ -137,7 +137,7 @@ class SimaProFile {
 	}
 
 	private String getWasteSpecificationLine(
-			SPWasteSpecification wasteSpecification, String subCategory) {
+			WasteTreatmentRow wasteSpecification, String subCategory) {
 		String line = wasteSpecification.getName() + csvSeparator
 				+ wasteSpecification.getUnit() + csvSeparator
 				+ number(wasteSpecification.getAmount()) + csvSeparator;

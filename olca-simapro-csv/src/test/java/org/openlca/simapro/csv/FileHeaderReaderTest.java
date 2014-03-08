@@ -4,7 +4,7 @@ import java.io.StringReader;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.simapro.csv.model.SPFileHeader;
+import org.openlca.simapro.csv.model.FileHeader;
 import org.openlca.simapro.csv.reader.FileHeaderReader;
 
 public class FileHeaderReaderTest {
@@ -26,7 +26,7 @@ public class FileHeaderReaderTest {
 	@Test
 	public void testRead() throws Exception {
 		StringReader reader = new StringReader(header);
-		SPFileHeader header = new FileHeaderReader(reader).read();
+		FileHeader header = new FileHeaderReader(reader).read();
 		Assert.assertEquals("SimaPro 8.0", header.getSimaProVersion());
 		Assert.assertEquals("processes", header.getContentType());
 		Assert.assertEquals("05.03.2014", header.getDate());

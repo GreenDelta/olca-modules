@@ -39,8 +39,8 @@ header reader which just reads this information from a file:
 	SPFileHeader header = reader.read();
 	
 
-Blocks and sections
-------------------
+Blocks, sections, and rows
+--------------------------
 After the header a SimaPro CSV file contains a set of blocks with data. Each
 data block starts with a header and ends with the keyword `End`. For example
 the following is a block with quantity entries. 
@@ -121,6 +121,8 @@ TODO: add doc
 
 TODO
 ----
+* Fields and rows of waste scenarios are not yet implemented
+* LCIA methods are not yet implemented 
 * The first version of that API contained a much more functionality regarding 
   the pedigree matrix but the code may is a bit to complicated (see the archive
   folder). The current implementation handles the pedigree information just as

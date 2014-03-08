@@ -13,7 +13,7 @@ import org.openlca.simapro.csv.model.refdata.QuantityBlock;
 import org.openlca.simapro.csv.reader.BlockReader;
 import org.openlca.simapro.csv.reader.ModelReader;
 
-public class SPQuantityTest {
+public class QuantityBlockTest {
 
 	//@formatter:off
 	private String text = "" +

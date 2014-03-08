@@ -106,7 +106,8 @@ public class ProcessBlock {
 	@SectionRows("Products")
 	private List<ProductOutputRow> products = new ArrayList<>();
 
-	// TODO: waste treatment rows
+	@SectionRow("Waste treatment")
+	private WasteTreatmentRow wasteTreatment;
 
 	@SectionRows("Avoided products")
 	private List<ProductExchangeRow> avoidedProducts = new ArrayList<>();
@@ -152,6 +153,14 @@ public class ProcessBlock {
 
 	public List<ProductOutputRow> getProducts() {
 		return products;
+	}
+
+	public WasteTreatmentRow getWasteTreatment() {
+		return wasteTreatment;
+	}
+
+	public void setWasteTreatment(WasteTreatmentRow wasteTreatment) {
+		this.wasteTreatment = wasteTreatment;
 	}
 
 	public List<ElementaryExchangeRow> getResources() {

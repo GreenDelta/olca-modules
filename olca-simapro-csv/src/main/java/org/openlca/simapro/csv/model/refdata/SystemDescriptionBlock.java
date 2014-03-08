@@ -1,32 +1,43 @@
-package org.openlca.simapro.csv.model;
+package org.openlca.simapro.csv.model.refdata;
 
-/**
- * This class represents a SimaPro system description
- */
-public class SPSystemDescription {
+import org.openlca.simapro.csv.model.annotations.BlockModel;
+import org.openlca.simapro.csv.model.annotations.SectionValue;
 
-	private String allocationRules;
-	private String category;
-	private String cutOffRules;
-	private String description;
-	private String energyModel;
+@BlockModel("System description")
+public class SystemDescriptionBlock {
+
+	@SectionValue("Name")
 	private String name;
-	private String otherAssumptions;
-	private String otherInformation;
+
+	@SectionValue("Category")
+	private String category;
+
+	@SectionValue("Description")
+	private String description;
+
+	@SectionValue("Sub-systems")
 	private String subSystems;
+
+	@SectionValue("Cut-off rules")
+	private String cutOffRules;
+
+	@SectionValue("Energy model")
+	private String energyModel;
+
+	@SectionValue("Transport model")
 	private String transportModel;
+
+	@SectionValue("Waste model")
 	private String wasteModel;
 
-	public SPSystemDescription(String name, String description) {
-		this.name = name;
-		this.description = description;
-	}
+	@SectionValue("Other assumptions")
+	private String otherAssumptions;
 
-	public SPSystemDescription(String name, String description, String category) {
-		this.name = name;
-		this.description = description;
-		this.category = category;
-	}
+	@SectionValue("Other information")
+	private String otherInformation;
+
+	@SectionValue("Allocation rules")
+	private String allocationRules;
 
 	public String getAllocationRules() {
 		return allocationRules;

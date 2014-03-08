@@ -1,6 +1,6 @@
 package org.openlca.simapro.csv.model;
 
-public class SPFileHeader {
+public class FileHeader {
 
 	private String simaProVersion;
 	private String contentType;

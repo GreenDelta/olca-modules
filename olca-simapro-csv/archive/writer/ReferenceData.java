@@ -10,12 +10,12 @@ import java.util.Queue;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.SPReferenceData;
-import org.openlca.simapro.csv.model.SPSystemDescription;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ParameterType;
 import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.Quantity;
+import org.openlca.simapro.csv.model.refdata.SystemDescriptionBlock;
 import org.openlca.simapro.csv.model.refdata.UnitRow;
 
 class ReferenceData {
@@ -46,7 +46,7 @@ class ReferenceData {
 	}
 
 	private void writeSystemDescription() throws IOException {
-		SPSystemDescription systemDescription = referenceData
+		SystemDescriptionBlock systemDescription = referenceData
 				.getSystemDescription();
 		if (systemDescription != null) {
 			writer.writeln("System description");

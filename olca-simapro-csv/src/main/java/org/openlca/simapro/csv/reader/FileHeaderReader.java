@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import org.openlca.simapro.csv.model.SPFileHeader;
+import org.openlca.simapro.csv.model.FileHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +31,11 @@ public class FileHeaderReader {
 		this.reader = reader;
 	}
 
-	public SPFileHeader read() throws Exception {
+	public FileHeader read() throws Exception {
 		log.trace("read header entries");
 		if (reader == null)
 			openFile();
-		SPFileHeader header = new SPFileHeader();
+		FileHeader header = new FileHeader();
 		try (BufferedReader buffer = new BufferedReader(reader)) {
 			String line = null;
 			int row = 0;
@@ -52,7 +52,7 @@ public class FileHeaderReader {
 		return header;
 	}
 
-	private void readLine(int row, String rawLine, SPFileHeader header) {
+	private void readLine(int row, String rawLine, FileHeader header) {
 		String line = rawLine.substring(1, rawLine.length() - 1);
 		log.trace("header: {}: {}", row, line);
 		if (row == 0)

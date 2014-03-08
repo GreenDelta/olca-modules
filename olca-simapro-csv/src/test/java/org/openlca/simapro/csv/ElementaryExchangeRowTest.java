@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.openlca.simapro.csv.model.enums.DistributionType;
 import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 
-public class SPElementaryExchangeTest {
+public class ElementaryExchangeRowTest {
 
 	private CsvConfig config = CsvConfig.getDefault();
 
