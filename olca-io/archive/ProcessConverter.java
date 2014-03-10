@@ -24,27 +24,27 @@ import org.openlca.io.maps.content.CSVGeographyContent;
 import org.openlca.io.maps.content.CSVQuantityContent;
 import org.openlca.io.maps.content.CSVUnitContent;
 import org.openlca.simapro.csv.model.IDistribution;
-import org.openlca.simapro.csv.model.SPElementaryExchange;
-import org.openlca.simapro.csv.model.SPLiteratureReference;
-import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
 import org.openlca.simapro.csv.model.SPLogNormalDistribution;
 import org.openlca.simapro.csv.model.SPNormalDistribution;
 import org.openlca.simapro.csv.model.SPPedigreeMatrix;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProcessDocumentation;
-import org.openlca.simapro.csv.model.SPProduct;
-import org.openlca.simapro.csv.model.SPProductInput;
-import org.openlca.simapro.csv.model.SPQuantity;
 import org.openlca.simapro.csv.model.SPReferenceData;
-import org.openlca.simapro.csv.model.SPSubstance;
 import org.openlca.simapro.csv.model.SPTriangleDistribution;
 import org.openlca.simapro.csv.model.SPUniformDistribution;
-import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.Geography;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
 import org.openlca.simapro.csv.model.enums.ProcessType;
-import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ProductType;
+import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.model.process.LiteratureReferenceRow;
+import org.openlca.simapro.csv.model.process.ProductExchangeRow;
+import org.openlca.simapro.csv.model.process.ProductOutputRow;
+import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
+import org.openlca.simapro.csv.model.refdata.Quantity;
+import org.openlca.simapro.csv.model.refdata.UnitRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,19 +146,19 @@ class ProcessConverter {
 				category = source.getCategory().getName();
 			else
 				category = "Others";
-			SPLiteratureReference reference = new SPLiteratureReference(
+			LiteratureReferenceBlock reference = new LiteratureReferenceBlock(
 					source.getName(), source.getTextReference(), category);
 			if (!"".equals(source.getDescription()))
 				reference.setContent(source.getDescription());
 			referenceData.add(source.getName(), reference);
 			spProcess.getDocumentation().getLiteratureReferenceEntries()
-					.add(new SPLiteratureReferenceEntry(reference));
+					.add(new LiteratureReferenceRow(reference));
 		}
 	}
 
-	private SPProduct referenceProduct() {
+	private ProductOutputRow referenceProduct() {
 		Exchange exchange = process.getQuantitativeReference();
-		SPProduct product = new SPProduct();
+		ProductOutputRow product = new ProductOutputRow();
 		product.setName(exchange.getFlow().getName());
 		product.setUnit(map(exchange.getUnit()).getName());
 		product.setAmount(String.valueOf(exchange.getAmountValue()));
@@ -176,7 +176,7 @@ class ProcessConverter {
 					|| exchange.getFlow().getFlowType() != FlowType.WASTE_FLOW)
 				continue;
 			Flow olcaFlow = exchange.getFlow();
-			SPProductInput productFlow = new SPProductInput();
+			ProductExchangeRow productFlow = new ProductExchangeRow();
 			productFlow.setName(olcaFlow.getName());
 			productFlow.setUnit(map(exchange.getUnit()).getName());
 			productFlow.setAmount(String.valueOf(exchange.getAmountValue()));
@@ -185,11 +185,11 @@ class ProcessConverter {
 		}
 	}
 
-	private ProductFlowType getProductFlowType(Exchange exchange) {
+	private ProductType getProductFlowType(Exchange exchange) {
 		if (exchange.isInput())
-			return ProductFlowType.MATERIAL_INPUT;
+			return ProductType.MATERIAL_INPUT;
 		else
-			return ProductFlowType.AVOIDED_PRODUCT;
+			return ProductType.AVOIDED_PRODUCT;
 	}
 
 	private void elementaryExchanges() {
@@ -197,14 +197,14 @@ class ProcessConverter {
 			if (exchange.getFlow().getFlowType() != FlowType.ELEMENTARY_FLOW)
 				continue;
 			String casNumber = null;
-			SPElementaryExchange flow = null;
+			ElementaryExchangeRow flow = null;
 			SPElementaryFlowContent content = elemMap.get(exchange.getFlow()
 					.getRefId());
 			if (content != null) {
 				flow = content.createFlow();
 				referenceData.add(content.getUnit());
-				referenceData.add(new SPQuantity(content.getUnit()
-						.getQuantity(), new SPUnit(content.getUnit()
+				referenceData.add(new Quantity(content.getUnit()
+						.getQuantity(), new UnitRow(content.getUnit()
 						.getReferenceUnit())));
 				casNumber = content.getCasNumber();
 			} else {
@@ -220,9 +220,9 @@ class ProcessConverter {
 				// TODO: on this point the conversion will failed.
 			}
 			flow.setAmount(String.valueOf(exchange.getAmountValue()));
-			flow.setDistribution(convertDistribition(exchange.getUncertainty(),
+			flow.setUncertainty(convertDistribition(exchange.getUncertainty(),
 					exchange.getPedigreeUncertainty()));
-			SPSubstance substance = new SPSubstance(flow.getName(),
+			ElementaryFlowRow substance = new ElementaryFlowRow(flow.getName(),
 					flow.getUnit());
 			substance.setFlowType(flow.getType());
 			substance.setCASNumber(casNumber);
@@ -231,9 +231,9 @@ class ProcessConverter {
 		}
 	}
 
-	private SPElementaryExchange createElementaryFlow(Exchange exchange) {
+	private ElementaryExchangeRow createElementaryFlow(Exchange exchange) {
 		Flow olcaFlow = exchange.getFlow();
-		SPElementaryExchange flow = new SPElementaryExchange();
+		ElementaryExchangeRow flow = new ElementaryExchangeRow();
 		flow.setName(olcaFlow.getName());
 		flow.setUnit(map(exchange.getUnit()).getName());
 		flow.setAmount(String.valueOf(exchange.getAmountValue()));
@@ -261,11 +261,11 @@ class ProcessConverter {
 		return flow;
 	}
 
-	private SPUnit map(Unit unit) {
+	private UnitRow map(Unit unit) {
 		CSVUnitContent content = unitMap.get(unit.getRefId());
-		SPUnit spUnit = null;
+		UnitRow spUnit = null;
 		if (content == null) {
-			spUnit = new SPUnit(unit.getName());
+			spUnit = new UnitRow(unit.getName());
 			spUnit.setConversionFactor(unit.getConversionFactor());
 			UnitGroup unitGroup = unitMapping.getUnitGroup(unit.getName());
 			spUnit.setQuantity(map(unitGroup).getName());
@@ -274,15 +274,15 @@ class ProcessConverter {
 			spUnit = content.createUnit();
 		}
 		referenceData.add(spUnit);
-		referenceData.add(new SPQuantity(spUnit.getQuantity(), new SPUnit(
+		referenceData.add(new Quantity(spUnit.getQuantity(), new UnitRow(
 				spUnit.getReferenceUnit())));
 		return spUnit;
 	}
 
-	private SPQuantity map(UnitGroup unitGroup) {
+	private Quantity map(UnitGroup unitGroup) {
 		CSVQuantityContent content = quantityMap.get(unitGroup.getRefId());
 		if (content == null)
-			return new SPQuantity(unitGroup.getName(), new SPUnit(unitGroup
+			return new Quantity(unitGroup.getName(), new UnitRow(unitGroup
 					.getReferenceUnit().getName(), unitGroup.getReferenceUnit()
 					.getConversionFactor()));
 		return content.getQuantity();

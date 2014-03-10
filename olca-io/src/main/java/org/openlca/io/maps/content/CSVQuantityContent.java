@@ -1,24 +1,24 @@
 package org.openlca.io.maps.content;
 
-import org.openlca.simapro.csv.model.SPQuantity;
+import org.openlca.simapro.csv.model.refdata.Quantity;
 
 public class CSVQuantityContent implements IMappingContent {
 
-	private SPQuantity quantity;
+	private Quantity quantity;
 
 	public CSVQuantityContent() {
 
 	}
 
-	public CSVQuantityContent(SPQuantity quantity) {
+	public CSVQuantityContent(Quantity quantity) {
 		this.quantity = quantity;
 	}
 
-	public SPQuantity getQuantity() {
+	public Quantity getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(SPQuantity quantity) {
+	public void setQuantity(Quantity quantity) {
 		this.quantity = quantity;
 	}
 

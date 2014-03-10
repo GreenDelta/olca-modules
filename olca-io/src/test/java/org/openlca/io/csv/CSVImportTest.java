@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.mysql.MySQLDatabase;
-import org.openlca.io.csv.input.CSVImporter;
+import org.openlca.io.simapro.csv.input.CSVImporter;
 
 public class CSVImportTest {
 

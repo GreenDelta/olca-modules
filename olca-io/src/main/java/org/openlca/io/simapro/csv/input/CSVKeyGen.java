@@ -1,10 +1,10 @@
-package org.openlca.io.csv.input;
+package org.openlca.io.simapro.csv.input;
 
 import org.openlca.io.KeyGen;
-import org.openlca.simapro.csv.model.SPElementaryExchange;
-import org.openlca.simapro.csv.model.SPLiteratureReference;
-import org.openlca.simapro.csv.model.SPUnit;
 import org.openlca.simapro.csv.model.enums.SubCompartment;
+import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
+import org.openlca.simapro.csv.model.refdata.UnitRow;
 
 public class CSVKeyGen {
 
@@ -12,7 +12,7 @@ public class CSVKeyGen {
 		return KeyGen.get(name);
 	}
 
-	public static String forElementaryFlow(SPElementaryExchange elementaryFlow) {
+	public static String forElementaryFlow(ElementaryExchangeRow elementaryFlow) {
 		if (elementaryFlow == null)
 			KeyGen.get("");
 
@@ -56,7 +56,7 @@ public class CSVKeyGen {
 //		return KeyGen.get(vals);
 //	}
 
-	public static String forSource(SPLiteratureReference literatureReference) {
+	public static String forSource(LiteratureReferenceBlock literatureReference) {
 		if (literatureReference == null)
 			return KeyGen.get("");
 		String[] vals = new String[2];
@@ -65,7 +65,7 @@ public class CSVKeyGen {
 		return KeyGen.get(vals);
 	}
 
-	public static String forUnit(SPUnit unit) {
+	public static String forUnit(UnitRow unit) {
 		if (unit == null)
 			return KeyGen.get("");
 		return KeyGen.get(unit.getName());

@@ -1,4 +1,4 @@
-package org.openlca.io.csv.input;
+package org.openlca.io.simapro.csv.input;
 
 import java.io.InvalidObjectException;
 import java.util.HashMap;
@@ -31,11 +31,11 @@ import org.openlca.io.maps.ImportMap;
 import org.openlca.io.maps.MapType;
 import org.openlca.io.maps.MappingBuilder;
 import org.openlca.io.maps.content.CSVUnitContent;
-import org.openlca.simapro.csv.model.SPCalculatedParameter;
-import org.openlca.simapro.csv.model.SPInputParameter;
+import org.openlca.simapro.csv.model.CalculatedParameterRow;
+import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.SPReferenceData;
-import org.openlca.simapro.csv.model.SPSubstance;
-import org.openlca.simapro.csv.model.SPUnit;
+import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
+import org.openlca.simapro.csv.model.refdata.UnitRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,12 +80,12 @@ class ReferenceDataImporter {
 	}
 
 	private void convertUnitGroups() throws InvalidObjectException {
-		Map<String, SPUnit> quantities = new HashMap<>();
+		Map<String, UnitRow> quantities = new HashMap<>();
 		Set<String> checkQuantities = new HashSet<>();
-		for (SPUnit unit : referenceData.getUnits().values())
+		for (UnitRow unit : referenceData.getUnits().values())
 			if (unit.getName().equals(unit.getReferenceUnit()))
 				quantities.put(unit.getQuantity(), unit);
-		for (SPUnit unit : referenceData.getUnits().values())
+		for (UnitRow unit : referenceData.getUnits().values())
 			checkQuantities.add(unit.getQuantity());
 		for (String q : checkQuantities)
 			if (!quantities.containsKey(q))
@@ -93,7 +93,7 @@ class ReferenceDataImporter {
 						"No reference unit for quantity: " + q);
 
 		// TODO: check conversion factor
-		for (Map.Entry<String, SPUnit> entry : quantities.entrySet()) {
+		for (Map.Entry<String, UnitRow> entry : quantities.entrySet()) {
 			UnitMappingEntry unitMappingEntry = unitMapping.getEntry(entry
 					.getValue().getName());
 			UnitGroup unitGroup = null;
@@ -131,7 +131,7 @@ class ReferenceDataImporter {
 	}
 
 	private void convertUnits() {
-		for (SPUnit spUnit : referenceData.getUnits().values()) {
+		for (UnitRow spUnit : referenceData.getUnits().values()) {
 			Unit unit = find(spUnit);
 			if (unit == null) {
 				unit = convert(spUnit);
@@ -143,7 +143,7 @@ class ReferenceDataImporter {
 		}
 	}
 
-	private Unit convert(SPUnit spUnit) {
+	private Unit convert(UnitRow spUnit) {
 		if (spUnit == null)
 			return null;
 		Unit unit = new Unit();
@@ -154,7 +154,7 @@ class ReferenceDataImporter {
 	}
 
 	private void convertSubstances() {
-		for (SPSubstance substance : referenceData.getSubstances().values()) {
+		for (ElementaryFlowRow substance : referenceData.getSubstances().values()) {
 			String key = substance.getName()
 					+ substance.getFlowType().getValue();
 			cache.substanceMap.put(key, substance);
@@ -162,7 +162,7 @@ class ReferenceDataImporter {
 	}
 
 	private void convertParameters() {
-		for (SPInputParameter parameter : referenceData.getInputParameters()
+		for (InputParameterRow parameter : referenceData.getInputParameters()
 				.values()) {
 			if (!containsParameter(parameter.getName()))
 				parameterDao.insert(Utils.create(parameter,
@@ -170,7 +170,7 @@ class ReferenceDataImporter {
 			interpreter.getGlobalScope().bind(parameter.getName(),
 					String.valueOf(parameter.getValue()));
 		}
-		for (SPCalculatedParameter parameter : referenceData
+		for (CalculatedParameterRow parameter : referenceData
 				.getCalculatedParameters().values()) {
 			if (!containsParameter(parameter.getName()))
 				parameterDao.insert(Utils.create(parameter,
@@ -198,7 +198,7 @@ class ReferenceDataImporter {
 			}
 	}
 
-	private Unit find(SPUnit spUnit) {
+	private Unit find(UnitRow spUnit) {
 
 		Unit unit = unitDao.getForRefId(importMap.getOlcaId(CSVKeyGen
 				.forUnit(spUnit)));

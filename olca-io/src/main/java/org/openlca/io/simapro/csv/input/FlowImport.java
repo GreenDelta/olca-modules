@@ -1,4 +1,4 @@
-package org.openlca.io.csv.input;
+package org.openlca.io.simapro.csv.input;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,20 +31,20 @@ import org.openlca.io.maps.content.SPElementaryFlowContent;
 import org.openlca.io.maps.content.CSVProductFlowContent;
 import org.openlca.simapro.csv.model.IDistribution;
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPElementaryExchange;
 import org.openlca.simapro.csv.model.SPLogNormalDistribution;
 import org.openlca.simapro.csv.model.SPPedigreeMatrix;
 import org.openlca.simapro.csv.model.SPProcess;
-import org.openlca.simapro.csv.model.SPProduct;
-import org.openlca.simapro.csv.model.SPProductInput;
-import org.openlca.simapro.csv.model.SPSubstance;
-import org.openlca.simapro.csv.model.SPWasteSpecification;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
 import org.openlca.simapro.csv.model.enums.DistributionParameter;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProcessCategory;
-import org.openlca.simapro.csv.model.enums.ProductFlowType;
+import org.openlca.simapro.csv.model.enums.ProductType;
 import org.openlca.simapro.csv.model.enums.SubCompartment;
+import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
+import org.openlca.simapro.csv.model.process.ProductExchangeRow;
+import org.openlca.simapro.csv.model.process.ProductOutputRow;
+import org.openlca.simapro.csv.model.process.WasteTreatmentRow;
+import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +93,7 @@ public class FlowImport {
 	}
 
 	private void elementaryExchanges() {
-		for (SPElementaryExchange elementaryFlow : dataEntry.getElementaryFlows()) {
+		for (ElementaryExchangeRow elementaryFlow : dataEntry.getElementaryFlows()) {
 			Flow flow = findOrCreate(elementaryFlow);
 			Exchange exchange = new Exchange();
 			process.getExchanges().add(exchange);
@@ -108,13 +108,13 @@ public class FlowImport {
 			else
 				exchange.setInput(false);
 			setAmount(exchange, elementaryFlow.getAmount());
-			setUncertainty(exchange, elementaryFlow.getDistribution(),
+			setUncertainty(exchange, elementaryFlow.getUncertainty(),
 					elementaryFlow.getAmount());
 		}
 	}
 
 	private void productExchanges() {
-		for (SPProductInput productFlow : dataEntry.getProductFlows()) {
+		for (ProductExchangeRow productFlow : dataEntry.getProductFlows()) {
 			Flow flow = findOrCreate(productFlow);
 			Exchange exchange = new Exchange();
 			process.getExchanges().add(exchange);
@@ -122,20 +122,20 @@ public class FlowImport {
 			setFlowPropertyFactor(exchange, productFlow.getUnit());
 			exchange.setUnit(unitMapping.getEntry(productFlow.getUnit())
 					.getUnit());
-			if (productFlow.getType() == ProductFlowType.AVOIDED_PRODUCT)
+			if (productFlow.getType() == ProductType.AVOIDED_PRODUCT)
 				exchange.setAvoidedProduct(true);
-			if (productFlow.getType() == ProductFlowType.WASTE_TREATMENT)
+			if (productFlow.getType() == ProductType.WASTE_TREATMENT)
 				exchange.setInput(true);
 			else
 				exchange.setInput(false);
 			setAmount(exchange, productFlow.getAmount());
-			setUncertainty(exchange, productFlow.getDistribution(),
+			setUncertainty(exchange, productFlow.getUncertainty(),
 					productFlow.getAmount());
 		}
 	}
 
 	private void processRefs(SPProcess spProcess) {
-		SPProduct refProduct = spProcess.getReferenceProduct();
+		ProductOutputRow refProduct = spProcess.getReferenceProduct();
 		Exchange exchange = new Exchange();
 		process.getExchanges().add(exchange);
 		process.setQuantitativeReference(exchange);
@@ -151,8 +151,8 @@ public class FlowImport {
 		}
 	}
 
-	private void byProducts(SPProduct[] byProducts) {
-		for (SPProduct product : byProducts) {
+	private void byProducts(ProductOutputRow[] byProducts) {
+		for (ProductOutputRow product : byProducts) {
 			Exchange exchange = new Exchange();
 			process.getExchanges().add(exchange);
 			exchange.setFlow(findOrCreate(product));
@@ -183,7 +183,7 @@ public class FlowImport {
 	}
 
 	private void wasteRef(SPWasteTreatment wasteTreatment) {
-		SPWasteSpecification wasteSpecification = wasteTreatment
+		WasteTreatmentRow wasteSpecification = wasteTreatment
 				.getWasteSpecification();
 		Exchange exchange = new Exchange();
 		process.getExchanges().add(exchange);
@@ -232,7 +232,7 @@ public class FlowImport {
 		return null;
 	}
 
-	private Category getElementaryFlowCategory(SPElementaryExchange elementaryFlow) {
+	private Category getElementaryFlowCategory(ElementaryExchangeRow elementaryFlow) {
 		String compartment = mapCompartmentCategory(elementaryFlow.getType());
 		String subCompartment = mapSubcompartmentCategory(elementaryFlow
 				.getSubCompartment());
@@ -345,7 +345,7 @@ public class FlowImport {
 		return Integer.valueOf(value);
 	}
 
-	private Flow findOrCreate(SPElementaryExchange elementaryFlow) {
+	private Flow findOrCreate(ElementaryExchangeRow elementaryFlow) {
 		if (elementaryFlow == null)
 			return null;
 		String refId = elemFlowMap.getOlcaId(CSVKeyGen
@@ -356,7 +356,7 @@ public class FlowImport {
 		if (flow != null)
 			return flow;
 		flow = new Flow();
-		SPSubstance substance = cache.substanceMap.get(elementaryFlow.getName()
+		ElementaryFlowRow substance = cache.substanceMap.get(elementaryFlow.getName()
 				+ elementaryFlow.getType().getValue());
 		// TODO right exception
 		if (substance == null)
@@ -378,14 +378,14 @@ public class FlowImport {
 		return flow;
 	}
 
-	private Flow findOrCreate(SPProductInput productFlow) {
+	private Flow findOrCreate(ProductExchangeRow productFlow) {
 		if (productFlow == null)
 			return null;
 		if (!productFlow.hasReferenceData()) {
 			log.debug("Can not find process for product: "
 					+ productFlow.getName());
 			// TODO: find a better name
-			if (productFlow.getType() == ProductFlowType.WASTE_TREATMENT)
+			if (productFlow.getType() == ProductType.WASTE_TREATMENT)
 				productFlow.setProcessCategory(ProcessCategory.WASTE_TREATMENT);
 			else
 				productFlow.setProcessCategory(ProcessCategory.MATERIAL);
@@ -412,7 +412,7 @@ public class FlowImport {
 		return flow;
 	}
 
-	private Flow findOrCreate(SPProduct product) {
+	private Flow findOrCreate(ProductOutputRow product) {
 		if (product == null)
 			return null;
 		String refId = productFlowMap.getOlcaId(CSVKeyGen.forProduct(product
@@ -437,7 +437,7 @@ public class FlowImport {
 		return flow;
 	}
 
-	private Flow findOrCreate(SPWasteSpecification wasteSpecification) {
+	private Flow findOrCreate(WasteTreatmentRow wasteSpecification) {
 		if (wasteSpecification == null)
 			return null;
 		String refId = productFlowMap.getOlcaId(CSVKeyGen

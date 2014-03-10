@@ -1,14 +1,13 @@
 package org.openlca.io.maps.content;
 
-import org.openlca.io.csv.input.CSVKeyGen;
-import org.openlca.simapro.csv.model.SPElementaryExchange;
+import org.openlca.io.KeyGen;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.model.enums.SubCompartment;
+import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 
 public class SPElementaryFlowContent implements IMappingContent {
 
 	private String name;
-	private String compartment;
+	private ElementaryFlowType flowType;
 	private String subCompartment;
 	private String unit;
 	private String casNumber;
@@ -21,6 +20,22 @@ public class SPElementaryFlowContent implements IMappingContent {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public ElementaryFlowType getFlowType() {
+		return flowType;
+	}
+
+	public void setFlowType(ElementaryFlowType flowType) {
+		this.flowType = flowType;
+	}
+
+	public String getSubCompartment() {
+		return subCompartment;
+	}
+
+	public void setSubCompartment(String subCompartment) {
+		this.subCompartment = subCompartment;
 	}
 
 	public String getUnit() {
@@ -39,42 +54,42 @@ public class SPElementaryFlowContent implements IMappingContent {
 		this.casNumber = casNumber;
 	}
 
-	public ElementaryFlowType getType() {
-		return type;
+	public double getConversionFactor() {
+		return conversionFactor;
 	}
 
-	public void setType(ElementaryFlowType type) {
-		this.type = type;
+	public void setConversionFactor(double conversionFactor) {
+		this.conversionFactor = conversionFactor;
 	}
 
-	public SubCompartment getSubCompartment() {
-		return subCompartment;
-	}
-
-	public double getFactor() {
-		return factor;
-	}
-
-	public void setFactor(double factor) {
-		this.factor = factor;
-	}
-
-	public SPElementaryExchange createFlow() {
-		SPElementaryExchange flow = new SPElementaryExchange();
-		flow.setType(ElementaryFlowType.forValue(compartment));
-		flow.setSubCompartment(subCompartment);
-		flow.setName(name);
-		flow.setUnit(unit.getName());
-		flow.setAmount("0");
-		return flow;
-	}
-
-	public void setSubCompartment(SubCompartment subCompartment) {
-		this.subCompartment = subCompartment;
+	public ElementaryExchangeRow toRow() {
+		ElementaryExchangeRow row = new ElementaryExchangeRow();
+		row.setSubCompartment(subCompartment);
+		row.setName(name);
+		row.setUnit(unit);
+		return row;
 	}
 
 	@Override
 	public String getKey() {
-		return CSVKeyGen.forElementaryFlow(createFlow());
+		return KeyGen.get(flowType != null ? flowType.getExchangeHeader()
+				: null, name, subCompartment, unit);
+	}
+
+	@Override
+	public int hashCode() {
+		return getKey().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (obj == this)
+			return true;
+		if (!obj.getClass().equals(this.getClass()))
+			return false;
+		SPElementaryFlowContent other = (SPElementaryFlowContent) obj;
+		return this.getKey().equals(other.getKey());
 	}
 }

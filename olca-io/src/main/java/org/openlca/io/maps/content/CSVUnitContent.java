@@ -1,20 +1,20 @@
 package org.openlca.io.maps.content;
 
 import org.openlca.io.KeyGen;
-import org.openlca.simapro.csv.model.SPQuantity;
-import org.openlca.simapro.csv.model.SPUnit;
+import org.openlca.simapro.csv.model.refdata.Quantity;
+import org.openlca.simapro.csv.model.refdata.UnitRow;
 
 public class CSVUnitContent implements IMappingContent {
 
 	private String unit;
 	private double conversionFactor;
-	private SPQuantity quantity;
+	private Quantity quantity;
 
 	public CSVUnitContent() {
 	}
 
 	public CSVUnitContent(String unit, double conversionFactor,
-			SPQuantity quantity) {
+			Quantity quantity) {
 		this.unit = unit;
 		this.conversionFactor = conversionFactor;
 		this.quantity = quantity;
@@ -28,16 +28,16 @@ public class CSVUnitContent implements IMappingContent {
 		this.unit = unit;
 	}
 
-	public SPQuantity getQuantity() {
+	public Quantity getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(SPQuantity quantity) {
+	public void setQuantity(Quantity quantity) {
 		this.quantity = quantity;
 	}
 
-	public SPUnit createUnit() {
-		SPUnit unit = new SPUnit(this.unit);
+	public UnitRow createUnit() {
+		UnitRow unit = new UnitRow(this.unit);
 		unit.setConversionFactor(conversionFactor);
 		unit.setQuantity(quantity.getName());
 		unit.setReferenceUnit(quantity.getReferenceUnit().getName());

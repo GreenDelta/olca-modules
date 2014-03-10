@@ -1,4 +1,4 @@
-package org.openlca.io.csv.input;
+package org.openlca.io.simapro.csv.input;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,25 +13,25 @@ import org.openlca.io.Categories;
 import org.openlca.io.KeyGen;
 import org.openlca.io.maps.ImportMap;
 import org.openlca.io.maps.content.CSVElementaryCategoryContent;
-import org.openlca.simapro.csv.model.SPCalculatedParameter;
-import org.openlca.simapro.csv.model.SPInputParameter;
-import org.openlca.simapro.csv.model.SPParameter;
+import org.openlca.simapro.csv.model.CalculatedParameterRow;
+import org.openlca.simapro.csv.model.InputParameterRow;
+import org.openlca.simapro.csv.model.ParameterRow;
 
 final class Utils {
 
-	static Parameter create(SPParameter spParameter, ParameterScope scope) {
+	static Parameter create(ParameterRow spParameter, ParameterScope scope) {
 		Parameter parameter = new Parameter();
 		parameter.setName(spParameter.getName());
 		parameter.setScope(scope);
 		if (nullCheck(spParameter.getComment()))
 			parameter.setDescription(spParameter.getComment());
 
-		if (spParameter instanceof SPInputParameter) {
-			SPInputParameter inputParameter = (SPInputParameter) spParameter;
+		if (spParameter instanceof InputParameterRow) {
+			InputParameterRow inputParameter = (InputParameterRow) spParameter;
 			parameter.setInputParameter(true);
 			parameter.setValue(inputParameter.getValue());
-		} else if (spParameter instanceof SPCalculatedParameter) {
-			SPCalculatedParameter calculatedParameter = (SPCalculatedParameter) spParameter;
+		} else if (spParameter instanceof CalculatedParameterRow) {
+			CalculatedParameterRow calculatedParameter = (CalculatedParameterRow) spParameter;
 			parameter.setFormula(calculatedParameter.getExpression());
 		}
 		return parameter;

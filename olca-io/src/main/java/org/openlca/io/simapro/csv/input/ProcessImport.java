@@ -1,4 +1,4 @@
-package org.openlca.io.csv.input;
+package org.openlca.io.simapro.csv.input;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
@@ -21,15 +21,15 @@ import org.openlca.io.maps.MappingBuilder;
 import org.openlca.io.maps.content.CSVElementaryCategoryContent;
 import org.openlca.io.maps.content.SPElementaryFlowContent;
 import org.openlca.io.maps.content.CSVProductFlowContent;
-import org.openlca.simapro.csv.model.SPCalculatedParameter;
+import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.SPDataSet;
-import org.openlca.simapro.csv.model.SPInputParameter;
-import org.openlca.simapro.csv.model.SPLiteratureReference;
-import org.openlca.simapro.csv.model.SPLiteratureReferenceEntry;
+import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.SPProcess;
 import org.openlca.simapro.csv.model.SPProcessDocumentation;
 import org.openlca.simapro.csv.model.SPWasteScenario;
 import org.openlca.simapro.csv.model.SPWasteTreatment;
+import org.openlca.simapro.csv.model.process.LiteratureReferenceRow;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -230,7 +230,7 @@ class ProcessImport {
 	}
 
 	private void sources() {
-		for (SPLiteratureReferenceEntry entry : dataEntry.getDocumentation()
+		for (LiteratureReferenceRow entry : dataEntry.getDocumentation()
 				.getLiteratureReferenceEntries())
 			process.getDocumentation().getSources()
 					.add(findOrCreate(entry.getLiteratureReference()));
@@ -264,14 +264,14 @@ class ProcessImport {
 
 	private void parameters() throws InterpreterException {
 		interpreter.createScope(scopeId);
-		for (SPCalculatedParameter parameter : dataEntry
+		for (CalculatedParameterRow parameter : dataEntry
 				.getCalculatedParameters()) {
 			process.getParameters().add(
 					Utils.create(parameter, ParameterScope.PROCESS));
 			interpreter.getScope(scopeId).bind(parameter.getName(),
 					parameter.getExpression());
 		}
-		for (SPInputParameter parameter : dataEntry.getInputParameters()) {
+		for (InputParameterRow parameter : dataEntry.getInputParameters()) {
 			process.getParameters().add(
 					Utils.create(parameter, ParameterScope.PROCESS));
 			interpreter.getScope(scopeId).bind(parameter.getName(),
@@ -283,7 +283,7 @@ class ProcessImport {
 						parameter.getFormula()));
 	}
 
-	private Source findOrCreate(SPLiteratureReference literatureReference) {
+	private Source findOrCreate(LiteratureReferenceBlock literatureReference) {
 		String refId = CSVKeyGen.forSource(literatureReference);
 		Source source = sourceDao.getForRefId(refId);
 		if (source != null)
