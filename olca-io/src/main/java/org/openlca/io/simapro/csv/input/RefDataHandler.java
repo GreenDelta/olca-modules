@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.Source;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
@@ -19,6 +20,7 @@ import org.openlca.simapro.csv.model.refdata.EconomicIssueBlock;
 import org.openlca.simapro.csv.model.refdata.FinalWasteFlowBlock;
 import org.openlca.simapro.csv.model.refdata.IElementaryFlowBlock;
 import org.openlca.simapro.csv.model.refdata.IParameterBlock;
+import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.NonMaterialEmissionBlock;
 import org.openlca.simapro.csv.model.refdata.ProjectCalculatedParameterBlock;
 import org.openlca.simapro.csv.model.refdata.ProjectInputParameterBlock;
@@ -73,6 +75,13 @@ class RefDataHandler {
 		}
 	}
 
+	@BlockHandler
+	public void handleLiteratureRef(LiteratureReferenceBlock block) {
+		Source source = new SourceImport(database).run(block);
+		if (source != null)
+			refData.put(block, source);
+	}
+
 	@BlockHandler(subTypes = { AirEmissionBlock.class,
 			EconomicIssueBlock.class, FinalWasteFlowBlock.class,
 			NonMaterialEmissionBlock.class, RawMaterialBlock.class,
@@ -121,6 +130,5 @@ class RefDataHandler {
 		refData.setUnitMapping(UnitMapping.createDefault(database));
 		new GlobalParameterImport(database, globalInputParamaters,
 				globalCalculatedParameters).run();
-		;
 	}
 }

@@ -16,7 +16,6 @@ import org.openlca.io.Categories;
 import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,10 +100,6 @@ class FlowHandler {
 		String refId = KeyGen.get(code);
 		LocationDao dao = new LocationDao(database);
 		return dao.getForRefId(refId);
-	}
-
-	public Flow getElementaryFlow(ElementaryExchangeRow row) {
-
 	}
 
 }

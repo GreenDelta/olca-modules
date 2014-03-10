@@ -10,6 +10,7 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessType;
 import org.openlca.io.Categories;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
@@ -29,6 +30,7 @@ class ProcessHandler {
 	// currently mapped process and process block
 	private Process process;
 	private ProcessBlock block;
+	private ProcessParameterMapper parameterMapper;
 
 	public ProcessHandler(IDatabase database, RefData refData) {
 		this.database = database;
@@ -47,20 +49,41 @@ class ProcessHandler {
 		log.trace("import process {}", refId);
 		process = new Process();
 		process.setRefId(refId);
-		process.setName(block.getName() != null ? block.getName() : refId);
 		process.setDefaultAllocationMethod(AllocationMethod.PHYSICAL);
 		process.setDocumentation(new ProcessDocumentation());
 		this.process = process;
 		this.block = block;
-		mapLocation();
-		mapCategory();
-		mapProductOutputs();
+		mapData();
 		try {
 			dao.insert(process);
 		} catch (Exception e) {
 			log.error("failed to insert process " + refId, e);
 		}
 		this.process = null;
+	}
+
+	private void mapData() {
+		mapName();
+		mapLocation();
+		mapCategory();
+		mapType();
+		new ProcessDocMapper(database, refData).map(block, process);
+		parameterMapper = new ProcessParameterMapper(database);
+		long scope = parameterMapper.map(block, process);
+		mapProductOutputs(scope);
+	}
+
+	private void mapName() {
+		if (block.getName() != null) {
+			process.setName(block.getName());
+			return;
+		}
+		Flow refFlow = getRefFlow();
+		if (refFlow != null) {
+			process.setName(refFlow.getName());
+			return;
+		}
+		process.setName(block.getIdentifier());
 	}
 
 	private void mapLocation() {
@@ -80,7 +103,7 @@ class ProcessHandler {
 		return null;
 	}
 
-	private void mapProductOutputs() {
+	private void mapProductOutputs(long scopeId) {
 		int i = 0;
 		for (ProductOutputRow row : block.getProducts()) {
 			Flow flow = refData.getFlow(row);
@@ -89,7 +112,7 @@ class ProcessHandler {
 			Exchange exchange = new Exchange();
 			exchange.setFlow(flow);
 			setExchangeUnit(exchange, flow, row.getUnit());
-			setAmount(exchange, row.getAmount());
+			setAmount(exchange, row.getAmount(), scopeId);
 			process.getExchanges().add(exchange);
 			if (i == 0)
 				process.setQuantitativeReference(exchange);
@@ -110,15 +133,15 @@ class ProcessHandler {
 		exchange.setFlowPropertyFactor(factor);
 	}
 
-	private void setAmount(Exchange exchange, String amountText) {
+	private void setAmount(Exchange exchange, String amountText, long scope) {
 		try {
 			double val = Double.parseDouble(amountText);
 			exchange.setAmountValue(val);
 		} catch (Exception e) {
-			// TODO: call formula interpreter
-			log.error("Formulas not yet implemented: " + amountText);
+			double val = parameterMapper.eval(amountText, scope);
+			exchange.setAmountValue(val);
+			exchange.setAmountFormula(amountText);
 		}
-
 	}
 
 	private void mapCategory() {
@@ -134,6 +157,15 @@ class ProcessHandler {
 		Category category = Categories.findOrAdd(database, ModelType.PROCESS,
 				path);
 		process.setCategory(category);
+	}
+
+	private void mapType() {
+		org.openlca.simapro.csv.model.enums.ProcessType type = block
+				.getProcessType();
+		if (type == org.openlca.simapro.csv.model.enums.ProcessType.SYSTEM)
+			process.setProcessType(ProcessType.LCI_RESULT);
+		else
+			process.setProcessType(ProcessType.UNIT_PROCESS);
 	}
 
 }
