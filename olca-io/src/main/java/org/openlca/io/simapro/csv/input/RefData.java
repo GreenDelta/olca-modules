@@ -1,7 +1,5 @@
 package org.openlca.io.simapro.csv.input;
 
-import java.util.HashMap;
-
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Source;
 import org.openlca.io.KeyGen;
@@ -9,9 +7,12 @@ import org.openlca.io.UnitMapping;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.process.LiteratureReferenceRow;
+import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.RefProductRow;
 import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
+
+import java.util.HashMap;
 
 class RefData {
 
@@ -61,19 +62,37 @@ class RefData {
 	}
 
 	void put(LiteratureReferenceBlock block, Source source) {
+		if (block == null || source == null)
+			return;
 		sources.put(block.getName(), source);
 	}
 
 	Source getSource(LiteratureReferenceRow row) {
+		if (row == null)
+			return null;
 		return sources.get(row.getName());
 	}
 
 	void put(RefProductRow row, Flow flow) {
+		if (row == null || flow == null)
+			return;
 		productFlows.put(row.getName(), flow);
 	}
 
 	Flow getFlow(RefProductRow row) {
+		if (row == null)
+			return null;
 		return productFlows.get(row.getName());
 	}
 
+	Flow getFlow(ProductExchangeRow row) {
+		if (row == null)
+			return null;
+		return productFlows.get(row.getName());
+	}
+
+	void put(ProductExchangeRow row, Flow flow) {
+		if (row != null && flow != null)
+			productFlows.put(row.getName(), flow);
+	}
 }

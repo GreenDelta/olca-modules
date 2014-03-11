@@ -181,9 +181,9 @@ class FlowHandler {
 		if (exchangeRow == null || type == null)
 			return null;
 		String[] path = null;
-		if (exchangeRow.getSubCompartment() != null)
-			path = new String[] { type.getExchangeHeader(),
-					exchangeRow.getSubCompartment() };
+		String subCompartment = exchangeRow.getSubCompartment();
+		if (subCompartment != null && !subCompartment.isEmpty())
+			path = new String[] { type.getExchangeHeader(), subCompartment };
 		else
 			path = new String[] { type.getExchangeHeader(), "Unspecified" };
 		return Categories.findOrAdd(database, ModelType.FLOW, path);
