@@ -48,10 +48,7 @@ import com.google.common.base.Joiner;
 /**
  * Exports a set of processes to the EcoSpold 2 data format to a directory. The
  * process data sets are converted to EcoSpold 2 activity data sets and written
- * to the sub-folder 'Activities' in a given export directory. Additionally,
- * EcoSpold 2 master data are created for the exported processes and written to
- * the 'MasterData' sub-folder.
- * 
+ * to the sub-folder 'Activities' in a given export directory.
  */
 public class EcoSpold2Export implements Runnable {
 

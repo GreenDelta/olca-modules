@@ -18,6 +18,12 @@ import org.openlca.ecospold2.Parameter;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.ecospold2.UserMasterData;
 
+/**
+ * Adds master data entries to an EcoSpold 02 activity data set. This is not
+ * documented in the EcoSpold 02 / EcoEditor specification but can be seen when
+ * creating data sets with the EcoEditor. It is possible (and required before
+ * opening) to import such master data from an EcoSpold 02 file.
+ */
 class MasterData {
 
 	private Process process;
