@@ -34,7 +34,7 @@ public class CSVElementaryCategoryContent implements IMappingContent {
 
 	@Override
 	public String getKey() {
-		return KeyGen.get(type.getValue() + subCompartment.getValue());
+		return KeyGen.get(type.getExchangeHeader() + subCompartment.getValue());
 	}
 
 }

@@ -13,10 +13,12 @@ import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
 import org.openlca.simapro.csv.model.process.ProcessBlock;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
+import org.openlca.simapro.csv.model.process.WasteTreatmentRow;
 import org.openlca.simapro.csv.model.refdata.AirEmissionBlock;
 import org.openlca.simapro.csv.model.refdata.DatabaseCalculatedParameterBlock;
 import org.openlca.simapro.csv.model.refdata.DatabaseInputParameterBlock;
 import org.openlca.simapro.csv.model.refdata.EconomicIssueBlock;
+import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.openlca.simapro.csv.model.refdata.FinalWasteFlowBlock;
 import org.openlca.simapro.csv.model.refdata.IElementaryFlowBlock;
 import org.openlca.simapro.csv.model.refdata.IParameterBlock;
@@ -88,7 +90,9 @@ class RefDataHandler {
 			SocialIssueBlock.class, SoilEmissionBlock.class,
 			WaterEmissionBlock.class })
 	public void handleElementaryFlows(IElementaryFlowBlock block) {
-
+		for (ElementaryFlowRow row : block.getFlows()) {
+			refData.put(row, block.getFlowType());
+		}
 	}
 
 	@BlockHandler(subTypes = { DatabaseInputParameterBlock.class,
@@ -123,7 +127,12 @@ class RefDataHandler {
 			if (flow != null)
 				refData.put(row, flow);
 		}
-		// TODO: waste flows
+		if (block.getWasteTreatment() != null) {
+			WasteTreatmentRow row = block.getWasteTreatment();
+			Flow flow = flowHandler.getProductFlow(row);
+			if (flow != null)
+				refData.put(row, flow);
+		}
 	}
 
 	public void finish() {

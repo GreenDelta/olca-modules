@@ -37,10 +37,10 @@ public class CSVUnitContent implements IMappingContent {
 	}
 
 	public UnitRow createUnit() {
-		UnitRow unit = new UnitRow(this.unit);
+		UnitRow unit = new UnitRow();
+		unit.setName(this.unit);
 		unit.setConversionFactor(conversionFactor);
 		unit.setQuantity(quantity.getName());
-		unit.setReferenceUnit(quantity.getReferenceUnit().getName());
 		return unit;
 	}
 
