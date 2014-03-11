@@ -41,9 +41,6 @@ import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.io.ecospold2.UncertaintyConverter;
-import org.openlca.io.maps.MapType;
-import org.openlca.io.maps.MappingBuilder;
-import org.openlca.io.maps.content.ES2ElementaryFlowContent;
 import org.slf4j.Logger;
 
 import com.google.common.base.Joiner;
@@ -62,16 +59,12 @@ public class EcoSpold2Export implements Runnable {
 	private File dir;
 	private IDatabase database;
 	private List<ProcessDescriptor> descriptors;
-	private Map<String, ES2ElementaryFlowContent> elemFlowMap;
 
 	public EcoSpold2Export(File dir, IDatabase database,
 			List<ProcessDescriptor> descriptors) {
 		this.dir = dir;
 		this.database = database;
 		this.descriptors = descriptors;
-		MappingBuilder mappingBuilder = new MappingBuilder(database);
-		elemFlowMap = mappingBuilder.buildExportMapping(
-				ES2ElementaryFlowContent.class, MapType.ES2_ELEMENTARY_FLOW);
 	}
 
 	@Override
@@ -295,21 +288,13 @@ public class EcoSpold2Export implements Runnable {
 		else
 			e2Ex.setOutputGroup(4);
 		Flow flow = exchange.getFlow();
-		e2Ex.setElementaryExchangeId(mapElementaryFlow(flow));
+		e2Ex.setElementaryExchangeId(flow.getRefId());
 		if (flow.getCategory() != null) {
 			Compartment compartment = convertCompartment(flow.getCategory());
 			e2Ex.setCompartment(compartment);
 		}
 		e2Ex.setFormula(flow.getFormula());
 		return e2Ex;
-	}
-
-	private String mapElementaryFlow(Flow flow) {
-		ES2ElementaryFlowContent content = elemFlowMap.get(flow.getRefId());
-		if (content == null || content.getElementaryExchangeId() == null
-				|| content.getElementaryExchangeId().equals(""))
-			return flow.getRefId();
-		return content.getElementaryExchangeId();
 	}
 
 	private Compartment convertCompartment(Category category) {
