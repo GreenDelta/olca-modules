@@ -73,6 +73,7 @@ public class MySQLDatabase implements IDatabase {
 			config.setJdbcUrl(url);
 			config.setUser(user);
 			config.setPassword(password);
+			config.setLazyInit(true);
 			connectionPool = new BoneCP(config);
 		} catch (Exception e) {
 			log.error("failed to initialize connection pool", e);
