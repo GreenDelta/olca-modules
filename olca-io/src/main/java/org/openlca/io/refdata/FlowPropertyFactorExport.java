@@ -6,7 +6,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.supercsv.io.CsvListWriter;
 
-class FlowPropertyFactorExport extends Export {
+class FlowPropertyFactorExport extends AbstractExport {
 
 	@Override
 	protected void doIt(CsvListWriter writer, IDatabase database) throws Exception {

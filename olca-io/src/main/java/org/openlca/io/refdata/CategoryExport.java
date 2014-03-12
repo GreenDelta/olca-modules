@@ -7,7 +7,7 @@ import org.supercsv.io.CsvListWriter;
 
 import java.util.List;
 
-class CategoryExport extends Export {
+class CategoryExport extends AbstractExport {
 
 	@Override
 	protected void doIt(CsvListWriter writer, IDatabase database)

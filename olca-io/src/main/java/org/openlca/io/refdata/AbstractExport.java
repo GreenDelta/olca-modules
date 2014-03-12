@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 
-abstract class Export {
+abstract class AbstractExport {
 
 	protected Logger log = LoggerFactory.getLogger(getClass());
 

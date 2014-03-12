@@ -8,7 +8,7 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-class FlowPropertyFactorImport extends Import {
+class FlowPropertyFactorImport extends AbstractImport {
 
 	@Override
 	protected String getStatement() {

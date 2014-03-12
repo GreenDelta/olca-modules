@@ -7,7 +7,7 @@ import org.supercsv.io.CsvListWriter;
 
 import java.util.List;
 
-class LocationExport extends Export {
+class LocationExport extends AbstractExport {
 
 	@Override
 	protected void doIt(CsvListWriter writer, IDatabase database) throws Exception {

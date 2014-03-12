@@ -8,7 +8,7 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-class ImpactCategoryImport extends Import {
+class ImpactCategoryImport extends AbstractImport {
 
 	@Override
 	protected String getStatement() {

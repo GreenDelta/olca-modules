@@ -13,7 +13,7 @@ import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 
-class ImpactFactorImport extends Import {
+class ImpactFactorImport extends AbstractImport {
 
 	/**
 	 * Maps tupels of (flowId, flowPropertyId) to the IDs of the respective flow

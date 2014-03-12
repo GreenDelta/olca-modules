@@ -6,7 +6,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.supercsv.io.CsvListWriter;
 
-class UnitExport extends Export {
+class UnitExport extends AbstractExport {
 
 	@Override
 	protected void doIt(CsvListWriter writer, IDatabase database) throws Exception {

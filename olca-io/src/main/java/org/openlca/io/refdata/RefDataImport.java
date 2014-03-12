@@ -34,13 +34,14 @@ public class RefDataImport implements Runnable {
 			importFile("lcia_methods.csv", new ImpactMethodImport());
 			importFile("lcia_categories.csv", new ImpactCategoryImport());
 			importFile("lcia_factors.csv", new ImpactFactorImport());
+			importFile("nw_sets.csv", new NwSetImport());
 			database.getEntityFactory().getCache().evictAll();
 		} catch (Exception e) {
 			log.error("Reference data import failed", e);
 		}
 	}
 
-	private void importFile(String fileName, Import importer) throws Exception {
+	private void importFile(String fileName, AbstractImport importer) throws Exception {
 		File file = new File(dir, fileName);
 		if (!file.exists()) {
 			log.info("file {} does not exist in {} -> not imported", fileName,

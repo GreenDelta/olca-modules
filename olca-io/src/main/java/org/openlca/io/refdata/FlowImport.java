@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.List;
 
-class FlowImport extends Import {
+class FlowImport extends AbstractImport {
 
 	@Override
 	protected String getStatement() {

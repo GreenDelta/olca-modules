@@ -9,7 +9,7 @@ import org.supercsv.io.CsvListWriter;
 
 import java.util.List;
 
-class ImpactMethodExport extends Export {
+class ImpactMethodExport extends AbstractExport {
 
 	@Override
 	protected void doIt(CsvListWriter writer, IDatabase database) throws Exception {

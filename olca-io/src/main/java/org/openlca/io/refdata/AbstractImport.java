@@ -17,7 +17,7 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
-abstract class Import {
+abstract class AbstractImport {
 
 	protected Logger log = LoggerFactory.getLogger(getClass());
 	protected Seq seq;

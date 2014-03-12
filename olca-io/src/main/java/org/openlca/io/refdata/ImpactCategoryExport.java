@@ -8,7 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.supercsv.io.CsvListWriter;
 
-public class ImpactCategoryExport extends Export {
+public class ImpactCategoryExport extends AbstractExport {
 
 	@Override
 	protected void doIt(final CsvListWriter writer, IDatabase database)

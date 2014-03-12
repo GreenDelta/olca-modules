@@ -32,12 +32,13 @@ public class RefDataExport implements Runnable {
 			export("lcia_methods.csv", new ImpactMethodExport());
 			export("lcia_categories.csv", new ImpactCategoryExport());
 			export("lcia_factors.csv", new ImpactFactorExport());
+			export("nw_sets.csv", new NwSetExport());
 		} catch (Exception e) {
 			log.error("Reference data export failed", e);
 		}
 	}
 
-	private void export(String fileName, Export export) {
+	private void export(String fileName, AbstractExport export) {
 		File file = new File(dir, fileName);
 		if (file.exists()) {
 			log.warn("the file already exists; did not changed it");

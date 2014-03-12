@@ -10,7 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.List;
 
-public class FlowPropertyImport extends Import {
+public class FlowPropertyImport extends AbstractImport {
 
 	@Override
 	protected String getStatement() {
