@@ -1,13 +1,5 @@
 package org.openlca.io.refdata;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.prefs.CsvPreference;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,19 +9,29 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.prefs.CsvPreference;
+
 abstract class Import {
 
 	protected Logger log = LoggerFactory.getLogger(getClass());
 	protected Seq seq;
+	protected IDatabase database;
 	private List<List<Object>> nextBatch = new ArrayList<>();
 
 	public void run(File file, Seq seq, IDatabase database) throws Exception {
 		this.seq = seq;
+		this.database = database;
 		CsvPreference pref = new CsvPreference.Builder('"', ';', "\n").build();
 		try (FileInputStream fis = new FileInputStream(file);
-		     InputStreamReader reader = new InputStreamReader(fis, "utf-8");
-		     BufferedReader buffer = new BufferedReader(reader);
-		     CsvListReader csvReader = new CsvListReader(buffer, pref)) {
+				InputStreamReader reader = new InputStreamReader(fis, "utf-8");
+				BufferedReader buffer = new BufferedReader(reader);
+				CsvListReader csvReader = new CsvListReader(buffer, pref)) {
 			importFile(csvReader, database);
 		}
 	}
@@ -49,7 +51,8 @@ abstract class Import {
 
 	protected abstract boolean isValid(List<Object> values);
 
-	private List<Object> next(CellProcessor[] processors, CsvListReader csvReader) {
+	private List<Object> next(CellProcessor[] processors,
+			CsvListReader csvReader) {
 		try {
 			return csvReader.read(processors);
 		} catch (Exception e) {
@@ -90,7 +93,7 @@ abstract class Import {
 			return 0;
 	}
 
-	protected  int getInt(List<Object> values, int i) {
+	protected int getInt(List<Object> values, int i) {
 		if (values == null || i >= values.size())
 			return 0;
 		Object val = values.get(i);
