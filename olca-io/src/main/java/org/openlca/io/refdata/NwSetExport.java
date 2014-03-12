@@ -3,7 +3,7 @@ package org.openlca.io.refdata;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class NwSetExport extends AbstractSqlExport {
+class NwSetExport extends AbstractSqlExport {
 
 	@Override
 	protected String getQuery() {

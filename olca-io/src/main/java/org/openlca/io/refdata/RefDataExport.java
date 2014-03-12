@@ -1,10 +1,10 @@
 package org.openlca.io.refdata;
 
-import java.io.File;
-
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 public class RefDataExport implements Runnable {
 
@@ -33,6 +33,7 @@ public class RefDataExport implements Runnable {
 			export("lcia_categories.csv", new ImpactCategoryExport());
 			export("lcia_factors.csv", new ImpactFactorExport());
 			export("nw_sets.csv", new NwSetExport());
+			export("nw_set_factors.csv", new NwSetFactorExport());
 		} catch (Exception e) {
 			log.error("Reference data export failed", e);
 		}

@@ -1,10 +1,10 @@
 package org.openlca.io.refdata;
 
-import java.io.File;
-
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 public class RefDataImport implements Runnable {
 
@@ -35,6 +35,7 @@ public class RefDataImport implements Runnable {
 			importFile("lcia_categories.csv", new ImpactCategoryImport());
 			importFile("lcia_factors.csv", new ImpactFactorImport());
 			importFile("nw_sets.csv", new NwSetImport());
+			importFile("nw_set_factors.csv", new NwSetFactorImport());
 			database.getEntityFactory().getCache().evictAll();
 		} catch (Exception e) {
 			log.error("Reference data import failed", e);

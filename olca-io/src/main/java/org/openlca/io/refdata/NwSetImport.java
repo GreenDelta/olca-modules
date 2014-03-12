@@ -8,11 +8,11 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-public class NwSetImport extends AbstractImport {
+class NwSetImport extends AbstractImport {
 
 	@Override
 	protected String getStatement() {
-		return "insert into tbl_new_sets (id, ref_id, description, name, "
+		return "insert into tbl_nw_sets (id, ref_id, description, name, "
 				+ "f_impact_method, weighted_score_unit) values (?, ?, ?, ?, ?, ?)";
 	}
 
