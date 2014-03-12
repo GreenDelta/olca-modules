@@ -132,9 +132,34 @@ Columns:
 
 0. reference ID of the LCIA category (UUID, required)
 1. reference ID of the flow (UUID, required)
-2. reference ID of the flow's property (UUID, required)
-3. reference ID of the flow's unit (UUID, required)
+2. reference ID of the flow property of the factor (UUID, required)
+3. reference ID of the unit of the factor (UUID, required)
 4. value of the factor (double, required)
+
+
+Normalisation and weighting sets
+--------------------------------
+File:		`nw_sets.csv`
+
+Columns:
+
+0. reference ID (UUID, required)
+1. name (string, required)
+2. description (string, optional)
+3. weighted score unit (string, optional)
+4. LCIA method ID (UUID, required)
+
+
+Normalisation and weighting set factors
+---------------------------------------
+File:		`new_set_factors.csv`
+
+Columns:
+
+0. reference ID of the normalisation and weighting set (UUID, required)
+1. reference ID of the LCIA category (UUID, required)
+2. nomalisation factor (double, optional)
+3. weighting factor (double, optional)
 
 
 Default mappings
