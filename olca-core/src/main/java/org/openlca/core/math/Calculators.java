@@ -1,5 +1,8 @@
 package org.openlca.core.math;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactTable;
@@ -12,9 +15,6 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Helper methods for the calculators in this package.
@@ -29,8 +29,7 @@ final class Calculators {
 	 * and flows.
 	 */
 	static ImpactTable createImpactTable(ImpactMethodDescriptor method,
-	                                     FlowIndex flowIndex,
-	                                     MatrixCache matrixCache) {
+			FlowIndex flowIndex, MatrixCache matrixCache) {
 		ImpactTableBuilder builder = new ImpactTableBuilder(matrixCache);
 		return builder.build(method.getId(), flowIndex);
 	}
@@ -46,14 +45,16 @@ final class Calculators {
 		return inventoryBuilder.build(productIndex, method);
 	}
 
-	static ParameterTable createParameterTable(IDatabase db, CalculationSetup setup,
-	                                           Inventory inventory) {
+	static ParameterTable createParameterTable(IDatabase db,
+			CalculationSetup setup, Inventory inventory) {
 		Set<Long> contexts = new HashSet<>();
 		if (setup.getImpactMethod() != null)
 			contexts.add(setup.getImpactMethod().getId());
 		if (inventory.getProductIndex() != null)
 			contexts.addAll(inventory.getProductIndex().getProcessIds());
-		return ParameterTable.build(db, contexts);
+		ParameterTable table = ParameterTable.build(db, contexts);
+		table.apply(setup.getParameterRedefs());
+		return table;
 	}
 
 }
