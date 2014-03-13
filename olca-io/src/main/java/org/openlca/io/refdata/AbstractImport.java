@@ -1,5 +1,7 @@
 package org.openlca.io.refdata;
 
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.slf4j.Logger;
@@ -29,7 +31,10 @@ abstract class AbstractImport {
 		this.database = database;
 		CsvPreference pref = new CsvPreference.Builder('"', ';', "\n").build();
 		try (FileInputStream fis = new FileInputStream(file);
-				InputStreamReader reader = new InputStreamReader(fis, "utf-8");
+				// exclude the byte order mark, if there is any
+				BOMInputStream bom = new BOMInputStream(fis, false,
+						ByteOrderMark.UTF_8);
+				InputStreamReader reader = new InputStreamReader(bom, "utf-8");
 				BufferedReader buffer = new BufferedReader(reader);
 				CsvListReader csvReader = new CsvListReader(buffer, pref)) {
 			importFile(csvReader, database);
@@ -84,11 +89,11 @@ abstract class AbstractImport {
 	}
 
 	protected Double getOptionalDouble(List<Object> values, int i) {
-		if(values == null || i >= values.size())
+		if (values == null || i >= values.size())
 			return null;
 		Object val = values.get(i);
-		if(val instanceof  Number)
-			return ((Number)val).doubleValue();
+		if (val instanceof Number)
+			return ((Number) val).doubleValue();
 		else
 			return null;
 	}
