@@ -128,7 +128,7 @@ public class FileStore implements DataStore {
 		return file;
 	}
 
-	private File getFolder(Class<?> clazz) {
+	public File getFolder(Class<?> clazz) {
 		String name = Path.forClass(clazz);
 		File folder = findFolder(name, rootDir);
 		if (folder == null) {
