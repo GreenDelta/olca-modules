@@ -12,7 +12,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.IProductSystemBuilder;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NativeSql.BatchInsertHandler;
-import org.openlca.core.jobs.IProgressMonitor;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
@@ -35,9 +34,6 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 		this.matrixCache = matrixCache;
 		this.database = matrixCache.getDatabase();
 		this.preferSystemProcesses = preferSystemProcesses;
-	}
-
-	public void setProgressMonitor(IProgressMonitor progressMonitor) {
 	}
 
 	@Override
