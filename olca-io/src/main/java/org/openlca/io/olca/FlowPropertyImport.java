@@ -1,9 +1,7 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.slf4j.Logger;
@@ -15,15 +13,13 @@ class FlowPropertyImport {
 
 	private FlowPropertyDao sourceDao;
 	private FlowPropertyDao destDao;
-	private UnitGroupDao destUnitGroupDao;
-	private CategoryDao destCategoryDao;
+	private RefSwitcher refs;
 	private Sequence seq;
 
 	FlowPropertyImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.sourceDao = new FlowPropertyDao(source);
-		this.destUnitGroupDao = new UnitGroupDao(dest);
 		this.destDao = new FlowPropertyDao(dest);
-		this.destCategoryDao = new CategoryDao(dest);
+		this.refs = new RefSwitcher(source, dest, seq);
 		this.seq = seq;
 	}
 
@@ -44,15 +40,8 @@ class FlowPropertyImport {
 		FlowProperty srcProp = sourceDao.getForId(descriptor.getId());
 		FlowProperty destProp = srcProp.clone();
 		destProp.setRefId(srcProp.getRefId());
-		if (srcProp.getUnitGroup() != null) {
-			long unitGroupId = seq.get(seq.UNIT_GROUP,
-					srcProp.getUnitGroup().getRefId());
-			destProp.setUnitGroup(destUnitGroupDao.getForId(unitGroupId));
-		}
-		if (srcProp.getCategory() != null) {
-			long catId = seq.get(seq.CATEGORY, srcProp.getCategory().getRefId());
-			destProp.setCategory(destCategoryDao.getForId(catId));
-		}
+		destProp.setUnitGroup(refs.switchRef(srcProp.getUnitGroup()));
+		destProp.setCategory(refs.switchRef(srcProp.getCategory()));
 		destProp = destDao.insert(destProp);
 		seq.put(seq.FLOW_PROPERTY, srcProp.getRefId(), destProp.getId());
 	}

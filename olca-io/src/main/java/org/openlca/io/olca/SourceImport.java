@@ -1,6 +1,5 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Source;
@@ -14,13 +13,13 @@ class SourceImport {
 
 	private SourceDao srcDao;
 	private SourceDao destDao;
-	private CategoryDao destCategoryDao;
+	private RefSwitcher refs;
 	private Sequence seq;
 
 	SourceImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new SourceDao(source);
 		this.destDao = new SourceDao(dest);
-		this.destCategoryDao = new CategoryDao(dest);
+		this.refs = new RefSwitcher(source, dest, seq);
 		this.seq = seq;
 	}
 
@@ -41,10 +40,7 @@ class SourceImport {
 		Source srcSource = srcDao.getForId(descriptor.getId());
 		Source destSource = srcSource.clone();
 		destSource.setRefId(srcSource.getRefId());
-		if (srcSource.getCategory() != null) {
-			long catId = seq.get(seq.CATEGORY, srcSource.getCategory().getRefId());
-			destSource.setCategory(destCategoryDao.getForId(catId));
-		}
+		destSource.setCategory(refs.switchRef(srcSource.getCategory()));
 		destSource = destDao.insert(destSource);
 		seq.put(seq.SOURCE, srcSource.getRefId(), destSource.getId());
 	}

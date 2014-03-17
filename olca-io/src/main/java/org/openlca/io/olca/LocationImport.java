@@ -6,7 +6,7 @@ import org.openlca.core.model.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
- class LocationImport {
+class LocationImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -35,6 +35,5 @@ import org.slf4j.LoggerFactory;
 			log.error("failed to import locations", e);
 		}
 	}
-
 
 }

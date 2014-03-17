@@ -1,7 +1,6 @@
 package org.openlca.io.olca;
 
 import org.openlca.core.database.ActorDao;
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.descriptors.ActorDescriptor;
@@ -14,13 +13,13 @@ class ActorImport {
 
 	private ActorDao sourceDao;
 	private ActorDao destDao;
-	private CategoryDao destCategoryDao;
 	private Sequence seq;
+	private RefSwitcher refs;
 
 	ActorImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.sourceDao = new ActorDao(source);
 		this.destDao = new ActorDao(dest);
-		this.destCategoryDao = new CategoryDao(dest);
+		this.refs = new RefSwitcher(source, dest, seq);
 		this.seq = seq;
 	}
 
@@ -41,10 +40,7 @@ class ActorImport {
 		Actor srcActor = sourceDao.getForId(descriptor.getId());
 		Actor destActor = srcActor.clone();
 		destActor.setRefId(srcActor.getRefId());
-		if (srcActor.getCategory() != null) {
-			long catId = seq.get(seq.CATEGORY, srcActor.getCategory().getRefId());
-			destActor.setCategory(destCategoryDao.getForId(catId));
-		}
+		destActor.setCategory(refs.switchRef(srcActor.getCategory()));
 		destActor = destDao.insert(destActor);
 		seq.put(seq.ACTOR, srcActor.getRefId(), destActor.getId());
 	}

@@ -2,25 +2,15 @@ package org.openlca.io.olca;
 
 import gnu.trove.iterator.TLongLongIterator;
 import gnu.trove.map.hash.TLongLongHashMap;
-import org.openlca.core.database.ActorDao;
-import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.SourceDao;
-import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +25,16 @@ class ProcessImport {
 	private ProcessDao srcDao;
 	private ProcessDao destDao;
 	private IDatabase dest;
+	private RefSwitcher refs;
 	private Sequence seq;
 
-	//  Required for translating the default provider links.
+	// Required for translating the default provider links.
 	private TLongLongHashMap srcDestIdMap = new TLongLongHashMap();
 
 	ProcessImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new ProcessDao(source);
 		this.destDao = new ProcessDao(dest);
+		this.refs = new RefSwitcher(source, dest, seq);
 		this.dest = dest;
 		this.seq = seq;
 	}
@@ -67,8 +59,8 @@ class ProcessImport {
 		Process srcProcess = srcDao.getForId(descriptor.getId());
 		Process destProcess = srcProcess.clone();
 		destProcess.setRefId(srcProcess.getRefId());
-		switchCategory(srcProcess, destProcess);
-		switchLocation(srcProcess, destProcess);
+		destProcess.setCategory(refs.switchRef(srcProcess.getCategory()));
+		destProcess.setLocation(refs.switchRef(srcProcess.getLocation()));
 		switchExchangeRefs(destProcess);
 		switchAllocationProducts(srcProcess, destProcess);
 		destProcess.getCostEntries().clear(); // TODO: remove
@@ -79,38 +71,22 @@ class ProcessImport {
 		srcDestIdMap.put(srcProcess.getId(), destProcess.getId());
 	}
 
-	private void switchLocation(Process srcProcess, Process destProcess) {
-		if (srcProcess.getLocation() == null)
-			return;
-		long locId = seq.get(seq.LOCATION, srcProcess.getLocation().getRefId());
-		LocationDao dao = new LocationDao(dest);
-		destProcess.setLocation(dao.getForId(locId));
-	}
-
-	private void switchCategory(Process srcProcess, Process destProcess) {
-		if (srcProcess.getCategory() == null)
-			return;
-		long catId = seq.get(seq.CATEGORY, srcProcess.getCategory().getRefId());
-		CategoryDao destCategoryDao = new CategoryDao(dest);
-		destProcess.setCategory(destCategoryDao.getForId(catId));
-	}
-
 	private void switchExchangeRefs(Process destProcess) {
-		FlowDao flowDao = new FlowDao(dest);
-		BaseDao<Unit> unitDao = dest.createDao(Unit.class);
 		List<Exchange> removals = new ArrayList<>();
 		for (Exchange exchange : destProcess.getExchanges()) {
 			if (!isValid(exchange)) {
 				removals.add(exchange);
 				continue;
 			}
-			Flow destFlow = switchExchangeFlow(flowDao, exchange);
-			switchExchangeProperty(exchange, destFlow);
-			switchExchangeUnit(unitDao, exchange);
+			Flow destFlow = refs.switchRef(exchange.getFlow());
+			exchange.setFlow(destFlow);
+			exchange.setFlowPropertyFactor(refs.switchRef(
+					exchange.getFlowPropertyFactor(), destFlow));
+			exchange.setUnit(refs.switchRef(exchange.getUnit()));
 		}
 		if (!removals.isEmpty()) {
-			log.warn("there where invalid exchanges in {} " +
-					"that where removed during the import", destProcess);
+			log.warn("there where invalid exchanges in {} "
+					+ "that where removed during the import", destProcess);
 			destProcess.getExchanges().removeAll(removals);
 		}
 	}
@@ -122,37 +98,8 @@ class ProcessImport {
 				&& exchange.getUnit() != null;
 	}
 
-	private Flow switchExchangeFlow(FlowDao flowDao, Exchange exchange) {
-		Flow srcFlow = exchange.getFlow();
-		long flowId = seq.get(seq.FLOW, srcFlow.getRefId());
-		Flow destFlow = flowDao.getForId(flowId);
-		exchange.setFlow(destFlow);
-		return destFlow;
-	}
-
-	private void switchExchangeProperty(Exchange exchange, Flow destFlow) {
-		FlowProperty srcProp = exchange.getFlowPropertyFactor()
-				.getFlowProperty();
-		long propId = seq.get(seq.FLOW_PROPERTY, srcProp.getRefId());
-		FlowPropertyFactor destFac = null;
-		for (FlowPropertyFactor fac : destFlow.getFlowPropertyFactors()) {
-			if (fac.getFlowProperty() == null)
-				continue;
-			if (propId == fac.getFlowProperty().getId()) {
-				destFac = fac;
-				break;
-			}
-		}
-		exchange.setFlowPropertyFactor(destFac);
-	}
-
-	private void switchExchangeUnit(BaseDao<Unit> unitDao, Exchange exchange) {
-		Unit srcUnit = exchange.getUnit();
-		long unitId = seq.get(seq.UNIT, srcUnit.getRefId());
-		exchange.setUnit(unitDao.getForId(unitId));
-	}
-
-	private void switchAllocationProducts(Process srcProcess, Process destProcess) {
+	private void switchAllocationProducts(Process srcProcess,
+			Process destProcess) {
 		for (AllocationFactor factor : destProcess.getAllocationFactors()) {
 			long srcProductId = factor.getProductId();
 			String srcRefId = null;
@@ -172,32 +119,16 @@ class ProcessImport {
 		if (destProcess.getDocumentation() == null)
 			return;
 		ProcessDocumentation doc = destProcess.getDocumentation();
-		doc.setReviewer(translateActor(doc.getReviewer()));
-		doc.setDataGenerator(translateActor(doc.getDataGenerator()));
-		doc.setDataDocumentor(translateActor(doc.getDataDocumentor()));
-		doc.setDataSetOwner(translateActor(doc.getDataSetOwner()));
-		doc.setPublication(translateSource(doc.getPublication()));
+		doc.setReviewer(refs.switchRef(doc.getReviewer()));
+		doc.setDataGenerator(refs.switchRef(doc.getDataGenerator()));
+		doc.setDataDocumentor(refs.switchRef(doc.getDataDocumentor()));
+		doc.setDataSetOwner(refs.switchRef(doc.getDataSetOwner()));
+		doc.setPublication(refs.switchRef(doc.getPublication()));
 		List<Source> translatedSources = new ArrayList<>();
 		for (Source source : doc.getSources())
-			translatedSources.add(translateSource(source));
+			translatedSources.add(refs.switchRef(source));
 		doc.getSources().clear();
 		doc.getSources().addAll(translatedSources);
-	}
-
-	private Actor translateActor(Actor srcActor) {
-		if (srcActor == null)
-			return null;
-		long id = seq.get(seq.ACTOR, srcActor.getRefId());
-		ActorDao actorDao = new ActorDao(dest);
-		return actorDao.getForId(id);
-	}
-
-	private Source translateSource(Source srcSource) {
-		if (srcSource == null)
-			return null;
-		long id = seq.get(seq.SOURCE, srcSource.getRefId());
-		SourceDao dao = new SourceDao(dest);
-		return dao.getForId(id);
 	}
 
 	private void switchDefaultProviders() {
@@ -217,7 +148,7 @@ class ProcessImport {
 	private void updateDefaultProvider(long sourceId, long destId) {
 		try {
 			String stmt = "update tbl_exchanges set f_default_provider = "
-					+ destId + "where f_default_provider = " + sourceId;
+					+ destId + " where f_default_provider = " + sourceId;
 			NativeSql.on(dest).runUpdate(stmt);
 		} catch (Exception e) {
 			log.error("failed to update default provider", e);

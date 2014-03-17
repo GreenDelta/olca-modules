@@ -1,6 +1,7 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.CategoryDao;
+import java.util.HashMap;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.FlowProperty;
@@ -10,15 +11,13 @@ import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-
 class UnitGroupImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private UnitGroupDao srcDao;
 	private UnitGroupDao destDao;
-	private CategoryDao destCategoryDao;
+	private RefSwitcher refs;
 	private Sequence seq;
 
 	private HashMap<String, UnitGroup> requirePropertyUpdate = new HashMap<>();
@@ -26,7 +25,7 @@ class UnitGroupImport {
 	UnitGroupImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new UnitGroupDao(source);
 		this.destDao = new UnitGroupDao(dest);
-		this.destCategoryDao = new CategoryDao(dest);
+		this.refs = new RefSwitcher(source, dest, seq);
 		this.seq = seq;
 	}
 
@@ -82,10 +81,7 @@ class UnitGroupImport {
 		destGroup.setRefId(srcGroup.getRefId());
 		switchUnitRefIds(srcGroup, destGroup);
 		destGroup.setDefaultFlowProperty(null);
-		if (srcGroup.getCategory() != null) {
-			long catId = seq.get(seq.CATEGORY, srcGroup.getCategory().getRefId());
-			destGroup.setCategory(destCategoryDao.getForId(catId));
-		}
+		destGroup.setCategory(refs.switchRef(srcGroup.getCategory()));
 		destGroup = destDao.insert(destGroup);
 		seq.put(seq.UNIT_GROUP, srcGroup.getRefId(), destGroup.getId());
 		indexUnits(srcGroup, destGroup);
@@ -95,9 +91,9 @@ class UnitGroupImport {
 	}
 
 	private void switchUnitRefIds(UnitGroup srcGroup, UnitGroup destGroup) {
-		for(Unit srcUnit : srcGroup.getUnits()) {
+		for (Unit srcUnit : srcGroup.getUnits()) {
 			Unit destUnit = destGroup.getUnit(srcUnit.getName());
-			if(destUnit == null)
+			if (destUnit == null)
 				continue;
 			destUnit.setRefId(srcUnit.getRefId());
 		}

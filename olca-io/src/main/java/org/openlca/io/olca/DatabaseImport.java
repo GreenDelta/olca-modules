@@ -31,8 +31,6 @@ public class DatabaseImport implements Runnable {
 
 			// TODO: cost categories and process cost entries
 			// TODO: process groups
-			// TODO: projects
-
 			Sequence seq = new Sequence(dest);
 
 			new LocationImport(source, dest, seq).run();
@@ -40,7 +38,8 @@ public class DatabaseImport implements Runnable {
 			new ActorImport(source, dest, seq).run();
 			new SourceImport(source, dest, seq).run();
 
-			UnitGroupImport unitGroupImport = new UnitGroupImport(source, dest, seq);
+			UnitGroupImport unitGroupImport = new UnitGroupImport(source, dest,
+					seq);
 			unitGroupImport.run();
 			HashMap<String, UnitGroup> requirePropertyUpdate = unitGroupImport
 					.getRequirePropertyUpdate();
@@ -51,7 +50,7 @@ public class DatabaseImport implements Runnable {
 			new ProcessImport(source, dest, seq).run();
 			new ProductSystemImport(source, dest, seq).run();
 			new ImpactMethodImport(source, dest, seq).run();
-
+			new ProjectImport(source, dest, seq).run();
 		} catch (Exception e) {
 			log.error("Database import failed", e);
 		}
@@ -61,7 +60,7 @@ public class DatabaseImport implements Runnable {
 	 * Set the default flow properties in the given unit groups.
 	 */
 	private void updateUnitGroups(HashMap<String, UnitGroup> requireUpdate,
-	                              Sequence seq) {
+			Sequence seq) {
 		FlowPropertyDao propertyDao = new FlowPropertyDao(dest);
 		UnitGroupDao unitGroupDao = new UnitGroupDao(dest);
 		for (String refId : requireUpdate.keySet()) {
