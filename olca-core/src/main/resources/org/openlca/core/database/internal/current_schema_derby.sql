@@ -434,6 +434,7 @@ CREATE TABLE tbl_parameter_redefs (
 	name VARCHAR(255), 
 	f_owner BIGINT, 
 	f_context BIGINT,
+	context_type VARCHAR(255),
 	value DOUBLE,
 	
 	distribution_type INTEGER default 0, 

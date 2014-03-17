@@ -3,10 +3,12 @@ package org.openlca.core.model;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
 /**
- * A redefinition of a parameter in a calculation setup or product systems. The
+ * A redefinition of a parameter in a project or product systems. The
  * redefinition defines a context for the redefinition which is the process or
  * LCIA method for which the redefinition is valid. If there is no such context
  * given it is a redefinition of a global parameter.
@@ -21,6 +23,10 @@ public class ParameterRedef extends AbstractEntity {
 	@Column(name = "f_context")
 	private Long conextId;
 
+	@Column(name = "context_type")
+	@Enumerated(EnumType.STRING)
+	private ModelType contextType;
+
 	@Column(name = "value")
 	private double value;
 
@@ -32,6 +38,7 @@ public class ParameterRedef extends AbstractEntity {
 		ParameterRedef clone = new ParameterRedef();
 		clone.setName(getName());
 		clone.setContextId(getContextId());
+		clone.setContextType(getContextType());
 		clone.setValue(getValue());
 		if (getUncertainty() != null)
 			clone.setUncertainty(getUncertainty().clone());
@@ -68,6 +75,24 @@ public class ParameterRedef extends AbstractEntity {
 	 */
 	public void setContextId(Long contextId) {
 		this.conextId = contextId;
+	}
+
+	/**
+	 * Returns the type of the context where the original parameter is defined
+	 * (currently only processes or LCIA methods are possible). For global
+	 * parameter redefinitions the context type is null.
+	 */
+	public ModelType getContextType() {
+		return contextType;
+	}
+
+	/**
+	 * Set the type of the context where the original parameter is defined
+	 * (currently only processes or LCIA methods are possible). For global
+	 * parameter redefinitions the context type is null.
+	 */
+	public void setContextType(ModelType contextType) {
+		this.contextType = contextType;
 	}
 
 	public double getValue() {

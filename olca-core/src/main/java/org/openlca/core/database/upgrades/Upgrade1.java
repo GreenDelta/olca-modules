@@ -38,8 +38,7 @@ class Upgrade1 implements IUpgrade {
 				"source_type VARCHAR(255)");
 		util.checkCreateColumn("tbl_impact_factors", "formula",
 				"formula VARCHAR(1000)");
-		util.renameColumn("tbl_parameter_redefs", "f_process", "f_context",
-				"BIGINT");
+		updateParameterRedefs();
 		updateMappingTable();
 	}
 
@@ -160,6 +159,23 @@ class Upgrade1 implements IUpgrade {
 			stmt.setDouble(3, nf);
 		stmt.setLong(4, result.getLong("f_impact_category"));
 		stmt.setLong(5, result.getLong("f_normalisation_weighting_set"));
+	}
+
+	/**
+	 * Changes in parameter redefinitions: It is now allowed to redefine process
+	 * and LCIA method parameters.
+	 */
+	private void updateParameterRedefs() throws Exception {
+		util.renameColumn("tbl_parameter_redefs", "f_process", "f_context",
+				"BIGINT");
+		if (!util.columnExists("tbl_parameter_redefs", "context_type")) {
+			util.checkCreateColumn("tbl_parameter_redefs", "context_type",
+					"context_type VARCHAR(255)");
+			NativeSql.on(database).runUpdate(
+					"update tbl_parameter_redefs "
+							+ "set context_type = 'PROCESS' "
+							+ "where f_context is not null");
+		}
 	}
 
 }
