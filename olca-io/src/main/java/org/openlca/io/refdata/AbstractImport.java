@@ -78,46 +78,6 @@ abstract class AbstractImport {
 		nextBatch.clear();
 	}
 
-	protected String getString(List<Object> values, int i) {
-		if (values == null || i >= values.size())
-			return null;
-		Object val = values.get(i);
-		if (val == null)
-			return null;
-		else
-			return val.toString();
-	}
-
-	protected Double getOptionalDouble(List<Object> values, int i) {
-		if (values == null || i >= values.size())
-			return null;
-		Object val = values.get(i);
-		if (val instanceof Number)
-			return ((Number) val).doubleValue();
-		else
-			return null;
-	}
-
-	protected double getDouble(List<Object> values, int i) {
-		if (values == null || i >= values.size())
-			return 0;
-		Object val = values.get(i);
-		if (val instanceof Number)
-			return ((Number) val).doubleValue();
-		else
-			return 0;
-	}
-
-	protected int getInt(List<Object> values, int i) {
-		if (values == null || i >= values.size())
-			return 0;
-		Object val = values.get(i);
-		if (val instanceof Number)
-			return ((Number) val).intValue();
-		else
-			return 0;
-	}
-
 	protected abstract String getStatement();
 
 	protected abstract CellProcessor[] getCellProcessors();

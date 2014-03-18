@@ -1,14 +1,15 @@
 package org.openlca.io.refdata;
 
+import java.sql.PreparedStatement;
+import java.sql.Types;
+import java.util.List;
+
 import org.openlca.core.model.ModelType;
+import org.openlca.io.maps.Maps;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-
-import java.sql.PreparedStatement;
-import java.sql.Types;
-import java.util.List;
 
 class NwSetFactorImport extends AbstractImport {
 
@@ -41,15 +42,16 @@ class NwSetFactorImport extends AbstractImport {
 	protected void setValues(PreparedStatement statement, List<Object> values)
 			throws Exception {
 		statement.setLong(1, seq.next());
-		statement.setLong(2, seq.get(ModelType.NW_SET, getString(values, 0)));
+		statement.setLong(2,
+				seq.get(ModelType.NW_SET, Maps.getString(values, 0)));
 		statement.setLong(3,
-				seq.get(ModelType.IMPACT_CATEGORY, getString(values, 1)));
-		Double nf = getOptionalDouble(values, 2);
+				seq.get(ModelType.IMPACT_CATEGORY, Maps.getString(values, 1)));
+		Double nf = Maps.getOptionalDouble(values, 2);
 		if (nf != null)
 			statement.setDouble(4, nf);
 		else
 			statement.setNull(4, Types.DOUBLE);
-		Double wf = getOptionalDouble(values, 3);
+		Double wf = Maps.getOptionalDouble(values, 3);
 		if (wf != null)
 			statement.setDouble(5, wf);
 		else

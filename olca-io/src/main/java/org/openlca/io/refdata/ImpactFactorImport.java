@@ -9,6 +9,7 @@ import java.util.List;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.ModelType;
+import org.openlca.io.maps.Maps;
 import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
 import org.supercsv.cellprocessor.ift.CellProcessor;
@@ -52,16 +53,18 @@ class ImpactFactorImport extends AbstractImport {
 			throws Exception {
 		if (propertyTable == null)
 			loadPropertyTable();
-		long flowId = seq.get(ModelType.FLOW, getString(values, 1));
-		long propId = seq.get(ModelType.FLOW_PROPERTY, getString(values, 2));
+		long flowId = seq.get(ModelType.FLOW, Maps.getString(values, 1));
+		long propId = seq.get(ModelType.FLOW_PROPERTY,
+				Maps.getString(values, 2));
 		long factorId = getFactorId(flowId, propId);
 		statement.setLong(1, seq.next());
 		statement.setLong(2,
-				seq.get(ModelType.IMPACT_CATEGORY, getString(values, 0)));
+				seq.get(ModelType.IMPACT_CATEGORY, Maps.getString(values, 0)));
 		statement.setLong(3, flowId);
 		statement.setLong(4, factorId);
-		statement.setLong(5, seq.get(ModelType.UNIT, getString(values, 3)));
-		statement.setDouble(6, getDouble(values, 4));
+		statement
+				.setLong(5, seq.get(ModelType.UNIT, Maps.getString(values, 3)));
+		statement.setDouble(6, Maps.getDouble(values, 4));
 	}
 
 	private void loadPropertyTable() throws Exception {

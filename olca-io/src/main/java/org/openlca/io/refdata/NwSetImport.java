@@ -1,12 +1,13 @@
 package org.openlca.io.refdata;
 
+import java.sql.PreparedStatement;
+import java.util.List;
+
 import org.openlca.core.model.ModelType;
+import org.openlca.io.maps.Maps;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-
-import java.sql.PreparedStatement;
-import java.util.List;
 
 class NwSetImport extends AbstractImport {
 
@@ -39,14 +40,14 @@ class NwSetImport extends AbstractImport {
 	@Override
 	protected void setValues(PreparedStatement statement, List<Object> values)
 			throws Exception {
-		String refId = getString(values, 0);
+		String refId = Maps.getString(values, 0);
 		statement.setLong(1, seq.get(ModelType.NW_SET, refId));
 		statement.setString(2, refId);
-		statement.setString(3, getString(values, 2));
-		statement.setString(4, getString(values, 1));
+		statement.setString(3, Maps.getString(values, 2));
+		statement.setString(4, Maps.getString(values, 1));
 		statement.setLong(5,
-				seq.get(ModelType.IMPACT_METHOD, getString(values, 4)));
-		statement.setString(6, getString(values, 3));
+				seq.get(ModelType.IMPACT_METHOD, Maps.getString(values, 4)));
+		statement.setString(6, Maps.getString(values, 3));
 	}
 
 }

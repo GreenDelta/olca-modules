@@ -1,28 +1,28 @@
 package org.openlca.io.refdata;
 
-import org.openlca.core.model.ModelType;
-import org.supercsv.cellprocessor.Optional;
-import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
-import org.supercsv.cellprocessor.ift.CellProcessor;
-
 import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.List;
+
+import org.openlca.core.model.ModelType;
+import org.openlca.io.maps.Maps;
+import org.supercsv.cellprocessor.Optional;
+import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
+import org.supercsv.cellprocessor.ift.CellProcessor;
 
 class ImpactMethodImport extends AbstractImport {
 
 	@Override
 	protected String getStatement() {
-		return "insert into tbl_impact_methods (id, ref_id, name, description, " +
-				"f_category) values (?, ?, ?, ?, ?)";
+		return "insert into tbl_impact_methods (id, ref_id, name, description, "
+				+ "f_category) values (?, ?, ?, ?, ?)";
 	}
 
 	@Override
 	protected CellProcessor[] getCellProcessors() {
 		CellProcessor notEmpty = new StrNotNullOrEmpty();
 		CellProcessor optional = new Optional();
-		return new CellProcessor[]{
-				notEmpty, // id
+		return new CellProcessor[] { notEmpty, // id
 				notEmpty, // name
 				optional, // description
 				optional // category ID
@@ -31,7 +31,7 @@ class ImpactMethodImport extends AbstractImport {
 
 	@Override
 	protected boolean isValid(List<Object> values) {
-		String refId = getString(values, 0);
+		String refId = Maps.getString(values, 0);
 		if (!seq.isInDatabase(ModelType.IMPACT_METHOD, refId))
 			return true;
 		log.info("LCIA method {} {} is already in the database", values.get(1),
@@ -42,13 +42,13 @@ class ImpactMethodImport extends AbstractImport {
 	@Override
 	protected void setValues(PreparedStatement statement, List<Object> vals)
 			throws Exception {
-		String refId = getString(vals, 0);
+		String refId = Maps.getString(vals, 0);
 		long id = seq.get(ModelType.IMPACT_METHOD, refId);
 		statement.setLong(1, id);
 		statement.setString(2, refId);
-		statement.setString(3, getString(vals, 1));
-		statement.setString(4, getString(vals, 2));
-		String catRefId = getString(vals, 3);
+		statement.setString(3, Maps.getString(vals, 1));
+		statement.setString(4, Maps.getString(vals, 2));
+		String catRefId = Maps.getString(vals, 3);
 		if (catRefId == null)
 			statement.setNull(5, Types.BIGINT);
 		else
