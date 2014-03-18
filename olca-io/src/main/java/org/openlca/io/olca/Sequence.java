@@ -1,8 +1,5 @@
 package org.openlca.io.olca;
 
-import java.util.HashMap;
-import java.util.List;
-
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
@@ -21,6 +18,9 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Stores the mappings between reference IDs (UUID) and generated IDs (long) of

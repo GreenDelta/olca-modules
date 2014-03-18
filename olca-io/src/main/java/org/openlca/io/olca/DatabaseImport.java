@@ -1,13 +1,13 @@
 package org.openlca.io.olca;
 
-import java.util.HashMap;
-
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.UnitGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
 
 /**
  * Import the data from one openLCA database into another database.
@@ -28,8 +28,6 @@ public class DatabaseImport implements Runnable {
 	public void run() {
 		log.trace("run database import from {} to {}", source, dest);
 		try {
-			// TODO: cost categories and process cost entries
-			// TODO: process groups
 			Sequence seq = new Sequence(dest);
 			importSimple(seq);
 			importUnitRefs(seq);
