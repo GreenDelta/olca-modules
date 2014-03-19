@@ -1,19 +1,15 @@
 package org.openlca.io.simapro.csv.input;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.Source;
-import org.openlca.io.UnitMapping;
-import org.openlca.io.UnitMappingEntry;
+import org.openlca.simapro.csv.model.AbstractExchangeRow;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
+import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.model.enums.ProductType;
+import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.process.ProcessBlock;
+import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
-import org.openlca.simapro.csv.model.process.WasteTreatmentRow;
 import org.openlca.simapro.csv.model.refdata.AirEmissionBlock;
 import org.openlca.simapro.csv.model.refdata.DatabaseCalculatedParameterBlock;
 import org.openlca.simapro.csv.model.refdata.DatabaseInputParameterBlock;
@@ -33,70 +29,54 @@ import org.openlca.simapro.csv.model.refdata.SoilEmissionBlock;
 import org.openlca.simapro.csv.model.refdata.UnitBlock;
 import org.openlca.simapro.csv.model.refdata.UnitRow;
 import org.openlca.simapro.csv.model.refdata.WaterEmissionBlock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-class RefDataHandler {
+import java.util.List;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private final SimaProCsvImport csvImport;
-	private final IDatabase database;
-	private RefData refData;
+/**
+ * An event handler that fills a SPRefDataIndex when parsing a SimaPro CSV file.
+ */
+class SpRefIndexHandler {
 
-	private List<InputParameterRow> globalInputParamaters = new ArrayList<>();
-	private List<CalculatedParameterRow> globalCalculatedParameters = new ArrayList<>();
+	private final SpRefDataIndex index;
 
-	public RefDataHandler(SimaProCsvImport csvImport) {
-		this.csvImport = csvImport;
-		this.database = csvImport.getDatabase();
-		this.refData = new RefData();
+	public SpRefIndexHandler() {
+		index = new SpRefDataIndex();
 	}
 
-	public RefData getRefData() {
-		return refData;
+	public SpRefDataIndex getIndex() {
+		return index;
 	}
 
 	@BlockHandler
 	public void handleQuantities(Quantity quantity) {
-		// TODO: we need a mapping of SimaPro quantities to our flow properties
-
+		index.put(quantity);
 	}
 
 	@BlockHandler
 	public void handleUnits(UnitBlock block) {
-		log.trace("map {} units", block.getUnits().size());
-		UnitMapping mapping = UnitMapping
-				.createDefault(csvImport.getDatabase());
 		for (UnitRow unitRow : block.getUnits()) {
-			UnitMappingEntry entry = mapping.getEntry(unitRow.getName());
-			if (entry == null) {
-				log.warn("unknown unit {}; create a new unit group",
-						unitRow.getName());
-				// TODO: add new units
-			}
+			index.put(unitRow);
 		}
 	}
 
 	@BlockHandler
 	public void handleLiteratureRef(LiteratureReferenceBlock block) {
-		Source source = new SourceImport(database).run(block);
-		if (source != null)
-			refData.put(block, source);
+		index.put(block);
 	}
 
-	@BlockHandler(subTypes = { AirEmissionBlock.class,
+	@BlockHandler(subTypes = {AirEmissionBlock.class,
 			EconomicIssueBlock.class, FinalWasteFlowBlock.class,
 			NonMaterialEmissionBlock.class, RawMaterialBlock.class,
 			SocialIssueBlock.class, SoilEmissionBlock.class,
-			WaterEmissionBlock.class })
+			WaterEmissionBlock.class})
 	public void handleElementaryFlows(IElementaryFlowBlock block) {
 		for (ElementaryFlowRow row : block.getFlows()) {
-			refData.put(row, block.getFlowType());
+			index.put(row, block.getFlowType());
 		}
 	}
 
-	@BlockHandler(subTypes = { DatabaseInputParameterBlock.class,
-			ProjectInputParameterBlock.class })
+	@BlockHandler(subTypes = {DatabaseInputParameterBlock.class,
+			ProjectInputParameterBlock.class})
 	public void handleInputParameters(IParameterBlock block) {
 		List<InputParameterRow> params = null;
 		if (block instanceof DatabaseInputParameterBlock)
@@ -104,11 +84,11 @@ class RefDataHandler {
 		else if (block instanceof ProjectInputParameterBlock)
 			params = ((ProjectInputParameterBlock) block).getParameters();
 		if (params != null)
-			globalInputParamaters.addAll(params);
+			index.putInputParameters(params);
 	}
 
-	@BlockHandler(subTypes = { DatabaseCalculatedParameterBlock.class,
-			ProjectCalculatedParameterBlock.class })
+	@BlockHandler(subTypes = {DatabaseCalculatedParameterBlock.class,
+			ProjectCalculatedParameterBlock.class})
 	public void handleCalculatedParameters(IParameterBlock block) {
 		List<CalculatedParameterRow> params = null;
 		if (block instanceof DatabaseCalculatedParameterBlock)
@@ -116,28 +96,35 @@ class RefDataHandler {
 		else if (block instanceof ProjectCalculatedParameterBlock)
 			params = ((ProjectCalculatedParameterBlock) block).getParameters();
 		if (params != null)
-			globalCalculatedParameters.addAll(params);
+			index.putCalculatedParameters(params);
 	}
 
 	@BlockHandler
-	public void handleProducts(ProcessBlock block) {
-		FlowHandler flowHandler = new FlowHandler(csvImport.getDatabase());
-		for (ProductOutputRow row : block.getProducts()) {
-			Flow flow = flowHandler.getProductFlow(row);
-			if (flow != null)
-				refData.put(row, flow);
+	public void handleProcesses(ProcessBlock block) {
+		for (ProductOutputRow row : block.getProducts())
+			indexProduct(row);
+		if (block.getWasteTreatment() != null)
+			indexProduct(block.getWasteTreatment());
+		for (ProductType type : ProductType.values()) {
+			for (ProductExchangeRow row : block.getProductExchanges(type)) {
+				indexProduct(row);
+				index.putProductType(row, type);
+			}
 		}
-		if (block.getWasteTreatment() != null) {
-			WasteTreatmentRow row = block.getWasteTreatment();
-			Flow flow = flowHandler.getProductFlow(row);
-			if (flow != null)
-				refData.put(row, flow);
+		for (ElementaryFlowType type : ElementaryFlowType.values()) {
+			for (ElementaryExchangeRow row : block.getElementaryExchangeRows(type))
+				indexElemFlow(row, type);
 		}
 	}
 
-	public void finish() {
-		refData.setUnitMapping(UnitMapping.createDefault(database));
-		new GlobalParameterImport(database, globalInputParamaters,
-				globalCalculatedParameters).run();
+	private void indexElemFlow(ElementaryExchangeRow row, ElementaryFlowType type) {
+		index.putUsedUnit(row.getUnit());
+		index.putElemFlow(row, type);
 	}
+
+	private void indexProduct(AbstractExchangeRow row) {
+		index.putUsedUnit(row.getUnit());
+		index.putProduct(row);
+	}
+
 }

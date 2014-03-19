@@ -55,7 +55,7 @@ class RefDataImport {
 		this.categoryDao = new CategoryDao(database);
 		this.locationDao = new BaseEntityDao<>(Location.class, database);
 		this.flowDao = new FlowDao(database);
-		this.flowMap = new FlowMap(MapType.ES2_ELEMENTARY_FLOW);
+		this.flowMap = new FlowMap(MapType.ES2_FLOW);
 		try {
 			loadUnitMaps(database);
 		} catch (Exception e) {

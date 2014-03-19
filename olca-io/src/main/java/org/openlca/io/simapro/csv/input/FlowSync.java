@@ -1,8 +1,5 @@
 package org.openlca.io.simapro.csv.input;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
@@ -26,21 +23,54 @@ import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class FlowHandler {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+class FlowSync {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final SpRefDataIndex index;
+	private final FlowDao dao;
 	private final IDatabase database;
 	private final UnitMapping unitMapping;
-	private final FlowDao dao;
+	private final ImportMap importMap;
 
-	public FlowHandler(IDatabase database) {
+	public FlowSync(SpRefDataIndex index, UnitMapping unitMapping,
+			IDatabase database) {
+		this.index = index;
+		this.unitMapping = unitMapping;
 		this.database = database;
 		this.dao = new FlowDao(database);
-		this.unitMapping = UnitMapping.createDefault(database);
+		this.importMap = ImportMap.load();
 	}
 
-	public Flow getProductFlow(RefProductRow row) {
+	public Map<String, Flow> run() {
+		log.trace("synchronize flows with database");
+		Map<String, Flow> flows = new HashMap<>();
+		try {
+			for (AbstractExchangeRow row : index.getProducts())
+				syncProduct(row, flows);
+			// TODO: elementary flows
+		} catch (Exception e) {
+			log.error("failed to synchronize flows with database", e);
+		}
+		return flows;
+	}
+
+	private void syncProduct(AbstractExchangeRow row, Map<String, Flow> flows) {
+		if (row instanceof RefProductRow) {
+			Flow flow = getProductFlow((RefProductRow) row);
+			flows.put(row.getName(), flow);
+		} else if (row instanceof ProductExchangeRow) {
+			ProductExchangeRow pRow = (ProductExchangeRow) row;
+			ProductType type = index.getProductType(pRow);
+			Flow flow = getProductFlow(pRow, type);
+		}
+	}
+
+	private Flow getProductFlow(RefProductRow row) {
 		String refId = getProductRefId(row);
 		if (refId == null)
 			return null;
@@ -53,14 +83,7 @@ class FlowHandler {
 		return flow;
 	}
 
-	/**
-	 * You should always first check if the product can be found in the output
-	 * products of another process because via this method you do not get the
-	 * category path, waste type, and other information that are only available
-	 * in the reference product rows (see {@link #getProductFlow(RefProductRow)}
-	 * ).
-	 */
-	public Flow getProductFlow(ProductExchangeRow row, ProductType type) {
+	private Flow getProductFlow(ProductExchangeRow row, ProductType type) {
 		String refId = getProductRefId(row);
 		if (refId == null)
 			return null;
@@ -73,7 +96,9 @@ class FlowHandler {
 		return flow;
 	}
 
-	/** Returns null if no unit / property pair could be found. */
+	/**
+	 * Returns null if no unit / property pair could be found.
+	 */
 	private String getProductRefId(AbstractExchangeRow row) {
 		UnitMappingEntry unitEntry = unitMapping.getEntry(row.getUnit());
 		if (unitEntry == null) {
@@ -116,7 +141,7 @@ class FlowHandler {
 	private Category getProductCategory(ProductType type) {
 		if (type == null)
 			return null;
-		String[] path = new String[] { type.getHeader() };
+		String[] path = new String[]{type.getHeader()};
 		return Categories.findOrAdd(database, ModelType.FLOW, path);
 	}
 
@@ -142,7 +167,7 @@ class FlowHandler {
 		return dao.getForRefId(refId);
 	}
 
-	public Flow getElementaryFlow(ElementaryExchangeRow exchangeRow,
+	private Flow getElementaryFlow(ElementaryExchangeRow exchangeRow,
 			ElementaryFlowType type, ElementaryFlowRow flowRow) {
 		String unit = exchangeRow.getUnit();
 		UnitMappingEntry unitEntry = unitMapping.getEntry(unit);
@@ -183,9 +208,9 @@ class FlowHandler {
 		String[] path = null;
 		String subCompartment = exchangeRow.getSubCompartment();
 		if (subCompartment != null && !subCompartment.isEmpty())
-			path = new String[] { type.getExchangeHeader(), subCompartment };
+			path = new String[]{type.getExchangeHeader(), subCompartment};
 		else
-			path = new String[] { type.getExchangeHeader(), "Unspecified" };
+			path = new String[]{type.getExchangeHeader(), "Unspecified"};
 		return Categories.findOrAdd(database, ModelType.FLOW, path);
 	}
 
@@ -196,5 +221,4 @@ class FlowHandler {
 		factor.setFlowProperty(unitEntry.getFlowProperty());
 		flow.getFlowPropertyFactors().add(factor);
 	}
-
 }

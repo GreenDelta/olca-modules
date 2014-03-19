@@ -8,18 +8,44 @@ import org.openlca.core.model.Source;
 import org.openlca.io.Categories;
 import org.openlca.io.KeyGen;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-class SourceImport {
+import java.util.HashMap;
+import java.util.Map;
 
-	private SourceDao dao;
-	private IDatabase database;
+class SourceSync {
 
-	public SourceImport(IDatabase database) {
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private final SpRefDataIndex index;
+	private final SourceDao dao;
+	private final IDatabase database;
+
+	public SourceSync(SpRefDataIndex index, IDatabase database) {
+		this.index = index;
 		this.database = database;
 		this.dao = new SourceDao(database);
 	}
 
-	public Source run(LiteratureReferenceBlock block) {
+	public Map<String, Source> run() {
+		log.trace("synchronize sources with database");
+		Map<String, Source> sources = new HashMap<>();
+		try {
+			for (LiteratureReferenceBlock block : index.getLiteratureReferences()) {
+				Source source = sync(block);
+				if (source == null)
+					log.warn("could not synchronize {} with DB", block);
+				else
+					sources.put(block.getName(), source);
+			}
+		} catch (Exception e) {
+			log.error("failed to synchronize sources with database");
+		}
+		return sources;
+	}
+
+	private Source sync(LiteratureReferenceBlock block) {
 		if (block == null)
 			return null;
 		String refId = KeyGen.get(block.getName(), block.getCategory());
@@ -44,6 +70,6 @@ class SourceImport {
 		if (block.getCategory() == null)
 			return null;
 		return Categories.findOrAdd(database, ModelType.SOURCE,
-				new String[] { block.getCategory() });
+				new String[]{block.getCategory()});
 	}
 }

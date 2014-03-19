@@ -27,9 +27,9 @@ import java.util.UUID;
  */
 class UnitSync {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private SpRefDataIndex index;
-	private IDatabase database;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final SpRefDataIndex index;
+	private final IDatabase database;
 
 	public UnitSync(SpRefDataIndex index, IDatabase database) {
 		this.index = index;
@@ -37,6 +37,7 @@ class UnitSync {
 	}
 
 	public UnitMapping run() {
+		log.trace("synchronize units with database");
 		try {
 			UnitMapping mapping = UnitMapping.createDefault(database);
 			List<String> unknownUnits = new ArrayList<>();
@@ -44,6 +45,8 @@ class UnitSync {
 				UnitMappingEntry entry = mapping.getEntry(usedUnit);
 				if (entry == null)
 					unknownUnits.add(usedUnit);
+				else
+					log.trace("{} is a known unit", usedUnit);
 			}
 			if (!unknownUnits.isEmpty())
 				addMappings(mapping, unknownUnits);
@@ -65,12 +68,14 @@ class UnitSync {
 			} else {
 				log.warn("unknown unit {}, import complete SimaPro quantity {}",
 						unit, quantity);
-				importQuantity(quantity, mapping);
+				UnitGroup group = importQuantity(quantity, mapping);
+				for (Unit u : group.getUnits())
+					unknownUnits.remove(u.getName());
 			}
 		}
 	}
 
-	private void importQuantity(Quantity quantity, UnitMapping mapping) {
+	private UnitGroup importQuantity(Quantity quantity, UnitMapping mapping) {
 		UnitGroup group = create(UnitGroup.class, "Units of " + quantity.getName());
 		addUnits(group, quantity);
 		group = insertLinkProperty(group, quantity.getName());
@@ -83,6 +88,7 @@ class UnitSync {
 			entry.setUnitGroup(group);
 			mapping.put(unit.getName(), entry);
 		}
+		return group;
 	}
 
 	private UnitGroup insertLinkProperty(UnitGroup group, String propertyName) {
