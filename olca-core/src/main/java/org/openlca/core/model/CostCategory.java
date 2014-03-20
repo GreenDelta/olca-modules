@@ -19,6 +19,15 @@ public class CostCategory extends AbstractEntity {
 	@Column(name = "description")
 	private String description;
 
+	@Override
+	public CostCategory clone() {
+		CostCategory clone = new CostCategory();
+		clone.setFix(isFix());
+		clone.setName(getName());
+		clone.setDescription(getDescription());
+		return clone;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -37,6 +46,10 @@ public class CostCategory extends AbstractEntity {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	@Override
