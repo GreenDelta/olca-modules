@@ -1,5 +1,8 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
@@ -24,9 +27,6 @@ import org.openlca.simapro.csv.model.process.RefProductRow;
 import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 class FlowSync {
 
@@ -79,7 +79,10 @@ class FlowSync {
 			return null;
 		try {
 			Flow flow = mapEntry.getEntity().getMatchingFlow(database);
-			return new MapFactor<>(flow, mapEntry.getFactor());
+			if (flow == null)
+				return null;
+			else
+				return new MapFactor<>(flow, mapEntry.getFactor());
 		} catch (Exception e) {
 			log.error("failed to load flow from database", e);
 			return null;
