@@ -36,7 +36,7 @@ class UnitSync {
 		this.database = database;
 	}
 
-	public UnitMapping run() {
+	public void run(RefData refData) {
 		log.trace("synchronize units with database");
 		try {
 			UnitMapping mapping = UnitMapping.createDefault(database);
@@ -50,10 +50,10 @@ class UnitSync {
 			}
 			if (!unknownUnits.isEmpty())
 				addMappings(mapping, unknownUnits);
-			return mapping;
+			refData.setUnitMapping(mapping);
 		} catch (Exception e) {
 			log.error("failed to synchronize units with database", e);
-			return new UnitMapping();
+			refData.setUnitMapping(new UnitMapping());
 		}
 	}
 
@@ -62,11 +62,12 @@ class UnitSync {
 			String unit = unknownUnits.remove(0);
 			Quantity quantity = getQuantity(unit);
 			if (quantity == null) {
-				log.warn("unit {} found but with no quantity; create default " +
-						"unit, unit group, and flow property", unit);
+				log.warn("unit {} found but with no quantity; create default "
+						+ "unit, unit group, and flow property", unit);
 				createDefaultMapping(unit, mapping);
 			} else {
-				log.warn("unknown unit {}, import complete SimaPro quantity {}",
+				log.warn(
+						"unknown unit {}, import complete SimaPro quantity {}",
 						unit, quantity);
 				UnitGroup group = importQuantity(quantity, mapping);
 				for (Unit u : group.getUnits())
@@ -76,7 +77,8 @@ class UnitSync {
 	}
 
 	private UnitGroup importQuantity(Quantity quantity, UnitMapping mapping) {
-		UnitGroup group = create(UnitGroup.class, "Units of " + quantity.getName());
+		UnitGroup group = create(UnitGroup.class,
+				"Units of " + quantity.getName());
 		addUnits(group, quantity);
 		group = insertLinkProperty(group, quantity.getName());
 		for (Unit unit : group.getUnits()) {

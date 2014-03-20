@@ -48,16 +48,17 @@ public class SimaProCsvImport implements FileImport {
 	public void run() {
 		log.trace("import SimaPro CSV file {}", file);
 		try {
-			log.trace("sync. reference data");
+			log.trace("extract reference data");
 			SpRefIndexHandler refDataHandler = new SpRefIndexHandler();
 			SimaProCSV.parse(file, refDataHandler);
-
-
+			SpRefDataIndex index = refDataHandler.getIndex();
+			log.trace("sync. reference data");
+			RefDataSync sync = new RefDataSync(index, database);
+			RefData refData = sync.run();
 			log.trace("import processes");
-			// TODO:
-//			ProcessHandler processHandler = new ProcessHandler(database,
-//					refDataHandler.getRefData());
-//			SimaProCSV.parse(file, processHandler);
+			ProcessHandler processHandler = new ProcessHandler(database,
+					refData);
+			SimaProCSV.parse(file, processHandler);
 		} catch (Exception e) {
 			log.error("SimaPro CSV import failed");
 		}

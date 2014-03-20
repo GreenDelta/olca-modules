@@ -13,6 +13,8 @@ import org.openlca.io.Categories;
 import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
+import org.openlca.io.maps.MapFactor;
+import org.openlca.io.maps.OlcaFlowMapEntry;
 import org.openlca.simapro.csv.model.AbstractExchangeRow;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.model.enums.ProductType;
@@ -23,8 +25,6 @@ import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,27 +46,55 @@ class FlowSync {
 		this.importMap = ImportMap.load();
 	}
 
-	public Map<String, Flow> run() {
+	public void run(RefData refData) {
 		log.trace("synchronize flows with database");
-		Map<String, Flow> flows = new HashMap<>();
 		try {
 			for (AbstractExchangeRow row : index.getProducts())
-				syncProduct(row, flows);
-			// TODO: elementary flows
+				syncProduct(row, refData);
+			for (ElementaryFlowType type : ElementaryFlowType.values()) {
+				for (ElementaryExchangeRow row : index.getElementaryFlows(type))
+					syncElemFlow(row, type, refData);
+			}
 		} catch (Exception e) {
 			log.error("failed to synchronize flows with database", e);
 		}
-		return flows;
 	}
 
-	private void syncProduct(AbstractExchangeRow row, Map<String, Flow> flows) {
+	private void syncElemFlow(ElementaryExchangeRow row,
+			ElementaryFlowType type, RefData refData) {
+		String key = KeyGen.get(row.getName(), type.getExchangeHeader(),
+				row.getSubCompartment(), row.getUnit());
+		MapFactor<Flow> mappedFlow = getMappedFlow(key);
+		if (mappedFlow != null)
+			refData.putMappedFlow(key, mappedFlow);
+		else {
+			Flow elemFlow = getElementaryFlow(row, type, key);
+			refData.putElemFlow(key, elemFlow);
+		}
+	}
+
+	private MapFactor<Flow> getMappedFlow(String refId) {
+		MapFactor<OlcaFlowMapEntry> mapEntry = importMap.getFlowEntry(refId);
+		if (mapEntry == null || mapEntry.getEntity() == null)
+			return null;
+		try {
+			Flow flow = mapEntry.getEntity().getMatchingFlow(database);
+			return new MapFactor<>(flow, mapEntry.getFactor());
+		} catch (Exception e) {
+			log.error("failed to load flow from database", e);
+			return null;
+		}
+	}
+
+	private void syncProduct(AbstractExchangeRow row, RefData refData) {
 		if (row instanceof RefProductRow) {
 			Flow flow = getProductFlow((RefProductRow) row);
-			flows.put(row.getName(), flow);
+			refData.putProduct(row.getName(), flow);
 		} else if (row instanceof ProductExchangeRow) {
 			ProductExchangeRow pRow = (ProductExchangeRow) row;
 			ProductType type = index.getProductType(pRow);
 			Flow flow = getProductFlow(pRow, type);
+			refData.putProduct(row.getName(), flow);
 		}
 	}
 
@@ -141,7 +169,7 @@ class FlowSync {
 	private Category getProductCategory(ProductType type) {
 		if (type == null)
 			return null;
-		String[] path = new String[]{type.getHeader()};
+		String[] path = new String[] { type.getHeader() };
 		return Categories.findOrAdd(database, ModelType.FLOW, path);
 	}
 
@@ -167,27 +195,25 @@ class FlowSync {
 		return dao.getForRefId(refId);
 	}
 
-	private Flow getElementaryFlow(ElementaryExchangeRow exchangeRow,
-			ElementaryFlowType type, ElementaryFlowRow flowRow) {
-		String unit = exchangeRow.getUnit();
+	private Flow getElementaryFlow(ElementaryExchangeRow row,
+			ElementaryFlowType type, String refId) {
+		String unit = row.getUnit();
 		UnitMappingEntry unitEntry = unitMapping.getEntry(unit);
 		if (unitEntry == null) {
 			log.error("could not find unit {} in database", unit);
 			return null;
 		}
-		String refId = KeyGen
-				.get(exchangeRow.getName(), type.getExchangeHeader(),
-						exchangeRow.getSubCompartment(), unit);
 		Flow flow = dao.getForRefId(refId);
 		if (flow != null)
 			return flow;
 		flow = new Flow();
 		flow.setRefId(refId);
-		flow.setName(exchangeRow.getName());
-		flow.setCategory(getElementaryFlowCategory(exchangeRow, type));
+		flow.setName(row.getName());
+		flow.setCategory(getElementaryFlowCategory(row, type));
 		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 		setFlowProperty(unitEntry, flow);
-		setFlowData(flow, flowRow);
+		ElementaryFlowRow flowInfo = index.getFlowInfo(row.getName(), type);
+		setFlowData(flow, flowInfo);
 		dao.insert(flow);
 		return flow;
 	}
@@ -205,12 +231,12 @@ class FlowSync {
 			ElementaryExchangeRow exchangeRow, ElementaryFlowType type) {
 		if (exchangeRow == null || type == null)
 			return null;
-		String[] path = null;
+		String[] path;
 		String subCompartment = exchangeRow.getSubCompartment();
 		if (subCompartment != null && !subCompartment.isEmpty())
-			path = new String[]{type.getExchangeHeader(), subCompartment};
+			path = new String[] { type.getExchangeHeader(), subCompartment };
 		else
-			path = new String[]{type.getExchangeHeader(), "Unspecified"};
+			path = new String[] { type.getExchangeHeader(), "Unspecified" };
 		return Categories.findOrAdd(database, ModelType.FLOW, path);
 	}
 

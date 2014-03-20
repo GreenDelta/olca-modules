@@ -12,7 +12,9 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.io.Categories;
+import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMappingEntry;
+import org.openlca.io.maps.MapFactor;
 import org.openlca.simapro.csv.model.AbstractExchangeRow;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
 import org.openlca.simapro.csv.model.enums.ElementaryFlowType;
@@ -22,7 +24,6 @@ import org.openlca.simapro.csv.model.process.ProcessBlock;
 import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 import org.openlca.simapro.csv.model.process.RefProductRow;
-import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,6 @@ class ProcessHandler {
 	private IDatabase database;
 	private RefData refData;
 	private ProcessDao dao;
-	private FlowHandler flowHandler;
 
 	// currently mapped process and process block
 	private Process process;
@@ -44,7 +44,6 @@ class ProcessHandler {
 		this.database = database;
 		this.refData = refData;
 		this.dao = new ProcessDao(database);
-		this.flowHandler = new FlowHandler(database);
 	}
 
 	@BlockHandler
@@ -106,12 +105,13 @@ class ProcessHandler {
 
 	private Flow getRefFlow() {
 		if (!block.getProducts().isEmpty()) {
-			Flow flow = refData.getFlow(block.getProducts().get(0));
+			ProductOutputRow refRow = block.getProducts().get(0);
+			Flow flow = refData.getProduct(refRow.getName());
 			if (flow != null)
 				return flow;
 		}
 		if (block.getWasteTreatment() != null)
-			return refData.getFlow(block.getWasteTreatment());
+			return refData.getProduct(block.getWasteTreatment().getName());
 		return null;
 	}
 
@@ -134,12 +134,12 @@ class ProcessHandler {
 	private void mapProductInputs(long scope) {
 		for (ProductType type : ProductType.values()) {
 			for (ProductExchangeRow row : block.getProductExchanges(type)) {
-				Flow flow = refData.getFlow(row);
+				Flow flow = refData.getProduct(row.getName());
 				if (flow == null) {
-					flow = flowHandler.getProductFlow(row, type);
-					refData.put(row, flow);
+					log.error("unknown flow {}; could not create exchange", row);
+					continue;
 				}
-				Exchange exchange = createExchange(row, scope, flow);
+				Exchange exchange = addExchange(row, scope, flow);
 				if (exchange != null) {
 					exchange.setInput(true);
 					exchange.setAvoidedProduct(type == ProductType.AVOIDED_PRODUCTS);
@@ -149,36 +149,57 @@ class ProcessHandler {
 	}
 
 	private void mapElementaryFlows(long scope) {
-		for(ElementaryFlowType type : ElementaryFlowType.values()) {
+		for (ElementaryFlowType type : ElementaryFlowType.values()) {
 			boolean isInputType = type == ElementaryFlowType.RESOURCES;
-			for(ElementaryExchangeRow row : block.getElementaryExchangeRows(type)) {
-				Flow flow = refData.getFlow(row, type);
-				if(flow == null) {
-					ElementaryFlowRow flowInfo = refData.getFlowInfo(row, type);
-					flow = flowHandler.getElementaryFlow(row, type, flowInfo);
-					refData.put(row, type, flow);
+			for (ElementaryExchangeRow row : block
+					.getElementaryExchangeRows(type)) {
+				String key = KeyGen.get(row.getName(),
+						type.getExchangeHeader(), row.getSubCompartment(),
+						row.getUnit());
+				MapFactor<Flow> mappedFlow = refData.getMappedFlow(key);
+				Exchange exchange;
+				if (mappedFlow != null)
+					exchange = createMappedExchange(mappedFlow, row, scope);
+				else {
+					Flow flow = refData.getElemFlow(key);
+					exchange = addExchange(row, scope, flow);
 				}
-				Exchange exchange = createExchange(row, scope, flow);
-				if(exchange != null)
+				if (exchange != null) {
 					exchange.setInput(isInputType);
+				}
 			}
 		}
 	}
 
-	private Exchange createProductOutput(RefProductRow row, long scopeId) {
-		Flow flow = refData.getFlow(row);
-		Exchange exchange = createExchange(row, scopeId, flow);
-		if (exchange == null)
-			return null;
-		exchange.setInput(false);
+	private Exchange createMappedExchange(MapFactor<Flow> mappedFlow,
+			ElementaryExchangeRow row, long scope) {
+		Flow flow = mappedFlow.getEntity();
+		Exchange exchange = addExchange(row, scope, flow);
+		if (exchange != null) {
+			exchange.setAmountValue(mappedFlow.getFactor()
+					* exchange.getAmountValue());
+			if (exchange.getAmountFormula() != null) {
+				String formula = Double.toString(mappedFlow.getFactor())
+						+ " * ( " + exchange.getAmountFormula() + " )";
+				exchange.setAmountFormula(formula);
+			}
+		}
 		return exchange;
 	}
 
-	private Exchange createExchange(AbstractExchangeRow row, long scopeId,
+	private Exchange createProductOutput(RefProductRow row, long scopeId) {
+		Flow flow = refData.getProduct(row.getName());
+		Exchange exchange = addExchange(row, scopeId, flow);
+		if (exchange != null)
+			exchange.setInput(false);
+		return exchange;
+	}
+
+	private Exchange addExchange(AbstractExchangeRow row, long scopeId,
 			Flow flow) {
 		if (flow == null) {
-			log.warn("could not create exchange as there was now flow found " +
-					"for {}", row);
+			log.error("could not create exchange as there was now flow found "
+					+ "for {}", row);
 			return null;
 		}
 		Exchange exchange = new Exchange();

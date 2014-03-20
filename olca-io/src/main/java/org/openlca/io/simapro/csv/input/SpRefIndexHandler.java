@@ -1,5 +1,7 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.List;
+
 import org.openlca.simapro.csv.model.AbstractExchangeRow;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;
@@ -23,14 +25,13 @@ import org.openlca.simapro.csv.model.refdata.NonMaterialEmissionBlock;
 import org.openlca.simapro.csv.model.refdata.ProjectCalculatedParameterBlock;
 import org.openlca.simapro.csv.model.refdata.ProjectInputParameterBlock;
 import org.openlca.simapro.csv.model.refdata.Quantity;
+import org.openlca.simapro.csv.model.refdata.QuantityBlock;
 import org.openlca.simapro.csv.model.refdata.RawMaterialBlock;
 import org.openlca.simapro.csv.model.refdata.SocialIssueBlock;
 import org.openlca.simapro.csv.model.refdata.SoilEmissionBlock;
 import org.openlca.simapro.csv.model.refdata.UnitBlock;
 import org.openlca.simapro.csv.model.refdata.UnitRow;
 import org.openlca.simapro.csv.model.refdata.WaterEmissionBlock;
-
-import java.util.List;
 
 /**
  * An event handler that fills a SPRefDataIndex when parsing a SimaPro CSV file.
@@ -48,8 +49,9 @@ class SpRefIndexHandler {
 	}
 
 	@BlockHandler
-	public void handleQuantities(Quantity quantity) {
-		index.put(quantity);
+	public void handleQuantities(QuantityBlock block) {
+		for (Quantity quantity : block.getQuantities())
+			index.put(quantity);
 	}
 
 	@BlockHandler
@@ -64,19 +66,19 @@ class SpRefIndexHandler {
 		index.put(block);
 	}
 
-	@BlockHandler(subTypes = {AirEmissionBlock.class,
+	@BlockHandler(subTypes = { AirEmissionBlock.class,
 			EconomicIssueBlock.class, FinalWasteFlowBlock.class,
 			NonMaterialEmissionBlock.class, RawMaterialBlock.class,
 			SocialIssueBlock.class, SoilEmissionBlock.class,
-			WaterEmissionBlock.class})
+			WaterEmissionBlock.class })
 	public void handleElementaryFlows(IElementaryFlowBlock block) {
 		for (ElementaryFlowRow row : block.getFlows()) {
 			index.put(row, block.getFlowType());
 		}
 	}
 
-	@BlockHandler(subTypes = {DatabaseInputParameterBlock.class,
-			ProjectInputParameterBlock.class})
+	@BlockHandler(subTypes = { DatabaseInputParameterBlock.class,
+			ProjectInputParameterBlock.class })
 	public void handleInputParameters(IParameterBlock block) {
 		List<InputParameterRow> params = null;
 		if (block instanceof DatabaseInputParameterBlock)
@@ -87,8 +89,8 @@ class SpRefIndexHandler {
 			index.putInputParameters(params);
 	}
 
-	@BlockHandler(subTypes = {DatabaseCalculatedParameterBlock.class,
-			ProjectCalculatedParameterBlock.class})
+	@BlockHandler(subTypes = { DatabaseCalculatedParameterBlock.class,
+			ProjectCalculatedParameterBlock.class })
 	public void handleCalculatedParameters(IParameterBlock block) {
 		List<CalculatedParameterRow> params = null;
 		if (block instanceof DatabaseCalculatedParameterBlock)
@@ -112,12 +114,14 @@ class SpRefIndexHandler {
 			}
 		}
 		for (ElementaryFlowType type : ElementaryFlowType.values()) {
-			for (ElementaryExchangeRow row : block.getElementaryExchangeRows(type))
+			for (ElementaryExchangeRow row : block
+					.getElementaryExchangeRows(type))
 				indexElemFlow(row, type);
 		}
 	}
 
-	private void indexElemFlow(ElementaryExchangeRow row, ElementaryFlowType type) {
+	private void indexElemFlow(ElementaryExchangeRow row,
+			ElementaryFlowType type) {
 		index.putUsedUnit(row.getUnit());
 		index.putElemFlow(row, type);
 	}

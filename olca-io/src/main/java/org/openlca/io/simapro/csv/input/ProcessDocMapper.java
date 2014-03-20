@@ -29,7 +29,7 @@ class ProcessDocMapper {
 
 	private void mapSources() {
 		for (LiteratureReferenceRow row : block.getLiteratureReferences()) {
-			Source source = refData.getSource(row);
+			Source source = refData.getSource(row.getName());
 			if (source == null)
 				continue;
 			process.getDocumentation().getSources().add(source);

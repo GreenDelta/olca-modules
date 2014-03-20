@@ -16,6 +16,7 @@ import org.openlca.simapro.csv.model.refdata.UnitRow;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,7 +85,8 @@ class SpRefDataIndex {
 	public void put(ElementaryFlowRow elemFlowRow, ElementaryFlowType type) {
 		if (elemFlowRow == null || type == null)
 			return;
-		String key = KeyGen.get(elemFlowRow.getName(), type.getExchangeHeader());
+		String key = KeyGen
+				.get(elemFlowRow.getName(), type.getExchangeHeader());
 		elemFlowInfos.put(key, elemFlowRow);
 	}
 
@@ -134,7 +136,7 @@ class SpRefDataIndex {
 	}
 
 	public ProductType getProductType(ProductExchangeRow row) {
-		if(row == null)
+		if (row == null)
 			return null;
 		return productTypes.get(row.getName());
 	}
@@ -151,4 +153,16 @@ class SpRefDataIndex {
 				row.getSubCompartment(), row.getUnit());
 		map.put(key, row);
 	}
+
+	public Collection<ElementaryExchangeRow> getElementaryFlows(
+			ElementaryFlowType type) {
+		if (type == null)
+			return Collections.emptyList();
+		HashMap<String, ElementaryExchangeRow> rows = elemFlows.get(type);
+		if (rows == null)
+			return Collections.emptyList();
+		else
+			return rows.values();
+	}
+
 }

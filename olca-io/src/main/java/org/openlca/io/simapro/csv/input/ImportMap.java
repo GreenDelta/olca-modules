@@ -36,7 +36,7 @@ class ImportMap {
 				"sp_flow_import_map.csv")) {
 			List<List<Object>> rows = Maps.readAll(stream, getCellProcessors());
 			log.trace("read {} flow mappings", rows.size());
-			for(List<Object> row : rows)
+			for (List<Object> row : rows)
 				putFlowMapping(row);
 		} catch (Exception e) {
 			log.error("failed to init import map", e);
@@ -47,24 +47,23 @@ class ImportMap {
 		CellProcessor notNull = new NotNull();
 		CellProcessor optional = new Optional();
 		CellProcessor number = new ParseDouble();
-		return new CellProcessor[]{
-				notNull,    // 0: sp name
-				notNull,    // 1: sp compartment
-				optional,   // 2: sp sub-compartment
-				notNull,    // 3: sp unit
-				notNull,    // 4: olca flow id
-				optional,   // 5: olcd flow name
-				notNull,    // 6: olca property id
-				optional,   // 7: olca property name
-				notNull,    // 8: olca unit id
-				optional,   // 9: olca unit name
-				number      // 10: conversion factor
+		return new CellProcessor[] { notNull, // 0: sp name
+				notNull, // 1: sp compartment
+				optional, // 2: sp sub-compartment
+				notNull, // 3: sp unit
+				notNull, // 4: olca flow id
+				optional, // 5: olcd flow name
+				notNull, // 6: olca property id
+				optional, // 7: olca property name
+				notNull, // 8: olca unit id
+				optional, // 9: olca unit name
+				number // 10: conversion factor
 		};
 	}
 
 	private void putFlowMapping(List<Object> row) {
-		if(row == null)
-			 return;
+		if (row == null)
+			return;
 		String key = getKey(row);
 		OlcaFlowMapEntry olcaFlow = getOlcaFlowEntry(row);
 		double factor = Maps.getDouble(row, 10);

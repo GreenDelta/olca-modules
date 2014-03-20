@@ -11,9 +11,6 @@ import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 class SourceSync {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -28,21 +25,20 @@ class SourceSync {
 		this.dao = new SourceDao(database);
 	}
 
-	public Map<String, Source> run() {
+	public void run(RefData refData) {
 		log.trace("synchronize sources with database");
-		Map<String, Source> sources = new HashMap<>();
 		try {
-			for (LiteratureReferenceBlock block : index.getLiteratureReferences()) {
+			for (LiteratureReferenceBlock block : index
+					.getLiteratureReferences()) {
 				Source source = sync(block);
 				if (source == null)
 					log.warn("could not synchronize {} with DB", block);
 				else
-					sources.put(block.getName(), source);
+					refData.putSource(block.getName(), source);
 			}
 		} catch (Exception e) {
 			log.error("failed to synchronize sources with database");
 		}
-		return sources;
 	}
 
 	private Source sync(LiteratureReferenceBlock block) {
@@ -70,6 +66,6 @@ class SourceSync {
 		if (block.getCategory() == null)
 			return null;
 		return Categories.findOrAdd(database, ModelType.SOURCE,
-				new String[]{block.getCategory()});
+				new String[] { block.getCategory() });
 	}
 }
