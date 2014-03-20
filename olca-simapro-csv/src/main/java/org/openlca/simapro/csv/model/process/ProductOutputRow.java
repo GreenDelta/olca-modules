@@ -27,4 +27,11 @@ public class ProductOutputRow extends RefProductRow {
 		setCategory(CsvUtils.get(columns, 5));
 		setComment(CsvUtils.get(columns, 6));
 	}
+
+	@Override
+	public String toString() {
+		return "ProductOutputRow [getName()=" + getName() + ", getUnit()="
+				+ getUnit() + "]";
+	}
+
 }

@@ -52,4 +52,10 @@ public class ElementaryFlowRow implements IDataRow {
 		comment = CsvUtils.get(columns, 3);
 	}
 
+	@Override
+	public String toString() {
+		return "ElementaryFlowRow [name=" + name + ", referenceUnit="
+				+ referenceUnit + "]";
+	}
+
 }

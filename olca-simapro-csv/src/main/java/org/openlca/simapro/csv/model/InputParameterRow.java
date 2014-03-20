@@ -76,4 +76,9 @@ public class InputParameterRow implements IDataRow {
 		return CsvUtils.getJoiner(config).join(line);
 	}
 
+	@Override
+	public String toString() {
+		return "InputParameterRow [name=" + name + ", value=" + value + "]";
+	}
+
 }

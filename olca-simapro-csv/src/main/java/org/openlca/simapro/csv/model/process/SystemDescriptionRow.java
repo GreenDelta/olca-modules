@@ -32,4 +32,9 @@ public class SystemDescriptionRow implements IDataRow {
 		comment = CsvUtils.get(columns, 1);
 	}
 
+	@Override
+	public String toString() {
+		return "SystemDescriptionRow [name=" + name + "]";
+	}
+
 }

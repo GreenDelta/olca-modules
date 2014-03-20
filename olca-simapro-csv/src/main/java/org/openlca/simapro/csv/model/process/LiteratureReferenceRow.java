@@ -32,4 +32,9 @@ public class LiteratureReferenceRow implements IDataRow {
 		comment = CsvUtils.get(columns, 1);
 	}
 
+	@Override
+	public String toString() {
+		return "LiteratureReferenceRow [name=" + name + "]";
+	}
+
 }

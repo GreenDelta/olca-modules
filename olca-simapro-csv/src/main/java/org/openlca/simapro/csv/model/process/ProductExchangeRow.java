@@ -39,4 +39,10 @@ public class ProductExchangeRow extends AbstractExchangeRow {
 		return CsvUtils.getJoiner(config).join(line);
 	}
 
+	@Override
+	public String toString() {
+		return "ProductExchangeRow [getName()=" + getName() + ", getUnit()="
+				+ getUnit() + "]";
+	}
+
 }

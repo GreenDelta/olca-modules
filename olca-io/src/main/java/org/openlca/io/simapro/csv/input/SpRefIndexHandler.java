@@ -24,7 +24,7 @@ import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.openlca.simapro.csv.model.refdata.NonMaterialEmissionBlock;
 import org.openlca.simapro.csv.model.refdata.ProjectCalculatedParameterBlock;
 import org.openlca.simapro.csv.model.refdata.ProjectInputParameterBlock;
-import org.openlca.simapro.csv.model.refdata.Quantity;
+import org.openlca.simapro.csv.model.refdata.QuantityRow;
 import org.openlca.simapro.csv.model.refdata.QuantityBlock;
 import org.openlca.simapro.csv.model.refdata.RawMaterialBlock;
 import org.openlca.simapro.csv.model.refdata.SocialIssueBlock;
@@ -50,7 +50,7 @@ class SpRefIndexHandler {
 
 	@BlockHandler
 	public void handleQuantities(QuantityBlock block) {
-		for (Quantity quantity : block.getQuantities())
+		for (QuantityRow quantity : block.getQuantities())
 			index.put(quantity);
 	}
 

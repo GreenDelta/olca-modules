@@ -4,7 +4,7 @@ import org.openlca.simapro.csv.CsvConfig;
 import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.IDataRow;
 
-public class Quantity implements IDataRow {
+public class QuantityRow implements IDataRow {
 
 	private boolean withDimension = true;
 	private String name;
@@ -38,4 +38,10 @@ public class Quantity implements IDataRow {
 		if (dimStr != null)
 			withDimension = dimStr.equalsIgnoreCase("yes");
 	}
+
+	@Override
+	public String toString() {
+		return "Quantity [name=" + name + "]";
+	}
+
 }

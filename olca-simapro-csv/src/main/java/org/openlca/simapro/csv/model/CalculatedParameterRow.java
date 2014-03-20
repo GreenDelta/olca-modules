@@ -46,4 +46,10 @@ public class CalculatedParameterRow implements IDataRow {
 				getComment());
 	}
 
+	@Override
+	public String toString() {
+		return "CalculatedParameterRow [name=" + name + ", expression="
+				+ expression + "]";
+	}
+
 }

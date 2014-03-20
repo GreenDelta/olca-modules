@@ -58,4 +58,9 @@ public class UnitRow implements IDataRow {
 				conversionFactor, referenceUnit);
 	}
 
+	@Override
+	public String toString() {
+		return "UnitRow [name=" + name + "]";
+	}
+
 }

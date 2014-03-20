@@ -155,4 +155,10 @@ public class Uncertainty {
 		CsvUtils.set("0", line, offset + 3);
 	}
 
+	@Override
+	public String toString() {
+		return "Uncertainty [type=" + type + ", param1=" + param1 + ", param2="
+				+ param2 + ", param3=" + param3 + "]";
+	}
+
 }

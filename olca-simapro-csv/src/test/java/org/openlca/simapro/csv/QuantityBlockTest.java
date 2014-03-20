@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.simapro.csv.model.refdata.Quantity;
+import org.openlca.simapro.csv.model.refdata.QuantityRow;
 import org.openlca.simapro.csv.model.refdata.QuantityBlock;
 import org.openlca.simapro.csv.reader.BlockReader;
 import org.openlca.simapro.csv.reader.ModelReader;
@@ -31,7 +31,7 @@ public class QuantityBlockTest {
 				CsvConfig.getDefault(), QuantityBlock.class);
 		QuantityBlock model = (QuantityBlock) modelReader.read();
 		modelReader.close();
-		List<Quantity> quantities = model.getQuantities();
+		List<QuantityRow> quantities = model.getQuantities();
 		Assert.assertEquals(2, quantities.size());
 		Assert.assertEquals("Mass", quantities.get(0).getName());
 		Assert.assertEquals("Length", quantities.get(1).getName());
@@ -40,7 +40,7 @@ public class QuantityBlockTest {
 	@Test
 	public void testFromLine() {
 		String line = "Mass;Yes";
-		Quantity quantity = new Quantity();
+		QuantityRow quantity = new QuantityRow();
 		quantity.fill(line, CsvConfig.getDefault());
 		assertEquals("Mass", quantity.getName());
 		assertTrue(quantity.isWithDimension());
@@ -48,7 +48,7 @@ public class QuantityBlockTest {
 
 	@Test
 	public void testToLine() {
-		Quantity quantity = new Quantity();
+		QuantityRow quantity = new QuantityRow();
 		quantity.setName("Mass");
 		quantity.setWithDimension(true);
 		assertEquals("Mass;Yes", quantity.toLine(CsvConfig.getDefault()));

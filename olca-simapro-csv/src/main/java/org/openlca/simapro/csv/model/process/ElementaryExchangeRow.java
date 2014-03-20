@@ -50,4 +50,11 @@ public class ElementaryExchangeRow extends AbstractExchangeRow {
 		line[8] = CsvUtils.writeMultilines(comment);
 		return CsvUtils.getJoiner(config).join(line);
 	}
+
+	@Override
+	public String toString() {
+		return "ElementaryExchangeRow [subCompartment=" + subCompartment
+				+ ", getName()=" + getName() + ", getUnit()=" + getUnit() + "]";
+	}
+
 }

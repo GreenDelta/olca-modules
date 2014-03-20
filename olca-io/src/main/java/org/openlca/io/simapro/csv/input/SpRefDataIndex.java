@@ -11,7 +11,7 @@ import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.RefProductRow;
 import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
-import org.openlca.simapro.csv.model.refdata.Quantity;
+import org.openlca.simapro.csv.model.refdata.QuantityRow;
 import org.openlca.simapro.csv.model.refdata.UnitRow;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import java.util.Set;
  */
 class SpRefDataIndex {
 
-	private HashMap<String, Quantity> quantities = new HashMap<>();
+	private HashMap<String, QuantityRow> quantities = new HashMap<>();
 	private HashSet<String> usedUnits = new HashSet<>();
 	private HashMap<String, UnitRow> unitRows = new HashMap<>();
 	private HashMap<String, LiteratureReferenceBlock> literatureReferences = new HashMap<>();
@@ -38,13 +38,13 @@ class SpRefDataIndex {
 	private HashMap<String, ProductType> productTypes = new HashMap<>();
 	private HashMap<ElementaryFlowType, HashMap<String, ElementaryExchangeRow>> elemFlows = new HashMap<>();
 
-	public void put(Quantity quantity) {
+	public void put(QuantityRow quantity) {
 		if (quantity == null)
 			return;
 		quantities.put(quantity.getName(), quantity);
 	}
 
-	public Quantity getQuantity(String name) {
+	public QuantityRow getQuantity(String name) {
 		return quantities.get(name);
 	}
 

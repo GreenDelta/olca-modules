@@ -10,9 +10,9 @@ import org.openlca.simapro.csv.model.annotations.BlockRows;
 public class QuantityBlock {
 
 	@BlockRows
-	private List<Quantity> quantities = new ArrayList<>();
+	private List<QuantityRow> quantities = new ArrayList<>();
 
-	public List<Quantity> getQuantities() {
+	public List<QuantityRow> getQuantities() {
 		return quantities;
 	}
 

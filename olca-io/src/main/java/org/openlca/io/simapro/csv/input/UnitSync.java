@@ -9,7 +9,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.simapro.csv.model.refdata.Quantity;
+import org.openlca.simapro.csv.model.refdata.QuantityRow;
 import org.openlca.simapro.csv.model.refdata.UnitRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ class UnitSync {
 	private void addMappings(UnitMapping mapping, List<String> unknownUnits) {
 		while (!unknownUnits.isEmpty()) {
 			String unit = unknownUnits.remove(0);
-			Quantity quantity = getQuantity(unit);
+			QuantityRow quantity = getQuantity(unit);
 			if (quantity == null) {
 				log.warn("unit {} found but with no quantity; create default "
 						+ "unit, unit group, and flow property", unit);
@@ -76,7 +76,7 @@ class UnitSync {
 		}
 	}
 
-	private UnitGroup importQuantity(Quantity quantity, UnitMapping mapping) {
+	private UnitGroup importQuantity(QuantityRow quantity, UnitMapping mapping) {
 		UnitGroup group = create(UnitGroup.class,
 				"Units of " + quantity.getName());
 		addUnits(group, quantity);
@@ -105,7 +105,7 @@ class UnitSync {
 		return group;
 	}
 
-	private void addUnits(UnitGroup unitGroup, Quantity quantity) {
+	private void addUnits(UnitGroup unitGroup, QuantityRow quantity) {
 		for (UnitRow row : index.getUnitRows()) {
 			if (!Objects.equals(row.getQuantity(), quantity.getName()))
 				continue;
@@ -150,7 +150,7 @@ class UnitSync {
 		return null;
 	}
 
-	private Quantity getQuantity(String unitName) {
+	private QuantityRow getQuantity(String unitName) {
 		UnitRow row = index.getUnitRow(unitName);
 		if (row == null)
 			return null;

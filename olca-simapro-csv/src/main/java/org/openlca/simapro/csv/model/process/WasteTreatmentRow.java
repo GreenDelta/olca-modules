@@ -15,4 +15,11 @@ public class WasteTreatmentRow extends RefProductRow {
 		setCategory(CsvUtils.get(columns, 4));
 		setComment(CsvUtils.get(columns, 5));
 	}
+
+	@Override
+	public String toString() {
+		return "WasteTreatmentRow [getName()=" + getName() + ", getUnit()="
+				+ getUnit() + "]";
+	}
+
 }
