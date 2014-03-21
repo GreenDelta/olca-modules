@@ -1,6 +1,8 @@
 package org.openlca.ilcd.io;
 
-public class DataStoreException extends Exception {
+import java.io.IOException;
+
+public class DataStoreException extends IOException {
 
 	private static final long serialVersionUID = -229298485012228545L;
 

@@ -1,5 +1,6 @@
 package org.openlca.ilcd.io;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import javax.ws.rs.core.MediaType;
@@ -169,6 +170,11 @@ public class NetworkClient implements DataStore {
 		if (response.hasEntity())
 			return response.getEntity(String.class);
 		return "";
+	}
+
+	@Override
+	public void close() throws IOException {
+		client.destroy();
 	}
 
 }

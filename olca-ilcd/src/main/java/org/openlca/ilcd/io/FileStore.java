@@ -1,6 +1,7 @@
 package org.openlca.ilcd.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
@@ -154,6 +155,10 @@ public class FileStore implements DataStore {
 			}
 		}
 		return folder;
+	}
+
+	@Override
+	public void close() throws IOException {
 	}
 
 }

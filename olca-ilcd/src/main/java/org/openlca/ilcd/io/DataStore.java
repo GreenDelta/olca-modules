@@ -1,8 +1,9 @@
 package org.openlca.ilcd.io;
 
+import java.io.Closeable;
 import java.util.Iterator;
 
-public interface DataStore {
+public interface DataStore extends Closeable {
 
 	<T> T get(Class<T> type, String id) throws DataStoreException;
 

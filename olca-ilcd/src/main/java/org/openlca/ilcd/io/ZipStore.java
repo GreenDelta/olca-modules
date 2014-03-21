@@ -116,6 +116,7 @@ public class ZipStore implements DataStore {
 		return foundEntries;
 	}
 
+	@Override
 	public void close() throws DataStoreException {
 		log.trace("close zip store");
 		if (dir == null)

@@ -1,5 +1,6 @@
 package org.openlca.ilcd.io;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,6 +61,11 @@ public class MemDataStore implements DataStore {
 			return false;
 		Object obj = map.get(id);
 		return obj != null;
+	}
+
+	@Override
+	public void close() throws IOException {
+		content.clear();
 	}
 
 }
