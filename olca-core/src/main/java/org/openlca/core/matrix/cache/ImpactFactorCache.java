@@ -90,6 +90,7 @@ public class ImpactFactorCache {
 			CalcImpactFactor f = new CalcImpactFactor();
 			f.setImactCategoryId(r.getLong("f_impact_category"));
 			f.setAmount(r.getDouble("value"));
+			f.setAmountFormula(r.getString("formula"));
 			f.setConversionFactor(getConversionFactor(r));
 			f.setFlowId(r.getLong("f_flow"));
 			int uncertaintyType = r.getInt("distribution_type");
@@ -98,6 +99,9 @@ public class ImpactFactorCache {
 				f.setParameter1(r.getDouble("parameter1_value"));
 				f.setParameter2(r.getDouble("parameter2_value"));
 				f.setParameter3(r.getDouble("parameter3_value"));
+				f.setParameter1Formula(r.getString("parameter1_formula"));
+				f.setParameter2Formula(r.getString("parameter2_formula"));
+				f.setParameter3Formula(r.getString("parameter3_formula"));
 			}
 			return f;
 		}

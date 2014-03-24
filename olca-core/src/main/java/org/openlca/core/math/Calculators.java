@@ -4,9 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.ImpactTable;
-import org.openlca.core.matrix.ImpactTableBuilder;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.ParameterTable;
@@ -14,7 +11,6 @@ import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
 /**
  * Helper methods for the calculators in this package.
@@ -22,16 +18,6 @@ import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 final class Calculators {
 
 	private Calculators() {
-	}
-
-	/**
-	 * Creates a matrix with the impact assessment factors for the given method
-	 * and flows.
-	 */
-	static ImpactTable createImpactTable(ImpactMethodDescriptor method,
-			FlowIndex flowIndex, MatrixCache matrixCache) {
-		ImpactTableBuilder builder = new ImpactTableBuilder(matrixCache);
-		return builder.build(method.getId(), flowIndex);
 	}
 
 	static Inventory createInventory(CalculationSetup setup, MatrixCache cache) {

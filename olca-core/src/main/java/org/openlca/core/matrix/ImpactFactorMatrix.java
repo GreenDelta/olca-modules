@@ -5,6 +5,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
+import org.openlca.expressions.FormulaInterpreter;
 
 /**
  * A matrix with impact assessment factors where the flows are mapped to the
@@ -54,6 +55,15 @@ public class ImpactFactorMatrix {
 			}
 		});
 		return matrix;
+	}
+
+	void eval(final FormulaInterpreter interpreter) {
+		iterate(new Fn() {
+			@Override
+			public void apply(int row, int col, ImpactFactorCell cell) {
+				cell.eval(interpreter);
+			}
+		});
 	}
 
 	public void apply(final IMatrix matrix) {

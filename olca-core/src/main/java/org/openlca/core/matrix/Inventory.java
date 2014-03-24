@@ -81,7 +81,7 @@ public class Inventory {
 	}
 
 	/**
-	 * Re-evaluates the parameters and formulas in the inventory (because the
+	 * Re-evaluates the parameters and formulas in the inventory (because they
 	 * may changed), generates new values for the entries that have an
 	 * uncertainty distribution and set these values to the entries of the given
 	 * matrix. The given matrix and this inventory have to match exactly in size
@@ -95,12 +95,7 @@ public class Inventory {
 			interventionMatrix.simulate(matrix.getInterventionMatrix());
 	}
 
-	/**
-	 * Evaluates the formulas in the exchange matrices of this inventory using
-	 * the formula interpreter that is bound to this inventory. Does nothing if
-	 * there is no interpreter set or if the exchange matrices are NULL.
-	 */
-	void evalFormulas(FormulaInterpreter interpreter) {
+	private void evalFormulas(FormulaInterpreter interpreter) {
 		if (interpreter == null)
 			return;
 		if (technologyMatrix != null)

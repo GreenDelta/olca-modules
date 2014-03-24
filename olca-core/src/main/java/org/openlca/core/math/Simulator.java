@@ -21,7 +21,7 @@ public class Simulator {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private ImpactMethodDescriptor impactMethod;
-	private MatrixCache database;
+	private MatrixCache cache;
 	private final IMatrixFactory<?> factory;
 	private final IMatrixSolver matrixSolver;
 
@@ -34,9 +34,9 @@ public class Simulator {
 	private CalculationSetup setup;
 
 	public Simulator(CalculationSetup setup, MatrixCache database,
-	                 IMatrixSolver solver) {
+			IMatrixSolver solver) {
 		this.impactMethod = setup.getImpactMethod();
-		this.database = database;
+		this.cache = database;
 		this.setup = setup;
 		this.factory = solver.getMatrixFactory();
 		this.matrixSolver = solver;
@@ -59,11 +59,10 @@ public class Simulator {
 			FormulaInterpreter interpreter = parameterTable.simulate();
 			inventory.simulate(inventoryMatrix, interpreter);
 			if (impactMatrix != null)
-				impactTable.getFactorMatrix().simulate(
-						impactMatrix.getFactorMatrix());
+				impactTable.simulate(impactMatrix, interpreter);
 			LcaCalculator solver = new LcaCalculator(matrixSolver);
-			SimpleResult inventoryResult = solver.calculateFull(inventoryMatrix,
-					impactMatrix);
+			SimpleResult inventoryResult = solver.calculateFull(
+					inventoryMatrix, impactMatrix);
 			appendResults(inventoryResult);
 			return true;
 		} catch (Throwable e) {
@@ -80,21 +79,21 @@ public class Simulator {
 
 	private void setUp() {
 		log.trace("set up inventory");
-		inventory = Calculators.createInventory(setup, database);
-		parameterTable = Calculators.createParameterTable(database.getDatabase(),
+		inventory = Calculators.createInventory(setup, cache);
+		parameterTable = Calculators.createParameterTable(cache.getDatabase(),
 				setup, inventory);
 		inventoryMatrix = inventory.createMatrix(factory);
 		result = new SimulationResult();
 		result.setProductIndex(inventory.getProductIndex());
 		result.setFlowIndex(inventory.getFlowIndex());
 		if (impactMethod != null) {
-			ImpactTable impactTable = Calculators.createImpactTable(
-					impactMethod, inventory.getFlowIndex(), database);
+			ImpactTable impactTable = ImpactTable.build(cache,
+					impactMethod.getId(), inventory.getFlowIndex());
 			if (impactTable.isEmpty()) {
 				return;
 			}
 			this.impactTable = impactTable;
-			this.impactMatrix = impactTable.asMatrix(factory);
+			this.impactMatrix = impactTable.createMatrix(factory);
 			result.setImpactIndex(impactTable.getCategoryIndex());
 		}
 	}

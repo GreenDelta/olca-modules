@@ -20,6 +20,9 @@ public class SystemCalculator {
 	private final MatrixCache matrixCache;
 	private final IMatrixSolver solver;
 
+	private InventoryMatrix inventoryMatrix;
+	private ImpactMatrix impactMatrix;
+
 	public SystemCalculator(MatrixCache cache, IMatrixSolver solver) {
 		this.matrixCache = cache;
 		this.solver = solver;
@@ -27,55 +30,38 @@ public class SystemCalculator {
 
 	public SimpleResult calculateSimple(CalculationSetup setup) {
 		log.trace("calculate product system - simple result");
-		InventoryMatrix inventory = makeInventory(setup);
+		doSetUp(setup);
 		LcaCalculator calculator = new LcaCalculator(solver);
-		if (setup.getImpactMethod() == null)
-			return calculator.calculateSimple(inventory);
-		else {
-			ImpactMatrix impactMatrix = makeImpactMatrix(setup, inventory);
-			return calculator.calculateSimple(inventory, impactMatrix);
-		}
+		return calculator.calculateSimple(inventoryMatrix, impactMatrix);
 	}
 
 	public ContributionResult calculateContributions(CalculationSetup setup) {
 		log.trace("calculate product system - contribution result");
-		InventoryMatrix inventory = makeInventory(setup);
+		doSetUp(setup);
 		LcaCalculator calculator = new LcaCalculator(solver);
-		if (setup.getImpactMethod() == null)
-			return calculator.calculateContributions(inventory);
-		else {
-			ImpactMatrix impactMatrix = makeImpactMatrix(setup, inventory);
-			return calculator.calculateContributions(inventory, impactMatrix);
-		}
+		return calculator.calculateContributions(inventoryMatrix, impactMatrix);
 	}
 
 	public FullResult calculateFull(CalculationSetup setup) {
 		log.trace("calculate product system - full result");
-		InventoryMatrix inventory = makeInventory(setup);
+		doSetUp(setup);
 		LcaCalculator calculator = new LcaCalculator(solver);
-		if (setup.getImpactMethod() == null)
-			return calculator.calculateFull(inventory);
-		else {
-			ImpactMatrix impactMatrix = makeImpactMatrix(setup, inventory);
-			return calculator.calculateFull(inventory, impactMatrix);
-		}
+		return calculator.calculateFull(inventoryMatrix, impactMatrix);
 	}
 
-	private InventoryMatrix makeInventory(CalculationSetup setup) {
-		Inventory inventory = Calculators.createInventory(setup, matrixCache);
+	private void doSetUp(CalculationSetup setup) {
 		IDatabase db = matrixCache.getDatabase();
+		Inventory inventory = Calculators.createInventory(setup, matrixCache);
 		ParameterTable parameterTable = Calculators.createParameterTable(db,
 				setup, inventory);
 		FormulaInterpreter interpreter = parameterTable.createInterpreter();
-		InventoryMatrix matrix = inventory.createMatrix(
+		this.inventoryMatrix = inventory.createMatrix(
 				solver.getMatrixFactory(), interpreter);
-		return matrix;
-	}
-
-	private ImpactMatrix makeImpactMatrix(CalculationSetup setup,
-			InventoryMatrix inventory) {
-		ImpactTable impactTable = Calculators.createImpactTable(
-				setup.getImpactMethod(), inventory.getFlowIndex(), matrixCache);
-		return impactTable.asMatrix(solver.getMatrixFactory());
+		if (setup.getImpactMethod() != null) {
+			ImpactTable impactTable = ImpactTable.build(matrixCache, setup
+					.getImpactMethod().getId(), inventory.getFlowIndex());
+			this.impactMatrix = impactTable.createMatrix(
+					solver.getMatrixFactory(), interpreter);
+		}
 	}
 }

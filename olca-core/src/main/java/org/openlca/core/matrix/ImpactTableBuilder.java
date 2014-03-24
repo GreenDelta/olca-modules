@@ -12,22 +12,24 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Longs;
 
-/**
- * Builds a matrix with impact assessment factors.
- * 
- */
-public class ImpactTableBuilder {
+class ImpactTableBuilder {
 
-	private MatrixCache cache;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	public ImpactTableBuilder(MatrixCache cache) {
+	private final MatrixCache cache;
+	private final long methodId;
+	private final FlowIndex flowIndex;
+
+	ImpactTableBuilder(MatrixCache cache, long impactMethodId,
+			FlowIndex flowIndex) {
 		this.cache = cache;
+		this.methodId = impactMethodId;
+		this.flowIndex = flowIndex;
 	}
 
-	public ImpactTable build(long impactMethodId, FlowIndex flowIndex) {
-		log.trace("Build impact factor matrix for method {}", impactMethodId);
-		LongIndex categoryIndex = buildCategoryIndex(impactMethodId);
+	public ImpactTable build() {
+		log.trace("Build impact factor matrix for method {}", methodId);
+		LongIndex categoryIndex = buildCategoryIndex();
 		if (categoryIndex.isEmpty() || flowIndex.isEmpty())
 			return null;
 		ImpactTable table = new ImpactTable();
@@ -36,12 +38,12 @@ public class ImpactTableBuilder {
 		ImpactFactorMatrix matrix = new ImpactFactorMatrix(
 				categoryIndex.size(), flowIndex.size());
 		table.setFactorMatrix(matrix);
-		fill(matrix, flowIndex, categoryIndex);
+		fill(matrix, categoryIndex);
 		log.trace("Impact factor matrix ready");
 		return table;
 	}
 
-	private LongIndex buildCategoryIndex(long methodId) {
+	private LongIndex buildCategoryIndex() {
 		LongIndex index = new LongIndex();
 		try (Connection con = cache.getDatabase().createConnection()) {
 			String query = "select id from tbl_impact_categories where f_impact_method = "
@@ -58,8 +60,7 @@ public class ImpactTableBuilder {
 		return index;
 	}
 
-	private void fill(ImpactFactorMatrix matrix, FlowIndex flowIndex,
-			LongIndex categoryIndex) {
+	private void fill(ImpactFactorMatrix matrix, LongIndex categoryIndex) {
 		Map<Long, List<CalcImpactFactor>> factorMap = loadFactors(categoryIndex);
 		for (int row = 0; row < categoryIndex.size(); row++) {
 			long categoryId = categoryIndex.getKeyAt(row);
@@ -72,7 +73,8 @@ public class ImpactTableBuilder {
 				if (col < 0)
 					continue;
 				boolean input = flowIndex.isInput(flowId);
-				ImpactFactorCell cell = new ImpactFactorCell(factor, input);
+				ImpactFactorCell cell = new ImpactFactorCell(factor, methodId,
+						input);
 				matrix.setEntry(row, col, cell);
 			}
 		}
