@@ -1,6 +1,8 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.math.IMatrix;
+import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.matrix.cache.MatrixCache;
 
 public class CostMatrix {
 
@@ -14,6 +16,12 @@ public class CostMatrix {
 	/** Returns an empty matrix. */
 	public static CostMatrix empty() {
 		return new CostMatrix();
+	}
+
+	public static CostMatrix build(MatrixCache matrixCache,
+			IMatrixFactory<?> factory, ProductIndex productIndex) {
+		return new CostMatrixBuilder(matrixCache, factory, productIndex)
+				.build();
 	}
 
 	public boolean isEmpty() {

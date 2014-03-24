@@ -1,7 +1,6 @@
 package org.openlca.core.math;
 
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -33,7 +32,7 @@ public class ProductSystems {
 		LongPair refProduct = new LongPair(refProcess.getId(), refFlow.getId());
 		double demand = ReferenceAmount.get(system);
 		ProductIndex index = new ProductIndex(refProduct);
-        index.setDemand(demand);
+		index.setDemand(demand);
 		for (ProcessLink link : system.getProcessLinks()) {
 			long flow = link.getFlowId();
 			long provider = link.getProviderId();
@@ -50,13 +49,13 @@ public class ProductSystems {
 			MatrixCache matrixCache) {
 		ProductIndex index = createProductIndex(system);
 		AllocationMethod method = AllocationMethod.USE_DEFAULT;
-		return new InventoryBuilder(matrixCache).build(index, method);
+		return Inventory.build(matrixCache, index, method);
 	}
 
 	public static Inventory createInventory(ProductSystem system,
 			AllocationMethod allocationMethod, MatrixCache matrixCache) {
 		ProductIndex index = createProductIndex(system);
-		return new InventoryBuilder(matrixCache).build(index, allocationMethod);
+		return Inventory.build(matrixCache, index, allocationMethod);
 	}
 
 }

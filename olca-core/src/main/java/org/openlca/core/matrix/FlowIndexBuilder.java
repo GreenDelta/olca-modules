@@ -15,18 +15,24 @@ import org.slf4j.LoggerFactory;
  * are not contained in the product index will be added to the flow index
  * (except if they are allocated co-products).
  */
-public class FlowIndexBuilder {
+class FlowIndexBuilder {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private AllocationMethod allocationMethod;
 
-	public FlowIndexBuilder(AllocationMethod allocationMethod) {
+	private final MatrixCache cache;
+	private final ProductIndex productIndex;
+	private final AllocationMethod allocationMethod;
+
+	FlowIndexBuilder(MatrixCache cache, ProductIndex productIndex,
+			AllocationMethod allocationMethod) {
 		this.allocationMethod = allocationMethod;
+		this.cache = cache;
+		this.productIndex = productIndex;
 	}
 
-	public FlowIndex build(ProductIndex productIndex, MatrixCache cache) {
+	FlowIndex build() {
 		FlowIndex index = new FlowIndex();
-		Map<Long, List<CalcExchange>> map = loadExchanges(productIndex, cache);
+		Map<Long, List<CalcExchange>> map = loadExchanges();
 		for (Long processId : productIndex.getProcessIds()) {
 			List<CalcExchange> exchanges = map.get(processId);
 			for (CalcExchange e : exchanges) {
@@ -49,8 +55,7 @@ public class FlowIndexBuilder {
 		return index;
 	}
 
-	private Map<Long, List<CalcExchange>> loadExchanges(
-			ProductIndex productIndex, MatrixCache cache) {
+	private Map<Long, List<CalcExchange>> loadExchanges() {
 		try {
 			Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
 					.getAll(productIndex.getProcessIds());

@@ -1,7 +1,6 @@
 package org.openlca.core.math;
 
 import org.openlca.core.matrix.CostMatrix;
-import org.openlca.core.matrix.CostMatrixBuilder;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.results.CostResult;
@@ -30,9 +29,7 @@ public class CostCalculator {
 		CostResult result = new CostResult();
 		result.setProductIndex(index);
 		try {
-			CostMatrixBuilder builder = new CostMatrixBuilder(matrixCache,
-					factory);
-			CostMatrix matrix = builder.build(index);
+			CostMatrix matrix = CostMatrix.build(matrixCache, factory, index);
 			if (matrix.hasVarCosts())
 				calculateVarCosts(matrix, s, result);
 			if (matrix.hasFixCosts())

@@ -16,36 +16,41 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class CostMatrixBuilder {
+class CostMatrixBuilder {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
+
 	private final MatrixCache matrixCache;
 	private final IMatrixFactory<?> factory;
+	private final ProductIndex productIndex;
+
 	private TLongObjectHashMap<CostCategory> costCategories;
 	private Multimap<LongPair, CalcCostEntry> costEntries = HashMultimap
 			.create();
 	private LongIndex fixCostCategoryIndex;
 	private LongIndex varCostCategoryIndex;
 
-	public CostMatrixBuilder(MatrixCache matrixCache, IMatrixFactory<?> factory) {
+	CostMatrixBuilder(MatrixCache matrixCache, IMatrixFactory<?> factory,
+			ProductIndex productIndex) {
 		this.matrixCache = matrixCache;
 		this.factory = factory;
+		this.productIndex = productIndex;
 	}
 
-	public CostMatrix build(ProductIndex productIndex) {
+	CostMatrix build() {
 		log.trace("build cost matrix");
 		CostMatrix costMatrix = new CostMatrix();
 		costMatrix.setProductIndex(productIndex);
 		costCategories = loadCostCategories();
 		fixCostCategoryIndex = new LongIndex();
 		varCostCategoryIndex = new LongIndex();
-		indexData(productIndex);
+		indexData();
 		if (!fixCostCategoryIndex.isEmpty()) {
-			IMatrix fixCosts = buildMatrix(fixCostCategoryIndex, productIndex);
+			IMatrix fixCosts = buildMatrix(fixCostCategoryIndex);
 			costMatrix.setFixCosts(fixCostCategoryIndex, fixCosts);
 		}
 		if (!varCostCategoryIndex.isEmpty()) {
-			IMatrix varCosts = buildMatrix(varCostCategoryIndex, productIndex);
+			IMatrix varCosts = buildMatrix(varCostCategoryIndex);
 			costMatrix.setVariableCosts(varCostCategoryIndex, varCosts);
 		}
 		return costMatrix;
@@ -61,20 +66,20 @@ public class CostMatrixBuilder {
 		return index;
 	}
 
-	private void indexData(ProductIndex productIndex) {
+	private void indexData() {
 		try {
 			Map<Long, List<CalcCostEntry>> lists = matrixCache.getCostCache()
 					.getAll(productIndex.getProcessIds());
 			for (List<CalcCostEntry> list : lists.values()) {
 				for (CalcCostEntry entry : list)
-					indexEntry(productIndex, entry);
+					indexEntry(entry);
 			}
 		} catch (Exception e) {
 			log.error("failed to load cost entruies from database", e);
 		}
 	}
 
-	private void indexEntry(ProductIndex productIndex, CalcCostEntry entry) {
+	private void indexEntry(CalcCostEntry entry) {
 		LongPair processProduct = LongPair.of(entry.getProcessId(),
 				entry.getExchangeId());
 		if (!productIndex.contains(processProduct))
@@ -89,8 +94,7 @@ public class CostMatrixBuilder {
 		costEntries.put(processProduct, entry);
 	}
 
-	private IMatrix buildMatrix(LongIndex costCategoryIndex,
-			ProductIndex productIndex) {
+	private IMatrix buildMatrix(LongIndex costCategoryIndex) {
 		IMatrix matrix = factory.create(costCategoryIndex.size(),
 				productIndex.size());
 		for (int col = 0; col < productIndex.size(); col++) {

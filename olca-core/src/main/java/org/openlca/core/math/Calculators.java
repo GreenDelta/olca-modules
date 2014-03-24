@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.InventoryBuilder;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -27,8 +26,7 @@ final class Calculators {
 			method = AllocationMethod.NONE;
 		ProductIndex productIndex = ProductSystems.createProductIndex(system);
 		productIndex.setDemand(ReferenceAmount.get(setup));
-		InventoryBuilder inventoryBuilder = new InventoryBuilder(cache);
-		return inventoryBuilder.build(productIndex, method);
+		return Inventory.build(cache, productIndex, method);
 	}
 
 	static ParameterTable createParameterTable(IDatabase db,

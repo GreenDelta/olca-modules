@@ -2,6 +2,7 @@ package org.openlca.core.matrix;
 
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
 
@@ -15,6 +16,12 @@ public class Inventory {
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 	private AllocationMethod allocationMethod;
+
+	public static Inventory build(MatrixCache matrixCache,
+			ProductIndex productIndex, AllocationMethod allocationMethod) {
+		return new InventoryBuilder(matrixCache, productIndex, allocationMethod)
+				.build();
+	}
 
 	public boolean isEmpty() {
 		return productIndex == null || productIndex.size() == 0

@@ -27,7 +27,7 @@ class ImpactTableBuilder {
 		this.flowIndex = flowIndex;
 	}
 
-	public ImpactTable build() {
+	ImpactTable build() {
 		log.trace("Build impact factor matrix for method {}", methodId);
 		LongIndex categoryIndex = buildCategoryIndex();
 		if (categoryIndex.isEmpty() || flowIndex.isEmpty())

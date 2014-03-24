@@ -9,31 +9,30 @@ import org.openlca.core.model.FlowType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InventoryBuilder {
+class InventoryBuilder {
 
-	private MatrixCache cache;
-	private ProductIndex productIndex;
+	private final MatrixCache cache;
+	private final ProductIndex productIndex;
+	private final AllocationMethod allocationMethod;
+
 	private FlowIndex flowIndex;
 	private AllocationIndex allocationTable;
-	private AllocationMethod allocationMethod;
-
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	public InventoryBuilder(MatrixCache matrixCache) {
-		this.cache = matrixCache;
-	}
-
-	public Inventory build(ProductIndex productIndex,
+	InventoryBuilder(MatrixCache matrixCache, ProductIndex productIndex,
 			AllocationMethod allocationMethod) {
+		this.cache = matrixCache;
 		this.productIndex = productIndex;
 		this.allocationMethod = allocationMethod;
+	}
+
+	Inventory build() {
 		if (allocationMethod != null
 				&& allocationMethod != AllocationMethod.NONE)
 			allocationTable = AllocationIndex.create(productIndex,
 					allocationMethod, cache);
-		flowIndex = new FlowIndexBuilder(allocationMethod).build(productIndex,
-				cache);
+		flowIndex = FlowIndex.build(cache, productIndex, allocationMethod);
 		technologyMatrix = new ExchangeMatrix(productIndex.size(),
 				productIndex.size());
 		interventionMatrix = new ExchangeMatrix(flowIndex.size(),
