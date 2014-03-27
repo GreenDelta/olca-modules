@@ -3,15 +3,17 @@ package org.openlca.core.database.upgrades;
 import org.openlca.core.database.IDatabase;
 
 /**
- * Updates an openLCA database from a defined version to a newer version.
+ * Updates an openLCA database from one or more defined versions to a newer
+ * version.
  */
 interface IUpgrade {
 
 	/**
-	 * The initial version that the database must have in order to run this
-	 * upgrade.
+	 * The initial versions for which this upgrade is valid. The upgrade must
+	 * run safely with all of these database versions and produce an identical
+	 * database schema for all these versions.
 	 */
-	int getInitialVersion();
+	int[] getInitialVersions();
 
 	/**
 	 * The version that the database has after the update.

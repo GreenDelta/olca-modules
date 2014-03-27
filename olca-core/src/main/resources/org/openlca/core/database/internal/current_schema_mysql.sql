@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (1);
+INSERT INTO openlca_version (version) VALUES (3);
 
 
 CREATE TABLE tbl_categories (
@@ -46,7 +46,7 @@ CREATE TABLE tbl_actors (
 	telefax VARCHAR(255), 
 	website VARCHAR(255), 
 	address VARCHAR(255), 
-	description TEXT,
+	description TEXT, 
 	zip_code VARCHAR(255), 
 	name VARCHAR(255), 
 	f_category BIGINT, 
@@ -63,7 +63,7 @@ CREATE TABLE tbl_locations (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
-	description TEXT,
+	description TEXT, 
 	name VARCHAR(255), 
 	longitude DOUBLE, 
 	latitude DOUBLE, 
@@ -77,13 +77,13 @@ CREATE TABLE tbl_sources (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
-	description TEXT,
+	description TEXT, 
 	f_category  BIGINT, 
 	name VARCHAR(255), 
 	source_year SMALLINT, 
-	text_reference TEXT,
+	text_reference TEXT, 
 	doi VARCHAR(255),
-	external_file VARCHAR(255), 
+	external_file VARCHAR(255),
 	
 	PRIMARY KEY (id)
 	
@@ -96,7 +96,7 @@ CREATE TABLE tbl_units (
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
 	conversion_factor DOUBLE, 
-	description TEXT,
+	description TEXT, 
 	name VARCHAR(255),
 	synonyms VARCHAR(255),
 	f_unit_group BIGINT,
@@ -113,7 +113,7 @@ CREATE TABLE tbl_unit_groups (
 	ref_id VARCHAR(36), 
 	name VARCHAR(255), 
 	f_category BIGINT, 
-	description TEXT,
+	description TEXT, 
 	f_reference_unit BIGINT,
 	f_default_flow_property BIGINT, 
 	
@@ -131,7 +131,7 @@ CREATE TABLE tbl_flow_properties (
 	ref_id VARCHAR(36),
 	name VARCHAR(255), 
 	f_category BIGINT, 
-	description TEXT,
+	description TEXT, 
 	flow_property_type VARCHAR(255), 
 	f_unit_group BIGINT, 
 	
@@ -150,7 +150,7 @@ CREATE TABLE tbl_flows (
 	description TEXT,
 	flow_type VARCHAR(255), 
 	
-	infrastructure_flow TINYINT default 0,
+	infrastructure_flow TINYINT default 0, 
 	cas_number VARCHAR(255), 
 	formula VARCHAR(255), 
 	f_reference_flow_property BIGINT, 
@@ -184,10 +184,10 @@ CREATE TABLE tbl_processes (
 	ref_id VARCHAR(36), 
 	name VARCHAR(255), 
 	f_category BIGINT, 
-	description TEXT,
+	description TEXT, 
 	process_type VARCHAR(255), 
 	default_allocation_method VARCHAR(255), 	
-	infrastructure_process TINYINT default 0,
+	infrastructure_process TINYINT default 0, 
 	f_quantitative_reference BIGINT, 
 	f_location BIGINT, 
 	f_process_doc BIGINT, 
@@ -203,7 +203,7 @@ CREATE INDEX idx_process_location ON tbl_processes(f_location);
 CREATE TABLE tbl_process_docs (
 	
 	id BIGINT NOT NULL,
-	geography TEXT,
+	geography TEXT, 
 	technology TEXT,
 	
 	time TEXT,
@@ -211,20 +211,20 @@ CREATE TABLE tbl_process_docs (
 	valid_until DATE, 
 	
 	modeling_constants TEXT,
-	data_treatment TEXT,
-	sampling TEXT,
+	data_treatment TEXT, 
+	sampling TEXT, 
 	completeness TEXT,
 	review_details TEXT,
-	inventory_method TEXT,
-	data_collection_period TEXT,
-	data_selection TEXT,
+	inventory_method TEXT, 
+	data_collection_period TEXT, 
+	data_selection TEXT, 
 	f_reviewer BIGINT, 
 	
 	project VARCHAR(255), 
 	creation_date TIMESTAMP, 
-	intended_application TEXT,
+	intended_application TEXT, 
 	restrictions TEXT,
-	copyright TINYINT default 0,
+	copyright TINYINT default 0, 
 	last_change TIMESTAMP, 
 	version VARCHAR(255), 
 	f_data_generator BIGINT,
@@ -249,7 +249,7 @@ CREATE TABLE tbl_exchanges (
 	f_owner BIGINT, 
 	f_flow BIGINT, 
 	f_unit BIGINT, 
-	is_input TINYINT default 0,
+	is_input TINYINT default 0, 
 	f_flow_property_factor BIGINT, 
 	resulting_amount_value DOUBLE, 
 	resulting_amount_formula VARCHAR(1000), 
@@ -293,7 +293,7 @@ CREATE TABLE tbl_product_systems (
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
 	name VARCHAR(255), 
-	description TEXT,
+	description TEXT, 
 	f_category BIGINT,  
 	target_amount DOUBLE, 
 	f_reference_process BIGINT, 
@@ -326,11 +326,12 @@ CREATE TABLE tbl_process_links (
 );
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 
+
 CREATE TABLE tbl_impact_methods (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
-	description TEXT,
+	description TEXT, 
 	f_category BIGINT, 
 	name VARCHAR(255), 
 	PRIMARY KEY (id)
@@ -342,7 +343,7 @@ CREATE TABLE tbl_impact_categories (
 
 	id BIGINT NOT NULL, 
 	ref_id VARCHAR(36),
-	description TEXT,
+	description TEXT, 
 	name VARCHAR(255), 
 	reference_unit VARCHAR(255),
 	f_impact_method BIGINT, 
@@ -376,25 +377,27 @@ CREATE TABLE tbl_impact_factors (
 CREATE INDEX idx_impact_factor_flow ON tbl_impact_factors(f_flow);
 
 
-CREATE TABLE tbl_normalisation_weighting_sets (
+CREATE TABLE tbl_nw_sets (
 
-	id BIGINT NOT NULL, 
-	reference_system VARCHAR(255),
-	f_impact_method BIGINT, 
-	unit VARCHAR(255),
+	id BIGINT NOT NULL,
+    ref_id VARCHAR(36),
+    description TEXT,
+    name VARCHAR(255),
+	f_impact_method BIGINT,
+	weighted_score_unit VARCHAR(255),
 	
 	PRIMARY KEY (id)
 
 );
 
 
-CREATE TABLE tbl_normalisation_weighting_factors (
+CREATE TABLE tbl_nw_factors (
 
 	id BIGINT NOT NULL, 
 	weighting_factor DOUBLE, 
 	normalisation_factor DOUBLE,
-	f_impact_category VARCHAR(36),
-	f_normalisation_weighting_set BIGINT, 
+	f_impact_category BIGINT,
+	f_nw_set BIGINT,
 	
 	PRIMARY KEY (id)
 
@@ -405,7 +408,7 @@ CREATE TABLE tbl_parameters (
 
 	id BIGINT NOT NULL, 
 	name VARCHAR(255), 
-	description TEXT,
+	description TEXT, 
 	is_input_param TINYINT default 0,
 	f_owner BIGINT, 
 	scope VARCHAR(255), 
@@ -451,12 +454,12 @@ CREATE TABLE tbl_projects (
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
 	name VARCHAR(255), 
-	description TEXT,
+	description TEXT, 
 	f_category BIGINT, 
 	creation_date TIMESTAMP, 
-	functional_unit TEXT,
+	functional_unit TEXT, 
 	last_modification_date TIMESTAMP,
-	goal TEXT,
+	goal TEXT, 
 	f_author BIGINT, 
 	f_impact_method BIGINT,
 	f_nwset BIGINT,
@@ -480,13 +483,10 @@ CREATE TABLE tbl_project_variants (
 );
 
 
-CREATE TABLE tbl_mappings (
+CREATE TABLE tbl_mapping_files (
 	id BIGINT NOT NULL,
-    for_import SMALLINT default 0,
-	format VARCHAR(255),
-    olca_ref_id VARCHAR(36),
-    model_type VARCHAR(255),
-    content TEXT,
+	file_name VARCHAR(255),
+    content MEDIUMBLOB,
 	PRIMARY KEY (id)
 );
 
@@ -513,7 +513,7 @@ CREATE TABLE tbl_process_cost_entries (
 CREATE TABLE tbl_process_group_sets (
 	id BIGINT NOT NULL,
 	name VARCHAR(255), 
-	groups_blob MEDIUMBLOB,
+	groups_blob MEDIUMBLOB,		
 	PRIMARY KEY (id)	
 ) ;
 

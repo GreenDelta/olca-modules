@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.derby.DerbyDatabase;
 
 class Upgrade1 implements IUpgrade {
 
@@ -15,13 +16,13 @@ class Upgrade1 implements IUpgrade {
 	private IDatabase database;
 
 	@Override
-	public int getInitialVersion() {
-		return 1;
+	public int[] getInitialVersions() {
+		return new int[] { 1, 2 };
 	}
 
 	@Override
 	public int getEndVersion() {
-		return 2;
+		return 3;
 	}
 
 	@Override
@@ -44,17 +45,25 @@ class Upgrade1 implements IUpgrade {
 
 	private void updateMappingTable() throws Exception {
 		util.dropTable("tbl_mappings");
-		// @formatter:off
-		String tableDef = "CREATE TABLE tbl_mappings ( " 
-				+ " id BIGINT NOT NULL," 
-				+ " for_import SMALLINT default 0," 
-				+ " format VARCHAR(255),"
-				+ " olca_ref_id VARCHAR(36),"
-				+ " model_type VARCHAR(255),"
-				+ " content " + util.getTextType() + ","
-				+ " PRIMARY KEY (id))";
-		// @formatter:on
-		util.checkCreateTable("tbl_mappings", tableDef);
+		String tableDef;
+		if (database instanceof DerbyDatabase) {
+			//@formatter:off
+			tableDef = "CREATE TABLE tbl_mapping_files ("
+					  	+ "id BIGINT NOT NULL, "
+					  	+ "file_name VARCHAR(255), "
+					  	+ "content BLOB(16 M), "
+					  	+ "PRIMARY KEY (id))";
+			//@formatter:on
+		} else {
+			//@formatter:off
+			tableDef = "CREATE TABLE tbl_mapping_files ("
+					  	+ "id BIGINT NOT NULL, "
+					  	+ "file_name VARCHAR(255), "
+					  	+ "content MEDIUMBLOB, "
+					  	+ "PRIMARY KEY (id))";
+			//@formatter:on
+		}
+		util.checkCreateTable("tbl_mapping_files", tableDef);
 	}
 
 	private void createNwSetTable() throws Exception {

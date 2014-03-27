@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (2);
+INSERT INTO openlca_version (version) VALUES (3);
 
 
 CREATE TABLE tbl_categories (
@@ -483,13 +483,10 @@ CREATE TABLE tbl_project_variants (
 );
 
 
-CREATE TABLE tbl_mappings (
+CREATE TABLE tbl_mapping_files (
 	id BIGINT NOT NULL,
-    for_import SMALLINT default 0,
-	format VARCHAR(255),
-    olca_ref_id VARCHAR(36),
-    model_type VARCHAR(255),
-    content CLOB(64 K),
+	file_name VARCHAR(255),
+    content BLOB(16 M),
 	PRIMARY KEY (id)
 );
 
