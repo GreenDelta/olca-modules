@@ -1,18 +1,17 @@
 package org.openlca.core.model;
 
+import org.openlca.util.BinUtils;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.Table;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-
-import org.openlca.util.BinUtils;
 
 /**
  * A set of process groups that can be stored in the database. The groups are
@@ -45,8 +44,10 @@ public class ProcessGroupSet extends AbstractEntity {
 	 * presentation.
 	 */
 	public void setGroups(List<ProcessGroup> groups) throws IOException {
-		if (groups == null || groups.isEmpty())
+		if (groups == null || groups.isEmpty()) {
 			groupsBlob = null;
+			return;
+		}
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		BinUtils.writeInt(out, groups.size());
 		for (ProcessGroup group : groups) {
@@ -58,14 +59,14 @@ public class ProcessGroupSet extends AbstractEntity {
 			}
 		}
 		out.flush();
-		groupsBlob = BinUtils.zip(out.toByteArray());
+		groupsBlob = BinUtils.gzip(out.toByteArray());
 	}
 
 	/** Get the process groups from the internal byte array presentation. */
-	public List<ProcessGroup> getGroups() throws IOException {
+	public List<ProcessGroup> getGroups() throws Exception {
 		if (groupsBlob == null || groupsBlob.length == 0)
 			return Collections.emptyList();
-		byte[] bytes = BinUtils.unzip(groupsBlob);
+		byte[] bytes = BinUtils.gunzip(groupsBlob);
 		ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
 		List<ProcessGroup> groups = new ArrayList<>();
 		int groupCount = BinUtils.readInt(bin);
@@ -74,8 +75,7 @@ public class ProcessGroupSet extends AbstractEntity {
 			ProcessGroup group = new ProcessGroup();
 			groups.add(group);
 			group.setName(name);
-			int processCount = BinUtils.readInt(bin);
-			for (int k = 0; k < processCount; k++) {
+			for (int k = 0; k < BinUtils.readInt(bin); k++) {
 				String id = BinUtils.readString(bin);
 				group.getProcessIds().add(id);
 			}
