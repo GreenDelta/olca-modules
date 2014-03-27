@@ -1,9 +1,15 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -13,11 +19,6 @@ import org.openlca.simapro.csv.model.refdata.QuantityRow;
 import org.openlca.simapro.csv.model.refdata.UnitRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Synchronizes the used unit names found in a SimaPro CSV file with the units
@@ -97,6 +98,7 @@ class UnitSync {
 		UnitGroupDao groupDao = new UnitGroupDao(database);
 		group = groupDao.insert(group);
 		FlowProperty property = create(FlowProperty.class, propertyName);
+		property.setFlowPropertyType(FlowPropertyType.PHYSICAL);
 		property.setUnitGroup(group);
 		FlowPropertyDao propertyDao = new FlowPropertyDao(database);
 		property = propertyDao.insert(property);

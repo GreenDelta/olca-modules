@@ -1,10 +1,12 @@
 package org.openlca.io.refdata;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import org.openlca.core.database.IDatabase;
+import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 public class RefDataImport implements Runnable {
 
@@ -36,13 +38,16 @@ public class RefDataImport implements Runnable {
 			importFile("lcia_factors.csv", new ImpactFactorImport());
 			importFile("nw_sets.csv", new NwSetImport());
 			importFile("nw_set_factors.csv", new NwSetFactorImport());
+			seq.write();
 			database.getEntityFactory().getCache().evictAll();
+			importMappingFiles();
 		} catch (Exception e) {
 			log.error("Reference data import failed", e);
 		}
 	}
 
-	private void importFile(String fileName, AbstractImport importer) throws Exception {
+	private void importFile(String fileName, AbstractImport importer)
+			throws Exception {
 		File file = new File(dir, fileName);
 		if (!file.exists()) {
 			log.info("file {} does not exist in {} -> not imported", fileName,
@@ -53,4 +58,16 @@ public class RefDataImport implements Runnable {
 		importer.run(file, seq, database);
 	}
 
+	private void importMappingFiles() throws Exception {
+		// TODO: add other mapping files
+		String[] fileNames = { Maps.SP_FLOW_IMPORT_MAP };
+		for (String fileName : fileNames) {
+			File file = new File(dir, fileName);
+			if (!file.exists())
+				continue;
+			try (FileInputStream stream = new FileInputStream(file)) {
+				Maps.store(fileName, stream, database);
+			}
+		}
+	}
 }

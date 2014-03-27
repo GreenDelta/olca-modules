@@ -1,10 +1,18 @@
 package org.openlca.io.refdata;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.MappingFileDao;
+import org.openlca.core.model.MappingFile;
+import org.openlca.io.maps.Maps;
+import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 public class RefDataExport implements Runnable {
 
@@ -34,6 +42,7 @@ public class RefDataExport implements Runnable {
 			export("lcia_factors.csv", new ImpactFactorExport());
 			export("nw_sets.csv", new NwSetExport());
 			export("nw_set_factors.csv", new NwSetFactorExport());
+			exportMappingFiles();
 		} catch (Exception e) {
 			log.error("Reference data export failed", e);
 		}
@@ -45,6 +54,25 @@ public class RefDataExport implements Runnable {
 			log.warn("the file already exists; did not changed it");
 		} else {
 			export.run(file, database);
+		}
+	}
+
+	private void exportMappingFiles() throws Exception {
+		MappingFileDao dao = new MappingFileDao(database);
+		// TODO: add other mapping files
+		String[] fileNames = { Maps.SP_FLOW_IMPORT_MAP };
+		for (String fileName : fileNames) {
+			File file = new File(dir, fileName);
+			FileOutputStream out = new FileOutputStream(file);
+			MappingFile mappingFile = dao.getForFileName(fileName);
+			InputStream in;
+			if (mappingFile != null && mappingFile.getContent() != null) {
+				byte[] bytes = BinUtils.unzip(mappingFile.getContent());
+				in = new ByteArrayInputStream(bytes);
+			} else {
+				in = Maps.class.getResourceAsStream(fileName);
+			}
+			IOUtils.copy(in, out);
 		}
 	}
 }
