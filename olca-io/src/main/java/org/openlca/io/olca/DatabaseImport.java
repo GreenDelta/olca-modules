@@ -32,6 +32,7 @@ public class DatabaseImport implements Runnable {
 			importSimple(seq);
 			importUnitRefs(seq);
 			importStructs(seq);
+			new MappingFileImport(source, dest).run();
 			new FileImport(source, dest).run();
 		} catch (Exception e) {
 			log.error("Database import failed", e);
