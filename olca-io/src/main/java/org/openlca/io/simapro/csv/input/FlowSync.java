@@ -43,7 +43,7 @@ class FlowSync {
 		this.unitMapping = unitMapping;
 		this.database = database;
 		this.dao = new FlowDao(database);
-		this.importMap = ImportMap.load();
+		this.importMap = ImportMap.load(database);
 	}
 
 	public void run(RefData refData) {

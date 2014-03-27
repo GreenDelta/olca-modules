@@ -13,7 +13,7 @@ public class ImportMapTest {
 
 	@Before
 	public void setUp() {
-		map = ImportMap.load();
+		map = ImportMap.load(null);
 	}
 
 	@Test

@@ -1,5 +1,9 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.HashMap;
+import java.util.List;
+
+import org.openlca.core.database.IDatabase;
 import org.openlca.io.KeyGen;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.io.maps.Maps;
@@ -11,10 +15,6 @@ import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-
 class ImportMap {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -24,17 +24,17 @@ class ImportMap {
 	private ImportMap() {
 	}
 
-	public static ImportMap load() {
+	public static ImportMap load(IDatabase database) {
 		ImportMap map = new ImportMap();
-		map.init();
+		map.init(database);
 		return map;
 	}
 
-	private void init() {
+	private void init(IDatabase database) {
 		log.trace("init import map");
-		try (InputStream stream = getClass().getResourceAsStream(
-				"sp_flow_import_map.csv")) {
-			List<List<Object>> rows = Maps.readAll(stream, getCellProcessors());
+		try {
+			List<List<Object>> rows = Maps.readAll(Maps.SP_FLOW_IMPORT_MAP,
+					database, getCellProcessors());
 			log.trace("read {} flow mappings", rows.size());
 			for (List<Object> row : rows)
 				putFlowMapping(row);
