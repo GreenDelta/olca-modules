@@ -5,7 +5,6 @@ import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import javax.persistence.Version;
 
 /**
  * A root entity is a stand alone entity in the application. It should have a
@@ -30,7 +29,7 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 	@Column(name = "name")
 	private String name;
 
-	@Version
+	// @Version
 	@Column(name = "version")
 	private long version;
 
@@ -46,6 +45,7 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 	@PreUpdate
 	@PrePersist
 	private void updateDates() {
+		version++;
 		lastChange = System.currentTimeMillis();
 	}
 
