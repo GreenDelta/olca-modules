@@ -39,6 +39,10 @@ public class Version {
 		return new Version(major, minor, update).value;
 	}
 
+	public static String asString(long version) {
+		return new Version(version).toString();
+	}
+
 	public int getMajor() {
 		return (int) ((value >> 32) & 0xffff);
 	}

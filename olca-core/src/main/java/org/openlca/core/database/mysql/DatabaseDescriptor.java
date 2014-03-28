@@ -1,4 +1,4 @@
-package org.openlca.core.database;
+package org.openlca.core.database.mysql;
 
 /**
  * The descriptor of a database.
@@ -7,7 +7,7 @@ public class DatabaseDescriptor {
 
 	private String name;
 	private boolean upToDate;
-	private String version;
+	private int version;
 
 	public String getName() {
 		return name;
@@ -25,11 +25,11 @@ public class DatabaseDescriptor {
 		this.upToDate = upToDate;
 	}
 
-	public void setVersion(String version) {
+	public void setVersion(int version) {
 		this.version = version;
 	}
 
-	public String getVersion() {
+	public int getVersion() {
 		return version;
 	}
 

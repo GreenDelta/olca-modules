@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.database.DatabaseDescriptor;
+import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +45,11 @@ class DescriptorFetch {
 		try {
 			if (!hasVersionTable(databaseName))
 				return null;
-			String version = getVersion(databaseName);
+			int version = getVersion(databaseName);
 			DatabaseDescriptor descriptor = new DatabaseDescriptor();
 			descriptor.setName(databaseName);
 			descriptor.setVersion(version);
-			descriptor.setUpToDate(Version.CURRENT.equals(version));
+			descriptor.setUpToDate(version == IDatabase.CURRENT_VERSION);
 			return descriptor;
 		} catch (Exception e) {
 			log.error("Failed to check database " + databaseName, e);
@@ -62,17 +62,16 @@ class DescriptorFetch {
 		try (ResultSet rs = con.createStatement().executeQuery(query)) {
 			boolean found = false;
 			while (!found && rs.next())
-				found = Version.TABLE.equals(rs.getString(1));
+				found = "openlca_version".equals(rs.getString(1));
 			return found;
 		}
 	}
 
-	private String getVersion(String db) throws Exception {
-		String query = "SELECT " + Version.FIELD + " FROM " + db + "."
-				+ Version.TABLE;
+	private int getVersion(String db) throws Exception {
+		String query = "SELECT version FROM " + db + ".openlca_version";
 		try (ResultSet rs = con.createStatement().executeQuery(query)) {
 			rs.first();
-			return rs.getString(Version.FIELD);
+			return rs.getInt("version");
 		}
 	}
 
