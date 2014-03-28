@@ -11,26 +11,36 @@ import com.google.common.base.Objects;
  * version number in a single field. This makes the version number easy to
  * compare, automatically increment (the update part), and can be converted to
  * the ILCD and ecoinvent version schemes.
+ * 
+ * For each version field we allow a value between 0 and 32767 so the minimum
+ * version number is 0.0.0 and the maximum number 32767.32767.32767. The exact
+ * data type for a version field would be a 2-byte positive integer (short).
+ * However, we use integers in the public methods of this class to avoid
+ * casting.
  */
 public class Version {
 
 	private long value;
 
+	public Version() {
+		this(0);
+	}
+
 	public Version(long value) {
 		this.value = value;
 	}
 
-	public Version(short major, short minor, short update) {
+	public Version(int major, int minor, int update) {
 		this.value = 0L;
-		setValues(major, minor, update);
+		setParts(major, minor, update);
 	}
 
-	public short getMajor() {
-		return (short) ((value >> 32) & 0xffff);
+	public int getMajor() {
+		return (int) ((value >> 32) & 0xffff);
 	}
 
-	public void setMajor(short major) {
-		setValues(major, getMinor(), getUpdate());
+	public void setMajor(int major) {
+		setParts(major, getMinor(), getUpdate());
 	}
 
 	/**
@@ -38,15 +48,15 @@ public class Version {
 	 * update part to 0.
 	 */
 	public void incMajor() {
-		setValues((short) (getMajor() + 1), (short) 0, (short) 0);
+		setParts((getMajor() + 1), 0, 0);
 	}
 
-	public short getMinor() {
-		return (short) ((value >> 16) & 0xffff);
+	public int getMinor() {
+		return (int) ((value >> 16) & 0xffff);
 	}
 
-	public void setMinor(short minor) {
-		setValues(getMajor(), minor, getUpdate());
+	public void setMinor(int minor) {
+		setParts(getMajor(), minor, getUpdate());
 	}
 
 	/**
@@ -54,15 +64,15 @@ public class Version {
 	 * 0.
 	 */
 	public void incMinor() {
-		setValues(getMajor(), (short) (getMinor() + 1), (short) 0);
+		setParts(getMajor(), (getMinor() + 1), 0);
 	}
 
-	public short getUpdate() {
-		return (short) (value & 0xffff);
+	public int getUpdate() {
+		return (int) (value & 0xffff);
 	}
 
-	public void setUpdate(short update) {
-		setValues(getMajor(), getMinor(), update);
+	public void setUpdate(int update) {
+		setParts(getMajor(), getMinor(), update);
 	}
 
 	/**
@@ -70,15 +80,15 @@ public class Version {
 	 * done by the persistence unit.
 	 */
 	public void incUpdate() {
-		setValues(getMajor(), getMinor(), (short) (getUpdate() + 1));
+		setParts(getMajor(), getMinor(), (getUpdate() + 1));
 	}
 
-	public void setValues(short major, short minor, short update) {
+	private void setParts(int major, int minor, int update) {
 		// negative values are not allowed but better we set the first bit to 0.
 		short clearFirstBit = 0b0111111111111111;
-		long majorL = (0L | (major & clearFirstBit)) << 32;
-		long minorL = (0L | (minor & clearFirstBit)) << 16;
-		long updateL = 0L | (update & clearFirstBit);
+		long majorL = (0L | (((short) major) & clearFirstBit)) << 32;
+		long minorL = (0L | (((short) minor) & clearFirstBit)) << 16;
+		long updateL = 0L | (((short) update) & clearFirstBit);
 		value = majorL | minorL | updateL;
 	}
 
@@ -86,6 +96,12 @@ public class Version {
 		return value;
 	}
 
+	/**
+	 * Returns the version from the given string. The string can be an ILCD
+	 * compatible version string with 3 parts (major.minor.update, e.g.
+	 * 01.01.000) where the two last parts and leading zeros are optional. Thus
+	 * valid version strings are for example: 1, 1.1, 01.01.001, 44.1.96
+	 */
 	public static Version fromString(String s) {
 		if (s == null || s.length() == 0)
 			return new Version(0);
@@ -134,6 +150,26 @@ public class Version {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(value);
+	}
+
+	/**
+	 * Converts the version to an ILCD compatible version string with 3 parts:
+	 * major.minor.update.
+	 */
+	@Override
+	public String toString() {
+		String major = Integer.toString(getMajor());
+		if (major.length() == 1)
+			major = "0" + major;
+		String minor = Integer.toString(getMinor());
+		if (minor.length() == 1)
+			minor = "0" + minor;
+		String update = Integer.toString(getUpdate());
+		if (update.length() == 1)
+			update = "00" + update;
+		else if (update.length() == 2)
+			update = "0" + update;
+		return major + "." + minor + "." + update;
 	}
 
 }
