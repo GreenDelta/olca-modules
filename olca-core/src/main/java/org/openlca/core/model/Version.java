@@ -35,6 +35,10 @@ public class Version {
 		setParts(major, minor, update);
 	}
 
+	public static long valueOf(int major, int minor, int update) {
+		return new Version(major, minor, update).value;
+	}
+
 	public int getMajor() {
 		return (int) ((value >> 32) & 0xffff);
 	}

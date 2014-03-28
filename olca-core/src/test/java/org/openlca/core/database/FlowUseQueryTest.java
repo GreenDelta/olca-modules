@@ -49,7 +49,7 @@ public class FlowUseQueryTest {
 		exchange.setFlow(flow);
 		exchange.setInput(false);
 		process.getExchanges().add(exchange);
-		processDao.update(process);
+		process = processDao.update(process);
 		Set<Long> providerIds = dao.getProviders(flow.getId());
 		Assert.assertEquals(1, providerIds.size());
 		Assert.assertTrue(providerIds.contains(process.getId()));
@@ -63,7 +63,7 @@ public class FlowUseQueryTest {
 		exchange.setFlow(flow);
 		exchange.setInput(true);
 		process.getExchanges().add(exchange);
-		processDao.update(process);
+		process = processDao.update(process);
 		Set<Long> providerIds = dao.getProviders(flow.getId());
 		Assert.assertTrue(providerIds.isEmpty());
 		Set<Long> recipientIds = dao.getRecipients(flow.getId());

@@ -41,6 +41,7 @@ class Upgrade1 implements IUpgrade {
 				"formula VARCHAR(1000)");
 		updateParameterRedefs();
 		updateMappingTable();
+		addVersionColumns();
 	}
 
 	private void updateMappingTable() throws Exception {
@@ -184,6 +185,18 @@ class Upgrade1 implements IUpgrade {
 					"update tbl_parameter_redefs "
 							+ "set context_type = 'PROCESS' "
 							+ "where f_context is not null");
+		}
+	}
+
+	private void addVersionColumns() throws Exception {
+		String[] tables = { "tbl_categories", "tbl_actors", "tbl_locations",
+				"tbl_sources", "tbl_units", "tbl_unit_groups",
+				"tbl_flow_properties", "tbl_flows", "tbl_processes",
+				"tbl_product_systems", "tbl_impact_methods",
+				"tbl_impact_categories", "tbl_nw_sets", "tbl_projects" };
+		for (String table : tables) {
+			util.checkCreateColumn(table, "version", "version BIGINT");
+			util.checkCreateColumn(table, "last_change", "last_change BIGINT");
 		}
 	}
 
