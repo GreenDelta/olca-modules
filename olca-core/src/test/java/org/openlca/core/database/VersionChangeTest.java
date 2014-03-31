@@ -35,13 +35,14 @@ public class VersionChangeTest {
 			throws Exception {
 		BaseDao<T> dao = (BaseDao<T>) db.createDao(instance.getClass());
 		instance = dao.insert(instance);
-		Assert.assertEquals(1L, instance.getVersion());
-		long insertDate = instance.getLastChange();
-		Assert.assertTrue(insertDate > 0);
+		Assert.assertEquals(0L, instance.getVersion());
+		Assert.assertEquals(0L, instance.getLastChange());
+		instance.setVersion(1L);
+		instance.setLastChange(System.currentTimeMillis());
 		instance.setName("test " + instance);
 		instance = dao.update(instance);
-		Assert.assertEquals(2L, instance.getVersion());
-		Assert.assertTrue(insertDate <= instance.getLastChange());
+		Assert.assertEquals(1L, instance.getVersion());
+		Assert.assertTrue(instance.getLastChange() > 0);
 		dao.delete(instance);
 	}
 
