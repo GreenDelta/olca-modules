@@ -1,14 +1,14 @@
 package org.openlca.core.database.upgrades;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.derby.DerbyDatabase;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
-
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.derby.DerbyDatabase;
 
 class Upgrade1 implements IUpgrade {
 
@@ -39,6 +39,8 @@ class Upgrade1 implements IUpgrade {
 				"source_type VARCHAR(255)");
 		util.checkCreateColumn("tbl_impact_factors", "formula",
 				"formula VARCHAR(1000)");
+		util.checkCreateColumn("tbl_processes", "kmz",
+				"kmz " + util.getBlobType());
 		updateParameterRedefs();
 		updateMappingTable();
 		addVersionColumns();
@@ -189,11 +191,9 @@ class Upgrade1 implements IUpgrade {
 	}
 
 	private void addVersionColumns() throws Exception {
-		String[] tables = { "tbl_categories", "tbl_actors", "tbl_locations",
-				"tbl_sources", "tbl_units", "tbl_unit_groups",
+		String[] tables = { "tbl_actors", "tbl_sources",  "tbl_unit_groups",
 				"tbl_flow_properties", "tbl_flows", "tbl_processes",
-				"tbl_product_systems", "tbl_impact_methods",
-				"tbl_impact_categories", "tbl_nw_sets", "tbl_projects" };
+				"tbl_product_systems", "tbl_impact_methods", "tbl_projects" };
 		for (String table : tables) {
 			util.checkCreateColumn(table, "version", "version BIGINT");
 			util.checkCreateColumn(table, "last_change", "last_change BIGINT");

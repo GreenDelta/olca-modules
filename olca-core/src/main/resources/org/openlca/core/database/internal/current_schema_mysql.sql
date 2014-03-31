@@ -29,9 +29,7 @@ CREATE TABLE tbl_categories (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
-	version BIGINT,
-	last_change BIGINT,
-	name VARCHAR(255), 
+	name VARCHAR(255),
 	description TEXT,
 	model_type VARCHAR(255), 
 	f_parent_category BIGINT,
@@ -45,16 +43,17 @@ CREATE TABLE tbl_actors (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36), 
+	name VARCHAR(255),
 	version BIGINT,
 	last_change BIGINT,
-	telefax VARCHAR(255), 
-	website VARCHAR(255), 
-	address VARCHAR(255), 
-	description TEXT, 
-	zip_code VARCHAR(255), 
-	name VARCHAR(255), 
-	f_category BIGINT, 
-	email VARCHAR(255), 
+	f_category BIGINT,
+	description TEXT,
+
+	telefax VARCHAR(255),
+	website VARCHAR(255),
+	address VARCHAR(255),
+	zip_code VARCHAR(255),
+	email VARCHAR(255),
 	telephone VARCHAR(255), 
 	country VARCHAR(255), 
 	city VARCHAR(255), 
@@ -67,11 +66,10 @@ CREATE TABLE tbl_locations (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
-	version BIGINT,
-	last_change BIGINT, 
-	description TEXT, 
-	name VARCHAR(255), 
-	longitude DOUBLE, 
+	name VARCHAR(255),
+	description TEXT,
+
+	longitude DOUBLE,
 	latitude DOUBLE, 
 	code VARCHAR(255), 
 	
@@ -83,13 +81,14 @@ CREATE TABLE tbl_sources (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
+	name VARCHAR(255),
 	version BIGINT,
-	last_change BIGINT, 
-	description TEXT, 
-	f_category  BIGINT, 
-	name VARCHAR(255), 
-	source_year SMALLINT, 
-	text_reference TEXT, 
+	last_change BIGINT,
+	f_category  BIGINT,
+	description TEXT,
+
+	source_year SMALLINT,
+	text_reference TEXT,
 	doi VARCHAR(255),
 	external_file VARCHAR(255),
 	
@@ -103,11 +102,10 @@ CREATE TABLE tbl_units (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
-	version BIGINT,
-	last_change BIGINT,
-	conversion_factor DOUBLE, 
-	description TEXT, 
 	name VARCHAR(255),
+	description TEXT,
+
+	conversion_factor DOUBLE,
 	synonyms VARCHAR(255),
 	f_unit_group BIGINT,
 	
@@ -121,11 +119,12 @@ CREATE TABLE tbl_unit_groups (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
+	name VARCHAR(255),
 	version BIGINT,
-	last_change BIGINT, 
-	name VARCHAR(255), 
-	f_category BIGINT, 
-	description TEXT, 
+	last_change BIGINT,
+	f_category BIGINT,
+	description TEXT,
+
 	f_reference_unit BIGINT,
 	f_default_flow_property BIGINT, 
 	
@@ -141,11 +140,12 @@ CREATE TABLE tbl_flow_properties (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
+	name VARCHAR(255),
 	version BIGINT,
 	last_change BIGINT,
-	name VARCHAR(255), 
-	f_category BIGINT, 
-	description TEXT, 
+	f_category BIGINT,
+	description TEXT,
+
 	flow_property_type VARCHAR(255), 
 	f_unit_group BIGINT, 
 	
@@ -159,14 +159,14 @@ CREATE TABLE tbl_flows (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
-	version BIGINT,
-	last_change BIGINT, 
 	name VARCHAR(255),
-	f_category BIGINT, 
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
 	description TEXT,
+
 	flow_type VARCHAR(255), 
-	
-	infrastructure_flow TINYINT default 0, 
+	infrastructure_flow TINYINT default 0,
 	cas_number VARCHAR(255), 
 	formula VARCHAR(255), 
 	f_reference_flow_property BIGINT, 
@@ -198,18 +198,20 @@ CREATE TABLE tbl_processes (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
+	name VARCHAR(255),
 	version BIGINT,
-	last_change BIGINT, 
-	name VARCHAR(255), 
-	f_category BIGINT, 
-	description TEXT, 
+	last_change BIGINT,
+	f_category BIGINT,
+	description TEXT,
+
 	process_type VARCHAR(255), 
 	default_allocation_method VARCHAR(255), 	
-	infrastructure_process TINYINT default 0, 
+	infrastructure_process TINYINT default 0,
 	f_quantitative_reference BIGINT, 
 	f_location BIGINT, 
 	f_process_doc BIGINT, 
-	
+	kmz MEDIUMBLOB,
+
 	PRIMARY KEY (id)	
 
 );
@@ -221,7 +223,7 @@ CREATE INDEX idx_process_location ON tbl_processes(f_location);
 CREATE TABLE tbl_process_docs (
 	
 	id BIGINT NOT NULL,
-	geography TEXT, 
+	geography TEXT,
 	technology TEXT,
 	
 	time TEXT,
@@ -229,20 +231,20 @@ CREATE TABLE tbl_process_docs (
 	valid_until DATE, 
 	
 	modeling_constants TEXT,
-	data_treatment TEXT, 
-	sampling TEXT, 
+	data_treatment TEXT,
+	sampling TEXT,
 	completeness TEXT,
 	review_details TEXT,
-	inventory_method TEXT, 
-	data_collection_period TEXT, 
-	data_selection TEXT, 
+	inventory_method TEXT,
+	data_collection_period TEXT,
+	data_selection TEXT,
 	f_reviewer BIGINT, 
 	
 	project VARCHAR(255), 
 	creation_date TIMESTAMP, 
-	intended_application TEXT, 
+	intended_application TEXT,
 	restrictions TEXT,
-	copyright TINYINT default 0, 
+	copyright TINYINT default 0,
 	last_change TIMESTAMP, 
 	version VARCHAR(255), 
 	f_data_generator BIGINT,
@@ -267,7 +269,7 @@ CREATE TABLE tbl_exchanges (
 	f_owner BIGINT, 
 	f_flow BIGINT, 
 	f_unit BIGINT, 
-	is_input TINYINT default 0, 
+	is_input TINYINT default 0,
 	f_flow_property_factor BIGINT, 
 	resulting_amount_value DOUBLE, 
 	resulting_amount_formula VARCHAR(1000), 
@@ -310,12 +312,13 @@ CREATE TABLE tbl_product_systems (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
+	name VARCHAR(255),
 	version BIGINT,
 	last_change BIGINT,
-	name VARCHAR(255), 
-	description TEXT, 
-	f_category BIGINT,  
-	target_amount DOUBLE, 
+	f_category BIGINT,
+	description TEXT,
+
+	target_amount DOUBLE,
 	f_reference_process BIGINT, 
 	f_reference_exchange BIGINT, 
 	f_target_flow_property_factor BIGINT, 
@@ -351,11 +354,12 @@ CREATE TABLE tbl_impact_methods (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
+	name VARCHAR(255),
 	version BIGINT,
-	last_change BIGINT, 
-	description TEXT, 
-	f_category BIGINT, 
-	name VARCHAR(255), 
+	last_change BIGINT,
+	f_category BIGINT,
+	description TEXT,
+
 	PRIMARY KEY (id)
 	
 );
@@ -365,10 +369,9 @@ CREATE TABLE tbl_impact_categories (
 
 	id BIGINT NOT NULL, 
 	ref_id VARCHAR(36),
-	version BIGINT,
-	last_change BIGINT,
-	description TEXT, 
-	name VARCHAR(255), 
+	name VARCHAR(255),
+	description TEXT,
+
 	reference_unit VARCHAR(255),
 	f_impact_method BIGINT, 
 	
@@ -405,10 +408,9 @@ CREATE TABLE tbl_nw_sets (
 
 	id BIGINT NOT NULL,
     ref_id VARCHAR(36),
-    version BIGINT,
-	last_change BIGINT,
-    description TEXT,
     name VARCHAR(255),
+    description TEXT,
+
 	f_impact_method BIGINT,
 	weighted_score_unit VARCHAR(255),
 	
@@ -434,7 +436,7 @@ CREATE TABLE tbl_parameters (
 
 	id BIGINT NOT NULL, 
 	name VARCHAR(255), 
-	description TEXT, 
+	description TEXT,
 	is_input_param TINYINT default 0,
 	f_owner BIGINT, 
 	scope VARCHAR(255), 
@@ -479,15 +481,16 @@ CREATE TABLE tbl_projects (
 
 	id BIGINT NOT NULL,
 	ref_id VARCHAR(36),
+	name VARCHAR(255),
 	version BIGINT,
-	last_change BIGINT, 
-	name VARCHAR(255), 
-	description TEXT, 
-	f_category BIGINT, 
-	creation_date TIMESTAMP, 
-	functional_unit TEXT, 
+	last_change BIGINT,
+	f_category BIGINT,
+	description TEXT,
+
+	creation_date TIMESTAMP,
+	functional_unit TEXT,
 	last_modification_date TIMESTAMP,
-	goal TEXT, 
+	goal TEXT,
 	f_author BIGINT, 
 	f_impact_method BIGINT,
 	f_nwset BIGINT,
@@ -541,7 +544,7 @@ CREATE TABLE tbl_process_cost_entries (
 CREATE TABLE tbl_process_group_sets (
 	id BIGINT NOT NULL,
 	name VARCHAR(255), 
-	groups_blob MEDIUMBLOB,		
+	groups_blob MEDIUMBLOB,
 	PRIMARY KEY (id)	
 ) ;
 

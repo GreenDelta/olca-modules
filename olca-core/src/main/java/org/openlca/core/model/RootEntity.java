@@ -3,8 +3,6 @@ package org.openlca.core.model;
 import javax.persistence.Column;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 
 /**
  * A root entity is a stand alone entity in the application. It should have a
@@ -29,25 +27,11 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 	@Column(name = "name")
 	private String name;
 
-	// @Version
-	@Column(name = "version")
-	private long version;
-
-	@Column(name = "last_change")
-	private long lastChange;
-
 	@Lob
 	@Column(name = "description")
 	private String description;
 
 	public abstract Object clone();
-
-	@PreUpdate
-	@PrePersist
-	private void updateDates() {
-		version++;
-		lastChange = System.currentTimeMillis();
-	}
 
 	public String getRefId() {
 		return refId;
@@ -71,22 +55,6 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
-	public long getLastChange() {
-		return lastChange;
-	}
-
-	public void setLastChange(long lastChange) {
-		this.lastChange = lastChange;
 	}
 
 }

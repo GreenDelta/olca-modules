@@ -1,15 +1,15 @@
 package org.openlca.core.database.upgrades;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.database.mysql.MySQLDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 
 class UpgradeUtil {
 
@@ -38,6 +38,17 @@ class UpgradeUtil {
 			return "TEXT";
 		default:
 			return "CLOB(64 K)";
+		}
+	}
+
+	String getBlobType() {
+		switch (dbType) {
+			case TYPE_DERBY:
+				return "BLOB(16 M)";
+			case TYPE_MYSQL:
+				return "MEDIUMBLOB";
+			default:
+				return "BLOB(16 M)";
 		}
 	}
 
