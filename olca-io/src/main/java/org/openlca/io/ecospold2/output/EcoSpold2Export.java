@@ -23,6 +23,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.AdministrativeInformation;
@@ -100,7 +101,7 @@ public class EcoSpold2Export implements Runnable {
 			mapRepresentativeness(doc, dataSet);
 			mapExchanges(process, dataSet);
 			mapParameters(process, dataSet);
-			mapAdminInfo(doc, dataSet);
+			mapAdminInfo(process, dataSet);
 			// TODO add a check box if want merge or not
 			mergeElemExchanges(dataSet);
 			mergeTechExchanges(dataSet);
@@ -379,12 +380,15 @@ public class EcoSpold2Export implements Runnable {
 		dataSet.setRepresentativeness(repri);
 	}
 
-	private void mapAdminInfo(ProcessDocumentation doc, DataSet dataSet) {
+	private void mapAdminInfo(Process process, DataSet dataSet) {
 		AdministrativeInformation adminInfo = new AdministrativeInformation();
 		dataSet.setAdministrativeInformation(adminInfo);
-		mapDataEntry(doc.getDataDocumentor(), adminInfo);
-		mapDataGenerator(doc, adminInfo);
-		mapFileAttributes(doc, adminInfo);
+		ProcessDocumentation doc = process.getDocumentation();
+		if (doc != null) {
+			mapDataEntry(doc.getDataDocumentor(), adminInfo);
+			mapDataGenerator(doc, adminInfo);
+		}
+		mapFileAttributes(process, adminInfo);
 	}
 
 	private void mapDataEntry(Actor dataDocumentor,
@@ -428,26 +432,32 @@ public class EcoSpold2Export implements Runnable {
 		dataGenerator.setCopyrightProtected(doc.isCopyright());
 	}
 
-	private void mapFileAttributes(ProcessDocumentation doc,
+	private void mapFileAttributes(Process process,
 			AdministrativeInformation adminInfo) {
 		FileAttributes atts = new FileAttributes();
 		adminInfo.setFileAttributes(atts);
-		atts.setMajorRelease(1);
-		atts.setMajorRevision(0);
-		atts.setMinorRelease(1);
-		atts.setMinorRevision(0);
+		mapVersion(process, atts);
 		atts.setDefaultLanguage("en");
-		if (doc.getCreationDate() != null)
+		ProcessDocumentation doc = process.getDocumentation();
+		if (doc != null && doc.getCreationDate() != null)
 			atts.setCreationTimestamp(doc.getCreationDate());
 		else
 			atts.setCreationTimestamp(new Date());
-		if (doc.getLastChange() != null)
-			atts.setLastEditTimestamp(doc.getLastChange());
+		if (process.getLastChange() != 0)
+			atts.setLastEditTimestamp(new Date(process.getLastChange()));
 		else
 			atts.setLastEditTimestamp(new Date());
 		atts.setInternalSchemaVersion("1.0");
 		atts.setFileGenerator("openLCA");
 		atts.setFileTimestamp(new Date());
+	}
+
+	private void mapVersion(Process process, FileAttributes atts) {
+		Version version = new Version(process.getVersion());
+		atts.setMajorRelease(version.getMajor());
+		atts.setMajorRevision(version.getMinor());
+		atts.setMinorRelease(version.getUpdate());
+		atts.setMinorRevision(0);
 	}
 
 }

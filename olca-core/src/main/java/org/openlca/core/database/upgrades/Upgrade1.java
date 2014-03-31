@@ -1,14 +1,14 @@
 package org.openlca.core.database.upgrades;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.derby.DerbyDatabase;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.derby.DerbyDatabase;
 
 class Upgrade1 implements IUpgrade {
 
@@ -31,6 +31,13 @@ class Upgrade1 implements IUpgrade {
 		this.util = new UpgradeUtil(database);
 		createNwSetTable();
 		createNwFactorTable();
+		changeSimpleColumns();
+		updateParameterRedefs();
+		updateMappingTable();
+		addVersionColumns();
+	}
+
+	private void changeSimpleColumns() throws Exception {
 		util.checkCreateColumn("tbl_sources", "external_file",
 				"external_file VARCHAR(255)");
 		util.checkCreateColumn("tbl_parameters", "external_source",
@@ -41,9 +48,8 @@ class Upgrade1 implements IUpgrade {
 				"formula VARCHAR(1000)");
 		util.checkCreateColumn("tbl_processes", "kmz",
 				"kmz " + util.getBlobType());
-		updateParameterRedefs();
-		updateMappingTable();
-		addVersionColumns();
+		util.checkDropColumn("tbl_process_docs", "last_change");
+		util.checkDropColumn("tbl_process_docs", "version");
 	}
 
 	private void updateMappingTable() throws Exception {
@@ -191,7 +197,7 @@ class Upgrade1 implements IUpgrade {
 	}
 
 	private void addVersionColumns() throws Exception {
-		String[] tables = { "tbl_actors", "tbl_sources",  "tbl_unit_groups",
+		String[] tables = { "tbl_actors", "tbl_sources", "tbl_unit_groups",
 				"tbl_flow_properties", "tbl_flows", "tbl_processes",
 				"tbl_product_systems", "tbl_impact_methods", "tbl_projects" };
 		for (String table : tables) {

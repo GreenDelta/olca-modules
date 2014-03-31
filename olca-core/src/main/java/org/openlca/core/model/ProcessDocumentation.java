@@ -106,19 +106,12 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 	@Column(name = "intended_application")
 	private String intendedApplication;
 
-	@Temporal(value = TemporalType.TIMESTAMP)
-	@Column(name = "last_change")
-	private Date lastChange;
-
 	@Column(name = "project")
 	private String project;
 
 	@OneToOne
 	@JoinColumn(name = "f_publication")
 	private Source publication;
-
-	@Column(name = "version")
-	private String version;
 
 	@Lob
 	@Column(name = "geography")
@@ -153,10 +146,8 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 		clone.setDataGenerator(getDataGenerator());
 		clone.setDataSetOwner(getDataSetOwner());
 		clone.setIntendedApplication(getIntendedApplication());
-		clone.setLastChange(getLastChange());
 		clone.setProject(getProject());
 		clone.setPublication(getPublication());
-		clone.setVersion(getVersion());
 
 		clone.setGeography(getGeography());
 
@@ -295,14 +286,6 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 		this.intendedApplication = intendedApplication;
 	}
 
-	public Date getLastChange() {
-		return lastChange;
-	}
-
-	public void setLastChange(Date lastChange) {
-		this.lastChange = lastChange;
-	}
-
 	public String getProject() {
 		return project;
 	}
@@ -317,14 +300,6 @@ public class ProcessDocumentation extends AbstractEntity implements Cloneable {
 
 	public void setPublication(Source publication) {
 		this.publication = publication;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
 	}
 
 	public String getGeography() {

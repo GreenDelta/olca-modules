@@ -15,6 +15,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LCIMethodApproach;
@@ -212,7 +213,8 @@ public class ProcessImport {
 					.getAccessRestrictions()));
 
 			// version
-			doc.setVersion(iPublication.getDataSetVersion());
+			process.setVersion(Version.fromString(
+					iPublication.getDataSetVersion()).getValue());
 
 			// copyright
 			if (iPublication.isCopyright() != null) {
@@ -224,21 +226,18 @@ public class ProcessImport {
 
 	private void mapDataEntry(ProcessDocumentation doc) {
 		DataEntry iEntry = ilcdProcess.getDataEntry();
-		if (iEntry != null) {
-
-			// last change && creation date
-			if (iEntry.getTimeStamp() != null) {
-				Date tStamp = iEntry.getTimeStamp().toGregorianCalendar()
-						.getTime();
-				doc.setCreationDate(tStamp);
-				doc.setLastChange(tStamp);
-			}
-
-			if (iEntry.getReferenceToPersonOrEntityEnteringTheData() != null) {
-				Actor documentor = fetchActor(iEntry
-						.getReferenceToPersonOrEntityEnteringTheData());
-				doc.setDataDocumentor(documentor);
-			}
+		if (iEntry == null)
+			return;
+		if (iEntry.getTimeStamp() != null) {
+			Date tStamp = iEntry.getTimeStamp().toGregorianCalendar().getTime();
+			doc.setCreationDate(tStamp);
+			if (tStamp != null)
+				process.setLastChange(tStamp.getTime());
+		}
+		if (iEntry.getReferenceToPersonOrEntityEnteringTheData() != null) {
+			Actor documentor = fetchActor(iEntry
+					.getReferenceToPersonOrEntityEnteringTheData());
+			doc.setDataDocumentor(documentor);
 		}
 	}
 

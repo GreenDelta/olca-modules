@@ -7,8 +7,10 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.io.DataStore;
@@ -24,14 +26,16 @@ import org.slf4j.LoggerFactory;
 
 class ProcessAdminInfo {
 
+	private Process process;
 	private ProcessDocumentation documentation;
 	private AdministrativeInformation iAdminInfo;
 	private IDatabase database;
 	private DataStore dataStore;
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	public ProcessAdminInfo(ProcessDocumentation documentation) {
-		this.documentation = documentation;
+	public ProcessAdminInfo(Process process) {
+		this.process = process;
+		this.documentation = process.getDocumentation();
 	}
 
 	public AdministrativeInformation create(IDatabase database,
@@ -89,10 +93,10 @@ class ProcessAdminInfo {
 	private void createPublication() {
 		Publication publication = new Publication();
 		iAdminInfo.setPublication(publication);
-		publication.setDateOfLastRevision(toXmlCalender(documentation
-				.getLastChange()));
-		String version = documentation.getVersion() == null ? "01.00.000"
-				: documentation.getVersion();
+		if (process.getLastChange() != 0)
+			publication.setDateOfLastRevision(toXmlCalender(new Date(process
+					.getLastChange())));
+		String version = Version.asString(process.getVersion());
 		publication.setDataSetVersion(version);
 		publication.setCopyright(documentation.isCopyright());
 		mapDataSetOwner(publication);

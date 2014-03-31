@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
@@ -76,13 +77,16 @@ class Mapper {
 			doc.setSampling(representativeness.getSamplingProcedure());
 	}
 
-	public static void mapAdminInfo(DataSet dataSet, ProcessDocumentation doc) {
+	public static void mapAdminInfo(DataSet dataSet, Process process) {
+		if (process == null || process.getDocumentation() == null)
+			return;
+		ProcessDocumentation doc = process.getDocumentation();
 		mapDataGeneratorAndPublication(dataSet, doc);
 		IDataSetInformation info = dataSet.getDataSetInformation();
 		if (info != null && info.getTimestamp() != null) {
 			Date lastChange = info.getTimestamp().toGregorianCalendar()
 					.getTime();
-			doc.setLastChange(lastChange);
+			process.setLastChange(lastChange.getTime());
 			doc.setCreationDate(lastChange);
 		}
 	}

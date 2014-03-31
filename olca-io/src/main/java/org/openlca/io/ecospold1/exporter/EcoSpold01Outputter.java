@@ -1,12 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
 package org.openlca.io.ecospold1.exporter;
 
 import java.io.File;
@@ -118,7 +109,7 @@ public class EcoSpold01Outputter {
 		ProcessDocumentation doc = process.getDocumentation();
 		if (doc != null) {
 			mapModelingAndValidation(doc, dataSet, factory);
-			mapAdminInfo(doc, dataSet, factory);
+			mapAdminInfo(process, dataSet, factory);
 			mapTime(doc, dataSet, factory);
 			mapTechnology(doc, dataSet, factory);
 			if (doc.getGeography() != null) {
@@ -209,10 +200,11 @@ public class EcoSpold01Outputter {
 		return person;
 	}
 
-	private void mapAdminInfo(ProcessDocumentation doc, DataSet dataset,
+	private void mapAdminInfo(Process process, DataSet dataset,
 			IEcoSpoldFactory factory) {
-		if (doc == null)
+		if (process == null || process.getDocumentation() == null)
 			return;
+		ProcessDocumentation doc = process.getDocumentation();
 		IDataGeneratorAndPublication generator = dataset
 				.getDataGeneratorAndPublication();
 		if (generator == null) {
@@ -220,33 +212,8 @@ public class EcoSpold01Outputter {
 			dataset.setDataGeneratorAndPublication(generator);
 		}
 		generator.setCopyright(doc.isCopyright());
-		if (doc.getRestrictions() != null) {
-			if (doc.getRestrictions().contains(
-					"All information can be accesses by everybody.")) {
-				generator.setAccessRestrictedTo(0);
-			} else if (doc
-					.getRestrictions()
-					.contains(
-							"Ecoinvent clients have access to LCI results but not to unit process raw data. Members of the ecoinvent quality network (ecoinvent centre) have access to all information.")) {
-				generator.setAccessRestrictedTo(2);
-			} else if (doc
-					.getRestrictions()
-					.contains(
-							"The ecoinvent administrator has full access to information. Via the web only LCI results are accessible (for ecoinvent clients and for members of the ecoinvent centre).")) {
-				generator.setAccessRestrictedTo(3);
-			}
-		}
-
-		if (doc.getLastChange() != null || doc.getCreationDate() != null) {
-			IDataSetInformation information = factory
-					.createDataSetInformation();
-			if (doc.getLastChange() != null) {
-				information.setTimestamp(toXml(doc.getLastChange()));
-			} else if (doc.getCreationDate() != null) {
-				information.setTimestamp(toXml(doc.getCreationDate()));
-			}
-			dataset.setDataSetInformation(information);
-		}
+		setDataSetRestrictions(doc, generator);
+		addDataSetInformation(process, dataset, factory);
 
 		if (doc.getDataGenerator() != null) {
 			IPerson dataGenerator = mapActor(doc.getDataGenerator(), dataset,
@@ -267,6 +234,37 @@ public class EcoSpold01Outputter {
 			ISource source = mapSource(doc.getPublication(), dataset, factory);
 			generator.setReferenceToPublishedSource(source.getNumber());
 		}
+	}
+
+	private void setDataSetRestrictions(ProcessDocumentation doc,
+			IDataGeneratorAndPublication generator) {
+		if (doc.getRestrictions() != null) {
+			if (doc.getRestrictions().contains(
+					"All information can be accesses by everybody.")) {
+				generator.setAccessRestrictedTo(0);
+			} else if (doc
+					.getRestrictions()
+					.contains(
+							"Ecoinvent clients have access to LCI results but not to unit process raw data. Members of the ecoinvent quality network (ecoinvent centre) have access to all information.")) {
+				generator.setAccessRestrictedTo(2);
+			} else if (doc
+					.getRestrictions()
+					.contains(
+							"The ecoinvent administrator has full access to information. Via the web only LCI results are accessible (for ecoinvent clients and for members of the ecoinvent centre).")) {
+				generator.setAccessRestrictedTo(3);
+			}
+		}
+	}
+
+	private void addDataSetInformation(Process process, DataSet dataset,
+			IEcoSpoldFactory factory) {
+		ProcessDocumentation doc = process.getDocumentation();
+		IDataSetInformation information = factory.createDataSetInformation();
+		dataset.setDataSetInformation(information);
+		if (process.getLastChange() != 0)
+			information.setTimestamp(toXml(new Date(process.getLastChange())));
+		else if (doc != null && doc.getCreationDate() != null)
+			information.setTimestamp(toXml(doc.getCreationDate()));
 	}
 
 	// TODO: map allocation factors

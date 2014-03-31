@@ -245,8 +245,6 @@ CREATE TABLE tbl_process_docs (
 	intended_application CLOB(64 K), 
 	restrictions CLOB(64 K),
 	copyright SMALLINT default 0, 
-	last_change TIMESTAMP, 
-	version VARCHAR(255), 
 	f_data_generator BIGINT,
 	f_dataset_owner BIGINT, 
 	f_data_documentor BIGINT, 

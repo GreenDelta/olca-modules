@@ -9,6 +9,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Version;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.AdministrativeInformation;
 import org.openlca.ecospold2.DataEntryBy;
@@ -32,6 +33,10 @@ class DocImportMapper {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 
+	private Process process;
+	private ProcessDocumentation doc;
+	private DataSet dataSet;
+
 	public DocImportMapper(IDatabase database) {
 		this.database = database;
 	}
@@ -39,24 +44,25 @@ class DocImportMapper {
 	public void map(DataSet dataSet, Process process) {
 		if (dataSet == null || process == null)
 			return;
-		ProcessDocumentation doc = new ProcessDocumentation();
+		this.dataSet = dataSet;
+		this.process = process;
+		this.doc = new ProcessDocumentation();
 		process.setDocumentation(doc);
-		mapTechnology(dataSet, doc);
-		mapGeography(dataSet.getGeography(), process);
-		mapTime(dataSet.getTimePeriod(), doc);
-		mapAdminInfo(dataSet.getAdministrativeInformation(), doc);
-		mapRepresentativeness(dataSet.getRepresentativeness(), doc);
+		mapTechnology(dataSet);
+		mapGeography(dataSet.getGeography());
+		mapTime(dataSet.getTimePeriod());
+		mapAdminInfo(dataSet.getAdministrativeInformation());
+		mapRepresentativeness(dataSet.getRepresentativeness());
 	}
 
-	private void mapRepresentativeness(Representativeness repri,
-	                                   ProcessDocumentation doc) {
+	private void mapRepresentativeness(Representativeness repri) {
 		if (repri == null)
 			return;
 		doc.setDataTreatment(repri.getExtrapolations());
 		doc.setSampling(repri.getSamplingProcedure());
 	}
 
-	private void mapTechnology(DataSet dataSet, ProcessDocumentation doc) {
+	private void mapTechnology(DataSet dataSet) {
 		Activity activity = dataSet.getActivity();
 		Technology technology = dataSet.getTechnology();
 		if (activity == null || technology == null)
@@ -64,7 +70,7 @@ class DocImportMapper {
 		doc.setTechnology(technology.getComment());
 	}
 
-	private void mapGeography(Geography geography, Process process) {
+	private void mapGeography(Geography geography) {
 		if (geography == null)
 			return;
 		process.getDocumentation().setGeography(geography.getComment());
@@ -78,7 +84,7 @@ class DocImportMapper {
 		}
 	}
 
-	private void mapTime(TimePeriod timePeriod, ProcessDocumentation doc) {
+	private void mapTime(TimePeriod timePeriod) {
 		if (timePeriod == null)
 			return;
 		doc.setValidFrom(timePeriod.getStartDate());
@@ -86,20 +92,19 @@ class DocImportMapper {
 		doc.setTime(timePeriod.getComment());
 	}
 
-	private void mapAdminInfo(AdministrativeInformation adminInfo,
-	                          ProcessDocumentation doc) {
+	private void mapAdminInfo(AdministrativeInformation adminInfo) {
 		if (adminInfo == null)
 			return;
-		mapDataEntryBy(adminInfo, doc);
-		mapDataGenerator(adminInfo, doc);
-		mapPublicationSource(adminInfo, doc);
-		mapFileAttributes(adminInfo, doc);
+		mapDataEntryBy(adminInfo);
+		mapDataGenerator(adminInfo);
+		mapPublicationSource(adminInfo);
+		mapFileAttributes(adminInfo);
 		if (adminInfo.getDataGenerator() != null)
-			doc.setCopyright(adminInfo.getDataGenerator().isCopyrightProtected());
+			doc.setCopyright(adminInfo.getDataGenerator()
+					.isCopyrightProtected());
 	}
 
-	private void mapDataEntryBy(AdministrativeInformation adminInfo,
-	                            ProcessDocumentation doc) {
+	private void mapDataEntryBy(AdministrativeInformation adminInfo) {
 		DataEntryBy dataEntry = adminInfo.getDataEntryBy();
 		if (dataEntry == null || dataEntry.getPersonId() == null)
 			return;
@@ -115,8 +120,7 @@ class DocImportMapper {
 		doc.setDataDocumentor(actor);
 	}
 
-	private void mapDataGenerator(AdministrativeInformation adminInfo,
-	                              ProcessDocumentation doc) {
+	private void mapDataGenerator(AdministrativeInformation adminInfo) {
 		DataGenerator dataGenerator = adminInfo.getDataGenerator();
 		if (dataGenerator == null || dataGenerator.getPersonId() == null)
 			return;
@@ -132,8 +136,7 @@ class DocImportMapper {
 		doc.setDataGenerator(actor);
 	}
 
-	private void mapPublicationSource(AdministrativeInformation adminInfo,
-	                                  ProcessDocumentation doc) {
+	private void mapPublicationSource(AdministrativeInformation adminInfo) {
 		DataGenerator gen = adminInfo.getDataGenerator();
 		if (gen == null || gen.getPublishedSourceId() == null)
 			return;
@@ -159,17 +162,16 @@ class DocImportMapper {
 		doc.setPublication(source);
 	}
 
-	private void mapFileAttributes(AdministrativeInformation adminInfo,
-	                               ProcessDocumentation doc) {
+	private void mapFileAttributes(AdministrativeInformation adminInfo) {
 		if (adminInfo.getFileAttributes() == null)
 			return;
 		FileAttributes fileAtts = adminInfo.getFileAttributes();
 		doc.setCreationDate(fileAtts.getCreationTimestamp());
-		doc.setLastChange(fileAtts.getLastEditTimestamp());
-		String version = "" + fileAtts.getMajorRelease() + "." + fileAtts
-				.getMajorRevision();
-		doc.setVersion(version);
+		if (fileAtts.getLastEditTimestamp() != null)
+			process.setLastChange(fileAtts.getLastEditTimestamp().getTime());
+		Version version = new Version(fileAtts.getMajorRelease(),
+				fileAtts.getMajorRevision(), fileAtts.getMinorRelease());
+		process.setVersion(version.getValue());
 	}
-
 
 }
