@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
@@ -65,31 +64,11 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 		return results;
 	}
 
-	public List<ImpactResult> getTotalImpactResults(NwSetTable nwset) {
-		List<ImpactResult> results = new ArrayList<>();
-		for (ImpactCategoryDescriptor d : getImpactDescriptors()) {
-			ImpactResult r = getTotalImpactResult(d, nwset);
-			results.add(r);
-		}
-		return results;
-	}
-
 	public ImpactResult getTotalImpactResult(ImpactCategoryDescriptor impact) {
-		return getTotalImpactResult(impact, null);
-	}
-
-	public ImpactResult getTotalImpactResult(ImpactCategoryDescriptor impact,
-			NwSetTable nwset) {
 		double val = result.getTotalImpactResult(impact.getId());
 		ImpactResult r = new ImpactResult();
 		r.setImpactCategory(impact);
 		r.setValue(val);
-		if (nwset == null) {
-			return r;
-		}
-		long impactId = impact.getId();
-		r.setNormalizationFactor(nwset.getNormalisationFactor(impactId));
-		r.setWeightingFactor(nwset.getWeightingFactor(impactId));
 		return r;
 	}
 }

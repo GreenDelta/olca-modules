@@ -1,23 +1,23 @@
 package org.openlca.core.matrix;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-
 /**
  * Stores the factors of a normalisation and weighting set. As creating such a
- * table is quite simple there is no separate builder class for reading
- * this kind of data from a database but a factory method in this class.
+ * table is quite simple there is no separate builder class for reading this
+ * kind of data from a database but a factory method in this class.
  */
 public class NwSetTable {
 
 	private final HashMap<Long, Double> weightFactors = new HashMap<>();
-	private final HashMap<Long, Double> normFactors = new HashMap();
+	private final HashMap<Long, Double> normFactors = new HashMap<>();
 
 	private boolean hasWeightFactors = false;
 	private boolean hasNormFactors = false;
@@ -31,13 +31,15 @@ public class NwSetTable {
 		String query = "select * from tbl_nw_factors where f_nw_set = "
 				+ nwSetId;
 		try {
-			NativeSql.on(database).query(query, new NativeSql.QueryResultHandler() {
-				@Override
-				public boolean nextResult(ResultSet result) throws SQLException {
-					fetchResult(result, table);
-					return true;
-				}
-			});
+			NativeSql.on(database).query(query,
+					new NativeSql.QueryResultHandler() {
+						@Override
+						public boolean nextResult(ResultSet result)
+								throws SQLException {
+							fetchResult(result, table);
+							return true;
+						}
+					});
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(NwSetTable.class);
 			log.error("failed to get nw-factors", e);

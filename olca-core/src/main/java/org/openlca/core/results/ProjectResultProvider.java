@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -93,14 +92,6 @@ public class ProjectResultProvider implements IResultProvider {
 		if (result == null)
 			return null;
 		return result.getTotalImpactResult(impact);
-	}
-
-	public ImpactResult getTotalImpactResult(ProjectVariant variant,
-			ImpactCategoryDescriptor impact, NwSetTable nwSet) {
-		ContributionResultProvider<?> result = results.get(variant);
-		if (result == null)
-			return null;
-		return result.getTotalImpactResult(impact, nwSet);
 	}
 
 	public ContributionSet<ProjectVariant> getContributions(
