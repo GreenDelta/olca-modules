@@ -2,15 +2,19 @@ package org.openlca.core.matrix;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.results.ImpactResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Stores the factors of a normalisation and weighting set. As creating such a
+ * Stores the factors of a normalization and weighting set. As creating such a
  * table is quite simple there is no separate builder class for reading this
  * kind of data from a database but a factory method in this class.
  */
@@ -79,11 +83,77 @@ public class NwSetTable {
 	}
 
 	/**
-	 * Get the normalisation factor for the given LCIA category.
+	 * Get the normalization factor for the given LCIA category.
 	 */
 	public double getNormalisationFactor(long impactCategoryId) {
 		Double f = normFactors.get(impactCategoryId);
 		return f == null ? 0 : f;
+	}
+
+	/**
+	 * Applies the normalization factors to the given impact assessment result.
+	 * Returns a normalized result for each result item in the given list. The
+	 * given list is not modified.
+	 */
+	public List<ImpactResult> applyNormalisation(List<ImpactResult> results) {
+		return apply(results, 0);
+	}
+
+	/**
+	 * Applies the weighting factors to the given impact assessment result.
+	 * Returns a weighted result for each result item in the given list. The
+	 * given list is not modified.
+	 */
+	public List<ImpactResult> applyWeighting(List<ImpactResult> results) {
+		return apply(results, 1);
+	}
+
+	/**
+	 * Applies the normalization and weighting factors to the given impact
+	 * assessment result. Returns a normalized and weighted result for each
+	 * result item in the given list. The given list is not modified.
+	 */
+	public List<ImpactResult> applyBoth(List<ImpactResult> results) {
+		return apply(results, 2);
+	}
+
+	/**
+	 * Applies the factors in this table depending on the given type:
+	 * <ul>
+	 * <li>0: normalization
+	 * <li>1: weighting
+	 * <li>2: both
+	 */
+	private List<ImpactResult> apply(List<ImpactResult> results, int type) {
+		if (results == null)
+			return Collections.emptyList();
+		List<ImpactResult> applied = new ArrayList<>();
+		for (ImpactResult result : results) {
+			if (result.getImpactCategory() == null)
+				continue;
+			ImpactResult r = new ImpactResult();
+			r.setImpactCategory(result.getImpactCategory());
+			applied.add(r);
+			long impactId = result.getImpactCategory().getId();
+			double f = getFactor(type, impactId);
+			r.setValue(f * result.getValue());
+		}
+		return applied;
+	}
+
+	private double getFactor(int type, long impactId) {
+		switch (type) {
+		case 0:
+			double nf = getNormalisationFactor(impactId);
+			return nf == 0 ? 0 : 1 / nf;
+		case 1:
+			return getWeightingFactor(impactId);
+		case 2:
+			double nff = getNormalisationFactor(impactId);
+			return nff == 0 ? 0 : getWeightingFactor(impactId) / nff;
+		default:
+			return 0;
+		}
 	}
 
 }

@@ -7,11 +7,11 @@ public class ImpactResult {
 	private ImpactCategoryDescriptor impactCategory;
 	private double value;
 
-	void setImpactCategory(ImpactCategoryDescriptor impactCategory) {
+	public void setImpactCategory(ImpactCategoryDescriptor impactCategory) {
 		this.impactCategory = impactCategory;
 	}
 
-	void setValue(double value) {
+	public void setValue(double value) {
 		this.value = value;
 	}
 
