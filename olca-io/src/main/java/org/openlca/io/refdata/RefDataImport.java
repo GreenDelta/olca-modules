@@ -1,12 +1,12 @@
 package org.openlca.io.refdata;
 
-import java.io.File;
-import java.io.FileInputStream;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
 
 public class RefDataImport implements Runnable {
 
@@ -41,6 +41,7 @@ public class RefDataImport implements Runnable {
 			seq.write();
 			database.getEntityFactory().getCache().evictAll();
 			importMappingFiles();
+			importKmlFile();
 		} catch (Exception e) {
 			log.error("Reference data import failed", e);
 		}
@@ -69,5 +70,15 @@ public class RefDataImport implements Runnable {
 				Maps.store(fileName, stream, database);
 			}
 		}
+	}
+
+	private void importKmlFile() {
+		File kmlFile = new File(dir, "Geographies.xml");
+		if(!kmlFile.exists()) {
+			log.trace("{} does not exist; no KML import", kmlFile);
+			return;
+		}
+		log.trace("import KML data from {}", kmlFile);
+		new GeoKmzImport(kmlFile, database).run();
 	}
 }
