@@ -1,10 +1,12 @@
-package org.openlca.core.database;
+package org.openlca.core.database.descriptors;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.TestSession;
+import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.descriptors.FlowDescriptor;

@@ -6,7 +6,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -138,39 +138,18 @@ public class Descriptors {
 		if (impactCategory == null)
 			return null;
 		ImpactCategoryDescriptor descriptor = new ImpactCategoryDescriptor();
-		descriptor.setType(ModelType.IMPACT_CATEGORY);
-		descriptor.setDescription(impactCategory.getDescription());
-		descriptor.setId(impactCategory.getId());
-		descriptor.setName(impactCategory.getName());
+		setBaseValues(impactCategory, descriptor);
 		descriptor.setReferenceUnit(impactCategory.getReferenceUnit());
 		return descriptor;
 	}
 
-	public static Class<? extends RootEntity> getModelClass(
-			Class<? extends BaseDescriptor> descriptorClass) {
-		if (descriptorClass == BaseDescriptor.class)
-			return RootEntity.class;
-		else if (descriptorClass == CategorizedDescriptor.class)
-			return CategorizedEntity.class;
-		else if (descriptorClass == ActorDescriptor.class)
-			return Actor.class;
-		else if (descriptorClass == SourceDescriptor.class)
-			return Source.class;
-		else if (descriptorClass == UnitGroupDescriptor.class)
-			return UnitGroup.class;
-		else if (descriptorClass == FlowPropertyDescriptor.class)
-			return FlowProperty.class;
-		else if (descriptorClass == FlowDescriptor.class)
-			return Flow.class;
-		else if (descriptorClass == ProcessDescriptor.class)
-			return Process.class;
-		else if (descriptorClass == ProductSystemDescriptor.class)
-			return ProductSystem.class;
-		else if (descriptorClass == ImpactMethodDescriptor.class)
-			return ImpactMethod.class;
-		else if (descriptorClass == ImpactCategoryDescriptor.class)
-			return ImpactCategory.class;
-		return RootEntity.class;
+	public static NwSetDescriptor toDescriptor(NwSet nwSet) {
+		if (nwSet == null)
+			return null;
+		NwSetDescriptor descriptor = new NwSetDescriptor();
+		setBaseValues(nwSet, descriptor);
+		descriptor.setWeightedScoreUnit(nwSet.getWeightedScoreUnit());
+		return descriptor;
 	}
 
 	private static void setBaseValues(CategorizedEntity entity,
