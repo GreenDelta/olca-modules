@@ -162,6 +162,18 @@ Columns:
 3. weighting factor (double, optional)
 
 
+KML for locations
+-----------------
+File:		`Geographies.xml`
+
+The reference data import supports the import of geometries for locations. The 
+supported file format is the same as for the ecoinvent 3 database (see
+http://www.ecoinvent.org/data-providers/how-to-submit-data/ecospold2). The 
+locations are mapped via the respective location code. So in principle you just
+need to copy the `Geographies.xml` file from ecoinvent 3 to the reference data
+folder and the KML data from this file will be imported. 
+
+
 Default mappings
 ================
 
