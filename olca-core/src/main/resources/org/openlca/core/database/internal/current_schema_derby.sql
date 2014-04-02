@@ -71,7 +71,8 @@ CREATE TABLE tbl_locations (
 
 	longitude DOUBLE,
 	latitude DOUBLE, 
-	code VARCHAR(255), 
+	code VARCHAR(255),
+    kmz BLOB(16 M),
 	
 	PRIMARY KEY (id)
 );

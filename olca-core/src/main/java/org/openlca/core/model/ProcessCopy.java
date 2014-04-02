@@ -23,6 +23,7 @@ class ProcessCopy {
 		copy.setLocation(origin.getLocation());
 		copy.setProcessType(origin.getProcessType());
 		copy.setInfrastructureProcess(origin.isInfrastructureProcess());
+		copy.setKmz(origin.getKmz());
 		if (origin.getDocumentation() != null)
 			copy.setDocumentation(origin.getDocumentation().clone());
 	}

@@ -1,14 +1,14 @@
 package org.openlca.core.database.upgrades;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.derby.DerbyDatabase;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
-
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.derby.DerbyDatabase;
 
 class Upgrade1 implements IUpgrade {
 
@@ -47,6 +47,8 @@ class Upgrade1 implements IUpgrade {
 		util.checkCreateColumn("tbl_impact_factors", "formula",
 				"formula VARCHAR(1000)");
 		util.checkCreateColumn("tbl_processes", "kmz",
+				"kmz " + util.getBlobType());
+		util.checkCreateColumn("tbl_locations", "kmz",
 				"kmz " + util.getBlobType());
 		util.checkDropColumn("tbl_process_docs", "last_change");
 		util.checkDropColumn("tbl_process_docs", "version");

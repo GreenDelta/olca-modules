@@ -1,10 +1,10 @@
 package org.openlca.core.model;
 
-import java.util.UUID;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.Table;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tbl_locations")
@@ -18,7 +18,11 @@ public class Location extends RootEntity {
 
 	@Column(name = "longitude")
 	private double longitude;
-	
+
+	@Lob
+	@Column(name = "kmz")
+	private byte[] kmz;
+
 	public String getCode() {
 		return code;
 	}
@@ -55,4 +59,11 @@ public class Location extends RootEntity {
 		this.longitude = longitude;
 	}
 
+	public byte[] getKmz() {
+		return kmz;
+	}
+
+	public void setKmz(byte[] kmz) {
+		this.kmz = kmz;
+	}
 }
