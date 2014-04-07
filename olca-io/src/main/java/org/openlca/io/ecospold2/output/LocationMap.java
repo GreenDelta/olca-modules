@@ -16,18 +16,17 @@ class LocationMap {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final IDatabase database;
 	private final HashMap<String, ExportRecord> map = new HashMap<>();
 
 	public LocationMap(IDatabase database) {
-		this.database = database;
-		initMap();
+		initMap(database);
 	}
 
-	private void initMap() {
+	private void initMap(IDatabase database) {
 		try {
+			CellProcessor[] processors ={ null, null, null, null };
 			List<List<Object>> rows = Maps.readAll(Maps.ES2_LOCATION_EXPORT,
-					database, new CellProcessor[] { null, null, null, null });
+					database, processors);
 			for (List<Object> row : rows) {
 				String refId = Maps.getString(row, 0);
 				ExportRecord record = new ExportRecord();

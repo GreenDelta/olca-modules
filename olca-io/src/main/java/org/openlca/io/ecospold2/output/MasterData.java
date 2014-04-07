@@ -1,12 +1,6 @@
 package org.openlca.io.ecospold2.output;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
-import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.Unit;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.ActivityIndexEntry;
 import org.openlca.ecospold2.ActivityName;
@@ -16,7 +10,11 @@ import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.Parameter;
 import org.openlca.ecospold2.TimePeriod;
+import org.openlca.ecospold2.Unit;
 import org.openlca.ecospold2.UserMasterData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Adds master data entries to an EcoSpold 02 activity data set. This is not
@@ -56,17 +54,16 @@ class MasterData {
 	}
 
 	private void writeUnits(UserMasterData masterData) {
-		HashSet<Unit> olcaUnits = new HashSet<>();
-		for (Exchange exchange : process.getExchanges()) {
-			if (exchange.getUnit() != null)
-				olcaUnits.add(exchange.getUnit());
-		}
-		for (Unit olcaUnit : olcaUnits) {
-			org.openlca.ecospold2.Unit es2Unit = new org.openlca.ecospold2.Unit();
-			es2Unit.setComment(olcaUnit.getDescription());
-			es2Unit.setId(olcaUnit.getRefId());
-			es2Unit.setName(olcaUnit.getName());
-			masterData.getUnits().add(es2Unit);
+		Map<String, String> units = new HashMap<>();
+		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges())
+			units.put(exchange.getUnitId(), exchange.getUnitName());
+		for (ElementaryExchange exchange : dataSet.getElementaryExchanges())
+			units.put(exchange.getUnitId(), exchange.getUnitName());
+		for (Map.Entry<String, String> entry : units.entrySet()) {
+			Unit unit = new Unit();
+			unit.setId(entry.getKey());
+			unit.setName(entry.getValue());
+			masterData.getUnits().add(unit);
 		}
 	}
 

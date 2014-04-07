@@ -33,13 +33,12 @@ import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -50,12 +49,14 @@ import java.util.UUID;
  */
 public class EcoSpold2Export implements Runnable {
 
-	private Logger log;
-	private File dir;
-	private IDatabase database;
-	private List<ProcessDescriptor> descriptors;
+	private Logger log = LoggerFactory.getLogger(getClass());
+
+	private final File dir;
+	private final IDatabase database;
+	private final List<ProcessDescriptor> descriptors;
 
 	private final LocationMap locationMap;
+	private final UnitMap unitMap;
 
 	public EcoSpold2Export(File dir, IDatabase database,
 			List<ProcessDescriptor> descriptors) {
@@ -63,6 +64,7 @@ public class EcoSpold2Export implements Runnable {
 		this.database = database;
 		this.descriptors = descriptors;
 		this.locationMap = new LocationMap(database);
+		this.unitMap = new UnitMap(database);
 	}
 
 	@Override
@@ -102,9 +104,6 @@ public class EcoSpold2Export implements Runnable {
 			mapExchanges(process, dataSet);
 			mapParameters(process, dataSet);
 			mapAdminInfo(process, dataSet);
-			// TODO add a check box if want merge or not
-			mergeElemExchanges(dataSet);
-			mergeTechExchanges(dataSet);
 			MasterData.map(process, dataSet);
 			// if (setRequiredFields)
 			// requiredFields.check(dataSet);
@@ -125,68 +124,6 @@ public class EcoSpold2Export implements Runnable {
 		activity.setSpecialActivityType(0); // default
 		activity.setGeneralComment(process.getDescription());
 		return activity;
-	}
-
-	private void mergeTechExchanges(DataSet dataSet) {
-		Map<String, List<IntermediateExchange>> map = new HashMap<>();
-		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges()) {
-			if (map.containsKey(exchange.getIntermediateExchangeId())) {
-				List<IntermediateExchange> list = map.get(exchange
-						.getIntermediateExchangeId());
-				list.add(exchange);
-			} else {
-				List<IntermediateExchange> list = new ArrayList<>();
-				list.add(exchange);
-				map.put(exchange.getIntermediateExchangeId(), list);
-			}
-		}
-		List<IntermediateExchange> newExchanges = new ArrayList<>();
-		for (List<IntermediateExchange> list : map.values()) {
-			if (list.size() > 1) {
-				double amount = 0;
-				for (IntermediateExchange e : list)
-					amount += e.getAmount();
-				IntermediateExchange exchange = list.get(0);
-				exchange.setAmount(amount);
-				newExchanges.add(exchange);
-			} else {
-				if (!list.isEmpty())
-					newExchanges.add(list.get(0));
-			}
-		}
-		dataSet.getIntermediateExchanges().clear();
-		dataSet.getIntermediateExchanges().addAll(newExchanges);
-	}
-
-	private void mergeElemExchanges(DataSet dataSet) {
-		Map<String, List<ElementaryExchange>> map = new HashMap<>();
-		for (ElementaryExchange exchange : dataSet.getElementaryExchanges()) {
-			if (map.containsKey(exchange.getElementaryExchangeId())) {
-				List<ElementaryExchange> list = map.get(exchange
-						.getElementaryExchangeId());
-				list.add(exchange);
-			} else {
-				List<ElementaryExchange> list = new ArrayList<>();
-				list.add(exchange);
-				map.put(exchange.getElementaryExchangeId(), list);
-			}
-		}
-		List<ElementaryExchange> newExchanges = new ArrayList<>();
-		for (List<ElementaryExchange> list : map.values()) {
-			if (list.size() > 1) {
-				double amount = 0;
-				for (ElementaryExchange e : list)
-					amount += e.getAmount();
-				ElementaryExchange exchange = list.get(0);
-				exchange.setAmount(amount);
-				newExchanges.add(exchange);
-			} else {
-				if (!list.isEmpty())
-					newExchanges.add(list.get(0));
-			}
-		}
-		dataSet.getElementaryExchanges().clear();
-		dataSet.getElementaryExchanges().addAll(newExchanges);
 	}
 
 	// TODO: We can use only the classifications from the master data
@@ -323,8 +260,7 @@ public class EcoSpold2Export implements Runnable {
 		e2Exchange.setName(exchange.getFlow().getName());
 		e2Exchange.setId(new UUID(exchange.getId(), 0L).toString());
 		e2Exchange.setAmount(exchange.getAmountValue());
-		e2Exchange.setUnitId(exchange.getUnit().getRefId());
-		e2Exchange.setUnitName(exchange.getUnit().getName());
+		unitMap.apply(exchange.getUnit(), e2Exchange);
 		e2Exchange.setMathematicalRelation(exchange.getAmountFormula());
 		e2Exchange.setCasNumber(exchange.getFlow().getCasNumber());
 		e2Exchange.setUncertainty(UncertaintyConverter.fromOpenLCA(exchange
