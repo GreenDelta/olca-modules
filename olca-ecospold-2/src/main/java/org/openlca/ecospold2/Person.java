@@ -1,6 +1,7 @@
 package org.openlca.ecospold2;
 
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class Person {
 
@@ -92,33 +93,24 @@ public class Person {
 		return person;
 	}
 
-	Element toXml() {
-		Element element = new Element("person", IO.NS);
-
+	Element toXml(Namespace namespace) {
+		Element element = new Element("person", namespace);
 		if (id != null)
 			element.setAttribute("id", id);
-
 		if (name != null)
 			element.setAttribute("name", name);
-
 		if (address != null)
 			element.setAttribute("address", address);
-
 		if (telephone != null)
 			element.setAttribute("telephone", telephone);
-
 		if (telefax != null)
 			element.setAttribute("telefax", telefax);
-
 		if (email != null)
 			element.setAttribute("email", email);
-
 		if (companyId != null)
 			element.setAttribute("companyId", companyId);
-
 		if (companyName != null)
 			Out.addChild(element, "companyName", companyName);
-
 		return element;
 	}
 
