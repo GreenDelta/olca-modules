@@ -1,18 +1,20 @@
 package org.openlca.io.ecospold2.output;
 
 import java.util.Date;
+import java.util.Objects;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
-import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ecospold2.AdministrativeInformation;
+import org.openlca.ecospold2.Company;
 import org.openlca.ecospold2.DataEntryBy;
 import org.openlca.ecospold2.DataGenerator;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.FileAttributes;
 import org.openlca.ecospold2.MacroEconomicScenario;
+import org.openlca.ecospold2.Person;
 import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
@@ -87,7 +89,7 @@ class ProcessDoc {
 		dataSet.setAdministrativeInformation(adminInfo);
 		mapDataEntry(adminInfo);
 		mapDataGenerator(adminInfo);
-		mapFileAttributes(process, adminInfo);
+		mapFileAttributes(adminInfo);
 	}
 
 	private void mapDataEntry(AdministrativeInformation adminInfo) {
@@ -115,29 +117,29 @@ class ProcessDoc {
 			dataGenerator.setPersonId("788d0176-a69c-4de0-a5d3-259866b6b100");
 			dataGenerator.setPersonName("[Current User]");
 		} else {
-			dataGenerator.setPersonEmail(actor.getEmail());
-			dataGenerator.setPersonId(actor.getRefId());
-			dataGenerator.setPersonName(actor.getName());
+			Person person = addPerson(actor);
+			dataGenerator.setPersonEmail(person.getEmail());
+			dataGenerator.setPersonId(person.getId());
+			dataGenerator.setPersonName(person.getEmail());
 		}
-		Source source = doc.getPublication();
-		if (source != null) {
-			dataGenerator.setPublishedSourceId(source.getRefId());
-			dataGenerator.setPublishedSourceFirstAuthor(source.getName());
-			if (source.getYear() != null)
-				dataGenerator.setPublishedSourceYear(source.getYear()
-						.intValue());
-		}
+		// TODO: export source information
+		// Source source = doc.getPublication();
+		// if (source != null) {
+		// dataGenerator.setPublishedSourceId(source.getRefId());
+		// dataGenerator.setPublishedSourceFirstAuthor(source.getName());
+		// if (source.getYear() != null)
+		// dataGenerator.setPublishedSourceYear(source.getYear()
+		// .intValue());
+		// }
 		dataGenerator.setCopyrightProtected(doc.isCopyright());
 	}
 
-	private void mapFileAttributes(Process process,
-			AdministrativeInformation adminInfo) {
+	private void mapFileAttributes(AdministrativeInformation adminInfo) {
 		FileAttributes atts = new FileAttributes();
 		adminInfo.setFileAttributes(atts);
-		mapVersion(process, atts);
+		mapVersion(atts);
 		atts.setDefaultLanguage("en");
-		ProcessDocumentation doc = process.getDocumentation();
-		if (doc != null && doc.getCreationDate() != null)
+		if (doc.getCreationDate() != null)
 			atts.setCreationTimestamp(doc.getCreationDate());
 		else
 			atts.setCreationTimestamp(new Date());
@@ -150,7 +152,7 @@ class ProcessDoc {
 		atts.setFileTimestamp(new Date());
 	}
 
-	private void mapVersion(Process process, FileAttributes atts) {
+	private void mapVersion(FileAttributes atts) {
 		Version version = new Version(process.getVersion());
 		atts.setMajorRelease(version.getMajor());
 		atts.setMajorRevision(version.getMinor());
@@ -158,4 +160,53 @@ class ProcessDoc {
 		atts.setMinorRevision(0);
 	}
 
+	private Person addPerson(Actor actor) {
+		for (Person person : dataSet.getMasterData().getPersons()) {
+			if (Objects.equals(actor.getRefId(), person.getId()))
+				return person;
+		}
+		Person person = new Person();
+		person.setId(actor.getRefId());
+		person.setName(actor.getName());
+		person.setAddress(getAddress(actor));
+		String email = actor.getEmail() != null ? actor.getEmail()
+				: "no@mail.net";
+		person.setEmail(email);
+		person.setName(actor.getName());
+		person.setTelefax(actor.getTelefax());
+		person.setTelephone(actor.getTelephone());
+		person.setCompanyId("b35ea934-b41d-4830-b1aa-c7c678270240");
+		person.setCompanyName("UKNWN");
+		dataSet.getMasterData().getPersons().add(person);
+		addDefaultCompany();
+		return person;
+	}
+
+	private String getAddress(Actor actor) {
+		String adress = "";
+		if (actor.getAddress() != null)
+			adress += actor.getAddress();
+		if (actor.getZipCode() != null)
+			adress += " " + actor.getZipCode();
+		if (actor.getCity() != null)
+			adress += " " + actor.getCity();
+		if (actor.getCountry() != null)
+			adress += " " + actor.getCountry();
+		return adress;
+	}
+
+	private void addDefaultCompany() {
+		String id = "b35ea934-b41d-4830-b1aa-c7c678270240";
+		for (Company company : dataSet.getMasterData().getCompanies()) {
+			if (Objects.equals(id, company.getId()))
+				return;
+		}
+		Company company = new Company();
+		company.setCode("UKNWN");
+		company.setComment("This is a default entry as we cannot create persons"
+				+ " without company information for the EcoEditor.");
+		company.setId(id);
+		company.setName("Unknown");
+		dataSet.getMasterData().getCompanies().add(company);
+	}
 }
