@@ -34,7 +34,7 @@ public class SourceList {
 		Element root = new Element("validSources", IO.NS);
 		Document doc = new Document(root);
 		for (Source s : sources)
-			root.addContent(s.toXml());
+			root.addContent(s.toXml(IO.NS));
 		return doc;
 	}
 

@@ -3,12 +3,13 @@ package org.openlca.ecospold2;
 import java.util.List;
 
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 public class Source {
 
 	private String id;
 	private Integer sourceType;
-	private String year;
+	private Integer year;
 	private String volumeNo;
 	private String firstAuthor;
 	private String additionalAuthors;
@@ -37,11 +38,11 @@ public class Source {
 		this.sourceType = sourceType;
 	}
 
-	public String getYear() {
+	public Integer getYear() {
 		return year;
 	}
 
-	public void setYear(String year) {
+	public void setYear(Integer year) {
 		this.year = year;
 	}
 
@@ -138,10 +139,9 @@ public class Source {
 			return null;
 		Source source = new Source();
 		source.id = e.getAttributeValue("id");
-		String sourceTypeStr = e.getAttributeValue("sourceType");
-		if (sourceTypeStr != null)
-			source.sourceType = In.integer(sourceTypeStr);
-		source.year = e.getAttributeValue("year");
+		source.sourceType = In.optionalInteger(e
+				.getAttributeValue("sourceType"));
+		source.year = In.optionalInteger(e.getAttributeValue("year"));
 		source.volumeNo = e.getAttributeValue("volumeNo");
 		source.firstAuthor = e.getAttributeValue("firstAuthor");
 		source.additionalAuthors = e.getAttributeValue("additionalAuthors");
@@ -157,14 +157,14 @@ public class Source {
 		return source;
 	}
 
-	Element toXml() {
-		Element element = new Element("source", IO.NS);
+	Element toXml(Namespace ns) {
+		Element element = new Element("source", ns);
 		if (id != null)
 			element.setAttribute("id", id);
 		if (sourceType != null)
 			element.setAttribute("sourceType", sourceType.toString());
 		if (year != null)
-			element.setAttribute("year", year);
+			element.setAttribute("year", year.toString());
 		if (volumeNo != null)
 			element.setAttribute("volumeNo", volumeNo);
 		if (firstAuthor != null)

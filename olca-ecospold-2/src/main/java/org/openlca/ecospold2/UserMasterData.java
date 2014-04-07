@@ -11,6 +11,7 @@ public class UserMasterData {
 	private List<ActivityName> activityNames = new ArrayList<>();
 	private List<Company> companies = new ArrayList<>();
 	private List<Person> persons = new ArrayList<>();
+	private List<Source> sources = new ArrayList<>();
 	private List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
 	private List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
 	private List<Geography> geographies = new ArrayList<>();
@@ -57,6 +58,10 @@ public class UserMasterData {
 		return companies;
 	}
 
+	public List<Source> getSources() {
+		return sources;
+	}
+
 	public Element toXml() {
 		Element e = new Element("usedUserMasterData", IO.MD_NS);
 		for (Unit unit : units)
@@ -67,6 +72,8 @@ public class UserMasterData {
 			e.addContent(company.toXml(IO.MD_NS));
 		for (Person person : persons)
 			e.addContent(person.toXml(IO.MD_NS));
+		for (Source source : sources)
+			e.addContent(source.toXml(IO.MD_NS));
 		for (ElementaryExchange elemFlow : elementaryExchanges)
 			e.addContent(elemFlow.toXml(IO.MD_NS));
 		for (IntermediateExchange techFlow : intermediateExchanges)

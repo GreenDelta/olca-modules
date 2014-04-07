@@ -16,6 +16,7 @@ import org.openlca.ecospold2.FileAttributes;
 import org.openlca.ecospold2.MacroEconomicScenario;
 import org.openlca.ecospold2.Person;
 import org.openlca.ecospold2.Representativeness;
+import org.openlca.ecospold2.Source;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 
@@ -109,29 +110,30 @@ class ProcessDoc {
 	}
 
 	private void mapDataGenerator(AdministrativeInformation adminInfo) {
-		DataGenerator dataGenerator = new DataGenerator();
-		adminInfo.setDataGenerator(dataGenerator);
+		DataGenerator generator = new DataGenerator();
+		adminInfo.setDataGenerator(generator);
+		generator.setCopyrightProtected(doc.isCopyright());
+		mapPublication(generator);
 		Actor actor = doc.getDataGenerator();
 		if (actor == null) {
-			dataGenerator.setPersonEmail("no@email.com");
-			dataGenerator.setPersonId("788d0176-a69c-4de0-a5d3-259866b6b100");
-			dataGenerator.setPersonName("[Current User]");
+			generator.setPersonEmail("no@email.com");
+			generator.setPersonId("788d0176-a69c-4de0-a5d3-259866b6b100");
+			generator.setPersonName("[Current User]");
 		} else {
 			Person person = addPerson(actor);
-			dataGenerator.setPersonEmail(person.getEmail());
-			dataGenerator.setPersonId(person.getId());
-			dataGenerator.setPersonName(person.getEmail());
+			generator.setPersonEmail(person.getEmail());
+			generator.setPersonId(person.getId());
+			generator.setPersonName(person.getEmail());
 		}
-		// TODO: export source information
-		// Source source = doc.getPublication();
-		// if (source != null) {
-		// dataGenerator.setPublishedSourceId(source.getRefId());
-		// dataGenerator.setPublishedSourceFirstAuthor(source.getName());
-		// if (source.getYear() != null)
-		// dataGenerator.setPublishedSourceYear(source.getYear()
-		// .intValue());
-		// }
-		dataGenerator.setCopyrightProtected(doc.isCopyright());
+	}
+
+	private void mapPublication(DataGenerator generator) {
+		if (doc.getPublication() == null)
+			return;
+		Source source = addSource(doc.getPublication());
+		generator.setPublishedSourceId(source.getId());
+		generator.setPublishedSourceFirstAuthor(source.getFirstAuthor());
+		generator.setPublishedSourceYear(source.getYear());
 	}
 
 	private void mapFileAttributes(AdministrativeInformation adminInfo) {
@@ -158,6 +160,25 @@ class ProcessDoc {
 		atts.setMajorRevision(version.getMinor());
 		atts.setMinorRelease(version.getUpdate());
 		atts.setMinorRevision(0);
+	}
+
+	private Source addSource(org.openlca.core.model.Source olcaSource) {
+		for (Source source : dataSet.getMasterData().getSources()) {
+			if (Objects.equals(olcaSource.getRefId(), source.getId()))
+				return source;
+		}
+		Source source = new Source();
+		source.setId(olcaSource.getRefId());
+		source.setComment(olcaSource.getDescription());
+		source.setFirstAuthor(olcaSource.getName());
+		source.setSourceType(0);
+		source.setTitle(olcaSource.getTextReference());
+		if (olcaSource.getYear() != null)
+			source.setYear(olcaSource.getYear().intValue());
+		else
+			source.setYear(9999);
+		dataSet.getMasterData().getSources().add(source);
+		return source;
 	}
 
 	private Person addPerson(Actor actor) {
