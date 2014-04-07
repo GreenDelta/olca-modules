@@ -1,10 +1,8 @@
 package org.openlca.io.ecospold2.output;
 
-import com.google.common.base.Joiner;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -13,31 +11,21 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.Source;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ecospold2.Activity;
-import org.openlca.ecospold2.AdministrativeInformation;
-import org.openlca.ecospold2.Classification;
+import org.openlca.ecospold2.ActivityName;
 import org.openlca.ecospold2.Compartment;
-import org.openlca.ecospold2.DataEntryBy;
-import org.openlca.ecospold2.DataGenerator;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
-import org.openlca.ecospold2.FileAttributes;
 import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.MacroEconomicScenario;
-import org.openlca.ecospold2.Representativeness;
-import org.openlca.ecospold2.Technology;
-import org.openlca.ecospold2.TimePeriod;
+import org.openlca.ecospold2.UserMasterData;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -89,88 +77,42 @@ public class EcoSpold2Export implements Runnable {
 						descriptor);
 				continue;
 			}
-			DataSet dataSet = new DataSet();
-			Activity activity = createActivity(process);
-			dataSet.setActivity(activity);
-			// TODO:
-			// if (process.getCategory() != null)
-			// dataSet.getClassifications().add(
-			// convertCategory(process.getCategory()));
-			locationMap.apply(process, dataSet);
-			addEconomicScenario(dataSet);
-			mapTechnology(doc, dataSet);
-			mapTime(doc, dataSet);
-			mapRepresentativeness(doc, dataSet);
-			mapExchanges(process, dataSet);
-			mapParameters(process, dataSet);
-			mapAdminInfo(process, dataSet);
-			MasterData.map(process, dataSet);
-			// if (setRequiredFields)
-			// requiredFields.check(dataSet);
-			String fileName = process.getRefId() == null ? UUID.randomUUID()
-					.toString() : process.getRefId();
-			File file = new File(activityDir, fileName + ".spold");
-			EcoSpold2.writeDataSet(dataSet, file);
+			exportProcess(activityDir, process);
 		}
 	}
 
-	private Activity createActivity(Process process) {
+	private void exportProcess(File activityDir, Process process)
+			throws Exception {
+		DataSet dataSet = new DataSet();
+		UserMasterData masterData = new UserMasterData();
+		dataSet.setMasterData(masterData);
+		mapActivity(process, dataSet);
+		locationMap.apply(process, dataSet);
+		ProcessDoc.map(process, dataSet);
+		mapExchanges(process, dataSet);
+		mapParameters(process, dataSet);
+		MasterData.map(process, dataSet);
+		String fileName = process.getRefId() == null ? UUID.randomUUID()
+				.toString() : process.getRefId();
+		File file = new File(activityDir, fileName + ".spold");
+		EcoSpold2.writeDataSet(dataSet, file);
+	}
+
+	private void mapActivity(Process process, DataSet dataSet) {
 		Activity activity = new Activity();
+		dataSet.setActivity(activity);
+		ActivityName activityName = new ActivityName();
+		dataSet.getMasterData().getActivityNames().add(activityName);
+		String nameId = UUID.randomUUID().toString();
+		activity.setActivityNameId(nameId);
+		activityName.setId(dataSet.getActivity().getActivityNameId());
 		activity.setName(process.getName());
+		activityName.setName(process.getName());
 		activity.setId(process.getRefId());
-		activity.setActivityNameId(UUID.randomUUID().toString());
 		int type = process.getProcessType() == ProcessType.LCI_RESULT ? 2 : 1;
 		activity.setType(type);
 		activity.setSpecialActivityType(0); // default
 		activity.setGeneralComment(process.getDescription());
-		return activity;
-	}
-
-	// TODO: We can use only the classifications from the master data
-	private Classification convertCategory(Category category) {
-		if (category == null)
-			return null;
-		Classification classification = new Classification();
-		classification.setClassificationId(category.getRefId());
-		classification.setClassificationSystem("openLCA");
-		List<String> path = new ArrayList<>();
-		Category c = category;
-		while (c != null) {
-			path.add(0, c.getName());
-			c = c.getParentCategory();
-		}
-		classification.setClassificationValue(Joiner.on('/').skipNulls()
-				.join(path));
-		return classification;
-	}
-
-	private void mapTechnology(ProcessDocumentation doc, DataSet dataSet) {
-		Technology technology = new Technology();
-		technology.setComment(doc.getTechnology());
-		technology.setTechnologyLevel(0);
-		dataSet.setTechnology(technology);
-	}
-
-	private void mapTime(ProcessDocumentation doc, DataSet dataSet) {
-		TimePeriod timePeriod = new TimePeriod();
-		timePeriod.setComment(doc.getTime());
-		timePeriod.setDataValid(true);
-		if (doc.getValidUntil() != null)
-			timePeriod.setEndDate(doc.getValidUntil());
-		else
-			timePeriod.setEndDate(new Date());
-		if (doc.getValidFrom() != null)
-			timePeriod.setStartDate(doc.getValidFrom());
-		else
-			timePeriod.setStartDate(new Date());
-		dataSet.setTimePeriod(timePeriod);
-	}
-
-	private void addEconomicScenario(DataSet dataSet) {
-		MacroEconomicScenario scenario = new MacroEconomicScenario();
-		scenario.setId("d9f57f0a-a01f-42eb-a57b-8f18d6635801");
-		scenario.setName("Business-as-Usual");
-		dataSet.setMacroEconomicScenario(scenario);
 	}
 
 	private void mapExchanges(Process process, DataSet dataSet) {
@@ -181,14 +123,17 @@ public class EcoSpold2Export implements Runnable {
 			Flow flow = exchange.getFlow();
 			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
 				e2Exchange = createElementaryExchange(exchange);
-				dataSet.getElementaryExchanges().add(
-						(ElementaryExchange) e2Exchange);
+				// TODO: we need a compartment mapping
+				// dataSet.getElementaryExchanges().add(
+				// (ElementaryExchange) e2Exchange);
 			} else {
 				e2Exchange = createIntermediateExchange(exchange, process);
 				dataSet.getIntermediateExchanges().add(
 						(IntermediateExchange) e2Exchange);
 			}
 			mapExchange(exchange, e2Exchange);
+			unitMap.apply(exchange.getUnit(), e2Exchange,
+					dataSet.getMasterData());
 		}
 	}
 
@@ -198,8 +143,7 @@ public class EcoSpold2Export implements Runnable {
 				&& exchange.getUnit() != null;
 	}
 
-	private org.openlca.ecospold2.Exchange createElementaryExchange(
-			Exchange exchange) {
+	private ElementaryExchange createElementaryExchange(Exchange exchange) {
 		ElementaryExchange e2Ex = new ElementaryExchange();
 		if (exchange.isInput())
 			e2Ex.setInputGroup(4);
@@ -241,10 +185,6 @@ public class EcoSpold2Export implements Runnable {
 		ProcessDescriptor provider = getDefaultProvider(exchange);
 		if (provider != null)
 			e2Ex.setActivityLinkId(provider.getRefId());
-		// TODO: We can use only the classifications from the master data
-		// if (exchange.getFlow().getCategory() != null)
-		// e2Ex.getClassifications().add(
-		// convertCategory(exchange.getFlow().getCategory()));
 		return e2Ex;
 	}
 
@@ -260,7 +200,6 @@ public class EcoSpold2Export implements Runnable {
 		e2Exchange.setName(exchange.getFlow().getName());
 		e2Exchange.setId(new UUID(exchange.getId(), 0L).toString());
 		e2Exchange.setAmount(exchange.getAmountValue());
-		unitMap.apply(exchange.getUnit(), e2Exchange);
 		e2Exchange.setMathematicalRelation(exchange.getAmountFormula());
 		e2Exchange.setCasNumber(exchange.getFlow().getCasNumber());
 		e2Exchange.setUncertainty(UncertaintyConverter.fromOpenLCA(exchange
@@ -280,103 +219,12 @@ public class EcoSpold2Export implements Runnable {
 			e2Param.setVariableName(param.getName());
 			e2Param.setMathematicalRelation(param.getFormula());
 			e2Param.setIsCalculatedAmount(!param.isInputParameter());
-			// removed because this field does not exist in the schema
-			// documentation
 			if (param.getScope() != null)
 				e2Param.setScope(param.getScope().name());
 			e2Param.setUncertainty(UncertaintyConverter.fromOpenLCA(param
 					.getUncertainty()));
 			dataSet.getParameters().add(e2Param);
 		}
-	}
-
-	private void mapRepresentativeness(ProcessDocumentation doc, DataSet dataSet) {
-		Representativeness repri = new Representativeness();
-		repri.setSystemModelId("06590a66-662a-4885-8494-ad0cf410f956");
-		repri.setSystemModelName("Allocation, ecoinvent default");
-		repri.setSamplingProcedure(doc.getSampling());
-		repri.setExtrapolations(doc.getDataTreatment());
-		dataSet.setRepresentativeness(repri);
-	}
-
-	private void mapAdminInfo(Process process, DataSet dataSet) {
-		AdministrativeInformation adminInfo = new AdministrativeInformation();
-		dataSet.setAdministrativeInformation(adminInfo);
-		ProcessDocumentation doc = process.getDocumentation();
-		if (doc != null) {
-			mapDataEntry(doc.getDataDocumentor(), adminInfo);
-			mapDataGenerator(doc, adminInfo);
-		}
-		mapFileAttributes(process, adminInfo);
-	}
-
-	private void mapDataEntry(Actor dataDocumentor,
-			AdministrativeInformation adminInfo) {
-		DataEntryBy dataEntryBy = new DataEntryBy();
-		adminInfo.setDataEntryBy(dataEntryBy);
-		if (dataDocumentor == null) {
-			dataEntryBy.setIsActiveAuthor(false);
-			dataEntryBy.setPersonEmail("no@email.com");
-			dataEntryBy.setPersonId("788d0176-a69c-4de0-a5d3-259866b6b100");
-			dataEntryBy.setPersonName("[Current User]");
-		} else {
-			dataEntryBy.setPersonEmail(dataDocumentor.getEmail());
-			dataEntryBy.setPersonId(dataDocumentor.getRefId());
-			dataEntryBy.setPersonName(dataDocumentor.getName());
-		}
-	}
-
-	private void mapDataGenerator(ProcessDocumentation doc,
-			AdministrativeInformation adminInfo) {
-		DataGenerator dataGenerator = new DataGenerator();
-		adminInfo.setDataGenerator(dataGenerator);
-		Actor actor = doc.getDataGenerator();
-		if (actor == null) {
-			dataGenerator.setPersonEmail("no@email.com");
-			dataGenerator.setPersonId("788d0176-a69c-4de0-a5d3-259866b6b100");
-			dataGenerator.setPersonName("[Current User]");
-		} else {
-			dataGenerator.setPersonEmail(actor.getEmail());
-			dataGenerator.setPersonId(actor.getRefId());
-			dataGenerator.setPersonName(actor.getName());
-		}
-		Source source = doc.getPublication();
-		if (source != null) {
-			dataGenerator.setPublishedSourceId(source.getRefId());
-			dataGenerator.setPublishedSourceFirstAuthor(source.getName());
-			if (source.getYear() != null)
-				dataGenerator.setPublishedSourceYear(source.getYear()
-						.intValue());
-		}
-		dataGenerator.setCopyrightProtected(doc.isCopyright());
-	}
-
-	private void mapFileAttributes(Process process,
-			AdministrativeInformation adminInfo) {
-		FileAttributes atts = new FileAttributes();
-		adminInfo.setFileAttributes(atts);
-		mapVersion(process, atts);
-		atts.setDefaultLanguage("en");
-		ProcessDocumentation doc = process.getDocumentation();
-		if (doc != null && doc.getCreationDate() != null)
-			atts.setCreationTimestamp(doc.getCreationDate());
-		else
-			atts.setCreationTimestamp(new Date());
-		if (process.getLastChange() != 0)
-			atts.setLastEditTimestamp(new Date(process.getLastChange()));
-		else
-			atts.setLastEditTimestamp(new Date());
-		atts.setInternalSchemaVersion("1.0");
-		atts.setFileGenerator("openLCA");
-		atts.setFileTimestamp(new Date());
-	}
-
-	private void mapVersion(Process process, FileAttributes atts) {
-		Version version = new Version(process.getVersion());
-		atts.setMajorRelease(version.getMajor());
-		atts.setMajorRevision(version.getMinor());
-		atts.setMinorRelease(version.getUpdate());
-		atts.setMinorRevision(0);
 	}
 
 }

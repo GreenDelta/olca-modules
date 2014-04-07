@@ -1,20 +1,18 @@
 package org.openlca.io.ecospold2.output;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openlca.core.model.Process;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.ActivityIndexEntry;
-import org.openlca.ecospold2.ActivityName;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.Parameter;
 import org.openlca.ecospold2.TimePeriod;
-import org.openlca.ecospold2.Unit;
 import org.openlca.ecospold2.UserMasterData;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Adds master data entries to an EcoSpold 02 activity data set. This is not
@@ -24,11 +22,9 @@ import java.util.Map;
  */
 class MasterData {
 
-	private Process process;
 	private DataSet dataSet;
 
 	private MasterData(Process process, DataSet dataSet) {
-		this.process = process;
 		this.dataSet = dataSet;
 	}
 
@@ -37,34 +33,14 @@ class MasterData {
 	}
 
 	private void map() {
-		UserMasterData masterData = new UserMasterData();
-		dataSet.setMasterData(masterData);
-		writeUnits(masterData);
-		ActivityName activityName = new ActivityName();
-		masterData.getActivityNames().add(activityName);
-		if (dataSet.getActivity() != null)
-			activityName.setId(dataSet.getActivity().getActivityNameId());
-		activityName.setName(process.getName());
+		UserMasterData masterData = dataSet.getMasterData();
+
 		if (dataSet.getGeography() != null)
 			masterData.getGeographies().add(dataSet.getGeography());
 		writeParamters(masterData);
 		writeElementaryFlows(masterData);
 		writeTechFlows(masterData);
 		writeIndexEntry(masterData);
-	}
-
-	private void writeUnits(UserMasterData masterData) {
-		Map<String, String> units = new HashMap<>();
-		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges())
-			units.put(exchange.getUnitId(), exchange.getUnitName());
-		for (ElementaryExchange exchange : dataSet.getElementaryExchanges())
-			units.put(exchange.getUnitId(), exchange.getUnitName());
-		for (Map.Entry<String, String> entry : units.entrySet()) {
-			Unit unit = new Unit();
-			unit.setId(entry.getKey());
-			unit.setName(entry.getValue());
-			masterData.getUnits().add(unit);
-		}
 	}
 
 	private void writeParamters(UserMasterData masterData) {

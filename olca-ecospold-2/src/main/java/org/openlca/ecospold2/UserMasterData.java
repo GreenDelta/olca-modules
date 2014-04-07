@@ -53,14 +53,6 @@ public class UserMasterData {
 			e.addContent(unit.toXml(IO.MD_NS));
 		for (ActivityName activityName : activityNames)
 			e.addContent(activityName.toXml(IO.MD_NS));
-		// for (Parameter parameter : parameters) {
-		// e.addContent(parameter.toXml(IO.MD_NS));
-		// }
-		// I think it is not necessary because it is not possible to add own
-		// geographies. You can use only the geogrphies from the master data
-		// files.
-		// for (Geography geography : geographies)
-		// e.addContent(geography.toXml(IO.MD_NS));
 		for (ElementaryExchange elemFlow : elementaryExchanges)
 			e.addContent(elemFlow.toXml(IO.MD_NS));
 		for (IntermediateExchange techFlow : intermediateExchanges)
