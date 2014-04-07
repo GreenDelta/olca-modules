@@ -60,7 +60,7 @@ public class RefDataExport implements Runnable {
 	private void exportMappingFiles() throws Exception {
 		MappingFileDao dao = new MappingFileDao(database);
 		// TODO: add other mapping files
-		String[] fileNames = { Maps.SP_FLOW_IMPORT_MAP };
+		String[] fileNames = { Maps.SP_FLOW_IMPORT };
 		for (String fileName : fileNames) {
 			File file = new File(dir, fileName);
 			FileOutputStream out = new FileOutputStream(file);

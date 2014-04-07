@@ -61,7 +61,7 @@ public class RefDataImport implements Runnable {
 
 	private void importMappingFiles() throws Exception {
 		// TODO: add other mapping files
-		String[] fileNames = { Maps.SP_FLOW_IMPORT_MAP };
+		String[] fileNames = { Maps.SP_FLOW_IMPORT };
 		for (String fileName : fileNames) {
 			File file = new File(dir, fileName);
 			if (!file.exists())

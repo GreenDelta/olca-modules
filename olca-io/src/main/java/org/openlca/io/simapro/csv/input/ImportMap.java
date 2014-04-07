@@ -33,7 +33,7 @@ class ImportMap {
 	private void init(IDatabase database) {
 		log.trace("init import map");
 		try {
-			List<List<Object>> rows = Maps.readAll(Maps.SP_FLOW_IMPORT_MAP,
+			List<List<Object>> rows = Maps.readAll(Maps.SP_FLOW_IMPORT,
 					database, getCellProcessors());
 			log.trace("read {} flow mappings", rows.size());
 			for (List<Object> row : rows)

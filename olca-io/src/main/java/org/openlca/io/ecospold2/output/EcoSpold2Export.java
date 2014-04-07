@@ -1,14 +1,6 @@
 package org.openlca.io.ecospold2.output;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-
+import com.google.common.base.Joiner;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
@@ -17,7 +9,6 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
@@ -35,7 +26,6 @@ import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.FileAttributes;
-import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.MacroEconomicScenario;
 import org.openlca.ecospold2.Representativeness;
@@ -44,7 +34,14 @@ import org.openlca.ecospold2.TimePeriod;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.slf4j.Logger;
 
-import com.google.common.base.Joiner;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Exports a set of processes to the EcoSpold 2 data format to a directory. The
@@ -58,11 +55,14 @@ public class EcoSpold2Export implements Runnable {
 	private IDatabase database;
 	private List<ProcessDescriptor> descriptors;
 
+	private final LocationMap locationMap;
+
 	public EcoSpold2Export(File dir, IDatabase database,
 			List<ProcessDescriptor> descriptors) {
 		this.dir = dir;
 		this.database = database;
 		this.descriptors = descriptors;
+		this.locationMap = new LocationMap(database);
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class EcoSpold2Export implements Runnable {
 			// if (process.getCategory() != null)
 			// dataSet.getClassifications().add(
 			// convertCategory(process.getCategory()));
-			mapGeography(process, dataSet);
+			locationMap.apply(process, dataSet);
 			addEconomicScenario(dataSet);
 			mapTechnology(doc, dataSet);
 			mapTime(doc, dataSet);
@@ -205,23 +205,6 @@ public class EcoSpold2Export implements Runnable {
 		classification.setClassificationValue(Joiner.on('/').skipNulls()
 				.join(path));
 		return classification;
-	}
-
-	private void mapGeography(Process process, DataSet dataSet) {
-		Geography geography = new Geography();
-		if (process.getDocumentation() != null)
-			geography.setComment(process.getDocumentation().getGeography());
-		if (process.getLocation() != null) {
-			Location location = process.getLocation();
-			geography.setId(location.getRefId());
-			geography.setShortName(location.getCode());
-		}
-		// TODO: integrate geography mapping
-		if (geography.getId() == null || geography.getShortName() == null) {
-			geography.setId("34dbbff8-88ce-11de-ad60-0019e336be3a");
-			geography.setShortName("GLO");
-		}
-		dataSet.setGeography(geography);
 	}
 
 	private void mapTechnology(ProcessDocumentation doc, DataSet dataSet) {

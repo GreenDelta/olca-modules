@@ -35,7 +35,12 @@ public class Maps {
 	/**
 	 * Import map for flows in the SimaPro CSV format.
 	 */
-	public static final String SP_FLOW_IMPORT_MAP = "sp_flow_import_map.csv";
+	public static final String SP_FLOW_IMPORT = "sp_flow_import_map.csv";
+
+	/**
+	 * Export map for locations in the EcoSpold 2 data format.
+	 */
+	public static final String ES2_LOCATION_EXPORT = "es2_location_export_map.csv";
 
 	private Maps() {
 	}
