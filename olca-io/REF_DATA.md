@@ -287,7 +287,21 @@ File:       `es2_flow_export_map.csv`
 7. ecoinvent name of the flow (string)
 8. ecoinvent reference ID of the reference unit of the flow (UUID)
 9. ecoinvent name of the reference unit of the flow (string)
-10. conversion factor: amount_openlca * factor = amount_ecoinvent (double)
+10. ecoinvent ID of the sub-compartment
+11. ecoinvent name of the compartment
+12. ecoinvent name of the sub-compartment
+13. conversion factor: amount_openlca * factor = amount_ecoinvent (double)
+
+
+EcoSpold 2: Compartment export mapping
+--------------------------------------
+File:		`es2_compartment_export_map.csv`
+
+0. openLCA reference ID of the compartment/category (UUID)
+1. openLCA short path of the category (just for display; not used) (string)
+2. ecoinvent ID of the sub-compartment
+3. ecoinvent name of the compartment
+4. ecoinvent name of the sub-compartment
 
 
 ILCD
