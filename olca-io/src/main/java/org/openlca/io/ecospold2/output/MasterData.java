@@ -1,16 +1,11 @@
 package org.openlca.io.ecospold2.output;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.openlca.core.model.Process;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.ActivityIndexEntry;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.Parameter;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.ecospold2.UserMasterData;
 
@@ -20,70 +15,51 @@ import org.openlca.ecospold2.UserMasterData;
  * creating data sets with the EcoEditor. It is possible (and required before
  * opening) to import such master data from an EcoSpold 02 file.
  */
-class MasterData {
+final class MasterData {
 
-	private DataSet dataSet;
 
-	private MasterData(Process process, DataSet dataSet) {
-		this.dataSet = dataSet;
+	private MasterData() {
 	}
 
-	public static void map(Process process, DataSet dataSet) {
-		new MasterData(process, dataSet).map();
+	// TODO: handle parameters
+//	private void writeParamters(UserMasterData masterData) {
+//		for (Parameter parameter : dataSet.getParameters()) {
+//			Parameter masterParam = new Parameter();
+//			masterData.getParameters().add(masterParam);
+//			masterParam.setId(parameter.getId());
+//			masterParam.setName(parameter.getName());
+//			masterParam.setUnitName(parameter.getUnitName());
+//		}
+//	}
+
+	public static void writeElemFlow(ElementaryExchange elemFlow,
+			UserMasterData masterData) {
+		ElementaryExchange masterFlow = new ElementaryExchange();
+		masterData.getElementaryExchanges().add(masterFlow);
+		masterFlow.setId(elemFlow.getElementaryExchangeId());
+		masterFlow.setName(elemFlow.getName());
+		masterFlow.setUnitId(elemFlow.getUnitId());
+		masterFlow.setUnitName(elemFlow.getUnitName());
+		masterFlow.setCompartment(elemFlow.getCompartment());
+		masterFlow.setCasNumber(elemFlow.getCasNumber());
+		masterFlow.setFormula(elemFlow.getFormula());
 	}
 
-	private void map() {
-		UserMasterData masterData = dataSet.getMasterData();
-
-		if (dataSet.getGeography() != null)
-			masterData.getGeographies().add(dataSet.getGeography());
-		writeParamters(masterData);
-		writeElementaryFlows(masterData);
-		writeTechFlows(masterData);
-		writeIndexEntry(masterData);
+	public static void writeTechFlow(IntermediateExchange techFlow,
+			UserMasterData masterData) {
+		IntermediateExchange masterFlow = new IntermediateExchange();
+		masterData.getIntermediateExchanges().add(masterFlow);
+		masterFlow.setId(techFlow.getIntermediateExchangeId()); // !
+		masterFlow.setUnitId(techFlow.getUnitId());
+		masterFlow.setName(techFlow.getName());
+		masterFlow.setUnitName(techFlow.getUnitName());
 	}
 
-	private void writeParamters(UserMasterData masterData) {
-		for (Parameter parameter : dataSet.getParameters()) {
-			Parameter masterParam = new Parameter();
-			masterData.getParameters().add(masterParam);
-			masterParam.setId(parameter.getId());
-			masterParam.setName(parameter.getName());
-			masterParam.setUnitName(parameter.getUnitName());
-		}
-	}
-
-	private void writeElementaryFlows(UserMasterData masterData) {
-		Map<String, ElementaryExchange> exchanges = new HashMap<>();
-		for (ElementaryExchange exchange : dataSet.getElementaryExchanges())
-			exchanges.put(exchange.getElementaryExchangeId(), exchange);
-		for (ElementaryExchange exchange : exchanges.values()) {
-			ElementaryExchange masterFlow = new ElementaryExchange();
-			masterData.getElementaryExchanges().add(masterFlow);
-			masterFlow.setId(exchange.getElementaryExchangeId());
-			masterFlow.setName(exchange.getName());
-			masterFlow.setUnitId(exchange.getUnitId());
-			masterFlow.setUnitName(exchange.getUnitName());
-			masterFlow.setCompartment(exchange.getCompartment());
-			masterFlow.setCasNumber(exchange.getCasNumber());
-			masterFlow.setFormula(exchange.getFormula());
-		}
-	}
-
-	private void writeTechFlows(UserMasterData masterData) {
-		for (IntermediateExchange techFlow : dataSet.getIntermediateExchanges()) {
-			IntermediateExchange masterFlow = new IntermediateExchange();
-			masterData.getIntermediateExchanges().add(masterFlow);
-			masterFlow.setId(techFlow.getIntermediateExchangeId()); // !
-			masterFlow.setUnitId(techFlow.getUnitId());
-			masterFlow.setName(techFlow.getName());
-			masterFlow.setUnitName(techFlow.getUnitName());
-		}
-	}
-
-	private void writeIndexEntry(UserMasterData masterData) {
+	public static void writeIndexEntry(DataSet dataSet) {
+		if(dataSet == null || dataSet.getMasterData() == null)
+			return;
 		ActivityIndexEntry indexEntry = new ActivityIndexEntry();
-		masterData.getActivityIndexEntries().add(indexEntry);
+		dataSet.getMasterData().getActivityIndexEntries().add(indexEntry);
 		Activity activity = dataSet.getActivity();
 		if (activity != null) {
 			indexEntry.setActivityNameId(activity.getActivityNameId());

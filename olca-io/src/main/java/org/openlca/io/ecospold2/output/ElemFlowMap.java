@@ -1,0 +1,152 @@
+package org.openlca.io.ecospold2.output;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Exchange;
+import org.openlca.ecospold2.Compartment;
+import org.openlca.ecospold2.ElementaryExchange;
+import org.openlca.io.maps.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.supercsv.cellprocessor.Optional;
+import org.supercsv.cellprocessor.ParseDouble;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+class ElemFlowMap {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
+	private final HashMap<String, ExportRecord> map = new HashMap<>();
+
+	public ElemFlowMap(IDatabase database) {
+		initMap(database);
+	}
+
+	private void initMap(IDatabase database) {
+		try {
+			CellProcessor[] processors = getCellProcessors();
+			List<List<Object>> rows = Maps.readAll(Maps.ES2_FLOW_EXPORT,
+					database, processors);
+			for (List<Object> row : rows) {
+				String refId = Maps.getString(row, 0);
+				ExportRecord record = createRecord(row);
+				map.put(refId, record);
+			}
+		} catch (Exception e) {
+			log.error("failed to initialize flow export map", e);
+		}
+	}
+
+	private CellProcessor[] getCellProcessors() {
+		CellProcessor string = null;
+		CellProcessor optional = new Optional();
+		CellProcessor number = new ParseDouble();
+		//@formatter:off
+		return new CellProcessor[]{
+				string,     // 0: openLCA ID
+				optional,   // 1: openLCA name
+				string,     // 2: openLCA property ID
+				optional,   // 3: openLCA property name
+				string,     // 4: openLCA unit ID
+				optional,   // 5: openLCA unit name
+				string,     // 6: ecoinvent ID
+				string,     // 7: ecoinvent name
+				string,     // 8: ecoinvent unit ID
+				string,     // 9: ecoinvent unit name
+				string,     // 10: ecoinvent sub-compartment ID
+				string,     // 11: ecoinvent compartment name
+				string,     // 12: ecoinvent sub-compartment name
+				number      // 13: conversion factor
+				};
+		//@formatter:on
+	}
+
+	private ExportRecord createRecord(List<Object> row) {
+		ExportRecord record = new ExportRecord();
+		record.olcaPropertyId = Maps.getString(row, 2);
+		record.olcaUnitId = Maps.getString(row, 4);
+		record.id = Maps.getString(row, 6);
+		record.name = Maps.getString(row, 7);
+		record.unitId = Maps.getString(row, 8);
+		record.unitName = Maps.getString(row, 9);
+		record.subCompartmentId = Maps.getString(row, 10);
+		record.compartment = Maps.getString(row, 11);
+		record.subCompartment = Maps.getString(row, 12);
+		record.conversionFactor = Maps.getDouble(row, 13);
+		return record;
+	}
+
+	public ElementaryExchange apply(Exchange olca) {
+		if (olca == null || olca.getFlow() == null) {
+			log.warn("could not map exchange {}, exchange or flow is null", olca);
+			return null;
+		}
+		ExportRecord record = map.get(olca.getFlow().getRefId());
+		if (record == null || !isValid(record, olca)) {
+			log.warn("elementary flow {} cannot be mapped to an ecoinvent flow",
+					olca.getFlow());
+			return null;
+		}
+		return createExchange(olca, record);
+	}
+
+	private boolean isValid(ExportRecord record, Exchange olca) {
+		return record != null
+				&& olca != null
+				&& olca.getFlowPropertyFactor() != null
+				&& olca.getFlowPropertyFactor().getFlowProperty() != null
+				&& Objects.equals(record.olcaPropertyId,
+				olca.getFlowPropertyFactor().getFlowProperty().getRefId())
+				&& olca.getUnit() != null
+				&& Objects.equals(record.olcaUnitId, olca.getUnit().getRefId());
+	}
+
+	private ElementaryExchange createExchange(Exchange olca, ExportRecord record) {
+		ElementaryExchange exchange = new ElementaryExchange();
+		if (olca.isInput())
+			exchange.setInputGroup(4);
+		else
+			exchange.setOutputGroup(4);
+		exchange.setId(new UUID(olca.getId(), 0L).toString());
+		exchange.setElementaryExchangeId(record.id);
+		exchange.setName(record.name);
+		exchange.setCompartment(createCompartment(record));
+		exchange.setUnitName(record.unitName);
+		exchange.setUnitId(record.unitId);
+		exchange.setAmount(record.conversionFactor * olca.getAmountValue());
+		if (olca.getAmountFormula() != null) {
+			exchange.setMathematicalRelation(record.conversionFactor + " * ("
+					+ olca.getAmountFormula() + ")");
+		}
+		// TODO: convert uncertainty information
+		return exchange;
+	}
+
+	private Compartment createCompartment(ExportRecord record) {
+		Compartment compartment = new Compartment();
+		compartment.setSubcompartmentId(record.subCompartmentId);
+		compartment.setCompartment(record.compartment);
+		compartment.setSubcompartment(record.subCompartment);
+		return compartment;
+	}
+
+	private class ExportRecord {
+
+		String id;
+		String name;
+		String unitId;
+		String unitName;
+		String subCompartmentId;
+		String subCompartment;
+		String compartment;
+
+		String olcaPropertyId;
+		String olcaUnitId;
+		double conversionFactor;
+
+	}
+
+}

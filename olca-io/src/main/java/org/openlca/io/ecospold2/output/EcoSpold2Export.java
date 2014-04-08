@@ -44,6 +44,7 @@ public class EcoSpold2Export implements Runnable {
 	private final LocationMap locationMap;
 	private final UnitMap unitMap;
 	private final CompartmentMap compartmentMap;
+	private final ElemFlowMap elemFlowMap;
 
 	public EcoSpold2Export(File dir, IDatabase database,
 			List<ProcessDescriptor> descriptors) {
@@ -53,6 +54,7 @@ public class EcoSpold2Export implements Runnable {
 		this.locationMap = new LocationMap(database);
 		this.unitMap = new UnitMap(database);
 		this.compartmentMap = new CompartmentMap(database);
+		this.elemFlowMap = new ElemFlowMap(database);
 	}
 
 	@Override
@@ -91,7 +93,7 @@ public class EcoSpold2Export implements Runnable {
 		ProcessDoc.map(process, dataSet);
 		mapExchanges(process, dataSet);
 		mapParameters(process, dataSet);
-		MasterData.map(process, dataSet);
+		MasterData.writeIndexEntry(dataSet);
 		String fileName = process.getRefId() == null ? UUID.randomUUID()
 				.toString() : process.getRefId();
 		File file = new File(activityDir, fileName + ".spold");
@@ -119,20 +121,16 @@ public class EcoSpold2Export implements Runnable {
 		for (Exchange exchange : process.getExchanges()) {
 			if (!isValid(exchange))
 				continue;
-			org.openlca.ecospold2.Exchange e2Exchange = null;
 			Flow flow = exchange.getFlow();
+			UserMasterData masterData = dataSet.getMasterData();
 			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
-				e2Exchange = createElementaryExchange(exchange);
-				dataSet.getElementaryExchanges().add(
-						(ElementaryExchange) e2Exchange);
+				ElementaryExchange e = createElemExchange(exchange, masterData);
+				dataSet.getElementaryExchanges().add(e);
 			} else {
-				e2Exchange = createIntermediateExchange(exchange, process);
-				dataSet.getIntermediateExchanges().add(
-						(IntermediateExchange) e2Exchange);
+				IntermediateExchange e = createIntermediateExchange(exchange,
+						process, masterData);
+				dataSet.getIntermediateExchanges().add(e);
 			}
-			mapExchange(exchange, e2Exchange);
-			unitMap.apply(exchange.getUnit(), e2Exchange,
-					dataSet.getMasterData());
 		}
 	}
 
@@ -142,21 +140,28 @@ public class EcoSpold2Export implements Runnable {
 				&& exchange.getUnit() != null;
 	}
 
-	private ElementaryExchange createElementaryExchange(Exchange exchange) {
-		ElementaryExchange e2Ex = new ElementaryExchange();
+	private ElementaryExchange createElemExchange(Exchange exchange,
+			UserMasterData masterData) {
+		ElementaryExchange e2Ex = elemFlowMap.apply(exchange);
+		if (e2Ex != null)
+			return e2Ex;
+		e2Ex = new ElementaryExchange();
 		if (exchange.isInput())
 			e2Ex.setInputGroup(4);
 		else
 			e2Ex.setOutputGroup(4);
 		Flow flow = exchange.getFlow();
 		e2Ex.setElementaryExchangeId(flow.getRefId());
-		compartmentMap.apply(flow.getCategory(), e2Ex);
 		e2Ex.setFormula(flow.getFormula());
+		mapExchangeData(exchange, e2Ex);
+		compartmentMap.apply(flow.getCategory(), e2Ex);
+		unitMap.apply(exchange.getUnit(), e2Ex, masterData);
+		MasterData.writeElemFlow(e2Ex, masterData);
 		return e2Ex;
 	}
 
-	private org.openlca.ecospold2.Exchange createIntermediateExchange(
-			Exchange exchange, Process process) {
+	private IntermediateExchange createIntermediateExchange(
+			Exchange exchange, Process process, UserMasterData masterData) {
 		IntermediateExchange e2Ex = new IntermediateExchange();
 		if (exchange.isInput())
 			e2Ex.setInputGroup(5);
@@ -172,6 +177,9 @@ public class EcoSpold2Export implements Runnable {
 		ProcessDescriptor provider = getDefaultProvider(exchange);
 		if (provider != null)
 			e2Ex.setActivityLinkId(provider.getRefId());
+		mapExchangeData(exchange, e2Ex);
+		unitMap.apply(exchange.getUnit(), e2Ex, masterData);
+		MasterData.writeTechFlow(e2Ex, masterData);
 		return e2Ex;
 	}
 
@@ -182,7 +190,7 @@ public class EcoSpold2Export implements Runnable {
 		return dao.getDescriptor(exchange.getDefaultProviderId());
 	}
 
-	private void mapExchange(Exchange exchange,
+	private void mapExchangeData(Exchange exchange,
 			org.openlca.ecospold2.Exchange e2Exchange) {
 		e2Exchange.setName(exchange.getFlow().getName());
 		e2Exchange.setId(new UUID(exchange.getId(), 0L).toString());

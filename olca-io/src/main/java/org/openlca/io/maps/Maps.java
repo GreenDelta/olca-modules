@@ -52,6 +52,11 @@ public class Maps {
 	 */
 	public static final String ES2_COMPARTMENT_EXPORT = "es2_compartment_export_map.csv";
 
+	/**
+	 * Export map for elementary flows to EcoSpold 2.
+	 */
+	public static final String ES2_FLOW_EXPORT = "es2_flow_export_map.csv";
+
 	private Maps() {
 	}
 
