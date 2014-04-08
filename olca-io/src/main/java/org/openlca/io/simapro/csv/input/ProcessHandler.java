@@ -48,7 +48,7 @@ class ProcessHandler {
 
 	@BlockHandler
 	public void handleProcess(ProcessBlock block) {
-		String refId = block.getIdentifier();
+		String refId = KeyGen.get(block.getIdentifier());
 		Process process = dao.getForRefId(refId);
 		if (process != null) {
 			log.warn("a process with the identifier {} is already in the "
