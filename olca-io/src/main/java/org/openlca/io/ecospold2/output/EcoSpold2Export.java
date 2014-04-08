@@ -1,5 +1,11 @@
 package org.openlca.io.ecospold2.output;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
@@ -19,14 +25,9 @@ import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.UserMasterData;
 import org.openlca.io.ecospold2.UncertaintyConverter;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Exports a set of processes to the EcoSpold 2 data format to a directory. The
@@ -108,8 +109,9 @@ public class EcoSpold2Export implements Runnable {
 		String nameId = UUID.randomUUID().toString();
 		activity.setActivityNameId(nameId);
 		activityName.setId(dataSet.getActivity().getActivityNameId());
-		activity.setName(process.getName());
-		activityName.setName(process.getName());
+		String name = Strings.cut(process.getName(), 120);
+		activity.setName(name);
+		activityName.setName(name);
 		activity.setId(process.getRefId());
 		int type = process.getProcessType() == ProcessType.LCI_RESULT ? 2 : 1;
 		activity.setType(type);
@@ -160,8 +162,8 @@ public class EcoSpold2Export implements Runnable {
 		return e2Ex;
 	}
 
-	private IntermediateExchange createIntermediateExchange(
-			Exchange exchange, Process process, UserMasterData masterData) {
+	private IntermediateExchange createIntermediateExchange(Exchange exchange,
+			Process process, UserMasterData masterData) {
 		IntermediateExchange e2Ex = new IntermediateExchange();
 		if (exchange.isInput())
 			e2Ex.setInputGroup(5);
@@ -192,7 +194,7 @@ public class EcoSpold2Export implements Runnable {
 
 	private void mapExchangeData(Exchange exchange,
 			org.openlca.ecospold2.Exchange e2Exchange) {
-		e2Exchange.setName(exchange.getFlow().getName());
+		e2Exchange.setName(Strings.cut(exchange.getFlow().getName(), 120));
 		e2Exchange.setId(new UUID(exchange.getId(), 0L).toString());
 		e2Exchange.setAmount(exchange.getAmountValue());
 		e2Exchange.setMathematicalRelation(exchange.getAmountFormula());

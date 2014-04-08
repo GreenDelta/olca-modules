@@ -1,20 +1,21 @@
 package org.openlca.io.ecospold2.output;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.ecospold2.Compartment;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.io.maps.Maps;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 class ElemFlowMap {
 
@@ -81,12 +82,14 @@ class ElemFlowMap {
 
 	public ElementaryExchange apply(Exchange olca) {
 		if (olca == null || olca.getFlow() == null) {
-			log.warn("could not map exchange {}, exchange or flow is null", olca);
+			log.warn("could not map exchange {}, exchange or flow is null",
+					olca);
 			return null;
 		}
 		ExportRecord record = map.get(olca.getFlow().getRefId());
 		if (record == null || !isValid(record, olca)) {
-			log.warn("elementary flow {} cannot be mapped to an ecoinvent flow",
+			log.warn(
+					"elementary flow {} cannot be mapped to an ecoinvent flow",
 					olca.getFlow());
 			return null;
 		}
@@ -98,8 +101,8 @@ class ElemFlowMap {
 				&& olca != null
 				&& olca.getFlowPropertyFactor() != null
 				&& olca.getFlowPropertyFactor().getFlowProperty() != null
-				&& Objects.equals(record.olcaPropertyId,
-				olca.getFlowPropertyFactor().getFlowProperty().getRefId())
+				&& Objects.equals(record.olcaPropertyId, olca
+						.getFlowPropertyFactor().getFlowProperty().getRefId())
 				&& olca.getUnit() != null
 				&& Objects.equals(record.olcaUnitId, olca.getUnit().getRefId());
 	}
@@ -112,7 +115,7 @@ class ElemFlowMap {
 			exchange.setOutputGroup(4);
 		exchange.setId(new UUID(olca.getId(), 0L).toString());
 		exchange.setElementaryExchangeId(record.id);
-		exchange.setName(record.name);
+		exchange.setName(Strings.cut(record.name, 120));
 		exchange.setCompartment(createCompartment(record));
 		exchange.setUnitName(record.unitName);
 		exchange.setUnitId(record.unitId);
