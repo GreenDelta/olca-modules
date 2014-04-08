@@ -64,6 +64,9 @@ class MasterData {
 			masterFlow.setName(exchange.getName());
 			masterFlow.setUnitId(exchange.getUnitId());
 			masterFlow.setUnitName(exchange.getUnitName());
+			masterFlow.setCompartment(exchange.getCompartment());
+			masterFlow.setCasNumber(exchange.getCasNumber());
+			masterFlow.setFormula(exchange.getFormula());
 		}
 	}
 

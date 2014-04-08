@@ -1,12 +1,5 @@
 package org.openlca.io.maps;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
@@ -17,6 +10,13 @@ import org.openlca.util.BinUtils;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A helper class for using import / export maps. We store the mappings in CSV
@@ -46,6 +46,11 @@ public class Maps {
 	 * Export map for locations to EcoSpold 2.
 	 */
 	public static final String ES2_LOCATION_EXPORT = "es2_location_export_map.csv";
+
+	/**
+	 * Export map for categories/compartments to EcoSpold 2.
+	 */
+	public static final String ES2_COMPARTMENT_EXPORT = "es2_compartment_export_map.csv";
 
 	private Maps() {
 	}

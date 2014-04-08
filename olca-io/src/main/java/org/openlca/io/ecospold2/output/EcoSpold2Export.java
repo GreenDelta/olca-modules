@@ -3,7 +3,6 @@ package org.openlca.io.ecospold2.output;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -14,7 +13,6 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.ActivityName;
-import org.openlca.ecospold2.Compartment;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
@@ -45,6 +43,7 @@ public class EcoSpold2Export implements Runnable {
 
 	private final LocationMap locationMap;
 	private final UnitMap unitMap;
+	private final CompartmentMap compartmentMap;
 
 	public EcoSpold2Export(File dir, IDatabase database,
 			List<ProcessDescriptor> descriptors) {
@@ -53,6 +52,7 @@ public class EcoSpold2Export implements Runnable {
 		this.descriptors = descriptors;
 		this.locationMap = new LocationMap(database);
 		this.unitMap = new UnitMap(database);
+		this.compartmentMap = new CompartmentMap(database);
 	}
 
 	@Override
@@ -123,9 +123,8 @@ public class EcoSpold2Export implements Runnable {
 			Flow flow = exchange.getFlow();
 			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
 				e2Exchange = createElementaryExchange(exchange);
-				// TODO: we need a compartment mapping
-				// dataSet.getElementaryExchanges().add(
-				// (ElementaryExchange) e2Exchange);
+				dataSet.getElementaryExchanges().add(
+						(ElementaryExchange) e2Exchange);
 			} else {
 				e2Exchange = createIntermediateExchange(exchange, process);
 				dataSet.getIntermediateExchanges().add(
@@ -151,21 +150,9 @@ public class EcoSpold2Export implements Runnable {
 			e2Ex.setOutputGroup(4);
 		Flow flow = exchange.getFlow();
 		e2Ex.setElementaryExchangeId(flow.getRefId());
-		if (flow.getCategory() != null) {
-			Compartment compartment = convertCompartment(flow.getCategory());
-			e2Ex.setCompartment(compartment);
-		}
+		compartmentMap.apply(flow.getCategory(), e2Ex);
 		e2Ex.setFormula(flow.getFormula());
 		return e2Ex;
-	}
-
-	private Compartment convertCompartment(Category category) {
-		Compartment compartment = new Compartment();
-		compartment.setSubcompartmentId(category.getRefId());
-		compartment.setSubcompartment(category.getName());
-		if (category.getParentCategory() != null)
-			compartment.setCompartment(category.getParentCategory().getName());
-		return compartment;
 	}
 
 	private org.openlca.ecospold2.Exchange createIntermediateExchange(
