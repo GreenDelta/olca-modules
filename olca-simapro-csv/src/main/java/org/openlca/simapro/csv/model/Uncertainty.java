@@ -12,7 +12,7 @@ import org.openlca.simapro.csv.model.enums.DistributionType;
  * parameter 1:
  * <ul>
  * <li>Normal: doubled standard deviation
- * <li>Lognormal: squared standard deviation
+ * <li>Lognormal: squared geometric standard deviation
  * <li>Triangle: empty
  * <li>Uniform: empty
  * </ul>

@@ -1,12 +1,12 @@
 package org.openlca.io.refdata;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
 
 public class RefDataImport implements Runnable {
 
@@ -61,7 +61,9 @@ public class RefDataImport implements Runnable {
 
 	private void importMappingFiles() throws Exception {
 		// TODO: add other mapping files
-		String[] fileNames = { Maps.SP_FLOW_IMPORT };
+		String[] fileNames = { Maps.SP_FLOW_IMPORT, Maps.ES2_UNIT_EXPORT,
+				Maps.ES2_LOCATION_EXPORT, Maps.ES2_COMPARTMENT_EXPORT,
+				Maps.ES2_FLOW_EXPORT };
 		for (String fileName : fileNames) {
 			File file = new File(dir, fileName);
 			if (!file.exists())
@@ -74,7 +76,7 @@ public class RefDataImport implements Runnable {
 
 	private void importKmlFile() {
 		File kmlFile = new File(dir, "Geographies.xml");
-		if(!kmlFile.exists()) {
+		if (!kmlFile.exists()) {
 			log.trace("{} does not exist; no KML import", kmlFile);
 			return;
 		}
