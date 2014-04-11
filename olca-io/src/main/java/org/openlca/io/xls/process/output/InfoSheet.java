@@ -1,6 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
@@ -93,10 +92,6 @@ class InfoSheet {
 
 	private void writePair(String header, Date value) {
 		Excel.cell(sheet, row, 0, header);
-		Cell cell = Excel.cell(sheet, row++, 1);
-		if (value != null) {
-			cell.setCellValue(value);
-			cell.setCellStyle(config.dateStyle);
-		}
+		config.date(sheet, row++, 1, value);
 	}
 }

@@ -40,6 +40,14 @@ class Config {
 		cell.setCellStyle(dateStyle);
 	}
 
+	void date(Sheet sheet, int row, int col, Date date) {
+		if (date == null)
+			return;
+		Cell cell = Excel.cell(sheet, row, col);
+		cell.setCellValue(date);
+		cell.setCellStyle(dateStyle);
+	}
+
 	void uncertainty(Sheet sheet, int row, int col, Uncertainty uncertainty) {
 		if (uncertainty == null
 				|| uncertainty.getDistributionType() == UncertaintyType.NONE) {
