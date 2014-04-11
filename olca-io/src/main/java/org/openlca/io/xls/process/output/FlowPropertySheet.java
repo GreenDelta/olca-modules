@@ -1,6 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.model.FlowProperty;
@@ -10,7 +9,6 @@ import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 class FlowPropertySheet {
@@ -62,11 +60,7 @@ class FlowPropertySheet {
 				"Economic" : "Physical";
 		Excel.cell(sheet, row, 5, type);
 		Excel.cell(sheet, row, 6, Version.asString(property.getVersion()));
-		if(property.getLastChange() > 0) {
-			Cell cell = Excel.cell(sheet, row, 7);
-			cell.setCellValue(new Date(property.getLastChange()));
-			cell.setCellStyle(config.dateStyle);
-		}
+		config.date(sheet, row, 7, property.getLastChange());
 	}
 
 }

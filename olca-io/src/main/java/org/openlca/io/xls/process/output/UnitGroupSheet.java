@@ -1,6 +1,5 @@
 package org.openlca.io.xls.process.output;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.UnitGroup;
@@ -8,7 +7,8 @@ import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 
-import java.util.Date;
+import java.util.Collections;
+import java.util.List;
 
 class UnitGroupSheet {
 
@@ -28,7 +28,9 @@ class UnitGroupSheet {
 	private void write() {
 		writeHeader();
 		UnitGroupDao dao = new UnitGroupDao(config.database);
-		for (UnitGroup group : dao.getAll()) {
+		List<UnitGroup> groups = dao.getAll();
+		Collections.sort(groups, new EntitySorter());
+		for (UnitGroup group : groups) {
 			row++;
 			write(group);
 		}
@@ -56,10 +58,6 @@ class UnitGroupSheet {
 		if (group.getDefaultFlowProperty() != null)
 			Excel.cell(sheet, row, 5, group.getDefaultFlowProperty().getName());
 		Excel.cell(sheet, row, 6, Version.asString(group.getVersion()));
-		if (group.getLastChange() > 0) {
-			Cell cell = Excel.cell(sheet, row, 7);
-			cell.setCellValue(new Date(group.getLastChange()));
-			cell.setCellStyle(config.dateStyle);
-		}
+		config.date(sheet, row, 7, group.getLastChange());
 	}
 }

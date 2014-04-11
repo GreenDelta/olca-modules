@@ -74,6 +74,8 @@ public class ExcelExport implements Runnable {
 		UnitSheet.write(config);
 		UnitGroupSheet.write(config);
 		FlowPropertySheet.write(config);
+		ActorSheet.write(config);
+		SourceSheet.write(config);
 		LocationSheet.write(config);
 	}
 }
