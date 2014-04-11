@@ -69,5 +69,9 @@ public class ExcelExport implements Runnable {
 		InfoSheet.write(config);
 		IOSheet.writeInputs(config);
 		IOSheet.writeOutputs(config);
+
+		// reference data
+		UnitGroupSheet.write(config);
+		LocationSheet.write(config);
 	}
 }

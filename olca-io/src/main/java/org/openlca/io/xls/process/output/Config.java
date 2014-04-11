@@ -20,7 +20,7 @@ class Config {
 		this.database = database;
 		this.process = process;
 		this.headerStyle = Excel.headerStyle(workbook);
-		this.dateStyle = Excel.headerStyle(workbook);
+		this.dateStyle = Excel.dateStyle(workbook);
 	}
 
 	void header(Sheet sheet, int row, int col, String val) {

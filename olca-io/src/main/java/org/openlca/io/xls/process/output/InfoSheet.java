@@ -53,10 +53,8 @@ class InfoSheet {
 		writePair("Version", Version.asString(process.getVersion()));
 		Excel.cell(sheet, row, 0, "Last change");
 		Cell changeCell = Excel.cell(sheet, row++, 1);
-		if (process.getLastChange() > 0) {
+		if (process.getLastChange() > 0)
 			changeCell.setCellValue(new Date(process.getLastChange()));
-			changeCell.setCellStyle(config.dateStyle);
-		}
 	}
 
 	private void qRefSection() {
@@ -98,10 +96,9 @@ class InfoSheet {
 	private void writePair(String header, Date value) {
 		Excel.cell(sheet, row, 0, header);
 		Cell cell = Excel.cell(sheet, row++, 1);
-		cell.setCellStyle(config.dateStyle);
-		if (value != null)
+		if (value != null) {
 			cell.setCellValue(value);
+			cell.setCellStyle(config.dateStyle);
+		}
 	}
 }
-
-

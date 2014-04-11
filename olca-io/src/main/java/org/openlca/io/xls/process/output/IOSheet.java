@@ -119,11 +119,11 @@ class IOSheet {
 		switch (uncertainty.getDistributionType()) {
 		case LOG_NORMAL:
 			Excel.cell(sheet, row, col, "log-normal");
-			param1(uncertainty, col + 1);
+			param2(uncertainty, col + 1);
 			break;
 		case NORMAL:
 			Excel.cell(sheet, row, col, "normal");
-			param1(uncertainty, col + 1);
+			param2(uncertainty, col + 1);
 			break;
 		case TRIANGLE:
 			Excel.cell(sheet, row, col, "triangular");

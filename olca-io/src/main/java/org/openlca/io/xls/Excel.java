@@ -38,7 +38,7 @@ public class Excel {
 	public static CellStyle dateStyle(Workbook workbook) {
 		CellStyle style = workbook.createCellStyle();
 		DataFormat format = workbook.createDataFormat();
-		short f = format.getFormat("m/d/yy h:mm");
+		short f = format.getFormat("mm/dd/yyyy hh:mm");
 		style.setDataFormat(f);
 		return style;
 	}

@@ -207,7 +207,6 @@ class ProcessHandler {
 		setExchangeUnit(exchange, flow, row.getUnit());
 		setAmount(exchange, row.getAmount(), scopeId);
 		process.getExchanges().add(exchange);
-		// TODO: map uncertainty
 		return exchange;
 	}
 
