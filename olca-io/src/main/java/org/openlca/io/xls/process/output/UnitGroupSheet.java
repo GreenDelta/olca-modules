@@ -1,5 +1,6 @@
 package org.openlca.io.xls.process.output;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.UnitGroup;
@@ -55,8 +56,10 @@ class UnitGroupSheet {
 		if (group.getDefaultFlowProperty() != null)
 			Excel.cell(sheet, row, 5, group.getDefaultFlowProperty().getName());
 		Excel.cell(sheet, row, 6, Version.asString(group.getVersion()));
-		if (group.getLastChange() > 0)
-			Excel.cell(sheet, row, 7).setCellValue(new Date(group.getLastChange()));
+		if (group.getLastChange() > 0) {
+			Cell cell = Excel.cell(sheet, row, 7);
+			cell.setCellValue(new Date(group.getLastChange()));
+			cell.setCellStyle(config.dateStyle);
+		}
 	}
-
 }

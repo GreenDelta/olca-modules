@@ -5,6 +5,9 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.io.xls.Excel;
 
+import java.util.Collections;
+import java.util.List;
+
 class LocationSheet {
 
 	private Config config;
@@ -23,7 +26,9 @@ class LocationSheet {
 	private void write() {
 		writeHeader();
 		LocationDao dao = new LocationDao(config.database);
-		for (Location location : dao.getAll()) {
+		List<Location> locations = dao.getAll();
+		Collections.sort(locations, new EntitySorter());
+		for (Location location : locations) {
 			row++;
 			write(location);
 		}
