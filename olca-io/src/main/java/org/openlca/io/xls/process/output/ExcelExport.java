@@ -71,6 +71,7 @@ public class ExcelExport implements Runnable {
 		IOSheet.writeOutputs(config);
 
 		// reference data
+		FlowSheets.write(config);
 		UnitSheet.write(config);
 		UnitGroupSheet.write(config);
 		FlowPropertySheet.write(config);
