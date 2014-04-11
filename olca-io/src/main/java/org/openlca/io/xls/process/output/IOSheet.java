@@ -5,8 +5,6 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.UncertaintyType;
 import org.openlca.core.model.Unit;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
@@ -76,7 +74,7 @@ class IOSheet {
 			Excel.cell(sheet, row, col++, exchange.getAmountValue());
 		else
 			Excel.cell(sheet, row, col++, exchange.getAmountValue());
-		write(exchange.getUncertainty(), col);
+		config.uncertainty(sheet, row, col, exchange.getUncertainty());
 	}
 
 	private String getFlowProperty(Exchange exchange) {
@@ -109,61 +107,4 @@ class IOSheet {
 		});
 		return exchanges;
 	}
-
-	private void write(Uncertainty uncertainty, int col) {
-		if (uncertainty == null
-				|| uncertainty.getDistributionType() == UncertaintyType.NONE) {
-			Excel.cell(sheet, row, col, "undefined");
-			return;
-		}
-		switch (uncertainty.getDistributionType()) {
-		case LOG_NORMAL:
-			Excel.cell(sheet, row, col, "log-normal");
-			param2(uncertainty, col + 1);
-			break;
-		case NORMAL:
-			Excel.cell(sheet, row, col, "normal");
-			param2(uncertainty, col + 1);
-			break;
-		case TRIANGLE:
-			Excel.cell(sheet, row, col, "triangular");
-			param1(uncertainty, col + 2);
-			param2(uncertainty, col + 3);
-			param3(uncertainty, col + 4);
-			break;
-		case UNIFORM:
-			Excel.cell(sheet, row, col, "uniform");
-			param1(uncertainty, col + 2);
-			param2(uncertainty, col + 3);
-			break;
-		default:
-			break;
-		}
-	}
-
-	private void param1(Uncertainty uncertainty, int col) {
-		String formula = uncertainty.getParameter1Formula();
-		Double value = uncertainty.getParameter1Value();
-		param(formula, value, col);
-	}
-
-	private void param2(Uncertainty uncertainty, int col) {
-		String formula = uncertainty.getParameter2Formula();
-		Double value = uncertainty.getParameter2Value();
-		param(formula, value, col);
-	}
-
-	private void param3(Uncertainty uncertainty, int col) {
-		String formula = uncertainty.getParameter3Formula();
-		Double value = uncertainty.getParameter3Value();
-		param(formula, value, col);
-	}
-
-	private void param(String formula, Double value, int col) {
-		if (formula != null)
-			Excel.cell(sheet, row, col, formula);
-		else if (value != null)
-			Excel.cell(sheet, row, col, value);
-	}
-
 }

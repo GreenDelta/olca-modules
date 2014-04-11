@@ -1,7 +1,7 @@
 package org.openlca.io.xls.process.output;
 
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Process;
@@ -54,7 +54,7 @@ public class ExcelExport implements Runnable {
 	}
 
 	private void export(Process process) throws Exception {
-		Workbook workbook = new XSSFWorkbook();
+		Workbook workbook = new SXSSFWorkbook();
 		Config config = new Config(workbook, database, process);
 		writeSheets(config);
 		String fileName = process.getRefId() + "_"
@@ -69,6 +69,7 @@ public class ExcelExport implements Runnable {
 		InfoSheet.write(config);
 		IOSheet.writeInputs(config);
 		IOSheet.writeOutputs(config);
+		ParameterSheet.write(config);
 
 		// reference data
 		FlowSheets.write(config);
