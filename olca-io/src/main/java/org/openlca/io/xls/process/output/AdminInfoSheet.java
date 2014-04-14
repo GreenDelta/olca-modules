@@ -38,6 +38,7 @@ class AdminInfoSheet {
 		Excel.cell(sheet, row, 0, "Copyright");
 		Excel.cell(sheet, row++, 1).setCellValue(doc.isCopyright());
 		Excel.autoSize(sheet, 0);
+		sheet.setColumnWidth(1, 100 * 256);
 	}
 
 	private void pair(String header, CategorizedEntity entity) {
@@ -51,8 +52,7 @@ class AdminInfoSheet {
 	}
 
 	private void pair(String header, String value) {
-		Excel.cell(sheet, row, 0, header);
-		Excel.cell(sheet, row++, 1, value);
+		config.pair(sheet, row++, header, value);
 	}
 
 	private void pair(String header, Date value) {

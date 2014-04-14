@@ -41,6 +41,7 @@ class InfoSheet {
 		row++;
 		techSection();
 		Excel.autoSize(sheet, 0);
+		sheet.setColumnWidth(1, 100 * 256);
 	}
 
 	private void infoSection() {
@@ -86,8 +87,7 @@ class InfoSheet {
 	}
 
 	private void writePair(String header, String value) {
-		Excel.cell(sheet, row, 0, header);
-		Excel.cell(sheet, row++, 1, value);
+		config.pair(sheet, row++, header, value);
 	}
 
 	private void writePair(String header, Date value) {

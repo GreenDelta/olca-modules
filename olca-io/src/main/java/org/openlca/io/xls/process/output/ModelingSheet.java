@@ -36,6 +36,7 @@ class ModelingSheet {
 		row++;
 		writeSources();
 		Excel.autoSize(sheet, 0);
+		sheet.setColumnWidth(1, 100 * 256);
 	}
 
 	private void writeModelingSection() {
@@ -81,8 +82,7 @@ class ModelingSheet {
 	}
 
 	private void pair(String header, String value) {
-		Excel.cell(sheet, row, 0, header);
-		Excel.cell(sheet, row++, 1, value);
+		config.pair(sheet, row++, header, value);
 	}
 
 	private void pair(String header, Date value) {

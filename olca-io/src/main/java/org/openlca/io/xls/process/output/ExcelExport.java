@@ -70,6 +70,7 @@ public class ExcelExport implements Runnable {
 		IOSheet.writeInputs(config);
 		IOSheet.writeOutputs(config);
 		ParameterSheet.write(config);
+		AllocationSheet.write(config);
 		ModelingSheet.write(config);
 		AdminInfoSheet.write(config);
 		// reference data

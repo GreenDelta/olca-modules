@@ -20,12 +20,20 @@ class Config {
 	final CellStyle headerStyle;
 	final CellStyle dateStyle;
 
+	private final CellStyle pairHeader;
+	private final CellStyle pairValue;
+
 	Config(Workbook workbook, IDatabase database, Process process) {
 		this.workbook = workbook;
 		this.database = database;
 		this.process = process;
-		this.headerStyle = Excel.headerStyle(workbook);
-		this.dateStyle = Excel.dateStyle(workbook);
+		headerStyle = Excel.headerStyle(workbook);
+		dateStyle = Excel.dateStyle(workbook);
+		dateStyle.setAlignment(CellStyle.ALIGN_LEFT);
+		pairHeader = workbook.createCellStyle();
+		pairHeader.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+		pairValue = workbook.createCellStyle();
+		pairValue.setWrapText(true);
 	}
 
 	void header(Sheet sheet, int row, int col, String val) {
@@ -46,6 +54,11 @@ class Config {
 		Cell cell = Excel.cell(sheet, row, col);
 		cell.setCellValue(date);
 		cell.setCellStyle(dateStyle);
+	}
+
+	void pair(Sheet sheet, int row, String header, String value) {
+		Excel.cell(sheet, row, 0, header).setCellStyle(pairHeader);
+		Excel.cell(sheet, row, 1, value).setCellStyle(pairValue);
 	}
 
 	void uncertainty(Sheet sheet, int row, int col, Uncertainty uncertainty) {
