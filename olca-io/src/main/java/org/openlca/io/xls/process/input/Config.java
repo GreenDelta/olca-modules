@@ -1,5 +1,7 @@
 package org.openlca.io.xls.process.input;
 
+import java.util.Date;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -9,14 +11,8 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.io.Categories;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Date;
 
 class Config {
-
-	private Logger log = LoggerFactory.getLogger(getClass());
 
 	final IDatabase database;
 	final Workbook workbook;

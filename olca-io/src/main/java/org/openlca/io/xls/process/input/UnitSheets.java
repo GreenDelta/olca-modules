@@ -1,5 +1,11 @@
 package org.openlca.io.xls.process.input;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.FlowPropertyDao;
@@ -12,12 +18,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Synchronizes units, unit groups, and flow properties with the database.
@@ -75,10 +75,13 @@ class UnitSheets {
 			String uuid = config.getString(sheet, row, 0);
 			if (uuid == null || uuid.trim().isEmpty())
 				break;
-			T record = clazz.newInstance();
+			// non-static private class constructors have an implicit argument
+			// with the type of the outer class
+			T record = clazz.getConstructor(getClass()).newInstance(this);
 			record.uuid = uuid;
 			record.fill(row, sheet);
 			records.add(record);
+			row++;
 		}
 		return records;
 	}
@@ -139,7 +142,8 @@ class UnitSheets {
 
 	private void importFlowProperties() {
 		for (PropertyRecord propertyRecord : propertyRecords) {
-			FlowProperty property = propertyDao.getForRefId(propertyRecord.uuid);
+			FlowProperty property = propertyDao
+					.getForRefId(propertyRecord.uuid);
 			if (property == null) {
 				property = createProperty(propertyRecord);
 				createdProperties.add(Pair.of(propertyRecord, property));
@@ -160,6 +164,9 @@ class UnitSheets {
 			property.setFlowPropertyType(FlowPropertyType.ECONOMIC);
 		else
 			property.setFlowPropertyType(FlowPropertyType.PHYSICAL);
+		property.setVersion(Version.fromString(record.version).getValue());
+		if (record.lastChange != null)
+			property.setLastChange(record.lastChange.getTime());
 		propertyDao.insert(property);
 		return property;
 	}
@@ -180,17 +187,18 @@ class UnitSheets {
 	private UnitGroup syncUnitGroup(UnitGroup unitGroup, UnitGroupRecord record) {
 		HashMap<String, Unit> sheetUnits = getUnits(record.name);
 		Unit refUnit = unitGroup.getReferenceUnit();
-		boolean canAdd = refUnit != null && Objects.equals(refUnit.getName(),
-				record.refUnit);
+		boolean canAdd = refUnit != null
+				&& Objects.equals(refUnit.getName(), record.refUnit);
 		boolean updated = false;
 		for (Unit sheetUnit : sheetUnits.values()) {
 			Unit realUnit = unitGroup.getUnit(sheetUnit.getName());
 			if (realUnit != null)
 				continue;
 			if (!canAdd) {
-				log.error("unit {} not exists in unit group {} but cannot be" +
-						"added as the reference unit is different to the " +
-						"reference unit in the Excel file");
+				log.error("unit {} not exists in unit group {} but cannot be"
+						+ "added as the reference unit is different to the "
+						+ "reference unit in the Excel file", sheetUnit,
+						unitGroup);
 				continue;
 			}
 			unitGroup.getUnits().add(sheetUnit);
@@ -198,7 +206,6 @@ class UnitSheets {
 		}
 		return updated ? groupDao.update(unitGroup) : unitGroup;
 	}
-
 
 	private UnitGroup createUnitGroup(UnitGroupRecord record) {
 		UnitGroup group = new UnitGroup();
@@ -246,6 +253,11 @@ class UnitSheets {
 		String synonyms;
 		double conversionFactor;
 
+		// needed for reflection in readRecords
+		@SuppressWarnings("unused")
+		public UnitRecord() {
+		}
+
 		@Override
 		void fill(int row, Sheet sheet) {
 			name = config.getString(sheet, row, 1);
@@ -262,6 +274,11 @@ class UnitSheets {
 		String defaultProperty;
 		String version;
 		Date lastChange;
+
+		// needed for reflection in readRecords
+		@SuppressWarnings("unused")
+		public UnitGroupRecord() {
+		}
 
 		@Override
 		void fill(int row, Sheet sheet) {
@@ -281,6 +298,11 @@ class UnitSheets {
 		String type;
 		String version;
 		Date lastChange;
+
+		// needed for reflection in readRecords
+		@SuppressWarnings("unused")
+		public PropertyRecord() {
+		}
 
 		@Override
 		void fill(int row, Sheet sheet) {
