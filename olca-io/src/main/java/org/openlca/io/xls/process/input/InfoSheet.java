@@ -1,14 +1,20 @@
 package org.openlca.io.xls.process.input;
 
 import org.apache.poi.ss.usermodel.Sheet;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+import java.util.Objects;
 
 class InfoSheet {
+
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private Config config;
 	private Process process;
@@ -30,6 +36,7 @@ class InfoSheet {
 		if (sheet == null)
 			return;
 		readInfoSection();
+		readQuanRef();
 	}
 
 	private void readInfoSection() {
@@ -46,5 +53,24 @@ class InfoSheet {
 		else
 			process.setLastChange(lastChange.getTime());
 	}
+
+	private void readQuanRef() {
+		// the outputs must be already imported
+		String qRefName = config.getString(sheet, 9, 1);
+		Exchange qRef = null;
+		for (Exchange exchange : process.getExchanges()) {
+			if (exchange.isInput() || exchange.getFlow() == null)
+				continue;
+			if (Objects.equals(qRefName, exchange.getFlow().getName())) {
+				qRef = exchange;
+				break;
+			}
+		}
+		if (qRef == null)
+			log.warn("could not find quantitative reference {}", qRefName);
+		else
+			process.setQuantitativeReference(qRef);
+	}
+
 
 }

@@ -70,22 +70,24 @@ class Config {
 		switch (uncertainty.getDistributionType()) {
 			case LOG_NORMAL:
 				Excel.cell(sheet, row, col, "log-normal");
-				param2(uncertainty, sheet, row, col + 1);
+				param1(uncertainty, sheet, row, col + 1);
+				param2(uncertainty, sheet, row, col + 2);
 				break;
 			case NORMAL:
 				Excel.cell(sheet, row, col, "normal");
-				param2(uncertainty, sheet, row, col + 1);
+				param1(uncertainty, sheet, row, col + 1);
+				param2(uncertainty, sheet, row, col + 2);
 				break;
 			case TRIANGLE:
 				Excel.cell(sheet, row, col, "triangular");
-				param1(uncertainty, sheet, row, col + 2);
-				param2(uncertainty, sheet, row, col + 3);
+				param1(uncertainty, sheet, row, col + 3);
+				param2(uncertainty, sheet, row, col + 1);
 				param3(uncertainty, sheet, row, col + 4);
 				break;
 			case UNIFORM:
 				Excel.cell(sheet, row, col, "uniform");
-				param1(uncertainty, sheet, row, col + 2);
-				param2(uncertainty, sheet, row, col + 3);
+				param1(uncertainty, sheet, row, col + 3);
+				param2(uncertainty, sheet, row, col + 4);
 				break;
 			default:
 				break;

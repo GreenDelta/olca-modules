@@ -57,10 +57,10 @@ class IOSheet {
 		config.header(sheet, row, col++, "Unit");
 		config.header(sheet, row, col++, "Amount");
 		config.header(sheet, row, col++, "Uncertainty");
-		config.header(sheet, row, col++, "SD or GSD");
+		config.header(sheet, row, col++, "(g)mean | mode");
+		config.header(sheet, row, col, "SD | GSD");
 		config.header(sheet, row, col++, "Minimum");
 		config.header(sheet, row, col++, "Maximum");
-		config.header(sheet, row, col, "Mode");
 	}
 
 	private void write(Exchange exchange) {
@@ -70,10 +70,10 @@ class IOSheet {
 		Excel.cell(sheet, row, col++, CategoryPath.getFull(flow.getCategory()));
 		Excel.cell(sheet, row, col++, getFlowProperty(exchange));
 		Excel.cell(sheet, row, col++, getUnit(exchange));
-		if (exchange.getAmountFormula() != null)
-			Excel.cell(sheet, row, col++, exchange.getAmountValue());
-		else
-			Excel.cell(sheet, row, col++, exchange.getAmountValue());
+		// if (exchange.getAmountFormula() != null)
+		// 	Excel.cell(sheet, row, col++, exchange.getAmountValue());
+		// else
+		Excel.cell(sheet, row, col++, exchange.getAmountValue());
 		config.uncertainty(sheet, row, col, exchange.getUncertainty());
 	}
 

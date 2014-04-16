@@ -3,6 +3,7 @@ package org.openlca.io.xls.process.input;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.slf4j.Logger;
@@ -32,6 +33,8 @@ public class ExcelImport implements Runnable {
 			process.setDocumentation(doc);
 			Config config = new Config(workbook, database, process);
 			readSheets(config);
+			ProcessDao dao = new ProcessDao(database);
+			dao.insert(process);
 		} catch (Exception e) {
 			log.error("failed to import file " + xlsFile, e);
 		}
@@ -44,6 +47,9 @@ public class ExcelImport implements Runnable {
 		SourceSheet.read(config);
 		UnitSheets.read(config);
 	   	FlowSheets.read(config);
-		// InfoSheet.read(config);
+		// process sheets
+		IOSheet.readInputs(config);
+		IOSheet.readOutputs(config);
+		InfoSheet.read(config); // after exchanges! find qRef
 	}
 }
