@@ -35,6 +35,7 @@ class InfoSheet {
 	private void read() {
 		if (sheet == null)
 			return;
+		log.trace("read information sheet");
 		readInfoSection();
 		readQuanRef();
 		readTime();

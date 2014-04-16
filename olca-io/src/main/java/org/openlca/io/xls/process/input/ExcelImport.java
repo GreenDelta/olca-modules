@@ -46,10 +46,11 @@ public class ExcelImport implements Runnable {
 		ActorSheet.read(config);
 		SourceSheet.read(config);
 		UnitSheets.read(config);
-	   	FlowSheets.read(config);
+		FlowSheets.read(config);
 		// process sheets
 		IOSheet.readInputs(config);
 		IOSheet.readOutputs(config);
 		InfoSheet.read(config); // after exchanges! find qRef
+		AdminInfoSheet.read(config);
 	}
 }
