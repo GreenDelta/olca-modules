@@ -8,8 +8,6 @@ import org.openlca.core.model.Source;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 
-import java.util.Date;
-
 class ModelingSheet {
 
 	private ProcessDocumentation doc;
@@ -67,7 +65,7 @@ class ModelingSheet {
 		config.header(sheet, row++, 0, "Sources");
 		for (Source source : doc.getSources()) {
 			Excel.cell(sheet, row, 0, source.getName());
-			Excel.cell(sheet, row++, 2, CategoryPath.getFull(source.getCategory()));
+			Excel.cell(sheet, row++, 1, CategoryPath.getFull(source.getCategory()));
 		}
 	}
 
@@ -84,10 +82,4 @@ class ModelingSheet {
 	private void pair(String header, String value) {
 		config.pair(sheet, row++, header, value);
 	}
-
-	private void pair(String header, Date value) {
-		Excel.cell(sheet, row, 0, header);
-		config.date(sheet, row++, 1, value);
-	}
-
 }

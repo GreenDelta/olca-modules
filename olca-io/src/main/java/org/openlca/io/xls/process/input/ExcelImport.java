@@ -52,5 +52,6 @@ public class ExcelImport implements Runnable {
 		IOSheet.readOutputs(config);
 		InfoSheet.read(config); // after exchanges! find qRef
 		AdminInfoSheet.read(config);
+		ModelingSheet.read(config);
 	}
 }
