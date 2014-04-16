@@ -58,7 +58,7 @@ class IOSheet {
 		config.header(sheet, row, col++, "Amount");
 		config.header(sheet, row, col++, "Uncertainty");
 		config.header(sheet, row, col++, "(g)mean | mode");
-		config.header(sheet, row, col, "SD | GSD");
+		config.header(sheet, row, col++, "SD | GSD");
 		config.header(sheet, row, col++, "Minimum");
 		config.header(sheet, row, col++, "Maximum");
 	}

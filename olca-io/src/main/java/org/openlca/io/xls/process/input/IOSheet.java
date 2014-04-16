@@ -74,7 +74,7 @@ class IOSheet {
 			return refDataError(row, "unit: " + unitName);
 		exchange.setUnit(unit);
 		exchange.setAmountValue(config.getDouble(sheet, row, 4));
-		// TODO: read uncertainty
+		exchange.setUncertainty(config.getUncertainty(sheet, row, 5));
 		return exchange;
 	}
 

@@ -8,6 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.Uncertainty;
 import org.openlca.io.Categories;
 
 import java.util.Date;
@@ -80,6 +81,50 @@ class Config {
 			return null;
 		String[] elems = path.split("/");
 		return Categories.findOrAdd(database, type, elems);
+	}
+
+	Uncertainty getUncertainty(Sheet sheet, int row, int col) {
+		String type = getString(sheet, row, col);
+		if (type == null)
+			return null;
+		type = type.trim().toLowerCase();
+		switch (type) {
+			case "log-normal":
+				return logNormal(sheet, row, col);
+			case "normal":
+				return normal(sheet, row, col);
+			case "triangular":
+				return triangular(sheet, row, col);
+			case "uniform":
+				return uniform(sheet, row, col);
+			default:
+				return null;
+		}
+	}
+
+	private Uncertainty logNormal(Sheet sheet, int row, int col) {
+		double gmean = getDouble(sheet, row, col + 1);
+		double gsd = getDouble(sheet, row, col + 2);
+		return Uncertainty.logNormal(gmean, gsd);
+	}
+
+	private Uncertainty normal(Sheet sheet, int row, int col) {
+		double mean = getDouble(sheet, row, col + 1);
+		double sd = getDouble(sheet, row, col + 2);
+		return Uncertainty.normal(mean, sd);
+	}
+
+	private Uncertainty triangular(Sheet sheet, int row, int col) {
+		double min = getDouble(sheet, row, col + 3);
+		double mode = getDouble(sheet, row, col + 1);
+		double max = getDouble(sheet, row, col + 4);
+		return Uncertainty.triangle(min, mode, max);
+	}
+
+	private Uncertainty uniform(Sheet sheet, int row, int col) {
+		double min = getDouble(sheet, row, col + 3);
+		double max = getDouble(sheet, row, col + 4);
+		return Uncertainty.uniform(min, max);
 	}
 
 }

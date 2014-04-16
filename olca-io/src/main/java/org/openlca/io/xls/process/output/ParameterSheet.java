@@ -53,9 +53,9 @@ class ParameterSheet {
 		config.header(sheet, row, 1, "Value");
 		config.header(sheet, row, 2, "Uncertainty");
 		config.header(sheet, row, 3, "(g)mean | mode");
-		config.header(sheet, row, 6, "SD | GSD");
-		config.header(sheet, row, 4, "Minimum");
-		config.header(sheet, row, 5, "Maximum");
+		config.header(sheet, row, 4, "SD | GSD");
+		config.header(sheet, row, 5, "Minimum");
+		config.header(sheet, row, 6, "Maximum");
 		config.header(sheet, row, 7, "Description");
 	}
 

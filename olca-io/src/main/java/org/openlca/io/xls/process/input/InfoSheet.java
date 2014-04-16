@@ -37,6 +37,9 @@ class InfoSheet {
 			return;
 		readInfoSection();
 		readQuanRef();
+		readTime();
+		readGeography();
+		doc.setTechnology(config.getString(sheet, 21, 1));
 	}
 
 	private void readInfoSection() {
@@ -72,5 +75,17 @@ class InfoSheet {
 			process.setQuantitativeReference(qRef);
 	}
 
+	private void readTime() {
+		doc.setValidFrom(config.getDate(sheet, 12, 1));
+		doc.setValidUntil(config.getDate(sheet, 13, 1));
+		doc.setTime(config.getString(sheet, 14, 1));
+	}
+
+	private void readGeography() {
+		String code = config.getString(sheet, 17, 1);
+		if (code != null)
+			process.setLocation(config.refData.getLocation(code));
+		doc.setGeography(config.getString(sheet, 18, 1));
+	}
 
 }

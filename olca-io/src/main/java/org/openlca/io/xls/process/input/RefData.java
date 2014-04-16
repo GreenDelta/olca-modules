@@ -54,11 +54,11 @@ class RefData {
 	}
 
 	void putLocation(String code, Location location) {
-		locations.put(code, location);
+		locations.put(key(code), location);
 	}
 
 	Location getLocation(String code) {
-		return locations.get(code);
+		return locations.get(key(code));
 	}
 
 	void putActor(String name, String category, Actor actor) {
@@ -86,7 +86,16 @@ class RefData {
 	}
 
 	private String key(String name, String category) {
-		return category == null ? name : name + category;
+		if (name == null && category == null)
+			return null;
+		String key = category == null ? name : name + category;
+		return key.trim().toLowerCase();
+	}
+
+	private String key(String name) {
+		if (name == null)
+			return null;
+		return name.trim().toLowerCase();
 	}
 
 }
