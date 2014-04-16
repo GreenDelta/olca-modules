@@ -38,6 +38,9 @@ public class ExcelImport implements Runnable {
 
 	private void readSheets(Config config) {
 		// reference data
+		LocationSheet.read(config);
+		ActorSheet.read(config);
+		SourceSheet.read(config);
 		UnitSheets.read(config);
 
 		// InfoSheet.read(config);

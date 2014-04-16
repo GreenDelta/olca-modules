@@ -1,11 +1,5 @@
 package org.openlca.io.xls.process.input;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.FlowPropertyDao;
@@ -18,6 +12,12 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Synchronizes units, unit groups, and flow properties with the database.
@@ -51,6 +51,7 @@ class UnitSheets {
 
 	private void read() {
 		try {
+			log.trace("import units and flow properties");
 			Sheet unitSheet = config.workbook.getSheet("Units");
 			unitRecords = readRecords(UnitRecord.class, unitSheet);
 			Sheet groupSheet = config.workbook.getSheet("Unit groups");
