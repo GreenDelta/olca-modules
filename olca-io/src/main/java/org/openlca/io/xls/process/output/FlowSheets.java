@@ -113,7 +113,7 @@ class FlowSheets {
 		if (prop != null)
 			Excel.cell(factorSheet, factorRow, 2, prop.getName());
 		Excel.cell(factorSheet, factorRow, 3, factor.getConversionFactor());
-		if (prop == null || prop.getUnitGroup() != null)
+		if (prop == null || prop.getUnitGroup() == null)
 			return;
 		Unit refUnit = prop.getUnitGroup().getReferenceUnit();
 		if (refUnit != null)

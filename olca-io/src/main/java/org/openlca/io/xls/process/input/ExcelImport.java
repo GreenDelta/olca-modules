@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 
 public class ExcelImport implements Runnable {
 
@@ -23,9 +24,9 @@ public class ExcelImport implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			log.trace("import file {}", xlsFile);
-			Workbook workbook = WorkbookFactory.create(xlsFile);
+		log.trace("import file {}", xlsFile);
+		try (FileInputStream fis = new FileInputStream(xlsFile)) {
+			Workbook workbook = WorkbookFactory.create(fis);
 			Process process = new Process();
 			ProcessDocumentation doc = new ProcessDocumentation();
 			process.setDocumentation(doc);
@@ -42,7 +43,7 @@ public class ExcelImport implements Runnable {
 		ActorSheet.read(config);
 		SourceSheet.read(config);
 		UnitSheets.read(config);
-
+	   	FlowSheets.read(config);
 		// InfoSheet.read(config);
 	}
 }

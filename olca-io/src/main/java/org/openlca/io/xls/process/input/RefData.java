@@ -5,6 +5,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.RootEntity;
@@ -23,6 +24,7 @@ class RefData {
 	private HashMap<String, Location> locations = new HashMap<>();
 	private HashMap<String, Actor> actors = new HashMap<>();
 	private HashMap<String, Source> sources = new HashMap<>();
+	private HashMap<String, Flow> flows = new HashMap<>();
 
 	/**
 	 * Loads the units, unit groups and flow properties from the database.
@@ -41,6 +43,14 @@ class RefData {
 		for (T entity : dao.getAll()) {
 			map.put(entity.getName(), entity);
 		}
+	}
+
+	Unit getUnit(String name) {
+		return units.get(name);
+	}
+
+	FlowProperty getFlowProperty(String name) {
+		return flowProperties.get(name);
 	}
 
 	void putLocation(String code, Location location) {
@@ -65,6 +75,14 @@ class RefData {
 
 	Source getSource(String name, String category) {
 		return sources.get(key(name, category));
+	}
+
+	void putFlow(String name, String category, Flow flow) {
+		flows.put(key(name, category), flow);
+	}
+
+	Flow getFlow(String name, String category) {
+		return flows.get(key(name, category));
 	}
 
 	private String key(String name, String category) {
