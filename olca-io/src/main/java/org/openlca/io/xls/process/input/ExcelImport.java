@@ -1,5 +1,8 @@
 package org.openlca.io.xls.process.input;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openlca.core.database.IDatabase;
@@ -9,38 +12,18 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-
 public class ExcelImport implements Runnable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private final File xlsFile;
 	private final IDatabase database;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final File xlsFile;
 
-	public ExcelImport(File xlsFile, IDatabase database) {
+	public ExcelImport(final File xlsFile, final IDatabase database) {
 		this.xlsFile = xlsFile;
 		this.database = database;
 	}
 
-	@Override
-	public void run() {
-		log.trace("import file {}", xlsFile);
-		try (FileInputStream fis = new FileInputStream(xlsFile)) {
-			Workbook workbook = WorkbookFactory.create(fis);
-			Process process = new Process();
-			ProcessDocumentation doc = new ProcessDocumentation();
-			process.setDocumentation(doc);
-			Config config = new Config(workbook, database, process);
-			readSheets(config);
-			ProcessDao dao = new ProcessDao(database);
-			dao.insert(process);
-		} catch (Exception e) {
-			log.error("failed to import file " + xlsFile, e);
-		}
-	}
-
-	private void readSheets(Config config) {
+	private void readSheets(final Config config) {
 		// reference data
 		LocationSheet.read(config);
 		ActorSheet.read(config);
@@ -54,5 +37,22 @@ public class ExcelImport implements Runnable {
 		AdminInfoSheet.read(config);
 		ModelingSheet.read(config);
 		ParameterSheet.read(config);
+	}
+
+	@Override
+	public void run() {
+		log.trace("import file {}", xlsFile);
+		try (FileInputStream fis = new FileInputStream(xlsFile)) {
+			final Workbook workbook = WorkbookFactory.create(fis);
+			final Process process = new Process();
+			final ProcessDocumentation doc = new ProcessDocumentation();
+			process.setDocumentation(doc);
+			final Config config = new Config(workbook, database, process);
+			readSheets(config);
+			final ProcessDao dao = new ProcessDao(database);
+			dao.insert(process);
+		} catch (final Exception e) {
+			log.error("failed to import file " + xlsFile, e);
+		}
 	}
 }

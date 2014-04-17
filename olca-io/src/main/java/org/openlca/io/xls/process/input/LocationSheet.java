@@ -8,42 +8,47 @@ import org.slf4j.LoggerFactory;
 
 class LocationSheet {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private final Config config;
-	private final LocationDao dao;
-
-	private LocationSheet(Config config) {
-		this.config = config;
-		this.dao = new LocationDao(config.database);
-	}
-
-	public static void read(Config config) {
+	public static void read(final Config config) {
 		new LocationSheet(config).read();
 	}
 
+	private final Config config;
+	private final LocationDao dao;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private final Sheet sheet;
+
+	private LocationSheet(final Config config) {
+		this.config = config;
+		dao = new LocationDao(config.database);
+		sheet = config.workbook.getSheet("Locations");
+	}
+
 	private void read() {
+		if (sheet == null) {
+			return;
+		}
 		try {
 			log.trace("import locations");
-			Sheet sheet = config.workbook.getSheet("Locations");
 			int row = 1;
 			while (true) {
-				String uuid = config.getString(sheet, row, 0);
-				if (uuid == null || uuid.trim().isEmpty())
+				final String uuid = config.getString(sheet, row, 0);
+				if (uuid == null || uuid.trim().isEmpty()) {
 					break;
-				readLocation(uuid, row, sheet);
+				}
+				readLocation(uuid, row);
 				row++;
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			log.error("failed to read locations", e);
 		}
 	}
 
-	private void readLocation(String uuid, int row, Sheet sheet)
+	private void readLocation(final String uuid, final int row)
 			throws Exception {
-		String code = config.getString(sheet, row, 1);
+		final String code = config.getString(sheet, row, 1);
 		Location location = dao.getForRefId(uuid);
-		if(location != null) {
+		if (location != null) {
 			config.refData.putLocation(code, location);
 			return;
 		}

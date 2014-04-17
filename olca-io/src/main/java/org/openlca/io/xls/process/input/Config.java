@@ -1,5 +1,7 @@
 package org.openlca.io.xls.process.input;
 
+import java.util.Date;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -11,30 +13,77 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.io.Categories;
 
-import java.util.Date;
-
 class Config {
 
 	final IDatabase database;
-	final Workbook workbook;
 	final Process process;
 	final RefData refData;
+	final Workbook workbook;
 
-	Config(Workbook workbook, IDatabase database, Process process) {
+	Config(final Workbook workbook, final IDatabase database,
+			final Process process) {
 		this.workbook = workbook;
 		this.database = database;
 		this.process = process;
 		this.refData = new RefData();
 	}
 
-	String getString(Sheet sheet, int row, int col) {
-		Cell cell = getCell(sheet, row, col);
-		if (cell == null)
+	Category getCategory(final String string, final ModelType type) {
+		if (string == null) {
 			return null;
+		}
+		final String path = string.trim();
+		if (path.isEmpty()) {
+			return null;
+		}
+		final String[] elems = path.split("/");
+		return Categories.findOrAdd(database, type, elems);
+	}
+
+	Cell getCell(final Sheet sheet, final int row, final int col) {
+		if (sheet == null) {
+			return null;
+		}
+		final Row xrow = sheet.getRow(row);
+		if (xrow == null) {
+			return null;
+		}
+		return xrow.getCell(col);
+	}
+
+	Date getDate(final Sheet sheet, final int row, final int col) {
+		final Cell cell = getCell(sheet, row, col);
+		if (cell == null) {
+			return null;
+		}
 		try {
-			String s = cell.getStringCellValue();
+			return cell.getDateCellValue();
+		} catch (final Exception e) {
+			return null;
+		}
+	}
+
+	double getDouble(final Sheet sheet, final int row, final int col) {
+		final Cell cell = getCell(sheet, row, col);
+		if (cell == null) {
+			return 0;
+		}
+		try {
+			return cell.getNumericCellValue();
+		} catch (final Exception e) {
+			return 0;
+		}
+	}
+
+	String getString(final Sheet sheet, final int row, final int col) {
+		final Cell cell = getCell(sheet, row, col);
+		if (cell == null) {
+			return null;
+		}
+		try {
+			final String s = cell.getStringCellValue();
 			return s != null ? s.trim() : null;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// we do not use the cell type check but try it the hard way
 			// instead because the cell type may be of formula type which
 			// will return a string
@@ -42,88 +91,50 @@ class Config {
 		}
 	}
 
-	Date getDate(Sheet sheet, int row, int col) {
-		Cell cell = getCell(sheet, row, col);
-		if (cell == null)
-			return null;
-		try {
-			return cell.getDateCellValue();
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	double getDouble(Sheet sheet, int row, int col) {
-		Cell cell = getCell(sheet, row, col);
-		if (cell == null)
-			return 0;
-		try {
-			return cell.getNumericCellValue();
-		} catch (Exception e) {
-			return 0;
-		}
-	}
-
-	Cell getCell(Sheet sheet, int row, int col) {
-		if (sheet == null)
-			return null;
-		Row xrow = sheet.getRow(row);
-		if (xrow == null)
-			return null;
-		return xrow.getCell(col);
-	}
-
-	Category getCategory(String string, ModelType type) {
-		if (string == null)
-			return null;
-		String path = string.trim();
-		if (path.isEmpty())
-			return null;
-		String[] elems = path.split("/");
-		return Categories.findOrAdd(database, type, elems);
-	}
-
-	Uncertainty getUncertainty(Sheet sheet, int row, int col) {
+	Uncertainty getUncertainty(final Sheet sheet, final int row, final int col) {
 		String type = getString(sheet, row, col);
-		if (type == null)
+		if (type == null) {
 			return null;
+		}
 		type = type.trim().toLowerCase();
 		switch (type) {
-			case "log-normal":
-				return logNormal(sheet, row, col);
-			case "normal":
-				return normal(sheet, row, col);
-			case "triangular":
-				return triangular(sheet, row, col);
-			case "uniform":
-				return uniform(sheet, row, col);
-			default:
-				return null;
+		case "log-normal":
+			return logNormal(sheet, row, col);
+		case "normal":
+			return normal(sheet, row, col);
+		case "triangular":
+			return triangular(sheet, row, col);
+		case "uniform":
+			return uniform(sheet, row, col);
+		default:
+			return null;
 		}
 	}
 
-	private Uncertainty logNormal(Sheet sheet, int row, int col) {
-		double gmean = getDouble(sheet, row, col + 1);
-		double gsd = getDouble(sheet, row, col + 2);
+	private Uncertainty logNormal(final Sheet sheet, final int row,
+			final int col) {
+		final double gmean = getDouble(sheet, row, col + 1);
+		final double gsd = getDouble(sheet, row, col + 2);
 		return Uncertainty.logNormal(gmean, gsd);
 	}
 
-	private Uncertainty normal(Sheet sheet, int row, int col) {
-		double mean = getDouble(sheet, row, col + 1);
-		double sd = getDouble(sheet, row, col + 2);
+	private Uncertainty normal(final Sheet sheet, final int row, final int col) {
+		final double mean = getDouble(sheet, row, col + 1);
+		final double sd = getDouble(sheet, row, col + 2);
 		return Uncertainty.normal(mean, sd);
 	}
 
-	private Uncertainty triangular(Sheet sheet, int row, int col) {
-		double min = getDouble(sheet, row, col + 3);
-		double mode = getDouble(sheet, row, col + 1);
-		double max = getDouble(sheet, row, col + 4);
+	private Uncertainty triangular(final Sheet sheet, final int row,
+			final int col) {
+		final double min = getDouble(sheet, row, col + 3);
+		final double mode = getDouble(sheet, row, col + 1);
+		final double max = getDouble(sheet, row, col + 4);
 		return Uncertainty.triangle(min, mode, max);
 	}
 
-	private Uncertainty uniform(Sheet sheet, int row, int col) {
-		double min = getDouble(sheet, row, col + 3);
-		double max = getDouble(sheet, row, col + 4);
+	private Uncertainty uniform(final Sheet sheet, final int row, final int col) {
+		final double min = getDouble(sheet, row, col + 3);
+		final double max = getDouble(sheet, row, col + 4);
 		return Uncertainty.uniform(min, max);
 	}
 

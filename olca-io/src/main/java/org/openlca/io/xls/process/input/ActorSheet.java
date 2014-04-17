@@ -1,5 +1,7 @@
 package org.openlca.io.xls.process.input;
 
+import java.util.Date;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.model.Actor;
@@ -8,44 +10,47 @@ import org.openlca.core.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-
 class ActorSheet {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private final Config config;
-	private final ActorDao dao;
-
-	private ActorSheet(Config config) {
-		this.config = config;
-		this.dao = new ActorDao(config.database);
-	}
-
-	public static void read(Config config) {
+	public static void read(final Config config) {
 		new ActorSheet(config).read();
 	}
 
+	private final Config config;
+	private final ActorDao dao;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private final Sheet sheet;
+
+	private ActorSheet(final Config config) {
+		this.config = config;
+		this.dao = new ActorDao(config.database);
+		sheet = config.workbook.getSheet("Actors");
+	}
+
 	private void read() {
+		if (sheet == null) {
+			return;
+		}
 		try {
 			log.trace("import actors");
-			Sheet sheet = config.workbook.getSheet("Actors");
 			int row = 1;
 			while (true) {
-				String uuid = config.getString(sheet, row, 0);
-				if (uuid == null || uuid.trim().isEmpty())
+				final String uuid = config.getString(sheet, row, 0);
+				if (uuid == null || uuid.trim().isEmpty()) {
 					break;
-				readActor(uuid, row, sheet);
+				}
+				readActor(uuid, row);
 				row++;
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			log.error("failed to read actor sheet", e);
 		}
 	}
 
-	private void readActor(String uuid, int row, Sheet sheet) {
-		String name = config.getString(sheet, row, 1);
-		String category = config.getString(sheet, row, 3);
+	private void readActor(final String uuid, final int row) {
+		final String name = config.getString(sheet, row, 1);
+		final String category = config.getString(sheet, row, 3);
 		Actor actor = dao.getForRefId(uuid);
 		if (actor != null) {
 			config.refData.putActor(name, category, actor);
@@ -56,17 +61,18 @@ class ActorSheet {
 		actor.setName(name);
 		actor.setDescription(config.getString(sheet, row, 2));
 		actor.setCategory(config.getCategory(category, ModelType.ACTOR));
-		setAttributes(row, sheet, actor);
+		setAttributes(row, actor);
 		actor = dao.insert(actor);
 		config.refData.putActor(name, category, actor);
 	}
 
-	private void setAttributes(int row, Sheet sheet, Actor actor) {
-		String version = config.getString(sheet, row, 4);
+	private void setAttributes(final int row, final Actor actor) {
+		final String version = config.getString(sheet, row, 4);
 		actor.setVersion(Version.fromString(version).getValue());
-		Date lastChange = config.getDate(sheet, row, 5);
-		if (lastChange != null)
+		final Date lastChange = config.getDate(sheet, row, 5);
+		if (lastChange != null) {
 			actor.setLastChange(lastChange.getTime());
+		}
 		actor.setAddress(config.getString(sheet, row, 6));
 		actor.setCity(config.getString(sheet, row, 7));
 		actor.setZipCode(config.getString(sheet, row, 8));
