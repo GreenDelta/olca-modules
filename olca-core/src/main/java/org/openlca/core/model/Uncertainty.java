@@ -206,6 +206,29 @@ public class Uncertainty {
 		this.parameter3Formula = parameter3Formula;
 	}
 
+	/**
+	 * Scales the distribution parameters by the given factor. This multiplies
+	 * every distribution parameter with the given factor. Except for the
+	 * geometric standard deviation in log-normal distributions as this
+	 * parameter is scale independent.
+	 */
+	public void scale(double factor) {
+		if (parameter1Value != null)
+			parameter1Value = factor * parameter1Value;
+		if (parameter1Formula != null)
+			parameter1Formula = factor + " * (" + parameter1Formula + ")";
+		if (distributionType != UncertaintyType.LOG_NORMAL) {
+			if (parameter2Value != null)
+				parameter2Value = factor * parameter2Value;
+			if (parameter2Formula != null)
+				parameter2Formula = factor + " * (" + parameter2Formula + ")";
+		}
+		if (parameter3Value != null)
+			parameter3Value = factor * parameter3Value;
+		if (parameter3Formula != null)
+			parameter3Formula = factor + " * (" + parameter3Formula + ")";
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(distributionType, parameter1Formula,

@@ -85,12 +85,12 @@ public class Uncertainty {
 		switch (param) {
 		case DOUBLED_SD:
 			return param1 == null ? 0 : param1;
-		case MAXIMUM:
-			return param3 == null ? 0 : param3;
-		case MINIMUM:
-			return param2 == null ? 0 : param2;
 		case SQUARED_SD:
 			return param1 == null ? 0 : param1;
+		case MINIMUM:
+			return param2 == null ? 0 : param2;
+		case MAXIMUM:
+			return param3 == null ? 0 : param3;
 		default:
 			return 0;
 		}

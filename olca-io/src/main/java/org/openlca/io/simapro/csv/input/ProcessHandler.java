@@ -11,6 +11,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.Uncertainty;
 import org.openlca.io.Categories;
 import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMappingEntry;
@@ -175,15 +176,16 @@ class ProcessHandler {
 			ElementaryExchangeRow row, long scope) {
 		Flow flow = mappedFlow.getEntity();
 		Exchange exchange = addExchange(row, scope, flow);
-		if (exchange != null) {
-			exchange.setAmountValue(mappedFlow.getFactor()
-					* exchange.getAmountValue());
-			if (exchange.getAmountFormula() != null) {
-				String formula = Double.toString(mappedFlow.getFactor())
-						+ " * ( " + exchange.getAmountFormula() + " )";
-				exchange.setAmountFormula(formula);
-			}
+		if (exchange == null)
+			return null;
+		double f = mappedFlow.getFactor();
+		exchange.setAmountValue(f * exchange.getAmountValue());
+		if (exchange.getAmountFormula() != null) {
+			String formula = f + " * ( " + exchange.getAmountFormula() + " )";
+			exchange.setAmountFormula(formula);
 		}
+		if (exchange.getUncertainty() != null)
+			exchange.getUncertainty().scale(f);
 		return exchange;
 	}
 
@@ -206,6 +208,9 @@ class ProcessHandler {
 		exchange.setFlow(flow);
 		setExchangeUnit(exchange, flow, row.getUnit());
 		setAmount(exchange, row.getAmount(), scopeId);
+		Uncertainty uncertainty = UncertaintyConverter.get(
+				exchange.getAmountValue(), row.getUncertaintyDistribution());
+		exchange.setUncertainty(uncertainty);
 		process.getExchanges().add(exchange);
 		return exchange;
 	}

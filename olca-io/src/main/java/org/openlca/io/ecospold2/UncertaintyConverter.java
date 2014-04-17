@@ -91,13 +91,16 @@ public class UncertaintyConverter {
 		if (uncertainty == null)
 			return null;
 		LogNormal logNormal = new LogNormal();
-		if (uncertainty.getParameter1Value() != null)
-			logNormal.setMeanValue(uncertainty.getParameter1Value());
-		if (uncertainty.getParameter2Value() != null) {
+		if (uncertainty.getParameter1Value() != null) {
+			double gmean = uncertainty.getParameter1Value();
+			logNormal.setMeanValue(gmean);
+			logNormal.setMu(Math.log(gmean));
+		} if (uncertainty.getParameter2Value() != null) {
 			double gsd = uncertainty.getParameter2Value();
 			double sigma = Math.log(gsd);
 			double var = Math.pow(sigma, 2);
 			logNormal.setVariance(var);
+			logNormal.setVarianceWithPedigreeUncertainty(var);
 		}
 		return logNormal;
 	}
