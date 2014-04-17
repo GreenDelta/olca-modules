@@ -53,5 +53,6 @@ public class ExcelImport implements Runnable {
 		InfoSheet.read(config); // after exchanges! find qRef
 		AdminInfoSheet.read(config);
 		ModelingSheet.read(config);
+		ParameterSheet.read(config);
 	}
 }

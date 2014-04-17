@@ -50,31 +50,28 @@ class IOSheet {
 	}
 
 	private void witeHeader() {
-		int col = 0;
-		config.header(sheet, row, col++, "Flow");
-		config.header(sheet, row, col++, "Category");
-		config.header(sheet, row, col++, "Flow property");
-		config.header(sheet, row, col++, "Unit");
-		config.header(sheet, row, col++, "Amount");
-		config.header(sheet, row, col++, "Uncertainty");
-		config.header(sheet, row, col++, "(g)mean | mode");
-		config.header(sheet, row, col++, "SD | GSD");
-		config.header(sheet, row, col++, "Minimum");
-		config.header(sheet, row, col++, "Maximum");
+		config.header(sheet, row, 0, "Flow");
+		config.header(sheet, row, 1, "Category");
+		config.header(sheet, row, 2, "Flow property");
+		config.header(sheet, row, 3, "Unit");
+		config.header(sheet, row, 4, "Amount");
+		config.header(sheet, row, 5, "Formula");
+		config.header(sheet, row, 6, "Uncertainty");
+		config.header(sheet, row, 7, "(g)mean | mode");
+		config.header(sheet, row, 8, "SD | GSD");
+		config.header(sheet, row, 9, "Minimum");
+		config.header(sheet, row, 10, "Maximum");
 	}
 
 	private void write(Exchange exchange) {
 		Flow flow = exchange.getFlow();
-		int col = 0;
-		Excel.cell(sheet, row, col++, flow.getName());
-		Excel.cell(sheet, row, col++, CategoryPath.getFull(flow.getCategory()));
-		Excel.cell(sheet, row, col++, getFlowProperty(exchange));
-		Excel.cell(sheet, row, col++, getUnit(exchange));
-		// if (exchange.getAmountFormula() != null)
-		// 	Excel.cell(sheet, row, col++, exchange.getAmountValue());
-		// else
-		Excel.cell(sheet, row, col++, exchange.getAmountValue());
-		config.uncertainty(sheet, row, col, exchange.getUncertainty());
+		Excel.cell(sheet, row, 0, flow.getName());
+		Excel.cell(sheet, row, 1, CategoryPath.getFull(flow.getCategory()));
+		Excel.cell(sheet, row, 2, getFlowProperty(exchange));
+		Excel.cell(sheet, row, 3, getUnit(exchange));
+		Excel.cell(sheet, row, 4, exchange.getAmountValue());
+		Excel.cell(sheet, row, 5, exchange.getAmountFormula());
+		config.uncertainty(sheet, row, 6, exchange.getUncertainty());
 	}
 
 	private String getFlowProperty(Exchange exchange) {

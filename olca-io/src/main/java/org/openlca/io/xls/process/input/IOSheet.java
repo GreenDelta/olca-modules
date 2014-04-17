@@ -6,6 +6,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +75,10 @@ class IOSheet {
 			return refDataError(row, "unit: " + unitName);
 		exchange.setUnit(unit);
 		exchange.setAmountValue(config.getDouble(sheet, row, 4));
-		exchange.setUncertainty(config.getUncertainty(sheet, row, 5));
+		String formula = config.getString(sheet, row, 5);
+		if(!Strings.nullOrEmpty(formula))
+			exchange.setAmountFormula(formula);
+		exchange.setUncertainty(config.getUncertainty(sheet, row, 6));
 		return exchange;
 	}
 
