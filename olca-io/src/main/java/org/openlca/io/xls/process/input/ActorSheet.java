@@ -12,20 +12,20 @@ import org.slf4j.LoggerFactory;
 
 class ActorSheet {
 
-	public static void read(final Config config) {
-		new ActorSheet(config).read();
-	}
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Config config;
 	private final ActorDao dao;
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
 	private final Sheet sheet;
 
-	private ActorSheet(final Config config) {
+	private ActorSheet(Config config) {
 		this.config = config;
 		this.dao = new ActorDao(config.database);
 		sheet = config.workbook.getSheet("Actors");
+	}
+
+	public static void read(Config config) {
+		new ActorSheet(config).read();
 	}
 
 	private void read() {
@@ -36,21 +36,21 @@ class ActorSheet {
 			log.trace("import actors");
 			int row = 1;
 			while (true) {
-				final String uuid = config.getString(sheet, row, 0);
+				String uuid = config.getString(sheet, row, 0);
 				if (uuid == null || uuid.trim().isEmpty()) {
 					break;
 				}
 				readActor(uuid, row);
 				row++;
 			}
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			log.error("failed to read actor sheet", e);
 		}
 	}
 
-	private void readActor(final String uuid, final int row) {
-		final String name = config.getString(sheet, row, 1);
-		final String category = config.getString(sheet, row, 3);
+	private void readActor(String uuid, int row) {
+		String name = config.getString(sheet, row, 1);
+		String category = config.getString(sheet, row, 3);
 		Actor actor = dao.getForRefId(uuid);
 		if (actor != null) {
 			config.refData.putActor(name, category, actor);
@@ -66,10 +66,10 @@ class ActorSheet {
 		config.refData.putActor(name, category, actor);
 	}
 
-	private void setAttributes(final int row, final Actor actor) {
-		final String version = config.getString(sheet, row, 4);
+	private void setAttributes(int row, Actor actor) {
+		String version = config.getString(sheet, row, 4);
 		actor.setVersion(Version.fromString(version).getValue());
-		final Date lastChange = config.getDate(sheet, row, 5);
+		Date lastChange = config.getDate(sheet, row, 5);
 		if (lastChange != null) {
 			actor.setLastChange(lastChange.getTime());
 		}

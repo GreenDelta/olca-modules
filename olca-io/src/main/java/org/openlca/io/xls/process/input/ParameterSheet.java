@@ -15,40 +15,24 @@ import com.google.common.base.Strings;
 
 class ParameterSheet {
 
-	public static void read(final Config config) {
-		new ParameterSheet(config).read();
-	}
-
-	private final Config config;
-
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	/**
 	 * The maximum number of rows for searching for a parameter section in this
 	 * sheet.
 	 */
 	private final int MAX_ROWS = 5000;
 
+	private Logger log = LoggerFactory.getLogger(getClass());
+
+	private final Config config;
 	private final Sheet sheet;
 
-	private ParameterSheet(final Config config) {
+	private ParameterSheet(Config config) {
 		this.config = config;
 		sheet = config.workbook.getSheet("Parameters");
 	}
 
-	private int findSection(final String section) {
-		if (section == null) {
-			return -1;
-		}
-		for (int i = 0; i < MAX_ROWS; i++) {
-			final String s = config.getString(sheet, i, 0);
-			if (s == null) {
-				continue;
-			}
-			if (section.equalsIgnoreCase(s.trim())) {
-				return i;
-			}
-		}
-		return -1;
+	public static void read(Config config) {
+		new ParameterSheet(config).read();
 	}
 
 	private void read() {
@@ -57,71 +41,26 @@ class ParameterSheet {
 		}
 		try {
 			log.trace("read parameters");
-			final List<Parameter> globalParams = readParams(
-					"Global parameters", ParameterScope.GLOBAL, true);
+			List<Parameter> globalParams = readParams("Global parameters",
+					ParameterScope.GLOBAL, true);
 			syncGlobals(globalParams);
-			final List<Parameter> params = config.process.getParameters();
+			List<Parameter> params = config.process.getParameters();
 			params.addAll(readParams("Input parameters",
 					ParameterScope.PROCESS, true));
 			params.addAll(readParams("Dependent parameters",
 					ParameterScope.PROCESS, false));
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			log.error("failed to read parameter sheet", e);
 		}
 	}
 
-	private Parameter readDependentParam(final int row, final String name,
-			final ParameterScope scope) {
-		final Parameter parameter = new Parameter();
-		parameter.setName(name);
-		parameter.setInputParameter(false);
-		parameter.setScope(scope);
-		parameter.setFormula(config.getString(sheet, row, 1));
-		parameter.setValue(config.getDouble(sheet, row, 2));
-		parameter.setDescription(config.getString(sheet, row, 3));
-		return parameter;
-	}
-
-	private Parameter readInputParam(final int row, final String name,
-			final ParameterScope scope) {
-		final Parameter parameter = new Parameter();
-		parameter.setName(name);
-		parameter.setInputParameter(true);
-		parameter.setScope(scope);
-		parameter.setValue(config.getDouble(sheet, row, 1));
-		parameter.setUncertainty(config.getUncertainty(sheet, row, 2));
-		parameter.setDescription(config.getString(sheet, row, 7));
-		return parameter;
-	}
-
-	private List<Parameter> readParams(final String section,
-			final ParameterScope scope, final boolean input) {
-		int row = findSection(section);
-		if (row < 0) {
-			return Collections.emptyList();
-		}
-		final List<Parameter> parameters = new ArrayList<>();
-		row += 2;
-		while (true) {
-			final String name = config.getString(sheet, row, 0);
-			if (Strings.isNullOrEmpty(name)) {
-				break;
-			}
-			final Parameter parameter = input ? readInputParam(row, name, scope)
-					: readDependentParam(row, name, scope);
-			parameters.add(parameter);
-			row++;
-		}
-		return parameters;
-	}
-
-	private void syncGlobals(final List<Parameter> sheetParams) {
-		final ParameterDao dao = new ParameterDao(config.database);
-		final List<Parameter> globals = new ArrayList<>();
+	private void syncGlobals(List<Parameter> sheetParams) {
+		ParameterDao dao = new ParameterDao(config.database);
+		List<Parameter> globals = new ArrayList<>();
 		globals.addAll(dao.getGlobalParameters());
-		for (final Parameter sheetParam : sheetParams) {
+		for (Parameter sheetParam : sheetParams) {
 			boolean found = false;
-			for (final Parameter global : globals) {
+			for (Parameter global : globals) {
 				if (global.getName() == null) {
 					continue;
 				}
@@ -134,5 +73,65 @@ class ParameterSheet {
 				globals.add(dao.insert(sheetParam));
 			}
 		}
+	}
+
+	private List<Parameter> readParams(String section, ParameterScope scope,
+			boolean input) {
+		int row = findSection(section);
+		if (row < 0) {
+			return Collections.emptyList();
+		}
+		List<Parameter> parameters = new ArrayList<>();
+		row += 2;
+		while (true) {
+			String name = config.getString(sheet, row, 0);
+			if (Strings.isNullOrEmpty(name)) {
+				break;
+			}
+			Parameter parameter = input ? readInputParam(row, name, scope)
+					: readDependentParam(row, name, scope);
+			parameters.add(parameter);
+			row++;
+		}
+		return parameters;
+	}
+
+	private Parameter readDependentParam(int row, String name,
+			ParameterScope scope) {
+		Parameter parameter = new Parameter();
+		parameter.setName(name);
+		parameter.setInputParameter(false);
+		parameter.setScope(scope);
+		parameter.setFormula(config.getString(sheet, row, 1));
+		parameter.setValue(config.getDouble(sheet, row, 2));
+		parameter.setDescription(config.getString(sheet, row, 3));
+		return parameter;
+	}
+
+	private Parameter readInputParam(int row, String name, ParameterScope scope) {
+		Parameter parameter = new Parameter();
+		parameter.setName(name);
+		parameter.setInputParameter(true);
+		parameter.setScope(scope);
+		parameter.setValue(config.getDouble(sheet, row, 1));
+		parameter.setUncertainty(config.getUncertainty(sheet, row, 2));
+		parameter.setDescription(config.getString(sheet, row, 7));
+		return parameter;
+	}
+
+	private int findSection(String section) {
+		if (section == null) {
+			return -1;
+		}
+		for (int i = 0; i < MAX_ROWS; i++) {
+			String s = config.getString(sheet, i, 0);
+			if (s == null) {
+				continue;
+			}
+			if (section.equalsIgnoreCase(s.trim())) {
+				return i;
+			}
+		}
+		return -1;
 	}
 }

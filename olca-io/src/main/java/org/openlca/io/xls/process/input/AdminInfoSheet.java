@@ -10,20 +10,20 @@ import org.slf4j.LoggerFactory;
 
 class AdminInfoSheet {
 
-	public static void read(final Config config) {
-		new AdminInfoSheet(config).read();
-	}
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Config config;
 	private final ProcessDocumentation doc;
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
 	private final Sheet sheet;
 
-	private AdminInfoSheet(final Config config) {
+	private AdminInfoSheet(Config config) {
 		this.config = config;
 		doc = config.process.getDocumentation();
 		sheet = config.workbook.getSheet("Administrative information");
+	}
+
+	public static void read(Config config) {
+		new AdminInfoSheet(config).read();
 	}
 
 	private void read() {
@@ -41,37 +41,37 @@ class AdminInfoSheet {
 			doc.setProject(config.getString(sheet, 7, 1));
 			doc.setCreationDate(config.getDate(sheet, 8, 1));
 			readCopyright();
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			log.error("failed to read administrative information", e);
 		}
 	}
 
-	private Actor readActor(final int row) {
-		final String name = config.getString(sheet, row, 1);
+	private Actor readActor(int row) {
+		String name = config.getString(sheet, row, 1);
 		if (name == null) {
 			return null;
 		}
-		final String category = config.getString(sheet, row, 2);
+		String category = config.getString(sheet, row, 2);
 		return config.refData.getActor(name, category);
+	}
+
+	private Source readSource(int row) {
+		String name = config.getString(sheet, row, 1);
+		if (name == null) {
+			return null;
+		}
+		String category = config.getString(sheet, row, 2);
+		return config.refData.getSource(name, category);
 	}
 
 	private void readCopyright() {
 		try {
-			final Cell cell = config.getCell(sheet, 9, 1);
+			Cell cell = config.getCell(sheet, 9, 1);
 			if (cell != null && cell.getCellType() == Cell.CELL_TYPE_BOOLEAN) {
 				doc.setCopyright(cell.getBooleanCellValue());
 			}
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			log.error("failed to read copyright cell", e);
 		}
-	}
-
-	private Source readSource(final int row) {
-		final String name = config.getString(sheet, row, 1);
-		if (name == null) {
-			return null;
-		}
-		final String category = config.getString(sheet, row, 2);
-		return config.refData.getSource(name, category);
 	}
 }

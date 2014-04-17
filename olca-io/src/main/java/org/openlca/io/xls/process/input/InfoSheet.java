@@ -14,22 +14,22 @@ import org.slf4j.LoggerFactory;
 
 class InfoSheet {
 
-	public static void read(final Config config) {
-		new InfoSheet(config).read();
-	}
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Config config;
 	private final ProcessDocumentation doc;
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Process process;
-
 	private final Sheet sheet;
 
-	private InfoSheet(final Config config) {
+	private InfoSheet(Config config) {
 		this.config = config;
 		this.process = config.process;
 		this.doc = config.process.getDocumentation();
 		sheet = config.workbook.getSheet("General information");
+	}
+
+	public static void read(Config config) {
+		new InfoSheet(config).read();
 	}
 
 	private void read() {
@@ -43,28 +43,20 @@ class InfoSheet {
 			readTime();
 			readGeography();
 			doc.setTechnology(config.getString(sheet, 21, 1));
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			log.error("failed to read information sheet", e);
 		}
-	}
-
-	private void readGeography() {
-		final String code = config.getString(sheet, 17, 1);
-		if (code != null) {
-			process.setLocation(config.refData.getLocation(code));
-		}
-		doc.setGeography(config.getString(sheet, 18, 1));
 	}
 
 	private void readInfoSection() {
 		process.setRefId(config.getString(sheet, 1, 1));
 		process.setName(config.getString(sheet, 2, 1));
 		process.setDescription(config.getString(sheet, 3, 1));
-		final String categoryPath = config.getString(sheet, 4, 1);
+		String categoryPath = config.getString(sheet, 4, 1);
 		process.setCategory(config.getCategory(categoryPath, ModelType.PROCESS));
-		final String version = config.getString(sheet, 5, 1);
+		String version = config.getString(sheet, 5, 1);
 		process.setVersion(Version.fromString(version).getValue());
-		final Date lastChange = config.getDate(sheet, 6, 1);
+		Date lastChange = config.getDate(sheet, 6, 1);
 		if (lastChange == null) {
 			process.setLastChange(0L);
 		} else {
@@ -74,9 +66,9 @@ class InfoSheet {
 
 	private void readQuanRef() {
 		// the outputs must be already imported
-		final String qRefName = config.getString(sheet, 9, 1);
+		String qRefName = config.getString(sheet, 9, 1);
 		Exchange qRef = null;
-		for (final Exchange exchange : process.getExchanges()) {
+		for (Exchange exchange : process.getExchanges()) {
 			if (exchange.isInput() || exchange.getFlow() == null) {
 				continue;
 			}
@@ -96,6 +88,14 @@ class InfoSheet {
 		doc.setValidFrom(config.getDate(sheet, 12, 1));
 		doc.setValidUntil(config.getDate(sheet, 13, 1));
 		doc.setTime(config.getString(sheet, 14, 1));
+	}
+
+	private void readGeography() {
+		String code = config.getString(sheet, 17, 1);
+		if (code != null) {
+			process.setLocation(config.refData.getLocation(code));
+		}
+		doc.setGeography(config.getString(sheet, 18, 1));
 	}
 
 }

@@ -20,70 +20,69 @@ class Config {
 	final RefData refData;
 	final Workbook workbook;
 
-	Config(final Workbook workbook, final IDatabase database,
-			final Process process) {
+	Config(Workbook workbook, IDatabase database, Process process) {
 		this.workbook = workbook;
 		this.database = database;
 		this.process = process;
 		this.refData = new RefData();
 	}
 
-	Category getCategory(final String string, final ModelType type) {
+	Category getCategory(String string, ModelType type) {
 		if (string == null) {
 			return null;
 		}
-		final String path = string.trim();
+		String path = string.trim();
 		if (path.isEmpty()) {
 			return null;
 		}
-		final String[] elems = path.split("/");
+		String[] elems = path.split("/");
 		return Categories.findOrAdd(database, type, elems);
 	}
 
-	Cell getCell(final Sheet sheet, final int row, final int col) {
+	Cell getCell(Sheet sheet, int row, int col) {
 		if (sheet == null) {
 			return null;
 		}
-		final Row xrow = sheet.getRow(row);
+		Row xrow = sheet.getRow(row);
 		if (xrow == null) {
 			return null;
 		}
 		return xrow.getCell(col);
 	}
 
-	Date getDate(final Sheet sheet, final int row, final int col) {
-		final Cell cell = getCell(sheet, row, col);
+	Date getDate(Sheet sheet, int row, int col) {
+		Cell cell = getCell(sheet, row, col);
 		if (cell == null) {
 			return null;
 		}
 		try {
 			return cell.getDateCellValue();
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	double getDouble(final Sheet sheet, final int row, final int col) {
-		final Cell cell = getCell(sheet, row, col);
+	double getDouble(Sheet sheet, int row, int col) {
+		Cell cell = getCell(sheet, row, col);
 		if (cell == null) {
 			return 0;
 		}
 		try {
 			return cell.getNumericCellValue();
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			return 0;
 		}
 	}
 
-	String getString(final Sheet sheet, final int row, final int col) {
-		final Cell cell = getCell(sheet, row, col);
+	String getString(Sheet sheet, int row, int col) {
+		Cell cell = getCell(sheet, row, col);
 		if (cell == null) {
 			return null;
 		}
 		try {
-			final String s = cell.getStringCellValue();
+			String s = cell.getStringCellValue();
 			return s != null ? s.trim() : null;
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			// we do not use the cell type check but try it the hard way
 			// instead because the cell type may be of formula type which
 			// will return a string
@@ -91,7 +90,7 @@ class Config {
 		}
 	}
 
-	Uncertainty getUncertainty(final Sheet sheet, final int row, final int col) {
+	Uncertainty getUncertainty(Sheet sheet, int row, int col) {
 		String type = getString(sheet, row, col);
 		if (type == null) {
 			return null;
@@ -111,30 +110,28 @@ class Config {
 		}
 	}
 
-	private Uncertainty logNormal(final Sheet sheet, final int row,
-			final int col) {
-		final double gmean = getDouble(sheet, row, col + 1);
-		final double gsd = getDouble(sheet, row, col + 2);
+	private Uncertainty logNormal(Sheet sheet, int row, int col) {
+		double gmean = getDouble(sheet, row, col + 1);
+		double gsd = getDouble(sheet, row, col + 2);
 		return Uncertainty.logNormal(gmean, gsd);
 	}
 
-	private Uncertainty normal(final Sheet sheet, final int row, final int col) {
-		final double mean = getDouble(sheet, row, col + 1);
-		final double sd = getDouble(sheet, row, col + 2);
+	private Uncertainty normal(Sheet sheet, int row, int col) {
+		double mean = getDouble(sheet, row, col + 1);
+		double sd = getDouble(sheet, row, col + 2);
 		return Uncertainty.normal(mean, sd);
 	}
 
-	private Uncertainty triangular(final Sheet sheet, final int row,
-			final int col) {
-		final double min = getDouble(sheet, row, col + 3);
-		final double mode = getDouble(sheet, row, col + 1);
-		final double max = getDouble(sheet, row, col + 4);
+	private Uncertainty triangular(Sheet sheet, int row, int col) {
+		double min = getDouble(sheet, row, col + 3);
+		double mode = getDouble(sheet, row, col + 1);
+		double max = getDouble(sheet, row, col + 4);
 		return Uncertainty.triangle(min, mode, max);
 	}
 
-	private Uncertainty uniform(final Sheet sheet, final int row, final int col) {
-		final double min = getDouble(sheet, row, col + 3);
-		final double max = getDouble(sheet, row, col + 4);
+	private Uncertainty uniform(Sheet sheet, int row, int col) {
+		double min = getDouble(sheet, row, col + 3);
+		double max = getDouble(sheet, row, col + 4);
 		return Uncertainty.uniform(min, max);
 	}
 

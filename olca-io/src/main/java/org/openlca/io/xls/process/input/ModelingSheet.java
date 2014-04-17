@@ -14,22 +14,22 @@ import com.google.common.base.Strings;
 
 class ModelingSheet {
 
-	public static void read(final Config config) {
-		new ModelingSheet(config).read();
-	}
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Config config;
 	private final ProcessDocumentation doc;
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Process process;
-
 	private final Sheet sheet;
 
-	private ModelingSheet(final Config config) {
+	private ModelingSheet(Config config) {
 		this.config = config;
 		process = config.process;
 		doc = config.process.getDocumentation();
 		sheet = config.workbook.getSheet("Modeling and validation");
+	}
+
+	public static void read(Config config) {
+		new ModelingSheet(config).read();
 	}
 
 	private void read() {
@@ -42,18 +42,13 @@ class ModelingSheet {
 			readDataSourceSection();
 			readReviewSection();
 			readSources();
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			log.error("failed to read modeling and validation", e);
 		}
 	}
 
-	private void readDataSourceSection() {
-		doc.setSampling(config.getString(sheet, 9, 1));
-		doc.setDataCollectionPeriod(config.getString(sheet, 10, 1));
-	}
-
 	private void readModelingSection() {
-		final String type = config.getString(sheet, 1, 1);
+		String type = config.getString(sheet, 1, 1);
 		if (Objects.equals(type, "LCI result")) {
 			process.setProcessType(ProcessType.LCI_RESULT);
 		} else {
@@ -66,10 +61,15 @@ class ModelingSheet {
 		doc.setDataTreatment(config.getString(sheet, 6, 1));
 	}
 
+	private void readDataSourceSection() {
+		doc.setSampling(config.getString(sheet, 9, 1));
+		doc.setDataCollectionPeriod(config.getString(sheet, 10, 1));
+	}
+
 	private void readReviewSection() {
-		final String reviewer = config.getString(sheet, 13, 1);
+		String reviewer = config.getString(sheet, 13, 1);
 		if (reviewer != null) {
-			final String category = config.getString(sheet, 13, 2);
+			String category = config.getString(sheet, 13, 2);
 			doc.setReviewer(config.refData.getActor(reviewer, category));
 		}
 		doc.setReviewDetails(config.getString(sheet, 14, 1));
@@ -78,12 +78,12 @@ class ModelingSheet {
 	private void readSources() {
 		int row = 17;
 		while (true) {
-			final String name = config.getString(sheet, row, 0);
+			String name = config.getString(sheet, row, 0);
 			if (Strings.isNullOrEmpty(name)) {
 				break;
 			}
-			final String category = config.getString(sheet, row, 1);
-			final Source source = config.refData.getSource(name, category);
+			String category = config.getString(sheet, row, 1);
+			Source source = config.refData.getSource(name, category);
 			if (source != null) {
 				doc.getSources().add(source);
 			}

@@ -8,20 +8,20 @@ import org.slf4j.LoggerFactory;
 
 class LocationSheet {
 
-	public static void read(final Config config) {
-		new LocationSheet(config).read();
-	}
+	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Config config;
 	private final LocationDao dao;
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
 	private final Sheet sheet;
 
-	private LocationSheet(final Config config) {
+	private LocationSheet(Config config) {
 		this.config = config;
 		dao = new LocationDao(config.database);
 		sheet = config.workbook.getSheet("Locations");
+	}
+
+	public static void read(Config config) {
+		new LocationSheet(config).read();
 	}
 
 	private void read() {
@@ -32,21 +32,20 @@ class LocationSheet {
 			log.trace("import locations");
 			int row = 1;
 			while (true) {
-				final String uuid = config.getString(sheet, row, 0);
+				String uuid = config.getString(sheet, row, 0);
 				if (uuid == null || uuid.trim().isEmpty()) {
 					break;
 				}
 				readLocation(uuid, row);
 				row++;
 			}
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			log.error("failed to read locations", e);
 		}
 	}
 
-	private void readLocation(final String uuid, final int row)
-			throws Exception {
-		final String code = config.getString(sheet, row, 1);
+	private void readLocation(String uuid, int row) throws Exception {
+		String code = config.getString(sheet, row, 1);
 		Location location = dao.getForRefId(uuid);
 		if (location != null) {
 			config.refData.putLocation(code, location);
