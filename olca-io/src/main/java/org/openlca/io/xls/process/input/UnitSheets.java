@@ -258,12 +258,25 @@ class UnitSheets {
 		return records;
 	}
 
+	private abstract class Record {
+		String description;
+		String name;
+		String uuid;
+
+		abstract void fill(int row, Sheet sheet);
+	}
+
 	private class PropertyRecord extends Record {
 		String category;
 		Date lastChange;
 		String type;
 		String unitGroup;
 		String version;
+
+		// needed for reflection in readRecords
+		@SuppressWarnings("unused")
+		public PropertyRecord() {
+		}
 
 		@Override
 		void fill(int row, Sheet sheet) {
@@ -277,20 +290,17 @@ class UnitSheets {
 		}
 	}
 
-	private abstract class Record {
-		String description;
-		String name;
-		String uuid;
-
-		abstract void fill(int row, Sheet sheet);
-	}
-
 	private class UnitGroupRecord extends Record {
 		String category;
 		String defaultProperty;
 		Date lastChange;
 		String refUnit;
 		String version;
+
+		// needed for reflection in readRecords
+		@SuppressWarnings("unused")
+		public UnitGroupRecord() {
+		}
 
 		@Override
 		void fill(int row, Sheet sheet) {
@@ -308,6 +318,11 @@ class UnitSheets {
 		double conversionFactor;
 		String synonyms;
 		String unitGroup;
+
+		// needed for reflection in readRecords
+		@SuppressWarnings("unused")
+		public UnitRecord() {
+		}
 
 		@Override
 		void fill(int row, Sheet sheet) {
