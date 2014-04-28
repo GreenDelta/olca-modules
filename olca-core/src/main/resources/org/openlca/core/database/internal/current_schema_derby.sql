@@ -37,7 +37,7 @@ CREATE TABLE tbl_categories (
 	PRIMARY KEY (id)
 );
 CREATE INDEX idx_category_parent ON tbl_categories(f_parent_category);
-
+CREATE INDEX idx_category_ref_id ON tbl_categories(ref_id);
 
 CREATE TABLE tbl_actors (
 
@@ -61,6 +61,7 @@ CREATE TABLE tbl_actors (
 	PRIMARY KEY (id)
 );
 CREATE INDEX idx_actor_category ON tbl_actors(f_category);
+CREATE INDEX idx_actor_ref_id ON tbl_actors(ref_id);
 
 CREATE TABLE tbl_locations (
 
@@ -76,7 +77,7 @@ CREATE TABLE tbl_locations (
 	
 	PRIMARY KEY (id)
 );
-
+CREATE INDEX idx_location_ref_id ON tbl_locations(ref_id);
 
 CREATE TABLE tbl_sources (
 
@@ -97,7 +98,7 @@ CREATE TABLE tbl_sources (
 	
 );
 CREATE INDEX idx_source_category ON tbl_sources(f_category);
-
+CREATE INDEX idx_source_ref_id ON tbl_sources(ref_id);
 
 CREATE TABLE tbl_units (
 
@@ -114,6 +115,7 @@ CREATE TABLE tbl_units (
 	
 );
 CREATE INDEX idx_unit_unit_group ON tbl_units(f_unit_group);
+CREATE INDEX idx_unit_ref_id ON tbl_units(ref_id);
 
 
 CREATE TABLE tbl_unit_groups (
@@ -135,7 +137,7 @@ CREATE TABLE tbl_unit_groups (
 CREATE INDEX idx_unit_group_category ON tbl_unit_groups(f_category);
 CREATE INDEX idx_unit_group_refunit ON tbl_unit_groups(f_reference_unit);
 CREATE INDEX idx_unit_group_flowprop ON tbl_unit_groups(f_default_flow_property);
-
+CREATE INDEX idx_unit_group_ref_id ON tbl_unit_groups(ref_id);
 
 CREATE TABLE tbl_flow_properties (
 
@@ -155,6 +157,7 @@ CREATE TABLE tbl_flow_properties (
 );
 CREATE INDEX idx_flowprop_category ON tbl_flow_properties(f_category);
 CREATE INDEX idx_flowprop_unti_group ON tbl_flow_properties(f_unit_group);
+CREATE INDEX idx_flowprop_ref_id ON tbl_flow_properties(ref_id);
 
 CREATE TABLE tbl_flows (
 
@@ -179,7 +182,7 @@ CREATE TABLE tbl_flows (
 CREATE INDEX idx_flow_category ON tbl_flows(f_category);
 CREATE INDEX idx_flow_flow_property ON tbl_flows(f_reference_flow_property);
 CREATE INDEX idx_flow_location ON tbl_flows(f_location);
-
+CREATE INDEX idx_flow_ref_id ON tbl_flows(ref_id);
 
 CREATE TABLE tbl_flow_property_factors (
 
@@ -219,6 +222,7 @@ CREATE TABLE tbl_processes (
 CREATE INDEX idx_process_category ON tbl_processes(f_category);
 CREATE INDEX idx_process_qref ON tbl_processes(f_quantitative_reference);
 CREATE INDEX idx_process_location ON tbl_processes(f_location);
+CREATE INDEX idx_process_ref_id ON tbl_processes(ref_id);
 
 
 CREATE TABLE tbl_process_docs (
