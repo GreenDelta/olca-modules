@@ -1,7 +1,12 @@
 package org.openlca.core.math;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
@@ -12,12 +17,12 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 
 /**
- * Provides methods for converting product systems into structures that can be
- * used in calculations and for validation of product systems.
+ * Provides helper methods for creating matrix-like data structures that can be
+ * used in calculations (but also exports, validations, etc.).
  */
-public class ProductSystems {
+public class DataStructures {
 
-	private ProductSystems() {
+	private DataStructures() {
 	}
 
 	// TODO: add a validation procedure for product systems
@@ -56,6 +61,29 @@ public class ProductSystems {
 			AllocationMethod allocationMethod, MatrixCache matrixCache) {
 		ProductIndex index = createProductIndex(system);
 		return Inventory.build(matrixCache, index, allocationMethod);
+	}
+
+	public static Inventory createInventory(CalculationSetup setup,
+			MatrixCache cache) {
+		ProductSystem system = setup.getProductSystem();
+		AllocationMethod method = setup.getAllocationMethod();
+		if (method == null)
+			method = AllocationMethod.NONE;
+		ProductIndex productIndex = createProductIndex(system);
+		productIndex.setDemand(ReferenceAmount.get(setup));
+		return Inventory.build(cache, productIndex, method);
+	}
+
+	static ParameterTable createParameterTable(IDatabase db,
+			CalculationSetup setup, Inventory inventory) {
+		Set<Long> contexts = new HashSet<>();
+		if (setup.getImpactMethod() != null)
+			contexts.add(setup.getImpactMethod().getId());
+		if (inventory.getProductIndex() != null)
+			contexts.addAll(inventory.getProductIndex().getProcessIds());
+		ParameterTable table = ParameterTable.build(db, contexts);
+		table.apply(setup.getParameterRedefs());
+		return table;
 	}
 
 }

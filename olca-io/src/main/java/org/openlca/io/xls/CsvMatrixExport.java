@@ -7,7 +7,7 @@ import java.io.Writer;
 import java.util.HashMap;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.math.ProductSystems;
+import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.ExchangeMatrix;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.Inventory;
@@ -46,7 +46,7 @@ public class CsvMatrixExport implements Runnable {
 			return;
 		}
 		log.trace("Build inventory matrix");
-		Inventory inventory = ProductSystems.createInventory(
+		Inventory inventory = DataStructures.createInventory(
 				data.getProductSystem(), data.getMatrixCache());
 		log.trace("Write technology matrix");
 		writeTechFile(inventory);

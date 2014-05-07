@@ -17,7 +17,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.ProductSystems;
+import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
@@ -54,7 +54,7 @@ public class SystemExport {
 
 	private void loadData() {
 		log.trace("load matrix data");
-		inventory = ProductSystems.createInventory(conf.getSystem(),
+		inventory = DataStructures.createInventory(conf.getSystem(),
 				conf.getAllocationMethod(), conf.getMatrixCache());
 		if (conf.getImpactMethod() != null) {
 			impactTable = ImpactTable.build(conf.getMatrixCache(), conf

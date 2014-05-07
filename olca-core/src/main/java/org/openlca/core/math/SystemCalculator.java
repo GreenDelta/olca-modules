@@ -51,8 +51,8 @@ public class SystemCalculator {
 
 	private void doSetUp(CalculationSetup setup) {
 		IDatabase db = matrixCache.getDatabase();
-		Inventory inventory = Calculators.createInventory(setup, matrixCache);
-		ParameterTable parameterTable = Calculators.createParameterTable(db,
+		Inventory inventory = DataStructures.createInventory(setup, matrixCache);
+		ParameterTable parameterTable = DataStructures.createParameterTable(db,
 				setup, inventory);
 		FormulaInterpreter interpreter = parameterTable.createInterpreter();
 		this.inventoryMatrix = inventory.createMatrix(

@@ -79,8 +79,8 @@ public class Simulator {
 
 	private void setUp() {
 		log.trace("set up inventory");
-		inventory = Calculators.createInventory(setup, cache);
-		parameterTable = Calculators.createParameterTable(cache.getDatabase(),
+		inventory = DataStructures.createInventory(setup, cache);
+		parameterTable = DataStructures.createParameterTable(cache.getDatabase(),
 				setup, inventory);
 		inventoryMatrix = inventory.createMatrix(factory);
 		result = new SimulationResult();
