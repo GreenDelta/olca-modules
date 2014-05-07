@@ -56,21 +56,27 @@ class ProcessParameterConversion {
 			param.setValue(mean);
 		new UncertaintyConverter().map(iParameter, param);
 		param.setInputParameter(true);
-		if (hasFormula(iParameter) && scope == ParameterScope.PROCESS) {
-			param.setFormula(iParameter.getFormula());
+		String formula = getFormula(iParameter);
+		if (formula != null && scope == ParameterScope.PROCESS) {
+			param.setFormula(formula);
 			param.setInputParameter(false);
 		}
 		return param;
 	}
 
-	private boolean hasFormula(org.openlca.ilcd.processes.Parameter iParameter) {
-		if (iParameter.getFormula() == null)
-			return false;
+	private String getFormula(org.openlca.ilcd.processes.Parameter iParameter) {
+		String formula = iParameter.getFormula();
+		if (formula == null)
+			return null;
 		try {
-			Double.parseDouble(iParameter.getFormula());
-			return false; // the "formula" is a plain number
+			Double.parseDouble(formula);
+			return null; // the "formula" is a plain number
 		} catch (Exception e) {
-			return true; // not a number
+			// in openLCA the parameter separator of a function is always a
+			// semicolon and the decimal separator always a dot
+			// some databases use a comma as a separator for function parameters
+			// which we replace here by a semicolon
+			return formula.replace(',', ';');
 		}
 	}
 
