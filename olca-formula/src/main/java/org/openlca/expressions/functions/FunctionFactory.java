@@ -17,6 +17,12 @@ public class FunctionFactory {
 
 	public FunctionFactory() {
 
+		// constant functions
+		registerFunction("pi", Pi.class);
+		registerFunction("e", E.class);
+		registerFunction("true", True.class);
+		registerFunction("false", False.class);
+
 		// arithmetic functions
 		registerFunction("abs", Abs.class);
 		registerFunction("avg", Avg.class);
