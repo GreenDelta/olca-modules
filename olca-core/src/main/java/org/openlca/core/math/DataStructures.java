@@ -74,7 +74,7 @@ public class DataStructures {
 		return Inventory.build(cache, productIndex, method);
 	}
 
-	static ParameterTable createParameterTable(IDatabase db,
+	public static ParameterTable createParameterTable(IDatabase db,
 			CalculationSetup setup, Inventory inventory) {
 		Set<Long> contexts = new HashSet<>();
 		if (setup.getImpactMethod() != null)

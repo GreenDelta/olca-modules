@@ -1,0 +1,49 @@
+# Builds the native part of olca-eigen library for Mac OS X.
+# In order to run the build you need to have the following tools installed:
+# 
+# 	* Java JDK 7.x (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+# 	* the OS X command line tools (normally the installation is 
+#     triggered when you type `gcc -v`in the terminal)
+#	* gfortran and maybe other tools like wget and perl for the OpenBLAS build
+#
+# gfortran (and also tools like wget) can be installed easily via homebrew (http://brew.sh)  
+
+
+# name of the resulting library
+LIB_NAME=libolca-eigen.dylib
+
+# the output directory of the resulting library
+OUT_DIR="../bin/"
+
+# C++ - compiler
+# g++ is the standard compiler in the OS X command line tools
+CPP=g++
+
+# flags in order to make the library JNI compliant
+JNI_FLAGS=-D_JNI_IMPLEMENTATION_
+
+# flags to include gcc and g++ dependencies so that they are not
+# required as shared libraries
+STAT_FLAGS=
+
+# paths to JNI headers
+JNI_INC="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+JNI_INC_OS=
+JNI_INCLUDES = $(JNI_INC) $(JNI_INC_OS)
+
+# the required libraries in the lib folder
+# you can find these libraries in your homebrew installation
+# when you installed gfortran via homebrew
+# the location of gfortran and quadmath is normally
+# /usr/local/Cellar/gfortran/4.8.2/gfortran/lib
+# there is also a static gcc library in the gfortran package:
+# /usr/local/Cellar/gfortran/4.8.2/gfortran/lib/gcc/../4.8.2
+LIBS=-lopenblas -lgfortran -lquadmath -lgcc
+‚
+# the library folder
+LIB_DIR="-L../lib"
+
+all: 
+	$(CPP) $(JNI_FLAGS) $(STAT_FLAGS) -fPIC -O3 -DNDEBUG \
+	$(JNI_INCLUDES) "-I../lib" $(LIB_DIR) -shared \
+	-o $(OUT_DIR)$(LIB_NAME) olca_blas.cpp olca_lapack.cpp olca_eigen.cpp $(LIBS)
