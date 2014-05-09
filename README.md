@@ -1,8 +1,6 @@
 openLCA – modules
 =================
 
-**Note that this is not a stable version yet.**
-
 The openLCA modules project includes the basic components of the 
 [openLCA framework](http://openlca.org). The aim of this project is to provide a 
 reusable set of libraries for the JVM with clear dependencies to other open source 
@@ -12,13 +10,15 @@ these components.
 
 Content
 -------
-* olca-blas: a Java BLAS and LAPACK API based on [jBlas](http://mikiobraun.github.io/jblas/)
-  and [OpenBLAS](http://xianyi.github.io/OpenBLAS/).
 * olca-core: the openLCA kernel with the openLCA model, the database layer, LCA calculation,
   etc.
 * olca-ecospold-1: an API for reading and writing EcoSpold 01 files.
 * olca-ecospold-2: an API for reading and writing EcoSpold 02 files.
+* olca-eigen: a JNI wrapper for the high performance math libraries 
+  [Eigen](https://bitbucket.org/eigen/eigen/) and [OpenBLAS](http://xianyi.github.io/OpenBLAS/).
 * olca-formula: the openLCA formula iterpreter
+* olca-geo: provides tools for regionalized LCIA calculation based on shapefiles and
+  KML definitions
 * olca-ilcd: an API for reading and writing ILCD data sets with an implementation of the ILCD
   network interface
 * olca-io: the import-export API of openLCA

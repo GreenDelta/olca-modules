@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.openlca</groupId>
   <artifactId>olca-modules</artifactId>
-  <version>1.1.0</version>
+  <version>1.4</version>
   <packaging>pom</packaging>
   
   <modules>	
@@ -15,9 +15,11 @@
 	<module>olca-ecospold-1</module>
 	<module>olca-ecospold-2</module>
 	<module>olca-formula</module>
+	<module>olca-eigen</module>
+	<module>olca-geo</module>
 	<module>olca-ilcd</module>
-	<module>olca-simapro-csv</module>
 	<module>olca-io</module>
+	<module>olca-simapro-csv</module>	
   </modules>
   
 </project>
