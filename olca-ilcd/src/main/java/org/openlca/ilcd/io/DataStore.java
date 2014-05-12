@@ -9,7 +9,7 @@ public interface DataStore extends Closeable {
 
 	void put(Object obj, String id) throws DataStoreException;
 
-	<T> void delete(Class<T> type, String id) throws DataStoreException;
+	<T> boolean delete(Class<T> type, String id) throws DataStoreException;
 
 	<T> Iterator<T> iterator(Class<T> type) throws DataStoreException;
 

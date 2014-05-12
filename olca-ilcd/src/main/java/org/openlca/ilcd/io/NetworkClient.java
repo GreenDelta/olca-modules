@@ -104,9 +104,9 @@ public class NetworkClient implements DataStore {
 	}
 
 	@Override
-	public <T> void delete(Class<T> type, String id) {
+	public <T> boolean delete(Class<T> type, String id) {
 		// TODO Auto-generated method stub
-
+		return false;
 	}
 
 	@Override

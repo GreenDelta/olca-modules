@@ -35,11 +35,13 @@ public class MemDataStore implements DataStore {
 	}
 
 	@Override
-	public <T> void delete(Class<T> type, String id) throws DataStoreException {
+	public <T> boolean delete(Class<T> type, String id)
+			throws DataStoreException {
 		HashMap<String, Object> map = content.get(type);
 		if (map == null)
-			return;
-		map.remove(id);
+			return false;
+		Object o = map.remove(id);
+		return o != null;
 	}
 
 	@Override

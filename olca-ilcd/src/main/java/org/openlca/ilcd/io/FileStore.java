@@ -82,12 +82,16 @@ public class FileStore implements DataStore {
 	}
 
 	@Override
-	public <T> void delete(Class<T> type, String id) throws DataStoreException {
+	public <T> boolean delete(Class<T> type, String id)
+			throws DataStoreException {
 		log.trace("Delete file if exists for class {} with id {}", type, id);
 		File file = findFile(type, id);
-		if (file != null) {
+		if (file == null)
+			return false;
+		else {
 			boolean b = file.delete();
 			log.trace("Deleted={}", b);
+			return b;
 		}
 	}
 

@@ -68,7 +68,8 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public <T> void delete(Class<T> type, String id) throws DataStoreException {
+	public <T> boolean delete(Class<T> type, String id)
+			throws DataStoreException {
 		throw new UnsupportedOperationException("delete in zips not supported");
 	}
 
