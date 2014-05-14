@@ -110,31 +110,43 @@ public class FlowImport {
 		flow.setDescription(ilcdFlow.getComment());
 		flow.setCasNumber(ilcdFlow.getCasNumber());
 		flow.setFormula(ilcdFlow.getSumFormula());
-		try {
-			addFlowProperties();
-		} catch (Exception e) {
-			log.error("Failed to add flow property factors to " + flow, e);
-			throw new ImportException(e);
-		}
+		addFlowProperties();
+		if (flow.getReferenceFlowProperty() == null)
+			throw new ImportException("Could not import flow "
+					+ flow.getRefId() + " because the "
+					+ "reference flow property of this flow "
+					+ "could not be imported.");
 	}
 
-	private void addFlowProperties() throws Exception {
+	private void addFlowProperties() {
 		Integer refPropertyId = ilcdFlow.getReferenceFlowPropertyId();
 		List<FlowPropertyReference> refs = ilcdFlow.getFlowPropertyReferences();
-		for (FlowPropertyReference prop : refs) {
-			FlowPropertyImport flowPropertyImport = new FlowPropertyImport(
-					dataStore, database);
-			FlowProperty flowProperty = flowPropertyImport.run(prop
-					.getFlowProperty().getUuid());
+		for (FlowPropertyReference ref : refs) {
+			FlowProperty property = importProperty(ref);
+			if (property == null)
+				continue;
 			FlowPropertyFactor factor = new FlowPropertyFactor();
-			factor.setFlowProperty(flowProperty);
-			factor.setConversionFactor(prop.getMeanValue());
+			factor.setFlowProperty(property);
+			factor.setConversionFactor(ref.getMeanValue());
 			flow.getFlowPropertyFactors().add(factor);
-			BigInteger propId = prop.getDataSetInternalID();
+			BigInteger propId = ref.getDataSetInternalID();
 			if (refPropertyId == null || propId == null)
 				continue;
 			if (refPropertyId.intValue() == propId.intValue())
-				flow.setReferenceFlowProperty(flowProperty);
+				flow.setReferenceFlowProperty(property);
+		}
+	}
+
+	private FlowProperty importProperty(FlowPropertyReference ref) {
+		if (ref == null)
+			return null;
+		try {
+			FlowPropertyImport propImport = new FlowPropertyImport(dataStore,
+					database);
+			return propImport.run(ref.getFlowProperty().getUuid());
+		} catch (Exception e) {
+			log.warn("failed to get flow property " + ref.getFlowProperty(), e);
+			return null;
 		}
 	}
 

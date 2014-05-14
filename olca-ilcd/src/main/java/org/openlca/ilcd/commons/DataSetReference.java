@@ -249,4 +249,9 @@ public class DataSetReference implements Serializable {
 		return otherAttributes;
 	}
 
+	@Override
+	public String toString() {
+		return "DataSetReference [type=" + type + ", uuid=" + uuid + "]";
+	}
+
 }
