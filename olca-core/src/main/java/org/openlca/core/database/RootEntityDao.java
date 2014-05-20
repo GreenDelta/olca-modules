@@ -161,5 +161,4 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 			return null;
 		}
 	}
-
 }

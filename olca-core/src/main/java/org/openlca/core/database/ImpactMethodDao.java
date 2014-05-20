@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
@@ -22,7 +18,7 @@ public class ImpactMethodDao extends
 
 	public List<ImpactCategoryDescriptor> getCategoryDescriptors(long methodId) {
 		try {
-			String jpql = "select cat.id, cat.name, cat.referenceUnit, "
+			String jpql = "select cat.id, cat.refId, cat.name, cat.referenceUnit, "
 					+ "cat.description from ImpactMethod m join m.impactCategories "
 					+ "cat where m.id = :methodId ";
 			List<Object[]> vals = Query.on(getDatabase()).getAll(
@@ -32,9 +28,10 @@ public class ImpactMethodDao extends
 			for (Object[] val : vals) {
 				ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
 				d.setId((Long) val[0]);
-				d.setName((String) val[1]);
-				d.setReferenceUnit((String) val[2]);
-				d.setDescription((String) val[3]);
+				d.setRefId((String) val[1]);
+				d.setName((String) val[2]);
+				d.setReferenceUnit((String) val[3]);
+				d.setDescription((String) val[4]);
 				list.add(d);
 			}
 			return list;
