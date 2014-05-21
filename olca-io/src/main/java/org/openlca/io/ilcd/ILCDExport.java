@@ -10,13 +10,12 @@
 
 package org.openlca.io.ilcd;
 
-import java.io.File;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Source;
@@ -25,12 +24,15 @@ import org.openlca.ilcd.io.ZipStore;
 import org.openlca.io.ilcd.output.ActorExport;
 import org.openlca.io.ilcd.output.FlowExport;
 import org.openlca.io.ilcd.output.FlowPropertyExport;
+import org.openlca.io.ilcd.output.ImpactMethodExport;
 import org.openlca.io.ilcd.output.ProcessExport;
 import org.openlca.io.ilcd.output.SourceExport;
 import org.openlca.io.ilcd.output.SystemExport;
 import org.openlca.io.ilcd.output.UnitGroupExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 /**
  * The entry point for the ILCD export of model components.
@@ -86,7 +88,12 @@ public class ILCDExport {
 	private void tryExport(CategorizedEntity component, IDatabase database)
 			throws Exception {
 
-		if (component instanceof ProductSystem) {
+		if(component instanceof ImpactMethod) {
+			ImpactMethodExport export = new ImpactMethodExport(database,
+					ilcdStore);
+			export.run((ImpactMethod)component);
+
+		} else if (component instanceof ProductSystem) {
 			SystemExport export = new SystemExport(database, ilcdStore);
 			export.run((ProductSystem) component);
 
@@ -115,7 +122,6 @@ public class ILCDExport {
 			SourceExport export = new SourceExport(ilcdStore);
 			export.run((Source) component);
 		}
-
 	}
 
 	public void close() {
@@ -127,5 +133,4 @@ public class ILCDExport {
 			log.error("Could not close ZipStore", e);
 		}
 	}
-
 }
