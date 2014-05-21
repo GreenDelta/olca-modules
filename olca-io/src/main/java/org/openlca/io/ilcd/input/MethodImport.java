@@ -1,9 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
 import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
@@ -12,18 +8,25 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ilcd.commons.TypeOfLCIAMethod;
 import org.openlca.ilcd.io.DataStore;
+import org.openlca.ilcd.methods.DataSetInformation;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.LCIAMethod;
-import org.openlca.io.KeyGen;
+import org.openlca.ilcd.methods.LCIAMethodInformation;
+import org.openlca.ilcd.methods.QuantitativeReference;
+import org.openlca.ilcd.util.LangString;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.MapType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.namespace.QName;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Imports an ILCD impact method data set. Note that the ILCD data sets contain
@@ -49,63 +52,24 @@ public class MethodImport {
 	public void run(LCIAMethod iMethod) {
 		if (iMethod == null || iMethod.getCharacterisationFactors() == null)
 			return;
-		List<String> methodNames = getMethodNames(iMethod);
-		String type = getType(iMethod);
 		String categoryName = getCategoryName(iMethod);
 		if (categoryName == null)
 			return;
-		for (String methodName : methodNames) {
-			String name = methodName;
-			if (type != null)
-				name += " (" + type + ")";
-			org.openlca.core.model.ImpactMethod oMethod = fetchMethod(name);
-			if (!hasCategory(oMethod, categoryName)) {
+		for (ImpactMethod oMethod : MethodFetch.getOrCreate(iMethod, database)) {
+			if (!hasCategory(oMethod, categoryName))
 				addCategory(oMethod, categoryName, iMethod);
-			}
 		}
 	}
 
 	private String getCategoryName(LCIAMethod iMethod) {
-		if (iMethod.getLCIAMethodInformation() == null
-				|| iMethod.getLCIAMethodInformation().getDataSetInformation() == null)
+		LCIAMethodInformation info = iMethod.getLCIAMethodInformation();
+		if (info == null || info.getDataSetInformation() == null)
 			return null;
-		List<String> categoryNames = iMethod.getLCIAMethodInformation()
-				.getDataSetInformation().getImpactCategory();
+		DataSetInformation dataInfo = info.getDataSetInformation();
+		List<String> categoryNames = dataInfo.getImpactCategory();
 		if (categoryNames == null || categoryNames.isEmpty())
 			return null;
 		return categoryNames.get(0);
-	}
-
-	private List<String> getMethodNames(LCIAMethod iMethod) {
-		if (iMethod.getLCIAMethodInformation() == null
-				|| iMethod.getLCIAMethodInformation().getDataSetInformation() == null)
-			return Collections.emptyList();
-		return iMethod.getLCIAMethodInformation().getDataSetInformation()
-				.getMethodology();
-	}
-
-	private String getType(LCIAMethod iMethod) {
-		if (iMethod.getModellingAndValidation() == null
-				|| iMethod.getModellingAndValidation()
-						.getLCIAMethodNormalisationAndWeighting() == null)
-			return null;
-		TypeOfLCIAMethod type = iMethod.getModellingAndValidation()
-				.getLCIAMethodNormalisationAndWeighting().getTypeOfDataSet();
-		if (type == null)
-			return null;
-		return type.value();
-	}
-
-	private org.openlca.core.model.ImpactMethod fetchMethod(String name) {
-		String id = KeyGen.get(name);
-		org.openlca.core.model.ImpactMethod method = dao.getForRefId(id);
-		if (method == null) {
-			method = new org.openlca.core.model.ImpactMethod();
-			method.setRefId(id);
-			method.setName(name);
-			dao.insert(method);
-		}
-		return method;
 	}
 
 	private boolean hasCategory(org.openlca.core.model.ImpactMethod oMethod,
@@ -125,6 +89,7 @@ public class MethodImport {
 		category.setRefId(UUID.randomUUID().toString());
 		category.setName(categoryName);
 		category.setReferenceUnit(categoryUnit);
+		category.setDescription(getCategoryDescription(iMethod));
 		for (Factor factor : iMethod.getCharacterisationFactors().getFactor()) {
 			addFactor(category, factor);
 		}
@@ -133,18 +98,38 @@ public class MethodImport {
 	}
 
 	private String getCategoryUnit(LCIAMethod iMethod) {
-		String propertyId = null;
-		if (iMethod.getLCIAMethodInformation() != null
-				&& iMethod.getLCIAMethodInformation()
-						.getQuantitativeReference() != null) {
-			propertyId = iMethod.getLCIAMethodInformation()
-					.getQuantitativeReference().getReferenceQuantity()
-					.getUuid();
-		}
+		String extensionUnit = getExtentionUnit(iMethod);
+		if(extensionUnit != null)
+			return extensionUnit;
+		LCIAMethodInformation info = iMethod.getLCIAMethodInformation();
+		if (info == null || info.getQuantitativeReference() == null)
+			return null;
+		QuantitativeReference qRef = info.getQuantitativeReference();
+		if (qRef.getReferenceQuantity() == null)
+			return null;
+		String propertyId = qRef.getReferenceQuantity().getUuid();
 		if (propertyId == null)
 			return null;
 		Unit unit = getReferenceUnit(propertyId);
 		return unit == null ? null : unit.getName();
+	}
+
+	private String getExtentionUnit(LCIAMethod iMethod) {
+		LCIAMethodInformation info = iMethod.getLCIAMethodInformation();
+		if (info == null || info.getDataSetInformation() == null)
+			return null;
+		DataSetInformation dataInfo = info.getDataSetInformation();
+		QName extName = new QName("http://openlca.org/ilcd-extensions",
+				"olca_category_unit");
+		return dataInfo.getOtherAttributes().get(extName);
+	}
+
+	private String getCategoryDescription(LCIAMethod iMethod) {
+		LCIAMethodInformation info = iMethod.getLCIAMethodInformation();
+		if (info == null || info.getDataSetInformation() == null)
+			return null;
+		return LangString.getFreeText(info.getDataSetInformation()
+				.getGeneralComment());
 	}
 
 	private Unit getReferenceUnit(String propertyId) {
