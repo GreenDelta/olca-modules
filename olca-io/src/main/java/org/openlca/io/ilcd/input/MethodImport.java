@@ -1,5 +1,10 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.List;
+import java.util.UUID;
+
+import javax.xml.namespace.QName;
+
 import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
@@ -14,6 +19,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.methods.DataSetInformation;
 import org.openlca.ilcd.methods.Factor;
+import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.LCIAMethodInformation;
 import org.openlca.ilcd.methods.QuantitativeReference;
@@ -23,10 +29,6 @@ import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.MapType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.namespace.QName;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Imports an ILCD impact method data set. Note that the ILCD data sets contain
@@ -50,7 +52,7 @@ public class MethodImport {
 	}
 
 	public void run(LCIAMethod iMethod) {
-		if (iMethod == null || iMethod.getCharacterisationFactors() == null)
+		if (iMethod == null)
 			return;
 		String categoryName = getCategoryName(iMethod);
 		if (categoryName == null)
@@ -90,16 +92,14 @@ public class MethodImport {
 		category.setName(categoryName);
 		category.setReferenceUnit(categoryUnit);
 		category.setDescription(getCategoryDescription(iMethod));
-		for (Factor factor : iMethod.getCharacterisationFactors().getFactor()) {
-			addFactor(category, factor);
-		}
+		addFactors(iMethod, category);
 		oMethod.getImpactCategories().add(category);
 		dao.update(oMethod);
 	}
 
 	private String getCategoryUnit(LCIAMethod iMethod) {
 		String extensionUnit = getExtentionUnit(iMethod);
-		if(extensionUnit != null)
+		if (extensionUnit != null)
 			return extensionUnit;
 		LCIAMethodInformation info = iMethod.getLCIAMethodInformation();
 		if (info == null || info.getQuantitativeReference() == null)
@@ -152,25 +152,33 @@ public class MethodImport {
 		return null;
 	}
 
-	private void addFactor(ImpactCategory category, Factor factor) {
-		if (factor.getMeanValue() == 0)
+	private void addFactors(LCIAMethod iMethod, ImpactCategory category) {
+		FactorList list = iMethod.getCharacterisationFactors();
+		if (list == null)
 			return;
-		try {
-			String flowId = factor.getReferenceToFlowDataSet().getUuid();
-			Flow flow = getFlow(flowId);
-			if (flow == null) {
-				log.warn("Could not import flow {}", flowId);
-				return;
+		for (Factor factor : list.getFactor()) {
+			try {
+				addFactor(category, factor);
+			} catch (Exception e) {
+				log.warn("Failed to add factor " + factor, e);
 			}
-			ImpactFactor oFactor = new ImpactFactor();
-			oFactor.setFlow(flow);
-			oFactor.setFlowPropertyFactor(flow.getReferenceFactor());
-			oFactor.setUnit(getRefUnit(flow));
-			oFactor.setValue(factor.getMeanValue());
-			category.getImpactFactors().add(oFactor);
-		} catch (Exception e) {
-			log.warn("Failed to add factor " + factor, e);
 		}
+	}
+
+	private void addFactor(ImpactCategory category, Factor factor)
+			throws Exception {
+		String flowId = factor.getReferenceToFlowDataSet().getUuid();
+		Flow flow = getFlow(flowId);
+		if (flow == null) {
+			log.warn("Could not import flow {}", flowId);
+			return;
+		}
+		ImpactFactor oFactor = new ImpactFactor();
+		oFactor.setFlow(flow);
+		oFactor.setFlowPropertyFactor(flow.getReferenceFactor());
+		oFactor.setUnit(getRefUnit(flow));
+		oFactor.setValue(factor.getMeanValue());
+		category.getImpactFactors().add(oFactor);
 	}
 
 	private Flow getFlow(String flowId) throws Exception {
