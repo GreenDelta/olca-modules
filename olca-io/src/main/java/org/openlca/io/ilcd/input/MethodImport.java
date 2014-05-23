@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -54,12 +55,34 @@ public class MethodImport {
 	public void run(LCIAMethod iMethod) {
 		if (iMethod == null)
 			return;
+		if (exists(iMethod))
+			return;
 		String categoryName = getCategoryName(iMethod);
 		if (categoryName == null)
 			return;
 		for (ImpactMethod oMethod : MethodFetch.getOrCreate(iMethod, database)) {
 			if (!hasCategory(oMethod, categoryName))
 				addCategory(oMethod, categoryName, iMethod);
+		}
+	}
+
+	private boolean exists(LCIAMethod iMethod) {
+		String uuid = getUUID(iMethod);
+		if (uuid == null)
+			return false;
+		try {
+			ImpactCategoryDao dao = new ImpactCategoryDao(database);
+			ImpactCategory category = dao.getForRefId(uuid);
+			if (category != null) {
+				log.info("LCIA category {} not imported because it "
+						+ "already exists in the database", uuid);
+				return true;
+			}
+			log.trace("import LCIA category {}", uuid);
+			return false;
+		} catch (Exception e) {
+			log.error("failed to check if LCIA category exists " + uuid, e);
+			return false;
 		}
 	}
 
@@ -88,13 +111,22 @@ public class MethodImport {
 		log.trace("Add category {} to {}", categoryName, oMethod);
 		String categoryUnit = getCategoryUnit(iMethod);
 		ImpactCategory category = new ImpactCategory();
-		category.setRefId(UUID.randomUUID().toString());
+		String refId = getUUID(iMethod);
+		category.setRefId(refId != null ? refId : UUID.randomUUID().toString());
 		category.setName(categoryName);
 		category.setReferenceUnit(categoryUnit);
 		category.setDescription(getCategoryDescription(iMethod));
 		addFactors(iMethod, category);
 		oMethod.getImpactCategories().add(category);
 		dao.update(oMethod);
+	}
+
+	private String getUUID(LCIAMethod iMethod) {
+		LCIAMethodInformation info = iMethod.getLCIAMethodInformation();
+		if (info == null || info.getDataSetInformation() == null)
+			return null;
+		DataSetInformation dataInfo = info.getDataSetInformation();
+		return dataInfo.getUUID();
 	}
 
 	private String getCategoryUnit(LCIAMethod iMethod) {
