@@ -121,7 +121,7 @@ class InventoryBuilder {
 			return;
 		ExchangeCell existingCell = matrix.getEntry(row, col);
 		if (existingCell != null) {
-			// self loops
+			// self loops or double entries
 			exchange = mergeExchanges(existingCell, exchange);
 		}
 		ExchangeCell cell = new ExchangeCell(exchange);
@@ -137,9 +137,9 @@ class InventoryBuilder {
 	private CalcExchange mergeExchanges(ExchangeCell existingCell,
 			CalcExchange exchange) {
 		ExchangeCell cell = new ExchangeCell(exchange);
-		CalcExchange newExchange = new CalcExchange();
 		double val = existingCell.getMatrixValue() + cell.getMatrixValue();
-		exchange.setInput(val < 0);
+		CalcExchange newExchange = new CalcExchange();
+		newExchange.setInput(val < 0);
 		newExchange.setConversionFactor(1);
 		newExchange.setFlowId(exchange.getFlowId());
 		newExchange.setFlowType(exchange.getFlowType());
