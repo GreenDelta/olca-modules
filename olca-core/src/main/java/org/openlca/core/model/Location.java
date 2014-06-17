@@ -2,8 +2,11 @@ package org.openlca.core.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+
 import java.util.UUID;
 
 @Entity
@@ -14,7 +17,7 @@ public class Location extends RootEntity {
 	private String code;
 
 	@Column(name = "latitude")
-	private double latitude; 
+	private double latitude;
 
 	@Column(name = "longitude")
 	private double longitude;
@@ -22,6 +25,10 @@ public class Location extends RootEntity {
 	@Lob
 	@Column(name = "kmz")
 	private byte[] kmz;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "type")
+	private LocationType type;
 
 	public String getCode() {
 		return code;
@@ -66,4 +73,13 @@ public class Location extends RootEntity {
 	public void setKmz(byte[] kmz) {
 		this.kmz = kmz;
 	}
+
+	public LocationType getType() {
+		return type;
+	}
+
+	public void setType(LocationType type) {
+		this.type = type;
+	}
+
 }

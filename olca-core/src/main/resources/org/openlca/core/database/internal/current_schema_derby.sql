@@ -74,6 +74,7 @@ CREATE TABLE tbl_locations (
 	latitude DOUBLE, 
 	code VARCHAR(255),
     kmz BLOB(16 M),
+    location_type VARCHAR(255),
 	
 	PRIMARY KEY (id)
 );
