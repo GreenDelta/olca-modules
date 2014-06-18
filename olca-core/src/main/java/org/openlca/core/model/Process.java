@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -56,10 +55,6 @@ public class Process extends CategorizedEntity {
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_process")
 	private final List<ProcessCostEntry> costEntries = new ArrayList<>();
-
-	@Lob
-	@Column(name = "kmz")
-	private byte[] kmz;
 
 	public ProcessDocumentation getDocumentation() {
 		return documentation;
@@ -128,14 +123,6 @@ public class Process extends CategorizedEntity {
 
 	public List<ProcessCostEntry> getCostEntries() {
 		return costEntries;
-	}
-
-	public byte[] getKmz() {
-		return kmz;
-	}
-
-	public void setKmz(byte[] kmz) {
-		this.kmz = kmz;
 	}
 
 }
