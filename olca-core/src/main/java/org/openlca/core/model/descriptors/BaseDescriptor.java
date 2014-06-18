@@ -1,6 +1,7 @@
 package org.openlca.core.model.descriptors;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.openlca.core.model.ModelType;
 
@@ -79,7 +80,14 @@ public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable 
 		if (!(this.getClass().isInstance(obj)))
 			return false;
 		BaseDescriptor other = (BaseDescriptor) obj;
-		return this.id == other.id;
+		if (this.type != other.type)
+			return false;
+		if (this.id != 0 || other.id != 0)
+			return this.id == other.id;
+		else
+			return Objects.equals(this.refId, other.refId)
+					&& Objects.equals(this.name, other.name)
+					&& Objects.equals(this.description, other.description);
 	}
 
 	@Override
