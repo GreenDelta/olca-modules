@@ -40,6 +40,10 @@ public class Upgrade2 implements IUpgrade {
 	private void addLocationType() throws Exception {
 		util.checkCreateColumn("tbl_locations", "location_type",
 				"location_type VARCHAR(255)");
+		NativeSql.on(database).runUpdate(
+				"UPDATE tbl_locations SET location_type = '"
+						+ LocationType.REFERENCE_DATA
+						+ "' WHERE location_type is null");
 	}
 
 	private void convertProcessKmzData() throws SQLException {
