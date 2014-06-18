@@ -46,9 +46,10 @@ public class Upgrade2 implements IUpgrade {
 		try (Connection con = database.createConnection()) {
 			PreparedStatement processUpdateStatement = con
 					.prepareStatement("UPDATE tbl_processes SET f_location = ? WHERE id = ?");
-			NativeSql.on(database).query(
-					"SELECT id, ref_id, name, kmz FROM tbl_processes WHERE kmz is not null",
-					new KmzResultHandler(processUpdateStatement));
+			NativeSql
+					.on(database)
+					.query("SELECT id, ref_id, name, kmz FROM tbl_processes WHERE kmz is not null",
+							new KmzResultHandler(processUpdateStatement));
 			con.commit();
 			processUpdateStatement.close();
 		}
@@ -97,7 +98,10 @@ public class Upgrade2 implements IUpgrade {
 		}
 
 		private String createName(String name) {
-			return "Location of process " + name;
+			String locationName = "Location of process " + name;
+			if (locationName.length() > 255)
+				locationName = locationName.substring(0, 255);
+			return locationName;
 		}
 
 		private String createDescription(String name, String refId) {
