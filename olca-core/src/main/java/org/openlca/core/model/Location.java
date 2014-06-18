@@ -27,7 +27,7 @@ public class Location extends RootEntity {
 	private byte[] kmz;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "type")
+	@Column(name = "location_type")
 	private LocationType type;
 
 	public String getCode() {
