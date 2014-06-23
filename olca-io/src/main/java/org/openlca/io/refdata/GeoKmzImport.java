@@ -26,7 +26,7 @@ import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class GeoKmzImport {
+public class GeoKmzImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
