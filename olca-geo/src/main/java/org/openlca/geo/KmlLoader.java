@@ -59,7 +59,7 @@ class KmlLoader {
 	}
 
 	private void queryProcessTable(final Set<Long> processIds) throws Exception {
-		String query = "select id, f_location, kmz from tbl_processes";
+		String query = "select id, f_location from tbl_processes";
 		NativeSql.on(database).query(query, new NativeSql.QueryResultHandler() {
 			@Override
 			public boolean nextResult(ResultSet resultSet) throws SQLException {
@@ -74,15 +74,10 @@ class KmlLoader {
 		long id = resultSet.getLong("id");
 		if (!processIds.contains(id))
 			return;
-		byte[] kmz = resultSet.getBytes("kmz");
-		if (kmz != null)
-			processKmz.put(id, kmz);
-		else {
-			long locationId = resultSet.getLong("f_location");
-			if (resultSet.wasNull())
-				return;
-			processLocations.put(id, locationId);
-		}
+		long locationId = resultSet.getLong("f_location");
+		if (resultSet.wasNull())
+			return;
+		processLocations.put(id, locationId);
 	}
 
 	private void queryLocationTable() throws Exception {
