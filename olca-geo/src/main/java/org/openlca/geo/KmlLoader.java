@@ -18,28 +18,22 @@ import java.util.Set;
 /**
  * Loads the KML features for a given set of process products from a database.
  */
-class KmlLoader {
+class KmlLoader implements IKmlLoader {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final IDatabase database;
-	private final ProductIndex index;
 
-	private HashMap<Long, byte[]> processKmz = new HashMap<>();
 	private HashMap<Long, Long> processLocations = new HashMap<>();
 	private HashMap<Long, byte[]> locationKmz = new HashMap<>();
 	private HashMap<Long, KmlFeature> locationFeatures = new HashMap<>();
 
-	private KmlLoader(IDatabase database, ProductIndex index) {
+	public KmlLoader(IDatabase database) {
 		this.database = database;
-		this.index = index;
 	}
 
-	static Map<LongPair, KmlFeature> load(IDatabase database, ProductIndex index) {
-		return new KmlLoader(database, index).load();
-	}
-
-	private Map<LongPair, KmlFeature> load() {
+	@Override
+	public Map<LongPair, KmlFeature> load(ProductIndex index) {
 		try {
 			Set<Long> processIds = index.getProcessIds();
 			queryProcessTable(processIds);
@@ -100,9 +94,6 @@ class KmlLoader {
 		if (processProduct == null)
 			return null;
 		long processId = processProduct.getFirst();
-		byte[] procKmz = processKmz.get(processId);
-		if (procKmz != null)
-			return createFeature(procKmz);
 		Long locationId = processLocations.get(processId);
 		if (locationId == null)
 			return null;
