@@ -66,18 +66,18 @@ public class RegionalizedCalculator {
 	public RegionalizedResult calculate(CalculationSetup setup,
 			EntityCache entityCache) {
 		this.setup = setup;
+		boolean canCalcRegionalized = setUpGeo();
+		if (!canCalcRegionalized)
+			return null;
 		RegionalizedResult result = new RegionalizedResult();
 		try {
 			setUp();
 			ContributionResult baseResult = calcBaseResult();
 			result.setBaseResult(new ContributionResultProvider<>(baseResult,
 					entityCache));
-			boolean canCalcRegionalized = setUpGeo();
-			if (canCalcRegionalized) {
-				ContributionResult regioResult = calcRegioResult(baseResult);
-				result.setRegionalizedResult(new ContributionResultProvider<>(
-						regioResult, entityCache));
-			}
+			ContributionResult regioResult = calcRegioResult(baseResult);
+			result.setRegionalizedResult(new ContributionResultProvider<>(
+					regioResult, entityCache));
 			result.setKmlFeatures(features);
 		} catch (Exception e) {
 			log.error("failed to calculate regionalized result", e);
