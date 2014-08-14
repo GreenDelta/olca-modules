@@ -18,17 +18,17 @@ import java.util.Set;
 /**
  * Loads the KML features for a given set of process products from a database.
  */
-class KmlLoader implements IKmlLoader {
+public class KmlLoader implements IKmlLoader {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final IDatabase database;
+	protected final IDatabase database;
 
-	private HashMap<Long, Long> processLocations = new HashMap<>();
-	private HashMap<Long, byte[]> locationKmz = new HashMap<>();
-	private HashMap<Long, KmlFeature> locationFeatures = new HashMap<>();
+	protected HashMap<Long, Long> processLocations = new HashMap<>();
+	protected HashMap<Long, byte[]> locationKmz = new HashMap<>();
+	protected HashMap<Long, KmlFeature> locationFeatures = new HashMap<>();
 
-	public KmlLoader(IDatabase database) {
+	protected KmlLoader(IDatabase database) {
 		this.database = database;
 	}
 
@@ -52,7 +52,7 @@ class KmlLoader implements IKmlLoader {
 		}
 	}
 
-	private void queryProcessTable(final Set<Long> processIds) throws Exception {
+	protected void queryProcessTable(final Set<Long> processIds) throws Exception {
 		String query = "select id, f_location from tbl_processes";
 		NativeSql.on(database).query(query, new NativeSql.QueryResultHandler() {
 			@Override
@@ -63,7 +63,7 @@ class KmlLoader implements IKmlLoader {
 		});
 	}
 
-	private void registerProcessRow(ResultSet resultSet, Set<Long> processIds)
+	protected void registerProcessRow(ResultSet resultSet, Set<Long> processIds)
 			throws SQLException {
 		long id = resultSet.getLong("id");
 		if (!processIds.contains(id))
@@ -74,7 +74,7 @@ class KmlLoader implements IKmlLoader {
 		processLocations.put(id, locationId);
 	}
 
-	private void queryLocationTable() throws Exception {
+	protected void queryLocationTable() throws Exception {
 		String query = "select id, kmz from tbl_locations";
 		NativeSql.on(database).query(query, new NativeSql.QueryResultHandler() {
 			@Override
@@ -90,7 +90,7 @@ class KmlLoader implements IKmlLoader {
 		});
 	}
 
-	private KmlFeature getFeature(LongPair processProduct) {
+	protected KmlFeature getFeature(LongPair processProduct) {
 		if (processProduct == null)
 			return null;
 		long processId = processProduct.getFirst();
@@ -108,7 +108,7 @@ class KmlLoader implements IKmlLoader {
 		return feature;
 	}
 
-	private KmlFeature createFeature(byte[] kmz) {
+	protected KmlFeature createFeature(byte[] kmz) {
 		if (kmz == null)
 			return null;
 		try {
