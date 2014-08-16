@@ -6,6 +6,8 @@ import java.util.Iterator;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
 
+import org.openlca.ilcd.descriptors.DataStock;
+import org.openlca.ilcd.descriptors.DataStockList;
 import org.openlca.ilcd.descriptors.DescriptorList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,7 @@ public class NetworkClient implements DataStore {
 	private String password;
 	private Client client;
 	private boolean isConnected = false;
+	private DataStock dataStock;
 	private XmlBinder binder = new XmlBinder();
 
 	public NetworkClient(String baseUri) {
@@ -70,10 +73,23 @@ public class NetworkClient implements DataStore {
 		return authentication;
 	}
 
+	public DataStockList getDataStockList() throws DataStoreException {
+		checkConnection();
+		log.trace("get data stocks");
+		WebResource resource = client.resource(baseUri)
+				.path("datastocks");
+		return resource.get(DataStockList.class);
+	}
+
+	public void setDataStock(DataStock dataStock) {
+		this.dataStock = dataStock;
+	}
+
 	@Override
 	public <T> T get(Class<T> type, String id) throws DataStoreException {
 		checkConnection();
-		WebResource resource = resource(type, id);
+		WebResource resource = initGetRequest(type).path(id).queryParam(
+				"format", "xml");
 		log.info("Get resource: {}", resource.getURI());
 		ClientResponse response = resource.get(ClientResponse.class);
 		eval(response);
@@ -90,6 +106,8 @@ public class NetworkClient implements DataStore {
 		checkConnection();
 		WebResource resource = client.resource(baseUri).path(
 				Path.forClass(obj.getClass()));
+		if (dataStock != null)
+			resource = resource.queryParam("stock", dataStock.getUuid());
 		log.info("Publish resource: {}/{}", resource.getURI(), id);
 		try {
 			byte[] bytes = binder.toByteArray(obj);
@@ -119,7 +137,8 @@ public class NetworkClient implements DataStore {
 	public <T> boolean contains(Class<T> type, String id)
 			throws DataStoreException {
 		checkConnection();
-		WebResource resource = resource(type, id);
+		WebResource resource = initGetRequest(type).path(id).queryParam(
+				"format", "xml");
 		log.trace("Contains resource {} ?", resource.getURI());
 		ClientResponse response = resource.head();
 		log.trace("Server response: {}", response);
@@ -134,8 +153,8 @@ public class NetworkClient implements DataStore {
 			term = "";
 		else
 			term = name.trim();
-		WebResource resource = client.resource(baseUri)
-				.path(Path.forClass(type)).queryParam("search", "true")
+		WebResource resource = initGetRequest(type)
+				.queryParam("search", "true")
 				.queryParam("name", term);
 		log.trace("Search resources: {}", resource.getURI());
 		DescriptorList list = resource.get(DescriptorList.class);
@@ -148,10 +167,12 @@ public class NetworkClient implements DataStore {
 		}
 	}
 
-	private <T> WebResource resource(Class<T> type, String id) {
-		WebResource resource = client.resource(baseUri)
-				.path(Path.forClass(type)).path(id).queryParam("format", "xml");
-		return resource;
+	private WebResource initGetRequest(Class<?> type) {
+		if (dataStock == null)
+			return client.resource(baseUri).path(Path.forClass(type));
+		else
+			return client.resource(baseUri).path("datastocks")
+					.path(dataStock.getUuid()).path(Path.forClass(type));
 	}
 
 	private void eval(ClientResponse response) throws DataStoreException {
