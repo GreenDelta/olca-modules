@@ -24,7 +24,7 @@ public class MultiGeometryParser {
 		Placemark pm = (Placemark) feature;
 		if (!(pm.getGeometry() instanceof MultiGeometry))
 			return new ArrayList<>();
-		MultiGeometry geometry = (MultiGeometry) pm.getGeometry();
+		MultiGeometry geometry = (MultiGeometry) pm.getGeometry();		
 		return geometry.getGeometry();
 	}
 }

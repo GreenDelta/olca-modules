@@ -34,7 +34,7 @@ public class JakToGeotools {
 		return builder.geometryCollection(converted);
 	}
 
-	private static com.vividsolutions.jts.geom.Geometry convert(
+	public static com.vividsolutions.jts.geom.Geometry convert(
 			Geometry geometry) {
 		if (geometry instanceof Point)
 			return convert((Point) geometry);
