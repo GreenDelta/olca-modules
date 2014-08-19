@@ -2,8 +2,11 @@ package org.openlca.geo;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.geo.multi.JakToGeotools;
+import org.openlca.geo.multi.MultiGeometryParser;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryCollection;
 
 public class KmlFeatureTest {
 
@@ -35,4 +38,13 @@ public class KmlFeatureTest {
 		Assert.assertEquals(6, feature.getGeometry().getCoordinates().length);
 	}
 
+	@Test
+	public void testMultiPolygon() throws Exception {
+		String kml = Tests.getKml("multipolygon.kml");
+		MultiGeometryParser parser = new MultiGeometryParser();
+		GeometryCollection collection = JakToGeotools.convert(parser.parse(kml));
+		Assert.assertEquals(2, collection.getNumGeometries());
+		Assert.assertTrue(collection.getArea() > 0);
+	}
+	
 }

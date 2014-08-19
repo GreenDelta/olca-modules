@@ -8,6 +8,8 @@ public enum FeatureType {
 
 	LINE,
 
-	POLYGON
+	POLYGON,
+	
+	MULTI_GEOMETRY
 
 }
