@@ -25,8 +25,8 @@ public abstract class NumberGenerator {
 		return new UniformDist(min, max);
 	}
 
-	public static NumberGenerator triangular(double min, double max, double mode) {
-		return new TriangularDist(min, max, mode);
+	public static NumberGenerator triangular(double min, double mode, double max) {
+		return new TriangularDist(min, mode, max);
 	}
 
 	public static NumberGenerator discrete(double val) {
@@ -84,10 +84,10 @@ public abstract class NumberGenerator {
 		private double max;
 		private double mode;
 
-		TriangularDist(double min, double max, double mode) {
-			this.max = max;
+		TriangularDist(double min, double mode, double max) {
 			this.min = min;
 			this.mode = mode;
+			this.max = max;
 		}
 
 		/**
