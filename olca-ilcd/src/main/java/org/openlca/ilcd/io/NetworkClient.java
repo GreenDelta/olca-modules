@@ -16,6 +16,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.client.apache.ApacheHttpClient;
 import com.sun.jersey.client.apache.config.DefaultApacheHttpClientConfig;
 
@@ -106,13 +107,15 @@ public class NetworkClient implements DataStore {
 		checkConnection();
 		WebResource resource = client.resource(baseUri).path(
 				Path.forClass(obj.getClass()));
-		if (dataStock != null)
-			resource = resource.queryParam("stock", dataStock.getUuid());
 		log.info("Publish resource: {}/{}", resource.getURI(), id);
 		try {
 			byte[] bytes = binder.toByteArray(obj);
-			ClientResponse response = resource.type(MediaType.APPLICATION_XML)
-					.post(ClientResponse.class, bytes);
+			Builder builder = resource.type(MediaType.APPLICATION_XML);
+			if (dataStock != null) {
+				log.trace("post to data stock {}", dataStock.getUuid());
+				builder = builder.header("stock", dataStock.getUuid());
+			}
+			ClientResponse response = builder.post(ClientResponse.class, bytes);
 			eval(response);
 			log.trace("Server response: {}", fetchMessage(response));
 		} catch (Exception e) {
