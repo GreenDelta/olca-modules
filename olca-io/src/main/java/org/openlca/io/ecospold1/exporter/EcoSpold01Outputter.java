@@ -51,10 +51,10 @@ public class EcoSpold01Outputter {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private int datasetCounter = 0;
-	private int exchangeCounter = 0;
-	private int personCounter = 0;
-	private int sourceCounter = 0;
+	private int datasetCounter = 1;
+	private int exchangeCounter = 1;
+	private int personCounter = 1;
+	private int sourceCounter = 1;
 
 	private Map<Long, IExchange> exchangeToES1Exchange = new HashMap<>();
 	private Map<Long, ISource> sourceToES1Source = new HashMap<>();
@@ -77,10 +77,10 @@ public class EcoSpold01Outputter {
 		exchangeToES1Exchange.clear();
 		actorToES1Person.clear();
 		sourceToES1Source.clear();
-		exchangeCounter = 0;
-		personCounter = 0;
-		sourceCounter = 0;
-		datasetCounter = 0;
+		exchangeCounter = 1;
+		personCounter = 1;
+		sourceCounter = 1;
+		datasetCounter = 1;
 	}
 
 	private IEcoSpold convertLCIAMethod(ImpactMethod method) {
@@ -89,22 +89,22 @@ public class EcoSpold01Outputter {
 		for (ImpactCategory category : method.getImpactCategories()) {
 			IDataSet iDataSet = factory.createDataSet();
 			DataSet dataSet = new DataSet(iDataSet, factory);
+			setDataSetAttributes(dataSet);
 			mapLCIACategory(category, dataSet, factory);
-			dataSet.getReferenceFunction().setCategory(method.getName());
-			dataSet.getReferenceFunction().setGeneralComment(
-					method.getDescription());
+			IReferenceFunction refFun = dataSet.getReferenceFunction();
+			refFun.setCategory(method.getName());
+			refFun.setGeneralComment(method.getDescription());
 			ecoSpold.getDataset().add(iDataSet);
 		}
 		return ecoSpold;
 	}
 
 	private IEcoSpold convertProcess(Process process) {
-
 		IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
 		IEcoSpold ecoSpold = factory.createEcoSpold();
 		IDataSet iDataSet = factory.createDataSet();
 		DataSet dataSet = new DataSet(iDataSet, factory);
-		dataSet.setNumber(0);
+		setDataSetAttributes(dataSet);
 
 		ProcessDocumentation doc = process.getDocumentation();
 		if (doc != null) {
@@ -160,6 +160,12 @@ public class EcoSpold01Outputter {
 		return ecoSpold;
 	}
 
+	private void setDataSetAttributes(DataSet dataSet) {
+		dataSet.setNumber(datasetCounter++);
+		dataSet.setGenerator("openLCA 1.4");
+		dataSet.setTimestamp(toXml(new Date()));
+	}
+
 	private void mapProcessType(Process process, DataSet dataSet) {
 		if (process.getProcessType() == ProcessType.LCI_RESULT) {
 			dataSet.getDataSetInformation().setType(2);
@@ -182,20 +188,21 @@ public class EcoSpold01Outputter {
 		return count > 1;
 	}
 
-	private IPerson mapActor(Actor inActor, DataSet dataset,
+	private IPerson mapActor(Actor actor, DataSet dataset,
 			IEcoSpoldFactory factory) {
-		IPerson person = actorToES1Person.get(inActor.getId());
+		IPerson person = actorToES1Person.get(actor.getId());
 		if (person != null)
 			return person;
 		person = factory.createPerson();
 		person.setNumber(personCounter++);
-		person.setName(inActor.getName());
-		person.setAddress(inActor.getAddress());
-		person.setCountryCode(factory.getCountryCode(inActor.getCountry()));
-		person.setEmail(inActor.getEmail());
-		person.setTelefax(inActor.getTelefax());
-		person.setTelephone(inActor.getTelephone());
-		actorToES1Person.put(inActor.getId(), person);
+		person.setCompanyCode("unknown");
+		person.setName(actor.getName());
+		person.setAddress(actor.getAddress());
+		person.setCountryCode(factory.getCountryCode(actor.getCountry()));
+		person.setEmail(actor.getEmail());
+		person.setTelefax(actor.getTelefax());
+		person.setTelephone(actor.getTelephone());
+		actorToES1Person.put(actor.getId(), person);
 		dataset.getPersons().add(person);
 		return person;
 	}
@@ -362,7 +369,6 @@ public class EcoSpold01Outputter {
 
 	private void mapLCIACategory(ImpactCategory category, DataSet dataSet,
 			IEcoSpoldFactory factory) {
-		dataSet.setNumber(datasetCounter++);
 		IReferenceFunction refFun = factory.createReferenceFunction();
 		dataSet.setReferenceFunction(refFun);
 		String subCategory = category.getName();
@@ -378,7 +384,7 @@ public class EcoSpold01Outputter {
 						.substring(0, subCategory.length() - 1);
 			}
 		}
-		exchangeCounter = 0;
+		exchangeCounter = 1;
 		for (final ImpactFactor factor : category.getImpactFactors()) {
 			dataSet.getExchanges().add(mapLCIAFactor(factor, factory));
 		}
@@ -430,6 +436,7 @@ public class EcoSpold01Outputter {
 				validation.setOtherDetails(otherDetails);
 			}
 		}
+
 		if (doc.getSampling() != null) {
 			IRepresentativeness representativeness = dataset
 					.getRepresentativeness();
@@ -440,16 +447,7 @@ public class EcoSpold01Outputter {
 			representativeness.setSamplingProcedure(doc.getSampling());
 		}
 
-		if (doc.getReviewer() != null) {
-			IValidation validation = dataset.getValidation();
-			if (validation == null) {
-				validation = factory.createValidation();
-				dataset.setValidation(validation);
-			}
-			IPerson reviewer = mapActor(doc.getReviewer(), dataset, factory);
-			if (reviewer != null)
-				validation.setProofReadingValidator(reviewer.getNumber());
-		}
+		mapValidation(doc, dataset, factory);
 
 		for (Source source : doc.getSources()) {
 			mapSource(source, dataset, factory);
@@ -457,28 +455,47 @@ public class EcoSpold01Outputter {
 
 	}
 
+	private void mapValidation(ProcessDocumentation doc, DataSet dataset,
+			IEcoSpoldFactory factory) {
+		if (doc.getReviewer() == null)
+			return;
+		IValidation validation = dataset.getValidation();
+		if (validation == null) {
+			validation = factory.createValidation();
+			dataset.setValidation(validation);
+		}
+		IPerson reviewer = mapActor(doc.getReviewer(), dataset, factory);
+		if (reviewer != null)
+			validation.setProofReadingValidator(reviewer.getNumber());
+		if (doc.getReviewDetails() != null)
+			validation.setProofReadingDetails(doc.getReviewDetails());
+		else
+			validation.setProofReadingDetails("none");
+	}
+
 	private IReferenceFunction mapQuantitativeReference(Exchange exchange,
 			IEcoSpoldFactory factory) {
-		IReferenceFunction referenceFunction = factory
-				.createReferenceFunction();
+		IReferenceFunction refFun = factory.createReferenceFunction();
 		Flow flow = exchange.getFlow();
-		referenceFunction.setCASNumber(flow.getCasNumber());
-		referenceFunction.setFormula(flow.getFormula());
-		referenceFunction.setName(exchange.getFlow().getName());
-		referenceFunction.setUnit(exchange.getUnit().getName());
-		referenceFunction.setInfrastructureProcess(flow.isInfrastructureFlow());
-		referenceFunction.setAmount(exchange.getAmountValue());
+		refFun.setCASNumber(flow.getCasNumber());
+		refFun.setFormula(flow.getFormula());
+		refFun.setName(exchange.getFlow().getName());
+		refFun.setLocalName(refFun.getName());
+		refFun.setUnit(exchange.getUnit().getName());
+		refFun.setInfrastructureProcess(flow.isInfrastructureFlow());
+		refFun.setAmount(exchange.getAmountValue());
 		Category category = flow.getCategory();
 		if (category != null) {
 			if (category.getParentCategory() == null)
-				referenceFunction.setCategory(category.getName());
+				refFun.setCategory(category.getName());
 			else {
-				referenceFunction.setCategory(category.getParentCategory()
-						.getName());
-				referenceFunction.setSubCategory(category.getName());
+				refFun.setCategory(category.getParentCategory().getName());
+				refFun.setSubCategory(category.getName());
 			}
 		}
-		return referenceFunction;
+		refFun.setLocalCategory(refFun.getCategory());
+		refFun.setLocalSubCategory(refFun.getSubCategory());
+		return refFun;
 	}
 
 	private ISource mapSource(Source inSource, DataSet dataset,
@@ -501,6 +518,7 @@ public class EcoSpold01Outputter {
 				log.warn("failed to set year of source ", e);
 			}
 		}
+		source.setPlaceOfPublications("unknown");
 		sourceToES1Source.put(inSource.getId(), source);
 		dataset.getSources().add(source);
 		return source;

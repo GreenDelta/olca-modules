@@ -23,6 +23,7 @@ these files under the src/main/resources/lib folder with the given path):
 * [Windows/amd64](https://drive.google.com/file/d/0Bw9cXD8IWJzzSlVfVjBLclNxS28/edit?usp=sharing)
 * [Windows/x86](https://drive.google.com/file/d/0Bw9cXD8IWJzzUVlzMzZIcndiWDA/edit?usp=sharing)
 * [Mac OS X/x86_64](https://drive.google.com/file/d/0Bw9cXD8IWJzzc3MzLXJlZ0REYlE/edit?usp=sharing)
+* [Linux/amd64](https://drive.google.com/file/d/0Bw9cXD8IWJzzTk00ZVpXYUk5YjQ/edit?usp=sharing)
 
 Compile OpenBLAS
 ----------------
@@ -49,8 +50,9 @@ Then run make. After the build you should find a static library
 
 Include Eigen
 ----------------
-Download the current version of [Eigen](http://eigen.tuxfamily.org) and copy 
-the Eigen header files into the `cpp/lib` folder of the `olca-eigen` folder.
+Download the current version of [Eigen](http://eigen.tuxfamily.org), extract it 
+and copy the folder `Eigen` which contains the Eigen header files into the 
+`cpp/lib` folder of the `olca-eigen` project.
 
 
 Running the tests

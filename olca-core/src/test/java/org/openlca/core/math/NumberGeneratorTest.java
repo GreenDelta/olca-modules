@@ -35,7 +35,7 @@ public class NumberGeneratorTest {
 
 	@Test
 	public void testTriangular() {
-		NumberGenerator gen = NumberGenerator.triangular(1, 5, 4);
+		NumberGenerator gen = NumberGenerator.triangular(1, 4, 5);
 		for (int i = 0; i < 100; i++)
 			assertInInterval(gen.next(), 1, 5);
 		NumberGenerator genDiscrete = NumberGenerator.triangular(5, 5, 5);
