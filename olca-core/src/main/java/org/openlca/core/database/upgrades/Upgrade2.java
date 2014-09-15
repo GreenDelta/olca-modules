@@ -11,7 +11,6 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NativeSql.QueryResultHandler;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.LocationType;
 
 public class Upgrade2 implements IUpgrade {
 
@@ -32,18 +31,8 @@ public class Upgrade2 implements IUpgrade {
 	public void exec(IDatabase database) throws Exception {
 		this.database = database;
 		this.util = new UpgradeUtil(database);
-		addLocationType();
 		convertProcessKmzData();
 		dropKmzColumn();
-	}
-
-	private void addLocationType() throws Exception {
-		util.checkCreateColumn("tbl_locations", "location_type",
-				"location_type VARCHAR(255)");
-		NativeSql.on(database).runUpdate(
-				"UPDATE tbl_locations SET location_type = '"
-						+ LocationType.REFERENCE_DATA
-						+ "' WHERE location_type is null");
 	}
 
 	private void convertProcessKmzData() throws SQLException {
@@ -88,7 +77,6 @@ public class Upgrade2 implements IUpgrade {
 			Location location = new Location();
 			location.setName(name);
 			location.setDescription(description);
-			location.setType(LocationType.PROCESS_SPECIFIC);
 			location.setRefId(UUID.randomUUID().toString());
 			location.setKmz(kmz);
 			return locationDao.insert(location).getId();
