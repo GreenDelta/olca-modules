@@ -1,5 +1,4 @@
-bin
-target
+bin/
+target/
+apidocs/
 derby.log
-/.classpath
-/.gitignore
