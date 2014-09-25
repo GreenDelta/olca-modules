@@ -1,7 +1,15 @@
 package org.openlca.io.olca;
 
 import gnu.trove.iterator.TLongLongIterator;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TLongByteHashMap;
 import gnu.trove.map.hash.TLongLongHashMap;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
@@ -15,9 +23,6 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 class ProcessImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -30,6 +35,9 @@ class ProcessImport {
 
 	// Required for translating the default provider links.
 	private TLongLongHashMap srcDestIdMap = new TLongLongHashMap();
+	// indicates if an process in the source database is used as default
+	// provider in exchanges
+	private TLongByteHashMap provUsedMap = new TLongByteHashMap();
 
 	ProcessImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new ProcessDao(source);
@@ -78,6 +86,8 @@ class ProcessImport {
 				removals.add(exchange);
 				continue;
 			}
+			if (exchange.getDefaultProviderId() > 0)
+				provUsedMap.put(exchange.getDefaultProviderId(), (byte) 1);
 			Flow destFlow = refs.switchRef(exchange.getFlow());
 			exchange.setFlow(destFlow);
 			exchange.setFlowPropertyFactor(refs.switchRef(
@@ -134,6 +144,8 @@ class ProcessImport {
 	private void switchDefaultProviders() {
 		log.trace("update default providers");
 		dest.getEntityFactory().getCache().evictAll();
+		TLongArrayList srcIds = new TLongArrayList();
+		TLongArrayList destIds = new TLongArrayList();
 		TLongLongIterator it = srcDestIdMap.iterator();
 		while (it.hasNext()) {
 			it.advance();
@@ -141,15 +153,28 @@ class ProcessImport {
 			long destId = it.value();
 			if (sourceId == destId)
 				continue;
-			updateDefaultProvider(sourceId, destId);
+			if (provUsedMap.get(sourceId) == 0)
+				continue;
+			srcIds.add(sourceId);
+			destIds.add(destId);
 		}
+		updateDefaultProviders(srcIds, destIds);
 	}
 
-	private void updateDefaultProvider(long sourceId, long destId) {
+	private void updateDefaultProviders(final TLongArrayList srcIds,
+			final TLongArrayList destIds) {
+		String stmt = "update tbl_exchanges set f_default_provider = ? where f_default_provider = ?";
 		try {
-			String stmt = "update tbl_exchanges set f_default_provider = "
-					+ destId + " where f_default_provider = " + sourceId;
-			NativeSql.on(dest).runUpdate(stmt);
+			NativeSql.on(dest).batchInsert(stmt, srcIds.size(),
+					new NativeSql.BatchInsertHandler() {
+						@Override
+						public boolean addBatch(int i, PreparedStatement stmt)
+								throws SQLException {
+							stmt.setLong(1, destIds.get(i));
+							stmt.setLong(2, srcIds.get(i));
+							return true;
+						}
+					});
 		} catch (Exception e) {
 			log.error("failed to update default provider", e);
 		}
