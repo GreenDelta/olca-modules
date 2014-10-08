@@ -50,7 +50,7 @@ class UnitMap {
 			exchange.setUnitName(record.name);
 			exchange.setUnitId(record.id);
 		} else {
-			log.warn("unit {} is not a known unit in EcoSpold 2");
+			log.warn("unit {} is not a known unit in EcoSpold 2", unit);
 			exchange.setUnitName(unit.getName());
 			exchange.setUnitId(unit.getRefId());
 			addMasterEntry(unit, masterData);

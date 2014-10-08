@@ -6,21 +6,31 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class FlowUseSearch implements IUseSearch<FlowDescriptor> {
+/**
+ * Searches for the use of flows in other entities. Flows can be used in
+ * processes and LCIA methods.
+ */
+public class FlowUseSearch implements IUseSearch<FlowDescriptor> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 
-	FlowUseSearch(IDatabase database) {
+	public FlowUseSearch(IDatabase database) {
 		this.database = database;
+	}
+
+	public List<BaseDescriptor> findUses(Flow flow) {
+		return findUses(Descriptors.toDescriptor(flow));
 	}
 
 	@Override
@@ -59,7 +69,8 @@ class FlowUseSearch implements IUseSearch<FlowDescriptor> {
 	}
 
 	private List<BaseDescriptor> findInProcesses(FlowDescriptor flow) {
-		String jpql = "select p.id, p.name, p.description, p.processType, p.infrastructureProcess, p.location.id, p.category.id, p.quantitativeReference.id "
+		String jpql = "select p.id, p.name, p.description, p.processType, "
+				+ "p.infrastructureProcess, p.location.id, p.category.id, p.quantitativeReference.id "
 				+ "from Process p join p.exchanges e where e.flow.id = :flowId";
 		try {
 			List<Object[]> results = Query.on(database).getAll(Object[].class,

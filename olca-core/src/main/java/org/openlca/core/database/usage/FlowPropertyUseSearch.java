@@ -6,21 +6,33 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class FlowPropertyUseSearch implements IUseSearch<FlowPropertyDescriptor> {
+/**
+ * Searches for the use of flow properties in other entities. Flow properties
+ * can be used in flows (in flow property factors) and unit groups (as default
+ * flow property).
+ */
+public class FlowPropertyUseSearch implements
+		IUseSearch<FlowPropertyDescriptor> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 
-	FlowPropertyUseSearch(IDatabase database) {
+	public FlowPropertyUseSearch(IDatabase database) {
 		this.database = database;
+	}
+
+	public List<BaseDescriptor> findUses(FlowProperty flowProperty) {
+		return findUses(Descriptors.toDescriptor(flowProperty));
 	}
 
 	@Override
