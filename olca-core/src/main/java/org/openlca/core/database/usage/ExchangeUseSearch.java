@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ExchangeUseSearch implements IUseSearch<Exchange> {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 	private Process process;
 
@@ -53,6 +52,7 @@ public class ExchangeUseSearch implements IUseSearch<Exchange> {
 			all.addAll(linkIds);
 			return loadDescriptors(all);
 		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to search for exchange usages", e);
 			return Collections.emptyList();
 		}
