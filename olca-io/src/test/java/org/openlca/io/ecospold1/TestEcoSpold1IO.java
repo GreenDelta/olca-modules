@@ -14,7 +14,7 @@ import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.io.TestSession;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.ecospold1.input.EcoSpold01Import;
-import org.openlca.io.ecospold1.output.EcoSpold01Outputter;
+import org.openlca.io.ecospold1.output.EcoSpold1Export;
 
 public class TestEcoSpold1IO {
 
@@ -32,8 +32,8 @@ public class TestEcoSpold1IO {
 		Process process = processes.get(0);
 		String tmpDirPath = System.getProperty("java.io.tmpdir");
 		File dir = new File(tmpDirPath);
-		EcoSpold01Outputter outputter = new EcoSpold01Outputter(dir);
-		outputter.exportProcess(process);
+		EcoSpold1Export export = new EcoSpold1Export(dir);
+		export.export(process);
 		dao.delete(process);
 		File esDir = new File(dir, "EcoSpold01");
 		File file = new File(esDir, "process_" + process.getRefId() + ".xml");
