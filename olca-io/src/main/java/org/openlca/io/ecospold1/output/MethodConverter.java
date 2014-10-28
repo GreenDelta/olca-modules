@@ -46,15 +46,9 @@ class MethodConverter {
 		String subCategory = category.getName();
 		String name = null;
 		if (subCategory.contains("-")) {
-			name = subCategory.substring(subCategory.indexOf("-") + 1);
-			while (name.startsWith(" ")) {
-				name = name.substring(1);
-			}
-			subCategory = subCategory.substring(0, subCategory.indexOf("-"));
-			while (subCategory.endsWith(" ")) {
-				subCategory = subCategory
-						.substring(0, subCategory.length() - 1);
-			}
+			String[] parts = subCategory.split("-", 2);
+			subCategory = parts[0].trim();
+			name = parts[1].trim();
 		}
 		refFun.setSubCategory(subCategory);
 		refFun.setName(name);
