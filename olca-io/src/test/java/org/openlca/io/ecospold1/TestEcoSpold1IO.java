@@ -13,8 +13,8 @@ import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.io.TestSession;
 import org.openlca.io.UnitMapping;
-import org.openlca.io.ecospold1.exporter.EcoSpold01Outputter;
-import org.openlca.io.ecospold1.importer.EcoSpold01Import;
+import org.openlca.io.ecospold1.input.EcoSpold01Import;
+import org.openlca.io.ecospold1.output.EcoSpold01Outputter;
 
 public class TestEcoSpold1IO {
 

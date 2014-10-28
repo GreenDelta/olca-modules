@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold1.importer;
+package org.openlca.io.ecospold1.input;
 
 import java.util.Collections;
 import java.util.HashMap;

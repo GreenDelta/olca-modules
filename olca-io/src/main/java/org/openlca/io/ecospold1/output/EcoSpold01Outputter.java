@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold1.exporter;
+package org.openlca.io.ecospold1.output;
 
 import java.io.File;
 import java.util.Calendar;

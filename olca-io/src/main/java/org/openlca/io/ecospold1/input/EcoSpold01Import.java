@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold1.importer;
+package org.openlca.io.ecospold1.input;
 
 import java.io.File;
 import java.io.FileInputStream;
