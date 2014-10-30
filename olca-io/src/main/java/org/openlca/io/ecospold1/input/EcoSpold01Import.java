@@ -236,12 +236,10 @@ public class EcoSpold01Import implements FileImport {
 		ProcessDocumentation documentation = new ProcessDocumentation();
 		process.setDocumentation(documentation);
 
-		if (dataSet.getReferenceFunction() != null) {
-			process.setDescription(dataSet.getReferenceFunction()
-					.getGeneralComment());
-			process.setInfrastructureProcess(dataSet.getReferenceFunction()
-					.isInfrastructureProcess());
-		}
+		IReferenceFunction refFun = dataSet.getReferenceFunction();
+		if (refFun != null)
+			mapReferenceFunction(refFun, process, documentation);
+
 		process.setProcessType(Mapper.getProcessType(dataSet));
 		mapTimeAndGeography(dataSet, process, documentation);
 
@@ -253,9 +251,6 @@ public class EcoSpold01Import implements FileImport {
 		mapExchanges(dataSet.getExchanges(), process);
 		if (process.getQuantitativeReference() == null)
 			createProductFromRefFun(dataSet, process);
-
-		if (dataSet.getReferenceFunction() != null)
-			mapReferenceFunction(dataSet, process, documentation);
 
 		if (dataSet.getAllocations() != null
 				&& dataSet.getAllocations().size() > 0) {
@@ -380,26 +375,19 @@ public class EcoSpold01Import implements FileImport {
 		return category;
 	}
 
-	private void mapReferenceFunction(DataSet dataSet, Process ioProcess,
-			ProcessDocumentation doc) {
-		if (dataSet.getReferenceFunction() == null)
-			return;
-		IReferenceFunction inRefFunction = dataSet.getReferenceFunction();
-		ioProcess.setName(inRefFunction.getName());
-		ioProcess.setDescription(inRefFunction.getGeneralComment());
-		ioProcess.setInfrastructureProcess(inRefFunction
-				.isInfrastructureProcess());
-		String topCategoryName = inRefFunction.getCategory();
-		String subCategoryName = inRefFunction.getSubCategory();
+	private void mapReferenceFunction(IReferenceFunction refFun,
+			Process ioProcess, ProcessDocumentation doc) {
+		ioProcess.setName(refFun.getName());
+		ioProcess.setDescription(refFun.getGeneralComment());
+		ioProcess.setInfrastructureProcess(refFun.isInfrastructureProcess());
+		String topCategory = refFun.getCategory();
+		String subCategory = refFun.getSubCategory();
 		Category cat = null;
 		if (processCategory != null)
-			cat = db.getPutCategory(processCategory, topCategoryName,
-					subCategoryName);
+			cat = db.getPutCategory(processCategory, topCategory, subCategory);
 		else
-			cat = db.getPutCategory(ModelType.PROCESS, topCategoryName,
-					subCategoryName);
+			cat = db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
 		ioProcess.setCategory(cat);
-
 	}
 
 	private void createProductFromRefFun(DataSet dataSet, Process ioProcess) {

@@ -149,6 +149,7 @@ class ProcessConverter {
 		}
 		generator.setCopyright(doc.isCopyright());
 		generator.setAccessRestrictedTo(0);
+		generator.setDataPublishedIn(0);
 		if (doc.getDataGenerator() != null) {
 			int n = mapActor(doc.getDataGenerator(), dataset);
 			generator.setPerson(n);

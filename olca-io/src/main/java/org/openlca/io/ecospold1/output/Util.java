@@ -73,6 +73,7 @@ class Util {
 	static void mapFlowInformation(IExchange exchange, Flow flow) {
 		exchange.setCASNumber(flow.getCasNumber());
 		exchange.setFormula(flow.getFormula());
+		exchange.setInfrastructureProcess(flow.isInfrastructureFlow());
 		if (flow.getLocation() != null) {
 			if (flow.getLocation().getCode() != null) {
 				exchange.setLocation(flow.getLocation().getCode());
