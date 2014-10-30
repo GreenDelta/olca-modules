@@ -12,6 +12,7 @@ import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IFlowData;
 import org.openlca.ecospold.IGeography;
+import org.openlca.ecospold.ILanguageCode;
 import org.openlca.ecospold.IMetaInformation;
 import org.openlca.ecospold.IModellingAndValidation;
 import org.openlca.ecospold.IPerson;
@@ -136,6 +137,11 @@ public class ImpactMethodFactory implements IEcoSpoldFactory {
 				return countryCode;
 		}
 		return null;
+	}
+
+	@Override
+	public ILanguageCode getLanguageCode(String code) {
+		return ImpactLanguageCode.fromValue(code);
 	}
 
 }

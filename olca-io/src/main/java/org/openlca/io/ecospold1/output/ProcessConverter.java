@@ -1,5 +1,6 @@
 package org.openlca.io.ecospold1.output;
 
+import java.util.Date;
 import java.util.Objects;
 
 import org.openlca.core.model.Actor;
@@ -13,6 +14,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
+import org.openlca.core.model.Version;
 import org.openlca.ecospold.IDataEntryBy;
 import org.openlca.ecospold.IDataGeneratorAndPublication;
 import org.openlca.ecospold.IDataSet;
@@ -58,11 +60,40 @@ class ProcessConverter {
 		ProcessDocumentation doc = process.getDocumentation();
 		if (doc == null)
 			return;
+		mapDataSetInformation(doc, dataSet);
 		mapTime(doc, dataSet);
 		mapTechnology(doc, dataSet);
 		mapGeography(doc, dataSet);
 		mapModelingAndValidation(doc, dataSet);
 		mapAdminInfo(doc, dataSet);
+	}
+
+	private void mapDataSetInformation(ProcessDocumentation doc, DataSet dataSet) {
+		IDataSetInformation info = factory.createDataSetInformation();
+		dataSet.setDataSetInformation(info);
+		info.setEnergyValues(0);
+		info.setImpactAssessmentResult(false);
+		info.setLanguageCode(factory.getLanguageCode("en"));
+		info.setLocalLanguageCode(factory.getLanguageCode("en"));
+		if (process.getLastChange() != 0)
+			info.setTimestamp(Util.toXml(process.getLastChange()));
+		else if (doc.getCreationDate() != null)
+			info.setTimestamp(Util.toXml(doc.getCreationDate()));
+		else
+			info.setTimestamp(Util.toXml(new Date()));
+		info.setType(getProcessType());
+		Version version = new Version(process.getVersion());
+		info.setVersion(version.getMajor());
+		info.setInternalVersion(version.getMinor());
+	}
+
+	private int getProcessType() {
+		if (process.getProcessType() == ProcessType.LCI_RESULT)
+			return 2;
+		if (isMultiOutput())
+			return 5;
+		else
+			return 1;
 	}
 
 	private void mapGeography(ProcessDocumentation doc, DataSet dataSet) {
@@ -118,7 +149,6 @@ class ProcessConverter {
 		}
 		generator.setCopyright(doc.isCopyright());
 		generator.setAccessRestrictedTo(0);
-		addDataSetInformation(doc, dataset);
 		if (doc.getDataGenerator() != null) {
 			int n = mapActor(doc.getDataGenerator(), dataset);
 			generator.setPerson(n);
@@ -142,16 +172,6 @@ class ProcessConverter {
 		entryBy.setPerson(n);
 	}
 
-	private void addDataSetInformation(ProcessDocumentation doc, DataSet dataSet) {
-		IDataSetInformation info = factory.createDataSetInformation();
-		dataSet.setDataSetInformation(info);
-		if (process.getLastChange() != 0)
-			info.setTimestamp(Util.toXml(process.getLastChange()));
-		else if (doc.getCreationDate() != null)
-			info.setTimestamp(Util.toXml(doc.getCreationDate()));
-		mapProcessType(info);
-	}
-
 	private void mapTechnology(ProcessDocumentation doc, DataSet dataset) {
 		if (doc == null || doc.getTechnology() == null)
 			return;
@@ -170,17 +190,6 @@ class ProcessConverter {
 			timePeriod.setEndDate(Util.toXml(doc.getValidUntil()));
 		timePeriod.setText(doc.getTime());
 		dataset.setTimePeriod(timePeriod);
-	}
-
-	private void mapProcessType(IDataSetInformation info) {
-		if (process.getProcessType() == ProcessType.LCI_RESULT) {
-			info.setType(2);
-		} else {
-			if (isMultiOutput())
-				info.setType(5);
-			else
-				info.setType(1);
-		}
 	}
 
 	private boolean isMultiOutput() {
@@ -230,6 +239,7 @@ class ProcessConverter {
 		source.setTitle(inSource.getTextReference());
 		source.setYear(Util.toXml(inSource.getYear()));
 		source.setPlaceOfPublications("unknown");
+		source.setSourceType(0);
 		dataset.getSources().add(source);
 		return id;
 	}

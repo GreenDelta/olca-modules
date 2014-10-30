@@ -75,7 +75,8 @@ public class EcoSpold1Export implements Closeable {
 		if (singleSpold == null)
 			return;
 		try {
-			SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");
+			SimpleDateFormat format = new SimpleDateFormat(
+					"yyyy-MM-dd'T'hh-mm-ss");
 			String time = format.format(new Date());
 			int size = singleSpold.getDataset().size();
 			String fileName = "EcoSpold_" + size + "_processes_" + time

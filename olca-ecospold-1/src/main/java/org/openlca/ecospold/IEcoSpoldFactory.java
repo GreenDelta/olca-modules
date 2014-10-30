@@ -132,4 +132,9 @@ public interface IEcoSpoldFactory {
 	 */
 	ICountryCode getCountryCode(String code);
 
+	/**
+	 * Returns an instance of language code for the given string if this
+	 * language code is defined. Otherwise null is returned.
+	 */
+	ILanguageCode getLanguageCode(String code);
 }
