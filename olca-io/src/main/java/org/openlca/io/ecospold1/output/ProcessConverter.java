@@ -17,7 +17,6 @@ import org.openlca.ecospold.IDataEntryBy;
 import org.openlca.ecospold.IDataGeneratorAndPublication;
 import org.openlca.ecospold.IDataSet;
 import org.openlca.ecospold.IDataSetInformation;
-import org.openlca.ecospold.IEcoSpold;
 import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IGeography;
@@ -36,7 +35,7 @@ class ProcessConverter {
 	private Process process;
 	private IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
 
-	static IEcoSpold convert(Process process) {
+	static IDataSet convert(Process process) {
 		return new ProcessConverter(process).doIt();
 	}
 
@@ -44,8 +43,7 @@ class ProcessConverter {
 		this.process = process;
 	}
 
-	private IEcoSpold doIt() {
-		IEcoSpold ecoSpold = factory.createEcoSpold();
+	private IDataSet doIt() {
 		IDataSet iDataSet = factory.createDataSet();
 		DataSet dataSet = new DataSet(iDataSet, factory);
 		Util.setDataSetAttributes(dataSet, process);
@@ -53,8 +51,7 @@ class ProcessConverter {
 		mapExchanges(dataSet);
 		// TODO: map allocation factors
 		// mapAllocations(process, dataSet, factory);
-		ecoSpold.getDataset().add(iDataSet);
-		return ecoSpold;
+		return iDataSet;
 	}
 
 	private void mapDocumentation(DataSet dataSet) {
