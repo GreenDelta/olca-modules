@@ -73,7 +73,6 @@ public class ZipStore implements DataStore {
 		throw new UnsupportedOperationException("delete in zips not supported");
 	}
 
-	// impacts of closing input stream not clear
 	<T> T unmarshal(Class<T> type, TFile entry) throws DataStoreException {
 		try {
 			TFileInputStream is = new TFileInputStream(entry);
@@ -87,7 +86,7 @@ public class ZipStore implements DataStore {
 
 	private TFile findEntry(String path, String id) {
 		for (TFile entry : entries) {
-			String name = entry.getAbsolutePath();
+			String name = entry.getEnclEntryName();
 			if (name.contains(path) && name.contains(id))
 				return entry;
 		}
@@ -109,7 +108,7 @@ public class ZipStore implements DataStore {
 	List<TFile> findEntries(String path) {
 		List<TFile> foundEntries = new ArrayList<>();
 		for (TFile entry : entries) {
-			String name = entry.getAbsolutePath();
+			String name = entry.getEnclEntryName();
 			if (name.contains(path)) {
 				foundEntries.add(entry);
 			}
