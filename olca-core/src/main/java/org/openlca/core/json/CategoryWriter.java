@@ -11,19 +11,25 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-class CategorySerializer implements JsonSerializer<Category> {
+class CategoryWriter implements JsonSerializer<Category> {
+
+	private final JsonWriter writer;
+
+	public CategoryWriter(JsonWriter writer) {
+		this.writer = writer;
+	}
 
 	@Override
 	public JsonElement serialize(Category category, Type type,
 			JsonSerializationContext context) {
 		JsonObject json = new JsonObject();
-		Json.addContext(json);
+		writer.addContext(json);
 		mapContent(category, json);
 		return json;
 	}
 
 	private void mapContent(Category category, JsonObject json) {
-		Json.addAttributes(category, json);
+		writer.addAttributes(category, json);
 		mapAttributes(category, json);
 		JsonArray childs = new JsonArray();
 		for (Category child : category.getChildCategories()) {
