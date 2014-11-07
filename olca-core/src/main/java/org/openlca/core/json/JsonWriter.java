@@ -1,7 +1,13 @@
 package org.openlca.core.json;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -15,10 +21,6 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 public class JsonWriter {
 
@@ -36,7 +38,9 @@ public class JsonWriter {
 		GsonBuilder b = new GsonBuilder();
 		if (config.isPrettyPrinting())
 			b.setPrettyPrinting();
-		b.registerTypeAdapter(Category.class, new CategoryWriter(this));
+		b.registerTypeAdapter(Category.class, new CategoryWriter());
+		b.registerTypeAdapter(Unit.class, new UnitWriter());
+		b.registerTypeAdapter(UnitGroup.class, new UnitGroupWriter());
 		registerDescriptorWriter(b);
 		Gson gson = b.create();
 		return gson.toJson(obj);
@@ -59,7 +63,7 @@ public class JsonWriter {
 		b.registerTypeAdapter(UnitGroupDescriptor.class, dw);
 	}
 
-	void addContext(JsonObject object) {
+	static void addContext(JsonObject object) {
 		String url = "http://openlca.org/";
 		JsonObject context = new JsonObject();
 		context.addProperty("@vocab", url);
@@ -69,12 +73,32 @@ public class JsonWriter {
 		object.add("@context", context);
 	}
 
-	void addAttributes(RootEntity entity, JsonObject object) {
+	static JsonObject createReference(RootEntity entity) {
+		if (entity == null)
+			return null;
+		JsonObject ref = new JsonObject();
+		addAttributes(entity, ref);
+		return ref;
+	}
+
+	static void addAttributes(RootEntity entity, JsonObject object) {
+		if (entity == null || object == null)
+			return;
 		String type = entity.getClass().getSimpleName();
 		object.addProperty("@type", type);
 		object.addProperty("@id", entity.getRefId());
 		object.addProperty("name", entity.getName());
 		object.addProperty("description", entity.getDescription());
+		if (entity instanceof CategorizedEntity)
+			addCategory((CategorizedEntity) entity, object);
+	}
+
+	private static void addCategory(CategorizedEntity entity, JsonObject obj) {
+		if (entity == null || entity.getCategory() == null || obj == null)
+			return;
+		JsonObject catObject = new JsonObject();
+		Category category = entity.getCategory();
+		catObject.addProperty("@id", category.getRefId());
 	}
 
 }

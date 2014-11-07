@@ -13,28 +13,22 @@ import com.google.gson.JsonSerializer;
 
 class CategoryWriter implements JsonSerializer<Category> {
 
-	private final JsonWriter writer;
-
-	public CategoryWriter(JsonWriter writer) {
-		this.writer = writer;
-	}
-
 	@Override
 	public JsonElement serialize(Category category, Type type,
 			JsonSerializationContext context) {
 		JsonObject json = new JsonObject();
-		writer.addContext(json);
-		mapContent(category, json);
+		JsonWriter.addContext(json);
+		map(category, json);
 		return json;
 	}
 
-	private void mapContent(Category category, JsonObject json) {
-		writer.addAttributes(category, json);
+	private void map(Category category, JsonObject json) {
+		JsonWriter.addAttributes(category, json);
 		mapAttributes(category, json);
 		JsonArray childs = new JsonArray();
 		for (Category child : category.getChildCategories()) {
 			JsonObject childObject = new JsonObject();
-			mapContent(child, childObject);
+			map(child, childObject);
 			childs.add(childObject);
 		}
 		if (childs.size() > 0)
