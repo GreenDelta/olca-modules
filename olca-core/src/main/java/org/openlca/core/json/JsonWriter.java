@@ -4,7 +4,10 @@ import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.ActorDescriptor;
@@ -41,14 +44,21 @@ public class JsonWriter {
 		GsonBuilder b = new GsonBuilder();
 		if (config.isPrettyPrinting())
 			b.setPrettyPrinting();
+		registerTypeAdapters(b);
+		registerDescriptorWriter(b);
+		Gson gson = b.create();
+		return gson.toJson(obj);
+	}
+
+	private void registerTypeAdapters(GsonBuilder b) {
 		b.registerTypeAdapter(Category.class, new CategoryWriter());
 		b.registerTypeAdapter(Unit.class, new UnitWriter());
 		b.registerTypeAdapter(UnitGroup.class, new UnitGroupWriter());
 		b.registerTypeAdapter(FlowProperty.class, new FlowPropertyWriter());
 		b.registerTypeAdapter(Flow.class, new FlowWriter());
-		registerDescriptorWriter(b);
-		Gson gson = b.create();
-		return gson.toJson(obj);
+		b.registerTypeAdapter(Uncertainty.class, new UncertaintyWriter());
+		b.registerTypeAdapter(Parameter.class, new ParameterWriter());
+		b.registerTypeAdapter(Location.class, new LocationWriter());
 	}
 
 	private void registerDescriptorWriter(GsonBuilder b) {
@@ -77,6 +87,8 @@ public class JsonWriter {
 		context.add("modelType", vocabType);
 		context.add("flowPropertyType", vocabType);
 		context.add("flowType", vocabType);
+		context.add("distributionType", vocabType);
+		context.add("parameterScope", vocabType);
 		object.add("@context", context);
 	}
 
