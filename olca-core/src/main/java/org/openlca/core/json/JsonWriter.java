@@ -1,8 +1,5 @@
 package org.openlca.core.json;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
@@ -23,6 +20,10 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 public class JsonWriter {
 
@@ -108,6 +109,7 @@ public class JsonWriter {
 		JsonObject catObject = new JsonObject();
 		Category category = entity.getCategory();
 		catObject.addProperty("@id", category.getRefId());
+		obj.add("category", catObject);
 	}
 
 }

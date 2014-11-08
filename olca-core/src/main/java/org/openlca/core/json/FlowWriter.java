@@ -1,13 +1,15 @@
 package org.openlca.core.json;
 
 import java.lang.reflect.Type;
+
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowPropertyFactor;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowPropertyFactor;
 
 class FlowWriter implements JsonSerializer<Flow> {
 
@@ -42,6 +44,7 @@ class FlowWriter implements JsonSerializer<Flow> {
 			JsonObject factorObj = new JsonObject();
 			JsonObject propRef = JsonWriter.createReference(factor
 					.getFlowProperty());
+			factorObj.addProperty("@type", "FlowPropertyFactor");
 			factorObj.add("flowProperty", propRef);
 			factorObj.addProperty("value", factor.getConversionFactor());
 			factorArray.add(factorObj);

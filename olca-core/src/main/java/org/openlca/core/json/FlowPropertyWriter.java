@@ -15,7 +15,7 @@ class FlowPropertyWriter implements JsonSerializer<FlowProperty> {
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
 		JsonWriter.addContext(obj);
-
+		map(property, obj);
 		return obj;
 	}
 
