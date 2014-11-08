@@ -20,23 +20,23 @@ class UnitGroupWriter implements JsonSerializer<UnitGroup> {
 		return obj;
 	}
 
-	static void map(UnitGroup group, JsonObject object) {
-		if (group == null || object == null)
+	static void map(UnitGroup group, JsonObject obj) {
+		if (group == null || obj == null)
 			return;
-		JsonWriter.addAttributes(group, object);
+		JsonWriter.addAttributes(group, obj);
 		JsonObject propRef = JsonWriter.createReference(group
 				.getDefaultFlowProperty());
-		object.add("defaultFlowProperty", propRef);
+		obj.add("defaultFlowProperty", propRef);
 		JsonObject unitRef = JsonWriter.createReference(group
 				.getReferenceUnit());
-		object.add("referenceUnit", unitRef);
+		obj.add("referenceUnit", unitRef);
 		JsonArray units = new JsonArray();
 		for (Unit unit : group.getUnits()) {
 			JsonObject unitObj = new JsonObject();
 			UnitWriter.map(unit, unitObj);
 			units.add(unitObj);
 		}
-		object.add("units", units);
+		obj.add("units", units);
 	}
 
 }

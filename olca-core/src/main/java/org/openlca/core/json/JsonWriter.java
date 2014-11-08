@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -41,6 +43,8 @@ public class JsonWriter {
 		b.registerTypeAdapter(Category.class, new CategoryWriter());
 		b.registerTypeAdapter(Unit.class, new UnitWriter());
 		b.registerTypeAdapter(UnitGroup.class, new UnitGroupWriter());
+		b.registerTypeAdapter(FlowProperty.class, new FlowPropertyWriter());
+		b.registerTypeAdapter(Flow.class, new FlowWriter());
 		registerDescriptorWriter(b);
 		Gson gson = b.create();
 		return gson.toJson(obj);
@@ -70,6 +74,8 @@ public class JsonWriter {
 		JsonObject vocabType = new JsonObject();
 		vocabType.addProperty("@type", "@vocab");
 		context.add("modelType", vocabType);
+		context.add("flowPropertyType", vocabType);
+		context.add("flowType", vocabType);
 		object.add("@context", context);
 	}
 
@@ -77,7 +83,10 @@ public class JsonWriter {
 		if (entity == null)
 			return null;
 		JsonObject ref = new JsonObject();
-		addAttributes(entity, ref);
+		String type = entity.getClass().getSimpleName();
+		ref.addProperty("@type", type);
+		ref.addProperty("@id", entity.getRefId());
+		ref.addProperty("name", entity.getName());
 		return ref;
 	}
 
