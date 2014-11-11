@@ -30,9 +30,9 @@ class FlowWriter implements JsonSerializer<Flow> {
 			obj.addProperty("flowType", flow.getFlowType().name());
 		obj.addProperty("cas", flow.getCasNumber());
 		obj.addProperty("formula", flow.getFormula());
-		JsonObject locationRef = JsonWriter.createReference(flow.getLocation());
+		JsonObject locationRef = JsonWriter.createRef(flow.getLocation());
 		obj.add("location", locationRef);
-		JsonObject propRef = JsonWriter.createReference(
+		JsonObject propRef = JsonWriter.createRef(
 				flow.getReferenceFlowProperty());
 		obj.add("referenceFlowProperty", propRef);
 		addFactors(flow, obj);
@@ -42,7 +42,7 @@ class FlowWriter implements JsonSerializer<Flow> {
 		JsonArray factorArray = new JsonArray();
 		for (FlowPropertyFactor factor : flow.getFlowPropertyFactors()) {
 			JsonObject factorObj = new JsonObject();
-			JsonObject propRef = JsonWriter.createReference(factor
+			JsonObject propRef = JsonWriter.createRef(factor
 					.getFlowProperty());
 			factorObj.addProperty("@type", "FlowPropertyFactor");
 			factorObj.add("flowProperty", propRef);

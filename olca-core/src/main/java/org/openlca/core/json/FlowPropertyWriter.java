@@ -24,7 +24,7 @@ class FlowPropertyWriter implements JsonSerializer<FlowProperty> {
 			return;
 		JsonWriter.addAttributes(property, obj);
 		mapType(property, obj);
-		JsonObject unitGroup = JsonWriter.createReference(
+		JsonObject unitGroup = JsonWriter.createRef(
 				property.getUnitGroup());
 		obj.add("unitGroup", unitGroup);
 	}

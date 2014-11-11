@@ -24,10 +24,10 @@ class UnitGroupWriter implements JsonSerializer<UnitGroup> {
 		if (group == null || obj == null)
 			return;
 		JsonWriter.addAttributes(group, obj);
-		JsonObject propRef = JsonWriter.createReference(group
+		JsonObject propRef = JsonWriter.createRef(group
 				.getDefaultFlowProperty());
 		obj.add("defaultFlowProperty", propRef);
-		JsonObject unitRef = JsonWriter.createReference(group
+		JsonObject unitRef = JsonWriter.createRef(group
 				.getReferenceUnit());
 		obj.add("referenceUnit", unitRef);
 		JsonArray units = new JsonArray();

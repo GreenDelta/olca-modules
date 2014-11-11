@@ -1,11 +1,17 @@
 package org.openlca.core.json;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Unit;
@@ -23,10 +29,6 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 public class JsonWriter {
 
@@ -59,6 +61,10 @@ public class JsonWriter {
 		b.registerTypeAdapter(Uncertainty.class, new UncertaintyWriter());
 		b.registerTypeAdapter(Parameter.class, new ParameterWriter());
 		b.registerTypeAdapter(Location.class, new LocationWriter());
+		b.registerTypeAdapter(Process.class, new ProcessWriter());
+		b.registerTypeAdapter(Exchange.class, new ExchangeWriter());
+		b.registerTypeAdapter(FlowPropertyFactor.class,
+				new FlowPropertyFactorWriter());
 	}
 
 	private void registerDescriptorWriter(GsonBuilder b) {
@@ -89,10 +95,13 @@ public class JsonWriter {
 		context.add("flowType", vocabType);
 		context.add("distributionType", vocabType);
 		context.add("parameterScope", vocabType);
+		context.add("allocationType", vocabType);
+		context.add("defaultAllocationMethod", vocabType);
+		context.add("processTyp", vocabType);
 		object.add("@context", context);
 	}
 
-	static JsonObject createReference(RootEntity entity) {
+	static JsonObject createRef(RootEntity entity) {
 		if (entity == null)
 			return null;
 		JsonObject ref = new JsonObject();
