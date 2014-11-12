@@ -57,6 +57,9 @@ class Util {
 			dataSet.setNumber((int) model.getId());
 		dataSet.setGenerator("openLCA");
 		dataSet.setTimestamp(Util.toXml(new Date()));
+		// setting a link to the categories file results in an error in the
+		// EcoSpold access tool
+		// dataSet.setValidCategories("../categories.xml");
 	}
 
 	static void mapFlowCategory(IExchange exchange, Category category) {

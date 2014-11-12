@@ -23,8 +23,11 @@ public class EcoSpold1Export implements Closeable {
 	private File outDir;
 	private ExportConfig config;
 	private IEcoSpold singleSpold;
+	private CategoryWriter categoryWriter;
 
 	public EcoSpold1Export(File outDir, ExportConfig config) {
+		File categoryFile = new File(outDir, "categories.xml");
+		categoryWriter = new CategoryWriter(categoryFile, config);
 		File dir = new File(outDir, "EcoSpold01");
 		if (!dir.exists())
 			dir.mkdirs();
@@ -41,6 +44,7 @@ public class EcoSpold1Export implements Closeable {
 	}
 
 	public void export(Process process) throws Exception {
+		categoryWriter.takeFrom(process);
 		IDataSet dataSet = ProcessConverter.convert(process);
 		if (config.isSingleFile())
 			append(dataSet);
@@ -84,6 +88,7 @@ public class EcoSpold1Export implements Closeable {
 			File file = new File(outDir, fileName);
 			EcoSpoldIO.writeTo(file, singleSpold, DataSetType.PROCESS);
 			log.trace("wrote {} processes to {}", size, file);
+			categoryWriter.close();
 		} catch (Exception e) {
 			log.error("export failed", e);
 			throw new IOException(e);
