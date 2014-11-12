@@ -3,11 +3,8 @@ package org.openlca.io.ecospold1.output;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.RootEntity;
 import org.openlca.ecospold.IExchange;
@@ -60,17 +57,6 @@ class Util {
 		// setting a link to the categories file results in an error in the
 		// EcoSpold access tool
 		// dataSet.setValidCategories("../categories.xml");
-	}
-
-	static void mapFlowCategory(IExchange exchange, Category category) {
-		if (category == null)
-			return;
-		if (category.getParentCategory() == null)
-			exchange.setCategory(category.getName());
-		else {
-			exchange.setCategory(category.getParentCategory().getName());
-			exchange.setSubCategory(category.getName());
-		}
 	}
 
 	static void mapFlowInformation(IExchange exchange, Flow flow) {

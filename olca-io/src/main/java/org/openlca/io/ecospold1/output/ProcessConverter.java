@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Objects;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -35,14 +34,16 @@ import org.openlca.ecospold.io.DataSetType;
 class ProcessConverter {
 
 	private Process process;
+	private ExportConfig config;
 	private IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
 
-	static IDataSet convert(Process process) {
-		return new ProcessConverter(process).doIt();
+	static IDataSet convert(Process process, ExportConfig config) {
+		return new ProcessConverter(process, config).doIt();
 	}
 
-	private ProcessConverter(Process process) {
+	private ProcessConverter(Process process, ExportConfig config) {
 		this.process = process;
+		this.config = config;
 	}
 
 	private IDataSet doIt() {
@@ -104,6 +105,10 @@ class ProcessConverter {
 			geography.setLocation(location.getCode());
 		if (doc.getGeography() != null)
 			geography.setText(doc.getGeography());
+		if (!config.isCreateDefaults())
+			return;
+		if (geography.getLocation() == null)
+			geography.setLocation("GLO");
 	}
 
 	private void mapModelingAndValidation(ProcessDocumentation doc,
@@ -271,15 +276,7 @@ class ProcessConverter {
 		refFun.setUnit(exchange.getUnit().getName());
 		refFun.setInfrastructureProcess(flow.isInfrastructureFlow());
 		refFun.setAmount(exchange.getAmountValue());
-		Category category = flow.getCategory();
-		if (category != null) {
-			if (category.getParentCategory() == null)
-				refFun.setCategory(category.getName());
-			else {
-				refFun.setCategory(category.getParentCategory().getName());
-				refFun.setSubCategory(category.getName());
-			}
-		}
+		CategoryMapper.map(flow, refFun, config);
 		refFun.setLocalCategory(refFun.getCategory());
 		refFun.setLocalSubCategory(refFun.getSubCategory());
 		return refFun;
@@ -294,7 +291,7 @@ class ProcessConverter {
 			exchange.setInputGroup(mapFlowType(flow.getFlowType(), true));
 		else
 			exchange.setOutputGroup(mapFlowType(flow.getFlowType(), false));
-		Util.mapFlowCategory(exchange, inExchange.getFlow().getCategory());
+		CategoryMapper.map(flow.getCategory(), exchange, config);
 		Util.mapFlowInformation(exchange, inExchange.getFlow());
 		exchange.setUnit(inExchange.getUnit().getName());
 		if (inExchange.getUncertainty() == null)

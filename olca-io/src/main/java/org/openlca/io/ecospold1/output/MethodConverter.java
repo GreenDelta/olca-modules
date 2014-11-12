@@ -15,14 +15,17 @@ import org.openlca.ecospold.io.DataSetType;
 class MethodConverter {
 
 	private ImpactMethod method;
+	private ExportConfig config;
+
 	private IEcoSpoldFactory factory = DataSetType.IMPACT_METHOD.getFactory();
 
-	static IEcoSpold convert(ImpactMethod method) {
-		return new MethodConverter(method).doIt();
+	static IEcoSpold convert(ImpactMethod method, ExportConfig config) {
+		return new MethodConverter(method, config).doIt();
 	}
 
-	private MethodConverter(ImpactMethod method) {
+	private MethodConverter(ImpactMethod method, ExportConfig config) {
 		this.method = method;
+		this.config = config;
 	}
 
 	private IEcoSpold doIt() {
@@ -62,7 +65,7 @@ class MethodConverter {
 		IExchange exchange = factory.createExchange();
 		Flow flow = factor.getFlow();
 		exchange.setNumber((int) flow.getId());
-		Util.mapFlowCategory(exchange, factor.getFlow().getCategory());
+		CategoryMapper.map(factor.getFlow().getCategory(), exchange, config);
 		Util.mapFlowInformation(exchange, factor.getFlow());
 		exchange.setUnit(factor.getUnit().getName());
 		exchange.setName(factor.getFlow().getName());

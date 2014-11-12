@@ -36,7 +36,7 @@ public class EcoSpold1Export implements Closeable {
 	}
 
 	public void export(ImpactMethod method) throws Exception {
-		IEcoSpold spold = MethodConverter.convert(method);
+		IEcoSpold spold = MethodConverter.convert(method, config);
 		String fileName = "lcia_method_" + method.getRefId() + ".xml";
 		File file = new File(outDir, fileName);
 		EcoSpoldIO.writeTo(file, spold, DataSetType.IMPACT_METHOD);
@@ -45,7 +45,7 @@ public class EcoSpold1Export implements Closeable {
 
 	public void export(Process process) throws Exception {
 		categoryWriter.takeFrom(process);
-		IDataSet dataSet = ProcessConverter.convert(process);
+		IDataSet dataSet = ProcessConverter.convert(process, config);
 		if (config.isSingleFile())
 			append(dataSet);
 		else {
