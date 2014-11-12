@@ -2,8 +2,6 @@ package org.openlca.io.ecospold1.output;
 
 import java.util.Date;
 import java.util.Objects;
-
-import org.openlca.core.model.Actor;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -21,10 +19,8 @@ import org.openlca.ecospold.IDataSetInformation;
 import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IGeography;
-import org.openlca.ecospold.IPerson;
 import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.IRepresentativeness;
-import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.ITechnology;
 import org.openlca.ecospold.ITimePeriod;
 import org.openlca.ecospold.IValidation;
@@ -36,6 +32,7 @@ class ProcessConverter {
 	private Process process;
 	private ExportConfig config;
 	private IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
+	private ActorSourceMapper actorSourceMapper;
 
 	static IDataSet convert(Process process, ExportConfig config) {
 		return new ProcessConverter(process, config).doIt();
@@ -44,6 +41,7 @@ class ProcessConverter {
 	private ProcessConverter(Process process, ExportConfig config) {
 		this.process = process;
 		this.config = config;
+		actorSourceMapper = new ActorSourceMapper(factory, config);
 	}
 
 	private IDataSet doIt() {
@@ -113,11 +111,9 @@ class ProcessConverter {
 
 	private void mapModelingAndValidation(ProcessDocumentation doc,
 			DataSet dataSet) {
-		if (doc == null)
-			return;
 		mapValidation(doc, dataSet);
 		for (Source source : doc.getSources())
-			mapSource(source, dataSet);
+			actorSourceMapper.map(source, dataSet);
 		if (doc.getSampling() == null)
 			return;
 		IRepresentativeness repr = dataSet.getRepresentativeness();
@@ -136,7 +132,7 @@ class ProcessConverter {
 			validation = factory.createValidation();
 			dataSet.setValidation(validation);
 		}
-		int reviewer = mapActor(doc.getReviewer(), dataSet);
+		int reviewer = actorSourceMapper.map(doc.getReviewer(), dataSet);
 		if (reviewer > 0)
 			validation.setProofReadingValidator(reviewer);
 		if (doc.getReviewDetails() != null)
@@ -156,12 +152,12 @@ class ProcessConverter {
 		generator.setAccessRestrictedTo(0);
 		generator.setDataPublishedIn(0);
 		if (doc.getDataGenerator() != null) {
-			int n = mapActor(doc.getDataGenerator(), dataset);
+			int n = actorSourceMapper.map(doc.getDataGenerator(), dataset);
 			generator.setPerson(n);
 		}
 		mapEntryBy(doc, dataset);
 		if (doc.getPublication() != null) {
-			int source = mapSource(doc.getPublication(), dataset);
+			int source = actorSourceMapper.map(doc.getPublication(), dataset);
 			generator.setReferenceToPublishedSource(source);
 		}
 	}
@@ -169,7 +165,7 @@ class ProcessConverter {
 	private void mapEntryBy(ProcessDocumentation doc, DataSet dataset) {
 		if (doc.getDataDocumentor() == null)
 			return;
-		int n = mapActor(doc.getDataDocumentor(), dataset);
+		int n = actorSourceMapper.map(doc.getDataDocumentor(), dataset);
 		IDataEntryBy entryBy = dataset.getDataEntryBy();
 		if (entryBy == null) {
 			entryBy = factory.createDataEntryBy();
@@ -179,23 +175,26 @@ class ProcessConverter {
 	}
 
 	private void mapTechnology(ProcessDocumentation doc, DataSet dataset) {
-		if (doc == null || doc.getTechnology() == null)
-			return;
 		ITechnology technology = factory.createTechnology();
 		technology.setText(doc.getTechnology());
 		dataset.setTechnology(technology);
 	}
 
 	private void mapTime(ProcessDocumentation doc, DataSet dataset) {
-		if (doc == null)
-			return;
-		ITimePeriod timePeriod = factory.createTimePeriod();
+		ITimePeriod time = factory.createTimePeriod();
+		time.setDataValidForEntirePeriod(true);
 		if (doc.getValidFrom() != null)
-			timePeriod.setStartDate(Util.toXml(doc.getValidFrom()));
+			time.setStartDate(Util.toXml(doc.getValidFrom()));
 		if (doc.getValidUntil() != null)
-			timePeriod.setEndDate(Util.toXml(doc.getValidUntil()));
-		timePeriod.setText(doc.getTime());
-		dataset.setTimePeriod(timePeriod);
+			time.setEndDate(Util.toXml(doc.getValidUntil()));
+		time.setText(doc.getTime());
+		dataset.setTimePeriod(time);
+		if (!config.isCreateDefaults())
+			return;
+		if (time.getStartDate() == null)
+			time.setStartDate(Util.toXml(new Short((short) 9999)));
+		if (time.getEndDate() == null)
+			time.setEndDate(Util.toXml(new Short((short) 9999)));
 	}
 
 	private boolean isMultiOutput() {
@@ -207,47 +206,6 @@ class ProcessConverter {
 				count++;
 		}
 		return count > 1;
-	}
-
-	private int mapActor(Actor actor, DataSet dataset) {
-		if (actor == null)
-			return -1;
-		int id = (int) actor.getId();
-		for (IPerson p : dataset.getPersons()) {
-			if (p.getNumber() == id)
-				return id;
-		}
-		IPerson person = factory.createPerson();
-		person.setNumber(id);
-		person.setCompanyCode("unknown");
-		person.setName(actor.getName());
-		person.setAddress(actor.getAddress());
-		person.setCountryCode(factory.getCountryCode(actor.getCountry()));
-		person.setEmail(actor.getEmail());
-		person.setTelefax(actor.getTelefax());
-		person.setTelephone(actor.getTelephone());
-		dataset.getPersons().add(person);
-		return id;
-	}
-
-	private int mapSource(Source inSource, DataSet dataset) {
-		if (inSource == null)
-			return -1;
-		int id = (int) inSource.getId();
-		for (ISource s : dataset.getSources()) {
-			if (s.getNumber() == id)
-				return id;
-		}
-		ISource source = factory.createSource();
-		source.setNumber(id);
-		source.setFirstAuthor(inSource.getName());
-		source.setText(inSource.getDescription());
-		source.setTitle(inSource.getTextReference());
-		source.setYear(Util.toXml(inSource.getYear()));
-		source.setPlaceOfPublications("unknown");
-		source.setSourceType(0);
-		dataset.getSources().add(source);
-		return id;
 	}
 
 	private void mapExchanges(DataSet dataSet) {
