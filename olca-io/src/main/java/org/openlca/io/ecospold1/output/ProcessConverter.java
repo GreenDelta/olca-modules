@@ -52,6 +52,8 @@ class ProcessConverter {
 		mapExchanges(dataSet);
 		// TODO: map allocation factors
 		// mapAllocations(process, dataSet, factory);
+		if (config.isCreateDefaults())
+			StructureDefaults.add(dataSet, factory);
 		return iDataSet;
 	}
 
@@ -269,23 +271,14 @@ class ProcessConverter {
 	}
 
 	private int mapFlowType(FlowType flowType, boolean input) {
-		if (input) {
-			if (flowType == FlowType.ELEMENTARY_FLOW)
-				return 4;
-			else
-				return 5;
-		} else {
-			if (flowType == FlowType.ELEMENTARY_FLOW)
-				return 4;
-			if (flowType == FlowType.WASTE_FLOW)
-				return 3;
-			else {
-				if (isMultiOutput())
-					return 2;
-				else
-					return 0;
-			}
-		}
+		if (input)
+			return flowType == FlowType.ELEMENTARY_FLOW ? 4 : 5;
+		if (flowType == FlowType.ELEMENTARY_FLOW)
+			return 4;
+		if (flowType == FlowType.WASTE_FLOW)
+			return 3;
+		else
+			return isMultiOutput() ? 2 : 0;
 	}
 
 	private void mapUncertainty(Exchange oExchange, IExchange exchange) {
@@ -293,32 +286,32 @@ class ProcessConverter {
 		if (uncertainty == null || uncertainty.getDistributionType() == null)
 			return;
 		switch (uncertainty.getDistributionType()) {
-			case NORMAL:
-				exchange.setMeanValue(uncertainty.getParameter1Value());
-				exchange.setStandardDeviation95(uncertainty.getParameter2Value() * 2);
-				exchange.setUncertaintyType(2);
-				break;
-			case LOG_NORMAL:
-				exchange.setMeanValue(uncertainty.getParameter1Value());
-				double sd = uncertainty.getParameter2Value();
-				exchange.setStandardDeviation95(Math.pow(sd, 2));
-				exchange.setUncertaintyType(1);
-				break;
-			case TRIANGLE:
-				exchange.setMinValue(uncertainty.getParameter1Value());
-				exchange.setMostLikelyValue(uncertainty.getParameter2Value());
-				exchange.setMaxValue(uncertainty.getParameter3Value());
-				exchange.setMeanValue(oExchange.getAmountValue());
-				exchange.setUncertaintyType(3);
-				break;
-			case UNIFORM:
-				exchange.setMinValue(uncertainty.getParameter1Value());
-				exchange.setMaxValue(uncertainty.getParameter2Value());
-				exchange.setMeanValue(oExchange.getAmountValue());
-				exchange.setUncertaintyType(4);
-				break;
-			default:
-				exchange.setMeanValue(oExchange.getAmountValue());
+		case NORMAL:
+			exchange.setMeanValue(uncertainty.getParameter1Value());
+			exchange.setStandardDeviation95(uncertainty.getParameter2Value() * 2);
+			exchange.setUncertaintyType(2);
+			break;
+		case LOG_NORMAL:
+			exchange.setMeanValue(uncertainty.getParameter1Value());
+			double sd = uncertainty.getParameter2Value();
+			exchange.setStandardDeviation95(Math.pow(sd, 2));
+			exchange.setUncertaintyType(1);
+			break;
+		case TRIANGLE:
+			exchange.setMinValue(uncertainty.getParameter1Value());
+			exchange.setMostLikelyValue(uncertainty.getParameter2Value());
+			exchange.setMaxValue(uncertainty.getParameter3Value());
+			exchange.setMeanValue(oExchange.getAmountValue());
+			exchange.setUncertaintyType(3);
+			break;
+		case UNIFORM:
+			exchange.setMinValue(uncertainty.getParameter1Value());
+			exchange.setMaxValue(uncertainty.getParameter2Value());
+			exchange.setMeanValue(oExchange.getAmountValue());
+			exchange.setUncertaintyType(4);
+			break;
+		default:
+			exchange.setMeanValue(oExchange.getAmountValue());
 		}
 	}
 
