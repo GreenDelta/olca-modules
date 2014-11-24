@@ -2,6 +2,7 @@ package org.openlca.io.ecospold1.output;
 
 import java.util.Date;
 import java.util.Objects;
+
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -267,6 +268,7 @@ class ProcessConverter {
 			exchange.setMeanValue(inExchange.getAmountValue());
 		else
 			mapUncertainty(inExchange, exchange);
+		exchange.setGeneralComment(inExchange.getPedigreeUncertainty());
 		return exchange;
 	}
 

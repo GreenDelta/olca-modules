@@ -74,6 +74,7 @@ final class StructureDefaults {
 		source.setYear(Util.toXml(new Short((short) 9999)));
 		source.setTitle("Created for EcoSpold 1 compatibility");
 		source.setPlaceOfPublications("none");
+		source.setSourceType(0);
 		dataSet.getSources().add(source);
 		return source;
 	}

@@ -3,8 +3,11 @@ package org.openlca.io.ecospold1.output;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.RootEntity;
 import org.openlca.ecospold.IExchange;
@@ -38,10 +41,14 @@ class Util {
 	static XMLGregorianCalendar toXml(Short year) {
 		if (year == null)
 			return null;
-		GregorianCalendar cal = new GregorianCalendar();
+		GregorianCalendar cal = new GregorianCalendar(
+				TimeZone.getTimeZone("UTC"));
 		cal.set(Calendar.YEAR, year);
 		try {
-			return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+			XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance()
+					.newXMLGregorianCalendar(cal);
+			xmlCal.normalize();
+			return xmlCal;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(Util.class);
 			log.warn("failed to set year of source ", e);
