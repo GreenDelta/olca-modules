@@ -31,7 +31,7 @@ public class Document implements EntityStore {
 	}
 
 	public static String toHtml(RootEntity entity, IDatabase database) {
-
+		return new HtmlSerializer().serialize(entity, database);
 	}
 
 	@Override

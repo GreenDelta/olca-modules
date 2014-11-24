@@ -12,7 +12,9 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 
 	@Override
 	public void write(UnitGroup group, EntityStore store) {
-		if(group == null || store == null)
+		if (group == null || store == null)
+			return;
+		if (store.contains(ModelType.UNIT_GROUP, group.getRefId()))
 			return;
 		JsonObject obj = serialize(group, null, null);
 		store.add(ModelType.UNIT_GROUP, obj);

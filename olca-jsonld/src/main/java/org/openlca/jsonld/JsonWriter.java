@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -92,7 +93,8 @@ public class JsonWriter {
 			return;
 		if(entity instanceof Category)
 			new CategoryWriter().write((Category)entity, store);
-
+		if(entity instanceof Actor)
+			new ActorWriter().write((Actor) entity, store);
 	}
 
 	static void addContext(JsonObject object) {
