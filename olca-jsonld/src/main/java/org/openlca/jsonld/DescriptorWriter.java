@@ -11,9 +11,6 @@ import com.google.gson.JsonSerializer;
 
 class DescriptorWriter implements JsonSerializer<BaseDescriptor> {
 
-	public DescriptorWriter(JsonWriter writer) {
-	}
-
 	@Override
 	public JsonElement serialize(BaseDescriptor descriptor, Type type,
 			JsonSerializationContext context) {

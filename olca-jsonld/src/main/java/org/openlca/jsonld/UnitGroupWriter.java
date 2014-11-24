@@ -2,17 +2,24 @@ package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
-class UnitGroupWriter implements JsonSerializer<UnitGroup> {
+class UnitGroupWriter implements Writer<UnitGroup> {
 
 	@Override
-	public JsonElement serialize(UnitGroup unitGroup, Type type,
+	public void write(UnitGroup group, EntityStore store) {
+		if(group == null || store == null)
+			return;
+		JsonObject obj = serialize(group, null, null);
+		store.add(ModelType.UNIT_GROUP, obj);
+	}
+
+	@Override
+	public JsonObject serialize(UnitGroup unitGroup, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
 		JsonWriter.addContext(obj);

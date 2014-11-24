@@ -3,6 +3,7 @@ package org.openlca.jsonld;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -32,27 +33,29 @@ import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
 public class JsonWriter {
 
+	private final EntityStore store;
 	private final WriterConfig config;
 
-	public JsonWriter() {
-		this(WriterConfig.getDefault());
+	public JsonWriter(EntityStore store) {
+		this(store, WriterConfig.getDefault());
 	}
 
-	public JsonWriter(WriterConfig config) {
+	public JsonWriter(EntityStore store, WriterConfig config) {
+		this.store = store;
 		this.config = config;
 	}
 
-	public String dump(Object obj) {
+	public static Gson createGson(WriterConfig config) {
 		GsonBuilder b = new GsonBuilder();
 		if (config.isPrettyPrinting())
 			b.setPrettyPrinting();
 		registerTypeAdapters(b);
 		registerDescriptorWriter(b);
 		Gson gson = b.create();
-		return gson.toJson(obj);
+		return gson;
 	}
 
-	private void registerTypeAdapters(GsonBuilder b) {
+	private static void registerTypeAdapters(GsonBuilder b) {
 		b.registerTypeAdapter(Category.class, new CategoryWriter());
 		b.registerTypeAdapter(Unit.class, new UnitWriter());
 		b.registerTypeAdapter(UnitGroup.class, new UnitGroupWriter());
@@ -67,8 +70,8 @@ public class JsonWriter {
 				new FlowPropertyFactorWriter());
 	}
 
-	private void registerDescriptorWriter(GsonBuilder b) {
-		DescriptorWriter dw = new DescriptorWriter(this);
+	private static void registerDescriptorWriter(GsonBuilder b) {
+		DescriptorWriter dw = new DescriptorWriter();
 		b.registerTypeAdapter(ActorDescriptor.class, dw);
 		b.registerTypeAdapter(BaseDescriptor.class, dw);
 		b.registerTypeAdapter(CategorizedDescriptor.class, dw);
@@ -82,6 +85,14 @@ public class JsonWriter {
 		b.registerTypeAdapter(ProjectDescriptor.class, dw);
 		b.registerTypeAdapter(SourceDescriptor.class, dw);
 		b.registerTypeAdapter(UnitGroupDescriptor.class, dw);
+	}
+
+	public void write(RootEntity entity, IDatabase database) {
+		if(entity == null)
+			return;
+		if(entity instanceof Category)
+			new CategoryWriter().write((Category)entity, store);
+
 	}
 
 	static void addContext(JsonObject object) {

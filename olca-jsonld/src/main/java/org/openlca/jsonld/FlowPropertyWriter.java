@@ -4,11 +4,15 @@ import java.lang.reflect.Type;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 
-class FlowPropertyWriter implements JsonSerializer<FlowProperty> {
+class FlowPropertyWriter implements Writer<FlowProperty> {
+
+	@Override
+	public void write(FlowProperty entity, EntityStore store) {
+		//TODO:
+	}
 
 	@Override
 	public JsonElement serialize(FlowProperty property, Type type,
