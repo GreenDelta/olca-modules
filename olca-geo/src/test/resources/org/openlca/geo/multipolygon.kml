@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://earth.google.com/kml/2.0">
+<kml xmlns="http://earth.google.com/kml/2.1">
   <Folder>
     <name>OpenLayers export</name>
     <description>Exported on Tue Aug 19 2014 09:07:27 GMT+0200 (W. Europe Daylight Time)</description>

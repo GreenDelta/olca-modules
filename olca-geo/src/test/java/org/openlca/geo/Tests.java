@@ -10,6 +10,8 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 import org.geotools.geometry.jts.GeometryBuilder;
+import org.openlca.geo.kml.KmlFeature;
+import org.openlca.geo.parameter.ShapeFileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,16 +31,6 @@ public class Tests {
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(Tests.class);
 			log.error("failed to load kml " + file, e);
-			return null;
-		}
-	}
-
-	public static KmlFeature getKmlFeature(String file) {
-		try {
-			return KmlFeature.parse(getKml(file));
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Tests.class);
-			log.error("failed to load kml feature " + file, e);
 			return null;
 		}
 	}
