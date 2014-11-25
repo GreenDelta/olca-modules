@@ -26,7 +26,6 @@ public class KmlLoader implements IKmlLoader {
 
 	protected HashMap<Long, Long> processLocations = new HashMap<>();
 	protected HashMap<Long, byte[]> locationKmz = new HashMap<>();
-	protected HashMap<Long, String> locationReferenceIds = new HashMap<>();
 	protected HashMap<Long, KmlFeature> locationFeatures = new HashMap<>();
 
 	public KmlLoader(IDatabase database) {
@@ -89,14 +88,11 @@ public class KmlLoader implements IKmlLoader {
 
 	protected void registerLocationRow(ResultSet resultSet) throws SQLException {
 		long id = resultSet.getLong("id");
-		String refId = resultSet.getString("ref_id");
 		if (!processLocations.containsValue(id))
 			return;
 		byte[] kmz = resultSet.getBytes("kmz");
-		if (kmz != null) {
+		if (kmz != null)
 			locationKmz.put(id, kmz);
-			locationReferenceIds.put(id, refId);
-		}
 	}
 
 	protected KmlFeature getFeature(LongPair processProduct) {
@@ -112,20 +108,19 @@ public class KmlLoader implements IKmlLoader {
 		byte[] locKmz = locationKmz.get(locationId);
 		if (locKmz == null)
 			return null;
-		String referenceId = locationReferenceIds.get(locationId);
-		feature = createFeature(referenceId, locKmz);
+		feature = createFeature(locationId, locKmz);
 		locationFeatures.put(locationId, feature);
 		return feature;
 	}
 
-	protected KmlFeature createFeature(String referenceId, byte[] kmz) {
+	protected KmlFeature createFeature(long locationId, byte[] kmz) {
 		if (kmz == null)
 			return null;
 		try {
 			byte[] kmlBytes = BinUtils.unzip(kmz);
 			String kml = new String(kmlBytes, "utf-8");
 			KmlFeature feature = KmlFeature.parse(kml);
-			feature.setIdentifier(referenceId);
+			feature.setIdentifier(locationId);
 			return feature;
 		} catch (Exception e) {
 			log.error("failed to parse KMZ", e);

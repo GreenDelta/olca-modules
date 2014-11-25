@@ -173,9 +173,9 @@ public class RegionalizedCalculator {
 		public int compare(IndexedLongPair o1, IndexedLongPair o2) {
 			KmlFeature f1 = features.get(o1);
 			KmlFeature f2 = features.get(o2);
-			String uuid1 = f1 != null ? f1.getIdentifier() : "";
-			String uuid2 = f2 != null ? f2.getIdentifier() : "";
-			return uuid1.compareTo(uuid2);
+			long id1 = f1 != null ? f1.getIdentifier() : 0;
+			long id2 = f2 != null ? f2.getIdentifier() : 0;
+			return Long.compare(id1, id2);
 		}
 
 	}

@@ -7,7 +7,7 @@ import org.openlca.geo.kml.KmlFeature;
 
 public class ParameterSet {
 
-	private Map<String, Map<String, Double>> maps = new HashMap<>();
+	private Map<Long, Map<String, Double>> maps = new HashMap<>();
 	private Map<String, Double> defaults = new HashMap<>();
 
 	ParameterSet(Map<String, Double> defaults) {

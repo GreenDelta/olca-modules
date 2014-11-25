@@ -65,7 +65,8 @@ public class ParameterRepository {
 	private File getFile(KmlFeature feature, String shapeFile) {
 		File folder = shapeFileRepository.getFolder();
 		File shapeFileFolder = new File(folder, shapeFile);
-		File featureFile = new File(shapeFileFolder, feature.getIdentifier());
+		File featureFile = new File(shapeFileFolder, Long.toString(feature
+				.getIdentifier()));
 		return featureFile;
 	}
 
@@ -86,7 +87,7 @@ public class ParameterRepository {
 	private boolean isValidInput(KmlFeature feature, String shapeFile) {
 		if (feature == null)
 			return false;
-		if (Strings.isNullOrEmpty(feature.getIdentifier()))
+		if (feature.getIdentifier() == 0l)
 			return false;
 		if (Strings.isNullOrEmpty(shapeFile))
 			return false;
