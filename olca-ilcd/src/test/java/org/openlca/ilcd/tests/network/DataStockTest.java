@@ -13,7 +13,7 @@ public class DataStockTest {
 	@Ignore
 	public void testGetDataStocks() throws Exception {
 		String url = "http://oekobaudat.online-now.de/OEKOBAU.DAT/resource";
-		int numberOfStocks = 2;
+		int numberOfStocks = 3;
 		String shortName = "default";
 		NetworkClient client = new NetworkClient(url);
 		client.connect();

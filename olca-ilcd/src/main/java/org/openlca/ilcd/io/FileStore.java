@@ -2,8 +2,10 @@ package org.openlca.ilcd.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Iterator;
 
+import org.openlca.ilcd.sources.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +78,25 @@ public class FileStore implements DataStore {
 			binder.toFile(obj, file);
 		} catch (Exception e) {
 			String message = "Cannot store in file";
+			log.error(message, e);
+			throw new DataStoreException(message);
+		}
+	}
+
+	public void put(Source source, String id, File file)
+			throws DataStoreException {
+		log.trace("Store source {} with file {}", id, file);
+		put(source, id);
+		if (file == null || !file.exists())
+			return;
+		try {
+			File folder = new File(rootDir, "external_docs");
+			if (!folder.exists())
+				folder.mkdirs();
+			File newFile = new File(folder, file.getName());
+			Files.copy(file.toPath(), newFile.toPath());
+		} catch (Exception e) {
+			String message = "Cannot store source file " + file;
 			log.error(message, e);
 			throw new DataStoreException(message);
 		}

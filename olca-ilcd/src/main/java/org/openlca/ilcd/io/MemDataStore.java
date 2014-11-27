@@ -1,9 +1,12 @@
 package org.openlca.ilcd.io;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import org.openlca.ilcd.sources.Source;
 
 /** An in memory implementation of the data store interface. */
 public class MemDataStore implements DataStore {
@@ -32,6 +35,18 @@ public class MemDataStore implements DataStore {
 			content.put(clazz, map);
 		}
 		map.put(id, obj);
+	}
+
+	@Override
+	public void put(Source source, String id, File file)
+			throws DataStoreException {
+		put(source, id);
+		HashMap<String, Object> map = content.get(File.class);
+		if (map == null) {
+			map = new HashMap<>();
+			content.put(File.class, map);
+		}
+		map.put(id, file);
 	}
 
 	@Override

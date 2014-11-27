@@ -1,5 +1,8 @@
 package org.openlca.ilcd.io;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -9,6 +12,7 @@ import javax.ws.rs.core.Response.Status.Family;
 import org.openlca.ilcd.descriptors.DataStock;
 import org.openlca.ilcd.descriptors.DataStockList;
 import org.openlca.ilcd.descriptors.DescriptorList;
+import org.openlca.ilcd.sources.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +23,8 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.client.apache.ApacheHttpClient;
 import com.sun.jersey.client.apache.config.DefaultApacheHttpClientConfig;
+import com.sun.jersey.multipart.MultiPart;
+import com.sun.jersey.multipart.file.StreamDataBodyPart;
 
 public class NetworkClient implements DataStore {
 
@@ -109,19 +115,56 @@ public class NetworkClient implements DataStore {
 				Path.forClass(obj.getClass()));
 		log.info("Publish resource: {}/{}", resource.getURI(), id);
 		try {
-			byte[] bytes = binder.toByteArray(obj);
-			Builder builder = resource.type(MediaType.APPLICATION_XML);
+			MultiPart multiPart = new MultiPart();
+			multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
+			Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA_TYPE);
 			if (dataStock != null) {
 				log.trace("post to data stock {}", dataStock.getUuid());
 				builder = builder.header("stock", dataStock.getUuid());
 			}
-			ClientResponse response = builder.post(ClientResponse.class, bytes);
+			byte[] bytes = binder.toByteArray(obj);
+			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+			StreamDataBodyPart filePart = new StreamDataBodyPart("file", stream);
+			multiPart.bodyPart(filePart);
+			ClientResponse response = builder.post(ClientResponse.class,
+					multiPart);
 			eval(response);
 			log.trace("Server response: {}", fetchMessage(response));
 		} catch (Exception e) {
 			throw new DataStoreException("Failed to upload resource " + obj
 					+ " with id " + id, e);
 		}
+	}
+
+	@Override
+	public void put(Source source, String id, File file)
+			throws DataStoreException {
+		checkConnection();
+		WebResource resource = client.resource(baseUri).path(
+				Path.forClass(source.getClass()));
+		log.info("Publish source with file: {} + {}", id, file);
+		try {
+			MultiPart multiPart = new MultiPart();
+			multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
+			Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA_TYPE);
+			if (dataStock != null) {
+				log.trace("post to data stock {}", dataStock.getUuid());
+				builder = builder.header("stock", dataStock.getUuid());
+			}
+			byte[] bytes = binder.toByteArray(source);
+			ByteArrayInputStream xmlStream = new ByteArrayInputStream(bytes);
+			multiPart.bodyPart(new StreamDataBodyPart("file", xmlStream));
+			FileInputStream fileStream = new FileInputStream(file);
+			multiPart.bodyPart(new StreamDataBodyPart(file.getName(),
+					fileStream));
+			ClientResponse resp = builder.post(ClientResponse.class, multiPart);
+			eval(resp);
+			log.trace("Server response: {}", fetchMessage(resp));
+		} catch (Exception e) {
+			throw new DataStoreException("Failed to upload source " + id
+					+ " with file " + file, e);
+		}
+
 	}
 
 	@Override
