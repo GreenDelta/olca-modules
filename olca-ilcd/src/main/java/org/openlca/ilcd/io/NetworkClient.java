@@ -115,19 +115,13 @@ public class NetworkClient implements DataStore {
 				Path.forClass(obj.getClass()));
 		log.info("Publish resource: {}/{}", resource.getURI(), id);
 		try {
-			MultiPart multiPart = new MultiPart();
-			multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
-			Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA_TYPE);
+			byte[] bytes = binder.toByteArray(obj);
+			Builder builder = resource.type(MediaType.APPLICATION_XML);
 			if (dataStock != null) {
 				log.trace("post to data stock {}", dataStock.getUuid());
 				builder = builder.header("stock", dataStock.getUuid());
 			}
-			byte[] bytes = binder.toByteArray(obj);
-			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-			StreamDataBodyPart filePart = new StreamDataBodyPart("file", stream);
-			multiPart.bodyPart(filePart);
-			ClientResponse response = builder.post(ClientResponse.class,
-					multiPart);
+			ClientResponse response = builder.post(ClientResponse.class, bytes);
 			eval(response);
 			log.trace("Server response: {}", fetchMessage(response));
 		} catch (Exception e) {

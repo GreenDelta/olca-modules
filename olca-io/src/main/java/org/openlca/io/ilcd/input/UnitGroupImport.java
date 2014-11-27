@@ -133,7 +133,7 @@ public class UnitGroupImport {
 		else
 			oUnit.setRefId(UUID.randomUUID().toString());
 		oUnit.setName(iUnit.getName());
-		oUnit.setDescription(LangString.getLabel(iUnit.getGeneralComment()));
+		oUnit.setDescription(LangString.get(iUnit.getGeneralComment()));
 		oUnit.setConversionFactor(iUnit.getMeanValue());
 	}
 

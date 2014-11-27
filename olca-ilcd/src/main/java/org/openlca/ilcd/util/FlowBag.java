@@ -45,7 +45,7 @@ public class FlowBag implements IBag<Flow> {
 		if (info != null) {
 			FlowName flowName = info.getName();
 			if (flowName != null) {
-				return LangString.getLabel(flowName.getBaseName());
+				return LangString.get(flowName.getBaseName());
 			}
 		}
 		return null;
@@ -68,7 +68,7 @@ public class FlowBag implements IBag<Flow> {
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFreeText(info.getGeneralComment());
+			return LangString.get(info.getGeneralComment());
 		return null;
 	}
 

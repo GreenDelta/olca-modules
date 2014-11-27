@@ -32,14 +32,14 @@ public class SourceBag implements IBag<Source> {
 	public String getShortName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getLabel(info.getShortName());
+			return LangString.get(info.getShortName());
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFreeText(info.getSourceDescriptionOrComment());
+			return LangString.get(info.getSourceDescriptionOrComment());
 		return null;
 	}
 
