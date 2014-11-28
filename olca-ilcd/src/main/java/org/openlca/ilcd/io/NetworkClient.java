@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 
 import javax.ws.rs.core.MediaType;
@@ -23,8 +24,8 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.client.apache.ApacheHttpClient;
 import com.sun.jersey.client.apache.config.DefaultApacheHttpClientConfig;
-import com.sun.jersey.multipart.MultiPart;
-import com.sun.jersey.multipart.file.StreamDataBodyPart;
+import com.sun.jersey.multipart.FormDataBodyPart;
+import com.sun.jersey.multipart.FormDataMultiPart;
 
 public class NetworkClient implements DataStore {
 
@@ -135,30 +136,47 @@ public class NetworkClient implements DataStore {
 			throws DataStoreException {
 		checkConnection();
 		WebResource resource = client.resource(baseUri).path(
-				Path.forClass(source.getClass()));
+				"sources/withBinaries");
 		log.info("Publish source with file: {} + {}", id, file);
 		try {
-			MultiPart multiPart = new MultiPart();
-			multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
-			Builder builder = resource.type(MediaType.MULTIPART_FORM_DATA_TYPE);
+			FormDataMultiPart multiPart = new FormDataMultiPart();
 			if (dataStock != null) {
 				log.trace("post to data stock {}", dataStock.getUuid());
-				builder = builder.header("stock", dataStock.getUuid());
+				multiPart.field("stock", dataStock.getUuid());
 			}
 			byte[] bytes = binder.toByteArray(source);
 			ByteArrayInputStream xmlStream = new ByteArrayInputStream(bytes);
-			multiPart.bodyPart(new StreamDataBodyPart("file", xmlStream));
+			FormDataBodyPart xmlPart = new FormDataBodyPart("file", xmlStream,
+					MediaType.MULTIPART_FORM_DATA_TYPE);
+			multiPart.bodyPart(xmlPart);
 			FileInputStream fileStream = new FileInputStream(file);
-			multiPart.bodyPart(new StreamDataBodyPart(file.getName(),
-					fileStream));
-			ClientResponse resp = builder.post(ClientResponse.class, multiPart);
+			FormDataBodyPart filePart = new FormDataBodyPart(file.getName(),
+					fileStream, MediaType.MULTIPART_FORM_DATA_TYPE);
+			multiPart.bodyPart(filePart);
+			ClientResponse resp = resource.type(
+					MediaType.MULTIPART_FORM_DATA_TYPE)
+					.post(ClientResponse.class, multiPart);
 			eval(resp);
 			log.trace("Server response: {}", fetchMessage(resp));
 		} catch (Exception e) {
 			throw new DataStoreException("Failed to upload source " + id
 					+ " with file " + file, e);
 		}
+	}
 
+	public InputStream getExternalDocument(String sourceId, String fileName)
+			throws DataStoreException {
+		checkConnection();
+		WebResource resource = client.resource(baseUri).path(
+				"sources").path(sourceId).path(fileName);
+		log.info("Get external document {} for source {}", fileName, sourceId);
+		try {
+			return resource.type(MediaType.APPLICATION_OCTET_STREAM).get(
+					InputStream.class);
+		} catch (Exception e) {
+			throw new DataStoreException("Failed to get file " + fileName +
+					"for source " + sourceId, e);
+		}
 	}
 
 	@Override
