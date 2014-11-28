@@ -1,7 +1,9 @@
 package org.openlca.ilcd.io;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Iterator;
 
@@ -67,6 +69,22 @@ public class FileStore implements DataStore {
 			String message = "Cannot unmarshal file.";
 			log.error(message, e);
 			throw new DataStoreException(message);
+		}
+	}
+
+	@Override
+	public InputStream getExternalDocument(String sourceId, String fileName)
+			throws DataStoreException {
+		log.trace("Get external document {} for source {}", fileName, sourceId);
+		try {
+			File docDir = new File(rootDir, "external_docs");
+			File file = new File(docDir, fileName);
+			if (!file.exists())
+				return null;
+			else
+				return new FileInputStream(file);
+		} catch (Exception e) {
+			throw new DataStoreException("failed to open file " + fileName, e);
 		}
 	}
 

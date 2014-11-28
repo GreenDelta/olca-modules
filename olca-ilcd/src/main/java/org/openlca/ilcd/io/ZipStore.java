@@ -92,6 +92,23 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
+	public InputStream getExternalDocument(String sourceId, String fileName)
+			throws DataStoreException {
+		log.trace("Get external document {}", fileName);
+		String entryName = "ILCD/external_docs/" + fileName;
+		try {
+			TFile zipEntry = new TFile(dir, entryName);
+			if (!zipEntry.exists())
+				return null;
+			else
+				return new TFileInputStream(zipEntry);
+		} catch (Exception e) {
+			throw new DataStoreException("failed to open external file "
+					+ fileName, e);
+		}
+	}
+
+	@Override
 	public <T> boolean delete(Class<T> type, String id)
 			throws DataStoreException {
 		throw new UnsupportedOperationException("delete in zips not supported");

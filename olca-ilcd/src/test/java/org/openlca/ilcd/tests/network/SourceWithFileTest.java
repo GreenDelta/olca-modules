@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.io.NetworkClient;
 import org.openlca.ilcd.sources.DataSetInformation;
 import org.openlca.ilcd.sources.DigitalFileReference;
@@ -56,6 +57,13 @@ public class SourceWithFileTest {
 		is.read(contentFromServer);
 		is.close();
 		Assert.assertArrayEquals(content, contentFromServer);
+	}
+
+	@Test(expected = DataStoreException.class)
+	public void testNoFile() throws Exception {
+		Assume.assumeTrue(Network.isAppAlive());
+		client.getExternalDocument(UUID.randomUUID().toString(),
+				"no_such_file.txt");
 	}
 
 	private Source makeSource(String id) {

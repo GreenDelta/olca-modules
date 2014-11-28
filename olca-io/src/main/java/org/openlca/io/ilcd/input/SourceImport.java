@@ -1,5 +1,10 @@
 package org.openlca.io.ilcd.input;
 
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.List;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Category;
@@ -7,6 +12,8 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.SourceBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SourceImport {
 
@@ -53,6 +60,7 @@ public class SourceImport {
 		source = new Source();
 		importAndSetCategory();
 		setDescriptionAttributes();
+		importExternalFile();
 		saveInDatabase();
 		return source;
 	}
@@ -84,6 +92,37 @@ public class SourceImport {
 				ModelType.SOURCE);
 		Category category = categoryImport.run(ilcdSource.getSortedClasses());
 		source.setCategory(category);
+	}
+
+	private void importExternalFile() {
+		List<String> uris = ilcdSource.getExternalFileURIs();
+		File dbDir = database.getFileStorageLocation();
+		if (uris.isEmpty() || dbDir == null)
+			return;
+		String uri = uris.get(0);
+		try {
+			copyFile(dbDir, uri);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.warn("failed to import external file " + uri, e);
+		}
+	}
+
+	private void copyFile(File dbDir, String uri) throws Exception {
+		String fileName = new File(uri).getName();
+		File docDir = new File(dbDir, "external_docs");
+		if (!docDir.exists())
+			docDir.mkdirs();
+		File dbFile = new File(docDir, fileName);
+		if (dbFile.exists())
+			return;
+		try (InputStream in = dataStore.getExternalDocument(
+				ilcdSource.getId(), fileName)) {
+			if (in == null)
+				return;
+			Files.copy(in, dbFile.toPath());
+			source.setExternalFile(fileName);
+		}
 	}
 
 	private void saveInDatabase() throws ImportException {
