@@ -96,8 +96,8 @@ public class NetworkClient implements DataStore {
 	@Override
 	public <T> T get(Class<T> type, String id) throws DataStoreException {
 		checkConnection();
-		WebResource resource = initGetRequest(type).path(id).queryParam(
-				"format", "xml");
+		WebResource resource = client.resource(baseUri)
+				.path(Path.forClass(type)).path(id).queryParam("format", "xml");
 		log.info("Get resource: {}", resource.getURI());
 		ClientResponse response = resource.get(ClientResponse.class);
 		eval(response);
@@ -195,8 +195,8 @@ public class NetworkClient implements DataStore {
 	public <T> boolean contains(Class<T> type, String id)
 			throws DataStoreException {
 		checkConnection();
-		WebResource resource = initGetRequest(type).path(id).queryParam(
-				"format", "xml");
+		WebResource resource = client.resource(baseUri)
+				.path(Path.forClass(type)).path(id).queryParam("format", "xml");
 		log.trace("Contains resource {} ?", resource.getURI());
 		ClientResponse response = resource.head();
 		log.trace("Server response: {}", response);
@@ -211,7 +211,7 @@ public class NetworkClient implements DataStore {
 			term = "";
 		else
 			term = name.trim();
-		WebResource resource = initGetRequest(type)
+		WebResource resource = initSearchRequest(type)
 				.queryParam("search", "true")
 				.queryParam("name", term);
 		log.trace("Search resources: {}", resource.getURI());
@@ -225,7 +225,7 @@ public class NetworkClient implements DataStore {
 		}
 	}
 
-	private WebResource initGetRequest(Class<?> type) {
+	private WebResource initSearchRequest(Class<?> type) {
 		if (dataStock == null)
 			return client.resource(baseUri).path(Path.forClass(type));
 		else
