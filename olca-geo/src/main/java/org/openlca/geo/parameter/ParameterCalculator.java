@@ -1,177 +1,110 @@
 package org.openlca.geo.parameter;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.data.simple.SimpleFeatureIterator;
-import org.opengis.feature.simple.SimpleFeature;
+import org.openlca.core.model.Parameter;
+import org.openlca.geo.kml.FeatureType;
 import org.openlca.geo.kml.KmlFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.geo.kml.KmlLoadResult;
 
-import com.vividsolutions.jts.geom.Geometry;
+public class ParameterCalculator {
 
-class ParameterCalculator {
+	private Map<String, List<String>> groups;
+	private Map<String, DataStore> stores;
+	private Map<String, Double> defaults;
+	private ParameterRepository repository;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private final DataStore dataStore;
-
-	public ParameterCalculator(DataStore dataStore) {
-		this.dataStore = dataStore;
+	public ParameterCalculator(List<Parameter> parameters,
+			ShapeFileRepository shapeFileRepository,
+			ParameterRepository parameterRepository) {
+		groups = groupParameters(parameters);
+		stores = openStores(groups.keySet(), shapeFileRepository);
+		defaults = getDefaultValues(parameters);
+		repository = parameterRepository;
 	}
 
-	public Map<String, Double> calculate(KmlFeature feature,
-			List<String> parameters) {
-		if (feature.getType() == null)
-			return Collections.emptyMap();
-		switch (feature.getType()) {
-		case POINT:
-			return fetchPointValues(feature, parameters);
-		case LINE:
-			return fetchValues(feature, parameters, new LineStringValueFetch());
-		case POLYGON:
-		case MULTI_GEOMETRY:
-			return fetchValues(feature, parameters, new PolygonValueFetch());
-		default:
-			log.warn("cannot calculate parameter values for type {}",
-					feature.getType());
-			return Collections.emptyMap();
+	public Map<String, Double> calculate(long locationId, KmlFeature feature) {
+		Map<String, Double> parameterMap = new HashMap<String, Double>();
+		for (String shapeFile : groups.keySet()) {
+			Map<String, Double> parameters = loadOrCalculate(locationId,
+					feature, shapeFile);
+			parameterMap.putAll(parameters);
 		}
+		fillDefaults(parameterMap, defaults);
+		return parameterMap;
 	}
 
-	private Map<String, Double> fetchPointValues(KmlFeature feature,
-			List<String> parameters) {
-		try (SimpleFeatureIterator iterator = getIterator()) {
-			while (iterator.hasNext()) {
-				SimpleFeature shape = iterator.next();
-				Geometry geometry = (Geometry) shape.getDefaultGeometry();
-				if (geometry.contains(feature.getGeometry()))
-					return fetchValues(shape, parameters);
-			}
-			return Collections.emptyMap();
-		} catch (Exception e) {
-			log.error("failed to fetch point values", e);
-			return null;
-		}
-	}
-
-	private Map<String, Double> fetchValues(SimpleFeature feature,
-			List<String> parameters) {
-		Map<String, Double> map = new HashMap<>();
-		for (String param : parameters) {
-			Object obj = feature.getAttribute(param);
-			if (!(obj instanceof Number))
+	public ParameterSet calculate(List<KmlLoadResult> kmlData) {
+		ParameterSet set = new ParameterSet(defaults);
+		if (groups.isEmpty())
+			return set;
+		for (KmlLoadResult data : kmlData) {
+			if (data.getKmlFeature().getType() == FeatureType.EMPTY)
 				continue;
-			Number number = (Number) obj;
-			map.put(param, number.doubleValue());
+			Map<String, Double> parameterMap = calculate(data.getLocationId(),
+					data.getKmlFeature());
+			set.put(data.getLocationId(), parameterMap);
 		}
-		return map;
+		return set;
 	}
 
-	private Map<String, Double> fetchValues(KmlFeature feature,
-			List<String> parameters, ValueFetch valueFetch) {
-		double totalValue = valueFetch.fetchTotal(feature);
-		if (totalValue == 0)
-			return Collections.emptyMap();
-		try (SimpleFeatureIterator iterator = getIterator()) {
-			Map<SimpleFeature, Double> shares = new HashMap<>();
-			while (iterator.hasNext()) {
-				SimpleFeature shape = iterator.next();
-				Geometry shapeGeo = (Geometry) shape.getDefaultGeometry();
-				Geometry featureGeo = feature.getGeometry();
-				if (valueFetch.skip(featureGeo, shapeGeo))
-					continue;
-				double value = valueFetch.fetchSingle(featureGeo, shapeGeo);
-				shares.put(shape, value / totalValue);
+	private Map<String, Double> loadOrCalculate(long id, KmlFeature feature,
+			String shapeFile) {
+		Map<String, Double> result = repository.load(id, shapeFile);
+		if (result != null)
+			return result;
+		DataStore store = stores.get(shapeFile);
+		FeatureCalculator calculator = new FeatureCalculator(store);
+		List<String> group = groups.get(shapeFile);
+		result = calculator.calculate(feature, group);
+		repository.save(id, shapeFile, result);
+		return result != null ? result : new HashMap<String, Double>();
+	}
+
+	private static void fillDefaults(Map<String, Double> results,
+			Map<String, Double> defaults) {
+		for (String param : defaults.keySet()) {
+			Double r = results.get(param);
+			if (r == null)
+				results.put(param, defaults.get(param));
+		}
+	}
+
+	private static Map<String, Double> getDefaultValues(
+			List<Parameter> parameters) {
+		Map<String, Double> defaultValues = new HashMap<>();
+		for (Parameter parameter : parameters)
+			defaultValues.put(parameter.getName(), parameter.getValue());
+		return defaultValues;
+	}
+
+	private static Map<String, DataStore> openStores(Set<String> shapeFiles,
+			ShapeFileRepository repository) {
+		Map<String, DataStore> stores = new HashMap<>();
+		for (String shapeFile : shapeFiles) {
+			DataStore store = repository.openDataStore(shapeFile);
+			stores.put(shapeFile, store);
+		}
+		return stores;
+	}
+
+	private static Map<String, List<String>> groupParameters(
+			List<Parameter> parameters) {
+		Map<String, List<String>> groups = new HashMap<>();
+		for (Parameter param : parameters) {
+			String shapeFile = param.getExternalSource();
+			List<String> group = groups.get(shapeFile);
+			if (group == null) {
+				group = new ArrayList<>();
+				groups.put(shapeFile, group);
 			}
-			return fetchValues(shares, parameters);
-		} catch (Exception e) {
-			String type = feature.getType().name();
-			log.error("failed to fetch parameters for feature type " + type, e);
-			return null;
+			group.add(param.getName());
 		}
+		return groups;
 	}
-
-	private Map<String, Double> fetchValues(Map<SimpleFeature, Double> shares,
-			List<String> parameters) {
-		Map<String, Double> results = new HashMap<>();
-		for (SimpleFeature feature : shares.keySet()) {
-			Double share = shares.get(feature);
-			if (share == null)
-				continue;
-			Map<String, Double> vals = fetchValues(feature, parameters);
-			for (String param : parameters) {
-				Double val = vals.get(param);
-				if (val == null)
-					continue;
-				double featureResult = share * val;
-				Double totalResult = results.get(param);
-				if (totalResult == null)
-					results.put(param, featureResult);
-				else
-					results.put(param, totalResult + featureResult);
-			}
-		}
-		return results;
-	}
-
-	private SimpleFeatureIterator getIterator() throws Exception {
-		String typeName = dataStore.getTypeNames()[0];
-		SimpleFeatureCollection collection = dataStore.getFeatureSource(
-				typeName).getFeatures();
-		return collection.features();
-	}
-
-	private interface ValueFetch {
-
-		double fetchTotal(KmlFeature feature);
-
-		double fetchSingle(Geometry feature, Geometry shape);
-
-		boolean skip(Geometry feature, Geometry shape);
-	}
-
-	private class LineStringValueFetch implements ValueFetch {
-
-		@Override
-		public double fetchTotal(KmlFeature feature) {
-			return feature.getGeometry().getLength();
-		}
-
-		@Override
-		public double fetchSingle(Geometry feature, Geometry shape) {
-			return feature.intersection(shape).getLength();
-		}
-
-		@Override
-		public boolean skip(Geometry feature, Geometry shape) {
-			return !feature.crosses(shape);
-		}
-
-	}
-
-	private class PolygonValueFetch implements ValueFetch {
-
-		@Override
-		public double fetchTotal(KmlFeature feature) {
-			return feature.getGeometry().getArea();
-		}
-
-		@Override
-		public double fetchSingle(Geometry feature, Geometry shape) {
-			return feature.intersection(shape).getArea();
-		}
-
-		@Override
-		public boolean skip(Geometry feature, Geometry shape) {
-			return !feature.intersects(shape);
-		}
-
-	}
-
 }

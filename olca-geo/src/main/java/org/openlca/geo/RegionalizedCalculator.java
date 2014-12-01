@@ -1,8 +1,6 @@
 package org.openlca.geo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +13,7 @@ import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
-import org.openlca.geo.kml.KmlFeature;
+import org.openlca.geo.kml.KmlLoadResult;
 import org.openlca.geo.parameter.ParameterSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +46,6 @@ public class RegionalizedCalculator {
 			result.setBaseResult(baseResult);
 			ContributionResult regioResult = calcRegioResult(baseResult);
 			result.setRegionalizedResult(regioResult);
-			result.setKmlFeatures(setup.getFeatures());
 			return result;
 		} catch (Exception e) {
 			log.error("failed to calculate regionalized result", e);
@@ -56,57 +53,38 @@ public class RegionalizedCalculator {
 		return null;
 	}
 
-	/*
-	 * For optimized memory usage this method is a bit more complicated than it
-	 * would be necessary without memory issues.
-	 * 
-	 * Instead of just iterating over the product index entries, the entries
-	 * first get sorted by features. This way the regio result for features that
-	 * are used multiple times does only need to be calculated once without the
-	 * need to cache each result. Only the previous result needs to be cached
-	 */
 	private ContributionResult calcRegioResult(ContributionResult baseResult) {
-		Map<LongPair, KmlFeature> features = setup.getFeatures();
+		List<KmlLoadResult> features = setup.getKmlData();
 		ParameterSet parameterSet = setup.getParameterSet();
 		ContributionResult regioResult = initRegioResult(baseResult);
 		IMatrix impactResultMatrix = regioResult.getSingleImpactResults();
-		List<IndexedLongPair> sortedIndex = sortByFeatures(baseResult
+		Map<LongPair, Integer> indices = getIndices(regioResult
 				.getProductIndex());
-		KmlFeature previousFeature = null;
-		ImpactMatrix previousRegioImpacts = null;
-		for (IndexedLongPair processProduct : sortedIndex) {
-			if (!features.containsKey(processProduct))
-				continue;
-			KmlFeature feature = features.get(processProduct);
-			ImpactMatrix regioImpacts = null;
-			if (feature.equals(previousFeature))
-				regioImpacts = previousRegioImpacts;
-			if (regioImpacts == null)
-				regioImpacts = createRegioImpacts(parameterSet.getFor(feature));
-			double[] flowResults = baseResult.getSingleFlowResults().getColumn(
-					processProduct.getIndex());
-			double[] impactResults = solver.multiply(
-					regioImpacts.getFactorMatrix(), flowResults);
-			for (int row = 0; row < impactResults.length; row++) {
-				impactResultMatrix.setEntry(row, processProduct.getIndex(),
-						impactResults[row]);
+		for (KmlLoadResult result : features) {
+			Map<String, Double> parameters = parameterSet.getFor(result
+					.getLocationId());
+			ImpactMatrix impacts = createImpactMatrix(parameters);
+			IMatrix factors = impacts.getFactorMatrix();
+			for (LongPair processProduct : result.getProcessProducts()) {
+				int index = indices.get(processProduct);
+				double[] flowResults = baseResult.getSingleFlowResults()
+						.getColumn(index);
+				double[] impactResults = solver.multiply(factors, flowResults);
+				for (int row = 0; row < impactResults.length; row++)
+					impactResultMatrix.setEntry(row, index, impactResults[row]);
 			}
-			previousFeature = feature;
-			previousRegioImpacts = regioImpacts;
 		}
 		calcTotalImpactResult(regioResult);
 		return regioResult;
 	}
 
-	private List<IndexedLongPair> sortByFeatures(ProductIndex index) {
-		List<IndexedLongPair> collected = new ArrayList<IndexedLongPair>();
+	private Map<LongPair, Integer> getIndices(ProductIndex index) {
+		Map<LongPair, Integer> indices = new HashMap<>();
 		for (int i = 0; i < index.size(); i++) {
 			LongPair processProduct = index.getProductAt(i);
-			collected.add(new IndexedLongPair(processProduct, i));
+			indices.put(processProduct, i);
 		}
-		Collections.sort(collected,
-				new ByFeatureComparator(setup.getFeatures()));
-		return collected;
+		return indices;
 	}
 
 	private ContributionResult initRegioResult(ContributionResult baseResult) {
@@ -123,7 +101,7 @@ public class RegionalizedCalculator {
 		return regioResult;
 	}
 
-	private ImpactMatrix createRegioImpacts(Map<String, Double> params) {
+	private ImpactMatrix createImpactMatrix(Map<String, Double> params) {
 		long methodId = setup.getImpactMethod().getId();
 		Scope scope = interpreter.getScope(methodId);
 		for (String param : params.keySet()) {
@@ -144,40 +122,6 @@ public class RegionalizedCalculator {
 			}
 		}
 		regioResult.setTotalImpactResults(totalResults);
-	}
-
-	private class IndexedLongPair extends LongPair {
-
-		private int index;
-
-		public IndexedLongPair(LongPair longPair, int index) {
-			super(longPair.getFirst(), longPair.getSecond());
-			this.index = index;
-		}
-
-		public int getIndex() {
-			return index;
-		}
-
-	}
-
-	private class ByFeatureComparator implements Comparator<IndexedLongPair> {
-
-		private Map<LongPair, KmlFeature> features;
-
-		public ByFeatureComparator(Map<LongPair, KmlFeature> features) {
-			this.features = features;
-		}
-
-		@Override
-		public int compare(IndexedLongPair o1, IndexedLongPair o2) {
-			KmlFeature f1 = features.get(o1);
-			KmlFeature f2 = features.get(o2);
-			long id1 = f1 != null ? f1.getIdentifier() : 0;
-			long id2 = f2 != null ? f2.getIdentifier() : 0;
-			return Long.compare(id1, id2);
-		}
-
 	}
 
 }

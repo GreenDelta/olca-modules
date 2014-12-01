@@ -1,12 +1,11 @@
 package org.openlca.geo.kml;
 
-import java.util.Map;
+import java.util.List;
 
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 
 public interface IKmlLoader {
-	
-	Map<LongPair, KmlFeature> load(ProductIndex productIndex);
+
+	List<KmlLoadResult> load(ProductIndex productIndex);
 
 }

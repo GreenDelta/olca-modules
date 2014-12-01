@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.openlca.geo.kml.KmlFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +25,10 @@ public class ParameterRepository {
 		this.shapeFileRepository = shapeFileRepository;
 	}
 
-	public Map<String, Double> load(KmlFeature feature, String shapeFile) {
-		if (!contains(feature, shapeFile)) // also checks that input is valid
+	public Map<String, Double> load(long locationId, String shapeFile) {
+		if (!contains(locationId, shapeFile)) // also checks that input is valid
 			return null;
-		File file = getFile(feature, shapeFile);
+		File file = getFile(locationId, shapeFile);
 		try (FileReader reader = new FileReader(file)) {
 			return gson.fromJson(reader, MapType.get());
 		} catch (IOException e) {
@@ -38,11 +37,11 @@ public class ParameterRepository {
 		}
 	}
 
-	public void save(KmlFeature feature, String shapeFile,
+	public void save(long locationId, String shapeFile,
 			Map<String, Double> parameterMap) {
-		if (!isValidInput(feature, shapeFile, parameterMap))
+		if (!isValidInput(locationId, shapeFile, parameterMap))
 			return;
-		File file = getFile(feature, shapeFile);
+		File file = getFile(locationId, shapeFile);
 		if (!file.exists())
 			if (!create(file))
 				return;
@@ -53,20 +52,19 @@ public class ParameterRepository {
 		}
 	}
 
-	public void remove(KmlFeature feature, String shapeFile) {
-		if (!isValidInput(feature, shapeFile))
+	public void remove(long locationId, String shapeFile) {
+		if (!isValidInput(locationId, shapeFile))
 			return;
-		File file = getFile(feature, shapeFile);
+		File file = getFile(locationId, shapeFile);
 		if (!file.exists())
 			return;
 		file.delete();
 	}
 
-	private File getFile(KmlFeature feature, String shapeFile) {
+	private File getFile(long locationId, String shapeFile) {
 		File folder = shapeFileRepository.getFolder();
 		File shapeFileFolder = new File(folder, shapeFile);
-		File featureFile = new File(shapeFileFolder, Long.toString(feature
-				.getIdentifier()));
+		File featureFile = new File(shapeFileFolder, Long.toString(locationId));
 		return featureFile;
 	}
 
@@ -84,29 +82,27 @@ public class ParameterRepository {
 		}
 	}
 
-	private boolean isValidInput(KmlFeature feature, String shapeFile) {
-		if (feature == null)
-			return false;
-		if (feature.getIdentifier() == 0l)
+	private boolean isValidInput(long locationId, String shapeFile) {
+		if (locationId == 0l)
 			return false;
 		if (Strings.isNullOrEmpty(shapeFile))
 			return false;
 		return true;
 	}
 
-	private boolean isValidInput(KmlFeature feature, String shapeFile,
+	private boolean isValidInput(long locationId, String shapeFile,
 			Map<String, Double> parameterMap) {
-		if (!isValidInput(feature, shapeFile))
+		if (!isValidInput(locationId, shapeFile))
 			return false;
 		if (parameterMap == null)
 			return false;
 		return true;
 	}
 
-	public boolean contains(KmlFeature feature, String shapeFile) {
-		if (!isValidInput(feature, shapeFile))
+	public boolean contains(long locationId, String shapeFile) {
+		if (!isValidInput(locationId, shapeFile))
 			return false;
-		File file = getFile(feature, shapeFile);
+		File file = getFile(locationId, shapeFile);
 		return file.exists();
 	}
 

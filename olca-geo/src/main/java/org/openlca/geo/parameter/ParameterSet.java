@@ -3,8 +3,6 @@ package org.openlca.geo.parameter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.geo.kml.KmlFeature;
-
 public class ParameterSet {
 
 	private Map<Long, Map<String, Double>> maps = new HashMap<>();
@@ -14,14 +12,14 @@ public class ParameterSet {
 		this.defaults = defaults;
 	}
 
-	void put(KmlFeature feature, Map<String, Double> map) {
-		maps.put(feature.getIdentifier(), map);
+	void put(long locationId, Map<String, Double> map) {
+		maps.put(locationId, map);
 	}
 
-	public Map<String, Double> getFor(KmlFeature feature) {
-		if (!maps.containsKey(feature.getIdentifier()))
+	public Map<String, Double> getFor(long locationId) {
+		if (!maps.containsKey(locationId))
 			return defaults;
-		return maps.get(feature.getIdentifier());
+		return maps.get(locationId);
 	}
 
 }

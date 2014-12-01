@@ -18,7 +18,6 @@ public class KmlFeature {
 	private final String kml;
 	private final Geometry geometry;
 	private final FeatureType type;
-	private long identifier;
 
 	private KmlFeature(String kml, Geometry geometry, FeatureType type) {
 		this.geometry = geometry;
@@ -142,31 +141,6 @@ public class KmlFeature {
 
 	public String getKml() {
 		return kml;
-	}
-
-	public long getIdentifier() {
-		return identifier;
-	}
-
-	public void setIdentifier(long identifier) {
-		this.identifier = identifier;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		if (obj == this)
-			return true;
-		if (!(obj instanceof KmlFeature))
-			return false;
-		KmlFeature other = (KmlFeature) obj;
-		return identifier == other.identifier;
-	}
-
-	@Override
-	public int hashCode() {
-		return new Long(identifier).hashCode();
 	}
 
 }

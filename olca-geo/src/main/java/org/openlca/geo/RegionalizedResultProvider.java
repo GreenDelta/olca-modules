@@ -1,16 +1,15 @@
 package org.openlca.geo;
 
-import org.openlca.core.matrix.LongPair;
-import org.openlca.core.results.ContributionResultProvider;
-import org.openlca.geo.kml.KmlFeature;
+import java.util.List;
 
-import java.util.Map;
+import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.geo.kml.KmlLoadResult;
 
 public class RegionalizedResultProvider {
 
 	private ContributionResultProvider<?> baseResult;
 	private ContributionResultProvider<?> regionalizedResult;
-	private Map<LongPair, KmlFeature> kmlFeatures;
+	private List<KmlLoadResult> kmlData;
 
 	public void setBaseResult(ContributionResultProvider<?> baseResult) {
 		this.baseResult = baseResult;
@@ -29,11 +28,12 @@ public class RegionalizedResultProvider {
 		return regionalizedResult;
 	}
 
-	public void setKmlFeatures(Map<LongPair, KmlFeature> kmlFeatures) {
-		this.kmlFeatures = kmlFeatures;
+	public List<KmlLoadResult> getKmlData() {
+		return kmlData;
 	}
 
-	public Map<LongPair, KmlFeature> getKmlFeatures() {
-		return kmlFeatures;
+	public void setKmlData(List<KmlLoadResult> kmlData) {
+		this.kmlData = kmlData;
 	}
+
 }

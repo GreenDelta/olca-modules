@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.openlca.geo.Tests;
 import org.openlca.geo.kml.KmlFeature;
 import org.openlca.geo.kml.KmlTests;
-import org.openlca.geo.parameter.ParameterCalculator;
+import org.openlca.geo.parameter.FeatureCalculator;
 import org.openlca.geo.parameter.ShapeFileRepository;
 
 import java.util.Arrays;
@@ -17,13 +17,13 @@ import java.util.Map;
 public class ParameterCalculatorTest {
 
 	private DataStore dataStore;
-	private ParameterCalculator calculator;
+	private FeatureCalculator calculator;
 
 	@Before
 	public void setUp() throws Exception {
 		ShapeFileRepository repository = Tests.getRepository();
 		dataStore = repository.openDataStore("states");
-		calculator = new ParameterCalculator(dataStore);
+		calculator = new FeatureCalculator(dataStore);
 	}
 
 	@After

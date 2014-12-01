@@ -3,21 +3,18 @@ package org.openlca.geo;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.geo.kml.IKmlLoader;
-import org.openlca.geo.kml.KmlFeature;
+import org.openlca.geo.kml.KmlLoadResult;
+import org.openlca.geo.parameter.ParameterCalculator;
 import org.openlca.geo.parameter.ParameterRepository;
 import org.openlca.geo.parameter.ParameterSet;
-import org.openlca.geo.parameter.ParameterSetBuilder;
 import org.openlca.geo.parameter.ShapeFileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +26,7 @@ public class RegionalizationSetup {
 	private final IDatabase database;
 	private final ImpactMethodDescriptor impactMethod;
 
-	private Map<LongPair, KmlFeature> features;
+	private List<KmlLoadResult> kmlData;
 	private List<Parameter> shapeFileParameters;
 	private ShapeFileRepository shapeFileRepository;
 	private ParameterRepository parameterRepository;
@@ -53,8 +50,8 @@ public class RegionalizationSetup {
 					+ "no LCIA method with shapefile parameters selected.");
 			return false;
 		}
-		features = kmlLoader.load(productIndex);
-		if (features.isEmpty()) {
+		kmlData = kmlLoader.load(productIndex);
+		if (kmlData.isEmpty()) {
 			log.warn("Cannot calculate regionalized LCIA because none of the "
 					+ "processes in the product system contains a KML feature.");
 			return false;
@@ -119,15 +116,13 @@ public class RegionalizationSetup {
 	}
 
 	private void initParameterSet() {
-		ParameterSetBuilder builder = ParameterSetBuilder.createBuilder(
+		ParameterCalculator calculator = new ParameterCalculator(
 				shapeFileParameters, shapeFileRepository, parameterRepository);
-		HashSet<KmlFeature> unique = new HashSet<KmlFeature>();
-		unique.addAll(features.values());
-		parameterSet = builder.build(unique);
+		parameterSet = calculator.calculate(kmlData);
 	}
 
-	public Map<LongPair, KmlFeature> getFeatures() {
-		return features;
+	public List<KmlLoadResult> getKmlData() {
+		return kmlData;
 	}
 
 	public ParameterSet getParameterSet() {
