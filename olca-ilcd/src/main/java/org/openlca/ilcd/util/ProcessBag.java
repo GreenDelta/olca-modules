@@ -74,7 +74,7 @@ public class ProcessBag implements IBag<Process> {
 	private void appendNamePart(List<Label> parts, StringBuilder builder,
 			String prefix) {
 		if (parts != null) {
-			String part = LangString.getLabel(parts);
+			String part = LangString.get(parts);
 			if (part != null) {
 				if (prefix != null) {
 					builder.append(prefix);
@@ -87,7 +87,7 @@ public class ProcessBag implements IBag<Process> {
 	public String getSynonyms() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFreeText(info.getSynonyms());
+			return LangString.get(info.getSynonyms());
 		return null;
 	}
 
@@ -104,7 +104,7 @@ public class ProcessBag implements IBag<Process> {
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFreeText(info.getGeneralComment());
+			return LangString.get(info.getGeneralComment());
 		return null;
 	}
 

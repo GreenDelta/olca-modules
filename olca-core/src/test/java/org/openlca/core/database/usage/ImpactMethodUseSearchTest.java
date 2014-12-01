@@ -1,4 +1,4 @@
-package org.openlca.core.database;
+package org.openlca.core.database.usage;
 
 import java.util.List;
 
@@ -7,6 +7,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.TestSession;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.usage.IUseSearch;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;

@@ -1,4 +1,4 @@
-package org.openlca.io.ecospold1.importer;
+package org.openlca.io.ecospold1.input;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -164,6 +164,8 @@ class FlowImport {
 	private void mapExchangeData(IExchange inExchange, Flow flow) {
 		flow.setCasNumber(inExchange.getCASNumber());
 		flow.setFormula(inExchange.getFormula());
+		if (inExchange.isInfrastructureProcess() != null)
+			flow.setInfrastructureFlow(inExchange.isInfrastructureProcess());
 		Category flowCategory = db.getPutCategory(ModelType.FLOW,
 				inExchange.getCategory(), inExchange.getSubCategory());
 		if (flowCategory != null)

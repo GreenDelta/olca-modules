@@ -176,8 +176,8 @@ public class ProcessImport {
 
 			// comment
 			if (iGeography.getLocation() != null) {
-				doc.setGeography(LangString.getFreeText(iGeography
-						.getLocation().getDescription()));
+				doc.setGeography(LangString.get(iGeography.getLocation()
+						.getDescription()));
 			}
 
 		}
@@ -187,7 +187,7 @@ public class ProcessImport {
 		org.openlca.ilcd.processes.Technology iTechnology = ilcdProcess
 				.getTechnology();
 		if (iTechnology != null) {
-			doc.setTechnology(LangString.getFreeText(iTechnology
+			doc.setTechnology(LangString.get(iTechnology
 					.getTechnologyDescriptionAndIncludedProcesses()));
 		}
 	}
@@ -209,7 +209,7 @@ public class ProcessImport {
 				doc.setPublication(fetchSource(publicationRef));
 
 			// access and use restrictions
-			doc.setRestrictions(LangString.getFreeText(iPublication
+			doc.setRestrictions(LangString.get(iPublication
 					.getAccessRestrictions()));
 
 			// version
@@ -256,10 +256,10 @@ public class ProcessImport {
 		if (ilcdProcess.getCommissionerAndGoal() != null) {
 			CommissionerAndGoal comAndGoal = ilcdProcess
 					.getCommissionerAndGoal();
-			String intendedApp = LangString.getFreeText(comAndGoal
+			String intendedApp = LangString.get(comAndGoal
 					.getIntendedApplications());
 			doc.setIntendedApplication(intendedApp);
-			String project = LangString.getLabel(comAndGoal.getProject());
+			String project = LangString.get(comAndGoal.getProject());
 			doc.setProject(project);
 		}
 	}
@@ -282,10 +282,10 @@ public class ProcessImport {
 
 		LCIMethod iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
-			String lciPrinciple = LangString.getFreeText(iMethod
+			String lciPrinciple = LangString.get(iMethod
 					.getDeviationsFromLCIMethodPrinciple());
 			doc.setInventoryMethod(lciPrinciple);
-			doc.setModelingConstants(LangString.getFreeText(iMethod
+			doc.setModelingConstants(LangString.get(iMethod
 					.getModellingConstants()));
 			process.setDefaultAllocationMethod(getAllocation(iMethod));
 		}
@@ -312,40 +312,24 @@ public class ProcessImport {
 	}
 
 	private void mapRepresentativeness(ProcessDocumentation doc) {
-		Representativeness iRepresentativeness = ilcdProcess
-				.getRepresentativeness();
-		if (iRepresentativeness != null) {
-
-			// completeness
-			doc.setCompleteness(LangString.getFreeText(iRepresentativeness
+		Representativeness repr = ilcdProcess.getRepresentativeness();
+		if (repr != null) {
+			doc.setCompleteness(LangString.get(repr
 					.getDataCutOffAndCompletenessPrinciples()));
-
-			// data selection
-			doc.setDataSelection(LangString.getFreeText(iRepresentativeness
+			doc.setDataSelection(LangString.get(repr
 					.getDataSelectionAndCombinationPrinciples()));
-
-			// data treatment
-			doc.setDataTreatment(LangString.getFreeText(iRepresentativeness
+			doc.setDataTreatment(LangString.get(repr
 					.getDataTreatmentAndExtrapolationsPrinciples()));
-
-			// sampling procedure
-			doc.setSampling(LangString.getFreeText(iRepresentativeness
+			doc.setSampling(LangString.get(repr
 					.getSamplingProcedure()));
-
-			// data collection period
-			doc.setDataCollectionPeriod(LangString.getLabel(iRepresentativeness
+			doc.setDataCollectionPeriod(LangString.get(repr
 					.getDataCollectionPeriod()));
-
-			// data sources
-			addSources(doc, iRepresentativeness);
-
+			addSources(doc, repr);
 		}
 	}
 
-	private void addSources(ProcessDocumentation doc,
-			Representativeness iRepresentativeness) {
-		for (DataSetReference sourceRef : iRepresentativeness
-				.getReferenceToDataSource()) {
+	private void addSources(ProcessDocumentation doc, Representativeness repr) {
+		for (DataSetReference sourceRef : repr.getReferenceToDataSource()) {
 			Source source = fetchSource(sourceRef);
 			if (source == null || doc.getSources().contains(source))
 				continue;
@@ -356,15 +340,12 @@ public class ProcessImport {
 	private void mapReviews(ProcessDocumentation doc) {
 		if (!ilcdProcess.getReviews().isEmpty()) {
 			Review iReview = ilcdProcess.getReviews().get(0);
-			// reviewer
 			if (!iReview.getReferenceToNameOfReviewerAndInstitution().isEmpty()) {
 				DataSetReference ref = iReview
 						.getReferenceToNameOfReviewerAndInstitution().get(0);
 				doc.setReviewer(fetchActor(ref));
 			}
-			// review details
-			doc.setReviewDetails(LangString.getFreeText(iReview
-					.getReviewDetails()));
+			doc.setReviewDetails(LangString.get(iReview.getReviewDetails()));
 		}
 	}
 

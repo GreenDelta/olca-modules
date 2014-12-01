@@ -7,7 +7,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 
 /** Search of entities where another entity is used. */
-public interface IUseSearch<T extends BaseDescriptor> {
+public interface IUseSearch<T> {
 
 	/**
 	 * Returns a list of descriptors of entities where the given entity is used.

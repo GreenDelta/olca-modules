@@ -1,6 +1,7 @@
 package org.openlca.ilcd.commons;
 
 import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -31,7 +32,7 @@ import javax.xml.bind.annotation.XmlValue;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "STMultiLang", propOrder = { "value" })
-public class ShortText implements Serializable {
+public class ShortText implements Serializable, ILangString {
 
 	private final static long serialVersionUID = 1L;
 	@XmlValue
@@ -45,6 +46,7 @@ public class ShortText implements Serializable {
 	 * @return possible object is {@link String }
 	 * 
 	 */
+	@Override
 	public String getValue() {
 		return value;
 	}
@@ -56,6 +58,7 @@ public class ShortText implements Serializable {
 	 *            allowed object is {@link String }
 	 * 
 	 */
+	@Override
 	public void setValue(String value) {
 		this.value = value;
 	}
@@ -66,6 +69,7 @@ public class ShortText implements Serializable {
 	 * @return possible object is {@link String }
 	 * 
 	 */
+	@Override
 	public String getLang() {
 		if (lang == null)
 			return "en";
@@ -79,6 +83,7 @@ public class ShortText implements Serializable {
 	 *            allowed object is {@link String }
 	 * 
 	 */
+	@Override
 	public void setLang(String value) {
 		this.lang = value;
 	}

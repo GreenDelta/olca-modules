@@ -1,4 +1,3 @@
-bin
-target
-/.classpath
-/.gitignore
+bin/
+target/
+apidocs/

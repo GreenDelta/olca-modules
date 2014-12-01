@@ -1,7 +1,16 @@
 package org.openlca.io.olca;
 
 import gnu.trove.iterator.TLongLongIterator;
+import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.map.hash.TLongLongHashMap;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
@@ -15,9 +24,6 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 class ProcessImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -28,8 +34,12 @@ class ProcessImport {
 	private RefSwitcher refs;
 	private Sequence seq;
 
-	// Required for translating the default provider links.
+	// Required for translating the default provider links: we import exchanges
+	// with possible links to processes that are not yet imported
 	private TLongLongHashMap srcDestIdMap = new TLongLongHashMap();
+	// Contains the exchange IDs and old default provider IDs that need to be
+	// updated after the import.
+	private TLongLongHashMap oldProviderMap = new TLongLongHashMap();
 
 	ProcessImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.srcDao = new ProcessDao(source);
@@ -61,7 +71,7 @@ class ProcessImport {
 		destProcess.setRefId(srcProcess.getRefId());
 		destProcess.setCategory(refs.switchRef(srcProcess.getCategory()));
 		destProcess.setLocation(refs.switchRef(srcProcess.getLocation()));
-		switchExchangeRefs(destProcess);
+		Set<Long> providerUpdates = switchExchangeRefs(destProcess);
 		switchAllocationProducts(srcProcess, destProcess);
 		destProcess.getCostEntries().clear(); // TODO: remove
 		// TODO: switchCostCategories(srcProcess, destProcess);
@@ -69,15 +79,33 @@ class ProcessImport {
 		destProcess = destDao.insert(destProcess);
 		seq.put(seq.PROCESS, srcProcess.getRefId(), destProcess.getId());
 		srcDestIdMap.put(srcProcess.getId(), destProcess.getId());
+		putProviderUpdates(providerUpdates, destProcess);
 	}
 
-	private void switchExchangeRefs(Process destProcess) {
+	private void putProviderUpdates(Set<Long> providerUpdates,
+			Process destProcess) {
+		for (Exchange exchange : destProcess.getExchanges()) {
+			if (exchange.getDefaultProviderId() >= 0)
+				continue;
+			// old default providers have a negative sign
+			long oldId = Math.abs(exchange.getDefaultProviderId());
+			oldProviderMap.put(exchange.getId(), oldId);
+		}
+	}
+
+	/**
+	 * Returns also the list of provider IDs from the source database that need
+	 * to be updated after the import.
+	 */
+	private Set<Long> switchExchangeRefs(Process destProcess) {
 		List<Exchange> removals = new ArrayList<>();
+		Set<Long> oldProviders = new HashSet<>();
 		for (Exchange exchange : destProcess.getExchanges()) {
 			if (!isValid(exchange)) {
 				removals.add(exchange);
 				continue;
 			}
+			checkSetProvider(exchange, oldProviders);
 			Flow destFlow = refs.switchRef(exchange.getFlow());
 			exchange.setFlow(destFlow);
 			exchange.setFlowPropertyFactor(refs.switchRef(
@@ -89,6 +117,21 @@ class ProcessImport {
 					+ "that where removed during the import", destProcess);
 			destProcess.getExchanges().removeAll(removals);
 		}
+		return oldProviders;
+	}
+
+	private void checkSetProvider(Exchange exchange, Set<Long> oldProviders) {
+		long oldId = exchange.getDefaultProviderId();
+		if (oldId <= 0)
+			return; // no default provider
+		long newId = srcDestIdMap.get(oldId);
+		if (newId != 0) {
+			exchange.setDefaultProviderId(newId);
+			return; // default provider already in database
+		}
+		// update required after import indicated by a negative sign
+		exchange.setDefaultProviderId(-oldId);
+		oldProviders.add(oldId);
 	}
 
 	private boolean isValid(Exchange exchange) {
@@ -134,22 +177,33 @@ class ProcessImport {
 	private void switchDefaultProviders() {
 		log.trace("update default providers");
 		dest.getEntityFactory().getCache().evictAll();
-		TLongLongIterator it = srcDestIdMap.iterator();
+		TLongArrayList exchangeIds = new TLongArrayList();
+		TLongArrayList providerIds = new TLongArrayList();
+		TLongLongIterator it = oldProviderMap.iterator();
 		while (it.hasNext()) {
 			it.advance();
-			long sourceId = it.key();
-			long destId = it.value();
-			if (sourceId == destId)
-				continue;
-			updateDefaultProvider(sourceId, destId);
+			long exchangeId = it.key();
+			long newId = srcDestIdMap.get(it.value());
+			exchangeIds.add(exchangeId);
+			providerIds.add(newId);
 		}
+		updateDefaultProviders(exchangeIds, providerIds);
 	}
 
-	private void updateDefaultProvider(long sourceId, long destId) {
+	private void updateDefaultProviders(final TLongArrayList exchangeIds,
+			final TLongArrayList providerIds) {
+		String stmt = "update tbl_exchanges set f_default_provider = ? where id = ?";
 		try {
-			String stmt = "update tbl_exchanges set f_default_provider = "
-					+ destId + " where f_default_provider = " + sourceId;
-			NativeSql.on(dest).runUpdate(stmt);
+			NativeSql.on(dest).batchInsert(stmt, exchangeIds.size(),
+					new NativeSql.BatchInsertHandler() {
+						@Override
+						public boolean addBatch(int i, PreparedStatement stmt)
+								throws SQLException {
+							stmt.setLong(1, providerIds.get(i));
+							stmt.setLong(2, exchangeIds.get(i));
+							return true;
+						}
+					});
 		} catch (Exception e) {
 			log.error("failed to update default provider", e);
 		}

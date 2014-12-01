@@ -29,7 +29,7 @@ class ProcessTime {
 		TimeExtension extension = new TimeExtension(ilcdTime);
 		mapStartDate(extension, doc);
 		mapEndDate(extension, doc);
-		doc.setTime(LangString.getFreeText(ilcdTime.getDescription()));
+		doc.setTime(LangString.get(ilcdTime.getDescription()));
 	}
 
 	private void mapStartDate(TimeExtension extension, ProcessDocumentation doc) {

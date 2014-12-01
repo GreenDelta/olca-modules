@@ -1,9 +1,14 @@
 package org.openlca.ilcd.io;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import org.openlca.ilcd.sources.Source;
 
 /** An in memory implementation of the data store interface. */
 public class MemDataStore implements DataStore {
@@ -32,6 +37,35 @@ public class MemDataStore implements DataStore {
 			content.put(clazz, map);
 		}
 		map.put(id, obj);
+	}
+
+	@Override
+	public void put(Source source, String id, File file)
+			throws DataStoreException {
+		put(source, id);
+		HashMap<String, Object> map = content.get(File.class);
+		if (map == null) {
+			map = new HashMap<>();
+			content.put(File.class, map);
+		}
+		map.put(file.getName(), file);
+	}
+
+	@Override
+	public InputStream getExternalDocument(String sourceId, String fileName)
+			throws DataStoreException {
+		HashMap<String, Object> map = content.get(File.class);
+		if (map == null)
+			return null;
+		try {
+			File file = (File) map.get(fileName);
+			if (file == null)
+				return null;
+			else
+				return new FileInputStream(file);
+		} catch (Exception e) {
+			throw new DataStoreException("Could not open file " + fileName, e);
+		}
 	}
 
 	@Override

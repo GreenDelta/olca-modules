@@ -1,11 +1,13 @@
 package org.openlca.ilcd.util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.sources.DataSetInformation;
+import org.openlca.ilcd.sources.DigitalFileReference;
 import org.openlca.ilcd.sources.Source;
 
 public class SourceBag implements IBag<Source> {
@@ -32,14 +34,14 @@ public class SourceBag implements IBag<Source> {
 	public String getShortName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getLabel(info.getShortName());
+			return LangString.get(info.getShortName());
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFreeText(info.getSourceDescriptionOrComment());
+			return LangString.get(info.getSourceDescriptionOrComment());
 		return null;
 	}
 
@@ -58,6 +60,19 @@ public class SourceBag implements IBag<Source> {
 			return ClassList.sortedList(classInfo);
 		}
 		return Collections.emptyList();
+	}
+
+	public List<String> getExternalFileURIs() {
+		DataSetInformation info = getDataSetInformation();
+		if (info == null)
+			return Collections.emptyList();
+		List<DigitalFileReference> refs = info.getReferenceToDigitalFile();
+		List<String> uris = new ArrayList<>();
+		for (DigitalFileReference ref : refs) {
+			if (ref.getUri() != null)
+				uris.add(ref.getUri());
+		}
+		return uris;
 	}
 
 	private DataSetInformation getDataSetInformation() {

@@ -6,20 +6,29 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Search for entities where a given source is used. */
-class ProcessUseSearch implements IUseSearch<ProcessDescriptor> {
+/**
+ * Searches for the use of processes in other entities. Processes can be used in
+ * product systems.
+ */
+public class ProcessUseSearch implements IUseSearch<ProcessDescriptor> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 
-	ProcessUseSearch(IDatabase database) {
+	public ProcessUseSearch(IDatabase database) {
 		this.database = database;
+	}
+
+	public List<BaseDescriptor> findUses(Process process) {
+		return findUses(Descriptors.toDescriptor(process));
 	}
 
 	@Override

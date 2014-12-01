@@ -32,14 +32,14 @@ public class ContactBag implements IBag<Contact> {
 	public String getShortName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getLabel(info.getShortName());
+			return LangString.get(info.getShortName());
 		return null;
 	}
 
 	public String getName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getLabel(info.getName());
+			return LangString.get(info.getName());
 		return null;
 	}
 
@@ -56,7 +56,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getContactAddress() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getShortText(info.getContactAddress());
+			return LangString.get(info.getContactAddress());
 		return null;
 	}
 
@@ -84,7 +84,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getCentralContactPoint() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getShortText(info.getCentralContactPoint());
+			return LangString.get(info.getCentralContactPoint());
 		return null;
 	}
 
@@ -98,7 +98,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getShortText(info.getDescription());
+			return LangString.get(info.getDescription());
 		return null;
 	}
 
