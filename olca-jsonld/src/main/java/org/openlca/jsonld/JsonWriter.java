@@ -93,8 +93,10 @@ public class JsonWriter {
 			return;
 		if(entity instanceof Category)
 			new CategoryWriter().write((Category)entity, store);
-		if(entity instanceof Actor)
+		else if(entity instanceof Actor)
 			new ActorWriter().write((Actor) entity, store);
+		else if (entity instanceof UnitGroup)
+			new UnitGroupWriter().write((UnitGroup)entity, store);
 	}
 
 	static void addContext(JsonObject object) {

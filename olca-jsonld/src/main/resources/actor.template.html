@@ -3,38 +3,48 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Actor: {{model.name}}</title>
+    <style>
+        body {
+        font-family: "Helvetica Neue", Helvetica, "Liberation Sans", Calibri,
+        Arial, sans-serif;
+        margin: 25px;
+        }
+        h1 {
+        border-bottom: 1px solid #aaa;
+        }
+    </style>
 </head>
 <body>
 
-    <script type="application/ld+json">
+<script type="application/ld+json">
         {{& json }}
-    </script>
+</script>
 
-    <h1>Actor: {{model.name}}</h1>
+<h1>Actor: {{model.name}}</h1>
 
-    <h3>General information</h3>
-    <table>
-        <tr>
-            <td>Name</td>
-            <td>{{model.name}}</td>
-        </tr>
-        <tr>
-            <td>Description</td>
-            <td>{{model.description}}</td>
-        </tr>
-    </table>
+<h3>General information</h3>
+<table>
+    <tr>
+        <td>Name</td>
+        <td>{{model.name}}</td>
+    </tr>
+    <tr>
+        <td>Description</td>
+        <td>{{model.description}}</td>
+    </tr>
+</table>
 
-    <h3>Additional information</h3>
-    <table>
-        <tr>
-            <td>Address</td>
-            <td>{{model.address}}</td>
-        </tr>
-        <tr>
-            <td>City</td>
-            <td>{{model.city}}</td>
-        </tr>
-    </table>
+<h3>Additional information</h3>
+<table>
+    <tr>
+        <td>Address</td>
+        <td>{{model.address}}</td>
+    </tr>
+    <tr>
+        <td>City</td>
+        <td>{{model.city}}</td>
+    </tr>
+</table>
 
 </body>
 </html>

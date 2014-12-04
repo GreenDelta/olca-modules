@@ -8,7 +8,6 @@ import org.openlca.core.model.Actor;
 
 public class HtmlActorTest {
 
-
 	@Test
 	public void testWriteHtml() {
 		Actor actor = new Actor();

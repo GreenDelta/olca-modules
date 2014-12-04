@@ -43,7 +43,7 @@ class HtmlSerializer {
 		if (entity instanceof Source)
 			return "source.html";
 		if (entity instanceof UnitGroup)
-			return "unit_group.html";
+			return "unit_group.template.html";
 		if (entity instanceof FlowProperty)
 			return "flow_property.html";
 		if (entity instanceof Flow)
