@@ -10,6 +10,4 @@
 /.idea
 olca-eigen.iml
 
-# compiled libraries for the JAR (have to be added when building the library)
-/src/main/resources/lib
 /bin
