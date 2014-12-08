@@ -1,90 +1,98 @@
 package org.openlca.core.math;
 
-import org.ojalgo.random.LogNormal;
-import org.ojalgo.random.Normal;
-import org.ojalgo.random.Uniform;
+import java.util.Random;
 
 public abstract class NumberGenerator {
 
 	public abstract double next();
 
 	public static NumberGenerator normal(double mean, double standardDeviation) {
-		return new NormalDist(mean, standardDeviation);
+		return new Normal(mean, standardDeviation);
 	}
 
 	public static NumberGenerator logNormal(double geometricMean,
 			double geometricStandardDeviation) {
-		return new LogNormalDist(geometricMean, geometricStandardDeviation);
+		return new LogNormal(geometricMean, geometricStandardDeviation);
 	}
 
 	public static NumberGenerator uniform(double min, double max) {
 		if (min == max)
-			return new DiscreteDist(max);
+			return new Discrete(max);
 		if (max < min)
-			return new UniformDist(max, min);
-		return new UniformDist(min, max);
+			return new Uniform(max, min);
+		return new Uniform(min, max);
 	}
 
 	public static NumberGenerator triangular(double min, double mode, double max) {
-		return new TriangularDist(min, mode, max);
+		return new Triangular(min, mode, max);
 	}
 
 	public static NumberGenerator discrete(double val) {
-		return new DiscreteDist(val);
+		return new Discrete(val);
 	}
 
-	private static class NormalDist extends NumberGenerator {
+	private static class Normal extends NumberGenerator {
 
-		private Normal fun;
+		private final Random rand;
+		private final double mean;
+		private final double std;
 
-		NormalDist(double mean, double std) {
-			fun = new Normal(mean, std);
+		Normal(double mean, double std) {
+			this.mean = mean;
+			this.std = std;
+			this.rand = new Random();
 		}
 
 		@Override
 		public double next() {
-			return fun.doubleValue();
+			return rand.nextGaussian() * std + mean;
 		}
 	}
 
-	private static class LogNormalDist extends NumberGenerator {
+	private static class LogNormal extends NumberGenerator {
 
-		private LogNormal fun;
+		private final Normal normal;
 
-		LogNormalDist(double geoMean, double geoStd) {
-			double mean = Math.log(Math.abs(geoMean)); // TODO: change signs if
-														// < 0?
+		LogNormal(double geoMean, double geoStd) {
+			// the mean and the standard deviation of the *underlying*
+			// distribution is the natural logarithm of the geometric mean and
+			// geometric standard deviation
+			double mean = Math.log(Math.abs(geoMean));
 			double std = Math.log(Math.abs(geoStd));
-			fun = new LogNormal(mean, std);
+			normal = new Normal(mean, std);
 		}
 
 		@Override
 		public double next() {
-			return fun.doubleValue();
+			return Math.exp(normal.next());
 		}
 	}
 
-	private static class UniformDist extends NumberGenerator {
+	private static class Uniform extends NumberGenerator {
 
-		private Uniform fun;
+		private final Random rand;
+		private final double min;
+		private final double range;
 
-		UniformDist(double min, double max) {
-			fun = new Uniform(min, max - min);
+		Uniform(double min, double max) {
+			this.min = min;
+			this.range = max - min;
+			this.rand = new Random();
 		}
 
 		@Override
 		public double next() {
-			return fun.doubleValue();
+			return min + rand.nextDouble() * range;
 		}
 	}
 
-	private static class TriangularDist extends NumberGenerator {
+	private static class Triangular extends NumberGenerator {
 
 		private double min;
 		private double max;
 		private double mode;
 
-		TriangularDist(double min, double mode, double max) {
+		Triangular(double min, double mode, double max) {
 			this.min = min;
 			this.mode = mode;
 			this.max = max;
@@ -105,11 +113,11 @@ public abstract class NumberGenerator {
 		}
 	}
 
-	private static class DiscreteDist extends NumberGenerator {
+	private static class Discrete extends NumberGenerator {
 
 		private double val;
 
-		public DiscreteDist(double val) {
+		public Discrete(double val) {
 			this.val = val;
 		}
 

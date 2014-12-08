@@ -8,19 +8,27 @@ import org.junit.Test;
 public class NumberGeneratorTest {
 
 	@Test
-	public void testNormal() {
-		NumberGenerator gen = NumberGenerator.normal(5, 1);
-		for (int i = 0; i < 100; i++)
-			assertInInterval(gen.next(), -100, 100);
+	public void testDiscrete() {
 		NumberGenerator genDiscrete = NumberGenerator.normal(5, 0);
 		for (int i = 0; i < 100; i++)
 			assertEquals(5.0, genDiscrete.next(), 1e-16);
 	}
 
 	@Test
+	public void testNormal() {
+		NumberGenerator gen = NumberGenerator.normal(5, 1);
+		for (int i = 0; i < 100; i++)
+			assertInInterval(gen.next(), -100, 100);
+	}
+
+	@Test
 	public void testLogNormal() {
-		// TODO: test log-normal
-		NumberGenerator gen = NumberGenerator.logNormal(5, 1);
+		NumberGenerator gen = NumberGenerator.logNormal(5, 1.1);
+		for (int i = 0; i < 100; i++)
+			assertInInterval(gen.next(), 0, 100);
+		gen = NumberGenerator.logNormal(5, 1);
+		for (int i = 0; i < 100; i++)
+			assertEquals(5.0, gen.next(), 1e-5);
 	}
 
 	@Test
@@ -28,9 +36,6 @@ public class NumberGeneratorTest {
 		NumberGenerator gen = NumberGenerator.uniform(1, 5);
 		for (int i = 0; i < 100; i++)
 			assertInInterval(gen.next(), 1, 5);
-		NumberGenerator genDiscrete = NumberGenerator.uniform(5, 5);
-		for (int i = 0; i < 100; i++)
-			assertEquals(5.0, genDiscrete.next(), 1e-16);
 	}
 
 	@Test
