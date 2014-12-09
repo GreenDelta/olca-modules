@@ -1,10 +1,14 @@
 package org.openlca.ilcd.io;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openlca.ilcd.sources.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +16,7 @@ import de.schlichtherle.truezip.file.TFile;
 import de.schlichtherle.truezip.file.TFileInputStream;
 import de.schlichtherle.truezip.file.TFileOutputStream;
 import de.schlichtherle.truezip.file.TVFS;
+import de.schlichtherle.truezip.io.Streams;
 
 public class ZipStore implements DataStore {
 
@@ -64,6 +69,42 @@ public class ZipStore implements DataStore {
 			entries.add(file);
 		} catch (Exception e) {
 			throw new DataStoreException("Could not create stream  " + file, e);
+		}
+	}
+
+	@Override
+	public void put(Source source, String id, File file)
+			throws DataStoreException {
+		log.trace("Store source {} with digital file {}", id, file);
+		put(source, id);
+		if (file == null)
+			return;
+		String entryName = "ILCD/external_docs/" + file.getName();
+		TFile zipEntry = new TFile(dir, entryName);
+		try (InputStream in = new FileInputStream(file);
+				OutputStream out = new TFileOutputStream(zipEntry)) {
+			Streams.copy(in, out);
+			entries.add(zipEntry);
+		} catch (Exception e) {
+			throw new DataStoreException(
+					"Could not store digital file " + file, e);
+		}
+	}
+
+	@Override
+	public InputStream getExternalDocument(String sourceId, String fileName)
+			throws DataStoreException {
+		log.trace("Get external document {}", fileName);
+		String entryName = "ILCD/external_docs/" + fileName;
+		try {
+			TFile zipEntry = new TFile(dir, entryName);
+			if (!zipEntry.exists())
+				return null;
+			else
+				return new TFileInputStream(zipEntry);
+		} catch (Exception e) {
+			throw new DataStoreException("failed to open external file "
+					+ fileName, e);
 		}
 	}
 

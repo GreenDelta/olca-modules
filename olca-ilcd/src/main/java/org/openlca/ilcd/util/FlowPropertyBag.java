@@ -35,14 +35,14 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 	public String getName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getLabel(info.getName());
+			return LangString.get(info.getName());
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFreeText(info.getGeneralComment());
+			return LangString.get(info.getGeneralComment());
 		return null;
 	}
 

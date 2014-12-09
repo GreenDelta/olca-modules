@@ -1,9 +1,13 @@
 package org.openlca.ilcd.io;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Iterator;
 
+import org.openlca.ilcd.sources.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +73,22 @@ public class FileStore implements DataStore {
 	}
 
 	@Override
+	public InputStream getExternalDocument(String sourceId, String fileName)
+			throws DataStoreException {
+		log.trace("Get external document {} for source {}", fileName, sourceId);
+		try {
+			File docDir = new File(rootDir, "external_docs");
+			File file = new File(docDir, fileName);
+			if (!file.exists())
+				return null;
+			else
+				return new FileInputStream(file);
+		} catch (Exception e) {
+			throw new DataStoreException("failed to open file " + fileName, e);
+		}
+	}
+
+	@Override
 	public void put(Object obj, String id) throws DataStoreException {
 		log.trace("Store {} for id {} in file.", obj, id);
 		try {
@@ -76,6 +96,25 @@ public class FileStore implements DataStore {
 			binder.toFile(obj, file);
 		} catch (Exception e) {
 			String message = "Cannot store in file";
+			log.error(message, e);
+			throw new DataStoreException(message);
+		}
+	}
+
+	public void put(Source source, String id, File file)
+			throws DataStoreException {
+		log.trace("Store source {} with file {}", id, file);
+		put(source, id);
+		if (file == null || !file.exists())
+			return;
+		try {
+			File folder = new File(rootDir, "external_docs");
+			if (!folder.exists())
+				folder.mkdirs();
+			File newFile = new File(folder, file.getName());
+			Files.copy(file.toPath(), newFile.toPath());
+		} catch (Exception e) {
+			String message = "Cannot store source file " + file;
 			log.error(message, e);
 			throw new DataStoreException(message);
 		}
