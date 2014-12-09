@@ -41,15 +41,15 @@ class HtmlSerializer {
 		if (entity instanceof Actor)
 			return "actor.template.html";
 		if (entity instanceof Source)
-			return "source.html";
+			return "source.template.html";
 		if (entity instanceof UnitGroup)
 			return "unit_group.template.html";
 		if (entity instanceof FlowProperty)
-			return "flow_property.html";
+			return "flow_property.template.html";
 		if (entity instanceof Flow)
-			return "flow.html";
+			return "flow.template.html";
 		if (entity instanceof Process)
-			return "process.html";
+			return "process.template.html";
 		else
 			return null;
 	}

@@ -97,6 +97,10 @@ public class JsonWriter {
 			new ActorWriter().write((Actor) entity, store);
 		else if (entity instanceof UnitGroup)
 			new UnitGroupWriter().write((UnitGroup)entity, store);
+		else if (entity instanceof FlowProperty)
+			new FlowPropertyWriter().write((FlowProperty) entity, store);
+		else if (entity instanceof Flow)
+			new FlowWriter().write((Flow)entity, store);
 	}
 
 	static void addContext(JsonObject object) {

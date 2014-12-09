@@ -1,17 +1,19 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowPropertyFactor;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowPropertyFactor;
 
-class FlowWriter implements JsonSerializer<Flow> {
+class FlowWriter implements Writer<Flow> {
+
+	@Override
+	public void write(Flow entity, EntityStore store) {
+
+	}
 
 	@Override
 	public JsonElement serialize(Flow flow, Type type,
