@@ -18,7 +18,7 @@ class CategoryWriter implements Writer<Category> {
 			if(store.contains(ModelType.CATEGORY, category.getRefId()))
 				break;
 			JsonObject obj = serialize(cat, null, null);
-			store.add(ModelType.CATEGORY, obj);
+			store.add(ModelType.CATEGORY, cat.getRefId(), obj);
 			cat = cat.getParentCategory();
 		}
 	}

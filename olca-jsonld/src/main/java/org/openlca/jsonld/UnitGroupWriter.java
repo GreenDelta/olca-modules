@@ -17,7 +17,7 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 		if (store.contains(ModelType.UNIT_GROUP, group.getRefId()))
 			return;
 		JsonObject obj = serialize(group, null, null);
-		store.add(ModelType.UNIT_GROUP, obj);
+		store.add(ModelType.UNIT_GROUP, group.getRefId(), obj);
 	}
 
 	@Override

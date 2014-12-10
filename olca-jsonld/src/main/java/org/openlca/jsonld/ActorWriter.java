@@ -15,7 +15,7 @@ class ActorWriter implements Writer<Actor> {
 		if(store.contains(ModelType.ACTOR, actor.getRefId()))
 			return;
 		JsonObject obj = serialize(actor, null, null);
-		store.add(ModelType.ACTOR, obj);
+		store.add(ModelType.ACTOR, actor.getRefId(), obj);
 	}
 
 	@Override
