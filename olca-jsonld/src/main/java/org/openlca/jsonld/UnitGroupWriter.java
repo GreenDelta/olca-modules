@@ -10,8 +10,24 @@ import org.openlca.core.model.UnitGroup;
 
 class UnitGroupWriter implements Writer<UnitGroup> {
 
+	private EntityStore store;
+	private boolean writeContext = true;
+
+	public UnitGroupWriter() {
+	}
+
+	public UnitGroupWriter(EntityStore store) {
+		this.store = store;
+	}
+
 	@Override
-	public void write(UnitGroup group, EntityStore store) {
+	public void skipContext() {
+		this.writeContext = false;
+	}
+
+
+	@Override
+	public void write(UnitGroup group) {
 		if (group == null || store == null)
 			return;
 		if (store.contains(ModelType.UNIT_GROUP, group.getRefId()))
@@ -24,7 +40,8 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 	public JsonObject serialize(UnitGroup unitGroup, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		if (writeContext)
+			JsonWriter.addContext(obj);
 		map(unitGroup, obj);
 		return obj;
 	}

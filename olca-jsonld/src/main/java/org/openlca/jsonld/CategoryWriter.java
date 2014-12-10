@@ -9,13 +9,28 @@ import org.openlca.core.model.ModelType;
 
 class CategoryWriter implements Writer<Category> {
 
+	private EntityStore store;
+	private boolean writeContext = true;
+
+	public CategoryWriter() {
+	}
+
+	public CategoryWriter(EntityStore store) {
+		this.store = store;
+	}
+
 	@Override
-	public void write(Category category, EntityStore store) {
-		if(store == null)
+	public void skipContext() {
+		this.writeContext = false;
+	}
+
+	@Override
+	public void write(Category category) {
+		if (store == null)
 			return;
 		Category cat = category;
-		while(cat != null) {
-			if(store.contains(ModelType.CATEGORY, category.getRefId()))
+		while (cat != null) {
+			if (store.contains(ModelType.CATEGORY, category.getRefId()))
 				break;
 			JsonObject obj = serialize(cat, null, null);
 			store.add(ModelType.CATEGORY, cat.getRefId(), obj);
@@ -27,7 +42,8 @@ class CategoryWriter implements Writer<Category> {
 	public JsonObject serialize(Category category, Type type,
 			JsonSerializationContext context) {
 		JsonObject json = new JsonObject();
-		JsonWriter.addContext(json);
+		if (writeContext)
+			JsonWriter.addContext(json);
 		map(category, json);
 		return json;
 	}

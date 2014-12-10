@@ -89,20 +89,20 @@ public class JsonWriter {
 	}
 
 	public void write(RootEntity entity, IDatabase database) {
-		if(entity == null)
+		if (entity == null)
 			return;
-		if(entity instanceof Category)
-			new CategoryWriter().write((Category)entity, store);
-		else if(entity instanceof Actor)
-			new ActorWriter().write((Actor) entity, store);
+		if (entity instanceof Category)
+			new CategoryWriter(store).write((Category) entity);
+		else if (entity instanceof Actor)
+			new ActorWriter(store).write((Actor) entity);
 		else if (entity instanceof UnitGroup)
-			new UnitGroupWriter().write((UnitGroup)entity, store);
+			new UnitGroupWriter(store).write((UnitGroup) entity);
 		else if (entity instanceof FlowProperty)
-			new FlowPropertyWriter().write((FlowProperty) entity, store);
+			new FlowPropertyWriter(store).write((FlowProperty) entity);
 		else if (entity instanceof Flow)
-			new FlowWriter().write((Flow)entity, store);
+			new FlowWriter(store).write((Flow) entity);
 		else if (entity instanceof Process)
-			new ProcessWriter().write((Process) entity, store);
+			new ProcessWriter(store).write((Process) entity);
 	}
 
 	static void addContext(JsonObject object) {

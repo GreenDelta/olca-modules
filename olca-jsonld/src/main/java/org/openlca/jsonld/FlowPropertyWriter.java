@@ -1,29 +1,50 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
+import org.openlca.core.model.ModelType;
 
 class FlowPropertyWriter implements Writer<FlowProperty> {
 
-	@Override
-	public void write(FlowProperty entity, EntityStore store) {
-		//TODO:
+	private EntityStore store;
+	private boolean writeContext = true;
+
+	public FlowPropertyWriter() {
+	}
+
+	public FlowPropertyWriter(EntityStore store) {
+		this.store = store;
 	}
 
 	@Override
-	public JsonElement serialize(FlowProperty property, Type type,
+	public void skipContext() {
+		this.writeContext = false;
+	}
+
+	@Override
+	public void write(FlowProperty property) {
+		if (property == null || store == null)
+			return;
+		if (store.contains(ModelType.FLOW_PROPERTY, property.getRefId()))
+			return;
+		JsonObject obj = serialize(property, null, null);
+		store.add(ModelType.FLOW_PROPERTY, property.getRefId(), obj);
+	}
+
+	@Override
+	public JsonObject serialize(FlowProperty property, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		if (writeContext)
+			JsonWriter.addContext(obj);
 		map(property, obj);
 		return obj;
 	}
 
-	static void map(FlowProperty property, JsonObject obj) {
+	private void map(FlowProperty property, JsonObject obj) {
 		if (property == null || obj == null)
 			return;
 		JsonWriter.addAttributes(property, obj);
@@ -38,12 +59,12 @@ class FlowPropertyWriter implements Writer<FlowProperty> {
 		if (type == null)
 			return;
 		switch (type) {
-		case ECONOMIC:
-			obj.addProperty("flowPropertyType", "ECONOMIC_QUANTITY");
-			break;
-		case PHYSICAL:
-			obj.addProperty("flowPropertyType", "PHYSICAL_QUANTITY");
-			break;
+			case ECONOMIC:
+				obj.addProperty("flowPropertyType", "ECONOMIC_QUANTITY");
+				break;
+			case PHYSICAL:
+				obj.addProperty("flowPropertyType", "PHYSICAL_QUANTITY");
+				break;
 		}
 	}
 

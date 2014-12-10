@@ -8,11 +8,26 @@ import org.openlca.core.model.ModelType;
 
 class ActorWriter implements Writer<Actor> {
 
+	private EntityStore store;
+	private boolean writeContext = true;
+
+	public ActorWriter() {
+	}
+
+	public ActorWriter(EntityStore store) {
+		this.store = store;
+	}
+
 	@Override
-	public void write(Actor actor, EntityStore store) {
-		if(actor == null || store == null)
+	public void skipContext() {
+		this.writeContext = false;
+	}
+
+	@Override
+	public void write(Actor actor) {
+		if (actor == null || store == null)
 			return;
-		if(store.contains(ModelType.ACTOR, actor.getRefId()))
+		if (store.contains(ModelType.ACTOR, actor.getRefId()))
 			return;
 		JsonObject obj = serialize(actor, null, null);
 		store.add(ModelType.ACTOR, actor.getRefId(), obj);
@@ -22,13 +37,14 @@ class ActorWriter implements Writer<Actor> {
 	public JsonObject serialize(Actor actor, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		if (writeContext)
+			JsonWriter.addContext(obj);
 		map(actor, obj);
 		return obj;
 	}
 
-	static void map(Actor actor, JsonObject obj) {
-		if(actor == null || obj == null)
+	private void map(Actor actor, JsonObject obj) {
+		if (actor == null || obj == null)
 			return;
 		JsonWriter.addAttributes(actor, obj);
 		obj.addProperty("address", actor.getAddress());
