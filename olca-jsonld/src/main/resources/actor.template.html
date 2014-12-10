@@ -32,8 +32,26 @@
         <td>{{model.name}}</td>
     </tr>
     <tr>
+        <td>ID</td>
+        <td>{{model.refId}}</td>
+    </tr>
+    <tr>
         <td>Description</td>
         <td>{{model.description}}</td>
+    </tr>
+    <tr>
+        <td>Category</td>
+        {{#model.category}}
+        <td><a href="../categories/{{refId}}.html">{{#parentCategory}} ../ {{name}} / {{/parentCategory}}{{name}}</a></td>
+        {{/model.category}}
+    </tr>
+    <tr>
+        <td>Version</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Last change</td>
+        <td></td>
     </tr>
 </table>
 

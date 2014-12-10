@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Unit group: {{model.name}}</title>
+    <title>Source: {{model.name}}</title>
     <style>
         body {
             font-family: "Helvetica Neue", Helvetica, "Liberation Sans",
@@ -18,11 +18,12 @@
     </style>
 </head>
 <body>
+
 <script type="application/ld+json">
-        {{& json }}
+    {{& json }}
 </script>
 
-<h1>Unit group: {{model.name}}</h1>
+<h1>Flow property: {{model.name}}</h1>
 
 <h3>General information</h3>
 <table>
@@ -52,38 +53,22 @@
         <td>Last change</td>
         <td></td>
     </tr>
-    <tr>
-        <td>Reference unit</td>
-        <td>{{model.referenceUnit.name}}</td>
-    </tr>
-    <tr>
-        <td>Default flow property</td>
-        {{#model.defaultFlowProperty}}
-        <td><a href="../flow_properties/{{refId}}.html">{{name}}</a></td>
-        {{/model.defaultFlowProperty}}
-    </tr>
 </table>
 
-<h3>Units</h3>
+<h3>Additional information</h3>
 <table>
-    <thead>
     <tr>
-        <td>Name</td>
-        <td>Description</td>
-        <td>Synonyms</td>
-        <td>Conversion factor</td>
+        <td>Doi</td>
+        <td>{{model.doi}}</td>
     </tr>
-    </thead>
-    <tbody>
-    {{#model.units}}
     <tr>
-        <td>{{name}}</td>
-        <td>{{description}}</td>
-        <td>{{synonyms}}</td>
-        <td>{{conversionFactor}}</td>
+        <td>Text reference</td>
+        <td>{{model.textReference}}</td>
     </tr>
-    {{/model.units}}
-    </tbody>
+    <tr>
+        <td>Year</td>
+        <td>{{model.year}}</td>
+    </tr>
 </table>
 
 </body>
