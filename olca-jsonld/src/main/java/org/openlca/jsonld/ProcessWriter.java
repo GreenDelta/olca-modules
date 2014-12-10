@@ -9,7 +9,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
@@ -19,7 +18,12 @@ import org.openlca.core.model.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ProcessWriter implements JsonSerializer<Process> {
+class ProcessWriter implements Writer<Process> {
+
+	@Override
+	public void write(Process entity, EntityStore store) {
+
+	}
 
 	@Override
 	public JsonElement serialize(Process process, Type type,

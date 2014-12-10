@@ -101,6 +101,8 @@ public class JsonWriter {
 			new FlowPropertyWriter().write((FlowProperty) entity, store);
 		else if (entity instanceof Flow)
 			new FlowWriter().write((Flow)entity, store);
+		else if (entity instanceof Process)
+			new ProcessWriter().write((Process) entity, store);
 	}
 
 	static void addContext(JsonObject object) {
