@@ -1,15 +1,26 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Uncertainty;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
 class ExchangeWriter implements JsonSerializer<Exchange> {
+
+	private EntityStore store;
+
+	public ExchangeWriter() {
+	}
+
+	public ExchangeWriter(EntityStore store) {
+		this.store = store;
+	}
 
 	@Override
 	public JsonElement serialize(Exchange exchange, Type type,
@@ -20,7 +31,7 @@ class ExchangeWriter implements JsonSerializer<Exchange> {
 		return obj;
 	}
 
-	static void map(Exchange e, JsonObject obj) {
+	void map(Exchange e, JsonObject obj) {
 		if (e == null || obj == null)
 			return;
 		obj.addProperty("@type", "Exchange");
@@ -35,14 +46,14 @@ class ExchangeWriter implements JsonSerializer<Exchange> {
 		mapObjectRefs(e, obj);
 	}
 
-	private static void mapObjectRefs(Exchange e, JsonObject obj) {
+	private void mapObjectRefs(Exchange e, JsonObject obj) {
 		// TODO: default providers -> we need the database
-		obj.add("flow", JsonWriter.createRef(e.getFlow()));
-		obj.add("unit", JsonWriter.createRef(e.getUnit()));
+		obj.add("flow", Refs.put(e.getFlow(), store));
+		obj.add("unit", Refs.createRef(e.getUnit()));
 		FlowPropertyFactor propFac = e.getFlowPropertyFactor();
 		if (propFac != null) {
 			JsonObject facObj = new JsonObject();
-			FlowPropertyFactorWriter.map(propFac, facObj);
+			new FlowPropertyFactorWriter(store).map(propFac, facObj);
 			obj.add("flowPropertyFactor", facObj);
 		}
 		Uncertainty uncertainty = e.getUncertainty();

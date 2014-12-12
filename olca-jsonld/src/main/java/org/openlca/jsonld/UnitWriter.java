@@ -1,13 +1,15 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
+
+import org.openlca.core.model.Unit;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import org.openlca.core.model.Unit;
 
 class UnitWriter implements JsonSerializer<Unit> {
 

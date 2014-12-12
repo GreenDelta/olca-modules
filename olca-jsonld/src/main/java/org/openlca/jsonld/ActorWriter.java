@@ -1,10 +1,12 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class ActorWriter implements Writer<Actor> {
 

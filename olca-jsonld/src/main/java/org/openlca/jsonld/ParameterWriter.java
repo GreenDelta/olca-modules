@@ -1,13 +1,15 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
+
+import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterScope;
+import org.openlca.core.model.Uncertainty;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterScope;
-import org.openlca.core.model.Uncertainty;
 
 class ParameterWriter implements JsonSerializer<Parameter> {
 

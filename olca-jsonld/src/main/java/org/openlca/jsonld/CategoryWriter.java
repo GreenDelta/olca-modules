@@ -1,11 +1,12 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class CategoryWriter implements Writer<Category> {
 
@@ -26,16 +27,12 @@ class CategoryWriter implements Writer<Category> {
 
 	@Override
 	public void write(Category category) {
-		if (store == null)
+		if (category == null || store == null)
 			return;
-		Category cat = category;
-		while (cat != null) {
-			if (store.contains(ModelType.CATEGORY, category.getRefId()))
-				break;
-			JsonObject obj = serialize(cat, null, null);
-			store.add(ModelType.CATEGORY, cat.getRefId(), obj);
-			cat = cat.getParentCategory();
-		}
+		if (store.contains(ModelType.CATEGORY, category.getRefId()))
+			return;
+		JsonObject obj = serialize(category, null, null);
+		store.add(ModelType.CATEGORY, category.getRefId(), obj);
 	}
 
 	@Override
@@ -53,7 +50,7 @@ class CategoryWriter implements Writer<Category> {
 		ModelType modelType = category.getModelType();
 		if (modelType != null)
 			json.addProperty("modelType", modelType.name());
-		JsonObject parentRef = JsonWriter.createRef(category.getParentCategory());
+		JsonObject parentRef = Refs.put(category.getParentCategory(), store);
 		json.add("parentCategory", parentRef);
 	}
 }

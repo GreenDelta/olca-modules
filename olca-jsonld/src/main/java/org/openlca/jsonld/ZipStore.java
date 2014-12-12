@@ -10,11 +10,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+
 import org.openlca.core.model.ModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class ZipStore implements EntityStore {
 
@@ -59,7 +61,7 @@ public class ZipStore implements EntityStore {
 			return false;
 		String dirName = ModelPath.get(type);
 		Path dir = zip.getPath(dirName);
-		if(!Files.exists(dir))
+		if (!Files.exists(dir))
 			return false;
 		Path path = zip.getPath(dirName + "/" + refId + ".json");
 		return Files.exists(path);

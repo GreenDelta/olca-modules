@@ -1,8 +1,5 @@
 package org.openlca.jsonld;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
@@ -31,6 +28,10 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 public class JsonWriter {
 
@@ -120,17 +121,6 @@ public class JsonWriter {
 		context.add("defaultAllocationMethod", vocabType);
 		context.add("processTyp", vocabType);
 		object.add("@context", context);
-	}
-
-	static JsonObject createRef(RootEntity entity) {
-		if (entity == null)
-			return null;
-		JsonObject ref = new JsonObject();
-		String type = entity.getClass().getSimpleName();
-		ref.addProperty("@type", type);
-		ref.addProperty("@id", entity.getRefId());
-		ref.addProperty("name", entity.getName());
-		return ref;
 	}
 
 	static void addAttributes(RootEntity entity, JsonObject object) {

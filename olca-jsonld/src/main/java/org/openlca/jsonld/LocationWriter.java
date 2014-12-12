@@ -1,16 +1,41 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-import com.google.gson.JsonElement;
+
+import org.openlca.core.model.Location;
+import org.openlca.core.model.ModelType;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import org.openlca.core.model.Location;
 
-class LocationWriter implements JsonSerializer<Location> {
+class LocationWriter implements Writer<Location> {
+
+	private EntityStore store;
+
+	public LocationWriter() {
+	}
+
+	public LocationWriter(EntityStore store) {
+		this.store = store;
+	}
 
 	@Override
-	public JsonElement serialize(Location location, Type type,
+	public void write(Location location) {
+		if (location == null || store == null)
+			return;
+		if (store.contains(ModelType.LOCATION, location.getRefId()))
+			return;
+		JsonObject obj = serialize(location, null, null);
+		store.add(ModelType.LOCATION, location.getRefId(), obj);
+	}
+
+	@Override
+	public void skipContext() {
+
+	}
+
+	@Override
+	public JsonObject serialize(Location location, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
 		JsonWriter.addContext(obj);
@@ -18,7 +43,7 @@ class LocationWriter implements JsonSerializer<Location> {
 		return obj;
 	}
 
-	static void map(Location location, JsonObject obj) {
+	private void map(Location location, JsonObject obj) {
 		if (location == null || obj == null)
 			return;
 		JsonWriter.addAttributes(location, obj);
@@ -27,4 +52,5 @@ class LocationWriter implements JsonSerializer<Location> {
 		obj.addProperty("longitude", location.getLongitude());
 		// TODO: add kml
 	}
+
 }

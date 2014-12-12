@@ -3,11 +3,10 @@ package org.openlca.jsonld;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
@@ -17,6 +16,10 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class ProcessWriter implements Writer<Process> {
 
@@ -62,7 +65,7 @@ class ProcessWriter implements Writer<Process> {
 		mapProcessType(process, obj);
 		obj.addProperty("defaultAllocationMethod", getAllocationType(
 				process.getDefaultAllocationMethod()));
-		obj.add("location", JsonWriter.createRef(process.getLocation()));
+		obj.add("location", Refs.put(process.getLocation(), store));
 		obj.add("processDocumentation", createDoc(process));
 		mapExchanges(process, obj);
 	}
@@ -71,7 +74,7 @@ class ProcessWriter implements Writer<Process> {
 		JsonArray exchanges = new JsonArray();
 		for (Exchange exchange : process.getExchanges()) {
 			JsonObject exchangeObj = new JsonObject();
-			ExchangeWriter.map(exchange, exchangeObj);
+			new ExchangeWriter(store).map(exchange, exchangeObj);
 			exchanges.add(exchangeObj);
 		}
 		obj.add("exchanges", exchanges);
@@ -90,11 +93,11 @@ class ProcessWriter implements Writer<Process> {
 			return null;
 		JsonObject o = new JsonObject();
 		mapSimpleDocFields(d, o);
-		o.add("reviewer", JsonWriter.createRef(d.getReviewer()));
-		o.add("dataDocumentor", JsonWriter.createRef(d.getDataDocumentor()));
-		o.add("dataGenerator", JsonWriter.createRef(d.getDataGenerator()));
-		o.add("dataSetOwner", JsonWriter.createRef(d.getDataSetOwner()));
-		o.add("publication", JsonWriter.createRef(d.getPublication()));
+		o.add("reviewer", Refs.put(d.getReviewer(), store));
+		o.add("dataDocumentor", Refs.put(d.getDataDocumentor(), store));
+		o.add("dataGenerator", Refs.put(d.getDataGenerator(), store));
+		o.add("dataSetOwner", Refs.put(d.getDataSetOwner(), store));
+		o.add("publication", Refs.put(d.getPublication(), store));
 		mapSources(d, o);
 		return o;
 	}
@@ -104,7 +107,7 @@ class ProcessWriter implements Writer<Process> {
 			return;
 		JsonArray sources = new JsonArray();
 		for (Source source : d.getSources()) {
-			JsonObject ref = JsonWriter.createRef(source);
+			JsonObject ref = Refs.put(source, store);
 			sources.add(ref);
 		}
 		o.add("sources", sources);
@@ -135,14 +138,14 @@ class ProcessWriter implements Writer<Process> {
 		if (method == null)
 			return null;
 		switch (method) {
-			case CAUSAL:
-				return "CAUSAL_ALLOCATION";
-			case ECONOMIC:
-				return "ECONOMIC_ALLOCATION";
-			case PHYSICAL:
-				return "PHYSICAL_ALLOCATION";
-			default:
-				return null;
+		case CAUSAL:
+			return "CAUSAL_ALLOCATION";
+		case ECONOMIC:
+			return "ECONOMIC_ALLOCATION";
+		case PHYSICAL:
+			return "PHYSICAL_ALLOCATION";
+		default:
+			return null;
 		}
 	}
 

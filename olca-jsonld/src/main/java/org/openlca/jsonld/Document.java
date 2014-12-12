@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class Document implements EntityStore {
 
@@ -61,22 +63,22 @@ public class Document implements EntityStore {
 		if (type == null)
 			return Collections.emptyList();
 		switch (type) {
-			case CATEGORY:
-				return categories;
-			case ACTOR:
-				return actors;
-			case SOURCE:
-				return sources;
-			case UNIT_GROUP:
-				return unitGroups;
-			case FLOW_PROPERTY:
-				return flowProperties;
-			case FLOW:
-				return flows;
-			case PROCESS:
-				return processes;
-			default:
-				return Collections.emptyList();
+		case CATEGORY:
+			return categories;
+		case ACTOR:
+			return actors;
+		case SOURCE:
+			return sources;
+		case UNIT_GROUP:
+			return unitGroups;
+		case FLOW_PROPERTY:
+			return flowProperties;
+		case FLOW:
+			return flows;
+		case PROCESS:
+			return processes;
+		default:
+			return Collections.emptyList();
 		}
 	}
 

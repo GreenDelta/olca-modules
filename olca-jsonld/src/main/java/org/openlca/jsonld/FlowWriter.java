@@ -1,12 +1,14 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class FlowWriter implements Writer<Flow> {
 
@@ -27,9 +29,9 @@ class FlowWriter implements Writer<Flow> {
 
 	@Override
 	public void write(Flow flow) {
-		if(flow == null || store == null)
+		if (flow == null || store == null)
 			return;
-		if(store.contains(ModelType.FLOW, flow.getRefId()))
+		if (store.contains(ModelType.FLOW, flow.getRefId()))
 			return;
 		JsonObject obj = serialize(flow, null, null);
 		store.add(ModelType.FLOW, flow.getRefId(), obj);
@@ -45,7 +47,7 @@ class FlowWriter implements Writer<Flow> {
 		return obj;
 	}
 
-	static void map(Flow flow, JsonObject obj) {
+	void map(Flow flow, JsonObject obj) {
 		if (flow == null || obj == null)
 			return;
 		JsonWriter.addAttributes(flow, obj);
@@ -53,20 +55,18 @@ class FlowWriter implements Writer<Flow> {
 			obj.addProperty("flowType", flow.getFlowType().name());
 		obj.addProperty("cas", flow.getCasNumber());
 		obj.addProperty("formula", flow.getFormula());
-		JsonObject locationRef = JsonWriter.createRef(flow.getLocation());
+		JsonObject locationRef = Refs.put(flow.getLocation(), store);
 		obj.add("location", locationRef);
-		JsonObject propRef = JsonWriter.createRef(
-				flow.getReferenceFlowProperty());
+		JsonObject propRef = Refs.put(flow.getReferenceFlowProperty(), store);
 		obj.add("referenceFlowProperty", propRef);
 		addFactors(flow, obj);
 	}
 
-	private static void addFactors(Flow flow, JsonObject obj) {
+	private void addFactors(Flow flow, JsonObject obj) {
 		JsonArray factorArray = new JsonArray();
 		for (FlowPropertyFactor factor : flow.getFlowPropertyFactors()) {
 			JsonObject factorObj = new JsonObject();
-			JsonObject propRef = JsonWriter.createRef(factor
-					.getFlowProperty());
+			JsonObject propRef = Refs.put(factor.getFlowProperty(), store);
 			factorObj.addProperty("@type", "FlowPropertyFactor");
 			factorObj.add("flowProperty", propRef);
 			factorObj.addProperty("value", factor.getConversionFactor());

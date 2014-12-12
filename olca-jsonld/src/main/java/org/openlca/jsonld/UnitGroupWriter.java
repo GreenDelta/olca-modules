@@ -1,12 +1,14 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class UnitGroupWriter implements Writer<UnitGroup> {
 
@@ -24,7 +26,6 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 	public void skipContext() {
 		this.writeContext = false;
 	}
-
 
 	@Override
 	public void write(UnitGroup group) {
@@ -46,15 +47,13 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 		return obj;
 	}
 
-	static void map(UnitGroup group, JsonObject obj) {
+	private void map(UnitGroup group, JsonObject obj) {
 		if (group == null || obj == null)
 			return;
 		JsonWriter.addAttributes(group, obj);
-		JsonObject propRef = JsonWriter.createRef(group
-				.getDefaultFlowProperty());
+		JsonObject propRef = Refs.put(group.getDefaultFlowProperty(), store);
 		obj.add("defaultFlowProperty", propRef);
-		JsonObject unitRef = JsonWriter.createRef(group
-				.getReferenceUnit());
+		JsonObject unitRef = Refs.put(group.getReferenceUnit(), store);
 		obj.add("referenceUnit", unitRef);
 		JsonArray units = new JsonArray();
 		for (Unit unit : group.getUnits()) {

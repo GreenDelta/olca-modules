@@ -1,12 +1,14 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
+
+import org.openlca.core.model.Uncertainty;
+import org.openlca.core.model.UncertaintyType;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.UncertaintyType;
 
 class UncertaintyWriter implements JsonSerializer<Uncertainty> {
 

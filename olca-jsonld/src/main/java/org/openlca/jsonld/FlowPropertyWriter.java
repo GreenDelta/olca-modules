@@ -1,11 +1,13 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class FlowPropertyWriter implements Writer<FlowProperty> {
 
@@ -49,8 +51,7 @@ class FlowPropertyWriter implements Writer<FlowProperty> {
 			return;
 		JsonWriter.addAttributes(property, obj);
 		mapType(property, obj);
-		JsonObject unitGroup = JsonWriter.createRef(
-				property.getUnitGroup());
+		JsonObject unitGroup = Refs.put(property.getUnitGroup(), store);
 		obj.add("unitGroup", unitGroup);
 	}
 
@@ -59,12 +60,12 @@ class FlowPropertyWriter implements Writer<FlowProperty> {
 		if (type == null)
 			return;
 		switch (type) {
-			case ECONOMIC:
-				obj.addProperty("flowPropertyType", "ECONOMIC_QUANTITY");
-				break;
-			case PHYSICAL:
-				obj.addProperty("flowPropertyType", "PHYSICAL_QUANTITY");
-				break;
+		case ECONOMIC:
+			obj.addProperty("flowPropertyType", "ECONOMIC_QUANTITY");
+			break;
+		case PHYSICAL:
+			obj.addProperty("flowPropertyType", "PHYSICAL_QUANTITY");
+			break;
 		}
 	}
 
