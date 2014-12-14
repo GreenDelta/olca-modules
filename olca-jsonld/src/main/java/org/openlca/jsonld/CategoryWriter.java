@@ -46,7 +46,7 @@ class CategoryWriter implements Writer<Category> {
 	}
 
 	private void map(Category category, JsonObject json) {
-		JsonWriter.addAttributes(category, json);
+		JsonWriter.addAttributes(category, json, store);
 		ModelType modelType = category.getModelType();
 		if (modelType != null)
 			json.addProperty("modelType", modelType.name());

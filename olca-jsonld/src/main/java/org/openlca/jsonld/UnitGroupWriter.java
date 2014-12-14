@@ -50,10 +50,10 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 	private void map(UnitGroup group, JsonObject obj) {
 		if (group == null || obj == null)
 			return;
-		JsonWriter.addAttributes(group, obj);
-		JsonObject propRef = Refs.put(group.getDefaultFlowProperty(), store);
+		JsonWriter.addAttributes(group, obj, store);
+		JsonObject propRef = Refs.createRef(group.getDefaultFlowProperty());
 		obj.add("defaultFlowProperty", propRef);
-		JsonObject unitRef = Refs.put(group.getReferenceUnit(), store);
+		JsonObject unitRef = Refs.createRef(group.getReferenceUnit());
 		obj.add("referenceUnit", unitRef);
 		JsonArray units = new JsonArray();
 		for (Unit unit : group.getUnits()) {

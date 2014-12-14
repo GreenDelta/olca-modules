@@ -123,7 +123,8 @@ public class JsonWriter {
 		object.add("@context", context);
 	}
 
-	static void addAttributes(RootEntity entity, JsonObject object) {
+	static void addAttributes(RootEntity entity, JsonObject object,
+			EntityStore store) {
 		if (entity == null || object == null)
 			return;
 		String type = entity.getClass().getSimpleName();
@@ -132,16 +133,15 @@ public class JsonWriter {
 		object.addProperty("name", entity.getName());
 		object.addProperty("description", entity.getDescription());
 		if (entity instanceof CategorizedEntity)
-			addCategory((CategorizedEntity) entity, object);
+			addCategory((CategorizedEntity) entity, object, store);
 	}
 
-	private static void addCategory(CategorizedEntity entity, JsonObject obj) {
-		if (entity == null || entity.getCategory() == null || obj == null)
+	private static void addCategory(CategorizedEntity entity, JsonObject obj,
+			EntityStore store) {
+		if (entity == null || obj == null)
 			return;
-		JsonObject catObject = new JsonObject();
-		Category category = entity.getCategory();
-		catObject.addProperty("@id", category.getRefId());
-		obj.add("category", catObject);
+		JsonObject catRef = Refs.put(entity.getCategory(), store);
+		obj.add("category", catRef);
 	}
 
 }
