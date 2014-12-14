@@ -7,6 +7,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 
 import com.google.gson.JsonObject;
@@ -47,6 +48,8 @@ class Refs {
 			return Writer.class.cast(new LocationWriter(store));
 		if (entity instanceof Process)
 			return Writer.class.cast(new ProcessWriter(store));
+		if (entity instanceof Source)
+			return Writer.class.cast(new SourceWriter(store));
 		if (entity instanceof UnitGroup)
 			return Writer.class.cast(new UnitGroupWriter(store));
 		else

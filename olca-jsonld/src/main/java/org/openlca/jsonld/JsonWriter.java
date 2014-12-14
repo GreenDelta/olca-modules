@@ -12,6 +12,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -59,6 +60,8 @@ public class JsonWriter {
 
 	private static void registerTypeAdapters(GsonBuilder b) {
 		b.registerTypeAdapter(Category.class, new CategoryWriter());
+		b.registerTypeAdapter(Actor.class, new ActorWriter());
+		b.registerTypeAdapter(Source.class, new SourceWriter());
 		b.registerTypeAdapter(Unit.class, new UnitWriter());
 		b.registerTypeAdapter(UnitGroup.class, new UnitGroupWriter());
 		b.registerTypeAdapter(FlowProperty.class, new FlowPropertyWriter());
