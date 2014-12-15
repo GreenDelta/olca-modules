@@ -1,5 +1,8 @@
 package org.openlca.jsonld;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
@@ -8,6 +11,8 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
@@ -29,10 +34,6 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 public class JsonWriter {
 
@@ -73,6 +74,8 @@ public class JsonWriter {
 		b.registerTypeAdapter(Exchange.class, new ExchangeWriter());
 		b.registerTypeAdapter(FlowPropertyFactor.class,
 				new FlowPropertyFactorWriter());
+		b.registerTypeAdapter(ImpactMethod.class, new ImpactMethodWriter());
+		b.registerTypeAdapter(ImpactCategory.class, new ImpactCategoryWriter());
 	}
 
 	private static void registerDescriptorWriter(GsonBuilder b) {
@@ -95,18 +98,7 @@ public class JsonWriter {
 	public void write(RootEntity entity, IDatabase database) {
 		if (entity == null)
 			return;
-		if (entity instanceof Category)
-			new CategoryWriter(store).write((Category) entity);
-		else if (entity instanceof Actor)
-			new ActorWriter(store).write((Actor) entity);
-		else if (entity instanceof UnitGroup)
-			new UnitGroupWriter(store).write((UnitGroup) entity);
-		else if (entity instanceof FlowProperty)
-			new FlowPropertyWriter(store).write((FlowProperty) entity);
-		else if (entity instanceof Flow)
-			new FlowWriter(store).write((Flow) entity);
-		else if (entity instanceof Process)
-			new ProcessWriter(store).write((Process) entity);
+		Refs.put(entity, store);
 	}
 
 	static void addContext(JsonObject object) {

@@ -2,7 +2,6 @@ package org.openlca.jsonld;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +22,9 @@ public class Document implements EntityStore {
 	private List<JsonObject> flowProperties = new ArrayList<>();
 	private List<JsonObject> flows = new ArrayList<>();
 	private List<JsonObject> processes = new ArrayList<>();
+	private List<JsonObject> locations = new ArrayList<>();
+	private List<JsonObject> impactCategories = new ArrayList<>();
+	private List<JsonObject> impactMethods = new ArrayList<>();
 
 	public static String toJson(RootEntity entity, IDatabase database) {
 		Document document = new Document();
@@ -61,7 +63,7 @@ public class Document implements EntityStore {
 
 	private List<JsonObject> getList(ModelType type) {
 		if (type == null)
-			return Collections.emptyList();
+			return null;
 		switch (type) {
 		case CATEGORY:
 			return categories;
@@ -77,8 +79,14 @@ public class Document implements EntityStore {
 			return flows;
 		case PROCESS:
 			return processes;
+		case LOCATION:
+			return locations;
+		case IMPACT_CATEGORY:
+			return impactCategories;
+		case IMPACT_METHOD:
+			return impactMethods;
 		default:
-			return Collections.emptyList();
+			return null;
 		}
 	}
 

@@ -1,16 +1,17 @@
 package org.openlca.jsonld;
 
+import com.google.gson.JsonObject;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-
-import com.google.gson.JsonObject;
 
 /**
  * Utility class for handling references to other entities.
@@ -44,6 +45,10 @@ class Refs {
 			return Writer.class.cast(new FlowPropertyWriter(store));
 		if (entity instanceof Flow)
 			return Writer.class.cast(new FlowWriter(store));
+		if (entity instanceof ImpactCategory)
+			return Writer.class.cast(new ImpactCategoryWriter(store));
+		if (entity instanceof ImpactMethod)
+			return Writer.class.cast(new ImpactMethodWriter(store));
 		if (entity instanceof Location)
 			return Writer.class.cast(new LocationWriter(store));
 		if (entity instanceof Process)
