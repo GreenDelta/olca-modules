@@ -1,8 +1,5 @@
 package org.openlca.jsonld;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
@@ -34,6 +31,10 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 public class JsonWriter {
 
@@ -102,7 +103,7 @@ public class JsonWriter {
 	}
 
 	static void addContext(JsonObject object) {
-		String url = "http://openlca.org/";
+		String url = "http://openlca.org/schema/v1.0#";
 		JsonObject context = new JsonObject();
 		context.addProperty("@vocab", url);
 		JsonObject vocabType = new JsonObject();
