@@ -7,46 +7,47 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.TestSession;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
-public class ImpactMethodUseSearchTest {
+public class SystemUseSearchTest {
 
 	private IDatabase db = TestSession.getDefaultDatabase();
-	private IUseSearch<ImpactMethodDescriptor> search;
+	private IUseSearch<ProductSystemDescriptor> search;
 	private ProjectDao projectDao;
 	private Project project;
-	private ImpactMethodDao impactDao;
-	private ImpactMethod method;
+	private ProductSystemDao systemDao;
+	private ProductSystem system;
 
 	@Before
 	public void setUp() {
-		search = IUseSearch.FACTORY.createFor(ModelType.IMPACT_METHOD, db);
+		search = IUseSearch.FACTORY.createFor(ModelType.PRODUCT_SYSTEM, db);
 		projectDao = new ProjectDao(db);
 		project = new Project();
 		project.setName("test project");
 		project = projectDao.insert(project);
-		impactDao = new ImpactMethodDao(db);
-		method = new ImpactMethod();
-		method.setName("test method");
-		method = impactDao.insert(method);
+		systemDao = new ProductSystemDao(db);
+		system = new ProductSystem();
+		system.setName("test system");
+		system = systemDao.insert(system);
 	}
 
 	@After
 	public void tearDown() {
 		projectDao.delete(project);
-		impactDao.delete(method);
+		systemDao.delete(system);
 	}
 
 	@Test
 	public void testNoUsage() {
-		ImpactMethodDescriptor d = Descriptors.toDescriptor(method);
+		ProductSystemDescriptor d = Descriptors.toDescriptor(system);
 		List<BaseDescriptor> descriptors = search.findUses(d);
 		Assert.assertNotNull(descriptors);
 		Assert.assertTrue(descriptors.isEmpty());
@@ -54,9 +55,11 @@ public class ImpactMethodUseSearchTest {
 
 	@Test
 	public void testFindInProject() {
-		project.setImpactMethodId(method.getId());
+		ProjectVariant variant = new ProjectVariant();
+		variant.setProductSystem(system);
+		project.getVariants().add(variant);
 		project = projectDao.update(project);
-		ImpactMethodDescriptor d = Descriptors.toDescriptor(method);
+		ProductSystemDescriptor d = Descriptors.toDescriptor(system);
 		List<BaseDescriptor> descriptors = search.findUses(d);
 		Assert.assertEquals(1, descriptors.size());
 		Assert.assertEquals(Descriptors.toDescriptor(project),
