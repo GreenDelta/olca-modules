@@ -8,6 +8,4 @@ interface Writer<T extends RootEntity> extends JsonSerializer<T> {
 
 	void write(T entity);
 
-	void skipContext();
-
 }

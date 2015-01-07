@@ -13,18 +13,12 @@ import com.google.gson.JsonSerializationContext;
 class UnitGroupWriter implements Writer<UnitGroup> {
 
 	private EntityStore store;
-	private boolean writeContext = true;
 
 	public UnitGroupWriter() {
 	}
 
 	public UnitGroupWriter(EntityStore store) {
 		this.store = store;
-	}
-
-	@Override
-	public void skipContext() {
-		this.writeContext = false;
 	}
 
 	@Override
@@ -41,8 +35,7 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 	public JsonObject serialize(UnitGroup unitGroup, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
-		if (writeContext)
-			JsonWriter.addContext(obj);
+		JsonWriter.addContext(obj);
 		map(unitGroup, obj);
 		return obj;
 	}

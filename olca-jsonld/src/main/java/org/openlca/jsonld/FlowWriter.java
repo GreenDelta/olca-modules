@@ -1,30 +1,22 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-
 class FlowWriter implements Writer<Flow> {
 
 	private EntityStore store;
-	private boolean writeContext = true;
 
 	public FlowWriter() {
 	}
 
 	public FlowWriter(EntityStore store) {
 		this.store = store;
-	}
-
-	@Override
-	public void skipContext() {
-		this.writeContext = false;
 	}
 
 	@Override
@@ -41,8 +33,7 @@ class FlowWriter implements Writer<Flow> {
 	public JsonObject serialize(Flow flow, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
-		if (writeContext)
-			JsonWriter.addContext(obj);
+		JsonWriter.addContext(obj);
 		map(flow, obj);
 		return obj;
 	}

@@ -34,11 +34,6 @@ class ProcessWriter implements Writer<Process> {
 	}
 
 	@Override
-	public void skipContext() {
-		this.writeContext = false;
-	}
-
-	@Override
 	public void write(Process process) {
 		if (process == null || store == null)
 			return;

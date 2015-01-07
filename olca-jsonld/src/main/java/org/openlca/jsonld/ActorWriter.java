@@ -11,18 +11,12 @@ import com.google.gson.JsonSerializationContext;
 class ActorWriter implements Writer<Actor> {
 
 	private EntityStore store;
-	private boolean writeContext = true;
 
 	public ActorWriter() {
 	}
 
 	public ActorWriter(EntityStore store) {
 		this.store = store;
-	}
-
-	@Override
-	public void skipContext() {
-		this.writeContext = false;
 	}
 
 	@Override
@@ -39,8 +33,7 @@ class ActorWriter implements Writer<Actor> {
 	public JsonObject serialize(Actor actor, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
-		if (writeContext)
-			JsonWriter.addContext(obj);
+		JsonWriter.addContext(obj);
 		map(actor, obj);
 		return obj;
 	}

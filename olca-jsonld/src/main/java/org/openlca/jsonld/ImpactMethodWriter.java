@@ -21,16 +21,12 @@ class ImpactMethodWriter implements Writer<ImpactMethod> {
 
 	@Override
 	public void write(ImpactMethod method) {
-		if(method == null || store == null)
+		if (method == null || store == null)
 			return;
-		if(store.contains(ModelType.IMPACT_METHOD, method.getRefId()))
+		if (store.contains(ModelType.IMPACT_METHOD, method.getRefId()))
 			return;
 		JsonObject obj = serialize(method, null, null);
 		store.add(ModelType.IMPACT_METHOD, method.getRefId(), obj);
-	}
-
-	@Override
-	public void skipContext() {
 	}
 
 	@Override
@@ -40,7 +36,7 @@ class ImpactMethodWriter implements Writer<ImpactMethod> {
 		JsonWriter.addContext(obj);
 		JsonWriter.addAttributes(method, obj, store);
 		JsonArray array = new JsonArray();
-		for(ImpactCategory category: method.getImpactCategories()) {
+		for (ImpactCategory category : method.getImpactCategories()) {
 			JsonObject ref = Refs.put(category, store);
 			array.add(ref);
 		}

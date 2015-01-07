@@ -20,10 +20,6 @@ class SourceWriter implements Writer<Source> {
 	}
 
 	@Override
-	public void skipContext() {
-	}
-
-	@Override
 	public void write(Source source) {
 		if (source == null || store == null)
 			return;

@@ -32,10 +32,6 @@ class ImpactCategoryWriter implements Writer<ImpactCategory> {
 	}
 
 	@Override
-	public void skipContext() {
-	}
-
-	@Override
 	public JsonObject serialize(ImpactCategory category, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
@@ -75,4 +71,3 @@ class ImpactCategoryWriter implements Writer<ImpactCategory> {
 		return obj;
 	}
 }
-

@@ -30,11 +30,6 @@ class LocationWriter implements Writer<Location> {
 	}
 
 	@Override
-	public void skipContext() {
-
-	}
-
-	@Override
 	public JsonObject serialize(Location location, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();

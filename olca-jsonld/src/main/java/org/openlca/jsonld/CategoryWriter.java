@@ -1,28 +1,20 @@
 package org.openlca.jsonld;
 
 import java.lang.reflect.Type;
-
-import org.openlca.core.model.Category;
-import org.openlca.core.model.ModelType;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
 
 class CategoryWriter implements Writer<Category> {
 
 	private EntityStore store;
-	private boolean writeContext = true;
 
 	public CategoryWriter() {
 	}
 
 	public CategoryWriter(EntityStore store) {
 		this.store = store;
-	}
-
-	@Override
-	public void skipContext() {
-		this.writeContext = false;
 	}
 
 	@Override
@@ -39,8 +31,7 @@ class CategoryWriter implements Writer<Category> {
 	public JsonObject serialize(Category category, Type type,
 			JsonSerializationContext context) {
 		JsonObject json = new JsonObject();
-		if (writeContext)
-			JsonWriter.addContext(json);
+		JsonWriter.addContext(json);
 		map(category, json);
 		return json;
 	}
