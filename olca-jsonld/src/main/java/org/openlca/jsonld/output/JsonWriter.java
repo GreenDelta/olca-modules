@@ -7,6 +7,10 @@ import org.openlca.jsonld.EntityStore;
 
 import com.google.gson.JsonObject;
 
+/**
+ * Writes entities to an entity store (e.g. a document or zip file). It also
+ * writes the referenced entities to this store if they are not yet contained.
+ */
 public class JsonWriter {
 
 	private final EntityStore store;
@@ -18,24 +22,7 @@ public class JsonWriter {
 	public void write(RootEntity entity, IDatabase database) {
 		if (entity == null)
 			return;
-		Refs.put(entity, store);
-	}
-
-	static void addContext(JsonObject object) {
-		String url = "http://openlca.org/schema/v1.0#";
-		JsonObject context = new JsonObject();
-		context.addProperty("@vocab", url);
-		JsonObject vocabType = new JsonObject();
-		vocabType.addProperty("@type", "@vocab");
-		context.add("modelType", vocabType);
-		context.add("flowPropertyType", vocabType);
-		context.add("flowType", vocabType);
-		context.add("distributionType", vocabType);
-		context.add("parameterScope", vocabType);
-		context.add("allocationType", vocabType);
-		context.add("defaultAllocationMethod", vocabType);
-		context.add("processTyp", vocabType);
-		object.add("@context", context);
+		Out.put(entity, store);
 	}
 
 	static void addAttributes(RootEntity entity, JsonObject object,
@@ -55,7 +42,7 @@ public class JsonWriter {
 			EntityStore store) {
 		if (entity == null || obj == null)
 			return;
-		JsonObject catRef = Refs.put(entity.getCategory(), store);
+		JsonObject catRef = Out.put(entity.getCategory(), store);
 		obj.add("category", catRef);
 	}
 

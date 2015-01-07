@@ -37,8 +37,7 @@ class ImpactCategoryWriter implements Writer<ImpactCategory> {
 	@Override
 	public JsonObject serialize(ImpactCategory category, Type type,
 			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		JsonWriter.addAttributes(category, obj, store);
 		obj.addProperty("referenceUnit", category.getReferenceUnit());
 		JsonArray array = new JsonArray();
@@ -57,8 +56,8 @@ class ImpactCategoryWriter implements Writer<ImpactCategory> {
 			obj.addProperty("@id", factor.getId());
 		obj.addProperty("value", factor.getValue());
 		obj.addProperty("formula", factor.getFormula());
-		obj.add("flow", Refs.put(factor.getFlow(), store));
-		obj.add("unit", Refs.createRef(factor.getUnit()));
+		obj.add("flow", Out.put(factor.getFlow(), store));
+		obj.add("unit", Out.createRef(factor.getUnit()));
 		FlowPropertyFactor fp = factor.getFlowPropertyFactor();
 		if (fp != null) {
 			JsonObject fpObj = new JsonObject();

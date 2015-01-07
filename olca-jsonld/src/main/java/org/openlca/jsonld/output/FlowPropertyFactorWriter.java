@@ -24,8 +24,7 @@ class FlowPropertyFactorWriter implements JsonSerializer<FlowPropertyFactor> {
 	@Override
 	public JsonElement serialize(FlowPropertyFactor factor, Type type,
 			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		map(factor, obj);
 		return obj;
 	}
@@ -36,7 +35,7 @@ class FlowPropertyFactorWriter implements JsonSerializer<FlowPropertyFactor> {
 		obj.addProperty("@type", "FlowPropertyFactor");
 		if (factor.getId() != 0)
 			obj.addProperty("@id", factor.getId());
-		obj.add("flowProperty", Refs.put(factor.getFlowProperty(), store));
+		obj.add("flowProperty", Out.put(factor.getFlowProperty(), store));
 		obj.addProperty("value", factor.getConversionFactor());
 	}
 }

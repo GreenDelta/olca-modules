@@ -16,7 +16,6 @@ class UncertaintyWriter implements JsonSerializer<Uncertainty> {
 	public JsonElement serialize(Uncertainty uncertainty, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
 		map(uncertainty, obj);
 		return null;
 	}

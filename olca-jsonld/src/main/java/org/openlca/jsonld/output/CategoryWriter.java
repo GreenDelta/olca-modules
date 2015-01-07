@@ -33,8 +33,7 @@ class CategoryWriter implements Writer<Category> {
 	@Override
 	public JsonObject serialize(Category category, Type type,
 			JsonSerializationContext context) {
-		JsonObject json = new JsonObject();
-		JsonWriter.addContext(json);
+		JsonObject json = store == null ? new JsonObject() : store.initJson();
 		map(category, json);
 		return json;
 	}
@@ -44,7 +43,7 @@ class CategoryWriter implements Writer<Category> {
 		ModelType modelType = category.getModelType();
 		if (modelType != null)
 			json.addProperty("modelType", modelType.name());
-		JsonObject parentRef = Refs.put(category.getParentCategory(), store);
+		JsonObject parentRef = Out.put(category.getParentCategory(), store);
 		json.add("parentCategory", parentRef);
 	}
 }

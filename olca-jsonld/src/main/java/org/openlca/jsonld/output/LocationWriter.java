@@ -33,8 +33,7 @@ class LocationWriter implements Writer<Location> {
 	@Override
 	public JsonObject serialize(Location location, Type type,
 			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		map(location, obj);
 		return obj;
 	}

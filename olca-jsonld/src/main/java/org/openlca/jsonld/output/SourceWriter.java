@@ -33,8 +33,7 @@ class SourceWriter implements Writer<Source> {
 	@Override
 	public JsonObject serialize(Source source, Type type,
 			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		JsonWriter.addAttributes(source, obj, store);
 		obj.addProperty("doi", source.getDoi());
 		obj.addProperty("externalFile", source.getExternalFile());

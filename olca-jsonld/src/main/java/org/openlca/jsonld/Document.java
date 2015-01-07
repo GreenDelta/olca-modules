@@ -94,4 +94,9 @@ public class Document implements EntityStore {
 	@Override
 	public void close() throws IOException {
 	}
+
+	@Override
+	public JsonObject initJson() {
+		return new JsonObject();
+	}
 }

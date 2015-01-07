@@ -15,12 +15,9 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
 
-/**
- * Utility class for handling references to other entities.
- */
-class Refs {
+class Out {
 
-	private Refs() {
+	private Out() {
 	}
 
 	public static <T extends RootEntity> JsonObject put(T entity,

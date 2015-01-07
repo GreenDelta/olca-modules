@@ -17,7 +17,6 @@ class UnitWriter implements JsonSerializer<Unit> {
 	public JsonElement serialize(Unit unit, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
 		map(unit, obj);
 		return obj;
 	}

@@ -25,7 +25,6 @@ import com.google.gson.JsonSerializationContext;
 class ProcessWriter implements Writer<Process> {
 
 	private EntityStore store;
-	private boolean writeContext = true;
 
 	public ProcessWriter() {
 	}
@@ -48,8 +47,6 @@ class ProcessWriter implements Writer<Process> {
 	public JsonObject serialize(Process process, Type type,
 			JsonSerializationContext jsonSerializationContext) {
 		JsonObject obj = new JsonObject();
-		if (writeContext)
-			JsonWriter.addContext(obj);
 		map(process, obj);
 		return obj;
 	}
@@ -61,7 +58,7 @@ class ProcessWriter implements Writer<Process> {
 		mapProcessType(process, obj);
 		obj.addProperty("defaultAllocationMethod", getAllocationType(
 				process.getDefaultAllocationMethod()));
-		obj.add("location", Refs.put(process.getLocation(), store));
+		obj.add("location", Out.put(process.getLocation(), store));
 		obj.add("processDocumentation", createDoc(process));
 		mapExchanges(process, obj);
 	}
@@ -89,11 +86,11 @@ class ProcessWriter implements Writer<Process> {
 			return null;
 		JsonObject o = new JsonObject();
 		mapSimpleDocFields(d, o);
-		o.add("reviewer", Refs.put(d.getReviewer(), store));
-		o.add("dataDocumentor", Refs.put(d.getDataDocumentor(), store));
-		o.add("dataGenerator", Refs.put(d.getDataGenerator(), store));
-		o.add("dataSetOwner", Refs.put(d.getDataSetOwner(), store));
-		o.add("publication", Refs.put(d.getPublication(), store));
+		o.add("reviewer", Out.put(d.getReviewer(), store));
+		o.add("dataDocumentor", Out.put(d.getDataDocumentor(), store));
+		o.add("dataGenerator", Out.put(d.getDataGenerator(), store));
+		o.add("dataSetOwner", Out.put(d.getDataSetOwner(), store));
+		o.add("publication", Out.put(d.getPublication(), store));
 		mapSources(d, o);
 		return o;
 	}
@@ -103,7 +100,7 @@ class ProcessWriter implements Writer<Process> {
 			return;
 		JsonArray sources = new JsonArray();
 		for (Source source : d.getSources()) {
-			JsonObject ref = Refs.put(source, store);
+			JsonObject ref = Out.put(source, store);
 			sources.add(ref);
 		}
 		o.add("sources", sources);

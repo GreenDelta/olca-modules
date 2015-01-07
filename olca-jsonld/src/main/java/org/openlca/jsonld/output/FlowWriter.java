@@ -35,8 +35,7 @@ class FlowWriter implements Writer<Flow> {
 	@Override
 	public JsonObject serialize(Flow flow, Type type,
 			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		map(flow, obj);
 		return obj;
 	}
@@ -49,9 +48,9 @@ class FlowWriter implements Writer<Flow> {
 			obj.addProperty("flowType", flow.getFlowType().name());
 		obj.addProperty("cas", flow.getCasNumber());
 		obj.addProperty("formula", flow.getFormula());
-		JsonObject locationRef = Refs.put(flow.getLocation(), store);
+		JsonObject locationRef = Out.put(flow.getLocation(), store);
 		obj.add("location", locationRef);
-		JsonObject propRef = Refs.put(flow.getReferenceFlowProperty(), store);
+		JsonObject propRef = Out.put(flow.getReferenceFlowProperty(), store);
 		obj.add("referenceFlowProperty", propRef);
 		addFactors(flow, obj);
 	}
@@ -60,7 +59,7 @@ class FlowWriter implements Writer<Flow> {
 		JsonArray factorArray = new JsonArray();
 		for (FlowPropertyFactor factor : flow.getFlowPropertyFactors()) {
 			JsonObject factorObj = new JsonObject();
-			JsonObject propRef = Refs.put(factor.getFlowProperty(), store);
+			JsonObject propRef = Out.put(factor.getFlowProperty(), store);
 			factorObj.addProperty("@type", "FlowPropertyFactor");
 			factorObj.add("flowProperty", propRef);
 			factorObj.addProperty("value", factor.getConversionFactor());

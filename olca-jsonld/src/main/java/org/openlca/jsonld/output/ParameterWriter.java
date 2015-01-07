@@ -17,7 +17,6 @@ class ParameterWriter implements JsonSerializer<Parameter> {
 	public JsonElement serialize(Parameter parameter, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
 		map(parameter, obj);
 		return obj;
 	}

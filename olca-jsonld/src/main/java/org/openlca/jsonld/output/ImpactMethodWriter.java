@@ -35,12 +35,11 @@ class ImpactMethodWriter implements Writer<ImpactMethod> {
 	@Override
 	public JsonObject serialize(ImpactMethod method, Type type,
 			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		JsonWriter.addAttributes(method, obj, store);
 		JsonArray array = new JsonArray();
 		for (ImpactCategory category : method.getImpactCategories()) {
-			JsonObject ref = Refs.put(category, store);
+			JsonObject ref = Out.put(category, store);
 			array.add(ref);
 		}
 		obj.add("impactCategories", array);

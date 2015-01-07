@@ -26,8 +26,7 @@ class ExchangeWriter implements JsonSerializer<Exchange> {
 	@Override
 	public JsonElement serialize(Exchange exchange, Type type,
 			JsonSerializationContext jsonSerializationContext) {
-		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		map(exchange, obj);
 		return obj;
 	}
@@ -49,8 +48,8 @@ class ExchangeWriter implements JsonSerializer<Exchange> {
 
 	private void mapObjectRefs(Exchange e, JsonObject obj) {
 		// TODO: default providers -> we need the database
-		obj.add("flow", Refs.put(e.getFlow(), store));
-		obj.add("unit", Refs.createRef(e.getUnit()));
+		obj.add("flow", Out.put(e.getFlow(), store));
+		obj.add("unit", Out.createRef(e.getUnit()));
 		FlowPropertyFactor propFac = e.getFlowPropertyFactor();
 		if (propFac != null) {
 			JsonObject facObj = new JsonObject();

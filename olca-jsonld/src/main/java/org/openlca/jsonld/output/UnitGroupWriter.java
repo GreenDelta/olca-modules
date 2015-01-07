@@ -35,8 +35,7 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 	@Override
 	public JsonObject serialize(UnitGroup unitGroup, Type type,
 			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		map(unitGroup, obj);
 		return obj;
 	}
@@ -45,9 +44,9 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 		if (group == null || obj == null)
 			return;
 		JsonWriter.addAttributes(group, obj, store);
-		JsonObject propRef = Refs.createRef(group.getDefaultFlowProperty());
+		JsonObject propRef = Out.createRef(group.getDefaultFlowProperty());
 		obj.add("defaultFlowProperty", propRef);
-		JsonObject unitRef = Refs.createRef(group.getReferenceUnit());
+		JsonObject unitRef = Out.createRef(group.getReferenceUnit());
 		obj.add("referenceUnit", unitRef);
 		JsonArray units = new JsonArray();
 		for (Unit unit : group.getUnits()) {

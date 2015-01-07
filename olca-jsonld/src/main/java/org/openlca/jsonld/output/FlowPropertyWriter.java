@@ -34,8 +34,7 @@ class FlowPropertyWriter implements Writer<FlowProperty> {
 	@Override
 	public JsonObject serialize(FlowProperty property, Type type,
 			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		JsonWriter.addContext(obj);
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		map(property, obj);
 		return obj;
 	}
@@ -45,7 +44,7 @@ class FlowPropertyWriter implements Writer<FlowProperty> {
 			return;
 		JsonWriter.addAttributes(property, obj, store);
 		mapType(property, obj);
-		JsonObject unitGroup = Refs.put(property.getUnitGroup(), store);
+		JsonObject unitGroup = Out.put(property.getUnitGroup(), store);
 		obj.add("unitGroup", unitGroup);
 	}
 

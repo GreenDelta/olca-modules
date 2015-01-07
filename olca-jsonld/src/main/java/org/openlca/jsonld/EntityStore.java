@@ -1,15 +1,20 @@
 package org.openlca.jsonld;
 
 import java.io.Closeable;
-
-import org.openlca.core.model.ModelType;
-
 import com.google.gson.JsonObject;
+import org.openlca.core.model.ModelType;
 
 public interface EntityStore extends Closeable {
 
-	public void add(ModelType type, String refId, JsonObject object);
+	void add(ModelType type, String refId, JsonObject object);
 
-	public boolean contains(ModelType type, String refId);
+	boolean contains(ModelType type, String refId);
+
+	/**
+	 * Initializes a JSON object for storing an entity. Depending on the store
+	 * this object can be initialized with the linked data context (@context)
+	 * and other attributes.
+	 */
+	JsonObject initJson();
 
 }

@@ -71,4 +71,11 @@ public class ZipStore implements EntityStore {
 	public void close() throws IOException {
 		zip.close();
 	}
+
+	@Override
+	public JsonObject initJson() {
+		JsonObject obj = new JsonObject();
+		Context.add(obj);
+		return obj;
+	}
 }
