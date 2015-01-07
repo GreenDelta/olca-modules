@@ -1,10 +1,11 @@
-package org.openlca.jsonld;
+package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Uncertainty;
+import org.openlca.jsonld.EntityStore;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

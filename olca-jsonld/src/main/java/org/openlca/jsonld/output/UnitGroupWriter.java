@@ -1,10 +1,11 @@
-package org.openlca.jsonld;
+package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.EntityStore;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

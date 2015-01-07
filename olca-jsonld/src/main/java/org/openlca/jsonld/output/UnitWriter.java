@@ -1,4 +1,4 @@
-package org.openlca.jsonld;
+package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 

@@ -6,7 +6,7 @@ import org.openlca.core.model.ModelType;
 
 import com.google.gson.JsonObject;
 
-interface EntityStore extends Closeable {
+public interface EntityStore extends Closeable {
 
 	public void add(ModelType type, String refId, JsonObject object);
 

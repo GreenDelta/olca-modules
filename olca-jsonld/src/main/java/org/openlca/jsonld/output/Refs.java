@@ -1,6 +1,7 @@
-package org.openlca.jsonld;
+package org.openlca.jsonld.output;
 
 import com.google.gson.JsonObject;
+
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
@@ -12,6 +13,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.EntityStore;
 
 /**
  * Utility class for handling references to other entities.

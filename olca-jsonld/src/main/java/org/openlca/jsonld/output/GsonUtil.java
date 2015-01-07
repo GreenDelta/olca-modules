@@ -1,8 +1,6 @@
-package org.openlca.jsonld;
+package org.openlca.jsonld.output;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -13,7 +11,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Unit;
@@ -34,26 +31,14 @@ import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
-public class JsonWriter {
+public final class GsonUtil {
 
-	private final EntityStore store;
-	private final WriterConfig config;
-
-	public JsonWriter(EntityStore store) {
-		this(store, WriterConfig.getDefault());
+	private GsonUtil() {
 	}
 
-	public JsonWriter(EntityStore store, WriterConfig config) {
-		this.store = store;
-		this.config = config;
-	}
-
-	public static Gson createGson(WriterConfig config) {
+	public static Gson createGson() {
 		GsonBuilder b = new GsonBuilder();
-		if (config.isPrettyPrinting())
-			b.setPrettyPrinting();
 		registerTypeAdapters(b);
 		registerDescriptorWriter(b);
 		Gson gson = b.create();
@@ -95,49 +80,4 @@ public class JsonWriter {
 		b.registerTypeAdapter(SourceDescriptor.class, dw);
 		b.registerTypeAdapter(UnitGroupDescriptor.class, dw);
 	}
-
-	public void write(RootEntity entity, IDatabase database) {
-		if (entity == null)
-			return;
-		Refs.put(entity, store);
-	}
-
-	static void addContext(JsonObject object) {
-		String url = "http://openlca.org/schema/v1.0#";
-		JsonObject context = new JsonObject();
-		context.addProperty("@vocab", url);
-		JsonObject vocabType = new JsonObject();
-		vocabType.addProperty("@type", "@vocab");
-		context.add("modelType", vocabType);
-		context.add("flowPropertyType", vocabType);
-		context.add("flowType", vocabType);
-		context.add("distributionType", vocabType);
-		context.add("parameterScope", vocabType);
-		context.add("allocationType", vocabType);
-		context.add("defaultAllocationMethod", vocabType);
-		context.add("processTyp", vocabType);
-		object.add("@context", context);
-	}
-
-	static void addAttributes(RootEntity entity, JsonObject object,
-			EntityStore store) {
-		if (entity == null || object == null)
-			return;
-		String type = entity.getClass().getSimpleName();
-		object.addProperty("@type", type);
-		object.addProperty("@id", entity.getRefId());
-		object.addProperty("name", entity.getName());
-		object.addProperty("description", entity.getDescription());
-		if (entity instanceof CategorizedEntity)
-			addCategory((CategorizedEntity) entity, object, store);
-	}
-
-	private static void addCategory(CategorizedEntity entity, JsonObject obj,
-			EntityStore store) {
-		if (entity == null || obj == null)
-			return;
-		JsonObject catRef = Refs.put(entity.getCategory(), store);
-		obj.add("category", catRef);
-	}
-
 }

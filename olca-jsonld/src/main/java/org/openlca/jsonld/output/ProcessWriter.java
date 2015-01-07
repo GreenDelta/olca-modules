@@ -1,4 +1,4 @@
-package org.openlca.jsonld;
+package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -14,6 +14,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
+import org.openlca.jsonld.EntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

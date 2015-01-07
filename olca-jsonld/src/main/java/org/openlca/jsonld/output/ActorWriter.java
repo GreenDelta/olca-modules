@@ -1,9 +1,10 @@
-package org.openlca.jsonld;
+package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.EntityStore;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;

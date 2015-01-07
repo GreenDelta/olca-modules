@@ -1,12 +1,15 @@
-package org.openlca.jsonld;
+package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.EntityStore;
 
 class FlowWriter implements Writer<Flow> {
 
