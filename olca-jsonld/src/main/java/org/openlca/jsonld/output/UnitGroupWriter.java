@@ -43,7 +43,7 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 	private void map(UnitGroup group, JsonObject obj) {
 		if (group == null || obj == null)
 			return;
-		JsonWriter.addAttributes(group, obj, store);
+		JsonExport.addAttributes(group, obj, store);
 		JsonObject propRef = Out.createRef(group.getDefaultFlowProperty());
 		obj.add("defaultFlowProperty", propRef);
 		JsonObject unitRef = Out.createRef(group.getReferenceUnit());

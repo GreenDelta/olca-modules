@@ -11,15 +11,15 @@ import com.google.gson.JsonObject;
  * Writes entities to an entity store (e.g. a document or zip file). It also
  * writes the referenced entities to this store if they are not yet contained.
  */
-public class JsonWriter {
+public class JsonExport {
 
 	private final EntityStore store;
 
-	public JsonWriter(EntityStore store) {
+	public JsonExport(IDatabase database, EntityStore store) {
 		this.store = store;
 	}
 
-	public void write(RootEntity entity, IDatabase database) {
+	public void write(RootEntity entity) {
 		if (entity == null)
 			return;
 		Out.put(entity, store);

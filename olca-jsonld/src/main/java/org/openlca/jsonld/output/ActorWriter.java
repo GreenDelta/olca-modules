@@ -39,7 +39,7 @@ class ActorWriter implements Writer<Actor> {
 	private void map(Actor actor, JsonObject obj) {
 		if (actor == null || obj == null)
 			return;
-		JsonWriter.addAttributes(actor, obj, store);
+		JsonExport.addAttributes(actor, obj, store);
 		obj.addProperty("address", actor.getAddress());
 		obj.addProperty("city", actor.getCity());
 		obj.addProperty("country", actor.getCountry());

@@ -43,7 +43,7 @@ class FlowWriter implements Writer<Flow> {
 	void map(Flow flow, JsonObject obj) {
 		if (flow == null || obj == null)
 			return;
-		JsonWriter.addAttributes(flow, obj, store);
+		JsonExport.addAttributes(flow, obj, store);
 		if (flow.getFlowType() != null)
 			obj.addProperty("flowType", flow.getFlowType().name());
 		obj.addProperty("cas", flow.getCasNumber());

@@ -36,7 +36,7 @@ class ImpactMethodWriter implements Writer<ImpactMethod> {
 	public JsonObject serialize(ImpactMethod method, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = store == null ? new JsonObject() : store.initJson();
-		JsonWriter.addAttributes(method, obj, store);
+		JsonExport.addAttributes(method, obj, store);
 		JsonArray array = new JsonArray();
 		for (ImpactCategory category : method.getImpactCategories()) {
 			JsonObject ref = Out.put(category, store);

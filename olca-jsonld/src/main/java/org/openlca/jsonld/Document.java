@@ -8,7 +8,7 @@ import java.util.Objects;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.jsonld.output.JsonWriter;
+import org.openlca.jsonld.output.JsonExport;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -29,8 +29,9 @@ public class Document implements EntityStore {
 
 	public static String toJson(RootEntity entity, IDatabase database) {
 		Document document = new Document();
-		JsonWriter writer = new JsonWriter(document);
-		writer.write(entity, database);
+		JsonExport writer = new JsonExport(database, document);
+		writer.write(entity);
+		// TODO: add context to root object
 		Gson gson = new Gson();
 		return gson.toJson(document);
 	}

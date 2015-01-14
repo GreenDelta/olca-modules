@@ -38,7 +38,7 @@ class ImpactCategoryWriter implements Writer<ImpactCategory> {
 	public JsonObject serialize(ImpactCategory category, Type type,
 			JsonSerializationContext context) {
 		JsonObject obj = store == null ? new JsonObject() : store.initJson();
-		JsonWriter.addAttributes(category, obj, store);
+		JsonExport.addAttributes(category, obj, store);
 		obj.addProperty("referenceUnit", category.getReferenceUnit());
 		JsonArray array = new JsonArray();
 		for (ImpactFactor factor : category.getImpactFactors()) {

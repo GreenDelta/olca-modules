@@ -42,7 +42,7 @@ class FlowPropertyWriter implements Writer<FlowProperty> {
 	private void map(FlowProperty property, JsonObject obj) {
 		if (property == null || obj == null)
 			return;
-		JsonWriter.addAttributes(property, obj, store);
+		JsonExport.addAttributes(property, obj, store);
 		mapType(property, obj);
 		JsonObject unitGroup = Out.put(property.getUnitGroup(), store);
 		obj.add("unitGroup", unitGroup);

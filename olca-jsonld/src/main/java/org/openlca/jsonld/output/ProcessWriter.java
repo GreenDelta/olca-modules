@@ -54,7 +54,7 @@ class ProcessWriter implements Writer<Process> {
 	private void map(Process process, JsonObject obj) {
 		if (process == null || obj == null)
 			return;
-		JsonWriter.addAttributes(process, obj, store);
+		JsonExport.addAttributes(process, obj, store);
 		mapProcessType(process, obj);
 		obj.addProperty("defaultAllocationMethod", getAllocationType(
 				process.getDefaultAllocationMethod()));

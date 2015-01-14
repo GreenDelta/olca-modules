@@ -24,7 +24,7 @@ class UnitWriter implements JsonSerializer<Unit> {
 	static void map(Unit unit, JsonObject object) {
 		if (unit == null || object == null)
 			return;
-		JsonWriter.addAttributes(unit, object, null);
+		JsonExport.addAttributes(unit, object, null);
 		object.addProperty("conversionFactor", unit.getConversionFactor());
 		addSynonyms(unit, object);
 	}
