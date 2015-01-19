@@ -10,11 +10,13 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.flows.FlowPropertyReference;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.FlowBag;
+import org.openlca.ilcd.util.LangString;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,6 +118,15 @@ public class FlowImport {
 					+ flow.getRefId() + " because the "
 					+ "reference flow property of this flow "
 					+ "could not be imported.");
+		mapLocation();
+	}
+
+	private void mapLocation() {
+		if (ilcdFlow == null || flow == null)
+			return;
+		String code = LangString.get(ilcdFlow.getLocation());
+		Location location = Locations.get(code, database);
+		flow.setLocation(location);
 	}
 
 	private void addFlowProperties() {

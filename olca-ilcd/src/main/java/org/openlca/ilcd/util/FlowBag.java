@@ -9,12 +9,14 @@ import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowCategorization;
 import org.openlca.ilcd.commons.FlowCategoryInformation;
 import org.openlca.ilcd.commons.FlowType;
+import org.openlca.ilcd.commons.Label;
 import org.openlca.ilcd.flows.DataSetInformation;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowInformation;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.FlowPropertyList;
 import org.openlca.ilcd.flows.FlowPropertyReference;
+import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
 import org.openlca.ilcd.flows.QuantitativeReference;
@@ -125,6 +127,17 @@ public class FlowBag implements IBag<Flow> {
 			return getCompartments(categoryInfo);
 		}
 		return Collections.emptyList();
+	}
+
+	public List<Label> getLocation() {
+		FlowInformation info = flow.getFlowInformation();
+		if (info == null)
+			return Collections.emptyList();
+		Geography geo = info.getGeography();
+		if (geo == null)
+			return Collections.emptyList();
+		else
+			return geo.getLocation();
 	}
 
 	private List<Category> getCompartments(FlowCategoryInformation categoryInfo) {
