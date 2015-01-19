@@ -8,9 +8,9 @@ final class Context {
 	}
 
 	static void add(JsonObject object) {
-		String url = "http://openlca.org/schema/v1.0#";
 		JsonObject context = new JsonObject();
-		context.addProperty("@vocab", url);
+		context.addProperty("@vocab", "http://openlca.org/schema/v1.0/");
+		context.addProperty("@base", "http://openlca.org/schema/v1.0/");
 		JsonObject vocabType = new JsonObject();
 		vocabType.addProperty("@type", "@vocab");
 		context.add("modelType", vocabType);
@@ -20,7 +20,7 @@ final class Context {
 		context.add("parameterScope", vocabType);
 		context.add("allocationType", vocabType);
 		context.add("defaultAllocationMethod", vocabType);
-		context.add("processTyp", vocabType);
+		context.add("processType", vocabType);
 		object.add("@context", context);
 	}
 

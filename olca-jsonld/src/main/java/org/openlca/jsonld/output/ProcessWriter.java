@@ -46,7 +46,7 @@ class ProcessWriter implements Writer<Process> {
 	@Override
 	public JsonObject serialize(Process process, Type type,
 			JsonSerializationContext jsonSerializationContext) {
-		JsonObject obj = new JsonObject();
+		JsonObject obj = store == null ? new JsonObject() : store.initJson();
 		map(process, obj);
 		return obj;
 	}
