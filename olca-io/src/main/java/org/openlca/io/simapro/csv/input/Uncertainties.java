@@ -3,9 +3,9 @@ package org.openlca.io.simapro.csv.input;
 import org.openlca.simapro.csv.model.Uncertainty;
 import org.openlca.simapro.csv.model.enums.DistributionParameter;
 
-class UncertaintyConverter {
+final class Uncertainties {
 
-	private UncertaintyConverter() {
+	private Uncertainties() {
 	}
 
 	public static org.openlca.core.model.Uncertainty get(double mean,
@@ -13,16 +13,16 @@ class UncertaintyConverter {
 		if (uncertainty == null || uncertainty.getType() == null)
 			return null;
 		switch (uncertainty.getType()) {
-			case LOG_NORMAL:
-				return logNormal(mean, uncertainty);
-			case NORMAL:
-				return normal(mean, uncertainty);
-			case TRIANGLE:
-				return triangle(mean, uncertainty);
-			case UNIFORM:
-				return uniform(uncertainty);
-			default:
-				return null;
+		case LOG_NORMAL:
+			return logNormal(mean, uncertainty);
+		case NORMAL:
+			return normal(mean, uncertainty);
+		case TRIANGLE:
+			return triangle(mean, uncertainty);
+		case UNIFORM:
+			return uniform(uncertainty);
+		default:
+			return null;
 		}
 	}
 
@@ -30,16 +30,18 @@ class UncertaintyConverter {
 			Uncertainty uncertainty) {
 		return org.openlca.core.model.Uncertainty.logNormal(
 				mean,
-				Math.sqrt(uncertainty.getParameterValue(DistributionParameter.SQUARED_SD))
-		);
+				Math.sqrt(uncertainty
+						.getParameterValue(DistributionParameter.SQUARED_SD))
+				);
 	}
 
 	private static org.openlca.core.model.Uncertainty normal(double mean,
 			Uncertainty uncertainty) {
 		return org.openlca.core.model.Uncertainty.normal(
 				mean,
-				0.5 * uncertainty.getParameterValue(DistributionParameter.DOUBLED_SD)
-		);
+				0.5 * uncertainty
+						.getParameterValue(DistributionParameter.DOUBLED_SD)
+				);
 	}
 
 	private static org.openlca.core.model.Uncertainty triangle(double mean,
@@ -48,7 +50,7 @@ class UncertaintyConverter {
 				uncertainty.getParameterValue(DistributionParameter.MINIMUM),
 				mean,
 				uncertainty.getParameterValue(DistributionParameter.MAXIMUM)
-		);
+				);
 	}
 
 	private static org.openlca.core.model.Uncertainty uniform(
@@ -56,6 +58,6 @@ class UncertaintyConverter {
 		return org.openlca.core.model.Uncertainty.uniform(
 				uncertainty.getParameterValue(DistributionParameter.MINIMUM),
 				uncertainty.getParameterValue(DistributionParameter.MAXIMUM)
-		);
+				);
 	}
 }

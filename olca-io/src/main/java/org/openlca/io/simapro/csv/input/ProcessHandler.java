@@ -208,7 +208,7 @@ class ProcessHandler {
 		exchange.setFlow(flow);
 		setExchangeUnit(exchange, flow, row.getUnit());
 		setAmount(exchange, row.getAmount(), scopeId);
-		Uncertainty uncertainty = UncertaintyConverter.get(
+		Uncertainty uncertainty = Uncertainties.get(
 				exchange.getAmountValue(), row.getUncertaintyDistribution());
 		exchange.setUncertainty(uncertainty);
 		process.getExchanges().add(exchange);

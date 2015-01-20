@@ -66,6 +66,8 @@ class ProcessParameterMapper {
 		parameter.setInputParameter(true);
 		parameter.setScope(ParameterScope.PROCESS);
 		parameter.setValue(row.getValue());
+		parameter.setUncertainty(Uncertainties.get(row.getValue(),
+				row.getUncertainty()));
 		parameter.setDescription(row.getComment());
 		process.getParameters().add(parameter);
 		return parameter;
