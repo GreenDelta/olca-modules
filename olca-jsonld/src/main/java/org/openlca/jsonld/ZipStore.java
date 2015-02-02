@@ -96,13 +96,21 @@ public class ZipStore implements EntityStore {
 		if (!Files.exists(path))
 			return null;
 		try {
-			byte[] bytes = Files.readAllBytes(path);
-			String json = new String(bytes, "utf-8");
-			return new Gson().fromJson(json, JsonObject.class);
+			return readJson(path);
 		} catch (Exception e) {
 			log.error("failed to read json object " + type + " " + refId, e);
 			return null;
 		}
+	}
+
+	private JsonObject readJson(Path path) throws Exception {
+		byte[] bytes = Files.readAllBytes(path);
+		String json = new String(bytes, "utf-8");
+		JsonElement elem = new Gson().fromJson(json, JsonElement.class);
+		if (!elem.isJsonObject())
+			return null;
+		else
+			return elem.getAsJsonObject();
 	}
 
 	@Override
