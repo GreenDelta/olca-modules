@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.ModelType;
@@ -80,6 +85,40 @@ public class ZipStore implements EntityStore {
 	}
 
 	@Override
+	public JsonObject get(ModelType type, String refId) {
+		if (!contains(type, refId))
+			return null;
+		String dirName = ModelPath.get(type);
+		Path dir = zip.getPath(dirName);
+		if (!Files.exists(dir))
+			return null;
+		Path path = zip.getPath(dirName + "/" + refId + ".json");
+		if (!Files.exists(path))
+			return null;
+		try {
+			byte[] bytes = Files.readAllBytes(path);
+			String json = new String(bytes, "utf-8");
+			return new Gson().fromJson(json, JsonObject.class);
+		} catch (Exception e) {
+			log.error("failed to read json object " + type + " " + refId, e);
+			return null;
+		}
+	}
+
+	@Override
+	public List<String> getRefIds(ModelType type) {
+		String dirName = ModelPath.get(type);
+		Path dir = zip.getPath(dirName);
+		RefIdCollector collector = new RefIdCollector();
+		try {
+			Files.walkFileTree(dir, collector);
+		} catch (Exception e) {
+			log.error("failed to get refIds for type " + type, e);
+		}
+		return collector.ids;
+	}
+
+	@Override
 	public void close() throws IOException {
 		zip.close();
 	}
@@ -89,5 +128,21 @@ public class ZipStore implements EntityStore {
 		JsonObject obj = new JsonObject();
 		Context.add(obj);
 		return obj;
+	}
+
+	private class RefIdCollector extends SimpleFileVisitor<Path> {
+
+		private List<String> ids = new ArrayList<>();
+
+		@Override
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+				throws IOException {
+			if (file == null)
+				return FileVisitResult.CONTINUE;
+			String fileName = file.getFileName().toString();
+			String refId = fileName.substring(0, fileName.length() - 5);
+			ids.add(refId);
+			return FileVisitResult.CONTINUE;
+		}
 	}
 }

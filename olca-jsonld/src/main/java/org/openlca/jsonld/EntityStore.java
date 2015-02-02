@@ -1,6 +1,7 @@
 package org.openlca.jsonld;
 
 import java.io.Closeable;
+import java.util.List;
 
 import org.openlca.core.model.ModelType;
 
@@ -18,5 +19,9 @@ public interface EntityStore extends Closeable {
 	 * and other attributes.
 	 */
 	JsonObject initJson();
+
+	List<String> getRefIds(ModelType type);
+
+	JsonObject get(ModelType type, String refId);
 
 }

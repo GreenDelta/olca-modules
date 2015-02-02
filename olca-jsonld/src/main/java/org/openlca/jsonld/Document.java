@@ -2,6 +2,7 @@ package org.openlca.jsonld;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,15 +18,16 @@ import com.google.gson.JsonObject;
 public class Document implements EntityStore {
 
 	private List<JsonObject> categories = new ArrayList<>();
+	private List<JsonObject> locations = new ArrayList<>();
 	private List<JsonObject> actors = new ArrayList<>();
 	private List<JsonObject> sources = new ArrayList<>();
 	private List<JsonObject> unitGroups = new ArrayList<>();
 	private List<JsonObject> flowProperties = new ArrayList<>();
 	private List<JsonObject> flows = new ArrayList<>();
 	private List<JsonObject> processes = new ArrayList<>();
-	private List<JsonObject> locations = new ArrayList<>();
-	private List<JsonObject> impactCategories = new ArrayList<>();
 	private List<JsonObject> impactMethods = new ArrayList<>();
+	private List<JsonObject> impactCategories = new ArrayList<>();
+	private List<JsonObject> nwSets = new ArrayList<>();
 
 	public static String toJson(RootEntity entity, IDatabase database) {
 		Document document = new Document();
@@ -54,13 +56,47 @@ public class Document implements EntityStore {
 		if (list == null)
 			return false;
 		for (JsonObject object : list) {
-			JsonElement id = object.get("@id");
-			if (id == null)
-				continue;
-			if (Objects.equals(id.getAsString(), refId))
+			String id = getId(object);
+			if (Objects.equals(id, refId))
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void close() throws IOException {
+	}
+
+	@Override
+	public JsonObject initJson() {
+		return new JsonObject();
+	}
+
+	@Override
+	public JsonObject get(ModelType type, String refId) {
+		List<JsonObject> list = getList(type);
+		if (list == null || refId == null)
+			return null;
+		for (JsonObject obj : list) {
+			String id = getId(obj);
+			if (Objects.equals(id, refId))
+				return obj;
+		}
+		return null;
+	}
+
+	@Override
+	public List<String> getRefIds(ModelType type) {
+		List<JsonObject> list = getList(type);
+		if (list == null)
+			return Collections.emptyList();
+		List<String> ids = new ArrayList<>();
+		for (JsonObject obj : list) {
+			String id = getId(obj);
+			if (id != null)
+				ids.add(id);
+		}
+		return ids;
 	}
 
 	private List<JsonObject> getList(ModelType type) {
@@ -87,17 +123,21 @@ public class Document implements EntityStore {
 			return impactCategories;
 		case IMPACT_METHOD:
 			return impactMethods;
+		case NW_SET:
+			return nwSets;
 		default:
 			return null;
 		}
 	}
 
-	@Override
-	public void close() throws IOException {
+	private String getId(JsonObject obj) {
+		if (obj == null)
+			return null;
+		JsonElement elem = obj.get("@id");
+		if (elem == null || !elem.isJsonPrimitive())
+			return null;
+		else
+			return elem.getAsString();
 	}
 
-	@Override
-	public JsonObject initJson() {
-		return new JsonObject();
-	}
 }
