@@ -40,7 +40,7 @@ class ProcessWriter implements Writer<Process> {
 		if (store.contains(ModelType.PROCESS, process.getRefId()))
 			return;
 		JsonObject obj = serialize(process, null, null);
-		store.add(ModelType.PROCESS, process.getRefId(), obj);
+		store.put(ModelType.PROCESS, obj);
 	}
 
 	@Override

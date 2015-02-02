@@ -2,16 +2,16 @@ package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.jsonld.EntityStore;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class ImpactCategoryWriter implements Writer<ImpactCategory> {
 
@@ -31,7 +31,7 @@ class ImpactCategoryWriter implements Writer<ImpactCategory> {
 		if (store.contains(ModelType.IMPACT_CATEGORY, category.getRefId()))
 			return;
 		JsonObject obj = serialize(category, null, null);
-		store.add(ModelType.IMPACT_CATEGORY, category.getRefId(), obj);
+		store.put(ModelType.IMPACT_CATEGORY, obj);
 	}
 
 	@Override

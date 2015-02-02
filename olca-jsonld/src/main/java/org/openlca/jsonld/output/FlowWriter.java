@@ -2,14 +2,14 @@ package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class FlowWriter implements Writer<Flow> {
 
@@ -29,7 +29,7 @@ class FlowWriter implements Writer<Flow> {
 		if (store.contains(ModelType.FLOW, flow.getRefId()))
 			return;
 		JsonObject obj = serialize(flow, null, null);
-		store.add(ModelType.FLOW, flow.getRefId(), obj);
+		store.put(ModelType.FLOW, obj);
 	}
 
 	@Override

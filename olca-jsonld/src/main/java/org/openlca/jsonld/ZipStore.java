@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class ZipStore implements EntityStore {
@@ -38,8 +39,9 @@ public class ZipStore implements EntityStore {
 	}
 
 	@Override
-	public void add(ModelType type, String refId, JsonObject object) {
-		if (type == null || refId == null || object == null)
+	public void put(ModelType type, JsonObject object) {
+		String refId = getRefId(object);
+		if (type == null || refId == null)
 			return;
 		try {
 			String json = new Gson().toJson(object);
@@ -53,6 +55,16 @@ public class ZipStore implements EntityStore {
 		} catch (Exception e) {
 			log.error("failed to add " + type + "/" + refId, e);
 		}
+	}
+
+	private String getRefId(JsonObject obj) {
+		if (obj == null)
+			return null;
+		JsonElement elem = obj.get("@id");
+		if (elem == null || !elem.isJsonPrimitive())
+			return null;
+		else
+			return elem.getAsString();
 	}
 
 	@Override

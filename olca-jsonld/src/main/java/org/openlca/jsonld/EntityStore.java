@@ -1,12 +1,14 @@
 package org.openlca.jsonld;
 
 import java.io.Closeable;
-import com.google.gson.JsonObject;
+
 import org.openlca.core.model.ModelType;
+
+import com.google.gson.JsonObject;
 
 public interface EntityStore extends Closeable {
 
-	void add(ModelType type, String refId, JsonObject object);
+	void put(ModelType type, JsonObject object);
 
 	boolean contains(ModelType type, String refId);
 

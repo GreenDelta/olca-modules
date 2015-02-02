@@ -2,14 +2,14 @@ package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class ImpactMethodWriter implements Writer<ImpactMethod> {
 
@@ -29,7 +29,7 @@ class ImpactMethodWriter implements Writer<ImpactMethod> {
 		if (store.contains(ModelType.IMPACT_METHOD, method.getRefId()))
 			return;
 		JsonObject obj = serialize(method, null, null);
-		store.add(ModelType.IMPACT_METHOD, method.getRefId(), obj);
+		store.put(ModelType.IMPACT_METHOD, obj);
 	}
 
 	@Override

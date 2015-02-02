@@ -2,13 +2,13 @@ package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class FlowPropertyWriter implements Writer<FlowProperty> {
 
@@ -28,7 +28,7 @@ class FlowPropertyWriter implements Writer<FlowProperty> {
 		if (store.contains(ModelType.FLOW_PROPERTY, property.getRefId()))
 			return;
 		JsonObject obj = serialize(property, null, null);
-		store.add(ModelType.FLOW_PROPERTY, property.getRefId(), obj);
+		store.put(ModelType.FLOW_PROPERTY, obj);
 	}
 
 	@Override

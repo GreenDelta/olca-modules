@@ -41,7 +41,7 @@ public class Document implements EntityStore {
 	}
 
 	@Override
-	public void add(ModelType type, String refId, JsonObject object) {
+	public void put(ModelType type, JsonObject object) {
 		List<JsonObject> list = getList(type);
 		if (list == null || object == null)
 			return;

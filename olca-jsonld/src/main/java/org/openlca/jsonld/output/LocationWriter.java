@@ -27,7 +27,7 @@ class LocationWriter implements Writer<Location> {
 		if (store.contains(ModelType.LOCATION, location.getRefId()))
 			return;
 		JsonObject obj = serialize(location, null, null);
-		store.add(ModelType.LOCATION, location.getRefId(), obj);
+		store.put(ModelType.LOCATION, obj);
 	}
 
 	@Override

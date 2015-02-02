@@ -2,12 +2,12 @@ package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class CategoryWriter implements Writer<Category> {
 
@@ -27,7 +27,7 @@ class CategoryWriter implements Writer<Category> {
 		if (store.contains(ModelType.CATEGORY, category.getRefId()))
 			return;
 		JsonObject obj = serialize(category, null, null);
-		store.add(ModelType.CATEGORY, category.getRefId(), obj);
+		store.put(ModelType.CATEGORY, obj);
 	}
 
 	@Override

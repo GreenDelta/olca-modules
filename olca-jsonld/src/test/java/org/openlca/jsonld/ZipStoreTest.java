@@ -2,12 +2,14 @@ package org.openlca.jsonld;
 
 import java.io.File;
 import java.nio.file.Files;
-import com.google.gson.JsonObject;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.model.ModelType;
+
+import com.google.gson.JsonObject;
 
 public class ZipStoreTest {
 
@@ -31,7 +33,7 @@ public class ZipStoreTest {
 		ZipStore store = ZipStore.open(zipFile);
 		JsonObject json = new JsonObject();
 		json.addProperty("@id", "abc");
-		store.add(ModelType.ACTOR, "abc", json);
+		store.put(ModelType.ACTOR, json);
 		store.close();
 		store = ZipStore.open(zipFile);
 		Assert.assertTrue(store.contains(ModelType.ACTOR, "abc"));

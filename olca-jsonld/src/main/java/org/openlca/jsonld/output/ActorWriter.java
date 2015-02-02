@@ -1,11 +1,13 @@
 package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 
 class ActorWriter implements Writer<Actor> {
 
@@ -25,7 +27,7 @@ class ActorWriter implements Writer<Actor> {
 		if (store.contains(ModelType.ACTOR, actor.getRefId()))
 			return;
 		JsonObject obj = serialize(actor, null, null);
-		store.add(ModelType.ACTOR, actor.getRefId(), obj);
+		store.put(ModelType.ACTOR, obj);
 	}
 
 	@Override

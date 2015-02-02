@@ -27,7 +27,7 @@ class SourceWriter implements Writer<Source> {
 		if (store.contains(ModelType.SOURCE, source.getRefId()))
 			return;
 		JsonObject obj = serialize(source, null, null);
-		store.add(ModelType.SOURCE, source.getRefId(), obj);
+		store.put(ModelType.SOURCE, obj);
 	}
 
 	@Override
