@@ -101,7 +101,9 @@ class ImpactMethodImport {
 		factor.setUnit(unit);
 		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
 		factor.setFlowPropertyFactor(propFac);
-		// TODO: uncertainty
+		JsonElement u = json.get("uncertainty");
+		if (u != null && u.isJsonObject())
+			factor.setUncertainty(Uncertainties.read(u.getAsJsonObject()));
 		// TODO: formula
 		return factor;
 	}
