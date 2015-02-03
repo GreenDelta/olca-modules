@@ -12,6 +12,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +118,8 @@ public class ZipStore implements EntityStore {
 	public List<String> getRefIds(ModelType type) {
 		String dirName = ModelPath.get(type);
 		Path dir = zip.getPath(dirName);
+		if(!Files.exists(dir))
+			return Collections.emptyList();
 		RefIdCollector collector = new RefIdCollector();
 		try {
 			Files.walkFileTree(dir, collector);

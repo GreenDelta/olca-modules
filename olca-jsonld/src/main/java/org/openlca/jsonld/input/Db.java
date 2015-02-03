@@ -6,12 +6,14 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
@@ -26,6 +28,7 @@ class Db {
 	private Map<String, Long> flowPropertyIds = new HashMap<>();
 	private Map<String, Long> flowIds = new HashMap<>();
 	private Map<String, Long> locationIds = new HashMap<>();
+	private Map<String, Long> methodIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -101,6 +104,14 @@ class Db {
 
 	public Flow put(Flow flow) {
 		return put(new FlowDao(db), flow, flowIds);
+	}
+
+	public ImpactMethod getMethod(String refId) {
+		return get(new ImpactMethodDao(db), refId, methodIds);
+	}
+
+	public ImpactMethod put(ImpactMethod method) {
+		return put(new ImpactMethodDao(db), method, methodIds);
 	}
 
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,
