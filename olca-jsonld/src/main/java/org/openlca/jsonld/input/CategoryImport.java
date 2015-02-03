@@ -22,11 +22,11 @@ class CategoryImport {
 		this.db = db;
 	}
 
-	public static Category run(String refId, EntityStore store, Db db) {
+	static Category run(String refId, EntityStore store, Db db) {
 		return new CategoryImport(refId, store, db).run();
 	}
 
-	public Category run() {
+	private Category run() {
 		if (refId == null || store == null || db == null)
 			return null;
 		try {
@@ -42,6 +42,8 @@ class CategoryImport {
 	}
 
 	private Category map(JsonObject json) {
+		if (json == null)
+			return null;
 		Category category = new Category();
 		In.mapAtts(json, category);
 		String typeString = In.getString(json, "modelType");
@@ -51,6 +53,11 @@ class CategoryImport {
 		Category parent = CategoryImport.run(parentId, store, db);
 		if (parent == null)
 			return db.put(category);
+		else
+			return updateParent(parent, category);
+	}
+
+	private Category updateParent(Category parent, Category category) {
 		category.setParentCategory(parent);
 		parent.getChildCategories().add(category);
 		parent = db.updateChilds(parent);

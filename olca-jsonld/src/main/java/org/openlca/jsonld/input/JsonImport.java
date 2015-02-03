@@ -17,7 +17,10 @@ public class JsonImport implements Runnable {
 	@Override
 	public void run() {
 		for (String catId : store.getRefIds(ModelType.CATEGORY)) {
-		   CategoryImport.run(catId, store, db);
+			CategoryImport.run(catId, store, db);
+		}
+		for (String groupId : store.getRefIds(ModelType.UNIT_GROUP)) {
+			UnitGroupImport.run(groupId, store, db);
 		}
 	}
 

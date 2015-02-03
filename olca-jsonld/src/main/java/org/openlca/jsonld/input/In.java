@@ -19,6 +19,16 @@ final class In {
 			return elem.getAsString();
 	}
 
+	static double getDouble(JsonObject obj, String property, double defaultVal) {
+		if (obj == null || property == null)
+			return defaultVal;
+		JsonElement elem = obj.get(property);
+		if (elem == null || !elem.isJsonPrimitive())
+			return defaultVal;
+		else
+			return elem.getAsDouble();
+	}
+
 	/**
 	 * Returns the ID of a referenced entity (see Out.writeRef).
 	 */
