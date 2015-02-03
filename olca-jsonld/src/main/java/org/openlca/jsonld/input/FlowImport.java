@@ -62,7 +62,9 @@ class FlowImport {
 			flow.setFlowType(FlowType.valueOf(typeString));
 		flow.setCasNumber(In.getString(json, "cas"));
 		flow.setFormula(In.getString(json, "formula"));
-		// TODO: flow location
+		String locId = In.getRefId(json, "location");
+		if (locId != null)
+			flow.setLocation(LocationImport.run(locId, store, db));
 		String propId = In.getRefId(json, "referenceFlowProperty");
 		flow.setReferenceFlowProperty(FlowPropertyImport.run(propId, store, db));
 	}

@@ -6,11 +6,13 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -23,11 +25,20 @@ class Db {
 	private Map<String, Long> unitIds = new HashMap<>();
 	private Map<String, Long> flowPropertyIds = new HashMap<>();
 	private Map<String, Long> flowIds = new HashMap<>();
+	private Map<String, Long> locationIds = new HashMap<>();
 
 	private IDatabase db;
 
 	public Db(IDatabase db) {
 		this.db = db;
+	}
+
+	public Location getLocation(String refId) {
+		return get(new LocationDao(db), refId, locationIds);
+	}
+
+	public Location put(Location loc) {
+		return put(new LocationDao(db), loc, locationIds);
 	}
 
 	public Category getCategory(String refId) {
