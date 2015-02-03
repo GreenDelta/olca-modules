@@ -2,13 +2,14 @@ package org.openlca.jsonld.input;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
@@ -21,6 +22,7 @@ class Db {
 	private Map<String, Long> unitGroupIds = new HashMap<>();
 	private Map<String, Long> unitIds = new HashMap<>();
 	private Map<String, Long> flowPropertyIds = new HashMap<>();
+	private Map<String, Long> flowIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -80,6 +82,14 @@ class Db {
 
 	public FlowProperty put(FlowProperty property) {
 		return put(new FlowPropertyDao(db), property, flowPropertyIds);
+	}
+
+	public Flow getFlow(String refId) {
+		return get(new FlowDao(db), refId, flowIds);
+	}
+
+	public Flow put(Flow flow) {
+		return put(new FlowDao(db), flow, flowIds);
 	}
 
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,
