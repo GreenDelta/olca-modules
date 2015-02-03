@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.google.common.base.Joiner;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -55,9 +56,20 @@ class UnitGroupImport {
 		g.setCategory(CategoryImport.run(catId, store, db));
 		addUnits(g, json);
 		setRefUnit(g, json);
+		// insert the unit group before a default flow property is imported
+		// to avoid endless import cycles
 		g = db.put(g);
-		// TODO: default flow property
+		g = setDefaultProperty(json, g);
 		return g;
+	}
+
+	private UnitGroup setDefaultProperty(JsonObject json, UnitGroup g) {
+		String propId = In.getRefId(json, "defaultFlowProperty");
+		if (propId == null)
+			return g;
+		FlowProperty prop = FlowPropertyImport.run(propId, store, db);
+		g.setDefaultFlowProperty(prop);
+		return db.update(g);
 	}
 
 	private void addUnits(UnitGroup g, JsonObject json) {

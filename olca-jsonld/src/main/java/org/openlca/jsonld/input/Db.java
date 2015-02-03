@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -18,6 +20,7 @@ class Db {
 	private Map<String, Long> categoryIds = new HashMap<>();
 	private Map<String, Long> unitGroupIds = new HashMap<>();
 	private Map<String, Long> unitIds = new HashMap<>();
+	private Map<String, Long> flowPropertyIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -60,10 +63,23 @@ class Db {
 		return g;
 	}
 
+	public UnitGroup update(UnitGroup group) {
+		UnitGroupDao dao = new UnitGroupDao(db);
+		return dao.update(group);
+	}
+
 	public Unit getUnit(String refId) {
 		RootEntityDao<Unit, BaseDescriptor> dao = new RootEntityDao<>(
 				Unit.class, BaseDescriptor.class, db);
 		return get(dao, refId, unitIds);
+	}
+
+	public FlowProperty getFlowProperty(String refId) {
+		return get(new FlowPropertyDao(db), refId, flowPropertyIds);
+	}
+
+	public FlowProperty put(FlowProperty property) {
+		return put(new FlowPropertyDao(db), property, flowPropertyIds);
 	}
 
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,
