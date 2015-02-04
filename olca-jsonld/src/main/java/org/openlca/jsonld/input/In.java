@@ -1,8 +1,13 @@
 package org.openlca.jsonld.input;
 
+import java.util.Date;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.RootEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class In {
 
@@ -27,6 +32,31 @@ final class In {
 			return defaultVal;
 		else
 			return elem.getAsDouble();
+	}
+
+	static boolean getBool(JsonObject obj, String property, boolean defaultVal) {
+		if (obj == null || property == null)
+			return defaultVal;
+		JsonElement elem = obj.get(property);
+		if (elem == null || !elem.isJsonPrimitive())
+			return defaultVal;
+		else
+			return elem.getAsBoolean();
+	}
+
+	static Date getDate(JsonObject obj, String property) {
+		String xmlString = getString(obj, property);
+		if(xmlString == null)
+			return null;
+		try {
+			XMLGregorianCalendar xml = DatatypeFactory.newInstance()
+					.newXMLGregorianCalendar(xmlString);
+			return xml.toGregorianCalendar().getTime();
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(In.class);
+			log.error("failed to read date " + xmlString, e);
+			return null;
+		}
 	}
 
 	/**

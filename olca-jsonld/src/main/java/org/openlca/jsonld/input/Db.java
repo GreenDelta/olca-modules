@@ -2,20 +2,26 @@ package org.openlca.jsonld.input;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -29,6 +35,9 @@ class Db {
 	private Map<String, Long> flowIds = new HashMap<>();
 	private Map<String, Long> locationIds = new HashMap<>();
 	private Map<String, Long> methodIds = new HashMap<>();
+	private Map<String, Long> actorIds = new HashMap<>();
+	private Map<String, Long> sourceIds = new HashMap<>();
+	private Map<String, Long> processIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -64,6 +73,22 @@ class Db {
 			categoryIds.put(refId, child.getId());
 		}
 		return cat;
+	}
+
+	public Actor getActor(String refId) {
+		return get(new ActorDao(db), refId, actorIds);
+	}
+
+	public Actor put(Actor actor) {
+		return put(new ActorDao(db), actor, actorIds);
+	}
+
+	public Source getSource(String refId) {
+		return get(new SourceDao(db), refId, sourceIds);
+	}
+
+	public Source put(Source source) {
+		return put(new SourceDao(db), source, sourceIds);
 	}
 
 	public UnitGroup getUnitGroup(String refId) {
@@ -112,6 +137,14 @@ class Db {
 
 	public ImpactMethod put(ImpactMethod method) {
 		return put(new ImpactMethodDao(db), method, methodIds);
+	}
+
+	public Process getProcess(String refId) {
+		return get(new ProcessDao(db), refId, processIds);
+	}
+
+	public Process put(Process process) {
+		return put(new ProcessDao(db), process, processIds);
 	}
 
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,

@@ -118,7 +118,7 @@ public class ZipStore implements EntityStore {
 	public List<String> getRefIds(ModelType type) {
 		String dirName = ModelPath.get(type);
 		Path dir = zip.getPath(dirName);
-		if(!Files.exists(dir))
+		if (!Files.exists(dir))
 			return Collections.emptyList();
 		RefIdCollector collector = new RefIdCollector();
 		try {

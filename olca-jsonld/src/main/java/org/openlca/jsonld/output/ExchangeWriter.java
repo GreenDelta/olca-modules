@@ -47,7 +47,7 @@ class ExchangeWriter implements JsonSerializer<Exchange> {
 	}
 
 	private void mapObjectRefs(Exchange e, JsonObject obj) {
-		// TODO: default providers -> we need the database
+		// TODO: default providers
 		obj.add("flow", Out.put(e.getFlow(), store));
 		obj.add("unit", Out.createRef(e.getUnit()));
 		FlowPropertyFactor propFac = e.getFlowPropertyFactor();

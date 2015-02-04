@@ -20,6 +20,10 @@ public class JsonImport implements Runnable {
 			LocationImport.run(locId, store, db);
 		for (String catId : store.getRefIds(ModelType.CATEGORY))
 			CategoryImport.run(catId, store, db);
+		for (String actorId : store.getRefIds(ModelType.ACTOR))
+			ActorImport.run(actorId, store, db);
+		for (String sourceId : store.getRefIds(ModelType.SOURCE))
+			SourceImport.run(sourceId, store, db);
 		for (String groupId : store.getRefIds(ModelType.UNIT_GROUP))
 			UnitGroupImport.run(groupId, store, db);
 		for (String propId : store.getRefIds(ModelType.FLOW_PROPERTY))
@@ -28,6 +32,8 @@ public class JsonImport implements Runnable {
 			FlowImport.run(flowId, store, db);
 		for (String methodId : store.getRefIds(ModelType.IMPACT_METHOD))
 			ImpactMethodImport.run(methodId, store, db);
+		for (String processId : store.getRefIds(ModelType.PROCESS))
+			ProcessImport.run(processId, store, db);
 	}
 
 }
