@@ -95,8 +95,7 @@ public class FlowUseSearch implements IUseSearch<FlowDescriptor> {
 	private Set<Long> searchImpactCategoryIds(FlowDescriptor flow)
 			throws Exception {
 		String query = "select f_impact_category from tbl_impact_factors where "
-				+
-				"f_flow = " + flow.getId();
+				+ "f_flow = " + flow.getId();
 		final Set<Long> ids = new TreeSet<>();
 		NativeSql.on(database).query(query, new NativeSql.QueryResultHandler() {
 			@Override
