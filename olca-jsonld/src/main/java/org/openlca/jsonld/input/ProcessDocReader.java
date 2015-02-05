@@ -1,31 +1,35 @@
 package org.openlca.jsonld.input;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.EntityStore;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 class ProcessDocReader {
 
-	private JsonObject json;
 	private EntityStore store;
 	private Db db;
+	private JsonObject json;
 
-	private ProcessDocReader(JsonObject json, EntityStore store, Db db) {
-		this.json = json;
+	private ProcessDocReader(EntityStore store, Db db) {
 		this.store = store;
 		this.db = db;
 	}
 
 	static ProcessDocumentation read(JsonObject json, EntityStore store, Db db) {
-		return new ProcessDocReader(json, store, db).read();
+		return new ProcessDocReader(store, db).read(json);
 	}
 
-	private ProcessDocumentation read() {
-		if (json == null)
+	private ProcessDocumentation read(JsonObject process) {
+		if (process == null)
 			return null;
+		JsonElement elem = process.get("processDocumentation");
+		if (elem == null || !elem.isJsonObject())
+			return null;
+		json = elem.getAsJsonObject();
 		ProcessDocumentation doc = new ProcessDocumentation();
 		mapSimpleFields(doc);
 		doc.setReviewer(actor("reviewer"));
@@ -46,13 +50,15 @@ class ProcessDocReader {
 	private void mapSimpleFields(ProcessDocumentation doc) {
 		doc.setTime(In.getString(json, "timeDescription"));
 		doc.setTechnology(In.getString(json, "technologyDescription"));
-		doc.setDataCollectionPeriod(In.getString(json, "dataCollectionDescription"));
+		doc.setDataCollectionPeriod(In.getString(json,
+				"dataCollectionDescription"));
 		doc.setCompleteness(In.getString(json, "completenessDescription"));
 		doc.setDataSelection(In.getString(json, "dataSelectionDescription"));
 		doc.setReviewDetails(In.getString(json, "reviewDetails"));
 		doc.setDataTreatment(In.getString(json, "dataTreatmentDescription"));
 		doc.setInventoryMethod(In.getString(json, "inventoryMethodDescription"));
-		doc.setModelingConstants(In.getString(json, "modelingConstantsDescription"));
+		doc.setModelingConstants(In.getString(json,
+				"modelingConstantsDescription"));
 		doc.setSampling(In.getString(json, "samplingDescription"));
 		doc.setRestrictions(In.getString(json, "restrictionsDescription"));
 		doc.setIntendedApplication(In.getString(json, "intendedApplication"));
