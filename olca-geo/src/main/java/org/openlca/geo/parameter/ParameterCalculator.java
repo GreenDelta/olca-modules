@@ -61,7 +61,7 @@ public class ParameterCalculator {
 		DataStore store = stores.get(shapeFile);
 		FeatureCalculator calculator = new FeatureCalculator(store);
 		List<String> group = groups.get(shapeFile);
-		result = calculator.calculate(feature, group);
+		result = calculator.calculate(feature, group, defaults);
 		repository.save(id, shapeFile, result);
 		return result != null ? result : new HashMap<String, Double>();
 	}

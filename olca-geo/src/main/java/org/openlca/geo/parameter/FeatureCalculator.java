@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -26,17 +27,19 @@ class FeatureCalculator {
 	}
 
 	public Map<String, Double> calculate(KmlFeature feature,
-			List<String> parameters) {
+			List<String> parameters, Map<String, Double> defaults) {
 		if (feature.getType() == null)
 			return Collections.emptyMap();
 		switch (feature.getType()) {
 		case POINT:
 			return fetchPointValues(feature, parameters);
 		case LINE:
-			return fetchValues(feature, parameters, new LineStringValueFetch());
+			return fetchValues(feature, parameters, defaults,
+					new LineStringValueFetch());
 		case POLYGON:
 		case MULTI_GEOMETRY:
-			return fetchValues(feature, parameters, new PolygonValueFetch());
+			return fetchValues(feature, parameters, defaults,
+					new PolygonValueFetch());
 		default:
 			log.warn("cannot calculate parameter values for type {}",
 					feature.getType());
@@ -74,7 +77,8 @@ class FeatureCalculator {
 	}
 
 	private Map<String, Double> fetchValues(KmlFeature feature,
-			List<String> parameters, ValueFetch valueFetch) {
+			List<String> parameters, Map<String, Double> defaults,
+			ValueFetch valueFetch) {
 		double totalValue = valueFetch.fetchTotal(feature);
 		if (totalValue == 0)
 			return Collections.emptyMap();
@@ -89,7 +93,7 @@ class FeatureCalculator {
 				double value = valueFetch.fetchSingle(featureGeo, shapeGeo);
 				shares.put(shape, value / totalValue);
 			}
-			return fetchValues(shares, parameters);
+			return fetchValues(shares, parameters, defaults);
 		} catch (Exception e) {
 			String type = feature.getType().name();
 			log.error("failed to fetch parameters for feature type " + type, e);
@@ -98,13 +102,18 @@ class FeatureCalculator {
 	}
 
 	private Map<String, Double> fetchValues(Map<SimpleFeature, Double> shares,
-			List<String> parameters) {
+			List<String> parameters, Map<String, Double> defaults) {
 		Map<String, Double> results = new HashMap<>();
+		double totalShare = calculateTotalShare(shares);
+		if (totalShare < 1)
+			shares.put(null, (1 - totalShare));
 		for (SimpleFeature feature : shares.keySet()) {
 			Double share = shares.get(feature);
 			if (share == null)
 				continue;
-			Map<String, Double> vals = fetchValues(feature, parameters);
+			Map<String, Double> vals = defaults;
+			if (feature != null)
+				vals = fetchValues(feature, parameters);
 			for (String param : parameters) {
 				Double val = vals.get(param);
 				if (val == null)
@@ -118,6 +127,14 @@ class FeatureCalculator {
 			}
 		}
 		return results;
+	}
+
+	private double calculateTotalShare(Map<SimpleFeature, Double> shares) {
+		double share = 0;
+		for (Entry<SimpleFeature, Double> entry : shares.entrySet())
+			if (entry.getValue() != null)
+				share += entry.getValue();
+		return share;
 	}
 
 	private SimpleFeatureIterator getIterator() throws Exception {

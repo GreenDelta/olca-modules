@@ -1,5 +1,9 @@
 package org.openlca.geo.parameter;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.geotools.data.DataStore;
 import org.junit.After;
 import org.junit.Assert;
@@ -8,11 +12,6 @@ import org.junit.Test;
 import org.openlca.geo.Tests;
 import org.openlca.geo.kml.KmlFeature;
 import org.openlca.geo.kml.KmlTests;
-import org.openlca.geo.parameter.FeatureCalculator;
-import org.openlca.geo.parameter.ShapeFileRepository;
-
-import java.util.Arrays;
-import java.util.Map;
 
 public class ParameterCalculatorTest {
 
@@ -36,7 +35,7 @@ public class ParameterCalculatorTest {
 		// a point in New Mexico; DRAWSEQ = 42
 		KmlFeature feature = KmlTests.parse(Tests.getKml("point.kml"));
 		Map<String, Double> params = calculator.calculate(feature,
-				Arrays.asList("DRAWSEQ"));
+				Arrays.asList("DRAWSEQ"), new HashMap<String, Double>());
 		Assert.assertTrue(params.size() == 1);
 		Assert.assertEquals(42, params.get("DRAWSEQ"), 1e-17);
 	}
@@ -50,7 +49,7 @@ public class ParameterCalculatorTest {
 		// Kansas; DRAWSEQ = 34
 		KmlFeature feature = KmlTests.parse(Tests.getKml("line.kml"));
 		Map<String, Double> params = calculator.calculate(feature,
-				Arrays.asList("DRAWSEQ"));
+				Arrays.asList("DRAWSEQ"), new HashMap<String, Double>());
 		double val = params.get("DRAWSEQ");
 		Assert.assertTrue(34 < val && val < 42);
 	}
@@ -65,16 +64,9 @@ public class ParameterCalculatorTest {
 		// Colorado; DRAWSEQ = 32
 		KmlFeature feature = KmlTests.parse(Tests.getKml("polygon.kml"));
 		Map<String, Double> params = calculator.calculate(feature,
-				Arrays.asList("DRAWSEQ"));
+				Arrays.asList("DRAWSEQ"), new HashMap<String, Double>());
 		double val = params.get("DRAWSEQ");
 		Assert.assertTrue(32 < val && val < 42);
-	}
-
-	@Test
-	public void test() {
-		KmlFeature feature = KmlTests.parse(Tests.getKml("temp.kml"));
-		Map<String, Double> params =  calculator.calculate(feature, Arrays.asList("DRAWSEQ"));
-		System.out.println();
 	}
 
 }

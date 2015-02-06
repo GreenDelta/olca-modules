@@ -10,7 +10,6 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 import org.geotools.geometry.jts.GeometryBuilder;
-import org.openlca.geo.kml.KmlFeature;
 import org.openlca.geo.parameter.ShapeFileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,13 @@ public class Tests {
 	private static ShapeFileRepository repository;
 
 	private Tests() {
+	}
+
+	public static void main(String[] args) {
+		for (int i = 2; i <= 50; i++)
+			System.out.print("+" + ((int) (Math.random() * 100)) + "*x^" + i);
+		for (int i = 2; i <= 50; i++)
+			System.out.print("+" + ((int) (Math.random() * 100)) + "*y^" + i);
 	}
 
 	public static String getKml(String file) {
