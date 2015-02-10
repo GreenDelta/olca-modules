@@ -11,8 +11,12 @@ import org.openlca.core.model.Parameter;
 import org.openlca.geo.kml.FeatureType;
 import org.openlca.geo.kml.KmlFeature;
 import org.openlca.geo.kml.KmlLoadResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParameterCalculator {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private Map<String, List<String>> groups;
 	private Map<String, DataStore> stores;
@@ -61,6 +65,7 @@ public class ParameterCalculator {
 		DataStore store = stores.get(shapeFile);
 		FeatureCalculator calculator = new FeatureCalculator(store);
 		List<String> group = groups.get(shapeFile);
+		log.debug("Calculating for location " + id);
 		result = calculator.calculate(feature, group, defaults);
 		repository.save(id, shapeFile, result);
 		return result != null ? result : new HashMap<String, Double>();
