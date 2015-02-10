@@ -23,8 +23,9 @@ class SingleProcessInventories {
 	private int firstValCol;
 	private int outputStartRow;
 
-	private SingleProcessInventories(Sheet sheet, ContributionResultProvider<?> result,
-	                                 AnalysisResultExport export) {
+	private SingleProcessInventories(Sheet sheet,
+			ContributionResultProvider<?> result,
+			AnalysisResultExport export) {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
@@ -33,7 +34,7 @@ class SingleProcessInventories {
 	}
 
 	public static void write(Sheet sheet, ContributionResultProvider<?> result,
-	                         AnalysisResultExport export) {
+			AnalysisResultExport export) {
 		new SingleProcessInventories(sheet, result, export).doIt();
 	}
 
@@ -123,6 +124,8 @@ class SingleProcessInventories {
 			if (process == null || flow == null)
 				return;
 			double val = result.getSingleFlowResult(process, flow).getValue();
+			if (val == 0)
+				return;
 			Excel.cell(sheet, currentRow, column, val);
 			currentRow++;
 		}

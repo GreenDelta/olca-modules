@@ -26,7 +26,7 @@ import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GeoKmzImport {
+class GeoKmzImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -105,7 +105,7 @@ public class GeoKmzImport {
 			log.error("failed to insert KML for location " + shortName, e);
 		}
 	}
-	
+
 	private byte[] getKmz(XMLStreamReader reader) {
 		try {
 			StringWriter writer = new StringWriter();
@@ -114,7 +114,7 @@ public class GeoKmzImport {
 			StringReader source = new StringReader(writer.toString());
 			Document doc = builder.build(source);
 			Namespace ns = Namespace
-					.getNamespace("http://earth.google.com/kml/2.1");
+					.getNamespace("http://earth.google.com/kml/2.0");
 			switchNamespace(doc.getRootElement(), ns);
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			new XMLOutputter().output(doc, bout);

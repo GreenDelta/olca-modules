@@ -1,5 +1,8 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
@@ -10,9 +13,6 @@ import org.openlca.simapro.csv.model.InputParameterRow;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Imports the project and database parameters from SimaPro as openLCA database
@@ -66,6 +66,9 @@ class GlobalParameterSync {
 		param.setInputParameter(true);
 		param.setScope(ParameterScope.GLOBAL);
 		param.setValue(row.getValue());
+		param.setDescription(row.getComment());
+		param.setUncertainty(Uncertainties.get(row.getValue(),
+				row.getUncertainty()));
 		dao.insert(param);
 		return param;
 	}
@@ -76,6 +79,7 @@ class GlobalParameterSync {
 		param.setName(row.getName());
 		param.setInputParameter(true);
 		param.setScope(ParameterScope.GLOBAL);
+		param.setDescription(row.getComment());
 		try {
 			double val = interpreter.eval(row.getExpression());
 			param.setValue(val);

@@ -38,7 +38,7 @@ public class CalculatedParameterRow implements IDataRow {
 		String[] columns = CsvUtils.split(line, config);
 		setName(CsvUtils.get(columns, 0));
 		setExpression(CsvUtils.get(columns, 1));
-		setComment(CsvUtils.readMultilines(CsvUtils.get(columns, 3)));
+		setComment(CsvUtils.readMultilines(CsvUtils.get(columns, 2)));
 	}
 
 	public String toCsv(CsvConfig config) {

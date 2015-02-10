@@ -1,17 +1,18 @@
 package org.openlca.core.model;
 
-import org.openlca.util.BinUtils;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+
+import org.openlca.util.BinUtils;
 
 /**
  * A set of process groups that can be stored in the database. The groups are
@@ -75,7 +76,8 @@ public class ProcessGroupSet extends AbstractEntity {
 			ProcessGroup group = new ProcessGroup();
 			groups.add(group);
 			group.setName(name);
-			for (int k = 0; k < BinUtils.readInt(bin); k++) {
+			int idCount = BinUtils.readInt(bin);
+			for (int k = 0; k < idCount; k++) {
 				String id = BinUtils.readString(bin);
 				group.getProcessIds().add(id);
 			}

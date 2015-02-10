@@ -21,7 +21,7 @@ class ProcessImpacts {
 	private int startCol;
 
 	private ProcessImpacts(Sheet sheet, ContributionResultProvider<?> result,
-	                       AnalysisResultExport export) {
+			AnalysisResultExport export) {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
@@ -30,7 +30,7 @@ class ProcessImpacts {
 	}
 
 	public static void write(Sheet sheet, ContributionResultProvider<?> result,
-	                         AnalysisResultExport export) {
+			AnalysisResultExport export) {
 		new ProcessImpacts(sheet, result, export).doIt();
 	}
 
@@ -45,7 +45,8 @@ class ProcessImpacts {
 				export.getWriter().writeProcessRowInfo(sheet, row, process);
 				double val = result.getSingleImpactResult(process,
 						impact).getValue();
-				Excel.cell(sheet, row, col, val);
+				if (val != 0)
+					Excel.cell(sheet, row, col, val);
 				row++;
 			}
 			col++;

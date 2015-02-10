@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.List;
 
-import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Actor;
@@ -28,7 +27,6 @@ import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.ProcessBag;
-import org.openlca.io.KeyGen;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -146,41 +144,15 @@ public class ProcessImport {
 
 	private void mapGeography(ProcessDocumentation doc) throws ImportException {
 		Geography iGeography = ilcdProcess.getGeography();
-		if (iGeography != null) {
-
-			if (iGeography.getLocation() != null
-					&& iGeography.getLocation().getLocation() != null) {
-				String locationCode = iGeography.getLocation().getLocation();
-				try {
-					String locationId = KeyGen.get(locationCode);
-
-					// find a location
-					BaseEntityDao<Location> locDao = new BaseEntityDao<>(
-							Location.class, database);
-					Location location = locDao.getForRefId(locationId);
-
-					// create a new location
-					if (location == null) {
-						location = new Location();
-						location.setCode(locationCode);
-						location.setRefId(locationId);
-						location.setName(locationCode);
-						database.createDao(Location.class).insert(location);
-					}
-
-					process.setLocation(location);
-				} catch (Exception e) {
-					throw new ImportException(e);
-				}
-			}
-
-			// comment
-			if (iGeography.getLocation() != null) {
-				doc.setGeography(LangString.get(iGeography.getLocation()
-						.getDescription()));
-			}
-
-		}
+		if (iGeography == null || iGeography.getLocation() == null)
+			return;
+		doc.setGeography(LangString.get(iGeography.getLocation()
+				.getDescription()));
+		if (iGeography.getLocation().getLocation() == null)
+			return;
+		String code = iGeography.getLocation().getLocation();
+		Location location = Locations.getOrCreate(code, database);
+		process.setLocation(location);
 	}
 
 	private void mapTechnology(ProcessDocumentation doc) {

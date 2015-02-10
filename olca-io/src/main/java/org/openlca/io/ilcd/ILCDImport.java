@@ -171,7 +171,7 @@ public class ILCDImport implements FileImport {
 				flowImport.run(flow);
 			}
 		} catch (Exception e) {
-			log.error("Flow import failed");
+			log.error("Flow import failed", e);
 		}
 	}
 
