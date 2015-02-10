@@ -15,6 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.geom.TopologyException;
+import com.vividsolutions.jts.precision.GeometryPrecisionReducer;
 
 class FeatureCalculator {
 
@@ -181,7 +184,17 @@ class FeatureCalculator {
 
 		@Override
 		public double fetchSingle(Geometry feature, Geometry shape) {
-			return feature.intersection(shape).getArea();
+			try {
+				return feature.intersection(shape).getArea();
+			} catch (TopologyException e) {
+				// see http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html#D9
+				log.warn(
+						"Topology exception in feature calculation, reducing precision of original model",
+						e);
+				feature = GeometryPrecisionReducer.reduce(feature,
+						new PrecisionModel(PrecisionModel.FLOATING_SINGLE));
+				return feature.intersection(shape).getArea();
+			}
 		}
 
 		@Override
