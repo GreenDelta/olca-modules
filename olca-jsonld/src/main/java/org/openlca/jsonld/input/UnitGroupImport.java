@@ -2,7 +2,6 @@ package org.openlca.jsonld.input;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import com.google.common.base.Joiner;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -55,7 +54,6 @@ class UnitGroupImport {
 		String catId = In.getRefId(json, "category");
 		g.setCategory(CategoryImport.run(catId, store, db));
 		addUnits(g, json);
-		setRefUnit(g, json);
 		// insert the unit group before a default flow property is imported
 		// to avoid endless import cycles
 		g = db.put(g);
@@ -81,6 +79,9 @@ class UnitGroupImport {
 				continue;
 			JsonObject obj = e.getAsJsonObject();
 			Unit unit = mapUnit(obj);
+			boolean refUnit = In.getBool(obj, "referenceUnit", false);
+			if(refUnit)
+				g.setReferenceUnit(unit);
 			g.getUnits().add(unit);
 		}
 	}
@@ -105,15 +106,5 @@ class UnitGroupImport {
 		}
 		String synStr = Joiner.on(';').join(synonyms);
 		unit.setSynonyms(synStr);
-	}
-
-	private void setRefUnit(UnitGroup g, JsonObject json) {
-		String refId = In.getRefId(json, "referenceUnit");
-		for (Unit u : g.getUnits()) {
-			if (Objects.equals(refId, u.getRefId())) {
-				g.setReferenceUnit(u);
-				break;
-			}
-		}
 	}
 }

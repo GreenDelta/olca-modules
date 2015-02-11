@@ -1,5 +1,7 @@
 package org.openlca.jsonld.output;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -13,7 +15,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -28,9 +29,6 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public final class GsonUtil {
 
@@ -49,7 +47,6 @@ public final class GsonUtil {
 		b.registerTypeAdapter(Category.class, new CategoryWriter());
 		b.registerTypeAdapter(Actor.class, new ActorWriter());
 		b.registerTypeAdapter(Source.class, new SourceWriter());
-		b.registerTypeAdapter(Unit.class, new UnitWriter());
 		b.registerTypeAdapter(UnitGroup.class, new UnitGroupWriter());
 		b.registerTypeAdapter(FlowProperty.class, new FlowPropertyWriter());
 		b.registerTypeAdapter(Flow.class, new FlowWriter());
