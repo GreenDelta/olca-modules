@@ -59,7 +59,7 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 			JsonObject unitObj = new JsonObject();
 			JsonExport.addAttributes(unit, unitObj, null);
 			if(Objects.equals(unit, group.getReferenceUnit()))
-				unitObj.add("referenceUnit", new JsonPrimitive(true));
+				unitObj.addProperty("referenceUnit", true);
 			unitObj.addProperty("conversionFactor", unit.getConversionFactor());
 			addSynonyms(unit, unitObj);
 			units.add(unitObj);

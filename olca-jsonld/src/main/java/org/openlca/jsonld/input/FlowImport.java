@@ -3,6 +3,7 @@ package org.openlca.jsonld.input;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
@@ -65,12 +66,10 @@ class FlowImport {
 		String locId = In.getRefId(json, "location");
 		if (locId != null)
 			flow.setLocation(LocationImport.run(locId, store, db));
-		String propId = In.getRefId(json, "referenceFlowProperty");
-		flow.setReferenceFlowProperty(FlowPropertyImport.run(propId, store, db));
 	}
 
 	private void addFactors(JsonObject json, Flow flow) {
-		JsonElement elem = json.get("flowPropertyFactors");
+		JsonElement elem = json.get("flowProperties");
 		if (elem == null || !elem.isJsonArray())
 			return;
 		for (JsonElement e : elem.getAsJsonArray()) {
@@ -80,8 +79,12 @@ class FlowImport {
 			FlowPropertyFactor fac = new FlowPropertyFactor();
 			flow.getFlowPropertyFactors().add(fac);
 			String propId = In.getRefId(facObj, "flowProperty");
-			fac.setFlowProperty(FlowPropertyImport.run(propId, store, db));
-			fac.setConversionFactor(In.getDouble(facObj, "value", 1.0));
+			FlowProperty property = FlowPropertyImport.run(propId, store, db);
+			fac.setFlowProperty(property);
+			boolean isRef = In.getBool(facObj, "referenceFlowProperty", false);
+			if(isRef)
+				flow.setReferenceFlowProperty(property);
+			fac.setConversionFactor(In.getDouble(facObj, "conversionFactor", 1.0));
 		}
 	}
 }

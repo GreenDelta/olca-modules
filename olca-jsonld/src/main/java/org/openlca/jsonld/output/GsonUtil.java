@@ -7,7 +7,6 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
@@ -55,8 +54,6 @@ public final class GsonUtil {
 		b.registerTypeAdapter(Location.class, new LocationWriter());
 		b.registerTypeAdapter(Process.class, new ProcessWriter());
 		b.registerTypeAdapter(Exchange.class, new ExchangeWriter());
-		b.registerTypeAdapter(FlowPropertyFactor.class,
-				new FlowPropertyFactorWriter());
 		b.registerTypeAdapter(ImpactMethod.class, new ImpactMethodWriter());
 		b.registerTypeAdapter(ImpactCategory.class, new ImpactCategoryWriter());
 	}

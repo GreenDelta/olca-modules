@@ -52,17 +52,14 @@ class ImpactCategoryWriter implements Writer<ImpactCategory> {
 	private JsonObject map(ImpactFactor factor) {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ImpactFactor");
-		if (factor.getId() != 0)
-			obj.addProperty("@id", factor.getId());
 		obj.addProperty("value", factor.getValue());
 		obj.addProperty("formula", factor.getFormula());
 		obj.add("flow", Out.put(factor.getFlow(), store));
 		obj.add("unit", Out.createRef(factor.getUnit()));
 		FlowPropertyFactor fp = factor.getFlowPropertyFactor();
 		if (fp != null) {
-			JsonObject fpObj = new JsonObject();
-			new FlowPropertyFactorWriter(store).map(fp, fpObj);
-			obj.add("flowPropertyFactor", fpObj);
+			JsonObject ref = Out.put(fp.getFlowProperty(), store);
+			obj.add("flowProperty", ref);
 		}
 		Uncertainty uncertainty = factor.getUncertainty();
 		if (uncertainty != null) {

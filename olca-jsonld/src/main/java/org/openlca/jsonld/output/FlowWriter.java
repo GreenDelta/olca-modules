@@ -1,15 +1,14 @@
 package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
-
+import java.util.Objects;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
 class FlowWriter implements Writer<Flow> {
 
@@ -50,22 +49,22 @@ class FlowWriter implements Writer<Flow> {
 		obj.addProperty("formula", flow.getFormula());
 		JsonObject locationRef = Out.put(flow.getLocation(), store);
 		obj.add("location", locationRef);
-		JsonObject propRef = Out.put(flow.getReferenceFlowProperty(), store);
-		obj.add("referenceFlowProperty", propRef);
 		addFactors(flow, obj);
 	}
 
 	private void addFactors(Flow flow, JsonObject obj) {
 		JsonArray factorArray = new JsonArray();
-		for (FlowPropertyFactor factor : flow.getFlowPropertyFactors()) {
-			JsonObject factorObj = new JsonObject();
-			JsonObject propRef = Out.put(factor.getFlowProperty(), store);
-			factorObj.addProperty("@type", "FlowPropertyFactor");
-			factorObj.add("flowProperty", propRef);
-			factorObj.addProperty("value", factor.getConversionFactor());
-			factorArray.add(factorObj);
+		for (FlowPropertyFactor fac : flow.getFlowPropertyFactors()) {
+			JsonObject facObj = new JsonObject();
+			facObj.addProperty("@type", "FlowPropertyFactor");
+			if(Objects.equals(fac, flow.getReferenceFactor()))
+				facObj.addProperty("referenceFlowProperty", true);
+			JsonObject propRef = Out.put(fac.getFlowProperty(), store);
+			facObj.add("flowProperty", propRef);
+			facObj.addProperty("conversionFactor", fac.getConversionFactor());
+			factorArray.add(facObj);
 		}
-		obj.add("flowPropertyFactors", factorArray);
+		obj.add("flowProperties", factorArray);
 	}
 
 }
