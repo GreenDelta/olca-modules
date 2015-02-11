@@ -97,7 +97,6 @@ class ProcessImport {
 	}
 
 	private void addExchanges(JsonObject json, Process p) {
-		String refExchange = In.getRefId(json, "quantitativeReference");
 		JsonElement exchanges = json.get("exchanges");
 		if (exchanges == null || !exchanges.isJsonArray())
 			return;
@@ -107,8 +106,8 @@ class ProcessImport {
 			JsonObject o = e.getAsJsonObject();
 			Exchange exchange = exchange(o);
 			p.getExchanges().add(exchange);
-			String id = In.getString(o, "@id");
-			if (Objects.equals(refExchange, id))
+			boolean isRef = In.getBool(o, "quantitativeReference", false);
+			if (isRef)
 				p.setQuantitativeReference(exchange);
 		}
 	}
@@ -135,10 +134,7 @@ class ProcessImport {
 		e.setFlow(flow);
 		String unitId = In.getRefId(json, "unit");
 		e.setUnit(db.getUnit(unitId));
-		JsonElement factor = json.get("flowPropertyFactor");
-		if (factor == null || !factor.isJsonObject())
-			return;
-		String propId = In.getRefId(factor.getAsJsonObject(), "flowProperty");
+		String propId = In.getRefId(json, "flowProperty");
 		for (FlowPropertyFactor f : flow.getFlowPropertyFactors()) {
 			FlowProperty prop = f.getFlowProperty();
 			if (prop == null)

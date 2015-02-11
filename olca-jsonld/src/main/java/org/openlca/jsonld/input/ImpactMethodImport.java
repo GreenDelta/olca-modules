@@ -79,7 +79,7 @@ class ImpactMethodImport {
 			return null;
 		ImpactCategory cat = new ImpactCategory();
 		In.mapAtts(json, cat);
-		cat.setReferenceUnit(In.getString(json, "referenceUnit"));
+		cat.setReferenceUnit(In.getString(json, "referenceUnitName"));
 		JsonElement factorsElem = json.get("impactFactors");
 		if (factorsElem == null || !factorsElem.isJsonArray())
 			return cat;
@@ -109,10 +109,7 @@ class ImpactMethodImport {
 	}
 
 	private FlowPropertyFactor getPropertyFactor(JsonObject json, Flow flow) {
-		JsonElement elem = json.get("flowPropertyFactor");
-		if (elem == null || !elem.isJsonObject())
-			return null;
-		String propId = In.getRefId(elem.getAsJsonObject(), "flowProperty");
+		String propId = In.getRefId(json, "flowProperty");
 		for (FlowPropertyFactor fac : flow.getFlowPropertyFactors()) {
 			FlowProperty prop = fac.getFlowProperty();
 			if (prop == null)
