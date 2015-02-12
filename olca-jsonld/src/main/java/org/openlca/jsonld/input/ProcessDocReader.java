@@ -24,13 +24,13 @@ class ProcessDocReader {
 	}
 
 	private ProcessDocumentation read(JsonObject process) {
+		ProcessDocumentation doc = new ProcessDocumentation();
 		if (process == null)
-			return null;
+			return doc;
 		JsonElement elem = process.get("processDocumentation");
 		if (elem == null || !elem.isJsonObject())
-			return null;
+			return doc;
 		json = elem.getAsJsonObject();
-		ProcessDocumentation doc = new ProcessDocumentation();
 		mapSimpleFields(doc);
 		doc.setReviewer(actor("reviewer"));
 		doc.setDataDocumentor(actor("dataDocumentor"));

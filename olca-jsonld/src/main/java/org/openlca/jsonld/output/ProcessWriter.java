@@ -81,6 +81,7 @@ class ProcessWriter implements Writer<Process> {
 		if (d == null)
 			return null;
 		JsonObject o = new JsonObject();
+		o.addProperty("@type", "ProcessDocumentation");
 		mapSimpleDocFields(d, o);
 		o.add("reviewer", Out.put(d.getReviewer(), store));
 		o.add("dataDocumentor", Out.put(d.getDataDocumentor(), store));
