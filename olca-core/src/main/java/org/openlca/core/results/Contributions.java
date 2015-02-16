@@ -20,21 +20,22 @@ public final class Contributions {
 	 * contributionSet = Contributions.calculate(items, item -> amount)
 	 * </code> The share of the contribution item is calculated via: <br>
 	 * <code>
-	 * share = item -> amount / totalAmount
+	 * share = item -> amount / abs(totalAmount)
 	 * </code> An contribution item is set as the "rest" item
 	 * (contributionItem.isRest = true) if the item in the collection is null).
 	 */
 	public static <T> ContributionSet<T> calculate(Collection<T> items,
 			double totalAmount, Function<T> fn) {
 		List<ContributionItem<T>> contributions = new ArrayList<>();
+		double total = Math.abs(totalAmount);
 		for (T item : items) {
 			ContributionItem<T> contribution = new ContributionItem<>();
 			contribution.setRest(item == null);
 			contribution.setItem(item);
 			double val = fn.value(item);
 			contribution.setAmount(val);
-			if (totalAmount != 0)
-				contribution.setShare(val / totalAmount);
+			if (total != 0)
+				contribution.setShare(val / total);
 			contributions.add(contribution);
 		}
 		return new ContributionSet<>(contributions);
@@ -62,7 +63,7 @@ public final class Contributions {
 			List<? extends ContributionItem<?>> contributions) {
 		if (contributions == null || contributions.isEmpty())
 			return;
-		double refVal = getRefValue(contributions);
+		double refVal = Math.abs(getRefValue(contributions));
 		for (ContributionItem<?> c : contributions) {
 			if (refVal == 0)
 				c.setShare(0);
