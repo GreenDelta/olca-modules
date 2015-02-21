@@ -19,7 +19,7 @@ public class KmlFeature {
 	private final Geometry geometry;
 	private final FeatureType type;
 
-	private KmlFeature(String kml, Geometry geometry, FeatureType type) {
+	KmlFeature(String kml, Geometry geometry, FeatureType type) {
 		this.geometry = geometry;
 		this.type = type;
 		this.kml = kml;
