@@ -1,13 +1,18 @@
 package org.openlca.core.database.usage;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.Query;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -39,7 +44,7 @@ public class FlowPropertyUseSearch implements
 	public List<BaseDescriptor> findUses(FlowPropertyDescriptor prop) {
 		if (prop == null)
 			return Collections.emptyList();
-		List<BaseDescriptor> flows = findInFlows(prop);
+		List<FlowDescriptor> flows = findInFlows(prop);
 		List<BaseDescriptor> unitGroups = findInUnitGroups(prop);
 		List<BaseDescriptor> results = new ArrayList<>(flows.size()
 				+ unitGroups.size() + 2);
@@ -48,25 +53,22 @@ public class FlowPropertyUseSearch implements
 		return results;
 	}
 
-	private List<BaseDescriptor> findInFlows(FlowPropertyDescriptor prop) {
-		String jpql = "select f.id, f.name, f.description, f.flowType, f.location.id, f.category.id from Flow f "
-				+ "join f.flowPropertyFactors fp where fp.flowProperty.id = :flowPropertyId";
+	private List<FlowDescriptor> findInFlows(FlowPropertyDescriptor prop) {
+		String sql = "select f_flow from tbl_flow_property_factors where " +
+				"f_flow_property = " + prop.getId();
 		try {
-			List<Object[]> results = Query.on(database).getAll(Object[].class,
-					jpql,
-					Collections.singletonMap("flowPropertyId", prop.getId()));
-			List<BaseDescriptor> descriptors = new ArrayList<>();
-			for (Object[] result : results) {
-				FlowDescriptor d = new FlowDescriptor();
-				d.setId((Long) result[0]);
-				d.setName((String) result[1]);
-				d.setDescription((String) result[2]);
-				d.setFlowType((FlowType) result[3]);
-				d.setLocation((Long) result[4]);
-				d.setCategory((Long) result[5]);
-				descriptors.add(d);
-			}
-			return descriptors;
+			final Set<Long> flowIds = new TreeSet<>();
+			NativeSql.on(database).query(sql,
+					new NativeSql.QueryResultHandler() {
+						@Override
+						public boolean nextResult(ResultSet result)
+								throws SQLException {
+							flowIds.add(result.getLong(1));
+							return true;
+						}
+					});
+			FlowDao dao = new FlowDao(database);
+			return dao.getDescriptors(flowIds);
 		} catch (Exception e) {
 			log.error("Failed to search flow properties in flows", e);
 			return Collections.emptyList();
