@@ -10,8 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.DataSetType;
-import org.openlca.ilcd.contacts.Contact;
-import org.openlca.ilcd.contacts.DataSetInformation;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowName;
@@ -20,7 +18,6 @@ import org.openlca.ilcd.io.NetworkClient;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
-import org.openlca.ilcd.util.ContactBuilder;
 import org.openlca.ilcd.util.FlowBuilder;
 import org.openlca.ilcd.util.FlowPropertyBag;
 import org.openlca.ilcd.util.FlowPropertyBuilder;
@@ -38,21 +35,6 @@ public class NetworkPutTest {
 		if (!Network.isAppAlive())
 			return;
 		client = Network.createClient();
-	}
-
-	@Test
-	public void testPutContact() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
-		String id = UUID.randomUUID().toString();
-		DataSetInformation dataSetInfo = new DataSetInformation();
-		String name = "xtest contact - " + new Random().nextInt(1000);
-		LangString.addLabel(dataSetInfo.getName(), name);
-		LangString.addLabel(dataSetInfo.getShortName(), name);
-		dataSetInfo.setUUID(id);
-		Contact contact = ContactBuilder.makeContact()
-				.withDataSetInfo(dataSetInfo).withBaseUri(Network.RESOURCE_URL)
-				.getContact();
-		client.put(contact, id);
 	}
 
 	@Test

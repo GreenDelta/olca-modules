@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
  */
 class Network {
 
-	static final String APP_URL = "http://localhost:8080/oekobaudat";
-	static final String RESOURCE_URL = "http://localhost:8080/oekobaudat/resource";
+	static final String APP_URL = "http://localhost:8080/soda";
+	static final String RESOURCE_URL = "http://localhost:8080/soda/resource";
 	static final String USER = "admin";
 	static final String PASSWORD = "default";
 
