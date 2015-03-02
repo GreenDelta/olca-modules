@@ -4,20 +4,17 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Random;
 import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.io.NetworkClient;
-import org.openlca.ilcd.sources.DataSetInformation;
 import org.openlca.ilcd.sources.DigitalFileReference;
 import org.openlca.ilcd.sources.Source;
-import org.openlca.ilcd.util.LangString;
-import org.openlca.ilcd.util.SourceBuilder;
 
 public class SourceWithFileTest {
 
@@ -67,14 +64,8 @@ public class SourceWithFileTest {
 	}
 
 	private Source makeSource(String id) {
-		DataSetInformation info = new DataSetInformation();
-		String name = "xtest source - " + new Random().nextInt(1000);
-		LangString.addLabel(info.getShortName(), name);
-		info.setUUID(id);
-		Source source = SourceBuilder
-				.makeSource()
-				.withDataSetInfo(info)
-				.withBaseUri(Network.RESOURCE_URL).getSource();
+		Source source = SampleSource.create();
+		source.getSourceInformation().getDataSetInformation().setUUID(id);
 		return source;
 	}
 

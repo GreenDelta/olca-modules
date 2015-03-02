@@ -12,9 +12,6 @@ import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.ContactBag;
 
-/**
- * The import of an ILCD contact data set to an openLCA database.
- */
 public class ContactImport {
 
 	private IDatabase database;

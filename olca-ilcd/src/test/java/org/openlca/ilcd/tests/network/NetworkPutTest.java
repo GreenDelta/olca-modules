@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.flowproperties.FlowProperty;
@@ -22,7 +23,6 @@ import org.openlca.ilcd.util.FlowBuilder;
 import org.openlca.ilcd.util.FlowPropertyBag;
 import org.openlca.ilcd.util.FlowPropertyBuilder;
 import org.openlca.ilcd.util.LangString;
-import org.openlca.ilcd.util.SourceBuilder;
 import org.openlca.ilcd.util.UnitGroupBag;
 import org.openlca.ilcd.util.UnitGroupBuilder;
 
@@ -45,8 +45,8 @@ public class NetworkPutTest {
 		String name = "xtest source - " + new Random().nextInt(1000);
 		LangString.addLabel(dataSetInfo.getShortName(), name);
 		dataSetInfo.setUUID(id);
-		Source source = SourceBuilder.makeSource().withDataSetInfo(dataSetInfo)
-				.withBaseUri(Network.RESOURCE_URL).getSource();
+		Source source = SampleSource.create();
+		source.getSourceInformation().getDataSetInformation().setUUID(id);
 		client.put(source, id);
 	}
 

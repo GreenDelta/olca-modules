@@ -1,10 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.util.GregorianCalendar;
-
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.ClassificationInformation;
@@ -18,12 +13,7 @@ import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- * The export of an openLCA actor to an ILCD contact data set.
- */
 public class ActorExport {
 
 	private Actor actor;
@@ -81,13 +71,13 @@ public class ActorExport {
 	}
 
 	private void addClassification(DataSetInformation dataSetInfo) {
-		if (actor.getCategory() != null) {
-			CategoryConverter converter = new CategoryConverter();
-			ClassificationInformation classification = converter
-					.getClassificationInformation(actor.getCategory());
-			if (classification != null) {
-				dataSetInfo.setClassificationInformation(classification);
-			}
+		if (actor.getCategory() == null)
+			return;
+		CategoryConverter converter = new CategoryConverter();
+		ClassificationInformation classification = converter
+				.getClassificationInformation(actor.getCategory());
+		if (classification != null) {
+			dataSetInfo.setClassificationInformation(classification);
 		}
 	}
 
@@ -95,24 +85,10 @@ public class ActorExport {
 		AdministrativeInformation info = new AdministrativeInformation();
 		DataEntry entry = new DataEntry();
 		info.setDataEntry(entry);
-		setTimeStamp(entry);
+		entry.setTimeStamp(Out.getTimestamp(actor));
 		entry.getReferenceToDataSetFormat().add(Reference.forIlcdFormat());
 		addPublication(info);
 		return info;
-	}
-
-	private void setTimeStamp(DataEntry entry) {
-		try {
-			GregorianCalendar cal = new GregorianCalendar();
-			if (actor.getLastChange() > 0L)
-				cal.setTimeInMillis(actor.getLastChange());
-			XMLGregorianCalendar calendar = DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(cal);
-			entry.setTimeStamp(calendar);
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.error("Cannot set timestamp", e);
-		}
 	}
 
 	private void addPublication(AdministrativeInformation info) {
@@ -123,6 +99,6 @@ public class ActorExport {
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.setPermanentDataSetURI(baseUri + "contacts/" + actor.getId());
+		pub.setPermanentDataSetURI(baseUri + "contacts/" + actor.getRefId());
 	}
 }
