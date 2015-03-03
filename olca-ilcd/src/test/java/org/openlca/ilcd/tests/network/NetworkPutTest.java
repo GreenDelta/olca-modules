@@ -20,7 +20,6 @@ import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.FlowBuilder;
 import org.openlca.ilcd.util.FlowPropertyBag;
-import org.openlca.ilcd.util.FlowPropertyBuilder;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.UnitGroupBag;
 
@@ -59,25 +58,6 @@ public class NetworkPutTest {
 		return ref;
 	}
 
-	@Test
-	public void testPutFlowProperty() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
-		String id = UUID.randomUUID().toString();
-		FlowProperty flowProperty = makeFlowProperty(id);
-		client.put(flowProperty, id);
-	}
-
-	private FlowProperty makeFlowProperty(String id) {
-		org.openlca.ilcd.flowproperties.DataSetInformation dataSetInfo = new org.openlca.ilcd.flowproperties.DataSetInformation();
-		String name = "xtest flow property - " + new Random().nextInt(1000);
-		LangString.addLabel(dataSetInfo.getName(), name);
-		dataSetInfo.setUUID(id);
-		FlowProperty flowProperty = FlowPropertyBuilder.makeFlowProperty()
-				.withBaseUri(Network.RESOURCE_URL).withDataSetInfo(dataSetInfo)
-				.getFlowProperty();
-		return flowProperty;
-	}
-
 	private DataSetReference toRef(FlowProperty prop) {
 		FlowPropertyBag bag = new FlowPropertyBag(prop);
 		DataSetReference ref = new DataSetReference();
@@ -102,7 +82,6 @@ public class NetworkPutTest {
 		FlowPropertyReference propRef = new FlowPropertyReference();
 		propRef.setMeanValue(1.0);
 		propRef.setDataSetInternalID(BigInteger.valueOf(0));
-		propRef.setFlowProperty(toRef(makeFlowProperty(id)));
 		Flow flow = FlowBuilder.makeFlow().withBaseUri(Network.RESOURCE_URL)
 				.withDataSetInfo(dataSetInfo)
 				.withFlowProperties(Collections.singletonList(propRef))

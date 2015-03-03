@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Date;
+
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
@@ -7,14 +9,11 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.FlowPropertyBag;
 
-/**
- * The import of an ILCD flow property data set to an openLCA database.
- * 
- */
 public class FlowPropertyImport {
 
 	private IDatabase database;
@@ -107,6 +106,11 @@ public class FlowPropertyImport {
 		property.setRefId(ilcdProperty.getId());
 		property.setName(ilcdProperty.getName());
 		property.setDescription(ilcdProperty.getComment());
+		String v = ilcdProperty.getVersion();
+		property.setVersion(Version.fromString(v).getValue());
+		Date time = ilcdProperty.getTimeStamp();
+		if (time != null)
+			property.setLastChange(time.getTime());
 	}
 
 	private void createUnitGroupReference() throws ImportException {

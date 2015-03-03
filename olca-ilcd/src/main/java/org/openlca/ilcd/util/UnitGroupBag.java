@@ -35,9 +35,8 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 		UnitGroupInformation info = unitGroup.getUnitGroupInformation();
 		if (info != null) {
 			QuantitativeReference qRef = info.getQuantitativeReference();
-			if (qRef != null && qRef.getReferenceToReferenceUnit() != null) {
+			if (qRef != null && qRef.getReferenceToReferenceUnit() != null)
 				return qRef.getReferenceToReferenceUnit().intValue();
-			}
 		}
 		return null;
 	}
