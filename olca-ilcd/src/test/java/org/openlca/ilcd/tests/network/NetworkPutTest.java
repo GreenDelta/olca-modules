@@ -17,14 +17,12 @@ import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.FlowPropertyReference;
 import org.openlca.ilcd.io.NetworkClient;
 import org.openlca.ilcd.sources.Source;
-import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.FlowBuilder;
 import org.openlca.ilcd.util.FlowPropertyBag;
 import org.openlca.ilcd.util.FlowPropertyBuilder;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.UnitGroupBag;
-import org.openlca.ilcd.util.UnitGroupBuilder;
 
 public class NetworkPutTest {
 
@@ -48,30 +46,6 @@ public class NetworkPutTest {
 		Source source = SampleSource.create();
 		source.getSourceInformation().getDataSetInformation().setUUID(id);
 		client.put(source, id);
-	}
-
-	@Test
-	public void testPutUnitGroup() throws Exception {
-		Assume.assumeTrue(Network.isAppAlive());
-		String id = UUID.randomUUID().toString();
-		UnitGroup unitGroup = makeUnitGroup(id);
-		client.put(unitGroup, id);
-	}
-
-	private UnitGroup makeUnitGroup(String id) {
-		org.openlca.ilcd.units.DataSetInformation dataSetInfo = new org.openlca.ilcd.units.DataSetInformation();
-		String name = "xtest unit group - " + new Random().nextInt(1000);
-		LangString.addLabel(dataSetInfo.getName(), name);
-		dataSetInfo.setUUID(id);
-		Unit unit = new Unit();
-		unit.setDataSetInternalID(BigInteger.valueOf(0));
-		unit.setMeanValue(1.0);
-		unit.setName("kg");
-		UnitGroup unitGroup = UnitGroupBuilder.makeUnitGroup()
-				.withBaseUri(Network.RESOURCE_URL).withDataSetInfo(dataSetInfo)
-				.withReferenceUnitId(0)
-				.withUnits(Collections.singletonList(unit)).getUnitGroup();
-		return unitGroup;
 	}
 
 	private DataSetReference toRef(UnitGroup group) {
@@ -98,10 +72,9 @@ public class NetworkPutTest {
 		String name = "xtest flow property - " + new Random().nextInt(1000);
 		LangString.addLabel(dataSetInfo.getName(), name);
 		dataSetInfo.setUUID(id);
-		DataSetReference unitGroupRef = toRef(makeUnitGroup(id));
 		FlowProperty flowProperty = FlowPropertyBuilder.makeFlowProperty()
 				.withBaseUri(Network.RESOURCE_URL).withDataSetInfo(dataSetInfo)
-				.withUnitGroupReference(unitGroupRef).getFlowProperty();
+				.getFlowProperty();
 		return flowProperty;
 	}
 

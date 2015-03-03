@@ -14,7 +14,7 @@ import org.openlca.ilcd.contacts.Publication;
 import org.openlca.ilcd.io.NetworkClient;
 import org.openlca.ilcd.util.LangString;
 
-public class ContactPutTest {
+public class NetworkPutContactTest {
 
 	private NetworkClient client;
 
