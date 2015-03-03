@@ -1,6 +1,7 @@
 package org.openlca.io.ilcd.input;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.database.FlowDao;
@@ -12,6 +13,7 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.flows.FlowPropertyReference;
 import org.openlca.ilcd.io.DataStore;
@@ -112,6 +114,11 @@ public class FlowImport {
 		flow.setDescription(ilcdFlow.getComment());
 		flow.setCasNumber(ilcdFlow.getCasNumber());
 		flow.setFormula(ilcdFlow.getSumFormula());
+		String v = ilcdFlow.getVersion();
+		flow.setVersion(Version.fromString(v).getValue());
+		Date time = ilcdFlow.getTimeStamp();
+		if (time != null)
+			flow.setLastChange(time.getTime());
 		addFlowProperties();
 		if (flow.getReferenceFlowProperty() == null)
 			throw new ImportException("Could not import flow "

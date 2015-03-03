@@ -18,10 +18,6 @@ import org.openlca.ilcd.processes.ParameterList;
 import org.openlca.ilcd.processes.ProcessInformation;
 import org.openlca.ilcd.util.ExchangeExtension;
 
-/**
- * Converts the openLCA exchanges to ILCD exchanges and adds them to the ILCD
- * data set.
- */
 class ExchangeConversion {
 
 	private org.openlca.ilcd.processes.Process ilcdProcess;
@@ -82,7 +78,8 @@ class ExchangeConversion {
 
 	private double getRefAmount(Exchange oExchange) {
 		double propFactor = oExchange.getFlowPropertyFactor() != null ? oExchange
-				.getFlowPropertyFactor().getConversionFactor() : 1;
+				.getFlowPropertyFactor().getConversionFactor()
+				: 1;
 		double unitFactor = oExchange.getUnit() != null ? oExchange.getUnit()
 				.getConversionFactor() : 1;
 		return oExchange.getAmountValue() * propFactor * unitFactor;
