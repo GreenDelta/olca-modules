@@ -1,14 +1,16 @@
 package org.openlca.io.ilcd.output;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.io.DataStore;
@@ -17,6 +19,8 @@ import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterList;
 import org.openlca.ilcd.processes.ProcessInformation;
 import org.openlca.ilcd.util.ExchangeExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ExchangeConversion {
 
@@ -24,7 +28,6 @@ class ExchangeConversion {
 	private Process process;
 	private IDatabase database;
 	private DataStore dataStore;
-	private List<MappedPair> mappedPairs = new ArrayList<>();
 
 	public ExchangeConversion(Process process, IDatabase database,
 			DataStore dataStore) {
@@ -35,45 +38,37 @@ class ExchangeConversion {
 
 	public void run(org.openlca.ilcd.processes.Process ilcdProcess) {
 		this.ilcdProcess = ilcdProcess;
-		indexExchanges();
-		List<org.openlca.ilcd.processes.Exchange> iExchanges = new ArrayList<>();
-		for (MappedPair p : mappedPairs) {
-			mapExchange(p.oExchange, p.iExchange);
-			iExchanges.add(p.iExchange);
-		}
-		ExchangeList list = new ExchangeList();
-		ilcdProcess.setExchanges(list);
-		list.getExchanges().addAll(iExchanges);
-	}
-
-	private void indexExchanges() {
+		Map<Exchange, org.openlca.ilcd.processes.Exchange> exchangeMap = new HashMap<>();
 		int id = 1;
 		for (Exchange oExchange : process.getExchanges()) {
-			org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
-			if (oExchange.equals(process.getQuantitativeReference())) {
+			org.openlca.ilcd.processes.Exchange iExchange = mapExchange(oExchange);
+			if (oExchange.equals(process.getQuantitativeReference()))
 				iExchange.setDataSetInternalID(BigInteger.valueOf(0));
-			} else {
+			else {
 				iExchange.setDataSetInternalID(BigInteger.valueOf(id));
 				id++;
 			}
-			mappedPairs.add(new MappedPair(oExchange, iExchange));
+			exchangeMap.put(oExchange, iExchange);
 		}
+		ExchangeList list = new ExchangeList();
+		ilcdProcess.setExchanges(list);
+		list.getExchanges().addAll(exchangeMap.values());
+		AllocationFactors.map(process, exchangeMap);
 	}
 
-	private void mapExchange(Exchange oExchange,
-			org.openlca.ilcd.processes.Exchange iExchange) {
+	private org.openlca.ilcd.processes.Exchange mapExchange(Exchange oExchange) {
+		org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
 		mapFlow(oExchange, iExchange);
 		mapDirection(oExchange, iExchange);
 		double resultingAmount = getRefAmount(oExchange);
 		iExchange.setResultingAmount(resultingAmount);
 		mapExtensions(oExchange, iExchange);
 		new UncertaintyConverter().map(oExchange, iExchange);
-		// mapAllocation(oExchange, iExchange);
-		if (oExchange.getAmountFormula() != null) {
+		if (oExchange.getAmountFormula() != null)
 			mapParameter(oExchange, iExchange);
-		} else {
+		else
 			iExchange.setMeanAmount(resultingAmount);
-		}
+		return iExchange;
 	}
 
 	private double getRefAmount(Exchange oExchange) {
@@ -87,26 +82,39 @@ class ExchangeConversion {
 
 	private void mapExtensions(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
-		ExchangeExtension extension = new ExchangeExtension(iExchange);
+		ExchangeExtension ext = new ExchangeExtension(iExchange);
 		if (oExchange.isAvoidedProduct()) {
 			iExchange.setExchangeDirection(ExchangeDirection.OUTPUT);
-			extension.setAvoidedProduct(true);
+			ext.setAvoidedProduct(true);
 		}
-		// TODO: map default provider
-		// extension.setDefaultProvider(oExchange.getDefaultProviderId());
-
-		extension.setAmount(oExchange.getAmountValue());
-		extension.setBaseUncertainty(oExchange.getBaseUncertainty());
-		extension.setPedigreeUncertainty(oExchange.getPedigreeUncertainty());
+		setProvider(oExchange, ext);
+		ext.setAmount(oExchange.getAmountValue());
+		ext.setBaseUncertainty(oExchange.getBaseUncertainty());
+		ext.setPedigreeUncertainty(oExchange.getPedigreeUncertainty());
 		if (oExchange.getAmountFormula() != null)
-			extension.setFormula(oExchange.getAmountFormula());
+			ext.setFormula(oExchange.getAmountFormula());
 		if (oExchange.getUnit() != null)
-			extension.setUnitId(oExchange.getUnit().getRefId());
+			ext.setUnitId(oExchange.getUnit().getRefId());
 		if (oExchange.getFlowPropertyFactor() != null) {
 			FlowPropertyFactor propFactor = oExchange.getFlowPropertyFactor();
 			FlowProperty prop = propFactor.getFlowProperty();
 			if (prop != null)
-				extension.setPropertyId(prop.getRefId());
+				ext.setPropertyId(prop.getRefId());
+		}
+	}
+
+	private void setProvider(Exchange oExchange, ExchangeExtension ext) {
+		long provider = oExchange.getDefaultProviderId();
+		if (provider == 0)
+			return;
+		try {
+			ProcessDao dao = new ProcessDao(database);
+			ProcessDescriptor d = dao.getDescriptor(provider);
+			if (d != null)
+				ext.setDefaultProvider(d.getRefId());
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.warn("could not load default provider " + provider, e);
 		}
 	}
 
@@ -163,48 +171,6 @@ class ExchangeConversion {
 			iExchange.setExchangeDirection(ExchangeDirection.INPUT);
 		} else {
 			iExchange.setExchangeDirection(ExchangeDirection.OUTPUT);
-		}
-	}
-
-	// TODO: map allocation factors
-	// private void mapAllocation(Exchange oExchange,
-	// org.openlca.ilcd.processes.Exchange iExchange) {
-	// for (AllocationFactor factor : oExchange.getAllocationFactors()) {
-	// Allocation iAlloc = iExchange.getAllocation();
-	// if (iAlloc == null) {
-	// iAlloc = new Allocation();
-	// iExchange.setAllocation(iAlloc);
-	// }
-	// double val = factor.getValue();
-	// long productId = factor.getProductId();
-	// BigInteger iExchangeId = findMappedId(productId);
-	// if (iExchangeId != null) {
-	// org.openlca.ilcd.processes.AllocationFactor iFactor = new
-	// org.openlca.ilcd.processes.AllocationFactor();
-	// iAlloc.getFactors().add(iFactor);
-	// iFactor.setAllocatedFraction(new BigDecimal(val));
-	// iFactor.setReferenceToCoProduct(iExchangeId);
-	// }
-	// }
-	// }
-
-	private BigInteger findMappedId(long oId) {
-		for (MappedPair p : mappedPairs) {
-			if (oId == p.oExchange.getId())
-				return p.iExchange.getDataSetInternalID();
-		}
-		return null;
-	}
-
-	private class MappedPair {
-		Exchange oExchange;
-		org.openlca.ilcd.processes.Exchange iExchange;
-
-		MappedPair(Exchange oExchange,
-				org.openlca.ilcd.processes.Exchange iExchange) {
-			super();
-			this.oExchange = oExchange;
-			this.iExchange = iExchange;
 		}
 	}
 
