@@ -14,11 +14,6 @@ import org.openlca.geo.kml.KmlFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.PrecisionModel;
-import com.vividsolutions.jts.geom.TopologyException;
-import com.vividsolutions.jts.precision.GeometryPrecisionReducer;
-
 class FeatureCalculator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -30,19 +25,18 @@ class FeatureCalculator {
 	}
 
 	public Map<String, Double> calculate(KmlFeature feature,
-			List<String> parameters, Map<String, Double> defaults) {
+			List<String> parameters, Map<String, Double> defaults,
+			Map<String, Double> shares) {
 		if (feature.getType() == null)
 			return Collections.emptyMap();
 		switch (feature.getType()) {
 		case POINT:
-			return fetchPointValues(feature, parameters);
+			return fetchPointValues(feature, parameters, shares);
 		case LINE:
-			return fetchValues(feature, parameters, defaults,
-					new LineStringValueFetch());
+			return fetchValues(feature, parameters, defaults, shares);
 		case POLYGON:
 		case MULTI_GEOMETRY:
-			return fetchValues(feature, parameters, defaults,
-					new PolygonValueFetch());
+			return fetchValues(feature, parameters, defaults, shares);
 		default:
 			log.warn("cannot calculate parameter values for type {}",
 					feature.getType());
@@ -51,12 +45,11 @@ class FeatureCalculator {
 	}
 
 	private Map<String, Double> fetchPointValues(KmlFeature feature,
-			List<String> parameters) {
+			List<String> parameters, Map<String, Double> shares) {
 		try (SimpleFeatureIterator iterator = getIterator()) {
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
-				Geometry geometry = (Geometry) shape.getDefaultGeometry();
-				if (geometry.contains(feature.getGeometry()))
+				if (shares.containsKey(shape.getID()))
 					return fetchValues(shape, parameters);
 			}
 			return Collections.emptyMap();
@@ -81,22 +74,15 @@ class FeatureCalculator {
 
 	private Map<String, Double> fetchValues(KmlFeature feature,
 			List<String> parameters, Map<String, Double> defaults,
-			ValueFetch valueFetch) {
-		double totalValue = valueFetch.fetchTotal(feature);
-		if (totalValue == 0)
-			return Collections.emptyMap();
+			Map<String, Double> shares) {
 		try (SimpleFeatureIterator iterator = getIterator()) {
-			Map<SimpleFeature, Double> shares = new HashMap<>();
+			Map<SimpleFeature, Double> _shares = new HashMap<>();
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
-				Geometry shapeGeo = (Geometry) shape.getDefaultGeometry();
-				Geometry featureGeo = feature.getGeometry();
-				if (valueFetch.skip(featureGeo, shapeGeo))
-					continue;
-				double value = valueFetch.fetchSingle(featureGeo, shapeGeo);
-				shares.put(shape, value / totalValue);
+				if (shares.containsKey(shape.getID()))
+					_shares.put(shape, shares.get(shape.getID()));
 			}
-			return fetchValues(shares, parameters, defaults);
+			return fetchValues(_shares, parameters, defaults);
 		} catch (Exception e) {
 			String type = feature.getType().name();
 			log.error("failed to fetch parameters for feature type " + type, e);
@@ -145,63 +131,6 @@ class FeatureCalculator {
 		SimpleFeatureCollection collection = dataStore.getFeatureSource(
 				typeName).getFeatures();
 		return collection.features();
-	}
-
-	private interface ValueFetch {
-
-		double fetchTotal(KmlFeature feature);
-
-		double fetchSingle(Geometry feature, Geometry shape);
-
-		boolean skip(Geometry feature, Geometry shape);
-	}
-
-	private class LineStringValueFetch implements ValueFetch {
-
-		@Override
-		public double fetchTotal(KmlFeature feature) {
-			return feature.getGeometry().getLength();
-		}
-
-		@Override
-		public double fetchSingle(Geometry feature, Geometry shape) {
-			return feature.intersection(shape).getLength();
-		}
-
-		@Override
-		public boolean skip(Geometry feature, Geometry shape) {
-			return !feature.crosses(shape);
-		}
-
-	}
-
-	private class PolygonValueFetch implements ValueFetch {
-
-		@Override
-		public double fetchTotal(KmlFeature feature) {
-			return feature.getGeometry().getArea();
-		}
-
-		@Override
-		public double fetchSingle(Geometry feature, Geometry shape) {
-			try {
-				return feature.intersection(shape).getArea();
-			} catch (TopologyException e) {
-				// see http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html#D9
-				log.warn(
-						"Topology exception in feature calculation, reducing precision of original model",
-						e);
-				feature = GeometryPrecisionReducer.reduce(feature,
-						new PrecisionModel(PrecisionModel.FLOATING_SINGLE));
-				return feature.intersection(shape).getArea();
-			}
-		}
-
-		@Override
-		public boolean skip(Geometry feature, Geometry shape) {
-			return !feature.intersects(shape);
-		}
-
 	}
 
 }

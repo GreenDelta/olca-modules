@@ -35,8 +35,10 @@ public class ParameterCalculator {
 	public Map<String, Double> calculate(long locationId, KmlFeature feature) {
 		Map<String, Double> parameterMap = new HashMap<String, Double>();
 		for (String shapeFile : groups.keySet()) {
-			Map<String, Double> parameters = loadOrCalculate(locationId,
+			Map<String, Double> shares = loadOrCalculateShares(locationId,
 					feature, shapeFile);
+			Map<String, Double> parameters = applyParameters(shares,
+					locationId, feature, shapeFile);
 			parameterMap.putAll(parameters);
 		}
 		fillDefaults(parameterMap, defaults);
@@ -57,17 +59,28 @@ public class ParameterCalculator {
 		return set;
 	}
 
-	private Map<String, Double> loadOrCalculate(long id, KmlFeature feature,
-			String shapeFile) {
-		Map<String, Double> result = repository.load(id, shapeFile);
+	private Map<String, Double> loadOrCalculateShares(long locationId,
+			KmlFeature feature, String shapeFile) {
+		Map<String, Double> result = repository.load(locationId, shapeFile);
 		if (result != null)
 			return result;
 		DataStore store = stores.get(shapeFile);
+		IntersectionsCalculator calculator = new IntersectionsCalculator(store);
+		List<String> group = groups.get(shapeFile);
+		log.debug("Calculating shares for location " + locationId);
+		result = calculator.calculate(feature, group);
+		repository.save(locationId, shapeFile, result);
+		return result != null ? result : new HashMap<String, Double>();
+	}
+
+	private Map<String, Double> applyParameters(Map<String, Double> shares,
+			long id, KmlFeature feature, String shapeFile) {
+		DataStore store = stores.get(shapeFile);
 		FeatureCalculator calculator = new FeatureCalculator(store);
 		List<String> group = groups.get(shapeFile);
-		log.debug("Calculating for location " + id);
-		result = calculator.calculate(feature, group, defaults);
-		repository.save(id, shapeFile, result);
+		log.debug("Calculating parameters for location " + id);
+		Map<String, Double> result = calculator.calculate(feature, group,
+				defaults, shares);
 		return result != null ? result : new HashMap<String, Double>();
 	}
 

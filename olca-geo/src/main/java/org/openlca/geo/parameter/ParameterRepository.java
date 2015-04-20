@@ -26,7 +26,8 @@ public class ParameterRepository {
 	}
 
 	public Map<String, Double> load(long locationId, String shapeFile) {
-		if (!contains(locationId, shapeFile)) // also checks that input is valid
+		if (!contains(locationId, shapeFile)) // also checks that input
+												// is valid
 			return null;
 		File file = getFile(locationId, shapeFile);
 		try (FileReader reader = new FileReader(file)) {
@@ -59,6 +60,20 @@ public class ParameterRepository {
 		if (!file.exists())
 			return;
 		file.delete();
+	}
+
+	public void remove(String shapeFile) {
+		File folder = shapeFileRepository.getFolder();
+		File shapeFileFolder = new File(folder, shapeFile);
+		if (!shapeFileFolder.exists())
+			return;
+		if (!shapeFileFolder.isDirectory())
+			return;
+		for (File file : shapeFileFolder.listFiles())
+			if (!file.delete())
+				file.deleteOnExit();
+		if (!shapeFileFolder.delete())
+			shapeFileFolder.deleteOnExit();
 	}
 
 	private File getFile(long locationId, String shapeFile) {
