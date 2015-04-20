@@ -114,7 +114,7 @@ public class GeoKmzImport {
 			StringReader source = new StringReader(writer.toString());
 			Document doc = builder.build(source);
 			Namespace ns = Namespace
-					.getNamespace("http://earth.google.com/kml/2.0");
+					.getNamespace("http://earth.google.com/kml/2.1");
 			switchNamespace(doc.getRootElement(), ns);
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			new XMLOutputter().output(doc, bout);
