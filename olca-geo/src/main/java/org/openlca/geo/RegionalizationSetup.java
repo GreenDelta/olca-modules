@@ -75,6 +75,8 @@ public class RegionalizationSetup {
 				Collections.singletonMap("methodId", methodId));
 		List<Parameter> shapeFileParams = new ArrayList<>();
 		for (Parameter param : allParams) {
+			if (param == null)
+				continue;
 			if (param.getExternalSource() == null)
 				continue;
 			if (!"SHAPE_FILE".equals(param.getSourceType()))

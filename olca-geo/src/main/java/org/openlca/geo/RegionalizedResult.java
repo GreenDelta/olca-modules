@@ -1,25 +1,25 @@
 package org.openlca.geo;
 
-import org.openlca.core.results.ContributionResult;
+import org.openlca.core.results.FullResult;
 
 public class RegionalizedResult {
 
-	private ContributionResult baseResult;
-	private ContributionResult regionalizedResult;
+	private FullResult baseResult;
+	private FullResult regionalizedResult;
 
-	public void setBaseResult(ContributionResult baseResult) {
+	public void setBaseResult(FullResult baseResult) {
 		this.baseResult = baseResult;
 	}
 
-	public ContributionResult getBaseResult() {
+	public FullResult getBaseResult() {
 		return baseResult;
 	}
 
-	public void setRegionalizedResult(ContributionResult regionalizedResult) {
+	public void setRegionalizedResult(FullResult regionalizedResult) {
 		this.regionalizedResult = regionalizedResult;
 	}
 
-	public ContributionResult getRegionalizedResult() {
+	public FullResult getRegionalizedResult() {
 		return regionalizedResult;
 	}
 

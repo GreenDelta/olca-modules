@@ -2,29 +2,28 @@ package org.openlca.geo;
 
 import java.util.List;
 
-import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.core.results.FullResultProvider;
 import org.openlca.geo.kml.KmlLoadResult;
 
 public class RegionalizedResultProvider {
 
-	private ContributionResultProvider<?> baseResult;
-	private ContributionResultProvider<?> regionalizedResult;
+	private FullResultProvider baseResult;
+	private FullResultProvider regionalizedResult;
 	private List<KmlLoadResult> kmlData;
 
-	public void setBaseResult(ContributionResultProvider<?> baseResult) {
+	public void setBaseResult(FullResultProvider baseResult) {
 		this.baseResult = baseResult;
 	}
 
-	public ContributionResultProvider<?> getBaseResult() {
+	public FullResultProvider getBaseResult() {
 		return baseResult;
 	}
 
-	public void setRegionalizedResult(
-			ContributionResultProvider<?> regionalizedResult) {
+	public void setRegionalizedResult(FullResultProvider regionalizedResult) {
 		this.regionalizedResult = regionalizedResult;
 	}
 
-	public ContributionResultProvider<?> getRegionalizedResult() {
+	public FullResultProvider getRegionalizedResult() {
 		return regionalizedResult;
 	}
 

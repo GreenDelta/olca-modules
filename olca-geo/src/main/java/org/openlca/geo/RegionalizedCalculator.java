@@ -11,6 +11,7 @@ import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.results.ContributionResult;
+import org.openlca.core.results.FullResult;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
 import org.openlca.geo.kml.KmlLoadResult;
@@ -36,7 +37,7 @@ public class RegionalizedCalculator {
 	}
 
 	public RegionalizedResult calculate(RegionalizationSetup setup,
-			ContributionResult baseResult, FormulaInterpreter interpreter,
+			FullResult baseResult, FormulaInterpreter interpreter,
 			ImpactTable impactTable) {
 		this.setup = setup;
 		this.interpreter = interpreter;
@@ -44,7 +45,7 @@ public class RegionalizedCalculator {
 		try {
 			RegionalizedResult result = new RegionalizedResult();
 			result.setBaseResult(baseResult);
-			ContributionResult regioResult = calcRegioResult(baseResult);
+			FullResult regioResult = calcRegioResult(baseResult);
 			result.setRegionalizedResult(regioResult);
 			return result;
 		} catch (Exception e) {
@@ -53,10 +54,10 @@ public class RegionalizedCalculator {
 		return null;
 	}
 
-	private ContributionResult calcRegioResult(ContributionResult baseResult) {
+	private FullResult calcRegioResult(FullResult baseResult) {
 		List<KmlLoadResult> features = setup.getKmlData();
 		ParameterSet parameterSet = setup.getParameterSet();
-		ContributionResult regioResult = initRegioResult(baseResult);
+		FullResult regioResult = initRegioResult(baseResult);
 		IMatrix impactResultMatrix = regioResult.getSingleImpactResults();
 		Map<LongPair, Integer> indices = getIndices(regioResult
 				.getProductIndex());
@@ -87,8 +88,8 @@ public class RegionalizedCalculator {
 		return indices;
 	}
 
-	private ContributionResult initRegioResult(ContributionResult baseResult) {
-		ContributionResult regioResult = new ContributionResult();
+	private FullResult initRegioResult(FullResult baseResult) {
+		FullResult regioResult = new FullResult();
 		regioResult.setProductIndex(baseResult.getProductIndex());
 		regioResult.setFlowIndex(baseResult.getFlowIndex());
 		regioResult.setImpactIndex(baseResult.getImpactIndex());
@@ -98,6 +99,9 @@ public class RegionalizedCalculator {
 		regioResult.setSingleImpactResults(baseResult.getSingleImpactResults()
 				.copy());
 		regioResult.setLinkContributions(baseResult.getLinkContributions());
+		regioResult.setUpstreamFlowResults(baseResult.getUpstreamFlowResults());
+		regioResult.setUpstreamImpactResults(baseResult
+				.getUpstreamImpactResults());
 		return regioResult;
 	}
 
