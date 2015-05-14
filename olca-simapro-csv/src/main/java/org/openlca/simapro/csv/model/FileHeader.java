@@ -10,7 +10,7 @@ public class FileHeader {
 	private String formatVersion;
 	private String csvSeparator;
 	private String decimalSeparator;
-	private String dataSeparator;
+	private String dateSeparator;
 	private String shortDateFormat;
 
 	public String getSimaProVersion() {
@@ -77,12 +77,12 @@ public class FileHeader {
 		this.decimalSeparator = decimalSeparator;
 	}
 
-	public String getDataSeparator() {
-		return dataSeparator;
+	public String getDateSeparator() {
+		return dateSeparator;
 	}
 
-	public void setDateSeparator(String dataSeparator) {
-		this.dataSeparator = dataSeparator;
+	public void setDateSeparator(String dateSeparator) {
+		this.dateSeparator = dateSeparator;
 	}
 
 	public String getShortDateFormat() {

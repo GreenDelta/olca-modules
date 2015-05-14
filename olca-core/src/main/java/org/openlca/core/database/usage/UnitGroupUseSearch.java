@@ -6,19 +6,29 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Searches for the use of unit groups in other entities. Unit groups can be
+ * used in flow properties.
+ */
 public class UnitGroupUseSearch implements IUseSearch<UnitGroupDescriptor> {
 
 	private IDatabase database;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	UnitGroupUseSearch(IDatabase database) {
+	public UnitGroupUseSearch(IDatabase database) {
 		this.database = database;
+	}
+
+	public List<BaseDescriptor> findUses(UnitGroup group) {
+		return findUses(Descriptors.toDescriptor(group));
 	}
 
 	@Override

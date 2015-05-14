@@ -35,7 +35,7 @@ class ZipEntryIterator<T> implements Iterator<T> {
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.error("Cannot load type " + clazz + " from Zip entry "
-					+ entry.getName());
+					+ entry.getName(), e);
 		}
 		return next;
 	}

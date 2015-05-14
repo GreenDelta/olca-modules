@@ -1,5 +1,6 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Date;
 import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
@@ -8,14 +9,12 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroupBag;
 
-/**
- * The import of an ILCD unit group data set to an openLCA database.
- */
 public class UnitGroupImport {
 
 	private IDatabase database;
@@ -73,10 +72,9 @@ public class UnitGroupImport {
 		try {
 			org.openlca.ilcd.units.UnitGroup group = dataStore.get(
 					org.openlca.ilcd.units.UnitGroup.class, unitGroupId);
-			if (group == null) {
+			if (group == null)
 				throw new ImportException("No ILCD unit group for ID "
 						+ unitGroupId + " found.");
-			}
 			return group;
 		} catch (Exception e) {
 			throw new ImportException(e.getMessage(), e);
@@ -110,6 +108,11 @@ public class UnitGroupImport {
 		unitGroup.setRefId(ilcdUnitGroup.getId());
 		unitGroup.setName(ilcdUnitGroup.getName());
 		unitGroup.setDescription(ilcdUnitGroup.getComment());
+		String v = ilcdUnitGroup.getVersion();
+		unitGroup.setVersion(Version.fromString(v).getValue());
+		Date time = ilcdUnitGroup.getTimeStamp();
+		if (time != null)
+			unitGroup.setLastChange(time.getTime());
 	}
 
 	private void createUnits() {
@@ -133,7 +136,7 @@ public class UnitGroupImport {
 		else
 			oUnit.setRefId(UUID.randomUUID().toString());
 		oUnit.setName(iUnit.getName());
-		oUnit.setDescription(LangString.getLabel(iUnit.getGeneralComment()));
+		oUnit.setDescription(LangString.get(iUnit.getGeneralComment()));
 		oUnit.setConversionFactor(iUnit.getMeanValue());
 	}
 

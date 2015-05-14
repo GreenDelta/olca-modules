@@ -30,30 +30,29 @@ class ExportDispatch {
 	 * data set reference to the exported model in the store.
 	 */
 	public static DataSetReference forwardExportCheck(CategorizedEntity model,
-			IDatabase database, DataStore target) {
+			IDatabase db, DataStore target) {
 		if (model instanceof Source)
-			return checkRunSourceExort((Source) model, target);
+			return checkRunSourceExort((Source) model, db, target);
 		if (model instanceof Actor)
-			return checkRunActorExport((Actor) model, database, target);
+			return checkRunActorExport((Actor) model, db, target);
 		if (model instanceof Flow)
-			return checkRunFlowExport((Flow) model, database, target);
+			return checkRunFlowExport((Flow) model, db, target);
 		if (model instanceof FlowProperty)
-			return checkRunFlowPropertyExport((FlowProperty) model, database,
-					target);
+			return checkRunFlowPropertyExport((FlowProperty) model, db, target);
 		if (model instanceof Process)
-			return checkRunProcessExport((Process) model, database, target);
+			return checkRunProcessExport((Process) model, db, target);
 		if (model instanceof UnitGroup)
-			return checkRunUnitGroupExport((UnitGroup) model, database, target);
+			return checkRunUnitGroupExport((UnitGroup) model, db, target);
 		log.warn("Cannot export {}", model);
 		return null;
 	}
 
 	private static DataSetReference checkRunSourceExort(Source source,
-			DataStore target) {
+			IDatabase db, DataStore target) {
 		try {
 			if (!target.contains(org.openlca.ilcd.sources.Source.class,
 					source.getRefId())) {
-				SourceExport sourceExport = new SourceExport(target);
+				SourceExport sourceExport = new SourceExport(db, target);
 				sourceExport.run(source);
 			}
 			return DataSetRef.makeRef(source);

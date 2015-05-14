@@ -8,24 +8,35 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.Query;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Searches for models where a given actor is used. */
-class ActorUseSearch implements IUseSearch<ActorDescriptor> {
+/**
+ * Searches for the use of actors in other entities. Actors can be used in
+ * processes and projects.
+ */
+public class ActorUseSearch implements IUseSearch<ActorDescriptor> {
 
 	private IDatabase database;
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	ActorUseSearch(IDatabase database) {
+	public ActorUseSearch(IDatabase database) {
 		this.database = database;
+	}
+
+	public List<BaseDescriptor> findUses(Actor actor) {
+		return findUses(Descriptors.toDescriptor(actor));
 	}
 
 	@Override
 	public List<BaseDescriptor> findUses(ActorDescriptor actor) {
+		if (actor == null)
+			return Collections.emptyList();
 		List<? extends BaseDescriptor> processDescriptors = findInProcesses(actor);
 		List<BaseDescriptor> projectDescriptors = findInProjects(actor);
 		List<BaseDescriptor> results = new ArrayList<>(

@@ -1,14 +1,6 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
-
 package org.openlca.io.ilcd;
+
+import java.io.File;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
@@ -31,8 +23,6 @@ import org.openlca.io.ilcd.output.SystemExport;
 import org.openlca.io.ilcd.output.UnitGroupExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /**
  * The entry point for the ILCD export of model components.
@@ -88,10 +78,10 @@ public class ILCDExport {
 	private void tryExport(CategorizedEntity component, IDatabase database)
 			throws Exception {
 
-		if(component instanceof ImpactMethod) {
+		if (component instanceof ImpactMethod) {
 			ImpactMethodExport export = new ImpactMethodExport(database,
 					ilcdStore);
-			export.run((ImpactMethod)component);
+			export.run((ImpactMethod) component);
 
 		} else if (component instanceof ProductSystem) {
 			SystemExport export = new SystemExport(database, ilcdStore);
@@ -119,7 +109,7 @@ public class ILCDExport {
 			export.run((Actor) component);
 
 		} else if (component instanceof Source) {
-			SourceExport export = new SourceExport(ilcdStore);
+			SourceExport export = new SourceExport(database, ilcdStore);
 			export.run((Source) component);
 		}
 	}

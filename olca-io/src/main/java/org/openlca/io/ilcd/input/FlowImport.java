@@ -1,6 +1,7 @@
 package org.openlca.io.ilcd.input;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.database.FlowDao;
@@ -10,11 +11,14 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.flows.FlowPropertyReference;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.FlowBag;
+import org.openlca.ilcd.util.LangString;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,12 +114,26 @@ public class FlowImport {
 		flow.setDescription(ilcdFlow.getComment());
 		flow.setCasNumber(ilcdFlow.getCasNumber());
 		flow.setFormula(ilcdFlow.getSumFormula());
+		String v = ilcdFlow.getVersion();
+		flow.setVersion(Version.fromString(v).getValue());
+		Date time = ilcdFlow.getTimeStamp();
+		if (time != null)
+			flow.setLastChange(time.getTime());
 		addFlowProperties();
 		if (flow.getReferenceFlowProperty() == null)
 			throw new ImportException("Could not import flow "
 					+ flow.getRefId() + " because the "
 					+ "reference flow property of this flow "
 					+ "could not be imported.");
+		mapLocation();
+	}
+
+	private void mapLocation() {
+		if (ilcdFlow == null || flow == null)
+			return;
+		String code = LangString.get(ilcdFlow.getLocation());
+		Location location = Locations.get(code, database);
+		flow.setLocation(location);
 	}
 
 	private void addFlowProperties() {

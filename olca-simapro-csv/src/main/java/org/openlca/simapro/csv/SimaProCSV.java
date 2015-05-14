@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
+import org.openlca.simapro.csv.model.FileHeader;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
 import org.openlca.simapro.csv.model.annotations.BlockModel;
 import org.openlca.simapro.csv.reader.BlockReader;
+import org.openlca.simapro.csv.reader.FileHeaderReader;
 import org.openlca.simapro.csv.reader.ModelReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +43,9 @@ public class SimaProCSV {
 			log.warn("no method handlers registerred, do nothing");
 			return;
 		}
+		CsvConfig config = readConfig(file);
 		try (BlockReader reader = new BlockReader(file);
-				ModelReader modelReader = createModelReader(reader)) {
+				ModelReader modelReader = createModelReader(reader, config)) {
 			Object model = null;
 			while ((model = modelReader.read()) != null) {
 				handleModel(model);
@@ -49,7 +53,8 @@ public class SimaProCSV {
 		}
 	}
 
-	private ModelReader createModelReader(BlockReader blockReader) {
+	private ModelReader createModelReader(BlockReader blockReader,
+			CsvConfig config) {
 		Class<?>[] classes = new Class<?>[methodHandlers.size()];
 		int i = 0;
 		for (Class<?> clazz : methodHandlers.keySet()) {
@@ -57,7 +62,7 @@ public class SimaProCSV {
 			i++;
 		}
 		log.trace("create a model reader with {} classes", i);
-		return new ModelReader(blockReader, CsvConfig.getDefault(), classes);
+		return new ModelReader(blockReader, config, classes);
 	}
 
 	private void registerMethods() {
@@ -125,4 +130,22 @@ public class SimaProCSV {
 			method.invoke(handler, model);
 		}
 	}
+
+	private CsvConfig readConfig(File file) {
+		CsvConfig config = CsvConfig.getDefault();
+		try {
+			FileHeaderReader reader = new FileHeaderReader(file);
+			FileHeader header = reader.read();
+			if (header.getShortDateFormat() != null)
+				config.setDateFormat(header.getShortDateFormat());
+			if (Objects.equals("Semicolon", header.getCsvSeparator()))
+				config.setSeparator(";");
+			else if (Objects.equals("Comma", header.getCsvSeparator()))
+				config.setSeparator(",");
+		} catch (Exception e) {
+			log.error("failed to read header CSV entries from " + file, e);
+		}
+		return config;
+	}
+
 }

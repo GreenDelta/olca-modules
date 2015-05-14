@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Flow: {{model.name}}</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, "Liberation Sans",
+                Calibri, Arial, sans-serif;
+            margin: 25px;
+        }
+        h1 {
+            border-bottom: 1px solid #aaa;
+        }
+        td {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<script type="application/ld+json">
+        {{& json }}
+</script>
+
+<h1>Flow: {{model.name}}</h1>
+
+<h3>General information</h3>
+<table>
+    <tr>
+        <td>Name</td>
+        <td>{{model.name}}</td>
+    </tr>
+    <tr>
+        <td>ID</td>
+        <td>{{model.refId}}</td>
+    </tr>
+    <tr>
+        <td>Description</td>
+        <td>{{model.description}}</td>
+    </tr>
+    <tr>
+        <td>Category</td>
+        {{#model.category}}
+        <td><a href="../categories/{{refId}}.html">{{#parentCategory}} ../ {{name}} / {{/parentCategory}}{{name}}</a></td>
+        {{/model.category}}
+    </tr>
+    <tr>
+        <td>Version</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Last change</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Flow type</td>
+        <td>{{model.flowType}}</td>
+    </tr>
+</table>
+
+<h3>Additional information</h3>
+<table>
+    <tr>
+        <td>CAS number</td>
+        <td>{{model.casNumber}}</td>
+    </tr>
+    <tr>
+        <td>Formula</td>
+        <td>{{model.formula}}</td>
+    </tr>
+    {{#model.location}}
+    <tr>
+        <td>Location</td>
+        <td><a href="../locations/{{refId}}.html">{{name}}</a></td>
+    </tr>
+    {{/model.location}}
+    {{#model.referenceFlowProperty}}
+    <tr>
+        <td>Reference flow property</td>
+        <td><a href="../flow_properties/{{refId}}.html">{{name}}</a></td>
+    </tr>
+    {{/model.referenceFlowProperty}}
+</table>
+
+<h3>Flow properties</h3>
+<table>
+    <thead>
+    <tr>
+        <td>Name</td>
+        <td>Conversion factor</td>
+        <td>Reference unit</td>
+    </tr>
+    </thead>
+    <tbody>
+    {{#model.flowPropertyFactors}}
+    <tr>
+        <td><a href="../flow_properties/{{flowProperty.refId}}.html">{{flowProperty.name}}</a></td>
+        <td>{{conversionFactor}}</td>
+        {{#flowProperty.unitGroup}}
+        <td>
+            <a href="../unit_groups/{{refId}}.html">{{referenceUnit.name}}</a>
+        </td>
+        {{/flowProperty.unitGroup}}
+    </tr>
+    {{/model.flowPropertyFactors}}
+    </tbody>
+</table>
+
+</body>
+</html>

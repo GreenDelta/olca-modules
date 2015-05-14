@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.List;
 
-import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Actor;
@@ -28,7 +27,6 @@ import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.ProcessBag;
-import org.openlca.io.KeyGen;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -146,48 +144,22 @@ public class ProcessImport {
 
 	private void mapGeography(ProcessDocumentation doc) throws ImportException {
 		Geography iGeography = ilcdProcess.getGeography();
-		if (iGeography != null) {
-
-			if (iGeography.getLocation() != null
-					&& iGeography.getLocation().getLocation() != null) {
-				String locationCode = iGeography.getLocation().getLocation();
-				try {
-					String locationId = KeyGen.get(locationCode);
-
-					// find a location
-					BaseEntityDao<Location> locDao = new BaseEntityDao<>(
-							Location.class, database);
-					Location location = locDao.getForRefId(locationId);
-
-					// create a new location
-					if (location == null) {
-						location = new Location();
-						location.setCode(locationCode);
-						location.setRefId(locationId);
-						location.setName(locationCode);
-						database.createDao(Location.class).insert(location);
-					}
-
-					process.setLocation(location);
-				} catch (Exception e) {
-					throw new ImportException(e);
-				}
-			}
-
-			// comment
-			if (iGeography.getLocation() != null) {
-				doc.setGeography(LangString.getFreeText(iGeography
-						.getLocation().getDescription()));
-			}
-
-		}
+		if (iGeography == null || iGeography.getLocation() == null)
+			return;
+		doc.setGeography(LangString.get(iGeography.getLocation()
+				.getDescription()));
+		if (iGeography.getLocation().getLocation() == null)
+			return;
+		String code = iGeography.getLocation().getLocation();
+		Location location = Locations.getOrCreate(code, database);
+		process.setLocation(location);
 	}
 
 	private void mapTechnology(ProcessDocumentation doc) {
 		org.openlca.ilcd.processes.Technology iTechnology = ilcdProcess
 				.getTechnology();
 		if (iTechnology != null) {
-			doc.setTechnology(LangString.getFreeText(iTechnology
+			doc.setTechnology(LangString.get(iTechnology
 					.getTechnologyDescriptionAndIncludedProcesses()));
 		}
 	}
@@ -209,7 +181,7 @@ public class ProcessImport {
 				doc.setPublication(fetchSource(publicationRef));
 
 			// access and use restrictions
-			doc.setRestrictions(LangString.getFreeText(iPublication
+			doc.setRestrictions(LangString.get(iPublication
 					.getAccessRestrictions()));
 
 			// version
@@ -256,10 +228,10 @@ public class ProcessImport {
 		if (ilcdProcess.getCommissionerAndGoal() != null) {
 			CommissionerAndGoal comAndGoal = ilcdProcess
 					.getCommissionerAndGoal();
-			String intendedApp = LangString.getFreeText(comAndGoal
+			String intendedApp = LangString.get(comAndGoal
 					.getIntendedApplications());
 			doc.setIntendedApplication(intendedApp);
-			String project = LangString.getLabel(comAndGoal.getProject());
+			String project = LangString.get(comAndGoal.getProject());
 			doc.setProject(project);
 		}
 	}
@@ -282,10 +254,10 @@ public class ProcessImport {
 
 		LCIMethod iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
-			String lciPrinciple = LangString.getFreeText(iMethod
+			String lciPrinciple = LangString.get(iMethod
 					.getDeviationsFromLCIMethodPrinciple());
 			doc.setInventoryMethod(lciPrinciple);
-			doc.setModelingConstants(LangString.getFreeText(iMethod
+			doc.setModelingConstants(LangString.get(iMethod
 					.getModellingConstants()));
 			process.setDefaultAllocationMethod(getAllocation(iMethod));
 		}
@@ -312,40 +284,24 @@ public class ProcessImport {
 	}
 
 	private void mapRepresentativeness(ProcessDocumentation doc) {
-		Representativeness iRepresentativeness = ilcdProcess
-				.getRepresentativeness();
-		if (iRepresentativeness != null) {
-
-			// completeness
-			doc.setCompleteness(LangString.getFreeText(iRepresentativeness
+		Representativeness repr = ilcdProcess.getRepresentativeness();
+		if (repr != null) {
+			doc.setCompleteness(LangString.get(repr
 					.getDataCutOffAndCompletenessPrinciples()));
-
-			// data selection
-			doc.setDataSelection(LangString.getFreeText(iRepresentativeness
+			doc.setDataSelection(LangString.get(repr
 					.getDataSelectionAndCombinationPrinciples()));
-
-			// data treatment
-			doc.setDataTreatment(LangString.getFreeText(iRepresentativeness
+			doc.setDataTreatment(LangString.get(repr
 					.getDataTreatmentAndExtrapolationsPrinciples()));
-
-			// sampling procedure
-			doc.setSampling(LangString.getFreeText(iRepresentativeness
+			doc.setSampling(LangString.get(repr
 					.getSamplingProcedure()));
-
-			// data collection period
-			doc.setDataCollectionPeriod(LangString.getLabel(iRepresentativeness
+			doc.setDataCollectionPeriod(LangString.get(repr
 					.getDataCollectionPeriod()));
-
-			// data sources
-			addSources(doc, iRepresentativeness);
-
+			addSources(doc, repr);
 		}
 	}
 
-	private void addSources(ProcessDocumentation doc,
-			Representativeness iRepresentativeness) {
-		for (DataSetReference sourceRef : iRepresentativeness
-				.getReferenceToDataSource()) {
+	private void addSources(ProcessDocumentation doc, Representativeness repr) {
+		for (DataSetReference sourceRef : repr.getReferenceToDataSource()) {
 			Source source = fetchSource(sourceRef);
 			if (source == null || doc.getSources().contains(source))
 				continue;
@@ -356,15 +312,12 @@ public class ProcessImport {
 	private void mapReviews(ProcessDocumentation doc) {
 		if (!ilcdProcess.getReviews().isEmpty()) {
 			Review iReview = ilcdProcess.getReviews().get(0);
-			// reviewer
 			if (!iReview.getReferenceToNameOfReviewerAndInstitution().isEmpty()) {
 				DataSetReference ref = iReview
 						.getReferenceToNameOfReviewerAndInstitution().get(0);
 				doc.setReviewer(fetchActor(ref));
 			}
-			// review details
-			doc.setReviewDetails(LangString.getFreeText(iReview
-					.getReviewDetails()));
+			doc.setReviewDetails(LangString.get(iReview.getReviewDetails()));
 		}
 	}
 

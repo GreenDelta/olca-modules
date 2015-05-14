@@ -27,11 +27,17 @@ public class VariableFunction implements Expression {
 
 	@Override
 	public Object evaluate(Scope context) throws ExpressionException {
-		Object object = context.resolveVariable(variableName);
-		if (object == null)
+		Object obj = null;
+		try {
+			obj = context.resolveVariable(variableName);
+		} catch (Exception e) {
+			throw new ExpressionException(e.getMessage(), getLine(),
+					getColumn());
+		}
+		if (obj == null)
 			throw new ExpressionException("Unknown variable " + variableName,
 					getLine(), getColumn());
-		return object;
+		return obj;
 	}
 
 	@Override

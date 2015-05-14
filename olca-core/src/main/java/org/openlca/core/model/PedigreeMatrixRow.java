@@ -1,5 +1,9 @@
 package org.openlca.core.model;
 
+/**
+ * The rows in the pedigree matrix as defined in the ecoinvent 3 methodology
+ * report.
+ */
 public enum PedigreeMatrixRow {
 
 	RELIABILITY(0),

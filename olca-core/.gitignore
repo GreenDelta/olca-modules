@@ -5,3 +5,4 @@ target
 olca-core.iml
 /.classpath
 /.gitignore
+apidocs/

@@ -160,8 +160,7 @@ public class MethodImport {
 		LCIAMethodInformation info = iMethod.getLCIAMethodInformation();
 		if (info == null || info.getDataSetInformation() == null)
 			return null;
-		return LangString.getFreeText(info.getDataSetInformation()
-				.getGeneralComment());
+		return LangString.get(info.getDataSetInformation().getGeneralComment());
 	}
 
 	private Unit getReferenceUnit(String propertyId) {

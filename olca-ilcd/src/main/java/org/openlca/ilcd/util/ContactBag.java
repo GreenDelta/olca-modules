@@ -1,12 +1,18 @@
 package org.openlca.ilcd.util;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.contacts.AdministrativeInformation;
 import org.openlca.ilcd.contacts.Contact;
+import org.openlca.ilcd.contacts.DataEntry;
 import org.openlca.ilcd.contacts.DataSetInformation;
+import org.openlca.ilcd.contacts.Publication;
 
 public class ContactBag implements IBag<Contact> {
 
@@ -32,14 +38,14 @@ public class ContactBag implements IBag<Contact> {
 	public String getShortName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getLabel(info.getShortName());
+			return LangString.get(info.getShortName());
 		return null;
 	}
 
 	public String getName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getLabel(info.getName());
+			return LangString.get(info.getName());
 		return null;
 	}
 
@@ -56,7 +62,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getContactAddress() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getShortText(info.getContactAddress());
+			return LangString.get(info.getContactAddress());
 		return null;
 	}
 
@@ -84,7 +90,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getCentralContactPoint() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getShortText(info.getCentralContactPoint());
+			return LangString.get(info.getCentralContactPoint());
 		return null;
 	}
 
@@ -98,7 +104,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getShortText(info.getDescription());
+			return LangString.get(info.getDescription());
 		return null;
 	}
 
@@ -106,6 +112,35 @@ public class ContactBag implements IBag<Contact> {
 		if (contact.getContactInformation() != null)
 			return contact.getContactInformation().getDataSetInformation();
 		return null;
+	}
+
+	public String getVersion() {
+		if (contact == null)
+			return null;
+		AdministrativeInformation info = contact.getAdministrativeInformation();
+		if (info == null)
+			return null;
+		Publication pub = info.getPublication();
+		if (pub == null)
+			return null;
+		else
+			return pub.getDataSetVersion();
+	}
+
+	public Date getTimeStamp() {
+		if (contact == null)
+			return null;
+		AdministrativeInformation info = contact.getAdministrativeInformation();
+		if (info == null)
+			return null;
+		DataEntry entry = info.getDataEntry();
+		if (entry == null)
+			return null;
+		XMLGregorianCalendar cal = entry.getTimeStamp();
+		if (cal == null)
+			return null;
+		else
+			return cal.toGregorianCalendar().getTime();
 	}
 
 }

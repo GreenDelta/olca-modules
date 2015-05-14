@@ -1,11 +1,15 @@
 package org.openlca.ilcd.util;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.units.AdministrativeInformation;
+import org.openlca.ilcd.units.DataEntry;
 import org.openlca.ilcd.units.DataSetInformation;
 import org.openlca.ilcd.units.Publication;
 import org.openlca.ilcd.units.QuantitativeReference;
@@ -31,9 +35,8 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 		UnitGroupInformation info = unitGroup.getUnitGroupInformation();
 		if (info != null) {
 			QuantitativeReference qRef = info.getQuantitativeReference();
-			if (qRef != null && qRef.getReferenceToReferenceUnit() != null) {
+			if (qRef != null && qRef.getReferenceToReferenceUnit() != null)
 				return qRef.getReferenceToReferenceUnit().intValue();
-			}
 		}
 		return null;
 	}
@@ -56,28 +59,15 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 	public String getName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getLabel(info.getName());
+			return LangString.get(info.getName());
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFreeText(info.getGeneralComment());
+			return LangString.get(info.getGeneralComment());
 		return null;
-	}
-
-	public String getVersion() {
-		String version = null;
-		AdministrativeInformation adminInfo = unitGroup
-				.getAdministrativeInformation();
-		if (adminInfo != null) {
-			Publication pub = adminInfo.getPublicationAndOwnership();
-			if (pub != null) {
-				version = pub.getDataSetVersion();
-			}
-		}
-		return version;
 	}
 
 	public List<Class> getSortedClasses() {
@@ -94,6 +84,37 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 		if (unitGroup.getUnitGroupInformation() != null)
 			return unitGroup.getUnitGroupInformation().getDataSetInformation();
 		return null;
+	}
+
+	public String getVersion() {
+		if (unitGroup == null)
+			return null;
+		AdministrativeInformation info = unitGroup
+				.getAdministrativeInformation();
+		if (info == null)
+			return null;
+		Publication pub = info.getPublicationAndOwnership();
+		if (pub == null)
+			return null;
+		else
+			return pub.getDataSetVersion();
+	}
+
+	public Date getTimeStamp() {
+		if (unitGroup == null)
+			return null;
+		AdministrativeInformation info = unitGroup
+				.getAdministrativeInformation();
+		if (info == null)
+			return null;
+		DataEntry entry = info.getDataEntryBy();
+		if (entry == null)
+			return null;
+		XMLGregorianCalendar cal = entry.getTimeStamp();
+		if (cal == null)
+			return null;
+		else
+			return cal.toGregorianCalendar().getTime();
 	}
 
 }

@@ -1,11 +1,15 @@
 package org.openlca.core.database;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.TestSession;
+import org.openlca.core.database.usage.IUseSearch;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.Exchange;
@@ -16,6 +20,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
@@ -28,6 +33,8 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +78,9 @@ public class BaseDaoTest {
 
 	@Test
 	public void runTests() throws Exception {
-		for (Class<? extends AbstractEntity> clazz : classes)
+		for (Class<? extends AbstractEntity> clazz : classes) {
 			testCrud(clazz);
+		}
 	}
 
 	// @Theory
@@ -82,6 +90,7 @@ public class BaseDaoTest {
 		T instance = clazz.newInstance();
 		BaseDao<T> dao = new BaseDao<>(clazz, TestSession.getDefaultDatabase());
 		dao.insert(instance);
+		testUsage(instance);
 		dao.update(instance);
 		TestSession.emptyCache();
 		T alias = dao.getForId(instance.getId());
@@ -90,4 +99,16 @@ public class BaseDaoTest {
 		Assert.assertNull(dao.getForId(instance.getId()));
 	}
 
+	private <T extends AbstractEntity> void testUsage(T instance) {
+		log.info("test simple usage tests with {}", instance);
+		Class<?> clazz = instance.getClass();
+		if (!CategorizedEntity.class.isAssignableFrom(clazz))
+			return;
+		CategorizedEntity entity = (CategorizedEntity) instance;
+		ModelType type = ModelType.forModelClass(clazz);
+		List<BaseDescriptor> descriptors = IUseSearch.FACTORY
+				.createFor(type, TestSession.getDefaultDatabase())
+				.findUses(Descriptors.toDescriptor(entity));
+		Assert.assertTrue(descriptors.isEmpty());
+	}
 }

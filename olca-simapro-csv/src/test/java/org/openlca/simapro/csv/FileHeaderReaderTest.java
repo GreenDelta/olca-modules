@@ -35,7 +35,7 @@ public class FileHeaderReaderTest {
 		Assert.assertEquals("7.0.0", header.getFormatVersion());
 		Assert.assertEquals("Semicolon", header.getCsvSeparator());
 		Assert.assertEquals(",", header.getDecimalSeparator());
-		Assert.assertEquals(".", header.getDataSeparator());
+		Assert.assertEquals(".", header.getDateSeparator());
 		Assert.assertEquals("dd.MM.yyyy", header.getShortDateFormat());
 	}
 }

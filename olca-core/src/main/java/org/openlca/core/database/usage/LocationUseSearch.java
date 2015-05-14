@@ -7,20 +7,30 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class LocationUseSearch implements IUseSearch<BaseDescriptor> {
+/**
+ * Searches for the use of locations in other entities. Locations can be used in
+ * flows and processes.
+ */
+public class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 
-	LocationUseSearch(IDatabase database) {
+	public LocationUseSearch(IDatabase database) {
 		this.database = database;
+	}
+
+	public List<BaseDescriptor> findUses(Location location) {
+		return findUses(Descriptors.toDescriptor(location));
 	}
 
 	@Override
@@ -79,7 +89,7 @@ class LocationUseSearch implements IUseSearch<BaseDescriptor> {
 				d.setLocation((Long) result[5]);
 				d.setCategory((Long) result[6]);
 				d.setQuantitativeReference((Long) result[7]);
-			descriptors.add(d);
+				descriptors.add(d);
 			}
 			return descriptors;
 		} catch (Exception e) {

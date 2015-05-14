@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.database.DatabaseContent;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.io.UnitMapping;
-import org.openlca.io.ecospold1.importer.EcoSpold01Import;
+import org.openlca.io.ecospold1.input.EcoSpold01Import;
 
 public class EcoSpold1Import_Example {
 

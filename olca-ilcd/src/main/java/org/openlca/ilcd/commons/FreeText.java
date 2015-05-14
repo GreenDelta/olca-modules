@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlValue;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FTMultiLang", propOrder = { "value" })
-public class FreeText implements Serializable {
+public class FreeText implements Serializable, ILangString {
 
 	private final static long serialVersionUID = 1L;
 	@XmlValue
@@ -46,6 +46,7 @@ public class FreeText implements Serializable {
 	 * @return possible object is {@link String }
 	 * 
 	 */
+	@Override
 	public String getValue() {
 		return value;
 	}
@@ -57,6 +58,7 @@ public class FreeText implements Serializable {
 	 *            allowed object is {@link String }
 	 * 
 	 */
+	@Override
 	public void setValue(String value) {
 		this.value = value;
 	}
@@ -67,6 +69,7 @@ public class FreeText implements Serializable {
 	 * @return possible object is {@link String }
 	 * 
 	 */
+	@Override
 	public String getLang() {
 		if (lang == null)
 			return "en";
@@ -80,6 +83,7 @@ public class FreeText implements Serializable {
 	 *            allowed object is {@link String }
 	 * 
 	 */
+	@Override
 	public void setLang(String value) {
 		this.lang = value;
 	}

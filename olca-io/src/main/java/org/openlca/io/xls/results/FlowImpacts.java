@@ -23,7 +23,7 @@ class FlowImpacts {
 	private int startCol;
 
 	private FlowImpacts(Sheet sheet, ContributionResultProvider<?> result,
-	                    AnalysisResultExport export) {
+			AnalysisResultExport export) {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
@@ -32,7 +32,7 @@ class FlowImpacts {
 	}
 
 	public static void write(Sheet sheet, ContributionResultProvider<?> result,
-	                         AnalysisResultExport export) {
+			AnalysisResultExport export) {
 		new FlowImpacts(sheet, result, export).doIt();
 	}
 
@@ -68,21 +68,19 @@ class FlowImpacts {
 
 		private int row;
 		private int col;
-		private ContributionSet<FlowDescriptor> contributions;
+		private ContributionSet<FlowDescriptor> set;
 
-		private void setNext(ContributionSet<FlowDescriptor> contributions,
-		                     int col) {
-			this.contributions = contributions;
+		private void setNext(ContributionSet<FlowDescriptor> set, int col) {
+			this.set = set;
 			row = startRow + 1;
 			this.col = col;
 		}
 
 		public void next(FlowDescriptor flow, boolean input) {
-			ContributionItem<FlowDescriptor> contribution = contributions
-					.getContribution(flow);
-			if (contribution == null)
+			ContributionItem<FlowDescriptor> c = set.getContribution(flow);
+			if (c == null)
 				return;
-			Excel.cell(sheet, row++, col, contribution.getAmount());
+			Excel.cell(sheet, row++, col, c.getAmount());
 		}
 	}
 

@@ -84,7 +84,7 @@ public class ILCDImportExportTest {
 				Source.class, id));
 		Assert.assertEquals(id, source.getRefId());
 		MemDataStore out = new MemDataStore();
-		SourceExport export = new SourceExport(out);
+		SourceExport export = new SourceExport(database, out);
 		export.run(source);
 		Assert.assertTrue(out.contains(Source.class, id));
 	}
