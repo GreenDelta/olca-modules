@@ -45,6 +45,10 @@ class Db {
 		this.db = db;
 	}
 
+	public IDatabase getDatabase() {
+		return db;
+	}
+
 	public Location getLocation(String refId) {
 		return get(new LocationDao(db), refId, locationIds);
 	}
@@ -129,6 +133,10 @@ class Db {
 
 	public Flow put(Flow flow) {
 		return put(new FlowDao(db), flow, flowIds);
+	}
+
+	public Flow update(Flow flow) {
+		return new FlowDao(db).update(flow);
 	}
 
 	public ImpactMethod getMethod(String refId) {

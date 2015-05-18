@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
-import org.openlca.jsonld.EntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,27 +11,25 @@ class SourceImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private String refId;
-	private EntityStore store;
-	private Db db;
+	private ImportConfig conf;
 
-	private SourceImport(String refId, EntityStore store, Db db) {
+	private SourceImport(String refId, ImportConfig conf) {
 		this.refId = refId;
-		this.store = store;
-		this.db = db;
+		this.conf = conf;
 	}
 
-	static Source run(String refId, EntityStore store, Db db) {
-		return new SourceImport(refId, store, db).run();
+	static Source run(String refId, ImportConfig conf) {
+		return new SourceImport(refId, conf).run();
 	}
 
 	private Source run() {
-		if (refId == null || store == null || db == null)
+		if (refId == null || conf == null)
 			return null;
 		try {
-			Source s = db.getSource(refId);
+			Source s = conf.db.getSource(refId);
 			if (s != null)
 				return s;
-			JsonObject json = store.get(ModelType.SOURCE, refId);
+			JsonObject json = conf.store.get(ModelType.SOURCE, refId);
 			return map(json);
 		} catch (Exception e) {
 			log.error("failed to import source " + refId, e);
@@ -46,9 +43,9 @@ class SourceImport {
 		Source s = new Source();
 		In.mapAtts(json, s);
 		String catId = In.getRefId(json, "category");
-		s.setCategory(CategoryImport.run(catId, store, db));
+		s.setCategory(CategoryImport.run(catId, conf));
 		mapAtts(json, s);
-		return db.put(s);
+		return conf.db.put(s);
 	}
 
 	private void mapAtts(JsonObject json, Source s) {
