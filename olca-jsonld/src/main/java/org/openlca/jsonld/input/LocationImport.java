@@ -3,7 +3,6 @@ package org.openlca.jsonld.input;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,27 +11,25 @@ class LocationImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private String refId;
-	private EntityStore store;
-	private Db db;
+	private ImportConfig conf;
 
-	private LocationImport(String refId, EntityStore store, Db db) {
+	private LocationImport(String refId, ImportConfig conf) {
 		this.refId = refId;
-		this.store = store;
-		this.db = db;
+		this.conf = conf;
 	}
 
-	static Location run(String refId, EntityStore store, Db db) {
-		return new LocationImport(refId, store, db).run();
+	static Location run(String refId, ImportConfig conf) {
+		return new LocationImport(refId, conf).run();
 	}
 
 	private Location run() {
-		if (refId == null || store == null || db == null)
+		if (refId == null || conf == null)
 			return null;
 		try {
-			Location loc = db.getLocation(refId);
+			Location loc = conf.db.getLocation(refId);
 			if (loc != null)
 				return loc;
-			JsonObject json = store.get(ModelType.LOCATION, refId);
+			JsonObject json = conf.store.get(ModelType.LOCATION, refId);
 			return map(json);
 		} catch (Exception e) {
 			log.error("failed to import location " + refId, e);
@@ -48,7 +45,7 @@ class LocationImport {
 		loc.setCode(In.getString(json, "code"));
 		loc.setLatitude(In.getDouble(json, "latitude", 0));
 		loc.setLongitude(In.getDouble(json, "longitude", 0));
-		loc = db.put(loc);
+		loc = conf.db.put(loc);
 		return loc;
 	}
 }

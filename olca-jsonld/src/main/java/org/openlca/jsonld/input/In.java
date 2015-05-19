@@ -1,13 +1,14 @@
 package org.openlca.jsonld.input;
 
 import java.util.Date;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Version;
+import org.openlca.jsonld.Dates;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.core.model.RootEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 final class In {
 
@@ -46,17 +47,7 @@ final class In {
 
 	static Date getDate(JsonObject obj, String property) {
 		String xmlString = getString(obj, property);
-		if(xmlString == null)
-			return null;
-		try {
-			XMLGregorianCalendar xml = DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(xmlString);
-			return xml.toGregorianCalendar().getTime();
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(In.class);
-			log.error("failed to read date " + xmlString, e);
-			return null;
-		}
+		return Dates.fromString(xmlString);
 	}
 
 	/**
@@ -71,12 +62,36 @@ final class In {
 		return getString(elem.getAsJsonObject(), "@id");
 	}
 
+	static long getVersion(JsonObject obj) {
+		if(obj == null)
+			return 0;
+		String version = getString(obj, "version");
+		if(version != null)
+			return Version.fromString(version).getValue();
+		else
+			return 0;
+	}
+
+	static long getLastChange(JsonObject obj) {
+		if(obj == null)
+			return 0;
+		String lastChange = getString(obj, "lastChange");
+		if(lastChange != null)
+			return Dates.getTime(lastChange);
+		else
+			return 0;
+	}
+
 	static void mapAtts(JsonObject obj, RootEntity entity) {
 		if (obj == null || entity == null)
 			return;
 		entity.setName(getString(obj, "name"));
 		entity.setDescription(getString(obj, "description"));
 		entity.setRefId(getString(obj, "@id"));
+		if (entity instanceof CategorizedEntity) {
+			CategorizedEntity cat = (CategorizedEntity) entity;
+			cat.setVersion(getVersion(obj));
+			cat.setLastChange(getLastChange(obj));
+		}
 	}
-
 }

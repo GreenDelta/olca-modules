@@ -9,7 +9,6 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.jsonld.EntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,27 +17,25 @@ class UnitGroupImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private String refId;
-	private EntityStore store;
-	private Db db;
+	private ImportConfig conf;
 
-	private UnitGroupImport(String refId, EntityStore store, Db db) {
+	private UnitGroupImport(String refId, ImportConfig conf) {
 		this.refId = refId;
-		this.store = store;
-		this.db = db;
+		this.conf = conf;
 	}
 
-	static UnitGroup run(String refId, EntityStore store, Db db) {
-		return new UnitGroupImport(refId, store, db).run();
+	static UnitGroup run(String refId, ImportConfig conf) {
+		return new UnitGroupImport(refId, conf).run();
 	}
 
 	private UnitGroup run() {
-		if (refId == null || store == null || db == null)
+		if (refId == null || conf == null)
 			return null;
 		try {
-			UnitGroup g = db.getUnitGroup(refId);
+			UnitGroup g = conf.db.getUnitGroup(refId);
 			if (g != null)
 				return g;
-			JsonObject json = store.get(ModelType.UNIT_GROUP, refId);
+			JsonObject json = conf.store.get(ModelType.UNIT_GROUP, refId);
 			return map(json);
 		} catch (Exception e) {
 			log.error("failed to import unit group " + refId, e);
@@ -52,11 +49,11 @@ class UnitGroupImport {
 		UnitGroup g = new UnitGroup();
 		In.mapAtts(json, g);
 		String catId = In.getRefId(json, "category");
-		g.setCategory(CategoryImport.run(catId, store, db));
+		g.setCategory(CategoryImport.run(catId, conf));
 		addUnits(g, json);
 		// insert the unit group before a default flow property is imported
 		// to avoid endless import cycles
-		g = db.put(g);
+		g = conf.db.put(g);
 		g = setDefaultProperty(json, g);
 		return g;
 	}
@@ -65,9 +62,9 @@ class UnitGroupImport {
 		String propId = In.getRefId(json, "defaultFlowProperty");
 		if (propId == null)
 			return g;
-		FlowProperty prop = FlowPropertyImport.run(propId, store, db);
+		FlowProperty prop = FlowPropertyImport.run(propId, conf);
 		g.setDefaultFlowProperty(prop);
-		return db.update(g);
+		return conf.db.update(g);
 	}
 
 	private void addUnits(UnitGroup g, JsonObject json) {

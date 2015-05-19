@@ -12,7 +12,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
-import org.openlca.jsonld.EntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,27 +19,25 @@ class ProcessImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private String refId;
-	private EntityStore store;
-	private Db db;
+	private ImportConfig conf;
 
-	private ProcessImport(String refId, EntityStore store, Db db) {
+	private ProcessImport(String refId, ImportConfig conf) {
 		this.refId = refId;
-		this.store = store;
-		this.db = db;
+		this.conf = conf;
 	}
 
-	static Process run(String refId, EntityStore store, Db db) {
-		return new ProcessImport(refId, store, db).run();
+	static Process run(String refId, ImportConfig conf) {
+		return new ProcessImport(refId, conf).run();
 	}
 
 	private Process run() {
-		if (refId == null || store == null || db == null)
+		if (refId == null || conf == null)
 			return null;
 		try {
-			Process p = db.getProcess(refId);
+			Process p = conf.db.getProcess(refId);
 			if (p != null)
 				return p;
-			JsonObject json = store.get(ModelType.PROCESS, refId);
+			JsonObject json = conf.store.get(ModelType.PROCESS, refId);
 			return map(json);
 		} catch (Exception e) {
 			log.error("failed to import source " + refId, e);
@@ -54,16 +51,16 @@ class ProcessImport {
 		Process p = new Process();
 		In.mapAtts(json, p);
 		String catId = In.getRefId(json, "category");
-		p.setCategory(CategoryImport.run(catId, store, db));
+		p.setCategory(CategoryImport.run(catId, conf));
 		mapProcessType(json, p);
 		mapAllocationType(json, p);
-		ProcessDocumentation doc = ProcessDocReader.read(json, store, db);
+		ProcessDocumentation doc = ProcessDocReader.read(json, conf);
 		p.setDocumentation(doc);
 		String locId = In.getRefId(json, "location");
 		if (locId != null)
-			p.setLocation(LocationImport.run(locId, store, db));
+			p.setLocation(LocationImport.run(locId, conf));
 		addExchanges(json, p);
-		return db.put(p);
+		return conf.db.put(p);
 	}
 
 	private void mapProcessType(JsonObject json, Process p) {
@@ -130,10 +127,10 @@ class ProcessImport {
 
 	private void addExchangeRefs(JsonObject json, Exchange e) {
 		String flowId = In.getRefId(json, "flow");
-		Flow flow = FlowImport.run(flowId, store, db);
+		Flow flow = FlowImport.run(flowId, conf);
 		e.setFlow(flow);
 		String unitId = In.getRefId(json, "unit");
-		e.setUnit(db.getUnit(unitId));
+		e.setUnit(conf.db.getUnit(unitId));
 		String propId = In.getRefId(json, "flowProperty");
 		for (FlowPropertyFactor f : flow.getFlowPropertyFactors()) {
 			FlowProperty prop = f.getFlowProperty();

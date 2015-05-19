@@ -3,6 +3,8 @@ package org.openlca.jsonld.output;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Version;
+import org.openlca.jsonld.Dates;
 import org.openlca.jsonld.EntityStore;
 
 import com.google.gson.JsonObject;
@@ -35,15 +37,19 @@ public class JsonExport {
 		object.addProperty("name", entity.getName());
 		object.addProperty("description", entity.getDescription());
 		if (entity instanceof CategorizedEntity)
-			addCategory((CategorizedEntity) entity, object, store);
+			addCatDateVersion((CategorizedEntity) entity, object, store);
 	}
 
-	private static void addCategory(CategorizedEntity entity, JsonObject obj,
-			EntityStore store) {
+	private static void addCatDateVersion(CategorizedEntity entity,
+			JsonObject obj, EntityStore store) {
 		if (entity == null || obj == null)
 			return;
 		JsonObject catRef = Out.put(entity.getCategory(), store);
 		obj.add("category", catRef);
+		obj.addProperty("version", Version.asString(entity.getVersion()));
+		if (entity.getLastChange() != 0) {
+			obj.addProperty("lastChange",
+					Dates.toString(entity.getLastChange()));
+		}
 	}
-
 }
