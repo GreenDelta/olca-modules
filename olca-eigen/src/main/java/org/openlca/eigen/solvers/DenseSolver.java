@@ -23,6 +23,28 @@ public class DenseSolver implements IMatrixSolver {
 		Lapack.dSolve(A.getColumnDimension(), 1, lu.getData(), b);
 		return b;
 	}
+	
+	@Override
+	public IMatrix transpose(IMatrix m) {
+		// FIXME need to be optimized with BLAS
+		DenseMatrix tM = new DenseMatrix(m.getColumnDimension(),
+				m.getRowDimension());
+		for (int i = 0; i < m.getRowDimension(); i++) {
+			for (int j = 0; j < m.getColumnDimension(); j++) {
+				tM.setEntry(j, i, m.getEntry(i, j));
+			}
+		}
+		return tM;
+	}
+
+	@Override
+	public IMatrix solve(IMatrix a, IMatrix b) {
+		DenseMatrix A = MatrixConverter.asDenseMatrix(a).copy();
+		DenseMatrix B = MatrixConverter.asDenseMatrix(b).copy();
+		Lapack.dSolve(A.getColumnDimension(), B.getColumnDimension(),
+				A.getData(), B.getData());
+		return B;
+	}
 
 	@Override
 	public double[] multiply(IMatrix m, double[] x) {
