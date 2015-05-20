@@ -9,6 +9,7 @@ import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LocalSensitivityResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.expressions.FormulaInterpreter;
 import org.slf4j.Logger;
@@ -49,6 +50,13 @@ public class SystemCalculator {
 		return calculator.calculateFull(inventoryMatrix, impactMatrix);
 	}
 
+	public LocalSensitivityResult calculateLSA(CalculationSetup setup) {
+		log.trace("calculate product system - full result");
+		doSetUp(setup);
+		SensitivityCalculator calculator = new SensitivityCalculator(solver);
+		return calculator.calculateLocalResult(inventoryMatrix, impactMatrix);
+	}	
+	
 	private void doSetUp(CalculationSetup setup) {
 		IDatabase db = matrixCache.getDatabase();
 		Inventory inventory = DataStructures.createInventory(setup, matrixCache);
