@@ -16,6 +16,18 @@ public class JavaSolver implements IMatrixSolver {
 		RealVector x = new LUDecomposition(A).getSolver().solve(b);
 		return x.toArray();
 	}
+	@Override
+	public IMatrix transpose(IMatrix m) {
+		return new JavaMatrix(unwrap(m).transpose());
+	}
+
+	@Override
+	public IMatrix solve(IMatrix a, IMatrix b) {
+		RealMatrix A = unwrap(a);
+		RealMatrix B = unwrap(b);
+		RealMatrix X = new LUDecomposition(A).getSolver().solve(B);
+		return new JavaMatrix(X);
+	}
 
 	@Override
 	public double[] multiply(IMatrix m, double[] v) {

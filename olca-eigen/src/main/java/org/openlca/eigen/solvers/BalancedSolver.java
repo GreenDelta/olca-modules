@@ -32,6 +32,17 @@ public class BalancedSolver implements IMatrixSolver {
 	}
 
 	@Override
+	public IMatrix transpose(IMatrix m) {
+		return denseSolver.transpose(m);
+	}
+
+	@Override
+	public IMatrix solve(IMatrix a, IMatrix b) {
+		// FIXME use sparse matrix if needed
+		return denseSolver.solve(a, b);
+	}
+
+	@Override
 	public double[] multiply(IMatrix m, final double[] v) {
 		if (m instanceof DenseMatrix)
 			return denseSolver.multiply(m, v);

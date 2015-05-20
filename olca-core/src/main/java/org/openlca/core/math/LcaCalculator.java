@@ -22,7 +22,7 @@ public class LcaCalculator {
 	}
 
 	public SimpleResult calculateSimple(InventoryMatrix matrix,
-	                                    ImpactMatrix impactMatrix) {
+			ImpactMatrix impactMatrix) {
 
 		SimpleResult result = new SimpleResult();
 		result.setFlowIndex(matrix.getFlowIndex());
@@ -51,9 +51,14 @@ public class LcaCalculator {
 	}
 
 	public ContributionResult calculateContributions(InventoryMatrix matrix,
-	                                                 ImpactMatrix impactMatrix) {
+			ImpactMatrix impactMatrix) {
+		return calculateContributions(new ContributionResult(), matrix,
+				impactMatrix);
+	}
 
-		ContributionResult result = new ContributionResult();
+	public <T extends ContributionResult> T calculateContributions(T result,
+			InventoryMatrix matrix, ImpactMatrix impactMatrix) {
+
 		result.setFlowIndex(matrix.getFlowIndex());
 		result.setProductIndex(matrix.getProductIndex());
 
@@ -96,7 +101,7 @@ public class LcaCalculator {
 	}
 
 	public FullResult calculateFull(InventoryMatrix matrix,
-	                                ImpactMatrix impactMatrix) {
+			ImpactMatrix impactMatrix) {
 
 		FullResult result = new FullResult();
 		result.setFlowIndex(matrix.getFlowIndex());

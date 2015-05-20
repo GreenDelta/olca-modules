@@ -24,7 +24,11 @@ public interface IMatrixSolver {
 	 * @return the calculated scaling vector s
 	 */
 	double[] solve(IMatrix a, int idx, double d);
+	
+	IMatrix transpose(IMatrix m);
 
+	IMatrix solve(IMatrix a, IMatrix b);
+	
 	/**
 	 * Calculates the inverse of the given matrix.
 	 */
