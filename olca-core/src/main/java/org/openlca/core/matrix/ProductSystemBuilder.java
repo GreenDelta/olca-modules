@@ -28,12 +28,17 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 	private MatrixCache matrixCache;
 	private IDatabase database;
 	private boolean preferSystemProcesses;
-
+	private Double cutoff;
+	
 	public ProductSystemBuilder(MatrixCache matrixCache,
 			boolean preferSystemProcesses) {
 		this.matrixCache = matrixCache;
 		this.database = matrixCache.getDatabase();
 		this.preferSystemProcesses = preferSystemProcesses;
+	}
+	
+	public void setCutoff(Double cutoff) {
+		this.cutoff = cutoff;
 	}
 
 	@Override
