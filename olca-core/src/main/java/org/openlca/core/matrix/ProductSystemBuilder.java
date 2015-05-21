@@ -9,10 +9,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IProductSystemBuilder;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NativeSql.BatchInsertHandler;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.product.index.IProductIndexBuilder;
+import org.openlca.core.matrix.product.index.ProductIndexBuilder;
+import org.openlca.core.matrix.product.index.ProductIndexCutoffBuilder;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
@@ -21,7 +23,7 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProductSystemBuilder implements IProductSystemBuilder {
+public class ProductSystemBuilder  {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -41,7 +43,6 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 		this.cutoff = cutoff;
 	}
 
-	@Override
 	public ProductSystem autoComplete(ProductSystem system) {
 		if (system == null || system.getReferenceExchange() == null
 				|| system.getReferenceProcess() == null)
@@ -54,7 +55,6 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 		return autoComplete(system, ref);
 	}
 
-	@Override
 	public ProductSystem autoComplete(ProductSystem system,
 			LongPair processProduct) {
 		try (Connection con = database.createConnection()) {
@@ -72,7 +72,7 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 
 	private void run(ProductSystem system, LongPair processProduct) {
 		log.trace("build product index");
-		ProductIndexBuilder builder = new ProductIndexBuilder(matrixCache);
+		IProductIndexBuilder builder = getProductIndexBuilder();
 		builder.setPreferredType(preferSystemProcesses ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS);
 		ProductIndex index = builder.build(processProduct);
@@ -81,6 +81,13 @@ public class ProductSystemBuilder implements IProductSystemBuilder {
 				index.size(), index.getLinkedInputs().size());
 		log.trace("create new process links");
 		addLinksAndProcesses(system, index);
+	}
+
+	private IProductIndexBuilder getProductIndexBuilder() {
+		if(cutoff == null || cutoff == 0)
+			return new ProductIndexBuilder(matrixCache);
+		else
+			return new ProductIndexCutoffBuilder(matrixCache, cutoff);
 	}
 
 	private void addLinksAndProcesses(ProductSystem system, ProductIndex index) {

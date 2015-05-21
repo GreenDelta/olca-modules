@@ -17,7 +17,7 @@ import org.openlca.core.model.ProcessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProductIndexCutoffBuilder {
+public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -32,14 +32,17 @@ public class ProductIndexCutoffBuilder {
 				ProcessType.LCI_RESULT);
 	}
 
+	@Override
 	public void setPreferredType(ProcessType type) {
 		providerSearch.setPreferredType(type);
 	}
 
+	@Override
 	public ProductIndex build(LongPair refProduct) {
 		return build(refProduct, 1.0);
 	}
 
+	@Override
 	public ProductIndex build(LongPair refProduct, double demand) {
 		log.trace("build product index for {} with cutoff=", refProduct, cutoff);
 		ProductIndex index = new ProductIndex(refProduct);

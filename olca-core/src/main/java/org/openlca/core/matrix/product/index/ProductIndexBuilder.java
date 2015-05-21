@@ -1,4 +1,4 @@
-package org.openlca.core.matrix;
+package org.openlca.core.matrix.product.index;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
@@ -14,8 +17,7 @@ import org.openlca.core.model.ProcessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO: cut-offs
-public class ProductIndexBuilder {
+public class ProductIndexBuilder implements IProductIndexBuilder {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private ProcessType preferredType = ProcessType.LCI_RESULT;
@@ -27,14 +29,17 @@ public class ProductIndexBuilder {
 		this.processTable = cache.getProcessTable();
 	}
 
+	@Override
 	public void setPreferredType(ProcessType preferredType) {
 		this.preferredType = preferredType;
 	}
 
+	@Override
 	public ProductIndex build(LongPair refProduct) {
 		return build(refProduct, 1.0);
 	}
 
+	@Override
 	public ProductIndex build(LongPair refProduct, double demand) {
 		log.trace("build product index for {}", refProduct);
 		ProductIndex index = new ProductIndex(refProduct);
