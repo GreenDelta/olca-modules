@@ -57,7 +57,12 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 
 	private void fillIndex(Graph g, ProductIndex index) {
 		for(Node node : g.nodes.values()) {
+			if(node.state != NodeState.FOLLOWED)
+				continue;
 			for(Link link : node.inputLinks) {
+				// TODO: check if we should annotate the links with 'followed'
+				// currently we include all links to a followed node (also 
+				// the links with a cutoff under the demand value)
 				Node provider = link.provider;
 				if(provider.state != NodeState.FOLLOWED)
 					continue;
@@ -124,7 +129,7 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 					providerNode = createNode(inputDemand, inputProduct,
 							nextLayer);
 				}
-				providerNode.addLink(providerNode, inputAmount);
+				node.addLink(providerNode, inputAmount);
 			}
 		}
 
