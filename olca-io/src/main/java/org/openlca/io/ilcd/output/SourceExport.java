@@ -38,13 +38,13 @@ public class SourceExport {
 	public org.openlca.ilcd.sources.Source run(Source source)
 			throws DataStoreException {
 		log.trace("Run source export with {}", source);
-		DataSetInformation dataSetInfo = makeDateSetInfo(source);
 		org.openlca.ilcd.sources.Source iSource = new org.openlca.ilcd.sources.Source();
 		iSource.setVersion("1.1");
+		iSource.setAdministrativeInformation(makeAdminInfo(source));
 		SourceInformation info = new SourceInformation();
 		iSource.setSourceInformation(info);
-		info.setDataSetInformation(makeDateSetInfo(source));
-		iSource.setAdministrativeInformation(makeAdminInfo(source));
+		DataSetInformation dataSetInfo = makeDateSetInfo(source);
+		info.setDataSetInformation(dataSetInfo);
 		File extFile = getExternalFile(source);
 		if (extFile == null)
 			dataStore.put(iSource, source.getRefId());
