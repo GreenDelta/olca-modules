@@ -60,12 +60,9 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 			if(node.state != NodeState.FOLLOWED)
 				continue;
 			for(Link link : node.inputLinks) {
-				// TODO: check if we should annotate the links with 'followed'
-				// currently we include all links to a followed node (also 
-				// the links with a cutoff under the demand value)
-				Node provider = link.provider;
-				if(provider.state != NodeState.FOLLOWED)
+				if(link.demand < cutoff)
 					continue;
+				Node provider = link.provider;
 				LongPair input = LongPair.of(node.product.getFirst(), 
 						provider.product.getSecond());
 				index.putLink(input, provider.product);
@@ -129,7 +126,7 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 					providerNode = createNode(inputDemand, inputProduct,
 							nextLayer);
 				}
-				node.addLink(providerNode, inputAmount);
+				node.addLink(providerNode, inputAmount, inputDemand);
 			}
 		}
 
@@ -169,6 +166,7 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 			start.scalingFactor = start.demand / start.outputAmount;
 			for (Link link : start.inputLinks) {
 				double inputDemand = link.inputAmount * start.scalingFactor;
+				link.demand = inputDemand;
 				Node provider = link.provider;
 				checkSubGraph(inputDemand, provider, nextLayer, true);
 			}

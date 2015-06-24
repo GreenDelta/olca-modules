@@ -50,8 +50,8 @@ class Node implements Comparable<Node> {
 		state = NodeState.WAITING;
 	}
 
-	void addLink(Node provider, double amount) {
-		Link link = new Link(provider, amount);
+	void addLink(Node provider, double amount, double demand) {
+		Link link = new Link(provider, amount, demand);
 		inputLinks.add(link);
 	}
 	
