@@ -96,6 +96,7 @@ public class RegionalizedCalculator {
 		regioResult.setTotalFlowResults(baseResult.getTotalFlowResults());
 		regioResult.setScalingFactors(baseResult.getScalingFactors());
 		regioResult.setSingleFlowResults(baseResult.getSingleFlowResults());
+		regioResult.setSingleFlowImpacts(baseResult.getSingleFlowImpacts());
 		regioResult.setSingleImpactResults(baseResult.getSingleImpactResults()
 				.copy());
 		regioResult.setLinkContributions(baseResult.getLinkContributions());

@@ -42,17 +42,21 @@ public class GeoKmzImport {
 		dao = new LocationDao(database);
 	}
 
-	public void run() {
+	public boolean run() {
+		boolean foundDataInFile = false;
 		try {
 			setUp();
 			while (reader.hasNext()) {
 				reader.next();
 				if (isStart(reader, "geography"))
-					handleGeography();
+					if (handleGeography())
+						foundDataInFile = true;
 			}
 			reader.close();
+			return foundDataInFile;
 		} catch (Exception e) {
 			log.error("failed to import KML data for geographies", e);
+			return false;
 		}
 	}
 
@@ -65,7 +69,7 @@ public class GeoKmzImport {
 		builder = new SAXBuilder();
 	}
 
-	private void handleGeography() throws Exception {
+	private boolean handleGeography() throws Exception {
 		boolean nextIsShortName = false;
 		String shortName = null;
 		byte[] kmz = null;
@@ -83,6 +87,7 @@ public class GeoKmzImport {
 			}
 		}
 		checkUpdate(shortName, kmz);
+		return kmz != null;
 	}
 
 	private void checkUpdate(String shortName, byte[] kmz) {
