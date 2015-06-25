@@ -25,8 +25,6 @@ class ParameterWriter implements JsonSerializer<Parameter> {
 		if (parameter == null || obj == null)
 			return;
 		obj.addProperty("@type", "Parameter");
-		if (parameter.getId() != 0)
-			obj.addProperty("@id", parameter.getId());
 		obj.addProperty("name", parameter.getName());
 		obj.addProperty("description", parameter.getDescription());
 		obj.addProperty("parameterScope", getScope(parameter));

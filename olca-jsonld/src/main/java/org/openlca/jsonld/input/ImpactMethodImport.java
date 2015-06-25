@@ -11,7 +11,6 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
-import org.openlca.jsonld.EntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,27 +19,25 @@ class ImpactMethodImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private String refId;
-	private EntityStore store;
-	private Db db;
+	private ImportConfig conf;
 
-	private ImpactMethodImport(String refId, EntityStore store, Db db) {
+	private ImpactMethodImport(String refId, ImportConfig conf) {
 		this.refId = refId;
-		this.store = store;
-		this.db = db;
+		this.conf = conf;
 	}
 
-	static ImpactMethod run(String refId, EntityStore store, Db db) {
-		return new ImpactMethodImport(refId, store, db).run();
+	static ImpactMethod run(String refId, ImportConfig conf) {
+		return new ImpactMethodImport(refId, conf).run();
 	}
 
 	private ImpactMethod run() {
-		if (refId == null || store == null || db == null)
+		if (refId == null || conf == null)
 			return null;
 		try {
-			ImpactMethod m = db.getMethod(refId);
+			ImpactMethod m = conf.db.getMethod(refId);
 			if (m != null)
 				return m;
-			JsonObject json = store.get(ModelType.IMPACT_METHOD, refId);
+			JsonObject json = conf.store.get(ModelType.IMPACT_METHOD, refId);
 			return map(json);
 		} catch (Exception e) {
 			log.error("failed to import impact method " + refId, e);
@@ -54,9 +51,9 @@ class ImpactMethodImport {
 		ImpactMethod m = new ImpactMethod();
 		In.mapAtts(json, m);
 		String catId = In.getRefId(json, "category");
-		m.setCategory(CategoryImport.run(catId, store, db));
+		m.setCategory(CategoryImport.run(catId, conf));
 		mapCategories(json, m);
-		return db.put(m);
+		return conf.db.put(m);
 	}
 
 	private void mapCategories(JsonObject json, ImpactMethod m) {
@@ -67,7 +64,7 @@ class ImpactMethodImport {
 			if (!e.isJsonObject())
 				continue;
 			String catId = In.getString(e.getAsJsonObject(), "@id");
-			JsonObject catJson = store.get(ModelType.IMPACT_CATEGORY, catId);
+			JsonObject catJson = conf.store.get(ModelType.IMPACT_CATEGORY, catId);
 			ImpactCategory category = mapCategory(catJson);
 			if (category != null)
 				m.getImpactCategories().add(category);
@@ -79,7 +76,7 @@ class ImpactMethodImport {
 			return null;
 		ImpactCategory cat = new ImpactCategory();
 		In.mapAtts(json, cat);
-		cat.setReferenceUnit(In.getString(json, "referenceUnit"));
+		cat.setReferenceUnit(In.getString(json, "referenceUnitName"));
 		JsonElement factorsElem = json.get("impactFactors");
 		if (factorsElem == null || !factorsElem.isJsonArray())
 			return cat;
@@ -95,9 +92,9 @@ class ImpactMethodImport {
 	private ImpactFactor mapFactor(JsonObject json) {
 		ImpactFactor factor = new ImpactFactor();
 		factor.setValue(In.getDouble(json, "value", 0));
-		Flow flow = FlowImport.run(In.getRefId(json, "flow"), store, db);
+		Flow flow = FlowImport.run(In.getRefId(json, "flow"), conf);
 		factor.setFlow(flow);
-		Unit unit = db.getUnit(In.getRefId(json, "unit"));
+		Unit unit = conf.db.getUnit(In.getRefId(json, "unit"));
 		factor.setUnit(unit);
 		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
 		factor.setFlowPropertyFactor(propFac);
@@ -109,10 +106,7 @@ class ImpactMethodImport {
 	}
 
 	private FlowPropertyFactor getPropertyFactor(JsonObject json, Flow flow) {
-		JsonElement elem = json.get("flowPropertyFactor");
-		if (elem == null || !elem.isJsonObject())
-			return null;
-		String propId = In.getRefId(elem.getAsJsonObject(), "flowProperty");
+		String propId = In.getRefId(json, "flowProperty");
 		for (FlowPropertyFactor fac : flow.getFlowPropertyFactors()) {
 			FlowProperty prop = fac.getFlowProperty();
 			if (prop == null)

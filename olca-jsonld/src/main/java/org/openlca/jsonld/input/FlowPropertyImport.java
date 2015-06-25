@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,27 +13,25 @@ class FlowPropertyImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private String refId;
-	private EntityStore store;
-	private Db db;
+	private ImportConfig conf;
 
-	private FlowPropertyImport(String refId, EntityStore store, Db db) {
+	private FlowPropertyImport(String refId, ImportConfig conf) {
 		this.refId = refId;
-		this.store = store;
-		this.db = db;
+		this.conf = conf;
 	}
 
-	static FlowProperty run(String refId, EntityStore store, Db db) {
-		return new FlowPropertyImport(refId, store, db).run();
+	static FlowProperty run(String refId, ImportConfig conf) {
+		return new FlowPropertyImport(refId, conf).run();
 	}
 
 	private FlowProperty run() {
-		if (refId == null || store == null || db == null)
+		if (refId == null || conf == null)
 			return null;
 		try {
-			FlowProperty p = db.getFlowProperty(refId);
+			FlowProperty p = conf.db.getFlowProperty(refId);
 			if (p != null)
 				return p;
-			JsonObject json = store.get(ModelType.FLOW_PROPERTY, refId);
+			JsonObject json = conf.store.get(ModelType.FLOW_PROPERTY, refId);
 			return map(json);
 		} catch (Exception e) {
 			log.error("failed to import flow property " + refId, e);
@@ -48,11 +45,11 @@ class FlowPropertyImport {
 		FlowProperty p = new FlowProperty();
 		In.mapAtts(json, p);
 		String catId = In.getRefId(json, "category");
-		p.setCategory(CategoryImport.run(catId, store, db));
+		p.setCategory(CategoryImport.run(catId, conf));
 		mapType(json, p);
 		String unitGroupId = In.getRefId(json, "unitGroup");
-		p.setUnitGroup(UnitGroupImport.run(unitGroupId, store, db));
-		return db.put(p);
+		p.setUnitGroup(UnitGroupImport.run(unitGroupId, conf));
+		return conf.db.put(p);
 	}
 
 	private void mapType(JsonObject json, FlowProperty p) {

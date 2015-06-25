@@ -56,9 +56,9 @@ public final class Scope {
 			variable.value = null;
 		try {
 			return tryEval(expression);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new InterpreterException("Evaluation of expression "
-					+ expression + " failed", e);
+					+ expression + " failed: " + e.getMessage(), e);
 		}
 	}
 
@@ -75,7 +75,7 @@ public final class Scope {
 		return ((Double) result);
 	}
 
-	public Object resolveVariable(String name) throws ExpressionException {
+	public Object resolveVariable(String name) throws InterpreterException {
 		Variable var = variables.get(name);
 		if (var != null) {
 			// variable is bound in this scope
@@ -93,17 +93,19 @@ public final class Scope {
 		}
 	}
 
-	private Object eval(Variable var) throws ExpressionException {
+	private Object eval(Variable var) throws InterpreterException {
 		Integer call = evaluationCalls.get(var.name);
 		if (call != null && call > 0)
-			throw new ExpressionException("Second evaluation call on variable "
-					+ var.name + ". Cyclic dependencies?");
+			throw new InterpreterException(
+					"Second evaluation call on variable "
+							+ var.name + ". Cyclic dependencies?");
 		evaluationCalls.put(var.name, 1);
 		try {
 			var.value = tryEval(var.expression);
 			return var.value;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		} catch (Throwable e) {
+			throw new InterpreterException("Evaluation of variable "
+					+ var.name + " failed: " + e.getMessage(), e);
 		}
 	}
 

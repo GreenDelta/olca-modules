@@ -1,22 +1,24 @@
 package org.openlca.io.ilcd.output;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.DataStoreException;
+import org.openlca.ilcd.units.AdministrativeInformation;
+import org.openlca.ilcd.units.DataEntry;
 import org.openlca.ilcd.units.DataSetInformation;
+import org.openlca.ilcd.units.Publication;
+import org.openlca.ilcd.units.QuantitativeReference;
+import org.openlca.ilcd.units.UnitGroupInformation;
+import org.openlca.ilcd.units.UnitList;
 import org.openlca.ilcd.util.LangString;
+import org.openlca.ilcd.util.Reference;
 import org.openlca.ilcd.util.UnitExtension;
-import org.openlca.ilcd.util.UnitGroupBuilder;
 
-/**
- * The export of an openLCA unit group to an ILCD data set.
- */
 public class UnitGroupExport {
 
 	private UnitGroup unitGroup;
@@ -34,12 +36,14 @@ public class UnitGroupExport {
 	public org.openlca.ilcd.units.UnitGroup run(UnitGroup unitGroup)
 			throws DataStoreException {
 		this.unitGroup = unitGroup;
-		DataSetInformation dataSetInfo = makeDataSetInfo();
-		List<org.openlca.ilcd.units.Unit> iUnits = makeUnits();
-		org.openlca.ilcd.units.UnitGroup iUnitGroup = UnitGroupBuilder
-				.makeUnitGroup().withBaseUri(baseUri)
-				.withDataSetInfo(dataSetInfo).withReferenceUnitId(0)
-				.withUnits(iUnits).getUnitGroup();
+		org.openlca.ilcd.units.UnitGroup iUnitGroup = new org.openlca.ilcd.units.UnitGroup();
+		iUnitGroup.setVersion("1.1");
+		UnitGroupInformation info = new UnitGroupInformation();
+		iUnitGroup.setUnitGroupInformation(info);
+		info.setDataSetInformation(makeDataSetInfo());
+		info.setQuantitativeReference(makeQRef());
+		iUnitGroup.setAdministrativeInformation(makeAdminInfo());
+		iUnitGroup.setUnits(makeUnits());
 		dataStore.put(iUnitGroup, unitGroup.getRefId());
 		this.unitGroup = null;
 		return iUnitGroup;
@@ -59,19 +63,24 @@ public class UnitGroupExport {
 		return dataSetInfo;
 	}
 
-	private List<org.openlca.ilcd.units.Unit> makeUnits() {
-		List<org.openlca.ilcd.units.Unit> iUnits = new ArrayList<>();
+	private QuantitativeReference makeQRef() {
+		QuantitativeReference qRef = new QuantitativeReference();
+		if (unitGroup.getReferenceUnit() != null)
+			qRef.setReferenceToReferenceUnit(BigInteger.valueOf(0));
+		return qRef;
+	}
+
+	private UnitList makeUnits() {
+		UnitList iUnits = new UnitList();
 		Unit refUnit = unitGroup.getReferenceUnit();
 		int pos = 1;
 		for (Unit unit : unitGroup.getUnits()) {
 			org.openlca.ilcd.units.Unit iUnit = makeUnit(unit);
-			if (unit.equals(refUnit)) {
+			if (unit.equals(refUnit))
 				iUnit.setDataSetInternalID(BigInteger.valueOf(0));
-			} else {
-				iUnit.setDataSetInternalID(BigInteger.valueOf(pos));
-				pos++;
-			}
-			iUnits.add(iUnit);
+			else
+				iUnit.setDataSetInternalID(BigInteger.valueOf(pos++));
+			iUnits.getUnit().add(iUnit);
 		}
 		return iUnits;
 	}
@@ -87,5 +96,27 @@ public class UnitGroupExport {
 		UnitExtension unitExtension = new UnitExtension(iUnit);
 		unitExtension.setUnitId(unit.getRefId());
 		return iUnit;
+	}
+
+	private AdministrativeInformation makeAdminInfo() {
+		AdministrativeInformation info = new AdministrativeInformation();
+		DataEntry entry = new DataEntry();
+		info.setDataEntryBy(entry);
+		entry.setTimeStamp(Out.getTimestamp(unitGroup));
+		entry.getReferenceToDataSetFormat().add(Reference.forIlcdFormat());
+		addPublication(info);
+		return info;
+	}
+
+	private void addPublication(AdministrativeInformation info) {
+		Publication pub = new Publication();
+		info.setPublicationAndOwnership(pub);
+		pub.setDataSetVersion(Version.asString(unitGroup.getVersion()));
+		if (baseUri == null)
+			baseUri = "http://openlca.org/ilcd/resource/";
+		if (!baseUri.endsWith("/"))
+			baseUri += "/";
+		pub.setPermanentDataSetURI(baseUri + "unitgroups/"
+				+ unitGroup.getRefId());
 	}
 }

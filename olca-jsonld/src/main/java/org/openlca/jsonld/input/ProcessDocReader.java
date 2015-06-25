@@ -1,50 +1,46 @@
 package org.openlca.jsonld.input;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
-import org.openlca.jsonld.EntityStore;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 class ProcessDocReader {
 
-	private EntityStore store;
-	private Db db;
+	private ImportConfig conf;
 	private JsonObject json;
 
-	private ProcessDocReader(EntityStore store, Db db) {
-		this.store = store;
-		this.db = db;
+	private ProcessDocReader(ImportConfig conf) {
+		this.conf = conf;
 	}
 
-	static ProcessDocumentation read(JsonObject json, EntityStore store, Db db) {
-		return new ProcessDocReader(store, db).read(json);
+	static ProcessDocumentation read(JsonObject json, ImportConfig conf) {
+		return new ProcessDocReader(conf).read(json);
 	}
 
 	private ProcessDocumentation read(JsonObject process) {
+		ProcessDocumentation doc = new ProcessDocumentation();
 		if (process == null)
-			return null;
+			return doc;
 		JsonElement elem = process.get("processDocumentation");
 		if (elem == null || !elem.isJsonObject())
-			return null;
+			return doc;
 		json = elem.getAsJsonObject();
-		ProcessDocumentation doc = new ProcessDocumentation();
 		mapSimpleFields(doc);
 		doc.setReviewer(actor("reviewer"));
 		doc.setDataDocumentor(actor("dataDocumentor"));
 		doc.setDataGenerator(actor("dataGenerator"));
 		doc.setDataSetOwner(actor("dataSetOwner"));
 		String pupId = In.getRefId(json, "publication");
-		doc.setPublication(SourceImport.run(pupId, store, db));
+		doc.setPublication(SourceImport.run(pupId, conf));
 		addSources(doc);
 		return doc;
 	}
 
 	private Actor actor(String field) {
 		String refId = In.getRefId(json, field);
-		return ActorImport.run(refId, store, db);
+		return ActorImport.run(refId, conf);
 	}
 
 	private void mapSimpleFields(ProcessDocumentation doc) {
@@ -78,7 +74,7 @@ class ProcessDocReader {
 			if (!e.isJsonObject())
 				return;
 			String refId = In.getString(e.getAsJsonObject(), "@id");
-			Source source = SourceImport.run(refId, store, db);
+			Source source = SourceImport.run(refId, conf);
 			if (source != null)
 				doc.getSources().add(source);
 		}

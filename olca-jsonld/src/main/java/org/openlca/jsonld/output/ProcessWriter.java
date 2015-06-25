@@ -3,6 +3,7 @@ package org.openlca.jsonld.output;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -63,21 +64,16 @@ class ProcessWriter implements Writer<Process> {
 		mapExchanges(process, obj);
 	}
 
-	private void mapExchanges(Process process, JsonObject obj) {
+	private void mapExchanges(Process p, JsonObject obj) {
 		JsonArray exchanges = new JsonArray();
-		for (Exchange exchange : process.getExchanges()) {
-			JsonObject exchangeObj = new JsonObject();
-			new ExchangeWriter(store).map(exchange, exchangeObj);
-			exchanges.add(exchangeObj);
+		for (Exchange e : p.getExchanges()) {
+			JsonObject eObj = new JsonObject();
+			new ExchangeWriter(store).map(e, eObj);
+			if(Objects.equals(p.getQuantitativeReference(), e))
+				eObj.addProperty("quantitativeReference", true);
+			exchanges.add(eObj);
 		}
 		obj.add("exchanges", exchanges);
-		Exchange qRef = process.getQuantitativeReference();
-		if (qRef != null) {
-			JsonObject qRefObj = new JsonObject();
-			qRefObj.addProperty("@type", "Exchange");
-			qRefObj.addProperty("@id", qRef.getId());
-			obj.add("quantitativeReference", qRefObj);
-		}
 	}
 
 	private JsonObject createDoc(Process process) {
@@ -85,6 +81,7 @@ class ProcessWriter implements Writer<Process> {
 		if (d == null)
 			return null;
 		JsonObject o = new JsonObject();
+		o.addProperty("@type", "ProcessDocumentation");
 		mapSimpleDocFields(d, o);
 		o.add("reviewer", Out.put(d.getReviewer(), store));
 		o.add("dataDocumentor", Out.put(d.getDataDocumentor(), store));

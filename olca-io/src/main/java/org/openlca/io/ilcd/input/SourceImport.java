@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.input;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
@@ -10,6 +11,7 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.SourceBag;
 import org.slf4j.Logger;
@@ -85,6 +87,11 @@ public class SourceImport {
 		source.setName(ilcdSource.getShortName());
 		source.setDescription(ilcdSource.getComment());
 		source.setTextReference(ilcdSource.getSourceCitation());
+		String v = ilcdSource.getVersion();
+		source.setVersion(Version.fromString(v).getValue());
+		Date time = ilcdSource.getTimeStamp();
+		if (time != null)
+			source.setLastChange(time.getTime());
 	}
 
 	private void importAndSetCategory() throws ImportException {

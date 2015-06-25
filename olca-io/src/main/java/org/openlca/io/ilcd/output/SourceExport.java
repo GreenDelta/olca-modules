@@ -4,19 +4,21 @@ import java.io.File;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.DataStoreException;
+import org.openlca.ilcd.sources.AdministrativeInformation;
+import org.openlca.ilcd.sources.DataEntry;
 import org.openlca.ilcd.sources.DataSetInformation;
 import org.openlca.ilcd.sources.DigitalFileReference;
+import org.openlca.ilcd.sources.Publication;
+import org.openlca.ilcd.sources.SourceInformation;
 import org.openlca.ilcd.util.LangString;
-import org.openlca.ilcd.util.SourceBuilder;
+import org.openlca.ilcd.util.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The export of an openLCA source to an ILCD data set.
- */
 public class SourceExport {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -36,12 +38,13 @@ public class SourceExport {
 	public org.openlca.ilcd.sources.Source run(Source source)
 			throws DataStoreException {
 		log.trace("Run source export with {}", source);
+		org.openlca.ilcd.sources.Source iSource = new org.openlca.ilcd.sources.Source();
+		iSource.setVersion("1.1");
+		iSource.setAdministrativeInformation(makeAdminInfo(source));
+		SourceInformation info = new SourceInformation();
+		iSource.setSourceInformation(info);
 		DataSetInformation dataSetInfo = makeDateSetInfo(source);
-		org.openlca.ilcd.sources.Source iSource = SourceBuilder
-				.makeSource()
-				.withBaseUri(baseUri)
-				.withDataSetInfo(dataSetInfo)
-				.getSource();
+		info.setDataSetInformation(dataSetInfo);
 		File extFile = getExternalFile(source);
 		if (extFile == null)
 			dataStore.put(iSource, source.getRefId());
@@ -86,17 +89,37 @@ public class SourceExport {
 	private void addTextReference(Source source, DataSetInformation dataSetInfo) {
 		log.trace("Create text reference.");
 		String cit = source.getTextReference();
-		if (cit != null) {
-			if (source.getYear() != null) {
-				cit += " " + source.getYear();
-			}
-			dataSetInfo.setSourceCitation(cit);
-		}
+		if (cit == null)
+			return;
+		if (source.getYear() != null)
+			cit += " " + source.getYear();
+		dataSetInfo.setSourceCitation(cit);
 	}
 
 	private void addFileRef(DataSetInformation info, File extFile) {
 		DigitalFileReference fileRef = new DigitalFileReference();
 		fileRef.setUri(extFile.getName());
 		info.getReferenceToDigitalFile().add(fileRef);
+	}
+
+	private AdministrativeInformation makeAdminInfo(Source source) {
+		AdministrativeInformation info = new AdministrativeInformation();
+		DataEntry entry = new DataEntry();
+		info.setDataEntryBy(entry);
+		entry.setTimeStamp(Out.getTimestamp(source));
+		entry.getReferenceToDataSetFormat().add(Reference.forIlcdFormat());
+		addPublication(info, source);
+		return info;
+	}
+
+	private void addPublication(AdministrativeInformation info, Source source) {
+		Publication pub = new Publication();
+		info.setPublicationAndOwnership(pub);
+		pub.setDataSetVersion(Version.asString(source.getVersion()));
+		if (baseUri == null)
+			baseUri = "http://openlca.org/ilcd/resource/";
+		if (!baseUri.endsWith("/"))
+			baseUri += "/";
+		pub.setPermanentDataSetURI(baseUri + "sources/" + source.getRefId());
 	}
 }

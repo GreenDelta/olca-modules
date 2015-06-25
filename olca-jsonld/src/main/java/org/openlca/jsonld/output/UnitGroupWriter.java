@@ -1,7 +1,9 @@
 package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
+import java.util.Objects;
 
+import com.google.gson.JsonPrimitive;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -46,15 +48,33 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 		JsonExport.addAttributes(group, obj, store);
 		JsonObject propRef = Out.createRef(group.getDefaultFlowProperty());
 		obj.add("defaultFlowProperty", propRef);
-		JsonObject unitRef = Out.createRef(group.getReferenceUnit());
-		obj.add("referenceUnit", unitRef);
+		addUnits(group, obj);
+	}
+
+	private void addUnits(UnitGroup group, JsonObject obj) {
+		if(group == null || obj == null)
+			return;
 		JsonArray units = new JsonArray();
 		for (Unit unit : group.getUnits()) {
 			JsonObject unitObj = new JsonObject();
-			UnitWriter.map(unit, unitObj);
+			JsonExport.addAttributes(unit, unitObj, null);
+			if(Objects.equals(unit, group.getReferenceUnit()))
+				unitObj.addProperty("referenceUnit", true);
+			unitObj.addProperty("conversionFactor", unit.getConversionFactor());
+			addSynonyms(unit, unitObj);
 			units.add(unitObj);
 		}
 		obj.add("units", units);
 	}
 
+	private void addSynonyms(Unit unit, JsonObject object) {
+		String synonyms = unit.getSynonyms();
+		if (synonyms == null || synonyms.trim().isEmpty())
+			return;
+		JsonArray array = new JsonArray();
+		String[] items = synonyms.split(";");
+		for (String item : items)
+			array.add(new JsonPrimitive(item.trim()));
+		object.add("synonyms", array);
+	}
 }

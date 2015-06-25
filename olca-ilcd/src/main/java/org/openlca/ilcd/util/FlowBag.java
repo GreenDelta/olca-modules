@@ -2,7 +2,10 @@ package org.openlca.ilcd.util;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.Classification;
@@ -10,6 +13,8 @@ import org.openlca.ilcd.commons.FlowCategorization;
 import org.openlca.ilcd.commons.FlowCategoryInformation;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.flows.AdministrativeInformation;
+import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInformation;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowInformation;
@@ -19,6 +24,7 @@ import org.openlca.ilcd.flows.FlowPropertyReference;
 import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
+import org.openlca.ilcd.flows.Publication;
 import org.openlca.ilcd.flows.QuantitativeReference;
 
 public class FlowBag implements IBag<Flow> {
@@ -173,6 +179,36 @@ public class FlowBag implements IBag<Flow> {
 		if (flow.getFlowInformation() != null)
 			return flow.getFlowInformation().getDataSetInformation();
 		return null;
+	}
+
+	public String getVersion() {
+		if (flow == null)
+			return null;
+		AdministrativeInformation info = flow.getAdministrativeInformation();
+		if (info == null)
+			return null;
+		Publication pub = info.getPublication();
+		if (pub == null)
+			return null;
+		else
+			return pub.getDataSetVersion();
+	}
+
+	public Date getTimeStamp() {
+		if (flow == null)
+			return null;
+		AdministrativeInformation info = flow
+				.getAdministrativeInformation();
+		if (info == null)
+			return null;
+		DataEntry entry = info.getDataEntry();
+		if (entry == null)
+			return null;
+		XMLGregorianCalendar cal = entry.getTimeStamp();
+		if (cal == null)
+			return null;
+		else
+			return cal.toGregorianCalendar().getTime();
 	}
 
 }

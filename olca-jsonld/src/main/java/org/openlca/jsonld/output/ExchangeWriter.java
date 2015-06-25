@@ -35,8 +35,6 @@ class ExchangeWriter implements JsonSerializer<Exchange> {
 		if (e == null || obj == null)
 			return;
 		obj.addProperty("@type", "Exchange");
-		if (e.getId() != 0)
-			obj.addProperty("@id", e.getId());
 		obj.addProperty("avoidedProduct", e.isAvoidedProduct());
 		obj.addProperty("input", e.isInput());
 		obj.addProperty("baseUncertainty", e.getBaseUncertainty());
@@ -52,9 +50,8 @@ class ExchangeWriter implements JsonSerializer<Exchange> {
 		obj.add("unit", Out.createRef(e.getUnit()));
 		FlowPropertyFactor propFac = e.getFlowPropertyFactor();
 		if (propFac != null) {
-			JsonObject facObj = new JsonObject();
-			new FlowPropertyFactorWriter(store).map(propFac, facObj);
-			obj.add("flowPropertyFactor", facObj);
+			JsonObject ref = Out.put(propFac.getFlowProperty(), store);
+			obj.add("flowProperty", ref);
 		}
 		Uncertainty uncertainty = e.getUncertainty();
 		if (uncertainty != null) {

@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.processes.Process;
@@ -18,7 +19,6 @@ import org.openlca.ilcd.processes.ProcessInformation;
 import org.openlca.ilcd.productmodel.ProductModel;
 import org.openlca.ilcd.sources.DataSetInformation;
 import org.openlca.ilcd.sources.Source;
-import org.openlca.ilcd.util.SourceBuilder;
 
 public class ZipStoreTest {
 
@@ -46,9 +46,7 @@ public class ZipStoreTest {
 		DataSetInformation dataSetInfo = new DataSetInformation();
 		String id = "110_abc";
 		dataSetInfo.setUUID(id);
-		Source source = SourceBuilder.makeSource()
-				.withBaseUri("http://lca.net/ilcd")
-				.withDataSetInfo(dataSetInfo).getSource();
+		Source source = SampleSource.create();
 		store.put(source, id);
 		assertTrue(store.contains(Source.class, id));
 		Source copy = store.get(Source.class, id);

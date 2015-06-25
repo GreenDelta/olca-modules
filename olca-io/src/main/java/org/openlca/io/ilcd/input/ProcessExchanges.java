@@ -10,6 +10,7 @@ import java.util.Map;
 import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -166,7 +167,8 @@ class ProcessExchanges {
 				continue;
 			for (AllocationFactor iFactor : p.iExchange.getAllocation()
 					.getFactors()) {
-				Long productId = findMappedId(iFactor.getReferenceToCoProduct());
+				Long productId = findMappedFlowId(iFactor
+						.getReferenceToCoProduct());
 				BigDecimal fraction = iFactor.getAllocatedFraction();
 				if (productId != null && fraction != null)
 					createAllocationFactor(p, productId, fraction);
@@ -176,20 +178,30 @@ class ProcessExchanges {
 
 	private void createAllocationFactor(MappedPair p, long productId,
 			BigDecimal fraction) {
-		// TODO: port new allocation model
-		// org.openlca.core.model.AllocationFactor oFactor = new
-		// org.openlca.core.model.AllocationFactor();
-		// oFactor.setProductId(productId);
-		// oFactor.setValue(fraction.doubleValue());
-		// p.oExchange.add(oFactor);
+		Exchange oExchange = p.oExchange;
+		if (oExchange.getFlow() == null)
+			return;
+		org.openlca.core.model.AllocationFactor f = new
+				org.openlca.core.model.AllocationFactor();
+		f.setProductId(productId);
+		f.setValue(fraction.doubleValue() / 100);
+		if (oExchange.getFlow().getId() == productId)
+			f.setAllocationType(AllocationMethod.PHYSICAL);
+		else {
+			f.setAllocationType(AllocationMethod.CAUSAL);
+			f.setExchange(oExchange);
+		}
+		olcaProcess.getAllocationFactors().add(f);
 	}
 
-	private Long findMappedId(BigInteger iId) {
-		if (iId == null)
+	private Long findMappedFlowId(BigInteger iExchangeId) {
+		if (iExchangeId == null)
 			return null;
 		for (MappedPair p : mappedPairs) {
-			if (iId.equals(p.iExchange.getDataSetInternalID()))
-				return p.oExchange.getId();
+			if (iExchangeId.equals(p.iExchange.getDataSetInternalID())) {
+				if (p.oExchange.getFlow() != null)
+					return p.oExchange.getFlow().getId();
+			}
 		}
 		return null;
 	}

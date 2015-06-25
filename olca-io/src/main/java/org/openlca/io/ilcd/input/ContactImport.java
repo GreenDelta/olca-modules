@@ -1,17 +1,17 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Date;
+
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.ContactBag;
 
-/**
- * The import of an ILCD contact data set to an openLCA database.
- */
 public class ContactImport {
 
 	private IDatabase database;
@@ -57,6 +57,7 @@ public class ContactImport {
 		actor = new Actor();
 		importAndSetCategory();
 		setDescriptionAttributes();
+		setVersionTime();
 		saveInDatabase();
 		return actor;
 	}
@@ -90,6 +91,14 @@ public class ContactImport {
 		actor.setTelefax(ilcdContact.getTelefax());
 		actor.setTelephone(ilcdContact.getTelephone());
 		actor.setWebsite(ilcdContact.getWebSite());
+	}
+
+	private void setVersionTime() {
+		String v = ilcdContact.getVersion();
+		actor.setVersion(Version.fromString(v).getValue());
+		Date time = ilcdContact.getTimeStamp();
+		if (time != null)
+			actor.setLastChange(time.getTime());
 	}
 
 	private void saveInDatabase() throws ImportException {

@@ -24,6 +24,8 @@ import org.openlca.io.UnitMappingEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 /** Search for EcoSpold entities in the database. */
 class DBSearch {
 
@@ -153,12 +155,16 @@ class DBSearch {
 			Flow flow) {
 		try {
 			Category category = flow.getCategory();
-			if (sameCategory(subCategoryName, category)) {
-				if (subCategoryName == null)
-					return true;
-				return sameCategory(categoryName, category.getParentCategory());
-			}
-			return false;
+			if (category == null)
+				return Strings.isNullOrEmpty(categoryName)
+						&& Strings.isNullOrEmpty(subCategoryName);
+			Category parent = category.getParentCategory();
+			if (parent == null)
+				return sameCategory(categoryName, category)
+						|| sameCategory(subCategoryName, category);
+			else
+				return sameCategory(subCategoryName, category)
+						&& sameCategory(categoryName, parent);
 		} catch (Exception e) {
 			log.error("Failed to check categories");
 			return false;
@@ -166,11 +172,10 @@ class DBSearch {
 	}
 
 	private boolean sameCategory(String name, Category category) {
-		if (category == null)
+		if (Strings.isNullOrEmpty(name) && category == null)
+			return true;
+		if (Strings.isNullOrEmpty(name) || category == null)
 			return false;
-		if (name == null)
-			return StringUtils.equals(category.getRefId(),
-					Flow.class.getCanonicalName());
 		return StringUtils.equalsIgnoreCase(name, category.getName());
 	}
 

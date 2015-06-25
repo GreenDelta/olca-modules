@@ -3,17 +3,20 @@ package org.openlca.io.ilcd.output;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.flowproperties.AdministrativeInformation;
+import org.openlca.ilcd.flowproperties.DataEntry;
 import org.openlca.ilcd.flowproperties.DataSetInformation;
+import org.openlca.ilcd.flowproperties.FlowPropertyInformation;
+import org.openlca.ilcd.flowproperties.Publication;
+import org.openlca.ilcd.flowproperties.QuantitativeReference;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.util.FlowPropertyBuilder;
 import org.openlca.ilcd.util.LangString;
+import org.openlca.ilcd.util.Reference;
 
-/**
- * The export of an openLCA flow property to an ILCD flow property data set.
- */
 public class FlowPropertyExport {
 
 	private FlowProperty flowProperty;
@@ -33,12 +36,13 @@ public class FlowPropertyExport {
 	public org.openlca.ilcd.flowproperties.FlowProperty run(
 			FlowProperty flowProperty) throws DataStoreException {
 		this.flowProperty = flowProperty;
-		DataSetInformation dataSetInfo = makeDataSetInfo();
-		DataSetReference unitGroupRef = makeUnitGroupRef();
-		org.openlca.ilcd.flowproperties.FlowProperty iProperty = FlowPropertyBuilder
-				.makeFlowProperty().withBaseUri(baseUri)
-				.withDataSetInfo(dataSetInfo)
-				.withUnitGroupReference(unitGroupRef).getFlowProperty();
+		org.openlca.ilcd.flowproperties.FlowProperty iProperty = new org.openlca.ilcd.flowproperties.FlowProperty();
+		iProperty.setVersion("1.1");
+		FlowPropertyInformation info = new FlowPropertyInformation();
+		iProperty.setFlowPropertyInformation(info);
+		info.setDataSetInformation(makeDataSetInfo());
+		info.setQuantitativeReference(makeUnitGroupRef());
+		iProperty.setAdministrativeInformation(makeAdminInfo());
 		dataStore.put(iProperty, flowProperty.getRefId());
 		this.flowProperty = null;
 		return iProperty;
@@ -59,10 +63,35 @@ public class FlowPropertyExport {
 		return dataSetInfo;
 	}
 
-	private DataSetReference makeUnitGroupRef() {
+	private QuantitativeReference makeUnitGroupRef() {
+		QuantitativeReference qRef = new QuantitativeReference();
 		UnitGroup unitGroup = flowProperty.getUnitGroup();
-		return ExportDispatch
-				.forwardExportCheck(unitGroup, database, dataStore);
+		DataSetReference ref = ExportDispatch.forwardExportCheck(unitGroup,
+				database, dataStore);
+		qRef.setUnitGroup(ref);
+		return qRef;
+	}
+
+	private AdministrativeInformation makeAdminInfo() {
+		AdministrativeInformation info = new AdministrativeInformation();
+		DataEntry entry = new DataEntry();
+		info.setDataEntry(entry);
+		entry.setTimeStamp(Out.getTimestamp(flowProperty));
+		entry.getReferenceToDataSetFormat().add(Reference.forIlcdFormat());
+		addPublication(info);
+		return info;
+	}
+
+	private void addPublication(AdministrativeInformation info) {
+		Publication pub = new Publication();
+		info.setPublication(pub);
+		pub.setDataSetVersion(Version.asString(flowProperty.getVersion()));
+		if (baseUri == null)
+			baseUri = "http://openlca.org/ilcd/resource/";
+		if (!baseUri.endsWith("/"))
+			baseUri += "/";
+		pub.setPermanentDataSetURI(baseUri + "flowproperties/"
+				+ flowProperty.getRefId());
 	}
 
 }
