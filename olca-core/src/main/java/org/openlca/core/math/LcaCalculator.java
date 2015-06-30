@@ -115,18 +115,20 @@ public class LcaCalculator {
 		result.setSingleFlowResults(singleResult);
 
 		// total results
-		double[] demands = new double[productIndex.size()];
-		for (int i = 0; i < productIndex.size(); i++) {
-			double entry = techMatrix.getEntry(i, i);
-			double s = scalingVector[i];
-			demands[i] = s * entry;
+		double[] totalScale = scalingVector;
+		int i = productIndex.getIndex(productIndex.getRefProduct());
+		double scaledRefAmount = techMatrix.getEntry(i, i) * scalingVector[i];
+		if(Math.abs(scaledRefAmount - productIndex.getDemand()) > 1e-9) {
+			// 'self-loop' correction for total result scale
+			double f = productIndex.getDemand() / scaledRefAmount;
+			totalScale = new double[scalingVector.length];
+			for(int k = 0; k < scalingVector.length; k++)
+				totalScale[k] = scalingVector[k] * f;
 		}
+		
 		IMatrix totalResult = solver.multiply(enviMatrix, inverse);
-
-		// allow GC
-		inverse = null;
-
-		solver.scaleColumns(totalResult, demands);
+		inverse = null; // allow GC
+		solver.scaleColumns(totalResult, totalScale);
 		result.setUpstreamFlowResults(totalResult);
 		int refIdx = productIndex.getIndex(productIndex.getRefProduct());
 		double[] g = totalResult.getColumn(refIdx);
