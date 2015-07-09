@@ -10,6 +10,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -24,13 +25,16 @@ public class SimulationResultExport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
+	private CalculationSetup setup;
 	private SimulationResultProvider<?> result;
 	private EntityCache cache;
 	private int row = 0;
 	private CellWriter writer;
 	private boolean useStreaming = false;
 
-	public SimulationResultExport(SimulationResultProvider<?> result) {
+	public SimulationResultExport(CalculationSetup setup,
+			SimulationResultProvider<?> result) {
+		this.setup = setup;
 		this.result = result;
 		this.cache = result.getCache();
 	}
@@ -40,6 +44,7 @@ public class SimulationResultExport {
 	 */
 	public void run(File file) throws Exception {
 		Workbook workbook = createWorkbook();
+		InfoSheet.write(workbook, setup, "Simulation result");
 		writer = new CellWriter(cache, workbook);
 		writeInventorySheet(workbook);
 		if (result.hasImpactResults())
@@ -115,22 +120,6 @@ public class SimulationResultExport {
 			writeValues(sheet, row, CellWriter.FLOW_INFO_SIZE + 1, values);
 			row++;
 		}
-	}
-
-	private void writeSheetHeader(Sheet sheet) {
-		// TODO: we need a Simulation setup here
-		// String[] labels = { "Product system", "Process",
-		// "Quantitative reference" };
-		// String[] values = { input.getName(), input.getReferenceProcessName(),
-		// input.getQuantitativeReference() };
-		// for (int i = 0; i < labels.length; i++) {
-		// HSSFRow aRow = sheet.createRow(row++);
-		// headerCell(aRow, 0, labels[i]);
-		// Excel.cell(aRow, 1, values[i]);
-		// }
-		// HSSFRow aRow = sheet.createRow(row++);
-		// headerCell(aRow, 0, "Number of simulations");
-		// aRow.createCell(1).setCellValue(input.getNumberOfRuns());
 	}
 
 	private void writeInventoryHeader(Sheet sheet, boolean inputs) {
