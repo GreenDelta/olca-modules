@@ -1,15 +1,15 @@
 package org.openlca.io.xls.process.output;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 class ParameterSheet {
 
@@ -27,13 +27,30 @@ class ParameterSheet {
 	}
 
 	private void write() {
-		config.header(sheet, row++, 0, "Global parameters");
-		writeInputParams(getGlobalParameters());
+		writeGlobalParams();
 		config.header(sheet, row++, 0, "Input parameters");
 		writeInputParams(getInputParameters());
-		config.header(sheet, row++, 0, "Dependent parameters");
+		config.header(sheet, row++, 0, "Calculated parameters");
 		writeDependentParams(getDependentParameters());
 		Excel.autoSize(sheet, 0, 7);
+	}
+
+	private void writeGlobalParams() {
+		ParameterDao dao = new ParameterDao(config.database);
+		List<Parameter> all = dao.getGlobalParameters();
+		Collections.sort(all, new Sorter());
+		List<Parameter> inputParams = new ArrayList<>();
+		List<Parameter> calcParams = new ArrayList<>();
+		for (Parameter p : all) {
+			if (p.isInputParameter())
+				inputParams.add(p);
+			else
+				calcParams.add(p);
+		}
+		config.header(sheet, row++, 0, "Global input parameters");
+		writeInputParams(inputParams);
+		config.header(sheet, row++, 0, "Global calculated parameters");
+		writeDependentParams(calcParams);
 	}
 
 	private void writeInputParams(List<Parameter> params) {
@@ -60,14 +77,15 @@ class ParameterSheet {
 	}
 
 	private void writeDependentParams(List<Parameter> params) {
-	   writeDependentHeader();
-		for(Parameter param : params) {
+		writeDependentHeader();
+		for (Parameter param : params) {
 			row++;
 			Excel.cell(sheet, row, 0, param.getName());
 			Excel.cell(sheet, row, 1, param.getFormula());
 			Excel.cell(sheet, row, 2, param.getValue());
 			Excel.cell(sheet, row, 3, param.getDescription());
 		}
+		row += 2;
 	}
 
 	private void writeDependentHeader() {
@@ -77,17 +95,10 @@ class ParameterSheet {
 		config.header(sheet, row, 3, "Description");
 	}
 
-	private List<Parameter> getGlobalParameters() {
-		ParameterDao dao = new ParameterDao(config.database);
-		List<Parameter> parameters = dao.getGlobalParameters();
-		Collections.sort(parameters, new Sorter());
-		return parameters;
-	}
-
 	private List<Parameter> getInputParameters() {
 		List<Parameter> parameters = new ArrayList<>();
-		for(Parameter param : config.process.getParameters()) {
-			if(param.isInputParameter())
+		for (Parameter param : config.process.getParameters()) {
+			if (param.isInputParameter())
 				parameters.add(param);
 		}
 		Collections.sort(parameters, new Sorter());
@@ -96,8 +107,8 @@ class ParameterSheet {
 
 	private List<Parameter> getDependentParameters() {
 		List<Parameter> parameters = new ArrayList<>();
-		for(Parameter param : config.process.getParameters()) {
-			if(!param.isInputParameter())
+		for (Parameter param : config.process.getParameters()) {
+			if (!param.isInputParameter())
 				parameters.add(param);
 		}
 		Collections.sort(parameters, new Sorter());
