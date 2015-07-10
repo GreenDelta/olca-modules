@@ -43,7 +43,7 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 	public ProductIndex build(LongPair refProduct, double demand) {
 		log.trace("build product index for {}", refProduct);
 		ProductIndex index = new ProductIndex(refProduct);
-        index.setDemand(demand);
+		index.setDemand(demand);
 		List<LongPair> block = new ArrayList<>();
 		block.add(refProduct);
 		HashSet<LongPair> handled = new HashSet<>();
@@ -55,13 +55,14 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 				handled.add(recipient);
 				List<CalcExchange> processExchanges = exchanges.get(recipient
 						.getFirst());
-				List<CalcExchange> productInputs = getProductInputs(processExchanges);
+				List<CalcExchange> productInputs = getProductInputs(
+						processExchanges);
 				for (CalcExchange productInput : productInputs) {
 					LongPair provider = findProvider(productInput);
 					if (provider == null)
 						continue;
 					LongPair recipientInput = new LongPair(
-							recipient.getFirst(), productInput.getFlowId());
+							recipient.getFirst(), productInput.flowId);
 					index.putLink(recipientInput, provider);
 					if (!handled.contains(provider)
 							&& !nextBlock.contains(provider))
@@ -79,9 +80,9 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 			return Collections.emptyList();
 		List<CalcExchange> productInputs = new ArrayList<>();
 		for (CalcExchange exchange : processExchanges) {
-			if (!exchange.isInput())
+			if (!exchange.input)
 				continue;
-			if (exchange.getFlowType() == FlowType.ELEMENTARY_FLOW)
+			if (exchange.flowType == FlowType.ELEMENTARY_FLOW)
 				continue;
 			productInputs.add(exchange);
 		}
@@ -106,7 +107,7 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 	private LongPair findProvider(CalcExchange productInput) {
 		if (productInput == null)
 			return null;
-		long productId = productInput.getFlowId();
+		long productId = productInput.flowId;
 		long[] processIds = processTable.getProductProviders(productId);
 		if (processIds == null)
 			return null;
@@ -125,14 +126,14 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 			return true;
 		if (newOption == null)
 			return false;
-		if (candidate.getFirst() == inputLink.getDefaultProviderId())
+		if (candidate.getFirst() == inputLink.defaultProviderId)
 			return false;
-		if (newOption.getFirst() == inputLink.getDefaultProviderId())
+		if (newOption.getFirst() == inputLink.defaultProviderId)
 			return true;
 		ProcessType candidateType = processTable.getType(candidate.getFirst());
 		ProcessType newOptionType = processTable.getType(newOption.getFirst());
 		if (candidateType == preferredType && newOptionType != preferredType)
 			return false;
-        return candidateType != preferredType && newOptionType == preferredType;
-    }
+		return candidateType != preferredType && newOptionType == preferredType;
+	}
 }

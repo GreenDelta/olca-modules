@@ -13,23 +13,23 @@ class Node implements Comparable<Node> {
 	 * Indicates the state of the node when building the product graph.
 	 */
 	NodeState state;
-	
+
 	/**
 	 * The product that is represented by this node (processId, flowId). There
 	 * must be only one node for each product.
 	 */
 	LongPair product;
-	
+
 	/**
-	 * The maximum demanded amount of product in the product system.  
+	 * The maximum demanded amount of product in the product system.
 	 */
 	double demand;
-	
+
 	/**
 	 * The output amount of the product provided by the respective process.
 	 */
 	double outputAmount;
-	
+
 	/**
 	 * The scaling factor of the process. The scaling factor is calculated via:
 	 * 
@@ -38,7 +38,7 @@ class Node implements Comparable<Node> {
 	 * It is used to calculate the demands of the input products to this node.
 	 */
 	double scalingFactor;
-	
+
 	/**
 	 * The set of inputs to this node.
 	 */
@@ -50,18 +50,18 @@ class Node implements Comparable<Node> {
 		state = NodeState.WAITING;
 	}
 
-	void addLink(Node provider, double amount) {
-		Link link = new Link(provider, amount);
+	void addLink(Node provider, double amount, double demand) {
+		Link link = new Link(provider, amount, demand);
 		inputLinks.add(link);
 	}
-	
+
 	/**
 	 * We need to handle nodes with higher demands first when building the
 	 * product graph to minimize re-scaling.
 	 */
 	@Override
 	public int compareTo(Node other) {
-		if(other == null)
+		if (other == null)
 			return 0;
 		return -Doubles.compare(this.demand, other.demand);
 	}

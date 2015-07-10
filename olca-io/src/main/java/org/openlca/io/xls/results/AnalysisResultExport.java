@@ -1,11 +1,18 @@
 package org.openlca.io.xls.results;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.model.Exchange;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -14,14 +21,6 @@ import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Exports an analysis result to Excel. Because of the size of the results we
@@ -33,7 +32,7 @@ import java.util.Set;
 public class AnalysisResultExport implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private ProductSystem system;
+	private CalculationSetup setup;
 	private File file;
 	private FullResultProvider result;
 
@@ -45,9 +44,9 @@ public class AnalysisResultExport implements Runnable {
 
 	private boolean success = false;
 
-	public AnalysisResultExport(ProductSystem system, File file,
-	                            FullResultProvider result) {
-		this.system = system;
+	public AnalysisResultExport(CalculationSetup setup, File file,
+			FullResultProvider result) {
+		this.setup = setup;
 		this.file = file;
 		this.result = result;
 	}
@@ -61,6 +60,7 @@ public class AnalysisResultExport implements Runnable {
 			workbook = new SXSSFWorkbook(-1); // no default flushing (see
 			// Excel.cell)!
 			writer = new CellWriter(result.getCache(), workbook);
+			InfoSheet.write(workbook, setup, "Analysis result");
 			writeInventorySheets(result);
 			writeImpactSheets(result);
 			try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -83,9 +83,6 @@ public class AnalysisResultExport implements Runnable {
 	}
 
 	private void writeInventorySheets(FullResultProvider result) {
-		SXSSFSheet infoSheet = sheet("info");
-		fillInfoSheet(infoSheet);
-		flush(infoSheet);
 		SXSSFSheet lciSheet = sheet("LCI (total)");
 		fillTotalInventory(lciSheet);
 		flush(lciSheet);
@@ -175,19 +172,6 @@ public class AnalysisResultExport implements Runnable {
 		if (impacts == null)
 			Collections.emptyList();
 		return impacts;
-	}
-
-	private void fillInfoSheet(Sheet sheet) {
-		Exchange refExchange = system.getReferenceExchange();
-		writer.header(sheet, 1, 1, "Analysis result");
-		writer.header(sheet, 2, 1, "Product system");
-		Excel.cell(sheet, 2, 2, system.getName());
-		writer.header(sheet, 3, 1, "Demand - product");
-		Excel.cell(sheet, 3, 2, refExchange.getFlow().getName());
-		writer.header(sheet, 4, 1, "Demand - value");
-		Excel.cell(sheet, 4, 2, system.getTargetAmount() + " "
-				+ system.getTargetUnit().getName());
-		// Excel.autoSize(sheet, 1, 2);
 	}
 
 	private void fillTotalInventory(Sheet sheet) {

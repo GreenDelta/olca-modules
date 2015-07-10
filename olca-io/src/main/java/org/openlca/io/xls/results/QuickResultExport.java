@@ -1,13 +1,16 @@
 package org.openlca.io.xls.results;
 
-import org.apache.poi.ss.usermodel.Cell;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResultProvider;
@@ -15,13 +18,7 @@ import org.openlca.io.xls.Excel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-public class InventoryResultExport implements Runnable {
+public class QuickResultExport implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -33,9 +30,9 @@ public class InventoryResultExport implements Runnable {
 	private CellWriter writer;
 	private boolean success = false;
 
-	public InventoryResultExport(CalculationSetup setup,
-	                             ContributionResultProvider<?> result,
-	                             EntityCache cache) {
+	public QuickResultExport(CalculationSetup setup,
+			ContributionResultProvider<?> result,
+			EntityCache cache) {
 		this.setup = setup;
 		this.result = result;
 		this.cache = cache;
@@ -53,8 +50,8 @@ public class InventoryResultExport implements Runnable {
 		}
 		try (FileOutputStream fos = new FileOutputStream(exportFile)) {
 			workbook = new XSSFWorkbook();
+			InfoSheet.write(workbook, setup, "Quick calculation result");
 			writer = new CellWriter(cache, workbook);
-			writeInfoSheet();
 			writeInventorySheet();
 			if (result.hasImpactResults())
 				writeImpactSheet();
@@ -70,50 +67,6 @@ public class InventoryResultExport implements Runnable {
 		return success;
 	}
 
-	private void writeInfoSheet() {
-		Sheet sheet = workbook.createSheet("Info");
-		writer.header(sheet, 1, 1, "Quick calculation result");
-		writer.header(sheet, 2, 1, "Product system:");
-		Excel.cell(sheet, 2, 2, setup.getProductSystem().getName());
-		writer.header(sheet, 3, 1, "LCIA Method:");
-		if (setup.getImpactMethod() == null)
-			Excel.cell(sheet, 3, 2, "none");
-		else
-			Excel.cell(sheet, 3, 2, setup.getImpactMethod().getName());
-		writer.header(sheet, 4, 1, "Normalisation & weighting set:");
-		if (setup.getNwSet() == null)
-			Excel.cell(sheet, 4, 2, "none");
-		else
-			Excel.cell(sheet, 3, 2, setup.getNwSet().getName());
-		writer.header(sheet, 5, 1, "Allocation method:");
-		Excel.cell(sheet, 5, 2, getAllocationMethod());
-		writer.header(sheet, 6, 1, "Date:");
-		Cell dataCell = Excel.cell(sheet, 6, 2);
-		dataCell.setCellValue(new Date());
-		dataCell.setCellStyle(Excel.dateStyle(workbook));
-		Excel.autoSize(sheet, 1, 2);
-	}
-
-	private String getAllocationMethod() {
-		AllocationMethod method = setup.getAllocationMethod();
-		if (method == null)
-			return "none";
-		switch (method) {
-			case CAUSAL:
-				return "Causal";
-			case ECONOMIC:
-				return "economic";
-			case NONE:
-				return "none";
-			case PHYSICAL:
-				return "physical";
-			case USE_DEFAULT:
-				return "process defaults";
-			default:
-				return "unknown";
-		}
-	}
-
 	private void writeInventorySheet() {
 		Sheet sheet = workbook.createSheet("LCI");
 		writer.header(sheet, 1, 1, "Inventory results");
@@ -125,7 +78,7 @@ public class InventoryResultExport implements Runnable {
 	}
 
 	private int writeFlowResults(List<FlowDescriptor> flows, boolean input,
-	                             int startRow, Sheet sheet) {
+			int startRow, Sheet sheet) {
 		int row = startRow;
 		writer.header(sheet, row++, 1, input ? "Inputs" : "Outputs");
 		writer.writeFlowRowHeader(sheet, row++);
@@ -144,7 +97,8 @@ public class InventoryResultExport implements Runnable {
 	private void writeImpactSheet() {
 		Sheet sheet = workbook.createSheet("LCIA");
 		writer.header(sheet, 1, 1, "Impact assessment results");
-		Set<ImpactCategoryDescriptor> categorySet = result.getImpactDescriptors();
+		Set<ImpactCategoryDescriptor> categorySet = result
+				.getImpactDescriptors();
 		List<ImpactCategoryDescriptor> impacts = Utils.sortImpacts(categorySet);
 		writer.writeImpactRowHeader(sheet, 2);
 		int row = 3;

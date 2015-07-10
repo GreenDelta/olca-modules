@@ -27,7 +27,6 @@ final class Parameters {
 		fetchFromExchanges(dataSet.getElementaryExchanges(), params, config);
 		fetchFromExchanges(dataSet.getIntermediateExchanges(), params, config);
 		return params;
-
 	}
 
 	private static void fetchProcessParameters(DataSet dataSet,
@@ -39,7 +38,7 @@ final class Parameters {
 			parameters.add(olcaParam);
 			olcaParam.setDescription(param.getUnitName());
 			olcaParam.setName(param.getVariableName());
-			olcaParam.setScope(ParameterScope.PROCESS);
+			setScope(param, olcaParam);
 			olcaParam.setValue(param.getAmount());
 			olcaParam.setUncertainty(UncertaintyConverter.toOpenLCA(param
 					.getUncertainty()));
@@ -51,6 +50,16 @@ final class Parameters {
 				olcaParam.setInputParameter(true);
 			}
 		}
+	}
+
+	private static void setScope(org.openlca.ecospold2.Parameter param,
+			Parameter olcaParam) {
+		String scope = param.getScope();
+		String global = ParameterScope.GLOBAL.name();
+		if (scope != null && global.equalsIgnoreCase(scope))
+			olcaParam.setScope(ParameterScope.GLOBAL);
+		else
+			olcaParam.setScope(ParameterScope.PROCESS);
 	}
 
 	private static void fetchFromExchanges(List<? extends Exchange> exchanges,

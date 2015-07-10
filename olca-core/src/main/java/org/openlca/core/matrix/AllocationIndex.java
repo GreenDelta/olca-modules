@@ -1,8 +1,5 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongDoubleHashMap;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +11,9 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongDoubleHashMap;
 
 class AllocationIndex {
 
@@ -117,9 +117,10 @@ class AllocationIndex {
 		productFactors.put(processProduct, factor.getValue());
 	}
 
-	public double getFactor(LongPair processProduct, CalcExchange calcExchange) {
-		if (!calcExchange.isInput()
-				&& calcExchange.getFlowType() == FlowType.PRODUCT_FLOW)
+	public double getFactor(LongPair processProduct,
+			CalcExchange calcExchange) {
+		if (!calcExchange.input
+				&& calcExchange.flowType == FlowType.PRODUCT_FLOW)
 			return 1d; // TODO: this changes when we allow input-modelling
 						// of
 						// waste-flows
@@ -158,7 +159,7 @@ class AllocationIndex {
 		TLongDoubleHashMap map = exchangeFactors.get(processProduct);
 		if (map == null)
 			return 1d;
-		return map.get(calcExchange.getExchangeId()); // default is 1.0
+		return map.get(calcExchange.exchangeId); // default is 1.0
 	}
 
 }

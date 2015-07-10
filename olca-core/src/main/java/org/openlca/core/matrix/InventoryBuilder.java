@@ -72,21 +72,18 @@ class InventoryBuilder {
 	}
 
 	private void putExchangeValue(LongPair processProduct, CalcExchange e) {
-		if (!e.isInput()
-				&& processProduct.equals(e.getProcessId(), e.getFlowId())) {
+		if (!e.input && processProduct.equals(e.processId, e.flowId)) {
 			// the reference product
 			int idx = productIndex.getIndex(processProduct);
 			add(idx, processProduct, technologyMatrix, e);
 
-		} else if (e.getFlowType() == FlowType.ELEMENTARY_FLOW) {
+		} else if (e.flowType == FlowType.ELEMENTARY_FLOW) {
 			// elementary exchanges
 			addIntervention(processProduct, e);
 
-		} else if (e.isInput()) {
+		} else if (e.input) {
 
-			LongPair inputProduct = new LongPair(e.getProcessId(),
-					e.getFlowId());
-
+			LongPair inputProduct = new LongPair(e.processId, e.flowId);
 			if (productIndex.isLinkedInput(inputProduct)) {
 				// linked product inputs
 				addProcessLink(processProduct, e, inputProduct);
@@ -110,7 +107,7 @@ class InventoryBuilder {
 	}
 
 	private void addIntervention(LongPair processProduct, CalcExchange e) {
-		int row = flowIndex.getIndex(e.getFlowId());
+		int row = flowIndex.getIndex(e.flowId);
 		add(row, processProduct, interventionMatrix, e);
 	}
 
@@ -135,16 +132,45 @@ class InventoryBuilder {
 	}
 
 	private CalcExchange mergeExchanges(ExchangeCell existingCell,
-			CalcExchange exchange) {
-		ExchangeCell cell = new ExchangeCell(exchange);
-		double val = existingCell.getMatrixValue() + cell.getMatrixValue();
+			CalcExchange addExchange) {
+		// a possible allocation factor is handled outside of this function
+		CalcExchange exExchange = existingCell.exchange;
+		double existingVal = getMergeValue(exExchange);
+		double addVal = getMergeValue(addExchange);
+		double val = existingVal + addVal;
 		CalcExchange newExchange = new CalcExchange();
-		newExchange.setInput(val < 0);
-		newExchange.setConversionFactor(1);
-		newExchange.setFlowId(exchange.getFlowId());
-		newExchange.setFlowType(exchange.getFlowType());
-		newExchange.setProcessId(exchange.getProcessId());
-		newExchange.setAmount(Math.abs(val));
+		newExchange.input = val < 0;
+		newExchange.conversionFactor = 1;
+		newExchange.flowId = addExchange.flowId;
+		newExchange.flowType = addExchange.flowType;
+		newExchange.processId = addExchange.processId;
+		newExchange.amount = Math.abs(val);
+		if (exExchange.amountFormula != null
+				&& addExchange.amountFormula != null) {
+			newExchange.amountFormula = getMergeFormula(exExchange)
+					+ " + " + getMergeFormula(addExchange);
+		}
+		// TODO: adding up uncertainty information (with formulas!) is not yet
+		// handled
 		return newExchange;
+	}
+
+	private double getMergeValue(CalcExchange e) {
+		double v = e.amount * e.conversionFactor;
+		if (e.input && !e.avoidedProduct)
+			return -v;
+		else
+			return v;
+	}
+
+	private String getMergeFormula(CalcExchange e) {
+		String f;
+		if (e.amountFormula == null)
+			f = Double.toString(e.amount);
+		else
+			f = "(" + e.amountFormula + ")";
+		if (e.conversionFactor != 1)
+			f += " * " + e.conversionFactor;
+		return f;
 	}
 }

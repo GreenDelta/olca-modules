@@ -210,10 +210,8 @@ public class DataSet {
 			flowData.addContent(exchange.toXml());
 		for (ElementaryExchange exchange : elementaryExchanges)
 			flowData.addContent(exchange.toXml());
-
-		// TODO: now write all parameters
-		// for (Parameter parameter : parameters)
-		// flowData.addContent(parameter.toXml());
+		for (Parameter parameter : parameters)
+			flowData.addContent(parameter.toXml());
 	}
 
 }

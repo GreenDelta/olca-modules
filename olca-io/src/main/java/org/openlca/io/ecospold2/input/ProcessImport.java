@@ -3,14 +3,18 @@ package org.openlca.io.ecospold2.input;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
@@ -85,7 +89,8 @@ class ProcessImport {
 		if (activity.getId() == null || activity.getName() == null)
 			return false;
 		IntermediateExchange refFlow = null;
-		for (IntermediateExchange techFlow : dataSet.getIntermediateExchanges()) {
+		for (IntermediateExchange techFlow : dataSet
+				.getIntermediateExchanges()) {
 			if (techFlow.getOutputGroup() == null)
 				continue;
 			if (techFlow.getOutputGroup() != 0)
@@ -105,7 +110,7 @@ class ProcessImport {
 		setMetaData(activity, process);
 		setCategory(dataSet, process);
 		if (config.withParameters)
-			process.getParameters().addAll(Parameters.fetch(dataSet, config));
+			handleParameters(dataSet, process);
 		createProductExchanges(dataSet, process);
 		if (process.getQuantitativeReference() == null)
 			log.warn("could not set a quantitative reference for process {}",
@@ -115,6 +120,28 @@ class ProcessImport {
 		database.createDao(Process.class).insert(process);
 		index.putProcessId(refId, process.getId());
 		flushLinkQueue(process);
+	}
+
+	private void handleParameters(DataSet dataSet, Process process) {
+		List<Parameter> list = Parameters.fetch(dataSet, config);
+		List<Parameter> newGlobals = new ArrayList<>();
+		for (Parameter p : list) {
+			if (p.getScope() == ParameterScope.PROCESS)
+				process.getParameters().add(p);
+			else if (p.getScope() == ParameterScope.GLOBAL)
+				newGlobals.add(p);
+		}
+		ParameterDao dao = new ParameterDao(database);
+		Map<String, Boolean> map = new HashMap<>();
+		for (Parameter p : dao.getGlobalParameters())
+			map.put(p.getName(), Boolean.TRUE);
+		for (Parameter newGlobal : newGlobals) {
+			Boolean exists = map.get(newGlobal.getName());
+			if (exists == null) {
+				dao.insert(newGlobal);
+				map.put(newGlobal.getName(), Boolean.TRUE);
+			}
+		}
 	}
 
 	private void setMetaData(Activity activity, Process process) {
@@ -248,7 +275,8 @@ class ProcessImport {
 				exchange.setAmountFormula(var);
 		} else if (Parameters.isValid(original.getMathematicalRelation(),
 				config)) {
-			exchange.setAmountFormula(original.getMathematicalRelation().trim());
+			exchange.setAmountFormula(
+					original.getMathematicalRelation().trim());
 		}
 	}
 

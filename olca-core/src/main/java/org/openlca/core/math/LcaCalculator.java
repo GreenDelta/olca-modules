@@ -121,11 +121,16 @@ public class LcaCalculator {
 			double s = scalingVector[i];
 			demands[i] = s * entry;
 		}
+		int idx = productIndex.getIndex(productIndex.getRefProduct());
+		if(Math.abs(demands[idx] - productIndex.getDemand()) > 1e-9) {
+			// 'self-loop' correction for total result scale
+			double f = productIndex.getDemand() / demands[idx];
+			for(int k = 0; k < scalingVector.length; k++)
+				demands[k] = demands[k] * f;
+		}
+		
 		IMatrix totalResult = solver.multiply(enviMatrix, inverse);
-
-		// allow GC
-		inverse = null;
-
+		inverse = null; // allow GC
 		solver.scaleColumns(totalResult, demands);
 		result.setUpstreamFlowResults(totalResult);
 		int refIdx = productIndex.getIndex(productIndex.getRefProduct());

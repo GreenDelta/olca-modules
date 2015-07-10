@@ -78,9 +78,8 @@ class ExchangeCache {
 				HashMap<Long, List<CalcExchange>> map = new HashMap<>();
 				ResultSet result = statement.executeQuery(query);
 				while (result.next()) {
-					CalcExchange exchange = nextExchange(result);
-					CacheUtil.addListEntry(map, exchange,
-							exchange.getProcessId());
+					CalcExchange e = nextExchange(result);
+					CacheUtil.addListEntry(map, e, e.processId);
 				}
 				result.close();
 				statement.close();
@@ -94,26 +93,26 @@ class ExchangeCache {
 
 		private CalcExchange nextExchange(ResultSet r) throws Exception {
 			CalcExchange e = new CalcExchange();
-			e.setProcessId(r.getLong("f_owner"));
-			e.setAmount(r.getDouble("resulting_amount_value"));
-			e.setAmountFormula(r.getString("resulting_amount_formula"));
+			e.processId = r.getLong("f_owner");
+			e.amount = r.getDouble("resulting_amount_value");
+			e.amountFormula = r.getString("resulting_amount_formula");
 			double factor = getConversionFactor(r);
-			e.setConversionFactor(factor);
-			e.setExchangeId(r.getLong("id"));
-			e.setFlowId(r.getLong("f_flow"));
-			e.setFlowType(flowTypes.getType(e.getFlowId()));
-			e.setInput(r.getBoolean("is_input"));
-			e.setDefaultProviderId(r.getLong("f_default_provider"));
-			e.setAvoidedProduct(r.getBoolean("avoided_product"));
+			e.conversionFactor = factor;
+			e.exchangeId = r.getLong("id");
+			e.flowId = r.getLong("f_flow");
+			e.flowType = flowTypes.getType(e.flowId);
+			e.input = r.getBoolean("is_input");
+			e.defaultProviderId = r.getLong("f_default_provider");
+			e.avoidedProduct = r.getBoolean("avoided_product");
 			int uncertaintyType = r.getInt("distribution_type");
 			if (!r.wasNull()) {
-				e.setUncertaintyType(UncertaintyType.values()[uncertaintyType]);
-				e.setParameter1(r.getDouble("parameter1_value"));
-				e.setParameter2(r.getDouble("parameter2_value"));
-				e.setParameter3(r.getDouble("parameter3_value"));
-				e.setParameter1Formula(r.getString("parameter1_formula"));
-				e.setParameter2Formula(r.getString("parameter2_formula"));
-				e.setParameter3Formula(r.getString("parameter3_formula"));
+				e.uncertaintyType = UncertaintyType.values()[uncertaintyType];
+				e.parameter1 = r.getDouble("parameter1_value");
+				e.parameter2 = r.getDouble("parameter2_value");
+				e.parameter3 = r.getDouble("parameter3_value");
+				e.parameter1Formula = r.getString("parameter1_formula");
+				e.parameter2Formula = r.getString("parameter2_formula");
+				e.parameter3Formula = r.getString("parameter3_formula");
 			}
 			return e;
 		}

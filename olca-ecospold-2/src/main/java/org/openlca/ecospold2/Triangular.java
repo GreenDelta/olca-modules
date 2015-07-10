@@ -44,7 +44,7 @@ public class Triangular {
 	}
 
 	Element toXml() {
-		Element element = new Element("triangular");
+		Element element = new Element("triangular", IO.NS);
 		element.setAttribute("maxValue", Double.toString(maxValue));
 		element.setAttribute("mostLikelyValue",
 				Double.toString(mostLikelyValue));
