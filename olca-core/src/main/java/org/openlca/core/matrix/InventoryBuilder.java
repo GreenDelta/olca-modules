@@ -132,16 +132,45 @@ class InventoryBuilder {
 	}
 
 	private CalcExchange mergeExchanges(ExchangeCell existingCell,
-			CalcExchange exchange) {
-		ExchangeCell cell = new ExchangeCell(exchange);
-		double val = existingCell.getMatrixValue() + cell.getMatrixValue();
+			CalcExchange addExchange) {
+		// a possible allocation factor is handled outside of this function
+		CalcExchange exExchange = existingCell.exchange;
+		double existingVal = getMergeValue(exExchange);
+		double addVal = getMergeValue(addExchange);
+		double val = existingVal + addVal;
 		CalcExchange newExchange = new CalcExchange();
 		newExchange.input = val < 0;
 		newExchange.conversionFactor = 1;
-		newExchange.flowId = exchange.flowId;
-		newExchange.flowType = exchange.flowType;
-		newExchange.processId = exchange.processId;
+		newExchange.flowId = addExchange.flowId;
+		newExchange.flowType = addExchange.flowType;
+		newExchange.processId = addExchange.processId;
 		newExchange.amount = Math.abs(val);
+		if (exExchange.amountFormula != null
+				&& addExchange.amountFormula != null) {
+			newExchange.amountFormula = getMergeFormula(exExchange)
+					+ " + " + getMergeFormula(addExchange);
+		}
+		// TODO: adding up uncertainty information (with formulas!) is not yet
+		// handled
 		return newExchange;
+	}
+
+	private double getMergeValue(CalcExchange e) {
+		double v = e.amount * e.conversionFactor;
+		if (e.input && !e.avoidedProduct)
+			return -v;
+		else
+			return v;
+	}
+
+	private String getMergeFormula(CalcExchange e) {
+		String f;
+		if (e.amountFormula == null)
+			f = Double.toString(e.amount);
+		else
+			f = "(" + e.amountFormula + ")";
+		if (e.conversionFactor != 1)
+			f += " * " + e.conversionFactor;
+		return f;
 	}
 }

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 class ExchangeCell {
 
 	final CalcExchange exchange;
-	double allocationFactor = 1d;
+	private double allocationFactor = 1d;
 	private NumberGenerator generator;
 
 	ExchangeCell(CalcExchange exchange) {
