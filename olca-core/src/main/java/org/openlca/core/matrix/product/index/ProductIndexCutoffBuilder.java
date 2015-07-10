@@ -44,7 +44,8 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 
 	@Override
 	public ProductIndex build(LongPair refProduct, double demand) {
-		log.trace("build product index for {} with cutoff=", refProduct, cutoff);
+		log.trace("build product index for {} with cutoff=", refProduct,
+				cutoff);
 		ProductIndex index = new ProductIndex(refProduct);
 		index.setDemand(demand);
 		Graph g = new Graph(refProduct, demand);
@@ -56,14 +57,14 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 	}
 
 	private void fillIndex(Graph g, ProductIndex index) {
-		for(Node node : g.nodes.values()) {
-			if(node.state != NodeState.FOLLOWED)
+		for (Node node : g.nodes.values()) {
+			if (node.state != NodeState.FOLLOWED)
 				continue;
-			for(Link link : node.inputLinks) {
-				if(link.demand < cutoff)
+			for (Link link : node.inputLinks) {
+				if (link.demand < cutoff)
 					continue;
 				Node provider = link.provider;
-				LongPair input = LongPair.of(node.product.getFirst(), 
+				LongPair input = LongPair.of(node.product.getFirst(),
 						provider.product.getSecond());
 				index.putLink(input, provider.product);
 			}
@@ -88,7 +89,7 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 		void handleNext() {
 
 			log.trace("handle next layer with {} product nodes", next.size());
-			
+
 			// to minimize the re-scale calls we first sort the nodes by their
 			// demands (see the compareTo method in Node)
 			Collections.sort(next);
@@ -155,7 +156,7 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 			if (provider.state == NodeState.FOLLOWED) {
 				provider.state = NodeState.RESCALED;
 				rescaleSubGraph(provider, nextLayer);
-				if(!recursion) {
+				if (!recursion) {
 					log.trace("rescaled a sub graph");
 					unsetScaleState();
 				}
@@ -171,10 +172,10 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 				checkSubGraph(inputDemand, provider, nextLayer, true);
 			}
 		}
-		
+
 		private void unsetScaleState() {
-			for(Node node : nodes.values()) {
-				if(node.state == NodeState.RESCALED) {
+			for (Node node : nodes.values()) {
+				if (node.state == NodeState.RESCALED) {
 					node.state = NodeState.FOLLOWED;
 				}
 			}
@@ -182,19 +183,20 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 
 		private CalcExchange getOutput(Node node, List<CalcExchange> all) {
 			for (CalcExchange e : all) {
-				if (e.isInput()
-						|| e.getFlowType() != FlowType.PRODUCT_FLOW
-						|| e.getFlowId() != node.product.getSecond())
+				if (e.input
+						|| e.flowType != FlowType.PRODUCT_FLOW
+						|| e.flowId != node.product.getSecond())
 					continue;
 				return e;
 			}
 			return null;
 		}
 
-		private List<CalcExchange> getInputs(Node node, List<CalcExchange> all) {
+		private List<CalcExchange> getInputs(Node node,
+				List<CalcExchange> all) {
 			List<CalcExchange> inputs = new ArrayList<>();
 			for (CalcExchange e : all) {
-				if (e.isInput() && e.getFlowType() == FlowType.PRODUCT_FLOW)
+				if (e.input && e.flowType == FlowType.PRODUCT_FLOW)
 					inputs.add(e);
 			}
 			return inputs;
@@ -203,7 +205,7 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 		private double amount(CalcExchange e) {
 			if (e == null)
 				return 0;
-			return e.getAmount() * e.getConversionFactor();
+			return e.amount * e.conversionFactor;
 		}
 
 		private Map<Long, List<CalcExchange>> fetchNextExchanges() {
@@ -220,5 +222,5 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 				return Collections.emptyMap();
 			}
 		}
-	}	
+	}
 }

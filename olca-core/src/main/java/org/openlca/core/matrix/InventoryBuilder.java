@@ -72,21 +72,18 @@ class InventoryBuilder {
 	}
 
 	private void putExchangeValue(LongPair processProduct, CalcExchange e) {
-		if (!e.isInput()
-				&& processProduct.equals(e.getProcessId(), e.getFlowId())) {
+		if (!e.input && processProduct.equals(e.processId, e.flowId)) {
 			// the reference product
 			int idx = productIndex.getIndex(processProduct);
 			add(idx, processProduct, technologyMatrix, e);
 
-		} else if (e.getFlowType() == FlowType.ELEMENTARY_FLOW) {
+		} else if (e.flowType == FlowType.ELEMENTARY_FLOW) {
 			// elementary exchanges
 			addIntervention(processProduct, e);
 
-		} else if (e.isInput()) {
+		} else if (e.input) {
 
-			LongPair inputProduct = new LongPair(e.getProcessId(),
-					e.getFlowId());
-
+			LongPair inputProduct = new LongPair(e.processId, e.flowId);
 			if (productIndex.isLinkedInput(inputProduct)) {
 				// linked product inputs
 				addProcessLink(processProduct, e, inputProduct);
@@ -110,7 +107,7 @@ class InventoryBuilder {
 	}
 
 	private void addIntervention(LongPair processProduct, CalcExchange e) {
-		int row = flowIndex.getIndex(e.getFlowId());
+		int row = flowIndex.getIndex(e.flowId);
 		add(row, processProduct, interventionMatrix, e);
 	}
 
@@ -139,12 +136,12 @@ class InventoryBuilder {
 		ExchangeCell cell = new ExchangeCell(exchange);
 		double val = existingCell.getMatrixValue() + cell.getMatrixValue();
 		CalcExchange newExchange = new CalcExchange();
-		newExchange.setInput(val < 0);
-		newExchange.setConversionFactor(1);
-		newExchange.setFlowId(exchange.getFlowId());
-		newExchange.setFlowType(exchange.getFlowType());
-		newExchange.setProcessId(exchange.getProcessId());
-		newExchange.setAmount(Math.abs(val));
+		newExchange.input = val < 0;
+		newExchange.conversionFactor = 1;
+		newExchange.flowId = exchange.flowId;
+		newExchange.flowType = exchange.flowType;
+		newExchange.processId = exchange.processId;
+		newExchange.amount = Math.abs(val);
 		return newExchange;
 	}
 }

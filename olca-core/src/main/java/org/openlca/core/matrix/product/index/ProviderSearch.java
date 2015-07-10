@@ -12,20 +12,21 @@ class ProviderSearch {
 
 	private ProcessTable processTable;
 	private ProcessType preferredType;
-	
-	public ProviderSearch(ProcessTable processTable, ProcessType preferredType) {
+
+	public ProviderSearch(ProcessTable processTable,
+			ProcessType preferredType) {
 		this.processTable = processTable;
 		this.preferredType = preferredType;
 	}
-	
+
 	void setPreferredType(ProcessType preferredType) {
 		this.preferredType = preferredType;
 	}
-	
+
 	LongPair find(CalcExchange productInput) {
 		if (productInput == null)
 			return null;
-		long productId = productInput.getFlowId();
+		long productId = productInput.flowId;
 		long[] processIds = processTable.getProductProviders(productId);
 		if (processIds == null)
 			return null;
@@ -44,15 +45,15 @@ class ProviderSearch {
 			return true;
 		if (newOption == null)
 			return false;
-		if (candidate.getFirst() == inputLink.getDefaultProviderId())
+		if (candidate.getFirst() == inputLink.defaultProviderId)
 			return false;
-		if (newOption.getFirst() == inputLink.getDefaultProviderId())
+		if (newOption.getFirst() == inputLink.defaultProviderId)
 			return true;
 		ProcessType candidateType = processTable.getType(candidate.getFirst());
 		ProcessType newOptionType = processTable.getType(newOption.getFirst());
 		if (candidateType == preferredType && newOptionType != preferredType)
 			return false;
-        return candidateType != preferredType && newOptionType == preferredType;
-    }
-	
+		return candidateType != preferredType && newOptionType == preferredType;
+	}
+
 }

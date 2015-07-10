@@ -44,12 +44,12 @@ public class UncertaintyTableTest {
 	}
 
 	private void checkExchange(CalcExchange exchange) {
-		Assert.assertEquals(1, exchange.getParameter1(), 1e-16);
-		Assert.assertEquals(2, exchange.getParameter2(), 1e-16);
-		Assert.assertEquals(3, exchange.getParameter3(), 1e-16);
-		Assert.assertEquals("0.5 * 2", exchange.getParameter1Formula());
-		Assert.assertEquals("4 / 2", exchange.getParameter2Formula());
-		Assert.assertEquals("4 / 2", exchange.getParameter3Formula());
+		Assert.assertEquals(1, exchange.parameter1, 1e-16);
+		Assert.assertEquals(2, exchange.parameter2, 1e-16);
+		Assert.assertEquals(3, exchange.parameter3, 1e-16);
+		Assert.assertEquals("0.5 * 2", exchange.parameter1Formula);
+		Assert.assertEquals("4 / 2", exchange.parameter2Formula);
+		Assert.assertEquals("4 / 2", exchange.parameter3Formula);
 	}
 
 	@Test

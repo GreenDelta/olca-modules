@@ -36,15 +36,14 @@ class FlowIndexBuilder {
 		for (Long processId : productIndex.getProcessIds()) {
 			List<CalcExchange> exchanges = map.get(processId);
 			for (CalcExchange e : exchanges) {
-				if (index.contains(e.getFlowId()))
+				if (index.contains(e.flowId))
 					continue; // already indexed as flow
-				LongPair productCandidate = new LongPair(e.getProcessId(),
-						e.getFlowId());
+				LongPair productCandidate = new LongPair(e.processId, e.flowId);
 				if (productIndex.contains(productCandidate))
 					continue; // the exchange is an output product
 				if (productIndex.isLinkedInput(productCandidate))
 					continue; // the exchange is a linked input
-				if (e.isInput() || e.getFlowType() == FlowType.ELEMENTARY_FLOW)
+				if (e.input || e.flowType == FlowType.ELEMENTARY_FLOW)
 					indexFlow(e, index);
 				else if (allocationMethod == null
 						|| allocationMethod == AllocationMethod.NONE)
@@ -67,10 +66,10 @@ class FlowIndexBuilder {
 	}
 
 	private void indexFlow(CalcExchange e, FlowIndex index) {
-		if (e.isInput())
-			index.putInputFlow(e.getFlowId());
+		if (e.input)
+			index.putInputFlow(e.flowId);
 		else
-			index.putOutputFlow(e.getFlowId());
+			index.putOutputFlow(e.flowId);
 	}
 
 }
