@@ -47,7 +47,8 @@ class SingleProcessInventories {
 				"Inputs");
 		export.getWriter().writeFlowRowHeader(sheet,
 				CellWriter.PROCESS_INFO_SIZE + 1);
-		FlowInfoWriter inputInfoWriter = new FlowInfoWriter(true, inputStartRow);
+		FlowInfoWriter inputInfoWriter = new FlowInfoWriter(true,
+				inputStartRow);
 		export.visitFlows(inputInfoWriter);
 		int nextRow = inputInfoWriter.currentRow + 1;
 
@@ -124,9 +125,8 @@ class SingleProcessInventories {
 			if (process == null || flow == null)
 				return;
 			double val = result.getSingleFlowResult(process, flow).getValue();
-			if (val == 0)
-				return;
-			Excel.cell(sheet, currentRow, column, val);
+			if (val != 0)
+				Excel.cell(sheet, currentRow, column, val);
 			currentRow++;
 		}
 	}
