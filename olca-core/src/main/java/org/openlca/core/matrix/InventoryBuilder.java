@@ -147,8 +147,8 @@ class InventoryBuilder {
 		newExchange.amount = Math.abs(val);
 		if (exExchange.amountFormula != null
 				&& addExchange.amountFormula != null) {
-			newExchange.amountFormula = getMergeFormula(exExchange)
-					+ " + " + getMergeFormula(addExchange);
+			newExchange.amountFormula = "abs( " + getMergeFormula(exExchange)
+					+ " + " + getMergeFormula(addExchange) + ")";
 		}
 		// TODO: adding up uncertainty information (with formulas!) is not yet
 		// handled
@@ -171,6 +171,8 @@ class InventoryBuilder {
 			f = "(" + e.amountFormula + ")";
 		if (e.conversionFactor != 1)
 			f += " * " + e.conversionFactor;
+		if (e.input && !e.avoidedProduct)
+			f = "( -1 * (" + f + "))";
 		return f;
 	}
 }
