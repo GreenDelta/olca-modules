@@ -1,5 +1,9 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.Calendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
@@ -7,6 +11,8 @@ import org.openlca.core.model.Source;
 import org.openlca.simapro.csv.model.enums.ValueEnum;
 import org.openlca.simapro.csv.model.process.LiteratureReferenceRow;
 import org.openlca.simapro.csv.model.process.ProcessBlock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ProcessDocMapper {
 
@@ -39,8 +45,7 @@ class ProcessDocMapper {
 	private void mapDefaults() {
 		ProcessDocumentation doc = new ProcessDocumentation();
 		process.setDocumentation(doc);
-		if (block.getTime() != null)
-			doc.setTime(block.getTime().getValue());
+		mapTime(doc);
 		if (block.getTechnology() != null)
 			doc.setTechnology(block.getTechnology().getValue());
 		if (block.getInfrastructure() != null)
@@ -49,6 +54,30 @@ class ProcessDocMapper {
 		doc.setSampling(block.getCollectionMethod());
 		doc.setReviewDetails(block.getVerification());
 		doc.setInventoryMethod(block.getAllocationRules());
+	}
+
+	private void mapTime(ProcessDocumentation doc) {
+		if (block.getTime() == null)
+			return;
+		String text = block.getTime().getValue();
+		Pattern pattern = Pattern.compile("(\\d{4})-(\\d{4})");
+		Matcher m = pattern.matcher(text);
+		if (!m.matches()) {
+			doc.setTime(text);
+			return;
+		}
+		try {
+			int startYear = Integer.parseInt(m.group(1));
+			Calendar c = Calendar.getInstance();
+			c.set(startYear, 0, 1, 0, 0);
+			doc.setValidFrom(c.getTime());
+			int endYear = Integer.parseInt(m.group(2));
+			c.set(endYear, 11, 31, 0, 0);
+			doc.setValidUntil(c.getTime());
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.error("failed to convert time", e);
+		}
 	}
 
 	private void mapDescription() {
