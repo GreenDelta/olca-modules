@@ -13,6 +13,7 @@ import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.io.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.simapro.csv.model.refdata.QuantityRow;
@@ -50,7 +51,7 @@ class UnitSync {
 					log.trace("{} is a known unit", usedUnit);
 			}
 			if (!unknownUnits.isEmpty())
-				addMappings(mapping, unknownUnits);
+				syncUnits(mapping, unknownUnits);
 			refData.setUnitMapping(mapping);
 		} catch (Exception e) {
 			log.error("failed to synchronize units with database", e);
@@ -58,9 +59,15 @@ class UnitSync {
 		}
 	}
 
-	private void addMappings(UnitMapping mapping, List<String> unknownUnits) {
+	private void syncUnits(UnitMapping mapping, List<String> unknownUnits) {
 		while (!unknownUnits.isEmpty()) {
 			String unit = unknownUnits.remove(0);
+			UnitRow row = index.getUnitRow(unit);
+			if (row != null
+					&& mapping.getEntry(row.getReferenceUnit()) != null) {
+				addUnit(row, mapping);
+				continue;
+			}
 			QuantityRow quantity = getQuantity(unit);
 			if (quantity == null) {
 				log.warn("unit {} found but with no quantity; create default "
@@ -77,7 +84,46 @@ class UnitSync {
 		}
 	}
 
-	private UnitGroup importQuantity(QuantityRow quantity, UnitMapping mapping) {
+	/** Add a new unit to an existing unit group. */
+	private void addUnit(UnitRow row, UnitMapping mapping) {
+		String name = row.getName();
+		UnitMappingEntry refEntry = mapping.getEntry(row.getReferenceUnit());
+		double factor = row.getConversionFactor()
+				* refEntry.getUnit().getConversionFactor();
+		Unit unit = new Unit();
+		unit.setConversionFactor(factor);
+		unit.setName(name);
+		unit.setRefId(KeyGen.get(name));
+		UnitGroup group = refEntry.getUnitGroup();
+		group.getUnits().add(unit);
+		UnitGroupDao groupDao = new UnitGroupDao(database);
+		group = groupDao.update(group);
+		log.info("added new unit {} to group {}", unit, group);
+		FlowPropertyDao propDao = new FlowPropertyDao(database);
+		FlowProperty property = propDao
+				.getForId(refEntry.getFlowProperty().getId());
+		updateRefs(mapping, group, property);
+		UnitMappingEntry newEntry = new UnitMappingEntry();
+		newEntry.setFactor(factor);
+		newEntry.setFlowProperty(property);
+		newEntry.setUnit(group.getUnit(name));
+		newEntry.setUnitGroup(group);
+		newEntry.setUnitName(name);
+		mapping.put(name, newEntry);
+	}
+
+	private void updateRefs(UnitMapping mapping, UnitGroup group,
+			FlowProperty property) {
+		for (String name : mapping.getUnits()) {
+			UnitMappingEntry entry = mapping.getEntry(name);
+			entry.setFlowProperty(property);
+			entry.setUnitGroup(group);
+			entry.setUnit(group.getUnit(name));
+		}
+	}
+
+	private UnitGroup importQuantity(QuantityRow quantity,
+			UnitMapping mapping) {
 		UnitGroup group = create(UnitGroup.class,
 				"Units of " + quantity.getName());
 		addUnits(group, quantity);
@@ -130,7 +176,8 @@ class UnitSync {
 		mapping.put(unitName, entry);
 	}
 
-	private UnitMappingEntry createDefaultEntry(String unitName, UnitGroup group) {
+	private UnitMappingEntry createDefaultEntry(String unitName,
+			UnitGroup group) {
 		UnitMappingEntry entry = new UnitMappingEntry();
 		entry.setUnitGroup(group);
 		entry.setUnit(group.getReferenceUnit());

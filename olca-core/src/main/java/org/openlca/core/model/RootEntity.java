@@ -57,4 +57,10 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 		this.description = description;
 	}
 
+	@Override
+	public String toString() {
+		return "RootEntity [type=" + getClass().getSimpleName() + ", refId="
+				+ getRefId() + ", name=" + getName() + "]";
+	}
+
 }
