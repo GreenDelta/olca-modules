@@ -29,6 +29,8 @@ class ProcessDocMapper {
 	public void map(ProcessBlock block, Process process) {
 		this.block = block;
 		this.process = process;
+		if (process.getDocumentation() == null)
+			process.setDocumentation(new ProcessDocumentation());
 		mapSources();
 		mapDocFields();
 		mapDescription();
@@ -37,17 +39,17 @@ class ProcessDocMapper {
 	}
 
 	private void mapSources() {
+		ProcessDocumentation doc = process.getDocumentation();
 		for (LiteratureReferenceRow row : block.getLiteratureReferences()) {
 			Source source = refData.getSource(row.getName());
 			if (source == null)
 				continue;
-			process.getDocumentation().getSources().add(source);
+			doc.getSources().add(source);
 		}
 	}
 
 	private void mapDocFields() {
-		ProcessDocumentation doc = new ProcessDocumentation();
-		process.setDocumentation(doc);
+		ProcessDocumentation doc = process.getDocumentation();
 		mapTime(doc);
 		if (block.getGeography() != null)
 			doc.setGeography(block.getGeography().getValue());
