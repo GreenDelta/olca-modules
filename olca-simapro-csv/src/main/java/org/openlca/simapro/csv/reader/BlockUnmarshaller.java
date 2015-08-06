@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.openlca.simapro.csv.CsvConfig;
+import org.openlca.simapro.csv.CsvUtils;
 import org.openlca.simapro.csv.model.Block;
 import org.openlca.simapro.csv.model.IDataRow;
 import org.openlca.simapro.csv.model.Section;
@@ -145,9 +146,10 @@ public class BlockUnmarshaller {
 	}
 
 	private void logNoSectionList(Field field) {
-		log.error("The field {} is not valid for section or block rows: it must be a"
-				+ " live list with a declared type argument that is a "
-				+ " class which implements IDataRow; e.g. List<Quantity>");
+		log.error(
+				"The field {} is not valid for section or block rows: it must be a"
+						+ " live list with a declared type argument that is a "
+						+ " class which implements IDataRow; e.g. List<Quantity>");
 	}
 
 	private void setSectionValue(Field field) {
@@ -173,7 +175,7 @@ public class BlockUnmarshaller {
 			throws IllegalAccessException, Exception {
 		Class<?> type = field.getType();
 		if (type.equals(String.class))
-			field.set(model, val);
+			field.set(model, CsvUtils.strip(val));
 		else if (type.equals(Boolean.class))
 			setBooleanValue(field, val);
 		else if (type.equals(Date.class))
@@ -184,7 +186,8 @@ public class BlockUnmarshaller {
 			log.error("at field: {} with value: {}; "
 					+ "can only set section values "
 					+ "to strings, booleans, dates and "
-					+ "enumerations types that implement ValueEnum", field, val);
+					+ "enumerations types that implement ValueEnum", field,
+					val);
 	}
 
 	private void setEnumValue(Field field, Class<?> type, String val)

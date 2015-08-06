@@ -38,6 +38,7 @@ public class CsvUtils {
 			return new String[0];
 		if (config == null || config.getSeparator() == null)
 			return new String[] { line };
+		// TODO: do not split within quoted strings!!
 		return line.split(config.getSeparator());
 	}
 
@@ -46,7 +47,7 @@ public class CsvUtils {
 			return null;
 		if (col >= columns.length)
 			return null;
-		return columns[col];
+		return strip(columns[col]);
 	}
 
 	public static void set(String val, String[] columns, int col) {
@@ -87,6 +88,22 @@ public class CsvUtils {
 		if (multilineString == null)
 			return null;
 		return multilineString.replace('\n', ((char) 127));
+	}
+
+	/**
+	 * Removes quotes and white spaces at the beginning and end of the given
+	 * value.
+	 */
+	public static String strip(String value) {
+		if (value == null)
+			return null;
+		String v = value.trim();
+		if (v.length() < 2)
+			return v;
+		if (v.startsWith("\"") && v.endsWith("\"")) {
+			v = v.substring(1, v.length() - 1);
+		}
+		return v;
 	}
 
 }
