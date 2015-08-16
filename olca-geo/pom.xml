@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openlca</groupId>
 	<artifactId>olca-geo</artifactId>
-	<version>0.0.2</version>
+	<version>1.5.0</version>
 
 	<packaging>jar</packaging>
 
@@ -88,8 +88,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.5.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 		</plugins>
