@@ -72,9 +72,9 @@ public class Simulator {
 	}
 
 	private void appendResults(SimpleResult result) {
-		this.result.appendFlowResults(result.getTotalFlowResults());
+		this.result.appendFlowResults(result.totalFlowResults);
 		if (this.result.hasImpactResults())
-			this.result.appendImpactResults(result.getTotalImpactResults());
+			this.result.appendImpactResults(result.totalImpactResults);
 	}
 
 	private void setUp() {
@@ -84,8 +84,8 @@ public class Simulator {
 				setup, inventory);
 		inventoryMatrix = inventory.createMatrix(factory);
 		result = new SimulationResult();
-		result.setProductIndex(inventory.getProductIndex());
-		result.setFlowIndex(inventory.getFlowIndex());
+		result.productIndex = inventory.getProductIndex();
+		result.flowIndex = inventory.getFlowIndex();
 		if (impactMethod != null) {
 			ImpactTable impactTable = ImpactTable.build(cache,
 					impactMethod.getId(), inventory.getFlowIndex());
@@ -94,7 +94,7 @@ public class Simulator {
 			}
 			this.impactTable = impactTable;
 			this.impactMatrix = impactTable.createMatrix(factory);
-			result.setImpactIndex(impactTable.getCategoryIndex());
+			result.impactIndex = impactTable.getCategoryIndex();
 		}
 	}
 }

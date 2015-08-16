@@ -19,27 +19,27 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	 * Returns the flow results of the inventory results.
 	 */
 	public List<FlowResult> getTotalFlowResults() {
-		FlowIndex index = result.getFlowIndex();
+		FlowIndex index = result.flowIndex;
 		List<FlowResult> results = new ArrayList<>();
 		for (FlowDescriptor d : getFlowDescriptors()) {
 			double val = result.getTotalFlowResult(d.getId());
 			FlowResult r = new FlowResult();
-			r.setFlow(d);
-			r.setInput(index.isInput(d.getId()));
-			r.setValue(adoptFlowResult(val, d.getId()));
+			r.flow = d;
+			r.input = index.isInput(d.getId());
+			r.value = adoptFlowResult(val, d.getId());
 			results.add(r);
 		}
 		return results;
 	}
 
 	public FlowResult getTotalFlowResult(FlowDescriptor flow) {
-		FlowIndex index = result.getFlowIndex();
+		FlowIndex index = result.flowIndex;
 		long flowId = flow.getId();
 		FlowResult r = new FlowResult();
-		r.setFlow(flow);
-		r.setInput(index.isInput(flowId));
+		r.flow = flow;
+		r.input = index.isInput(flowId);
 		double val = result.getTotalFlowResult(flow.getId());
-		r.setValue(adoptFlowResult(val, flowId));
+		r.value = adoptFlowResult(val, flowId);
 		return r;
 	}
 
@@ -47,7 +47,7 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	protected double adoptFlowResult(double value, long flowId) {
 		if (value == 0)
 			return 0; // avoid -0 in the results
-		boolean inputFlow = result.getFlowIndex().isInput(flowId);
+		boolean inputFlow = result.flowIndex.isInput(flowId);
 		return inputFlow ? -value : value;
 	}
 
@@ -67,8 +67,8 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	public ImpactResult getTotalImpactResult(ImpactCategoryDescriptor impact) {
 		double val = result.getTotalImpactResult(impact.getId());
 		ImpactResult r = new ImpactResult();
-		r.setImpactCategory(impact);
-		r.setValue(val);
+		r.impactCategory = impact;
+		r.value = val;
 		return r;
 	}
 }

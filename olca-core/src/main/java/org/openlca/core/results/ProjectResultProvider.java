@@ -20,14 +20,10 @@ import org.openlca.core.results.Contributions.Function;
 public class ProjectResultProvider implements IResultProvider {
 
 	private HashMap<ProjectVariant, ContributionResultProvider<?>> results = new HashMap<>();
-	private EntityCache cache;
+	public final EntityCache cache;
 
 	public ProjectResultProvider(EntityCache cache) {
 		this.cache = cache;
-	}
-
-	public EntityCache getCache() {
-		return cache;
 	}
 
 	public void addResult(ProjectVariant variant, ContributionResult result) {
@@ -73,7 +69,7 @@ public class ProjectResultProvider implements IResultProvider {
 				new Function<ProjectVariant>() {
 					@Override
 					public double value(ProjectVariant variant) {
-						return getTotalFlowResult(variant, flow).getValue();
+						return getTotalFlowResult(variant, flow).value;
 					}
 				});
 	}
@@ -100,7 +96,7 @@ public class ProjectResultProvider implements IResultProvider {
 				new Function<ProjectVariant>() {
 					@Override
 					public double value(ProjectVariant variant) {
-						return getTotalImpactResult(variant, impact).getValue();
+						return getTotalImpactResult(variant, impact).value;
 					}
 				});
 	}

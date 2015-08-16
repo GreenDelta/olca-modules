@@ -29,7 +29,7 @@ public class LocationContribution {
 	private void initProcessIndex() {
 		if (result == null)
 			return;
-		EntityCache cache = result.getCache();
+		EntityCache cache = result.cache;
 		for (ProcessDescriptor process : result.getProcessDescriptors()) {
 			Location loc = null;
 			if (process.getLocation() != null)
@@ -47,7 +47,7 @@ public class LocationContribution {
 	public ContributionSet<Location> calculate(final FlowDescriptor flow) {
 		if (flow == null || result == null)
 			return ContributionSet.empty();
-		double total = result.getTotalFlowResult(flow).getValue();
+		double total = result.getTotalFlowResult(flow).value;
 		return Contributions.calculate(processIndex.keySet(), total,
 				new Function<Location>() {
 					@Override
@@ -55,8 +55,7 @@ public class LocationContribution {
 						List<ProcessDescriptor> list = processIndex.get(loc);
 						double amount = 0;
 						for (ProcessDescriptor p : list)
-							amount += result.getSingleFlowResult(p, flow)
-									.getValue();
+							amount += result.getSingleFlowResult(p, flow).value;
 						return amount;
 					}
 				});
@@ -67,7 +66,7 @@ public class LocationContribution {
 			final ImpactCategoryDescriptor impact) {
 		if (impact == null || result == null)
 			return ContributionSet.empty();
-		double total = result.getTotalImpactResult(impact).getValue();
+		double total = result.getTotalImpactResult(impact).value;
 		return Contributions.calculate(processIndex.keySet(), total,
 				new Function<Location>() {
 					@Override
@@ -75,8 +74,7 @@ public class LocationContribution {
 						List<ProcessDescriptor> list = processIndex.get(loc);
 						double amount = 0;
 						for (ProcessDescriptor p : list)
-							amount += result.getSingleImpactResult(p, impact)
-									.getValue();
+							amount += result.getSingleImpactResult(p, impact).value;
 						return amount;
 					}
 				});

@@ -18,29 +18,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ProcessGrouping {
 
-	private String name;
-	private List<ProcessDescriptor> processes = new ArrayList<>();
-	private boolean rest;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public List<ProcessDescriptor> getProcesses() {
-		return processes;
-	}
-
-	public void setRest(boolean rest) {
-		this.rest = rest;
-	}
-
-	public boolean isRest() {
-		return rest;
-	}
+	public String name;
+	public final List<ProcessDescriptor> processes = new ArrayList<>();
+	public boolean rest;
 
 	@Override
 	public int hashCode() {
@@ -76,17 +56,18 @@ public class ProcessGrouping {
 		List<ProcessDescriptor> rest = new ArrayList<>(processes);
 		for (ProcessGroup group : groups) {
 			ProcessGrouping grouping = new ProcessGrouping();
-			grouping.setName(group.getName());
-			grouping.setRest(false);
-			List<ProcessDescriptor> matches = split(group.getProcessIds(), rest);
-			grouping.getProcesses().addAll(matches);
+			grouping.name = group.getName();
+			grouping.rest = false;
+			List<ProcessDescriptor> matches = split(group.getProcessIds(),
+					rest);
+			grouping.processes.addAll(matches);
 			groupings.add(grouping);
 		}
 		if (!rest.isEmpty()) {
 			ProcessGrouping grouping = new ProcessGrouping();
-			grouping.setName(restName);
-			grouping.setRest(true);
-			grouping.getProcesses().addAll(rest);
+			grouping.name = restName;
+			grouping.rest = true;
+			grouping.processes.addAll(rest);
 			groupings.add(grouping);
 		}
 		return groupings;

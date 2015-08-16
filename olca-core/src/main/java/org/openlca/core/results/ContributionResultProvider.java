@@ -19,16 +19,16 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 
 	/** Get the single flow results for the process with the given ID. */
 	public List<FlowResult> getSingleFlowResults(ProcessDescriptor process) {
-		FlowIndex index = result.getFlowIndex();
+		FlowIndex index = result.flowIndex;
 		List<FlowResult> results = new ArrayList<>();
 		for (FlowDescriptor flow : getFlowDescriptors()) {
 			double val = result.getSingleFlowResult(process.getId(),
 					flow.getId());
 			val = adoptFlowResult(val, flow.getId());
 			FlowResult r = new FlowResult();
-			r.setFlow(flow);
-			r.setInput(index.isInput(flow.getId()));
-			r.setValue(val);
+			r.flow = flow;
+			r.input = index.isInput(flow.getId());
+			r.value = val;
 			results.add(r);
 		}
 		return results;
@@ -39,10 +39,10 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 		double val = result.getSingleFlowResult(process.getId(), flow.getId());
 		val = adoptFlowResult(val, flow.getId());
 		FlowResult r = new FlowResult();
-		r.setFlow(flow);
-		FlowIndex index = result.getFlowIndex();
-		r.setInput(index.isInput(flow.getId()));
-		r.setValue(val);
+		r.flow = flow;
+		FlowIndex index = result.flowIndex;
+		r.input = index.isInput(flow.getId());
+		r.value = val;
 		return r;
 	}
 
@@ -79,8 +79,8 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 		double val = result.getSingleImpactResult(process.getId(),
 				impact.getId());
 		ImpactResult r = new ImpactResult();
-		r.setImpactCategory(impact);
-		r.setValue(val);
+		r.impactCategory = impact;
+		r.value = val;
 		return r;
 	}
 
@@ -112,12 +112,12 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 
 	private FlowResult getSingleFlowImpact(FlowDescriptor flow,
 			ImpactCategoryDescriptor impact) {
-		FlowIndex index = result.getFlowIndex();
+		FlowIndex index = result.flowIndex;
 		double val = result.getSingleFlowImpact(flow.getId(), impact.getId());
 		FlowResult r = new FlowResult();
-		r.setFlow(flow);
-		r.setInput(index.isInput(flow.getId()));
-		r.setValue(val);
+		r.flow = flow;
+		r.input = index.isInput(flow.getId());
+		r.value = val;
 		return r;
 	}
 

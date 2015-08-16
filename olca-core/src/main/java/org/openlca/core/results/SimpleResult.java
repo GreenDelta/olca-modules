@@ -8,20 +8,16 @@ package org.openlca.core.results;
  */
 public class SimpleResult extends BaseResult {
 
-	protected double[] totalFlowResults;
-	protected double[] totalImpactResults;
-
-	public void setTotalFlowResults(double[] totalFlowResults) {
-		this.totalFlowResults = totalFlowResults;
-	}
-
 	/**
-	 * Get the total results of all intervention flows. Note that inputs have a
+	 * The total results of all intervention flows. Note that inputs have a
 	 * negative value.
 	 */
-	public double[] getTotalFlowResults() {
-		return totalFlowResults;
-	}
+	public double[] totalFlowResults;
+
+	/**
+	 * The total results of all LCIA categories.
+	 */
+	public double[] totalImpactResults;
 
 	/**
 	 * Returns the total result of the intervention flow with the given ID. Note
@@ -32,17 +28,6 @@ public class SimpleResult extends BaseResult {
 		if (idx < 0 || idx >= totalFlowResults.length)
 			return 0;
 		return totalFlowResults[idx];
-	}
-
-	public void setTotalImpactResults(double[] totalImpactResults) {
-		this.totalImpactResults = totalImpactResults;
-	}
-
-	/**
-	 * Get the total results of all LCIA categories.
-	 */
-	public double[] getTotalImpactResults() {
-		return totalImpactResults;
 	}
 
 	/**

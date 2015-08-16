@@ -22,7 +22,7 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	}
 
 	public List<FlowResult> getUpstreamFlowResults(ProcessDescriptor process) {
-		FlowIndex index = result.getFlowIndex();
+		FlowIndex index = result.flowIndex;
 		List<FlowResult> results = new ArrayList<>();
 		for (FlowDescriptor flow : getFlowDescriptors()) {
 			double val = result.getUpstreamFlowResult(process.getId(),
@@ -31,9 +31,9 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 				continue;
 			val = adoptFlowResult(val, flow.getId());
 			FlowResult r = new FlowResult();
-			r.setFlow(flow);
-			r.setInput(index.isInput(flow.getId()));
-			r.setValue(val);
+			r.flow = flow;
+			r.input = index.isInput(flow.getId());
+			r.value = val;
 			results.add(r);
 		}
 		return results;
@@ -45,10 +45,10 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 				.getUpstreamFlowResult(process.getId(), flow.getId());
 		val = adoptFlowResult(val, flow.getId());
 		FlowResult r = new FlowResult();
-		r.setFlow(flow);
-		FlowIndex index = result.getFlowIndex();
-		r.setInput(index.isInput(flow.getId()));
-		r.setValue(val);
+		r.flow = flow;
+		FlowIndex index = result.flowIndex;
+		r.input = index.isInput(flow.getId());
+		r.value = val;
 		return r;
 	}
 
@@ -64,8 +64,8 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 		double val = result.getUpstreamImpactResult(process.getId(),
 				impact.getId());
 		ImpactResult r = new ImpactResult();
-		r.setImpactCategory(impact);
-		r.setValue(val);
+		r.impactCategory = impact;
+		r.value = val;
 		return r;
 	}
 

@@ -30,12 +30,12 @@ public final class Contributions {
 		double total = Math.abs(totalAmount);
 		for (T item : items) {
 			ContributionItem<T> contribution = new ContributionItem<>();
-			contribution.setRest(item == null);
-			contribution.setItem(item);
+			contribution.rest = item == null;
+			contribution.item = item;
 			double val = fn.value(item);
-			contribution.setAmount(val);
+			contribution.amount = val;
 			if (total != 0)
-				contribution.setShare(val / total);
+				contribution.share = val / total;
 			contributions.add(contribution);
 		}
 		return new ContributionSet<>(contributions);
@@ -46,10 +46,10 @@ public final class Contributions {
 		List<ContributionItem<T>> contributions = new ArrayList<>();
 		for (T item : items) {
 			ContributionItem<T> contribution = new ContributionItem<>();
-			contribution.setRest(item == null);
-			contribution.setItem(item);
+			contribution.rest = item == null;
+			contribution.item = item;
 			double val = fn.value(item);
-			contribution.setAmount(val);
+			contribution.amount = val;
 			contributions.add(contribution);
 		}
 		calculateShares(contributions);
@@ -66,20 +66,20 @@ public final class Contributions {
 		double refVal = Math.abs(getRefValue(contributions));
 		for (ContributionItem<?> c : contributions) {
 			if (refVal == 0)
-				c.setShare(0);
+				c.share = (double) 0;
 			else
-				c.setShare(c.getAmount() / refVal);
+				c.share = c.amount / refVal;
 		}
 	}
 
 	private static double getRefValue(
 			List<? extends ContributionItem<?>> contributions) {
 		ContributionItem<?> first = contributions.get(0);
-		double max = first.getAmount();
+		double max = first.amount;
 		double min = max;
 		for (int i = 1; i < contributions.size(); i++) {
 			ContributionItem<?> next = contributions.get(i);
-			double nextVal = next.getAmount();
+			double nextVal = next.amount;
 			max = Math.max(max, nextVal);
 			min = Math.min(min, nextVal);
 		}
@@ -110,14 +110,14 @@ public final class Contributions {
 			return items;
 		List<ContributionItem<T>> list = new ArrayList<>();
 		ContributionItem<T> restItem = new ContributionItem<>();
-		restItem.setRest(true);
+		restItem.rest = true;
 		for (int i = 0; i < items.size(); i++) {
 			ContributionItem<T> item = items.get(i);
 			if (i < (maxItems - 1))
 				list.add(item);
 			else {
-				restItem.setAmount(restItem.getAmount() + item.getAmount());
-				restItem.setShare(restItem.getShare() + item.getShare());
+				restItem.amount = restItem.amount + item.amount;
+				restItem.share = restItem.share + item.share;
 			}
 		}
 		list.add(restItem);
@@ -142,14 +142,14 @@ public final class Contributions {
 		public int compare(ContributionItem<?> o1, ContributionItem<?> o2) {
 			if (o1 == null || o2 == null)
 				return 0;
-			if (o1.isRest())
+			if (o1.rest)
 				return 1;
-			if (o2.isRest())
+			if (o2.rest)
 				return -1;
 			if (ascending)
-				return Double.compare(o1.getAmount(), o2.getAmount());
+				return Double.compare(o1.amount, o2.amount);
 			else
-				return -Double.compare(o1.getAmount(), o2.getAmount());
+				return -Double.compare(o1.amount, o2.amount);
 		}
 	}
 }

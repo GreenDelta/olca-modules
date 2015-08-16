@@ -10,21 +10,18 @@ import org.openlca.core.matrix.LongPair;
  */
 public class FullResult extends ContributionResult {
 
-	protected IMatrix upstreamFlowResults;
-	protected IMatrix upstreamImpactResults;
-
-	public void setUpstreamFlowResults(IMatrix upstreamFlowResults) {
-		this.upstreamFlowResults = upstreamFlowResults;
-	}
+	/**
+	 * The upstream flow results in a matrix where the flows are mapped to the
+	 * rows and the process-products to the columns. Inputs have negative values
+	 * here.
+	 */
+	public IMatrix upstreamFlowResults;
 
 	/**
-	 * Get the upstream flow results in a matrix where the flows are mapped to
-	 * the rows and the process-products to the columns. Inputs have negative
-	 * values here.
+	 * The upstream LCIA category results in a matrix where the LCIA categories
+	 * are mapped to the rows and the process-products to the columns.
 	 */
-	public IMatrix getUpstreamFlowResults() {
-		return upstreamFlowResults;
-	}
+	public IMatrix upstreamImpactResults;
 
 	/**
 	 * Get the upstream flow result of the flow with the given ID for the given
@@ -46,24 +43,12 @@ public class FullResult extends ContributionResult {
 		return getProcessValue(upstreamFlowResults, row, processId);
 	}
 
-	public void setUpstreamImpactResults(IMatrix upstreamImpactResults) {
-		this.upstreamImpactResults = upstreamImpactResults;
-	}
-
-	/**
-	 * Get the upstream LCIA category results in a matrix where the LCIA
-	 * categories are mapped to the rows and the process-products to the
-	 * columns.
-	 */
-	public IMatrix getUpstreamImpactResults() {
-		return upstreamImpactResults;
-	}
-
 	/**
 	 * Get the upstream LCIA category result of the LCIA category with the given
 	 * ID for the given process-product.
 	 */
-	public double getUpstreamImpactResult(LongPair processProduct, long impactId) {
+	public double getUpstreamImpactResult(LongPair processProduct,
+			long impactId) {
 		if (!hasImpactResults())
 			return 0;
 		int row = impactIndex.getIndex(impactId);
