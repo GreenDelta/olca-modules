@@ -1,7 +1,5 @@
 package org.openlca.core.model;
 
-import java.util.UUID;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
@@ -31,12 +29,10 @@ public class Location extends RootEntity {
 	@Override
 	public Location clone() {
 		Location clone = new Location();
+		Util.cloneRootFields(this, clone);
 		clone.setCode(getCode());
-		clone.setDescription(getDescription());
 		clone.setLatitude(getLatitude());
 		clone.setLongitude(getLongitude());
-		clone.setName(getName());
-		clone.setRefId(UUID.randomUUID().toString());
 		return clone;
 	}
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -25,7 +24,7 @@ public class ProductSystem extends CategorizedEntity {
 	private final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
 	@ElementCollection
-	@CollectionTable(name = "tbl_process_links", joinColumns = @JoinColumn(name = "f_product_system"))
+	@CollectionTable(name = "tbl_process_links", joinColumns = @JoinColumn(name = "f_product_system") )
 	private final List<ProcessLink> processLinks = new ArrayList<>();
 
 	@OneToOne
@@ -49,16 +48,15 @@ public class ProductSystem extends CategorizedEntity {
 
 	@ElementCollection
 	@Column(name = "f_process")
-	@CollectionTable(name = "tbl_product_system_processes", joinColumns = { @JoinColumn(name = "f_product_system") })
+	@CollectionTable(name = "tbl_product_system_processes", joinColumns = {
+			@JoinColumn(name = "f_product_system") })
 	private final Set<Long> processes = new HashSet<>();
 
 	@Override
 	public ProductSystem clone() {
 		ProductSystem clone = new ProductSystem();
+		Util.cloneRootFields(this, clone);
 		clone.setCategory(getCategory());
-		clone.setDescription(getDescription());
-		clone.setRefId(UUID.randomUUID().toString());
-		clone.setName(getName());
 		clone.setReferenceExchange(getReferenceExchange());
 		clone.setReferenceProcess(getReferenceProcess());
 		clone.setTargetAmount(getTargetAmount());

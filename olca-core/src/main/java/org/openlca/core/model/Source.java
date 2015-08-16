@@ -1,7 +1,5 @@
 package org.openlca.core.model;
 
-import java.util.UUID;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
@@ -27,10 +25,8 @@ public class Source extends CategorizedEntity {
 	@Override
 	public Source clone() {
 		Source clone = new Source();
-		clone.setRefId(UUID.randomUUID().toString());
-		clone.setName(getName());
+		Util.cloneRootFields(this, clone);
 		clone.setCategory(getCategory());
-		clone.setDescription(getDescription());
 		clone.setDoi(getDoi());
 		clone.setTextReference(getTextReference());
 		clone.setYear(getYear());

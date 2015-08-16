@@ -1,7 +1,5 @@
 package org.openlca.core.model;
 
-import java.util.UUID;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -39,20 +37,18 @@ public class Actor extends CategorizedEntity {
 
 	@Override
 	public Actor clone() {
-		Actor actor = new Actor();
-		actor.setRefId(UUID.randomUUID().toString());
-		actor.setName(getName());
-		actor.setAddress(getAddress());
-		actor.setCategory(getCategory());
-		actor.setCity(getCity());
-		actor.setCountry(getCountry());
-		actor.setDescription(getDescription());
-		actor.setEmail(getEmail());
-		actor.setTelefax(getTelefax());
-		actor.setTelephone(getTelephone());
-		actor.setWebsite(getWebsite());
-		actor.setZipCode(getZipCode());
-		return actor;
+		Actor clone = new Actor();
+		Util.cloneRootFields(this, clone);
+		clone.setAddress(getAddress());
+		clone.setCategory(getCategory());
+		clone.setCity(getCity());
+		clone.setCountry(getCountry());
+		clone.setEmail(getEmail());
+		clone.setTelefax(getTelefax());
+		clone.setTelephone(getTelephone());
+		clone.setWebsite(getWebsite());
+		clone.setZipCode(getZipCode());
+		return clone;
 	}
 
 	public String getAddress() {

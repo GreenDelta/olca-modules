@@ -31,6 +31,8 @@ CREATE TABLE tbl_categories (
 	ref_id VARCHAR(36), 
 	name VARCHAR(255),
 	description CLOB(64 K),
+	version BIGINT,
+	last_change BIGINT,
 	model_type VARCHAR(255), 
 	f_parent_category BIGINT,
 		
@@ -69,6 +71,8 @@ CREATE TABLE tbl_locations (
 	ref_id VARCHAR(36),
 	name VARCHAR(255),
 	description CLOB(64 K),
+	version BIGINT,
+	last_change BIGINT,
 
 	longitude DOUBLE,
 	latitude DOUBLE, 
@@ -107,6 +111,8 @@ CREATE TABLE tbl_units (
 	ref_id VARCHAR(36),
 	name VARCHAR(255),
 	description CLOB(64 K),
+	version BIGINT,
+	last_change BIGINT,
 
 	conversion_factor DOUBLE,
 	synonyms VARCHAR(255),
@@ -375,6 +381,8 @@ CREATE TABLE tbl_impact_categories (
 	ref_id VARCHAR(36),
 	name VARCHAR(255),
 	description CLOB(64 K),
+	version BIGINT,
+	last_change BIGINT,
 
 	reference_unit VARCHAR(255),
 	f_impact_method BIGINT, 
@@ -414,6 +422,8 @@ CREATE TABLE tbl_nw_sets (
     ref_id VARCHAR(36),
     name VARCHAR(255),
     description CLOB(64 K),
+    version BIGINT,
+	last_change BIGINT,
 
 	f_impact_method BIGINT,
 	weighted_score_unit VARCHAR(255),
@@ -439,8 +449,12 @@ CREATE TABLE tbl_nw_factors (
 CREATE TABLE tbl_parameters (
 
 	id BIGINT NOT NULL, 
+	ref_id VARCHAR(36),
 	name VARCHAR(255), 
 	description CLOB(64 K), 
+	version BIGINT,
+	last_change BIGINT,
+	
 	is_input_param SMALLINT default 0,
 	f_owner BIGINT, 
 	scope VARCHAR(255), 

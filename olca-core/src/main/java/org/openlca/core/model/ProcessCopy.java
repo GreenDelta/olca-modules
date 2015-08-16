@@ -1,14 +1,12 @@
 package org.openlca.core.model;
 
 import java.util.Objects;
-import java.util.UUID;
 
 class ProcessCopy {
 
 	public Process create(Process origin) {
 		Process copy = new Process();
-		copy.setRefId(UUID.randomUUID().toString());
-		copy.setName(origin.getName());
+		Util.cloneRootFields(origin, copy);
 		copyFields(origin, copy);
 		copyParameters(origin, copy);
 		copyExchanges(origin, copy);
@@ -19,7 +17,6 @@ class ProcessCopy {
 	private void copyFields(Process origin, Process copy) {
 		copy.setDefaultAllocationMethod(origin.getDefaultAllocationMethod());
 		copy.setCategory(origin.getCategory());
-		copy.setDescription(origin.getDescription());
 		copy.setLocation(origin.getLocation());
 		copy.setProcessType(origin.getProcessType());
 		copy.setInfrastructureProcess(origin.isInfrastructureProcess());

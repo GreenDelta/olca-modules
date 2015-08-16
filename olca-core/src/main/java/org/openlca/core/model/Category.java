@@ -2,7 +2,6 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -45,11 +44,9 @@ public class Category extends RootEntity {
 	@Override
 	public Category clone() {
 		Category clone = new Category();
-		clone.setDescription(getDescription());
+		Util.cloneRootFields(this, clone);
 		clone.setModelType(getModelType());
-		clone.setName(getName());
 		clone.setParentCategory(getParentCategory());
-		clone.setRefId(UUID.randomUUID().toString());
 		for (Category child : getChildCategories()) {
 			Category childCopy = child.clone();
 			clone.getChildCategories().add(childCopy);

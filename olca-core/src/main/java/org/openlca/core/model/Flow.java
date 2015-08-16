@@ -3,7 +3,6 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -46,21 +45,19 @@ public class Flow extends CategorizedEntity {
 
 	@Override
 	public Flow clone() {
-		Flow flow = new Flow();
-		flow.setRefId(UUID.randomUUID().toString());
-		flow.setName(getName());
-		flow.setCategory(getCategory());
-		flow.setDescription(getDescription());
-		flow.setFlowType(getFlowType());
-		flow.setCasNumber(getCasNumber());
-		flow.setFormula(getFormula());
-		flow.setInfrastructureFlow(isInfrastructureFlow());
-		flow.setLocation(getLocation());
-		flow.setReferenceFlowProperty(getReferenceFlowProperty());
+		Flow clone = new Flow();
+		Util.cloneRootFields(this, clone);
+		clone.setCategory(getCategory());
+		clone.setFlowType(getFlowType());
+		clone.setCasNumber(getCasNumber());
+		clone.setFormula(getFormula());
+		clone.setInfrastructureFlow(isInfrastructureFlow());
+		clone.setLocation(getLocation());
+		clone.setReferenceFlowProperty(getReferenceFlowProperty());
 		for (FlowPropertyFactor factor : getFlowPropertyFactors()) {
-			flow.getFlowPropertyFactors().add(factor.clone());
+			clone.getFlowPropertyFactors().add(factor.clone());
 		}
-		return flow;
+		return clone;
 	}
 
 	public FlowType getFlowType() {
