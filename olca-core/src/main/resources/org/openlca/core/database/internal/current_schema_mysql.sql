@@ -33,6 +33,7 @@ CREATE TABLE tbl_categories (
 	description TEXT,
 	version BIGINT,
 	last_change BIGINT,
+	
 	model_type VARCHAR(255), 
 	f_parent_category BIGINT,
 		

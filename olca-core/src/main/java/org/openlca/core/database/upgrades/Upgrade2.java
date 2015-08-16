@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
@@ -32,24 +34,47 @@ public class Upgrade2 implements IUpgrade {
 		this.database = database;
 		this.util = new UpgradeUtil(database);
 		convertProcessKmzData();
-		dropKmzColumn();
+		util.checkDropColumn("tbl_processes", "kmz");
+		addVersionFields();
 	}
 
+	/**
+	 * In the new version there is no process specific KML anymore. We convert
+	 * existing KML data to own locations.
+	 */
 	private void convertProcessKmzData() throws SQLException {
 		try (Connection con = database.createConnection()) {
-			PreparedStatement processUpdateStatement = con
-					.prepareStatement("UPDATE tbl_processes SET f_location = ? WHERE id = ?");
-			NativeSql
-					.on(database)
-					.query("SELECT id, ref_id, name, kmz FROM tbl_processes WHERE kmz is not null",
-							new KmzResultHandler(processUpdateStatement));
+			String updateSql = "UPDATE tbl_processes SET f_location = ? WHERE id = ?";
+			PreparedStatement stmt = con.prepareStatement(updateSql);
+			String query = "SELECT id, ref_id, name, kmz FROM tbl_processes WHERE kmz is not null";
+			NativeSql.on(database).query(query, new KmzResultHandler(stmt));
+			stmt.close();
 			con.commit();
-			processUpdateStatement.close();
 		}
 	}
 
-	private void dropKmzColumn() throws Exception {
-		util.checkDropColumn("tbl_processes", "kmz");
+	/**
+	 * The fields version and last_change moved to the RootEntity class. Also
+	 * parameters are now root entities.
+	 */
+	private void addVersionFields() throws Exception {
+		String[] tables = { "tbl_categories", "tbl_impact_categories",
+				"tbl_locations", "tbl_nw_sets", "tbl_parameters", "tbl_units" };
+		for (String table : tables) {
+			util.checkCreateColumn(table, "version", "version BIGINT");
+			util.checkCreateColumn(table, "last_change", "last_change BIGINT");
+		}
+		util.checkCreateColumn("tbl_parameters", "ref_id",
+				"ref_id VARCHAR(36)");
+		List<String> updates = new ArrayList<>();
+		NativeSql.on(database).query("select id from tbl_parameters", (r) -> {
+			long id = r.getLong(1);
+			String update = "update tbl_parameters set ref_id = '"
+					+ UUID.randomUUID().toString() + "' where id = " + id;
+			updates.add(update);
+			return true;
+		});
+		NativeSql.on(database).batchUpdate(updates);
 	}
 
 	private class KmzResultHandler implements QueryResultHandler {
@@ -73,7 +98,8 @@ public class Upgrade2 implements IUpgrade {
 			return true;
 		}
 
-		private long insertLocation(String name, String description, byte[] kmz) {
+		private long insertLocation(String name, String description,
+				byte[] kmz) {
 			Location location = new Location();
 			location.setName(name);
 			location.setDescription(description);
