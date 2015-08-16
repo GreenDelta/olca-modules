@@ -36,6 +36,12 @@ public class ContributionResult extends SimpleResult {
 	public IMatrix singleFlowImpacts;
 
 	/**
+	 * Contains the characterization factors in a matrix where the LCIA
+	 * categories are mapped to rows and elementary flows to columns.
+	 */
+	public IMatrix impactFactors;
+
+	/**
 	 * The contributions of the product-links in the scaled product system.
 	 */
 	public LinkContributions linkContributions;
