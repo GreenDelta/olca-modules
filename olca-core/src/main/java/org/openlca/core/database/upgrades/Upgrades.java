@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Upgrades {
 
-	private final IUpgrade[] upgrades = { new Upgrade1() };
+	private final IUpgrade[] upgrades = { new Upgrade1(), new Upgrade2() };
 	private Logger log = LoggerFactory.getLogger(Upgrades.class);
 
 	private Upgrades() {

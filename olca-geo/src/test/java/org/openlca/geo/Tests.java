@@ -1,9 +1,5 @@
 package org.openlca.geo;
 
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -12,11 +8,26 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.IOUtils;
+import org.geotools.geometry.jts.GeometryBuilder;
+import org.openlca.geo.parameter.ShapeFileRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vividsolutions.jts.geom.Geometry;
+
 public class Tests {
 
 	private static ShapeFileRepository repository;
 
 	private Tests() {
+	}
+
+	public static void main(String[] args) {
+		for (int i = 2; i <= 50; i++)
+			System.out.print("+" + ((int) (Math.random() * 100)) + "*x^" + i);
+		for (int i = 2; i <= 50; i++)
+			System.out.print("+" + ((int) (Math.random() * 100)) + "*y^" + i);
 	}
 
 	public static String getKml(String file) {
@@ -30,14 +41,14 @@ public class Tests {
 		}
 	}
 
-	public static KmlFeature getKmlFeature(String file) {
-		try {
-			return KmlFeature.parse(getKml(file));
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Tests.class);
-			log.error("failed to load kml feature " + file, e);
-			return null;
-		}
+	public static Geometry createPolygon(double... coordinates) {
+		GeometryBuilder builder = new GeometryBuilder();
+		return builder.polygon(coordinates);
+	}
+
+	public static Geometry createMultiGeometry(Geometry... geometries) {
+		GeometryBuilder builder = new GeometryBuilder();
+		return builder.geometryCollection(geometries);
 	}
 
 	public static ShapeFileRepository getRepository() {

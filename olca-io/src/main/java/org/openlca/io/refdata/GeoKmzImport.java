@@ -26,7 +26,7 @@ import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class GeoKmzImport {
+public class GeoKmzImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -42,17 +42,21 @@ class GeoKmzImport {
 		dao = new LocationDao(database);
 	}
 
-	public void run() {
+	public boolean run() {
+		boolean foundDataInFile = false;
 		try {
 			setUp();
 			while (reader.hasNext()) {
 				reader.next();
 				if (isStart(reader, "geography"))
-					handleGeography();
+					if (handleGeography())
+						foundDataInFile = true;
 			}
 			reader.close();
+			return foundDataInFile;
 		} catch (Exception e) {
 			log.error("failed to import KML data for geographies", e);
+			return false;
 		}
 	}
 
@@ -65,7 +69,7 @@ class GeoKmzImport {
 		builder = new SAXBuilder();
 	}
 
-	private void handleGeography() throws Exception {
+	private boolean handleGeography() throws Exception {
 		boolean nextIsShortName = false;
 		String shortName = null;
 		byte[] kmz = null;
@@ -83,6 +87,7 @@ class GeoKmzImport {
 			}
 		}
 		checkUpdate(shortName, kmz);
+		return kmz != null;
 	}
 
 	private void checkUpdate(String shortName, byte[] kmz) {
@@ -114,7 +119,7 @@ class GeoKmzImport {
 			StringReader source = new StringReader(writer.toString());
 			Document doc = builder.build(source);
 			Namespace ns = Namespace
-					.getNamespace("http://earth.google.com/kml/2.0");
+					.getNamespace("http://earth.google.com/kml/2.1");
 			switchNamespace(doc.getRootElement(), ns);
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			new XMLOutputter().output(doc, bout);

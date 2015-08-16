@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+  <Folder>
+    <name>OpenLayers export</name>
+    <description>Exported on Tue Aug 19 2014 09:07:27 GMT+0200 (W. Europe Daylight Time)</description>
+    <Placemark>
+      <name>OpenLayers_Feature_Vector_160</name>
+      <description>No description available</description>
+	  <MultiGeometry>
+	      <Polygon>
+	        <outerBoundaryIs>
+	          <LinearRing>
+	            <coordinates>-4.658203124999972,25.958044673317587 -4.306640624999995,17.14079039331627 6.240234374999961,26.115985925333436 -4.658203124999972,25.958044673317587</coordinates>
+	          </LinearRing>
+	        </outerBoundaryIs>
+	      </Polygon>
+	      <Polygon>
+	        <outerBoundaryIs>
+	          <LinearRing>
+	            <coordinates>10.107421875000252,24.846565348220064 0.08789062499998361,16.63619187839765 11.162109375000366,16.804541076383618 10.107421875000252,24.846565348220064</coordinates>
+	          </LinearRing>
+	        </outerBoundaryIs>
+	      </Polygon>
+	  </MultiGeometry>
+    </Placemark>
+    <Placemark>
+      <name>OpenLayers_Feature_Vector_233</name>
+      <description>No description available</description>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>-103.93657833338474,38.03590886541514 -106.22173458337885,35.57327109599401 -101.34380489588157,33.10619401150866 -97.60845333338585,35.965487581974635 -99.93755489588383,38.346757546500086 -103.93657833338474,38.03590886541514</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Folder>
+</kml>

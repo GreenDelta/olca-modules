@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (3);
+INSERT INTO openlca_version (version) VALUES (4);
 
 
 CREATE TABLE tbl_categories (
@@ -74,6 +74,7 @@ CREATE TABLE tbl_locations (
 	latitude DOUBLE, 
 	code VARCHAR(255),
     kmz BLOB(16 M),
+    location_type VARCHAR(255),
 	
 	PRIMARY KEY (id)
 );

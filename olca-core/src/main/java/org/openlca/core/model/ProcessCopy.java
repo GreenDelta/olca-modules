@@ -23,7 +23,6 @@ class ProcessCopy {
 		copy.setLocation(origin.getLocation());
 		copy.setProcessType(origin.getProcessType());
 		copy.setInfrastructureProcess(origin.isInfrastructureProcess());
-		copy.setKmz(origin.getKmz());
 		if (origin.getDocumentation() != null)
 			copy.setDocumentation(origin.getDocumentation().clone());
 	}
@@ -56,14 +55,14 @@ class ProcessCopy {
 	}
 
 	private Exchange findExchange(Exchange origin, Process processCopy) {
-		if(origin == null)
+		if (origin == null)
 			return null;
-		for(Exchange copy : processCopy.getExchanges()) {
+		for (Exchange copy : processCopy.getExchanges()) {
 			boolean equal = origin.isInput() == copy.isInput()
 					&& Objects.equals(origin.getFlow(), copy.getFlow())
 					&& origin.getAmountValue() == copy.getAmountValue()
 					&& Objects.equals(origin.getUnit(), copy.getUnit());
-			if(equal)
+			if (equal)
 				return copy;
 		}
 		return null;
