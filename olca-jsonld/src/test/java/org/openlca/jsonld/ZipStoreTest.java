@@ -41,8 +41,8 @@ public class ZipStoreTest {
 	}
 
 	@Test
-	public void testWrite() throws Exception {
-		Map<ModelType, String> entries = writeData();
+	public void testWriteModels() throws Exception {
+		Map<ModelType, String> entries = writeModels();
 		try (ZipStore store = ZipStore.open(zipFile)) {
 			for (ModelType type : entries.keySet())
 				Assert.assertTrue(store.contains(type, entries.get(type)));
@@ -51,7 +51,7 @@ public class ZipStoreTest {
 
 	@Test
 	public void testReadIds() throws Exception {
-		Map<ModelType, String> entries = writeData();
+		Map<ModelType, String> entries = writeModels();
 		try (ZipStore store = ZipStore.open(zipFile)) {
 			for (ModelType type : types) {
 				List<String> list = store.getRefIds(type);
@@ -62,8 +62,8 @@ public class ZipStoreTest {
 	}
 
 	@Test
-	public void testRead() throws Exception {
-		Map<ModelType, String> entries = writeData();
+	public void testReadModels() throws Exception {
+		Map<ModelType, String> entries = writeModels();
 		try (ZipStore store = ZipStore.open(zipFile)) {
 			for (ModelType type : entries.keySet()) {
 				String id = entries.get(type);
@@ -74,7 +74,7 @@ public class ZipStoreTest {
 		}
 	}
 
-	private Map<ModelType, String> writeData() throws Exception {
+	private Map<ModelType, String> writeModels() throws Exception {
 		try (ZipStore store = ZipStore.open(zipFile)) {
 			Map<ModelType, String> entries = new HashMap<>();
 			for (ModelType type : types) {
@@ -88,4 +88,18 @@ public class ZipStoreTest {
 			return entries;
 		}
 	}
+
+	@Test
+	public void testReadWriteData() throws Exception {
+		try (ZipStore store = ZipStore.open(zipFile)) {
+			String path = "my/super/file.txt";
+			byte[] first = "first".getBytes();
+			store.put(path, first);
+			Assert.assertArrayEquals(first, store.get(path));
+			byte[] second = "second".getBytes();
+			store.put(path, second);
+			Assert.assertArrayEquals(second, store.get(path));
+		}
+	}
+
 }

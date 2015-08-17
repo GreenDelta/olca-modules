@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,19 +46,31 @@ public class ZipStore implements EntityStore {
 	}
 
 	@Override
+	public void put(String path, byte[] data) {
+		if (Strings.nullOrEmpty(path) || data == null)
+			return;
+		try {
+			Path file = zip.getPath(path);
+			Path dir = file.getParent();
+			if (dir != null && !(Files.exists(dir)))
+				Files.createDirectories(dir);
+			Files.write(file, data, StandardOpenOption.CREATE);
+		} catch (Exception e) {
+			log.error("failed to put " + path, e);
+		}
+	}
+
+	@Override
 	public void put(ModelType type, JsonObject object) {
 		String refId = getRefId(object);
 		if (type == null || refId == null)
 			return;
 		try {
 			String json = new Gson().toJson(object);
-			byte[] bytes = json.getBytes("utf-8");
+			byte[] data = json.getBytes("utf-8");
 			String dirName = ModelPath.get(type);
-			Path dir = zip.getPath(dirName);
-			if (!Files.exists(dir))
-				Files.createDirectory(dir);
-			Path path = zip.getPath(dirName + "/" + refId + ".json");
-			Files.write(path, bytes, StandardOpenOption.CREATE);
+			String path = dirName + "/" + refId + ".json";
+			put(path, data);
 		} catch (Exception e) {
 			log.error("failed to add " + type + "/" + refId, e);
 		}
@@ -86,32 +99,36 @@ public class ZipStore implements EntityStore {
 	}
 
 	@Override
-	public JsonObject get(ModelType type, String refId) {
-		if (!contains(type, refId))
-			return null;
-		String dirName = ModelPath.get(type);
-		Path dir = zip.getPath(dirName);
-		if (!Files.exists(dir))
-			return null;
-		Path path = zip.getPath(dirName + "/" + refId + ".json");
-		if (!Files.exists(path))
+	public byte[] get(String path) {
+		if (Strings.nullOrEmpty(path))
 			return null;
 		try {
-			return readJson(path);
+			Path file = zip.getPath(path);
+			if (!Files.exists(file))
+				return null;
+			return Files.readAllBytes(file);
 		} catch (Exception e) {
-			log.error("failed to read json object " + type + " " + refId, e);
+			log.error("failed to file " + path, e);
 			return null;
 		}
 	}
 
-	private JsonObject readJson(Path path) throws Exception {
-		byte[] bytes = Files.readAllBytes(path);
-		String json = new String(bytes, "utf-8");
-		JsonElement elem = new Gson().fromJson(json, JsonElement.class);
-		if (!elem.isJsonObject())
+	@Override
+	public JsonObject get(ModelType type, String refId) {
+		if (!contains(type, refId))
 			return null;
-		else
-			return elem.getAsJsonObject();
+		String path = ModelPath.get(type) + "/" + refId + ".json";
+		byte[] data = get(path);
+		if (data == null)
+			return null;
+		try {
+			String json = new String(data, "utf-8");
+			JsonElement e = new Gson().fromJson(json, JsonElement.class);
+			return e.isJsonObject() ? e.getAsJsonObject() : null;
+		} catch (Exception e) {
+			log.error("failed to read json object " + type + " " + refId, e);
+			return null;
+		}
 	}
 
 	@Override

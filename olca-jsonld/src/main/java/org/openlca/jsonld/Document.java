@@ -140,4 +140,13 @@ public class Document implements EntityStore {
 			return elem.getAsString();
 	}
 
+	@Override
+	public byte[] get(String path) {
+		return null;
+	}
+
+	@Override
+	public void put(String path, byte[] data) {
+	}
+
 }
