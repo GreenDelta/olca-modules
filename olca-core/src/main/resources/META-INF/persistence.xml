@@ -36,6 +36,7 @@
 		<class>org.openlca.core.model.CostCategory</class>
 		<class>org.openlca.core.model.ProcessCostEntry</class>
 		<class>org.openlca.core.model.ProductCostEntry</class>
+		<class>org.openlca.core.model.SocialIndicator</class>
 		<class>org.openlca.core.model.MappingFile</class>
 
 		<properties>

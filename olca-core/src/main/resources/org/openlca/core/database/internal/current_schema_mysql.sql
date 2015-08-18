@@ -563,3 +563,19 @@ CREATE TABLE tbl_process_group_sets (
 	PRIMARY KEY (id)	
 ) ;
 
+
+CREATE TABLE tbl_social_indicators (
+
+	id BIGINT NOT NULL,
+	ref_id VARCHAR(36),
+	name VARCHAR(255),
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
+	description TEXT,
+	
+	unit VARCHAR(255),
+	evaluation_scheme TEXT,
+	
+	PRIMARY KEY (id)
+);

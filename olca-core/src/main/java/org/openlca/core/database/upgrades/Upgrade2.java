@@ -36,6 +36,7 @@ public class Upgrade2 implements IUpgrade {
 		convertProcessKmzData();
 		util.checkDropColumn("tbl_processes", "kmz");
 		addVersionFields();
+		addSocialTables();
 	}
 
 	/**
@@ -75,6 +76,21 @@ public class Upgrade2 implements IUpgrade {
 			return true;
 		});
 		NativeSql.on(database).batchUpdate(updates);
+	}
+
+	private void addSocialTables() throws Exception {
+		String indicators = "CREATE TABLE tbl_social_indicators ( "
+				+ "id BIGINT NOT NULL, "
+				+ "ref_id VARCHAR(36), "
+				+ "name VARCHAR(255), "
+				+ "version BIGINT, "
+				+ "last_change BIGINT, "
+				+ "f_category BIGINT, "
+				+ "description CLOB(64 K), "
+				+ "unit VARCHAR(255), "
+				+ "evaluation_scheme CLOB(64 K), "
+				+ "PRIMARY KEY (id))";
+		util.checkCreateTable("tbl_social_indicators", indicators);
 	}
 
 	private class KmzResultHandler implements QueryResultHandler {

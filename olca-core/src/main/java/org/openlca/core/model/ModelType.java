@@ -1,6 +1,5 @@
 package org.openlca.core.model;
 
-
 /** Enumeration of the basic types in the openLCA domain model. */
 public enum ModelType {
 
@@ -32,7 +31,9 @@ public enum ModelType {
 
 	LOCATION(Location.class),
 
-	NW_SET(NwSet.class);
+	NW_SET(NwSet.class),
+
+	SOCIAL_INDICATOR(SocialIndicator.class);
 
 	final Class<?> modelClass;
 

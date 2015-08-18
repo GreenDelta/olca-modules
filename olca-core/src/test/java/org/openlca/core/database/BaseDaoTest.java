@@ -30,6 +30,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessGroupSet;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -45,36 +46,35 @@ public class BaseDaoTest {
 
 	// we cannot use @Theory and @DataPoints with an array of classes
 	// see https://github.com/junit-team/junit/issues/76
-	// @formatter:off
 	// @DataPoints
 	@SuppressWarnings("unchecked")
 	private Class<? extends AbstractEntity>[] classes = new Class[] {
-		Actor.class,
-		AllocationFactor.class,
-		Category.class,
-		CostCategory.class,
-		Exchange.class,
-		Flow.class,
-		FlowProperty.class,
-		FlowPropertyFactor.class,
-		ImpactCategory.class,
-		ImpactFactor.class,
-		ImpactMethod.class,
-		Location.class,
-		NwFactor.class,
-		NwSet.class,
-		Parameter.class,
-		Process.class,
-		ProcessGroupSet.class,
-		ProcessDocumentation.class,
-		ProcessCostEntry.class,
-		ProductSystem.class,
-		Project.class,
-		Source.class,
-		Unit.class,
-		UnitGroup.class,
+			Actor.class,
+			AllocationFactor.class,
+			Category.class,
+			CostCategory.class,
+			Exchange.class,
+			Flow.class,
+			FlowProperty.class,
+			FlowPropertyFactor.class,
+			ImpactCategory.class,
+			ImpactFactor.class,
+			ImpactMethod.class,
+			Location.class,
+			NwFactor.class,
+			NwSet.class,
+			Parameter.class,
+			Process.class,
+			ProcessGroupSet.class,
+			ProcessDocumentation.class,
+			ProcessCostEntry.class,
+			ProductSystem.class,
+			Project.class,
+			SocialIndicator.class,
+			Source.class,
+			Unit.class,
+			UnitGroup.class,
 	};
-	// @formatter:on
 
 	@Test
 	public void runTests() throws Exception {

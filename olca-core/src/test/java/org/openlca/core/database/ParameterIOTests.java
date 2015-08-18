@@ -1,5 +1,7 @@
 package org.openlca.core.database;
 
+import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.TestSession;
@@ -18,6 +20,7 @@ public class ParameterIOTests {
 	@Test
 	public void testGlobalParameters() {
 		Parameter param = new Parameter();
+		param.setRefId(UUID.randomUUID().toString());
 		param.setDescription("test parameter");
 		param.setInputParameter(true);
 		param.setScope(ParameterScope.GLOBAL);
@@ -36,6 +39,7 @@ public class ParameterIOTests {
 		Process process = new Process();
 		process.setName("test-proc");
 		Parameter param = new Parameter();
+		param.setRefId(UUID.randomUUID().toString());
 		param.setDescription("test parameter");
 		param.setInputParameter(true);
 		param.setScope(ParameterScope.PROCESS);
@@ -68,7 +72,8 @@ public class ParameterIOTests {
 		dao.insert(system);
 		TestSession.emptyCache();
 		ProductSystem alias = dao.getForId(system.getId());
-		Assert.assertTrue(alias.getParameterRedefs().get(0).getContextId() == 123L);
+		Assert.assertTrue(
+				alias.getParameterRedefs().get(0).getContextId() == 123L);
 		dao.delete(system);
 	}
 
