@@ -15,12 +15,12 @@ import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 
-public class Path {
+class Dir {
 
-	private Path() {
+	private Dir() {
 	}
 
-	public static String forClass(Class<?> clazz) {
+	public static String get(Class<?> clazz) {
 		if (clazz == null) {
 			return "null";
 		} else if (clazz.equals(Process.class)

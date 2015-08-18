@@ -26,7 +26,7 @@ public class ZipStoreTest {
 	private static File zipFile;
 
 	@BeforeClass
-	public static void setUpStore() {
+	public static void setUpStore() throws Exception {
 		String tempDir = System.getProperty("java.io.tmpdir");
 		String path = tempDir + File.separator + "test_" + UUID.randomUUID()
 				+ ".zip";
@@ -52,7 +52,7 @@ public class ZipStoreTest {
 		Source copy = store.get(Source.class, id);
 		assertEquals(source.getSourceInformation().getDataSetInformation()
 				.getUUID(), copy.getSourceInformation().getDataSetInformation()
-				.getUUID());
+						.getUUID());
 		assertNotNull(store.iterator(Source.class).next());
 	}
 
