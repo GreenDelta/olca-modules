@@ -56,6 +56,10 @@ public class Process extends CategorizedEntity {
 	@JoinColumn(name = "f_process")
 	private final List<ProcessCostEntry> costEntries = new ArrayList<>();
 
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_process")
+	public final List<SocialAspect> socialAspects = new ArrayList<>();
+
 	public ProcessDocumentation getDocumentation() {
 		return documentation;
 	}

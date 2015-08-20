@@ -582,3 +582,18 @@ CREATE TABLE tbl_social_indicators (
 	
 	PRIMARY KEY (id)
 );
+
+
+CREATE TABLE tbl_social_aspects (
+
+	id BIGINT NOT NULL,
+	f_process BIGINT,
+	f_indicator BIGINT,
+	activity_value DOUBLE,
+	raw_amount VARCHAR(255),
+	comment TEXT,
+	f_source BIGINT,
+	quality VARCHAR(255),
+
+	PRIMARY KEY (id)
+);

@@ -11,6 +11,8 @@ class ProcessCopy {
 		copyParameters(origin, copy);
 		copyExchanges(origin, copy);
 		copyAllocationFactors(origin, copy);
+		for (SocialAspect a : origin.socialAspects)
+			copy.socialAspects.add(a.clone());
 		return copy;
 	}
 
