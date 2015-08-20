@@ -574,7 +574,10 @@ CREATE TABLE tbl_social_indicators (
 	f_category BIGINT,
 	description TEXT,
 	
-	unit VARCHAR(255),
+	activity_variable VARCHAR(255),
+	f_activity_quantity BIGINT,
+	f_activity_unit BIGINT,
+	unit_of_measurement VARCHAR(255),
 	evaluation_scheme TEXT,
 	
 	PRIMARY KEY (id)

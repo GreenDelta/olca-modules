@@ -2,17 +2,31 @@ package org.openlca.core.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_social_indicators")
 public class SocialIndicator extends CategorizedEntity {
 
-	/**
-	 * The unit of measurement of the indicator.
-	 */
-	@Column(name = "unit")
-	public String unit;
+	/** Name of the activity variable. */
+	@Column(name = "activity_variable")
+	public String activityVariable;
+
+	/** Quantity of the activity variable. */
+	@OneToOne
+	@JoinColumn(name = "f_activity_quantity")
+	public FlowProperty activityQuantity;
+
+	/** Unit of the activity variable. */
+	@OneToOne
+	@JoinColumn(name = "f_activity_unit")
+	public Unit activityUnit;
+
+	/** (Raw) unit of measurement of the indicator. */
+	@Column(name = "unit_of_measurement")
+	public String unitOfMeasurement;
 
 	@Column(name = "evaluation_scheme")
 	public String evaluationScheme;
@@ -22,7 +36,10 @@ public class SocialIndicator extends CategorizedEntity {
 		SocialIndicator clone = new SocialIndicator();
 		Util.cloneRootFields(this, clone);
 		clone.setCategory(getCategory());
-		clone.unit = unit;
+		clone.activityVariable = activityVariable;
+		clone.activityQuantity = activityQuantity;
+		clone.activityUnit = activityUnit;
+		clone.unitOfMeasurement = unitOfMeasurement;
 		clone.evaluationScheme = evaluationScheme;
 		return clone;
 	}

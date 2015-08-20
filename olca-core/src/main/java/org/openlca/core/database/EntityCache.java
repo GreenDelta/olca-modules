@@ -20,6 +20,7 @@ import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
+import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
@@ -57,7 +58,8 @@ public class EntityCache {
 				return null;
 			return clazz.cast(obj);
 		} catch (Exception e) {
-			log.error("failed to get from cache " + clazz + " with id " + id, e);
+			log.error("failed to get from cache " + clazz + " with id " + id,
+					e);
 			return null;
 		}
 	}
@@ -168,6 +170,8 @@ public class EntityCache {
 					new ProjectDao(database));
 			descriptorDaos.put(ImpactCategoryDescriptor.class,
 					new ImpactCategoryDao(database));
+			descriptorDaos.put(SocialIndicatorDescriptor.class,
+					new SocialIndicatorDao(database));
 		}
 
 		@Override

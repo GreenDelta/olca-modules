@@ -11,6 +11,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 
@@ -47,6 +48,8 @@ public class Descriptors {
 			return toDescriptor((Actor) entity);
 		if (entity instanceof Source)
 			return toDescriptor((Source) entity);
+		if (entity instanceof SocialIndicator)
+			return toDescriptor((SocialIndicator) entity);
 		return createUnknownDescriptor(entity);
 	}
 
@@ -101,7 +104,8 @@ public class Descriptors {
 		return descriptor;
 	}
 
-	public static FlowPropertyDescriptor toDescriptor(FlowProperty flowProperty) {
+	public static FlowPropertyDescriptor toDescriptor(
+			FlowProperty flowProperty) {
 		if (flowProperty == null)
 			return null;
 		FlowPropertyDescriptor descriptor = new FlowPropertyDescriptor();
@@ -131,6 +135,14 @@ public class Descriptors {
 		SourceDescriptor descriptor = new SourceDescriptor();
 		setBaseValues(source, descriptor);
 		return descriptor;
+	}
+
+	public static SocialIndicatorDescriptor toDescriptor(SocialIndicator i) {
+		if (i == null)
+			return null;
+		SocialIndicatorDescriptor d = new SocialIndicatorDescriptor();
+		setBaseValues(i, d);
+		return d;
 	}
 
 	public static ImpactCategoryDescriptor toDescriptor(
