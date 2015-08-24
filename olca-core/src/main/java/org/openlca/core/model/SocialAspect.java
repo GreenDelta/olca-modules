@@ -2,6 +2,8 @@ package org.openlca.core.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -25,6 +27,10 @@ public class SocialAspect extends AbstractEntity {
 	@Column(name = "raw_amount")
 	public String rawAmount;
 
+	@Column(name = "risk_level")
+	@Enumerated(EnumType.STRING)
+	public RiskLevel riskLevel;
+
 	@Column(name = "comment")
 	public String comment;
 
@@ -42,6 +48,7 @@ public class SocialAspect extends AbstractEntity {
 		clone.indicator = indicator;
 		clone.activityValue = activityValue;
 		clone.rawAmount = rawAmount;
+		clone.riskLevel = riskLevel;
 		clone.comment = comment;
 		clone.source = source;
 		clone.quality = quality;

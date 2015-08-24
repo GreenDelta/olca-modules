@@ -100,6 +100,7 @@ public class Upgrade2 implements IUpgrade {
 				+ "f_indicator BIGINT, "
 				+ "activity_value DOUBLE, "
 				+ "raw_amount VARCHAR(255), "
+				+ "risk_level VARCHAR(255), "
 				+ "comment CLOB(64 K), "
 				+ "f_source BIGINT, "
 				+ "quality VARCHAR(255), "
