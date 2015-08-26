@@ -33,6 +33,8 @@ public final class ModelPath {
 			return "product_systems";
 		case PROJECT:
 			return "projects";
+		case SOCIAL_INDICATOR:
+			return "social_indicators";
 		case SOURCE:
 			return "sources";
 		case UNIT:

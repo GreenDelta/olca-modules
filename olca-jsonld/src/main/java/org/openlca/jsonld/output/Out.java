@@ -1,7 +1,5 @@
 package org.openlca.jsonld.output;
 
-import com.google.gson.JsonObject;
-
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
@@ -11,9 +9,12 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
+
+import com.google.gson.JsonObject;
 
 class Out {
 
@@ -56,6 +57,8 @@ class Out {
 			return Writer.class.cast(new SourceWriter(store));
 		if (entity instanceof UnitGroup)
 			return Writer.class.cast(new UnitGroupWriter(store));
+		if (entity instanceof SocialIndicator)
+			return Writer.class.cast(new SocialIndicatorWriter(store));
 		else
 			return null;
 	}

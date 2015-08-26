@@ -1,7 +1,5 @@
 package org.openlca.jsonld.output;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -12,6 +10,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UnitGroup;
@@ -26,8 +25,12 @@ import org.openlca.core.model.descriptors.NwSetDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
+import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public final class GsonUtil {
 
@@ -56,6 +59,8 @@ public final class GsonUtil {
 		b.registerTypeAdapter(Exchange.class, new ExchangeWriter());
 		b.registerTypeAdapter(ImpactMethod.class, new ImpactMethodWriter());
 		b.registerTypeAdapter(ImpactCategory.class, new ImpactCategoryWriter());
+		b.registerTypeAdapter(SocialIndicator.class,
+				new SocialIndicatorWriter());
 	}
 
 	private static void registerDescriptorWriter(GsonBuilder b) {
@@ -73,5 +78,6 @@ public final class GsonUtil {
 		b.registerTypeAdapter(ProjectDescriptor.class, dw);
 		b.registerTypeAdapter(SourceDescriptor.class, dw);
 		b.registerTypeAdapter(UnitGroupDescriptor.class, dw);
+		b.registerTypeAdapter(SocialIndicatorDescriptor.class, dw);
 	}
 }
