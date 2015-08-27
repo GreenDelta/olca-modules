@@ -2,7 +2,6 @@ package org.openlca.jsonld.input;
 
 import java.util.Date;
 
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Dates;
@@ -25,7 +24,8 @@ final class In {
 			return elem.getAsString();
 	}
 
-	static double getDouble(JsonObject obj, String property, double defaultVal) {
+	static double getDouble(JsonObject obj, String property,
+			double defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -35,7 +35,8 @@ final class In {
 			return elem.getAsDouble();
 	}
 
-	static boolean getBool(JsonObject obj, String property, boolean defaultVal) {
+	static boolean getBool(JsonObject obj, String property,
+			boolean defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -63,20 +64,20 @@ final class In {
 	}
 
 	static long getVersion(JsonObject obj) {
-		if(obj == null)
+		if (obj == null)
 			return 0;
 		String version = getString(obj, "version");
-		if(version != null)
+		if (version != null)
 			return Version.fromString(version).getValue();
 		else
 			return 0;
 	}
 
 	static long getLastChange(JsonObject obj) {
-		if(obj == null)
+		if (obj == null)
 			return 0;
 		String lastChange = getString(obj, "lastChange");
-		if(lastChange != null)
+		if (lastChange != null)
 			return Dates.getTime(lastChange);
 		else
 			return 0;
@@ -88,10 +89,7 @@ final class In {
 		entity.setName(getString(obj, "name"));
 		entity.setDescription(getString(obj, "description"));
 		entity.setRefId(getString(obj, "@id"));
-		if (entity instanceof CategorizedEntity) {
-			CategorizedEntity cat = (CategorizedEntity) entity;
-			cat.setVersion(getVersion(obj));
-			cat.setLastChange(getLastChange(obj));
-		}
+		entity.setVersion(getVersion(obj));
+		entity.setLastChange(getLastChange(obj));
 	}
 }

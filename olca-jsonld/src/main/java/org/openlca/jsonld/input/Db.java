@@ -2,6 +2,7 @@ package org.openlca.jsonld.input;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
@@ -11,6 +12,7 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
@@ -21,6 +23,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -38,6 +41,7 @@ class Db {
 	private Map<String, Long> actorIds = new HashMap<>();
 	private Map<String, Long> sourceIds = new HashMap<>();
 	private Map<String, Long> processIds = new HashMap<>();
+	private Map<String, Long> indicatorIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -153,6 +157,14 @@ class Db {
 
 	public Process put(Process process) {
 		return put(new ProcessDao(db), process, processIds);
+	}
+
+	public SocialIndicator getSocialIndicator(String refId) {
+		return get(new SocialIndicatorDao(db), refId, indicatorIds);
+	}
+
+	public SocialIndicator put(SocialIndicator indicator) {
+		return put(new SocialIndicatorDao(db), indicator, indicatorIds);
 	}
 
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,
