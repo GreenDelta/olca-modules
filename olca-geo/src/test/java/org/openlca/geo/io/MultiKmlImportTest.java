@@ -1,4 +1,4 @@
-package org.openlca.io;
+package org.openlca.geo.io;
 
 import java.io.File;
 
@@ -40,9 +40,7 @@ public class MultiKmlImportTest {
 		IDatabase database = getDatabase();
 		LocationDao dao = new LocationDao(database);
 		Assert.assertEquals(0, dao.getAll().size());
-		String kml = IOUtils.toString(Resources
-				.getResource("org/openlca/geo/US_counties-clipped.shp.kml"),
-				"utf-8");
+		String kml = IOUtils.toString(Resources.getResource("org/openlca/geo/US_counties-clipped.shp.kml"), "utf-8");
 		MultiKmlImport parser = new MultiKmlImport(database, kml);
 		parser.parseAndInsert();
 		Assert.assertEquals(703, dao.getAll().size());

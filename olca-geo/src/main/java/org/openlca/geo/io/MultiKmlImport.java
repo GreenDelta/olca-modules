@@ -1,4 +1,4 @@
-package org.openlca.io;
+package org.openlca.geo.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +15,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
+import org.openlca.io.KeyGen;
 import org.openlca.util.BinUtils;
 
 public class MultiKmlImport {

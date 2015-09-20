@@ -82,7 +82,7 @@ public class SolverTest {
 		LcaCalculator calculator = new LcaCalculator(solver);
 		SimpleResult result = calculator.calculateSimple(matrix);
 		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },
-				result.getTotalFlowResults(), 1e-14);
+				result.totalFlowResults, 1e-14);
 	}
 
 	@Theory

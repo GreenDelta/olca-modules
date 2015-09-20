@@ -1,6 +1,7 @@
 package org.openlca.io.ilcd;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.openlca.core.database.IDatabase;
@@ -69,17 +70,21 @@ public class ILCDImport implements FileImport {
 	public void run() {
 		if (canceled)
 			return;
-		ZipStore zipStore = new ZipStore(zip);
-		tryImportContacts(zipStore);
-		tryImportSources(zipStore);
-		tryImportUnits(zipStore);
-		tryImportFlowProperties(zipStore);
-		if (importFlows) {
-			tryImportFlows(zipStore);
+		try {
+			ZipStore zipStore = new ZipStore(zip);
+			tryImportContacts(zipStore);
+			tryImportSources(zipStore);
+			tryImportUnits(zipStore);
+			tryImportFlowProperties(zipStore);
+			if (importFlows) {
+				tryImportFlows(zipStore);
+			}
+			tryImportProcesses(zipStore);
+			tryImportMethods(zipStore);
+			tryCloseStore(zipStore);
+		} catch (IOException e) {
+			log.error("Could not open zipstore", e);
 		}
-		tryImportProcesses(zipStore);
-		tryImportMethods(zipStore);
-		tryCloseStore(zipStore);
 	}
 
 	private void tryCloseStore(ZipStore zipStore) {
@@ -133,8 +138,7 @@ public class ILCDImport implements FileImport {
 			while (it.hasNext() && !canceled) {
 				UnitGroup group = it.next();
 				fireEvent(new UnitGroupBag(group).getName());
-				UnitGroupImport groupImport = new UnitGroupImport(zipStore,
-						database);
+				UnitGroupImport groupImport = new UnitGroupImport(zipStore, database);
 				groupImport.run(group);
 			}
 		} catch (Exception e) {
@@ -150,8 +154,7 @@ public class ILCDImport implements FileImport {
 			while (it.hasNext() && !canceled) {
 				FlowProperty property = it.next();
 				fireEvent(new FlowPropertyBag(property).getName());
-				FlowPropertyImport propertyImport = new FlowPropertyImport(
-						zipStore, database);
+				FlowPropertyImport propertyImport = new FlowPropertyImport(zipStore, database);
 				propertyImport.run(property);
 			}
 		} catch (Exception e) {

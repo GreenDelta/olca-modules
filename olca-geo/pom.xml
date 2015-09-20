@@ -32,7 +32,12 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-core</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openlca</groupId>
+			<artifactId>olca-io</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>

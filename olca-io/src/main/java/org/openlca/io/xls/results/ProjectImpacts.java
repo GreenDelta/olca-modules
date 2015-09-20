@@ -58,7 +58,7 @@ class ProjectImpacts {
 				ContributionItem<?> c = contributions.getContribution(variant);
 				if (c == null)
 					continue;
-				Excel.cell(sheet, row, col, c.getAmount());
+				Excel.cell(sheet, row, col, c.amount);
 			}
 			row++;
 		}

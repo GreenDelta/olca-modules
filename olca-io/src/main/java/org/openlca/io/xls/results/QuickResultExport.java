@@ -82,12 +82,12 @@ public class QuickResultExport implements Runnable {
 		int row = startRow;
 		writer.header(sheet, row++, 1, input ? "Inputs" : "Outputs");
 		writer.writeFlowRowHeader(sheet, row++);
-		FlowIndex flowIndex = result.getResult().getFlowIndex();
+		FlowIndex flowIndex = result.result.flowIndex;
 		for (FlowDescriptor flow : flows) {
 			if (flowIndex.isInput(flow.getId()) != input)
 				continue;
 			writer.writeFlowRowInfo(sheet, row, flow);
-			double val = result.getTotalFlowResult(flow).getValue();
+			double val = result.getTotalFlowResult(flow).value;
 			Excel.cell(sheet, row, CellWriter.FLOW_INFO_SIZE + 1, val);
 			row++;
 		}
@@ -104,7 +104,7 @@ public class QuickResultExport implements Runnable {
 		int row = 3;
 		for (ImpactCategoryDescriptor impact : impacts) {
 			writer.writeImpactRowInfo(sheet, row, impact);
-			double val = result.getTotalImpactResult(impact).getValue();
+			double val = result.getTotalImpactResult(impact).value;
 			Excel.cell(sheet, row, CellWriter.IMPACT_INFO_SIZE + 1, val);
 			row++;
 		}

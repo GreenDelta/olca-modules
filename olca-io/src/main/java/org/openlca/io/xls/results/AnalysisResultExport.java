@@ -44,8 +44,7 @@ public class AnalysisResultExport implements Runnable {
 
 	private boolean success = false;
 
-	public AnalysisResultExport(CalculationSetup setup, File file,
-			FullResultProvider result) {
+	public AnalysisResultExport(CalculationSetup setup, File file, FullResultProvider result) {
 		this.setup = setup;
 		this.file = file;
 		this.result = result;
@@ -59,7 +58,7 @@ public class AnalysisResultExport implements Runnable {
 			prepareImpacts();
 			workbook = new SXSSFWorkbook(-1); // no default flushing (see
 			// Excel.cell)!
-			writer = new CellWriter(result.getCache(), workbook);
+			writer = new CellWriter(result.cache, workbook);
 			InfoSheet.write(workbook, setup, "Analysis result");
 			writeInventorySheets(result);
 			writeImpactSheets(result);
@@ -120,14 +119,13 @@ public class AnalysisResultExport implements Runnable {
 
 	private void prepareFlowInfos() {
 		Set<FlowDescriptor> set = result.getFlowDescriptors();
-		flows = Utils.sortFlows(set, result.getCache());
+		flows = Utils.sortFlows(set, result.cache);
 	}
 
 	private void prepareProcesses() {
 		Set<ProcessDescriptor> procs = result.getProcessDescriptors();
 		processes = new ArrayList<>(procs);
-		final long refProcess = result.getResult().getProductIndex()
-				.getRefProduct().getFirst();
+		final long refProcess = result.result.productIndex.getRefProduct().getFirst();
 		Collections.sort(processes, new Comparator<ProcessDescriptor>() {
 			@Override
 			public int compare(ProcessDescriptor o1, ProcessDescriptor o2) {
@@ -151,7 +149,7 @@ public class AnalysisResultExport implements Runnable {
 	 * Visit the sorted flows of the analysis result.
 	 */
 	void visitFlows(FlowVisitor visitor) {
-		FlowIndex index = result.getResult().getFlowIndex();
+		FlowIndex index = result.result.flowIndex;
 		for (FlowDescriptor flow : flows) {
 			visitor.next(flow, index.isInput(flow.getId()));
 		}
@@ -182,7 +180,7 @@ public class AnalysisResultExport implements Runnable {
 	}
 
 	private int writeTotalResults(Sheet sheet, int startRow, boolean inputs) {
-		FlowIndex flowIndex = result.getResult().getFlowIndex();
+		FlowIndex flowIndex = result.result.flowIndex;
 		int rowNo = startRow;
 		String section = inputs ? "Inputs" : "Outputs";
 		writer.header(sheet, rowNo++, 1, section);
@@ -192,7 +190,7 @@ public class AnalysisResultExport implements Runnable {
 			boolean input = flowIndex.isInput(flow.getId());
 			if (input != inputs)
 				continue;
-			double amount = result.getTotalFlowResult(flow).getValue();
+			double amount = result.getTotalFlowResult(flow).value;
 			if (amount == 0)
 				continue;
 			writer.writeFlowRowInfo(sheet, rowNo, flow);

@@ -36,7 +36,7 @@ public class SimulationResultExport {
 			SimulationResultProvider<?> result) {
 		this.setup = setup;
 		this.result = result;
-		this.cache = result.getCache();
+		this.cache = result.cache;
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class SimulationResultExport {
 		row = 0;
 		writerImpactHeader(sheet);
 		List<ImpactCategoryDescriptor> impacts = Utils.getSortedImpacts(result
-				.getResult().getImpactIndex(), cache);
+				.result.impactIndex, cache);
 		for (ImpactCategoryDescriptor impact : impacts) {
 			writer.writeImpactRowInfo(sheet, row, impact);
 			List<Double> values = result.getImpactResults(impact);
@@ -83,7 +83,7 @@ public class SimulationResultExport {
 	private void writeInventorySheet(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Inventory");
 		row = 0;
-		FlowIndex flowIndex = result.getResult().getFlowIndex();
+		FlowIndex flowIndex = result.result.flowIndex;
 		List<FlowDescriptor> flows = Utils.getSortedFlows(flowIndex, cache);
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
@@ -111,7 +111,7 @@ public class SimulationResultExport {
 	private void writeInventorySection(List<FlowDescriptor> flows,
 			boolean forInputs, Sheet sheet) {
 		writeInventoryHeader(sheet, forInputs);
-		FlowIndex idx = result.getResult().getFlowIndex();
+		FlowIndex idx = result.result.flowIndex;
 		for (FlowDescriptor flow : flows) {
 			if (idx.isInput(flow.getId()) != forInputs)
 				continue;

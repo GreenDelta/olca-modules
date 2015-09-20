@@ -58,9 +58,9 @@ public class RegionalizedCalculator {
 		List<KmlLoadResult> features = setup.getKmlData();
 		ParameterSet parameterSet = setup.getParameterSet();
 		FullResult regioResult = initRegioResult(baseResult);
-		IMatrix impactResultMatrix = regioResult.getSingleImpactResults();
+		IMatrix impactResultMatrix = regioResult.singleImpactResults;
 		Map<LongPair, Integer> indices = getIndices(regioResult
-				.getProductIndex());
+				.productIndex);
 		for (KmlLoadResult result : features) {
 			Map<String, Double> parameters = parameterSet.getFor(result
 					.getLocationId());
@@ -68,8 +68,7 @@ public class RegionalizedCalculator {
 			IMatrix factors = impacts.getFactorMatrix();
 			for (LongPair processProduct : result.getProcessProducts()) {
 				int index = indices.get(processProduct);
-				double[] flowResults = baseResult.getSingleFlowResults()
-						.getColumn(index);
+				double[] flowResults = baseResult.singleFlowResults.getColumn(index);
 				double[] impactResults = solver.multiply(factors, flowResults);
 				for (int row = 0; row < impactResults.length; row++)
 					impactResultMatrix.setEntry(row, index, impactResults[row]);
@@ -90,19 +89,17 @@ public class RegionalizedCalculator {
 
 	private FullResult initRegioResult(FullResult baseResult) {
 		FullResult regioResult = new FullResult();
-		regioResult.setProductIndex(baseResult.getProductIndex());
-		regioResult.setFlowIndex(baseResult.getFlowIndex());
-		regioResult.setImpactIndex(baseResult.getImpactIndex());
-		regioResult.setTotalFlowResults(baseResult.getTotalFlowResults());
-		regioResult.setScalingFactors(baseResult.getScalingFactors());
-		regioResult.setSingleFlowResults(baseResult.getSingleFlowResults());
-		regioResult.setSingleFlowImpacts(baseResult.getSingleFlowImpacts());
-		regioResult.setSingleImpactResults(baseResult.getSingleImpactResults()
-				.copy());
-		regioResult.setLinkContributions(baseResult.getLinkContributions());
-		regioResult.setUpstreamFlowResults(baseResult.getUpstreamFlowResults());
-		regioResult.setUpstreamImpactResults(baseResult
-				.getUpstreamImpactResults());
+		regioResult.productIndex = baseResult.productIndex;
+		regioResult.flowIndex = baseResult.flowIndex;
+		regioResult.impactIndex = baseResult.impactIndex;
+		regioResult.totalFlowResults = baseResult.totalFlowResults;
+		regioResult.scalingFactors = baseResult.scalingFactors;
+		regioResult.singleFlowResults = baseResult.singleFlowResults;
+		regioResult.singleFlowImpacts = baseResult.singleFlowImpacts;
+		regioResult.singleImpactResults = baseResult.singleImpactResults.copy();
+		regioResult.linkContributions = baseResult.linkContributions;
+		regioResult.upstreamFlowResults = baseResult.upstreamFlowResults;
+		regioResult.upstreamImpactResults = baseResult.upstreamImpactResults;
 		return regioResult;
 	}
 
@@ -119,14 +116,14 @@ public class RegionalizedCalculator {
 	}
 
 	private void calcTotalImpactResult(ContributionResult regioResult) {
-		IMatrix singleResults = regioResult.getSingleImpactResults();
+		IMatrix singleResults = regioResult.singleImpactResults;
 		double[] totalResults = new double[singleResults.getRowDimension()];
 		for (int row = 0; row < singleResults.getRowDimension(); row++) {
 			for (int col = 0; col < singleResults.getColumnDimension(); col++) {
 				totalResults[row] += singleResults.getEntry(row, col);
 			}
 		}
-		regioResult.setTotalImpactResults(totalResults);
+		regioResult.totalImpactResults = totalResults;
 	}
 
 }

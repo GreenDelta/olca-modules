@@ -39,26 +39,25 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-core</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ilcd</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ecospold-1</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-simapro-csv</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
@@ -70,7 +69,7 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ecospold-2</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
