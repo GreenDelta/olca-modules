@@ -17,6 +17,8 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
@@ -172,6 +174,10 @@ public class EntityCache {
 					new ImpactCategoryDao(database));
 			descriptorDaos.put(SocialIndicatorDescriptor.class,
 					new SocialIndicatorDao(database));
+			descriptorDaos.put(LocationDescriptor.class,
+					new LocationDao(database));
+			descriptorDaos.put(ParameterDescriptor.class,
+					new ParameterDao(database));
 		}
 
 		@Override

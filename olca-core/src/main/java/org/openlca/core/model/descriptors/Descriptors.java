@@ -6,7 +6,9 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.NwSet;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -50,6 +52,10 @@ public class Descriptors {
 			return toDescriptor((Source) entity);
 		if (entity instanceof SocialIndicator)
 			return toDescriptor((SocialIndicator) entity);
+		if (entity instanceof Location)
+			return toDescriptor((Location) entity);
+		if (entity instanceof Parameter)
+			return toDescriptor((Parameter) entity);
 		return createUnknownDescriptor(entity);
 	}
 
@@ -85,8 +91,7 @@ public class Descriptors {
 		if (process.getLocation() != null)
 			descriptor.setLocation(process.getLocation().getId());
 		if (process.getQuantitativeReference() != null)
-			descriptor.setQuantitativeReference(process
-					.getQuantitativeReference().getId());
+			descriptor.setQuantitativeReference(process.getQuantitativeReference().getId());
 		return descriptor;
 	}
 
@@ -104,8 +109,7 @@ public class Descriptors {
 		return descriptor;
 	}
 
-	public static FlowPropertyDescriptor toDescriptor(
-			FlowProperty flowProperty) {
+	public static FlowPropertyDescriptor toDescriptor(FlowProperty flowProperty) {
 		if (flowProperty == null)
 			return null;
 		FlowPropertyDescriptor descriptor = new FlowPropertyDescriptor();
@@ -137,6 +141,22 @@ public class Descriptors {
 		return descriptor;
 	}
 
+	public static LocationDescriptor toDescriptor(Location location) {
+		if (location == null)
+			return null;
+		LocationDescriptor descriptor = new LocationDescriptor();
+		setBaseValues(location, descriptor);
+		return descriptor;
+	}
+
+	public static ParameterDescriptor toDescriptor(Parameter parameter) {
+		if (parameter == null)
+			return null;
+		ParameterDescriptor descriptor = new ParameterDescriptor();
+		setBaseValues(parameter, descriptor);
+		return descriptor;
+	}
+
 	public static SocialIndicatorDescriptor toDescriptor(SocialIndicator i) {
 		if (i == null)
 			return null;
@@ -145,8 +165,7 @@ public class Descriptors {
 		return d;
 	}
 
-	public static ImpactCategoryDescriptor toDescriptor(
-			ImpactCategory impactCategory) {
+	public static ImpactCategoryDescriptor toDescriptor(ImpactCategory impactCategory) {
 		if (impactCategory == null)
 			return null;
 		ImpactCategoryDescriptor descriptor = new ImpactCategoryDescriptor();
@@ -164,23 +183,20 @@ public class Descriptors {
 		return descriptor;
 	}
 
-	private static void setBaseValues(CategorizedEntity entity,
-			CategorizedDescriptor descriptor) {
+	private static void setBaseValues(CategorizedEntity entity, CategorizedDescriptor descriptor) {
 		setBaseValues((RootEntity) entity, descriptor);
 		if (entity.getCategory() != null)
 			descriptor.setCategory(entity.getCategory().getId());
 	}
 
-	private static void setBaseValues(RootEntity entity,
-			BaseDescriptor descriptor) {
+	private static void setBaseValues(RootEntity entity, BaseDescriptor descriptor) {
 		descriptor.setRefId(entity.getRefId());
 		descriptor.setDescription(entity.getDescription());
 		descriptor.setId(entity.getId());
 		descriptor.setName(entity.getName());
 	}
 
-	private static CategorizedDescriptor createUnknownDescriptor(
-			CategorizedEntity entity) {
+	private static CategorizedDescriptor createUnknownDescriptor(CategorizedEntity entity) {
 		CategorizedDescriptor descriptor = new CategorizedDescriptor();
 		setBaseValues(entity, descriptor);
 		return descriptor;

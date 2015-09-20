@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_parameters")
-public class Parameter extends RootEntity {
+public class Parameter extends CategorizedEntity {
 
 	@Column(name = "scope")
 	@Enumerated(EnumType.STRING)

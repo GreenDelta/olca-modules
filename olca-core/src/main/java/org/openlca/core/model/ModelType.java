@@ -33,7 +33,9 @@ public enum ModelType {
 
 	NW_SET(NwSet.class),
 
-	SOCIAL_INDICATOR(SocialIndicator.class);
+	SOCIAL_INDICATOR(SocialIndicator.class),
+
+	PARAMETER(Parameter.class);
 
 	final Class<?> modelClass;
 

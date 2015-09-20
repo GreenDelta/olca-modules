@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_locations")
-public class Location extends RootEntity {
+public class Location extends CategorizedEntity {
 
 	@Column(name = "code")
 	private String code;
