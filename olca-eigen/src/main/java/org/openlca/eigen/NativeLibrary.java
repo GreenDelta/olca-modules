@@ -18,7 +18,7 @@ public class NativeLibrary {
 	private static boolean loaded = false;
 	private static Logger log = LoggerFactory.getLogger(NativeLibrary.class);
 
-	public static void loadFromDir(File dir) {
+	public static void loadFromDir(File dir) throws UnsatisfiedLinkError {
 		if (loaded) {
 			log.trace("{} lib already loaded", LIB_NAME);
 			return;
@@ -30,6 +30,10 @@ public class NativeLibrary {
 			String blasPath = getJarPath(lib);
 			loaded = loadLib(realDir, lib, blasPath);
 			// checkLib();
+		} catch (UnsatisfiedLinkError e) {
+			loaded = false;
+			log.info("failed to load jblas-library: " + e.getMessage());
+			throw e;
 		} catch (Throwable e) {
 			log.info("failed to load jblas-library", e);
 			loaded = false;
@@ -40,16 +44,14 @@ public class NativeLibrary {
 		String os = getOs();
 		String arch = System.getProperty("os.arch");
 		String sep = File.separator;
-		String subPath = LIB_NAME.concat("_").concat(VERSION).concat(sep)
-				.concat(os).concat(sep).concat(arch);
+		String subPath = LIB_NAME.concat("_").concat(VERSION).concat(sep).concat(os).concat(sep).concat(arch);
 		File realDir = new File(dir, subPath);
 		if (!realDir.exists())
 			realDir.mkdirs();
 		return realDir;
 	}
 
-	private static boolean loadLib(File dir, String lib, String path)
-			throws IOException {
+	private static boolean loadLib(File dir, String lib, String path) throws IOException {
 		File libFile = new File(dir, lib);
 		if (!libFile.exists()) {
 			if (!copyLib(path, libFile))
@@ -70,8 +72,7 @@ public class NativeLibrary {
 		return path + lib;
 	}
 
-	private static boolean copyLib(String jarPath, File file)
-			throws IOException {
+	private static boolean copyLib(String jarPath, File file) throws IOException {
 		InputStream is = NativeLibrary.class.getResourceAsStream(jarPath);
 		if (is == null)
 			return false;
