@@ -43,7 +43,7 @@
     <tr>
         <td>Category</td>
         {{#model.category}}
-        <td><a href="../categories/{{refId}}.html">{{#parentCategory}} ../ {{name}} / {{/parentCategory}}{{name}}</a></td>
+        <td><a href="../categories/{{refId}}.html">{{#category}} ../ {{name}} / {{/category}}{{name}}</a></td>
         {{/model.category}}
     </tr>
     <tr>
@@ -130,7 +130,7 @@
         {{#input}}<td>Input</td>{{/input}}
         {{^input}}<td>Output</td>{{/input}}
         <td><a href="../flows/{{flow.refId}}.html">{{flow.name}}</a></td>
-        <td>../{{flow.category.parentCategory.name}}/{{flow.category.name}}</td>
+        <td>../{{flow.category.category.name}}/{{flow.category.name}}</td>
         {{#amountFormula}}<td>{{amountFormula}}</td>{{/amountFormula}}
         {{^amountFormula}}<td>{{amountValue}}</td>{{/amountFormula}}
         <td>{{unit.name}}</td>

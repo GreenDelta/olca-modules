@@ -46,7 +46,7 @@ class CategoryImport {
 		String typeString = In.getString(json, "modelType");
 		if (typeString != null)
 			category.setModelType(ModelType.valueOf(typeString));
-		String parentId = In.getRefId(json, "parentCategory");
+		String parentId = In.getRefId(json, "category");
 		Category parent = CategoryImport.run(parentId, conf);
 		if (parent == null)
 			return conf.db.put(category);
@@ -55,7 +55,7 @@ class CategoryImport {
 	}
 
 	private Category updateParent(Category parent, Category category) {
-		category.setParentCategory(parent);
+		category.setCategory(parent);
 		parent.getChildCategories().add(category);
 		parent = conf.db.updateChilds(parent);
 		for (Category child : parent.getChildCategories()) {

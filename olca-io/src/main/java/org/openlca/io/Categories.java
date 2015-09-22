@@ -26,7 +26,7 @@ public final class Categories {
 			child.setModelType(parent.getModelType());
 			child.setName(childName);
 			child.setRefId(UUID.randomUUID().toString());
-			child.setParentCategory(parent);
+			child.setCategory(parent);
 			parent.getChildCategories().add(child);
 			CategoryDao dao = new CategoryDao(database);
 			dao.insert(child);

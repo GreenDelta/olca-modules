@@ -253,7 +253,7 @@ class ProcessConverter {
 				if (categoryTree != null)
 					categoryTree = "/" + categoryTree;
 				categoryTree = current.getName() + categoryTree;
-				current = current.getParentCategory();
+				current = current.getCategory();
 			}
 			builder.append(categoryTree);
 			log.error(builder.toString());

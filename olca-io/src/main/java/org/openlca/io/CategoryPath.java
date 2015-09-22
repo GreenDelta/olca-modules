@@ -16,10 +16,10 @@ public class CategoryPath {
 		if (category == null)
 			return "";
 		String path = category.getName();
-		Category parent = category.getParentCategory();
+		Category parent = category.getCategory();
 		while (parent != null) {
 			path = parent.getName() + "/" + path;
-			parent = parent.getParentCategory();
+			parent = parent.getCategory();
 		}
 		return path;
 	}
@@ -30,9 +30,9 @@ public class CategoryPath {
 	public static String getShort(Category category) {
 		if (category == null)
 			return "";
-		if (category.getParentCategory() == null)
+		if (category.getCategory() == null)
 			return category.getName();
-		String shortPath = category.getParentCategory().getName() + "/"
+		String shortPath = category.getCategory().getName() + "/"
 				+ category.getName();
 		return Strings.cut(shortPath, 75);
 	}

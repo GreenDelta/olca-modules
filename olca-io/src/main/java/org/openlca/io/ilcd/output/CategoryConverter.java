@@ -39,14 +39,14 @@ class CategoryConverter {
 		Stack<Category> stack = new Stack<>();
 		stack.push(category);
 		while (isNonRoot(category)) {
-			stack.push(category.getParentCategory());
-			category = category.getParentCategory();
+			stack.push(category.getCategory());
+			category = category.getCategory();
 		}
 		return stack;
 	}
 
 	private boolean isNonRoot(Category category) {
-		return category.getParentCategory() != null;
+		return category.getCategory() != null;
 	}
 
 	private void makeClasses(Classification classification,

@@ -29,10 +29,10 @@ public class CategoryPair implements Comparable<CategoryPair> {
 	public CategoryPair(Category category) {
 		if (category == null)
 			initVals(null, null);
-		else if (category.getParentCategory() == null)
+		else if (category.getCategory() == null)
 			initVals(category.getName(), null);
 		else
-			initVals(category.getParentCategory().getName(), category.getName());
+			initVals(category.getCategory().getName(), category.getName());
 	}
 
 	private void initVals(String category, String subCategory) {

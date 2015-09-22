@@ -10,12 +10,11 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_categories")
-public class Category extends RootEntity {
+public class Category extends CategorizedEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_parent_category")
@@ -24,10 +23,6 @@ public class Category extends RootEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "model_type")
 	private ModelType modelType;
-
-	@OneToOne
-	@JoinColumn(name = "f_parent_category")
-	private Category parentCategory;
 
 	public ModelType getModelType() {
 		return modelType;
@@ -46,27 +41,18 @@ public class Category extends RootEntity {
 		Category clone = new Category();
 		Util.cloneRootFields(this, clone);
 		clone.setModelType(getModelType());
-		clone.setParentCategory(getParentCategory());
+		clone.setCategory(getCategory());
 		for (Category child : getChildCategories()) {
 			Category childCopy = child.clone();
 			clone.getChildCategories().add(childCopy);
-			childCopy.setParentCategory(clone);
+			childCopy.setCategory(clone);
 		}
 		return clone;
 	}
 
-	public Category getParentCategory() {
-		return parentCategory;
-	}
-
-	public void setParentCategory(Category parentCategory) {
-		this.parentCategory = parentCategory;
-	}
-
 	@Override
 	public String toString() {
-		return String.format("Category {modelType=%s, refId=%s, name=%s}",
-				getModelType(), getRefId(), getName());
+		return String.format("Category {modelType=%s, refId=%s, name=%s}", getModelType(), getRefId(), getName());
 	}
 
 }

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Upgrades {
 
-	private final IUpgrade[] upgrades = { new Upgrade1(), new Upgrade2(), new Upgrade3() };
+	private final IUpgrade[] upgrades = { new Upgrade1(), new Upgrade2() };
 	private Logger log = LoggerFactory.getLogger(Upgrades.class);
 
 	private Upgrades() {
@@ -37,7 +37,8 @@ public class Upgrades {
 	private void run(IDatabase database) throws Exception {
 		IUpgrade nextUpgrade = null;
 		while ((nextUpgrade = findNextUpgrade(database)) != null) {
-			log.trace("execute update from v({}) to v{}", nextUpgrade.getInitialVersions(), nextUpgrade.getEndVersion());
+			log.trace("execute update from v({}) to v{}", nextUpgrade.getInitialVersions(),
+					nextUpgrade.getEndVersion());
 			nextUpgrade.exec(database);
 			updateVersion(nextUpgrade.getEndVersion(), database);
 		}

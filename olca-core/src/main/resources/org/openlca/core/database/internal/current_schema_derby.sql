@@ -35,11 +35,11 @@ CREATE TABLE tbl_categories (
 	last_change BIGINT,
 	
 	model_type VARCHAR(255), 
-	f_parent_category BIGINT,
+	f_category BIGINT,
 		
 	PRIMARY KEY (id)
 );
-CREATE INDEX idx_category_parent ON tbl_categories(f_parent_category);
+CREATE INDEX idx_category_parent ON tbl_categories(f_category);
 CREATE INDEX idx_category_ref_id ON tbl_categories(ref_id);
 
 CREATE TABLE tbl_actors (
@@ -74,6 +74,7 @@ CREATE TABLE tbl_locations (
 	description CLOB(64 K),
 	version BIGINT,
 	last_change BIGINT,
+	f_category BIGINT,
 
 	longitude DOUBLE,
 	latitude DOUBLE, 
@@ -83,6 +84,7 @@ CREATE TABLE tbl_locations (
 	
 	PRIMARY KEY (id)
 );
+CREATE INDEX idx_location_category ON tbl_locations(f_category);
 CREATE INDEX idx_location_ref_id ON tbl_locations(ref_id);
 
 CREATE TABLE tbl_sources (
@@ -455,6 +457,7 @@ CREATE TABLE tbl_parameters (
 	description CLOB(64 K), 
 	version BIGINT,
 	last_change BIGINT,
+	f_category BIGINT, 
 	
 	is_input_param SMALLINT default 0,
 	f_owner BIGINT, 
@@ -474,6 +477,7 @@ CREATE TABLE tbl_parameters (
 	
 	PRIMARY KEY (id)
 );
+CREATE INDEX idx_parameter_category ON tbl_parameters(f_category);
 
 CREATE TABLE tbl_parameter_redefs (
 
