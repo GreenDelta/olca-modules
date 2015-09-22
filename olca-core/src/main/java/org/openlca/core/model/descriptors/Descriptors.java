@@ -2,6 +2,7 @@ package org.openlca.core.model.descriptors;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -56,7 +57,17 @@ public class Descriptors {
 			return toDescriptor((Location) entity);
 		if (entity instanceof Parameter)
 			return toDescriptor((Parameter) entity);
+		if (entity instanceof Category)
+			return toDescriptor((Category) entity);
 		return createUnknownDescriptor(entity);
+	}
+
+	public static CategoryDescriptor toDescriptor(Category category) {
+		if (category == null)
+			return null;
+		CategoryDescriptor descriptor = new CategoryDescriptor();
+		setBaseValues(category, descriptor);
+		return descriptor;
 	}
 
 	public static ProjectDescriptor toDescriptor(Project project) {

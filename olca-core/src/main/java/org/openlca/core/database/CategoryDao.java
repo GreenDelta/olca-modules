@@ -6,12 +6,12 @@ import java.util.Map;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.CategoryDescriptor;
 
-public class CategoryDao extends CategorizedEntityDao<Category, CategorizedDescriptor> {
+public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescriptor> {
 
 	public CategoryDao(IDatabase database) {
-		super(Category.class, CategorizedDescriptor.class, database);
+		super(Category.class, CategoryDescriptor.class, database);
 	}
 
 	/** Root categories do not have a parent category. */
