@@ -1,10 +1,10 @@
 package org.openlca.core.database.upgrades;
 
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +36,7 @@ public class Upgrade2 implements IUpgrade {
 		util.checkDropColumn("tbl_processes", "kmz");
 		addVersionFields();
 		addSocialTables();
+		Upgrade2Files.apply(database);
 	}
 
 	/**
@@ -49,7 +50,8 @@ public class Upgrade2 implements IUpgrade {
 			String insertSql = "INSERT INTO tbl_locations(id, name, description, ref_id, kmz) VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement insertStmt = con.prepareStatement(insertSql);
 			String query = "SELECT id, ref_id, name, kmz FROM tbl_processes WHERE kmz is not null";
-			KmzResultHandler handler = new KmzResultHandler(updateStmt, insertStmt);
+			KmzResultHandler handler = new KmzResultHandler(updateStmt,
+					insertStmt);
 			handler.currentId = getSequenceId(con);
 			NativeSql.on(database).query(query, handler);
 			updateSequenceId(con, handler.currentId);
@@ -67,11 +69,13 @@ public class Upgrade2 implements IUpgrade {
 		}
 	}
 
-	private void updateSequenceId(Connection con, long newId) throws SQLException {
-		String query = "UPDATE SEQUENCE SET SEQ_COUNT = " + newId + " WHERE SEQ_NAME = 'entity_seq'";
+	private void updateSequenceId(Connection con, long newId)
+			throws SQLException {
+		String query = "UPDATE SEQUENCE SET SEQ_COUNT = " + newId
+				+ " WHERE SEQ_NAME = 'entity_seq'";
 		try (Statement stmt = con.createStatement()) {
 			stmt.executeUpdate(query);
-		}		
+		}
 	}
 
 	/**
@@ -79,19 +83,22 @@ public class Upgrade2 implements IUpgrade {
 	 * parameters are now root entities.
 	 */
 	private void addVersionFields() throws Exception {
-		String[] tables = { "tbl_categories", "tbl_impact_categories", "tbl_locations", "tbl_nw_sets",
+		String[] tables = { "tbl_categories", "tbl_impact_categories",
+				"tbl_locations", "tbl_nw_sets",
 				"tbl_parameters", "tbl_units" };
 		for (String table : tables) {
 			util.checkCreateColumn(table, "version", "version BIGINT");
 			util.checkCreateColumn(table, "last_change", "last_change BIGINT");
 		}
-		util.checkCreateColumn("tbl_parameters", "ref_id", "ref_id VARCHAR(36)");
+		util.checkCreateColumn("tbl_parameters", "ref_id",
+				"ref_id VARCHAR(36)");
 		List<String> updates = new ArrayList<>();
 		NativeSql.on(database).query(
 				"select id from tbl_parameters",
 				(r) -> {
 					long id = r.getLong(1);
-					String update = "update tbl_parameters set ref_id = '" + UUID.randomUUID().toString()
+					String update = "update tbl_parameters set ref_id = '"
+							+ UUID.randomUUID().toString()
 							+ "' where id = " + id;
 					updates.add(update);
 					return true;
@@ -100,15 +107,24 @@ public class Upgrade2 implements IUpgrade {
 	}
 
 	private void addSocialTables() throws Exception {
-		String indicators = "CREATE TABLE tbl_social_indicators ( " + "id BIGINT NOT NULL, " + "ref_id VARCHAR(36), "
-				+ "name VARCHAR(255), " + "version BIGINT, " + "last_change BIGINT, " + "f_category BIGINT, "
-				+ "description CLOB(64 K), " + "activity_variable VARCHAR(255), " + "f_activity_quantity BIGINT, "
-				+ "f_activity_unit BIGINT, " + "unit_of_measurement VARCHAR(255), " + "evaluation_scheme CLOB(64 K), "
+		String indicators = "CREATE TABLE tbl_social_indicators ( "
+				+ "id BIGINT NOT NULL, " + "ref_id VARCHAR(36), "
+				+ "name VARCHAR(255), " + "version BIGINT, "
+				+ "last_change BIGINT, " + "f_category BIGINT, "
+				+ "description CLOB(64 K), "
+				+ "activity_variable VARCHAR(255), "
+				+ "f_activity_quantity BIGINT, "
+				+ "f_activity_unit BIGINT, "
+				+ "unit_of_measurement VARCHAR(255), "
+				+ "evaluation_scheme CLOB(64 K), "
 				+ "PRIMARY KEY (id)) ";
 		util.checkCreateTable("tbl_social_indicators", indicators);
-		String aspects = "CREATE TABLE tbl_social_aspects ( " + "id BIGINT NOT NULL, " + "f_process BIGINT, "
-				+ "f_indicator BIGINT, " + "activity_value DOUBLE, " + "raw_amount VARCHAR(255), "
-				+ "risk_level VARCHAR(255), " + "comment CLOB(64 K), " + "f_source BIGINT, " + "quality VARCHAR(255), "
+		String aspects = "CREATE TABLE tbl_social_aspects ( "
+				+ "id BIGINT NOT NULL, " + "f_process BIGINT, "
+				+ "f_indicator BIGINT, " + "activity_value DOUBLE, "
+				+ "raw_amount VARCHAR(255), "
+				+ "risk_level VARCHAR(255), " + "comment CLOB(64 K), "
+				+ "f_source BIGINT, " + "quality VARCHAR(255), "
 				+ "PRIMARY KEY (id)) ";
 		util.checkCreateTable("tbl_social_aspects", aspects);
 
@@ -120,7 +136,8 @@ public class Upgrade2 implements IUpgrade {
 		private PreparedStatement locationInsertStatement;
 		private long currentId;
 
-		private KmzResultHandler(PreparedStatement processUpdateStatement, PreparedStatement locationInsertStatement) {
+		private KmzResultHandler(PreparedStatement processUpdateStatement,
+				PreparedStatement locationInsertStatement) {
 			this.processUpdateStatement = processUpdateStatement;
 			this.locationInsertStatement = locationInsertStatement;
 		}
@@ -131,12 +148,14 @@ public class Upgrade2 implements IUpgrade {
 			String name = result.getString("name");
 			String refId = result.getString("ref_id");
 			byte[] kmz = result.getBytes("kmz");
-			long locationId = insertLocation(createName(name), createDescription(name, refId), kmz);
+			long locationId = insertLocation(createName(name),
+					createDescription(name, refId), kmz);
 			updateProcess(id, locationId);
 			return true;
 		}
 
-		private long insertLocation(String name, String description, byte[] kmz) throws SQLException {
+		private long insertLocation(String name, String description, byte[] kmz)
+				throws SQLException {
 			locationInsertStatement.setLong(1, ++currentId);
 			locationInsertStatement.setString(2, name);
 			locationInsertStatement.setString(3, description);
@@ -146,7 +165,8 @@ public class Upgrade2 implements IUpgrade {
 			return currentId;
 		}
 
-		private void updateProcess(long processId, long locationId) throws SQLException {
+		private void updateProcess(long processId, long locationId)
+				throws SQLException {
 			processUpdateStatement.setLong(1, locationId);
 			processUpdateStatement.setLong(2, processId);
 			processUpdateStatement.executeUpdate();
@@ -160,7 +180,8 @@ public class Upgrade2 implements IUpgrade {
 		}
 
 		private String createDescription(String name, String refId) {
-			return "Location was specified in process " + name + " (" + refId + ")";
+			return "Location was specified in process " + name + " (" + refId
+					+ ")";
 		}
 	}
 
