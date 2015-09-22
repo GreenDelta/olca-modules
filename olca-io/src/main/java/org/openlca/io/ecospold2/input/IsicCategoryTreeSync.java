@@ -56,7 +56,7 @@ public class IsicCategoryTreeSync implements Runnable {
 			if (childNode.getCategory() != null) {
 				syncWithDatabase(childNode);
 				category.getChildCategories().add(childNode.getCategory());
-				childNode.getCategory().setParentCategory(category);
+				childNode.getCategory().setCategory(category);
 			}
 		}
 		category = dao.update(category);

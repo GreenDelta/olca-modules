@@ -33,7 +33,7 @@ public class CategoryDaoTest {
 		dao.insert(parent);
 		Category child = create();
 		parent.getChildCategories().add(child);
-		child.setParentCategory(parent);
+		child.setCategory(parent);
 		dao.update(parent);
 		TestSession.emptyCache();
 		Category alias = dao.getForId(parent.getId());
@@ -49,7 +49,7 @@ public class CategoryDaoTest {
 		Category parent = create();
 		Category child = create();
 		parent.getChildCategories().add(child);
-		child.setParentCategory(parent);
+		child.setCategory(parent);
 		dao.insert(parent);
 		TestSession.emptyCache();
 		List<Category> roots = dao.getRootCategories(ModelType.FLOW);

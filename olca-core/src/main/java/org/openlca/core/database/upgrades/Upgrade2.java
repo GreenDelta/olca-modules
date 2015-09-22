@@ -36,7 +36,12 @@ public class Upgrade2 implements IUpgrade {
 		util.checkDropColumn("tbl_processes", "kmz");
 		addVersionFields();
 		addSocialTables();
-		Upgrade2Files.apply(database);
+		util.checkCreateColumn("tbl_locations", "f_category",
+				"f_category BIGINT");
+		util.checkCreateColumn("tbl_parameters", "f_category",
+				"f_category BIGINT");
+		util.renameColumn("tbl_categories", "f_parent_category", "f_category",
+				"BIGINT");
 	}
 
 	/**
@@ -45,11 +50,16 @@ public class Upgrade2 implements IUpgrade {
 	 */
 	private void convertProcessKmzData() throws SQLException {
 		try (Connection con = database.createConnection()) {
-			String updateSql = "UPDATE tbl_processes SET f_location = ? WHERE id = ?";
+			String updateSql = "UPDATE tbl_processes "
+					+ "SET f_location = ? "
+					+ "WHERE id = ?";
 			PreparedStatement updateStmt = con.prepareStatement(updateSql);
-			String insertSql = "INSERT INTO tbl_locations(id, name, description, ref_id, kmz) VALUES (?, ?, ?, ?, ?)";
+			String insertSql = "INSERT INTO tbl_locations(id, name, description, ref_id, kmz) "
+					+ "VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement insertStmt = con.prepareStatement(insertSql);
-			String query = "SELECT id, ref_id, name, kmz FROM tbl_processes WHERE kmz is not null";
+			String query = "SELECT id, ref_id, name, kmz "
+					+ "FROM tbl_processes "
+					+ "WHERE kmz is not null";
 			KmzResultHandler handler = new KmzResultHandler(updateStmt,
 					insertStmt);
 			handler.currentId = getSequenceId(con);
@@ -62,16 +72,20 @@ public class Upgrade2 implements IUpgrade {
 	}
 
 	private long getSequenceId(Connection con) throws SQLException {
-		String query = "SELECT SEQ_COUNT FROM SEQUENCE WHERE SEQ_NAME = 'entity_seq'";
+		String query = "SELECT SEQ_COUNT "
+				+ "FROM SEQUENCE "
+				+ "WHERE SEQ_NAME = 'entity_seq'";
 		try (Statement stmt = con.createStatement();
 				ResultSet rs = stmt.executeQuery(query)) {
+			rs.next();
 			return rs.getLong("SEQ_COUNT");
 		}
 	}
 
 	private void updateSequenceId(Connection con, long newId)
 			throws SQLException {
-		String query = "UPDATE SEQUENCE SET SEQ_COUNT = " + newId
+		String query = "UPDATE SEQUENCE "
+				+ "SET SEQ_COUNT = " + newId
 				+ " WHERE SEQ_NAME = 'entity_seq'";
 		try (Statement stmt = con.createStatement()) {
 			stmt.executeUpdate(query);
@@ -84,8 +98,7 @@ public class Upgrade2 implements IUpgrade {
 	 */
 	private void addVersionFields() throws Exception {
 		String[] tables = { "tbl_categories", "tbl_impact_categories",
-				"tbl_locations", "tbl_nw_sets",
-				"tbl_parameters", "tbl_units" };
+				"tbl_locations", "tbl_nw_sets", "tbl_parameters", "tbl_units" };
 		for (String table : tables) {
 			util.checkCreateColumn(table, "version", "version BIGINT");
 			util.checkCreateColumn(table, "last_change", "last_change BIGINT");
@@ -93,24 +106,24 @@ public class Upgrade2 implements IUpgrade {
 		util.checkCreateColumn("tbl_parameters", "ref_id",
 				"ref_id VARCHAR(36)");
 		List<String> updates = new ArrayList<>();
-		NativeSql.on(database).query(
-				"select id from tbl_parameters",
-				(r) -> {
-					long id = r.getLong(1);
-					String update = "update tbl_parameters set ref_id = '"
-							+ UUID.randomUUID().toString()
-							+ "' where id = " + id;
-					updates.add(update);
-					return true;
-				});
+		NativeSql.on(database).query("select id from tbl_parameters", (r) -> {
+			long id = r.getLong(1);
+			String update = "update tbl_parameters set ref_id = '"
+					+ UUID.randomUUID().toString() + "' where id = " + id;
+			updates.add(update);
+			return true;
+		});
 		NativeSql.on(database).batchUpdate(updates);
 	}
 
 	private void addSocialTables() throws Exception {
 		String indicators = "CREATE TABLE tbl_social_indicators ( "
-				+ "id BIGINT NOT NULL, " + "ref_id VARCHAR(36), "
-				+ "name VARCHAR(255), " + "version BIGINT, "
-				+ "last_change BIGINT, " + "f_category BIGINT, "
+				+ "id BIGINT NOT NULL, "
+				+ "ref_id VARCHAR(36), "
+				+ "name VARCHAR(255), "
+				+ "version BIGINT, "
+				+ "last_change BIGINT, "
+				+ "f_category BIGINT, "
 				+ "description CLOB(64 K), "
 				+ "activity_variable VARCHAR(255), "
 				+ "f_activity_quantity BIGINT, "
@@ -120,14 +133,17 @@ public class Upgrade2 implements IUpgrade {
 				+ "PRIMARY KEY (id)) ";
 		util.checkCreateTable("tbl_social_indicators", indicators);
 		String aspects = "CREATE TABLE tbl_social_aspects ( "
-				+ "id BIGINT NOT NULL, " + "f_process BIGINT, "
-				+ "f_indicator BIGINT, " + "activity_value DOUBLE, "
+				+ "id BIGINT NOT NULL, "
+				+ "f_process BIGINT, "
+				+ "f_indicator BIGINT, "
+				+ "activity_value DOUBLE, "
 				+ "raw_amount VARCHAR(255), "
-				+ "risk_level VARCHAR(255), " + "comment CLOB(64 K), "
-				+ "f_source BIGINT, " + "quality VARCHAR(255), "
+				+ "risk_level VARCHAR(255), "
+				+ "comment CLOB(64 K), "
+				+ "f_source BIGINT, "
+				+ "quality VARCHAR(255), "
 				+ "PRIMARY KEY (id)) ";
 		util.checkCreateTable("tbl_social_aspects", aspects);
-
 	}
 
 	private class KmzResultHandler implements QueryResultHandler {

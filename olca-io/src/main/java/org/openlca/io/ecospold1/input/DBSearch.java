@@ -158,7 +158,7 @@ class DBSearch {
 			if (category == null)
 				return Strings.isNullOrEmpty(categoryName)
 						&& Strings.isNullOrEmpty(subCategoryName);
-			Category parent = category.getParentCategory();
+			Category parent = category.getCategory();
 			if (parent == null)
 				return sameCategory(categoryName, category)
 						|| sameCategory(subCategoryName, category);

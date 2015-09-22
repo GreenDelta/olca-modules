@@ -13,11 +13,11 @@ final class CategoryMapper {
 	static void map(Flow flow, IReferenceFunction refFun, ExportConfig config) {
 		Category category = flow.getCategory();
 		if (category != null) {
-			if (category.getParentCategory() == null) {
+			if (category.getCategory() == null) {
 				refFun.setCategory(category.getName());
 				refFun.setLocalCategory(category.getName());
 			} else {
-				Category parent = category.getParentCategory();
+				Category parent = category.getCategory();
 				refFun.setCategory(parent.getName());
 				refFun.setLocalCategory(parent.getName());
 				refFun.setSubCategory(category.getName());
@@ -41,11 +41,11 @@ final class CategoryMapper {
 
 	static void map(Category category, IExchange exchange, ExportConfig config) {
 		if (category != null) {
-			if (category.getParentCategory() == null) {
+			if (category.getCategory() == null) {
 				exchange.setCategory(category.getName());
 				exchange.setLocalCategory(category.getName());
 			} else {
-				Category parent = category.getParentCategory();
+				Category parent = category.getCategory();
 				exchange.setCategory(parent.getName());
 				exchange.setLocalCategory(parent.getName());
 				exchange.setSubCategory(category.getName());

@@ -43,7 +43,7 @@ class CategoryWriter implements Writer<Category> {
 		ModelType modelType = category.getModelType();
 		if (modelType != null)
 			json.addProperty("modelType", modelType.name());
-		JsonObject parentRef = Out.put(category.getParentCategory(), store);
-		json.add("parentCategory", parentRef);
+		JsonObject parentRef = Out.put(category.getCategory(), store);
+		json.add("category", parentRef);
 	}
 }

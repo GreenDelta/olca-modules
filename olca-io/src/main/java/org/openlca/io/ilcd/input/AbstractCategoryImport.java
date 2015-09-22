@@ -92,7 +92,7 @@ abstract class AbstractCategoryImport<C> {
 			throws ImportException {
 		try {
 			Category newCategory = createNew(ilcdCategory);
-			newCategory.setParentCategory(parentCategory);
+			newCategory.setCategory(parentCategory);
 			parentCategory.getChildCategories().add(newCategory);
 			dao.insert(newCategory);
 			dao.update(parentCategory);

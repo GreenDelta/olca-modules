@@ -41,9 +41,9 @@ public class IsicTreeTest {
 		cat = dao.insert(cat);
 		new IsicCategoryTreeSync(database, ModelType.FLOW).run();
 		cat = dao.getForId(cat.getId());
-		Assert.assertNotNull(cat.getParentCategory());
+		Assert.assertNotNull(cat.getCategory());
 		Assert.assertEquals("012:Growing of perennial crops", cat
-				.getParentCategory().getName());
+				.getCategory().getName());
 	}
 
 	@Test
@@ -57,9 +57,9 @@ public class IsicTreeTest {
 		cat = dao.insert(cat);
 		new IsicCategoryTreeSync(database, ModelType.PROCESS).run();
 		cat = dao.getForId(cat.getId());
-		Assert.assertNotNull(cat.getParentCategory());
+		Assert.assertNotNull(cat.getCategory());
 		Assert.assertEquals("A:Agriculture, forestry and fishing", cat
-				.getParentCategory().getName());
+				.getCategory().getName());
 	}
 
 }
