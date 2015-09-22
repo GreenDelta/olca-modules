@@ -1,10 +1,10 @@
 package org.openlca.core.database.upgrades;
 
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,9 +36,12 @@ public class Upgrade2 implements IUpgrade {
 		util.checkDropColumn("tbl_processes", "kmz");
 		addVersionFields();
 		addSocialTables();
-		util.checkCreateColumn("tbl_locations", "f_category", "f_category BIGINT");
-		util.checkCreateColumn("tbl_parameters", "f_category", "f_category BIGINT");
-		util.renameColumn("tbl_categories", "f_parent_category", "f_category", "BIGINT");
+		util.checkCreateColumn("tbl_locations", "f_category",
+				"f_category BIGINT");
+		util.checkCreateColumn("tbl_parameters", "f_category",
+				"f_category BIGINT");
+		util.renameColumn("tbl_categories", "f_parent_category", "f_category",
+				"BIGINT");
 	}
 
 	/**
@@ -57,7 +60,8 @@ public class Upgrade2 implements IUpgrade {
 			String query = "SELECT id, ref_id, name, kmz "
 					+ "FROM tbl_processes "
 					+ "WHERE kmz is not null";
-			KmzResultHandler handler = new KmzResultHandler(updateStmt, insertStmt);
+			KmzResultHandler handler = new KmzResultHandler(updateStmt,
+					insertStmt);
 			handler.currentId = getSequenceId(con);
 			NativeSql.on(database).query(query, handler);
 			updateSequenceId(con, handler.currentId);
@@ -78,7 +82,8 @@ public class Upgrade2 implements IUpgrade {
 		}
 	}
 
-	private void updateSequenceId(Connection con, long newId) throws SQLException {
+	private void updateSequenceId(Connection con, long newId)
+			throws SQLException {
 		String query = "UPDATE SEQUENCE "
 				+ "SET SEQ_COUNT = " + newId
 				+ " WHERE SEQ_NAME = 'entity_seq'";
@@ -159,7 +164,8 @@ public class Upgrade2 implements IUpgrade {
 			String name = result.getString("name");
 			String refId = result.getString("ref_id");
 			byte[] kmz = result.getBytes("kmz");
-			long locationId = insertLocation(createName(name), createDescription(name, refId), kmz);
+			long locationId = insertLocation(createName(name),
+					createDescription(name, refId), kmz);
 			updateProcess(id, locationId);
 			return true;
 		}
@@ -175,7 +181,8 @@ public class Upgrade2 implements IUpgrade {
 			return currentId;
 		}
 
-		private void updateProcess(long processId, long locationId) throws SQLException {
+		private void updateProcess(long processId, long locationId)
+				throws SQLException {
 			processUpdateStatement.setLong(1, locationId);
 			processUpdateStatement.setLong(2, processId);
 			processUpdateStatement.executeUpdate();
@@ -189,7 +196,8 @@ public class Upgrade2 implements IUpgrade {
 		}
 
 		private String createDescription(String name, String refId) {
-			return "Location was specified in process " + name + " (" + refId + ")";
+			return "Location was specified in process " + name + " (" + refId
+					+ ")";
 		}
 	}
 
