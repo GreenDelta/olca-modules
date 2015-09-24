@@ -19,21 +19,35 @@
 	</repositories>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-shapefile</artifactId>
-			<version>10.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.geotools.xsd</groupId>
-			<artifactId>gt-xsd-kml</artifactId>
-			<version>10.3</version>
-		</dependency>
+	
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>1.0.b2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.trove4j</groupId>
+			<artifactId>trove4j</artifactId>
+			<version>3.0.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>14.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>javax.persistence</artifactId>
+			<version>2.0.0</version>
 		</dependency>
 
 		<dependency>
@@ -57,6 +71,12 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-simapro-csv</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openlca</groupId>
+			<artifactId>olca-formula</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
@@ -100,12 +120,6 @@
 					<groupId>stax</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.2.4</version>
 		</dependency>
 
 		<dependency>

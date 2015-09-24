@@ -37,7 +37,13 @@
 			<artifactId>compiler</artifactId>
 			<version>0.8.17</version>
 		</dependency>
-
+		
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>14.0.1</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
