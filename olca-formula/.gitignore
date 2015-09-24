@@ -2,3 +2,6 @@ bin/
 target/
 apidocs/
 
+/.settings/
+/.classpath
+/.project

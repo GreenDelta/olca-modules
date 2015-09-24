@@ -3,3 +3,6 @@
 # IDE settings
 /.idea
 olca-eigen.iml
+/.settings/
+/.classpath
+/.project

@@ -11,3 +11,6 @@
 olca-eigen.iml
 
 /bin
+/.settings/
+/.classpath
+/.project
