@@ -20,7 +20,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 	@Override
 	protected String[] getDescriptorFields() {
 		return new String[] { "id", "ref_id", "name", "description",
-				"flow_type", "f_category", "f_location",
+				"f_category", "flow_type", "f_location",
 				"f_reference_flow_property" };
 	}
 
@@ -29,9 +29,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		if (queryResult == null)
 			return null;
 		FlowDescriptor descriptor = super.createDescriptor(queryResult);
-		if (queryResult[4] instanceof String)
-			descriptor.setFlowType(FlowType.valueOf((String) queryResult[4]));
-		descriptor.setCategory((Long) queryResult[5]);
+		if (queryResult[5] instanceof String)
+			descriptor.setFlowType(FlowType.valueOf((String) queryResult[5]));
 		descriptor.setLocation((Long) queryResult[6]);
 		Long refProp = (Long) queryResult[7];
 		if (refProp != null)
