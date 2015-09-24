@@ -1,0 +1,49 @@
+package com.greendelta.cloud.api;
+
+import java.util.List;
+
+import com.greendelta.cloud.util.Strings;
+import com.greendelta.cloud.util.WebRequests;
+import com.greendelta.cloud.util.WebRequests.Type;
+import com.greendelta.cloud.util.WebRequests.WebRequestException;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.GenericType;
+
+/**
+ * Invokes a web service call to retrieve the list of users that have access to
+ * the specified repository
+ */
+public class RepositoryAccessListInvocation {
+
+	private static final String PATH = "/repository/shared";
+	private String baseUrl;
+	private String sessionId;
+	private String repositoryId;
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
+	public void setRepositoryId(String repositoryId) {
+		this.repositoryId = repositoryId;
+	}
+
+	/**
+	 * Loads the list of users that have access to the specified repository
+	 * 
+	 * @return list of users with access
+	 * @throws WebRequestException
+	 *             if the specified repository did not exist
+	 */
+	public List<String> execute() throws WebRequestException {
+		String url = Strings.concat(baseUrl, PATH, "/", repositoryId);
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
+		return response.getEntity(new GenericType<List<String>>() {
+		});
+	}
+
+}
