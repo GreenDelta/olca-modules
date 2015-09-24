@@ -42,6 +42,7 @@ public class Upgrade2 implements IUpgrade {
 				"f_category BIGINT");
 		util.renameColumn("tbl_categories", "f_parent_category", "f_category",
 				"BIGINT");
+		Upgrade2Files.apply(database);
 	}
 
 	/**

@@ -15,37 +15,21 @@ public class ProcessCostEntry extends AbstractEntity {
 
 	@OneToOne
 	@JoinColumn(name = "f_exchange")
-	private Exchange exchange;
+	public Exchange exchange;
 
 	@OneToOne
 	@JoinColumn(name = "f_cost_category")
-	private CostCategory costCategory;
+	public CostCategory costCategory;
 
 	@Column(name = "amount")
-	private double amount;
+	public double amount;
 
-	public Exchange getExchange() {
-		return exchange;
+	@Override
+	public ProcessCostEntry clone() {
+		ProcessCostEntry clone = new ProcessCostEntry();
+		clone.exchange = exchange;
+		clone.costCategory = costCategory;
+		clone.amount = amount;
+		return clone;
 	}
-
-	public void setExchange(Exchange exchange) {
-		this.exchange = exchange;
-	}
-
-	public CostCategory getCostCategory() {
-		return costCategory;
-	}
-
-	public void setCostCategory(CostCategory costCategory) {
-		this.costCategory = costCategory;
-	}
-
-	public double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
-
 }
