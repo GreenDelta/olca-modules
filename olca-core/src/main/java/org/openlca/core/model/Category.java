@@ -17,7 +17,7 @@ import javax.persistence.Table;
 public class Category extends CategorizedEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
-	@JoinColumn(name = "f_parent_category")
+	@JoinColumn(name = "f_category")
 	private List<Category> childCategories = new ArrayList<>();
 
 	@Enumerated(EnumType.STRING)

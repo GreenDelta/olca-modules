@@ -15,7 +15,7 @@ class CategoryImport extends AbstractImport {
 	@Override
 	protected String getStatement() {
 		return "insert into tbl_categories (id, ref_id, name, description, "
-				+ "model_type, f_parent_category) values (?, ?, ?, ?, ?, ?)";
+				+ "model_type, f_category) values (?, ?, ?, ?, ?, ?)";
 	}
 
 	@Override
