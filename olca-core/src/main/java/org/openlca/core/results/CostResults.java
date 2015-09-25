@@ -44,7 +44,7 @@ public final class CostResults {
 			CostCategoryResult r = new CostCategoryResult();
 			results.add(r);
 			r.setCostCategory(cat);
-			if (cat.isFix())
+			if (cat.fix)
 				r.setAmount(fetchVal(cat, fixIndex, fixResults));
 			else
 				r.setAmount(fetchVal(cat, varIndex, varResults));

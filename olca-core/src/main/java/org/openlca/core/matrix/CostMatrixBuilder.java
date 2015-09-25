@@ -87,7 +87,7 @@ class CostMatrixBuilder {
 		CostCategory cat = costCategories.get(entry.getCostCategoryId());
 		if (cat == null)
 			return;
-		if (cat.isFix())
+		if (cat.fix)
 			fixCostCategoryIndex.put(cat.getId());
 		else
 			varCostCategoryIndex.put(cat.getId());
