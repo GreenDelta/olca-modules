@@ -74,7 +74,8 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 	 * Subclass may override to provide more information. Use sql column names !
 	 */
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description" };
+		return new String[] { "id", "ref_id", "name", "description", "version",
+				"last_change" };
 	}
 
 	/**
@@ -107,6 +108,10 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 			descriptor.setRefId((String) queryResult[1]);
 			descriptor.setName((String) queryResult[2]);
 			descriptor.setDescription((String) queryResult[3]);
+			if (queryResult[4] != null)
+				descriptor.setVersion((long) queryResult[4]);
+			if (queryResult[5] != null)
+				descriptor.setLastChange((long) queryResult[5]);
 			descriptor.setType(ModelType.forModelClass(entityType));
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log,

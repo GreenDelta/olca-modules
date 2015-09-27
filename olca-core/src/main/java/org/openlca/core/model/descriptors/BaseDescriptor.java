@@ -21,6 +21,8 @@ public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable 
 	private long id;
 	private String name;
 	private String description;
+	private long version;
+	private long lastChange;
 	private ModelType type = ModelType.UNKNOWN;
 
 	@Override
@@ -63,6 +65,22 @@ public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable 
 		this.description = description;
 	}
 
+	public long getVersion() {
+		return version;
+	}
+	
+	public void setVersion(long version) {
+		this.version = version;
+	}
+	
+	public long getLastChange() {
+		return lastChange;
+	}
+	
+	public void setLastChange(long lastChange) {
+		this.lastChange = lastChange;
+	}
+	
 	public void setType(ModelType type) {
 		this.type = type;
 	}
