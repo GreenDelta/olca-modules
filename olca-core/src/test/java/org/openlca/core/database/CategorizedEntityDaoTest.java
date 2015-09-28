@@ -10,12 +10,15 @@ import org.openlca.core.TestSession;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.CostCategory;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -41,6 +44,9 @@ public class CategorizedEntityDaoTest {
 		run(ImpactMethod.class, new ImpactMethodDao(database));
 		run(ProductSystem.class, new ProductSystemDao(database));
 		run(Project.class, new ProjectDao(database));
+		run(CostCategory.class, new CostCategoryDao(database));
+		run(Currency.class, new CurrencyDao(database));
+		run(SocialIndicator.class, new SocialIndicatorDao(database));
 	}
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void run(

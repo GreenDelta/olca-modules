@@ -12,6 +12,7 @@ import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.CostCategory;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -53,6 +54,7 @@ public class BaseDaoTest {
 			AllocationFactor.class,
 			Category.class,
 			CostCategory.class,
+			Currency.class,
 			Exchange.class,
 			Flow.class,
 			FlowProperty.class,

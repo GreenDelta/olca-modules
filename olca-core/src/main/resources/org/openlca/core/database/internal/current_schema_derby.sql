@@ -556,7 +556,26 @@ CREATE TABLE tbl_cost_categories (
 	description CLOB(64 K),
 	
 	PRIMARY KEY (id)
-) ;
+);
+
+
+CREATE TABLE tbl_currencies (
+
+	id BIGINT NOT NULL,
+	name VARCHAR(255),
+	ref_id VARCHAR(36),
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
+	description CLOB(64 K),
+	
+	code VARCHAR(255),
+	conversion_factor DOUBLE,
+	f_reference_currency BIGINT,	
+	
+	PRIMARY KEY (id)
+
+);
 
 
 CREATE TABLE tbl_process_cost_entries (

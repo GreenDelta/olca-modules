@@ -10,6 +10,7 @@
 		<class>org.openlca.core.model.AllocationFactor</class>
 		<class>org.openlca.core.model.CalculationProperty</class>
 		<class>org.openlca.core.model.Category</class>
+		<class>org.openlca.core.model.Currency</class>
 		<class>org.openlca.core.model.Exchange</class>
 		<class>org.openlca.core.model.Flow</class>
 		<class>org.openlca.core.model.FlowProperty</class>

@@ -37,6 +37,8 @@ public enum ModelType {
 
 	COST_CATEGORY(CostCategory.class),
 
+	CURRENCY(Currency.class),
+
 	PARAMETER(Parameter.class);
 
 	final Class<?> modelClass;

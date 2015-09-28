@@ -35,7 +35,8 @@ public class Upgrade2 implements IUpgrade {
 		convertProcessKmzData();
 		util.checkDropColumn("tbl_processes", "kmz");
 		addVersionFields();
-		addSocialTables();
+		createSocialTables();
+		createCurrencyTable();
 		updateCostCategories();
 		util.checkCreateColumn("tbl_locations", "f_category",
 				"f_category BIGINT");
@@ -136,7 +137,23 @@ public class Upgrade2 implements IUpgrade {
 		NativeSql.on(database).batchUpdate(updates);
 	}
 
-	private void addSocialTables() throws Exception {
+	private void createCurrencyTable() throws Exception {
+		util.checkCreateTable("tbl_currencies",
+				"CREATE TABLE tbl_currencies ( "
+						+ "id BIGINT NOT NULL, "
+						+ "name VARCHAR(255), "
+						+ "ref_id VARCHAR(36), "
+						+ "version BIGINT, "
+						+ "last_change BIGINT, "
+						+ "f_category BIGINT, "
+						+ "description CLOB(64 K), "
+						+ "code VARCHAR(255), "
+						+ "conversion_factor DOUBLE, "
+						+ "f_reference_currency BIGINT, "
+						+ "PRIMARY KEY (id)) ");
+	}
+
+	private void createSocialTables() throws Exception {
 		String indicators = "CREATE TABLE tbl_social_indicators ( "
 				+ "id BIGINT NOT NULL, "
 				+ "ref_id VARCHAR(36), "
