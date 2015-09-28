@@ -36,6 +36,7 @@ public class Upgrade2 implements IUpgrade {
 		util.checkDropColumn("tbl_processes", "kmz");
 		addVersionFields();
 		addSocialTables();
+		updateCostCategories();
 		util.checkCreateColumn("tbl_locations", "f_category",
 				"f_category BIGINT");
 		util.checkCreateColumn("tbl_parameters", "f_category",
@@ -110,6 +111,24 @@ public class Upgrade2 implements IUpgrade {
 		NativeSql.on(database).query("select id from tbl_parameters", (r) -> {
 			long id = r.getLong(1);
 			String update = "update tbl_parameters set ref_id = '"
+					+ UUID.randomUUID().toString() + "' where id = " + id;
+			updates.add(update);
+			return true;
+		});
+		NativeSql.on(database).batchUpdate(updates);
+	}
+
+	private void updateCostCategories() throws Exception {
+		String t = "tbl_cost_categories";
+		util.checkCreateColumn(t, "ref_id", "ref_id VARCHAR(36)");
+		util.checkCreateColumn(t, "version", "version BIGINT");
+		util.checkCreateColumn(t, "last_change", "last_change BIGINT");
+		util.checkCreateColumn(t, "f_category", "f_category BIGINT");
+		List<String> updates = new ArrayList<>();
+		String query = "select id from tbl_cost_categories";
+		NativeSql.on(database).query(query, (r) -> {
+			long id = r.getLong(1);
+			String update = "update tbl_cost_categories set ref_id = '"
 					+ UUID.randomUUID().toString() + "' where id = " + id;
 			updates.add(update);
 			return true;

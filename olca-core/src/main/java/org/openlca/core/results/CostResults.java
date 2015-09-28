@@ -37,17 +37,12 @@ public final class CostResults {
 			return Collections.emptyList();
 		double[] varResults = result.getVarCostResults();
 		LongIndex varIndex = result.getVarCostCategoryIndex();
-		double[] fixResults = result.getFixCostResults();
-		LongIndex fixIndex = result.getFixCostCategoryIndex();
 		List<CostCategoryResult> results = new ArrayList<>();
 		for (CostCategory cat : getCostCategories(result, cache)) {
 			CostCategoryResult r = new CostCategoryResult();
 			results.add(r);
 			r.setCostCategory(cat);
-			if (cat.fix)
-				r.setAmount(fetchVal(cat, fixIndex, fixResults));
-			else
-				r.setAmount(fetchVal(cat, varIndex, varResults));
+			r.setAmount(fetchVal(cat, varIndex, varResults));
 		}
 		return results;
 	}

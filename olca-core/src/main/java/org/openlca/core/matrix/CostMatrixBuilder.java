@@ -1,7 +1,5 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
-
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 class CostMatrixBuilder {
 
@@ -87,10 +87,7 @@ class CostMatrixBuilder {
 		CostCategory cat = costCategories.get(entry.getCostCategoryId());
 		if (cat == null)
 			return;
-		if (cat.fix)
-			fixCostCategoryIndex.put(cat.getId());
-		else
-			varCostCategoryIndex.put(cat.getId());
+		varCostCategoryIndex.put(cat.getId());
 		costEntries.put(processProduct, entry);
 	}
 

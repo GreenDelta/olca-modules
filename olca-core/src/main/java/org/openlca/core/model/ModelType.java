@@ -35,6 +35,8 @@ public enum ModelType {
 
 	SOCIAL_INDICATOR(SocialIndicator.class),
 
+	COST_CATEGORY(CostCategory.class),
+
 	PARAMETER(Parameter.class);
 
 	final Class<?> modelClass;

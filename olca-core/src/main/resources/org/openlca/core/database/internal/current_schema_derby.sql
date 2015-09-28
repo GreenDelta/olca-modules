@@ -545,11 +545,16 @@ CREATE TABLE tbl_mapping_files (
 );
 
 
-CREATE TABLE tbl_cost_categories (	
+CREATE TABLE tbl_cost_categories (
+	
 	id BIGINT NOT NULL,
 	name VARCHAR(255),
+	ref_id VARCHAR(36),
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
 	description CLOB(64 K),
-	fix SMALLINT default 0,
+	
 	PRIMARY KEY (id)
 ) ;
 
