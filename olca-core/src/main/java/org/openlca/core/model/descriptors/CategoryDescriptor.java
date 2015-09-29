@@ -10,4 +10,14 @@ public class CategoryDescriptor extends CategorizedDescriptor {
 		setType(ModelType.CATEGORY);
 	}
 
+	private ModelType categoryType;
+
+	public ModelType getCategoryType() {
+		return categoryType;
+	}
+
+	public void setCategoryType(ModelType categoryType) {
+		this.categoryType = categoryType;
+	}
+
 }

@@ -73,6 +73,7 @@ public class Descriptors {
 			return null;
 		CategoryDescriptor descriptor = new CategoryDescriptor();
 		setBaseValues(category, descriptor);
+		descriptor.setCategoryType(category.getModelType());
 		return descriptor;
 	}
 
