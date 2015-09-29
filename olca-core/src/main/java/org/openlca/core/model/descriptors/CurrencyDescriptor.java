@@ -8,7 +8,7 @@ public class CurrencyDescriptor extends CategorizedDescriptor {
 
 	@Override
 	public ModelType getModelType() {
-		return ModelType.COST_CATEGORY;
+		return ModelType.CURRENCY;
 	}
 
 }
