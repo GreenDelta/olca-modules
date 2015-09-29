@@ -41,7 +41,7 @@ class LocationWriter implements Writer<Location> {
 	private void map(Location location, JsonObject obj) {
 		if (location == null || obj == null)
 			return;
-		JsonExport.addAttributes(location, obj, store);
+		Out.addAttributes(location, obj, store);
 		obj.addProperty("code", location.getCode());
 		obj.addProperty("latitude", location.getLatitude());
 		obj.addProperty("longitude", location.getLongitude());

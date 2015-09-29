@@ -5,6 +5,9 @@ import java.io.File;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.util.Dirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides structured access to files that are stored outside of a database.
@@ -41,9 +44,66 @@ public class FileStore {
 	}
 
 	public File getFolder(ModelType type, String id) {
+		if (type == null || id == null)
+			return new File(root, "null");
 		File dir = new File(root, getPath(type));
 		String subPath = id != null ? id : "null";
 		return new File(dir, subPath);
+	}
+
+	public void copyFolder(RootEntity from, RootEntity to) {
+		if (from == null || to == null)
+			return;
+		ModelType type = ModelType.forModelClass(from.getClass());
+		copyFolder(type, from.getRefId(), to.getRefId());
+	}
+
+	public void copyFolder(BaseDescriptor from, BaseDescriptor to) {
+		if (from == null || to == null)
+			return;
+		copyFolder(from.getModelType(), from.getRefId(), to.getRefId());
+	}
+
+	public void copyFolder(ModelType type, String fromId, String toId) {
+		if (type == null || fromId == null || toId == null)
+			return;
+		File fromDir = getFolder(type, fromId);
+		if (!fromDir.exists())
+			return;
+		File toDir = getFolder(type, toId);
+		try {
+			Dirs.copy(fromDir.toPath(), toDir.toPath());
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.error("Failed to copy directory " + fromDir + " to " + toDir, e);
+		}
+	}
+
+	public void deleteFolder(BaseDescriptor d) {
+		if (d == null)
+			return;
+		deleteFolder(d.getModelType(), d.getRefId());
+	}
+
+	public void deleteFolder(RootEntity e) {
+		if (e == null)
+			return;
+		ModelType type = ModelType.forModelClass(e.getClass());
+		deleteFolder(type, e.getRefId());
+	}
+
+	public void deleteFolder(ModelType type, String id) {
+		if (type == null || id == null)
+			return;
+		File dir = getFolder(type, id);
+		if (dir == null || !dir.exists())
+			return;
+		try {
+			Dirs.delete(dir.toPath());
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.error("Failed to delete directory " + dir, e);
+		}
 	}
 
 	/**
