@@ -13,6 +13,10 @@ public final class ModelPath {
 		switch (type) {
 		case CATEGORY:
 			return "categories";
+		case COST_CATEGORY:
+			return "cost_categories";
+		case CURRENCY:
+			return "currencies";
 		case PROCESS:
 			return "processes";
 		case FLOW:
@@ -29,6 +33,8 @@ public final class ModelPath {
 			return "locations";
 		case NW_SET:
 			return "nw_sets";
+		case PARAMETER:
+			return "parameters";
 		case PRODUCT_SYSTEM:
 			return "product_systems";
 		case PROJECT:

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -17,6 +18,7 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
@@ -42,6 +44,7 @@ class Db {
 	private Map<String, Long> sourceIds = new HashMap<>();
 	private Map<String, Long> processIds = new HashMap<>();
 	private Map<String, Long> indicatorIds = new HashMap<>();
+	private Map<String, Long> currencyIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -165,6 +168,14 @@ class Db {
 
 	public SocialIndicator put(SocialIndicator indicator) {
 		return put(new SocialIndicatorDao(db), indicator, indicatorIds);
+	}
+
+	public Currency getCurrency(String refId) {
+		return get(new CurrencyDao(db), refId, currencyIds);
+	}
+
+	public Currency put(Currency currency) {
+		return put(new CurrencyDao(db), currency, currencyIds);
 	}
 
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,
