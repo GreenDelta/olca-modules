@@ -15,7 +15,7 @@ public interface IDatabase extends Closeable {
 	 * The current database schema version of this package. Together with the
 	 * getVersion-method this can be used to check for updates of a database.
 	 */
-	int CURRENT_VERSION = 5;
+	int CURRENT_VERSION = 4;
 
 	/**
 	 * Creates a native SQL connection to the underlying database. The

@@ -12,7 +12,7 @@ public class ImpactCategoryDao extends
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description",
+		return new String[] { "id", "ref_id", "name", "description", "version", "last_change",
 				"reference_unit" };
 	}
 
@@ -21,7 +21,7 @@ public class ImpactCategoryDao extends
 		if (queryResult == null)
 			return null;
 		ImpactCategoryDescriptor d = super.createDescriptor(queryResult);
-		d.setReferenceUnit((String) queryResult[4]);
+		d.setReferenceUnit((String) queryResult[6]);
 		return d;
 	}
 

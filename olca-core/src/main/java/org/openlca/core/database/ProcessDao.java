@@ -22,9 +22,10 @@ public class ProcessDao extends
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "f_category",
-				"process_type", "infrastructure_process",
-				"f_location", "f_quantitative_reference" };
+		return new String[] { "id", "ref_id", "name", "description", "version",
+				"last_change", "f_category", "process_type",
+				"infrastructure_process", "f_location",
+				"f_quantitative_reference" };
 	}
 
 	@Override
@@ -32,10 +33,10 @@ public class ProcessDao extends
 		if (queryResult == null)
 			return null;
 		ProcessDescriptor d = super.createDescriptor(queryResult);
-		d.setProcessType(ProcessType.valueOf((String) queryResult[5]));
-		d.setInfrastructureProcess((Integer) queryResult[6] == 1);
-		d.setLocation((Long) queryResult[7]);
-		d.setQuantitativeReference((Long) queryResult[8]);
+		d.setProcessType(ProcessType.valueOf((String) queryResult[7]));
+		d.setInfrastructureProcess((Integer) queryResult[8] == 1);
+		d.setLocation((Long) queryResult[9]);
+		d.setQuantitativeReference((Long) queryResult[10]);
 		return d;
 	}
 
