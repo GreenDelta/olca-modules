@@ -51,6 +51,19 @@ public class FileStore {
 		return new File(dir, subPath);
 	}
 
+	public void copyFolder(RootEntity from, RootEntity to) {
+		if (from == null || to == null)
+			return;
+		ModelType type = ModelType.forModelClass(from.getClass());
+		copyFolder(type, from.getRefId(), to.getRefId());
+	}
+
+	public void copyFolder(BaseDescriptor from, BaseDescriptor to) {
+		if (from == null || to == null)
+			return;
+		copyFolder(from.getModelType(), from.getRefId(), to.getRefId());
+	}
+
 	public void copyFolder(ModelType type, String fromId, String toId) {
 		if (type == null || fromId == null || toId == null)
 			return;
