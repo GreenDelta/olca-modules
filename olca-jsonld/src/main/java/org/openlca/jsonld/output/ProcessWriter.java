@@ -1,12 +1,7 @@
 package org.openlca.jsonld.output;
 
 import java.lang.reflect.Type;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Objects;
-
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
@@ -15,9 +10,8 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
+import org.openlca.jsonld.Dates;
 import org.openlca.jsonld.EntityStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -55,7 +49,7 @@ class ProcessWriter implements Writer<Process> {
 	private void map(Process process, JsonObject obj) {
 		if (process == null || obj == null)
 			return;
-		JsonExport.addAttributes(process, obj, store);
+		Out.addAttributes(process, obj, store);
 		mapProcessType(process, obj);
 		obj.addProperty("defaultAllocationMethod", getAllocationType(
 				process.getDefaultAllocationMethod()));
@@ -69,7 +63,7 @@ class ProcessWriter implements Writer<Process> {
 		for (Exchange e : p.getExchanges()) {
 			JsonObject eObj = new JsonObject();
 			new ExchangeWriter(store).map(e, eObj);
-			if(Objects.equals(p.getQuantitativeReference(), e))
+			if (Objects.equals(p.getQuantitativeReference(), e))
 				eObj.addProperty("quantitativeReference", true);
 			exchanges.add(eObj);
 		}
@@ -116,9 +110,9 @@ class ProcessWriter implements Writer<Process> {
 		o.addProperty("samplingDescription", d.getSampling());
 		o.addProperty("restrictionsDescription", d.getRestrictions());
 		o.addProperty("copyright", d.isCopyright());
-		o.addProperty("validFrom", asXmlDate(d.getValidFrom()));
-		o.addProperty("validUntil", asXmlDate(d.getValidUntil()));
-		o.addProperty("creationDate", asXmlDate(d.getCreationDate()));
+		o.addProperty("validFrom", Dates.toString(d.getValidFrom()));
+		o.addProperty("validUntil", Dates.toString(d.getValidUntil()));
+		o.addProperty("creationDate", Dates.toString(d.getCreationDate()));
 		o.addProperty("intendedApplication", d.getIntendedApplication());
 		o.addProperty("projectDescription", d.getProject());
 		o.addProperty("geographyDescription", d.getGeography());
@@ -144,22 +138,6 @@ class ProcessWriter implements Writer<Process> {
 		if (type == null)
 			return;
 		obj.addProperty("processTyp", type.name());
-	}
-
-	private String asXmlDate(Date date) {
-		if (date == null)
-			return null;
-		try {
-			GregorianCalendar cal = new GregorianCalendar();
-			cal.setTime(date);
-			XMLGregorianCalendar xml = DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(cal);
-			return xml.toXMLFormat();
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(ProcessWriter.class);
-			log.error("Could not convert to XML date format", e);
-			return null;
-		}
 	}
 
 }

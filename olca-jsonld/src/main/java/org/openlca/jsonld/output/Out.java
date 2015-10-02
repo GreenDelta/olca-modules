@@ -1,6 +1,7 @@
 package org.openlca.jsonld.output;
 
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -12,6 +13,8 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
+import org.openlca.jsonld.Dates;
 import org.openlca.jsonld.EntityStore;
 
 import com.google.gson.JsonObject;
@@ -72,6 +75,32 @@ class Out {
 		ref.addProperty("@id", entity.getRefId());
 		ref.addProperty("name", entity.getName());
 		return ref;
+	}
+
+	static void addAttributes(RootEntity entity, JsonObject object,
+			EntityStore store) {
+		if (entity == null || object == null)
+			return;
+		String type = entity.getClass().getSimpleName();
+		object.addProperty("@type", type);
+		object.addProperty("@id", entity.getRefId());
+		object.addProperty("name", entity.getName());
+		object.addProperty("description", entity.getDescription());
+		if (entity instanceof CategorizedEntity)
+			Out.addCatDateVersion((CategorizedEntity) entity, object, store);
+	}
+
+	private static void addCatDateVersion(CategorizedEntity entity,
+			JsonObject obj, EntityStore store) {
+		if (entity == null || obj == null)
+			return;
+		JsonObject catRef = put(entity.getCategory(), store);
+		obj.add("category", catRef);
+		obj.addProperty("version", Version.asString(entity.getVersion()));
+		if (entity.getLastChange() != 0) {
+			obj.addProperty("lastChange",
+					Dates.toString(entity.getLastChange()));
+		}
 	}
 
 }

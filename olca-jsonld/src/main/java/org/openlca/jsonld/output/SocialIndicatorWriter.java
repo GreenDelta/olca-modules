@@ -42,7 +42,7 @@ class SocialIndicatorWriter implements Writer<SocialIndicator> {
 	private void map(SocialIndicator i, JsonObject obj) {
 		if (i == null || obj == null)
 			return;
-		JsonExport.addAttributes(i, obj, store);
+		Out.addAttributes(i, obj, store);
 		obj.addProperty("activityVariable", i.activityVariable);
 		JsonObject qObj = Out.put(i.activityQuantity, store);
 		obj.add("activityQuantity", qObj);

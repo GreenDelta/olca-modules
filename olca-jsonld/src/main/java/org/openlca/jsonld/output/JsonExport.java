@@ -1,13 +1,8 @@
 package org.openlca.jsonld.output;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Version;
-import org.openlca.jsonld.Dates;
 import org.openlca.jsonld.EntityStore;
-
-import com.google.gson.JsonObject;
 
 /**
  * Writes entities to an entity store (e.g. a document or zip file). It also
@@ -25,31 +20,5 @@ public class JsonExport {
 		if (entity == null)
 			return;
 		Out.put(entity, store);
-	}
-
-	static void addAttributes(RootEntity entity, JsonObject object,
-			EntityStore store) {
-		if (entity == null || object == null)
-			return;
-		String type = entity.getClass().getSimpleName();
-		object.addProperty("@type", type);
-		object.addProperty("@id", entity.getRefId());
-		object.addProperty("name", entity.getName());
-		object.addProperty("description", entity.getDescription());
-		if (entity instanceof CategorizedEntity)
-			addCatDateVersion((CategorizedEntity) entity, object, store);
-	}
-
-	private static void addCatDateVersion(CategorizedEntity entity,
-			JsonObject obj, EntityStore store) {
-		if (entity == null || obj == null)
-			return;
-		JsonObject catRef = Out.put(entity.getCategory(), store);
-		obj.add("category", catRef);
-		obj.addProperty("version", Version.asString(entity.getVersion()));
-		if (entity.getLastChange() != 0) {
-			obj.addProperty("lastChange",
-					Dates.toString(entity.getLastChange()));
-		}
 	}
 }

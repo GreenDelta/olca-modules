@@ -45,7 +45,7 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 	private void map(UnitGroup group, JsonObject obj) {
 		if (group == null || obj == null)
 			return;
-		JsonExport.addAttributes(group, obj, store);
+		Out.addAttributes(group, obj, store);
 		JsonObject propRef = Out.createRef(group.getDefaultFlowProperty());
 		obj.add("defaultFlowProperty", propRef);
 		addUnits(group, obj);
@@ -57,7 +57,7 @@ class UnitGroupWriter implements Writer<UnitGroup> {
 		JsonArray units = new JsonArray();
 		for (Unit unit : group.getUnits()) {
 			JsonObject unitObj = new JsonObject();
-			JsonExport.addAttributes(unit, unitObj, null);
+			Out.addAttributes(unit, unitObj, null);
 			if(Objects.equals(unit, group.getReferenceUnit()))
 				unitObj.addProperty("referenceUnit", true);
 			unitObj.addProperty("conversionFactor", unit.getConversionFactor());
