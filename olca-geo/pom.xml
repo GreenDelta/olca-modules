@@ -36,11 +36,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.openlca</groupId>
-			<artifactId>olca-io</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openlca</groupId>
 			<artifactId>olca-formula</artifactId>
 			<version>${project.version}</version>
 		</dependency>
