@@ -18,7 +18,7 @@ class UnitGroupWriter extends Writer<UnitGroup> {
 		JsonObject obj = super.write(group, refFn);
 		if (obj == null)
 			return null;
-		JsonObject propRef = createRef(group.getDefaultFlowProperty(), refFn);
+		JsonObject propRef = createRef(group.getDefaultFlowProperty());
 		obj.add("defaultFlowProperty", propRef);
 		addUnits(group, obj);
 		return obj;

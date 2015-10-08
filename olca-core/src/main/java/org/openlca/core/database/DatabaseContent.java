@@ -1,6 +1,7 @@
 package org.openlca.core.database;
 
 /** Content types of a (new) database. */
+@Deprecated
 public enum DatabaseContent {
 
 	/** No data. */

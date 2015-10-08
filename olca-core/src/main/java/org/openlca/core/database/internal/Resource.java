@@ -5,6 +5,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public enum Resource {
 
 	CURRENT_SCHEMA_DERBY("current_schema_derby.sql"),

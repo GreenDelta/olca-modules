@@ -14,7 +14,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
-import org.openlca.io.TestSession;
+import org.openlca.io.Tests;
 import org.openlca.io.ecospold2.input.EcoSpold2Import;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ import com.google.common.io.Files;
 public class EcoSpold2ImportTest {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database = TestSession.getDerbyDatabase();
+	private IDatabase database = Tests.getDb();
 	private ProcessDao dao = new ProcessDao(database);
 	private final String REF_ID = "e926dd9b-7045-3a90-9702-03e0b1376607";
 	private File tempFile;
