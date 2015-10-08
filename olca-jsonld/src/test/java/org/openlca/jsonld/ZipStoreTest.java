@@ -17,12 +17,12 @@ import com.google.gson.JsonObject;
 
 public class ZipStoreTest {
 
-	// TODO: add parameters
 	private ModelType[] types = {
 			ModelType.CATEGORY, ModelType.LOCATION, ModelType.ACTOR,
 			ModelType.SOURCE, ModelType.UNIT_GROUP, ModelType.FLOW_PROPERTY,
 			ModelType.FLOW, ModelType.PROCESS, ModelType.IMPACT_METHOD,
-			ModelType.IMPACT_CATEGORY, ModelType.NW_SET
+			ModelType.IMPACT_CATEGORY, ModelType.NW_SET, ModelType.PARAMETER,
+			ModelType.SOCIAL_INDICATOR, ModelType.COST_CATEGORY
 	};
 
 	private File tempDir;
@@ -93,6 +93,19 @@ public class ZipStoreTest {
 	public void testReadWriteData() throws Exception {
 		try (ZipStore store = ZipStore.open(zipFile)) {
 			String path = "my/super/file.txt";
+			byte[] first = "first".getBytes();
+			store.put(path, first);
+			Assert.assertArrayEquals(first, store.get(path));
+			byte[] second = "second".getBytes();
+			store.put(path, second);
+			Assert.assertArrayEquals(second, store.get(path));
+		}
+	}
+
+	@Test
+	public void testReadWriteDataWinStyle() throws Exception {
+		try (ZipStore store = ZipStore.open(zipFile)) {
+			String path = "my\\super\\file.txt";
 			byte[] first = "first".getBytes();
 			store.put(path, first);
 			Assert.assertArrayEquals(first, store.get(path));
