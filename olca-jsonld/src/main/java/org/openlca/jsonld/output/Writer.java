@@ -1,10 +1,79 @@
 package org.openlca.jsonld.output;
 
-import com.google.gson.JsonSerializer;
+import java.util.function.Consumer;
+
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Version;
+import org.openlca.jsonld.Dates;
 
-interface Writer<T extends RootEntity> extends JsonSerializer<T> {
+import com.google.gson.JsonObject;
 
-	void write(T entity);
+class Writer<T extends RootEntity> {
 
+	JsonObject write(T entity, Consumer<RootEntity> refHandler) {
+		JsonObject obj = initJson();
+		if (entity == null || refHandler == null)
+			return obj;
+		addBasicAttributes(entity, obj);
+		if (entity instanceof CategorizedEntity) {
+			CategorizedEntity ce = (CategorizedEntity) entity;
+			if (ce.getCategory() != null) {
+				JsonObject catRef = createRef(ce.getCategory(), refHandler);
+				obj.add("category", catRef);
+			}
+		}
+		return obj;
+	}
+
+	private JsonObject initJson() {
+		JsonObject object = new JsonObject();
+		JsonObject context = new JsonObject();
+		context.addProperty("@vocab", "http://openlca.org/schema/v1.0/");
+		context.addProperty("@base", "http://openlca.org/schema/v1.0/");
+		JsonObject vocabType = new JsonObject();
+		vocabType.addProperty("@type", "@vocab");
+		context.add("modelType", vocabType);
+		context.add("flowPropertyType", vocabType);
+		context.add("flowType", vocabType);
+		context.add("distributionType", vocabType);
+		context.add("parameterScope", vocabType);
+		context.add("allocationType", vocabType);
+		context.add("defaultAllocationMethod", vocabType);
+		context.add("processType", vocabType);
+		object.add("@context", context);
+		return object;
+	}
+
+	protected JsonObject createRef(RootEntity ref) {
+		if (ref == null)
+			return null;
+		JsonObject obj = new JsonObject();
+		String type = ref.getClass().getSimpleName();
+		obj.addProperty("@type", type);
+		obj.addProperty("@id", ref.getRefId());
+		obj.addProperty("name", ref.getName());
+		return obj;
+	}
+
+	protected JsonObject createRef(RootEntity ref, Consumer<RootEntity> handler) {
+		JsonObject obj = createRef(ref);
+		if (obj == null)
+			return null;
+		handler.accept(ref);
+		return obj;
+	}
+
+	protected void addBasicAttributes(RootEntity entity, JsonObject obj) {
+		String type = entity.getClass().getSimpleName();
+		obj.addProperty("@type", type);
+		obj.addProperty("@id", entity.getRefId());
+		obj.addProperty("name", entity.getName());
+		obj.addProperty("description", entity.getDescription());
+		obj.addProperty("version", Version.asString(entity.getVersion()));
+		if (entity.getLastChange() != 0) {
+			obj.addProperty("lastChange",
+					Dates.toString(entity.getLastChange()));
+		}
+	}
 }

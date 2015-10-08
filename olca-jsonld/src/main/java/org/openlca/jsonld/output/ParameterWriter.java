@@ -1,32 +1,19 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Uncertainty;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
-class ParameterWriter implements JsonSerializer<Parameter> {
+class ParameterWriter extends Writer<Parameter> {
 
 	@Override
-	public JsonElement serialize(Parameter parameter, Type type,
-			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		map(parameter, obj);
-		return obj;
-	}
-
-	static void map(Parameter parameter, JsonObject obj) {
-		if (parameter == null || obj == null)
-			return;
-		obj.addProperty("@type", "Parameter");
-		obj.addProperty("name", parameter.getName());
-		obj.addProperty("description", parameter.getDescription());
+	JsonObject write(Parameter parameter, Consumer<RootEntity> refHandler) {
+		JsonObject obj = super.write(parameter, refHandler);
 		obj.addProperty("parameterScope", getScope(parameter));
 		obj.addProperty("inputParameter", parameter.isInputParameter());
 		obj.addProperty("value", parameter.getValue());
@@ -34,6 +21,7 @@ class ParameterWriter implements JsonSerializer<Parameter> {
 		obj.addProperty("externalSource", parameter.getExternalSource());
 		obj.addProperty("sourceType", parameter.getSourceType());
 		mapUncertainty(parameter, obj);
+		return obj;
 	}
 
 	private static void mapUncertainty(Parameter parameter, JsonObject obj) {
@@ -41,7 +29,7 @@ class ParameterWriter implements JsonSerializer<Parameter> {
 		if (uncertainty == null)
 			return;
 		JsonObject uncertaintyObj = new JsonObject();
-		UncertaintyWriter.map(uncertainty, uncertaintyObj);
+		Uncertainties.map(uncertainty, uncertaintyObj);
 		obj.add("uncertainty", uncertaintyObj);
 	}
 

@@ -1,70 +1,49 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.jsonld.EntityStore;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
-class ImpactCategoryWriter implements Writer<ImpactCategory> {
-
-	private EntityStore store;
-
-	public ImpactCategoryWriter() {
-	}
-
-	public ImpactCategoryWriter(EntityStore store) {
-		this.store = store;
-	}
+class ImpactCategoryWriter extends Writer<ImpactCategory> {
 
 	@Override
-	public void write(ImpactCategory category) {
-		if (category == null || store == null)
-			return;
-		if (store.contains(ModelType.IMPACT_CATEGORY, category.getRefId()))
-			return;
-		JsonObject obj = serialize(category, null, null);
-		store.put(ModelType.IMPACT_CATEGORY, obj);
-	}
-
-	@Override
-	public JsonObject serialize(ImpactCategory category, Type type,
-			JsonSerializationContext context) {
-		JsonObject obj = store == null ? new JsonObject() : store.initJson();
-		Out.addAttributes(category, obj, store);
+	JsonObject write(ImpactCategory category, Consumer<RootEntity> refFn) {
+		JsonObject obj = super.write(category, refFn);
+		if (obj == null)
+			return null;
 		obj.addProperty("referenceUnitName", category.getReferenceUnit());
 		JsonArray array = new JsonArray();
 		for (ImpactFactor factor : category.getImpactFactors()) {
-			JsonObject factorObj = map(factor);
+			JsonObject factorObj = map(factor, refFn);
 			array.add(factorObj);
 		}
 		obj.add("impactFactors", array);
 		return obj;
 	}
 
-	private JsonObject map(ImpactFactor factor) {
+	private JsonObject map(ImpactFactor factor, Consumer<RootEntity> refFn) {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ImpactFactor");
 		obj.addProperty("value", factor.getValue());
 		obj.addProperty("formula", factor.getFormula());
-		obj.add("flow", Out.put(factor.getFlow(), store));
-		obj.add("unit", Out.createRef(factor.getUnit()));
+		obj.add("flow", createRef(factor.getFlow(), refFn));
+		obj.add("unit", createRef(factor.getUnit()));
 		FlowPropertyFactor fp = factor.getFlowPropertyFactor();
 		if (fp != null) {
-			JsonObject ref = Out.put(fp.getFlowProperty(), store);
+			JsonObject ref = createRef(fp.getFlowProperty(), refFn);
 			obj.add("flowProperty", ref);
 		}
 		Uncertainty uncertainty = factor.getUncertainty();
 		if (uncertainty != null) {
 			JsonObject uncertaintyObj = new JsonObject();
-			UncertaintyWriter.map(uncertainty, uncertaintyObj);
+			Uncertainties.map(uncertainty, uncertaintyObj);
 			obj.add("uncertainty", uncertaintyObj);
 		}
 		return obj;

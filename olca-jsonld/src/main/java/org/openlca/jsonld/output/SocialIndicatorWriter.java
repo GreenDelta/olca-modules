@@ -1,60 +1,44 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
+import java.util.function.Consumer;
 
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.jsonld.EntityStore;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
-class SocialIndicatorWriter implements Writer<SocialIndicator> {
-
-	private EntityStore store;
-
-	public SocialIndicatorWriter() {
-	}
-
-	public SocialIndicatorWriter(EntityStore store) {
-		this.store = store;
-	}
+class SocialIndicatorWriter extends Writer<SocialIndicator> {
 
 	@Override
-	public void write(SocialIndicator i) {
-		if (i == null || store == null)
-			return;
-		if (store.contains(ModelType.SOCIAL_INDICATOR, i.getRefId()))
-			return;
-		JsonObject obj = serialize(i, null, null);
-		store.put(ModelType.SOCIAL_INDICATOR, obj);
-	}
-
-	@Override
-	public JsonObject serialize(SocialIndicator i, Type t,
-			JsonSerializationContext c) {
-		JsonObject obj = store == null ? new JsonObject() : store.initJson();
-		map(i, obj);
+	public JsonObject write(SocialIndicator i, Consumer<RootEntity> refFn) {
+		JsonObject obj = super.write(i, refFn);
+		if (obj == null)
+			return null;
+		obj.addProperty("activityVariable", i.activityVariable);
+		JsonObject qObj = createRef(i.activityQuantity, refFn);
+		obj.add("activityQuantity", qObj);
+		addActivityUnit(i, obj);
+		obj.addProperty("unitOfMeasurement", i.unitOfMeasurement);
+		obj.addProperty("evaluationScheme", i.evaluationScheme);
 		return obj;
 	}
 
-	private void map(SocialIndicator i, JsonObject obj) {
-		if (i == null || obj == null)
+	private void addActivityUnit(SocialIndicator i, JsonObject obj) {
+		FlowProperty quantity = i.activityQuantity;
+		if (quantity == null || quantity.getUnitGroup() == null)
 			return;
-		Out.addAttributes(i, obj, store);
-		obj.addProperty("activityVariable", i.activityVariable);
-		JsonObject qObj = Out.put(i.activityQuantity, store);
-		obj.add("activityQuantity", qObj);
-		if (i.activityQuantity != null) {
-			UnitGroup ug = i.activityQuantity.getUnitGroup();
-			if (ug != null) {
-				Out.put(ug, store);
-				JsonObject uObj = Out.createRef(i.activityUnit);
-				obj.add("activityUnit", uObj);
-			}
-		}
-		obj.addProperty("unitOfMeasurement", i.unitOfMeasurement);
-		obj.addProperty("evaluationScheme", i.evaluationScheme);
+		UnitGroup group = quantity.getUnitGroup();
+		if (group == null || group.getReferenceUnit() == null)
+			return;
+		Unit unit = group.getReferenceUnit();
+		JsonObject uObj = new JsonObject();
+		uObj.addProperty("@type", "Unit");
+		uObj.addProperty("@id", unit.getRefId());
+		uObj.addProperty("name", unit.getName());
+		obj.add("activityUnit", uObj);
 	}
+
 }

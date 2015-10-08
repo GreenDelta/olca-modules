@@ -1,100 +1,74 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Uncertainty;
 import org.openlca.jsonld.Dates;
-import org.openlca.jsonld.EntityStore;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
-class ProcessWriter implements Writer<Process> {
+class ProcessWriter extends Writer<Process> {
 
-	private EntityStore store;
-
-	public ProcessWriter() {
-	}
-
-	public ProcessWriter(EntityStore store) {
-		this.store = store;
-	}
+	private Process process;
+	private Consumer<RootEntity> refFn;
 
 	@Override
-	public void write(Process process) {
-		if (process == null || store == null)
-			return;
-		if (store.contains(ModelType.PROCESS, process.getRefId()))
-			return;
-		JsonObject obj = serialize(process, null, null);
-		store.put(ModelType.PROCESS, obj);
-	}
-
-	@Override
-	public JsonObject serialize(Process process, Type type,
-			JsonSerializationContext jsonSerializationContext) {
-		JsonObject obj = store == null ? new JsonObject() : store.initJson();
-		map(process, obj);
+	JsonObject write(Process process, Consumer<RootEntity> refFn) {
+		JsonObject obj = super.write(process, refFn);
+		if (obj == null)
+			return null;
+		this.process = process;
+		this.refFn = refFn;
+		ProcessType type = process.getProcessType();
+		if (type != null)
+			obj.addProperty("processTyp", type.name());
+		obj.addProperty("defaultAllocationMethod", getAllocationType(
+				process.getDefaultAllocationMethod()));
+		obj.add("location", createRef(process.getLocation(), refFn));
+		obj.add("processDocumentation", createDoc());
+		mapExchanges(obj);
 		return obj;
 	}
 
-	private void map(Process process, JsonObject obj) {
-		if (process == null || obj == null)
-			return;
-		Out.addAttributes(process, obj, store);
-		mapProcessType(process, obj);
-		obj.addProperty("defaultAllocationMethod", getAllocationType(
-				process.getDefaultAllocationMethod()));
-		obj.add("location", Out.put(process.getLocation(), store));
-		obj.add("processDocumentation", createDoc(process));
-		mapExchanges(process, obj);
-	}
-
-	private void mapExchanges(Process p, JsonObject obj) {
+	private void mapExchanges(JsonObject obj) {
 		JsonArray exchanges = new JsonArray();
-		for (Exchange e : p.getExchanges()) {
+		for (Exchange e : process.getExchanges()) {
 			JsonObject eObj = new JsonObject();
-			new ExchangeWriter(store).map(e, eObj);
-			if (Objects.equals(p.getQuantitativeReference(), e))
+			mapExchange(e, eObj);
+			if (Objects.equals(process.getQuantitativeReference(), e))
 				eObj.addProperty("quantitativeReference", true);
 			exchanges.add(eObj);
 		}
 		obj.add("exchanges", exchanges);
 	}
 
-	private JsonObject createDoc(Process process) {
+	private JsonObject createDoc() {
 		ProcessDocumentation d = process.getDocumentation();
 		if (d == null)
 			return null;
 		JsonObject o = new JsonObject();
 		o.addProperty("@type", "ProcessDocumentation");
 		mapSimpleDocFields(d, o);
-		o.add("reviewer", Out.put(d.getReviewer(), store));
-		o.add("dataDocumentor", Out.put(d.getDataDocumentor(), store));
-		o.add("dataGenerator", Out.put(d.getDataGenerator(), store));
-		o.add("dataSetOwner", Out.put(d.getDataSetOwner(), store));
-		o.add("publication", Out.put(d.getPublication(), store));
-		mapSources(d, o);
-		return o;
-	}
-
-	private void mapSources(ProcessDocumentation d, JsonObject o) {
-		if (d.getSources().isEmpty())
-			return;
+		o.add("reviewer", createRef(d.getReviewer(), refFn));
+		o.add("dataDocumentor", createRef(d.getDataDocumentor(), refFn));
+		o.add("dataGenerator", createRef(d.getDataGenerator(), refFn));
+		o.add("dataSetOwner", createRef(d.getDataSetOwner(), refFn));
+		o.add("publication", createRef(d.getPublication(), refFn));
 		JsonArray sources = new JsonArray();
-		for (Source source : d.getSources()) {
-			JsonObject ref = Out.put(source, store);
-			sources.add(ref);
-		}
+		for (Source source : d.getSources())
+			sources.add(createRef(source, refFn));
 		o.add("sources", sources);
+		return o;
 	}
 
 	private void mapSimpleDocFields(ProcessDocumentation d, JsonObject o) {
@@ -133,11 +107,34 @@ class ProcessWriter implements Writer<Process> {
 		}
 	}
 
-	private void mapProcessType(Process process, JsonObject obj) {
-		ProcessType type = process.getProcessType();
-		if (type == null)
+	private void mapExchange(Exchange e, JsonObject obj) {
+		if (e == null || obj == null)
 			return;
-		obj.addProperty("processTyp", type.name());
+		obj.addProperty("@type", "Exchange");
+		obj.addProperty("avoidedProduct", e.isAvoidedProduct());
+		obj.addProperty("input", e.isInput());
+		obj.addProperty("baseUncertainty", e.getBaseUncertainty());
+		obj.addProperty("amount", e.getAmountValue());
+		obj.addProperty("amountFormula", e.getAmountFormula());
+		obj.addProperty("pedigreeUncertainty", e.getPedigreeUncertainty());
+		mapExchangeRefs(e, obj);
+	}
+
+	private void mapExchangeRefs(Exchange e, JsonObject obj) {
+		// TODO: default providers
+		obj.add("flow", createRef(e.getFlow(), refFn));
+		obj.add("unit", createRef(e.getUnit()));
+		FlowPropertyFactor propFac = e.getFlowPropertyFactor();
+		if (propFac != null) {
+			JsonObject ref = createRef(propFac.getFlowProperty(), refFn);
+			obj.add("flowProperty", ref);
+		}
+		Uncertainty uncertainty = e.getUncertainty();
+		if (uncertainty != null) {
+			JsonObject uncertaintyObj = new JsonObject();
+			Uncertainties.map(uncertainty, uncertaintyObj);
+			obj.add("uncertainty", uncertaintyObj);
+		}
 	}
 
 }
