@@ -33,13 +33,6 @@ class InMemoryStore implements EntityStore {
 	}
 
 	@Override
-	public JsonObject initJson() {
-		JsonObject obj = new JsonObject();
-		Context.addTo(obj);
-		return obj;
-	}
-
-	@Override
 	public List<String> getRefIds(ModelType type) {
 		Map<String, JsonObject> substore = store.get(type);
 		if (substore == null)

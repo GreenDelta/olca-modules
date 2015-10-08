@@ -43,7 +43,8 @@ class CommitInvocation {
 	private String toJson(CategorizedEntity entity) {
 		EntityStore store = new InMemoryStore();
 		ModelType type = ModelType.forModelClass(entity.getClass());
-		new JsonExport(null, store).write(entity);
+		new JsonExport(null, store).write(entity, (message, ref) -> {
+		});
 		return store.get(type, entity.getRefId()).toString();
 	}
 
