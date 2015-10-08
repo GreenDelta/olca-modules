@@ -48,7 +48,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 				Collections.emptyList());
 		return createDescriptors(results);
 	}
-	
+
 	public List<V> getDescriptorsForRefIds(Set<String> refIds) {
 		if (refIds == null || refIds.isEmpty())
 			return Collections.emptyList();
@@ -58,7 +58,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 				Collections.emptyList());
 		return createDescriptors(results);
 	}
-	
+
 	private Set<String> wrapValues(Set<String> list, char wrapper) {
 		Set<String> wrapped = new HashSet<>();
 		for (String value : list)
@@ -149,6 +149,21 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log,
 					"failed to get instance for refId " + refId, e);
+			return null;
+		}
+	}
+
+	public List<T> getForRefIds(Set<String> refIds) {
+		if (refIds == null || refIds.isEmpty())
+			return Collections.emptyList();
+		String jpql = "select e from " + entityType.getSimpleName()
+				+ " e where e.refId in :refIds";
+		try {
+			return Query.on(getDatabase()).getAll(entityType, jpql,
+					Collections.singletonMap("refIds", refIds));
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log,
+					"failed to get instance for refId list", e);
 			return null;
 		}
 	}
