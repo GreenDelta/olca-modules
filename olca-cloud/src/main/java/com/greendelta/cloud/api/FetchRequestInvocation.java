@@ -3,14 +3,16 @@ package com.greendelta.cloud.api;
 import java.util.Collections;
 import java.util.List;
 
-import com.greendelta.cloud.model.data.DatasetIdentifier;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.greendelta.cloud.model.data.FetchData;
 import com.greendelta.cloud.util.Strings;
 import com.greendelta.cloud.util.Valid;
 import com.greendelta.cloud.util.WebRequests;
 import com.greendelta.cloud.util.WebRequests.Type;
 import com.greendelta.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.GenericType;
+import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Invokes a web service call to request a list of data set identifiers of those
@@ -49,18 +51,20 @@ class FetchRequestInvocation {
 	 * @throws WebRequestException
 	 *             If user has no access to the specified repository
 	 */
-	public List<DatasetIdentifier> execute() throws WebRequestException {
+	public List<FetchData> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (latestCommitId == null || latestCommitId.isEmpty())
 			latestCommitId = "null";
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/", latestCommitId);
+		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
+				latestCommitId);
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
-		if (response.getStatus() == 204)
+		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyList();
-		return response.getEntity(new GenericType<List<DatasetIdentifier>>() {
-		});
+		return new Gson().fromJson(response.getEntity(String.class),
+				new TypeToken<List<FetchData>>() {
+				}.getType());
 	}
 
 }

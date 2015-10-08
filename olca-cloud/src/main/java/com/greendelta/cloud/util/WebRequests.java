@@ -6,6 +6,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -27,7 +28,7 @@ public class WebRequests {
 		if (sessionId != null)
 			responseBuilder.cookie(new Cookie("JSESSIONID", sessionId));
 		if (data != null)
-			responseBuilder.entity(data, MediaType.APPLICATION_JSON_TYPE);
+			responseBuilder.entity(new Gson().toJson(data), MediaType.APPLICATION_JSON_TYPE);
 		ClientResponse response = null;
 		switch (type) {
 		case GET:

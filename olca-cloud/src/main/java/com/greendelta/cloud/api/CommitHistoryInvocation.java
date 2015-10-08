@@ -3,6 +3,8 @@ package com.greendelta.cloud.api;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.greendelta.cloud.model.data.CommitDescriptor;
 import com.greendelta.cloud.util.Strings;
 import com.greendelta.cloud.util.Valid;
@@ -11,7 +13,6 @@ import com.greendelta.cloud.util.WebRequests.Type;
 import com.greendelta.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.GenericType;
 
 /**
  * Invokes a web service call to retrieve all commit entries after the specified
@@ -57,12 +58,14 @@ class CommitHistoryInvocation {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (latestCommitId == null || latestCommitId.isEmpty())
 			latestCommitId = "null";
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/", latestCommitId);
+		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
+				latestCommitId);
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyList();
-		return response.getEntity(new GenericType<List<CommitDescriptor>>() {
-		});
+		return new Gson().fromJson(response.getEntity(String.class),
+				new TypeToken<List<CommitDescriptor>>() {
+				}.getType());
 	}
 
 }

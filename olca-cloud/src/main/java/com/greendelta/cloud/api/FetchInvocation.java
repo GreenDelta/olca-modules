@@ -65,11 +65,13 @@ class FetchInvocation {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (latestCommitId == null || latestCommitId.isEmpty())
 			latestCommitId = "null";
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/", latestCommitId);
+		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
+				latestCommitId);
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return null;
-		FetchResponse result = response.getEntity(FetchResponse.class);
+		FetchResponse result = new Gson().fromJson(
+				response.getEntity(String.class), FetchResponse.class);
 		putInStore(result.getData());
 		return result.getLatestCommitId();
 	}
@@ -77,7 +79,8 @@ class FetchInvocation {
 	private void putInStore(Map<ModelType, List<String>> input) {
 		for (ModelType type : input.keySet()) {
 			for (String json : input.get(type)) {
-				JsonElement element = new Gson().fromJson(json, JsonElement.class);
+				JsonElement element = new Gson().fromJson(json,
+						JsonElement.class);
 				store.put(type, element.getAsJsonObject());
 			}
 		}

@@ -1,6 +1,7 @@
 package com.greendelta.cloud.api;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.model.CategorizedEntity;
@@ -11,6 +12,7 @@ import org.openlca.jsonld.input.JsonImport;
 import com.google.gson.JsonObject;
 import com.greendelta.cloud.model.data.CommitDescriptor;
 import com.greendelta.cloud.model.data.DatasetIdentifier;
+import com.greendelta.cloud.model.data.FetchData;
 import com.greendelta.cloud.model.data.FileReference;
 import com.greendelta.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -37,7 +39,8 @@ public class RepositoryClient {
 		});
 	}
 
-	public void deleteUser(String username, String adminKey) throws WebRequestException {
+	public void deleteUser(String username, String adminKey)
+			throws WebRequestException {
 		executeLoggedIn(() -> {
 			DeleteUserInvocation invocation = new DeleteUserInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
@@ -104,8 +107,8 @@ public class RepositoryClient {
 		});
 	}
 
-	public void unshareRepositoryWith(String repositoryName, String unshareWithUser)
-			throws WebRequestException {
+	public void unshareRepositoryWith(String repositoryName,
+			String unshareWithUser) throws WebRequestException {
 		executeLoggedIn(() -> {
 			UnshareRepositoryInvocation invocation = new UnshareRepositoryInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
@@ -116,7 +119,8 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<String> getAccessListForRepository(String repositoryId) throws WebRequestException {
+	public List<String> getAccessListForRepository(String repositoryId)
+			throws WebRequestException {
 		return executeLoggedIn(() -> {
 			RepositoryAccessListInvocation invocation = new RepositoryAccessListInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
@@ -155,6 +159,12 @@ public class RepositoryClient {
 
 	public void commit(String commitMessage, Collection<CategorizedEntity> data)
 			throws WebRequestException {
+		commit(commitMessage, data, Collections.emptyList());
+	}
+
+	public void commit(String commitMessage,
+			Collection<CategorizedEntity> data,
+			Collection<DatasetIdentifier> deleted) throws WebRequestException {
 		executeLoggedIn(() -> {
 			CommitInvocation invocation = new CommitInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
@@ -164,11 +174,14 @@ public class RepositoryClient {
 			invocation.setCommitMessage(commitMessage);
 			for (CategorizedEntity entity : data)
 				invocation.add(entity);
+			for (DatasetIdentifier entity : deleted)
+				invocation.addDelete(entity);
 			config.setLatestCommitId(invocation.execute());
 		});
 	}
 
-	public List<CommitDescriptor> fetchNewCommitHistory() throws WebRequestException {
+	public List<CommitDescriptor> fetchNewCommitHistory()
+			throws WebRequestException {
 		return executeLoggedIn(() -> {
 			CommitHistoryInvocation invocation = new CommitHistoryInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
@@ -179,7 +192,8 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<FileReference> getFileReferences(String commitId) throws WebRequestException {
+	public List<FileReference> getFileReferences(String commitId)
+			throws WebRequestException {
 		return executeLoggedIn(() -> {
 			FileReferencesInvocation invocation = new FileReferencesInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
@@ -190,7 +204,7 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<DatasetIdentifier> requestFetch() throws WebRequestException {
+	public List<FetchData> requestFetch() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
@@ -230,7 +244,8 @@ public class RepositoryClient {
 		});
 	}
 
-	private void executeLoggedIn(Invocation runnable) throws WebRequestException {
+	private void executeLoggedIn(Invocation runnable)
+			throws WebRequestException {
 		if (sessionId == null)
 			login();
 		try {
@@ -244,7 +259,8 @@ public class RepositoryClient {
 		}
 	}
 
-	private <T> T executeLoggedIn(InvocationWithResult<T> runnable) throws WebRequestException {
+	private <T> T executeLoggedIn(InvocationWithResult<T> runnable)
+			throws WebRequestException {
 		if (sessionId == null)
 			login();
 		try {

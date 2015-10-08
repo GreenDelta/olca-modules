@@ -1,6 +1,7 @@
 package com.greendelta.cloud.api;
 
 import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.EntityStore;
@@ -32,10 +33,25 @@ class CommitInvocation {
 		DatasetIdentifier identifier = new DatasetIdentifier();
 		identifier.setLastChange(entity.getLastChange());
 		identifier.setRefId(entity.getRefId());
+		identifier.setName(entity.getName());
 		identifier.setType(ModelType.forModelClass(entity.getClass()));
 		identifier.setVersion(new Version(entity.getVersion()).toString());
+		if (entity.getCategory() != null)
+			identifier.setCategoryRefId(entity.getCategory().getRefId());
+		if (entity instanceof Category)
+			identifier.setCategoryType(((Category) entity).getModelType());
+		else
+			identifier.setCategoryType(ModelType.forModelClass(entity
+					.getClass()));
 		data.setIdentifier(identifier);
 		data.setJson(toJson(entity));
+		commit.getData().add(data);
+		return data;
+	}
+	
+	public CommitData addDelete(DatasetIdentifier identifier) {
+		CommitData data = new CommitData();
+		data.setIdentifier(identifier);
 		commit.getData().add(data);
 		return data;
 	}
@@ -88,8 +104,10 @@ class CommitInvocation {
 			latestCommitId = "null";
 		if (commit.getMessage() == null)
 			commit.setMessage("");
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/", latestCommitId);
-		return WebRequests.call(Type.POST, url, sessionId, commit).getEntity(String.class);
+		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
+				latestCommitId);
+		return WebRequests.call(Type.POST, url, sessionId, commit).getEntity(
+				String.class);
 	}
 
 }
