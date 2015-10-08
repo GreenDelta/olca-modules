@@ -48,7 +48,7 @@ class CommitInvocation {
 		commit.getData().add(data);
 		return data;
 	}
-	
+
 	public CommitData addDelete(DatasetIdentifier identifier) {
 		CommitData data = new CommitData();
 		data.setIdentifier(identifier);
@@ -59,8 +59,7 @@ class CommitInvocation {
 	private String toJson(CategorizedEntity entity) {
 		EntityStore store = new InMemoryStore();
 		ModelType type = ModelType.forModelClass(entity.getClass());
-		new JsonExport(null, store).write(entity, (message, ref) -> {
-		});
+		new JsonExport(null, store).write(entity);
 		return store.get(type, entity.getRefId()).toString();
 	}
 
