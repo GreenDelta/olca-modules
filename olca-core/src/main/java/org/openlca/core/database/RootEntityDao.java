@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,6 +47,23 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 		List<Object[]> results = selectAll(sql, getDescriptorFields(),
 				Collections.emptyList());
 		return createDescriptors(results);
+	}
+	
+	public List<V> getDescriptorsForRefIds(Set<String> refIds) {
+		if (refIds == null || refIds.isEmpty())
+			return Collections.emptyList();
+		String sql = getDescriptorQuery() + " where ref_id in ("
+				+ Strings.join(wrapValues(refIds, '\''), ',') + ")";
+		List<Object[]> results = selectAll(sql, getDescriptorFields(),
+				Collections.emptyList());
+		return createDescriptors(results);
+	}
+	
+	private Set<String> wrapValues(Set<String> list, char wrapper) {
+		Set<String> wrapped = new HashSet<>();
+		for (String value : list)
+			wrapped.add(wrapper + value + wrapper);
+		return wrapped;
 	}
 
 	/**
