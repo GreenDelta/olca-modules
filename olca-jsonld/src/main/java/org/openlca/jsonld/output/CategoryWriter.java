@@ -1,49 +1,25 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
+import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
-class CategoryWriter implements Writer<Category> {
-
-	private EntityStore store;
-
-	public CategoryWriter() {
-	}
-
-	public CategoryWriter(EntityStore store) {
-		this.store = store;
-	}
+class CategoryWriter extends Writer<Category> {
 
 	@Override
-	public void write(Category category) {
-		if (category == null || store == null)
-			return;
-		if (store.contains(ModelType.CATEGORY, category.getRefId()))
-			return;
-		JsonObject obj = serialize(category, null, null);
-		store.put(ModelType.CATEGORY, obj);
-	}
-
-	@Override
-	public JsonObject serialize(Category category, Type type,
-			JsonSerializationContext context) {
-		JsonObject json = store == null ? new JsonObject() : store.initJson();
-		map(category, json);
-		return json;
-	}
-
-	private void map(Category category, JsonObject json) {
-		Out.addAttributes(category, json, store);
+	JsonObject write(Category category, Consumer<RootEntity> refHandler) {
+		JsonObject obj = super.write(category, refHandler);
+		if (obj == null)
+			return obj;
 		ModelType modelType = category.getModelType();
 		if (modelType != null)
-			json.addProperty("modelType", modelType.name());
-		JsonObject parentRef = Out.put(category.getCategory(), store);
-		json.add("category", parentRef);
+			obj.addProperty("modelType", modelType.name());
+		JsonObject parentRef = createRef(category.getCategory(), refHandler);
+		obj.add("category", parentRef);
+		return obj;
 	}
 }

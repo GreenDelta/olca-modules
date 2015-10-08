@@ -19,7 +19,7 @@ import org.openlca.ilcd.io.MemDataStore;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
-import org.openlca.io.TestSession;
+import org.openlca.io.Tests;
 import org.openlca.io.ilcd.input.ContactImport;
 import org.openlca.io.ilcd.input.FlowImport;
 import org.openlca.io.ilcd.input.FlowPropertyImport;
@@ -41,7 +41,7 @@ import org.openlca.io.ilcd.output.UnitGroupExport;
 public class ILCDImportExportTest {
 
 	private static DataStore ilcdStore;
-	private IDatabase database = TestSession.getDerbyDatabase();
+	private IDatabase database = Tests.getDb();
 
 	@BeforeClass
 	public static void setUp() throws Exception {

@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
 import org.openlca.core.model.MappingFile;
-import org.openlca.io.TestSession;
+import org.openlca.io.Tests;
 import org.openlca.util.BinUtils;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseDouble;
@@ -24,7 +24,7 @@ public class MapsTest {
 	private final String CONTENT = "\"aString\";42.42;42;\n";
 	private final String FILE_NAME = "test_map_" + UUID.randomUUID() + ".csv";
 
-	private IDatabase database = TestSession.getDerbyDatabase();
+	private IDatabase database = Tests.getDb();
 
 	@Before
 	public void setUp() throws Exception {

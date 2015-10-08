@@ -1,51 +1,23 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.Location;
-import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
+import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
-class LocationWriter implements Writer<Location> {
-
-	private EntityStore store;
-
-	public LocationWriter() {
-	}
-
-	public LocationWriter(EntityStore store) {
-		this.store = store;
-	}
+class LocationWriter extends Writer<Location> {
 
 	@Override
-	public void write(Location location) {
-		if (location == null || store == null)
-			return;
-		if (store.contains(ModelType.LOCATION, location.getRefId()))
-			return;
-		JsonObject obj = serialize(location, null, null);
-		store.put(ModelType.LOCATION, obj);
-	}
-
-	@Override
-	public JsonObject serialize(Location location, Type type,
-			JsonSerializationContext context) {
-		JsonObject obj = store == null ? new JsonObject() : store.initJson();
-		map(location, obj);
-		return obj;
-	}
-
-	private void map(Location location, JsonObject obj) {
-		if (location == null || obj == null)
-			return;
-		Out.addAttributes(location, obj, store);
+	public JsonObject write(Location location, Consumer<RootEntity> refFn) {
+		JsonObject obj = super.write(location, refFn);
+		if (obj == null)
+			return null;
 		obj.addProperty("code", location.getCode());
 		obj.addProperty("latitude", location.getLatitude());
 		obj.addProperty("longitude", location.getLongitude());
 		// TODO: add kml
+		return obj;
 	}
-
 }

@@ -1,24 +1,11 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
-
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 
-class UncertaintyWriter implements JsonSerializer<Uncertainty> {
-
-	@Override
-	public JsonElement serialize(Uncertainty uncertainty, Type type,
-			JsonSerializationContext context) {
-		JsonObject obj = new JsonObject();
-		map(uncertainty, obj);
-		return null;
-	}
+class Uncertainties {
 
 	static void map(Uncertainty uncertainty, JsonObject obj) {
 		if (uncertainty == null || obj == null)
@@ -39,6 +26,8 @@ class UncertaintyWriter implements JsonSerializer<Uncertainty> {
 			break;
 		case LOG_NORMAL:
 			mapLogNormal(uncertainty, obj);
+			break;
+		default:
 			break;
 		}
 	}

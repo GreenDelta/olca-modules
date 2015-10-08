@@ -34,19 +34,18 @@ public class DerbyDatabase implements IDatabase {
 	private boolean closed = false;
 	private BoneCP connectionPool;
 
-	public static DerbyDatabase createInMemory(DatabaseContent content) {
-		return new DerbyDatabase(content);
+	public static DerbyDatabase createInMemory() {
+		return new DerbyDatabase();
 	}
 
 	/** Creates an in-memory database. */
-	private DerbyDatabase(DatabaseContent content) {
+	private DerbyDatabase() {
 		registerDriver();
 		String name = "olcaInMemDB"
 				+ Integer.toHexString((int) (Math.random() * 1000));
 		log.trace("create in memory database");
 		url = "jdbc:derby:memory:" + name + ";create=true";
 		createNew(url);
-		fill(content);
 		connect();
 	}
 
@@ -118,6 +117,7 @@ public class DerbyDatabase implements IDatabase {
 	}
 
 	/** Fill the database with the given content. */
+	@Deprecated
 	public void fill(DatabaseContent content) {
 		if (content == null || content == DatabaseContent.EMPTY)
 			return;

@@ -1,39 +1,19 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
+import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
-class ActorWriter implements Writer<Actor> {
-
-	private EntityStore store;
-
-	public ActorWriter() {
-	}
-
-	public ActorWriter(EntityStore store) {
-		this.store = store;
-	}
+class ActorWriter extends Writer<Actor> {
 
 	@Override
-	public void write(Actor actor) {
-		if (actor == null || store == null)
-			return;
-		if (store.contains(ModelType.ACTOR, actor.getRefId()))
-			return;
-		JsonObject obj = serialize(actor, null, null);
-		store.put(ModelType.ACTOR, obj);
-	}
-
-	@Override
-	public JsonObject serialize(Actor actor, Type type,
-			JsonSerializationContext context) {
-		JsonObject obj = store == null ? new JsonObject() : store.initJson();
+	JsonObject write(Actor actor, Consumer<RootEntity> refHandler) {
+		JsonObject obj = super.write(actor, refHandler);
+		if (obj == null)
+			return null;
 		map(actor, obj);
 		return obj;
 	}
@@ -41,7 +21,6 @@ class ActorWriter implements Writer<Actor> {
 	private void map(Actor actor, JsonObject obj) {
 		if (actor == null || obj == null)
 			return;
-		Out.addAttributes(actor, obj, store);
 		obj.addProperty("address", actor.getAddress());
 		obj.addProperty("city", actor.getCity());
 		obj.addProperty("country", actor.getCountry());

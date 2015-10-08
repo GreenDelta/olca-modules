@@ -151,13 +151,6 @@ public class ZipStore implements EntityStore {
 		zip.close();
 	}
 
-	@Override
-	public JsonObject initJson() {
-		JsonObject obj = new JsonObject();
-		Context.add(obj);
-		return obj;
-	}
-
 	private class RefIdCollector extends SimpleFileVisitor<Path> {
 
 		private List<String> ids = new ArrayList<>();

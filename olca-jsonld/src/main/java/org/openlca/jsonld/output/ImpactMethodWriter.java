@@ -1,49 +1,28 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
+import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
-class ImpactMethodWriter implements Writer<ImpactMethod> {
-
-	private EntityStore store;
-
-	public ImpactMethodWriter() {
-	}
-
-	public ImpactMethodWriter(EntityStore store) {
-		this.store = store;
-	}
+class ImpactMethodWriter extends Writer<ImpactMethod> {
 
 	@Override
-	public void write(ImpactMethod method) {
-		if (method == null || store == null)
-			return;
-		if (store.contains(ModelType.IMPACT_METHOD, method.getRefId()))
-			return;
-		JsonObject obj = serialize(method, null, null);
-		store.put(ModelType.IMPACT_METHOD, obj);
-	}
-
-	@Override
-	public JsonObject serialize(ImpactMethod method, Type type,
-			JsonSerializationContext context) {
-		JsonObject obj = store == null ? new JsonObject() : store.initJson();
-		Out.addAttributes(method, obj, store);
+	JsonObject write(ImpactMethod method, Consumer<RootEntity> refHandler) {
+		JsonObject obj = super.write(method, refHandler);
+		if (obj == null)
+			return null;
 		JsonArray array = new JsonArray();
 		for (ImpactCategory category : method.getImpactCategories()) {
-			JsonObject ref = Out.put(category, store);
+			JsonObject ref = createRef(category, refHandler);
 			array.add(ref);
 		}
 		obj.add("impactCategories", array);
-		// TODO: parameters
 		return obj;
 	}
+
 }
