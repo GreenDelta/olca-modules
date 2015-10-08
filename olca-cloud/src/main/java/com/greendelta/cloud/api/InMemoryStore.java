@@ -76,9 +76,4 @@ class InMemoryStore implements EntityStore {
 		return resources.get(path);
 	}
 
-	@Override
-	public JsonObject initJson() {
-		return null;
-	}
-
 }
