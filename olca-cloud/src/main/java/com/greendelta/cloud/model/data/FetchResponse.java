@@ -1,20 +1,17 @@
 package com.greendelta.cloud.model.data;
 
 import java.util.List;
-import java.util.Map;
-
-import org.openlca.core.model.ModelType;
 
 public class FetchResponse {
 
-	private Map<ModelType, List<String>> data;
+	private List<FetchData> data;
 	private String latestCommitId;
 
-	public void setData(Map<ModelType, List<String>> data) {
+	public void setData(List<FetchData> data) {
 		this.data = data;
 	}
 
-	public Map<ModelType, List<String>> getData() {
+	public List<FetchData> getData() {
 		return data;
 	}
 

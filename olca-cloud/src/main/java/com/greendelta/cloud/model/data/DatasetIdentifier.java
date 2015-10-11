@@ -17,6 +17,7 @@ public class DatasetIdentifier implements Serializable {
 	private String version;
 	private long lastChange;
 	private String name;
+	private String fullPath;
 	private String categoryRefId;
 	// used for categories
 	private ModelType categoryType;
@@ -59,6 +60,14 @@ public class DatasetIdentifier implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getFullPath() {
+		return fullPath;
+	}
+
+	public void setFullPath(String fullPath) {
+		this.fullPath = fullPath;
 	}
 
 	public String getCategoryRefId() {

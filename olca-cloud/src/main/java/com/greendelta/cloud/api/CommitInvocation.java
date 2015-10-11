@@ -43,10 +43,21 @@ class CommitInvocation {
 		else
 			identifier.setCategoryType(ModelType.forModelClass(entity
 					.getClass()));
+		identifier.setFullPath(getFullPath(entity));
 		data.setIdentifier(identifier);
 		data.setJson(toJson(entity));
 		commit.getData().add(data);
 		return data;
+	}
+
+	private String getFullPath(CategorizedEntity entity) {
+		String path = entity.getName();
+		Category category = entity.getCategory();
+		while (category != null) {
+			path = category + "/" + path;
+			category = category.getCategory();
+		}
+		return path;
 	}
 
 	public CommitData addDelete(DatasetIdentifier identifier) {
@@ -55,7 +66,7 @@ class CommitInvocation {
 		commit.getData().add(data);
 		return data;
 	}
- 
+
 	private String toJson(CategorizedEntity entity) {
 		EntityStore store = new InMemoryStore();
 		ModelType type = ModelType.forModelClass(entity.getClass());

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.greendelta.cloud.model.data.FileReference;
+import com.greendelta.cloud.model.data.FetchRequestData;
 import com.greendelta.cloud.util.Strings;
 import com.greendelta.cloud.util.Valid;
 import com.greendelta.cloud.util.WebRequests;
@@ -13,10 +13,10 @@ import com.greendelta.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
- * Invokes a web service call to retrieve all file references contained in the
+ * Invokes a web service call to retrieve all references contained in the
  * specified commit
  */
-class FileReferencesInvocation {
+class ReferencesInvocation {
 
 	private static final String PATH = "/repository/fetch/references/";
 
@@ -42,16 +42,16 @@ class FileReferencesInvocation {
 	}
 
 	/**
-	 * Retrieves all file references that have been committed in the specified
+	 * Retrieves all references that have been committed in the specified
 	 * commit
 	 * 
-	 * @return All file references of the specified commit, as list of file
+	 * @return All references of the specified commit, as list of file
 	 *         references
 	 * @throws WebRequestException
 	 *             If the commit was not found for the given id or user has no
 	 *             access to the specified repository
 	 */
-	public List<FileReference> execute() throws WebRequestException {
+	public List<FetchRequestData> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
@@ -59,7 +59,7 @@ class FileReferencesInvocation {
 		String url = Strings.concat(baseUrl, PATH, repositoryId, "/", commitId);
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		return new Gson().fromJson(response.getEntity(String.class),
-				new TypeToken<List<FileReference>>() {
+				new TypeToken<List<FetchRequestData>>() {
 				}.getType());
 	}
 

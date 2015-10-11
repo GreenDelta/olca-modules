@@ -1,15 +1,15 @@
 package com.greendelta.cloud.model.data;
 
-public class FetchData extends DatasetIdentifier {
+public class FetchRequestData extends DatasetIdentifier {
 
 	private static final long serialVersionUID = 417426973222267018L;
-	private String json;
+	private boolean deleted;
 
-	public FetchData() {
+	public FetchRequestData() {
 
 	}
 
-	public FetchData(DatasetIdentifier identifier) {
+	public FetchRequestData(DatasetIdentifier identifier) {
 		setRefId(identifier.getRefId());
 		setType(identifier.getType());
 		setVersion(identifier.getVersion());
@@ -19,16 +19,12 @@ public class FetchData extends DatasetIdentifier {
 		setCategoryType(identifier.getCategoryType());
 	}
 
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
 	public boolean isDeleted() {
-		return json == null || json.isEmpty();
-	}
-
-	public String getJson() {
-		return json;
-	}
-
-	public void setJson(String json) {
-		this.json = json;
+		return deleted;
 	}
 
 }
