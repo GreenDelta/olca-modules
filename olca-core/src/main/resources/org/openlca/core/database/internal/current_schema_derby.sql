@@ -224,7 +224,7 @@ CREATE TABLE tbl_processes (
 	f_quantitative_reference BIGINT, 
 	f_location BIGINT, 
 	f_process_doc BIGINT, 
-	kmz BLOB(16 M),
+	f_currency BIGINT,
 
 	PRIMARY KEY (id)	
 
@@ -288,6 +288,9 @@ CREATE TABLE tbl_exchanges (
 	resulting_amount_formula VARCHAR(1000), 
 	avoided_product SMALLINT default 0,
 	f_default_provider BIGINT,
+	
+	cost_value DOUBLE,
+	cost_formula VARCHAR(1000),
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
@@ -576,16 +579,6 @@ CREATE TABLE tbl_currencies (
 	PRIMARY KEY (id)
 
 );
-
-
-CREATE TABLE tbl_process_cost_entries (
-	id BIGINT NOT NULL,
-	f_process BIGINT,
-	f_exchange BIGINT,
-	f_cost_category BIGINT,
-	amount DOUBLE,	
-	PRIMARY KEY (id)
-) ;
 
 
 CREATE TABLE tbl_process_group_sets (

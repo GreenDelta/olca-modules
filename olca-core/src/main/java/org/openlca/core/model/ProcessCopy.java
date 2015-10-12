@@ -22,6 +22,7 @@ class ProcessCopy {
 		copy.setLocation(origin.getLocation());
 		copy.setProcessType(origin.getProcessType());
 		copy.setInfrastructureProcess(origin.isInfrastructureProcess());
+		copy.currency = origin.currency;
 		if (origin.getDocumentation() != null)
 			copy.setDocumentation(origin.getDocumentation().clone());
 	}

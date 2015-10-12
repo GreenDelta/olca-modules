@@ -54,11 +54,11 @@ public class Process extends CategorizedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_process")
-	private final List<ProcessCostEntry> costEntries = new ArrayList<>();
-
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_process")
 	public final List<SocialAspect> socialAspects = new ArrayList<>();
+
+	@OneToOne
+	@JoinColumn(name = "f_currency")
+	public Currency currency;
 
 	public ProcessDocumentation getDocumentation() {
 		return documentation;
@@ -124,9 +124,4 @@ public class Process extends CategorizedEntity {
 	public List<AllocationFactor> getAllocationFactors() {
 		return allocationFactors;
 	}
-
-	public List<ProcessCostEntry> getCostEntries() {
-		return costEntries;
-	}
-
 }

@@ -26,7 +26,6 @@ import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessCostEntry;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessGroupSet;
 import org.openlca.core.model.ProductSystem;
@@ -69,7 +68,6 @@ public class BaseDaoTest {
 			Process.class,
 			ProcessGroupSet.class,
 			ProcessDocumentation.class,
-			ProcessCostEntry.class,
 			ProductSystem.class,
 			Project.class,
 			SocialIndicator.class,
