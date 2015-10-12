@@ -44,31 +44,44 @@ public class JsonExport {
 		this.db = database;
 	}
 
+	public <T extends RootEntity> void write(T entity) {
+		write(entity, null);
+	}
+
 	public <T extends RootEntity> void write(T entity, Callback cb) {
 		if (entity == null)
 			return;
 		ModelType type = ModelType.forModelClass(entity.getClass());
 		if (type == null || entity.getRefId() == null) {
-			cb.apply(Message.error("no refId, or type is unknown"), entity);
+			err(cb, "no refId, or type is unknown", entity);
 			return;
 		}
 		if (store.contains(type, entity.getRefId()))
 			return;
 		Writer<T> writer = getWriter(entity);
 		if (writer == null) {
-			cb.apply(Message.error("no writer found for type " + type), entity);
+			err(cb, "no writer found for type " + type, entity);
 			return;
 		}
 		try {
 			JsonObject obj = writer.write(entity, ref -> {
+				// also write referenced entities to entity store
 				write(ref, cb);
 			});
 			store.put(type, obj);
 			writeExternalFiles(entity, cb);
-			cb.apply(Message.info("data set exported"), entity);
+			if (cb != null)
+				cb.apply(Message.info("data set exported"), entity);
 		} catch (Exception e) {
-			cb.apply(Message.error("failed to export data set", e), entity);
+			if (cb != null)
+				cb.apply(Message.error("failed to export data set", e), entity);
 		}
+	}
+
+	private void err(Callback cb, String message, RootEntity entity) {
+		if (cb == null)
+			return;
+		cb.apply(Message.error(message), entity);
 	}
 
 	private void writeExternalFiles(RootEntity entity, Callback cb) {
