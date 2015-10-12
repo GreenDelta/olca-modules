@@ -52,18 +52,15 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 	public List<V> getDescriptorsForRefIds(Set<String> refIds) {
 		if (refIds == null || refIds.isEmpty())
 			return Collections.emptyList();
+		Set<String> quotedIds = new HashSet<>();
+		for (String refId : refIds) {
+			quotedIds.add('\'' + refId + '\'');
+		}
 		String sql = getDescriptorQuery() + " where ref_id in ("
-				+ Strings.join(wrapValues(refIds, '\''), ',') + ")";
+				+ Strings.join(quotedIds, ',') + ")";
 		List<Object[]> results = selectAll(sql, getDescriptorFields(),
 				Collections.emptyList());
 		return createDescriptors(results);
-	}
-
-	private Set<String> wrapValues(Set<String> list, char wrapper) {
-		Set<String> wrapped = new HashSet<>();
-		for (String value : list)
-			wrapped.add(wrapper + value + wrapper);
-		return wrapped;
 	}
 
 	/**
