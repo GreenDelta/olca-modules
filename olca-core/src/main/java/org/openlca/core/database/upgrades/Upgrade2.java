@@ -37,6 +37,7 @@ public class Upgrade2 implements IUpgrade {
 		addVersionFields();
 		createSocialTables();
 		createCurrencyTable();
+		createCostColumns();
 		updateCostCategories();
 		util.checkCreateColumn("tbl_locations", "f_category",
 				"f_category BIGINT");
@@ -181,6 +182,17 @@ public class Upgrade2 implements IUpgrade {
 				+ "quality VARCHAR(255), "
 				+ "PRIMARY KEY (id)) ";
 		util.checkCreateTable("tbl_social_aspects", aspects);
+	}
+
+	private void createCostColumns() throws Exception {
+		util.checkCreateColumn("tbl_processes", "f_currency",
+				"f_currency BIGINT");
+		util.checkCreateColumn("tbl_exchanges", "cost_value",
+				"cost_value DOUBLE");
+		util.checkCreateColumn("tbl_exchanges", "cost_formula",
+				"cost_formula VARCHAR(1000)");
+		util.checkCreateColumn("tbl_exchanges", "f_cost_category",
+				"f_cost_category BIGINT");
 	}
 
 	private class KmzResultHandler implements QueryResultHandler {
