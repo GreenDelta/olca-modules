@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
@@ -51,6 +52,14 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 		return inputFlow ? -value : value;
 	}
 
+	public ImpactResult getTotalImpactResult(ImpactCategoryDescriptor impact) {
+		double val = result.getTotalImpactResult(impact.getId());
+		ImpactResult r = new ImpactResult();
+		r.impactCategory = impact;
+		r.value = val;
+		return r;
+	}
+
 	/**
 	 * Returns the impact category results for the given result. In contrast to
 	 * the flow results, entries are also generated for 0-values.
@@ -64,11 +73,19 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 		return results;
 	}
 
-	public ImpactResult getTotalImpactResult(ImpactCategoryDescriptor impact) {
-		double val = result.getTotalImpactResult(impact.getId());
-		ImpactResult r = new ImpactResult();
-		r.impactCategory = impact;
+	public CostResult getTotalCostResult(CostCategoryDescriptor cost) {
+		double val = result.getTotalCostResult(cost.getId());
+		CostResult r = new CostResult();
+		r.costCategory = cost;
 		r.value = val;
 		return r;
+	}
+
+	public List<CostResult> getTotalCostResults() {
+		List<CostResult> results = new ArrayList<>();
+		for (CostCategoryDescriptor d : getCostDescriptors()) {
+			results.add(getTotalCostResult(d));
+		}
+		return results;
 	}
 }

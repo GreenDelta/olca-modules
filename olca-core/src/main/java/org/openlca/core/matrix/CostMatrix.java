@@ -85,10 +85,10 @@ public class CostMatrix {
 		}
 
 		private IMatrix createMatrix() {
-			if (factory == null || inventory.getProductIndex() == null)
+			ProductIndex productIndex = inventory.getProductIndex();
+			if (factory == null || productIndex == null || catIndex.size() == 0)
 				return null;
-			IMatrix m = factory.create(catIndex.size(),
-					inventory.getProductIndex().size());
+			IMatrix m = factory.create(catIndex.size(), productIndex.size());
 			for (int i = 0; i < values.size(); i++) {
 				int row = i; // effectively final
 				TIntDoubleHashMap map = values.get(row);

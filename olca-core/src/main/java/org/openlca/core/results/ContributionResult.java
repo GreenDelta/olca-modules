@@ -29,6 +29,12 @@ public class ContributionResult extends SimpleResult {
 	public IMatrix singleImpactResults;
 
 	/**
+	 * Contains the single cost results in a matrix where the cost categories
+	 * are mapped to the rows and the process-products to the columns.
+	 */
+	public IMatrix singleCostResults;
+
+	/**
 	 * The single LCIA category result for each intervention flow in a matrix
 	 * where the LCIA categories are mapped to the rows and the intervention
 	 * flows to the columns.
@@ -114,6 +120,21 @@ public class ContributionResult extends SimpleResult {
 			return 0;
 		int row = impactIndex.getIndex(impactId);
 		return getProcessValue(singleImpactResults, row, processId);
+	}
+
+	public double getSingleCostResult(LongPair processProduct, long costId) {
+		if (!hasCostResults())
+			return 0;
+		int row = costIndex.getIndex(costId);
+		int col = productIndex.getIndex(processProduct);
+		return getValue(singleCostResults, row, col);
+	}
+
+	public double getSingleCostResult(long processId, long costId) {
+		if (!hasCostResults())
+			return 0;
+		int row = costIndex.getIndex(costId);
+		return getProcessValue(singleCostResults, row, processId);
 	}
 
 	/**

@@ -8,7 +8,6 @@ import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.Contributions.Function;
 
 public class ContributionResultProvider<T extends ContributionResult> extends
 		SimpleResultProvider<T> {
@@ -56,13 +55,10 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 		double total = adoptFlowResult(result.getTotalFlowResult(flowId),
 				flowId);
 		return Contributions.calculate(getProcessDescriptors(), total,
-				new Function<ProcessDescriptor>() {
-					@Override
-					public double value(ProcessDescriptor process) {
-						double val = result.getSingleFlowResult(
-								process.getId(), flowId);
-						return adoptFlowResult(val, flowId);
-					}
+				process -> {
+					double val = result.getSingleFlowResult(
+							process.getId(), flowId);
+					return adoptFlowResult(val, flowId);
 				});
 	}
 
@@ -89,16 +85,10 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 	 * given LCIA category.
 	 */
 	public ContributionSet<ProcessDescriptor> getProcessContributions(
-			final ImpactCategoryDescriptor impact) {
+			ImpactCategoryDescriptor impact) {
 		double total = result.getTotalImpactResult(impact.getId());
 		return Contributions.calculate(getProcessDescriptors(), total,
-				new Function<ProcessDescriptor>() {
-					@Override
-					public double value(ProcessDescriptor process) {
-						return result.getSingleImpactResult(process.getId(),
-								impact.getId());
-					}
-				});
+				process -> result.getSingleImpactResult(process.getId(), impact.getId()));
 	}
 
 	public List<FlowResult> getSingleFlowImpacts(ImpactCategoryDescriptor impact) {
@@ -129,13 +119,7 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 			final ImpactCategoryDescriptor impact) {
 		double total = result.getTotalImpactResult(impact.getId());
 		return Contributions.calculate(getFlowDescriptors(), total,
-				new Function<FlowDescriptor>() {
-					@Override
-					public double value(FlowDescriptor flow) {
-						return result.getSingleFlowImpact(flow.getId(),
-								impact.getId());
-					}
-				});
+				flow -> result.getSingleFlowImpact(flow.getId(), impact.getId()));
 	}
 
 }
