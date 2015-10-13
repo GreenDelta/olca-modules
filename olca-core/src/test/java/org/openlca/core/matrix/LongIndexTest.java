@@ -2,7 +2,6 @@ package org.openlca.core.matrix;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.matrix.LongIndex;
 
 public class LongIndexTest {
 
@@ -21,7 +20,14 @@ public class LongIndexTest {
 		for (long i = 0; i < keys.length; i++) {
 			Assert.assertEquals(i + 1, keys[(int) i]);
 		}
+	}
 
+	@Test
+	public void testGetDefault() {
+		LongIndex idx = new LongIndex();
+		idx.put(23L);
+		Assert.assertEquals(1, idx.size());
+		Assert.assertEquals(-1, idx.getIndex(42));
 	}
 
 }

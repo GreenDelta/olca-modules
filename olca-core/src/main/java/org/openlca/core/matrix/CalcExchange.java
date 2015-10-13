@@ -25,4 +25,7 @@ public class CalcExchange {
 	public long defaultProviderId;
 	public boolean avoidedProduct;
 
+	public double costValue;
+	public long costCategory;
+
 }
