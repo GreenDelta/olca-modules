@@ -22,6 +22,10 @@ public class RepositoryClient {
 	public RepositoryClient(RepositoryConfig config) {
 		this.config = config;
 	}
+	
+	public RepositoryConfig getConfig() {
+		return config;
+	}
 
 	public void createUser(String username, String password, String adminKey)
 			throws WebRequestException {
