@@ -10,6 +10,7 @@ import java.util.Stack;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
@@ -56,6 +57,11 @@ class UpstreamTreeCalculator {
 
 	public UpstreamTree calculate(ImpactCategoryDescriptor impact) {
 		ImpactResultFetch fn = new ImpactResultFetch(impact);
+		return calculate(fn);
+	}
+
+	public UpstreamTree calculate(CostCategoryDescriptor cost) {
+		CostResultFetch fn = new CostResultFetch(cost);
 		return calculate(fn);
 	}
 
@@ -168,6 +174,27 @@ class UpstreamTreeCalculator {
 		@Override
 		public BaseDescriptor getReference() {
 			return impact;
+		}
+	}
+
+	private class CostResultFetch implements ResultFetch {
+
+		private final CostCategoryDescriptor cost;
+		private final long costId;
+
+		public CostResultFetch(CostCategoryDescriptor cost) {
+			this.cost = cost;
+			this.costId = cost.getId();
+		}
+
+		@Override
+		public double getTotalAmount(LongPair product) {
+			return result.getUpstreamCostResult(product, costId);
+		}
+
+		@Override
+		public BaseDescriptor getReference() {
+			return cost;
 		}
 	}
 

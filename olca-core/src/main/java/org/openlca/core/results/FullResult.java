@@ -23,7 +23,10 @@ public class FullResult extends ContributionResult {
 	 */
 	public IMatrix upstreamImpactResults;
 
-
+	/**
+	 * The upstream cost results in a matrix where the cost categories are
+	 * mapped to the rows and the process-products to the columns.
+	 */
 	public IMatrix upstreamCostResults;
 
 	/**
@@ -50,8 +53,7 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream LCIA category result of the LCIA category with the given
 	 * ID for the given process-product.
 	 */
-	public double getUpstreamImpactResult(LongPair processProduct,
-			long impactId) {
+	public double getUpstreamImpactResult(LongPair processProduct, long impactId) {
 		if (!hasImpactResults())
 			return 0;
 		int row = impactIndex.getIndex(impactId);
@@ -68,6 +70,29 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int row = impactIndex.getIndex(impactId);
 		return getProcessValue(upstreamImpactResults, row, processId);
+	}
+
+	/**
+	 * Get the upstream cost result of the cost category with the given ID for
+	 * the given process-product.
+	 */
+	public double getUpstreamCostResult(LongPair processProduct, long costId) {
+		if (!hasCostResults())
+			return 0;
+		int row = costIndex.getIndex(costId);
+		int col = productIndex.getIndex(processProduct);
+		return getValue(upstreamCostResults, row, col);
+	}
+
+	/**
+	 * Get the sum of the upstream cost results of the cost category with the
+	 * given ID for all products of the process with the given ID.
+	 */
+	public double getUpstreamCostResult(long processId, long costId) {
+		if (!hasCostResults())
+			return 0;
+		int row = costIndex.getIndex(costId);
+		return getProcessValue(upstreamCostResults, row, processId);
 	}
 
 }
