@@ -23,6 +23,9 @@ public class FullResult extends ContributionResult {
 	 */
 	public IMatrix upstreamImpactResults;
 
+
+	public IMatrix upstreamCostResults;
+
 	/**
 	 * Get the upstream flow result of the flow with the given ID for the given
 	 * process-product. Inputs have negative values here.

@@ -15,18 +15,18 @@ import gnu.trove.map.hash.TIntDoubleHashMap;
 public class CostMatrix {
 
 	public final ProductIndex productIndex;
-	public final LongIndex categoryIndex;
+	public final LongIndex costIndex;
 	public final IMatrix values;
 
 	CostMatrix(LongIndex categories, ProductIndex products, IMatrix values) {
-		this.categoryIndex = categories;
+		this.costIndex = categories;
 		this.productIndex = products;
 		this.values = values;
 	}
 
 	public boolean isEmpty() {
 		return productIndex == null || productIndex.size() == 0
-				|| categoryIndex == null || categoryIndex.size() == 0
+				|| costIndex == null || costIndex.size() == 0
 				|| values == null;
 	}
 

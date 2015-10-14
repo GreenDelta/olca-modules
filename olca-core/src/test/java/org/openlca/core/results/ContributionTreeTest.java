@@ -39,8 +39,8 @@ public class ContributionTreeTest {
 				new double[][] { { 0, 0.5, 0.5 } }, factory);
 		matrix.setInterventionMatrix(enviMatrix);
 
-		FullResult result = new LcaCalculator(TestSession.getDefaultSolver())
-				.calculateFull(matrix);
+		FullResult result = new LcaCalculator(TestSession.getDefaultSolver(), matrix)
+				.calculateFull();
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setId(4);
 

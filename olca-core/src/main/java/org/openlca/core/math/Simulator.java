@@ -58,12 +58,14 @@ public class Simulator {
 			log.trace("next simulation run");
 			FormulaInterpreter interpreter = parameterTable.simulate();
 			inventory.simulate(inventoryMatrix, interpreter);
-			if (impactMatrix != null)
+			LcaCalculator solver = new LcaCalculator(matrixSolver,
+					inventoryMatrix);
+			if (impactMatrix != null) {
 				impactTable.simulate(impactMatrix, interpreter);
-			LcaCalculator solver = new LcaCalculator(matrixSolver);
-			SimpleResult inventoryResult = solver.calculateFull(
-					inventoryMatrix, impactMatrix);
-			appendResults(inventoryResult);
+				solver.setImpactMatrix(impactMatrix);
+			}
+			SimpleResult result = solver.calculateSimple();
+			appendResults(result);
 			return true;
 		} catch (Throwable e) {
 			log.trace("simulation run failed", e);
