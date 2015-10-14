@@ -225,6 +225,11 @@ public class RepositoryClient {
 		});
 	}
 
+	public JsonObject getDataset(ModelType type, String refId)
+			throws WebRequestException {
+		return getDataset(type, refId, null);
+	}
+
 	public JsonObject getDataset(ModelType type, String refId, String commitId)
 			throws WebRequestException {
 		return executeLoggedIn(() -> {

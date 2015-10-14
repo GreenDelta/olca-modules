@@ -64,9 +64,10 @@ class DatasetContentInvocation {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		Valid.checkNotEmpty(commitId, "commit id");
 		Valid.checkNotEmpty(type, "model type");
 		Valid.checkNotEmpty(refId, "reference id");
+		if (commitId == null)
+			commitId = "null";
 		String url = Strings.concat(baseUrl, PATH, repositoryId, "/", type, "/", refId, "/", commitId);
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		String json = response.getEntity(String.class);
