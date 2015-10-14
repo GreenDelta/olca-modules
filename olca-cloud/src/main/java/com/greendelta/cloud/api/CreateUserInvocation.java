@@ -12,7 +12,7 @@ import com.greendelta.cloud.util.WebRequests.WebRequestException;
 /**
  * Invokes a web service call to create a new user (admin operation)
  */
-public class CreateUserInvocation {
+class CreateUserInvocation {
 
 	private static final String PATH = "/user/create";
 	private String baseUrl;

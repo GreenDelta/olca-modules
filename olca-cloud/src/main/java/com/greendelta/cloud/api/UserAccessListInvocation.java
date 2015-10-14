@@ -10,7 +10,7 @@ import com.greendelta.cloud.util.WebRequests.Type;
 import com.greendelta.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse;
 
-public class UserAccessListInvocation {
+class UserAccessListInvocation {
 
 	private static final String PATH = "/user/shared";
 	private String baseUrl;

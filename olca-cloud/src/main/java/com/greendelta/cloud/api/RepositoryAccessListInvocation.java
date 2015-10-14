@@ -14,7 +14,7 @@ import com.sun.jersey.api.client.ClientResponse;
  * Invokes a web service call to retrieve the list of users that have access to
  * the specified repository
  */
-public class RepositoryAccessListInvocation {
+class RepositoryAccessListInvocation {
 
 	private static final String PATH = "/repository/shared";
 	private String baseUrl;
