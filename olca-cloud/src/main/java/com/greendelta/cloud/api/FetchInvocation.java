@@ -24,6 +24,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.input.JsonImport;
+import org.openlca.jsonld.input.UpdateMode;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -114,18 +115,8 @@ class FetchInvocation {
 
 	private void runImport() {
 		JsonImport jsonImport = new JsonImport(store, database);
-		// TODO make "updateExisting" work in json import and remove
-		// "delete and insert" workaround
-		// jsonImport.setUpdateExisting(true);
-		_updateWorkaround();
+		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		jsonImport.run();
-	}
-
-	private void _updateWorkaround() {
-		for (ModelType type : ModelType.values())
-			for (String refId : store.getRefIds(type))
-				if (store.get(type, refId) != null)
-					delete(createDao(type), refId);
 	}
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void delete(
