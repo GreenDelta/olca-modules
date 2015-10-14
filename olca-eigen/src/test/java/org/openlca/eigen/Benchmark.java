@@ -5,9 +5,9 @@ import java.io.InputStreamReader;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.mysql.MySQLDatabase;
+import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.math.LcaCalculator;
-import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -34,7 +34,7 @@ public class Benchmark {
 		Inventory inventory = DataStructures.createInventory(system, cache);
 		InventoryMatrix matrix = inventory.createMatrix(solver
 				.getMatrixFactory());
-		LcaCalculator calculator = new LcaCalculator(solver);
+		LcaCalculator calculator = new LcaCalculator(solver, matrix);
 
 		System.out.println("Inventory ready. Type enter to start!");
 		try {
@@ -52,11 +52,11 @@ public class Benchmark {
 			result = null;
 			System.gc();
 			long start = System.currentTimeMillis();
-			calculator.calculateSimple(matrix);
+			calculator.calculateSimple();
 			long quick = System.currentTimeMillis() - start;
 			System.gc();
 			start = System.currentTimeMillis();
-			result = calculator.calculateFull(matrix);
+			result = calculator.calculateFull();
 			long analysis = System.currentTimeMillis() - start;
 			Runtime r = Runtime.getRuntime();
 			double mem = (r.totalMemory() - r.freeMemory()) / (1024 * 1024);
