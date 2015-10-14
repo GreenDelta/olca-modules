@@ -9,7 +9,7 @@ import org.openlca.core.model.ModelType;
 
 import com.greendelta.cloud.util.NullSafe;
 
-public class DatasetIdentifier implements Serializable {
+public class DatasetDescriptor implements Serializable {
 
 	private static final long serialVersionUID = -5394277610226365725L;
 	private ModelType type;
@@ -115,9 +115,9 @@ public class DatasetIdentifier implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj == this)
 			return true;
-		if (!(obj instanceof DatasetIdentifier))
+		if (!(obj instanceof DatasetDescriptor))
 			return false;
-		DatasetIdentifier other = (DatasetIdentifier) obj;
+		DatasetDescriptor other = (DatasetDescriptor) obj;
 		if (!NullSafe.equal(getType(), other.getType()))
 			return false;
 		if (!NullSafe.equal(getRefId(), other.getRefId()))

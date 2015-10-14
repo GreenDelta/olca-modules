@@ -9,7 +9,7 @@ import org.openlca.core.model.ModelType;
 
 import com.google.gson.JsonObject;
 import com.greendelta.cloud.model.data.CommitDescriptor;
-import com.greendelta.cloud.model.data.DatasetIdentifier;
+import com.greendelta.cloud.model.data.DatasetDescriptor;
 import com.greendelta.cloud.model.data.FetchRequestData;
 import com.greendelta.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -165,7 +165,7 @@ public class RepositoryClient {
 
 	public void commit(String commitMessage,
 			Collection<CategorizedEntity> data,
-			Collection<DatasetIdentifier> deleted) throws WebRequestException {
+			Collection<DatasetDescriptor> deleted) throws WebRequestException {
 		executeLoggedIn(() -> {
 			CommitInvocation invocation = new CommitInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
@@ -175,7 +175,7 @@ public class RepositoryClient {
 			invocation.setCommitMessage(commitMessage);
 			for (CategorizedEntity entity : data)
 				invocation.add(entity);
-			for (DatasetIdentifier entity : deleted)
+			for (DatasetDescriptor entity : deleted)
 				invocation.addDelete(entity);
 			config.setLatestCommitId(invocation.execute());
 		});

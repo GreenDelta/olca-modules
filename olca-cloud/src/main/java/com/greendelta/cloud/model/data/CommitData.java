@@ -2,15 +2,15 @@ package com.greendelta.cloud.model.data;
 
 public class CommitData {
 
-	private DatasetIdentifier identifier;
+	private DatasetDescriptor descriptor;
 	private String json;
 
-	public DatasetIdentifier getIdentifier() {
-		return identifier;
+	public DatasetDescriptor getDescriptor() {
+		return descriptor;
 	}
 
-	public void setIdentifier(DatasetIdentifier identifier) {
-		this.identifier = identifier;
+	public void setDescriptor(DatasetDescriptor descriptor) {
+		this.descriptor = descriptor;
 	}
 
 	public void setJson(String json) {

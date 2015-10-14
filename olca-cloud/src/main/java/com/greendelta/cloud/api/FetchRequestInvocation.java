@@ -15,7 +15,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Invokes a web service call to request a list of data set identifiers of those
+ * Invokes a web service call to request a list of data set descriptors of those
  * data sets that have been changed after the specified commit id
  */
 class FetchRequestInvocation {
@@ -44,9 +44,9 @@ class FetchRequestInvocation {
 	}
 
 	/**
-	 * Retrieves all changed data sets (only the identifiers)
+	 * Retrieves all changed data sets (only the descriptors)
 	 * 
-	 * @return A list of data set identifiers for those data sets that have been
+	 * @return A list of data set descriptors for those data sets that have been
 	 *         changed since the last fetch
 	 * @throws WebRequestException
 	 *             If user has no access to the specified repository

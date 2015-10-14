@@ -9,7 +9,7 @@ import org.openlca.jsonld.output.JsonExport;
 
 import com.greendelta.cloud.model.data.Commit;
 import com.greendelta.cloud.model.data.CommitData;
-import com.greendelta.cloud.model.data.DatasetIdentifier;
+import com.greendelta.cloud.model.data.DatasetDescriptor;
 import com.greendelta.cloud.util.Strings;
 import com.greendelta.cloud.util.Valid;
 import com.greendelta.cloud.util.WebRequests;
@@ -30,21 +30,21 @@ class CommitInvocation {
 
 	public CommitData add(CategorizedEntity entity) {
 		CommitData data = new CommitData();
-		DatasetIdentifier identifier = new DatasetIdentifier();
-		identifier.setLastChange(entity.getLastChange());
-		identifier.setRefId(entity.getRefId());
-		identifier.setName(entity.getName());
-		identifier.setType(ModelType.forModelClass(entity.getClass()));
-		identifier.setVersion(new Version(entity.getVersion()).toString());
+		DatasetDescriptor descriptor = new DatasetDescriptor();
+		descriptor.setLastChange(entity.getLastChange());
+		descriptor.setRefId(entity.getRefId());
+		descriptor.setName(entity.getName());
+		descriptor.setType(ModelType.forModelClass(entity.getClass()));
+		descriptor.setVersion(new Version(entity.getVersion()).toString());
 		if (entity.getCategory() != null)
-			identifier.setCategoryRefId(entity.getCategory().getRefId());
+			descriptor.setCategoryRefId(entity.getCategory().getRefId());
 		if (entity instanceof Category)
-			identifier.setCategoryType(((Category) entity).getModelType());
+			descriptor.setCategoryType(((Category) entity).getModelType());
 		else
-			identifier.setCategoryType(ModelType.forModelClass(entity
+			descriptor.setCategoryType(ModelType.forModelClass(entity
 					.getClass()));
-		identifier.setFullPath(getFullPath(entity));
-		data.setIdentifier(identifier);
+		descriptor.setFullPath(getFullPath(entity));
+		data.setDescriptor(descriptor);
 		data.setJson(toJson(entity));
 		commit.getData().add(data);
 		return data;
@@ -60,9 +60,9 @@ class CommitInvocation {
 		return path;
 	}
 
-	public CommitData addDelete(DatasetIdentifier identifier) {
+	public CommitData addDelete(DatasetDescriptor descriptor) {
 		CommitData data = new CommitData();
-		data.setIdentifier(identifier);
+		data.setDescriptor(descriptor);
 		commit.getData().add(data);
 		return data;
 	}
