@@ -4,45 +4,25 @@ import java.util.Objects;
 
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.ModelType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-class CurrencyImport {
-
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private String refId;
-	private ImportConfig conf;
+class CurrencyImport extends BaseImport<Currency> {
 
 	private CurrencyImport(String refId, ImportConfig conf) {
-		this.refId = refId;
-		this.conf = conf;
+		super(ModelType.CURRENCY, refId, conf);
 	}
 
 	static Currency run(String refId, ImportConfig conf) {
 		return new CurrencyImport(refId, conf).run();
 	}
 
-	private Currency run() {
-		if (refId == null || conf == null)
-			return null;
-		try {
-			Currency c = conf.db.getCurrency(refId);
-			if (c != null)
-				return c;
-			JsonObject json = conf.store.get(ModelType.CURRENCY, refId);
-			return map(json);
-		} catch (Exception e) {
-			log.error("failed to import currency " + refId, e);
-			return null;
-		}
-	}
-
-	private Currency map(JsonObject json) {
+	@Override
+	Currency map(JsonObject json, long id) {
 		if (json == null)
 			return null;
 		Currency c = new Currency();
+		c.setId(id);
 		In.mapAtts(json, c);
 		String catId = In.getRefId(json, "category");
 		c.setCategory(CategoryImport.run(catId, conf));

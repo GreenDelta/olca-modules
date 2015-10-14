@@ -116,8 +116,7 @@ class Db {
 	}
 
 	public UnitGroup update(UnitGroup group) {
-		UnitGroupDao dao = new UnitGroupDao(db);
-		return dao.update(group);
+		return new UnitGroupDao(db).update(group);
 	}
 
 	public Unit getUnit(String refId) {
@@ -140,10 +139,6 @@ class Db {
 
 	public Flow put(Flow flow) {
 		return put(new FlowDao(db), flow, flowIds);
-	}
-
-	public Flow update(Flow flow) {
-		return new FlowDao(db).update(flow);
 	}
 
 	public ImpactMethod getMethod(String refId) {
@@ -194,9 +189,13 @@ class Db {
 			Map<String, Long> idCache) {
 		if (entity == null)
 			return null;
-		entity = dao.insert(entity);
+		if (entity.getId() == 0l)
+			entity = dao.insert(entity);
+		else {
+			dao.detach(dao.getForId(entity.getId()));
+			entity = dao.update(entity);
+		}
 		idCache.put(entity.getRefId(), entity.getId());
 		return entity;
 	}
-
 }

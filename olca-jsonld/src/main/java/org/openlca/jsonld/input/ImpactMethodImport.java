@@ -1,8 +1,7 @@
 package org.openlca.jsonld.input;
 
 import java.util.Objects;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -11,44 +10,26 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-class ImpactMethodImport {
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private String refId;
-	private ImportConfig conf;
+class ImpactMethodImport extends BaseImport<ImpactMethod> {
 
 	private ImpactMethodImport(String refId, ImportConfig conf) {
-		this.refId = refId;
-		this.conf = conf;
+		super(ModelType.IMPACT_METHOD, refId, conf);
 	}
 
 	static ImpactMethod run(String refId, ImportConfig conf) {
 		return new ImpactMethodImport(refId, conf).run();
 	}
 
-	private ImpactMethod run() {
-		if (refId == null || conf == null)
-			return null;
-		try {
-			ImpactMethod m = conf.db.getMethod(refId);
-			if (m != null)
-				return m;
-			JsonObject json = conf.store.get(ModelType.IMPACT_METHOD, refId);
-			return map(json);
-		} catch (Exception e) {
-			log.error("failed to import impact method " + refId, e);
-			return null;
-		}
-	}
-
-	private ImpactMethod map(JsonObject json) {
+	@Override
+	ImpactMethod map(JsonObject json, long id) {
 		if (json == null)
 			return null;
 		ImpactMethod m = new ImpactMethod();
+		m.setId(id);
 		In.mapAtts(json, m);
 		String catId = In.getRefId(json, "category");
 		m.setCategory(CategoryImport.run(catId, conf));
@@ -64,7 +45,8 @@ class ImpactMethodImport {
 			if (!e.isJsonObject())
 				continue;
 			String catId = In.getString(e.getAsJsonObject(), "@id");
-			JsonObject catJson = conf.store.get(ModelType.IMPACT_CATEGORY, catId);
+			JsonObject catJson = conf.store.get(ModelType.IMPACT_CATEGORY,
+					catId);
 			ImpactCategory category = mapCategory(catJson);
 			if (category != null)
 				m.getImpactCategories().add(category);
