@@ -35,7 +35,7 @@ public class Simulator {
 
 	public Simulator(CalculationSetup setup, MatrixCache database,
 			IMatrixSolver solver) {
-		this.impactMethod = setup.getImpactMethod();
+		this.impactMethod = setup.impactMethod;
 		this.cache = database;
 		this.setup = setup;
 		this.factory = solver.getMatrixFactory();

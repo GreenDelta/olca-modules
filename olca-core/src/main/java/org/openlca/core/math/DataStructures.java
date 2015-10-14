@@ -25,8 +25,6 @@ public class DataStructures {
 	private DataStructures() {
 	}
 
-	// TODO: add a validation procedure for product systems
-
 	/**
 	 * Creates a product index from the given product system.
 	 */
@@ -65,8 +63,8 @@ public class DataStructures {
 
 	public static Inventory createInventory(CalculationSetup setup,
 			MatrixCache cache) {
-		ProductSystem system = setup.getProductSystem();
-		AllocationMethod method = setup.getAllocationMethod();
+		ProductSystem system = setup.productSystem;
+		AllocationMethod method = setup.allocationMethod;
 		if (method == null)
 			method = AllocationMethod.NONE;
 		ProductIndex productIndex = createProductIndex(system);
@@ -77,12 +75,12 @@ public class DataStructures {
 	public static ParameterTable createParameterTable(IDatabase db,
 			CalculationSetup setup, Inventory inventory) {
 		Set<Long> contexts = new HashSet<>();
-		if (setup.getImpactMethod() != null)
-			contexts.add(setup.getImpactMethod().getId());
+		if (setup.impactMethod != null)
+			contexts.add(setup.impactMethod.getId());
 		if (inventory.getProductIndex() != null)
 			contexts.addAll(inventory.getProductIndex().getProcessIds());
 		ParameterTable table = ParameterTable.build(db, contexts);
-		table.apply(setup.getParameterRedefs());
+		table.apply(setup.parameterRedefs);
 		return table;
 	}
 
