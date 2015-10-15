@@ -55,7 +55,7 @@ abstract class DataWriter {
 		}
 	}
 	
-	protected EntityStore getEntityStore() {
+	public EntityStore getEntityStore() {
 		return entityStore;
 	}
 	

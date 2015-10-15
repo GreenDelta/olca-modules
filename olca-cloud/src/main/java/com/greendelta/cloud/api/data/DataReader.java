@@ -47,7 +47,7 @@ abstract class DataReader {
 		
 	}
 	
-	protected EntityStore getEntityStore() {
+	public EntityStore getEntityStore() {
 		return entityStore;
 	}
 	
