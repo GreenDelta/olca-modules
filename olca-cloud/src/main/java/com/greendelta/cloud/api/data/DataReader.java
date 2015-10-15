@@ -44,16 +44,21 @@ abstract class DataReader {
 	}
 
 	protected void readMetaData(FileSystem zip) throws IOException {
-		
+
 	}
-	
+
 	public EntityStore getEntityStore() {
 		return entityStore;
 	}
-	
+
 	public String getData(DatasetDescriptor descriptor) {
 		return new Gson().toJson(entityStore.get(descriptor.getType(),
 				descriptor.getRefId()));
+	}
+
+	public boolean hasData(DatasetDescriptor descriptor) {
+		return entityStore
+				.contains(descriptor.getType(), descriptor.getRefId());
 	}
 
 	public List<DatasetDescriptor> getDescriptors() {
