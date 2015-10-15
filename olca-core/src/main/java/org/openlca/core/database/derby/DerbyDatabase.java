@@ -13,7 +13,6 @@ import javax.persistence.EntityManagerFactory;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.DatabaseContent;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
@@ -114,27 +113,6 @@ public class DerbyDatabase implements IDatabase {
 		if (!dir.exists())
 			dir.mkdirs();
 		return dir;
-	}
-
-	/** Fill the database with the given content. */
-	@Deprecated
-	public void fill(DatabaseContent content) {
-		if (content == null || content == DatabaseContent.EMPTY)
-			return;
-		log.trace("fill database with content: {}", content);
-		Resource resource = null;
-		if (content == DatabaseContent.ALL_REF_DATA)
-			resource = Resource.REF_DATA_ALL;
-		else if (content == DatabaseContent.UNITS)
-			resource = Resource.REF_DATA_UNITS;
-		if (resource == null)
-			return;
-		try {
-			ScriptRunner runner = new ScriptRunner(this);
-			runner.run(resource.getStream(), "utf-8");
-		} catch (Exception e) {
-			log.error("failed to fill database with  content", e);
-		}
 	}
 
 	private void connect() {

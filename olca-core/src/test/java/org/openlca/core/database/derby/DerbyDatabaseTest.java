@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.database.ActorDao;
-import org.openlca.core.database.DatabaseContent;
 
 public class DerbyDatabaseTest {
 
@@ -34,18 +33,6 @@ public class DerbyDatabaseTest {
 	public void testEmptyDao() {
 		ActorDao dao = new ActorDao(database);
 		Assert.assertTrue(dao.getAll().isEmpty());
-	}
-
-	@Test
-	@Ignore
-	public void testAllRefData() {
-		database.fill(DatabaseContent.ALL_REF_DATA);
-	}
-
-	@Test
-	@Ignore
-	public void testUnitRefData() {
-		database.fill(DatabaseContent.UNITS);
 	}
 
 }
