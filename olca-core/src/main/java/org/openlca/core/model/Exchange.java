@@ -60,6 +60,10 @@ public class Exchange extends AbstractEntity {
 	@JoinColumn(name = "f_cost_category")
 	public CostCategory costCategory;
 
+	@OneToOne
+	@JoinColumn(name = "f_currency")
+	public Currency currency;
+
 	public double getAmountValue() {
 		return amountValue;
 	}
@@ -172,6 +176,7 @@ public class Exchange extends AbstractEntity {
 		clone.costValue = costValue;
 		clone.costFormula = costFormula;
 		clone.costCategory = costCategory;
+		clone.currency = currency;
 		return clone;
 	}
 
