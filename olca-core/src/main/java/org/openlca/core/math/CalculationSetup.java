@@ -16,66 +16,23 @@ import org.openlca.core.model.descriptors.NwSetDescriptor;
  */
 public class CalculationSetup {
 
-	private final ProductSystem productSystem;
+	public final ProductSystem productSystem;
+	public ImpactMethodDescriptor impactMethod;
+	public boolean withCosts = false;
+	public NwSetDescriptor nwSet;
+	public AllocationMethod allocationMethod = AllocationMethod.NONE;
+	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();
+
+	/** Only valid for Monte Carlo Simulations */
+	public int numberOfRuns = -1;
+
+	// properties with default values from the product system
 	private Unit unit;
 	private FlowPropertyFactor flowPropertyFactor;
 	private Double amount;
-	private ImpactMethodDescriptor impactMethod;
-	private NwSetDescriptor nwSet;
-	private AllocationMethod allocationMethod;
-	private int numberOfRuns = -1;
-	private List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
 	public CalculationSetup(ProductSystem productSystem) {
 		this.productSystem = productSystem;
-	}
-
-	public ProductSystem getProductSystem() {
-		return productSystem;
-	}
-
-	public void setImpactMethod(ImpactMethodDescriptor impactMethod) {
-		this.impactMethod = impactMethod;
-	}
-
-	public ImpactMethodDescriptor getImpactMethod() {
-		return impactMethod;
-	}
-
-	public void setNwSet(NwSetDescriptor nwSet) {
-		this.nwSet = nwSet;
-	}
-
-	public NwSetDescriptor getNwSet() {
-		return nwSet;
-	}
-
-	public void setAllocationMethod(AllocationMethod allocationMethod) {
-		this.allocationMethod = allocationMethod;
-	}
-
-	public AllocationMethod getAllocationMethod() {
-		if (allocationMethod == null)
-			return AllocationMethod.NONE;
-		return allocationMethod;
-	}
-
-	/**
-	 * Only valid for sensitivity analysis of Monte-Carlo-Simulations.
-	 */
-	public void setNumberOfRuns(int numberOfRuns) {
-		this.numberOfRuns = numberOfRuns;
-	}
-
-	/**
-	 * Only valid for sensitivity analysis of Monte-Carlo-Simulations.
-	 */
-	public int getNumberOfRuns() {
-		return numberOfRuns;
-	}
-
-	public List<ParameterRedef> getParameterRedefs() {
-		return parameterRedefs;
 	}
 
 	/**

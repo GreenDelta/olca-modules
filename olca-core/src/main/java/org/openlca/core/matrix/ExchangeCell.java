@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.math.NumberGenerator;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
@@ -65,6 +66,16 @@ class ExchangeCell {
 			return -amount;
 		else
 			return amount;
+	}
+
+	double getCostValue() {
+		if (exchange == null)
+			return 0;
+		double val = exchange.costValue * allocationFactor;
+		if (exchange.flowType == FlowType.PRODUCT_FLOW && !exchange.input)
+			return val;
+		else
+			return -val;
 	}
 
 	double getNextSimulationValue() {

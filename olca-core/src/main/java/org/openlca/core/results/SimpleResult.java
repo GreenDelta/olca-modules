@@ -20,6 +20,11 @@ public class SimpleResult extends BaseResult {
 	public double[] totalImpactResults;
 
 	/**
+	 * The total results of all cost categories.
+	 */
+	public double[] totalCostResults;
+
+	/**
 	 * Returns the total result of the intervention flow with the given ID. Note
 	 * that inputs have a negative value.
 	 */
@@ -40,5 +45,17 @@ public class SimpleResult extends BaseResult {
 		if (idx < 0 || idx >= totalImpactResults.length)
 			return 0;
 		return totalImpactResults[idx];
+	}
+
+	/**
+	 * Returns the total result of the cost category with the given ID.
+	 */
+	public double getTotalCostResult(long costId) {
+		if (!hasCostResults())
+			return 0;
+		int idx = costIndex.getIndex(costId);
+		if (idx < 0 || idx >= totalCostResults.length)
+			return 0;
+		return totalCostResults[idx];
 	}
 }

@@ -193,6 +193,8 @@ public class Upgrade2 implements IUpgrade {
 				"cost_formula VARCHAR(1000)");
 		util.checkCreateColumn("tbl_exchanges", "f_cost_category",
 				"f_cost_category BIGINT");
+		util.checkCreateColumn("tbl_exchanges", "f_currency",
+				"f_currency BIGINT");
 	}
 
 	private class KmzResultHandler implements QueryResultHandler {

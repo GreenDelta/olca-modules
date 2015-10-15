@@ -7,7 +7,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
@@ -33,7 +33,7 @@ public class ExchangeUseSearchTest {
 	private Process p;
 	private Process q;
 	private Stack<CategorizedEntity> modelStack = new Stack<>();
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 
 	@Before
 	public void setUp() {

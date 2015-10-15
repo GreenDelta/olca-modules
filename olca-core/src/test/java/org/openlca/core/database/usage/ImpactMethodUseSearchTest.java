@@ -5,7 +5,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProjectDao;
@@ -18,7 +18,7 @@ import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
 public class ImpactMethodUseSearchTest {
 
-	private IDatabase db = TestSession.getDefaultDatabase();
+	private IDatabase db = Tests.getDb();
 	private IUseSearch<ImpactMethodDescriptor> search;
 	private ProjectDao projectDao;
 	private Project project;

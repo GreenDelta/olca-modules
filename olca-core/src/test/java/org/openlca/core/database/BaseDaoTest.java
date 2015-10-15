@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.usage.IUseSearch;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
@@ -88,11 +88,11 @@ public class BaseDaoTest {
 			throws Exception {
 		log.info("run base dao test with {}", clazz);
 		T instance = clazz.newInstance();
-		BaseDao<T> dao = new BaseDao<>(clazz, TestSession.getDefaultDatabase());
+		BaseDao<T> dao = new BaseDao<>(clazz, Tests.getDb());
 		dao.insert(instance);
 		testUsage(instance);
 		dao.update(instance);
-		TestSession.emptyCache();
+		Tests.emptyCache();
 		T alias = dao.getForId(instance.getId());
 		Assert.assertEquals(alias, instance);
 		dao.delete(instance);
@@ -107,7 +107,7 @@ public class BaseDaoTest {
 		CategorizedEntity entity = (CategorizedEntity) instance;
 		ModelType type = ModelType.forModelClass(clazz);
 		List<BaseDescriptor> descriptors = IUseSearch.FACTORY
-				.createFor(type, TestSession.getDefaultDatabase())
+				.createFor(type, Tests.getDb())
 				.findUses(Descriptors.toDescriptor(entity));
 		Assert.assertTrue(descriptors.isEmpty());
 	}

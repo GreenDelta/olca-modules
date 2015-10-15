@@ -124,6 +124,7 @@ public final class Contributions {
 		return list;
 	}
 
+	@FunctionalInterface
 	public interface Function<T> {
 
 		double value(T t);

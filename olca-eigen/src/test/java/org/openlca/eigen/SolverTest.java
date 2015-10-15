@@ -79,8 +79,8 @@ public class SolverTest {
 			enviMatrix.setEntry(r, 0, 1 * r);
 		matrix.setInterventionMatrix(enviMatrix);
 
-		LcaCalculator calculator = new LcaCalculator(solver);
-		SimpleResult result = calculator.calculateSimple(matrix);
+		LcaCalculator calculator = new LcaCalculator(solver, matrix);
+		SimpleResult result = calculator.calculateSimple();
 		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },
 				result.totalFlowResults, 1e-14);
 	}

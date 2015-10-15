@@ -26,10 +26,25 @@ public abstract class BaseResult {
 	public LongIndex impactIndex;
 
 	/**
+	 * The cost index maps IDs of cost categories to row and column indices of
+	 * the matrices and vectors of the mathematical model. As cost categories
+	 * are optional there is a special category with ID=0L contained in the
+	 * index which means 'no specific category'.
+	 */
+	public LongIndex costIndex;
+
+	/**
 	 * Returns true if this result contains an LCIA result.
 	 */
 	public boolean hasImpactResults() {
 		return impactIndex != null && !impactIndex.isEmpty();
+	}
+
+	/**
+	 * Returns true if this result contains an LCC result.
+	 */
+	public boolean hasCostResults() {
+		return costIndex != null && !costIndex.isEmpty();
 	}
 
 }

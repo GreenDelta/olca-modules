@@ -2,7 +2,7 @@ package org.openlca.core.matrix.cache;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
@@ -14,7 +14,7 @@ import org.openlca.core.model.UnitGroup;
 
 public class ConversionTableTest {
 
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 
 	@Test
 	public void testDefaultFactors() {

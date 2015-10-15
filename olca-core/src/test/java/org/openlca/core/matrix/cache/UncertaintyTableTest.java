@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ProcessDao;
@@ -23,7 +23,7 @@ import org.openlca.core.model.Uncertainty;
  */
 public class UncertaintyTableTest {
 
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 	private MatrixCache cache = MatrixCache.createLazy(database);
 
 	@Test

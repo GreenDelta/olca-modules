@@ -1,77 +1,109 @@
 package org.openlca.core.matrix;
 
+import java.util.ArrayList;
+
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
-import org.openlca.core.matrix.cache.MatrixCache;
 
+import gnu.trove.map.hash.TIntDoubleHashMap;
+
+/**
+ * A cost matrix contains the cost entries of a product system. The cost
+ * categories are mapped to the rows and the process-products of the product
+ * system are mapped to the columns.
+ */
 public class CostMatrix {
 
-	private ProductIndex productIndex;
-	private LongIndex fixCostCategoryIndex;
-	private LongIndex varCostCategoryIndex;
+	public final ProductIndex productIndex;
+	public final LongIndex costIndex;
+	public final IMatrix values;
 
-	private IMatrix fixCostMatrix;
-	private IMatrix variableCostMatrix;
-
-	/** Returns an empty matrix. */
-	public static CostMatrix empty() {
-		return new CostMatrix();
-	}
-
-	public static CostMatrix build(MatrixCache matrixCache,
-			IMatrixFactory<?> factory, ProductIndex productIndex) {
-		return new CostMatrixBuilder(matrixCache, factory, productIndex)
-				.build();
+	CostMatrix(LongIndex categories, ProductIndex products, IMatrix values) {
+		this.costIndex = categories;
+		this.productIndex = products;
+		this.values = values;
 	}
 
 	public boolean isEmpty() {
-		return productIndex == null || (!hasFixCosts() && !hasVarCosts());
+		return productIndex == null || productIndex.size() == 0
+				|| costIndex == null || costIndex.size() == 0
+				|| values == null;
 	}
 
-	public boolean hasFixCosts() {
-		return fixCostCategoryIndex != null && !fixCostCategoryIndex.isEmpty()
-				&& fixCostMatrix != null;
+	public static CostMatrix build(Inventory inventory, IMatrixFactory<?> factory,
+			IDatabase db) {
+		return new CostMatrixBuilder(inventory, factory, db).build();
 	}
 
-	public boolean hasVarCosts() {
-		return varCostCategoryIndex != null && !varCostCategoryIndex.isEmpty()
-				&& variableCostMatrix != null;
-	}
+	private static class CostMatrixBuilder {
 
-	public ProductIndex getProductIndex() {
-		return productIndex;
-	}
+		private Inventory inventory;
+		private IMatrixFactory<?> factory;
+		private CurrencyTable currencyTable;
 
-	public void setProductIndex(ProductIndex productIndex) {
-		this.productIndex = productIndex;
-	}
+		private LongIndex catIndex;
+		private ArrayList<TIntDoubleHashMap> values;
 
-	public IMatrix getFixCostMatrix() {
-		return fixCostMatrix;
-	}
+		private CostMatrixBuilder(Inventory inventory, IMatrixFactory<?> factory,
+				IDatabase db) {
+			this.inventory = inventory;
+			this.factory = factory;
+			this.currencyTable = CurrencyTable.create(db);
+			catIndex = new LongIndex();
+			values = new ArrayList<>();
+		}
 
-	public void setFixCosts(LongIndex fixCostCategoryIndex,
-			IMatrix fixCostMatrix) {
-		this.fixCostCategoryIndex = fixCostCategoryIndex;
-		this.fixCostMatrix = fixCostMatrix;
-	}
+		private CostMatrix build() {
+			if (inventory == null)
+				return new CostMatrix(null, null, null);
+			scan(inventory.getTechnologyMatrix());
+			scan(inventory.getInterventionMatrix());
+			IMatrix values = createMatrix();
+			return new CostMatrix(catIndex, inventory.getProductIndex(), values);
+		}
 
-	public IMatrix getVariableCostMatrix() {
-		return variableCostMatrix;
-	}
+		private void scan(ExchangeMatrix matrix) {
+			if (matrix == null)
+				return;
+			matrix.iterate((row, col, cell) -> {
+				double val = cell.getCostValue();
+				if (val == 0 || cell.exchange == null) {
+					return;
+				}
+				long category = cell.exchange.costCategory;
+				int costRow = catIndex.put(category);
+				val = currencyTable.getFactor(cell.exchange.currency) * val;
+				add(costRow, col, val);
+			});
+		}
 
-	public void setVariableCosts(LongIndex varCostCategoryIndex,
-			IMatrix variableCostMatrix) {
-		this.variableCostMatrix = variableCostMatrix;
-		this.varCostCategoryIndex = varCostCategoryIndex;
-	}
+		private void add(int row, int col, double value) {
+			TIntDoubleHashMap matrixRow = null;
+			if (row < values.size())
+				matrixRow = values.get(row);
+			else {
+				matrixRow = new TIntDoubleHashMap();
+				values.add(matrixRow);
+			}
+			double existingValue = matrixRow.get(col);
+			matrixRow.put(col, existingValue + value);
+		}
 
-	public LongIndex getFixCostCategoryIndex() {
-		return fixCostCategoryIndex;
+		private IMatrix createMatrix() {
+			ProductIndex productIndex = inventory.getProductIndex();
+			if (factory == null || productIndex == null || catIndex.size() == 0)
+				return null;
+			IMatrix m = factory.create(catIndex.size(), productIndex.size());
+			for (int i = 0; i < values.size(); i++) {
+				int row = i; // effectively final
+				TIntDoubleHashMap map = values.get(row);
+				map.forEachEntry((col, value) -> {
+					m.setEntry(row, col, value);
+					return true;
+				});
+			}
+			return m;
+		}
 	}
-
-	public LongIndex getVarCostCategoryIndex() {
-		return varCostCategoryIndex;
-	}
-
 }

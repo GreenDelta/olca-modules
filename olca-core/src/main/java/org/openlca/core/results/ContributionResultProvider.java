@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.Contributions.Function;
 
 public class ContributionResultProvider<T extends ContributionResult> extends
 		SimpleResultProvider<T> {
@@ -56,13 +56,10 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 		double total = adoptFlowResult(result.getTotalFlowResult(flowId),
 				flowId);
 		return Contributions.calculate(getProcessDescriptors(), total,
-				new Function<ProcessDescriptor>() {
-					@Override
-					public double value(ProcessDescriptor process) {
-						double val = result.getSingleFlowResult(
-								process.getId(), flowId);
-						return adoptFlowResult(val, flowId);
-					}
+				process -> {
+					double val = result.getSingleFlowResult(
+							process.getId(), flowId);
+					return adoptFlowResult(val, flowId);
 				});
 	}
 
@@ -89,16 +86,10 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 	 * given LCIA category.
 	 */
 	public ContributionSet<ProcessDescriptor> getProcessContributions(
-			final ImpactCategoryDescriptor impact) {
+			ImpactCategoryDescriptor impact) {
 		double total = result.getTotalImpactResult(impact.getId());
 		return Contributions.calculate(getProcessDescriptors(), total,
-				new Function<ProcessDescriptor>() {
-					@Override
-					public double value(ProcessDescriptor process) {
-						return result.getSingleImpactResult(process.getId(),
-								impact.getId());
-					}
-				});
+				process -> result.getSingleImpactResult(process.getId(), impact.getId()));
 	}
 
 	public List<FlowResult> getSingleFlowImpacts(ImpactCategoryDescriptor impact) {
@@ -129,13 +120,34 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 			final ImpactCategoryDescriptor impact) {
 		double total = result.getTotalImpactResult(impact.getId());
 		return Contributions.calculate(getFlowDescriptors(), total,
-				new Function<FlowDescriptor>() {
-					@Override
-					public double value(FlowDescriptor flow) {
-						return result.getSingleFlowImpact(flow.getId(),
-								impact.getId());
-					}
-				});
+				flow -> result.getSingleFlowImpact(flow.getId(), impact.getId()));
+	}
+
+	public List<CostResult> getSingleCostResults(ProcessDescriptor process) {
+		List<CostResult> results = new ArrayList<>();
+		for (CostCategoryDescriptor cost : getCostDescriptors())
+			results.add(getSingleCostResult(process, cost));
+		return results;
+	}
+
+	public CostResult getSingleCostResult(ProcessDescriptor process,
+			CostCategoryDescriptor cost) {
+		double val = result.getSingleCostResult(process.getId(), cost.getId());
+		CostResult r = new CostResult();
+		r.costCategory = cost;
+		r.value = val;
+		return r;
+	}
+
+	/**
+	 * Get the single contributions of the processes to the total result of the
+	 * given LCIA category.
+	 */
+	public ContributionSet<ProcessDescriptor> getProcessContributions(
+			CostCategoryDescriptor cost) {
+		double total = result.getTotalCostResult(cost.getId());
+		return Contributions.calculate(getProcessDescriptors(), total,
+				process -> result.getSingleCostResult(process.getId(), cost.getId()));
 	}
 
 }

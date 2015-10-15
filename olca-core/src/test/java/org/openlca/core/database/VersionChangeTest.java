@@ -2,7 +2,7 @@ package org.openlca.core.database;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Flow;
@@ -20,7 +20,7 @@ public class VersionChangeTest {
 			FlowProperty.class, Flow.class, Process.class, ProductSystem.class,
 			ImpactMethod.class, Project.class };
 
-	private IDatabase db = TestSession.getDefaultDatabase();
+	private IDatabase db = Tests.getDb();
 
 	@Test
 	public void testUpdate() throws Exception {

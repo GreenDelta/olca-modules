@@ -2,7 +2,7 @@ package org.openlca.core.results;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.matrix.LongPair;
@@ -22,7 +22,7 @@ public class LinkContributionsTest {
 	@Test
 	public void testDoubleLink() {
 
-		IMatrixFactory<?> factory = TestSession.getDefaultSolver()
+		IMatrixFactory<?> factory = Tests.getDefaultSolver()
 				.getMatrixFactory();
 		// @formatter:off
 		IMatrix techMatrix = MatrixUtils.create(new double[][] {
@@ -57,7 +57,7 @@ public class LinkContributionsTest {
 	 */
 	@Test
 	public void testBandMatrix() {
-		IMatrixFactory<?> factory = TestSession.getDefaultSolver()
+		IMatrixFactory<?> factory = Tests.getDefaultSolver()
 				.getMatrixFactory();
 		int size = 4000;
 		IMatrix techMatrix = factory.create(size, size);

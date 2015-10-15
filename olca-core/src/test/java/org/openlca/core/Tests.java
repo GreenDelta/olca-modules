@@ -10,12 +10,12 @@ import org.openlca.core.database.upgrades.Upgrades;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.math.JavaSolver;
 
-public class TestSession {
+public class Tests {
 
 	private static IDatabase mysqlDatabase;
 	private static IDatabase derbyDatabase;
 
-	public static IDatabase getDefaultDatabase() {
+	public static IDatabase getDb() {
 		return getDerbyDatabase();
 	}
 

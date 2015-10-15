@@ -6,7 +6,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SourceDao;
@@ -21,7 +21,7 @@ import org.openlca.core.model.descriptors.SourceDescriptor;
 
 public class SourceUseSearchTest {
 
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 	private IUseSearch<SourceDescriptor> search;
 	private Source source;
 	private Process process;

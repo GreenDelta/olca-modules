@@ -8,10 +8,10 @@ import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.ProjectVariant;
+import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.Contributions.Function;
 
 /**
  * A project result is a wrapper for the inventory results of the respective
@@ -40,14 +40,6 @@ public class ProjectResultProvider implements IResultProvider {
 		return results.get(variant);
 	}
 
-	@Override
-	public Set<FlowDescriptor> getFlowDescriptors() {
-		Set<FlowDescriptor> flows = new HashSet<>();
-		for (ContributionResultProvider<?> result : results.values())
-			flows.addAll(result.getFlowDescriptors());
-		return flows;
-	}
-
 	public FlowResult getTotalFlowResult(ProjectVariant variant,
 			FlowDescriptor flow) {
 		ContributionResultProvider<?> result = results.get(variant);
@@ -63,23 +55,9 @@ public class ProjectResultProvider implements IResultProvider {
 		return result.getTotalFlowResults();
 	}
 
-	public ContributionSet<ProjectVariant> getContributions(
-			final FlowDescriptor flow) {
+	public ContributionSet<ProjectVariant> getContributions(FlowDescriptor flow) {
 		return Contributions.calculate(getVariants(),
-				new Function<ProjectVariant>() {
-					@Override
-					public double value(ProjectVariant variant) {
-						return getTotalFlowResult(variant, flow).value;
-					}
-				});
-	}
-
-	@Override
-	public Set<ImpactCategoryDescriptor> getImpactDescriptors() {
-		Set<ImpactCategoryDescriptor> impacts = new HashSet<>();
-		for (ContributionResultProvider<?> result : results.values())
-			impacts.addAll(result.getImpactDescriptors());
-		return impacts;
+				variant -> getTotalFlowResult(variant, flow).value);
 	}
 
 	public ImpactResult getTotalImpactResult(ProjectVariant variant,
@@ -91,14 +69,9 @@ public class ProjectResultProvider implements IResultProvider {
 	}
 
 	public ContributionSet<ProjectVariant> getContributions(
-			final ImpactCategoryDescriptor impact) {
+			ImpactCategoryDescriptor impact) {
 		return Contributions.calculate(getVariants(),
-				new Function<ProjectVariant>() {
-					@Override
-					public double value(ProjectVariant variant) {
-						return getTotalImpactResult(variant, impact).value;
-					}
-				});
+				variant -> getTotalImpactResult(variant, impact).value);
 	}
 
 	@Override
@@ -110,10 +83,44 @@ public class ProjectResultProvider implements IResultProvider {
 	}
 
 	@Override
+	public boolean hasCostResults() {
+		for (ContributionResultProvider<?> result : results.values()) {
+			if (result.hasCostResults())
+				return true;
+		}
+		return false;
+	}
+
+	@Override
 	public Set<ProcessDescriptor> getProcessDescriptors() {
 		Set<ProcessDescriptor> processes = new HashSet<>();
 		for (ContributionResultProvider<?> result : results.values())
 			processes.addAll(result.getProcessDescriptors());
 		return processes;
 	}
+
+	@Override
+	public Set<FlowDescriptor> getFlowDescriptors() {
+		Set<FlowDescriptor> flows = new HashSet<>();
+		for (ContributionResultProvider<?> result : results.values())
+			flows.addAll(result.getFlowDescriptors());
+		return flows;
+	}
+
+	@Override
+	public Set<ImpactCategoryDescriptor> getImpactDescriptors() {
+		Set<ImpactCategoryDescriptor> impacts = new HashSet<>();
+		for (ContributionResultProvider<?> result : results.values())
+			impacts.addAll(result.getImpactDescriptors());
+		return impacts;
+	}
+
+	@Override
+	public Set<CostCategoryDescriptor> getCostDescriptors() {
+		Set<CostCategoryDescriptor> costs = new HashSet<>();
+		for (ContributionResultProvider<?> result : results.values())
+			costs.addAll(result.getCostDescriptors());
+		return costs;
+	}
+
 }

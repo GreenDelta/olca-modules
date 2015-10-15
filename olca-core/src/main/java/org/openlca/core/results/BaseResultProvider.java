@@ -11,6 +11,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -29,6 +30,11 @@ public class BaseResultProvider<T extends BaseResult> implements
 	@Override
 	public boolean hasImpactResults() {
 		return result.hasImpactResults();
+	}
+
+	@Override
+	public boolean hasCostResults() {
+		return result.hasCostResults();
 	}
 
 	@Override
@@ -70,6 +76,32 @@ public class BaseResultProvider<T extends BaseResult> implements
 				ImpactCategoryDescriptor.class, ids);
 		HashSet<ImpactCategoryDescriptor> descriptors = new HashSet<>();
 		descriptors.addAll(values.values());
+		return descriptors;
+	}
+
+	@Override
+	public Set<CostCategoryDescriptor> getCostDescriptors() {
+		LongIndex index = result.costIndex;
+		if (index == null)
+			return Collections.emptySet();
+		List<Long> ids = new ArrayList<>();
+		boolean hasOther = false;
+		for (long id : index.getKeys()) {
+			if (id == 0)
+				hasOther = true;
+			else
+				ids.add(id);
+		}
+		Map<Long, CostCategoryDescriptor> values = cache.getAll(
+				CostCategoryDescriptor.class, ids);
+		HashSet<CostCategoryDescriptor> descriptors = new HashSet<>();
+		descriptors.addAll(values.values());
+		if (hasOther) {
+			CostCategoryDescriptor other = new CostCategoryDescriptor();
+			other.setId(0L);
+			other.setName("Other");
+			descriptors.add(other);
+		}
 		return descriptors;
 	}
 

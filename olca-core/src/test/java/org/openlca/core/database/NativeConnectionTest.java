@@ -5,13 +5,13 @@ import java.sql.ResultSet;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 
 public class NativeConnectionTest {
 
 	@Test
 	public void testConnection() throws Exception {
-		IDatabase database = TestSession.getDefaultDatabase();
+		IDatabase database = Tests.getDb();
 		Connection con = database.createConnection();
 		ResultSet results = con.createStatement().executeQuery(
 				"select count(*) from tbl_units");

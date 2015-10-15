@@ -2,7 +2,6 @@ package examples;
 
 import java.io.File;
 
-import org.openlca.core.database.DatabaseContent;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.ecospold1.input.EcoSpold01Import;
@@ -14,13 +13,8 @@ public class EcoSpold1Import_Example {
 		// create a new database in the temporary files folder
 		String tmpDirPath = System.getProperty("java.io.tmpdir");
 		File tmpDir = new File(tmpDirPath + "/olca_test_db_1.4");
-		boolean isNew = !tmpDir.exists();
 
 		try (DerbyDatabase database = new DerbyDatabase(tmpDir)) {
-
-			// if this is a new database we fill it with all reference data
-			if (isNew)
-				database.fill(DatabaseContent.ALL_REF_DATA);
 
 			// the folder with the EcoSpold 1 files
 			String dirPath = "C:/Users/Dell/projects/data/ecoinvent/simple";

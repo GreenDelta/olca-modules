@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.usage.IUseSearch;
 import org.openlca.core.model.Actor;
@@ -17,7 +17,7 @@ import org.openlca.core.model.descriptors.Descriptors;
 
 public class ActorUseSearchTest {
 
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 
 	@Test
 	public void testFindInProjects() {
