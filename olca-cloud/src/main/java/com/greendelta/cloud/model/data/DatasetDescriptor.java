@@ -9,11 +9,9 @@ import org.openlca.core.model.ModelType;
 
 import com.greendelta.cloud.util.NullSafe;
 
-public class DatasetDescriptor implements Serializable {
+public class DatasetDescriptor extends FileReference implements Serializable {
 
 	private static final long serialVersionUID = -5394277610226365725L;
-	private ModelType type;
-	private String refId;
 	private String version;
 	private long lastChange;
 	private String name;
@@ -21,22 +19,6 @@ public class DatasetDescriptor implements Serializable {
 	private String categoryRefId;
 	// used for categories
 	private ModelType categoryType;
-
-	public ModelType getType() {
-		return type;
-	}
-
-	public void setType(ModelType type) {
-		this.type = type;
-	}
-
-	public String getRefId() {
-		return refId;
-	}
-
-	public void setRefId(String refId) {
-		this.refId = refId;
-	}
 
 	public String getVersion() {
 		return version;
@@ -101,11 +83,11 @@ public class DatasetDescriptor implements Serializable {
 
 	private String getFullId() {
 		String lastChange = Long.toString(this.lastChange);
-		int length = type.name().length() + refId.length() + version.length()
+		int length = getType().name().length() + getRefId().length() + version.length()
 				+ lastChange.length();
 		StringBuilder fullId = new StringBuilder(length);
-		fullId.append(type.name());
-		fullId.append(refId);
+		fullId.append(getType().name());
+		fullId.append(getRefId());
 		fullId.append(version);
 		fullId.append(lastChange);
 		return fullId.toString();

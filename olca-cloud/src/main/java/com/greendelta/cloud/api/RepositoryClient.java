@@ -1,15 +1,11 @@
 package com.greendelta.cloud.api;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
 
 import com.google.gson.JsonObject;
 import com.greendelta.cloud.model.data.CommitDescriptor;
-import com.greendelta.cloud.model.data.DatasetDescriptor;
 import com.greendelta.cloud.model.data.FetchRequestData;
 import com.greendelta.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -22,7 +18,7 @@ public class RepositoryClient {
 	public RepositoryClient(RepositoryConfig config) {
 		this.config = config;
 	}
-	
+
 	public RepositoryConfig getConfig() {
 		return config;
 	}
@@ -158,25 +154,17 @@ public class RepositoryClient {
 		});
 	}
 
-	public void commit(String commitMessage, Collection<CategorizedEntity> data)
-			throws WebRequestException {
-		commit(commitMessage, data, Collections.emptyList());
+	public CommitInvocation createCommitInvocation() {
+		CommitInvocation invocation = new CommitInvocation(config.getDatabase());
+		invocation.setBaseUrl(config.getBaseUrl());
+		invocation.setSessionId(sessionId);
+		invocation.setRepositoryId(config.getRepositoryId());
+		invocation.setLatestCommitId(config.getLatestCommitId());
+		return invocation;
 	}
 
-	public void commit(String commitMessage,
-			Collection<CategorizedEntity> data,
-			Collection<DatasetDescriptor> deleted) throws WebRequestException {
+	public void execute(CommitInvocation invocation) throws WebRequestException {
 		executeLoggedIn(() -> {
-			CommitInvocation invocation = new CommitInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLatestCommitId(config.getLatestCommitId());
-			invocation.setCommitMessage(commitMessage);
-			for (CategorizedEntity entity : data)
-				invocation.add(entity);
-			for (DatasetDescriptor entity : deleted)
-				invocation.addDelete(entity);
 			config.setLatestCommitId(invocation.execute());
 		});
 	}
