@@ -1,5 +1,11 @@
 package com.greendelta.cloud.api;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.openlca.core.database.ActorDao;
@@ -22,14 +28,14 @@ import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.greendelta.cloud.model.data.FetchData;
-import com.greendelta.cloud.model.data.FetchResponse;
+import com.greendelta.cloud.api.data.FetchReader;
+import com.greendelta.cloud.model.data.DatasetDescriptor;
+import com.greendelta.cloud.util.Directories;
 import com.greendelta.cloud.util.Strings;
 import com.greendelta.cloud.util.Valid;
 import com.greendelta.cloud.util.WebRequests;
@@ -45,18 +51,16 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 class FetchInvocation {
 
 	private static final String PATH = "/repository/fetch/";
-
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryId;
 	private String latestCommitId;
+	private List<DatasetDescriptor> fetchData;
 	private IDatabase database;
-	private EntityStore store;
 
 	public FetchInvocation(IDatabase database) {
 		this.database = database;
-		this.store = new InMemoryStore();
-
 	}
 
 	public void setBaseUrl(String baseUrl) {
@@ -75,6 +79,10 @@ class FetchInvocation {
 		this.latestCommitId = latestCommitId;
 	}
 
+	public void setFetchData(List<DatasetDescriptor> fetchData) {
+		this.fetchData = fetchData;
+	}
+
 	/**
 	 * Retrieves all changed data sets since the last fetch
 	 * 
@@ -87,36 +95,48 @@ class FetchInvocation {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
+		Valid.checkNotEmpty(fetchData, "fetch data");
 		if (latestCommitId == null || latestCommitId.isEmpty())
 			latestCommitId = "null";
 		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
 				latestCommitId);
-		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
+		ClientResponse response = WebRequests.call(Type.POST, url, sessionId,
+				fetchData);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return null;
-		FetchResponse result = new Gson().fromJson(
-				response.getEntity(String.class), FetchResponse.class);
-		process(result.getData());
-		runImport();
-		return result.getLatestCommitId();
+		return handleResponse(response.getEntityInputStream());
 	}
 
-	private void process(List<FetchData> input) {
-		for (FetchData data : input) {
-			if (data.isDeleted()) {
-				delete(createDao(data.getType()), data.getRefId());
-				continue;
-			}
-			JsonElement element = new Gson().fromJson(data.getJson(),
-					JsonElement.class);
-			store.put(data.getType(), element.getAsJsonObject());
+	private String handleResponse(InputStream data) {
+		Path dir = null;
+		FetchReader reader = null;
+		try {
+			dir = Files.createTempDirectory("fetchReader");
+			File zipFile = new File(dir.toFile(), "fetch.zip");
+			Files.copy(data, zipFile.toPath(),
+					StandardCopyOption.REPLACE_EXISTING);
+			reader = new FetchReader(zipFile);
+			JsonImport jsonImport = new JsonImport(reader.getEntityStore(),
+					database);
+			jsonImport.setUpdateMode(UpdateMode.ALWAYS);
+			jsonImport.run();
+			for (DatasetDescriptor descriptor : reader.getDescriptors())
+				if (!reader.hasData(descriptor))
+					delete(createDao(descriptor.getType()), descriptor.getRefId());
+			return reader.getCommitId();
+		} catch (IOException e) {
+			log.error("Error reading fetch data", e);
+			return null;
+		} finally {
+			if (dir != null && dir.toFile().exists())
+				Directories.delete(dir.toFile());
+			if (reader != null)
+				try {
+					reader.close();
+				} catch (IOException e) {
+					log.error("Error closing fetch reader", e);
+				}
 		}
-	}
-
-	private void runImport() {
-		JsonImport jsonImport = new JsonImport(store, database);
-		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
-		jsonImport.run();
 	}
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void delete(

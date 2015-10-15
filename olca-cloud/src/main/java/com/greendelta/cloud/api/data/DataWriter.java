@@ -23,10 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.greendelta.cloud.model.data.DatasetDescriptor;
 import com.greendelta.cloud.util.Directories;
-import com.greendelta.cloud.util.WebRequests.WebRequestException;
 
 abstract class DataWriter {
 
@@ -37,7 +37,7 @@ abstract class DataWriter {
 	private EntityStore descriptorStore;
 	private JsonExport export;
 	private File file;
-	
+
 	DataWriter(IDatabase database) {
 		Path dir = null;
 		try {
@@ -54,11 +54,11 @@ abstract class DataWriter {
 				Directories.delete(dir.toFile());
 		}
 	}
-	
+
 	public EntityStore getEntityStore() {
 		return entityStore;
 	}
-	
+
 	public void put(CategorizedEntity entity) {
 		DatasetDescriptor descriptor = new DatasetDescriptor();
 		descriptor.setLastChange(entity.getLastChange());
@@ -78,6 +78,16 @@ abstract class DataWriter {
 		putDescriptor(descriptor);
 	}
 
+	public void put(DatasetDescriptor descriptor, String data) {
+		if (data != null && !data.isEmpty()) {
+			JsonElement element = new Gson().fromJson(data, JsonElement.class);
+			JsonObject object = element.isJsonObject() ? element
+					.getAsJsonObject() : null;
+			entityStore.put(descriptor.getType(), object);
+		}
+		putDescriptor(descriptor);
+	}
+
 	private String getFullPath(CategorizedEntity entity) {
 		String path = entity.getName();
 		Category category = entity.getCategory();
@@ -88,17 +98,13 @@ abstract class DataWriter {
 		return path;
 	}
 
-	public void putDeleted(DatasetDescriptor descriptor) {
-		putDescriptor(descriptor);
-	}
-
 	private void putDescriptor(DatasetDescriptor descriptor) {
 		JsonObject element = (JsonObject) new Gson().toJsonTree(descriptor);
 		element.addProperty("@id", descriptor.getRefId());
 		descriptorStore.put(descriptor.getType(), element);
 	}
 
-	protected void close() throws IOException, WebRequestException {
+	public void close() throws IOException {
 		String uriStr = file.toURI().toASCIIString();
 		URI uri = URI.create("jar:" + uriStr);
 		Map<String, String> options = new HashMap<>();
@@ -117,9 +123,9 @@ abstract class DataWriter {
 				zip.close();
 		}
 	}
-	
+
 	protected void writeMetaData(FileSystem zip) throws IOException {
-		
+
 	}
 
 	protected File getFile() {

@@ -6,6 +6,7 @@ import org.openlca.core.model.ModelType;
 
 import com.google.gson.JsonObject;
 import com.greendelta.cloud.model.data.CommitDescriptor;
+import com.greendelta.cloud.model.data.DatasetDescriptor;
 import com.greendelta.cloud.model.data.FetchRequestData;
 import com.greendelta.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -204,8 +205,7 @@ public class RepositoryClient {
 		});
 	}
 
-	public void fetch() throws WebRequestException {
-		// TODO other store implementation?
+	public void fetch(List<DatasetDescriptor> fetchData) throws WebRequestException {
 		executeLoggedIn(() -> {
 			FetchInvocation invocation = new FetchInvocation(
 					config.getDatabase());
@@ -213,6 +213,7 @@ public class RepositoryClient {
 			invocation.setSessionId(sessionId);
 			invocation.setRepositoryId(config.getRepositoryId());
 			invocation.setLatestCommitId(config.getLatestCommitId());
+			invocation.setFetchData(fetchData);
 			config.setLatestCommitId(invocation.execute());
 		});
 	}
