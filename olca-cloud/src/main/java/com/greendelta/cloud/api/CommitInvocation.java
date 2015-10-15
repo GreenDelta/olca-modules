@@ -1,7 +1,7 @@
 package com.greendelta.cloud.api;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
@@ -59,7 +59,6 @@ public class CommitInvocation extends CommitWriter {
 	 *             out of sync
 	 */
 	String execute() throws WebRequestException {
-		close();
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
@@ -68,10 +67,11 @@ public class CommitInvocation extends CommitWriter {
 		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
 				latestCommitId);
 		try {
+			close();
 			String commitId = WebRequests.call(Type.POST, url, sessionId,
 					new FileInputStream(file)).getEntity(String.class);
 			return commitId;
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			log.error("Error cleaning committing data", e);
 			return null;
 		} finally {

@@ -12,7 +12,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.lucene.util.IOUtils;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
@@ -101,7 +100,7 @@ public class CommitWriter {
 		this.commitMessage = message;
 	}
 
-	void close() throws WebRequestException {
+	void close() throws IOException, WebRequestException {
 		String uriStr = file.toURI().toASCIIString();
 		URI uri = URI.create("jar:" + uriStr);
 		Map<String, String> options = new HashMap<>();
@@ -118,10 +117,9 @@ public class CommitWriter {
 			copyFile(zip, "entityStore.zip", entityTmpFile);
 			descriptorStore.close();
 			copyFile(zip, "descriptorStore.zip", descriptorTmpFile);
-		} catch (IOException e) {
-			log.error("Error deleting temp files for commit writer", e);
 		} finally {
-			IOUtils.closeWhileHandlingException(zip);
+			if (zip != null)
+				zip.close();
 		}
 	}
 
