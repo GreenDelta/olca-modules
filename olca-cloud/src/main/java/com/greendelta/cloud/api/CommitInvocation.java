@@ -7,6 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.greendelta.cloud.api.data.CommitWriter;
 import com.greendelta.cloud.util.Directories;
 import com.greendelta.cloud.util.Strings;
 import com.greendelta.cloud.util.Valid;
@@ -69,14 +70,14 @@ public class CommitInvocation extends CommitWriter {
 		try {
 			close();
 			String commitId = WebRequests.call(Type.POST, url, sessionId,
-					new FileInputStream(file)).getEntity(String.class);
+					new FileInputStream(getFile())).getEntity(String.class);
 			return commitId;
 		} catch (IOException e) {
 			log.error("Error cleaning committing data", e);
 			return null;
 		} finally {
-			if (file != null && file.getParentFile().exists())
-				Directories.delete(file.getParentFile());
+			if (getFile() != null && getFile().getParentFile().exists())
+				Directories.delete(getFile().getParentFile());
 		}
 	}
 

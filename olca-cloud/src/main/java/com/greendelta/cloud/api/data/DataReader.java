@@ -1,4 +1,4 @@
-package com.greendelta.cloud.api;
+package com.greendelta.cloud.api.data;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,15 +19,14 @@ import org.openlca.jsonld.ZipStore;
 import com.google.gson.Gson;
 import com.greendelta.cloud.model.data.DatasetDescriptor;
 
-public class CommitReader {
+abstract class DataReader {
 
 	private File entityTmpFile;
 	private EntityStore entityStore;
 	private File descriptorTmpFile;
 	private EntityStore descriptorStore;
-	private String commitMessage;
 
-	public CommitReader(File zipFile) throws IOException {
+	DataReader(File zipFile) throws IOException {
 		String uriStr = zipFile.toURI().toASCIIString();
 		URI uri = URI.create("jar:" + uriStr);
 		Map<String, String> options = new HashMap<>();
@@ -40,11 +39,18 @@ public class CommitReader {
 		Files.copy(zip.getPath("descriptorStore.zip"),
 				descriptorTmpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		descriptorStore = ZipStore.open(descriptorTmpFile);
-		commitMessage = new String(Files.readAllBytes(zip
-				.getPath("message.txt")));
+		readMetaData(zip);
 		zip.close();
 	}
 
+	protected void readMetaData(FileSystem zip) throws IOException {
+		
+	}
+	
+	protected EntityStore getEntityStore() {
+		return entityStore;
+	}
+	
 	public String getData(DatasetDescriptor descriptor) {
 		return new Gson().toJson(entityStore.get(descriptor.getType(),
 				descriptor.getRefId()));
@@ -66,15 +72,10 @@ public class CommitReader {
 				DatasetDescriptor.class);
 	}
 
-	public String getCommitMessage() {
-		return commitMessage;
-	}
-
 	public void close() throws IOException {
 		entityStore.close();
 		entityTmpFile.delete();
 		descriptorStore.close();
 		descriptorTmpFile.delete();
 	}
-
 }

@@ -1,4 +1,4 @@
-package com.greendelta.cloud.api;
+package com.greendelta.cloud.api.data;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +8,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ import com.greendelta.cloud.model.data.DatasetDescriptor;
 import com.greendelta.cloud.util.Directories;
 import com.greendelta.cloud.util.WebRequests.WebRequestException;
 
-public class CommitWriter {
+abstract class DataWriter {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private File entityTmpFile;
@@ -37,10 +36,9 @@ public class CommitWriter {
 	private File descriptorTmpFile;
 	private EntityStore descriptorStore;
 	private JsonExport export;
-	private String commitMessage;
-	File file;
-
-	CommitWriter(IDatabase database) {
+	private File file;
+	
+	DataWriter(IDatabase database) {
 		Path dir = null;
 		try {
 			dir = Files.createTempDirectory("commitWriter");
@@ -56,7 +54,11 @@ public class CommitWriter {
 				Directories.delete(dir.toFile());
 		}
 	}
-
+	
+	protected EntityStore getEntityStore() {
+		return entityStore;
+	}
+	
 	public void put(CategorizedEntity entity) {
 		DatasetDescriptor descriptor = new DatasetDescriptor();
 		descriptor.setLastChange(entity.getLastChange());
@@ -96,11 +98,7 @@ public class CommitWriter {
 		descriptorStore.put(descriptor.getType(), element);
 	}
 
-	public void setCommitMessage(String message) {
-		this.commitMessage = message;
-	}
-
-	void close() throws IOException, WebRequestException {
+	protected void close() throws IOException, WebRequestException {
 		String uriStr = file.toURI().toASCIIString();
 		URI uri = URI.create("jar:" + uriStr);
 		Map<String, String> options = new HashMap<>();
@@ -109,10 +107,7 @@ public class CommitWriter {
 		FileSystem zip = null;
 		try {
 			zip = FileSystems.newFileSystem(uri, options);
-			if (commitMessage == null)
-				commitMessage = "";
-			Files.write(zip.getPath("message.txt"), commitMessage.getBytes(),
-					StandardOpenOption.CREATE);
+			writeMetaData(zip);
 			entityStore.close();
 			copyFile(zip, "entityStore.zip", entityTmpFile);
 			descriptorStore.close();
@@ -122,8 +117,12 @@ public class CommitWriter {
 				zip.close();
 		}
 	}
+	
+	protected void writeMetaData(FileSystem zip) throws IOException {
+		
+	}
 
-	File getFile() {
+	protected File getFile() {
 		return file;
 	}
 
