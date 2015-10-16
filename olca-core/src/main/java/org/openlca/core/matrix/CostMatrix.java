@@ -2,6 +2,7 @@ package org.openlca.core.matrix;
 
 import java.util.ArrayList;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
 
@@ -30,21 +31,25 @@ public class CostMatrix {
 				|| values == null;
 	}
 
-	public static CostMatrix build(Inventory inventory, IMatrixFactory<?> factory) {
-		return new CostMatrixBuilder(inventory, factory).build();
+	public static CostMatrix build(Inventory inventory, IMatrixFactory<?> factory,
+			IDatabase db) {
+		return new CostMatrixBuilder(inventory, factory, db).build();
 	}
 
 	private static class CostMatrixBuilder {
 
 		private Inventory inventory;
 		private IMatrixFactory<?> factory;
+		private CurrencyTable currencyTable;
 
 		private LongIndex catIndex;
 		private ArrayList<TIntDoubleHashMap> values;
 
-		private CostMatrixBuilder(Inventory inventory, IMatrixFactory<?> factory) {
+		private CostMatrixBuilder(Inventory inventory, IMatrixFactory<?> factory,
+				IDatabase db) {
 			this.inventory = inventory;
 			this.factory = factory;
+			this.currencyTable = CurrencyTable.create(db);
 			catIndex = new LongIndex();
 			values = new ArrayList<>();
 		}
@@ -68,6 +73,7 @@ public class CostMatrix {
 				}
 				long category = cell.exchange.costCategory;
 				int costRow = catIndex.put(category);
+				val = currencyTable.getFactor(cell.exchange.currency) * val;
 				add(costRow, col, val);
 			});
 		}

@@ -5,13 +5,13 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 
 public class CategoryDaoTest {
 
-	private CategoryDao dao = new CategoryDao(TestSession.getDefaultDatabase());
+	private CategoryDao dao = new CategoryDao(Tests.getDb());
 
 	@Test
 	public void testSimple() {
@@ -19,7 +19,7 @@ public class CategoryDaoTest {
 		System.out.println(category.getId());
 		dao.insert(category);
 		System.out.println(category.getId());
-		TestSession.emptyCache();
+		Tests.emptyCache();
 		Category alias = dao.getForId(category.getId());
 		Assert.assertEquals(category.getName(), alias.getName());
 		dao.delete(category); // non-attached
@@ -35,7 +35,7 @@ public class CategoryDaoTest {
 		parent.getChildCategories().add(child);
 		child.setCategory(parent);
 		dao.update(parent);
-		TestSession.emptyCache();
+		Tests.emptyCache();
 		Category alias = dao.getForId(parent.getId());
 		Assert.assertEquals(1, alias.getChildCategories().size());
 		Assert.assertEquals(child.getRefId(), alias.getChildCategories().get(0)
@@ -51,7 +51,7 @@ public class CategoryDaoTest {
 		parent.getChildCategories().add(child);
 		child.setCategory(parent);
 		dao.insert(parent);
-		TestSession.emptyCache();
+		Tests.emptyCache();
 		List<Category> roots = dao.getRootCategories(ModelType.FLOW);
 		Assert.assertTrue(roots.contains(parent));
 		Assert.assertFalse(roots.contains(child));
@@ -66,7 +66,7 @@ public class CategoryDaoTest {
 			Category cat = create();
 			cat.setModelType(type);
 			dao.insert(cat);
-			TestSession.emptyCache();
+			Tests.emptyCache();
 			List<Category> categories = dao.getRootCategories(type);
 			Assert.assertTrue(categories.contains(cat));
 			dao.delete(cat);

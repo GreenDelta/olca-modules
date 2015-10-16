@@ -59,7 +59,7 @@ public class SystemCalculator {
 		}
 		if (setup.withCosts) {
 			CostMatrix costMatrix = CostMatrix.build(inventory,
-					solver.getMatrixFactory());
+					solver.getMatrixFactory(), db);
 			if (!costMatrix.isEmpty())
 				calculator.setCostMatrix(costMatrix);
 		}

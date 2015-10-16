@@ -9,7 +9,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.model.Parameter;
@@ -22,7 +22,7 @@ import org.openlca.expressions.Scope;
 
 public class FormulaInterpretersTest {
 
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 	private Parameter globalParam;
 	private Process process;
 	private ParameterTable parameterTable;

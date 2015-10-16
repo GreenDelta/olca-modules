@@ -27,5 +27,5 @@ public class CalcExchange {
 
 	public double costValue;
 	public long costCategory;
-
+	public long currency;
 }

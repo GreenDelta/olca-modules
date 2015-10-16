@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.ListUtils;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
@@ -34,7 +34,7 @@ public class CategorizedEntityDaoTest {
 
 	@Test
 	public void runCrudTests() throws Exception {
-		IDatabase database = TestSession.getDefaultDatabase();
+		IDatabase database = Tests.getDb();
 		run(Actor.class, new ActorDao(database));
 		run(Source.class, new SourceDao(database));
 		run(UnitGroup.class, new UnitGroupDao(database));
@@ -74,7 +74,7 @@ public class CategorizedEntityDaoTest {
 		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.forModelClass(clazz));
-		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(
+		BaseDao<Category> catDao = Tests.getDb().createDao(
 				Category.class);
 		catDao.insert(category);
 		instance.setCategory(category);
@@ -89,7 +89,7 @@ public class CategorizedEntityDaoTest {
 		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
-		TestSession.getDefaultDatabase().createDao(Category.class)
+		Tests.getDb().createDao(Category.class)
 				.delete(category);
 	}
 

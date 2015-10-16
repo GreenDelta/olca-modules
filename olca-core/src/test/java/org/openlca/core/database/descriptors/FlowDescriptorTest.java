@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
@@ -13,7 +13,7 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class FlowDescriptorTest {
 
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 	private FlowDao flowDao = new FlowDao(database);
 
 	private FlowProperty property;

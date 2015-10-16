@@ -2,7 +2,7 @@ package org.openlca.core.database;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 
@@ -11,7 +11,7 @@ public class IdGeneratorTest {
 	@Test
 	public void testCascadeId() {
 
-		IDatabase database = TestSession.getDefaultDatabase();
+		IDatabase database = Tests.getDb();
 
 		Flow flow = new Flow();
 		FlowPropertyFactor factor1 = new FlowPropertyFactor();

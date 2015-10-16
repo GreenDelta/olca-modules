@@ -2,7 +2,7 @@ package org.openlca.core.results;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.LcaCalculator;
@@ -30,7 +30,7 @@ public class ContributionTreeTest {
 		flowIndex.putOutputFlow(4);
 		matrix.setFlowIndex(flowIndex);
 
-		IMatrixFactory<?> factory = TestSession.getDefaultSolver()
+		IMatrixFactory<?> factory = Tests.getDefaultSolver()
 				.getMatrixFactory();
 		IMatrix techMatrix = MatrixUtils.create(new double[][] { { 1, 0, 0 },
 				{ -1, 1, 0 }, { -1, 0, 1 } }, factory);
@@ -39,7 +39,7 @@ public class ContributionTreeTest {
 				new double[][] { { 0, 0.5, 0.5 } }, factory);
 		matrix.setInterventionMatrix(enviMatrix);
 
-		FullResult result = new LcaCalculator(TestSession.getDefaultSolver(), matrix)
+		FullResult result = new LcaCalculator(Tests.getDefaultSolver(), matrix)
 				.calculateFull();
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setId(4);

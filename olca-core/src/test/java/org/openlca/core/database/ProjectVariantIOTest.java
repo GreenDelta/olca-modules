@@ -2,13 +2,13 @@ package org.openlca.core.database;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.Unit;
 
 public class ProjectVariantIOTest {
 
-    private IDatabase db = TestSession.getDefaultDatabase();
+    private IDatabase db = Tests.getDb();
     private BaseDao<ProjectVariant> dao = new BaseDao<>(ProjectVariant.class, db);
 
     @Test
@@ -29,7 +29,7 @@ public class ProjectVariantIOTest {
         variant = dao.insert(variant);
         variant.setUnit(unit);
         variant = dao.update(variant);
-        TestSession.emptyCache();
+        Tests.emptyCache();
         variant = dao.getForId(variant.getId());
         Assert.assertEquals(unit, variant.getUnit());
         dao.delete(variant);
