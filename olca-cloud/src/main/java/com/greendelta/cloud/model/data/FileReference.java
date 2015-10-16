@@ -1,9 +1,12 @@
 package com.greendelta.cloud.model.data;
 
+import java.io.Serializable;
+
 import org.openlca.core.model.ModelType;
 
-public class FileReference {
+public class FileReference implements Serializable {
 
+	private static final long serialVersionUID = -6108676257021661077L;
 	private String refId;
 	private ModelType type;
 

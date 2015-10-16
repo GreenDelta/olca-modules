@@ -1,19 +1,12 @@
 package com.greendelta.cloud.api;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
-import org.openlca.jsonld.input.JsonImport;
 
 import com.google.gson.JsonObject;
 import com.greendelta.cloud.model.data.CommitDescriptor;
-import com.greendelta.cloud.model.data.DatasetIdentifier;
-import com.greendelta.cloud.model.data.FetchData;
-import com.greendelta.cloud.model.data.FileReference;
+import com.greendelta.cloud.model.data.FetchRequestData;
 import com.greendelta.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -24,6 +17,10 @@ public class RepositoryClient {
 
 	public RepositoryClient(RepositoryConfig config) {
 		this.config = config;
+	}
+
+	public RepositoryConfig getConfig() {
+		return config;
 	}
 
 	public void createUser(String username, String password, String adminKey)
@@ -157,25 +154,17 @@ public class RepositoryClient {
 		});
 	}
 
-	public void commit(String commitMessage, Collection<CategorizedEntity> data)
-			throws WebRequestException {
-		commit(commitMessage, data, Collections.emptyList());
+	public CommitInvocation createCommitInvocation() {
+		CommitInvocation invocation = new CommitInvocation(config.getDatabase());
+		invocation.setBaseUrl(config.getBaseUrl());
+		invocation.setSessionId(sessionId);
+		invocation.setRepositoryId(config.getRepositoryId());
+		invocation.setLatestCommitId(config.getLatestCommitId());
+		return invocation;
 	}
 
-	public void commit(String commitMessage,
-			Collection<CategorizedEntity> data,
-			Collection<DatasetIdentifier> deleted) throws WebRequestException {
+	public void execute(CommitInvocation invocation) throws WebRequestException {
 		executeLoggedIn(() -> {
-			CommitInvocation invocation = new CommitInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLatestCommitId(config.getLatestCommitId());
-			invocation.setCommitMessage(commitMessage);
-			for (CategorizedEntity entity : data)
-				invocation.add(entity);
-			for (DatasetIdentifier entity : deleted)
-				invocation.addDelete(entity);
 			config.setLatestCommitId(invocation.execute());
 		});
 	}
@@ -192,10 +181,10 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<FileReference> getFileReferences(String commitId)
+	public List<FetchRequestData> getReferences(String commitId)
 			throws WebRequestException {
 		return executeLoggedIn(() -> {
-			FileReferencesInvocation invocation = new FileReferencesInvocation();
+			ReferencesInvocation invocation = new ReferencesInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
 			invocation.setSessionId(sessionId);
 			invocation.setRepositoryId(config.getRepositoryId());
@@ -204,7 +193,7 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<FetchData> requestFetch() throws WebRequestException {
+	public List<FetchRequestData> requestFetch() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
@@ -218,16 +207,19 @@ public class RepositoryClient {
 	public void fetch() throws WebRequestException {
 		// TODO other store implementation?
 		executeLoggedIn(() -> {
-			EntityStore store = new InMemoryStore();
-			FetchInvocation invocation = new FetchInvocation(store);
+			FetchInvocation invocation = new FetchInvocation(
+					config.getDatabase());
 			invocation.setBaseUrl(config.getBaseUrl());
 			invocation.setSessionId(sessionId);
 			invocation.setRepositoryId(config.getRepositoryId());
 			invocation.setLatestCommitId(config.getLatestCommitId());
-			JsonImport jsonImport = new JsonImport(store, config.getDatabase());
-			jsonImport.run();
 			config.setLatestCommitId(invocation.execute());
 		});
+	}
+
+	public JsonObject getDataset(ModelType type, String refId)
+			throws WebRequestException {
+		return getDataset(type, refId, null);
 	}
 
 	public JsonObject getDataset(ModelType type, String refId, String commitId)

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.greendelta.cloud.model.data.FetchData;
+import com.greendelta.cloud.model.data.FetchRequestData;
 import com.greendelta.cloud.util.Strings;
 import com.greendelta.cloud.util.Valid;
 import com.greendelta.cloud.util.WebRequests;
@@ -15,7 +15,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Invokes a web service call to request a list of data set identifiers of those
+ * Invokes a web service call to request a list of data set descriptors of those
  * data sets that have been changed after the specified commit id
  */
 class FetchRequestInvocation {
@@ -44,14 +44,14 @@ class FetchRequestInvocation {
 	}
 
 	/**
-	 * Retrieves all changed data sets (only the identifiers)
+	 * Retrieves all changed data sets (only the descriptors)
 	 * 
-	 * @return A list of data set identifiers for those data sets that have been
+	 * @return A list of data set descriptors for those data sets that have been
 	 *         changed since the last fetch
 	 * @throws WebRequestException
 	 *             If user has no access to the specified repository
 	 */
-	public List<FetchData> execute() throws WebRequestException {
+	public List<FetchRequestData> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
@@ -63,7 +63,7 @@ class FetchRequestInvocation {
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyList();
 		return new Gson().fromJson(response.getEntity(String.class),
-				new TypeToken<List<FetchData>>() {
+				new TypeToken<List<FetchRequestData>>() {
 				}.getType());
 	}
 

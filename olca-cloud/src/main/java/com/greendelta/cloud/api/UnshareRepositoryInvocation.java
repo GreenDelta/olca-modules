@@ -8,7 +8,7 @@ import com.greendelta.cloud.util.WebRequests.WebRequestException;
 /**
  * Invokes a webservice call to cancel sharing the specified repository
  */
-public class UnshareRepositoryInvocation {
+class UnshareRepositoryInvocation {
 
 	private static final String PATH = "/repository/unshare";
 	private String baseUrl;

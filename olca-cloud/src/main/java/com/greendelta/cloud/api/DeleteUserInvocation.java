@@ -12,7 +12,7 @@ import com.greendelta.cloud.util.WebRequests.WebRequestException;
 /**
  * Invokes a web service call to delete a user
  */
-public class DeleteUserInvocation {
+class DeleteUserInvocation {
 
 	private static final String PATH = "/user/delete";
 	private String baseUrl;

@@ -2,51 +2,32 @@ package org.openlca.jsonld.input;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.google.common.base.Joiner;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-class UnitGroupImport {
+import com.google.common.base.Joiner;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private String refId;
-	private ImportConfig conf;
+class UnitGroupImport extends BaseImport<UnitGroup> {
 
 	private UnitGroupImport(String refId, ImportConfig conf) {
-		this.refId = refId;
-		this.conf = conf;
+		super(ModelType.UNIT_GROUP, refId, conf);
 	}
 
 	static UnitGroup run(String refId, ImportConfig conf) {
 		return new UnitGroupImport(refId, conf).run();
 	}
 
-	private UnitGroup run() {
-		if (refId == null || conf == null)
-			return null;
-		try {
-			UnitGroup g = conf.db.getUnitGroup(refId);
-			if (g != null)
-				return g;
-			JsonObject json = conf.store.get(ModelType.UNIT_GROUP, refId);
-			return map(json);
-		} catch (Exception e) {
-			log.error("failed to import unit group " + refId, e);
-			return null;
-		}
-	}
-
-	private UnitGroup map(JsonObject json) {
+	@Override
+	UnitGroup map(JsonObject json, long id) {
 		if (json == null)
 			return null;
 		UnitGroup g = new UnitGroup();
+		g.setId(id);
 		In.mapAtts(json, g);
 		String catId = In.getRefId(json, "category");
 		g.setCategory(CategoryImport.run(catId, conf));
@@ -77,7 +58,7 @@ class UnitGroupImport {
 			JsonObject obj = e.getAsJsonObject();
 			Unit unit = mapUnit(obj);
 			boolean refUnit = In.getBool(obj, "referenceUnit", false);
-			if(refUnit)
+			if (refUnit)
 				g.setReferenceUnit(unit);
 			g.getUnits().add(unit);
 		}

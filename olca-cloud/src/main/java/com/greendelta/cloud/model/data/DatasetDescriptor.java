@@ -9,33 +9,16 @@ import org.openlca.core.model.ModelType;
 
 import com.greendelta.cloud.util.NullSafe;
 
-public class DatasetIdentifier implements Serializable {
+public class DatasetDescriptor extends FileReference implements Serializable {
 
 	private static final long serialVersionUID = -5394277610226365725L;
-	private ModelType type;
-	private String refId;
 	private String version;
 	private long lastChange;
 	private String name;
+	private String fullPath;
 	private String categoryRefId;
 	// used for categories
 	private ModelType categoryType;
-
-	public ModelType getType() {
-		return type;
-	}
-
-	public void setType(ModelType type) {
-		this.type = type;
-	}
-
-	public String getRefId() {
-		return refId;
-	}
-
-	public void setRefId(String refId) {
-		this.refId = refId;
-	}
 
 	public String getVersion() {
 		return version;
@@ -59,6 +42,14 @@ public class DatasetIdentifier implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getFullPath() {
+		return fullPath;
+	}
+
+	public void setFullPath(String fullPath) {
+		this.fullPath = fullPath;
 	}
 
 	public String getCategoryRefId() {
@@ -92,11 +83,11 @@ public class DatasetIdentifier implements Serializable {
 
 	private String getFullId() {
 		String lastChange = Long.toString(this.lastChange);
-		int length = type.name().length() + refId.length() + version.length()
+		int length = getType().name().length() + getRefId().length() + version.length()
 				+ lastChange.length();
 		StringBuilder fullId = new StringBuilder(length);
-		fullId.append(type.name());
-		fullId.append(refId);
+		fullId.append(getType().name());
+		fullId.append(getRefId());
 		fullId.append(version);
 		fullId.append(lastChange);
 		return fullId.toString();
@@ -106,9 +97,9 @@ public class DatasetIdentifier implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj == this)
 			return true;
-		if (!(obj instanceof DatasetIdentifier))
+		if (!(obj instanceof DatasetDescriptor))
 			return false;
-		DatasetIdentifier other = (DatasetIdentifier) obj;
+		DatasetDescriptor other = (DatasetDescriptor) obj;
 		if (!NullSafe.equal(getType(), other.getType()))
 			return false;
 		if (!NullSafe.equal(getRefId(), other.getRefId()))

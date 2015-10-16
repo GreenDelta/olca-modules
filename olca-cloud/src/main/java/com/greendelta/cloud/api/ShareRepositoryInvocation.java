@@ -8,7 +8,7 @@ import com.greendelta.cloud.util.WebRequests.WebRequestException;
 /**
  * Invokes a webservice call to share the specified repository
  */
-public class ShareRepositoryInvocation {
+class ShareRepositoryInvocation {
 
 	private static final String PATH = "/repository/share";
 	private String baseUrl;

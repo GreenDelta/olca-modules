@@ -1,5 +1,7 @@
 package com.greendelta.cloud.util;
 
+import java.io.InputStream;
+
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 
@@ -14,21 +16,30 @@ import com.sun.jersey.api.client.WebResource.Builder;
 
 public class WebRequests {
 
-	private static final Logger log = LoggerFactory.getLogger(WebRequests.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(WebRequests.class);
 
-	public static ClientResponse call(Type type, String url, String sessionId) throws WebRequestException {
+	public static ClientResponse call(Type type, String url, String sessionId)
+			throws WebRequestException {
 		return call(type, url, sessionId, null);
 	}
 
-	public static ClientResponse call(Type type, String url, String sessionId, Object data) throws WebRequestException {
+	public static ClientResponse call(Type type, String url, String sessionId,
+			Object data) throws WebRequestException {
 		log.info(Strings.concat("Calling ", url, " with type " + type.name()));
 		Client client = Client.create();
 		WebResource resource = client.resource(url);
-		Builder responseBuilder = resource.accept(MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_PLAIN_TYPE);
+		Builder responseBuilder = resource.accept(
+				MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_PLAIN_TYPE);
 		if (sessionId != null)
 			responseBuilder.cookie(new Cookie("JSESSIONID", sessionId));
 		if (data != null)
-			responseBuilder.entity(new Gson().toJson(data), MediaType.APPLICATION_JSON_TYPE);
+			if (data instanceof InputStream)
+				responseBuilder.entity(data,
+						MediaType.APPLICATION_OCTET_STREAM_TYPE);
+			else
+				responseBuilder.entity(new Gson().toJson(data),
+						MediaType.APPLICATION_JSON_TYPE);
 		ClientResponse response = null;
 		switch (type) {
 		case GET:

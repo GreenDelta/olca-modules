@@ -8,21 +8,21 @@ public class JsonImport implements Runnable {
 
 	private IDatabase database;
 	private EntityStore store;
-	private boolean updateExisting = false;
+	private UpdateMode updateMode = UpdateMode.NEVER;
 
 	public JsonImport(EntityStore store, IDatabase db) {
 		this.store = store;
 		this.database = db;
 	}
 
-	public void setUpdateExisting(boolean updateExisting) {
-		this.updateExisting = updateExisting;
+	public void setUpdateMode(UpdateMode updateMode) {
+		this.updateMode = updateMode;
 	}
 
 	@Override
 	public void run() {
 		ImportConfig conf = ImportConfig.create(new Db(database), store,
-				updateExisting);
+				updateMode);
 		for (String locId : store.getRefIds(ModelType.LOCATION))
 			LocationImport.run(locId, conf);
 		for (String catId : store.getRefIds(ModelType.CATEGORY))

@@ -1,8 +1,7 @@
 package org.openlca.jsonld.input;
 
 import java.util.Objects;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -15,40 +14,27 @@ import org.openlca.core.model.ProcessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ProcessImport {
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+class ProcessImport extends BaseImport<Process> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private String refId;
-	private ImportConfig conf;
 
 	private ProcessImport(String refId, ImportConfig conf) {
-		this.refId = refId;
-		this.conf = conf;
+		super(ModelType.PROCESS, refId, conf);
 	}
 
 	static Process run(String refId, ImportConfig conf) {
 		return new ProcessImport(refId, conf).run();
 	}
 
-	private Process run() {
-		if (refId == null || conf == null)
-			return null;
-		try {
-			Process p = conf.db.getProcess(refId);
-			if (p != null)
-				return p;
-			JsonObject json = conf.store.get(ModelType.PROCESS, refId);
-			return map(json);
-		} catch (Exception e) {
-			log.error("failed to import source " + refId, e);
-			return null;
-		}
-	}
-
-	private Process map(JsonObject json) {
+	@Override
+	Process map(JsonObject json, long id) {
 		if (json == null)
 			return null;
 		Process p = new Process();
+		p.setId(id);
 		In.mapAtts(json, p);
 		String catId = In.getRefId(json, "category");
 		p.setCategory(CategoryImport.run(catId, conf));
@@ -79,17 +65,17 @@ class ProcessImport {
 		if (type == null)
 			return;
 		switch (type) {
-			case "CAUSAL_ALLOCATION":
-				p.setDefaultAllocationMethod(AllocationMethod.CAUSAL);
-				break;
-			case "ECONOMIC_ALLOCATION":
-				p.setDefaultAllocationMethod(AllocationMethod.ECONOMIC);
-				break;
-			case "PHYSICAL_ALLOCATION":
-				p.setDefaultAllocationMethod(AllocationMethod.PHYSICAL);
-				break;
-			default:
-				log.warn("unknown allocation type " + type);
+		case "CAUSAL_ALLOCATION":
+			p.setDefaultAllocationMethod(AllocationMethod.CAUSAL);
+			break;
+		case "ECONOMIC_ALLOCATION":
+			p.setDefaultAllocationMethod(AllocationMethod.ECONOMIC);
+			break;
+		case "PHYSICAL_ALLOCATION":
+			p.setDefaultAllocationMethod(AllocationMethod.PHYSICAL);
+			break;
+		default:
+			log.warn("unknown allocation type " + type);
 		}
 	}
 

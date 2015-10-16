@@ -13,7 +13,7 @@ import org.openlca.jsonld.EntityStore;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-class InMemoryStore implements EntityStore {
+public class InMemoryStore implements EntityStore {
 
 	private Map<ModelType, Map<String, JsonObject>> store = new HashMap<>();
 	private Map<String, byte[]> resources = new HashMap<>();

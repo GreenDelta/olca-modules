@@ -1,13 +1,34 @@
 package com.greendelta.cloud.api;
 
 import java.util.List;
-import java.util.Map;
 
+import org.openlca.core.database.ActorDao;
+import org.openlca.core.database.CategorizedEntityDao;
+import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.CostCategoryDao;
+import org.openlca.core.database.CurrencyDao;
+import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.FlowPropertyDao;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.ParameterDao;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.database.ProjectDao;
+import org.openlca.core.database.SocialIndicatorDao;
+import org.openlca.core.database.SourceDao;
+import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.jsonld.EntityStore;
+import org.openlca.jsonld.input.JsonImport;
+import org.openlca.jsonld.input.UpdateMode;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.greendelta.cloud.model.data.FetchData;
 import com.greendelta.cloud.model.data.FetchResponse;
 import com.greendelta.cloud.util.Strings;
 import com.greendelta.cloud.util.Valid;
@@ -29,10 +50,13 @@ class FetchInvocation {
 	private String sessionId;
 	private String repositoryId;
 	private String latestCommitId;
+	private IDatabase database;
 	private EntityStore store;
 
-	public FetchInvocation(EntityStore store) {
-		this.store = store;
+	public FetchInvocation(IDatabase database) {
+		this.database = database;
+		this.store = new InMemoryStore();
+
 	}
 
 	public void setBaseUrl(String baseUrl) {
@@ -72,17 +96,68 @@ class FetchInvocation {
 			return null;
 		FetchResponse result = new Gson().fromJson(
 				response.getEntity(String.class), FetchResponse.class);
-		putInStore(result.getData());
+		process(result.getData());
+		runImport();
 		return result.getLatestCommitId();
 	}
 
-	private void putInStore(Map<ModelType, List<String>> input) {
-		for (ModelType type : input.keySet()) {
-			for (String json : input.get(type)) {
-				JsonElement element = new Gson().fromJson(json,
-						JsonElement.class);
-				store.put(type, element.getAsJsonObject());
+	private void process(List<FetchData> input) {
+		for (FetchData data : input) {
+			if (data.isDeleted()) {
+				delete(createDao(data.getType()), data.getRefId());
+				continue;
 			}
+			JsonElement element = new Gson().fromJson(data.getJson(),
+					JsonElement.class);
+			store.put(data.getType(), element.getAsJsonObject());
+		}
+	}
+
+	private void runImport() {
+		JsonImport jsonImport = new JsonImport(store, database);
+		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
+		jsonImport.run();
+	}
+
+	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void delete(
+			CategorizedEntityDao<T, V> dao, String refId) {
+		dao.delete(dao.getForRefId(refId));
+	}
+
+	private CategorizedEntityDao<?, ?> createDao(ModelType type) {
+		switch (type) {
+		case ACTOR:
+			return new ActorDao(database);
+		case COST_CATEGORY:
+			return new CostCategoryDao(database);
+		case CURRENCY:
+			return new CurrencyDao(database);
+		case FLOW:
+			return new FlowDao(database);
+		case FLOW_PROPERTY:
+			return new FlowPropertyDao(database);
+		case IMPACT_METHOD:
+			return new ImpactMethodDao(database);
+		case PROCESS:
+			return new ProcessDao(database);
+		case PRODUCT_SYSTEM:
+			return new ProductSystemDao(database);
+		case PROJECT:
+			return new ProjectDao(database);
+		case SOCIAL_INDICATOR:
+			return new SocialIndicatorDao(database);
+		case SOURCE:
+			return new SourceDao(database);
+		case UNIT_GROUP:
+			return new UnitGroupDao(database);
+		case LOCATION:
+			return new LocationDao(database);
+		case PARAMETER:
+			return new ParameterDao(database);
+		case CATEGORY:
+			return new CategoryDao(database);
+		default:
+			return null;
 		}
 	}
 

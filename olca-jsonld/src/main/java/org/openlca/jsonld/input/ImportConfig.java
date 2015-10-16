@@ -6,15 +6,16 @@ class ImportConfig {
 
 	final Db db;
 	final EntityStore store;
-	final boolean updateExisting;
+	final UpdateMode updateMode;
 
-	private ImportConfig(Db db, EntityStore store, boolean updateExisting) {
+	private ImportConfig(Db db, EntityStore store, UpdateMode updateMode) {
 		this.db = db;
 		this.store = store;
-		this.updateExisting = updateExisting;
+		this.updateMode = updateMode;
 	}
 
-	static ImportConfig create(Db db, EntityStore store, boolean updateExisting) {
-		return new ImportConfig(db, store, updateExisting);
+	static ImportConfig create(Db db, EntityStore store, UpdateMode updateMode) {
+		return new ImportConfig(db, store, updateMode);
 	}
+
 }

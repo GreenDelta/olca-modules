@@ -2,45 +2,25 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.SocialIndicator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-class SocialIndicatorImport {
-
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private String refId;
-	private ImportConfig conf;
+class SocialIndicatorImport extends BaseImport<SocialIndicator> {
 
 	private SocialIndicatorImport(String refId, ImportConfig conf) {
-		this.refId = refId;
-		this.conf = conf;
+		super(ModelType.SOCIAL_INDICATOR, refId, conf);
 	}
 
 	static SocialIndicator run(String refId, ImportConfig conf) {
 		return new SocialIndicatorImport(refId, conf).run();
 	}
 
-	private SocialIndicator run() {
-		if (refId == null || conf == null)
-			return null;
-		try {
-			SocialIndicator i = conf.db.getSocialIndicator(refId);
-			if (i != null)
-				return i;
-			JsonObject json = conf.store.get(ModelType.SOCIAL_INDICATOR, refId);
-			return map(json);
-		} catch (Exception e) {
-			log.error("failed to import social indicator " + refId, e);
-			return null;
-		}
-	}
-
-	private SocialIndicator map(JsonObject json) {
+	@Override
+	SocialIndicator map(JsonObject json, long id) {
 		if (json == null)
 			return null;
 		SocialIndicator i = new SocialIndicator();
+		i.setId(id);
 		In.mapAtts(json, i);
 		String catId = In.getRefId(json, "category");
 		i.setCategory(CategoryImport.run(catId, conf));

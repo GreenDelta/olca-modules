@@ -1,15 +1,13 @@
 package com.greendelta.cloud.api;
 
-import org.openlca.core.model.CategorizedEntity;
-import org.openlca.core.model.Category;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
-import org.openlca.jsonld.EntityStore;
-import org.openlca.jsonld.output.JsonExport;
+import java.io.FileInputStream;
+import java.io.IOException;
 
-import com.greendelta.cloud.model.data.Commit;
-import com.greendelta.cloud.model.data.CommitData;
-import com.greendelta.cloud.model.data.DatasetIdentifier;
+import org.openlca.core.database.IDatabase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.greendelta.cloud.util.Directories;
 import com.greendelta.cloud.util.Strings;
 import com.greendelta.cloud.util.Valid;
 import com.greendelta.cloud.util.WebRequests;
@@ -19,68 +17,32 @@ import com.greendelta.cloud.util.WebRequests.WebRequestException;
 /**
  * Invokes a web service call to commit data to a repository
  */
-class CommitInvocation {
+public class CommitInvocation extends CommitWriter {
 
 	private static final String PATH = "/repository/commit/";
-	private Commit commit = new Commit();
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryId;
 	private String latestCommitId;
 
-	public CommitData add(CategorizedEntity entity) {
-		CommitData data = new CommitData();
-		DatasetIdentifier identifier = new DatasetIdentifier();
-		identifier.setLastChange(entity.getLastChange());
-		identifier.setRefId(entity.getRefId());
-		identifier.setName(entity.getName());
-		identifier.setType(ModelType.forModelClass(entity.getClass()));
-		identifier.setVersion(new Version(entity.getVersion()).toString());
-		if (entity.getCategory() != null)
-			identifier.setCategoryRefId(entity.getCategory().getRefId());
-		if (entity instanceof Category)
-			identifier.setCategoryType(((Category) entity).getModelType());
-		else
-			identifier.setCategoryType(ModelType.forModelClass(entity
-					.getClass()));
-		data.setIdentifier(identifier);
-		data.setJson(toJson(entity));
-		commit.getData().add(data);
-		return data;
+	CommitInvocation(IDatabase database) {
+		super(database);
 	}
 
-	public CommitData addDelete(DatasetIdentifier identifier) {
-		CommitData data = new CommitData();
-		data.setIdentifier(identifier);
-		commit.getData().add(data);
-		return data;
-	}
- 
-	private String toJson(CategorizedEntity entity) {
-		EntityStore store = new InMemoryStore();
-		ModelType type = ModelType.forModelClass(entity.getClass());
-		new JsonExport(null, store).write(entity, (message, data) -> {
-		});
-		return store.get(type, entity.getRefId()).toString();
-	}
-
-	public void setBaseUrl(String baseUrl) {
+	void setBaseUrl(String baseUrl) {
 		this.baseUrl = baseUrl;
 	}
 
-	public void setSessionId(String sessionId) {
+	void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
 	}
 
-	public void setRepositoryId(String repositoryId) {
+	void setRepositoryId(String repositoryId) {
 		this.repositoryId = repositoryId;
 	}
 
-	public void setCommitMessage(String message) {
-		commit.setMessage(message);
-	}
-
-	public void setLatestCommitId(String latestCommitId) {
+	void setLatestCommitId(String latestCommitId) {
 		this.latestCommitId = latestCommitId;
 	}
 
@@ -96,19 +58,26 @@ class CommitInvocation {
 	 *             not match the latest commit id in the repository, the user is
 	 *             out of sync
 	 */
-	public String execute() throws WebRequestException {
+	String execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		Valid.checkNotEmpty(commit.getData(), "commit data");
 		if (latestCommitId == null)
 			latestCommitId = "null";
-		if (commit.getMessage() == null)
-			commit.setMessage("");
 		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
 				latestCommitId);
-		return WebRequests.call(Type.POST, url, sessionId, commit).getEntity(
-				String.class);
+		try {
+			close();
+			String commitId = WebRequests.call(Type.POST, url, sessionId,
+					new FileInputStream(file)).getEntity(String.class);
+			return commitId;
+		} catch (IOException e) {
+			log.error("Error cleaning committing data", e);
+			return null;
+		} finally {
+			if (file != null && file.getParentFile().exists())
+				Directories.delete(file.getParentFile());
+		}
 	}
 
 }

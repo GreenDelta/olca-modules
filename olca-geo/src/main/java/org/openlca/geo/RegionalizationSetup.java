@@ -27,15 +27,17 @@ public class RegionalizationSetup {
 	private final ImpactMethodDescriptor impactMethod;
 
 	private List<KmlLoadResult> kmlData;
+	private File shapeFileDir;
 	private List<Parameter> shapeFileParameters;
 	private ShapeFileRepository shapeFileRepository;
 	private ParameterRepository parameterRepository;
 	private ParameterSet parameterSet;
 
 	public RegionalizationSetup(IDatabase database,
-			ImpactMethodDescriptor impactMethod) {
+			ImpactMethodDescriptor impactMethod, File shapeFileDir) {
 		this.database = database;
 		this.impactMethod = impactMethod;
+		this.shapeFileDir = shapeFileDir;
 	}
 
 	/**
@@ -87,16 +89,13 @@ public class RegionalizationSetup {
 	}
 
 	private boolean initRepositories() {
-		File shapeFileDir = new File(database.getFileStorageLocation(),
-				"shapefiles");
-		File methodDir = new File(shapeFileDir, impactMethod.getRefId());
-		if (!methodDir.exists()) {
+		if (!shapeFileDir.exists()) {
 			log.warn("Cannot calculate regionalized LCIA because no shapefiles "
 					+ "where found (location for shapefiles is "
-					+ "<database file location>/shapefiles/<method uuid>");
+					+ shapeFileDir.getAbsolutePath());
 			return false;
 		}
-		shapeFileRepository = new ShapeFileRepository(methodDir);
+		shapeFileRepository = new ShapeFileRepository(shapeFileDir);
 		parameterRepository = new ParameterRepository(shapeFileRepository);
 		return true;
 	}
