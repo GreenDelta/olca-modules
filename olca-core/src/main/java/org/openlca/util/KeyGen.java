@@ -1,4 +1,4 @@
-package org.openlca.io;
+package org.openlca.util;
 
 import java.util.Locale;
 import java.util.UUID;

@@ -25,7 +25,7 @@ import org.openlca.ecospold2.Exchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.io.Categories;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.MapType;

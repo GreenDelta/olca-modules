@@ -13,7 +13,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.io.DataSet;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;

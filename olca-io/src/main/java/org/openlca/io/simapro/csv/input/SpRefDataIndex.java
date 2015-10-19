@@ -1,6 +1,6 @@
 package org.openlca.io.simapro.csv.input;
 
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.openlca.simapro.csv.model.AbstractExchangeRow;
 import org.openlca.simapro.csv.model.CalculatedParameterRow;
 import org.openlca.simapro.csv.model.InputParameterRow;

@@ -37,7 +37,7 @@ import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.MapType;

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.io.maps.Maps;
 import org.openlca.io.maps.OlcaFlowMapEntry;

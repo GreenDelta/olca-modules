@@ -7,7 +7,7 @@ import org.openlca.ilcd.commons.TypeOfLCIAMethod;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.LCIAMethodInformation;
 import org.openlca.ilcd.methods.ModellingAndValidation;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

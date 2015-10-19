@@ -3,7 +3,7 @@ package org.openlca.io.ilcd.input;
 import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Location;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

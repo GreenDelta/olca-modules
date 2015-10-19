@@ -2,7 +2,7 @@ package org.openlca.io.ecospold2.input;
 
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 
 /**
  * Generates the reference IDs for EcoSpold 02 entities.

@@ -13,7 +13,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.io.Categories;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.simapro.csv.model.AbstractExchangeRow;

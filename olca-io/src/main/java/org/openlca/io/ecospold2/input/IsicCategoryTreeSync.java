@@ -91,7 +91,7 @@ public class IsicCategoryTreeSync implements Runnable {
 		Category category = new Category();
 		category.setModelType(type);
 		category.setName(node.getCode() + ":" + node.getName());
-		category.setRefId(org.openlca.io.KeyGen.get(category.getName()));
+		category.setRefId(org.openlca.util.KeyGen.get(category.getName()));
 		return category;
 	}
 
