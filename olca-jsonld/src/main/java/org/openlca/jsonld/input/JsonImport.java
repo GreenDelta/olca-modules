@@ -1,8 +1,12 @@
 package org.openlca.jsonld.input;
 
+import java.util.Objects;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
+
+import com.google.gson.JsonObject;
 
 public class JsonImport implements Runnable {
 
@@ -23,6 +27,7 @@ public class JsonImport implements Runnable {
 	public void run() {
 		ImportConfig conf = ImportConfig.create(new Db(database), store,
 				updateMode);
+		importGlobalParameters(conf);
 		for (String locId : store.getRefIds(ModelType.LOCATION))
 			LocationImport.run(locId, conf);
 		for (String catId : store.getRefIds(ModelType.CATEGORY))
@@ -45,6 +50,16 @@ public class JsonImport implements Runnable {
 			SocialIndicatorImport.run(indicatorId, conf);
 		for (String processId : store.getRefIds(ModelType.PROCESS))
 			ProcessImport.run(processId, conf);
+	}
+
+	private void importGlobalParameters(ImportConfig conf) {
+		for (String paramId : store.getRefIds(ModelType.PARAMETER)) {
+			JsonObject obj = store.get(ModelType.PARAMETER, paramId);
+			String scope = In.getString(obj, "parameterScope");
+			if (Objects.equals(scope, "GLOBAL_SCOPE")) {
+				ParameterImport.run(paramId, conf);
+			}
+		}
 	}
 
 }

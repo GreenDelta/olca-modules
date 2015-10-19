@@ -35,7 +35,7 @@ abstract class BaseImport<T extends RootEntity> {
 			JsonObject json = conf.store.get(modelType, refId);
 			if (!doImport(model, json))
 				return model;
-			long id = model != null ? model.getId() : 0l;
+			long id = model != null ? model.getId() : 0L;
 			importBinFiles();
 			return map(json, id);
 		} catch (Exception e) {
@@ -74,6 +74,8 @@ abstract class BaseImport<T extends RootEntity> {
 			return (T) conf.db.getMethod(refId);
 		case LOCATION:
 			return (T) conf.db.getLocation(refId);
+		case PARAMETER:
+			return (T) conf.db.getParameter(refId);
 		case PROCESS:
 			return (T) conf.db.getProcess(refId);
 		case SOCIAL_INDICATOR:

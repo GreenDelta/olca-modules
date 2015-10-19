@@ -55,12 +55,20 @@ final class In {
 	 * Returns the ID of a referenced entity (see Out.writeRef).
 	 */
 	static String getRefId(JsonObject obj, String refName) {
-		if (obj == null || refName == null)
+		JsonObject ref = getObject(obj, refName);
+		if (ref == null)
 			return null;
-		JsonElement elem = obj.get(refName);
+		return getString(ref, "@id");
+	}
+
+	static JsonObject getObject(JsonObject obj, String property) {
+		if (obj == null || property == null)
+			return null;
+		JsonElement elem = obj.get(property);
 		if (elem == null || !elem.isJsonObject())
 			return null;
-		return getString(elem.getAsJsonObject(), "@id");
+		else
+			return elem.getAsJsonObject();
 	}
 
 	static long getVersion(JsonObject obj) {

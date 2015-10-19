@@ -24,7 +24,7 @@ class ParameterWriter extends Writer<Parameter> {
 		return obj;
 	}
 
-	private static void mapUncertainty(Parameter parameter, JsonObject obj) {
+	private void mapUncertainty(Parameter parameter, JsonObject obj) {
 		Uncertainty uncertainty = parameter.getUncertainty();
 		if (uncertainty == null)
 			return;

@@ -20,6 +20,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
@@ -129,6 +130,8 @@ public class JsonExport {
 			return Writer.class.cast(new ImpactMethodWriter());
 		if (entity instanceof Location)
 			return Writer.class.cast(new LocationWriter());
+		if (entity instanceof Parameter)
+			return Writer.class.cast(new ParameterWriter());
 		if (entity instanceof Process)
 			return Writer.class.cast(new ProcessWriter());
 		if (entity instanceof Source)
