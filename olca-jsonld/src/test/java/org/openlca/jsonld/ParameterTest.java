@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
@@ -51,6 +53,28 @@ public class ParameterTest extends AbstractZipTest {
 			jImport.run();
 		});
 		Process clone = dao.getForRefId(process.getRefId());
+		Assert.assertEquals(param.getRefId(),
+				clone.getParameters().get(0).getRefId());
+	}
+
+	@Test
+	public void testImpactMethod() throws Exception {
+		ImpactMethod method = new ImpactMethod();
+		method.setRefId(UUID.randomUUID().toString());
+		Parameter param = createParam(ParameterScope.IMPACT_METHOD);
+		method.getParameters().add(param);
+		ImpactMethodDao dao = new ImpactMethodDao(Tests.getDb());
+		dao.insert(method);
+		with(zip -> {
+			JsonExport export = new JsonExport(Tests.getDb(), zip);
+			export.write(method);
+		});
+		dao.delete(method);
+		with(zip -> {
+			JsonImport jImport = new JsonImport(zip, Tests.getDb());
+			jImport.run();
+		});
+		ImpactMethod clone = dao.getForRefId(method.getRefId());
 		Assert.assertEquals(param.getRefId(),
 				clone.getParameters().get(0).getRefId());
 	}

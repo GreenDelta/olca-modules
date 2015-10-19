@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonArray;
@@ -16,6 +17,7 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		JsonObject obj = super.write(method, refHandler);
 		if (obj == null)
 			return null;
+		mapParameters(method, obj);
 		JsonArray array = new JsonArray();
 		for (ImpactCategory category : method.getImpactCategories()) {
 			JsonObject ref = createRef(category, refHandler);
@@ -23,6 +25,16 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		}
 		obj.add("impactCategories", array);
 		return obj;
+	}
+
+	private void mapParameters(ImpactMethod method, JsonObject obj) {
+		JsonArray parameters = new JsonArray();
+		for (Parameter p : method.getParameters()) {
+			JsonObject pObj = new ParameterWriter().write(p, ref -> {
+			});
+			parameters.add(pObj);
+		}
+		obj.add("parameters", parameters);
 	}
 
 }
