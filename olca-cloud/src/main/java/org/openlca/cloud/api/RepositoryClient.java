@@ -49,7 +49,7 @@ public class RepositoryClient {
 		});
 	}
 
-	private void login() throws WebRequestException {
+	public void login() throws WebRequestException {
 		LoginInvocation invocation = new LoginInvocation();
 		invocation.setBaseUrl(config.getBaseUrl());
 		invocation.setUsername(config.getUsername());
