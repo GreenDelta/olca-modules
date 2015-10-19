@@ -115,4 +115,22 @@ public class ZipStoreTest {
 		}
 	}
 
+	@Test
+	public void testGetBinFiles() throws Exception {
+		try (ZipStore store = ZipStore.open(zipFile)) {
+			for (int i = 0; i < 10; i++) {
+				String path = "bin/flows/abc/file_" + i + ".txt";
+				byte[] data = "Content of file".getBytes();
+				store.put(path, data);
+			}
+			List<String> paths = store.getBinFiles(ModelType.FLOW, "abc");
+			Assert.assertEquals(10, paths.size());
+			for (String path : paths) {
+				byte[] data = store.get(path);
+				String s = new String(data);
+				Assert.assertEquals("Content of file", s);
+			}
+		}
+	}
+
 }

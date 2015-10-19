@@ -26,6 +26,7 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
+import org.openlca.jsonld.ModelPath;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -69,7 +70,7 @@ public class JsonExport {
 				write(ref, cb);
 			});
 			store.put(type, obj);
-			writeExternalFiles(entity, cb);
+			writeExternalFiles(entity, type, cb);
 			if (cb != null)
 				cb.apply(Message.info("data set exported"), entity);
 		} catch (Exception e) {
@@ -84,7 +85,7 @@ public class JsonExport {
 		cb.apply(Message.error(message), entity);
 	}
 
-	private void writeExternalFiles(RootEntity entity, Callback cb) {
+	private void writeExternalFiles(RootEntity entity, ModelType type, Callback cb) {
 		if (entity == null || db == null || db.getFileStorageLocation() == null)
 			return;
 		FileStore fs = new FileStore(db.getFileStorageLocation());
@@ -93,7 +94,7 @@ public class JsonExport {
 			return;
 		try {
 			Path dbDir = dir.toPath();
-			Copy copy = new Copy(entity.getRefId(), dbDir);
+			Copy copy = new Copy(entity.getRefId(), type, dbDir);
 			Files.walkFileTree(dir.toPath(), copy);
 		} catch (Exception e) {
 			cb.apply(Message.error("failed to copy external files", e), entity);
@@ -143,9 +144,10 @@ public class JsonExport {
 	private class Copy extends SimpleFileVisitor<Path> {
 
 		private String refId;
+		private ModelType type;
 		private Path dbDir;
 
-		Copy(String refId, Path dbDir) {
+		Copy(String refId, ModelType type, Path dbDir) {
 			this.refId = refId;
 			this.dbDir = dbDir;
 		}
@@ -154,7 +156,7 @@ public class JsonExport {
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
 				throws IOException {
 			String path = dbDir.relativize(file).toString().replace('\\', '/');
-			path = "external/" + refId + "/" + path;
+			path = "bin/" + ModelPath.get(type) + "/" + refId + "/" + path;
 			byte[] data = Files.readAllBytes(file);
 			store.put(path, data);
 			return FileVisitResult.CONTINUE;
