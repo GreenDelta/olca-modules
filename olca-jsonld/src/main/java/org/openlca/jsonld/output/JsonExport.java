@@ -150,6 +150,7 @@ public class JsonExport {
 		Copy(String refId, ModelType type, Path dbDir) {
 			this.refId = refId;
 			this.dbDir = dbDir;
+			this.type = type;
 		}
 
 		@Override
