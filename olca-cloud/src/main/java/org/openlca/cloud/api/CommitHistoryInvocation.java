@@ -20,7 +20,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 class CommitHistoryInvocation {
 
-	private static final String PATH = "/repository/fetch/commits/";
+	private static final String PATH = "/repository/commits/";
 
 	private String baseUrl;
 	private String sessionId;
