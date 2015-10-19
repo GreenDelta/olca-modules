@@ -24,4 +24,13 @@ public interface EntityStore extends Closeable {
 
 	byte[] get(String path);
 
+	/**
+	 * Returns a list of paths to external (binary) files for a model with the
+	 * given type and ID. The returned paths should be directly resolvable so
+	 * that a call get(path) on this entity store returns the binary data of
+	 * this file. If there are no external files available an empty list should
+	 * be returned.
+	 */
+	List<String> getBinFiles(ModelType type, String refId);
+
 }

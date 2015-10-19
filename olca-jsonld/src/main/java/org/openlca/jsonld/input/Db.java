@@ -11,6 +11,7 @@ import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
@@ -23,6 +24,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
@@ -42,6 +44,7 @@ class Db {
 	private Map<String, Long> methodIds = new HashMap<>();
 	private Map<String, Long> actorIds = new HashMap<>();
 	private Map<String, Long> sourceIds = new HashMap<>();
+	private Map<String, Long> parameterIds = new HashMap<>();
 	private Map<String, Long> processIds = new HashMap<>();
 	private Map<String, Long> indicatorIds = new HashMap<>();
 	private Map<String, Long> currencyIds = new HashMap<>();
@@ -173,6 +176,14 @@ class Db {
 		return put(new CurrencyDao(db), currency, currencyIds);
 	}
 
+	public Parameter getParameter(String refId) {
+		return get(new ParameterDao(db), refId, parameterIds);
+	}
+
+	public Parameter put(Parameter parameter) {
+		return put(new ParameterDao(db), parameter, parameterIds);
+	}
+
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,
 			Map<String, Long> idCache) {
 		Long id = idCache.get(refId);
@@ -189,7 +200,7 @@ class Db {
 			Map<String, Long> idCache) {
 		if (entity == null)
 			return null;
-		if (entity.getId() == 0l)
+		if (entity.getId() == 0L)
 			entity = dao.insert(entity);
 		else {
 			dao.detach(dao.getForId(entity.getId()));

@@ -1,5 +1,12 @@
 package org.openlca.jsonld.input;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+import org.openlca.core.database.FileStore;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.slf4j.Logger;
@@ -28,7 +35,8 @@ abstract class BaseImport<T extends RootEntity> {
 			JsonObject json = conf.store.get(modelType, refId);
 			if (!doImport(model, json))
 				return model;
-			long id = model != null ? model.getId() : 0l;
+			long id = model != null ? model.getId() : 0L;
+			importBinFiles();
 			return map(json, id);
 		} catch (Exception e) {
 			log.error("failed to import actor " + refId, e);
@@ -66,6 +74,8 @@ abstract class BaseImport<T extends RootEntity> {
 			return (T) conf.db.getMethod(refId);
 		case LOCATION:
 			return (T) conf.db.getLocation(refId);
+		case PARAMETER:
+			return (T) conf.db.getParameter(refId);
 		case PROCESS:
 			return (T) conf.db.getProcess(refId);
 		case SOCIAL_INDICATOR:
@@ -76,6 +86,29 @@ abstract class BaseImport<T extends RootEntity> {
 			return (T) conf.db.getUnitGroup(refId);
 		default:
 			throw new RuntimeException(modelType.name() + " not supported");
+		}
+	}
+
+	private void importBinFiles() {
+		IDatabase db = conf.db.getDatabase();
+		if (db == null || db.getFileStorageLocation() == null)
+			return;
+		FileStore fs = new FileStore(db.getFileStorageLocation());
+		try {
+			File dir = fs.getFolder(modelType, refId);
+			for (String path : conf.store.getBinFiles(modelType, refId)) {
+				byte[] data = conf.store.get(path);
+				if (data == null)
+					return;
+				String fileName = Paths.get(path).getFileName().toString();
+				if (!dir.exists())
+					dir.mkdirs();
+				File file = new File(dir, fileName);
+				Files.write(file.toPath(), data, StandardOpenOption.CREATE);
+			}
+		} catch (Exception e) {
+			log.error("failed to import bin files for "
+					+ modelType + ":" + refId, e);
 		}
 	}
 

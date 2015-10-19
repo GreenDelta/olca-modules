@@ -31,6 +31,8 @@ public class JsonImport implements Runnable {
 			ActorImport.run(actorId, conf);
 		for (String sourceId : store.getRefIds(ModelType.SOURCE))
 			SourceImport.run(sourceId, conf);
+		for (String paramId : store.getRefIds(ModelType.PARAMETER))
+			ParameterImport.run(paramId, conf);
 		for (String groupId : store.getRefIds(ModelType.UNIT_GROUP))
 			UnitGroupImport.run(groupId, conf);
 		for (String propId : store.getRefIds(ModelType.FLOW_PROPERTY))

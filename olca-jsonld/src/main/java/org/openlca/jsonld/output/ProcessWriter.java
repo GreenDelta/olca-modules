@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
@@ -36,8 +37,19 @@ class ProcessWriter extends Writer<Process> {
 				process.getDefaultAllocationMethod()));
 		obj.add("location", createRef(process.getLocation(), refFn));
 		obj.add("processDocumentation", createDoc());
+		mapParameters(obj);
 		mapExchanges(obj);
 		return obj;
+	}
+
+	private void mapParameters(JsonObject obj) {
+		JsonArray parameters = new JsonArray();
+		for (Parameter p : process.getParameters()) {
+			JsonObject pObj = new ParameterWriter().write(p, ref -> {
+			});
+			parameters.add(pObj);
+		}
+		obj.add("parameters", parameters);
 	}
 
 	private void mapExchanges(JsonObject obj) {

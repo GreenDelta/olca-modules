@@ -147,6 +147,22 @@ public class ZipStore implements EntityStore {
 	}
 
 	@Override
+	public List<String> getBinFiles(ModelType type, String refId) {
+		if (type == null || refId == null)
+			return Collections.emptyList();
+		Path dir = zip.getPath("bin", ModelPath.get(type), refId);
+		if (!Files.exists(dir))
+			return Collections.emptyList();
+		FilePathCollector collector = new FilePathCollector();
+		try {
+			Files.walkFileTree(dir, collector);
+		} catch (Exception e) {
+			log.error("failed to get bin files for " + type + ": " + refId, e);
+		}
+		return collector.paths;
+	}
+
+	@Override
 	public void close() throws IOException {
 		zip.close();
 	}
@@ -165,5 +181,20 @@ public class ZipStore implements EntityStore {
 			ids.add(refId);
 			return FileVisitResult.CONTINUE;
 		}
+	}
+
+	private class FilePathCollector extends SimpleFileVisitor<Path> {
+
+		private List<String> paths = new ArrayList<>();
+
+		@Override
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+				throws IOException {
+			if (file == null)
+				return FileVisitResult.CONTINUE;
+			paths.add(file.toAbsolutePath().toString());
+			return FileVisitResult.CONTINUE;
+		}
+
 	}
 }

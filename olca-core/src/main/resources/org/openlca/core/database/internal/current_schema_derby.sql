@@ -292,7 +292,7 @@ CREATE TABLE tbl_exchanges (
 	cost_value DOUBLE,
 	cost_formula VARCHAR(1000),
 	f_cost_category BIGINT,
-	f_currency BIDINT,
+	f_currency BIGINT,
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 

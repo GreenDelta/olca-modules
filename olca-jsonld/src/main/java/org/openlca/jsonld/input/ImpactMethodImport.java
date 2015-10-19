@@ -9,8 +9,10 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Unit;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -34,6 +36,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 		String catId = In.getRefId(json, "category");
 		m.setCategory(CategoryImport.run(catId, conf));
 		mapCategories(json, m);
+		mapParameters(json, m);
 		return conf.db.put(m);
 	}
 
@@ -74,6 +77,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 	private ImpactFactor mapFactor(JsonObject json) {
 		ImpactFactor factor = new ImpactFactor();
 		factor.setValue(In.getDouble(json, "value", 0));
+		factor.setFormula(In.getString(json, "formula"));
 		Flow flow = FlowImport.run(In.getRefId(json, "flow"), conf);
 		factor.setFlow(flow);
 		Unit unit = conf.db.getUnit(In.getRefId(json, "unit"));
@@ -83,7 +87,6 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 		JsonElement u = json.get("uncertainty");
 		if (u != null && u.isJsonObject())
 			factor.setUncertainty(Uncertainties.read(u.getAsJsonObject()));
-		// TODO: formula
 		return factor;
 	}
 
@@ -97,5 +100,21 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 				return fac;
 		}
 		return null;
+	}
+
+	private void mapParameters(JsonObject json, ImpactMethod method) {
+		JsonArray parameters = In.getArray(json, "parameters");
+		if (parameters == null)
+			return;
+		for (JsonElement e : parameters) {
+			if (!e.isJsonObject())
+				continue;
+			JsonObject o = e.getAsJsonObject();
+			String refId = In.getString(o, "@id");
+			ParameterImport pi = new ParameterImport(refId, conf);
+			Parameter parameter = new Parameter();
+			pi.mapFields(o, parameter);
+			method.getParameters().add(parameter);
+		}
 	}
 }
