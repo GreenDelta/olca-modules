@@ -8,12 +8,14 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -45,6 +47,7 @@ class ProcessImport extends BaseImport<Process> {
 		String locId = In.getRefId(json, "location");
 		if (locId != null)
 			p.setLocation(LocationImport.run(locId, conf));
+		addParameters(json, p);
 		addExchanges(json, p);
 		return conf.db.put(p);
 	}
@@ -79,11 +82,27 @@ class ProcessImport extends BaseImport<Process> {
 		}
 	}
 
-	private void addExchanges(JsonObject json, Process p) {
-		JsonElement exchanges = json.get("exchanges");
-		if (exchanges == null || !exchanges.isJsonArray())
+	private void addParameters(JsonObject json, Process p) {
+		JsonArray parameters = In.getArray(json, "parameters");
+		if (parameters == null)
 			return;
-		for (JsonElement e : exchanges.getAsJsonArray()) {
+		for (JsonElement e : parameters) {
+			if (!e.isJsonObject())
+				continue;
+			JsonObject o = e.getAsJsonObject();
+			String refId = In.getString(o, "@id");
+			ParameterImport pi = new ParameterImport(refId, conf);
+			Parameter parameter = new Parameter();
+			pi.mapFields(o, parameter);
+			p.getParameters().add(parameter);
+		}
+	}
+
+	private void addExchanges(JsonObject json, Process p) {
+		JsonArray exchanges = In.getArray(json, "exchanges");
+		if (exchanges == null)
+			return;
+		for (JsonElement e : exchanges) {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject o = e.getAsJsonObject();
@@ -101,8 +120,7 @@ class ProcessImport extends BaseImport<Process> {
 		e.setInput(In.getBool(json, "input", false));
 		e.setBaseUncertainty(In.getDouble(json, "baseUncertainty", 0));
 		e.setAmountValue(In.getDouble(json, "amount", 0));
-		// TODO: import formulas when parameters are imported
-		// e.setAmountFormula(In.getString(json, "amountFormula"));
+		e.setAmountFormula(In.getString(json, "amountFormula"));
 		e.setPedigreeUncertainty(In.getString(json, "pedigreeUncertainty"));
 		JsonElement u = json.get("uncertainty");
 		if (u != null && u.isJsonObject())

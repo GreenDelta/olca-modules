@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 
 class ParameterImport extends BaseImport<Parameter> {
 
-	private ParameterImport(String refId, ImportConfig conf) {
+	ParameterImport(String refId, ImportConfig conf) {
 		super(ModelType.PARAMETER, refId, conf);
 	}
 
@@ -22,6 +22,12 @@ class ParameterImport extends BaseImport<Parameter> {
 			return null;
 		Parameter p = new Parameter();
 		p.setId(id);
+		mapFields(json, p);
+		return conf.db.put(p);
+	}
+
+	/** Field mappings for processes and LCIA methods. */
+	void mapFields(JsonObject json, Parameter p) {
 		In.mapAtts(json, p);
 		p.setCategory(CategoryImport.run(In.getRefId(json, "category"), conf));
 		p.setScope(getScope(json));
@@ -31,7 +37,6 @@ class ParameterImport extends BaseImport<Parameter> {
 		p.setExternalSource(In.getString(json, "externalSource"));
 		p.setSourceType(In.getString(json, "sourceType"));
 		p.setUncertainty(Uncertainties.read(In.getObject(json, "uncertainty")));
-		return conf.db.put(p);
 	}
 
 	private ParameterScope getScope(JsonObject json) {

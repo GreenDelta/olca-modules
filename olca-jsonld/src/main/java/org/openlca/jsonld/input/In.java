@@ -6,6 +6,7 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Dates;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -69,6 +70,16 @@ final class In {
 			return null;
 		else
 			return elem.getAsJsonObject();
+	}
+
+	static JsonArray getArray(JsonObject obj, String property) {
+		if (obj == null || property == null)
+			return null;
+		JsonElement elem = obj.get(property);
+		if (elem == null || !elem.isJsonArray())
+			return null;
+		else
+			return elem.getAsJsonArray();
 	}
 
 	static long getVersion(JsonObject obj) {

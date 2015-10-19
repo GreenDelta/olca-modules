@@ -1,12 +1,8 @@
 package org.openlca.jsonld.input;
 
-import java.util.Objects;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
-
-import com.google.gson.JsonObject;
 
 public class JsonImport implements Runnable {
 
@@ -27,7 +23,6 @@ public class JsonImport implements Runnable {
 	public void run() {
 		ImportConfig conf = ImportConfig.create(new Db(database), store,
 				updateMode);
-		importGlobalParameters(conf);
 		for (String locId : store.getRefIds(ModelType.LOCATION))
 			LocationImport.run(locId, conf);
 		for (String catId : store.getRefIds(ModelType.CATEGORY))
@@ -36,6 +31,8 @@ public class JsonImport implements Runnable {
 			ActorImport.run(actorId, conf);
 		for (String sourceId : store.getRefIds(ModelType.SOURCE))
 			SourceImport.run(sourceId, conf);
+		for (String paramId : store.getRefIds(ModelType.PARAMETER))
+			ParameterImport.run(paramId, conf);
 		for (String groupId : store.getRefIds(ModelType.UNIT_GROUP))
 			UnitGroupImport.run(groupId, conf);
 		for (String propId : store.getRefIds(ModelType.FLOW_PROPERTY))
@@ -50,16 +47,6 @@ public class JsonImport implements Runnable {
 			SocialIndicatorImport.run(indicatorId, conf);
 		for (String processId : store.getRefIds(ModelType.PROCESS))
 			ProcessImport.run(processId, conf);
-	}
-
-	private void importGlobalParameters(ImportConfig conf) {
-		for (String paramId : store.getRefIds(ModelType.PARAMETER)) {
-			JsonObject obj = store.get(ModelType.PARAMETER, paramId);
-			String scope = In.getString(obj, "parameterScope");
-			if (Objects.equals(scope, "GLOBAL_SCOPE")) {
-				ParameterImport.run(paramId, conf);
-			}
-		}
 	}
 
 }
