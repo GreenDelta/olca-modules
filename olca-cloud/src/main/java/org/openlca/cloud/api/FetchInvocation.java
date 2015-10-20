@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.database.ActorDao;
@@ -32,7 +33,6 @@ import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.openlca.cloud.api.data.FetchReader;
 import org.openlca.cloud.model.data.DatasetDescriptor;
 import org.openlca.cloud.util.Directories;
@@ -41,6 +41,7 @@ import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
+
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -95,9 +96,10 @@ class FetchInvocation {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		Valid.checkNotEmpty(fetchData, "fetch data");
 		if (latestCommitId == null || latestCommitId.isEmpty())
 			latestCommitId = "null";
+		if (fetchData == null) // still call service to receive latest commit id
+			fetchData = new ArrayList<>();
 		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
 				latestCommitId);
 		ClientResponse response = WebRequests.call(Type.POST, url, sessionId,
@@ -122,7 +124,8 @@ class FetchInvocation {
 			jsonImport.run();
 			for (DatasetDescriptor descriptor : reader.getDescriptors())
 				if (!reader.hasData(descriptor))
-					delete(createDao(descriptor.getType()), descriptor.getRefId());
+					delete(createDao(descriptor.getType()),
+							descriptor.getRefId());
 			return reader.getCommitId();
 		} catch (IOException e) {
 			log.error("Error reading fetch data", e);
