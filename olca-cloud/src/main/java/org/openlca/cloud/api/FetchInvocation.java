@@ -7,8 +7,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.openlca.cloud.api.data.FetchReader;
+import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.util.Directories;
+import org.openlca.cloud.util.Strings;
+import org.openlca.cloud.util.Valid;
+import org.openlca.cloud.util.WebRequests;
+import org.openlca.cloud.util.WebRequests.Type;
+import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategorizedEntityDao;
 import org.openlca.core.database.CategoryDao;
@@ -28,20 +39,16 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.jsonld.Dates;
+import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.openlca.cloud.api.data.FetchReader;
-import org.openlca.cloud.model.data.DatasetDescriptor;
-import org.openlca.cloud.util.Directories;
-import org.openlca.cloud.util.Strings;
-import org.openlca.cloud.util.Valid;
-import org.openlca.cloud.util.WebRequests;
-import org.openlca.cloud.util.WebRequests.Type;
-import org.openlca.cloud.util.WebRequests.WebRequestException;
 
+import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -58,6 +65,7 @@ class FetchInvocation {
 	private String repositoryId;
 	private String latestCommitId;
 	private List<DatasetDescriptor> fetchData;
+	private Map<DatasetDescriptor, JsonObject> mergedData;
 	private IDatabase database;
 
 	public FetchInvocation(IDatabase database) {
@@ -82,6 +90,10 @@ class FetchInvocation {
 
 	public void setFetchData(List<DatasetDescriptor> fetchData) {
 		this.fetchData = fetchData;
+	}
+
+	public void setMergedData(Map<DatasetDescriptor, JsonObject> mergedData) {
+		this.mergedData = mergedData;
 	}
 
 	/**
@@ -118,15 +130,7 @@ class FetchInvocation {
 			Files.copy(data, zipFile.toPath(),
 					StandardCopyOption.REPLACE_EXISTING);
 			reader = new FetchReader(zipFile);
-			JsonImport jsonImport = new JsonImport(reader.getEntityStore(),
-					database);
-			jsonImport.setUpdateMode(UpdateMode.ALWAYS);
-			jsonImport.run();
-			for (DatasetDescriptor descriptor : reader.getDescriptors())
-				if (!reader.hasData(descriptor))
-					delete(createDao(descriptor.getType()),
-							descriptor.getRefId());
-			return reader.getCommitId();
+			return doImport(reader);
 		} catch (IOException e) {
 			log.error("Error reading fetch data", e);
 			return null;
@@ -139,6 +143,31 @@ class FetchInvocation {
 				} catch (IOException e) {
 					log.error("Error closing fetch reader", e);
 				}
+		}
+	}
+
+	private String doImport(FetchReader reader) {
+		putMergedData(reader.getEntityStore());
+		JsonImport jsonImport = new JsonImport(reader.getEntityStore(),
+				database);
+		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
+		jsonImport.run();
+		for (DatasetDescriptor descriptor : reader.getDescriptors())
+			if (!reader.hasData(descriptor))
+				delete(createDao(descriptor.getType()), descriptor.getRefId());
+		return reader.getCommitId();
+	}
+
+	private void putMergedData(EntityStore store) {
+		for (Entry<DatasetDescriptor, JsonObject> entry : mergedData.entrySet()) {
+			JsonObject json = entry.getValue();
+			Version version = Version.fromString(json.get("version")
+					.getAsString());
+			version.incUpdate();
+			json.addProperty("version", Version.asString(version.getValue()));
+			json.addProperty("lastChange",
+					Dates.toString(Calendar.getInstance().getTime()));
+			store.put(entry.getKey().getType(), json);
 		}
 	}
 

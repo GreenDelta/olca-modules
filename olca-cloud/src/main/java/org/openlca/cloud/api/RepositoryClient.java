@@ -1,14 +1,17 @@
 package org.openlca.cloud.api;
 
 import java.util.List;
+import java.util.Map;
 
 import org.openlca.core.model.ModelType;
 
 import com.google.gson.JsonObject;
+
 import org.openlca.cloud.model.data.CommitDescriptor;
 import org.openlca.cloud.model.data.DatasetDescriptor;
 import org.openlca.cloud.model.data.FetchRequestData;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
+
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 public class RepositoryClient {
@@ -205,7 +208,7 @@ public class RepositoryClient {
 		});
 	}
 
-	public void fetch(List<DatasetDescriptor> fetchData) throws WebRequestException {
+	public void fetch(List<DatasetDescriptor> fetchData, Map<DatasetDescriptor, JsonObject> mergedData) throws WebRequestException {
 		executeLoggedIn(() -> {
 			FetchInvocation invocation = new FetchInvocation(
 					config.getDatabase());
@@ -214,6 +217,7 @@ public class RepositoryClient {
 			invocation.setRepositoryId(config.getRepositoryId());
 			invocation.setLatestCommitId(config.getLatestCommitId());
 			invocation.setFetchData(fetchData);
+			invocation.setMergedData(mergedData);
 			config.setLatestCommitId(invocation.execute());
 		});
 	}
