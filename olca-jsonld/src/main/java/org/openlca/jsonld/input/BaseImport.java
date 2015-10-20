@@ -39,7 +39,7 @@ abstract class BaseImport<T extends RootEntity> {
 			importBinFiles();
 			return map(json, id);
 		} catch (Exception e) {
-			log.error("failed to import actor " + refId, e);
+			log.error("failed to import " + modelType.name() + " " + refId, e);
 			return null;
 		}
 	}
@@ -109,8 +109,8 @@ abstract class BaseImport<T extends RootEntity> {
 				Files.write(file.toPath(), data, StandardOpenOption.CREATE);
 			}
 		} catch (Exception e) {
-			log.error("failed to import bin files for "
-					+ modelType + ":" + refId, e);
+			log.error("failed to import bin files for " + modelType + ":"
+					+ refId, e);
 		}
 	}
 
