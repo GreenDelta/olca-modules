@@ -47,6 +47,8 @@ abstract class BaseImport<T extends RootEntity> {
 	private boolean doImport(T model, JsonObject json) {
 		if (model == null)
 			return true;
+		if (conf.updateMode == UpdateMode.ALWAYS)
+			return true;
 		long jsonVersion = In.getVersion(json);
 		long jsonDate = In.getLastChange(json);
 		if (jsonVersion < model.getVersion())
