@@ -35,8 +35,8 @@ class RepositoryExistsInvocation {
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(name, "repository name");
 		String url = Strings.concat(baseUrl, PATH, "/", name);
-		ClientResponse response = WebRequests.call(Type.POST, url, sessionId);
-		return response.getEntity(Boolean.class);
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
+		return Boolean.parseBoolean(response.getEntity(String.class));
 	}
 
 }

@@ -39,7 +39,7 @@ class CheckAccessInvocation {
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		String url = Strings.concat(baseUrl, PATH, "/", repositoryId);
-		WebRequests.call(Type.POST, url, sessionId);
+		WebRequests.call(Type.GET, url, sessionId);
 	}
 
 }
