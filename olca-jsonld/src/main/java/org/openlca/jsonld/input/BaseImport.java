@@ -35,6 +35,7 @@ abstract class BaseImport<T extends RootEntity> {
 			JsonObject json = conf.store.get(modelType, refId);
 			if (!doImport(model, json))
 				return model;
+			conf.visited(modelType, refId);
 			long id = model != null ? model.getId() : 0L;
 			importBinFiles();
 			return map(json, id);
@@ -47,8 +48,10 @@ abstract class BaseImport<T extends RootEntity> {
 	private boolean doImport(T model, JsonObject json) {
 		if (model == null)
 			return true;
+		if (json == null)
+			return false;
 		if (conf.updateMode == UpdateMode.ALWAYS)
-			return true;
+			return !conf.hasVisited(modelType, refId);
 		long jsonVersion = In.getVersion(json);
 		long jsonDate = In.getLastChange(json);
 		if (jsonVersion < model.getVersion())
