@@ -130,7 +130,7 @@ public class RepositoryClient {
 		});
 	}
 
-	public boolean hasAcess(String repositoryId) throws WebRequestException {
+	public boolean hasAccess(String repositoryId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			CheckAccessInvocation invocation = new CheckAccessInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
