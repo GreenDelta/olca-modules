@@ -4,10 +4,13 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.openlca.cloud.util.Strings;
+import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
+
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
@@ -41,11 +44,14 @@ class RepositoryAccessListInvocation {
 	 *             if the specified repository did not exist
 	 */
 	public List<String> execute() throws WebRequestException {
+		Valid.checkNotEmpty(baseUrl, "base url");
+		Valid.checkNotEmpty(sessionId, "session id");
+		Valid.checkNotEmpty(repositoryId, "repository id");
 		String url = Strings.concat(baseUrl, PATH, "/", repositoryId);
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		return new Gson().fromJson(response.getEntity(String.class),
 				new TypeToken<List<String>>() {
 				}.getType());
-		}
+	}
 
 }
