@@ -96,6 +96,16 @@ public class RepositoryClient {
 		});
 	}
 
+	public boolean repositoryExists(String name) throws WebRequestException {
+		return executeLoggedIn(() -> {
+			RepositoryExistsInvocation invocation = new RepositoryExistsInvocation();
+			invocation.setBaseUrl(config.getBaseUrl());
+			invocation.setSessionId(sessionId);
+			invocation.setName(name);
+			return invocation.execute();
+		});
+	}
+	
 	public void shareRepositoryWith(String repositoryName, String shareWithUser)
 			throws WebRequestException {
 		executeLoggedIn(() -> {
@@ -117,6 +127,23 @@ public class RepositoryClient {
 			invocation.setRepositoryName(repositoryName);
 			invocation.setUnshareWithUser(unshareWithUser);
 			invocation.execute();
+		});
+	}
+
+	public boolean hasAcess(String repositoryId) throws WebRequestException {
+		return executeLoggedIn(() -> {
+			CheckAccessInvocation invocation = new CheckAccessInvocation();
+			invocation.setBaseUrl(config.getBaseUrl());
+			invocation.setSessionId(sessionId);
+			invocation.setRepositoryId(repositoryId);
+			try {
+				invocation.execute();
+				return true;
+			} catch (WebRequestException e) {
+				if (e.getErrorCode() == Status.FORBIDDEN.getStatusCode())
+					return false;
+				throw e;
+			}
 		});
 	}
 
@@ -208,7 +235,9 @@ public class RepositoryClient {
 		});
 	}
 
-	public void fetch(List<DatasetDescriptor> fetchData, Map<DatasetDescriptor, JsonObject> mergedData) throws WebRequestException {
+	public void fetch(List<DatasetDescriptor> fetchData,
+			Map<DatasetDescriptor, JsonObject> mergedData)
+			throws WebRequestException {
 		executeLoggedIn(() -> {
 			FetchInvocation invocation = new FetchInvocation(
 					config.getDatabase());

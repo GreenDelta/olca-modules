@@ -7,15 +7,14 @@ import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 
 /**
- * Invokes a web service call to create a new repository
+ * Invokes a webservice call to check access to the specified repository
  */
-class CreateRepositoryInvocation {
+class CheckAccessInvocation {
 
-	private static final String PATH = "/repository/create";
-
+	private static final String PATH = "/user/access";
 	private String baseUrl;
 	private String sessionId;
-	private String name;
+	private String repositoryId;
 
 	public void setBaseUrl(String baseUrl) {
 		this.baseUrl = baseUrl;
@@ -25,21 +24,21 @@ class CreateRepositoryInvocation {
 		this.sessionId = sessionId;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setRepositoryId(String repositoryId) {
+		this.repositoryId = repositoryId;
 	}
 
 	/**
-	 * Creates a new repository with the specified name
+	 * Checks if the specified repository can be access by the specified user
 	 * 
 	 * @throws WebRequestException
-	 *             if a repository with the specified name already exists
+	 *             if repository does not exist or user does not have access
 	 */
 	public void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
-		Valid.checkNotEmpty(name, "repository name");
-		String url = Strings.concat(baseUrl, PATH, "/", name);
+		Valid.checkNotEmpty(repositoryId, "repository id");
+		String url = Strings.concat(baseUrl, PATH, "/", repositoryId);
 		WebRequests.call(Type.POST, url, sessionId);
 	}
 
