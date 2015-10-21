@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.CostCategoryDao;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
@@ -19,6 +20,7 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -48,6 +50,7 @@ class Db {
 	private Map<String, Long> processIds = new HashMap<>();
 	private Map<String, Long> indicatorIds = new HashMap<>();
 	private Map<String, Long> currencyIds = new HashMap<>();
+	private Map<String, Long> costCategoryIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -174,6 +177,14 @@ class Db {
 
 	public Currency put(Currency currency) {
 		return put(new CurrencyDao(db), currency, currencyIds);
+	}
+
+	public CostCategory getCostCategory(String refId) {
+		return get(new CostCategoryDao(db), refId, costCategoryIds);
+	}
+
+	public CostCategory put(CostCategory cc) {
+		return put(new CostCategoryDao(db), cc, costCategoryIds);
 	}
 
 	public Parameter getParameter(String refId) {

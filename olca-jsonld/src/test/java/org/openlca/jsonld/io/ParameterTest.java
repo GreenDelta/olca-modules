@@ -1,4 +1,4 @@
-package org.openlca.jsonld;
+package org.openlca.jsonld.io;
 
 import java.util.UUID;
 
@@ -11,6 +11,8 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
+import org.openlca.jsonld.AbstractZipTest;
+import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
 
