@@ -64,7 +64,7 @@ abstract class DataReader {
 	public List<DatasetDescriptor> getDescriptors() {
 		List<DatasetDescriptor> descriptors = new ArrayList<>();
 		for (ModelType type : ModelType.values())
-			for (String refId : entityStore.getRefIds(type)) {
+			for (String refId : descriptorStore.getRefIds(type)) {
 				DatasetDescriptor descriptor = getDescriptor(type, refId);
 				if (descriptor != null)
 					descriptors.add(descriptor);
