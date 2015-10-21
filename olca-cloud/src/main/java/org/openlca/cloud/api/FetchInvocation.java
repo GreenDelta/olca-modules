@@ -155,12 +155,18 @@ class FetchInvocation {
 		for (DatasetDescriptor descriptor : reader.getDescriptors())
 			if (!reader.hasData(descriptor))
 				delete(createDao(descriptor.getType()), descriptor.getRefId());
+		for (Entry<DatasetDescriptor, JsonObject> entry : mergedData.entrySet())
+			if (entry.getValue() == null)
+				delete(createDao(entry.getKey().getType()), entry.getKey()
+						.getRefId());
 		return reader.getCommitId();
 	}
 
 	private void putMergedData(EntityStore store) {
 		for (Entry<DatasetDescriptor, JsonObject> entry : mergedData.entrySet()) {
 			JsonObject json = entry.getValue();
+			if (json == null)
+				continue;
 			Version version = Version.fromString(json.get("version")
 					.getAsString());
 			version.incUpdate();
