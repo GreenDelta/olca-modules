@@ -14,6 +14,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -120,6 +121,8 @@ public class JsonExport {
 			return Writer.class.cast(new ActorWriter());
 		if (entity instanceof Category)
 			return Writer.class.cast(new CategoryWriter());
+		if (entity instanceof CostCategory)
+			return Writer.class.cast(new CostCategoryWriter());
 		if (entity instanceof FlowProperty)
 			return Writer.class.cast(new FlowPropertyWriter());
 		if (entity instanceof Flow)
