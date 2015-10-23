@@ -129,6 +129,12 @@ class ProcessWriter extends Writer<Process> {
 		obj.addProperty("amount", e.getAmountValue());
 		obj.addProperty("amountFormula", e.getAmountFormula());
 		obj.addProperty("pedigreeUncertainty", e.getPedigreeUncertainty());
+		obj.addProperty("costFormula", e.costFormula);
+		obj.addProperty("costValue", e.costValue);
+		if (e.currency != null)
+			obj.add("currency", createRef(e.currency, refFn));
+		if (e.costCategory != null)
+			obj.add("costCategory", createRef(e.costCategory, refFn));
 		mapExchangeRefs(e, obj);
 	}
 
