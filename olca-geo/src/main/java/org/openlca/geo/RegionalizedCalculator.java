@@ -36,9 +36,8 @@ public class RegionalizedCalculator {
 		this.solver = solver;
 	}
 
-	public RegionalizedResult calculate(RegionalizationSetup setup,
-			FullResult baseResult, FormulaInterpreter interpreter,
-			ImpactTable impactTable) {
+	public RegionalizedResult calculate(RegionalizationSetup setup, FullResult baseResult,
+			FormulaInterpreter interpreter, ImpactTable impactTable) {
 		this.setup = setup;
 		this.interpreter = interpreter;
 		this.impactTable = impactTable;
@@ -59,11 +58,9 @@ public class RegionalizedCalculator {
 		ParameterSet parameterSet = setup.getParameterSet();
 		FullResult regioResult = initRegioResult(baseResult);
 		IMatrix impactResultMatrix = regioResult.singleImpactResults;
-		Map<LongPair, Integer> indices = getIndices(regioResult
-				.productIndex);
+		Map<LongPair, Integer> indices = getIndices(regioResult.productIndex);
 		for (KmlLoadResult result : features) {
-			Map<String, Double> parameters = parameterSet.getFor(result
-					.getLocationId());
+			Map<String, Double> parameters = parameterSet.getFor(result.getLocationId());
 			ImpactMatrix impacts = createImpactMatrix(parameters);
 			IMatrix factors = impacts.getFactorMatrix();
 			for (LongPair processProduct : result.getProcessProducts()) {
@@ -92,6 +89,7 @@ public class RegionalizedCalculator {
 		regioResult.productIndex = baseResult.productIndex;
 		regioResult.flowIndex = baseResult.flowIndex;
 		regioResult.impactIndex = baseResult.impactIndex;
+		regioResult.impactFactors = baseResult.impactFactors;
 		regioResult.totalFlowResults = baseResult.totalFlowResults;
 		regioResult.scalingFactors = baseResult.scalingFactors;
 		regioResult.singleFlowResults = baseResult.singleFlowResults;
