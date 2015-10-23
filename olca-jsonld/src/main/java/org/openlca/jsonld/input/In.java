@@ -36,6 +36,16 @@ final class In {
 			return elem.getAsDouble();
 	}
 
+	static Double getOptionalDouble(JsonObject obj, String property) {
+		if (obj == null || property == null)
+			return null;
+		JsonElement elem = obj.get(property);
+		if (elem == null || !elem.isJsonPrimitive())
+			return null;
+		else
+			return elem.getAsDouble();
+	}
+
 	static boolean getBool(JsonObject obj, String property,
 			boolean defaultVal) {
 		if (obj == null || property == null)
