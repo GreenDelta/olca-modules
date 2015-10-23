@@ -35,11 +35,12 @@ abstract class BaseImport<T extends RootEntity> {
 			JsonObject json = conf.store.get(modelType, refId);
 			if (!doImport(model, json))
 				return model;
+			conf.visited(modelType, refId);
 			long id = model != null ? model.getId() : 0L;
 			importBinFiles();
 			return map(json, id);
 		} catch (Exception e) {
-			log.error("failed to import actor " + refId, e);
+			log.error("failed to import " + modelType.name() + " " + refId, e);
 			return null;
 		}
 	}
@@ -47,6 +48,10 @@ abstract class BaseImport<T extends RootEntity> {
 	private boolean doImport(T model, JsonObject json) {
 		if (model == null)
 			return true;
+		if (json == null)
+			return false;
+		if (conf.updateMode == UpdateMode.ALWAYS)
+			return !conf.hasVisited(modelType, refId);
 		long jsonVersion = In.getVersion(json);
 		long jsonDate = In.getLastChange(json);
 		if (jsonVersion < model.getVersion())
@@ -109,8 +114,8 @@ abstract class BaseImport<T extends RootEntity> {
 				Files.write(file.toPath(), data, StandardOpenOption.CREATE);
 			}
 		} catch (Exception e) {
-			log.error("failed to import bin files for "
-					+ modelType + ":" + refId, e);
+			log.error("failed to import bin files for " + modelType + ":"
+					+ refId, e);
 		}
 	}
 

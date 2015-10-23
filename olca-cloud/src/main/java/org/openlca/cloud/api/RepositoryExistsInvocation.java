@@ -6,13 +6,11 @@ import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 
-/**
- * Invokes a web service call to create a new repository
- */
-class CreateRepositoryInvocation {
+import com.sun.jersey.api.client.ClientResponse;
 
-	private static final String PATH = "/repository/create";
+class RepositoryExistsInvocation {
 
+	private static final String PATH = "/repository/exists";
 	private String baseUrl;
 	private String sessionId;
 	private String name;
@@ -30,17 +28,15 @@ class CreateRepositoryInvocation {
 	}
 
 	/**
-	 * Creates a new repository with the specified name
-	 * 
-	 * @throws WebRequestException
-	 *             if a repository with the specified name already exists
+	 * Checks if the specified repository exists for the given user
 	 */
-	public void execute() throws WebRequestException {
+	public boolean execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(name, "repository name");
 		String url = Strings.concat(baseUrl, PATH, "/", name);
-		WebRequests.call(Type.POST, url, sessionId);
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
+		return Boolean.parseBoolean(response.getEntity(String.class));
 	}
 
 }

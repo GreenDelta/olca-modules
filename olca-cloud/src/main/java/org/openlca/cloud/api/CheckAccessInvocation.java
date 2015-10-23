@@ -1,25 +1,17 @@
 package org.openlca.cloud.api;
 
-import java.util.List;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 
-import com.sun.jersey.api.client.ClientResponse;
-
 /**
- * Invokes a web service call to retrieve the list of users that have access to
- * the specified repository
+ * Invokes a webservice call to check access to the specified repository
  */
-class RepositoryAccessListInvocation {
+class CheckAccessInvocation {
 
-	private static final String PATH = "/repository/shared";
+	private static final String PATH = "/user/access";
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryId;
@@ -37,21 +29,17 @@ class RepositoryAccessListInvocation {
 	}
 
 	/**
-	 * Loads the list of users that have access to the specified repository
+	 * Checks if the specified repository can be access by the specified user
 	 * 
-	 * @return list of users with access
 	 * @throws WebRequestException
-	 *             if the specified repository did not exist
+	 *             if repository does not exist or user does not have access
 	 */
-	public List<String> execute() throws WebRequestException {
+	public void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		String url = Strings.concat(baseUrl, PATH, "/", repositoryId);
-		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
-		return new Gson().fromJson(response.getEntity(String.class),
-				new TypeToken<List<String>>() {
-				}.getType());
+		WebRequests.call(Type.GET, url, sessionId);
 	}
 
 }

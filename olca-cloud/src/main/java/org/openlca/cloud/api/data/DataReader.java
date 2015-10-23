@@ -12,12 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openlca.cloud.model.data.DatasetDescriptor;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.ZipStore;
 
 import com.google.gson.Gson;
-import org.openlca.cloud.model.data.DatasetDescriptor;
+import com.google.gson.JsonObject;
 
 abstract class DataReader {
 
@@ -52,8 +53,11 @@ abstract class DataReader {
 	}
 
 	public String getData(DatasetDescriptor descriptor) {
-		return new Gson().toJson(entityStore.get(descriptor.getType(),
-				descriptor.getRefId()));
+		JsonObject element = entityStore.get(descriptor.getType(),
+				descriptor.getRefId());
+		if (element == null)
+			return null;
+		return new Gson().toJson(element);
 	}
 
 	public boolean hasData(DatasetDescriptor descriptor) {
@@ -64,7 +68,7 @@ abstract class DataReader {
 	public List<DatasetDescriptor> getDescriptors() {
 		List<DatasetDescriptor> descriptors = new ArrayList<>();
 		for (ModelType type : ModelType.values())
-			for (String refId : entityStore.getRefIds(type)) {
+			for (String refId : descriptorStore.getRefIds(type)) {
 				DatasetDescriptor descriptor = getDescriptor(type, refId);
 				if (descriptor != null)
 					descriptors.add(descriptor);

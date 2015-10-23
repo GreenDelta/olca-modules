@@ -4,10 +4,13 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.openlca.cloud.util.Strings;
+import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
+
 import com.sun.jersey.api.client.ClientResponse;
 
 class UserAccessListInvocation {
@@ -31,6 +34,8 @@ class UserAccessListInvocation {
 	 * @throws WebRequestException
 	 */
 	public List<String> execute() throws WebRequestException {
+		Valid.checkNotEmpty(baseUrl, "base url");
+		Valid.checkNotEmpty(sessionId, "session id");
 		String url = Strings.concat(baseUrl, PATH);
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		return new Gson().fromJson(response.getEntity(String.class),
