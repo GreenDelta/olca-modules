@@ -52,7 +52,7 @@ public class RepositoryClient {
 		});
 	}
 
-	public void login() throws WebRequestException {
+	private void login() throws WebRequestException {
 		LoginInvocation invocation = new LoginInvocation();
 		invocation.setBaseUrl(config.getBaseUrl());
 		invocation.setUsername(config.getUsername());
@@ -60,7 +60,7 @@ public class RepositoryClient {
 		sessionId = invocation.execute();
 	}
 
-	public void clear() throws WebRequestException {
+	public void logout() throws WebRequestException {
 		if (sessionId == null)
 			return;
 		LogoutInvocation invocation = new LogoutInvocation();
@@ -70,8 +70,8 @@ public class RepositoryClient {
 			invocation.execute();
 		} catch (WebRequestException e) {
 			if (e.getErrorCode() != Status.UNAUTHORIZED.getStatusCode())
-				throw e;
-			// else, user was not logged anymore in due to session timeout
+				if (e.getErrorCode() != Status.CONFLICT.getStatusCode())
+					throw e;
 		}
 		sessionId = null;
 	}
@@ -105,7 +105,7 @@ public class RepositoryClient {
 			return invocation.execute();
 		});
 	}
-	
+
 	public void shareRepositoryWith(String repositoryName, String shareWithUser)
 			throws WebRequestException {
 		executeLoggedIn(() -> {
