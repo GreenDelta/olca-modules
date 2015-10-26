@@ -104,6 +104,14 @@ public class RepositoryConfig {
 		return repositoryId;
 	}
 
+	public String getRepositoryOwner() {
+		return repositoryId.split("/")[0];
+	}
+
+	public String getRepositoryName() {
+		return repositoryId.split("/")[1];
+	}
+
 	void setLatestCommitId(String latestCommitId) {
 		this.latestCommitId = latestCommitId;
 		save();
