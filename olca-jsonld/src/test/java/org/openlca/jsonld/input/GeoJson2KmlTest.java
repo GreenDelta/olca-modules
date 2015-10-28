@@ -66,6 +66,25 @@ public class GeoJson2KmlTest {
 				"100.2,0.2");
 	}
 
+	@Test
+	public void testGeometryCollection() {
+		String json = "{ \"type\": \"GeometryCollection\","
+				+ "  \"geometries\": ["
+				+ "    { \"type\": \"Point\","
+				+ "      \"coordinates\": [100.0, 0.0]"
+				+ "    },"
+				+ "    { \"type\": \"LineString\","
+				+ "      \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ]"
+				+ "    }"
+				+ "  ]"
+				+ "}";
+		JsonObject obj = new Gson().fromJson(json, JsonObject.class);
+		String kml = GeoJson2Kml.convert(obj);
+		print(obj, kml);
+		check(kml, "MultiGeometry", "Point", " 100.0,0.0", "LineString",
+				"102.0,1.0");
+	}
+
 	private void check(String kml, String... parts) {
 		String any = "(.*)";
 		String regex = any;

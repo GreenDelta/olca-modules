@@ -55,12 +55,9 @@ class GeoJson2Kml {
 		kml.setDefaultNamespace("http://earth.google.com/kml/2.0");
 		startElem("kml");
 		kml.writeNamespace("", "http://earth.google.com/kml/2.0");
-		startElem("Folder");
-		startElem("Placemark");
+		startElems("Folder", "Placemark");
 		writeGeometry(geoJson);
-		endElem();
-		endElem();
-		endElem();
+		endElems(3);
 		kml.writeEndDocument();
 	}
 
@@ -79,6 +76,9 @@ class GeoJson2Kml {
 		case "Polygon":
 			writePolygon(geoJson);
 			break;
+		case "GeometryCollection":
+			writeGeometryCollection(geoJson);
+			break;
 		}
 
 	}
@@ -87,8 +87,7 @@ class GeoJson2Kml {
 		String coordinate = getCoordinate(geoJson.get("coordinates"));
 		if (coordinate == null)
 			return;
-		startElem("Point");
-		startElem("coordinates");
+		startElems("Point", "coordinates");
 		writeCoordinate(coordinate);
 		endElem();
 		endElem();
@@ -99,12 +98,10 @@ class GeoJson2Kml {
 		List<String> coordinates = getCoordinates(elem);
 		if (coordinates.isEmpty())
 			return;
-		startElem("LineString");
-		startElem("coordinates");
+		startElems("LineString", "coordinates");
 		for (String coordinate : coordinates)
 			writeCoordinate(coordinate);
-		endElem();
-		endElem();
+		endElems(2);
 	}
 
 	private void writePolygon(JsonObject geoJson) throws Exception {
@@ -118,24 +115,29 @@ class GeoJson2Kml {
 		if (outerRing.isEmpty())
 			return;
 		startElem("Polygon");
-		startElem("outerBoundaryIs");
-		startElem("LinearRing");
-		startElem("coordinates");
+		startElems("outerBoundaryIs", "LinearRing", "coordinates");
 		for (String coordinate : outerRing)
 			writeCoordinate(coordinate);
-		endElem();
-		endElem();
-		endElem();
+		endElems(3);
 		if (array.size() > 1) {
 			List<String> innerRing = getCoordinates(array.get(1));
-			startElem("innerBoundaryIs");
-			startElem("LinearRing");
-			startElem("coordinates");
+			startElems("innerBoundaryIs", "LinearRing", "coordinates");
 			for (String coordinate : innerRing)
 				writeCoordinate(coordinate);
-			endElem();
-			endElem();
-			endElem();
+			endElems(3);
+		}
+		endElem();
+	}
+
+	private void writeGeometryCollection(JsonObject geoJson) throws Exception {
+		JsonElement elem = geoJson.get("geometries");
+		if (elem == null || !elem.isJsonArray())
+			return;
+		startElem("MultiGeometry");
+		for (JsonElement geom : elem.getAsJsonArray()) {
+			if (!geom.isJsonObject())
+				continue;
+			writeGeometry(geom.getAsJsonObject());
 		}
 		endElem();
 	}
@@ -180,12 +182,22 @@ class GeoJson2Kml {
 		return s.toString();
 	}
 
+	private void startElems(String... names) throws Exception {
+		for (String name : names)
+			startElem(name);
+	}
+
 	private void startElem(String name) throws Exception {
 		kml.writeCharacters("\n");
 		for (int i = 0; i < indent; i++)
 			kml.writeCharacters("  ");
 		kml.writeStartElement(name);
 		indent++;
+	}
+
+	private void endElems(int count) throws Exception {
+		for (int i = 0; i < count; i++)
+			endElem();
 	}
 
 	private void endElem() throws Exception {
