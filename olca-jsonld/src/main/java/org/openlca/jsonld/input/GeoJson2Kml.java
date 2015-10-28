@@ -8,6 +8,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -72,10 +73,36 @@ class GeoJson2Kml {
 	}
 
 	private void writePoint(JsonObject geoJson) throws Exception {
+		String coordinate = getCoordinate(geoJson.get("coordinates"));
+		if (coordinate == null)
+			return;
 		startElem("Point");
 		startElem("coordinates");
+		kml.writeCharacters("\n");
+		for (int i = 0; i < indent; i++)
+			kml.writeCharacters("  ");
+		kml.writeCharacters(coordinate);
 		endElem();
 		endElem();
+	}
+
+	private String getCoordinate(JsonElement elem) {
+		if (elem == null || !elem.isJsonArray())
+			return null;
+		JsonArray point = elem.getAsJsonArray();
+		StringBuilder s = new StringBuilder();
+		boolean first = true;
+		for (JsonElement num : point) {
+			if (!num.isJsonPrimitive())
+				return null;
+			if (!first)
+				s.append(',');
+			else
+				first = false;
+			double d = num.getAsDouble();
+			s.append(d);
+		}
+		return s.toString();
 	}
 
 	private void startElem(String name) throws Exception {
