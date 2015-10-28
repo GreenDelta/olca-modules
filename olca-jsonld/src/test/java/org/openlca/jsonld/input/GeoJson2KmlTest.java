@@ -38,6 +38,34 @@ public class GeoJson2KmlTest {
 		check(kml, "Point", "coordinates", "100.1,50.1,10.1");
 	}
 
+	@Test
+	public void testLineString() {
+		String json = "{ "
+				+ "  \"type\": \"LineString\","
+				+ "  \"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]"
+				+ "}";
+		JsonObject obj = new Gson().fromJson(json, JsonObject.class);
+		String kml = GeoJson2Kml.convert(obj);
+		print(obj, kml);
+		check(kml, "LineString", "coordinates", "100.0,0.0", "101.0,1.0");
+	}
+
+	@Test
+	public void testPolygon() {
+		String json = "{ \"type\": \"Polygon\","
+				+ "  \"coordinates\": ["
+				+ "      [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],"
+				+ "      [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]"
+				+ "  ]"
+				+ "}";
+		JsonObject obj = new Gson().fromJson(json, JsonObject.class);
+		String kml = GeoJson2Kml.convert(obj);
+		print(obj, kml);
+		check(kml, "Polygon", "outerBoundaryIs", "LinearRing", "coordinates",
+				"100.0,0.0", "innerBoundaryIs", "LinearRing", "coordinates",
+				"100.2,0.2");
+	}
+
 	private void check(String kml, String... parts) {
 		String any = "(.*)";
 		String regex = any;

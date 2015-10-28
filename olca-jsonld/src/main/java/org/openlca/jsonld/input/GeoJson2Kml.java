@@ -1,8 +1,12 @@
 package org.openlca.jsonld.input;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.slf4j.Logger;
@@ -69,7 +73,14 @@ class GeoJson2Kml {
 		case "Point":
 			writePoint(geoJson);
 			break;
+		case "LineString":
+			writeLineString(geoJson);
+			break;
+		case "Polygon":
+			writePolygon(geoJson);
+			break;
 		}
+
 	}
 
 	private void writePoint(JsonObject geoJson) throws Exception {
@@ -78,12 +89,76 @@ class GeoJson2Kml {
 			return;
 		startElem("Point");
 		startElem("coordinates");
+		writeCoordinate(coordinate);
+		endElem();
+		endElem();
+	}
+
+	private void writeLineString(JsonObject geoJson) throws Exception {
+		JsonElement elem = geoJson.get("coordinates");
+		List<String> coordinates = getCoordinates(elem);
+		if (coordinates.isEmpty())
+			return;
+		startElem("LineString");
+		startElem("coordinates");
+		for (String coordinate : coordinates)
+			writeCoordinate(coordinate);
+		endElem();
+		endElem();
+	}
+
+	private void writePolygon(JsonObject geoJson) throws Exception {
+		JsonElement elem = geoJson.get("coordinates");
+		if (elem == null || !elem.isJsonArray())
+			return;
+		JsonArray array = elem.getAsJsonArray();
+		if (array.size() == 0)
+			return;
+		List<String> outerRing = getCoordinates(array.get(0));
+		if (outerRing.isEmpty())
+			return;
+		startElem("Polygon");
+		startElem("outerBoundaryIs");
+		startElem("LinearRing");
+		startElem("coordinates");
+		for (String coordinate : outerRing)
+			writeCoordinate(coordinate);
+		endElem();
+		endElem();
+		endElem();
+		if (array.size() > 1) {
+			List<String> innerRing = getCoordinates(array.get(1));
+			startElem("innerBoundaryIs");
+			startElem("LinearRing");
+			startElem("coordinates");
+			for (String coordinate : innerRing)
+				writeCoordinate(coordinate);
+			endElem();
+			endElem();
+			endElem();
+		}
+		endElem();
+	}
+
+	private void writeCoordinate(String coordinate) throws XMLStreamException {
 		kml.writeCharacters("\n");
 		for (int i = 0; i < indent; i++)
 			kml.writeCharacters("  ");
 		kml.writeCharacters(coordinate);
-		endElem();
-		endElem();
+	}
+
+	private List<String> getCoordinates(JsonElement elem) {
+		if (elem == null || !elem.isJsonArray())
+			return Collections.emptyList();
+		JsonArray array = elem.getAsJsonArray();
+		List<String> coordinates = new ArrayList<>();
+		for (JsonElement ce : array) {
+			String coordinate = getCoordinate(ce);
+			if (coordinate == null)
+				return Collections.emptyList();
+			coordinates.add(coordinate);
+		}
+		return coordinates;
 	}
 
 	private String getCoordinate(JsonElement elem) {
