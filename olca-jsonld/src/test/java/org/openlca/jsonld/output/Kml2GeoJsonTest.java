@@ -7,7 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class Kml2JsonTest {
+public class Kml2GeoJsonTest {
 
 	private final boolean DEBUG = false;
 
@@ -25,7 +25,7 @@ public class Kml2JsonTest {
 				+ "    </Placemark>"
 				+ "  </Folder>"
 				+ "</kml>";
-		JsonObject obj = Kml2Json.read(kml);
+		JsonObject obj = Kml2GeoJson.convert(kml);
 		Assert.assertEquals("Point", obj.get("type").getAsString());
 		JsonArray coordinates = obj.get("coordinates").getAsJsonArray();
 		Assert.assertEquals(35.85, coordinates.get(0).getAsDouble(), 1e-8);
@@ -48,7 +48,7 @@ public class Kml2JsonTest {
 				+ "    </Placemark>"
 				+ "  </Folder>"
 				+ "</kml>";
-		JsonObject obj = Kml2Json.read(kml);
+		JsonObject obj = Kml2GeoJson.convert(kml);
 		Assert.assertEquals("LineString", obj.get("type").getAsString());
 		JsonArray coordinates = obj.get("coordinates").getAsJsonArray();
 		JsonArray lastPoint = coordinates.get(4).getAsJsonArray();
@@ -82,7 +82,7 @@ public class Kml2JsonTest {
 				+ "    </Placemark>"
 				+ "  </Folder>"
 				+ "</kml>";
-		JsonObject obj = Kml2Json.read(kml);
+		JsonObject obj = Kml2GeoJson.convert(kml);
 		Assert.assertEquals("Polygon", obj.get("type").getAsString());
 		JsonArray coordinates = obj.get("coordinates").getAsJsonArray();
 		JsonArray outerRing = coordinates.get(0).getAsJsonArray();
@@ -115,7 +115,7 @@ public class Kml2JsonTest {
 				+ "  </MultiGeometry>"
 				+ "</Placemark>"
 				+ "</kml>";
-		JsonObject obj = Kml2Json.read(kml);
+		JsonObject obj = Kml2GeoJson.convert(kml);
 		Assert.assertEquals("GeometryCollection", obj.get("type").getAsString());
 		JsonArray geometries = obj.get("geometries").getAsJsonArray();
 		JsonObject second = geometries.get(1).getAsJsonObject();

@@ -24,18 +24,18 @@ import com.google.gson.JsonPrimitive;
  * @see https://developers.google.com/kml/documentation/kmlreference
  * @see http://geojson.org/geojson-spec.html
  */
-class Kml2Json {
+class Kml2GeoJson {
 
-	private Kml2Json() {
+	private Kml2GeoJson() {
 	}
 
-	static JsonObject read(String kml) {
+	static JsonObject convert(String kml) {
 		if (kml == null)
 			return null;
 		try {
-			return new Kml2Json().parse(kml);
+			return new Kml2GeoJson().parse(kml);
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Kml2Json.class);
+			Logger log = LoggerFactory.getLogger(Kml2GeoJson.class);
 			log.error("failed to parse kml " + Strings.cut(kml, 75), e);
 			return null;
 		}

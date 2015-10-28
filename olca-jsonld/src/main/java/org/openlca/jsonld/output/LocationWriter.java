@@ -30,7 +30,7 @@ class LocationWriter extends Writer<Location> {
 		try {
 			byte[] bin = BinUtils.unzip(location.getKmz());
 			String kml = new String(bin, "utf-8");
-			JsonObject geoJson = Kml2Json.read(kml);
+			JsonObject geoJson = Kml2GeoJson.convert(kml);
 			obj.add("geometry", geoJson);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
