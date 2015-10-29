@@ -24,18 +24,18 @@ import com.google.gson.JsonPrimitive;
  * @see https://developers.google.com/kml/documentation/kmlreference
  * @see http://geojson.org/geojson-spec.html
  */
-class Kml2Json {
+class Kml2GeoJson {
 
-	private Kml2Json() {
+	private Kml2GeoJson() {
 	}
 
-	static JsonObject read(String kml) {
+	static JsonObject convert(String kml) {
 		if (kml == null)
 			return null;
 		try {
-			return new Kml2Json().parse(kml);
+			return new Kml2GeoJson().parse(kml);
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Kml2Json.class);
+			Logger log = LoggerFactory.getLogger(Kml2GeoJson.class);
 			log.error("failed to parse kml " + Strings.cut(kml, 75), e);
 			return null;
 		}
@@ -48,14 +48,14 @@ class Kml2Json {
 			while (events.hasNext()) {
 				XMLEvent event = events.nextEvent();
 				if (isStartElement(event, "Placemark")) {
-					return readPlaceMark(events);
+					return readGeometry(events);
 				}
 			}
 		}
 		return null;
 	}
 
-	private JsonObject readPlaceMark(XMLEventReader events) throws Exception {
+	private JsonObject readGeometry(XMLEventReader events) throws Exception {
 		while (events.hasNext()) {
 			XMLEvent event = events.nextEvent();
 			if (isStartElement(event, "Point"))
@@ -66,6 +66,8 @@ class Kml2Json {
 				return readLineString(events);
 			if (isStartElement(event, "Polygon"))
 				return readPolygon(events);
+			if (isStartElement(event, "MultiGeometry"))
+				return readMultiGeometry(events);
 		}
 		return null;
 	}
@@ -132,10 +134,30 @@ class Kml2Json {
 					outerBoundary = readLineString(events);
 				else if (boundaryType == 2)
 					innerBoundary = readLineString(events);
+				boundaryType = 0;
 			}
 		}
-
+		JsonArray coordinates = new JsonArray();
+		polygon.add("coordinates", coordinates);
+		if (outerBoundary != null) {
+			coordinates.add(outerBoundary.get("coordinates"));
+			if (innerBoundary != null) {
+				coordinates.add(innerBoundary.get("coordinates"));
+			}
+		}
 		return polygon;
+	}
+
+	private JsonObject readMultiGeometry(XMLEventReader events) throws Exception {
+		JsonObject obj = new JsonObject();
+		obj.addProperty("type", "GeometryCollection");
+		JsonArray geometries = new JsonArray();
+		obj.add("geometries", geometries);
+		JsonObject geo;
+		while ((geo = readGeometry(events)) != null) {
+			geometries.add(geo);
+		}
+		return obj;
 	}
 
 	private boolean isStartElement(XMLEvent event, String name) {

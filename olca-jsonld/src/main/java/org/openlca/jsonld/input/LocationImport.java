@@ -2,6 +2,9 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.util.BinUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -26,6 +29,21 @@ class LocationImport extends BaseImport<Location> {
 		loc.setLatitude(In.getDouble(json, "latitude", 0));
 		loc.setLongitude(In.getDouble(json, "longitude", 0));
 		loc = conf.db.put(loc);
+		addGeometry(json, loc);
 		return loc;
+	}
+
+	private void addGeometry(JsonObject json, Location loc) {
+		try {
+			JsonObject geoJson = In.getObject(json, "geometry");
+			if (geoJson == null)
+				return;
+			String kml = GeoJson2Kml.convert(geoJson);
+			byte[] kmz = BinUtils.zip(kml.getBytes("utf-8"));
+			loc.setKmz(kmz);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.error("failed to convert GeoJson", e);
+		}
 	}
 }

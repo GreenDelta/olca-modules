@@ -7,17 +7,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class Kml2JsonTest {
+public class Kml2GeoJsonTest {
 
-	private final boolean DEBUG = true;
+	private final boolean DEBUG = false;
 
 	@Test
 	public void testPoint() {
 		String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 				+ "<kml xmlns=\"http://earth.google.com/kml/2.0\">"
 				+ "  <Folder>"
-				+ "    <name>OpenLayers export</name>"
-				+ "    <description>Exported on Wed Sep 30 2015 11:56:19 GMT+0200</description>"
 				+ "    <Placemark>"
 				+ "      <name>OpenLayers_Feature_Vector_198</name>"
 				+ "      <description>No description available</description>"
@@ -27,7 +25,7 @@ public class Kml2JsonTest {
 				+ "    </Placemark>"
 				+ "  </Folder>"
 				+ "</kml>";
-		JsonObject obj = Kml2Json.read(kml);
+		JsonObject obj = Kml2GeoJson.convert(kml);
 		Assert.assertEquals("Point", obj.get("type").getAsString());
 		JsonArray coordinates = obj.get("coordinates").getAsJsonArray();
 		Assert.assertEquals(35.85, coordinates.get(0).getAsDouble(), 1e-8);
@@ -40,7 +38,6 @@ public class Kml2JsonTest {
 		String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 				+ "<kml xmlns=\"http://earth.google.com/kml/2.0\">"
 				+ "  <Folder>"
-				+ "    <name>OpenLayers export</name>"
 				+ "    <Placemark>"
 				+ "      <name>OpenLayers_Feature_Vector_204</name>"
 				+ "      <description>No description available</description>"
@@ -51,7 +48,7 @@ public class Kml2JsonTest {
 				+ "    </Placemark>"
 				+ "  </Folder>"
 				+ "</kml>";
-		JsonObject obj = Kml2Json.read(kml);
+		JsonObject obj = Kml2GeoJson.convert(kml);
 		Assert.assertEquals("LineString", obj.get("type").getAsString());
 		JsonArray coordinates = obj.get("coordinates").getAsJsonArray();
 		JsonArray lastPoint = coordinates.get(4).getAsJsonArray();
@@ -65,8 +62,6 @@ public class Kml2JsonTest {
 		String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 				+ "<kml xmlns=\"http://earth.google.com/kml/2.0\">"
 				+ "  <Folder>"
-				+ "    <name>OpenLayers export</name>"
-				+ "    <description>Exported on Wed Sep 30 2015 15:07:47 GMT+0200</description>"
 				+ "    <Placemark>"
 				+ "      <name>OpenLayers_Feature_Vector_185</name>"
 				+ "      <description>No description available</description>"
@@ -74,12 +69,12 @@ public class Kml2JsonTest {
 				+ "        <outerBoundaryIs>"
 				+ "          <LinearRing>"
 				+ "            <coordinates>"
-				+ "                35.8435231447225,55.87565691696789 "
-				+ "                35.8602601289755,55.8719973275629 "
-				+ "                35.85287868976608,55.86756683681068 "
-				+ "                35.83545506000593,55.86881898325944 "
-				+ "                35.834940075875124,55.8732974843514 "
-				+ "                35.8435231447225,55.87565691696789"
+				+ "                35.8435,55.8756"
+				+ "                35.8602,55.8719"
+				+ "                35.8528,55.8675"
+				+ "                35.8354,55.8688"
+				+ "                35.8349,55.8732"
+				+ "                35.8435,55.8756"
 				+ "            </coordinates>"
 				+ "          </LinearRing>"
 				+ "        </outerBoundaryIs>"
@@ -87,15 +82,49 @@ public class Kml2JsonTest {
 				+ "    </Placemark>"
 				+ "  </Folder>"
 				+ "</kml>";
-		JsonObject obj = Kml2Json.read(kml);
+		JsonObject obj = Kml2GeoJson.convert(kml);
 		Assert.assertEquals("Polygon", obj.get("type").getAsString());
-		// JsonArray coordinates = obj.get("coordinates").getAsJsonArray();
-		// JsonArray thirdPoint =
-		// coordinates.get(0).getAsJsonArray().get(0).getAsJsonArray();
-		// Assert.assertEquals(35.83, lastPoint.get(0).getAsDouble(), 1e-8);
-		// Assert.assertEquals(55.86, lastPoint.get(1).getAsDouble(), 1e-8);
+		JsonArray coordinates = obj.get("coordinates").getAsJsonArray();
+		JsonArray outerRing = coordinates.get(0).getAsJsonArray();
+		JsonArray thirdPoint = outerRing.get(2).getAsJsonArray();
+		Assert.assertEquals(35.8528, thirdPoint.get(0).getAsDouble(), 1e-8);
+		Assert.assertEquals(55.8675, thirdPoint.get(1).getAsDouble(), 1e-8);
 		print(kml, obj);
+	}
 
+	@Test
+	public void testMultiGreometry() {
+		String kml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+				+ "<kml xmlns=\"http://earth.google.com/kml/2.0\">"
+				+ "<Placemark>"
+				+ "  <name>SF Marina Harbor Master</name>"
+				+ "  <visibility>0</visibility>"
+				+ "  <MultiGeometry>"
+				+ "    <LineString>"
+				+ "      <coordinates>"
+				+ "        -122.4425,37.8066,0"
+				+ "        -122.4428,37.8066,0"
+				+ "      </coordinates>"
+				+ "    </LineString>"
+				+ "    <LineString>"
+				+ "      <coordinates>"
+				+ "        -122.4425,37.8066,0"
+				+ "        -122.4428,37.8065,0"
+				+ "      </coordinates>"
+				+ "    </LineString>"
+				+ "  </MultiGeometry>"
+				+ "</Placemark>"
+				+ "</kml>";
+		JsonObject obj = Kml2GeoJson.convert(kml);
+		Assert.assertEquals("GeometryCollection", obj.get("type").getAsString());
+		JsonArray geometries = obj.get("geometries").getAsJsonArray();
+		JsonObject second = geometries.get(1).getAsJsonObject();
+		Assert.assertEquals("LineString", second.get("type").getAsString());
+		JsonArray point = second.get("coordinates").getAsJsonArray().get(1)
+				.getAsJsonArray();
+		Assert.assertEquals(-122.4428, point.get(0).getAsDouble(), 1e-8);
+		Assert.assertEquals(37.8065, point.get(1).getAsDouble(), 1e-8);
+		print(kml, obj);
 	}
 
 	private void print(String kml, JsonObject obj) {
