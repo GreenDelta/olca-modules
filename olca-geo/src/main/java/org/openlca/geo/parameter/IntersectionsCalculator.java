@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.precision.GeometryPrecisionReducer;
@@ -53,7 +54,10 @@ class IntersectionsCalculator {
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
 				Geometry geometry = (Geometry) shape.getDefaultGeometry();
-				if (geometry.contains(feature.getGeometry()))
+				if (geometry instanceof Point) {
+					if (geometry.equalsExact(feature.getGeometry(), 1e-6))
+						return Collections.singletonMap(shape.getID(), 1d);
+				} else if (geometry.contains(feature.getGeometry()))
 					return Collections.singletonMap(shape.getID(), 1d);
 			}
 			return Collections.emptyMap();
