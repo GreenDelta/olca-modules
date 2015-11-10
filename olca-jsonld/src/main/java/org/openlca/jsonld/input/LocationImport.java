@@ -28,8 +28,8 @@ class LocationImport extends BaseImport<Location> {
 		loc.setCode(In.getString(json, "code"));
 		loc.setLatitude(In.getDouble(json, "latitude", 0));
 		loc.setLongitude(In.getDouble(json, "longitude", 0));
-		loc = conf.db.put(loc);
 		addGeometry(json, loc);
+		loc = conf.db.put(loc);
 		return loc;
 	}
 
