@@ -16,7 +16,7 @@ class FlowPropertyWriter extends Writer<FlowProperty> {
 		if (obj == null)
 			return null;
 		mapType(prop, obj);
-		JsonObject unitGroup = createRef(prop.getUnitGroup(), refFn);
+		JsonObject unitGroup = References.create(prop.getUnitGroup(), refFn);
 		obj.add("unitGroup", unitGroup);
 		return obj;
 	}

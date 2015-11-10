@@ -19,7 +19,7 @@ class Writer<T extends RootEntity> {
 		if (entity instanceof CategorizedEntity) {
 			CategorizedEntity ce = (CategorizedEntity) entity;
 			if (ce.getCategory() != null) {
-				JsonObject catRef = createRef(ce.getCategory(), refHandler);
+				JsonObject catRef = References.create(ce.getCategory(), refHandler);
 				obj.add("category", catRef);
 			}
 		}
@@ -43,25 +43,6 @@ class Writer<T extends RootEntity> {
 		context.add("processType", vocabType);
 		object.add("@context", context);
 		return object;
-	}
-
-	protected JsonObject createRef(RootEntity ref) {
-		if (ref == null)
-			return null;
-		JsonObject obj = new JsonObject();
-		String type = ref.getClass().getSimpleName();
-		obj.addProperty("@type", type);
-		obj.addProperty("@id", ref.getRefId());
-		obj.addProperty("name", ref.getName());
-		return obj;
-	}
-
-	protected JsonObject createRef(RootEntity ref, Consumer<RootEntity> handler) {
-		JsonObject obj = createRef(ref);
-		if (obj == null)
-			return null;
-		handler.accept(ref);
-		return obj;
 	}
 
 	protected void addBasicAttributes(RootEntity entity, JsonObject obj) {

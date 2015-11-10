@@ -28,7 +28,7 @@ class FlowWriter extends Writer<Flow> {
 			obj.addProperty("flowType", flow.getFlowType().name());
 		obj.addProperty("cas", flow.getCasNumber());
 		obj.addProperty("formula", flow.getFormula());
-		JsonObject locationRef = createRef(flow.getLocation(), refFn);
+		JsonObject locationRef = References.create(flow.getLocation(), refFn);
 		obj.add("location", locationRef);
 		addFactors(flow, obj, refFn);
 	}
@@ -40,7 +40,7 @@ class FlowWriter extends Writer<Flow> {
 			facObj.addProperty("@type", "FlowPropertyFactor");
 			if (Objects.equals(fac, flow.getReferenceFactor()))
 				facObj.addProperty("referenceFlowProperty", true);
-			JsonObject propRef = createRef(fac.getFlowProperty(), refFn);
+			JsonObject propRef = References.create(fac.getFlowProperty(), refFn);
 			facObj.add("flowProperty", propRef);
 			facObj.addProperty("conversionFactor", fac.getConversionFactor());
 			factorArray.add(facObj);

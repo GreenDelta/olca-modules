@@ -20,7 +20,7 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		mapParameters(method, obj);
 		JsonArray array = new JsonArray();
 		for (ImpactCategory category : method.getImpactCategories()) {
-			JsonObject ref = createRef(category, refHandler);
+			JsonObject ref = References.create(category, refHandler);
 			array.add(ref);
 		}
 		obj.add("impactCategories", array);

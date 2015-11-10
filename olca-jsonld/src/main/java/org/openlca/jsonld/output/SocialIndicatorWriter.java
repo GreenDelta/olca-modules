@@ -18,7 +18,7 @@ class SocialIndicatorWriter extends Writer<SocialIndicator> {
 		if (obj == null)
 			return null;
 		obj.addProperty("activityVariable", i.activityVariable);
-		JsonObject qObj = createRef(i.activityQuantity, refFn);
+		JsonObject qObj = References.create(i.activityQuantity, refFn);
 		obj.add("activityQuantity", qObj);
 		addActivityUnit(i, obj);
 		obj.addProperty("unitOfMeasurement", i.unitOfMeasurement);

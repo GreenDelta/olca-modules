@@ -33,11 +33,11 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 		obj.addProperty("@type", "ImpactFactor");
 		obj.addProperty("value", factor.getValue());
 		obj.addProperty("formula", factor.getFormula());
-		obj.add("flow", createRef(factor.getFlow(), refFn));
-		obj.add("unit", createRef(factor.getUnit()));
+		obj.add("flow", References.create(factor.getFlow(), refFn));
+		obj.add("unit", References.create(factor.getUnit()));
 		FlowPropertyFactor fp = factor.getFlowPropertyFactor();
 		if (fp != null) {
-			JsonObject ref = createRef(fp.getFlowProperty(), refFn);
+			JsonObject ref = References.create(fp.getFlowProperty(), refFn);
 			obj.add("flowProperty", ref);
 		}
 		Uncertainty uncertainty = factor.getUncertainty();

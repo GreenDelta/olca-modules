@@ -5,14 +5,12 @@ import java.util.function.Consumer;
 
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Uncertainty;
 import org.openlca.jsonld.Dates;
 
 import com.google.gson.JsonArray;
@@ -33,9 +31,9 @@ class ProcessWriter extends Writer<Process> {
 		ProcessType type = process.getProcessType();
 		if (type != null)
 			obj.addProperty("processTyp", type.name());
-		obj.addProperty("defaultAllocationMethod", getAllocationType(
-				process.getDefaultAllocationMethod()));
-		obj.add("location", createRef(process.getLocation(), refFn));
+		obj.addProperty("defaultAllocationMethod",
+				getAllocationType(process.getDefaultAllocationMethod()));
+		obj.add("location", References.create(process.getLocation(), refFn));
 		obj.add("processDocumentation", createDoc());
 		mapParameters(obj);
 		mapExchanges(obj);
@@ -56,7 +54,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray exchanges = new JsonArray();
 		for (Exchange e : process.getExchanges()) {
 			JsonObject eObj = new JsonObject();
-			mapExchange(e, eObj);
+			Exchanges.map(e, eObj, refFn);
 			if (Objects.equals(process.getQuantitativeReference(), e))
 				eObj.addProperty("quantitativeReference", true);
 			exchanges.add(eObj);
@@ -71,14 +69,14 @@ class ProcessWriter extends Writer<Process> {
 		JsonObject o = new JsonObject();
 		o.addProperty("@type", "ProcessDocumentation");
 		mapSimpleDocFields(d, o);
-		o.add("reviewer", createRef(d.getReviewer(), refFn));
-		o.add("dataDocumentor", createRef(d.getDataDocumentor(), refFn));
-		o.add("dataGenerator", createRef(d.getDataGenerator(), refFn));
-		o.add("dataSetOwner", createRef(d.getDataSetOwner(), refFn));
-		o.add("publication", createRef(d.getPublication(), refFn));
+		o.add("reviewer", References.create(d.getReviewer(), refFn));
+		o.add("dataDocumentor", References.create(d.getDataDocumentor(), refFn));
+		o.add("dataGenerator", References.create(d.getDataGenerator(), refFn));
+		o.add("dataSetOwner", References.create(d.getDataSetOwner(), refFn));
+		o.add("publication", References.create(d.getPublication(), refFn));
 		JsonArray sources = new JsonArray();
 		for (Source source : d.getSources())
-			sources.add(createRef(source, refFn));
+			sources.add(References.create(source, refFn));
 		o.add("sources", sources);
 		return o;
 	}
@@ -116,42 +114,6 @@ class ProcessWriter extends Writer<Process> {
 			return "PHYSICAL_ALLOCATION";
 		default:
 			return null;
-		}
-	}
-
-	private void mapExchange(Exchange e, JsonObject obj) {
-		if (e == null || obj == null)
-			return;
-		obj.addProperty("@type", "Exchange");
-		obj.addProperty("avoidedProduct", e.isAvoidedProduct());
-		obj.addProperty("input", e.isInput());
-		obj.addProperty("baseUncertainty", e.getBaseUncertainty());
-		obj.addProperty("amount", e.getAmountValue());
-		obj.addProperty("amountFormula", e.getAmountFormula());
-		obj.addProperty("pedigreeUncertainty", e.getPedigreeUncertainty());
-		obj.addProperty("costFormula", e.costFormula);
-		obj.addProperty("costValue", e.costValue);
-		if (e.currency != null)
-			obj.add("currency", createRef(e.currency, refFn));
-		if (e.costCategory != null)
-			obj.add("costCategory", createRef(e.costCategory, refFn));
-		mapExchangeRefs(e, obj);
-	}
-
-	private void mapExchangeRefs(Exchange e, JsonObject obj) {
-		// TODO: default providers
-		obj.add("flow", createRef(e.getFlow(), refFn));
-		obj.add("unit", createRef(e.getUnit()));
-		FlowPropertyFactor propFac = e.getFlowPropertyFactor();
-		if (propFac != null) {
-			JsonObject ref = createRef(propFac.getFlowProperty(), refFn);
-			obj.add("flowProperty", ref);
-		}
-		Uncertainty uncertainty = e.getUncertainty();
-		if (uncertainty != null) {
-			JsonObject uncertaintyObj = new JsonObject();
-			Uncertainties.map(uncertainty, uncertaintyObj);
-			obj.add("uncertainty", uncertaintyObj);
 		}
 	}
 

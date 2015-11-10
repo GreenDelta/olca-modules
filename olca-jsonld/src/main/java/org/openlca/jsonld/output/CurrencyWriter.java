@@ -19,9 +19,9 @@ class CurrencyWriter extends Writer<Currency> {
 		obj.addProperty("conversionFactor", currency.conversionFactor);
 		JsonObject ref = null;
 		if (Objects.equals(currency, currency.referenceCurrency))
-			ref = createRef(currency);
+			ref = References.create(currency);
 		else
-			ref = createRef(currency.referenceCurrency, refFn);
+			ref = References.create(currency.referenceCurrency, refFn);
 		obj.add("referenceCurrency", ref);
 		return obj;
 	}

@@ -18,7 +18,7 @@ class CategoryWriter extends Writer<Category> {
 		ModelType modelType = category.getModelType();
 		if (modelType != null)
 			obj.addProperty("modelType", modelType.name());
-		JsonObject parentRef = createRef(category.getCategory(), refHandler);
+		JsonObject parentRef = References.create(category.getCategory(), refHandler);
 		obj.add("category", parentRef);
 		return obj;
 	}
