@@ -5,7 +5,9 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.Location;
 import org.openlca.jsonld.AbstractZipTest;
 import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.input.JsonImport;
@@ -13,24 +15,42 @@ import org.openlca.jsonld.output.JsonExport;
 
 public class FlowTest extends AbstractZipTest {
 
+	FlowDao dao = new FlowDao(Tests.getDb());
+
 	@Test
 	public void testFlow() throws Exception {
-		FlowDao dao = new FlowDao(Tests.getDb());
-		Flow flow = createModel(dao);
-		doExport(flow, dao);
+		Flow flow = dao.insert(createModel());
+		exportAndDelete(flow, dao);
 		doImport(dao, flow);
 		dao.delete(flow);
 	}
 
-	private Flow createModel(FlowDao dao) {
+	@Test
+	public void testWithLocation() throws Exception {
+		Location loc = new Location();
+		loc.setCode("ABC");
+		loc.setRefId(UUID.randomUUID().toString());
+		LocationDao locDao = new LocationDao(Tests.getDb());
+		loc = locDao.insert(loc);
+		Flow flow = createModel();
+		flow.setLocation(loc);
+		flow = dao.insert(flow);
+		exportAndDelete(flow, dao);
+		doImport(dao, flow);
+		Flow clone = dao.getForRefId(flow.getRefId());
+		Assert.assertEquals("ABC", clone.getLocation().getCode());
+		dao.delete(clone);
+		locDao.delete(loc);
+	}
+
+	private Flow createModel() {
 		Flow flow = new Flow();
 		flow.setName("flow");
 		flow.setRefId(UUID.randomUUID().toString());
-		dao.insert(flow);
 		return flow;
 	}
 
-	private void doExport(Flow flow, FlowDao dao) {
+	private void exportAndDelete(Flow flow, FlowDao dao) {
 		with(zip -> {
 			JsonExport export = new JsonExport(Tests.getDb(), zip);
 			export.write(flow);
