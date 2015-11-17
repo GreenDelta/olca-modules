@@ -6,13 +6,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.openlca.cloud.util.Directories;
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RepositoryConfig {
 
-	private final static Logger log = LoggerFactory.getLogger(RepositoryConfig.class);
+	private final static Logger log = LoggerFactory
+			.getLogger(RepositoryConfig.class);
 	private final IDatabase database;
 	private final String baseUrl;
 	private final String repositoryId;
@@ -20,7 +22,8 @@ public class RepositoryConfig {
 	private final String password;
 	private String latestCommitId;
 
-	RepositoryConfig(IDatabase database, String baseUrl, String repositoryId, String latestCommitId, String username, String password) {
+	RepositoryConfig(IDatabase database, String baseUrl, String repositoryId,
+			String latestCommitId, String username, String password) {
 		this.database = database;
 		this.baseUrl = baseUrl;
 		this.repositoryId = repositoryId;
@@ -43,7 +46,8 @@ public class RepositoryConfig {
 			String password = properties.getProperty("password");
 			if ("null".equals(latestCommitId))
 				latestCommitId = null;
-			return new RepositoryConfig(database, baseUrl, repositoryId, latestCommitId, username, password);
+			return new RepositoryConfig(database, baseUrl, repositoryId,
+					latestCommitId, username, password);
 		} catch (IOException e) {
 			log.error("Error loading repository properties", e);
 			return null;
@@ -70,8 +74,10 @@ public class RepositoryConfig {
 		}
 	}
 
-	public static RepositoryConfig connect(IDatabase database, String baseUrl, String repositoryId, String username, String password) {
-		RepositoryConfig config = new RepositoryConfig(database, baseUrl, repositoryId, null, username, password);
+	public static RepositoryConfig connect(IDatabase database, String baseUrl,
+			String repositoryId, String username, String password) {
+		RepositoryConfig config = new RepositoryConfig(database, baseUrl,
+				repositoryId, null, username, password);
 		config.save();
 		return config;
 	}
@@ -79,10 +85,13 @@ public class RepositoryConfig {
 	public void disconnect() {
 		File configFile = getConfigFile(database);
 		configFile.delete();
+		File fileStorage = database.getFileStorageLocation();
+		Directories.delete(new File(fileStorage, "cloud/" + getRepositoryId()));
 	}
 
 	private static File getConfigFile(IDatabase database) {
-		return new File(database.getFileStorageLocation(), "repository.properties");
+		return new File(database.getFileStorageLocation(),
+				"repository.properties");
 	}
 
 	String getBaseUrl() {
