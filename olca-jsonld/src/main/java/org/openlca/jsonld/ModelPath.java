@@ -7,6 +7,10 @@ public final class ModelPath {
 	private ModelPath() {
 	}
 
+	public static String getBin(ModelType type, String refId) {
+		return "bin/" + ModelPath.get(type) + "/" + refId;
+	}
+
 	public static String get(ModelType type) {
 		if (type == null)
 			return "";

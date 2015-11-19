@@ -29,7 +29,6 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
-import org.openlca.jsonld.ModelPath;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -70,8 +69,8 @@ public class JsonExport {
 		try {
 			JsonObject obj = writer.write(entity, ref -> {
 				// also write referenced entities to entity store
-				write(ref, cb);
-			});
+					write(ref, cb);
+				});
 			store.put(type, obj);
 			writeExternalFiles(entity, type, cb);
 			if (cb != null)
@@ -88,7 +87,8 @@ public class JsonExport {
 		cb.apply(Message.error(message), entity);
 	}
 
-	private void writeExternalFiles(RootEntity entity, ModelType type, Callback cb) {
+	private void writeExternalFiles(RootEntity entity, ModelType type,
+			Callback cb) {
 		if (entity == null || db == null || db.getFileStorageLocation() == null)
 			return;
 		FileStore fs = new FileStore(db.getFileStorageLocation());
@@ -166,9 +166,8 @@ public class JsonExport {
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
 				throws IOException {
 			String path = dbDir.relativize(file).toString().replace('\\', '/');
-			path = "bin/" + ModelPath.get(type) + "/" + refId + "/" + path;
 			byte[] data = Files.readAllBytes(file);
-			store.put(path, data);
+			store.putBin(type, refId, path, data);
 			return FileVisitResult.CONTINUE;
 		}
 

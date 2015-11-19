@@ -46,6 +46,13 @@ public class ZipStore implements EntityStore {
 	}
 
 	@Override
+	public void putBin(ModelType type, String refId, String filename,
+			byte[] data) {
+		String path = ModelPath.getBin(type, refId) + "/" + filename;
+		put(path, data);
+	}
+
+	@Override
 	public void put(String path, byte[] data) {
 		if (Strings.nullOrEmpty(path) || data == null)
 			return;

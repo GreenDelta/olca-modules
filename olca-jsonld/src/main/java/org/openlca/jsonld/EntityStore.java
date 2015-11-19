@@ -20,6 +20,8 @@ public interface EntityStore extends Closeable {
 
 	JsonObject get(ModelType type, String refId);
 
+	void putBin(ModelType type, String refId, String filename, byte[] data);
+
 	void put(String path, byte[] data);
 
 	byte[] get(String path);
