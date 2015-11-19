@@ -18,14 +18,13 @@ import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.ZipStore;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 abstract class DataReader {
 
 	private File entityTmpFile;
-	private EntityStore entityStore;
 	private File descriptorTmpFile;
-	private EntityStore descriptorStore;
+	EntityStore entityStore;
+	EntityStore descriptorStore;
 
 	DataReader(File zipFile) throws IOException {
 		String uriStr = zipFile.toURI().toASCIIString();
@@ -46,23 +45,6 @@ abstract class DataReader {
 
 	protected void readMetaData(FileSystem zip) throws IOException {
 
-	}
-
-	public EntityStore getEntityStore() {
-		return entityStore;
-	}
-
-	public String getData(DatasetDescriptor descriptor) {
-		JsonObject element = entityStore.get(descriptor.getType(),
-				descriptor.getRefId());
-		if (element == null)
-			return null;
-		return new Gson().toJson(element);
-	}
-
-	public boolean hasData(DatasetDescriptor descriptor) {
-		return entityStore
-				.contains(descriptor.getType(), descriptor.getRefId());
 	}
 
 	public List<DatasetDescriptor> getDescriptors() {

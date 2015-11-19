@@ -11,11 +11,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.util.Directories;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CategorizedEntity;
-import org.openlca.core.model.Category;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
 import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
@@ -23,20 +21,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.cloud.model.data.DatasetDescriptor;
-import org.openlca.cloud.util.Directories;
 
 abstract class DataWriter {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private File entityTmpFile;
-	private EntityStore entityStore;
 	private File descriptorTmpFile;
-	private EntityStore descriptorStore;
-	private JsonExport export;
 	private File file;
+	EntityStore entityStore;
+	EntityStore descriptorStore;
+	JsonExport export;
 
 	DataWriter(IDatabase database) {
 		Path dir = null;
@@ -55,50 +50,7 @@ abstract class DataWriter {
 		}
 	}
 
-	public EntityStore getEntityStore() {
-		return entityStore;
-	}
-
-	public void put(CategorizedEntity entity) {
-		DatasetDescriptor descriptor = new DatasetDescriptor();
-		descriptor.setLastChange(entity.getLastChange());
-		descriptor.setRefId(entity.getRefId());
-		descriptor.setName(entity.getName());
-		descriptor.setType(ModelType.forModelClass(entity.getClass()));
-		descriptor.setVersion(new Version(entity.getVersion()).toString());
-		if (entity.getCategory() != null)
-			descriptor.setCategoryRefId(entity.getCategory().getRefId());
-		if (entity instanceof Category)
-			descriptor.setCategoryType(((Category) entity).getModelType());
-		else
-			descriptor.setCategoryType(ModelType.forModelClass(entity
-					.getClass()));
-		descriptor.setFullPath(getFullPath(entity));
-		export.write(entity);
-		putDescriptor(descriptor);
-	}
-
-	public void put(DatasetDescriptor descriptor, String data) {
-		if (data != null && !data.isEmpty()) {
-			JsonElement element = new Gson().fromJson(data, JsonElement.class);
-			JsonObject object = element.isJsonObject() ? element
-					.getAsJsonObject() : null;
-			entityStore.put(descriptor.getType(), object);
-		}
-		putDescriptor(descriptor);
-	}
-
-	private String getFullPath(CategorizedEntity entity) {
-		String path = entity.getName();
-		Category category = entity.getCategory();
-		while (category != null) {
-			path = category.getName() + "/" + path;
-			category = category.getCategory();
-		}
-		return path;
-	}
-
-	private void putDescriptor(DatasetDescriptor descriptor) {
+	void putDescriptor(DatasetDescriptor descriptor) {
 		JsonObject element = (JsonObject) new Gson().toJsonTree(descriptor);
 		element.addProperty("@id", descriptor.getRefId());
 		descriptorStore.put(descriptor.getType(), element);
