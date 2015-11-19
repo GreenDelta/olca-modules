@@ -16,6 +16,7 @@ import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.Notifiable;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
 
-public class DerbyDatabase implements IDatabase {
+public class DerbyDatabase extends Notifiable implements IDatabase {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private EntityManagerFactory entityFactory;

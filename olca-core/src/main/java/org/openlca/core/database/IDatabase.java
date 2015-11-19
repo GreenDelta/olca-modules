@@ -9,7 +9,7 @@ import javax.persistence.EntityManagerFactory;
 /**
  * The common interface for openLCA databases.
  */
-public interface IDatabase extends Closeable {
+public interface IDatabase extends Closeable, INotifiable {
 
 	/**
 	 * The current database schema version of this package. Together with the
