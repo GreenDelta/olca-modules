@@ -1,5 +1,6 @@
 package org.openlca.jsonld.output;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.openlca.core.model.Exchange;
@@ -11,9 +12,11 @@ import com.google.gson.JsonObject;
 
 class Exchanges {
 
-	static void map(Exchange e, JsonObject obj, Consumer<RootEntity> refFn) {
+	static String map(Exchange e, JsonObject obj, Consumer<RootEntity> refFn) {
 		if (e == null || obj == null)
-			return;
+			return null;
+		String internalId = UUID.randomUUID().toString();
+		obj.addProperty("@id", internalId);
 		obj.addProperty("@type", "Exchange");
 		obj.addProperty("avoidedProduct", e.isAvoidedProduct());
 		obj.addProperty("input", e.isInput());
@@ -28,15 +31,18 @@ class Exchanges {
 		if (e.costCategory != null)
 			obj.add("costCategory", References.create(e.costCategory, refFn));
 		mapRefs(e, obj, refFn);
+		return internalId;
 	}
 
-	private static void mapRefs(Exchange e, JsonObject obj, Consumer<RootEntity> refFn) {
+	private static void mapRefs(Exchange e, JsonObject obj,
+			Consumer<RootEntity> refFn) {
 		// TODO: default providers
 		obj.add("flow", References.create(e.getFlow(), refFn));
 		obj.add("unit", References.create(e.getUnit()));
 		FlowPropertyFactor propFac = e.getFlowPropertyFactor();
 		if (propFac != null) {
-			JsonObject ref = References.create(propFac.getFlowProperty(), refFn);
+			JsonObject ref = References
+					.create(propFac.getFlowProperty(), refFn);
 			obj.add("flowProperty", ref);
 		}
 		Uncertainty uncertainty = e.getUncertainty();
@@ -46,5 +52,5 @@ class Exchanges {
 			obj.add("uncertainty", uncertaintyObj);
 		}
 	}
-	
+
 }

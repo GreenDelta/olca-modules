@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 
 class Exchanges {
 
-	static Exchange map(JsonObject json, ImportConfig conf) {
+	static ExchangeWithId map(JsonObject json, ImportConfig conf) {
 		Exchange e = new Exchange();
 		e.setAvoidedProduct(In.getBool(json, "avoidedProduct", false));
 		e.setInput(In.getBool(json, "input", false));
@@ -25,7 +25,8 @@ class Exchanges {
 		if (u != null && u.isJsonObject())
 			e.setUncertainty(Uncertainties.read(u.getAsJsonObject()));
 		addExchangeRefs(json, e, conf);
-		return e;
+		String internalId = In.getString(json, "@id");
+		return new ExchangeWithId(internalId, e);
 	}
 
 	private static void addCostEntries(JsonObject json, Exchange e,
@@ -60,4 +61,16 @@ class Exchanges {
 		}
 	}
 
+	static class ExchangeWithId {
+		
+		final String internalId;
+		final Exchange exchange;
+
+		private ExchangeWithId(String internalId, Exchange exchange) {
+			this.internalId = internalId;
+			this.exchange = exchange;
+		}
+		
+	}
+	
 }

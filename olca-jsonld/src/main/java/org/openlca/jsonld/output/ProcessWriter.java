@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
@@ -21,6 +22,7 @@ class ProcessWriter extends Writer<Process> {
 
 	private Process process;
 	private Consumer<RootEntity> refFn;
+	private Map<Long, String> idToRefId = new HashMap<>();
 
 	@Override
 	JsonObject write(Process process, Consumer<RootEntity> refFn) {
@@ -58,7 +60,10 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray exchanges = new JsonArray();
 		for (Exchange e : process.getExchanges()) {
 			JsonObject eObj = new JsonObject();
-			Exchanges.map(e, eObj, refFn);
+			String id = Exchanges.map(e, eObj, refFn);
+			if (id == null)
+				continue;
+			idToRefId.put(e.getId(), id);
 			if (Objects.equals(process.getQuantitativeReference(), e))
 				eObj.addProperty("quantitativeReference", true);
 			exchanges.add(eObj);
@@ -89,11 +94,26 @@ class ProcessWriter extends Writer<Process> {
 	private void mapAllocationFactors(JsonObject obj) {
 		JsonArray factors = new JsonArray();
 		for (AllocationFactor factor : process.getAllocationFactors()) {
-			obj.addProperty("rawAmount", factor.getValue());
+			JsonObject fObj = new JsonObject();
+			fObj.addProperty("exchange", idToRefId.get(factor.getExchange().getId()));
+			Flow product = findProduct(factor.getProductId());
+			JsonObject productRef = References.create(product, refFn);
+			fObj.add("product", productRef);
+			fObj.addProperty("value", factor.getValue());
+			if (factor.getAllocationType() != null)
+				fObj.addProperty("allocationType", factor.getAllocationType().name());
+			factors.add(fObj);
 		}
 		obj.add("allocationFactors", factors);
 	}
 
+	private Flow findProduct(long id) {
+		for (Exchange e : process.getExchanges())
+			if (e.getFlow().getId() == id)
+				return e.getFlow();
+		return null;
+	}
+	
 	private String getAllocationType(AllocationMethod method) {
 		if (method == null)
 			return null;

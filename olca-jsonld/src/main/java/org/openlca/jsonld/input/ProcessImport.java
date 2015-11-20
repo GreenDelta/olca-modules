@@ -1,7 +1,12 @@
 package org.openlca.jsonld.input;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
@@ -9,6 +14,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.SocialAspect;
+import org.openlca.jsonld.input.Exchanges.ExchangeWithId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +25,7 @@ import com.google.gson.JsonObject;
 class ProcessImport extends BaseImport<Process> {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
+	private Map<String, Exchange> exchangeMap = new HashMap<>();
 
 	private ProcessImport(String refId, ImportConfig conf) {
 		super(ModelType.PROCESS, refId, conf);
@@ -50,6 +57,7 @@ class ProcessImport extends BaseImport<Process> {
 		addParameters(json, p);
 		addExchanges(json, p);
 		addSocialAspects(json, p);
+		addAllocationFactors(json, p);
 		return conf.db.put(p);
 	}
 
@@ -107,11 +115,12 @@ class ProcessImport extends BaseImport<Process> {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject o = e.getAsJsonObject();
-			Exchange exchange = Exchanges.map(o, conf);
-			p.getExchanges().add(exchange);
+			ExchangeWithId ex = Exchanges.map(o, conf);
+			exchangeMap.put(ex.internalId, ex.exchange);
+			p.getExchanges().add(ex.exchange);
 			boolean isRef = In.getBool(o, "quantitativeReference", false);
 			if (isRef)
-				p.setQuantitativeReference(exchange);
+				p.setQuantitativeReference(ex.exchange);
 		}
 	}
 
@@ -141,6 +150,34 @@ class ProcessImport extends BaseImport<Process> {
 			a.riskLevel = RiskLevel.valueOf(riskLevel);
 		a.source = SourceImport.run(In.getRefId(json, "source"), conf);
 		return a;
+	}
+
+	private void addAllocationFactors(JsonObject json, Process p) {
+		JsonArray factors = In.getArray(json, "allocationFactors");
+		if (factors == null)
+			return;
+		for (JsonElement f : factors) {
+			if (!f.isJsonObject())
+				continue;
+			JsonObject o = f.getAsJsonObject();
+			AllocationFactor factor = allocationFactor(o);
+			p.getAllocationFactors().add(factor);
+		}
+
+	}
+
+	private AllocationFactor allocationFactor(JsonObject json) {
+		AllocationFactor factor = new AllocationFactor();
+		String productId = In.getString(json, "product");
+		String exchangeId = In.getString(json, "exchange");
+		factor.setExchange(exchangeMap.get(exchangeId));
+		Flow product = FlowImport.run(productId, conf);
+		factor.setProductId(product.getId());
+		factor.setValue(In.getDouble(json, "value", 1));
+		String type = In.getString(json, "allocationType");
+		if (type != null)
+			factor.setAllocationType(AllocationMethod.valueOf(type));
+		return factor;
 	}
 
 }
