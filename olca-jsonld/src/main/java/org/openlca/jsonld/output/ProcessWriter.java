@@ -1,18 +1,18 @@
 package org.openlca.jsonld.output;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialAspect;
-import org.openlca.core.model.Source;
-import org.openlca.jsonld.Dates;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -35,11 +35,12 @@ class ProcessWriter extends Writer<Process> {
 		obj.addProperty("defaultAllocationMethod",
 				getAllocationType(process.getDefaultAllocationMethod()));
 		obj.add("location", References.create(process.getLocation(), refFn));
-		obj.add("processDocumentation", createDoc());
+		obj.add("processDocumentation", Documentation.create(process, refFn));
 		obj.add("currency", References.create(process.currency, refFn));
 		mapParameters(obj);
 		mapExchanges(obj);
 		mapSocialAspects(obj);
+		mapAllocationFactors(obj);
 		return obj;
 	}
 
@@ -85,44 +86,12 @@ class ProcessWriter extends Writer<Process> {
 		obj.add("socialAspects", aspects);
 	}
 
-	private JsonObject createDoc() {
-		ProcessDocumentation d = process.getDocumentation();
-		if (d == null)
-			return null;
-		JsonObject o = new JsonObject();
-		o.addProperty("@type", "ProcessDocumentation");
-		mapSimpleDocFields(d, o);
-		o.add("reviewer", References.create(d.getReviewer(), refFn));
-		o.add("dataDocumentor", References.create(d.getDataDocumentor(), refFn));
-		o.add("dataGenerator", References.create(d.getDataGenerator(), refFn));
-		o.add("dataSetOwner", References.create(d.getDataSetOwner(), refFn));
-		o.add("publication", References.create(d.getPublication(), refFn));
-		JsonArray sources = new JsonArray();
-		for (Source source : d.getSources())
-			sources.add(References.create(source, refFn));
-		o.add("sources", sources);
-		return o;
-	}
-
-	private void mapSimpleDocFields(ProcessDocumentation d, JsonObject o) {
-		o.addProperty("timeDescription", d.getTime());
-		o.addProperty("technologyDescription", d.getTechnology());
-		o.addProperty("dataCollectionDescription", d.getDataCollectionPeriod());
-		o.addProperty("completenessDescription", d.getCompleteness());
-		o.addProperty("dataSelectionDescription", d.getDataSelection());
-		o.addProperty("reviewDetails", d.getReviewDetails());
-		o.addProperty("dataTreatmentDescription", d.getDataTreatment());
-		o.addProperty("inventoryMethodDescription", d.getInventoryMethod());
-		o.addProperty("modelingConstantsDescription", d.getModelingConstants());
-		o.addProperty("samplingDescription", d.getSampling());
-		o.addProperty("restrictionsDescription", d.getRestrictions());
-		o.addProperty("copyright", d.isCopyright());
-		o.addProperty("validFrom", Dates.toString(d.getValidFrom()));
-		o.addProperty("validUntil", Dates.toString(d.getValidUntil()));
-		o.addProperty("creationDate", Dates.toString(d.getCreationDate()));
-		o.addProperty("intendedApplication", d.getIntendedApplication());
-		o.addProperty("projectDescription", d.getProject());
-		o.addProperty("geographyDescription", d.getGeography());
+	private void mapAllocationFactors(JsonObject obj) {
+		JsonArray factors = new JsonArray();
+		for (AllocationFactor factor : process.getAllocationFactors()) {
+			obj.addProperty("rawAmount", factor.getValue());
+		}
+		obj.add("allocationFactors", factors);
 	}
 
 	private String getAllocationType(AllocationMethod method) {

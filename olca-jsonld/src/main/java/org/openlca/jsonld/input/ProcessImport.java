@@ -1,12 +1,7 @@
 package org.openlca.jsonld.input;
 
-import java.util.Objects;
-
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
@@ -112,28 +107,12 @@ class ProcessImport extends BaseImport<Process> {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject o = e.getAsJsonObject();
-			Exchange exchange = exchange(o);
+			Exchange exchange = Exchanges.map(o, conf);
 			p.getExchanges().add(exchange);
 			boolean isRef = In.getBool(o, "quantitativeReference", false);
 			if (isRef)
 				p.setQuantitativeReference(exchange);
 		}
-	}
-
-	private Exchange exchange(JsonObject json) {
-		Exchange e = new Exchange();
-		e.setAvoidedProduct(In.getBool(json, "avoidedProduct", false));
-		e.setInput(In.getBool(json, "input", false));
-		e.setBaseUncertainty(In.getDouble(json, "baseUncertainty", 0));
-		e.setAmountValue(In.getDouble(json, "amount", 0));
-		e.setAmountFormula(In.getString(json, "amountFormula"));
-		e.setPedigreeUncertainty(In.getString(json, "pedigreeUncertainty"));
-		addCostEntries(json, e);
-		JsonElement u = json.get("uncertainty");
-		if (u != null && u.isJsonObject())
-			e.setUncertainty(Uncertainties.read(u.getAsJsonObject()));
-		addExchangeRefs(json, e);
-		return e;
 	}
 
 	private void addSocialAspects(JsonObject json, Process p) {
@@ -162,36 +141,6 @@ class ProcessImport extends BaseImport<Process> {
 			a.riskLevel = RiskLevel.valueOf(riskLevel);
 		a.source = SourceImport.run(In.getRefId(json, "source"), conf);
 		return a;
-	}
-
-	private void addCostEntries(JsonObject json, Exchange e) {
-		e.costFormula = In.getString(json, "costFormula");
-		e.costValue = In.getOptionalDouble(json, "costValue");
-		String currencyId = In.getRefId(json, "currency");
-		if (currencyId != null)
-			e.currency = CurrencyImport.run(currencyId, conf);
-		String categoryId = In.getRefId(json, "costCategory");
-		if (categoryId != null)
-			e.costCategory = CostCategoryImport.run(categoryId, conf);
-	}
-
-	private void addExchangeRefs(JsonObject json, Exchange e) {
-		Flow flow = FlowImport.run(In.getRefId(json, "flow"), conf);
-		e.setFlow(flow);
-		String unitId = In.getRefId(json, "unit");
-		e.setUnit(conf.db.getUnit(unitId));
-		if (flow == null)
-			return;
-		String propId = In.getRefId(json, "flowProperty");
-		for (FlowPropertyFactor f : flow.getFlowPropertyFactors()) {
-			FlowProperty prop = f.getFlowProperty();
-			if (prop == null)
-				continue;
-			if (Objects.equals(propId, prop.getRefId())) {
-				e.setFlowPropertyFactor(f);
-				break;
-			}
-		}
 	}
 
 }
