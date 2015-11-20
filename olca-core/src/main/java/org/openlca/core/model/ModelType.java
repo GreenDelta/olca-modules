@@ -50,6 +50,10 @@ public enum ModelType {
 	public Class<?> getModelClass() {
 		return modelClass;
 	}
+	
+	public boolean isCategorized() {
+		return CategorizedEntity.class.isAssignableFrom(modelClass);
+	}
 
 	public static ModelType forModelClass(Class<?> clazz) {
 		if (clazz == null)
