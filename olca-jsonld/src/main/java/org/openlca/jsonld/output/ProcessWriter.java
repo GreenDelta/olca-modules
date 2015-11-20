@@ -95,13 +95,17 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray factors = new JsonArray();
 		for (AllocationFactor factor : process.getAllocationFactors()) {
 			JsonObject fObj = new JsonObject();
-			fObj.addProperty("exchange", idToRefId.get(factor.getExchange().getId()));
+			String exchangeId = null;
+			if (factor.getExchange() != null)
+				exchangeId = idToRefId.get(factor.getExchange().getId());
+			fObj.addProperty("exchange", exchangeId);
 			Flow product = findProduct(factor.getProductId());
 			JsonObject productRef = References.create(product, refFn);
 			fObj.add("product", productRef);
 			fObj.addProperty("value", factor.getValue());
 			if (factor.getAllocationType() != null)
-				fObj.addProperty("allocationType", factor.getAllocationType().name());
+				fObj.addProperty("allocationType", factor.getAllocationType()
+						.name());
 			factors.add(fObj);
 		}
 		obj.add("allocationFactors", factors);
@@ -113,7 +117,7 @@ class ProcessWriter extends Writer<Process> {
 				return e.getFlow();
 		return null;
 	}
-	
+
 	private String getAllocationType(AllocationMethod method) {
 		if (method == null)
 			return null;
