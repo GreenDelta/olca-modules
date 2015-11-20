@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.RootEntity;
 
@@ -18,12 +19,18 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		if (obj == null)
 			return null;
 		mapParameters(method, obj);
-		JsonArray array = new JsonArray();
+		JsonArray categories = new JsonArray();
 		for (ImpactCategory category : method.getImpactCategories()) {
 			JsonObject ref = References.create(category, refHandler);
-			array.add(ref);
+			categories.add(ref);
 		}
-		obj.add("impactCategories", array);
+		obj.add("impactCategories", categories);
+		JsonArray nwSets = new JsonArray();
+		for (NwSet set : method.getNwSets()) {
+			JsonObject ref = References.create(set, refHandler);
+			nwSets.add(ref);
+		}
+		obj.add("nwSets", nwSets);
 		return obj;
 	}
 

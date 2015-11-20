@@ -22,6 +22,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
@@ -130,6 +131,8 @@ public class JsonExport {
 			return Writer.class.cast(new FlowPropertyWriter());
 		if (entity instanceof Flow)
 			return Writer.class.cast(new FlowWriter());
+		if (entity instanceof NwSet)
+			return Writer.class.cast(new NwSetWriter());
 		if (entity instanceof ImpactCategory)
 			return Writer.class.cast(new ImpactCategoryWriter());
 		if (entity instanceof ImpactMethod)
