@@ -41,6 +41,7 @@ class Writer<T extends RootEntity> {
 		context.add("allocationType", vocabType);
 		context.add("defaultAllocationMethod", vocabType);
 		context.add("processType", vocabType);
+		context.add("riskLevel", vocabType);
 		object.add("@context", context);
 		return object;
 	}

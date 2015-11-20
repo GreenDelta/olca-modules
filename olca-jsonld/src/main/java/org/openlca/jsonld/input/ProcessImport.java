@@ -12,6 +12,8 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.RiskLevel;
+import org.openlca.core.model.SocialAspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +49,12 @@ class ProcessImport extends BaseImport<Process> {
 		String locId = In.getRefId(json, "location");
 		if (locId != null)
 			p.setLocation(LocationImport.run(locId, conf));
+		String curId = In.getRefId(json, "currency");
+		if (curId != null)
+			p.currency = CurrencyImport.run(curId, conf);
 		addParameters(json, p);
 		addExchanges(json, p);
+		addSocialAspects(json, p);
 		return conf.db.put(p);
 	}
 
@@ -128,6 +134,34 @@ class ProcessImport extends BaseImport<Process> {
 			e.setUncertainty(Uncertainties.read(u.getAsJsonObject()));
 		addExchangeRefs(json, e);
 		return e;
+	}
+
+	private void addSocialAspects(JsonObject json, Process p) {
+		JsonArray aspects = In.getArray(json, "socialAspects");
+		if (aspects == null)
+			return;
+		for (JsonElement a : aspects) {
+			if (!a.isJsonObject())
+				continue;
+			JsonObject o = a.getAsJsonObject();
+			SocialAspect aspect = aspect(o);
+			p.socialAspects.add(aspect);
+		}
+	}
+
+	private SocialAspect aspect(JsonObject json) {
+		SocialAspect a = new SocialAspect();
+		a.indicator = SocialIndicatorImport.run(
+				In.getRefId(json, "socialIndicator"), conf);
+		a.comment = In.getString(json, "comment");
+		a.quality = In.getString(json, "quality");
+		a.rawAmount = In.getString(json, "rawAmount");
+		a.activityValue = In.getDouble(json, "activityValue", 0d);
+		String riskLevel = In.getString(json, "riskLevel");
+		if (riskLevel != null)
+			a.riskLevel = RiskLevel.valueOf(riskLevel);
+		a.source = SourceImport.run(In.getRefId(json, "source"), conf);
+		return a;
 	}
 
 	private void addCostEntries(JsonObject json, Exchange e) {
