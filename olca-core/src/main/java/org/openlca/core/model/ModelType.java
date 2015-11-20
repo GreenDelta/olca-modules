@@ -52,6 +52,8 @@ public enum ModelType {
 	}
 	
 	public boolean isCategorized() {
+		if (modelClass == null)
+			return false;
 		return CategorizedEntity.class.isAssignableFrom(modelClass);
 	}
 
