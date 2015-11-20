@@ -6,9 +6,7 @@ public class CurrencyDescriptor extends CategorizedDescriptor {
 
 	private static final long serialVersionUID = 3360761249255532527L;
 
-	@Override
-	public ModelType getModelType() {
-		return ModelType.CURRENCY;
+	public CurrencyDescriptor() {
+		setType(ModelType.CURRENCY);
 	}
-
 }
