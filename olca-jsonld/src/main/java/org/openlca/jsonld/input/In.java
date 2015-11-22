@@ -5,6 +5,7 @@ import java.util.Date;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Dates;
+import org.openlca.jsonld.Enums;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,8 +26,7 @@ final class In {
 			return elem.getAsString();
 	}
 
-	static double getDouble(JsonObject obj, String property,
-			double defaultVal) {
+	static double getDouble(JsonObject obj, String property, double defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -46,8 +46,7 @@ final class In {
 			return elem.getAsDouble();
 	}
 
-	static boolean getBool(JsonObject obj, String property,
-			boolean defaultVal) {
+	static boolean getBool(JsonObject obj, String property, boolean defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -60,6 +59,12 @@ final class In {
 	static Date getDate(JsonObject obj, String property) {
 		String xmlString = getString(obj, property);
 		return Dates.fromString(xmlString);
+	}
+
+	static <T extends Enum<T>> T getEnum(JsonObject obj, String property,
+			Class<T> enumClass) {
+		String value = getString(obj, property);
+		return Enums.getValue(value, enumClass);
 	}
 
 	/**

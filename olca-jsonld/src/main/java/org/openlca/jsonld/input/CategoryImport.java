@@ -24,9 +24,7 @@ class CategoryImport extends BaseImport<Category> {
 		Category category = new Category();
 		category.setId(id);
 		In.mapAtts(json, category);
-		String typeString = In.getString(json, "modelType");
-		if (typeString != null)
-			category.setModelType(ModelType.valueOf(typeString));
+		category.setModelType(In.getEnum(json, "modelType", ModelType.class));
 		String parentId = In.getRefId(json, "category");
 		Category parent = CategoryImport.run(parentId, conf);
 		if (parent == null)

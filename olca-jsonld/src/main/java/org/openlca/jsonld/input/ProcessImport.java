@@ -15,8 +15,6 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.jsonld.input.Exchanges.ExchangeWithId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -24,7 +22,6 @@ import com.google.gson.JsonObject;
 
 class ProcessImport extends BaseImport<Process> {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
 	private Map<String, Exchange> exchangeMap = new HashMap<>();
 
 	private ProcessImport(String refId, ImportConfig conf) {
@@ -44,8 +41,9 @@ class ProcessImport extends BaseImport<Process> {
 		In.mapAtts(json, p);
 		String catId = In.getRefId(json, "category");
 		p.setCategory(CategoryImport.run(catId, conf));
-		mapProcessType(json, p);
-		mapAllocationType(json, p);
+		p.setProcessType(In.getEnum(json, "processTyp", ProcessType.class));
+		p.setDefaultAllocationMethod(In.getEnum(json,
+				"defaultAllocationMethod", AllocationMethod.class));
 		ProcessDocumentation doc = ProcessDocReader.read(json, conf);
 		p.setDocumentation(doc);
 		String locId = In.getRefId(json, "location");
@@ -59,36 +57,6 @@ class ProcessImport extends BaseImport<Process> {
 		addSocialAspects(json, p);
 		addAllocationFactors(json, p);
 		return conf.db.put(p);
-	}
-
-	private void mapProcessType(JsonObject json, Process p) {
-		String type = In.getString(json, "processTyp");
-		if (type == null)
-			return;
-		try {
-			p.setProcessType(ProcessType.valueOf(type));
-		} catch (Exception e) {
-			log.warn("unknown process type " + type, e);
-		}
-	}
-
-	private void mapAllocationType(JsonObject json, Process p) {
-		String type = In.getString(json, "defaultAllocationMethod");
-		if (type == null)
-			return;
-		switch (type) {
-		case "CAUSAL_ALLOCATION":
-			p.setDefaultAllocationMethod(AllocationMethod.CAUSAL);
-			break;
-		case "ECONOMIC_ALLOCATION":
-			p.setDefaultAllocationMethod(AllocationMethod.ECONOMIC);
-			break;
-		case "PHYSICAL_ALLOCATION":
-			p.setDefaultAllocationMethod(AllocationMethod.PHYSICAL);
-			break;
-		default:
-			log.warn("unknown allocation type " + type);
-		}
 	}
 
 	private void addParameters(JsonObject json, Process p) {
@@ -145,9 +113,7 @@ class ProcessImport extends BaseImport<Process> {
 		a.quality = In.getString(json, "quality");
 		a.rawAmount = In.getString(json, "rawAmount");
 		a.activityValue = In.getDouble(json, "activityValue", 0d);
-		String riskLevel = In.getString(json, "riskLevel");
-		if (riskLevel != null)
-			a.riskLevel = RiskLevel.valueOf(riskLevel);
+		a.riskLevel = In.getEnum(json, "riskLevel", RiskLevel.class);
 		a.source = SourceImport.run(In.getRefId(json, "source"), conf);
 		return a;
 	}
@@ -174,9 +140,8 @@ class ProcessImport extends BaseImport<Process> {
 		Flow product = FlowImport.run(productId, conf);
 		factor.setProductId(product.getId());
 		factor.setValue(In.getDouble(json, "value", 1));
-		String type = In.getString(json, "allocationType");
-		if (type != null)
-			factor.setAllocationType(AllocationMethod.valueOf(type));
+		factor.setAllocationType(In.getEnum(json, "allocationType",
+				AllocationMethod.class));
 		return factor;
 	}
 

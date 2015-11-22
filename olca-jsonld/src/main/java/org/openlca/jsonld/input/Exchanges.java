@@ -20,6 +20,9 @@ class Exchanges {
 		e.setAmountValue(In.getDouble(json, "amount", 0));
 		e.setAmountFormula(In.getString(json, "amountFormula"));
 		e.setPedigreeUncertainty(In.getString(json, "pedigreeUncertainty"));
+		String providerId = In.getRefId(json, "defaultProvider");
+		if (providerId != null)
+			e.setDefaultProviderId(ProcessImport.run(providerId, conf).getId());
 		addCostEntries(json, e, conf);
 		JsonElement u = json.get("uncertainty");
 		if (u != null && u.isJsonObject())
@@ -62,7 +65,7 @@ class Exchanges {
 	}
 
 	static class ExchangeWithId {
-		
+
 		final String internalId;
 		final Exchange exchange;
 
@@ -70,7 +73,7 @@ class Exchanges {
 			this.internalId = internalId;
 			this.exchange = exchange;
 		}
-		
+
 	}
-	
+
 }

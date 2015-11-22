@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.jsonld.Enums;
 
 import com.google.gson.JsonObject;
 
@@ -15,24 +16,11 @@ class FlowPropertyWriter extends Writer<FlowProperty> {
 		JsonObject obj = super.write(prop, refFn);
 		if (obj == null)
 			return null;
-		mapType(prop, obj);
+		obj.addProperty("flowPropertyType", Enums.getLabel(
+				prop.getFlowPropertyType(), FlowPropertyType.class));
 		JsonObject unitGroup = References.create(prop.getUnitGroup(), refFn);
 		obj.add("unitGroup", unitGroup);
 		return obj;
-	}
-
-	private void mapType(FlowProperty property, JsonObject obj) {
-		FlowPropertyType type = property.getFlowPropertyType();
-		if (type == null)
-			return;
-		switch (type) {
-		case ECONOMIC:
-			obj.addProperty("flowPropertyType", "ECONOMIC_QUANTITY");
-			break;
-		case PHYSICAL:
-			obj.addProperty("flowPropertyType", "PHYSICAL_QUANTITY");
-			break;
-		}
 	}
 
 }

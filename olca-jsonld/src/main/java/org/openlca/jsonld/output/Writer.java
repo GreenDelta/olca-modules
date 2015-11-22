@@ -19,7 +19,8 @@ class Writer<T extends RootEntity> {
 		if (entity instanceof CategorizedEntity) {
 			CategorizedEntity ce = (CategorizedEntity) entity;
 			if (ce.getCategory() != null) {
-				JsonObject catRef = References.create(ce.getCategory(), refHandler);
+				JsonObject catRef = References.create(ce.getCategory(),
+						refHandler);
 				obj.add("category", catRef);
 			}
 		}

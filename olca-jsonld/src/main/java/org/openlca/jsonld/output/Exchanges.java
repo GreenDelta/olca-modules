@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Uncertainty;
 
@@ -12,7 +13,8 @@ import com.google.gson.JsonObject;
 
 class Exchanges {
 
-	static String map(Exchange e, JsonObject obj, Consumer<RootEntity> refFn) {
+	static String map(Exchange e, JsonObject obj, ExportConfig conf,
+			Consumer<RootEntity> refFn) {
 		if (e == null || obj == null)
 			return null;
 		String internalId = UUID.randomUUID().toString();
@@ -30,13 +32,14 @@ class Exchanges {
 			obj.add("currency", References.create(e.currency, refFn));
 		if (e.costCategory != null)
 			obj.add("costCategory", References.create(e.costCategory, refFn));
-		mapRefs(e, obj, refFn);
+		mapRefs(e, obj, conf, refFn);
 		return internalId;
 	}
 
-	private static void mapRefs(Exchange e, JsonObject obj,
+	private static void mapRefs(Exchange e, JsonObject obj, ExportConfig conf,
 			Consumer<RootEntity> refFn) {
-		// TODO: default providers
+		obj.add("defaultProvider", References.create(ModelType.PROCESS,
+				e.getDefaultProviderId(), conf, refFn));
 		obj.add("flow", References.create(e.getFlow(), refFn));
 		obj.add("unit", References.create(e.getUnit()));
 		FlowPropertyFactor propFac = e.getFlowPropertyFactor();

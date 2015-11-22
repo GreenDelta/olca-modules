@@ -2,6 +2,7 @@ package org.openlca.jsonld.output;
 
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
+import org.openlca.jsonld.Enums;
 
 import com.google.gson.JsonObject;
 
@@ -14,6 +15,8 @@ class Uncertainties {
 		if (type == null || type == UncertaintyType.NONE)
 			return;
 		obj.addProperty("@type", "Uncertainty");
+		obj.addProperty("distributionType",
+				Enums.getLabel(type, UncertaintyType.class));
 		switch (type) {
 		case UNIFORM:
 			mapUniform(uncertainty, obj);
@@ -33,7 +36,6 @@ class Uncertainties {
 	}
 
 	private static void mapUniform(Uncertainty uncertainty, JsonObject obj) {
-		obj.addProperty("distributionType", "UNIFORM_DISTRIBUTION");
 		obj.addProperty("minimum", uncertainty.getParameter1Value());
 		obj.addProperty("minimumFormula", uncertainty.getParameter1Formula());
 		obj.addProperty("maximum", uncertainty.getParameter2Value());
@@ -41,7 +43,6 @@ class Uncertainties {
 	}
 
 	private static void mapTriangle(Uncertainty uncertainty, JsonObject obj) {
-		obj.addProperty("distributionType", "TRIANGLE_DISTRIBUTION");
 		obj.addProperty("minimum", uncertainty.getParameter1Value());
 		obj.addProperty("minimumFormula", uncertainty.getParameter1Formula());
 		obj.addProperty("mode", uncertainty.getParameter2Value());
@@ -51,7 +52,6 @@ class Uncertainties {
 	}
 
 	private static void mapNormal(Uncertainty uncertainty, JsonObject obj) {
-		obj.addProperty("distributionType", "NORMAL_DISTRIBUTION");
 		obj.addProperty("mean", uncertainty.getParameter1Value());
 		obj.addProperty("meanFormula", uncertainty.getParameter1Formula());
 		obj.addProperty("sd", uncertainty.getParameter2Value());
@@ -59,7 +59,6 @@ class Uncertainties {
 	}
 
 	private static void mapLogNormal(Uncertainty uncertainty, JsonObject obj) {
-		obj.addProperty("distributionType", "LOG_NORMAL_DISTRIBUTION");
 		obj.addProperty("geomMean", uncertainty.getParameter1Value());
 		obj.addProperty("geomMeanFormula", uncertainty.getParameter1Formula());
 		obj.addProperty("geomSd", uncertainty.getParameter2Value());

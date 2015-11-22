@@ -12,8 +12,10 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialAspect;
+import org.openlca.jsonld.Enums;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -23,6 +25,11 @@ class ProcessWriter extends Writer<Process> {
 	private Process process;
 	private Consumer<RootEntity> refFn;
 	private Map<Long, String> idToRefId = new HashMap<>();
+	private ExportConfig conf;
+
+	ProcessWriter(ExportConfig conf) {
+		this.conf = conf;
+	}
 
 	@Override
 	JsonObject write(Process process, Consumer<RootEntity> refFn) {
@@ -31,11 +38,10 @@ class ProcessWriter extends Writer<Process> {
 			return null;
 		this.process = process;
 		this.refFn = refFn;
-		ProcessType type = process.getProcessType();
-		if (type != null)
-			obj.addProperty("processTyp", type.name());
-		obj.addProperty("defaultAllocationMethod",
-				getAllocationType(process.getDefaultAllocationMethod()));
+		obj.addProperty("processTyp",
+				Enums.getLabel(process.getProcessType(), ProcessType.class));
+		obj.addProperty("defaultAllocationMethod", Enums.getLabel(
+				process.getDefaultAllocationMethod(), AllocationMethod.class));
 		obj.add("location", References.create(process.getLocation(), refFn));
 		obj.add("processDocumentation", Documentation.create(process, refFn));
 		obj.add("currency", References.create(process.currency, refFn));
@@ -60,7 +66,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray exchanges = new JsonArray();
 		for (Exchange e : process.getExchanges()) {
 			JsonObject eObj = new JsonObject();
-			String id = Exchanges.map(e, eObj, refFn);
+			String id = Exchanges.map(e, eObj, conf, refFn);
 			if (id == null)
 				continue;
 			idToRefId.put(e.getId(), id);
@@ -81,10 +87,8 @@ class ProcessWriter extends Writer<Process> {
 			aObj.addProperty("quality", a.quality);
 			aObj.addProperty("rawAmount", a.rawAmount);
 			aObj.addProperty("activityValue", a.activityValue);
-			String riskLevel = null;
-			if (a.riskLevel != null)
-				riskLevel = a.riskLevel.name();
-			aObj.addProperty("riskLevel", riskLevel);
+			aObj.addProperty("riskLevel",
+					Enums.getLabel(a.riskLevel, RiskLevel.class));
 			aObj.add("source", References.create(a.source, refFn));
 			aspects.add(aObj);
 		}
@@ -103,9 +107,8 @@ class ProcessWriter extends Writer<Process> {
 			JsonObject productRef = References.create(product, refFn);
 			fObj.add("product", productRef);
 			fObj.addProperty("value", factor.getValue());
-			if (factor.getAllocationType() != null)
-				fObj.addProperty("allocationType", factor.getAllocationType()
-						.name());
+			fObj.addProperty("allocationType", Enums.getLabel(
+					factor.getAllocationType(), AllocationMethod.class));
 			factors.add(fObj);
 		}
 		obj.add("allocationFactors", factors);
@@ -116,21 +119,6 @@ class ProcessWriter extends Writer<Process> {
 			if (e.getFlow().getId() == id)
 				return e.getFlow();
 		return null;
-	}
-
-	private String getAllocationType(AllocationMethod method) {
-		if (method == null)
-			return null;
-		switch (method) {
-		case CAUSAL:
-			return "CAUSAL_ALLOCATION";
-		case ECONOMIC:
-			return "ECONOMIC_ALLOCATION";
-		case PHYSICAL:
-			return "PHYSICAL_ALLOCATION";
-		default:
-			return null;
-		}
 	}
 
 }

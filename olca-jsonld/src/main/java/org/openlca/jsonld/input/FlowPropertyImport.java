@@ -1,7 +1,5 @@
 package org.openlca.jsonld.input;
 
-import java.util.Objects;
-
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
@@ -27,17 +25,11 @@ class FlowPropertyImport extends BaseImport<FlowProperty> {
 		In.mapAtts(json, p);
 		String catId = In.getRefId(json, "category");
 		p.setCategory(CategoryImport.run(catId, conf));
-		mapType(json, p);
+		p.setFlowPropertyType(In.getEnum(json, "flowPropertyType",
+				FlowPropertyType.class));
 		String unitGroupId = In.getRefId(json, "unitGroup");
 		p.setUnitGroup(UnitGroupImport.run(unitGroupId, conf));
 		return conf.db.put(p);
 	}
 
-	private void mapType(JsonObject json, FlowProperty p) {
-		String typeString = In.getString(json, "flowPropertyType");
-		if (Objects.equals(typeString, "ECONOMIC_QUANTITY"))
-			p.setFlowPropertyType(FlowPropertyType.ECONOMIC);
-		else
-			p.setFlowPropertyType(FlowPropertyType.PHYSICAL);
-	}
 }

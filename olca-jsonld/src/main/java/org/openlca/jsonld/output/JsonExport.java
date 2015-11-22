@@ -40,12 +40,10 @@ import com.google.gson.JsonObject;
  */
 public class JsonExport {
 
-	private final IDatabase db;
-	private final EntityStore store;
+	private final ExportConfig conf;
 
 	public JsonExport(IDatabase database, EntityStore store) {
-		this.store = store;
-		this.db = database;
+		conf = ExportConfig.create(database, store);
 	}
 
 	public <T extends RootEntity> void write(T entity) {
@@ -60,9 +58,9 @@ public class JsonExport {
 			err(cb, "no refId, or type is unknown", entity);
 			return;
 		}
-		if (store.contains(type, entity.getRefId()))
+		if (conf.hasVisited(type, entity.getId()))
 			return;
-		Writer<T> writer = getWriter(entity);
+		Writer<T> writer = getWriter(entity, conf);
 		if (writer == null) {
 			err(cb, "no writer found for type " + type, entity);
 			return;
@@ -72,7 +70,8 @@ public class JsonExport {
 				// also write referenced entities to entity store
 					write(ref, cb);
 				});
-			store.put(type, obj);
+			conf.visited(type, entity.getId());
+			conf.store.put(type, obj);
 			writeExternalFiles(entity, type, cb);
 			if (cb != null)
 				cb.apply(Message.info("data set exported"), entity);
@@ -90,9 +89,10 @@ public class JsonExport {
 
 	private void writeExternalFiles(RootEntity entity, ModelType type,
 			Callback cb) {
-		if (entity == null || db == null || db.getFileStorageLocation() == null)
+		if (entity == null || conf.db == null
+				|| conf.db.getFileStorageLocation() == null)
 			return;
-		FileStore fs = new FileStore(db.getFileStorageLocation());
+		FileStore fs = new FileStore(conf.db.getFileStorageLocation());
 		File dir = fs.getFolder(entity);
 		if (dir == null || !dir.exists())
 			return;
@@ -105,10 +105,11 @@ public class JsonExport {
 		}
 	}
 
-	public static <T extends RootEntity> String toJson(T entity) {
+	public static <T extends RootEntity> String toJson(T entity,
+			ExportConfig conf) {
 		if (entity == null)
 			return "{}";
-		Writer<T> writer = getWriter(entity);
+		Writer<T> writer = getWriter(entity, conf);
 		JsonObject json = writer.write(entity, ref -> {
 		});
 		Gson gson = new Gson();
@@ -116,7 +117,8 @@ public class JsonExport {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends RootEntity> Writer<T> getWriter(T entity) {
+	private static <T extends RootEntity> Writer<T> getWriter(T entity,
+			ExportConfig conf) {
 		if (entity == null)
 			return null;
 		if (entity instanceof Actor)
@@ -142,7 +144,7 @@ public class JsonExport {
 		if (entity instanceof Parameter)
 			return Writer.class.cast(new ParameterWriter());
 		if (entity instanceof Process)
-			return Writer.class.cast(new ProcessWriter());
+			return Writer.class.cast(new ProcessWriter(conf));
 		if (entity instanceof Source)
 			return Writer.class.cast(new SourceWriter());
 		if (entity instanceof UnitGroup)
@@ -170,7 +172,7 @@ public class JsonExport {
 				throws IOException {
 			String path = dbDir.relativize(file).toString().replace('\\', '/');
 			byte[] data = Files.readAllBytes(file);
-			store.putBin(type, refId, path, data);
+			conf.store.putBin(type, refId, path, data);
 			return FileVisitResult.CONTINUE;
 		}
 

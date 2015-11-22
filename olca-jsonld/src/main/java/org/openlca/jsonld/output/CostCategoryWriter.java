@@ -11,9 +11,6 @@ class CostCategoryWriter extends Writer<CostCategory> {
 
 	@Override
 	JsonObject write(CostCategory cc, Consumer<RootEntity> refFn) {
-		JsonObject obj = super.write(cc, refFn);
-		if (obj == null)
-			return null;
-		return obj;
+		return super.write(cc, refFn);
 	}
 }

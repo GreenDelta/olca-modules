@@ -35,9 +35,7 @@ class FlowImport extends BaseImport<Flow> {
 		In.mapAtts(json, flow);
 		String catId = In.getRefId(json, "category");
 		flow.setCategory(CategoryImport.run(catId, conf));
-		String typeString = In.getString(json, "flowType");
-		if (typeString != null)
-			flow.setFlowType(FlowType.valueOf(typeString));
+		flow.setFlowType(In.getEnum(json, "flowType", FlowType.class));
 		flow.setCasNumber(In.getString(json, "cas"));
 		flow.setFormula(In.getString(json, "formula"));
 		String locId = In.getRefId(json, "location");
