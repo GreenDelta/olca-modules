@@ -38,7 +38,7 @@ class ProcessWriter extends Writer<Process> {
 			return null;
 		this.process = process;
 		this.refFn = refFn;
-		obj.addProperty("processTyp",
+		obj.addProperty("processType",
 				Enums.getLabel(process.getProcessType(), ProcessType.class));
 		obj.addProperty("defaultAllocationMethod", Enums.getLabel(
 				process.getDefaultAllocationMethod(), AllocationMethod.class));

@@ -41,7 +41,7 @@ class ProcessImport extends BaseImport<Process> {
 		In.mapAtts(json, p);
 		String catId = In.getRefId(json, "category");
 		p.setCategory(CategoryImport.run(catId, conf));
-		p.setProcessType(In.getEnum(json, "processTyp", ProcessType.class));
+		p.setProcessType(getType(json));
 		p.setDefaultAllocationMethod(In.getEnum(json,
 				"defaultAllocationMethod", AllocationMethod.class));
 		ProcessDocumentation doc = ProcessDocReader.read(json, conf);
@@ -57,6 +57,13 @@ class ProcessImport extends BaseImport<Process> {
 		addSocialAspects(json, p);
 		addAllocationFactors(json, p);
 		return conf.db.put(p);
+	}
+
+	private ProcessType getType(JsonObject json) {
+		ProcessType type = In.getEnum(json, "processType", ProcessType.class);
+		if (type == null) // support old versions with typo
+			type = In.getEnum(json, "processTyp", ProcessType.class);
+		return type;
 	}
 
 	private void addParameters(JsonObject json, Process p) {
