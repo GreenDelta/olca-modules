@@ -30,6 +30,7 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
+import org.openlca.jsonld.output.ExportConfig.DefaultProviderOption;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -45,7 +46,14 @@ public class JsonExport {
 	public JsonExport(IDatabase database, EntityStore store) {
 		conf = ExportConfig.create(database, store);
 	}
-
+	
+	public void setExportDefaultProvideReferences(boolean value) {
+		if (value)
+			conf.defaultProviderOption = DefaultProviderOption.INCLUDE_PROVIDER;
+		else
+			conf.defaultProviderOption = DefaultProviderOption.EXCLUDE_PROVIDER;
+	}
+	
 	public <T extends RootEntity> void write(T entity) {
 		write(entity, null);
 	}

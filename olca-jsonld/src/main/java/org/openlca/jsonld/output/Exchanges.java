@@ -8,6 +8,7 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Uncertainty;
+import org.openlca.jsonld.output.ExportConfig.DefaultProviderOption;
 
 import com.google.gson.JsonObject;
 
@@ -38,8 +39,9 @@ class Exchanges {
 
 	private static void mapRefs(Exchange e, JsonObject obj, ExportConfig conf,
 			Consumer<RootEntity> refFn) {
+		boolean exportProcess = conf.defaultProviderOption == DefaultProviderOption.INCLUDE_PROVIDER;
 		obj.add("defaultProvider", References.create(ModelType.PROCESS,
-				e.getDefaultProviderId(), conf, refFn));
+				e.getDefaultProviderId(), conf, exportProcess ? refFn : null));
 		obj.add("flow", References.create(e.getFlow(), refFn));
 		obj.add("unit", References.create(e.getUnit()));
 		FlowPropertyFactor propFac = e.getFlowPropertyFactor();

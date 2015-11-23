@@ -40,7 +40,9 @@ class References {
 			Consumer<RootEntity> handler) {
 		if (id == null || id == 0)
 			return null;
-		if (conf.hasVisited(type, id)) {
+		boolean doExportReference = !conf.hasVisited(type, id)
+				&& handler != null;
+		if (!doExportReference) {
 			JsonObject obj = create(loadDescriptor(conf.db, type, id));
 			return obj;
 		}

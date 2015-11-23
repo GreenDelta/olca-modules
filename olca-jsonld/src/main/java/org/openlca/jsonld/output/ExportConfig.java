@@ -13,6 +13,7 @@ class ExportConfig {
 
 	final IDatabase db;
 	final EntityStore store;
+	DefaultProviderOption defaultProviderOption = DefaultProviderOption.EXCLUDE_PROVIDER;
 	private final Map<ModelType, Set<Long>> visited = new HashMap<>();
 
 	private ExportConfig(IDatabase db, EntityStore store) {
@@ -36,6 +37,16 @@ class ExportConfig {
 		if (set == null)
 			return false;
 		return set.contains(id);
+	}
+
+	static enum DefaultProviderOption {
+
+		/* Export default provider field AND connected process */
+		INCLUDE_PROVIDER,
+
+		/* Export default provider field only, don't export process */
+		EXCLUDE_PROVIDER;
+
 	}
 
 }
