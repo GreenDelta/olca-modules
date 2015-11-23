@@ -51,7 +51,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray exchanges = new JsonArray();
 		for (Exchange e : process.getExchanges()) {
 			JsonObject obj = new JsonObject();
-			String id = Exchanges.map(e, obj, conf, refFn);
+			String id = Exchanges.map(e, process.getRefId(), obj, conf, refFn);
 			if (id == null)
 				continue;
 			idToRefId.put(e.getId(), id);
@@ -83,7 +83,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray factors = new JsonArray();
 		for (AllocationFactor f : process.getAllocationFactors()) {
 			JsonObject obj = new JsonObject();
-			Out.put(obj, "exchange", getExchangeId(f.getExchange()));
+			Out.put(obj, "exchange", createExchangeRef(f.getExchange()));
 			Out.put(obj, "product", findProduct(f.getProductId()), refFn);
 			Out.put(obj, "value", f.getValue());
 			Out.put(obj, "allocationType", f.getAllocationType());
@@ -99,10 +99,13 @@ class ProcessWriter extends Writer<Process> {
 		return null;
 	}
 
-	private String getExchangeId(Exchange exchange) {
+	private JsonObject createExchangeRef(Exchange exchange) {
 		if (exchange == null)
 			return null;
-		return idToRefId.get(exchange.getId());
+		JsonObject obj = new JsonObject();
+		Out.put(obj, "@type", Exchange.class.getSimpleName());
+		Out.put(obj, "@id", idToRefId.get(exchange.getId()));
+		return obj;
 	}
 
 }

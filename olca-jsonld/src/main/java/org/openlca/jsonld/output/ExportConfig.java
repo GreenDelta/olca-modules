@@ -14,6 +14,7 @@ class ExportConfig {
 	final IDatabase db;
 	final EntityStore store;
 	DefaultProviderOption defaultProviderOption = DefaultProviderOption.EXCLUDE_PROVIDER;
+	ProductSystemOption productSystemOption = ProductSystemOption.INCLUDE_PROCESSES;
 	private final Map<ModelType, Set<Long>> visited = new HashMap<>();
 
 	private ExportConfig(IDatabase db, EntityStore store) {
@@ -46,6 +47,16 @@ class ExportConfig {
 
 		/* Export default provider field only, don't export process */
 		EXCLUDE_PROVIDER;
+
+	}
+
+	static enum ProductSystemOption {
+
+		/* Export reference to process AND connected process */
+		INCLUDE_PROCESSES,
+
+		/* Export reference to process only, don't export process */
+		EXCLUDE_PROCESSES;
 
 	}
 

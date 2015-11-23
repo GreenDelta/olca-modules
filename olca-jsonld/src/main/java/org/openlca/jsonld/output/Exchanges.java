@@ -1,24 +1,22 @@
 package org.openlca.jsonld.output;
 
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.jsonld.ExchangeKey;
 import org.openlca.jsonld.output.ExportConfig.DefaultProviderOption;
 
 import com.google.gson.JsonObject;
 
 class Exchanges {
 
-	static String map(Exchange e, JsonObject obj, ExportConfig conf,
-			Consumer<RootEntity> refFn) {
+	static String map(Exchange e, String processRefId, JsonObject obj,
+			ExportConfig conf, Consumer<RootEntity> refFn) {
 		if (e == null || obj == null)
 			return null;
-		String internalId = UUID.randomUUID().toString();
-		Out.put(obj, "@id", internalId);
 		Out.put(obj, "@type", "Exchange");
 		Out.put(obj, "avoidedProduct", e.isAvoidedProduct());
 		Out.put(obj, "input", e.isInput());
@@ -30,12 +28,14 @@ class Exchanges {
 		Out.put(obj, "costValue", e.costValue);
 		Out.put(obj, "currency", e.currency, refFn);
 		Out.put(obj, "costCategory", e.costCategory, refFn);
-		mapRefs(e, obj, conf, refFn);
+		String providerRefId = mapRefs(e, obj, conf, refFn);
+		String internalId = ExchangeKey.get(processRefId, providerRefId, e);
+		Out.put(obj, "@id", internalId);
 		return internalId;
 	}
 
-	private static void mapRefs(Exchange e, JsonObject obj, ExportConfig conf,
-			Consumer<RootEntity> refFn) {
+	private static String mapRefs(Exchange e, JsonObject obj,
+			ExportConfig conf, Consumer<RootEntity> refFn) {
 		boolean exportProcess = conf.defaultProviderOption == DefaultProviderOption.INCLUDE_PROVIDER;
 		Long pId = e.getDefaultProviderId();
 		JsonObject provider = null;
@@ -51,6 +51,9 @@ class Exchanges {
 			property = e.getFlowPropertyFactor().getFlowProperty();
 		Out.put(obj, "flowProperty", property, refFn);
 		Out.put(obj, "uncertainty", Uncertainties.map(e.getUncertainty()));
+		if (provider == null)
+			return null;
+		return provider.get("@id").getAsString();
 	}
 
 }
