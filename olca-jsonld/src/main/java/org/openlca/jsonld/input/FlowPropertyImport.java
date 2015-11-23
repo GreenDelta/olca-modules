@@ -21,10 +21,7 @@ class FlowPropertyImport extends BaseImport<FlowProperty> {
 		if (json == null)
 			return null;
 		FlowProperty p = new FlowProperty();
-		p.setId(id);
-		In.mapAtts(json, p);
-		String catId = In.getRefId(json, "category");
-		p.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, p, id, conf);
 		p.setFlowPropertyType(In.getEnum(json, "flowPropertyType",
 				FlowPropertyType.class));
 		String unitGroupId = In.getRefId(json, "unitGroup");

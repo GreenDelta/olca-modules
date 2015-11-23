@@ -21,20 +21,17 @@ class CategoryImport extends BaseImport<Category> {
 	Category map(JsonObject json, long id) {
 		if (json == null)
 			return null;
-		Category category = new Category();
-		category.setId(id);
-		In.mapAtts(json, category);
-		category.setModelType(In.getEnum(json, "modelType", ModelType.class));
-		String parentId = In.getRefId(json, "category");
-		Category parent = CategoryImport.run(parentId, conf);
-		if (parent == null)
-			return conf.db.put(category);
+		Category c = new Category();
+		In.mapAtts(json, c, id, conf);
+		c.setModelType(In.getEnum(json, "modelType", ModelType.class));
+		if (c.getCategory() == null)
+			return conf.db.put(c);
 		else
-			return updateParent(parent, category);
+			return updateParent(c);
 	}
 
-	private Category updateParent(Category parent, Category category) {
-		category.setCategory(parent);
+	private Category updateParent(Category category) {
+		Category parent = category.getCategory();
 		parent.getChildCategories().add(category);
 		parent = conf.db.updateChilds(parent);
 		for (Category child : parent.getChildCategories()) {

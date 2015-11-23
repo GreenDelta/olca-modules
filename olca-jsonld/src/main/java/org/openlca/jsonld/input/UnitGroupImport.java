@@ -27,10 +27,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 		if (json == null)
 			return null;
 		UnitGroup g = new UnitGroup();
-		g.setId(id);
-		In.mapAtts(json, g);
-		String catId = In.getRefId(json, "category");
-		g.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, g, id, conf);
 		addUnits(g, json);
 		// insert the unit group before a default flow property is imported
 		// to avoid endless import cycles
@@ -66,7 +63,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 
 	private Unit mapUnit(JsonObject json) {
 		Unit unit = new Unit();
-		In.mapAtts(json, unit);
+		In.mapAtts(json, unit, 0);
 		unit.setConversionFactor(In.getDouble(json, "conversionFactor", 1.0));
 		addSynonyms(unit, json);
 		return unit;

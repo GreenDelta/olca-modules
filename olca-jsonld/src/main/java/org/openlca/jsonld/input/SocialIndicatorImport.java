@@ -20,10 +20,7 @@ class SocialIndicatorImport extends BaseImport<SocialIndicator> {
 		if (json == null)
 			return null;
 		SocialIndicator i = new SocialIndicator();
-		i.setId(id);
-		In.mapAtts(json, i);
-		String catId = In.getRefId(json, "category");
-		i.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, i, id, conf);
 		i.activityVariable = In.getString(json, "activityVariable");
 		i.evaluationScheme = In.getString(json, "evaluationScheme");
 		i.unitOfMeasurement = In.getString(json, "unitOfMeasurement");

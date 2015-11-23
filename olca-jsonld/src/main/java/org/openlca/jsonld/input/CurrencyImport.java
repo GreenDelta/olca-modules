@@ -22,10 +22,7 @@ class CurrencyImport extends BaseImport<Currency> {
 		if (json == null)
 			return null;
 		Currency c = new Currency();
-		c.setId(id);
-		In.mapAtts(json, c);
-		String catId = In.getRefId(json, "category");
-		c.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, c, id, conf);
 		c.code = In.getString(json, "code");
 		c.conversionFactor = In.getDouble(json, "conversionFactor", 1.0);
 		String refCurrencyId = In.getRefId(json, "referenceCurrency");

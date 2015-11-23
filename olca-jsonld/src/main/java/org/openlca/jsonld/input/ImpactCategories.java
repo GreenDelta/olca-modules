@@ -18,7 +18,7 @@ class ImpactCategories {
 		if (json == null)
 			return null;
 		ImpactCategory cat = new ImpactCategory();
-		In.mapAtts(json, cat);
+		In.mapAtts(json, cat, 0);
 		cat.setReferenceUnit(In.getString(json, "referenceUnitName"));
 		JsonElement factorsElem = json.get("impactFactors");
 		if (factorsElem == null || !factorsElem.isJsonArray())

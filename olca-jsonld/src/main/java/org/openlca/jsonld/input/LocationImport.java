@@ -23,8 +23,7 @@ class LocationImport extends BaseImport<Location> {
 		if (json == null)
 			return null;
 		Location loc = new Location();
-		loc.setId(id);
-		In.mapAtts(json, loc);
+		In.mapAtts(json, loc, id, conf);
 		loc.setCode(In.getString(json, "code"));
 		loc.setLatitude(In.getDouble(json, "latitude", 0));
 		loc.setLongitude(In.getDouble(json, "longitude", 0));

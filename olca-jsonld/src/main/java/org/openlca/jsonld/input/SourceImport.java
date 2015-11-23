@@ -21,10 +21,7 @@ class SourceImport extends BaseImport<Source> {
 		if (json == null)
 			return null;
 		Source s = new Source();
-		s.setId(id);
-		In.mapAtts(json, s);
-		String catId = In.getRefId(json, "category");
-		s.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, s, id, conf);
 		mapAtts(json, s);
 		return conf.db.put(s);
 	}

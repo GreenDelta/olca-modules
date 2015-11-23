@@ -25,10 +25,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 		if (json == null)
 			return null;
 		ImpactMethod m = new ImpactMethod();
-		m.setId(id);
-		In.mapAtts(json, m);
-		String catId = In.getRefId(json, "category");
-		m.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, m, id, conf);
 		mapCategories(json, m);
 		mapNwSets(json, m);
 		mapParameters(json, m);

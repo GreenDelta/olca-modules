@@ -20,10 +20,7 @@ class ActorImport extends BaseImport<Actor> {
 		if (json == null)
 			return null;
 		Actor a = new Actor();
-		a.setId(id);
-		In.mapAtts(json, a);
-		String catId = In.getRefId(json, "category");
-		a.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, a, id, conf);
 		mapAtts(json, a);
 		return conf.db.put(a);
 	}

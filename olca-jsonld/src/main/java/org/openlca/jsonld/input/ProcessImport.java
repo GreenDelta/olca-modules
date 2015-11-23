@@ -37,10 +37,7 @@ class ProcessImport extends BaseImport<Process> {
 		if (json == null)
 			return null;
 		Process p = new Process();
-		p.setId(id);
-		In.mapAtts(json, p);
-		String catId = In.getRefId(json, "category");
-		p.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, p, id, conf);
 		p.setProcessType(getType(json));
 		p.setDefaultAllocationMethod(In.getEnum(json,
 				"defaultAllocationMethod", AllocationMethod.class));

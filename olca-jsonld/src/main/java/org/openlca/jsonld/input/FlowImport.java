@@ -24,15 +24,13 @@ class FlowImport extends BaseImport<Flow> {
 		if (json == null)
 			return null;
 		Flow flow = new Flow();
-		flow.setId(id);
+		In.mapAtts(json, flow, id, conf);
 		mapFlowAtts(json, flow);
 		addFactors(json, flow);
-		flow = conf.db.put(flow);
-		return flow;
+		return conf.db.put(flow);
 	}
 
 	private void mapFlowAtts(JsonObject json, Flow flow) {
-		In.mapAtts(json, flow);
 		String catId = In.getRefId(json, "category");
 		flow.setCategory(CategoryImport.run(catId, conf));
 		flow.setFlowType(In.getEnum(json, "flowType", FlowType.class));

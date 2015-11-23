@@ -2,6 +2,7 @@ package org.openlca.jsonld.input;
 
 import java.util.Date;
 
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Dates;
@@ -117,13 +118,24 @@ final class In {
 			return 0;
 	}
 
-	static void mapAtts(JsonObject obj, RootEntity entity) {
+	static void mapAtts(JsonObject obj, RootEntity entity, long id) {
 		if (obj == null || entity == null)
 			return;
+		entity.setId(id);
 		entity.setName(getString(obj, "name"));
 		entity.setDescription(getString(obj, "description"));
 		entity.setRefId(getString(obj, "@id"));
 		entity.setVersion(getVersion(obj));
 		entity.setLastChange(getLastChange(obj));
 	}
+
+	static void mapAtts(JsonObject obj, CategorizedEntity entity, long id,
+			ImportConfig conf) {
+		if (obj == null || entity == null)
+			return;
+		mapAtts(obj, (RootEntity) entity, id);
+		String catId = In.getRefId(obj, "category");
+		entity.setCategory(CategoryImport.run(catId, conf));
+	}
+
 }

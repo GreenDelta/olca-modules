@@ -16,7 +16,7 @@ class NwSets {
 		if (json == null)
 			return null;
 		NwSet set = new NwSet();
-		In.mapAtts(json, set);
+		In.mapAtts(json, set, 0);
 		set.setWeightedScoreUnit(In.getString(json, "weightedScoreUnit"));
 		JsonArray factors = In.getArray(json, "factors");
 		if (factors == null)

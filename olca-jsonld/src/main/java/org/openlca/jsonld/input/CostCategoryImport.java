@@ -20,10 +20,7 @@ class CostCategoryImport extends BaseImport<CostCategory> {
 		if (json == null)
 			return null;
 		CostCategory cc = new CostCategory();
-		cc.setId(id);
-		In.mapAtts(json, cc);
-		String catId = In.getRefId(json, "category");
-		cc.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, cc, id, conf);
 		return conf.db.put(cc);
 	}
 

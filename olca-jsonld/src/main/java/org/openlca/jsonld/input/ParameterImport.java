@@ -21,15 +21,13 @@ class ParameterImport extends BaseImport<Parameter> {
 		if (json == null)
 			return null;
 		Parameter p = new Parameter();
-		p.setId(id);
+		In.mapAtts(json, p, id, conf);
 		mapFields(json, p);
 		return conf.db.put(p);
 	}
 
 	/** Field mappings for processes and LCIA methods. */
 	void mapFields(JsonObject json, Parameter p) {
-		In.mapAtts(json, p);
-		p.setCategory(CategoryImport.run(In.getRefId(json, "category"), conf));
 		p.setScope(In.getEnum(json, "parameterScope", ParameterScope.class));
 		p.setInputParameter(In.getBool(json, "inputParameter", true));
 		p.setValue(In.getDouble(json, "value", 0));
