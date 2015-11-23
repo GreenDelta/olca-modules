@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialAspect;
@@ -40,11 +41,21 @@ class ProcessWriter extends Writer<Process> {
 		Out.put(obj, "processDocumentation",
 				Documentation.create(process, refFn));
 		Out.put(obj, "currency", process.currency, refFn);
-		Out.put(obj, "parameters", process.getParameters(), refFn);
+		mapParameters(obj);
 		mapExchanges(obj);
 		mapSocialAspects(obj);
 		mapAllocationFactors(obj);
 		return obj;
+	}
+
+	private void mapParameters(JsonObject json) {
+		JsonArray parameters = new JsonArray();
+		for (Parameter p : process.getParameters()) {
+			JsonObject obj = new ParameterWriter().write(p, ref -> {
+			});
+			parameters.add(obj);
+		}
+		Out.put(json, "parameters", parameters);
 	}
 
 	private void mapExchanges(JsonObject json) {
