@@ -18,6 +18,9 @@ class Out {
 	static final boolean WRITE_NULL_VALUES = false;
 	static final boolean WRITE_EMPTY_COLLECTIONS = false;
 
+	private Out() {
+	}
+	
 	static void put(JsonObject json, String property, RootEntity value,
 			Consumer<RootEntity> refFn) {
 		if (!isValidInput(value))
