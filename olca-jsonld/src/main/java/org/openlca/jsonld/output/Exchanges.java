@@ -7,7 +7,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.ExchangeKey;
-import org.openlca.jsonld.output.ExportConfig.DefaultProviderOption;
+import org.openlca.jsonld.output.ExportConfig.ProviderOption;
 
 import com.google.gson.JsonObject;
 
@@ -36,7 +36,7 @@ class Exchanges {
 
 	private static String mapRefs(Exchange e, JsonObject obj,
 			ExportConfig conf, Consumer<RootEntity> refFn) {
-		boolean exportProcess = conf.defaultProviderOption == DefaultProviderOption.INCLUDE_PROVIDER;
+		boolean exportProcess = conf.providerOption == ProviderOption.INCLUDE_PROVIDER;
 		Long pId = e.getDefaultProviderId();
 		JsonObject provider = null;
 		if (exportProcess)

@@ -17,8 +17,8 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.ExchangeKey;
-import org.openlca.jsonld.output.ExportConfig.DefaultProviderOption;
-import org.openlca.jsonld.output.ExportConfig.ProductSystemOption;
+import org.openlca.jsonld.output.ExportConfig.ProviderOption;
+import org.openlca.jsonld.output.ExportConfig.SystemOption;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -35,8 +35,8 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 
 	ProductSystemWriter(ExportConfig conf) {
 		this.conf = conf;
-		exportProvider = conf.defaultProviderOption == DefaultProviderOption.INCLUDE_PROVIDER;
-		exportProcesses = conf.productSystemOption == ProductSystemOption.INCLUDE_PROCESSES;
+		exportProvider = conf.providerOption == ProviderOption.INCLUDE_PROVIDER;
+		exportProcesses = conf.systemOption == SystemOption.INCLUDE_PROCESSES;
 		exchangeDao = new BaseDao<>(Exchange.class, conf.db);
 		parameterDao = new ParameterDao(conf.db);
 	}

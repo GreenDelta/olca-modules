@@ -31,8 +31,9 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
-import org.openlca.jsonld.output.ExportConfig.DefaultProviderOption;
-import org.openlca.jsonld.output.ExportConfig.ProductSystemOption;
+import org.openlca.jsonld.output.ExportConfig.ProjectOption;
+import org.openlca.jsonld.output.ExportConfig.ProviderOption;
+import org.openlca.jsonld.output.ExportConfig.SystemOption;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -49,18 +50,25 @@ public class JsonExport {
 		conf = ExportConfig.create(database, store);
 	}
 
-	public void setExportDefaultProviderReferences(boolean value) {
+	public void setExportDefaultProviders(boolean value) {
 		if (value)
-			conf.defaultProviderOption = DefaultProviderOption.INCLUDE_PROVIDER;
+			conf.providerOption = ProviderOption.INCLUDE_PROVIDER;
 		else
-			conf.defaultProviderOption = DefaultProviderOption.EXCLUDE_PROVIDER;
+			conf.providerOption = ProviderOption.EXCLUDE_PROVIDER;
 	}
 
 	public void setExportProductSystemProcesses(boolean value) {
 		if (value)
-			conf.productSystemOption = ProductSystemOption.INCLUDE_PROCESSES;
+			conf.systemOption = SystemOption.INCLUDE_PROCESSES;
 		else
-			conf.productSystemOption = ProductSystemOption.EXCLUDE_PROCESSES;
+			conf.systemOption = SystemOption.EXCLUDE_PROCESSES;
+	}
+
+	public void setExportProjectReferences(boolean value) {
+		if (value)
+			conf.projectOption = ProjectOption.INCLUDE_REFERENCES;
+		else
+			conf.projectOption = ProjectOption.EXCLUDE_REFERENCES;
 	}
 
 	public <T extends RootEntity> void write(T entity) {

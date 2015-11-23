@@ -13,8 +13,9 @@ class ExportConfig {
 
 	final IDatabase db;
 	final EntityStore store;
-	DefaultProviderOption defaultProviderOption = DefaultProviderOption.EXCLUDE_PROVIDER;
-	ProductSystemOption productSystemOption = ProductSystemOption.INCLUDE_PROCESSES;
+	ProviderOption providerOption = ProviderOption.EXCLUDE_PROVIDER;
+	SystemOption systemOption = SystemOption.INCLUDE_PROCESSES;
+	ProjectOption projectOption = ProjectOption.INCLUDE_REFERENCES;
 	private final Map<ModelType, Set<Long>> visited = new HashMap<>();
 
 	private ExportConfig(IDatabase db, EntityStore store) {
@@ -40,7 +41,7 @@ class ExportConfig {
 		return set.contains(id);
 	}
 
-	static enum DefaultProviderOption {
+	static enum ProviderOption {
 
 		/* Export default provider field AND connected process */
 		INCLUDE_PROVIDER,
@@ -50,13 +51,23 @@ class ExportConfig {
 
 	}
 
-	static enum ProductSystemOption {
+	static enum SystemOption {
 
 		/* Export reference to process AND connected process */
 		INCLUDE_PROCESSES,
 
 		/* Export reference to process only, don't export process */
 		EXCLUDE_PROCESSES;
+
+	}
+
+	static enum ProjectOption {
+
+		/* Export reference to process AND connected process */
+		INCLUDE_REFERENCES,
+
+		/* Export reference to process only, don't export process */
+		EXCLUDE_REFERENCES;
 
 	}
 
