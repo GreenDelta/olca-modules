@@ -161,7 +161,7 @@ public class JsonExport {
 		if (entity instanceof SocialIndicator)
 			return Writer.class.cast(new SocialIndicatorWriter());
 		if (entity instanceof ProductSystem)
-			return Writer.class.cast(new ProductSystemWriter());
+			return Writer.class.cast(new ProductSystemWriter(conf));
 		else
 			return null;
 	}
