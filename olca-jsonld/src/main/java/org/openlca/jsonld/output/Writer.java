@@ -6,6 +6,7 @@ import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Dates;
+import org.openlca.jsonld.Schema;
 
 import com.google.gson.JsonObject;
 
@@ -30,8 +31,8 @@ class Writer<T extends RootEntity> {
 	private JsonObject initJson() {
 		JsonObject object = new JsonObject();
 		JsonObject context = new JsonObject();
-		context.addProperty("@vocab", "http://openlca.org/schema/v1.0/");
-		context.addProperty("@base", "http://openlca.org/schema/v1.0/");
+		context.addProperty("@vocab", Schema.URI);
+		context.addProperty("@base", Schema.URI);
 		JsonObject vocabType = new JsonObject();
 		vocabType.addProperty("@type", "@vocab");
 		context.add("modelType", vocabType);
