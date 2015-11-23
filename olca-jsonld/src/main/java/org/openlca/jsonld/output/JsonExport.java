@@ -32,6 +32,7 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.output.ExportConfig.DefaultProviderOption;
+import org.openlca.jsonld.output.ExportConfig.ProductSystemOption;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -47,14 +48,21 @@ public class JsonExport {
 	public JsonExport(IDatabase database, EntityStore store) {
 		conf = ExportConfig.create(database, store);
 	}
-	
-	public void setExportDefaultProvideReferences(boolean value) {
+
+	public void setExportDefaultProviderReferences(boolean value) {
 		if (value)
 			conf.defaultProviderOption = DefaultProviderOption.INCLUDE_PROVIDER;
 		else
 			conf.defaultProviderOption = DefaultProviderOption.EXCLUDE_PROVIDER;
 	}
-	
+
+	public void setExportProductSystemProcesses(boolean value) {
+		if (value)
+			conf.productSystemOption = ProductSystemOption.INCLUDE_PROCESSES;
+		else
+			conf.productSystemOption = ProductSystemOption.EXCLUDE_PROCESSES;
+	}
+
 	public <T extends RootEntity> void write(T entity) {
 		write(entity, null);
 	}
@@ -85,6 +93,7 @@ public class JsonExport {
 			if (cb != null)
 				cb.apply(Message.info("data set exported"), entity);
 		} catch (Exception e) {
+			e.printStackTrace();
 			if (cb != null)
 				cb.apply(Message.error("failed to export data set", e), entity);
 		}

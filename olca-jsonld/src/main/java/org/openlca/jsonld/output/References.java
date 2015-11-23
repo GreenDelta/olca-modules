@@ -2,8 +2,8 @@ package org.openlca.jsonld.output;
 
 import java.util.function.Consumer;
 
+import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -60,10 +60,7 @@ class References {
 
 	private static BaseDescriptor loadDescriptor(IDatabase database,
 			ModelType type, long id) {
-		Class<?> clazz = type.getModelClass();
-		RootEntityDao<?, ?> dao = (RootEntityDao<?, ?>) database
-				.createDao(clazz);
-		return dao.getDescriptor(id);
+		return Daos.createRootDao(database, type).getDescriptor(id);
 	}
 
 }

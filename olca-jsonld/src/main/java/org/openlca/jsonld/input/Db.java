@@ -14,6 +14,7 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
@@ -28,6 +29,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -51,6 +53,7 @@ class Db {
 	private Map<String, Long> indicatorIds = new HashMap<>();
 	private Map<String, Long> currencyIds = new HashMap<>();
 	private Map<String, Long> costCategoryIds = new HashMap<>();
+	private Map<String, Long> systemIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -193,6 +196,14 @@ class Db {
 
 	public Parameter put(Parameter parameter) {
 		return put(new ParameterDao(db), parameter, parameterIds);
+	}
+
+	public ProductSystem getSystem(String refId) {
+		return get(new ProductSystemDao(db), refId, systemIds);
+	}
+
+	public ProductSystem put(ProductSystem system) {
+		return put(new ProductSystemDao(db), system, systemIds);
 	}
 
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,

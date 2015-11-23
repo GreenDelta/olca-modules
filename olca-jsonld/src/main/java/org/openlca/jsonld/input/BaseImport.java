@@ -91,6 +91,8 @@ abstract class BaseImport<T extends RootEntity> {
 			return (T) conf.db.getSource(refId);
 		case UNIT_GROUP:
 			return (T) conf.db.getUnitGroup(refId);
+		case PRODUCT_SYSTEM:
+			return (T) conf.db.getSystem(refId);
 		default:
 			throw new RuntimeException(modelType.name() + " not supported");
 		}

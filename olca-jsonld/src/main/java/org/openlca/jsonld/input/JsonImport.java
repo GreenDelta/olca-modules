@@ -49,6 +49,8 @@ public class JsonImport implements Runnable {
 			SocialIndicatorImport.run(indicatorId, conf);
 		for (String processId : store.getRefIds(ModelType.PROCESS))
 			ProcessImport.run(processId, conf);
+		for (String systemId : store.getRefIds(ModelType.PRODUCT_SYSTEM))
+			ProductSystemImport.run(systemId, conf);
 	}
 
 }

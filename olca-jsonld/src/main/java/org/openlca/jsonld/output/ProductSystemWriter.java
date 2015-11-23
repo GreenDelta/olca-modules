@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
@@ -51,7 +52,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		if (system.getTargetFlowPropertyFactor() != null)
 			property = system.getTargetFlowPropertyFactor().getFlowProperty();
 		Out.put(obj, "targetFlowProperty", property, refFn);
-		Out.put(obj, "targetUnit", system.getTargetUnit(), refFn);
+		Out.put(obj, "targetUnit", system.getTargetUnit(), null);
 		Out.put(obj, "targetAmount", system.getTargetAmount());
 		mapParameters(obj);
 		mapProcesses(obj);
@@ -90,11 +91,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 					link.getFlowId());
 			JsonObject input = createExchangeRef(recipientRefId, eInput);
 			Out.put(obj, "recipientInput", input);
-			// add flow and default provider info in case exchange can not be
-			// identified in import
-			Out.put(obj, "flow", createFlowRef(link.getFlowId()));
-			Out.put(obj, "defaultProvider",
-					createProcessRef(eInput.getDefaultProviderId()));
 			links.add(obj);
 		}
 		Out.put(json, "processLinks", links);
@@ -115,12 +111,12 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		return References.create(ModelType.PROCESS, id, conf, null);
 	}
 
-	private JsonObject createFlowRef(Long id) {
-		if (id == null)
+	private JsonObject createFlowRef(Flow flow) {
+		if (flow == null)
 			return null;
 		if (exportProcesses)
-			return References.create(ModelType.FLOW, id, conf, refFn);
-		return References.create(ModelType.FLOW, id, conf, null);
+			return References.create(flow, refFn);
+		return References.create(flow, null);
 	}
 
 	private JsonObject createExchangeRef(String pRefId, Exchange e) {
@@ -130,6 +126,11 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
 		String id = ExchangeKey.get(pRefId, getProviderRefId(e), e);
 		Out.put(obj, "@id", id);
+		Out.put(obj, "flow", createFlowRef(e.getFlow()));
+		if (!e.isInput())
+			return obj;
+		Out.put(obj, "defaultProvider",
+				createProcessRef(e.getDefaultProviderId()));
 		return obj;
 	}
 

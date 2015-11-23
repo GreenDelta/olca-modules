@@ -15,6 +15,8 @@ public class ExchangeKey {
 		List<String> kg = new ArrayList<>();
 		kg.add(processRefId);
 		kg.add(providerRefId);
+		kg.add(toString(e.isInput()));
+		kg.add(toString(e.isAvoidedProduct()));
 		kg.add(toString(e.getFlow()));
 		kg.add(toString(e.getFlowPropertyFactor().getFlowProperty()));
 		kg.add(toString(e.getUnit()));
@@ -38,6 +40,11 @@ public class ExchangeKey {
 
 	private static List<String> toString(Uncertainty u) {
 		List<String> kg = new ArrayList<>();
+		if (u == null) {
+			for (int i = 0; i < 7; i++)
+				kg.add(null);
+			return kg;
+		}
 		kg.add(toString(u.getDistributionType()));
 		kg.add(u.getParameter1Formula());
 		kg.add(toString(u.getParameter1Value()));
@@ -60,4 +67,9 @@ public class ExchangeKey {
 		return Double.toString(v);
 	}
 
+	private static String toString(Boolean v) {
+		if (v == null)
+			return null;
+		return Boolean.toString(v);
+	}
 }
