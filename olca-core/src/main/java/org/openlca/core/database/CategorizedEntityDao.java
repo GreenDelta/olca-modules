@@ -39,7 +39,8 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 	@Override
 	protected V createDescriptor(Object[] queryResult) {
 		V descriptor = super.createDescriptor(queryResult);
-		descriptor.setCategory((Long) queryResult[6]);
+		if (descriptor != null)
+			descriptor.setCategory((Long) queryResult[6]);
 		return descriptor;
 	}
 
