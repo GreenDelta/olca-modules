@@ -18,6 +18,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
 public class Descriptors {
@@ -29,6 +30,10 @@ public class Descriptors {
 			return toDescriptor((CategorizedEntity) entity);
 		if (entity instanceof ImpactCategory)
 			return toDescriptor((ImpactCategory) entity);
+		if (entity instanceof NwSet)
+			return toDescriptor((NwSet) entity);
+		if (entity instanceof Unit)
+			return toDescriptor((Unit) entity);
 		return createUnknownDescriptor(entity);
 	}
 
@@ -140,6 +145,14 @@ public class Descriptors {
 			return null;
 		UnitGroupDescriptor descriptor = new UnitGroupDescriptor();
 		setBaseValues(unitGroup, descriptor);
+		return descriptor;
+	}
+	
+	public static UnitDescriptor toDescriptor(Unit unit) {
+		if (unit == null)
+			return null;
+		UnitDescriptor descriptor = new UnitDescriptor();
+		setBaseValues(unit, descriptor);
 		return descriptor;
 	}
 
