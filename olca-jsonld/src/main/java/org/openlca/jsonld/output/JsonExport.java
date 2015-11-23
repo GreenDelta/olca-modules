@@ -89,7 +89,8 @@ public class JsonExport {
 				});
 			conf.visited(type, entity.getId());
 			conf.store.put(type, obj);
-			writeExternalFiles(entity, type, cb);
+			if (writer.isExportExternalFiles())
+				writeExternalFiles(entity, type, cb);
 			if (cb != null)
 				cb.apply(Message.info("data set exported"), entity);
 		} catch (Exception e) {

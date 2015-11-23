@@ -172,4 +172,11 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		return parameterDao.getFirst(jpql, parameters);
 	}
 
+	@Override
+	boolean isExportExternalFiles() {
+		// Product system files are using local ids, this must be changed first,
+		// otherwise this leads to problems after import
+		return false;
+	}
+
 }

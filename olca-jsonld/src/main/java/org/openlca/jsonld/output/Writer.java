@@ -56,4 +56,9 @@ class Writer<T extends RootEntity> {
 			lastChange = Dates.toString(entity.getLastChange());
 		Out.put(obj, "lastChange", lastChange);
 	}
+	
+	boolean isExportExternalFiles() {
+		return true;
+	}
+	
 }
