@@ -21,7 +21,7 @@ class References {
 		if (ref == null)
 			return null;
 		JsonObject obj = new JsonObject();
-		String type = ref.getClass().getSimpleName();
+		String type = ref.getModelType().getModelClass().getSimpleName();
 		obj.addProperty("@type", type);
 		obj.addProperty("@id", ref.getRefId());
 		obj.addProperty("name", ref.getName());
