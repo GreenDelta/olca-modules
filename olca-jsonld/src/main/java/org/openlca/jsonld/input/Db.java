@@ -15,6 +15,7 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
@@ -30,6 +31,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -54,6 +56,7 @@ class Db {
 	private Map<String, Long> currencyIds = new HashMap<>();
 	private Map<String, Long> costCategoryIds = new HashMap<>();
 	private Map<String, Long> systemIds = new HashMap<>();
+	private Map<String, Long> projectIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -204,6 +207,14 @@ class Db {
 
 	public ProductSystem put(ProductSystem system) {
 		return put(new ProductSystemDao(db), system, systemIds);
+	}
+	
+	public Project getProject(String refId) {
+		return get(new ProjectDao(db), refId, projectIds);
+	}
+
+	public Project put(Project project) {
+		return put(new ProjectDao(db), project, projectIds);
 	}
 
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,

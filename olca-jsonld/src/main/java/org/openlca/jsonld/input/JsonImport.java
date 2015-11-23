@@ -51,6 +51,8 @@ public class JsonImport implements Runnable {
 			ProcessImport.run(processId, conf);
 		for (String systemId : store.getRefIds(ModelType.PRODUCT_SYSTEM))
 			ProductSystemImport.run(systemId, conf);
+		for (String projectId : store.getRefIds(ModelType.PROJECT))
+			ProjectImport.run(projectId, conf);
 	}
 
 }

@@ -26,6 +26,7 @@ import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -48,27 +49,6 @@ public class JsonExport {
 
 	public JsonExport(IDatabase database, EntityStore store) {
 		conf = ExportConfig.create(database, store);
-	}
-
-	public void setExportDefaultProviders(boolean value) {
-		if (value)
-			conf.providerOption = ProviderOption.INCLUDE_PROVIDER;
-		else
-			conf.providerOption = ProviderOption.EXCLUDE_PROVIDER;
-	}
-
-	public void setExportProductSystemProcesses(boolean value) {
-		if (value)
-			conf.systemOption = SystemOption.INCLUDE_PROCESSES;
-		else
-			conf.systemOption = SystemOption.EXCLUDE_PROCESSES;
-	}
-
-	public void setExportProjectReferences(boolean value) {
-		if (value)
-			conf.projectOption = ProjectOption.INCLUDE_REFERENCES;
-		else
-			conf.projectOption = ProjectOption.EXCLUDE_REFERENCES;
 	}
 
 	public <T extends RootEntity> void write(T entity) {
@@ -180,8 +160,31 @@ public class JsonExport {
 			return Writer.class.cast(new SocialIndicatorWriter());
 		if (entity instanceof ProductSystem)
 			return Writer.class.cast(new ProductSystemWriter(conf));
+		if (entity instanceof Project)
+			return Writer.class.cast(new ProjectWriter(conf));
 		else
 			return null;
+	}
+
+	public void setExportDefaultProviders(boolean value) {
+		if (value)
+			conf.providerOption = ProviderOption.INCLUDE_PROVIDER;
+		else
+			conf.providerOption = ProviderOption.EXCLUDE_PROVIDER;
+	}
+
+	public void setExportProductSystemProcesses(boolean value) {
+		if (value)
+			conf.systemOption = SystemOption.INCLUDE_PROCESSES;
+		else
+			conf.systemOption = SystemOption.EXCLUDE_PROCESSES;
+	}
+
+	public void setExportProjectReferences(boolean value) {
+		if (value)
+			conf.projectOption = ProjectOption.INCLUDE_REFERENCES;
+		else
+			conf.projectOption = ProjectOption.EXCLUDE_REFERENCES;
 	}
 
 	private class Copy extends SimpleFileVisitor<Path> {

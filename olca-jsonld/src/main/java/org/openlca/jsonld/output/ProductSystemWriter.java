@@ -5,14 +5,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
@@ -27,7 +23,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 
 	private final ExportConfig conf;
 	private final BaseDao<Exchange> exchangeDao;
-	private final ParameterDao parameterDao;
 	private final boolean exportProcesses;
 	private final boolean exportProvider;
 	private ProductSystem system;
@@ -38,7 +33,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		exportProvider = conf.providerOption == ProviderOption.INCLUDE_PROVIDER;
 		exportProcesses = conf.systemOption == SystemOption.INCLUDE_PROCESSES;
 		exchangeDao = new BaseDao<>(Exchange.class, conf.db);
-		parameterDao = new ParameterDao(conf.db);
 	}
 
 	@Override
@@ -59,27 +53,11 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "targetFlowProperty", property, refFn);
 		Out.put(obj, "targetUnit", system.getTargetUnit(), null);
 		Out.put(obj, "targetAmount", system.getTargetAmount());
-		mapParameters(obj);
+		ParameterRedefs.map(obj, system.getParameterRedefs(), conf.db, refFn, (
+				type, id) -> createProcessRef(id));
 		mapProcesses(obj);
 		mapLinks(obj);
 		return obj;
-	}
-
-	private void mapParameters(JsonObject json) {
-		JsonArray redefs = new JsonArray();
-		for (ParameterRedef p : system.getParameterRedefs()) {
-			JsonObject obj = new JsonObject();
-			Out.put(obj, "name", p.getName());
-			Out.put(obj, "value", p.getValue());
-			Out.put(obj, "uncertainty", Uncertainties.map(p.getUncertainty()));
-			Out.put(obj, "context", createProcessRef(p.getContextId()));
-			if (p.getContextId() == null) {
-				Parameter global = loadParameter(p.getName());
-				refFn.accept(global);
-			}
-			redefs.add(obj);
-		}
-		Out.put(json, "parameterRedefs", redefs);
 	}
 
 	private void mapLinks(JsonObject json) {
@@ -162,14 +140,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		parameters.put("processId", processId);
 		parameters.put("flowId", flowId);
 		return exchangeDao.getFirst(jpql, parameters);
-	}
-
-	private Parameter loadParameter(String name) {
-		String jpql = "SELECT p FROM Parameter p WHERE p.scope = :scope AND p.name = :name";
-		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("name", name);
-		parameters.put("scope", ParameterScope.GLOBAL);
-		return parameterDao.getFirst(jpql, parameters);
 	}
 
 	@Override
