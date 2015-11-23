@@ -5,11 +5,14 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
@@ -24,6 +27,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 
 	private final ExportConfig conf;
 	private final BaseDao<Exchange> exchangeDao;
+	private final ParameterDao parameterDao;
 	private final boolean exportProcesses;
 	private final boolean exportProvider;
 	private ProductSystem system;
@@ -34,6 +38,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		exportProvider = conf.defaultProviderOption == DefaultProviderOption.INCLUDE_PROVIDER;
 		exportProcesses = conf.productSystemOption == ProductSystemOption.INCLUDE_PROCESSES;
 		exchangeDao = new BaseDao<>(Exchange.class, conf.db);
+		parameterDao = new ParameterDao(conf.db);
 	}
 
 	@Override
@@ -68,6 +73,10 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			Out.put(obj, "value", p.getValue());
 			Out.put(obj, "uncertainty", Uncertainties.map(p.getUncertainty()));
 			Out.put(obj, "context", createProcessRef(p.getContextId()));
+			if (p.getContextId() == null) {
+				Parameter global = loadParameter(p.getName());
+				refFn.accept(global);
+			}
 			redefs.add(obj);
 		}
 		Out.put(json, "parameterRedefs", redefs);
@@ -153,6 +162,14 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		parameters.put("processId", processId);
 		parameters.put("flowId", flowId);
 		return exchangeDao.getFirst(jpql, parameters);
+	}
+
+	private Parameter loadParameter(String name) {
+		String jpql = "SELECT p FROM Parameter p WHERE p.scope = :scope AND p.name = :name";
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("name", name);
+		parameters.put("scope", ParameterScope.GLOBAL);
+		return parameterDao.getFirst(jpql, parameters);
 	}
 
 }
