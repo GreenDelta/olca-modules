@@ -77,13 +77,9 @@ public class Enums {
 		Enums.labelToValue.put(clazz, labelToValue);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T extends Enum<T>> String getLabel(Enum<T> value,
-			Class<T> enumClass) {
+	public static <T extends Enum<T>> String getLabel(Enum<T> value) {
 		if (valueToLabel.containsKey(value))
 			return valueToLabel.get(value);
-		if (value == null)
-			value = (T) defaultValues.get(enumClass);
 		if (value != null)
 			return value.name();
 		return null;
@@ -104,6 +100,11 @@ public class Enums {
 					return (T) value;
 			}
 		}
+		return (T) defaultValues.get(enumClass);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Enum<T>> T getDefaultValue(Class<T> enumClass) {
 		return (T) defaultValues.get(enumClass);
 	}
 

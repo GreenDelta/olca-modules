@@ -15,14 +15,12 @@ class CurrencyWriter extends Writer<Currency> {
 		JsonObject obj = super.write(currency, refFn);
 		if (obj == null)
 			return null;
-		obj.addProperty("code", currency.code);
-		obj.addProperty("conversionFactor", currency.conversionFactor);
-		JsonObject ref = null;
+		Out.put(obj, "code", currency.code);
+		Out.put(obj, "conversionFactor", currency.conversionFactor);
 		if (Objects.equals(currency, currency.referenceCurrency))
-			ref = References.create(currency);
+			Out.put(obj, "referenceCurrency", currency.referenceCurrency, null);
 		else
-			ref = References.create(currency.referenceCurrency, refFn);
-		obj.add("referenceCurrency", ref);
+			Out.put(obj, "referenceCurrency", currency.referenceCurrency, refFn);
 		return obj;
 	}
 }

@@ -16,18 +16,22 @@ public class NwSetWriter extends Writer<NwSet> {
 		JsonObject obj = super.write(set, refFn);
 		if (obj == null)
 			return null;
-		obj.addProperty("weightedScoreUnit", set.getWeightedScoreUnit());
+		Out.put(obj, "weightedScoreUnit", set.getWeightedScoreUnit());
+		mapFactors(set, obj, refFn);
+		return obj;
+	}
+
+	private void mapFactors(NwSet set, JsonObject json,
+			Consumer<RootEntity> refFn) {
 		JsonArray factors = new JsonArray();
 		for (NwFactor f : set.getFactors()) {
-			JsonObject fObj = new JsonObject();
-			JsonObject cat = References.create(f.getImpactCategory(), refFn);
-			fObj.add("impactCategory", cat);
-			fObj.addProperty("normalisationFactor", f.getNormalisationFactor());
-			fObj.addProperty("weightingFactor", f.getWeightingFactor());
-			factors.add(fObj);
+			JsonObject obj = new JsonObject();
+			Out.put(obj, "impactCategory", f.getImpactCategory(), refFn);
+			Out.put(obj, "normalisationFactor", f.getNormalisationFactor());
+			Out.put(obj, "weightingFactor", f.getWeightingFactor());
+			factors.add(obj);
 		}
-		obj.add("factors", factors);
-		return obj;
+		Out.put(json, "factors", factors);
 	}
 
 }

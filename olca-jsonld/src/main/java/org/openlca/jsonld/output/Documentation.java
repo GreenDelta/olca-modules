@@ -5,10 +5,7 @@ import java.util.function.Consumer;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Source;
-import org.openlca.jsonld.Dates;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 class Documentation {
@@ -18,39 +15,36 @@ class Documentation {
 		if (d == null)
 			return null;
 		JsonObject o = new JsonObject();
-		o.addProperty("@type", "ProcessDocumentation");
+		Out.put(o, "@type", "ProcessDocumentation");
 		mapSimpleDocFields(d, o);
-		o.add("reviewer", References.create(d.getReviewer(), refFn));
-		o.add("dataDocumentor", References.create(d.getDataDocumentor(), refFn));
-		o.add("dataGenerator", References.create(d.getDataGenerator(), refFn));
-		o.add("dataSetOwner", References.create(d.getDataSetOwner(), refFn));
-		o.add("publication", References.create(d.getPublication(), refFn));
-		JsonArray sources = new JsonArray();
-		for (Source source : d.getSources())
-			sources.add(References.create(source, refFn));
-		o.add("sources", sources);
+		Out.put(o, "reviewer", d.getReviewer(), refFn);
+		Out.put(o, "dataDocumentor", d.getDataDocumentor(), refFn);
+		Out.put(o, "dataGenerator", d.getDataGenerator(), refFn);
+		Out.put(o, "dataSetOwner", d.getDataSetOwner(), refFn);
+		Out.put(o, "publication", d.getPublication(), refFn);
+		Out.put(o, "sources", d.getSources(), refFn);
 		return o;
 	}
 
 	private static void mapSimpleDocFields(ProcessDocumentation d, JsonObject o) {
-		o.addProperty("timeDescription", d.getTime());
-		o.addProperty("technologyDescription", d.getTechnology());
-		o.addProperty("dataCollectionDescription", d.getDataCollectionPeriod());
-		o.addProperty("completenessDescription", d.getCompleteness());
-		o.addProperty("dataSelectionDescription", d.getDataSelection());
-		o.addProperty("reviewDetails", d.getReviewDetails());
-		o.addProperty("dataTreatmentDescription", d.getDataTreatment());
-		o.addProperty("inventoryMethodDescription", d.getInventoryMethod());
-		o.addProperty("modelingConstantsDescription", d.getModelingConstants());
-		o.addProperty("samplingDescription", d.getSampling());
-		o.addProperty("restrictionsDescription", d.getRestrictions());
-		o.addProperty("copyright", d.isCopyright());
-		o.addProperty("validFrom", Dates.toString(d.getValidFrom()));
-		o.addProperty("validUntil", Dates.toString(d.getValidUntil()));
-		o.addProperty("creationDate", Dates.toString(d.getCreationDate()));
-		o.addProperty("intendedApplication", d.getIntendedApplication());
-		o.addProperty("projectDescription", d.getProject());
-		o.addProperty("geographyDescription", d.getGeography());
+		Out.put(o, "timeDescription", d.getTime());
+		Out.put(o, "technologyDescription", d.getTechnology());
+		Out.put(o, "dataCollectionDescription", d.getDataCollectionPeriod());
+		Out.put(o, "completenessDescription", d.getCompleteness());
+		Out.put(o, "dataSelectionDescription", d.getDataSelection());
+		Out.put(o, "reviewDetails", d.getReviewDetails());
+		Out.put(o, "dataTreatmentDescription", d.getDataTreatment());
+		Out.put(o, "inventoryMethodDescription", d.getInventoryMethod());
+		Out.put(o, "modelingConstantsDescription", d.getModelingConstants());
+		Out.put(o, "samplingDescription", d.getSampling());
+		Out.put(o, "restrictionsDescription", d.getRestrictions());
+		Out.put(o, "copyright", d.isCopyright());
+		Out.put(o, "validFrom", d.getValidFrom());
+		Out.put(o, "validUntil", d.getValidUntil());
+		Out.put(o, "creationDate", d.getCreationDate());
+		Out.put(o, "intendedApplication", d.getIntendedApplication());
+		Out.put(o, "projectDescription", d.getProject());
+		Out.put(o, "geographyDescription", d.getGeography());
 	}
 
 }

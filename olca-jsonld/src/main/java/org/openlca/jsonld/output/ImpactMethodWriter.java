@@ -2,46 +2,22 @@ package org.openlca.jsonld.output;
 
 import java.util.function.Consumer;
 
-import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.NwSet;
-import org.openlca.core.model.Parameter;
 import org.openlca.core.model.RootEntity;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 class ImpactMethodWriter extends Writer<ImpactMethod> {
 
 	@Override
-	JsonObject write(ImpactMethod method, Consumer<RootEntity> refHandler) {
-		JsonObject obj = super.write(method, refHandler);
+	JsonObject write(ImpactMethod method, Consumer<RootEntity> refFn) {
+		JsonObject obj = super.write(method, refFn);
 		if (obj == null)
 			return null;
-		mapParameters(method, obj);
-		JsonArray categories = new JsonArray();
-		for (ImpactCategory category : method.getImpactCategories()) {
-			JsonObject ref = References.create(category, refHandler);
-			categories.add(ref);
-		}
-		obj.add("impactCategories", categories);
-		JsonArray nwSets = new JsonArray();
-		for (NwSet set : method.getNwSets()) {
-			JsonObject ref = References.create(set, refHandler);
-			nwSets.add(ref);
-		}
-		obj.add("nwSets", nwSets);
+		Out.put(obj, "parameters", method.getParameters(), refFn);
+		Out.put(obj, "impactCategories", method.getImpactCategories(), refFn);
+		Out.put(obj, "nwSets", method.getNwSets(), refFn);
 		return obj;
-	}
-
-	private void mapParameters(ImpactMethod method, JsonObject obj) {
-		JsonArray parameters = new JsonArray();
-		for (Parameter p : method.getParameters()) {
-			JsonObject pObj = new ParameterWriter().write(p, ref -> {
-			});
-			parameters.add(pObj);
-		}
-		obj.add("parameters", parameters);
 	}
 
 }

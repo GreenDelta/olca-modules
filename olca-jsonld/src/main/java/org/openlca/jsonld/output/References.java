@@ -22,9 +22,9 @@ class References {
 			return null;
 		JsonObject obj = new JsonObject();
 		String type = ref.getModelType().getModelClass().getSimpleName();
-		obj.addProperty("@type", type);
-		obj.addProperty("@id", ref.getRefId());
-		obj.addProperty("name", ref.getName());
+		Out.put(obj, "@type", type);
+		Out.put(obj, "@id", ref.getRefId());
+		Out.put(obj, "name", ref.getName());
 		return obj;
 	}
 
@@ -32,7 +32,8 @@ class References {
 		JsonObject obj = create(ref);
 		if (obj == null)
 			return null;
-		handler.accept(ref);
+		if (handler != null)
+			handler.accept(ref);
 		return obj;
 	}
 

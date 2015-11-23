@@ -17,21 +17,21 @@ class LocationWriter extends Writer<Location> {
 		JsonObject obj = super.write(location, refFn);
 		if (obj == null)
 			return null;
-		obj.addProperty("code", location.getCode());
-		obj.addProperty("latitude", location.getLatitude());
-		obj.addProperty("longitude", location.getLongitude());
-		addGeometry(location, obj);
+		Out.put(obj, "code", location.getCode());
+		Out.put(obj, "latitude", location.getLatitude());
+		Out.put(obj, "longitude", location.getLongitude());
+		mapGeometry(location, obj);
 		return obj;
 	}
 
-	private void addGeometry(Location location, JsonObject obj) {
+	private void mapGeometry(Location location, JsonObject obj) {
 		if (location.getKmz() == null)
 			return;
 		try {
 			byte[] bin = BinUtils.unzip(location.getKmz());
 			String kml = new String(bin, "utf-8");
 			JsonObject geoJson = Kml2GeoJson.convert(kml);
-			obj.add("geometry", geoJson);
+			Out.put(obj, "geometry", geoJson);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to convert KML to GeoJSON", e);

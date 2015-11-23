@@ -14,10 +14,10 @@ class SourceWriter extends Writer<Source> {
 		JsonObject obj = super.write(source, refFn);
 		if (obj == null)
 			return null;
-		obj.addProperty("doi", source.getDoi());
-		obj.addProperty("externalFile", source.getExternalFile());
-		obj.addProperty("textReference", source.getTextReference());
-		obj.addProperty("year", source.getYear());
+		Out.put(obj, "doi", source.getDoi());
+		Out.put(obj, "externalFile", source.getExternalFile());
+		Out.put(obj, "textReference", source.getTextReference());
+		Out.put(obj, "year", source.getYear());
 		return obj;
 	}
 

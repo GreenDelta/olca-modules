@@ -12,18 +12,14 @@ import com.google.gson.JsonObject;
 
 class Writer<T extends RootEntity> {
 
-	JsonObject write(T entity, Consumer<RootEntity> refHandler) {
+	JsonObject write(T entity, Consumer<RootEntity> refFn) {
 		JsonObject obj = initJson();
-		if (entity == null || refHandler == null)
+		if (entity == null || refFn == null)
 			return obj;
 		addBasicAttributes(entity, obj);
 		if (entity instanceof CategorizedEntity) {
 			CategorizedEntity ce = (CategorizedEntity) entity;
-			if (ce.getCategory() != null) {
-				JsonObject catRef = References.create(ce.getCategory(),
-						refHandler);
-				obj.add("category", catRef);
-			}
+			Out.put(obj, "category", ce.getCategory(), refFn);
 		}
 		return obj;
 	}
@@ -31,33 +27,33 @@ class Writer<T extends RootEntity> {
 	private JsonObject initJson() {
 		JsonObject object = new JsonObject();
 		JsonObject context = new JsonObject();
-		context.addProperty("@vocab", Schema.URI);
-		context.addProperty("@base", Schema.URI);
+		Out.put(context, "@vocab", Schema.URI);
+		Out.put(context, "@base", Schema.URI);
 		JsonObject vocabType = new JsonObject();
-		vocabType.addProperty("@type", "@vocab");
-		context.add("modelType", vocabType);
-		context.add("flowPropertyType", vocabType);
-		context.add("flowType", vocabType);
-		context.add("distributionType", vocabType);
-		context.add("parameterScope", vocabType);
-		context.add("allocationType", vocabType);
-		context.add("defaultAllocationMethod", vocabType);
-		context.add("processType", vocabType);
-		context.add("riskLevel", vocabType);
-		object.add("@context", context);
+		Out.put(vocabType, "@type", "@vocab");
+		Out.put(context, "modelType", vocabType);
+		Out.put(context, "flowPropertyType", vocabType);
+		Out.put(context, "flowType", vocabType);
+		Out.put(context, "distributionType", vocabType);
+		Out.put(context, "parameterScope", vocabType);
+		Out.put(context, "allocationType", vocabType);
+		Out.put(context, "defaultAllocationMethod", vocabType);
+		Out.put(context, "processType", vocabType);
+		Out.put(context, "riskLevel", vocabType);
+		Out.put(object, "@context", context);
 		return object;
 	}
 
 	protected void addBasicAttributes(RootEntity entity, JsonObject obj) {
 		String type = entity.getClass().getSimpleName();
-		obj.addProperty("@type", type);
-		obj.addProperty("@id", entity.getRefId());
-		obj.addProperty("name", entity.getName());
-		obj.addProperty("description", entity.getDescription());
-		obj.addProperty("version", Version.asString(entity.getVersion()));
-		if (entity.getLastChange() != 0) {
-			obj.addProperty("lastChange",
-					Dates.toString(entity.getLastChange()));
-		}
+		Out.put(obj, "@type", type);
+		Out.put(obj, "@id", entity.getRefId());
+		Out.put(obj, "name", entity.getName());
+		Out.put(obj, "description", entity.getDescription());
+		Out.put(obj, "version", Version.asString(entity.getVersion()));
+		String lastChange = null;
+		if (entity.getLastChange() != 0)
+			lastChange = Dates.toString(entity.getLastChange());
+		Out.put(obj, "lastChange", lastChange);
 	}
 }

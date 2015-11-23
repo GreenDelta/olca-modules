@@ -21,13 +21,13 @@ class ActorWriter extends Writer<Actor> {
 	private void map(Actor actor, JsonObject obj) {
 		if (actor == null || obj == null)
 			return;
-		obj.addProperty("address", actor.getAddress());
-		obj.addProperty("city", actor.getCity());
-		obj.addProperty("country", actor.getCountry());
-		obj.addProperty("email", actor.getEmail());
-		obj.addProperty("telefax", actor.getTelefax());
-		obj.addProperty("telephone", actor.getTelephone());
-		obj.addProperty("website", actor.getWebsite());
-		obj.addProperty("zipCode", actor.getZipCode());
+		Out.put(obj, "address", actor.getAddress());
+		Out.put(obj, "city", actor.getCity());
+		Out.put(obj, "country", actor.getCountry());
+		Out.put(obj, "email", actor.getEmail());
+		Out.put(obj, "telefax", actor.getTelefax());
+		Out.put(obj, "telephone", actor.getTelephone());
+		Out.put(obj, "website", actor.getWebsite());
+		Out.put(obj, "zipCode", actor.getZipCode());
 	}
 }

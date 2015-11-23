@@ -18,29 +18,27 @@ class UnitGroupWriter extends Writer<UnitGroup> {
 		JsonObject obj = super.write(group, refFn);
 		if (obj == null)
 			return null;
-		JsonObject propRef = References.create(group.getDefaultFlowProperty());
-		obj.add("defaultFlowProperty", propRef);
-		addUnits(group, obj);
+		Out.put(obj, "defaultFlowProperty", group.getDefaultFlowProperty(),
+				refFn);
+		mapUnits(group, obj);
 		return obj;
 	}
 
-	private void addUnits(UnitGroup group, JsonObject obj) {
-		if (group == null || obj == null)
-			return;
+	private void mapUnits(UnitGroup group, JsonObject json) {
 		JsonArray units = new JsonArray();
 		for (Unit unit : group.getUnits()) {
-			JsonObject unitObj = new JsonObject();
-			addBasicAttributes(unit, unitObj);
+			JsonObject obj = new JsonObject();
+			addBasicAttributes(unit, obj);
 			if (Objects.equals(unit, group.getReferenceUnit()))
-				unitObj.addProperty("referenceUnit", true);
-			unitObj.addProperty("conversionFactor", unit.getConversionFactor());
-			addSynonyms(unit, unitObj);
-			units.add(unitObj);
+				Out.put(obj, "referenceUnit", true);
+			Out.put(obj, "conversionFactor", unit.getConversionFactor());
+			mapSynonyms(unit, obj);
+			units.add(obj);
 		}
-		obj.add("units", units);
+		Out.put(json, "units", units);
 	}
 
-	private void addSynonyms(Unit unit, JsonObject object) {
+	private void mapSynonyms(Unit unit, JsonObject obj) {
 		String synonyms = unit.getSynonyms();
 		if (synonyms == null || synonyms.trim().isEmpty())
 			return;
@@ -48,6 +46,6 @@ class UnitGroupWriter extends Writer<UnitGroup> {
 		String[] items = synonyms.split(";");
 		for (String item : items)
 			array.add(new JsonPrimitive(item.trim()));
-		object.add("synonyms", array);
+		Out.put(obj, "synonyms", array);
 	}
 }

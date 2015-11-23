@@ -20,16 +20,16 @@ class DescriptorWriter implements JsonSerializer<BaseDescriptor> {
 		addContext(json);
 		String clazz = descriptor.getModelType().getModelClass()
 				.getSimpleName();
-		json.addProperty("@type", clazz);
-		json.addProperty("@id", descriptor.getRefId());
-		json.addProperty("name", descriptor.getName());
+		Out.put(json, "@type", clazz);
+		Out.put(json, "@id", descriptor.getRefId());
+		Out.put(json, "name", descriptor.getName());
 		return json;
 	}
 
 	private void addContext(JsonObject json) {
 		JsonObject context = new JsonObject();
 		context.addProperty("@vocab", "http://openlca.org/");
-		json.add("@context", context);
+		Out.put(json, "@context", context);
 	}
 
 }

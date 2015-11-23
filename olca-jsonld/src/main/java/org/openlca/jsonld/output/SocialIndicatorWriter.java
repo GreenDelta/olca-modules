@@ -17,16 +17,15 @@ class SocialIndicatorWriter extends Writer<SocialIndicator> {
 		JsonObject obj = super.write(i, refFn);
 		if (obj == null)
 			return null;
-		obj.addProperty("activityVariable", i.activityVariable);
-		JsonObject qObj = References.create(i.activityQuantity, refFn);
-		obj.add("activityQuantity", qObj);
-		addActivityUnit(i, obj);
-		obj.addProperty("unitOfMeasurement", i.unitOfMeasurement);
-		obj.addProperty("evaluationScheme", i.evaluationScheme);
+		Out.put(obj, "activityVariable", i.activityVariable);
+		Out.put(obj, "activityQuantity", i.activityQuantity, refFn);
+		Out.put(obj, "unitOfMeasurement", i.unitOfMeasurement);
+		Out.put(obj, "evaluationScheme", i.evaluationScheme);
+		mapActivityUnit(i, obj);
 		return obj;
 	}
 
-	private void addActivityUnit(SocialIndicator i, JsonObject obj) {
+	private void mapActivityUnit(SocialIndicator i, JsonObject obj) {
 		FlowProperty quantity = i.activityQuantity;
 		if (quantity == null || quantity.getUnitGroup() == null)
 			return;
@@ -34,11 +33,7 @@ class SocialIndicatorWriter extends Writer<SocialIndicator> {
 		if (group == null || group.getReferenceUnit() == null)
 			return;
 		Unit unit = group.getReferenceUnit();
-		JsonObject uObj = new JsonObject();
-		uObj.addProperty("@type", "Unit");
-		uObj.addProperty("@id", unit.getRefId());
-		uObj.addProperty("name", unit.getName());
-		obj.add("activityUnit", uObj);
+		Out.put(obj, "activityUnit", unit, null);
 	}
 
 }

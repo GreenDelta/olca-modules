@@ -25,6 +25,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -159,6 +160,8 @@ public class JsonExport {
 			return Writer.class.cast(new UnitGroupWriter());
 		if (entity instanceof SocialIndicator)
 			return Writer.class.cast(new SocialIndicatorWriter());
+		if (entity instanceof ProductSystem)
+			return Writer.class.cast(new ProductSystemWriter());
 		else
 			return null;
 	}
