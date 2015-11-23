@@ -19,7 +19,7 @@ public class ImpactMethodDao extends
 	public List<ImpactCategoryDescriptor> getCategoryDescriptors(long methodId) {
 		try {
 			String jpql = "select cat.id, cat.refId, cat.name, cat.referenceUnit, "
-					+ "cat.description, cat.version, cat.last_change from ImpactMethod m join m.impactCategories "
+					+ "cat.description, cat.version, cat.lastChange from ImpactMethod m join m.impactCategories "
 					+ "cat where m.id = :methodId ";
 			List<Object[]> vals = Query.on(getDatabase()).getAll(
 					Object[].class, jpql,
