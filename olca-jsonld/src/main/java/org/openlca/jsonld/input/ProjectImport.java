@@ -49,10 +49,12 @@ class ProjectImport extends BaseImport<Project> {
 		if (method == null)
 			return;
 		p.setImpactMethodId(method.getId());
-		NwSet set = NwSets.map(In.getObject(json, "nwSet"),
-				method.getImpactCategories());
-		if (set != null)
-			p.setNwSetId(set.getId());
+		String nwSetRefId = In.getRefId(json, "nwSet");
+		for (NwSet set : method.getNwSets())
+			if (set.getRefId().equals(nwSetRefId)) {
+				p.setNwSetId(set.getId());
+				break;
+			}
 	}
 
 	private void mapVariants(JsonObject json, Project p) {
