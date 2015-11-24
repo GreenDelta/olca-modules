@@ -32,9 +32,6 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
-import org.openlca.jsonld.output.ExportConfig.ProjectOption;
-import org.openlca.jsonld.output.ExportConfig.ProviderOption;
-import org.openlca.jsonld.output.ExportConfig.SystemOption;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -45,10 +42,14 @@ import com.google.gson.JsonObject;
  */
 public class JsonExport {
 
-	private final ExportConfig conf;
+	private IDatabase database;
+	private EntityStore store;
+	private boolean exportProviders;
+	private boolean exportReferences;
 
 	public JsonExport(IDatabase database, EntityStore store) {
-		conf = ExportConfig.create(database, store);
+		this.database = database;
+		this.store = store;
 	}
 
 	public <T extends RootEntity> void write(T entity) {
@@ -63,6 +64,7 @@ public class JsonExport {
 			err(cb, "no refId, or type is unknown", entity);
 			return;
 		}
+		ExportConfig conf = createConfig(cb);
 		if (conf.hasVisited(type, entity.getId()))
 			return;
 		Writer<T> writer = getWriter(entity, conf);
@@ -71,10 +73,7 @@ public class JsonExport {
 			return;
 		}
 		try {
-			JsonObject obj = writer.write(entity, ref -> {
-				// also write referenced entities to entity store
-					write(ref, cb);
-				});
+			JsonObject obj = writer.write(entity);
 			conf.visited(type, entity.getId());
 			conf.store.put(type, obj);
 			if (writer.isExportExternalFiles())
@@ -88,6 +87,15 @@ public class JsonExport {
 		}
 	}
 
+	private ExportConfig createConfig(Callback cb) {
+		ExportConfig conf = ExportConfig.create(database, store, ref -> {
+			write(ref, cb);
+		});
+		conf.exportProviders = exportProviders;
+		conf.exportReferences = exportReferences;
+		return conf;
+	}
+
 	private void err(Callback cb, String message, RootEntity entity) {
 		if (cb == null)
 			return;
@@ -96,10 +104,10 @@ public class JsonExport {
 
 	private void writeExternalFiles(RootEntity entity, ModelType type,
 			Callback cb) {
-		if (entity == null || conf.db == null
-				|| conf.db.getFileStorageLocation() == null)
+		if (entity == null || database == null
+				|| database.getFileStorageLocation() == null)
 			return;
-		FileStore fs = new FileStore(conf.db.getFileStorageLocation());
+		FileStore fs = new FileStore(database.getFileStorageLocation());
 		File dir = fs.getFolder(entity);
 		if (dir == null || !dir.exists())
 			return;
@@ -112,13 +120,12 @@ public class JsonExport {
 		}
 	}
 
-	public static <T extends RootEntity> String toJson(T entity,
-			ExportConfig conf) {
+	public static <T extends RootEntity> String toJson(T entity) {
 		if (entity == null)
 			return "{}";
-		Writer<T> writer = getWriter(entity, conf);
-		JsonObject json = writer.write(entity, ref -> {
-		});
+		// hard overwrite export references
+		Writer<T> writer = getWriter(entity, ExportConfig.create());
+		JsonObject json = writer.write(entity);
 		Gson gson = new Gson();
 		return gson.toJson(json);
 	}
@@ -129,35 +136,35 @@ public class JsonExport {
 		if (entity == null)
 			return null;
 		if (entity instanceof Actor)
-			return Writer.class.cast(new ActorWriter());
+			return Writer.class.cast(new ActorWriter(conf));
 		if (entity instanceof Category)
-			return Writer.class.cast(new CategoryWriter());
+			return Writer.class.cast(new CategoryWriter(conf));
 		if (entity instanceof CostCategory)
-			return Writer.class.cast(new CostCategoryWriter());
+			return Writer.class.cast(new CostCategoryWriter(conf));
 		if (entity instanceof Currency)
-			return Writer.class.cast(new CurrencyWriter());
+			return Writer.class.cast(new CurrencyWriter(conf));
 		if (entity instanceof FlowProperty)
-			return Writer.class.cast(new FlowPropertyWriter());
+			return Writer.class.cast(new FlowPropertyWriter(conf));
 		if (entity instanceof Flow)
-			return Writer.class.cast(new FlowWriter());
+			return Writer.class.cast(new FlowWriter(conf));
 		if (entity instanceof NwSet)
-			return Writer.class.cast(new NwSetWriter());
+			return Writer.class.cast(new NwSetWriter(conf));
 		if (entity instanceof ImpactCategory)
-			return Writer.class.cast(new ImpactCategoryWriter());
+			return Writer.class.cast(new ImpactCategoryWriter(conf));
 		if (entity instanceof ImpactMethod)
-			return Writer.class.cast(new ImpactMethodWriter());
+			return Writer.class.cast(new ImpactMethodWriter(conf));
 		if (entity instanceof Location)
-			return Writer.class.cast(new LocationWriter());
+			return Writer.class.cast(new LocationWriter(conf));
 		if (entity instanceof Parameter)
-			return Writer.class.cast(new ParameterWriter());
+			return Writer.class.cast(new ParameterWriter(conf));
 		if (entity instanceof Process)
 			return Writer.class.cast(new ProcessWriter(conf));
 		if (entity instanceof Source)
-			return Writer.class.cast(new SourceWriter());
+			return Writer.class.cast(new SourceWriter(conf));
 		if (entity instanceof UnitGroup)
-			return Writer.class.cast(new UnitGroupWriter());
+			return Writer.class.cast(new UnitGroupWriter(conf));
 		if (entity instanceof SocialIndicator)
-			return Writer.class.cast(new SocialIndicatorWriter());
+			return Writer.class.cast(new SocialIndicatorWriter(conf));
 		if (entity instanceof ProductSystem)
 			return Writer.class.cast(new ProductSystemWriter(conf));
 		if (entity instanceof Project)
@@ -167,24 +174,11 @@ public class JsonExport {
 	}
 
 	public void setExportDefaultProviders(boolean value) {
-		if (value)
-			conf.providerOption = ProviderOption.INCLUDE_PROVIDER;
-		else
-			conf.providerOption = ProviderOption.EXCLUDE_PROVIDER;
+		exportProviders = value;
 	}
 
-	public void setExportProductSystemProcesses(boolean value) {
-		if (value)
-			conf.systemOption = SystemOption.INCLUDE_PROCESSES;
-		else
-			conf.systemOption = SystemOption.EXCLUDE_PROCESSES;
-	}
-
-	public void setExportProjectReferences(boolean value) {
-		if (value)
-			conf.projectOption = ProjectOption.INCLUDE_REFERENCES;
-		else
-			conf.projectOption = ProjectOption.EXCLUDE_REFERENCES;
+	public void setExportReferences(boolean value) {
+		exportReferences = value;
 	}
 
 	private class Copy extends SimpleFileVisitor<Path> {
@@ -204,7 +198,7 @@ public class JsonExport {
 				throws IOException {
 			String path = dbDir.relativize(file).toString().replace('\\', '/');
 			byte[] data = Files.readAllBytes(file);
-			conf.store.putBin(type, refId, path, data);
+			store.putBin(type, refId, path, data);
 			return FileVisitResult.CONTINUE;
 		}
 

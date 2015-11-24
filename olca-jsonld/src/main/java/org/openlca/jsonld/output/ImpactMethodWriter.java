@@ -1,23 +1,24 @@
 package org.openlca.jsonld.output;
 
-import java.util.function.Consumer;
-
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Parameter;
-import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 class ImpactMethodWriter extends Writer<ImpactMethod> {
 
+	ImpactMethodWriter(ExportConfig conf) {
+		super(conf);
+	}
+
 	@Override
-	JsonObject write(ImpactMethod method, Consumer<RootEntity> refFn) {
-		JsonObject obj = super.write(method, refFn);
+	JsonObject write(ImpactMethod method) {
+		JsonObject obj = super.write(method);
 		if (obj == null)
 			return null;
-		Out.put(obj, "impactCategories", method.getImpactCategories(), refFn);
-		Out.put(obj, "nwSets", method.getNwSets(), refFn);
+		Out.put(obj, "impactCategories", method.getImpactCategories(), conf);
+		Out.put(obj, "nwSets", method.getNwSets(), conf);
 		mapParameters(obj, method);
 		return obj;
 	}
@@ -25,8 +26,8 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 	private void mapParameters(JsonObject json, ImpactMethod method) {
 		JsonArray parameters = new JsonArray();
 		for (Parameter p : method.getParameters()) {
-			JsonObject obj = new ParameterWriter().write(p, ref -> {
-			});
+			JsonObject obj = Writer.initJson();
+			ParameterWriter.mapAttr(obj, p);
 			parameters.add(obj);
 		}
 		Out.put(json, "parameters", parameters);

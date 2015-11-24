@@ -2,7 +2,6 @@ package org.openlca.jsonld.output;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.model.Exchange;
@@ -11,38 +10,28 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.ExchangeKey;
-import org.openlca.jsonld.output.ExportConfig.ProviderOption;
-import org.openlca.jsonld.output.ExportConfig.SystemOption;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 class ProductSystemWriter extends Writer<ProductSystem> {
 
-	private final ExportConfig conf;
 	private final BaseDao<Exchange> exchangeDao;
-	private final boolean exportProcesses;
-	private final boolean exportProvider;
 	private ProductSystem system;
-	private Consumer<RootEntity> refFn;
 
 	ProductSystemWriter(ExportConfig conf) {
-		this.conf = conf;
-		exportProvider = conf.providerOption == ProviderOption.INCLUDE_PROVIDER;
-		exportProcesses = conf.systemOption == SystemOption.INCLUDE_PROCESSES;
+		super(conf);
 		exchangeDao = new BaseDao<>(Exchange.class, conf.db);
 	}
 
 	@Override
-	JsonObject write(ProductSystem system, Consumer<RootEntity> refFn) {
-		JsonObject obj = super.write(system, refFn);
+	JsonObject write(ProductSystem system) {
+		JsonObject obj = super.write(system);
 		if (obj == null)
 			return null;
 		this.system = system;
-		this.refFn = refFn;
-		Out.put(obj, "referenceProcess", system.getReferenceProcess(), refFn);
+		Out.put(obj, "referenceProcess", system.getReferenceProcess(), conf);
 		String processRefId = system.getReferenceProcess().getRefId();
 		JsonObject eObj = createExchangeRef(processRefId,
 				system.getReferenceExchange());
@@ -50,10 +39,10 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		FlowProperty property = null;
 		if (system.getTargetFlowPropertyFactor() != null)
 			property = system.getTargetFlowPropertyFactor().getFlowProperty();
-		Out.put(obj, "targetFlowProperty", property, refFn);
+		Out.put(obj, "targetFlowProperty", property, conf);
 		Out.put(obj, "targetUnit", system.getTargetUnit(), null);
 		Out.put(obj, "targetAmount", system.getTargetAmount());
-		ParameterRedefs.map(obj, system.getParameterRedefs(), conf.db, refFn, (
+		ParameterRedefs.map(obj, system.getParameterRedefs(), conf.db, conf, (
 				type, id) -> createProcessRef(id));
 		mapProcesses(obj);
 		mapLinks(obj);
@@ -93,17 +82,13 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	private JsonObject createProcessRef(Long id) {
 		if (id == null)
 			return null;
-		if (exportProcesses)
-			return References.create(ModelType.PROCESS, id, conf, refFn);
-		return References.create(ModelType.PROCESS, id, conf, null);
+		return References.create(ModelType.PROCESS, id, conf, true);
 	}
 
 	private JsonObject createFlowRef(Flow flow) {
 		if (flow == null)
 			return null;
-		if (exportProcesses)
-			return References.create(flow, refFn);
-		return References.create(flow, null);
+		return References.create(flow, conf, true);
 	}
 
 	private JsonObject createExchangeRef(String pRefId, Exchange e) {
@@ -124,10 +109,8 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	private String getProviderRefId(Exchange e) {
 		JsonObject provider = null;
 		Long pId = e.getDefaultProviderId();
-		if (exportProvider)
-			provider = References.create(ModelType.PROCESS, pId, conf, refFn);
-		else
-			provider = References.create(ModelType.PROCESS, pId, conf, null);
+		provider = References.create(ModelType.PROCESS, pId, conf,
+				conf.exportProviders);
 		if (provider == null)
 			return null;
 		return provider.get("@id").getAsString();

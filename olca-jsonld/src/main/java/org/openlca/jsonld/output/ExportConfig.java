@@ -4,27 +4,37 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.EntityStore;
 
 class ExportConfig {
 
 	final IDatabase db;
 	final EntityStore store;
-	ProviderOption providerOption = ProviderOption.EXCLUDE_PROVIDER;
-	SystemOption systemOption = SystemOption.INCLUDE_PROCESSES;
-	ProjectOption projectOption = ProjectOption.INCLUDE_REFERENCES;
+	final Consumer<RootEntity> refFn;
+	boolean exportReferences;
+	boolean exportProviders;
 	private final Map<ModelType, Set<Long>> visited = new HashMap<>();
 
-	private ExportConfig(IDatabase db, EntityStore store) {
+	private ExportConfig(IDatabase db, EntityStore store,
+			Consumer<RootEntity> refFn) {
 		this.db = db;
 		this.store = store;
+		this.refFn = refFn;
+		exportReferences = refFn != null;
 	}
 
-	static ExportConfig create(IDatabase db, EntityStore store) {
-		return new ExportConfig(db, store);
+	static ExportConfig create() {
+		return new ExportConfig(null, null, null);
+	}
+
+	static ExportConfig create(IDatabase db, EntityStore store,
+			Consumer<RootEntity> refFn) {
+		return new ExportConfig(db, store, refFn);
 	}
 
 	void visited(ModelType type, long id) {
@@ -39,36 +49,6 @@ class ExportConfig {
 		if (set == null)
 			return false;
 		return set.contains(id);
-	}
-
-	static enum ProviderOption {
-
-		/* Export default provider field AND connected process */
-		INCLUDE_PROVIDER,
-
-		/* Export default provider field only, don't export process */
-		EXCLUDE_PROVIDER;
-
-	}
-
-	static enum SystemOption {
-
-		/* Export reference to process AND connected process */
-		INCLUDE_PROCESSES,
-
-		/* Export reference to process only, don't export process */
-		EXCLUDE_PROCESSES;
-
-	}
-
-	static enum ProjectOption {
-
-		/* Export reference to process AND connected process */
-		INCLUDE_REFERENCES,
-
-		/* Export reference to process only, don't export process */
-		EXCLUDE_REFERENCES;
-
 	}
 
 }

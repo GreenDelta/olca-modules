@@ -24,7 +24,7 @@ public class JsonExportTest {
 		Actor actor = new Actor();
 		actor.setRefId(UUID.randomUUID().toString());
 		actor.setName("actor");
-		String json = JsonExport.toJson(actor, null);
+		String json = JsonExport.toJson(actor);
 		System.out.println(json);
 		JsonObject obj = new Gson().fromJson(json, JsonObject.class);
 		Assert.assertEquals(actor.getRefId(), obj.get("@id").getAsString());

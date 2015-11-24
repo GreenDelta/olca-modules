@@ -3,7 +3,6 @@ package org.openlca.jsonld.output;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.Dates;
@@ -20,22 +19,32 @@ class Out {
 
 	private Out() {
 	}
-	
+
 	static void put(JsonObject json, String property, RootEntity value,
-			Consumer<RootEntity> refFn) {
+			ExportConfig conf) {
+		put(json, property, value, conf, true);
+	}
+
+	static void put(JsonObject json, String property, RootEntity value,
+			ExportConfig conf, boolean export) {
 		if (!isValidInput(value))
 			return;
-		JsonObject ref = References.create(value, refFn);
+		JsonObject ref = References.create(value, conf, export);
 		json.add(property, ref);
 	}
 
 	static void put(JsonObject json, String property,
-			List<? extends RootEntity> values, Consumer<RootEntity> refFn) {
+			List<? extends RootEntity> values, ExportConfig conf) {
+		put(json, property, values, conf, true);
+	}
+
+	static void put(JsonObject json, String property,
+			List<? extends RootEntity> values, ExportConfig conf, boolean export) {
 		if (!isValidInput(values))
 			return;
 		JsonArray array = new JsonArray();
 		for (RootEntity value : values)
-			array.add(References.create(value, refFn));
+			array.add(References.create(value, conf, export));
 		json.add(property, array);
 	}
 

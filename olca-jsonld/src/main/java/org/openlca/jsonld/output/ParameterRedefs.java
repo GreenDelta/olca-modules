@@ -3,7 +3,6 @@ package org.openlca.jsonld.output;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
@@ -11,7 +10,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -19,7 +17,7 @@ import com.google.gson.JsonObject;
 class ParameterRedefs {
 
 	static void map(JsonObject json, List<ParameterRedef> redefs,
-			IDatabase database, Consumer<RootEntity> refFn, RefLoader loader) {
+			IDatabase database, ExportConfig conf, RefLoader loader) {
 		JsonArray array = new JsonArray();
 		for (ParameterRedef p : redefs) {
 			JsonObject obj = new JsonObject();
@@ -30,7 +28,8 @@ class ParameterRedefs {
 					loader.load(p.getContextType(), p.getContextId()));
 			if (p.getContextId() == null) {
 				Parameter global = loadParameter(database, p.getName());
-				refFn.accept(global);
+				if (conf.exportReferences)
+					conf.refFn.accept(global);
 			}
 			array.add(obj);
 		}

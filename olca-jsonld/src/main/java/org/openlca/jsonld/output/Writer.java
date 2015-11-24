@@ -1,7 +1,5 @@
 package org.openlca.jsonld.output;
 
-import java.util.function.Consumer;
-
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
@@ -12,19 +10,25 @@ import com.google.gson.JsonObject;
 
 class Writer<T extends RootEntity> {
 
-	JsonObject write(T entity, Consumer<RootEntity> refFn) {
+	ExportConfig conf;
+	
+	protected Writer(ExportConfig conf) {
+		this.conf = conf;
+	}
+	
+	JsonObject write(T entity) {
 		JsonObject obj = initJson();
-		if (entity == null || refFn == null)
+		if (entity == null || conf.refFn == null)
 			return obj;
 		addBasicAttributes(entity, obj);
 		if (entity instanceof CategorizedEntity) {
 			CategorizedEntity ce = (CategorizedEntity) entity;
-			Out.put(obj, "category", ce.getCategory(), refFn);
+			Out.put(obj, "category", ce.getCategory(), conf);
 		}
 		return obj;
 	}
 
-	private JsonObject initJson() {
+	static JsonObject initJson() {
 		JsonObject object = new JsonObject();
 		JsonObject context = new JsonObject();
 		Out.put(context, "@vocab", Schema.URI);

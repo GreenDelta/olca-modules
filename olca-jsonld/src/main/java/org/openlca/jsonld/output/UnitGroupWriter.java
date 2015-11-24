@@ -1,9 +1,7 @@
 package org.openlca.jsonld.output;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
@@ -13,14 +11,17 @@ import com.google.gson.JsonPrimitive;
 
 class UnitGroupWriter extends Writer<UnitGroup> {
 
+	UnitGroupWriter(ExportConfig conf) {
+		super(conf);
+	}
+
 	@Override
-	JsonObject write(UnitGroup group, Consumer<RootEntity> refFn) {
-		JsonObject obj = super.write(group, refFn);
+	JsonObject write(UnitGroup ug) {
+		JsonObject obj = super.write(ug);
 		if (obj == null)
 			return null;
-		Out.put(obj, "defaultFlowProperty", group.getDefaultFlowProperty(),
-				refFn);
-		mapUnits(group, obj);
+		Out.put(obj, "defaultFlowProperty", ug.getDefaultFlowProperty(), conf);
+		mapUnits(ug, obj);
 		return obj;
 	}
 

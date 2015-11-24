@@ -3,14 +3,12 @@ package org.openlca.jsonld.output;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialAspect;
 
 import com.google.gson.JsonArray;
@@ -19,28 +17,25 @@ import com.google.gson.JsonObject;
 class ProcessWriter extends Writer<Process> {
 
 	private Process process;
-	private Consumer<RootEntity> refFn;
 	private Map<Long, String> idToRefId = new HashMap<>();
-	private ExportConfig conf;
 
 	ProcessWriter(ExportConfig conf) {
-		this.conf = conf;
+		super(conf);
 	}
 
 	@Override
-	JsonObject write(Process process, Consumer<RootEntity> refFn) {
-		JsonObject obj = super.write(process, refFn);
+	JsonObject write(Process process) {
+		JsonObject obj = super.write(process);
 		if (obj == null)
 			return null;
 		this.process = process;
-		this.refFn = refFn;
 		Out.put(obj, "processType", process.getProcessType());
 		Out.put(obj, "defaultAllocationMethod",
 				process.getDefaultAllocationMethod());
-		Out.put(obj, "location", process.getLocation(), refFn);
+		Out.put(obj, "location", process.getLocation(), conf);
 		Out.put(obj, "processDocumentation",
-				Documentation.create(process, refFn));
-		Out.put(obj, "currency", process.currency, refFn);
+				Documentation.create(process, conf));
+		Out.put(obj, "currency", process.currency, conf);
 		mapParameters(obj);
 		mapExchanges(obj);
 		mapSocialAspects(obj);
@@ -51,8 +46,8 @@ class ProcessWriter extends Writer<Process> {
 	private void mapParameters(JsonObject json) {
 		JsonArray parameters = new JsonArray();
 		for (Parameter p : process.getParameters()) {
-			JsonObject obj = new ParameterWriter().write(p, ref -> {
-			});
+			JsonObject obj = Writer.initJson();
+			ParameterWriter.mapAttr(obj, p);
 			parameters.add(obj);
 		}
 		Out.put(json, "parameters", parameters);
@@ -62,7 +57,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray exchanges = new JsonArray();
 		for (Exchange e : process.getExchanges()) {
 			JsonObject obj = new JsonObject();
-			String id = Exchanges.map(e, process.getRefId(), obj, conf, refFn);
+			String id = Exchanges.map(e, process.getRefId(), obj, conf);
 			if (id == null)
 				continue;
 			idToRefId.put(e.getId(), id);
@@ -78,13 +73,13 @@ class ProcessWriter extends Writer<Process> {
 		for (SocialAspect a : process.socialAspects) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", "SocialAspect");
-			Out.put(obj, "socialIndicator", a.indicator, refFn);
+			Out.put(obj, "socialIndicator", a.indicator, conf);
 			Out.put(obj, "comment", a.comment);
 			Out.put(obj, "quality", a.quality);
 			Out.put(obj, "rawAmount", a.rawAmount);
 			Out.put(obj, "activityValue", a.activityValue);
 			Out.put(obj, "riskLevel", a.riskLevel);
-			Out.put(obj, "source", a.source, refFn);
+			Out.put(obj, "source", a.source, conf);
 			aspects.add(obj);
 		}
 		Out.put(json, "socialAspects", aspects);
@@ -95,7 +90,7 @@ class ProcessWriter extends Writer<Process> {
 		for (AllocationFactor f : process.getAllocationFactors()) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "exchange", createExchangeRef(f.getExchange()));
-			Out.put(obj, "product", findProduct(f.getProductId()), refFn);
+			Out.put(obj, "product", findProduct(f.getProductId()), conf);
 			Out.put(obj, "value", f.getValue());
 			Out.put(obj, "allocationType", f.getAllocationType());
 			factors.add(obj);

@@ -1,17 +1,18 @@
 package org.openlca.jsonld.output;
 
-import java.util.function.Consumer;
-
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 
 import com.google.gson.JsonObject;
 
 class SourceWriter extends Writer<Source> {
 
+	SourceWriter(ExportConfig conf) {
+		super(conf);
+	}
+	
 	@Override
-	public JsonObject write(Source source, Consumer<RootEntity> refFn) {
-		JsonObject obj = super.write(source, refFn);
+	public JsonObject write(Source source) {
+		JsonObject obj = super.write(source);
 		if (obj == null)
 			return null;
 		Out.put(obj, "doi", source.getDoi());

@@ -1,28 +1,25 @@
 package org.openlca.jsonld.output;
 
-import java.util.function.Consumer;
-
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
-import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonObject;
 
 class Documentation {
 
-	static JsonObject create(Process process, Consumer<RootEntity> refFn) {
+	static JsonObject create(Process process, ExportConfig conf) {
 		ProcessDocumentation d = process.getDocumentation();
 		if (d == null)
 			return null;
 		JsonObject o = new JsonObject();
 		Out.put(o, "@type", "ProcessDocumentation");
 		mapSimpleDocFields(d, o);
-		Out.put(o, "reviewer", d.getReviewer(), refFn);
-		Out.put(o, "dataDocumentor", d.getDataDocumentor(), refFn);
-		Out.put(o, "dataGenerator", d.getDataGenerator(), refFn);
-		Out.put(o, "dataSetOwner", d.getDataSetOwner(), refFn);
-		Out.put(o, "publication", d.getPublication(), refFn);
-		Out.put(o, "sources", d.getSources(), refFn);
+		Out.put(o, "reviewer", d.getReviewer(), conf);
+		Out.put(o, "dataDocumentor", d.getDataDocumentor(), conf);
+		Out.put(o, "dataGenerator", d.getDataGenerator(), conf);
+		Out.put(o, "dataSetOwner", d.getDataSetOwner(), conf);
+		Out.put(o, "publication", d.getPublication(), conf);
+		Out.put(o, "sources", d.getSources(), conf);
 		return o;
 	}
 

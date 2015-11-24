@@ -1,21 +1,22 @@
 package org.openlca.jsonld.output;
 
-import java.util.function.Consumer;
-
 import org.openlca.core.model.Category;
-import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonObject;
 
 class CategoryWriter extends Writer<Category> {
 
+	CategoryWriter(ExportConfig conf) {
+		super(conf);
+	}
+
 	@Override
-	JsonObject write(Category category, Consumer<RootEntity> refFn) {
-		JsonObject obj = super.write(category, refFn);
+	JsonObject write(Category category) {
+		JsonObject obj = super.write(category);
 		if (obj == null)
 			return obj;
 		Out.put(obj, "modelType", category.getModelType());
-		Out.put(obj, "category", category.getCategory(), refFn);
+		Out.put(obj, "category", category.getCategory(), conf);
 		return obj;
 	}
 }

@@ -1,9 +1,6 @@
 package org.openlca.jsonld.output;
 
-import java.util.function.Consumer;
-
 import org.openlca.core.model.Location;
-import org.openlca.core.model.RootEntity;
 import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +9,13 @@ import com.google.gson.JsonObject;
 
 class LocationWriter extends Writer<Location> {
 
+	LocationWriter(ExportConfig conf) {
+		super(conf);
+	}
+	
 	@Override
-	public JsonObject write(Location location, Consumer<RootEntity> refFn) {
-		JsonObject obj = super.write(location, refFn);
+	public JsonObject write(Location location) {
+		JsonObject obj = super.write(location);
 		if (obj == null)
 			return null;
 		Out.put(obj, "code", location.getCode());

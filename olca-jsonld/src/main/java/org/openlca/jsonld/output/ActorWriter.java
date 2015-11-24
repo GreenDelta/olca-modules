@@ -1,17 +1,18 @@
 package org.openlca.jsonld.output;
 
-import java.util.function.Consumer;
-
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.RootEntity;
 
 import com.google.gson.JsonObject;
 
 class ActorWriter extends Writer<Actor> {
 
+	ActorWriter(ExportConfig conf) {
+		super(conf);
+	}
+
 	@Override
-	JsonObject write(Actor actor, Consumer<RootEntity> refHandler) {
-		JsonObject obj = super.write(actor, refHandler);
+	JsonObject write(Actor actor) {
+		JsonObject obj = super.write(actor);
 		if (obj == null)
 			return null;
 		map(actor, obj);
@@ -19,8 +20,6 @@ class ActorWriter extends Writer<Actor> {
 	}
 
 	private void map(Actor actor, JsonObject obj) {
-		if (actor == null || obj == null)
-			return;
 		Out.put(obj, "address", actor.getAddress());
 		Out.put(obj, "city", actor.getCity());
 		Out.put(obj, "country", actor.getCountry());
