@@ -38,7 +38,7 @@ class ProjectWriter extends Writer<Project> {
 			Out.put(obj, "name", v.getName());
 			Out.put(obj, "productSystem", v.getProductSystem(), conf);
 			Out.put(obj, "amount", v.getAmount());
-			Out.put(obj, "unit", v.getUnit(), null);
+			Out.put(obj, "unit", v.getUnit(), conf, false);
 			Out.put(obj, "allocationMethod", v.getAllocationMethod());
 			FlowProperty prop = null;
 			if (v.getFlowPropertyFactor() != null)
