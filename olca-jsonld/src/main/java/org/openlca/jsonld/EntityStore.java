@@ -25,6 +25,10 @@ public interface EntityStore extends Closeable {
 	void put(String path, byte[] data);
 
 	byte[] get(String path);
+	
+	void putContext();
+
+	JsonObject getContext();
 
 	/**
 	 * Returns a list of paths to external (binary) files for a model with the

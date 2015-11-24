@@ -3,6 +3,10 @@ package org.openlca.jsonld.input;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
+import org.openlca.jsonld.Schema;
+import org.openlca.jsonld.Schema.UnsupportedSchemaException;
+
+import com.google.gson.JsonObject;
 
 public class JsonImport implements Runnable {
 
@@ -21,6 +25,7 @@ public class JsonImport implements Runnable {
 
 	@Override
 	public void run() {
+		checkSchemaSupported();
 		ImportConfig conf = ImportConfig.create(new Db(database), store,
 				updateMode);
 		for (String locId : store.getRefIds(ModelType.LOCATION))
@@ -53,6 +58,13 @@ public class JsonImport implements Runnable {
 			ProductSystemImport.run(systemId, conf);
 		for (String projectId : store.getRefIds(ModelType.PROJECT))
 			ProjectImport.run(projectId, conf);
+	}
+
+	private void checkSchemaSupported() {
+		JsonObject context = store.getContext();
+		String schema = Schema.parseUri(context);
+		if (!Schema.isSupportedSchema(schema))
+			throw new UnsupportedSchemaException(schema);
 	}
 
 }

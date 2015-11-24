@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.output.Context;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +29,8 @@ import com.google.gson.JsonObject;
 
 public class ZipStore implements EntityStore {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
+	private final static String CONTEXT_PATH = "context.json";
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private FileSystem zip;
 
 	public static ZipStore open(File zipFile) throws IOException {
@@ -43,6 +44,21 @@ public class ZipStore implements EntityStore {
 		if (!zipFile.exists())
 			options.put("create", "true");
 		zip = FileSystems.newFileSystem(uri, options);
+		putContext();
+	}
+
+	@Override
+	public void putContext() {
+		JsonObject context = Context.write();
+		if (context == null)
+			return;
+		try {
+			String json = new Gson().toJson(context);
+			byte[] data = json.getBytes("utf-8");
+			put(CONTEXT_PATH, data);
+		} catch (Exception e) {
+			log.error("failed to put " + CONTEXT_PATH, e);
+		}
 	}
 
 	@Override
@@ -72,14 +88,18 @@ public class ZipStore implements EntityStore {
 		String refId = getRefId(object);
 		if (type == null || refId == null)
 			return;
+		String dirName = ModelPath.get(type);
+		String path = dirName + "/" + refId + ".json";
+		put(path, object);
+	}
+
+	private void put(String path, JsonObject object) {
 		try {
 			String json = new Gson().toJson(object);
 			byte[] data = json.getBytes("utf-8");
-			String dirName = ModelPath.get(type);
-			String path = dirName + "/" + refId + ".json";
 			put(path, data);
 		} catch (Exception e) {
-			log.error("failed to add " + type + "/" + refId, e);
+			log.error("failed to add " + path, e);
 		}
 	}
 
@@ -106,6 +126,19 @@ public class ZipStore implements EntityStore {
 	}
 
 	@Override
+	public JsonObject getContext() {
+		byte[] data = get(CONTEXT_PATH);
+		if (data == null)
+			return null;
+		try {
+			return toJsonObject(data);
+		} catch (Exception e) {
+			log.error("failed to read json object " + CONTEXT_PATH, e);
+			return null;
+		}
+	}
+
+	@Override
 	public byte[] get(String path) {
 		if (Strings.nullOrEmpty(path))
 			return null;
@@ -129,13 +162,17 @@ public class ZipStore implements EntityStore {
 		if (data == null)
 			return null;
 		try {
-			String json = new String(data, "utf-8");
-			JsonElement e = new Gson().fromJson(json, JsonElement.class);
-			return e.isJsonObject() ? e.getAsJsonObject() : null;
+			return toJsonObject(data);
 		} catch (Exception e) {
-			log.error("failed to read json object " + type + " " + refId, e);
+			log.error("failed to read json object " + type + "/" + refId, e);
 			return null;
 		}
+	}
+
+	private JsonObject toJsonObject(byte[] data) throws Exception {
+		String json = new String(data, "utf-8");
+		JsonElement e = new Gson().fromJson(json, JsonElement.class);
+		return e.isJsonObject() ? e.getAsJsonObject() : null;
 	}
 
 	@Override

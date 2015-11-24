@@ -33,7 +33,6 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 /**
@@ -120,14 +119,11 @@ public class JsonExport {
 		}
 	}
 
-	public static <T extends RootEntity> String toJson(T entity) {
+	public static <T extends RootEntity> JsonObject toJson(T entity) {
 		if (entity == null)
-			return "{}";
-		// hard overwrite export references
+			return new JsonObject();
 		Writer<T> writer = getWriter(entity, ExportConfig.create());
-		JsonObject json = writer.write(entity);
-		Gson gson = new Gson();
-		return gson.toJson(json);
+		return writer.write(entity);
 	}
 
 	@SuppressWarnings("unchecked")

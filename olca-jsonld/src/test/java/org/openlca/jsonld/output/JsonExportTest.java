@@ -14,7 +14,6 @@ import org.openlca.jsonld.Tests;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.util.Dirs;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 public class JsonExportTest {
@@ -24,9 +23,7 @@ public class JsonExportTest {
 		Actor actor = new Actor();
 		actor.setRefId(UUID.randomUUID().toString());
 		actor.setName("actor");
-		String json = JsonExport.toJson(actor);
-		System.out.println(json);
-		JsonObject obj = new Gson().fromJson(json, JsonObject.class);
+		JsonObject obj = JsonExport.toJson(actor);
 		Assert.assertEquals(actor.getRefId(), obj.get("@id").getAsString());
 		Assert.assertEquals(actor.getName(), obj.get("name").getAsString());
 	}
