@@ -24,18 +24,17 @@ class ProcessWriter extends Writer<Process> {
 	}
 
 	@Override
-	JsonObject write(Process process) {
-		JsonObject obj = super.write(process);
+	JsonObject write(Process p) {
+		JsonObject obj = super.write(p);
 		if (obj == null)
 			return null;
-		this.process = process;
-		Out.put(obj, "processType", process.getProcessType());
-		Out.put(obj, "defaultAllocationMethod",
-				process.getDefaultAllocationMethod());
-		Out.put(obj, "location", process.getLocation(), conf);
-		Out.put(obj, "processDocumentation",
-				Documentation.create(process, conf));
-		Out.put(obj, "currency", process.currency, conf);
+		this.process = p;
+		Out.put(obj, "processType", p.getProcessType());
+		Out.put(obj, "defaultAllocationMethod", p.getDefaultAllocationMethod());
+		Out.put(obj, "infrastructureProcess", p.isInfrastructureProcess());
+		Out.put(obj, "location", p.getLocation(), conf);
+		Out.put(obj, "processDocumentation", Documentation.create(p, conf));
+		Out.put(obj, "currency", p.currency, conf);
 		mapParameters(obj);
 		mapExchanges(obj);
 		mapSocialAspects(obj);

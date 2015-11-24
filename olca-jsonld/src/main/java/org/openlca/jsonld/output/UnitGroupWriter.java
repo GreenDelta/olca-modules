@@ -20,8 +20,8 @@ class UnitGroupWriter extends Writer<UnitGroup> {
 		JsonObject obj = super.write(ug);
 		if (obj == null)
 			return null;
-		Out.put(obj, "defaultFlowProperty", ug.getDefaultFlowProperty(), conf);
 		mapUnits(ug, obj);
+		Out.put(obj, "defaultFlowProperty", ug.getDefaultFlowProperty(), conf);
 		return obj;
 	}
 

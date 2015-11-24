@@ -33,10 +33,10 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 	}
 
 	private void mapCategories(JsonObject json, ImpactMethod m) {
-		JsonElement elem = json.get("impactCategories");
-		if (elem == null || !elem.isJsonArray())
+		JsonArray array = In.getArray(json, "impactCategories");
+		if (array == null || array.size() == 0)
 			return;
-		for (JsonElement e : elem.getAsJsonArray()) {
+		for (JsonElement e : array) {
 			if (!e.isJsonObject())
 				continue;
 			String catId = In.getString(e.getAsJsonObject(), "@id");
@@ -49,10 +49,10 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 	}
 
 	private void mapNwSets(JsonObject json, ImpactMethod m) {
-		JsonArray elem = In.getArray(json, "nwSets");
-		if (elem == null)
+		JsonArray array = In.getArray(json, "nwSets");
+		if (array == null)
 			return;
-		for (JsonElement e : elem) {
+		for (JsonElement e : array) {
 			if (!e.isJsonObject())
 				continue;
 			String nwSetId = In.getString(e.getAsJsonObject(), "@id");
@@ -65,7 +65,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 
 	private void mapParameters(JsonObject json, ImpactMethod method) {
 		JsonArray parameters = In.getArray(json, "parameters");
-		if (parameters == null)
+		if (parameters == null || parameters.size() == 0)
 			return;
 		for (JsonElement e : parameters) {
 			if (!e.isJsonObject())

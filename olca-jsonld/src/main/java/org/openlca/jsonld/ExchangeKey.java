@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.util.KeyGen;
@@ -18,7 +19,7 @@ public class ExchangeKey {
 		kg.add(toString(e.isInput()));
 		kg.add(toString(e.isAvoidedProduct()));
 		kg.add(toString(e.getFlow()));
-		kg.add(toString(e.getFlowPropertyFactor().getFlowProperty()));
+		kg.add(toString(e.getFlowPropertyFactor()));
 		kg.add(toString(e.getUnit()));
 		kg.add(e.getAmountFormula());
 		kg.add(e.getPedigreeUncertainty());
@@ -36,6 +37,12 @@ public class ExchangeKey {
 		if (e == null)
 			return null;
 		return e.getRefId();
+	}
+	
+	private static String toString(FlowPropertyFactor f) {
+		if (f == null)
+			return null;
+		return toString(f.getFlowProperty());
 	}
 
 	private static List<String> toString(Uncertainty u) {

@@ -11,16 +11,19 @@ import com.google.gson.JsonObject;
 class Writer<T extends RootEntity> {
 
 	ExportConfig conf;
-	
+
 	protected Writer(ExportConfig conf) {
 		this.conf = conf;
 	}
-	
+
 	JsonObject write(T entity) {
 		JsonObject obj = initJson();
+		// mark entity directly as visited to avoid endless cyclic exports for
+		// cyclic references
+		addBasicAttributes(entity, obj);
+		conf.visited(entity);
 		if (entity == null || conf.refFn == null)
 			return obj;
-		addBasicAttributes(entity, obj);
 		if (entity instanceof CategorizedEntity) {
 			CategorizedEntity ce = (CategorizedEntity) entity;
 			Out.put(obj, "category", ce.getCategory(), conf);
@@ -34,7 +37,7 @@ class Writer<T extends RootEntity> {
 		return object;
 	}
 
-	protected void addBasicAttributes(RootEntity entity, JsonObject obj) {
+	static void addBasicAttributes(RootEntity entity, JsonObject obj) {
 		String type = entity.getClass().getSimpleName();
 		Out.put(obj, "@type", type);
 		Out.put(obj, "@id", entity.getRefId());
@@ -46,9 +49,9 @@ class Writer<T extends RootEntity> {
 			lastChange = Dates.toString(entity.getLastChange());
 		Out.put(obj, "lastChange", lastChange);
 	}
-	
+
 	boolean isExportExternalFiles() {
 		return true;
 	}
-	
+
 }

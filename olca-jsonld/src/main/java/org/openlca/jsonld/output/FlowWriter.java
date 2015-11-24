@@ -22,6 +22,7 @@ class FlowWriter extends Writer<Flow> {
 		Out.put(obj, "flowType", flow.getFlowType());
 		Out.put(obj, "cas", flow.getCasNumber());
 		Out.put(obj, "formula", flow.getFormula());
+		Out.put(obj, "infrastructureFlow", flow.isInfrastructureFlow());
 		Out.put(obj, "location", flow.getLocation(), conf);
 		addFactors(flow, obj);
 		return obj;

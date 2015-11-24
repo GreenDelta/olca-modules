@@ -36,6 +36,7 @@ class FlowImport extends BaseImport<Flow> {
 		flow.setFlowType(In.getEnum(json, "flowType", FlowType.class));
 		flow.setCasNumber(In.getString(json, "cas"));
 		flow.setFormula(In.getString(json, "formula"));
+		flow.setInfrastructureFlow(In.getBool(json, "infrastructureFlow", false));
 		String locId = In.getRefId(json, "location");
 		if (locId != null)
 			flow.setLocation(LocationImport.run(locId, conf));

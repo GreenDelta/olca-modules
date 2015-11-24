@@ -15,33 +15,32 @@ class ExportConfig {
 
 	final IDatabase db;
 	final EntityStore store;
-	final Consumer<RootEntity> refFn;
-	boolean exportReferences;
-	boolean exportProviders;
+	Consumer<RootEntity> refFn;
+	boolean exportReferences = true;
+	boolean exportProviders = false;
 	private final Map<ModelType, Set<Long>> visited = new HashMap<>();
 
-	private ExportConfig(IDatabase db, EntityStore store,
-			Consumer<RootEntity> refFn) {
+	private ExportConfig(IDatabase db, EntityStore store) {
 		this.db = db;
 		this.store = store;
-		this.refFn = refFn;
-		exportReferences = refFn != null;
 	}
 
 	static ExportConfig create() {
-		return new ExportConfig(null, null, null);
+		return new ExportConfig(null, null);
 	}
 
-	static ExportConfig create(IDatabase db, EntityStore store,
-			Consumer<RootEntity> refFn) {
-		return new ExportConfig(db, store, refFn);
+	static ExportConfig create(IDatabase db, EntityStore store) {
+		return new ExportConfig(db, store);
 	}
 
-	void visited(ModelType type, long id) {
+	void visited(RootEntity entity) {
+		if (entity == null)
+			return;
+		ModelType type = ModelType.forModelClass(entity.getClass());
 		Set<Long> set = visited.get(type);
 		if (set == null)
 			visited.put(type, set = new HashSet<>());
-		set.add(id);
+		set.add(entity.getId());
 	}
 
 	boolean hasVisited(ModelType type, long id) {

@@ -9,6 +9,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Unit;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -20,10 +21,10 @@ class ImpactCategories {
 		ImpactCategory cat = new ImpactCategory();
 		In.mapAtts(json, cat, 0);
 		cat.setReferenceUnit(In.getString(json, "referenceUnitName"));
-		JsonElement factorsElem = json.get("impactFactors");
-		if (factorsElem == null || !factorsElem.isJsonArray())
+		JsonArray factors = In.getArray(json, "impactFactors");
+		if (factors == null || factors.size() == 0)
 			return cat;
-		for (JsonElement e : factorsElem.getAsJsonArray()) {
+		for (JsonElement e : factors) {
 			if (!e.isJsonObject())
 				continue;
 			ImpactFactor factor = mapFactor(e.getAsJsonObject(), conf);

@@ -59,6 +59,8 @@ class ProjectImport extends BaseImport<Project> {
 
 	private void mapVariants(JsonObject json, Project p) {
 		JsonArray array = In.getArray(json, "variants");
+		if (array == null || array.size() == 0)
+			return;
 		for (JsonElement element : array) {
 			if (!element.isJsonObject())
 				continue;
@@ -84,6 +86,7 @@ class ProjectImport extends BaseImport<Project> {
 			v.setAmount(In.getDouble(obj, "amount", 0));
 			v.setAllocationMethod(In.getEnum(obj, "allocationMethod",
 					AllocationMethod.class));
+			ParameterRedefs.addParameters(obj, v.getParameterRedefs(), conf);
 			p.getVariants().add(v);
 		}
 	}

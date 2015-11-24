@@ -9,6 +9,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
 import com.google.common.base.Joiner;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -32,8 +33,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 		// insert the unit group before a default flow property is imported
 		// to avoid endless import cycles
 		g = conf.db.put(g);
-		g = setDefaultProperty(json, g);
-		return g;
+		return setDefaultProperty(json, g);
 	}
 
 	private UnitGroup setDefaultProperty(JsonObject json, UnitGroup g) {
@@ -46,10 +46,10 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 	}
 
 	private void addUnits(UnitGroup g, JsonObject json) {
-		JsonElement elem = json.get("units");
-		if (elem == null || !elem.isJsonArray())
+		JsonArray array = In.getArray(json, "units");
+		if (array == null || array.size() == 0)
 			return;
-		for (JsonElement e : elem.getAsJsonArray()) {
+		for (JsonElement e : array) {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject obj = e.getAsJsonObject();
@@ -70,11 +70,11 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 	}
 
 	private void addSynonyms(Unit unit, JsonObject json) {
-		JsonElement elem = json.get("synonyms");
-		if (elem == null || !elem.isJsonArray())
+		JsonArray array = In.getArray(json, "synonyms");
+		if (array == null || array.size() == 0)
 			return;
 		List<String> synonyms = new ArrayList<>();
-		for (JsonElement e : elem.getAsJsonArray()) {
+		for (JsonElement e : array) {
 			if (!e.isJsonPrimitive())
 				continue;
 			synonyms.add(e.getAsString());

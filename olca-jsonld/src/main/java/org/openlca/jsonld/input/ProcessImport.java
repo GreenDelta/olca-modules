@@ -39,6 +39,8 @@ class ProcessImport extends BaseImport<Process> {
 		Process p = new Process();
 		In.mapAtts(json, p, id, conf);
 		p.setProcessType(getType(json));
+		p.setInfrastructureProcess(In.getBool(json, "infrastructureProcess",
+				false));
 		p.setDefaultAllocationMethod(In.getEnum(json,
 				"defaultAllocationMethod", AllocationMethod.class));
 		ProcessDocumentation doc = ProcessDocReader.read(json, conf);
@@ -65,7 +67,7 @@ class ProcessImport extends BaseImport<Process> {
 
 	private void addParameters(JsonObject json, Process p) {
 		JsonArray parameters = In.getArray(json, "parameters");
-		if (parameters == null)
+		if (parameters == null || parameters.size() == 0)
 			return;
 		for (JsonElement e : parameters) {
 			if (!e.isJsonObject())
@@ -81,7 +83,7 @@ class ProcessImport extends BaseImport<Process> {
 
 	private void addExchanges(JsonObject json, Process p) {
 		JsonArray exchanges = In.getArray(json, "exchanges");
-		if (exchanges == null)
+		if (exchanges == null || exchanges.size() == 0)
 			return;
 		for (JsonElement e : exchanges) {
 			if (!e.isJsonObject())
@@ -98,7 +100,7 @@ class ProcessImport extends BaseImport<Process> {
 
 	private void addSocialAspects(JsonObject json, Process p) {
 		JsonArray aspects = In.getArray(json, "socialAspects");
-		if (aspects == null)
+		if (aspects == null || aspects.size() == 0)
 			return;
 		for (JsonElement a : aspects) {
 			if (!a.isJsonObject())
@@ -124,7 +126,7 @@ class ProcessImport extends BaseImport<Process> {
 
 	private void addAllocationFactors(JsonObject json, Process p) {
 		JsonArray factors = In.getArray(json, "allocationFactors");
-		if (factors == null)
+		if (factors == null || factors.size() == 0)
 			return;
 		for (JsonElement f : factors) {
 			if (!f.isJsonObject())
@@ -138,7 +140,7 @@ class ProcessImport extends BaseImport<Process> {
 	private AllocationFactor allocationFactor(JsonObject json) {
 		AllocationFactor factor = new AllocationFactor();
 		String productId = In.getRefId(json, "product");
-		String exchangeId = In.getString(json, "exchange");
+		String exchangeId = In.getRefId(json, "exchange");
 		if (exchangeId != null)
 			factor.setExchange(exchangeMap.get(exchangeId));
 		Flow product = FlowImport.run(productId, conf);

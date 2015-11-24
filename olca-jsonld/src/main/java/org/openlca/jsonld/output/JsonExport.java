@@ -41,14 +41,10 @@ import com.google.gson.JsonObject;
  */
 public class JsonExport {
 
-	private IDatabase database;
-	private EntityStore store;
-	private boolean exportProviders;
-	private boolean exportReferences;
+	private ExportConfig conf;
 
 	public JsonExport(IDatabase database, EntityStore store) {
-		this.database = database;
-		this.store = store;
+		conf = ExportConfig.create(database, store);
 	}
 
 	public <T extends RootEntity> void write(T entity) {
@@ -63,7 +59,6 @@ public class JsonExport {
 			err(cb, "no refId, or type is unknown", entity);
 			return;
 		}
-		ExportConfig conf = createConfig(cb);
 		if (conf.hasVisited(type, entity.getId()))
 			return;
 		Writer<T> writer = getWriter(entity, conf);
@@ -72,8 +67,10 @@ public class JsonExport {
 			return;
 		}
 		try {
+			conf.refFn = ref -> {
+				write(ref, cb);
+			};
 			JsonObject obj = writer.write(entity);
-			conf.visited(type, entity.getId());
 			conf.store.put(type, obj);
 			if (writer.isExportExternalFiles())
 				writeExternalFiles(entity, type, cb);
@@ -86,15 +83,6 @@ public class JsonExport {
 		}
 	}
 
-	private ExportConfig createConfig(Callback cb) {
-		ExportConfig conf = ExportConfig.create(database, store, ref -> {
-			write(ref, cb);
-		});
-		conf.exportProviders = exportProviders;
-		conf.exportReferences = exportReferences;
-		return conf;
-	}
-
 	private void err(Callback cb, String message, RootEntity entity) {
 		if (cb == null)
 			return;
@@ -103,10 +91,10 @@ public class JsonExport {
 
 	private void writeExternalFiles(RootEntity entity, ModelType type,
 			Callback cb) {
-		if (entity == null || database == null
-				|| database.getFileStorageLocation() == null)
+		if (entity == null || conf.db == null
+				|| conf.db.getFileStorageLocation() == null)
 			return;
-		FileStore fs = new FileStore(database.getFileStorageLocation());
+		FileStore fs = new FileStore(conf.db.getFileStorageLocation());
 		File dir = fs.getFolder(entity);
 		if (dir == null || !dir.exists())
 			return;
@@ -170,11 +158,11 @@ public class JsonExport {
 	}
 
 	public void setExportDefaultProviders(boolean value) {
-		exportProviders = value;
+		conf.exportProviders = value;
 	}
 
 	public void setExportReferences(boolean value) {
-		exportReferences = value;
+		conf.exportReferences = value;
 	}
 
 	private class Copy extends SimpleFileVisitor<Path> {
@@ -194,7 +182,7 @@ public class JsonExport {
 				throws IOException {
 			String path = dbDir.relativize(file).toString().replace('\\', '/');
 			byte[] data = Files.readAllBytes(file);
-			store.putBin(type, refId, path, data);
+			conf.store.putBin(type, refId, path, data);
 			return FileVisitResult.CONTINUE;
 		}
 
