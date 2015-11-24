@@ -19,6 +19,7 @@ class Out {
 
 	private Out() {
 	}
+
 	static void put(JsonObject json, String property, RootEntity value,
 			ExportConfig conf) {
 		put(json, property, value, conf, false);
@@ -31,13 +32,15 @@ class Out {
 		JsonObject ref = References.create(value, conf, forceExport);
 		json.add(property, ref);
 	}
+
 	static void put(JsonObject json, String property,
 			List<? extends RootEntity> values, ExportConfig conf) {
 		put(json, property, values, conf, false);
 	}
 
 	static void put(JsonObject json, String property,
-			List<? extends RootEntity> values, ExportConfig conf, boolean forceExport) {
+			List<? extends RootEntity> values, ExportConfig conf,
+			boolean forceExport) {
 		if (!isValidInput(values))
 			return;
 		JsonArray array = new JsonArray();
@@ -96,6 +99,8 @@ class Out {
 		if (JsonArray.class.isInstance(value))
 			return WRITE_EMPTY_COLLECTIONS
 					|| JsonArray.class.cast(value).size() > 0;
+		if (value instanceof Boolean)
+			return WRITE_NULL_VALUES || Boolean.TRUE.equals(value);
 		return WRITE_NULL_VALUES || value != null;
 	}
 
