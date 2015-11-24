@@ -40,7 +40,7 @@ class References {
 		return create(Descriptors.toDescriptor(ref));
 	}
 
-	private static JsonObject create(BaseDescriptor ref) {
+	static JsonObject create(BaseDescriptor ref) {
 		if (ref == null)
 			return null;
 		JsonObject obj = new JsonObject();

@@ -1,5 +1,6 @@
 package org.openlca.jsonld.output;
 
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
@@ -32,10 +33,12 @@ class Exchanges {
 
 	private static String mapRefs(Exchange e, JsonObject obj, ExportConfig conf) {
 		Long pId = e.getDefaultProviderId();
-		JsonObject provider = null;
-		provider = References.create(ModelType.PROCESS, pId, conf,
-				conf.exportProviders);
-		Out.put(obj, "defaultProvider", provider);
+		JsonObject p = null;
+		if (conf.exportProviders)
+			p = References.create(ModelType.PROCESS, pId, conf, false);
+		else
+			p = References.create(new ProcessDao(conf.db).getDescriptor(pId));
+		Out.put(obj, "defaultProvider", p);
 		Out.put(obj, "flow", e.getFlow(), conf);
 		Out.put(obj, "unit", e.getUnit(), conf);
 		FlowProperty property = null;
@@ -43,9 +46,9 @@ class Exchanges {
 			property = e.getFlowPropertyFactor().getFlowProperty();
 		Out.put(obj, "flowProperty", property, conf);
 		Out.put(obj, "uncertainty", Uncertainties.map(e.getUncertainty()));
-		if (provider == null)
+		if (p == null)
 			return null;
-		return provider.get("@id").getAsString();
+		return p.get("@id").getAsString();
 	}
 
 }
