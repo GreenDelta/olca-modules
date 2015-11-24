@@ -52,10 +52,26 @@ class ProcessImport extends BaseImport<Process> {
 		if (curId != null)
 			p.currency = CurrencyImport.run(curId, conf);
 		addParameters(json, p);
+		// avoid cyclic reference problems
+		if (hasDefaultProviders(json))
+			p = conf.db.put(p);
 		addExchanges(json, p);
 		addSocialAspects(json, p);
 		addAllocationFactors(json, p);
 		return conf.db.put(p);
+	}
+	private boolean hasDefaultProviders(JsonObject json) {
+		JsonArray exchanges = In.getArray(json, "exchanges");
+		if (exchanges == null || exchanges.size() == 0)
+			return false;
+		for (JsonElement e : exchanges) {
+			if (!e.isJsonObject())
+				continue;
+			String providerRefId = In.getRefId(e.getAsJsonObject(), "defaultProvider");
+			if (providerRefId != null)
+				return true;
+		}
+		return false;
 	}
 
 	private ProcessType getType(JsonObject json) {
