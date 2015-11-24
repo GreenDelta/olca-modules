@@ -56,14 +56,14 @@ public class JsonExport {
 			return;
 		ModelType type = ModelType.forModelClass(entity.getClass());
 		if (type == null || entity.getRefId() == null) {
-			err(cb, "no refId, or type is unknown", entity);
+			warn(cb, "no refId, or type is unknown", entity);
 			return;
 		}
 		if (conf.hasVisited(type, entity.getId()))
 			return;
 		Writer<T> writer = getWriter(entity, conf);
 		if (writer == null) {
-			err(cb, "no writer found for type " + type, entity);
+			warn(cb, "no writer found for type " + type, entity);
 			return;
 		}
 		try {
@@ -83,10 +83,10 @@ public class JsonExport {
 		}
 	}
 
-	private void err(Callback cb, String message, RootEntity entity) {
+	private void warn(Callback cb, String message, RootEntity entity) {
 		if (cb == null)
 			return;
-		cb.apply(Message.error(message), entity);
+		cb.apply(Message.warn(message), entity);
 	}
 
 	private void writeExternalFiles(RootEntity entity, ModelType type,
