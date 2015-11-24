@@ -19,32 +19,30 @@ class Out {
 
 	private Out() {
 	}
-
 	static void put(JsonObject json, String property, RootEntity value,
 			ExportConfig conf) {
-		put(json, property, value, conf, true);
+		put(json, property, value, conf, false);
 	}
 
 	static void put(JsonObject json, String property, RootEntity value,
-			ExportConfig conf, boolean export) {
+			ExportConfig conf, boolean forceExport) {
 		if (!isValidInput(value))
 			return;
-		JsonObject ref = References.create(value, conf, export);
+		JsonObject ref = References.create(value, conf, forceExport);
 		json.add(property, ref);
 	}
-
 	static void put(JsonObject json, String property,
 			List<? extends RootEntity> values, ExportConfig conf) {
-		put(json, property, values, conf, true);
+		put(json, property, values, conf, false);
 	}
 
 	static void put(JsonObject json, String property,
-			List<? extends RootEntity> values, ExportConfig conf, boolean export) {
+			List<? extends RootEntity> values, ExportConfig conf, boolean forceExport) {
 		if (!isValidInput(values))
 			return;
 		JsonArray array = new JsonArray();
 		for (RootEntity value : values)
-			array.add(References.create(value, conf, export));
+			array.add(References.create(value, conf, forceExport));
 		json.add(property, array);
 	}
 

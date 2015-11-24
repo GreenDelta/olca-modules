@@ -37,7 +37,7 @@ class Exchanges {
 				conf.exportProviders);
 		Out.put(obj, "defaultProvider", provider);
 		Out.put(obj, "flow", e.getFlow(), conf);
-		Out.put(obj, "unit", e.getUnit(), conf, false);
+		Out.put(obj, "unit", e.getUnit(), conf);
 		FlowProperty property = null;
 		if (e.getFlowPropertyFactor() != null)
 			property = e.getFlowPropertyFactor().getFlowProperty();

@@ -31,7 +31,7 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 			Out.put(obj, "value", f.getValue());
 			Out.put(obj, "formula", f.getFormula());
 			Out.put(obj, "flow", f.getFlow(), conf);
-			Out.put(obj, "unit", f.getUnit(), conf, false);
+			Out.put(obj, "unit", f.getUnit(), conf);
 			FlowProperty property = null;
 			if (f.getFlowPropertyFactor() != null)
 				property = f.getFlowPropertyFactor().getFlowProperty();

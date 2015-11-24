@@ -34,7 +34,7 @@ class SocialIndicatorWriter extends Writer<SocialIndicator> {
 		if (group == null || group.getReferenceUnit() == null)
 			return;
 		Unit unit = group.getReferenceUnit();
-		Out.put(obj, "activityUnit", unit, conf, false);
+		Out.put(obj, "activityUnit", unit, conf);
 	}
 
 }

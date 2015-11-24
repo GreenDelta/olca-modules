@@ -11,21 +11,22 @@ import com.google.gson.JsonObject;
 
 class References {
 
-	static JsonObject create(RootEntity ref, ExportConfig conf, boolean export) {
+	static JsonObject create(RootEntity ref, ExportConfig conf,
+			boolean forceExport) {
 		JsonObject obj = create(ref);
 		if (obj == null)
 			return null;
 		ModelType type = ModelType.forModelClass(ref.getClass());
-		if (export && doExportReferences(type, ref.getId(), conf))
+		if (doExportReferences(type, ref.getId(), conf, forceExport))
 			conf.refFn.accept(ref);
 		return obj;
 	}
 
 	static JsonObject create(ModelType type, Long id, ExportConfig conf,
-			boolean export) {
+			boolean forceExport) {
 		if (id == null || id == 0)
 			return null;
-		if (!export || !doExportReferences(type, id, conf)) {
+		if (!doExportReferences(type, id, conf, forceExport)) {
 			JsonObject obj = create(loadDescriptor(conf.db, type, id));
 			return obj;
 		}
@@ -51,12 +52,12 @@ class References {
 	}
 
 	private static boolean doExportReferences(ModelType type, Long id,
-			ExportConfig conf) {
+			ExportConfig conf, boolean forceExport) {
 		if (conf.hasVisited(type, id))
 			return false;
-		if (!conf.exportReferences)
-			return false;
 		if (conf.refFn == null)
+			return false;
+		if (!forceExport && !conf.exportReferences)
 			return false;
 		return true;
 	}

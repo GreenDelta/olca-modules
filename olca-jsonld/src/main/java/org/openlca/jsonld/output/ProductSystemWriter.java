@@ -40,7 +40,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		if (system.getTargetFlowPropertyFactor() != null)
 			property = system.getTargetFlowPropertyFactor().getFlowProperty();
 		Out.put(obj, "targetFlowProperty", property, conf);
-		Out.put(obj, "targetUnit", system.getTargetUnit(), conf, false);
+		Out.put(obj, "targetUnit", system.getTargetUnit(), conf);
 		Out.put(obj, "targetAmount", system.getTargetAmount());
 		ParameterRedefs.map(obj, system.getParameterRedefs(), conf.db, conf, (
 				type, id) -> createProcessRef(id));
