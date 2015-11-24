@@ -16,7 +16,6 @@ import org.openlca.cloud.util.Directories;
 import org.openlca.core.database.IDatabase;
 import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.ZipStore;
-import org.openlca.jsonld.output.JsonExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,6 @@ abstract class DataWriter {
 	private File file;
 	EntityStore entityStore;
 	EntityStore descriptorStore;
-	JsonExport export;
 
 	DataWriter(IDatabase database) {
 		Path dir = null;
@@ -42,7 +40,6 @@ abstract class DataWriter {
 			descriptorTmpFile = new File(dir.toFile(), "descriptorStore.zip");
 			descriptorStore = ZipStore.open(descriptorTmpFile);
 			file = new File(dir.toFile(), "commit.zip");
-			export = new JsonExport(database, entityStore);
 		} catch (IOException e) {
 			log.error("Error creating temp files for commit writer", e);
 			if (dir != null)

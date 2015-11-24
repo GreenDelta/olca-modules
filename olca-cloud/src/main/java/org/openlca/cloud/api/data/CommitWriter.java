@@ -16,13 +16,17 @@ import org.openlca.core.model.NwSet;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.EntityStore;
+import org.openlca.jsonld.output.JsonExport;
 
 public class CommitWriter extends DataWriter {
 
 	private String commitMessage;
+	private JsonExport export;
 
 	public CommitWriter(IDatabase database) {
 		super(database);
+		export = new JsonExport(database, entityStore);
+		export.setExportReferences(false);
 	}
 
 	public void putForRemoval(DatasetDescriptor descriptor) {
