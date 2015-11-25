@@ -26,7 +26,7 @@ class References {
 			boolean forceExport) {
 		if (id == null || id == 0)
 			return null;
-		if (!doExportReferences(type, id, conf, forceExport)) {
+		if (!doExportReferences(type, id, conf, forceExport) || conf.db == null) {
 			JsonObject obj = create(loadDescriptor(conf.db, type, id));
 			return obj;
 		}

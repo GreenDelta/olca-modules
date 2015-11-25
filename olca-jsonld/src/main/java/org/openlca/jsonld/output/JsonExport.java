@@ -92,7 +92,8 @@ public class JsonExport {
 	private void writeExternalFiles(RootEntity entity, ModelType type,
 			Callback cb) {
 		if (entity == null || conf.db == null
-				|| conf.db.getFileStorageLocation() == null)
+				|| conf.db.getFileStorageLocation() == null
+				|| conf.store == null)
 			return;
 		FileStore fs = new FileStore(conf.db.getFileStorageLocation());
 		File dir = fs.getFolder(entity);
@@ -105,6 +106,14 @@ public class JsonExport {
 		} catch (Exception e) {
 			cb.apply(Message.error("failed to copy external files", e), entity);
 		}
+	}
+
+	public static <T extends RootEntity> JsonObject toJson(T entity,
+			IDatabase database) {
+		if (entity == null)
+			return new JsonObject();
+		Writer<T> writer = getWriter(entity, ExportConfig.create(database));
+		return writer.write(entity);
 	}
 
 	public static <T extends RootEntity> JsonObject toJson(T entity) {

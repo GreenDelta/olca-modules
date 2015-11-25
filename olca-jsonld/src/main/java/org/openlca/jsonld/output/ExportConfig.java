@@ -29,6 +29,10 @@ class ExportConfig {
 		return new ExportConfig(null, null);
 	}
 
+	static ExportConfig create(IDatabase db) {
+		return new ExportConfig(db, null);
+	}
+
 	static ExportConfig create(IDatabase db, EntityStore store) {
 		return new ExportConfig(db, store);
 	}

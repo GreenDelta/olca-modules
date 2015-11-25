@@ -17,12 +17,13 @@ import com.google.gson.JsonObject;
 
 class ProductSystemWriter extends Writer<ProductSystem> {
 
-	private final BaseDao<Exchange> exchangeDao;
+	private BaseDao<Exchange> exchangeDao;
 	private ProductSystem system;
 
 	ProductSystemWriter(ExportConfig conf) {
 		super(conf);
-		exchangeDao = new BaseDao<>(Exchange.class, conf.db);
+		if (conf.db != null)
+			exchangeDao = new BaseDao<>(Exchange.class, conf.db);
 	}
 
 	@Override
@@ -44,6 +45,8 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "targetAmount", system.getTargetAmount());
 		ParameterRedefs.map(obj, system.getParameterRedefs(), conf.db, conf, (
 				type, id) -> createProcessRef(id));
+		if (conf.db == null)
+			return obj;
 		mapProcesses(obj);
 		mapLinks(obj);
 		return obj;

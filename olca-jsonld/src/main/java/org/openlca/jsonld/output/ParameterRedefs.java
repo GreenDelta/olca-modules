@@ -26,9 +26,9 @@ class ParameterRedefs {
 			Out.put(obj, "uncertainty", Uncertainties.map(p.getUncertainty()));
 			Out.put(obj, "context",
 					loader.load(p.getContextType(), p.getContextId()));
-			if (p.getContextId() == null) {
+			if (p.getContextId() == null && conf.db != null) {
 				Parameter global = loadParameter(database, p.getName());
-				if (conf.exportReferences)
+				if (conf.exportReferences && conf.refFn != null)
 					conf.refFn.accept(global);
 			}
 			array.add(obj);

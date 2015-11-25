@@ -36,7 +36,7 @@ class Exchanges {
 		JsonObject p = null;
 		if (conf.exportProviders)
 			p = References.create(ModelType.PROCESS, pId, conf, false);
-		else
+		else if (conf.db != null)
 			p = References.create(new ProcessDao(conf.db).getDescriptor(pId));
 		Out.put(obj, "defaultProvider", p);
 		Out.put(obj, "flow", e.getFlow(), conf);
