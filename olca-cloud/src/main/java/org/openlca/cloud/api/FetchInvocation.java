@@ -63,7 +63,7 @@ class FetchInvocation {
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryId;
-	private String latestCommitId;
+	private String lastCommitId;
 	private List<Dataset> fetchData;
 	private Map<Dataset, JsonObject> mergedData;
 	private IDatabase database;
@@ -84,8 +84,8 @@ class FetchInvocation {
 		this.repositoryId = repositoryId;
 	}
 
-	public void setLatestCommitId(String latestCommitId) {
-		this.latestCommitId = latestCommitId;
+	public void setLastCommitId(String lastCommitId) {
+		this.lastCommitId = lastCommitId;
 	}
 
 	public void setFetchData(List<Dataset> fetchData) {
@@ -108,12 +108,12 @@ class FetchInvocation {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		if (latestCommitId == null || latestCommitId.isEmpty())
-			latestCommitId = "null";
+		if (lastCommitId == null || lastCommitId.isEmpty())
+			lastCommitId = "null";
 		if (fetchData == null) // still call service to receive latest commit id
 			fetchData = new ArrayList<>();
 		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
-				latestCommitId);
+				lastCommitId);
 		ClientResponse response = WebRequests.call(Type.POST, url, sessionId,
 				fetchData);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())

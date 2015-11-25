@@ -25,7 +25,7 @@ public class CommitInvocation extends CommitWriter {
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryId;
-	private String latestCommitId;
+	private String lastCommitId;
 
 	CommitInvocation(IDatabase database) {
 		super(database);
@@ -43,8 +43,8 @@ public class CommitInvocation extends CommitWriter {
 		this.repositoryId = repositoryId;
 	}
 
-	void setLatestCommitId(String latestCommitId) {
-		this.latestCommitId = latestCommitId;
+	void setLastCommitId(String lastCommitId) {
+		this.lastCommitId = lastCommitId;
 	}
 
 	/**
@@ -63,10 +63,10 @@ public class CommitInvocation extends CommitWriter {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		if (latestCommitId == null)
-			latestCommitId = "null";
+		if (lastCommitId == null)
+			lastCommitId = "null";
 		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
-				latestCommitId);
+				lastCommitId);
 		try {
 			close();
 			String commitId = WebRequests.call(Type.POST, url, sessionId,

@@ -173,7 +173,7 @@ public class RepositoryClient {
 			invocation.setBaseUrl(config.getBaseUrl());
 			invocation.setSessionId(sessionId);
 			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLatestCommitId(config.getLatestCommitId());
+			invocation.setLastCommitId(config.getLastCommitId());
 			try {
 				invocation.execute();
 			} catch (WebRequestException e) {
@@ -190,13 +190,13 @@ public class RepositoryClient {
 		invocation.setBaseUrl(config.getBaseUrl());
 		invocation.setSessionId(sessionId);
 		invocation.setRepositoryId(config.getRepositoryId());
-		invocation.setLatestCommitId(config.getLatestCommitId());
+		invocation.setLastCommitId(config.getLastCommitId());
 		return invocation;
 	}
 
 	public void execute(CommitInvocation invocation) throws WebRequestException {
 		executeLoggedIn(() -> {
-			config.setLatestCommitId(invocation.execute());
+			config.setLastCommitId(invocation.execute());
 		});
 	}
 
@@ -207,7 +207,7 @@ public class RepositoryClient {
 			invocation.setBaseUrl(config.getBaseUrl());
 			invocation.setSessionId(sessionId);
 			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLatestCommitId(config.getLatestCommitId());
+			invocation.setLastCommitId(config.getLastCommitId());
 			return invocation.execute();
 		});
 	}
@@ -230,7 +230,7 @@ public class RepositoryClient {
 			invocation.setBaseUrl(config.getBaseUrl());
 			invocation.setSessionId(sessionId);
 			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLatestCommitId(config.getLatestCommitId());
+			invocation.setLastCommitId(config.getLastCommitId());
 			return invocation.execute();
 		});
 	}
@@ -244,10 +244,10 @@ public class RepositoryClient {
 			invocation.setBaseUrl(config.getBaseUrl());
 			invocation.setSessionId(sessionId);
 			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLatestCommitId(config.getLatestCommitId());
+			invocation.setLastCommitId(config.getLastCommitId());
 			invocation.setFetchData(fetchData);
 			invocation.setMergedData(mergedData);
-			config.setLatestCommitId(invocation.execute());
+			config.setLastCommitId(invocation.execute());
 		});
 	}
 

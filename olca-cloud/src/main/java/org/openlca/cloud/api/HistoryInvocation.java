@@ -25,7 +25,7 @@ class HistoryInvocation {
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryId;
-	private String latestCommitId;
+	private String lastCommitId;
 
 	public void setBaseUrl(String baseUrl) {
 		this.baseUrl = baseUrl;
@@ -39,13 +39,13 @@ class HistoryInvocation {
 		this.repositoryId = repositoryId;
 	}
 
-	public void setLatestCommitId(String latestCommitId) {
-		this.latestCommitId = latestCommitId;
+	public void setLastCommitId(String lastCommitId) {
+		this.lastCommitId = lastCommitId;
 	}
 
 	/**
 	 * Retrieves all commit entries that have been committed after the last
-	 * fetch, specified by the latestCommitId
+	 * fetch, specified by the lastCommitId
 	 * 
 	 * @return All commit entries since the last fetch, as list of commit
 	 *         descriptors
@@ -56,10 +56,10 @@ class HistoryInvocation {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		if (latestCommitId == null || latestCommitId.isEmpty())
-			latestCommitId = "null";
+		if (lastCommitId == null || lastCommitId.isEmpty())
+			lastCommitId = "null";
 		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
-				latestCommitId);
+				lastCommitId);
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyList();

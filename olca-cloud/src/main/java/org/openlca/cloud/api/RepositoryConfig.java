@@ -20,14 +20,14 @@ public class RepositoryConfig {
 	private final String repositoryId;
 	private final String username;
 	private final String password;
-	private String latestCommitId;
+	private String lastCommitId;
 
 	RepositoryConfig(IDatabase database, String baseUrl, String repositoryId,
-			String latestCommitId, String username, String password) {
+			String lastCommitId, String username, String password) {
 		this.database = database;
 		this.baseUrl = baseUrl;
 		this.repositoryId = repositoryId;
-		this.latestCommitId = latestCommitId;
+		this.lastCommitId = lastCommitId;
 		this.username = username;
 		this.password = password;
 	}
@@ -41,13 +41,13 @@ public class RepositoryConfig {
 			properties.load(stream);
 			String baseUrl = properties.getProperty("baseUrl");
 			String repositoryId = properties.getProperty("repositoryId");
-			String latestCommitId = properties.getProperty("latestCommitId");
+			String lastCommitId = properties.getProperty("lastCommitId");
 			String username = properties.getProperty("username");
 			String password = properties.getProperty("password");
-			if ("null".equals(latestCommitId))
-				latestCommitId = null;
+			if ("null".equals(lastCommitId))
+				lastCommitId = null;
 			return new RepositoryConfig(database, baseUrl, repositoryId,
-					latestCommitId, username, password);
+					lastCommitId, username, password);
 		} catch (IOException e) {
 			log.error("Error loading repository properties", e);
 			return null;
@@ -63,9 +63,9 @@ public class RepositoryConfig {
 			Properties properties = new Properties();
 			properties.setProperty("baseUrl", baseUrl);
 			properties.setProperty("repositoryId", repositoryId);
-			if (latestCommitId == null)
-				latestCommitId = "null";
-			properties.setProperty("latestCommitId", latestCommitId);
+			if (lastCommitId == null)
+				lastCommitId = "null";
+			properties.setProperty("lastCommitId", lastCommitId);
 			properties.setProperty("username", username);
 			properties.setProperty("password", password); // TODO encrypt
 			properties.store(stream, "");
@@ -121,13 +121,13 @@ public class RepositoryConfig {
 		return repositoryId.split("/")[1];
 	}
 
-	void setLatestCommitId(String latestCommitId) {
-		this.latestCommitId = latestCommitId;
+	void setLastCommitId(String lastCommitId) {
+		this.lastCommitId = lastCommitId;
 		save();
 	}
 
-	public String getLatestCommitId() {
-		return latestCommitId;
+	public String getLastCommitId() {
+		return lastCommitId;
 	}
 
 	public IDatabase getDatabase() {
