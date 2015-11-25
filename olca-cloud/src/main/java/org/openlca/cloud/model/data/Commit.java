@@ -1,7 +1,6 @@
 package org.openlca.cloud.model.data;
 
-
-public class CommitDescriptor {
+public class Commit {
 
 	private String id;
 	private String message;
@@ -43,9 +42,10 @@ public class CommitDescriptor {
 	@Override
 	public String toString() {
 		String timestamp = Long.toString(this.timestamp);
-		int length = id.length() + message.length() + user.length() + timestamp.length() + 3; // +
-																								// 3
-																								// spaces
+		int length = id.length() + message.length() + user.length()
+				+ timestamp.length() + 3; // +
+											// 3
+											// spaces
 		StringBuilder string = new StringBuilder(length);
 		string.append(id);
 		string.append(' ');
@@ -57,8 +57,8 @@ public class CommitDescriptor {
 		return string.toString();
 	}
 
-	public static CommitDescriptor parse(String value) {
-		CommitDescriptor entry = new CommitDescriptor();
+	public static Commit parse(String value) {
+		Commit entry = new Commit();
 		int nextSpace = value.indexOf(' ');
 		entry.setId(value.substring(0, nextSpace));
 		value = value.substring(nextSpace + 1);
@@ -75,7 +75,7 @@ public class CommitDescriptor {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!(obj instanceof CommitDescriptor))
+		if (!(obj instanceof Commit))
 			return false;
 		return toString().equals(obj.toString());
 	}

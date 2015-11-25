@@ -20,7 +20,7 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
  */
 public class CommitInvocation extends CommitWriter {
 
-	private static final String PATH = "/repository/commit/";
+	private static final String PATH = "/commit/";
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private String baseUrl;
 	private String sessionId;

@@ -7,8 +7,8 @@ import org.openlca.core.model.ModelType;
 
 import com.google.gson.JsonObject;
 
-import org.openlca.cloud.model.data.CommitDescriptor;
-import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.model.data.Commit;
+import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.model.data.FetchRequestData;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 
@@ -200,10 +200,10 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<CommitDescriptor> fetchNewCommitHistory()
+	public List<Commit> fetchNewCommitHistory()
 			throws WebRequestException {
 		return executeLoggedIn(() -> {
-			CommitHistoryInvocation invocation = new CommitHistoryInvocation();
+			HistoryInvocation invocation = new HistoryInvocation();
 			invocation.setBaseUrl(config.getBaseUrl());
 			invocation.setSessionId(sessionId);
 			invocation.setRepositoryId(config.getRepositoryId());
@@ -235,8 +235,8 @@ public class RepositoryClient {
 		});
 	}
 
-	public void fetch(List<DatasetDescriptor> fetchData,
-			Map<DatasetDescriptor, JsonObject> mergedData)
+	public void fetch(List<Dataset> fetchData,
+			Map<Dataset, JsonObject> mergedData)
 			throws WebRequestException {
 		executeLoggedIn(() -> {
 			FetchInvocation invocation = new FetchInvocation(

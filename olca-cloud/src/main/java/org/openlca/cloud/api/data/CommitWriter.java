@@ -5,7 +5,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
-import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.model.data.Dataset;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
@@ -29,7 +29,7 @@ public class CommitWriter extends DataWriter {
 		export.setExportReferences(false);
 	}
 
-	public void putForRemoval(DatasetDescriptor descriptor) {
+	public void putForRemoval(Dataset descriptor) {
 		putDescriptor(descriptor);
 	}
 
@@ -47,7 +47,7 @@ public class CommitWriter extends DataWriter {
 
 	public void put(CategorizedEntity entity) {
 		export.write(entity);
-		DatasetDescriptor descriptor = toDescriptor(entity);
+		Dataset descriptor = toDescriptor(entity);
 		putDescriptor(descriptor);
 		if (entity instanceof ImpactMethod)
 			putRelated((ImpactMethod) entity);
@@ -55,17 +55,17 @@ public class CommitWriter extends DataWriter {
 
 	private void putRelated(ImpactMethod method) {
 		for (ImpactCategory category : method.getImpactCategories()) {
-			DatasetDescriptor descriptor = toDescriptor(category);
+			Dataset descriptor = toDescriptor(category);
 			putDescriptor(descriptor);
 		}
 		for (NwSet set : method.getNwSets()) {
-			DatasetDescriptor descriptor = toDescriptor(set);
+			Dataset descriptor = toDescriptor(set);
 			putDescriptor(descriptor);
 		}
 	}
 
-	private DatasetDescriptor toDescriptor(CategorizedEntity entity) {
-		DatasetDescriptor descriptor = toDescriptor((RootEntity) entity);
+	private Dataset toDescriptor(CategorizedEntity entity) {
+		Dataset descriptor = toDescriptor((RootEntity) entity);
 		if (entity.getCategory() != null)
 			descriptor.setCategoryRefId(entity.getCategory().getRefId());
 		if (entity instanceof Category)
@@ -77,8 +77,8 @@ public class CommitWriter extends DataWriter {
 		return descriptor;
 	}
 
-	private DatasetDescriptor toDescriptor(RootEntity entity) {
-		DatasetDescriptor descriptor = new DatasetDescriptor();
+	private Dataset toDescriptor(RootEntity entity) {
+		Dataset descriptor = new Dataset();
 		descriptor.setLastChange(entity.getLastChange());
 		descriptor.setRefId(entity.getRefId());
 		descriptor.setName(entity.getName());

@@ -1,6 +1,6 @@
 package org.openlca.cloud.model.data;
 
-public class FetchRequestData extends DatasetDescriptor {
+public class FetchRequestData extends Dataset {
 
 	private static final long serialVersionUID = 417426973222267018L;
 	private boolean deleted;
@@ -10,7 +10,7 @@ public class FetchRequestData extends DatasetDescriptor {
 
 	}
 
-	public FetchRequestData(DatasetDescriptor descriptor) {
+	public FetchRequestData(Dataset descriptor) {
 		setRefId(descriptor.getRefId());
 		setType(descriptor.getType());
 		setVersion(descriptor.getVersion());

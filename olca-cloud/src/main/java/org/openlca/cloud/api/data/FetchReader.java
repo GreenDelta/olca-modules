@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 
-import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.model.data.Dataset;
 import org.openlca.jsonld.EntityStore;
 
 public class FetchReader extends DataReader {
@@ -16,7 +16,7 @@ public class FetchReader extends DataReader {
 		super(zipFile);
 	}
 
-	public boolean hasData(DatasetDescriptor descriptor) {
+	public boolean hasData(Dataset descriptor) {
 		return entityStore
 				.contains(descriptor.getType(), descriptor.getRefId());
 	}

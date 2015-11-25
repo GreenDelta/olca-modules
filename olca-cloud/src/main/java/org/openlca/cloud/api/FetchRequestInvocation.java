@@ -20,7 +20,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 class FetchRequestInvocation {
 
-	private static final String PATH = "/repository/fetch/request/";
+	private static final String PATH = "/fetch/request/";
 
 	private String baseUrl;
 	private String sessionId;

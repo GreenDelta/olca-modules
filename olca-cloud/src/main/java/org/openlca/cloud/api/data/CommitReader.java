@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.model.data.Dataset;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -21,7 +21,7 @@ public class CommitReader extends DataReader {
 		super(zipFile);
 	}
 
-	public String getData(DatasetDescriptor descriptor) {
+	public String getData(Dataset descriptor) {
 		JsonObject element = entityStore.get(descriptor.getType(),
 				descriptor.getRefId());
 		if (element == null)
@@ -29,7 +29,7 @@ public class CommitReader extends DataReader {
 		return new Gson().toJson(element);
 	}
 
-	public void copyBinaries(DatasetDescriptor descriptor, File binDir) throws IOException {
+	public void copyBinaries(Dataset descriptor, File binDir) throws IOException {
 		List<String> paths = entityStore.getBinFiles(descriptor.getType(),
 				descriptor.getRefId());
 		if (paths.isEmpty())

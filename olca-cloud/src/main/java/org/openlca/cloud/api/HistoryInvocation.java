@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.openlca.cloud.model.data.CommitDescriptor;
+import org.openlca.cloud.model.data.Commit;
 import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
@@ -18,9 +18,9 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  * Invokes a web service call to retrieve all commit entries after the specified
  * commit id
  */
-class CommitHistoryInvocation {
+class HistoryInvocation {
 
-	private static final String PATH = "/repository/commits/";
+	private static final String PATH = "/history/";
 
 	private String baseUrl;
 	private String sessionId;
@@ -52,7 +52,7 @@ class CommitHistoryInvocation {
 	 * @throws WebRequestException
 	 *             If user has no access to the specified repository
 	 */
-	public List<CommitDescriptor> execute() throws WebRequestException {
+	public List<Commit> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
@@ -64,7 +64,7 @@ class CommitHistoryInvocation {
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyList();
 		return new Gson().fromJson(response.getEntity(String.class),
-				new TypeToken<List<CommitDescriptor>>() {
+				new TypeToken<List<Commit>>() {
 				}.getType());
 	}
 

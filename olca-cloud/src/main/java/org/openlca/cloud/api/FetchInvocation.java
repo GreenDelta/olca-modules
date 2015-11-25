@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.openlca.cloud.api.data.FetchReader;
-import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.util.Directories;
 import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
@@ -58,14 +58,14 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 class FetchInvocation {
 
-	private static final String PATH = "/repository/fetch/";
+	private static final String PATH = "/fetch/";
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryId;
 	private String latestCommitId;
-	private List<DatasetDescriptor> fetchData;
-	private Map<DatasetDescriptor, JsonObject> mergedData;
+	private List<Dataset> fetchData;
+	private Map<Dataset, JsonObject> mergedData;
 	private IDatabase database;
 
 	public FetchInvocation(IDatabase database) {
@@ -88,11 +88,11 @@ class FetchInvocation {
 		this.latestCommitId = latestCommitId;
 	}
 
-	public void setFetchData(List<DatasetDescriptor> fetchData) {
+	public void setFetchData(List<Dataset> fetchData) {
 		this.fetchData = fetchData;
 	}
 
-	public void setMergedData(Map<DatasetDescriptor, JsonObject> mergedData) {
+	public void setMergedData(Map<Dataset, JsonObject> mergedData) {
 		this.mergedData = mergedData;
 	}
 
@@ -152,10 +152,10 @@ class FetchInvocation {
 				database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		jsonImport.run();
-		for (DatasetDescriptor descriptor : reader.getDescriptors())
+		for (Dataset descriptor : reader.getDescriptors())
 			if (!reader.hasData(descriptor))
 				delete(createDao(descriptor.getType()), descriptor.getRefId());
-		for (Entry<DatasetDescriptor, JsonObject> entry : mergedData.entrySet())
+		for (Entry<Dataset, JsonObject> entry : mergedData.entrySet())
 			if (entry.getValue() == null)
 				delete(createDao(entry.getKey().getType()), entry.getKey()
 						.getRefId());
@@ -163,7 +163,7 @@ class FetchInvocation {
 	}
 
 	private void putMergedData(EntityStore store) {
-		for (Entry<DatasetDescriptor, JsonObject> entry : mergedData.entrySet()) {
+		for (Entry<Dataset, JsonObject> entry : mergedData.entrySet()) {
 			JsonObject json = entry.getValue();
 			if (json == null)
 				continue;

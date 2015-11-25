@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Stack;
 
-import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.model.data.Dataset;
 import org.openlca.core.database.IDatabase;
 
 import com.google.gson.Gson;
@@ -27,7 +27,7 @@ public class FetchWriter extends DataWriter {
 		this.commitId = commitId;
 	}
 
-	public void put(DatasetDescriptor descriptor, String data, File binDir)
+	public void put(Dataset descriptor, String data, File binDir)
 			throws IOException {
 		if (data != null && !data.isEmpty()) {
 			JsonElement element = new Gson().fromJson(data, JsonElement.class);
@@ -40,7 +40,7 @@ public class FetchWriter extends DataWriter {
 		putDescriptor(descriptor);
 	}
 
-	private void putBin(DatasetDescriptor descriptor, File binDir)
+	private void putBin(Dataset descriptor, File binDir)
 			throws IOException {
 		Stack<File> dirs = new Stack<>();
 		dirs.push(binDir);
@@ -55,7 +55,7 @@ public class FetchWriter extends DataWriter {
 		}
 	}
 
-	private void putBin(DatasetDescriptor descriptor, Path binDir, Path file)
+	private void putBin(Dataset descriptor, Path binDir, Path file)
 			throws IOException {
 		String filename = relativize(binDir, file);
 		byte[] data = Files.readAllBytes(file);

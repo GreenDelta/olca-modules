@@ -18,7 +18,7 @@ import com.sun.jersey.api.client.ClientResponse;
  */
 class DatasetContentInvocation {
 
-	private static final String PATH = "/repository/fetch/data/";
+	private static final String PATH = "/fetch/data/";
 
 	private String baseUrl;
 	private String sessionId;

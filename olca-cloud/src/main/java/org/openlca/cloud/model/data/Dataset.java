@@ -9,7 +9,7 @@ import org.openlca.core.model.ModelType;
 
 import org.openlca.cloud.util.NullSafe;
 
-public class DatasetDescriptor extends FileReference implements Serializable {
+public class Dataset extends FileReference implements Serializable {
 
 	private static final long serialVersionUID = -5394277610226365725L;
 	private String version;
@@ -97,9 +97,9 @@ public class DatasetDescriptor extends FileReference implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj == this)
 			return true;
-		if (!(obj instanceof DatasetDescriptor))
+		if (!(obj instanceof Dataset))
 			return false;
-		DatasetDescriptor other = (DatasetDescriptor) obj;
+		Dataset other = (Dataset) obj;
 		if (!NullSafe.equal(getType(), other.getType()))
 			return false;
 		if (!NullSafe.equal(getRefId(), other.getRefId()))

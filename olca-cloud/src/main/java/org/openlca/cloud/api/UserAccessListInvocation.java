@@ -15,7 +15,7 @@ import com.sun.jersey.api.client.ClientResponse;
 
 class UserAccessListInvocation {
 
-	private static final String PATH = "/user/shared";
+	private static final String PATH = "/access/shared/user";
 	private String baseUrl;
 	private String sessionId;
 

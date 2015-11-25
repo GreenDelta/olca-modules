@@ -19,7 +19,7 @@ import com.sun.jersey.api.client.ClientResponse;
  */
 class RepositoryAccessListInvocation {
 
-	private static final String PATH = "/repository/shared";
+	private static final String PATH = "/access/shared";
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryId;

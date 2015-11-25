@@ -11,7 +11,7 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
  */
 class UnshareRepositoryInvocation {
 
-	private static final String PATH = "/repository/unshare";
+	private static final String PATH = "/access/unshare";
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryName;

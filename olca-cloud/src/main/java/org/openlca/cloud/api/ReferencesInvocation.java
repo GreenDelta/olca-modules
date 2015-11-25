@@ -18,7 +18,7 @@ import com.sun.jersey.api.client.ClientResponse;
  */
 class ReferencesInvocation {
 
-	private static final String PATH = "/repository/commits/references/";
+	private static final String PATH = "/fetch/references/";
 
 	private String baseUrl;
 	private String sessionId;
@@ -42,8 +42,7 @@ class ReferencesInvocation {
 	}
 
 	/**
-	 * Retrieves all references that have been committed in the specified
-	 * commit
+	 * Retrieves all references that have been committed in the specified commit
 	 * 
 	 * @return All references of the specified commit, as list of file
 	 *         references

@@ -11,7 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.util.Directories;
 import org.openlca.core.database.IDatabase;
 import org.openlca.jsonld.EntityStore;
@@ -47,7 +47,7 @@ abstract class DataWriter {
 		}
 	}
 
-	void putDescriptor(DatasetDescriptor descriptor) {
+	void putDescriptor(Dataset descriptor) {
 		JsonObject element = (JsonObject) new Gson().toJsonTree(descriptor);
 		element.addProperty("@id", descriptor.getRefId());
 		descriptorStore.put(descriptor.getType(), element);

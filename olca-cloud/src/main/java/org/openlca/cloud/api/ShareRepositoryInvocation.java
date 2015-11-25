@@ -11,7 +11,7 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
  */
 class ShareRepositoryInvocation {
 
-	private static final String PATH = "/repository/share";
+	private static final String PATH = "/access/share";
 	private String baseUrl;
 	private String sessionId;
 	private String repositoryName;

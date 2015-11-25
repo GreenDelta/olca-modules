@@ -14,7 +14,7 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
  */
 class CommitRequestInvocation {
 
-	private static final String PATH = "/repository/commit/request/";
+	private static final String PATH = "/commit/request/";
 
 	private String baseUrl;
 	private String sessionId;

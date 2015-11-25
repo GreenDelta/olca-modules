@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.cloud.model.data.DatasetDescriptor;
+import org.openlca.cloud.model.data.Dataset;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.ZipStore;
@@ -47,20 +47,20 @@ abstract class DataReader {
 
 	}
 
-	public List<DatasetDescriptor> getDescriptors() {
-		List<DatasetDescriptor> descriptors = new ArrayList<>();
+	public List<Dataset> getDescriptors() {
+		List<Dataset> descriptors = new ArrayList<>();
 		for (ModelType type : ModelType.values())
 			for (String refId : descriptorStore.getRefIds(type)) {
-				DatasetDescriptor descriptor = getDescriptor(type, refId);
+				Dataset descriptor = getDescriptor(type, refId);
 				if (descriptor != null)
 					descriptors.add(descriptor);
 			}
 		return descriptors;
 	}
 
-	private DatasetDescriptor getDescriptor(ModelType type, String refId) {
+	private Dataset getDescriptor(ModelType type, String refId) {
 		return new Gson().fromJson(descriptorStore.get(type, refId),
-				DatasetDescriptor.class);
+				Dataset.class);
 	}
 
 	public void close() throws IOException {
