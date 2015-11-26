@@ -19,6 +19,7 @@ public class Context {
 		Out.put(context, "parameterScope", vocabType);
 		Out.put(context, "allocationType", vocabType);
 		Out.put(context, "defaultAllocationMethod", vocabType);
+		Out.put(context, "allocationMethod", vocabType);
 		Out.put(context, "processType", vocabType);
 		Out.put(context, "riskLevel", vocabType);
 		return context;
