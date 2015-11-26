@@ -38,6 +38,7 @@ import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -48,6 +49,8 @@ import org.openlca.jsonld.input.UpdateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -174,7 +177,27 @@ class FetchInvocation {
 			json.addProperty("lastChange",
 					Dates.toString(Calendar.getInstance().getTime()));
 			store.put(entry.getKey().getType(), json);
+			if (isImpactMethod(json)) {
+				putReferences(json, "impactCategories",
+						ModelType.IMPACT_CATEGORY, store);
+				putReferences(json, "nwSets", ModelType.NW_SET, store);
+			}
 		}
+	}
+
+	private void putReferences(JsonObject json, String field, ModelType type,
+			EntityStore store) {
+		if (!json.has(field))
+			return;
+		JsonArray array = json.getAsJsonArray(field);
+		for (JsonElement element : array)
+			if (element.isJsonObject())
+				store.put(type, element.getAsJsonObject());
+	}
+
+	private boolean isImpactMethod(JsonObject json) {
+		String type = json.get("@type").getAsString();
+		return ImpactMethod.class.getSimpleName().equals(type);
 	}
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void delete(
