@@ -137,7 +137,9 @@ public class ParameterReferences {
 		ParameterDao dao = new ParameterDao(conf.db);
 		for (String name : names) {
 			Parameter p = loadParameter(name, dao);
-			if (p == null || conf.hasVisited(ModelType.PARAMETER, p.getId()))
+			if (p == null || conf.refFn == null)
+				continue;
+			if (conf.hasVisited(ModelType.PARAMETER, p.getId()))
 				continue;
 			conf.refFn.accept(p);
 			writeReferencedParameters(p, conf);
