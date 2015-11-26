@@ -72,7 +72,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray aspects = new JsonArray();
 		for (SocialAspect a : process.socialAspects) {
 			JsonObject obj = new JsonObject();
-			Out.put(obj, "@type", "SocialAspect");
+			Out.put(obj, "@type", SocialAspect.class.getSimpleName());
 			Out.put(obj, "socialIndicator", a.indicator, conf);
 			Out.put(obj, "comment", a.comment);
 			Out.put(obj, "quality", a.quality);
@@ -89,6 +89,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray factors = new JsonArray();
 		for (AllocationFactor f : process.getAllocationFactors()) {
 			JsonObject obj = new JsonObject();
+			Out.put(obj, "@type", AllocationFactor.class.getSimpleName());
 			Out.put(obj, "exchange", createExchangeRef(f.getExchange()));
 			Out.put(obj, "product", findProduct(f.getProductId()), conf);
 			Out.put(obj, "value", f.getValue());

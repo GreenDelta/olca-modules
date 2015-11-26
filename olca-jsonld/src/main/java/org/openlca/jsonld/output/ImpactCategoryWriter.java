@@ -27,7 +27,7 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 		JsonArray array = new JsonArray();
 		for (ImpactFactor f : category.getImpactFactors()) {
 			JsonObject obj = new JsonObject();
-			Out.put(obj, "@type", "ImpactFactor");
+			Out.put(obj, "@type", ImpactFactor.class.getSimpleName());
 			Out.put(obj, "value", f.getValue());
 			Out.put(obj, "formula", f.getFormula());
 			Out.put(obj, "flow", f.getFlow(), conf);

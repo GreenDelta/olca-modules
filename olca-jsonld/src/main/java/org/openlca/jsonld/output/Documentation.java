@@ -12,7 +12,7 @@ class Documentation {
 		if (d == null)
 			return null;
 		JsonObject o = new JsonObject();
-		Out.put(o, "@type", "ProcessDocumentation");
+		Out.put(o, "@type", ProcessDocumentation.class.getSimpleName());
 		mapSimpleDocFields(d, o);
 		Out.put(o, "reviewer", d.getReviewer(), conf);
 		Out.put(o, "dataDocumentor", d.getDataDocumentor(), conf);

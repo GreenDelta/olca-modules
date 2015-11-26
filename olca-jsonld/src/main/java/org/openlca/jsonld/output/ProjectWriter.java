@@ -36,6 +36,7 @@ class ProjectWriter extends Writer<Project> {
 		JsonArray array = new JsonArray();
 		for (ProjectVariant v : p.getVariants()) {
 			JsonObject obj = new JsonObject();
+			Out.put(obj, "@type", ProjectVariant.class.getSimpleName());
 			Out.put(obj, "name", v.getName());
 			Out.put(obj, "productSystem", v.getProductSystem(), conf);
 			Out.put(obj, "amount", v.getAmount());

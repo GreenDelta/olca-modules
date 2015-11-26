@@ -14,7 +14,7 @@ class Uncertainties {
 		if (type == null || type == UncertaintyType.NONE)
 			return null;
 		JsonObject obj = new JsonObject();
-		Out.put(obj, "@type", "Uncertainty");
+		Out.put(obj, "@type", Uncertainty.class.getSimpleName());
 		Out.put(obj, "distributionType", type);
 		switch (type) {
 		case UNIFORM:

@@ -32,7 +32,7 @@ class FlowWriter extends Writer<Flow> {
 		JsonArray factorArray = new JsonArray();
 		for (FlowPropertyFactor fac : flow.getFlowPropertyFactors()) {
 			JsonObject facObj = new JsonObject();
-			Out.put(facObj, "@type", "FlowPropertyFactor");
+			Out.put(facObj, "@type", FlowPropertyFactor.class.getSimpleName());
 			if (Objects.equals(fac, flow.getReferenceFactor()))
 				Out.put(facObj, "referenceFlowProperty", true);
 			Out.put(facObj, "flowProperty", fac.getFlowProperty(), conf);

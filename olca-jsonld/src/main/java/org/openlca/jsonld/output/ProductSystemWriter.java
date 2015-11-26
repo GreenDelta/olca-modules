@@ -59,6 +59,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		JsonArray links = new JsonArray();
 		for (ProcessLink link : system.getProcessLinks()) {
 			JsonObject obj = new JsonObject();
+			Out.put(obj, "@type", ProcessLink.class.getSimpleName());
 			JsonObject provider = createProcessRef(link.getProviderId());
 			Out.put(obj, "provider", provider);
 			String providerRefId = provider.get("@id").getAsString();
