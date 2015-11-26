@@ -111,6 +111,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonObject obj = new JsonObject();
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
 		Out.put(obj, "@id", idToRefId.get(exchange.getId()));
+		Out.put(obj, "flow", exchange.getFlow(), conf);
 		return obj;
 	}
 
