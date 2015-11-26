@@ -28,6 +28,7 @@ class ProjectWriter extends Writer<Project> {
 				createRef(ModelType.IMPACT_METHOD, p.getImpactMethodId()));
 		Out.put(obj, "nwSet", createRef(ModelType.NW_SET, p.getNwSetId()));
 		mapVariants(obj, p);
+		ParameterReferences.writeReferencedParameters(p, conf);
 		return obj;
 	}
 

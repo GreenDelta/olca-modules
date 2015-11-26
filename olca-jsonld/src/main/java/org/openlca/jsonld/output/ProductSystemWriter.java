@@ -33,7 +33,9 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			return null;
 		this.system = system;
 		Out.put(obj, "referenceProcess", system.getReferenceProcess(), conf);
-		String processRefId = system.getReferenceProcess().getRefId();
+		String processRefId = null;
+		if (system.getReferenceProcess() != null)
+			processRefId = system.getReferenceProcess().getRefId();
 		JsonObject eObj = createExchangeRef(processRefId,
 				system.getReferenceExchange());
 		Out.put(obj, "referenceExchange", eObj);
@@ -49,6 +51,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			return obj;
 		mapProcesses(obj);
 		mapLinks(obj);
+		ParameterReferences.writeReferencedParameters(system, conf);
 		return obj;
 	}
 

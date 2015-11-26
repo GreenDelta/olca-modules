@@ -13,13 +13,14 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 	}
 
 	@Override
-	JsonObject write(ImpactMethod method) {
-		JsonObject obj = super.write(method);
+	JsonObject write(ImpactMethod m) {
+		JsonObject obj = super.write(m);
 		if (obj == null)
 			return null;
-		Out.put(obj, "impactCategories", method.getImpactCategories(), conf, true);
-		Out.put(obj, "nwSets", method.getNwSets(), conf, true);
-		mapParameters(obj, method);
+		Out.put(obj, "impactCategories", m.getImpactCategories(), conf, true);
+		Out.put(obj, "nwSets", m.getNwSets(), conf, true);
+		mapParameters(obj, m);
+		ParameterReferences.writeReferencedParameters(m, conf);
 		return obj;
 	}
 
