@@ -35,8 +35,8 @@ class NwSets {
 		NwFactor f = new NwFactor();
 		String categoryId = In.getRefId(json, "impactCategory");
 		f.setImpactCategory(getImpactCategory(categoryId, categories));
-		f.setNormalisationFactor(In.getDouble(json, "normalisationFactor", 0));
-		f.setWeightingFactor(In.getDouble(json, "weightingFactor", 0));
+		f.setNormalisationFactor(In.getOptionalDouble(json, "normalisationFactor"));
+		f.setWeightingFactor(In.getOptionalDouble(json, "weightingFactor"));
 		return f;
 	}
 

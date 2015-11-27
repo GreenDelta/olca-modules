@@ -39,17 +39,17 @@ final class Uncertainties {
 	}
 
 	private static void mapUniform(JsonObject json, Uncertainty u) {
-		u.setParameter1Value(In.getDouble(json, "minimum", 0));
-		u.setParameter2Value(In.getDouble(json, "maximum", 0));
+		u.setParameter1Value(In.getOptionalDouble(json, "minimum"));
+		u.setParameter2Value(In.getOptionalDouble(json, "maximum"));
 		// TODO: set formulas (when parameter import ready)
 		// u.setParameter1Formula(In.getString(json, "minimumFormula"));
 		// u.setParameter2Formula(In.getString(json, "maximumFormula"));
 	}
 
 	private static void mapTriangle(JsonObject json, Uncertainty u) {
-		u.setParameter1Value(In.getDouble(json, "minimum", 0));
-		u.setParameter2Value(In.getDouble(json, "mode", 0));
-		u.setParameter3Value(In.getDouble(json, "maximum", 0));
+		u.setParameter1Value(In.getOptionalDouble(json, "minimum"));
+		u.setParameter2Value(In.getOptionalDouble(json, "mode"));
+		u.setParameter3Value(In.getOptionalDouble(json, "maximum"));
 		// TODO: set formulas (when parameter import ready)
 		// u.setParameter1Formula(In.getString(json, "minimumFormula"));
 		// u.setParameter2Formula(In.getString(json, "modeFormula"));
@@ -57,16 +57,16 @@ final class Uncertainties {
 	}
 
 	private static void mapNormal(JsonObject json, Uncertainty u) {
-		u.setParameter1Value(In.getDouble(json, "mean", 0));
-		u.setParameter2Value(In.getDouble(json, "sd", 0));
+		u.setParameter1Value(In.getOptionalDouble(json, "mean"));
+		u.setParameter2Value(In.getOptionalDouble(json, "sd"));
 		// TODO: set formulas (when parameter import ready)
 		// u.setParameter1Formula(In.getString(json, "meanFormula"));
 		// u.setParameter2Formula(In.getString(json, "sdFormula"));
 	}
 
 	private static void mapLogNormal(JsonObject json, Uncertainty u) {
-		u.setParameter1Value(In.getDouble(json, "geomMean", 0));
-		u.setParameter2Value(In.getDouble(json, "geomSd", 0));
+		u.setParameter1Value(In.getOptionalDouble(json, "geomMean"));
+		u.setParameter2Value(In.getOptionalDouble(json, "geomSd"));
 		// TODO: set formulas (when parameter import ready)
 		// u.setParameter1Formula(In.getString(json, "geomMeanFormula"));
 		// u.setParameter2Formula(In.getString(json, "geomSdFormula"));

@@ -16,7 +16,7 @@ class Exchanges {
 		Exchange e = new Exchange();
 		e.setAvoidedProduct(In.getBool(json, "avoidedProduct", false));
 		e.setInput(In.getBool(json, "input", false));
-		e.setBaseUncertainty(In.getDouble(json, "baseUncertainty", 0));
+		e.setBaseUncertainty(In.getOptionalDouble(json, "baseUncertainty"));
 		e.setAmountValue(In.getDouble(json, "amount", 0));
 		e.setAmountFormula(In.getString(json, "amountFormula"));
 		e.setPedigreeUncertainty(In.getString(json, "pedigreeUncertainty"));

@@ -99,8 +99,6 @@ class Out {
 		if (JsonArray.class.isInstance(value))
 			return WRITE_EMPTY_COLLECTIONS
 					|| JsonArray.class.cast(value).size() > 0;
-		if (value instanceof Boolean)
-			return WRITE_NULL_VALUES || Boolean.TRUE.equals(value);
 		return WRITE_NULL_VALUES || value != null;
 	}
 
