@@ -46,7 +46,8 @@ public class NwSetDao extends RootEntityDao<NwSet, NwSetDescriptor> {
 	@Override
 	protected NwSetDescriptor createDescriptor(Object[] queryResult) {
 		NwSetDescriptor descriptor = super.createDescriptor(queryResult);
-		descriptor.setWeightedScoreUnit((String) queryResult[6]);
+		if (descriptor != null)
+			descriptor.setWeightedScoreUnit((String) queryResult[6]);
 		return descriptor;
 	}
 
