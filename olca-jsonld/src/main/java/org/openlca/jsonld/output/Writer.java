@@ -22,7 +22,7 @@ class Writer<T extends RootEntity> {
 		// cyclic references
 		addBasicAttributes(entity, obj);
 		conf.visited(entity);
-		if (entity == null || conf.refFn == null)
+		if (entity == null)
 			return obj;
 		if (entity instanceof CategorizedEntity) {
 			CategorizedEntity ce = (CategorizedEntity) entity;
