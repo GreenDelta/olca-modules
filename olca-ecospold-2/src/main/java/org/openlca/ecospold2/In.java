@@ -26,7 +26,9 @@ class In {
 	static String childText(Element parent, String name) {
 		if (parent == null)
 			return null;
-		return parent.getChildText(name, parent.getNamespace());
+		String text = parent.getChildText(name, parent.getNamespace());
+		TextVariables.apply(parent, text);
+		return text;
 	}
 
 	static List<String> childTexts(Element parent, String name) {
@@ -34,8 +36,11 @@ class In {
 		if (elements.isEmpty())
 			return Collections.emptyList();
 		List<String> texts = new ArrayList<>();
-		for (Element element : elements)
-			texts.add(element.getText());
+		for (Element element : elements) {
+			String text = element.getText();
+			text = TextVariables.apply(parent, text);
+			texts.add(text);
+		}
 		return texts;
 	}
 
@@ -80,7 +85,9 @@ class In {
 			if (i < (sorted.size() - 1))
 				builder.append(";");
 		}
-		return builder.toString();
+		String text = builder.toString();
+		text = TextVariables.apply(elements.get(0).getParentElement(), text);
+		return text;
 	}
 
 	private static List<Element> sort(List<Element> elements) {
