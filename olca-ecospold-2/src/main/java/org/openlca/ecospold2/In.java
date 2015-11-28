@@ -27,7 +27,7 @@ class In {
 		if (parent == null)
 			return null;
 		String text = parent.getChildText(name, parent.getNamespace());
-		TextVariables.apply(parent, text);
+		text = TextVariables.apply(parent, text);
 		return text;
 	}
 
