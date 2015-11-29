@@ -54,7 +54,8 @@ class ProcessWriter extends Writer<Process> {
 	}
 
 	private void mapExchanges(JsonObject json) {
-		JsonArray exchanges = new JsonArray();
+		JsonArray inputs = new JsonArray();
+		JsonArray outputs = new JsonArray();
 		for (Exchange e : process.getExchanges()) {
 			JsonObject obj = new JsonObject();
 			String id = Exchanges.map(e, process.getRefId(), obj, conf);
@@ -63,9 +64,13 @@ class ProcessWriter extends Writer<Process> {
 			idToRefId.put(e.getId(), id);
 			if (Objects.equals(process.getQuantitativeReference(), e))
 				Out.put(obj, "quantitativeReference", true);
-			exchanges.add(obj);
+			if (e.isInput())
+				inputs.add(obj);
+			else
+				outputs.add(obj);
 		}
-		Out.put(json, "exchanges", exchanges);
+		Out.put(json, "inputs", inputs);
+		Out.put(json, "outputs", outputs);
 	}
 
 	private void mapSocialAspects(JsonObject json) {
