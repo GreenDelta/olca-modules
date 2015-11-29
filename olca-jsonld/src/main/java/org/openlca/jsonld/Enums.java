@@ -45,6 +45,9 @@ public class Enums {
 		put(AllocationMethod.CAUSAL, "CAUSAL_ALLOCATION");
 		put(AllocationMethod.ECONOMIC, "ECONOMIC_ALLOCATION");
 		put(AllocationMethod.PHYSICAL, "PHYSICAL_ALLOCATION");
+		put(AllocationMethod.NONE, "NO_ALLOCATION");
+		put(AllocationMethod.USE_DEFAULT, "USE_DEFAULT_ALLOCATION");
+		defaultValues.put(AllocationMethod.class, AllocationMethod.NONE);
 	}
 
 	private static void putUncertaintyTypes() {
