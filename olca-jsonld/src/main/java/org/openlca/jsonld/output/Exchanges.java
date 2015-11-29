@@ -40,6 +40,10 @@ class Exchanges {
 			p = References.create(new ProcessDao(conf.db).getDescriptor(pId));
 		Out.put(obj, "defaultProvider", p);
 		Out.put(obj, "flow", e.getFlow(), conf);
+		if (e.getFlow() != null) {
+			JsonObject flow = obj.get("flow").getAsJsonObject();
+			Out.put(flow, "flowType", e.getFlow().getFlowType());
+		}
 		Out.put(obj, "unit", e.getUnit(), conf);
 		FlowProperty property = null;
 		if (e.getFlowPropertyFactor() != null)
@@ -50,5 +54,4 @@ class Exchanges {
 			return null;
 		return p.get("@id").getAsString();
 	}
-
 }
