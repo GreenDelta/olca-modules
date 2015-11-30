@@ -33,9 +33,8 @@ class ParameterRedefs {
 		}
 	}
 
-	private static boolean setContext(JsonObject ref, ParameterRedef p,
+	private static boolean setContext(JsonObject context, ParameterRedef p,
 			ImportConfig conf) {
-		JsonObject context = In.getObject(ref, "context");
 		if (context == null)
 			return true;
 		String type = In.getString(context, "@type");
