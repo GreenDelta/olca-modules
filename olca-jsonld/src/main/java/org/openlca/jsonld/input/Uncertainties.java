@@ -5,12 +5,12 @@ import org.openlca.core.model.UncertaintyType;
 
 import com.google.gson.JsonObject;
 
-final class Uncertainties {
+public final class Uncertainties {
 
 	private Uncertainties() {
 	}
 
-	static Uncertainty read(JsonObject json) {
+	public static Uncertainty read(JsonObject json) {
 		if (json == null)
 			return null;
 		UncertaintyType type = In.getEnum(json, "distributionType",
