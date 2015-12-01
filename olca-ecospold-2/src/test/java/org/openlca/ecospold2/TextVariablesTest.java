@@ -12,8 +12,8 @@ public class TextVariablesTest {
 		InputStream is = getClass().getResourceAsStream("text_variables_test.spold");
 		DataSet ds = EcoSpold2.readDataSet(is);
 		String comment = ds.getActivity().getGeneralComment();
-		Assert.assertFalse(comment.contains("plant {{location}} in {{time_period}}."));
-		Assert.assertTrue(comment.contains("plant in Netherlands in 2012."));
+		Assert.assertFalse(comment.contains("test {{var1}} and {{var2}}."));
+		Assert.assertTrue(comment.contains("test val1 and val2."));
 	}
 	
 }

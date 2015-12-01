@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ecoSpold xmlns="http://www.EcoInvent.org/EcoSpold02">
+  <activityDataset>
+    <activityDescription>
+      <activity id="08a78e38-fdbe-4ea8-869f-7735b41ecf85" activityNameId="af3ff82e-b5fe-41d0-9937-5b9b83df34b3" inheritanceDepth="0" type="1" specialActivityType="0" energyValues="1">
+        <activityName xml:lang="en">Sample</activityName>
+        <synonym xml:lang="en">synonym 1</synonym>
+        <synonym xml:lang="en">synonym 2</synonym>
+        <includedActivitiesStart xml:lang="en">included activities start</includedActivitiesStart>
+        <includedActivitiesEnd xml:lang="en">included activities end</includedActivitiesEnd>
+        <allocationComment>
+          <text xml:lang="en" index="1">allocation comment allocation comment</text>
+        </allocationComment>
+        <generalComment>
+          <text xml:lang="en" index="1">test {{var1}} and {{var2}}.</text>
+ 		  <variable xml:lang="en" name="var1">val1</variable>
+ 		  <variable xml:lang="en" name="var2">val2</variable>
+         </generalComment>
+        <tag>tag1</tag>
+        <tag>tag2</tag>
+      </activity>
+    </activityDescription>
+  </activityDataset>
+<usedUserMasterData xmlns="http://www.EcoInvent.org/UsedUserMasterData">
+  <activityName id="af3ff82e-b5fe-41d0-9937-5b9b83df34b3">
+    <name xml:lang="en">Sample</name>
+  </activityName>
+  <activityIndexEntry id="08a78e38-fdbe-4ea8-869f-7735b41ecf85" activityNameId="af3ff82e-b5fe-41d0-9937-5b9b83df34b3" geographyId="1023d322-7d7e-11de-9ae2-0019e336be3a" startDate="2013-01-01" endDate="2014-12-31" specialActivityType="0" systemModelId="8b738ea0-f89e-4627-8679-433616064e82" />
+</usedUserMasterData></ecoSpold>
