@@ -1,7 +1,6 @@
 package org.openlca.core.database;
 
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
@@ -11,7 +10,6 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -52,7 +50,6 @@ public class BaseDaoTest {
 			Actor.class,
 			AllocationFactor.class,
 			Category.class,
-			CostCategory.class,
 			Currency.class,
 			Exchange.class,
 			Flow.class,

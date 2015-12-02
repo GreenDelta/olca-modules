@@ -35,8 +35,6 @@ public enum ModelType {
 
 	SOCIAL_INDICATOR(SocialIndicator.class),
 
-	COST_CATEGORY(CostCategory.class),
-
 	CURRENCY(Currency.class),
 
 	PARAMETER(Parameter.class);

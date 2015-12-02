@@ -1,7 +1,7 @@
 package org.openlca.core.math;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.CostMatrix;
+import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
@@ -58,10 +58,9 @@ public class SystemCalculator {
 			calculator.setImpactMatrix(impactMatrix);
 		}
 		if (setup.withCosts) {
-			CostMatrix costMatrix = CostMatrix.build(inventory,
-					solver.getMatrixFactory(), db);
-			if (!costMatrix.isEmpty())
-				calculator.setCostMatrix(costMatrix);
+			CostVector costVector = CostVector.build(inventory, db);
+			if (!costVector.isEmpty())
+				calculator.setCostVector(costVector);
 		}
 		return calculator;
 	}

@@ -69,8 +69,6 @@ abstract class BaseImport<T extends RootEntity> {
 			return (T) conf.db.getActor(refId);
 		case CATEGORY:
 			return (T) conf.db.getCategory(refId);
-		case COST_CATEGORY:
-			return (T) conf.db.getCostCategory(refId);
 		case CURRENCY:
 			return (T) conf.db.getCurrency(refId);
 		case FLOW:

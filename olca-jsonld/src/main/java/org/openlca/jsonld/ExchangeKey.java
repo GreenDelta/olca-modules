@@ -27,7 +27,6 @@ public class ExchangeKey {
 		kg.add(toString(e.getBaseUncertainty()));
 		kg.addAll(toString(e.getUncertainty()));
 		kg.add(e.costFormula);
-		kg.add(toString(e.costCategory));
 		kg.add(toString(e.costValue));
 		kg.add(toString(e.currency));
 		return KeyGen.get(kg.toArray(new String[kg.size()]));

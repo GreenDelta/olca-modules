@@ -2,7 +2,7 @@ package org.openlca.core.database;
 
 import java.util.List;
 import java.util.UUID;
-
+import com.google.common.base.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.ListUtils;
@@ -10,7 +10,6 @@ import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -25,8 +24,6 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
 
 public class CategorizedEntityDaoTest {
 
@@ -44,7 +41,6 @@ public class CategorizedEntityDaoTest {
 		run(ImpactMethod.class, new ImpactMethodDao(database));
 		run(ProductSystem.class, new ProductSystemDao(database));
 		run(Project.class, new ProjectDao(database));
-		run(CostCategory.class, new CostCategoryDao(database));
 		run(Currency.class, new CurrencyDao(database));
 		run(SocialIndicator.class, new SocialIndicatorDao(database));
 	}

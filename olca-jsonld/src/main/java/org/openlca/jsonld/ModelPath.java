@@ -17,8 +17,6 @@ public final class ModelPath {
 		switch (type) {
 		case CATEGORY:
 			return "categories";
-		case COST_CATEGORY:
-			return "cost_categories";
 		case CURRENCY:
 			return "currencies";
 		case PROCESS:

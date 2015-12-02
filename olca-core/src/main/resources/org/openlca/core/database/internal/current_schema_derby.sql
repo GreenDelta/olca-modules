@@ -291,7 +291,6 @@ CREATE TABLE tbl_exchanges (
 	
 	cost_value DOUBLE,
 	cost_formula VARCHAR(1000),
-	f_cost_category BIGINT,
 	f_currency BIGINT,
 	
 	distribution_type INTEGER default 0, 
@@ -546,20 +545,6 @@ CREATE TABLE tbl_mapping_files (
 	id BIGINT NOT NULL,
 	file_name VARCHAR(255),
     content BLOB(16 M),
-	PRIMARY KEY (id)
-);
-
-
-CREATE TABLE tbl_cost_categories (
-	
-	id BIGINT NOT NULL,
-	name VARCHAR(255),
-	ref_id VARCHAR(36),
-	version BIGINT,
-	last_change BIGINT,
-	f_category BIGINT,
-	description CLOB(64 K),
-	
 	PRIMARY KEY (id)
 );
 

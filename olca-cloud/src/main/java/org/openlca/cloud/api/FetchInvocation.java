@@ -11,7 +11,11 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
 import org.openlca.cloud.api.data.FetchReader;
 import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.util.Directories;
@@ -23,7 +27,6 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategorizedEntityDao;
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.CostCategoryDao;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
@@ -48,12 +51,6 @@ import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Invokes a web service call to fetch the latest changes after the specified
@@ -209,8 +206,6 @@ class FetchInvocation {
 		switch (type) {
 		case ACTOR:
 			return new ActorDao(database);
-		case COST_CATEGORY:
-			return new CostCategoryDao(database);
 		case CURRENCY:
 			return new CurrencyDao(database);
 		case FLOW:

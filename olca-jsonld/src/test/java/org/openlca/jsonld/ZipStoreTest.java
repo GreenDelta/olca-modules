@@ -18,7 +18,7 @@ public class ZipStoreTest extends AbstractZipTest {
 			ModelType.SOURCE, ModelType.UNIT_GROUP, ModelType.FLOW_PROPERTY,
 			ModelType.FLOW, ModelType.PROCESS, ModelType.IMPACT_METHOD,
 			ModelType.IMPACT_CATEGORY, ModelType.NW_SET, ModelType.PARAMETER,
-			ModelType.SOCIAL_INDICATOR, ModelType.COST_CATEGORY
+			ModelType.SOCIAL_INDICATOR
 	};
 
 	@Test

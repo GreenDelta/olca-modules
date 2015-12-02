@@ -1,6 +1,6 @@
 package org.openlca.core.math;
 
-import org.openlca.core.matrix.CostMatrix;
+import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
@@ -16,7 +16,7 @@ public class LcaCalculator {
 	private final InventoryMatrix inventory;
 
 	private ImpactMatrix impactMatrix;
-	private CostMatrix costMatrix;
+	private CostVector costVector;
 
 	public LcaCalculator(IMatrixSolver solver, InventoryMatrix inventory) {
 		this.solver = solver;
@@ -27,8 +27,8 @@ public class LcaCalculator {
 		this.impactMatrix = impactMatrix;
 	}
 
-	public void setCostMatrix(CostMatrix costMatrix) {
-		this.costMatrix = costMatrix;
+	public void setCostVector(CostVector costVector) {
+		this.costVector = costVector;
 	}
 
 	public SimpleResult calculateSimple() {
@@ -43,14 +43,13 @@ public class LcaCalculator {
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 		IMatrix enviMatrix = inventory.getInterventionMatrix();
 
-		double[] g = solver.multiply(enviMatrix, s);
-		result.totalFlowResults = g;
+		result.totalFlowResults = solver.multiply(enviMatrix, s);
 
 		if (impactMatrix != null) {
 			addTotalImpacts(result);
 		}
 
-		if (costMatrix != null) {
+		if (costVector != null) {
 			addTotalCosts(result, s);
 		}
 
@@ -73,19 +72,16 @@ public class LcaCalculator {
 		IMatrix singleResult = enviMatrix.copy();
 		solver.scaleColumns(singleResult, s);
 		result.singleFlowResults = singleResult;
-		double[] g = solver.multiply(enviMatrix, s);
-		result.totalFlowResults = g;
-
-		LinkContributions linkContributions = LinkContributions.calculate(
+		result.totalFlowResults = solver.multiply(enviMatrix, s);
+		result.linkContributions = LinkContributions.calculate(
 				techMatrix, productIndex, s);
-		result.linkContributions = linkContributions;
 
 		if (impactMatrix != null) {
 			addTotalImpacts(result);
 			addDirectImpacts(result);
 		}
 
-		if (costMatrix != null) {
+		if (costVector != null) {
 			addTotalCosts(result, s);
 			addDirectCosts(result, s);
 		}
@@ -126,17 +122,14 @@ public class LcaCalculator {
 		}
 
 		IMatrix totalResult = solver.multiply(enviMatrix, inverse);
-		if (costMatrix == null)
+		if (costVector == null)
 			inverse = null; // allow GC
 		solver.scaleColumns(totalResult, demands);
 		result.upstreamFlowResults = totalResult;
 		int refIdx = productIndex.getIndex(productIndex.getRefProduct());
-		double[] g = totalResult.getColumn(refIdx);
-		result.totalFlowResults = g;
-
-		LinkContributions linkContributions = LinkContributions.calculate(
+		result.totalFlowResults = totalResult.getColumn(refIdx);
+		result.linkContributions = LinkContributions.calculate(
 				techMatrix, productIndex, scalingVector);
-		result.linkContributions = linkContributions;
 
 		if (impactMatrix != null) {
 			addDirectImpacts(result);
@@ -148,10 +141,10 @@ public class LcaCalculator {
 			result.totalImpactResults = totalImpactResult.getColumn(refIdx);
 		}
 
-		if (costMatrix != null) {
+		if (costVector != null) {
 			addDirectCosts(result, scalingVector);
-			result.costIndex = costMatrix.costIndex;
-			IMatrix costValues = costMatrix.values;
+			result.costIndex = costVector.costIndex;
+			IMatrix costValues = costVector.values;
 			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
 			solver.scaleColumns(upstreamCosts, demands);
 			result.totalCostResults = upstreamCosts.getColumn(refIdx);
@@ -190,14 +183,14 @@ public class LcaCalculator {
 	}
 
 	private void addTotalCosts(SimpleResult result, double[] scalingVector) {
-		result.costIndex = costMatrix.costIndex;
-		IMatrix costValues = costMatrix.values;
+		result.costIndex = costVector.costIndex;
+		IMatrix costValues = costVector.values;
 		double[] costTotals = solver.multiply(costValues, scalingVector);
 		result.totalCostResults = costTotals;
 	}
 
 	private void addDirectCosts(ContributionResult result, double[] scalingVector) {
-		IMatrix directResults = costMatrix.values.copy();
+		IMatrix directResults = costVector.values.copy();
 		solver.scaleColumns(directResults, scalingVector);
 		result.singleCostResults = directResults;
 	}

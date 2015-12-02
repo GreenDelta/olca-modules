@@ -35,7 +35,6 @@
 		<class>org.openlca.core.model.Source</class>
 		<class>org.openlca.core.model.Unit</class>
 		<class>org.openlca.core.model.UnitGroup</class>
-		<class>org.openlca.core.model.CostCategory</class>
 		<class>org.openlca.core.model.SocialIndicator</class>
 		<class>org.openlca.core.model.MappingFile</class>
 

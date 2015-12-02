@@ -24,7 +24,6 @@ class Exchanges {
 		Out.put(obj, "costFormula", e.costFormula);
 		Out.put(obj, "costValue", e.costValue);
 		Out.put(obj, "currency", e.currency, conf);
-		Out.put(obj, "costCategory", e.costCategory, conf);
 		String providerRefId = mapRefs(e, obj, conf);
 		String internalId = ExchangeKey.get(processRefId, providerRefId, e);
 		Out.put(obj, "@id", internalId);

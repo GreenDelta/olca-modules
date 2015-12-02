@@ -42,8 +42,6 @@ public class JsonImport implements Runnable {
 			UnitGroupImport.run(groupId, conf);
 		for (String propId : store.getRefIds(ModelType.FLOW_PROPERTY))
 			FlowPropertyImport.run(propId, conf);
-		for (String ccId : store.getRefIds(ModelType.COST_CATEGORY))
-			CostCategoryImport.run(ccId, conf);
 		for (String currId : store.getRefIds(ModelType.CURRENCY))
 			CurrencyImport.run(currId, conf);
 		for (String flowId : store.getRefIds(ModelType.FLOW))

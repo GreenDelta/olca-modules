@@ -31,8 +31,6 @@ public class Daos {
 		switch (type) {
 		case ACTOR:
 			return new ActorDao(database);
-		case COST_CATEGORY:
-			return new CostCategoryDao(database);
 		case CURRENCY:
 			return new CurrencyDao(database);
 		case FLOW:

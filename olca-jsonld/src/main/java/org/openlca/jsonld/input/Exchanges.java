@@ -39,9 +39,6 @@ class Exchanges {
 		String currencyId = In.getRefId(json, "currency");
 		if (currencyId != null)
 			e.currency = CurrencyImport.run(currencyId, conf);
-		String categoryId = In.getRefId(json, "costCategory");
-		if (categoryId != null)
-			e.costCategory = CostCategoryImport.run(categoryId, conf);
 	}
 
 	private static void addExchangeRefs(JsonObject json, Exchange e,

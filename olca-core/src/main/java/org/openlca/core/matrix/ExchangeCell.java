@@ -73,9 +73,9 @@ class ExchangeCell {
 			return 0;
 		double val = exchange.costValue * allocationFactor;
 		if (exchange.flowType == FlowType.PRODUCT_FLOW && !exchange.input)
-			return val;
-		else
 			return -val;
+		else
+			return val;
 	}
 
 	double getNextSimulationValue() {

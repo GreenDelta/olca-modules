@@ -105,7 +105,6 @@ class ExchangeCache {
 			e.defaultProviderId = r.getLong("f_default_provider");
 			e.avoidedProduct = r.getBoolean("avoided_product");
 			e.costValue = r.getDouble("cost_value");
-			e.costCategory = r.getLong("f_cost_category");
 			e.currency = r.getLong("f_currency");
 			int uncertaintyType = r.getInt("distribution_type");
 			if (!r.wasNull()) {
