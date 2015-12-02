@@ -1,7 +1,0 @@
-bin/
-target/
-apidocs/
-derby.log
-/.settings/
-/.classpath
-/.project
