@@ -1,6 +1,5 @@
 package org.openlca.cloud.api;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -211,13 +210,13 @@ public class RepositoryClient {
 		});
 	}
 
-	public Map<String, String> performLibraryCheck(Set<String> refIds)
+	public Map<Dataset, String> performLibraryCheck(Set<Dataset> datasets)
 			throws WebRequestException {
 		return executeLoggedIn(() -> {
 			LibraryCheckInvocation invocation = new LibraryCheckInvocation();
 			invocation.baseUrl = config.getBaseUrl();
 			invocation.sessionId = sessionId;
-			invocation.refIds = new ArrayList<>(refIds);
+			invocation.datasets = datasets;
 			return invocation.execute();
 		});
 	}

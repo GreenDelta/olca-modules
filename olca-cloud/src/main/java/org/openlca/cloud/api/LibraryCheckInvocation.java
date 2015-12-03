@@ -1,9 +1,13 @@
 package org.openlca.cloud.api;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
@@ -24,7 +28,7 @@ class LibraryCheckInvocation {
 	private static final String PATH = "/library/";
 	String baseUrl;
 	String sessionId;
-	List<String> refIds;
+	Set<Dataset> datasets;
 
 	/**
 	 * Retrieves the libraries for the given ref ids
@@ -33,18 +37,33 @@ class LibraryCheckInvocation {
 	 *         contained in a library
 	 * @throws WebRequestException
 	 */
-	Map<String, String> execute() throws WebRequestException {
+	Map<Dataset, String> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
-		Valid.checkNotEmpty(refIds, "ref ids");
+		Valid.checkNotEmpty(datasets, "datasets");
 		String url = Strings.concat(baseUrl, PATH);
+		List<String> refIds = new ArrayList<>();
+		for (Dataset dataset : datasets)
+			refIds.add(dataset.getRefId());
 		ClientResponse response = WebRequests.call(Type.POST, url, sessionId,
 				refIds);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyMap();
-		return new Gson().fromJson(response.getEntity(String.class),
+		return mapResults(response);
+	}
+
+	private Map<Dataset, String> mapResults(ClientResponse response) {
+		Map<String, String> result = new Gson().fromJson(
+				response.getEntity(String.class),
 				new TypeToken<Map<String, String>>() {
 				}.getType());
+		Map<String, Dataset> map = new HashMap<>();
+		for (Dataset dataset : datasets)
+			map.put(dataset.getRefId(), dataset);
+		Map<Dataset, String> mapped = new HashMap<>();
+		for (String refId : result.keySet())
+			mapped.put(map.get(refId), result.get(refId));
+		return mapped;
 	}
 
 }
