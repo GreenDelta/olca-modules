@@ -69,6 +69,8 @@ public class ExchangeMatrix {
 	}
 
 	public <M extends IMatrix> M createRealMatrix(IMatrixFactory<M> factory) {
+		if(rows == 0 || columns == 0)
+			return null;
 		M matrix = factory.create(rows, columns);
 		iterate((row, col, cell) -> {
 			matrix.setEntry(row, col, cell.getMatrixValue());

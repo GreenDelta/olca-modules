@@ -35,6 +35,7 @@ public class TestProcess {
 		tp.process.setRefId(UUID.randomUUID().toString());
 		tp.process.setName(flow + " [" + unit + "]");
 		tp.prodOut(flow, amount, unit);
+		tp.process.setQuantitativeReference(tp.process.getExchanges().get(0));
 		return tp;
 	}
 
