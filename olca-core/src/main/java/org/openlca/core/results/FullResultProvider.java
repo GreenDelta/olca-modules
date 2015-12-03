@@ -6,7 +6,6 @@ import java.util.List;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -70,20 +69,8 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 		return r;
 	}
 
-	public List<CostResult> getUpstreamCostResults(ProcessDescriptor process) {
-		List<CostResult> results = new ArrayList<>();
-		for (CostCategoryDescriptor cost : getCostDescriptors())
-			results.add(getUpstreamCostResult(process, cost));
-		return results;
-	}
-
-	public CostResult getUpstreamCostResult(ProcessDescriptor process,
-			CostCategoryDescriptor cost) {
-		double val = result.getUpstreamCostResult(process.getId(), cost.getId());
-		CostResult r = new CostResult();
-		r.costCategory = cost;
-		r.value = val;
-		return r;
+	public double getUpstreamCostResult(ProcessDescriptor process) {
+		return getUpstreamCostResult(process);
 	}
 
 	/**
@@ -103,8 +90,8 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 		return treeCalculator.calculate(impact);
 	}
 
-	public UpstreamTree getTree(CostCategoryDescriptor cost) {
-		return treeCalculator.calculate(cost);
+	public UpstreamTree getCostTree() {
+		return treeCalculator.calculateCosts();
 	}
 
 }

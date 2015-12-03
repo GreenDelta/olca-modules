@@ -1,8 +1,6 @@
 package org.openlca.core.results;
 
 import java.util.Set;
-
-import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -18,7 +16,7 @@ public interface IResultProvider {
 	boolean hasImpactResults();
 
 	/**
-	 * Indicates whether the result has a LCC result or not.
+	 * Indicates whether the result contains cost results or not.
 	 */
 	boolean hasCostResults();
 
@@ -37,8 +35,4 @@ public interface IResultProvider {
 	 */
 	Set<ImpactCategoryDescriptor> getImpactDescriptors();
 
-	/**
-	 * Get the descriptors of all LCC categories in the result.
-	 */
-	Set<CostCategoryDescriptor> getCostDescriptors();
 }

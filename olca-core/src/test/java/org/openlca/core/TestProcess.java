@@ -1,12 +1,14 @@
 package org.openlca.core;
 
 import java.util.UUID;
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -17,6 +19,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.util.KeyGen;
+import org.openlca.util.Strings;
 
 public class TestProcess {
 
@@ -38,6 +41,18 @@ public class TestProcess {
 	public Process get() {
 		ProcessDao dao = new ProcessDao(db);
 		return dao.insert(process);
+	}
+
+	public TestProcess addCosts(String flow, double amount, String currency) {
+		for (Exchange e : process.getExchanges()) {
+			Flow f = e.getFlow();
+			if (f == null || !Strings.nullOrEqual(f.getName(), flow))
+				continue;
+			e.currency = currency(currency);
+			e.costValue = amount;
+			break;
+		}
+		return this;
 	}
 
 	public TestProcess prodOut(String flow, double amount, String unit) {
@@ -80,7 +95,7 @@ public class TestProcess {
 		String flowId = KeyGen.get("elementary-flow", name, unit);
 		FlowDao dao = new FlowDao(db);
 		Flow flow = dao.getForRefId(flowId);
-		if(flow != null)
+		if (flow != null)
 			return flow;
 		flow = new Flow();
 		flow.setName(name);
@@ -137,5 +152,23 @@ public class TestProcess {
 		group.getUnits().add(refUnit);
 		group.setReferenceUnit(refUnit);
 		return dao.insert(group);
+	}
+
+	private Currency currency(String name) {
+		String currencyId = KeyGen.get("currency", name);
+		CurrencyDao dao = new CurrencyDao(db);
+		Currency currency = dao.getForRefId(currencyId);
+		if (currency != null)
+			return currency;
+		currency = new Currency();
+		currency.setRefId(currencyId);
+		currency.setName(name);
+		currency.conversionFactor = 1;
+		Currency ref = dao.getReferenceCurrency();
+		if (ref != null)
+			currency.referenceCurrency = ref;
+		else
+			currency.referenceCurrency = currency;
+		return dao.insert(currency);
 	}
 }

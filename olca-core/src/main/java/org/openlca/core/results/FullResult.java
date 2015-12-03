@@ -24,8 +24,8 @@ public class FullResult extends ContributionResult {
 	public IMatrix upstreamImpactResults;
 
 	/**
-	 * The upstream cost results in a matrix where the cost categories are
-	 * mapped to the rows and the process-products to the columns.
+	 * The upstream cost results is a simple row vector where each entry
+	 * contains the upstream costs for the product at the given index.
 	 */
 	public IMatrix upstreamCostResults;
 
@@ -73,26 +73,22 @@ public class FullResult extends ContributionResult {
 	}
 
 	/**
-	 * Get the upstream cost result of the cost category with the given ID for
-	 * the given process-product.
+	 * Get the upstream cost result of the given process-product.
 	 */
-	public double getUpstreamCostResult(LongPair processProduct, long costId) {
-		if (!hasCostResults())
+	public double getUpstreamCostResult(LongPair processProduct) {
+		if (!hasCostResults)
 			return 0;
-		int row = costIndex.getIndex(costId);
 		int col = productIndex.getIndex(processProduct);
-		return getValue(upstreamCostResults, row, col);
+		return getValue(upstreamCostResults, 0, col);
 	}
 
 	/**
-	 * Get the sum of the upstream cost results of the cost category with the
-	 * given ID for all products of the process with the given ID.
+	 * Get the upstream cost result of the given process.
 	 */
-	public double getUpstreamCostResult(long processId, long costId) {
-		if (!hasCostResults())
+	public double getUpstreamCostResult(long processId) {
+		if (!hasCostResults)
 			return 0;
-		int row = costIndex.getIndex(costId);
-		return getProcessValue(upstreamCostResults, row, processId);
+		return getProcessValue(upstreamCostResults, 0, processId);
 	}
 
 }

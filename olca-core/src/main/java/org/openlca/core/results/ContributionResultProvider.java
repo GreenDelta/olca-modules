@@ -2,10 +2,8 @@ package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -17,7 +15,9 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 		super(result, cache);
 	}
 
-	/** Get the single flow results for the process with the given ID. */
+	/**
+	 * Get the single flow results for the process with the given ID.
+	 */
 	public List<FlowResult> getSingleFlowResults(ProcessDescriptor process) {
 		FlowIndex index = result.flowIndex;
 		List<FlowResult> results = new ArrayList<>();
@@ -63,7 +63,9 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 				});
 	}
 
-	/** Get the single impact results for the process with the given ID. */
+	/**
+	 * Get the single impact results for the process with the given ID.
+	 */
 	public List<ImpactResult> getSingleImpactResults(ProcessDescriptor process) {
 		List<ImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor impact : getImpactDescriptors())
@@ -123,31 +125,15 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 				flow -> result.getSingleFlowImpact(flow.getId(), impact.getId()));
 	}
 
-	public List<CostResult> getSingleCostResults(ProcessDescriptor process) {
-		List<CostResult> results = new ArrayList<>();
-		for (CostCategoryDescriptor cost : getCostDescriptors())
-			results.add(getSingleCostResult(process, cost));
-		return results;
+	public double getSingleCostResult(ProcessDescriptor process) {
+		return result.getSingleCostResult(process.getId());
 	}
 
-	public CostResult getSingleCostResult(ProcessDescriptor process,
-			CostCategoryDescriptor cost) {
-		double val = result.getSingleCostResult(process.getId(), cost.getId());
-		CostResult r = new CostResult();
-		r.costCategory = cost;
-		r.value = val;
-		return r;
-	}
-
-	/**
-	 * Get the single contributions of the processes to the total result of the
-	 * given LCIA category.
-	 */
-	public ContributionSet<ProcessDescriptor> getProcessContributions(
-			CostCategoryDescriptor cost) {
-		double total = result.getTotalCostResult(cost.getId());
-		return Contributions.calculate(getProcessDescriptors(), total,
-				process -> result.getSingleCostResult(process.getId(), cost.getId()));
+	public ContributionSet<ProcessDescriptor> getProcessCostContributions() {
+		return Contributions.calculate(
+				getProcessDescriptors(),
+				result.totalCostResult,
+				process -> result.getSingleCostResult(process.getId()));
 	}
 
 }

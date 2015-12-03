@@ -143,11 +143,10 @@ public class LcaCalculator {
 
 		if (costVector != null) {
 			addDirectCosts(result, scalingVector);
-			result.costIndex = costVector.costIndex;
-			IMatrix costValues = costVector.values;
+			IMatrix costValues = costVector.asMatrix(solver.getMatrixFactory());
 			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
 			solver.scaleColumns(upstreamCosts, demands);
-			result.totalCostResults = upstreamCosts.getColumn(refIdx);
+			result.totalCostResult = upstreamCosts.getEntry(0, refIdx);
 			result.upstreamCostResults = upstreamCosts;
 		}
 
@@ -183,16 +182,21 @@ public class LcaCalculator {
 	}
 
 	private void addTotalCosts(SimpleResult result, double[] scalingVector) {
-		result.costIndex = costVector.costIndex;
-		IMatrix costValues = costVector.values;
-		double[] costTotals = solver.multiply(costValues, scalingVector);
-		result.totalCostResults = costTotals;
+		double[] costValues = costVector.values;
+		double total = 0;
+		for(int i = 0; i < scalingVector.length; i++) {
+			total += scalingVector[i] + costValues[i];
+		}
+		result.totalCostResult = total;
 	}
 
 	private void addDirectCosts(ContributionResult result, double[] scalingVector) {
-		IMatrix directResults = costVector.values.copy();
-		solver.scaleColumns(directResults, scalingVector);
-		result.singleCostResults = directResults;
+		double[] costValues = costVector.values;
+		double[] directCosts = new double[costValues.length];
+		for(int i = 0; i < scalingVector.length; i++) {
+			directCosts[i] = costValues[i] * scalingVector[i];
+		}
+		result.singleCostResults = directCosts;
 	}
 
 }

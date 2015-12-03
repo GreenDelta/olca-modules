@@ -2,10 +2,8 @@ package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
@@ -73,19 +71,7 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 		return results;
 	}
 
-	public CostResult getTotalCostResult(CostCategoryDescriptor cost) {
-		double val = result.getTotalCostResult(cost.getId());
-		CostResult r = new CostResult();
-		r.costCategory = cost;
-		r.value = val;
-		return r;
-	}
-
-	public List<CostResult> getTotalCostResults() {
-		List<CostResult> results = new ArrayList<>();
-		for (CostCategoryDescriptor d : getCostDescriptors()) {
-			results.add(getTotalCostResult(d));
-		}
-		return results;
+	public double getTotalCostResult() {
+		return result.totalCostResult;
 	}
 }

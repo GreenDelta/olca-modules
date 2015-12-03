@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -113,14 +111,6 @@ public class ProjectResultProvider implements IResultProvider {
 		for (ContributionResultProvider<?> result : results.values())
 			impacts.addAll(result.getImpactDescriptors());
 		return impacts;
-	}
-
-	@Override
-	public Set<CostCategoryDescriptor> getCostDescriptors() {
-		Set<CostCategoryDescriptor> costs = new HashSet<>();
-		for (ContributionResultProvider<?> result : results.values())
-			costs.addAll(result.getCostDescriptors());
-		return costs;
 	}
 
 }

@@ -8,7 +8,11 @@ public class CostTests {
 
 	@Test
 	public void test() {
-		Process electricity = TestProcess.forOutput("Electricity", 1, "MJ").get();
+		Process electricity = TestProcess
+				.forOutput("Electricity", 1, "MJ")
+				.addCosts("Electricity", 5, "EUR")
+				.get();
+
 	}
 
 }

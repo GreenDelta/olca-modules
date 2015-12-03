@@ -20,9 +20,9 @@ public class SimpleResult extends BaseResult {
 	public double[] totalImpactResults;
 
 	/**
-	 * The total results of all cost categories.
+	 * Sum of the net-costs for all products in a product system.
 	 */
-	public double[] totalCostResults;
+	public double totalCostResult;
 
 	/**
 	 * Returns the total result of the intervention flow with the given ID. Note
@@ -45,17 +45,5 @@ public class SimpleResult extends BaseResult {
 		if (idx < 0 || idx >= totalImpactResults.length)
 			return 0;
 		return totalImpactResults[idx];
-	}
-
-	/**
-	 * Returns the total result of the cost category with the given ID.
-	 */
-	public double getTotalCostResult(long costId) {
-		if (!hasCostResults())
-			return 0;
-		int idx = costIndex.getIndex(costId);
-		if (idx < 0 || idx >= totalCostResults.length)
-			return 0;
-		return totalCostResults[idx];
 	}
 }

@@ -29,10 +29,10 @@ public class ContributionResult extends SimpleResult {
 	public IMatrix singleImpactResults;
 
 	/**
-	 * Contains the single cost results in a matrix where the cost categories
-	 * are mapped to the rows and the process-products to the columns.
+	 * Contains the direct net-costs. Each entry contains the net-costs of
+	 * the respective process-product at the respective index.
 	 */
-	public IMatrix singleCostResults;
+	public double[] singleCostResults;
 
 	/**
 	 * The single LCIA category result for each intervention flow in a matrix
@@ -122,19 +122,23 @@ public class ContributionResult extends SimpleResult {
 		return getProcessValue(singleImpactResults, row, processId);
 	}
 
-	public double getSingleCostResult(LongPair processProduct, long costId) {
-		if (!hasCostResults())
+	public double getSingleCostResult(LongPair processProduct) {
+		if (!hasCostResults)
 			return 0;
-		int row = costIndex.getIndex(costId);
 		int col = productIndex.getIndex(processProduct);
-		return getValue(singleCostResults, row, col);
+		if(col >= singleCostResults.length)
+			return 0;
+		return singleCostResults[col];
 	}
 
-	public double getSingleCostResult(long processId, long costId) {
-		if (!hasCostResults())
+	public double getSingleCostResult(long processId) {
+		if (!hasCostResults)
 			return 0;
-		int row = costIndex.getIndex(costId);
-		return getProcessValue(singleCostResults, row, processId);
+		double sum = 0;
+		for(LongPair product : productIndex.getProducts(processId)){
+			sum += getSingleCostResult(product);
+		}
+		return sum;
 	}
 
 	/**

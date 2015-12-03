@@ -6,16 +6,14 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
-
-import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.CostCategoryDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 class UpstreamTreeCalculator {
 
@@ -60,8 +58,8 @@ class UpstreamTreeCalculator {
 		return calculate(fn);
 	}
 
-	public UpstreamTree calculate(CostCategoryDescriptor cost) {
-		CostResultFetch fn = new CostResultFetch(cost);
+	public UpstreamTree calculateCosts() {
+		CostResultFetch fn = new CostResultFetch();
 		return calculate(fn);
 	}
 
@@ -179,22 +177,17 @@ class UpstreamTreeCalculator {
 
 	private class CostResultFetch implements ResultFetch {
 
-		private final CostCategoryDescriptor cost;
-		private final long costId;
-
-		public CostResultFetch(CostCategoryDescriptor cost) {
-			this.cost = cost;
-			this.costId = cost.getId();
-		}
-
 		@Override
 		public double getTotalAmount(LongPair product) {
-			return result.getUpstreamCostResult(product, costId);
+			return result.getUpstreamCostResult(product);
 		}
 
 		@Override
 		public BaseDescriptor getReference() {
-			return cost;
+			BaseDescriptor d = new BaseDescriptor();
+			d.setId(0);
+			d.setType(ModelType.CURRENCY);
+			return d;
 		}
 	}
 
