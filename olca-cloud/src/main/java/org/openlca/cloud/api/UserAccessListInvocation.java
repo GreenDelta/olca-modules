@@ -16,16 +16,8 @@ import com.sun.jersey.api.client.ClientResponse;
 class UserAccessListInvocation {
 
 	private static final String PATH = "/access/shared/user";
-	private String baseUrl;
-	private String sessionId;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
+	String baseUrl;
+	String sessionId;
 
 	/**
 	 * Loads the list of repositories that the specified user has access to
@@ -33,7 +25,7 @@ class UserAccessListInvocation {
 	 * @return list of accessible repositories
 	 * @throws WebRequestException
 	 */
-	public List<String> execute() throws WebRequestException {
+	List<String> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		String url = Strings.concat(baseUrl, PATH);

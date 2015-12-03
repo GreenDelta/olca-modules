@@ -12,22 +12,9 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 class DeleteRepositoryInvocation {
 
 	private static final String PATH = "/repository/delete";
-
-	private String baseUrl;
-	private String sessionId;
-	private String name;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+	String baseUrl;
+	String sessionId;
+	String name;
 
 	/**
 	 * Deletes the repository with the specified name
@@ -35,7 +22,7 @@ class DeleteRepositoryInvocation {
 	 * @throws WebRequestException
 	 *             if a repository with the specified name did not exists
 	 */
-	public void execute() throws WebRequestException {
+	void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(name, "repository name");

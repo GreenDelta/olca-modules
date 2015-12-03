@@ -63,40 +63,16 @@ class FetchInvocation {
 
 	private static final String PATH = "/fetch/";
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private String baseUrl;
-	private String sessionId;
-	private String repositoryId;
-	private String lastCommitId;
-	private List<Dataset> fetchData;
-	private Map<Dataset, JsonObject> mergedData;
 	private IDatabase database;
+	String baseUrl;
+	String sessionId;
+	String repositoryId;
+	String lastCommitId;
+	List<Dataset> fetchData;
+	Map<Dataset, JsonObject> mergedData;
 
-	public FetchInvocation(IDatabase database) {
+	FetchInvocation(IDatabase database) {
 		this.database = database;
-	}
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setRepositoryId(String repositoryId) {
-		this.repositoryId = repositoryId;
-	}
-
-	public void setLastCommitId(String lastCommitId) {
-		this.lastCommitId = lastCommitId;
-	}
-
-	public void setFetchData(List<Dataset> fetchData) {
-		this.fetchData = fetchData;
-	}
-
-	public void setMergedData(Map<Dataset, JsonObject> mergedData) {
-		this.mergedData = mergedData;
 	}
 
 	/**
@@ -107,7 +83,7 @@ class FetchInvocation {
 	 *             If user is out of sync or has no access to the specified
 	 *             repository
 	 */
-	public String execute() throws WebRequestException {
+	String execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");

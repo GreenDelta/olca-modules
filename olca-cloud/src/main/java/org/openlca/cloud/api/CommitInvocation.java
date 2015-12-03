@@ -22,29 +22,13 @@ public class CommitInvocation extends CommitWriter {
 
 	private static final String PATH = "/commit/";
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private String baseUrl;
-	private String sessionId;
-	private String repositoryId;
-	private String lastCommitId;
+	String baseUrl;
+	String sessionId;
+	String repositoryId;
+	String lastCommitId;
 
 	CommitInvocation(IDatabase database) {
 		super(database);
-	}
-
-	void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	void setRepositoryId(String repositoryId) {
-		this.repositoryId = repositoryId;
-	}
-
-	void setLastCommitId(String lastCommitId) {
-		this.lastCommitId = lastCommitId;
 	}
 
 	/**

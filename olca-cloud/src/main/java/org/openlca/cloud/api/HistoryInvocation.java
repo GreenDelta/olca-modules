@@ -21,27 +21,10 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 class HistoryInvocation {
 
 	private static final String PATH = "/history/";
-
-	private String baseUrl;
-	private String sessionId;
-	private String repositoryId;
-	private String lastCommitId;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setRepositoryId(String repositoryId) {
-		this.repositoryId = repositoryId;
-	}
-
-	public void setLastCommitId(String lastCommitId) {
-		this.lastCommitId = lastCommitId;
-	}
+	String baseUrl;
+	String sessionId;
+	String repositoryId;
+	String lastCommitId;
 
 	/**
 	 * Retrieves all commit entries that have been committed after the last
@@ -52,7 +35,7 @@ class HistoryInvocation {
 	 * @throws WebRequestException
 	 *             If user has no access to the specified repository
 	 */
-	public List<Commit> execute() throws WebRequestException {
+	List<Commit> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");

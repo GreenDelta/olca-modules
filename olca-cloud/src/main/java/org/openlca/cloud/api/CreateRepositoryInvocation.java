@@ -12,22 +12,9 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 class CreateRepositoryInvocation {
 
 	private static final String PATH = "/repository/create";
-
-	private String baseUrl;
-	private String sessionId;
-	private String name;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+	String baseUrl;
+	String sessionId;
+	String name;
 
 	/**
 	 * Creates a new repository with the specified name
@@ -35,7 +22,7 @@ class CreateRepositoryInvocation {
 	 * @throws WebRequestException
 	 *             if a repository with the specified name already exists
 	 */
-	public void execute() throws WebRequestException {
+	void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(name, "repository name");

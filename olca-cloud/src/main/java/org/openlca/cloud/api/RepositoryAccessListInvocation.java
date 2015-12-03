@@ -20,21 +20,9 @@ import com.sun.jersey.api.client.ClientResponse;
 class RepositoryAccessListInvocation {
 
 	private static final String PATH = "/access/shared";
-	private String baseUrl;
-	private String sessionId;
-	private String repositoryId;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setRepositoryId(String repositoryId) {
-		this.repositoryId = repositoryId;
-	}
+	String baseUrl;
+	String sessionId;
+	String repositoryId;
 
 	/**
 	 * Loads the list of users that have access to the specified repository
@@ -43,7 +31,7 @@ class RepositoryAccessListInvocation {
 	 * @throws WebRequestException
 	 *             if the specified repository did not exist
 	 */
-	public List<String> execute() throws WebRequestException {
+	List<String> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");

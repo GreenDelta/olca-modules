@@ -3,14 +3,15 @@ package org.openlca.cloud.api;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.openlca.cloud.model.data.FetchRequestData;
 import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -21,27 +22,10 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 class FetchRequestInvocation {
 
 	private static final String PATH = "/fetch/request/";
-
-	private String baseUrl;
-	private String sessionId;
-	private String repositoryId;
-	private String lastCommitId;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setRepositoryId(String repositoryId) {
-		this.repositoryId = repositoryId;
-	}
-
-	public void setLastCommitId(String lastCommitId) {
-		this.lastCommitId = lastCommitId;
-	}
+	String baseUrl;
+	String sessionId;
+	String repositoryId;
+	String lastCommitId;
 
 	/**
 	 * Retrieves all changed data sets (only the descriptors)
@@ -51,7 +35,7 @@ class FetchRequestInvocation {
 	 * @throws WebRequestException
 	 *             If user has no access to the specified repository
 	 */
-	public List<FetchRequestData> execute() throws WebRequestException {
+	List<FetchRequestData> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");

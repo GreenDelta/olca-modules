@@ -16,26 +16,10 @@ class CommitRequestInvocation {
 
 	private static final String PATH = "/commit/request/";
 
-	private String baseUrl;
-	private String sessionId;
-	private String repositoryId;
-	private String lastCommitId;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-	
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setRepositoryId(String repositoryId) {
-		this.repositoryId = repositoryId;
-	}
-
-	public void setLastCommitId(String lastCommitId) {
-		this.lastCommitId = lastCommitId;
-	}
+	String baseUrl;
+	String sessionId;
+	String repositoryId;
+	String lastCommitId;
 
 	/**
 	 * Requests a sync check on the specified repository
@@ -43,10 +27,10 @@ class CommitRequestInvocation {
 	 * @throws WebRequestException
 	 *             if user is not in sync with the repository or has no access
 	 *             rights to the specified repository. To check if the user is
-	 *             in sync, the last commit id (that id of the last commit
-	 *             that was fetched) is send along with the request. If it does
-	 *             not match the last commit id in the repository, the user is
-	 *             out of sync
+	 *             in sync, the last commit id (that id of the last commit that
+	 *             was fetched) is send along with the request. If it does not
+	 *             match the last commit id in the repository, the user is out
+	 *             of sync
 	 */
 	public void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
@@ -54,7 +38,8 @@ class CommitRequestInvocation {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (lastCommitId == null || lastCommitId.isEmpty())
 			lastCommitId = "null";
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/", lastCommitId);
+		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
+				lastCommitId);
 		WebRequests.call(Type.GET, url, sessionId);
 	}
 

@@ -12,17 +12,8 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 class LogoutInvocation {
 
 	private final static String PATH = "/public/logout";
-
-	private String baseUrl;
-	private String sessionId;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
+	String baseUrl;
+	String sessionId;
 
 	/**
 	 * Terminate the current user session
@@ -30,7 +21,7 @@ class LogoutInvocation {
 	 * @throws WebRequestException
 	 *             if the user was not logged in
 	 */
-	public void execute() throws WebRequestException {
+	void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		String url = Strings.concat(baseUrl, PATH);
