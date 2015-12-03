@@ -13,7 +13,6 @@ import java.util.Set;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.CostCategoryDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
@@ -169,7 +168,6 @@ public class EntityCache {
 			m.put(ProjectDescriptor.class, new ProjectDao(db));
 			m.put(ImpactCategoryDescriptor.class, new ImpactCategoryDao(db));
 			m.put(SocialIndicatorDescriptor.class, new SocialIndicatorDao(db));
-			m.put(CostCategoryDescriptor.class, new CostCategoryDao(db));
 			m.put(CurrencyDescriptor.class, new CurrencyDao(db));
 			m.put(LocationDescriptor.class, new LocationDao(db));
 			m.put(ParameterDescriptor.class, new ParameterDao(db));

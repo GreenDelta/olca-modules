@@ -3,7 +3,6 @@ package org.openlca.core.model.descriptors;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.CostCategory;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -60,8 +59,6 @@ public class Descriptors {
 			return toDescriptor((Source) entity);
 		if (entity instanceof SocialIndicator)
 			return toDescriptor((SocialIndicator) entity);
-		if (entity instanceof CostCategory)
-			return toDescriptor((CostCategory) entity);
 		if (entity instanceof Currency)
 			return toDescriptor((Currency) entity);
 		if (entity instanceof Location)
@@ -147,7 +144,7 @@ public class Descriptors {
 		setBaseValues(unitGroup, descriptor);
 		return descriptor;
 	}
-	
+
 	public static UnitDescriptor toDescriptor(Unit unit) {
 		if (unit == null)
 			return null;
@@ -193,14 +190,6 @@ public class Descriptors {
 			return null;
 		SocialIndicatorDescriptor d = new SocialIndicatorDescriptor();
 		setBaseValues(i, d);
-		return d;
-	}
-
-	public static CostCategoryDescriptor toDescriptor(CostCategory cc) {
-		if (cc == null)
-			return null;
-		CostCategoryDescriptor d = new CostCategoryDescriptor();
-		setBaseValues(cc, d);
 		return d;
 	}
 
