@@ -31,7 +31,7 @@ public class Schema {
 		private static final long serialVersionUID = 1916423824713840333L;
 
 		public UnsupportedSchemaException(String unsupportedSchema) {
-			super(unsupportedSchema + " unsupported - current schmea is " + URI);
+			super("Schema " + unsupportedSchema + " unsupported - current schema is " + URI);
 		}
 	}
 
