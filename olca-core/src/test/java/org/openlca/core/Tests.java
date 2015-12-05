@@ -1,6 +1,7 @@
 package org.openlca.core;
 
 import java.io.File;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.derby.DerbyDatabase;
@@ -9,6 +10,8 @@ import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.math.JavaSolver;
 
 public class Tests {
+
+	private static final boolean USE_FILE_BASED_DB = false;
 
 	private static IDatabase db;
 
@@ -24,25 +27,32 @@ public class Tests {
 
 	public static IDatabase getDb() {
 		if (db == null) {
-			String tmpDirPath = System.getProperty("java.io.tmpdir");
-			String dbName = "olca_test_db_1.4";
-			File tmpDir = new File(tmpDirPath);
-			File folder = new File(tmpDir, dbName);
-			db = new DerbyDatabase(folder);
-			try {
-				// (currently) it should be always possible to run the database
-				// updates on databases that were already updated as the
-				// updated should check if an update is necessary or not. Thus
-				// we reset the version here and test if the updates work.
-				String versionReset = "update openlca_version set version = 1";
-				NativeSql.on(db).runUpdate(versionReset);
-				Upgrades.runUpgrades(db);
-			} catch (Exception e) {
-				throw new RuntimeException("DB-upgrades failed", e);
-			}
+			if (USE_FILE_BASED_DB)
+				db = initFileBasedDb();
+			else
+				db = DerbyDatabase.createInMemory();
 		}
 		return db;
 	}
 
+	private static IDatabase initFileBasedDb() {
+		String tmpDirPath = System.getProperty("java.io.tmpdir");
+		String dbName = "olca_test_db_1.4";
+		File tmpDir = new File(tmpDirPath);
+		File folder = new File(tmpDir, dbName);
+		IDatabase db = new DerbyDatabase(folder);
+		try {
+			// (currently) it should be always possible to run the database
+			// updates on databases that were already updated as the
+			// updated should check if an update is necessary or not. Thus
+			// we reset the version here and test if the updates work.
+			String versionReset = "update openlca_version set version = 1";
+			NativeSql.on(db).runUpdate(versionReset);
+			Upgrades.runUpgrades(db);
+			return db;
+		} catch (Exception e) {
+			throw new RuntimeException("DB-upgrades failed", e);
+		}
+	}
 
 }

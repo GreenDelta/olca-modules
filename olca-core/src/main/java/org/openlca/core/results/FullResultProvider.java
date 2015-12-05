@@ -70,7 +70,7 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	}
 
 	public double getUpstreamCostResult(ProcessDescriptor process) {
-		return getUpstreamCostResult(process);
+		return result.getUpstreamCostResult(process.getId());
 	}
 
 	/**

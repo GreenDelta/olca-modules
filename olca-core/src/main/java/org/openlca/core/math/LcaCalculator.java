@@ -50,6 +50,7 @@ public class LcaCalculator {
 		}
 
 		if (costVector != null) {
+			result.hasCostResults = true;
 			addTotalCosts(result, s);
 		}
 
@@ -82,6 +83,7 @@ public class LcaCalculator {
 		}
 
 		if (costVector != null) {
+			result.hasCostResults = true;
 			addTotalCosts(result, s);
 			addDirectCosts(result, s);
 		}
@@ -142,6 +144,7 @@ public class LcaCalculator {
 		}
 
 		if (costVector != null) {
+			result.hasCostResults = true;
 			addDirectCosts(result, scalingVector);
 			IMatrix costValues = costVector.asMatrix(solver.getMatrixFactory());
 			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
@@ -184,7 +187,7 @@ public class LcaCalculator {
 	private void addTotalCosts(SimpleResult result, double[] scalingVector) {
 		double[] costValues = costVector.values;
 		double total = 0;
-		for(int i = 0; i < scalingVector.length; i++) {
+		for (int i = 0; i < scalingVector.length; i++) {
 			total += scalingVector[i] + costValues[i];
 		}
 		result.totalCostResult = total;
@@ -193,7 +196,7 @@ public class LcaCalculator {
 	private void addDirectCosts(ContributionResult result, double[] scalingVector) {
 		double[] costValues = costVector.values;
 		double[] directCosts = new double[costValues.length];
-		for(int i = 0; i < scalingVector.length; i++) {
+		for (int i = 0; i < scalingVector.length; i++) {
 			directCosts[i] = costValues[i] * scalingVector[i];
 		}
 		result.singleCostResults = directCosts;
