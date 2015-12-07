@@ -9,6 +9,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ContributionItem;
+import org.openlca.core.results.ContributionResultProvider;
 import org.openlca.core.results.ContributionSet;
 import org.openlca.core.results.FullResultProvider;
 import org.openlca.core.results.UpstreamTree;
@@ -40,6 +41,19 @@ public class CostTests {
 		ContributionItem<ProcessDescriptor> item = set.contributions.get(0);
 		Assert.assertEquals(3, item.amount, 1e-10);
 		Assert.assertEquals(1, item.share, 1e-10);
+	}
+
+	@Test
+	public void testSimpleContribution() {
+		Process p1 = TestProcess
+				.forOutput("p1", 1, "kg")
+				.addCosts("p1", 2, "EUR")
+				.elemIn("water", 1, "m3")
+				.addCosts("water", 5, "EUR")
+				.get();
+		ProductSystem system = TestSystem.of(p1).get();
+		ContributionResultProvider<?> r = TestSystem.contributions(system);
+		Assert.assertEquals(3, r.getTotalCostResult(), 1e-10);
 	}
 
 	@Test

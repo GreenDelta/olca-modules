@@ -188,7 +188,7 @@ public class LcaCalculator {
 		double[] costValues = costVector.values;
 		double total = 0;
 		for (int i = 0; i < scalingVector.length; i++) {
-			total += scalingVector[i] + costValues[i];
+			total += scalingVector[i] * costValues[i];
 		}
 		result.totalCostResult = total;
 	}
