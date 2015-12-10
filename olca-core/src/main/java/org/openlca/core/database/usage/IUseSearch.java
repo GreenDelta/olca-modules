@@ -1,25 +1,33 @@
 package org.openlca.core.database.usage;
 
 import java.util.List;
+import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
 /** Search of entities where another entity is used. */
-public interface IUseSearch<T> {
+public interface IUseSearch<T extends CategorizedDescriptor> {
 
 	/**
-	 * Returns a list of descriptors of entities where the given entity is used.
+	 * Returns a list of descriptors of entities where the given entity id is
+	 * used.
 	 */
-	public List<BaseDescriptor> findUses(T entity);
+	public List<CategorizedDescriptor> findUses(long id);
+
+	public List<CategorizedDescriptor> findUses(T entity);
+
+	public List<CategorizedDescriptor> findUses(List<T> entity);
+
+	public List<CategorizedDescriptor> findUses(Set<Long> entity);
 
 	public static final Factory FACTORY = new Factory();
 
 	public class Factory {
 
 		@SuppressWarnings("unchecked")
-		public <T extends BaseDescriptor> IUseSearch<T> createFor(
+		public <T extends CategorizedDescriptor> IUseSearch<T> createFor(
 				ModelType type, IDatabase db) {
 			switch (type) {
 			case ACTOR:
@@ -40,6 +48,14 @@ public interface IUseSearch<T> {
 				return (IUseSearch<T>) new LocationUseSearch(db);
 			case IMPACT_METHOD:
 				return (IUseSearch<T>) new ImpactMethodUseSearch(db);
+			case CURRENCY:
+				return (IUseSearch<T>) new CurrencyUseSearch(db);
+			case SOCIAL_INDICATOR:
+				return (IUseSearch<T>) new SocialIndicatorUseSearch(db);
+			case CATEGORY:
+				return (IUseSearch<T>) new CategoryUseSearch(db);
+			case PARAMETER: 
+				return (IUseSearch<T>) new ParameterUseSearch(db);				
 			default:
 				return new EmptyUseSearch<T>();
 			}
