@@ -18,21 +18,9 @@ import com.sun.jersey.api.client.ClientResponse;
 class LoginInvocation {
 
 	private static final String PATH = "/public/login";
-	private String baseUrl;
-	private String username;
-	private String password;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
+	String baseUrl;
+	String username;
+	String password;
 
 	/**
 	 * Login with the specificied credentials
@@ -40,7 +28,7 @@ class LoginInvocation {
 	 * @throws WebRequestException
 	 *             if the credentials were invalid or the user is already logged in
 	 */
-	public String execute() throws WebRequestException {
+	String execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(username, "username");
 		Valid.checkNotEmpty(password, "password");

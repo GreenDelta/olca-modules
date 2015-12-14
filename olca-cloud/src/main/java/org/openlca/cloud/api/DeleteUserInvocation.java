@@ -15,34 +15,18 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 class DeleteUserInvocation {
 
 	private static final String PATH = "/user/delete";
-	private String baseUrl;
-	private String username;
-	private String adminKey;
-	private String sessionId;
+	String baseUrl;
+	String sessionId;
+	String username;
+	String adminKey;
 
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setAdminKey(String adminKey) {
-		this.adminKey = adminKey;
-	}
-	
 	/**
 	 * Deletes the user with the specified username
 	 * 
 	 * @throws WebRequestException
 	 *             if a user with the specified name did not exists
 	 */
-	public void execute() throws WebRequestException {
+	void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(username, "username");
 		Valid.checkNotEmpty(adminKey, "adminKey");

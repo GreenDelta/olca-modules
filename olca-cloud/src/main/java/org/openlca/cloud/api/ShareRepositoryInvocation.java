@@ -12,26 +12,10 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 class ShareRepositoryInvocation {
 
 	private static final String PATH = "/access/share";
-	private String baseUrl;
-	private String sessionId;
-	private String repositoryName;
-	private String shareWithUser;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setRepositoryName(String repositoryName) {
-		this.repositoryName = repositoryName;
-	}
-
-	public void setShareWithUser(String shareWithUser) {
-		this.shareWithUser = shareWithUser;
-	}
+	String baseUrl;
+	String sessionId;
+	String repositoryName;
+	String shareWithUser;
 
 	/**
 	 * Shares the specified repository with the specified user
@@ -39,7 +23,7 @@ class ShareRepositoryInvocation {
 	 * @throws WebRequestException
 	 *             if repository or user does not exist
 	 */
-	public void execute() throws WebRequestException {
+	void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryName, "repository name");

@@ -12,26 +12,10 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 class UnshareRepositoryInvocation {
 
 	private static final String PATH = "/access/unshare";
-	private String baseUrl;
-	private String sessionId;
-	private String repositoryName;
-	private String unshareWithUser;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setRepositoryName(String repositoryName) {
-		this.repositoryName = repositoryName;
-	}
-
-	public void setUnshareWithUser(String unshareWithUser) {
-		this.unshareWithUser = unshareWithUser;
-	}
+	String baseUrl;
+	String sessionId;
+	String repositoryName;
+	String unshareWithUser;
 
 	/**
 	 * Cancels sharing of the specified repository with the specified user
@@ -39,7 +23,7 @@ class UnshareRepositoryInvocation {
 	 * @throws WebRequestException
 	 *             if repository or user does not exist
 	 */
-	public void execute() throws WebRequestException {
+	void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryName, "repository name");

@@ -1,6 +1,7 @@
 package org.openlca.core.database;
 
 import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
@@ -32,7 +33,7 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,11 @@ public class BaseDaoTest {
 	@Test
 	public void runTests() throws Exception {
 		for (Class<? extends AbstractEntity> clazz : classes) {
-			testCrud(clazz);
+			try {
+				testCrud(clazz);
+			} catch (Exception e) {
+				throw new Exception("CRUD functions faild for " + clazz, e);
+			}
 		}
 	}
 
@@ -103,7 +108,7 @@ public class BaseDaoTest {
 			return;
 		CategorizedEntity entity = (CategorizedEntity) instance;
 		ModelType type = ModelType.forModelClass(clazz);
-		List<BaseDescriptor> descriptors = IUseSearch.FACTORY
+		List<CategorizedDescriptor> descriptors = IUseSearch.FACTORY
 				.createFor(type, Tests.getDb())
 				.findUses(Descriptors.toDescriptor(entity));
 		Assert.assertTrue(descriptors.isEmpty());

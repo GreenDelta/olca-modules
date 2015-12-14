@@ -21,7 +21,7 @@ public class ParameterRedef extends AbstractEntity {
 	private String name;
 
 	@Column(name = "f_context")
-	private Long conextId;
+	private Long contextId;
 
 	@Column(name = "context_type")
 	@Enumerated(EnumType.STRING)
@@ -65,7 +65,7 @@ public class ParameterRedef extends AbstractEntity {
 	 * parameter.
 	 */
 	public Long getContextId() {
-		return conextId;
+		return contextId;
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class ParameterRedef extends AbstractEntity {
 	 * parameter.
 	 */
 	public void setContextId(Long contextId) {
-		this.conextId = contextId;
+		this.contextId = contextId;
 	}
 
 	/**

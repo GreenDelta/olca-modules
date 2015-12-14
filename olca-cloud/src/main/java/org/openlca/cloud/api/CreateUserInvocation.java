@@ -15,31 +15,11 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 class CreateUserInvocation {
 
 	private static final String PATH = "/user/create";
-	private String baseUrl;
-	private String username;
-	private String password;
-	private String adminKey;
-	private String sessionId;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public void setAdminKey(String adminKey) {
-		this.adminKey = adminKey;
-	}
+	String baseUrl;
+	String sessionId;
+	String username;
+	String password;
+	String adminKey;
 
 	/**
 	 * Creates a new user with the specified username and password

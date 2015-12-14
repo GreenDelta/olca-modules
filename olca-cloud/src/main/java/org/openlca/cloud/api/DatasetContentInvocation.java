@@ -19,37 +19,12 @@ import com.sun.jersey.api.client.ClientResponse;
 class DatasetContentInvocation {
 
 	private static final String PATH = "/fetch/data/";
-
-	private String baseUrl;
-	private String sessionId;
-	private String repositoryId;
-	private String commitId;
-	private ModelType type;
-	private String refId;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setRepositoryId(String repositoryId) {
-		this.repositoryId = repositoryId;
-	}
-
-	public void setCommitId(String commitId) {
-		this.commitId = commitId;
-	}
-
-	public void setType(ModelType type) {
-		this.type = type;
-	}
-
-	public void setRefId(String refId) {
-		this.refId = refId;
-	}
+	String baseUrl;
+	String sessionId;
+	String repositoryId;
+	String commitId;
+	ModelType type;
+	String refId;
 
 	/**
 	 * Retrieves a data set matching the specified type, refId for the given
@@ -60,7 +35,7 @@ class DatasetContentInvocation {
 	 *             If user is out of sync or has no access to the specified
 	 *             repository
 	 */
-	public JsonObject execute() throws WebRequestException {
+	JsonObject execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");

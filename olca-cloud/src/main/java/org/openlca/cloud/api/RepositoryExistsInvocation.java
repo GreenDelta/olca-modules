@@ -11,26 +11,14 @@ import com.sun.jersey.api.client.ClientResponse;
 class RepositoryExistsInvocation {
 
 	private static final String PATH = "/repository/exists";
-	private String baseUrl;
-	private String sessionId;
-	private String name;
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+	String baseUrl;
+	String sessionId;
+	String name;
 
 	/**
 	 * Checks if the specified repository exists for the given user
 	 */
-	public boolean execute() throws WebRequestException {
+	boolean execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(name, "repository name");

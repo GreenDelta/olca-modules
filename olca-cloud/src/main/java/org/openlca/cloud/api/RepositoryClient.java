@@ -2,16 +2,15 @@ package org.openlca.cloud.api;
 
 import java.util.List;
 import java.util.Map;
-
-import org.openlca.core.model.ModelType;
-
-import com.google.gson.JsonObject;
+import java.util.Set;
 
 import org.openlca.cloud.model.data.Commit;
 import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.model.data.FetchRequestData;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
+import org.openlca.core.model.ModelType;
 
+import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 public class RepositoryClient {
@@ -31,11 +30,11 @@ public class RepositoryClient {
 			throws WebRequestException {
 		executeLoggedIn(() -> {
 			CreateUserInvocation invocation = new CreateUserInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setUsername(username);
-			invocation.setPassword(password);
-			invocation.setAdminKey(adminKey);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.username = username;
+			invocation.password = password;
+			invocation.adminKey = adminKey;
 			invocation.execute();
 		});
 	}
@@ -44,19 +43,19 @@ public class RepositoryClient {
 			throws WebRequestException {
 		executeLoggedIn(() -> {
 			DeleteUserInvocation invocation = new DeleteUserInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setUsername(username);
-			invocation.setAdminKey(adminKey);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.username = username;
+			invocation.adminKey = adminKey;
 			invocation.execute();
 		});
 	}
 
 	private void login() throws WebRequestException {
 		LoginInvocation invocation = new LoginInvocation();
-		invocation.setBaseUrl(config.getBaseUrl());
-		invocation.setUsername(config.getUsername());
-		invocation.setPassword(config.getPassword());
+		invocation.baseUrl = config.getBaseUrl();
+		invocation.username = config.getUsername();
+		invocation.password = config.getPassword();
 		sessionId = invocation.execute();
 	}
 
@@ -64,8 +63,8 @@ public class RepositoryClient {
 		if (sessionId == null)
 			return;
 		LogoutInvocation invocation = new LogoutInvocation();
-		invocation.setBaseUrl(config.getBaseUrl());
-		invocation.setSessionId(sessionId);
+		invocation.baseUrl = config.getBaseUrl();
+		invocation.sessionId = sessionId;
 		try {
 			invocation.execute();
 		} catch (WebRequestException e) {
@@ -79,9 +78,9 @@ public class RepositoryClient {
 	public void createRepository(String name) throws WebRequestException {
 		executeLoggedIn(() -> {
 			CreateRepositoryInvocation invocation = new CreateRepositoryInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setName(name);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.name = name;
 			invocation.execute();
 		});
 	}
@@ -89,9 +88,9 @@ public class RepositoryClient {
 	public void deleteRepository(String name) throws WebRequestException {
 		executeLoggedIn(() -> {
 			DeleteRepositoryInvocation invocation = new DeleteRepositoryInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setName(name);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.name = name;
 			invocation.execute();
 		});
 	}
@@ -99,9 +98,9 @@ public class RepositoryClient {
 	public boolean repositoryExists(String name) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			RepositoryExistsInvocation invocation = new RepositoryExistsInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setName(name);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.name = name;
 			return invocation.execute();
 		});
 	}
@@ -110,10 +109,10 @@ public class RepositoryClient {
 			throws WebRequestException {
 		executeLoggedIn(() -> {
 			ShareRepositoryInvocation invocation = new ShareRepositoryInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryName(repositoryName);
-			invocation.setShareWithUser(shareWithUser);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryName = repositoryName;
+			invocation.shareWithUser = shareWithUser;
 			invocation.execute();
 		});
 	}
@@ -122,10 +121,10 @@ public class RepositoryClient {
 			String unshareWithUser) throws WebRequestException {
 		executeLoggedIn(() -> {
 			UnshareRepositoryInvocation invocation = new UnshareRepositoryInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryName(repositoryName);
-			invocation.setUnshareWithUser(unshareWithUser);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryName = repositoryName;
+			invocation.unshareWithUser = unshareWithUser;
 			invocation.execute();
 		});
 	}
@@ -133,9 +132,9 @@ public class RepositoryClient {
 	public boolean hasAccess(String repositoryId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			CheckAccessInvocation invocation = new CheckAccessInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(repositoryId);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = repositoryId;
 			try {
 				invocation.execute();
 				return true;
@@ -151,9 +150,9 @@ public class RepositoryClient {
 			throws WebRequestException {
 		return executeLoggedIn(() -> {
 			RepositoryAccessListInvocation invocation = new RepositoryAccessListInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(repositoryId);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = repositoryId;
 			return invocation.execute();
 		});
 	}
@@ -161,8 +160,8 @@ public class RepositoryClient {
 	public List<String> getAccessListForUser() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			RepositoryAccessListInvocation invocation = new RepositoryAccessListInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
 			return invocation.execute();
 		});
 	}
@@ -170,10 +169,10 @@ public class RepositoryClient {
 	public boolean requestCommit() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			CommitRequestInvocation invocation = new CommitRequestInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLastCommitId(config.getLastCommitId());
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.lastCommitId = config.getLastCommitId();
 			try {
 				invocation.execute();
 			} catch (WebRequestException e) {
@@ -187,10 +186,10 @@ public class RepositoryClient {
 
 	public CommitInvocation createCommitInvocation() {
 		CommitInvocation invocation = new CommitInvocation(config.getDatabase());
-		invocation.setBaseUrl(config.getBaseUrl());
-		invocation.setSessionId(sessionId);
-		invocation.setRepositoryId(config.getRepositoryId());
-		invocation.setLastCommitId(config.getLastCommitId());
+		invocation.baseUrl = config.getBaseUrl();
+		invocation.sessionId = sessionId;
+		invocation.repositoryId = config.getRepositoryId();
+		invocation.lastCommitId = config.getLastCommitId();
 		return invocation;
 	}
 
@@ -200,14 +199,24 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<Commit> fetchNewCommitHistory()
-			throws WebRequestException {
+	public List<Commit> fetchNewCommitHistory() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			HistoryInvocation invocation = new HistoryInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLastCommitId(config.getLastCommitId());
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.lastCommitId = config.getLastCommitId();
+			return invocation.execute();
+		});
+	}
+
+	public Map<Dataset, String> performLibraryCheck(Set<Dataset> datasets)
+			throws WebRequestException {
+		return executeLoggedIn(() -> {
+			LibraryCheckInvocation invocation = new LibraryCheckInvocation();
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.datasets = datasets;
 			return invocation.execute();
 		});
 	}
@@ -216,10 +225,10 @@ public class RepositoryClient {
 			throws WebRequestException {
 		return executeLoggedIn(() -> {
 			ReferencesInvocation invocation = new ReferencesInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setCommitId(commitId);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.commitId = commitId;
 			return invocation.execute();
 		});
 	}
@@ -227,26 +236,25 @@ public class RepositoryClient {
 	public List<FetchRequestData> requestFetch() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLastCommitId(config.getLastCommitId());
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.lastCommitId = config.getLastCommitId();
 			return invocation.execute();
 		});
 	}
 
 	public void fetch(List<Dataset> fetchData,
-			Map<Dataset, JsonObject> mergedData)
-			throws WebRequestException {
+			Map<Dataset, JsonObject> mergedData) throws WebRequestException {
 		executeLoggedIn(() -> {
 			FetchInvocation invocation = new FetchInvocation(
 					config.getDatabase());
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setLastCommitId(config.getLastCommitId());
-			invocation.setFetchData(fetchData);
-			invocation.setMergedData(mergedData);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.lastCommitId = config.getLastCommitId();
+			invocation.fetchData = fetchData;
+			invocation.mergedData = mergedData;
 			config.setLastCommitId(invocation.execute());
 		});
 	}
@@ -260,12 +268,12 @@ public class RepositoryClient {
 			throws WebRequestException {
 		return executeLoggedIn(() -> {
 			DatasetContentInvocation invocation = new DatasetContentInvocation();
-			invocation.setBaseUrl(config.getBaseUrl());
-			invocation.setSessionId(sessionId);
-			invocation.setRepositoryId(config.getRepositoryId());
-			invocation.setType(type);
-			invocation.setRefId(refId);
-			invocation.setCommitId(commitId);
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.type = type;
+			invocation.refId = refId;
+			invocation.commitId = commitId;
 			return invocation.execute();
 		});
 	}

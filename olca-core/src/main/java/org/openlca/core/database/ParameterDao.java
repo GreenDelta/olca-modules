@@ -1,6 +1,7 @@
 package org.openlca.core.database;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,10 +10,12 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
+import org.openlca.util.Strings;
 
 import com.google.common.base.Optional;
 
-public class ParameterDao extends CategorizedEntityDao<Parameter, ParameterDescriptor> {
+public class ParameterDao extends
+		CategorizedEntityDao<Parameter, ParameterDescriptor> {
 
 	public ParameterDao(IDatabase database) {
 		super(Parameter.class, ParameterDescriptor.class, database);
@@ -37,8 +40,31 @@ public class ParameterDao extends CategorizedEntityDao<Parameter, ParameterDescr
 		}
 		sql += " and scope = ?";
 		parameters.add(ParameterScope.GLOBAL.name());
-		List<Object[]> results = selectAll(sql, getDescriptorFields(), parameters);
+		List<Object[]> results = selectAll(sql, getDescriptorFields(),
+				parameters);
 		return createDescriptors(results);
 	}
 
+	public List<ParameterDescriptor> getDescriptors(String[] names) {
+		return getDescriptors(names, null);
+	}
+
+	public List<ParameterDescriptor> getDescriptors(String[] names,
+			ParameterScope scope) {
+		if (names == null || names.length == 0)
+			return Collections.emptyList();
+		StringBuilder sql = new StringBuilder(getDescriptorQuery());
+		List<Object> parameters = new ArrayList<>();
+		String[] list = new String[names.length];
+		for (int i = 0; i < names.length; i++)
+			list[i] = "'" + names[i] + "'";
+		sql.append(" WHERE name IN (" + Strings.join(list, ',') + ")");
+		if (scope != null) {
+			sql.append(" AND scope = ?");
+			parameters.add(scope.name());
+		}
+		List<Object[]> results = selectAll(sql.toString(),
+				getDescriptorFields(), parameters);
+		return createDescriptors(results);
+	}
 }
