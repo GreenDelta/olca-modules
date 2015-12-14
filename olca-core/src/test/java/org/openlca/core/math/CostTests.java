@@ -4,7 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
+import org.openlca.core.Tests;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -80,6 +83,36 @@ public class CostTests {
 		Assert.assertEquals(-1, r.getSingleCostResult(d2), 1e-10);
 		Assert.assertEquals(6, r.getUpstreamCostResult(d1), 1e-10);
 		Assert.assertEquals(5, r.getUpstreamCostResult(d2), 1e-10);
+	}
+
+	@Test
+	public void testAddCostsForSameProduct() {
+		Process p1 = TestProcess
+				.forOutput("p1", 1, "kg")
+				.addCosts("p1", 1, "EUR")
+				.prodIn("p1", 0.5, "kg")
+				.elemIn("water", 1, "m3")
+				.get();
+		for (Exchange e : p1.getExchanges()) {
+			if (e.getFlow().getName().equals("p1") && e.isInput()) {
+				e.costValue = 0.4d;
+				e.currency = p1.getQuantitativeReference().currency;
+				break;
+			}
+		}
+		p1 = Tests.update(p1);
+
+		ProductSystem system = TestSystem.of(p1).get();
+		// add a link to the process itself
+		ProcessLink selfLink = new ProcessLink();
+		selfLink.setFlowId(p1.getQuantitativeReference().getFlow().getId());
+		selfLink.setProviderId(p1.getId());
+		selfLink.setRecipientId(p1.getId());
+		system.getProcessLinks().add(selfLink);
+		system = Tests.update(system);
+
+		FullResultProvider r = TestSystem.calculate(system);
+		Assert.assertEquals(-1.2, r.getTotalCostResult(), 1e-10);
 	}
 
 	@Test
