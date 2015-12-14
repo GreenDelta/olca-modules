@@ -2,6 +2,7 @@ package org.openlca.core.database.usage;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,25 +34,29 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 	@Override
 	public List<CategorizedDescriptor> findUses(Set<Long> ids) {
 		Set<String> names = getParameterNames(ids);
-		List<CategorizedDescriptor> results = findUsesInParameterRedefs(names);
-		results.addAll(findUsesInParameters(names));
+		if (names.isEmpty())
+			return Collections.emptyList();
+		List<CategorizedDescriptor> results = findInRedefs(names);
+		results.addAll(findInParameters(names));
 		return results;
 	}
 
-	private List<CategorizedDescriptor> findUsesInParameters(Set<String> names) {
+	private List<CategorizedDescriptor> findInParameters(Set<String> names) {
 		List<CategorizedDescriptor> results = new ArrayList<>();
 		List<ParameterRef> refs = findReferencing(names);
 		Set<Long> globals = new HashSet<>();
 		Set<Long> processes = new HashSet<>();
 		Set<Long> methods = new HashSet<>();
-		for (ParameterRef ref : refs)
+		for (ParameterRef ref : refs) {
 			if (ref.ownerId == 0l)
 				globals.add(ref.id);
-			else if (!hasDefinedLocalParameter(ref))
+			else if (!hasDefinedLocalParameter(ref)) {
 				if (ref.scope == ParameterScope.PROCESS)
 					processes.add(ref.ownerId);
 				else if (ref.scope == ParameterScope.IMPACT_METHOD)
 					methods.add(ref.ownerId);
+			}
+		}
 		results.addAll(loadDescriptors(ModelType.PARAMETER, globals));
 		results.addAll(loadDescriptors(ModelType.PROCESS, processes));
 		results.addAll(loadDescriptors(ModelType.IMPACT_METHOD, methods));
@@ -100,7 +105,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		return ParameterScope.valueOf(value);
 	}
 
-	private List<CategorizedDescriptor> findUsesInParameterRedefs(
+	private List<CategorizedDescriptor> findInRedefs(
 			Set<String> names) {
 		String query = "SELECT f_owner FROM tbl_parameter_redefs WHERE "
 				+ "context_type IS NULL AND name IN "
@@ -128,7 +133,9 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		Set<String> names = new HashSet<>();
 		try {
 			NativeSql.on(database).query(query, (result) -> {
-				names.add(result.getString(1));
+				String name = result.getString(1);
+				if (name != null)
+					names.add(name);
 				return true;
 			});
 		} catch (SQLException e) {
