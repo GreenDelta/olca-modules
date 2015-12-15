@@ -16,6 +16,19 @@ public class ContributionResult extends SimpleResult {
 	public double[] scalingFactors;
 
 	/**
+	 * This is a vector which contains for each process product the total amount
+	 * of this product to fulfill the demand of a product system. The amount is
+	 * given in the reference unit of the respective flow and can be calculated
+	 * for a process product i via:
+	 * 
+	 * tr_i = s_i * A_{i,i}
+	 * 
+	 * where s_i is the scaling factor for the process product and A{i, i} the
+	 * respective entry in the technology matrix.
+	 */
+	public double[] totalRequirements;
+
+	/**
 	 * This is a matrix with single flow results where the flows are mapped to
 	 * the rows and the process-products to the columns. Inputs have negative
 	 * values here.
@@ -29,8 +42,8 @@ public class ContributionResult extends SimpleResult {
 	public IMatrix singleImpactResults;
 
 	/**
-	 * Contains the direct net-costs. Each entry contains the net-costs of
-	 * the respective process-product at the respective index.
+	 * Contains the direct net-costs. Each entry contains the net-costs of the
+	 * respective process-product at the respective index.
 	 */
 	public double[] singleCostResults;
 
@@ -126,7 +139,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasCostResults)
 			return 0;
 		int col = productIndex.getIndex(processProduct);
-		if(col >= singleCostResults.length)
+		if (col >= singleCostResults.length)
 			return 0;
 		return singleCostResults[col];
 	}
@@ -135,7 +148,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasCostResults)
 			return 0;
 		double sum = 0;
-		for(LongPair product : productIndex.getProducts(processId)){
+		for (LongPair product : productIndex.getProducts(processId)) {
 			sum += getSingleCostResult(product);
 		}
 		return sum;

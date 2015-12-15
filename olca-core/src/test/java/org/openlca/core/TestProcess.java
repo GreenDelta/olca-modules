@@ -1,6 +1,7 @@
 package org.openlca.core;
 
 import java.util.UUID;
+
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
@@ -33,7 +34,7 @@ public class TestProcess {
 		TestProcess tp = new TestProcess();
 		tp.process = new Process();
 		tp.process.setRefId(UUID.randomUUID().toString());
-		tp.process.setName(flow + " [" + unit + "]");
+		tp.process.setName(flow);
 		tp.prodOut(flow, amount, unit);
 		tp.process.setQuantitativeReference(tp.process.getExchanges().get(0));
 		return tp;
