@@ -1,6 +1,7 @@
 package org.openlca.core.database.references;
 
 import org.junit.After;
+import org.junit.Before;
 import org.openlca.core.Tests;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Category;
@@ -10,8 +11,14 @@ import org.openlca.core.model.ParameterScope;
 
 public class ParameterReferenceSearchTest extends BaseReferenceSearchTest {
 
+	@Before
+	public void before() {
+		new ParameterDao(Tests.getDb()).deleteAll();
+	}
+
+	
 	@After
-	public void deleteParameter() {
+	public void after() {
 		new ParameterDao(Tests.getDb()).deleteAll();
 	}
 
