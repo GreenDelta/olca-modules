@@ -1,7 +1,5 @@
 package org.openlca.core.results;
 
-import java.util.List;
-
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.matrix.LongPair;
 
@@ -12,8 +10,6 @@ import org.openlca.core.matrix.LongPair;
  * inventory flows to impact category results.
  */
 public class ContributionResult extends SimpleResult {
-
-	public double[] scalingFactors;
 
 	/**
 	 * This is a matrix with single flow results where the flows are mapped to
@@ -29,8 +25,8 @@ public class ContributionResult extends SimpleResult {
 	public IMatrix singleImpactResults;
 
 	/**
-	 * Contains the direct net-costs. Each entry contains the net-costs of
-	 * the respective process-product at the respective index.
+	 * Contains the direct net-costs. Each entry contains the net-costs of the
+	 * respective process-product at the respective index.
 	 */
 	public double[] singleCostResults;
 
@@ -51,32 +47,6 @@ public class ContributionResult extends SimpleResult {
 	 * The contributions of the product-links in the scaled product system.
 	 */
 	public LinkContributions linkContributions;
-
-	/**
-	 * Get the scaling factor of the given process-product.
-	 */
-	public double getScalingFactor(LongPair processProduct) {
-		int idx = productIndex.getIndex(processProduct);
-		if (idx < 0 || idx > scalingFactors.length)
-			return 0;
-		return scalingFactors[idx];
-	}
-
-	/**
-	 * Get the sum of all scaling factors for the products of the process with
-	 * the given ID.
-	 */
-	public double getScalingFactor(long processId) {
-		double factor = 0;
-		List<LongPair> productIds = productIndex.getProducts(processId);
-		for (LongPair product : productIds) {
-			int idx = productIndex.getIndex(product);
-			if (idx < 0 || idx > scalingFactors.length)
-				continue;
-			factor += scalingFactors[idx];
-		}
-		return factor;
-	}
 
 	/**
 	 * Get the single flow result of the flow with the given ID for the given
@@ -126,7 +96,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasCostResults)
 			return 0;
 		int col = productIndex.getIndex(processProduct);
-		if(col >= singleCostResults.length)
+		if (col >= singleCostResults.length)
 			return 0;
 		return singleCostResults[col];
 	}
@@ -135,7 +105,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasCostResults)
 			return 0;
 		double sum = 0;
-		for(LongPair product : productIndex.getProducts(processId)){
+		for (LongPair product : productIndex.getProducts(processId)) {
 			sum += getSingleCostResult(product);
 		}
 		return sum;
