@@ -41,6 +41,8 @@ public class LcaCalculator {
 		ProductIndex productIndex = inventory.getProductIndex();
 		int idx = productIndex.getIndex(productIndex.getRefProduct());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
+		result.scalingFactors = s;
+		result.totalRequirements = getTotalRequirements(techMatrix, s);
 		IMatrix enviMatrix = inventory.getInterventionMatrix();
 
 		result.totalFlowResults = solver.multiply(enviMatrix, s);
