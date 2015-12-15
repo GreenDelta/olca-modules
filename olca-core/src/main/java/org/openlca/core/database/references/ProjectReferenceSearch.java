@@ -1,5 +1,6 @@
 package org.openlca.core.database.references;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -31,8 +32,8 @@ public class ProjectReferenceSearch extends
 
 	@Override
 	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
-		List<CategorizedDescriptor> results = findReferences("tbl_projects",
-				"id", ids, references);
+		List<CategorizedDescriptor> results = new ArrayList<>();
+		results.addAll(findReferences("tbl_projects", "id", ids, references));
 		results.addAll(findVariantReferences(ids));
 		return results;
 	}

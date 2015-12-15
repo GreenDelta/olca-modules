@@ -44,8 +44,9 @@ public class ExchangeUseSearch {
 			ids.add(exchange.getId());
 			flowIds.add(exchange.getFlow().getId());
 		}
-		Set<Long> systemIds = Search.on(database).queryForIds(
-				getProductSystemQuery(flowIds));
+		Set<Long> systemIds = new HashSet<>();
+		systemIds.addAll(Search.on(database).queryForIds(
+				getProductSystemQuery(flowIds)));
 		systemIds.addAll(Search.on(database).queryForIds(
 				ModelType.PRODUCT_SYSTEM, ids, "f_reference_exchange"));
 		return new ArrayList<>(

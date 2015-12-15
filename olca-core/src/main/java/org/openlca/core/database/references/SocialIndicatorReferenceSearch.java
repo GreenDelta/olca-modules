@@ -1,5 +1,6 @@
 package org.openlca.core.database.references;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -28,7 +29,8 @@ public class SocialIndicatorReferenceSearch extends
 	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
 		List<BaseDescriptor> mixed = findMixedReferences(
 				"tbl_social_indicators", "id", ids, references);
-		List<CategorizedDescriptor> results = filterCategorized(mixed);
+		List<CategorizedDescriptor> results = new ArrayList<>();
+		results.addAll(filterCategorized(mixed));
 		List<UnitDescriptor> units = filterUnits(mixed);
 		results.addAll(findUnitGroups(units));
 		return results;

@@ -36,7 +36,8 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		Set<String> names = getParameterNames(ids);
 		if (names.isEmpty())
 			return Collections.emptyList();
-		List<CategorizedDescriptor> results = findInRedefs(names);
+		List<CategorizedDescriptor> results = new ArrayList<>();
+		results.addAll(findInRedefs(names));
 		results.addAll(findInParameters(names));
 		return results;
 	}

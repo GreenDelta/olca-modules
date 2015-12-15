@@ -1,5 +1,6 @@
 package org.openlca.core.database.references;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,8 +27,8 @@ public class ParameterReferenceSearch extends
 
 	@Override
 	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
-		List<CategorizedDescriptor> results = findReferences("tbl_parameters",
-				"id", ids, references);
+		List<CategorizedDescriptor> results = new ArrayList<>();
+		results.addAll(findReferences("tbl_parameters", "id", ids, references));
 		results.addAll(findParameterReferences(ids));
 		return results;
 	}
@@ -54,8 +55,7 @@ public class ParameterReferenceSearch extends
 	private String createFormulaQuery(Set<Long> ids) {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT formula FROM tbl_parameters ");
-		query.append("WHERE id IN (" + Search.asSqlList(ids.toArray())
-				+ ")");
+		query.append("WHERE id IN (" + Search.asSqlList(ids.toArray()) + ")");
 		return query.toString();
 	}
 

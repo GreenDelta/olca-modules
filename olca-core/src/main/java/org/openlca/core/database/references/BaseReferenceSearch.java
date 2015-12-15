@@ -85,7 +85,10 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		return findReferences("tbl_units", "id", unitIds, unitReferences);
 	}
 
-	protected List<ParameterDescriptor> findGlobalParameters(Set<Long> ids, Set<String> formulas) {
+	protected List<ParameterDescriptor> findGlobalParameters(Set<Long> ids,
+			Set<String> formulas) {
+		if (ids.size() == 0)
+			return Collections.emptyList();
 		String idList = Search.asSqlList(ids.toArray());
 		String paramQuery = "SELECT name, is_input_param, formula FROM tbl_parameters "
 				+ "WHERE f_owner IN (" + idList + ")";
@@ -99,7 +102,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		return new ParameterDao(database).getDescriptors(global,
 				ParameterScope.GLOBAL);
 	}
-	
+
 	private String[] findUndeclaredParameters(Set<String> declared,
 			Set<String> formulas) {
 		Set<String> variables = new HashSet<>();
@@ -113,6 +116,8 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 	}
 
 	protected List<ParameterDescriptor> findGlobalParameterRedefs(Set<Long> ids) {
+		if (ids.size() == 0)
+			return Collections.emptyList();
 		String query = "SELECT name FROM tbl_parameter_redefs "
 				+ "WHERE f_context is null OR f_context = 0";
 		Set<String> names = new HashSet<>();
