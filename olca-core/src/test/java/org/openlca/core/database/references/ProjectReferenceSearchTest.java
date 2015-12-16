@@ -1,9 +1,6 @@
 package org.openlca.core.database.references;
 
-import org.junit.After;
 import org.openlca.core.Tests;
-import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
@@ -22,12 +19,6 @@ import org.openlca.core.model.UnitGroup;
 
 public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 
-	@After
-	public void deleteParameterAndFlow() {
-		new ParameterDao(Tests.getDb()).deleteAll();
-		new FlowDao(Tests.getDb()).deleteAll();
-	}
-
 	@Override
 	protected ModelType getModelType() {
 		return ModelType.PROJECT;
@@ -36,9 +27,10 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected Project createModel() {
 		Project project = new Project();
-		project.setCategory(addExpected(new Category()));
-		project.setAuthor(addExpected(new Actor()));
-		project.setImpactMethodId(addExpected(new ImpactMethod()).getId());
+		project.setCategory(insertAndAddExpected(new Category()));
+		project.setAuthor(insertAndAddExpected(new Actor()));
+		project.setImpactMethodId(insertAndAddExpected(new ImpactMethod())
+				.getId());
 		project.getVariants().add(
 				createProjectVariant(project.getImpactMethodId(), true));
 		project.getVariants().add(
@@ -48,30 +40,35 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		return project;
+		return Tests.insert(project);
 	}
 
 	private ProjectVariant createProjectVariant(long methodId,
 			boolean createParameters) {
 		ProjectVariant variant = new ProjectVariant();
-		variant.setProductSystem(addExpected(new ProductSystem()));
+		variant.setProductSystem(insertAndAddExpected(new ProductSystem()));
 		variant.getParameterRedefs().add(
 				createParameterRedef("p1", methodId, createParameters));
 		// formula with parameter to see if added as reference (unexpected)
 		variant.getParameterRedefs().add(
 				createParameterRedef("p2", "p3*5", createParameters));
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(addExpected(new FlowProperty()));
+		factor.setFlowProperty(Tests.insert(new FlowProperty()));
 		variant.setFlowPropertyFactor(factor);
 		UnitGroup unitGroup = new UnitGroup();
 		Unit unit = new Unit();
+		unit.setName("unit");
 		unitGroup.getUnits().add(unit);
 		variant.setUnit(unit);
-		addExpected(unitGroup);
+		unitGroup = Tests.insert(unitGroup);
+		unit = unitGroup.getUnit(unit.getName());
 		Flow flow = new Flow();
 		flow.getFlowPropertyFactors().add(factor);
 		// don't add flow to expected references, just for persisting the factor
-		Tests.insert(flow);
+		flow = Tests.insert(flow);
+		factor = flow.getFactor(factor.getFlowProperty());
+		addExpected(unit);
+		addExpected(factor);
 		return variant;
 	}
 
@@ -84,7 +81,8 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 			redef.setContextType(ModelType.IMPACT_METHOD);
 			redef.setContextId((long) contextOrValue);
 		} else if (contextOrValue instanceof String && createParameter)
-			addExpected(createParameter(name, contextOrValue.toString(), true));
+			insertAndAddExpected(createParameter(name,
+					contextOrValue.toString(), true));
 		return redef;
 	}
 

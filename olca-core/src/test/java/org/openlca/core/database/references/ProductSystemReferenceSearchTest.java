@@ -1,8 +1,6 @@
 package org.openlca.core.database.references;
 
-import org.junit.After;
 import org.openlca.core.Tests;
-import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -20,12 +18,6 @@ import org.openlca.core.model.UnitGroup;
 
 public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
-	@After
-	public void deleteParameter() {
-		new ParameterDao(Tests.getDb()).deleteAll();
-	}
-
-
 	@Override
 	protected ModelType getModelType() {
 		return ModelType.PRODUCT_SYSTEM;
@@ -34,7 +26,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected ProductSystem createModel() {
 		ProductSystem system = new ProductSystem();
-		system.setCategory(addExpected(new Category()));
+		system.setCategory(insertAndAddExpected(new Category()));
 		system.setReferenceProcess(createProcess());
 		system.setReferenceExchange(system.getReferenceProcess().getExchanges()
 				.get(0));
@@ -43,9 +35,9 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		system.setTargetUnit(system.getTargetFlowPropertyFactor()
 				.getFlowProperty().getUnitGroup().getUnits().get(0));
 		system.getProcesses().add(system.getReferenceProcess().getId());
-		Process p1 = addExpected(new Process());
-		Process p2 = addExpected(new Process());
-		Process p3 = addExpected(new Process());
+		Process p1 = insertAndAddExpected(new Process());
+		Process p2 = insertAndAddExpected(new Process());
+		Process p3 = insertAndAddExpected(new Process());
 		system.getProcesses().add(p1.getId());
 		system.getProcesses().add(p2.getId());
 		system.getProcesses().add(p3.getId());
@@ -59,13 +51,15 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		return system;
+		return Tests.insert(system);
 	}
 
 	private Process createProcess() {
 		Process process = new Process();
 		process.getExchanges().add(createExchange(true));
-		return addExpected(process);
+		process = insertAndAddExpected(process);
+		addExpected(process.getExchanges().get(0));
+		return process;
 	}
 
 	private Exchange createExchange(boolean reference) {
@@ -82,19 +76,23 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Flow createFlow(boolean reference) {
 		if (!reference)
-			return addExpected(new Flow());
+			return insertAndAddExpected(new Flow());
 		Flow flow = new Flow();
 		FlowProperty property = new FlowProperty();
 		FlowPropertyFactor factor = new FlowPropertyFactor();
 		factor.setFlowProperty(property);
 		UnitGroup group = new UnitGroup();
 		Unit unit = new Unit();
+		unit.setName("unit");
 		group.getUnits().add(unit);
 		property.setUnitGroup(group);
 		flow.getFlowPropertyFactors().add(factor);
-		addExpected(group);
-		addExpected(property);
-		return addExpected(flow);
+		group = Tests.insert(group);
+		addExpected(group.getUnit(unit.getName()));
+		property = Tests.insert(property);
+		flow = Tests.insert(flow);
+		addExpected(flow.getFactor(property));
+		return flow;
 	}
 
 	private ProcessLink createLink(Process p1, Process p2) {
@@ -121,7 +119,8 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 			redef.setContextType(ModelType.PROCESS);
 			redef.setContextId((long) contextOrValue);
 		} else if (contextOrValue instanceof String) {
-			addExpected(createParameter(name, contextOrValue.toString(), true));
+			insertAndAddExpected(createParameter(name,
+					contextOrValue.toString(), true));
 		}
 		return redef;
 	}

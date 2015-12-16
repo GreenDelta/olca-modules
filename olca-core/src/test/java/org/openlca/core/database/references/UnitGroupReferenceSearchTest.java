@@ -1,5 +1,6 @@
 package org.openlca.core.database.references;
 
+import org.openlca.core.Tests;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
@@ -15,9 +16,9 @@ public class UnitGroupReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected UnitGroup createModel() {
 		UnitGroup group = new UnitGroup();
-		group.setCategory(addExpected(new Category()));
-		group.setDefaultFlowProperty(addExpected(new FlowProperty()));
-		return group;
+		group.setCategory(insertAndAddExpected(new Category()));
+		group.setDefaultFlowProperty(insertAndAddExpected(new FlowProperty()));
+		return Tests.insert(group);
 	}
 
 }

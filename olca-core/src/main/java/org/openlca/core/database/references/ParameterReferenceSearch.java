@@ -7,18 +7,17 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.references.Search.Reference;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.database.references.Search.Ref;
+import org.openlca.core.model.Category;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.util.Formula;
 
 public class ParameterReferenceSearch extends
 		BaseReferenceSearch<ParameterDescriptor> {
 
-	private final static Reference[] references = { 
-		new Reference(ModelType.CATEGORY, "f_category", true) 
+	private final static Ref[] references = { 
+		new Ref(Category.class, "f_category", true) 
 	};
 
 	public ParameterReferenceSearch(IDatabase database, boolean includeOptional) {
@@ -26,19 +25,20 @@ public class ParameterReferenceSearch extends
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
-		List<CategorizedDescriptor> results = new ArrayList<>();
+	public List<Reference> findReferences(Set<Long> ids) {
+		List<Reference> results = new ArrayList<>();
 		results.addAll(findReferences("tbl_parameters", "id", ids, references));
 		results.addAll(findParameterReferences(ids));
 		return results;
 	}
 
-	private List<ParameterDescriptor> findParameterReferences(Set<Long> ids) {
+	private List<Reference> findParameterReferences(Set<Long> ids) {
 		String formulaQuery = createFormulaQuery(ids);
 		Set<String> variables = getVariablesUsedInFormulas(formulaQuery);
 		String[] names = variables.toArray(new String[variables.size()]);
-		return new ParameterDao(database).getDescriptors(names,
-				ParameterScope.GLOBAL);
+		List<ParameterDescriptor> descriptors = new ParameterDao(database)
+				.getDescriptors(names, ParameterScope.GLOBAL);
+		return toReferences(descriptors, false);
 	}
 
 	protected Set<String> getVariablesUsedInFormulas(String formulaQuery) {
