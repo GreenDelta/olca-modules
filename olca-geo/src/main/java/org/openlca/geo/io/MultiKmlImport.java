@@ -32,8 +32,8 @@ public class MultiKmlImport {
 	}
 
 	public MultiKmlImport(IDatabase database, String kml) {
-		int start = kml.indexOf("<Placemark");
-		int end = kml.lastIndexOf("</Placemark>") + 12;
+		int start = kml.toLowerCase().indexOf("<placemark");
+		int end = kml.toLowerCase().lastIndexOf("</placemark>") + 12;
 		this.kmlStart = kml.substring(0, start);
 		this.placemarks = kml.substring(start, end);
 		this.kmlEnd = kml.substring(end);
@@ -91,9 +91,9 @@ public class MultiKmlImport {
 
 	private String getNextKml() {
 		String placemark = placemarks.substring(0,
-				placemarks.indexOf("</Placemark>") + 12);
+				placemarks.toLowerCase().indexOf("</placemark>") + 12);
 		placemarks = placemarks
-				.substring(placemarks.indexOf("</Placemark>") + 12);
+				.substring(placemarks.toLowerCase().indexOf("</placemark>") + 12);
 		return kmlStart + placemark + kmlEnd;
 	}
 
