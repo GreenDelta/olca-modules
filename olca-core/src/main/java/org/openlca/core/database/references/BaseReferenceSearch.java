@@ -8,23 +8,16 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.references.Search.Reference;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.database.references.Search.Ref;
+import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
-import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.util.Formula;
 
 abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		IReferenceSearch<T> {
-
-	private final static Reference[] factorReferences = { new Reference(
-			ModelType.FLOW_PROPERTY, "f_flow_property") };
-	private final static Reference[] unitReferences = { new Reference(
-			ModelType.UNIT_GROUP, "f_unit_group") };
 
 	protected final IDatabase database;
 	private final boolean includeOptional;
@@ -39,53 +32,33 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findReferences(T descriptor) {
+	public List<Reference> findReferences(T descriptor) {
 		if (descriptor == null || descriptor.getId() == 0l)
 			return Collections.emptyList();
 		return findReferences(Collections.singletonList(descriptor));
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findReferences(List<T> descriptors) {
+	public List<Reference> findReferences(List<T> descriptors) {
 		if (descriptors == null || descriptors.isEmpty())
 			return Collections.emptyList();
 		return findReferences(toIdSet(descriptors));
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findReferences(long id) {
+	public List<Reference> findReferences(long id) {
 		if (id == 0l)
 			return Collections.emptyList();
 		return findReferences(Collections.singleton(id));
 	}
 
-	protected List<CategorizedDescriptor> findReferences(String table,
-			String idField, Set<Long> ids, Reference[] references) {
-		List<BaseDescriptor> descriptors = findMixedReferences(table, idField,
-				ids, references);
-		return filterCategorized(descriptors);
-	}
-
-	protected List<BaseDescriptor> findMixedReferences(String table,
-			String idField, Set<Long> ids, Reference[] references) {
-		return Search.on(database).findMixedReferences(table, idField, ids,
+	protected List<Reference> findReferences(String table, String idField,
+			Set<Long> ids, Ref[] references) {
+		return Search.on(database).findReferences(table, idField, ids,
 				references, includeOptional);
 	}
 
-	protected List<CategorizedDescriptor> findFlowProperties(
-			List<BaseDescriptor> factors) {
-		Set<Long> factorIds = toIdSet(factors);
-		return findReferences("tbl_flow_property_factors", "id", factorIds,
-				factorReferences);
-	}
-
-	protected List<CategorizedDescriptor> findUnitGroups(
-			List<UnitDescriptor> units) {
-		Set<Long> unitIds = toIdSet(units);
-		return findReferences("tbl_units", "id", unitIds, unitReferences);
-	}
-
-	protected List<ParameterDescriptor> findGlobalParameters(Set<Long> ids,
+	protected List<Reference> findGlobalParameters(Set<Long> ids,
 			Set<String> formulas) {
 		if (ids.size() == 0)
 			return Collections.emptyList();
@@ -99,8 +72,9 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 				formulas.add(result.getString(3));
 		});
 		String[] global = findUndeclaredParameters(names, formulas);
-		return new ParameterDao(database).getDescriptors(global,
-				ParameterScope.GLOBAL);
+		List<ParameterDescriptor> descriptors = new ParameterDao(database)
+				.getDescriptors(global, ParameterScope.GLOBAL);
+		return toReferences(descriptors, false);
 	}
 
 	private String[] findUndeclaredParameters(Set<String> declared,
@@ -115,7 +89,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		return globalNames.toArray(new String[globalNames.size()]);
 	}
 
-	protected List<ParameterDescriptor> findGlobalParameterRedefs(Set<Long> ids) {
+	protected List<Reference> findGlobalParameterRedefs(Set<Long> ids) {
 		if (ids.size() == 0)
 			return Collections.emptyList();
 		String query = "SELECT name FROM tbl_parameter_redefs "
@@ -125,48 +99,42 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 			names.add(result.getString(1));
 		});
 		String[] nameArray = names.toArray(new String[names.size()]);
-		return new ParameterDao(database).getDescriptors(nameArray,
-				ParameterScope.GLOBAL);
+		List<ParameterDescriptor> descriptors = new ParameterDao(database)
+				.getDescriptors(nameArray, ParameterScope.GLOBAL);
+		return toReferences(descriptors, false);
 	}
 
-	protected List<CategorizedDescriptor> filterCategorized(
-			List<BaseDescriptor> descriptors) {
-		return filter(CategorizedDescriptor.class, descriptors);
+	protected <F extends AbstractEntity> List<Reference> filter(Class<F> clazz,
+			List<Reference> references) {
+		List<Reference> filtered = new ArrayList<>();
+		for (Reference reference : references)
+			if (clazz.isAssignableFrom(reference.type))
+				filtered.add(reference);
+		return filtered;
 	}
 
-	protected List<UnitDescriptor> filterUnits(List<BaseDescriptor> descriptors) {
-		return filter(UnitDescriptor.class, descriptors);
-	}
-
-	protected List<ImpactCategoryDescriptor> filterImpactCategories(
-			List<BaseDescriptor> descriptors) {
-		return filter(ImpactCategoryDescriptor.class, descriptors);
+	protected Set<Long> toIdSet(List<?> objects) {
+		Set<Long> ids = new HashSet<>();
+		for (Object o : objects)
+			if (o instanceof Reference)
+				ids.add(((Reference) o).id);
+			else if (o instanceof BaseDescriptor)
+				ids.add(((BaseDescriptor) o).getId());
+		return ids;
 	}
 
 	@SuppressWarnings("unchecked")
-	private <F extends BaseDescriptor> List<F> filter(Class<F> clazz,
-			List<BaseDescriptor> descriptors) {
-		List<F> filtered = new ArrayList<>();
-		for (BaseDescriptor descriptor : descriptors)
-			if (clazz.isAssignableFrom(descriptor.getClass()))
-				filtered.add((F) descriptor);
-		return filtered;
-	}
-
-	protected List<BaseDescriptor> filterUnknown(
-			List<BaseDescriptor> descriptors) {
-		List<BaseDescriptor> filtered = new ArrayList<>();
-		for (BaseDescriptor descriptor : descriptors)
-			if (descriptor.getClass() == BaseDescriptor.class)
-				filtered.add(descriptor);
-		return filtered;
-	}
-
-	protected Set<Long> toIdSet(List<? extends BaseDescriptor> descriptors) {
-		Set<Long> ids = new HashSet<>();
-		for (BaseDescriptor descriptor : descriptors)
-			ids.add(descriptor.getId());
-		return ids;
+	protected List<Reference> toReferences(
+			List<? extends BaseDescriptor> descriptors, boolean optional) {
+		List<Reference> references = new ArrayList<>();
+		for (BaseDescriptor descriptor : descriptors) {
+			Class<? extends AbstractEntity> type = (Class<? extends AbstractEntity>) descriptor
+					.getModelType().getModelClass();
+			long id = descriptor.getId();
+			Reference reference = new Reference(type, id, optional);
+			references.add(reference);
+		}
+		return references;
 	}
 
 }

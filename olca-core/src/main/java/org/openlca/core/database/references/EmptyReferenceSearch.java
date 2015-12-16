@@ -18,7 +18,7 @@ class EmptyReferenceSearch<T extends CategorizedDescriptor> extends BaseReferenc
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
+	public List<Reference> findReferences(Set<Long> ids) {
 		return Collections.emptyList();
 	}
 

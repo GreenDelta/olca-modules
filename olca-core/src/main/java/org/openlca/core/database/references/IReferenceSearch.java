@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
@@ -14,13 +15,13 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 	 * Returns a list of descriptors of entities that are used in the entity
 	 * with the given id
 	 */
-	public List<CategorizedDescriptor> findReferences(long id);
+	public List<Reference> findReferences(long id);
 
-	public List<CategorizedDescriptor> findReferences(T entity);
+	public List<Reference> findReferences(T entity);
 
-	public List<CategorizedDescriptor> findReferences(List<T> entity);
+	public List<Reference> findReferences(List<T> entity);
 
-	public List<CategorizedDescriptor> findReferences(Set<Long> entity);
+	public List<Reference> findReferences(Set<Long> entity);
 
 	public static final Factory FACTORY = new Factory();
 
@@ -60,12 +61,28 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 			case CATEGORY:
 				return (IReferenceSearch<T>) new CategoryReferenceSearch(db,
 						includeOptional);
-			case PARAMETER: 
+			case PARAMETER:
 				return (IReferenceSearch<T>) new ParameterReferenceSearch(db,
 						includeOptional);
 			default:
 				return new EmptyReferenceSearch<T>();
 			}
+		}
+	}
+
+	public class Reference {
+		public final Class<? extends AbstractEntity> type;
+		public final long id;
+		public final boolean optional;
+
+		public Reference(Class<? extends AbstractEntity> type, long id) {
+			this(type, id, false);
+		}
+
+		public Reference(Class<? extends AbstractEntity> type, long id, boolean optional) {
+			this.type = type;
+			this.id = id;
+			this.optional = optional;
 		}
 	}
 

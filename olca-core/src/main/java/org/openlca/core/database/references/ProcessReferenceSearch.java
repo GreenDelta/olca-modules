@@ -6,41 +6,49 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.references.Search.Reference;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.database.references.Search.Ref;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.CategorizedEntity;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Currency;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.SocialIndicator;
+import org.openlca.core.model.Source;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.model.descriptors.UnitDescriptor;
 
 public class ProcessReferenceSearch extends
 		BaseReferenceSearch<ProcessDescriptor> {
 
-	private final static Reference[] references = {
-		new Reference(ModelType.CATEGORY, "f_category", true),
-		new Reference(ModelType.LOCATION, "f_location", true),
-		new Reference(ModelType.CURRENCY, "f_currency", true), 
-		new Reference(ModelType.UNKNOWN, "f_process_doc", true) 
+	private final static Ref[] references = {
+		new Ref(Category.class, "f_category", true),
+		new Ref(Location.class, "f_location", true),
+		new Ref(Currency.class, "f_currency", true), 
+		new Ref(ProcessDocumentation.class, "f_process_doc", true) 
 	};
-	private final static Reference[] exchangeReferences = {
-		new Reference(ModelType.FLOW, "f_flow"),
-		new Reference(ModelType.UNKNOWN, "f_flow_property_factor"),
-		new Reference(ModelType.UNIT, "f_unit"), 
-		new Reference(ModelType.PROCESS, "f_default_provider") 
+	private final static Ref[] exchangeReferences = {
+		new Ref(Flow.class, "f_flow"),
+		new Ref(FlowPropertyFactor.class, "f_flow_property_factor"),
+		new Ref(Unit.class, "f_unit"), 
+		new Ref(Process.class, "f_default_provider") 
 	};
-	private final static Reference[] socialAspectReferences = { 
-		new Reference(ModelType.SOCIAL_INDICATOR, "f_indicator", true), 
-		new Reference(ModelType.SOURCE, "f_source", true) 
+	private final static Ref[] socialAspectReferences = { 
+		new Ref(SocialIndicator.class, "f_indicator", true), 
+		new Ref(Source.class, "f_source", true) 
 	};
-	private final static Reference[] documentationReferences = {
-		new Reference(ModelType.ACTOR, "f_reviewer", true),
-		new Reference(ModelType.ACTOR, "f_data_documentor", true),
-		new Reference(ModelType.ACTOR, "f_data_generator", true),
-		new Reference(ModelType.ACTOR, "f_dataset_owner", true),
-		new Reference(ModelType.SOURCE, "f_publication", true) 
+	private final static Ref[] documentationReferences = {
+		new Ref(Actor.class, "f_reviewer", true),
+		new Ref(Actor.class, "f_data_documentor", true),
+		new Ref(Actor.class, "f_data_generator", true),
+		new Ref(Actor.class, "f_dataset_owner", true),
+		new Ref(Source.class, "f_publication", true) 
 	};
-	private final static Reference[] sourceReferences = { 
-		new Reference(ModelType.SOURCE, "f_source", true) 
+	private final static Ref[] sourceReferences = { 
+		new Ref(Source.class, "f_source", true) 
 	};
 
 	public ProcessReferenceSearch(IDatabase database, boolean includeOptional) {
@@ -48,12 +56,12 @@ public class ProcessReferenceSearch extends
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
-		List<BaseDescriptor> mixed = findMixedReferences("tbl_processes", "id",
-				ids, references);
-		List<CategorizedDescriptor> results = new ArrayList<>();
-		results.addAll(filterCategorized(mixed));
-		Set<Long> docIds = toIdSet(filterUnknown(mixed));
+	public List<Reference> findReferences(Set<Long> ids) {
+		List<Reference> mixed = findReferences("tbl_processes", "id", ids,
+				references);
+		List<Reference> results = new ArrayList<>();
+		results.addAll(filter(CategorizedEntity.class, mixed));
+		Set<Long> docIds = toIdSet(filter(ProcessDocumentation.class, mixed));
 		results.addAll(findExchangeReferences(ids));
 		results.addAll(findSocialAspectReferences(ids));
 		results.addAll(findDocumentationReferences(docIds));
@@ -61,25 +69,18 @@ public class ProcessReferenceSearch extends
 		return results;
 	}
 
-	private List<CategorizedDescriptor> findExchangeReferences(Set<Long> ids) {
-		List<BaseDescriptor> mixed = findMixedReferences("tbl_exchanges",
-				"f_owner", ids, exchangeReferences);
-		List<CategorizedDescriptor> results = filterCategorized(mixed);
-		List<BaseDescriptor> factors = filterUnknown(mixed);
-		results.addAll(findFlowProperties(factors));
-		List<UnitDescriptor> units = filterUnits(mixed);
-		results.addAll(findUnitGroups(units));
-		return results;
+	private List<Reference> findExchangeReferences(Set<Long> ids) {
+		return findReferences("tbl_exchanges", "f_owner", ids,
+				exchangeReferences);
 	}
 
-	private List<CategorizedDescriptor> findSocialAspectReferences(Set<Long> ids) {
+	private List<Reference> findSocialAspectReferences(Set<Long> ids) {
 		return findReferences("tbl_social_aspects", "f_process", ids,
 				socialAspectReferences);
 	}
 
-	private List<CategorizedDescriptor> findDocumentationReferences(
-			Set<Long> ids) {
-		List<CategorizedDescriptor> results = new ArrayList<>();
+	private List<Reference> findDocumentationReferences(Set<Long> ids) {
+		List<Reference> results = new ArrayList<>();
 		results.addAll(findReferences("tbl_process_docs", "id", ids,
 				documentationReferences));
 		results.addAll(findReferences("tbl_process_sources", "f_process_doc",

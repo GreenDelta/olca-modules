@@ -1,9 +1,6 @@
 package org.openlca.core.database.references;
 
-import org.junit.After;
-import org.junit.Before;
 import org.openlca.core.Tests;
-import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -19,16 +16,6 @@ import org.openlca.core.model.UnitGroup;
 
 public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 
-	@Before
-	public void before() {
-		new ParameterDao(Tests.getDb()).deleteAll();
-	}
-
-	@After
-	public void after() {
-		new ParameterDao(Tests.getDb()).deleteAll();
-	}
-
 	@Override
 	protected ModelType getModelType() {
 		return ModelType.IMPACT_METHOD;
@@ -37,20 +24,20 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected ImpactMethod createModel() {
 		ImpactMethod method = new ImpactMethod();
-		method.setCategory(addExpected(new Category()));
+		method.setCategory(insertAndAddExpected(new Category()));
 		method.getImpactCategories().add(createImpactCategory());
 		method.getImpactCategories().add(createImpactCategory());
 		method.getParameters().add(createParameter("p1", 3d, false));
 		method.getParameters().add(createParameter("p2", "p1*2*p3", false));
-		addExpected(createParameter("p3", "5*5", true));
+		insertAndAddExpected(createParameter("p3", "5*5", true));
 		// formula with parameter to see if added as reference (unexpected)
-		addExpected(createParameter("p4", "3*p5", true));
+		insertAndAddExpected(createParameter("p4", "3*p5", true));
 		Parameter globalUnreferenced = createParameter("p1", "3*3", true);
 		Parameter globalUnreferenced2 = createParameter("p5", "3*3", true);
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		return method;
+		return Tests.insert(method);
 	}
 
 	private ImpactCategory createImpactCategory() {
@@ -82,12 +69,16 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		factor.setFlowProperty(property);
 		UnitGroup group = new UnitGroup();
 		Unit unit = new Unit();
+		unit.setName("unit");
 		group.getUnits().add(unit);
 		property.setUnitGroup(group);
 		flow.getFlowPropertyFactors().add(factor);
-		addExpected(group);
-		addExpected(property);
-		return addExpected(flow);
+		group = Tests.insert(group);
+		addExpected(group.getUnit(unit.getName()));
+		property = Tests.insert(property);
+		flow = insertAndAddExpected(flow);
+		addExpected(flow.getFactor(property));
+		return flow;
 	}
 
 	private Parameter createParameter(String name, Object value, boolean global) {

@@ -4,24 +4,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.openlca.core.database.CategorizedEntityDao;
-import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.UnitDao;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.UnitDescriptor;
+import org.openlca.core.database.references.IReferenceSearch.Reference;
+import org.openlca.core.model.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,19 +28,27 @@ class Search {
 		this.database = database;
 	}
 
-	List<BaseDescriptor> findMixedReferences(String table, String idField,
-			Set<Long> ids, Reference[] references, boolean includeOptional) {
+	List<Reference> findReferences(String table, String idField, Set<Long> ids,
+			Ref[] refs, boolean includeOptional) {
 		if (ids.isEmpty())
 			return Collections.emptyList();
-		Map<ModelType, Set<Long>> idsByType = createEmptyMapFrom(references);
-		String query = createQuery(table, idField, ids, references);
+		List<Reference> references = new ArrayList<Reference>();
+		String query = createQuery(table, idField, ids, refs);
 		query(query, (result) -> {
-			for (int i = 0; i < references.length; i++)
-				if (!references[i].optional || includeOptional)
-					idsByType.get(references[i].type)
-							.add(result.getLong(i + 1));
+			for (int i = 0; i < refs.length; i++) {
+				if (refs[i].optional && !includeOptional)
+					continue;
+				long id = result.getLong(i + 1);
+				if (id == 0l)
+					continue;
+				references.add(createReference(refs[i], id));
+			}
 		});
-		return loadDescriptors(idsByType);
+		return references;
+	}
+
+	private Reference createReference(Ref ref, long id) {
+		return new Reference(ref.type, id, ref.optional);
 	}
 
 	void query(String query, Consumer<ResultSetWrapper> handler) {
@@ -65,7 +63,7 @@ class Search {
 	}
 
 	private String createQuery(String table, String idField, Set<Long> ids,
-			Reference[] references) {
+			Ref[] references) {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT DISTINCT ");
 		for (int i = 0; i < references.length; i++) {
@@ -79,60 +77,6 @@ class Search {
 		return query.toString();
 	}
 
-	private Map<ModelType, Set<Long>> createEmptyMapFrom(Reference[] references) {
-		Map<ModelType, Set<Long>> map = new HashMap<>();
-		for (int i = 0; i < references.length; i++)
-			map.put(references[i].type, new HashSet<>());
-		return map;
-	}
-
-	private List<BaseDescriptor> loadDescriptors(
-			Map<ModelType, Set<Long>> idsByType) {
-		List<BaseDescriptor> results = new ArrayList<>();
-		for (ModelType type : idsByType.keySet()) {
-			Set<Long> typeIds = idsByType.get(type);
-			if (typeIds.isEmpty())
-				continue;
-			if (type.isCategorized())
-				results.addAll(loadDescriptors(type, typeIds));
-			else if (type == ModelType.UNIT)
-				results.addAll(loadUnitDescriptors(typeIds));
-			else if (type == ModelType.IMPACT_CATEGORY)
-				results.addAll(loadImpactCategoryDescriptors(typeIds));
-			else if (type == ModelType.UNKNOWN)
-				results.addAll(createUnknownDescriptors(typeIds));
-		}
-		return results;
-	}
-
-	private List<CategorizedDescriptor> loadDescriptors(ModelType type,
-			Set<Long> ids) {
-		CategorizedEntityDao<?, ? extends CategorizedDescriptor> dao = Daos
-				.createCategorizedDao(database, type);
-		return new ArrayList<>(dao.getDescriptors(ids));
-	}
-
-	private List<UnitDescriptor> loadUnitDescriptors(Set<Long> ids) {
-		UnitDao dao = new UnitDao(database);
-		return new ArrayList<>(dao.getDescriptors(ids));
-	}
-
-	private List<ImpactCategoryDescriptor> loadImpactCategoryDescriptors(
-			Set<Long> ids) {
-		ImpactCategoryDao dao = new ImpactCategoryDao(database);
-		return new ArrayList<>(dao.getDescriptors(ids));
-	}
-
-	private List<BaseDescriptor> createUnknownDescriptors(Set<Long> ids) {
-		List<BaseDescriptor> descriptors = new ArrayList<>();
-		for (long id : ids) {
-			BaseDescriptor descriptor = new BaseDescriptor();
-			descriptor.setId(id);
-			descriptors.add(descriptor);
-		}
-		return descriptors;
-	}
-
 	static String asSqlList(Object[] values) {
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < values.length; i++) {
@@ -143,17 +87,17 @@ class Search {
 		return builder.toString();
 	}
 
-	final static class Reference {
+	final static class Ref {
 
-		private ModelType type;
+		private Class<? extends AbstractEntity> type;
 		private String field;
 		private boolean optional;
 
-		Reference(ModelType type, String field) {
+		Ref(Class<? extends AbstractEntity> type, String field) {
 			this(type, field, false);
 		}
 
-		Reference(ModelType type, String field, boolean optional) {
+		Ref(Class<? extends AbstractEntity> type, String field, boolean optional) {
 			this.type = type;
 			this.field = field;
 			this.optional = optional;
