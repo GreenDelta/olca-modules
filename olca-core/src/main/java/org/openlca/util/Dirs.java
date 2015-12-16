@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -12,6 +13,26 @@ import java.nio.file.attribute.BasicFileAttributes;
  * A simple utility class for directory operations.
  */
 public final class Dirs {
+
+	/**
+	 * Creates a directory if it not yet exists.
+	 */
+	public static void make(String path) {
+		make(Paths.get(path));
+	}
+
+	/**
+	 * Creates a directory if it not yet exists.
+	 */
+	public static void make(Path dir) {
+		if (dir == null)
+			return;
+		try {
+			Files.createDirectories(dir);
+		} catch (Exception e) {
+			throw new RuntimeException("failed to create directories " + dir, e);
+		}
+	}
 
 	/**
 	 * Deletes the content from the given directory but not the directory
@@ -48,6 +69,13 @@ public final class Dirs {
 		} catch (IOException e) {
 			throw new RuntimeException("failed to copy " + from + " to " + to, e);
 		}
+	}
+
+	/**
+	 * Deletes a directory recursively.
+	 */
+	public static void delete(String path) {
+		delete(Paths.get(path));
 	}
 
 	/**
