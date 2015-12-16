@@ -35,8 +35,9 @@ public class ImpactMethodReferenceSearch extends
 
 	@Override
 	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
-		List<CategorizedDescriptor> results = findReferences(
-				"tbl_impact_methods", "id", ids, references);
+		List<CategorizedDescriptor> results = new ArrayList<>();
+		results.addAll(findReferences("tbl_impact_methods", "id", ids,
+				references));
 		List<BaseDescriptor> mixed = findMixedReferences(
 				"tbl_impact_categories", "f_impact_method", ids,
 				categoryReferences);

@@ -2,6 +2,7 @@ package org.openlca.core.database.usage;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -61,6 +62,8 @@ class Search {
 	}
 
 	List<CategorizedDescriptor> loadDescriptors(ModelType type, Set<Long> ids) {
+		if (ids.isEmpty())
+			return Collections.emptyList();
 		CategorizedEntityDao<?, ? extends CategorizedDescriptor> dao = Daos
 				.createCategorizedDao(database, type);
 		return new ArrayList<>(dao.getDescriptors(ids));
@@ -72,6 +75,8 @@ class Search {
 
 	Set<Long> queryForIds(String idField, String table, Set<Long> toFind,
 			String... inFields) {
+		if (toFind.isEmpty())
+			return Collections.emptySet();
 		String query = createQuery(idField, table, toFind, inFields);
 		return queryForIds(query);
 	}

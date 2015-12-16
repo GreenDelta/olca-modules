@@ -23,9 +23,7 @@ public class FlowPropertyReferenceSearch extends
 
 	@Override
 	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
-		List<CategorizedDescriptor> results = findReferences("tbl_flow_properties", "id",
-				ids, references);
-		return results;
+		return findReferences("tbl_flow_properties", "id", ids, references);
 	}
 
 }

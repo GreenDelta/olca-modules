@@ -1,5 +1,6 @@
 package org.openlca.core.database.references;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +51,8 @@ public class ProcessReferenceSearch extends
 	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
 		List<BaseDescriptor> mixed = findMixedReferences("tbl_processes", "id",
 				ids, references);
-		List<CategorizedDescriptor> results = filterCategorized(mixed);
+		List<CategorizedDescriptor> results = new ArrayList<>();
+		results.addAll(filterCategorized(mixed));
 		Set<Long> docIds = toIdSet(filterUnknown(mixed));
 		results.addAll(findExchangeReferences(ids));
 		results.addAll(findSocialAspectReferences(ids));
@@ -77,10 +79,11 @@ public class ProcessReferenceSearch extends
 
 	private List<CategorizedDescriptor> findDocumentationReferences(
 			Set<Long> ids) {
-		List<CategorizedDescriptor> results = findReferences(
-				"tbl_process_docs", "id", ids, documentationReferences);
-		results.addAll(findReferences("tbl_process_sources", "f_process_doc", ids,
-				sourceReferences));
+		List<CategorizedDescriptor> results = new ArrayList<>();
+		results.addAll(findReferences("tbl_process_docs", "id", ids,
+				documentationReferences));
+		results.addAll(findReferences("tbl_process_sources", "f_process_doc",
+				ids, sourceReferences));
 		return results;
 	}
 

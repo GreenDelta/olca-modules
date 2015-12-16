@@ -1,5 +1,6 @@
 package org.openlca.core.database.references;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -44,7 +45,8 @@ public class ProductSystemReferenceSearch extends
 	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
 		List<BaseDescriptor> mixed = findMixedReferences("tbl_product_systems",
 				"id", ids, references);
-		List<CategorizedDescriptor> results = filterCategorized(mixed);
+		List<CategorizedDescriptor> results = new ArrayList<>();
+		results.addAll(filterCategorized(mixed));
 		List<BaseDescriptor> factors = filterUnknown(mixed);
 		results.addAll(findFlowProperties(factors));
 		List<UnitDescriptor> units = filterUnits(mixed);
