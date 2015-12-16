@@ -59,8 +59,17 @@ public class KmlFeature {
 			toMerge.addAll(collectSingleGeometries(geometry));
 		if (toMerge.size() == 1)
 			return toMerge.get(0);
-		GeometryFactory factory = new GeometryFactory();
 		FeatureType type = getCollectionType(toMerge);
+		if (type == null)
+			// mixed content
+			toMerge = filterByFirstType(toMerge);
+		type = getCollectionType(toMerge);
+		return createCollection(type, toMerge);
+	}
+
+	private static Geometry createCollection(FeatureType type,
+			List<Geometry> toMerge) {
+		GeometryFactory factory = new GeometryFactory();
 		if (type == FeatureType.LINE)
 			return factory.createMultiLineString(GeometryFactory
 					.toLineStringArray(toMerge));
@@ -70,9 +79,21 @@ public class KmlFeature {
 		if (type == FeatureType.POLYGON)
 			return factory.createMultiPolygon(GeometryFactory
 					.toPolygonArray(toMerge));
-		// else mixed content
-		return factory.createGeometryCollection(toMerge
-				.toArray(new Geometry[toMerge.size()]));
+		return null;
+	}
+
+	private static List<Geometry> filterByFirstType(List<Geometry> toMerge) {
+		FeatureType type = null;
+		List<Geometry> filtered = new ArrayList<>();
+		for (Geometry geometry : toMerge) {
+			FeatureType current = getType(geometry);
+			if (type == null)
+				type = current;
+			if (type != current)
+				continue;
+			filtered.add(geometry);
+		}
+		return filtered;
 	}
 
 	private static FeatureType getCollectionType(List<Geometry> geometries) {
@@ -101,7 +122,7 @@ public class KmlFeature {
 
 	private static boolean isSingleGeometry(Geometry geometry) {
 		FeatureType type = getType(geometry);
-		if (type == FeatureType.MULTI_GEOMETRY)
+		if (type.isMulti())
 			return false;
 		return true;
 	}
@@ -120,8 +141,11 @@ public class KmlFeature {
 		case "Polygon":
 			return FeatureType.POLYGON;
 		case "MultiLineString":
+			return FeatureType.MULTI_LINE;
 		case "MultiPoint":
+			return FeatureType.MULTI_POINT;
 		case "MultiPolygon":
+			return FeatureType.MULTI_POLYGON;
 		case "GeometryCollection":
 			return FeatureType.MULTI_GEOMETRY;
 		default:

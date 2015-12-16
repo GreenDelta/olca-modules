@@ -30,32 +30,13 @@ class FeatureCalculator {
 		if (feature.getType() == null)
 			return Collections.emptyMap();
 		switch (feature.getType()) {
-		case POINT:
-			return fetchPointValues(feature, parameters, shares);
-		case LINE:
-			return fetchValues(feature, parameters, defaults, shares);
-		case POLYGON:
+		case EMPTY:
 		case MULTI_GEOMETRY:
-			return fetchValues(feature, parameters, defaults, shares);
-		default:
 			log.warn("cannot calculate parameter values for type {}",
 					feature.getType());
 			return Collections.emptyMap();
-		}
-	}
-
-	private Map<String, Double> fetchPointValues(KmlFeature feature,
-			List<String> parameters, Map<String, Double> shares) {
-		try (SimpleFeatureIterator iterator = getIterator()) {
-			while (iterator.hasNext()) {
-				SimpleFeature shape = iterator.next();
-				if (shares.containsKey(shape.getID()))
-					return fetchValues(shape, parameters);
-			}
-			return Collections.emptyMap();
-		} catch (Exception e) {
-			log.error("failed to fetch point values", e);
-			return null;
+		default:
+			return fetchValues(parameters, defaults, shares);
 		}
 	}
 
@@ -72,9 +53,8 @@ class FeatureCalculator {
 		return map;
 	}
 
-	private Map<String, Double> fetchValues(KmlFeature feature,
-			List<String> parameters, Map<String, Double> defaults,
-			Map<String, Double> shares) {
+	private Map<String, Double> fetchValues(List<String> parameters,
+			Map<String, Double> defaults, Map<String, Double> shares) {
 		try (SimpleFeatureIterator iterator = getIterator()) {
 			Map<SimpleFeature, Double> _shares = new HashMap<>();
 			while (iterator.hasNext()) {
@@ -84,8 +64,7 @@ class FeatureCalculator {
 			}
 			return fetchValues(_shares, parameters, defaults);
 		} catch (Exception e) {
-			String type = feature.getType().name();
-			log.error("failed to fetch parameters for feature type " + type, e);
+			log.error("failed to fetch parameters for feature", e);
 			return null;
 		}
 	}

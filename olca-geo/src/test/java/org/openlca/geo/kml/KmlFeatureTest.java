@@ -40,7 +40,7 @@ public class KmlFeatureTest {
 	public void testMultiPolygon() throws Exception {
 		String kml = Tests.getKml("multipolygon.kml");
 		KmlFeature feature = KmlFeature.parse(kml);
-		Assert.assertEquals(FeatureType.MULTI_GEOMETRY, feature.getType());
+		Assert.assertEquals(FeatureType.MULTI_POLYGON, feature.getType());
 		Assert.assertTrue(feature.getGeometry().getArea() > 0);
 		Assert.assertEquals(2, feature.getGeometry().getNumGeometries());
 		Assert.assertEquals(8, feature.getGeometry().getCoordinates().length);
@@ -50,7 +50,7 @@ public class KmlFeatureTest {
 	public void testMultiPlacemarks() throws Exception {
 		String kml = Tests.getKml("multiplacemarks.kml");
 		KmlFeature feature = KmlFeature.parse(kml);
-		Assert.assertEquals(FeatureType.MULTI_GEOMETRY, feature.getType());
+		Assert.assertEquals(FeatureType.MULTI_POLYGON, feature.getType());
 		Assert.assertTrue(feature.getGeometry().getArea() > 0);
 		Assert.assertEquals(14, feature.getGeometry().getCoordinates().length);
 	}

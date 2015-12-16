@@ -2,14 +2,30 @@ package org.openlca.geo.kml;
 
 public enum FeatureType {
 
-	EMPTY,
+	EMPTY(false),
 
-	POINT,
+	POINT(false),
 
-	LINE,
+	LINE(false),
 
-	POLYGON,
-	
-	MULTI_GEOMETRY
+	POLYGON(false),
+
+	MULTI_POINT(true),
+
+	MULTI_LINE(true),
+
+	MULTI_POLYGON(true),
+
+	MULTI_GEOMETRY(true);
+
+	private boolean multi;
+
+	private FeatureType(boolean multi) {
+		this.multi = multi;
+	}
+
+	public boolean isMulti() {
+		return multi;
+	}
 
 }

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.TopologyException;
@@ -29,36 +30,49 @@ class IntersectionsCalculator {
 		this.dataStore = dataStore;
 	}
 
-	public Map<String, Double> calculate(KmlFeature feature,
-			List<String> parameters) {
+	public Map<String, Double> calculate(KmlFeature feature, List<String> params) {
 		if (feature.getType() == null)
 			return Collections.emptyMap();
+		Geometry geo = feature.getGeometry();
 		switch (feature.getType()) {
 		case POINT:
-			return calculatePointShares(feature, parameters);
+			return calculatePoint(geo, params, 1d);
+		case MULTI_POINT:
+			return calculateMulti((MultiPoint) geo, params);
 		case LINE:
-			return calculateShares(feature, parameters,
-					new LineStringValueFetch());
+		case MULTI_LINE:
+			return calculate(geo, params, new LineStringValueFetch());
 		case POLYGON:
-		case MULTI_GEOMETRY:
-			return calculateShares(feature, parameters, new PolygonValueFetch());
+		case MULTI_POLYGON:
+			return calculate(geo, params, new PolygonValueFetch());
 		default:
 			log.warn("cannot calculate shares for type {}", feature.getType());
 			return Collections.emptyMap();
 		}
 	}
 
-	private Map<String, Double> calculatePointShares(KmlFeature feature,
+	private Map<String, Double> calculateMulti(MultiPoint featureGeo,
 			List<String> parameters) {
+		Map<String, Double> result = new HashMap<>();
+		int length = featureGeo.getNumGeometries();
+		for (int i = 0; i < length; i++) {
+			Geometry next = featureGeo.getGeometryN(i);
+			result.putAll(calculatePoint(next, parameters, 1 / length));
+		}
+		return result;
+	}
+
+	private Map<String, Double> calculatePoint(Geometry featureGeo,
+			List<String> parameters, double share) {
 		try (SimpleFeatureIterator iterator = getIterator()) {
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
 				Geometry geometry = (Geometry) shape.getDefaultGeometry();
 				if (geometry instanceof Point) {
-					if (geometry.equalsExact(feature.getGeometry(), 1e-6))
-						return Collections.singletonMap(shape.getID(), 1d);
-				} else if (geometry.contains(feature.getGeometry()))
-					return Collections.singletonMap(shape.getID(), 1d);
+					if (geometry.equalsExact(featureGeo, 1e-6))
+						return Collections.singletonMap(shape.getID(), share);
+				} else if (geometry.contains(featureGeo))
+					return Collections.singletonMap(shape.getID(), share);
 			}
 			return Collections.emptyMap();
 		} catch (Exception e) {
@@ -67,9 +81,9 @@ class IntersectionsCalculator {
 		}
 	}
 
-	private Map<String, Double> calculateShares(KmlFeature feature,
+	private Map<String, Double> calculate(Geometry featureGeo,
 			List<String> parameters, ValueFetch valueFetch) {
-		double totalValue = valueFetch.fetchTotal(feature);
+		double totalValue = valueFetch.fetchTotal(featureGeo);
 		double total = 0;
 		if (totalValue == 0)
 			return Collections.emptyMap();
@@ -78,7 +92,6 @@ class IntersectionsCalculator {
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
 				Geometry shapeGeo = (Geometry) shape.getDefaultGeometry();
-				Geometry featureGeo = feature.getGeometry();
 				if (valueFetch.skip(featureGeo, shapeGeo))
 					continue;
 				double value = valueFetch.fetchSingle(featureGeo, shapeGeo);
@@ -92,8 +105,7 @@ class IntersectionsCalculator {
 			}
 			return shares;
 		} catch (Exception e) {
-			String type = feature.getType().name();
-			log.error("failed to fetch parameters for feature type " + type, e);
+			log.error("failed to fetch parameters for feature", e);
 			return null;
 		}
 	}
@@ -107,7 +119,7 @@ class IntersectionsCalculator {
 
 	private interface ValueFetch {
 
-		double fetchTotal(KmlFeature feature);
+		double fetchTotal(Geometry feature);
 
 		double fetchSingle(Geometry feature, Geometry shape);
 
@@ -117,8 +129,8 @@ class IntersectionsCalculator {
 	private class LineStringValueFetch implements ValueFetch {
 
 		@Override
-		public double fetchTotal(KmlFeature feature) {
-			return feature.getGeometry().getLength();
+		public double fetchTotal(Geometry feature) {
+			return feature.getLength();
 		}
 
 		@Override
@@ -136,8 +148,8 @@ class IntersectionsCalculator {
 	private class PolygonValueFetch implements ValueFetch {
 
 		@Override
-		public double fetchTotal(KmlFeature feature) {
-			return feature.getGeometry().getArea();
+		public double fetchTotal(Geometry feature) {
+			return feature.getArea();
 		}
 
 		@Override
