@@ -24,61 +24,74 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected ImpactMethod createModel() {
 		ImpactMethod method = new ImpactMethod();
-		method.setCategory(insertAndAddExpected(new Category()));
-		method.getImpactCategories().add(createImpactCategory());
-		method.getImpactCategories().add(createImpactCategory());
-		method.getParameters().add(createParameter("p1", 3d, false));
-		method.getParameters().add(createParameter("p2", "p1*2*p3", false));
-		insertAndAddExpected(createParameter("p3", "5*5", true));
+		method.setCategory(insertAndAddExpected("category", new Category()));
+		String n1 = generateName();
+		String n2 = generateName();
+		String n3 = generateName();
+		String n4 = generateName();
+		String n5 = generateName();
+		method.getParameters().add(createParameter(n1, 3d, false));
+		method.getParameters().add(createParameter(n2, n1 + "*2*" + n3, false));
+		insertAndAddExpected(null, createParameter(n3, "5*5", true));
 		// formula with parameter to see if added as reference (unexpected)
-		insertAndAddExpected(createParameter("p4", "3*p5", true));
-		Parameter globalUnreferenced = createParameter("p1", "3*3", true);
-		Parameter globalUnreferenced2 = createParameter("p5", "3*3", true);
+		insertAndAddExpected(null, createParameter(n4, "3*" + n5, true));
+		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
+		Parameter globalUnreferenced2 = createParameter(n5, "3*3", true);
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		return Tests.insert(method);
+		method.getImpactCategories().add(createImpactCategory(n4));
+		method.getImpactCategories().add(createImpactCategory(n4));
+		method = Tests.insert(method);
+		for (ImpactCategory category : method.getImpactCategories())
+			for (ImpactFactor f : category.getImpactFactors()) {
+				addExpected("flow", f.getFlow(), "impactFactors",
+						ImpactFactor.class, f.getId());
+				addExpected("flowPropertyFactor", f.getFlowPropertyFactor(),
+						"impactFactors", ImpactFactor.class, f.getId());
+				addExpected("unit", f.getUnit(), "impactFactors",
+						ImpactFactor.class, f.getId());
+			}
+		return method;
 	}
 
-	private ImpactCategory createImpactCategory() {
+	private ImpactCategory createImpactCategory(String p4Name) {
 		ImpactCategory category = new ImpactCategory();
 		category.getImpactFactors().add(createImpactFactor(3d));
-		category.getImpactFactors().add(createImpactFactor("2*p4"));
+		category.getImpactFactors().add(createImpactFactor("2*" + p4Name));
 		return category;
 	}
 
 	private ImpactFactor createImpactFactor(Object value) {
-		ImpactFactor factor = new ImpactFactor();
-		factor.setFlow(createFlow());
-		factor.setFlowPropertyFactor(factor.getFlow().getFlowPropertyFactors()
-				.get(0));
-		factor.setUnit(factor.getFlowPropertyFactor().getFlowProperty()
-				.getUnitGroup().getUnits().get(0));
+		ImpactFactor iFactor = new ImpactFactor();
+		Flow flow = createFlow();
+		FlowPropertyFactor factor = flow.getFlowPropertyFactors().get(0);
+		Unit unit = factor.getFlowProperty().getUnitGroup().getUnits().get(0);
+		iFactor.setFlow(flow);
+		iFactor.setFlowPropertyFactor(factor);
+		iFactor.setUnit(unit);
 		boolean formula = value instanceof String;
 		if (formula)
-			factor.setFormula(value.toString());
+			iFactor.setFormula(value.toString());
 		else
-			factor.setValue((double) value);
-		return factor;
+			iFactor.setValue((double) value);
+		return iFactor;
 	}
 
 	private Flow createFlow() {
 		Flow flow = new Flow();
-		FlowProperty property = new FlowProperty();
-		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(property);
 		UnitGroup group = new UnitGroup();
 		Unit unit = new Unit();
 		unit.setName("unit");
 		group.getUnits().add(unit);
-		property.setUnitGroup(group);
-		flow.getFlowPropertyFactors().add(factor);
 		group = Tests.insert(group);
-		addExpected(group.getUnit(unit.getName()));
+		FlowProperty property = new FlowProperty();
+		property.setUnitGroup(group);
 		property = Tests.insert(property);
-		flow = insertAndAddExpected(flow);
-		addExpected(flow.getFactor(property));
-		return flow;
+		FlowPropertyFactor factor = new FlowPropertyFactor();
+		factor.setFlowProperty(property);
+		flow.getFlowPropertyFactors().add(factor);
+		return Tests.insert(flow);
 	}
 
 	private Parameter createParameter(String name, Object value, boolean global) {

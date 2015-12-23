@@ -12,11 +12,11 @@ public class CategoryReferenceSearch extends
 		BaseReferenceSearch<CategoryDescriptor> {
 
 	private final static Ref[] references = { 
-		new Ref(Category.class, "f_category", true) 
+		new Ref(Category.class, "category", "f_category", true) 
 	};
 
 	public CategoryReferenceSearch(IDatabase database, boolean includeOptional) {
-		super(database, includeOptional);
+		super(database, Category.class, includeOptional);
 	}
 
 	@Override

@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
@@ -41,23 +44,23 @@ public class ProcessDao extends
 	}
 
 	public List<FlowDescriptor> getTechnologyInputs(ProcessDescriptor descriptor) {
-		List<Long> flowIds = getTechnologies(descriptor, true);
+		Set<Long> flowIds = getTechnologies(descriptor, true);
 		return loadFlowDescriptors(flowIds);
 	}
 
 	public List<FlowDescriptor> getTechnologyOutputs(
 			ProcessDescriptor descriptor) {
-		List<Long> flowIds = getTechnologies(descriptor, false);
+		Set<Long> flowIds = getTechnologies(descriptor, false);
 		return loadFlowDescriptors(flowIds);
 	}
 
-	private List<Long> getTechnologies(ProcessDescriptor descriptor,
+	private Set<Long> getTechnologies(ProcessDescriptor descriptor,
 			boolean input) {
 		if (descriptor == null)
-			return Collections.emptyList();
+			return Collections.emptySet();
 		String sql = "select f_flow from tbl_exchanges where f_owner = "
 				+ descriptor.getId() + " and is_input = " + (input ? 1 : 0);
-		List<Long> ids = new ArrayList<>();
+		Set<Long> ids = new HashSet<>();
 		try (Connection con = getDatabase().createConnection();
 				Statement s = con.createStatement();
 				ResultSet rs = s.executeQuery(sql)) {
@@ -66,23 +69,38 @@ public class ProcessDao extends
 			return ids;
 		} catch (SQLException e) {
 			log.error("Error loading technologies", e);
-			return Collections.emptyList();
+			return Collections.emptySet();
 		}
 	}
 
-	private List<FlowDescriptor> loadFlowDescriptors(List<Long> flowIds) {
+	private List<FlowDescriptor> loadFlowDescriptors(Set<Long> flowIds) {
 		if (flowIds == null || flowIds.isEmpty())
 			return Collections.emptyList();
-		// TODO: performance may could be improved if we query the
-		// database with an 'IN - query'
-		List<FlowDescriptor> results = new ArrayList<>();
 		FlowDao dao = new FlowDao(getDatabase());
-		for (Long flowId : flowIds) {
-			FlowDescriptor d = dao.getDescriptor(flowId);
-			if (d != null)
-				results.add(d);
-		}
-		return results;
+		return dao.getDescriptors(flowIds);
 	}
 
+	public boolean hasQuantitativeReference(long id) {
+		return hasQuantitativeReference(Collections.singleton(id)).get(id);
+	}
+
+	public Map<Long, Boolean> hasQuantitativeReference(Set<Long> ids) {
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT id, f_quantitative_reference FROM tbl_processes ");
+		query.append("WHERE id IN " + asSqlList(ids));
+		query.append(" AND f_quantitative_reference IN ");
+		query.append("(SELECT id FROM tbl_exchanges WHERE id = f_quantitative_reference)");
+		Map<Long, Boolean> result = new HashMap<>();
+		for (long id : ids)
+			result.put(id, false);
+		try {
+			NativeSql.on(database).query(query.toString(), (res) -> {
+				result.put(res.getLong(1), res.getLong(2) != 0l);
+				return true;
+			});
+		} catch (SQLException e) {
+			log.error("Error checking for quantitative reference existence", e);
+		}
+		return result;
+	}
 }

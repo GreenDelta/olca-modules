@@ -39,13 +39,13 @@ public enum ModelType {
 
 	PARAMETER(Parameter.class);
 
-	final Class<?> modelClass;
+	final Class<? extends AbstractEntity> modelClass;
 
-	private ModelType(Class<?> clazz) {
+	private ModelType(Class<? extends AbstractEntity> clazz) {
 		this.modelClass = clazz;
 	}
 
-	public Class<?> getModelClass() {
+	public Class<? extends AbstractEntity> getModelClass() {
 		return modelClass;
 	}
 	

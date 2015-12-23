@@ -7,6 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.references.Search.Ref;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
 
@@ -14,13 +15,13 @@ public class SocialIndicatorReferenceSearch extends
 		BaseReferenceSearch<SocialIndicatorDescriptor> {
 
 	private final static Ref[] references = {
-		new Ref(Category.class, "f_category", true),
-		new Ref(FlowProperty.class, "f_activity_quantity"),
-		new Ref(Unit.class, "f_activity_unit") 
+		new Ref(Category.class, "category", "f_category", true),
+		new Ref(FlowProperty.class, "activityQuantity", "f_activity_quantity", true),
+		new Ref(Unit.class, "activityUnit", "f_activity_unit", true) 
 	};
 
 	public SocialIndicatorReferenceSearch(IDatabase database, boolean includeOptional) {
-		super(database, includeOptional);
+		super(database, SocialIndicator.class, includeOptional);
 	}
 
 	@Override

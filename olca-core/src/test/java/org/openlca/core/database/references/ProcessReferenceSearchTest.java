@@ -1,5 +1,8 @@
 package org.openlca.core.database.references;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
@@ -22,6 +25,8 @@ import org.openlca.core.model.UnitGroup;
 
 public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
+	private Map<Long, Process> processes = new HashMap<>();
+
 	@Override
 	protected ModelType getModelType() {
 		return ModelType.PROCESS;
@@ -30,25 +35,67 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected Process createModel() {
 		Process process = new Process();
-		process.setCategory(insertAndAddExpected(new Category()));
-		process.setLocation(insertAndAddExpected(new Location()));
+		process.setCategory(insertAndAddExpected("category", new Category()));
+		process.setLocation(insertAndAddExpected("location", new Location()));
+		String n1 = generateName();
+		String n2 = generateName();
+		String n3 = generateName();
+		String n4 = generateName();
+		String n5 = generateName();
 		process.getExchanges().add(createExchange(3d, true));
-		process.getExchanges().add(createExchange("2*p4", false));
-		process.getParameters().add(createParameter("p1", 3d, false));
-		process.getParameters().add(createParameter("p2", "p1*2*p3", false));
+		process.getExchanges().add(createExchange("2*" + n4, false));
+		process.getParameters().add(createParameter(n1, 3d, false));
+		process.getParameters()
+				.add(createParameter(n2, n1 + "*2*" + n3, false));
 		process.socialAspects.add(createSocialAspect());
 		process.socialAspects.add(createSocialAspect());
-		process.currency = insertAndAddExpected(new Currency());
+		process.currency = insertAndAddExpected("currency", new Currency());
 		process.setDocumentation(createDocumentation());
-		insertAndAddExpected(createParameter("p3", "5*5", true));
+		insertAndAddExpected(null, createParameter(n3, "5*5", true));
 		// formula with parameter to see if added as reference (unexpected)
-		insertAndAddExpected(createParameter("p4", "3*p5", true));
-		Parameter globalUnreferenced = createParameter("p1", "3*3", true);
-		Parameter globalUnreferenced2 = createParameter("p5", "3*3", true);
+		insertAndAddExpected(null, createParameter(n4, "3*" + n5, true));
+		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
+		Parameter globalUnreferenced2 = createParameter(n5, "3*3", true);
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		return Tests.insert(process);
+		process = Tests.insert(process);
+		for (Exchange e : process.getExchanges()) {
+			addExpected("flow", e.getFlow(), "exchanges", Exchange.class,
+					e.getId());
+			addExpected("flowPropertyFactor", e.getFlowPropertyFactor(),
+					"exchanges", Exchange.class, e.getId());
+			addExpected("unit", e.getUnit(), "exchanges", Exchange.class,
+					e.getId());
+			Process provider = processes.get(e.getDefaultProviderId());
+			if (provider != null)
+				addExpected("defaultProviderId", provider, "exchanges",
+						Exchange.class, e.getId());
+			else
+				addExpectedNull("defaultProviderId", Process.class,
+						"exchanges", Exchange.class, e.getId());
+		}
+		for (SocialAspect a : process.socialAspects) {
+			addExpected("indicator", a.indicator, "socialAspects",
+					SocialAspect.class, a.getId());
+			addExpected("source", a.source, "socialAspects",
+					SocialAspect.class, a.getId());
+		}
+		ProcessDocumentation doc = process.getDocumentation();
+		addExpected("dataDocumentor", doc.getDataDocumentor(), "documentation",
+				ProcessDocumentation.class, doc.getId());
+		addExpected("dataGenerator", doc.getDataGenerator(), "documentation",
+				ProcessDocumentation.class, doc.getId());
+		addExpected("dataSetOwner", doc.getDataSetOwner(), "documentation",
+				ProcessDocumentation.class, doc.getId());
+		addExpected("reviewer", doc.getReviewer(), "documentation",
+				ProcessDocumentation.class, doc.getId());
+		addExpected("publication", doc.getPublication(), "documentation",
+				ProcessDocumentation.class, doc.getId());
+		for (Source s : process.getDocumentation().getSources())
+			addExpected("sources", s, "documentation",
+					ProcessDocumentation.class, doc.getId());
+		return process;
 	}
 
 	private Exchange createExchange(Object value, boolean provider) {
@@ -63,35 +110,34 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 			exchange.setAmountFormula(value.toString());
 		else
 			exchange.setAmountValue((double) value);
-		if (provider)
-			exchange.setDefaultProviderId(insertAndAddExpected(new Process())
-					.getId());
+		if (provider) {
+			Process process = Tests.insert(new Process());
+			processes.put(process.getId(), process);
+			exchange.setDefaultProviderId(process.getId());
+		}
 		return exchange;
 	}
 
 	private Flow createFlow() {
 		Flow flow = new Flow();
-		FlowProperty property = new FlowProperty();
-		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(property);
 		UnitGroup group = new UnitGroup();
 		Unit unit = new Unit();
 		unit.setName("unit");
 		group.getUnits().add(unit);
-		property.setUnitGroup(group);
-		flow.getFlowPropertyFactors().add(factor);
 		group = Tests.insert(group);
-		addExpected(group.getUnit(unit.getName()));
+		FlowProperty property = new FlowProperty();
+		property.setUnitGroup(group);
 		property = Tests.insert(property);
-		flow = insertAndAddExpected(flow);
-		addExpected(flow.getFactor(property));
-		return flow;
+		FlowPropertyFactor factor = new FlowPropertyFactor();
+		factor.setFlowProperty(property);
+		flow.getFlowPropertyFactors().add(factor);
+		return Tests.insert(flow);
 	}
 
 	private SocialAspect createSocialAspect() {
 		SocialAspect aspect = new SocialAspect();
-		aspect.indicator = insertAndAddExpected(new SocialIndicator());
-		aspect.source = insertAndAddExpected(new Source());
+		aspect.indicator = Tests.insert(new SocialIndicator());
+		aspect.source = Tests.insert(new Source());
 		return aspect;
 	}
 
@@ -113,13 +159,13 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private ProcessDocumentation createDocumentation() {
 		ProcessDocumentation doc = new ProcessDocumentation();
-		doc.setDataDocumentor(insertAndAddExpected(new Actor()));
-		doc.setDataGenerator(insertAndAddExpected(new Actor()));
-		doc.setDataSetOwner(insertAndAddExpected(new Actor()));
-		doc.setReviewer(insertAndAddExpected(new Actor()));
-		doc.setPublication(insertAndAddExpected(new Source()));
-		doc.getSources().add(insertAndAddExpected(new Source()));
-		doc.getSources().add(insertAndAddExpected(new Source()));
+		doc.setDataDocumentor(Tests.insert(new Actor()));
+		doc.setDataGenerator(Tests.insert(new Actor()));
+		doc.setDataSetOwner(Tests.insert(new Actor()));
+		doc.setReviewer(Tests.insert(new Actor()));
+		doc.setPublication(Tests.insert(new Source()));
+		doc.getSources().add(Tests.insert(new Source()));
+		doc.getSources().add(Tests.insert(new Source()));
 		return doc;
 	}
 

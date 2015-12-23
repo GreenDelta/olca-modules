@@ -15,10 +15,13 @@ public class ParameterReferenceSearchTest extends BaseReferenceSearchTest {
 
 	@Override
 	protected Parameter createModel() {
-		Parameter parameter = createParameter("p1", "3*p3");
-		parameter.setCategory(insertAndAddExpected(new Category()));
-		insertAndAddExpected(createParameter("p3", 5d));
-		Parameter globalUnreferenced = createParameter("p2", "3*3");
+		String n1 = generateName();
+		String n2 = generateName();
+		String n3 = generateName();
+		Parameter parameter = createParameter(n1, "3*" + n3);
+		parameter.setCategory(insertAndAddExpected("category", new Category()));
+		insertAndAddExpected(null, createParameter(n3, 5d));
+		Parameter globalUnreferenced = createParameter(n2, "3*3");
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		return Tests.insert(parameter);

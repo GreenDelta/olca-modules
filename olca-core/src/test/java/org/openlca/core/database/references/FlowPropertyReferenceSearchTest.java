@@ -16,8 +16,8 @@ public class FlowPropertyReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected FlowProperty createModel() {
 		FlowProperty property = new FlowProperty();
-		property.setCategory(insertAndAddExpected(new Category()));
-		property.setUnitGroup(insertAndAddExpected(new UnitGroup()));
+		property.setCategory(insertAndAddExpected("category", new Category()));
+		property.setUnitGroup(insertAndAddExpected("unitGroup", new UnitGroup()));
 		return Tests.insert(property);
 	}
 }

@@ -2,9 +2,12 @@ package org.openlca.core.database;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.model.Flow;
@@ -19,8 +22,8 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version", "last_change",
-				"f_category", "flow_type", "f_location",
+		return new String[] { "id", "ref_id", "name", "description", "version",
+				"last_change", "f_category", "flow_type", "f_location",
 				"f_reference_flow_property" };
 	}
 
@@ -70,4 +73,29 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 			return Collections.emptySet();
 		}
 	}
+
+	public boolean hasReferenceFactor(long id) {
+		return hasReferenceFactor(Collections.singleton(id)).get(id);
+	}
+
+	public Map<Long, Boolean> hasReferenceFactor(Set<Long> ids) {
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT id, f_reference_flow_property FROM tbl_flows ");
+		query.append("WHERE id IN " + asSqlList(ids));
+		query.append(" AND f_reference_flow_property IN ");
+		query.append("(SELECT f_flow_property FROM tbl_flow_property_factors WHERE tbl_flows.id = f_flow)");
+		Map<Long, Boolean> result = new HashMap<>();
+		for (long id : ids)
+			result.put(id, false);
+		try {
+			NativeSql.on(database).query(query.toString(), (res) -> {
+				result.put(res.getLong(1), res.getLong(2) != 0l);
+				return true;
+			});
+		} catch (SQLException e) {
+			log.error("Error checking for reference factor existence", e);
+		}
+		return result;
+	}
+
 }

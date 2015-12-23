@@ -8,11 +8,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
@@ -27,7 +30,7 @@ public class BaseDao<T> implements IDao<T> {
 
 	protected Class<T> entityType;
 	protected Logger log = LoggerFactory.getLogger(this.getClass());
-	private IDatabase database;
+	protected IDatabase database;
 
 	public BaseDao(Class<T> entityType, IDatabase database) {
 		this.entityType = entityType;
@@ -45,6 +48,44 @@ public class BaseDao<T> implements IDao<T> {
 	@Override
 	public boolean contains(long id) {
 		return getForId(id) != null;
+	}
+
+	@Override
+	public Map<Long, Boolean> contains(Set<Long> ids) {
+		if (ids.isEmpty())
+			return Collections.emptyMap();
+		Map<Long, Boolean> result = new HashMap<>();
+		for (Long id : ids)
+			result.put(id, false);
+		String table = entityType.getDeclaredAnnotation(Table.class).name();
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT id FROM " + table);
+		query.append(" WHERE id IN " + asSqlList(ids));
+		try {
+			NativeSql.on(database).query(query.toString(), (entry) -> {
+				long id = entry.getLong(1);
+				result.put(id, true);
+				return true;
+			});
+		} catch (SQLException e) {
+			String type = entityType.getSimpleName();
+			log.error("Error checking existings of ids for type " + type, e);
+		}
+		return result;
+	}
+
+	protected String asSqlList(Set<Long> ids) {
+		StringBuilder builder = new StringBuilder();
+		builder.append('(');
+		Iterator<Long> it = ids.iterator();
+		while (it.hasNext()) {
+			long next = it.next();
+			builder.append(next);
+			if (it.hasNext())
+				builder.append(',');
+		}
+		builder.append(')');
+		return builder.toString();
 	}
 
 	@Override
@@ -77,7 +118,7 @@ public class BaseDao<T> implements IDao<T> {
 				em.remove(em.merge(entity));
 			}
 			em.getTransaction().commit();
-			for (T entity : entities) 
+			for (T entity : entities)
 				database.notifyDelete(entity);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while deleting "

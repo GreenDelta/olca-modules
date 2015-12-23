@@ -1,5 +1,6 @@
 package org.openlca.core.database.references;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -70,20 +71,78 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 		}
 	}
 
-	public class Reference {
-		public final Class<? extends AbstractEntity> type;
+	public class Reference implements Serializable {
+
+		private static final long serialVersionUID = -3036634720068312246L;
+
+		public final String property;
+		private final String type;
 		public final long id;
+		private final String ownerType;
+		public final long ownerId;
+		public final String nestedProperty;
+		private final String nestedOwnerType;
+		public final long nestedOwnerId;
 		public final boolean optional;
 
-		public Reference(Class<? extends AbstractEntity> type, long id) {
-			this(type, id, false);
+		public Reference(String property, Class<? extends AbstractEntity> type, long id,
+				Class<? extends AbstractEntity> ownerType, long ownerId) {
+			this(property, type, id, ownerType, ownerId, null, null, 0l, false);
 		}
 
-		public Reference(Class<? extends AbstractEntity> type, long id, boolean optional) {
-			this.type = type;
+		public Reference(String property, Class<? extends AbstractEntity> type, long id,
+				Class<? extends AbstractEntity> ownerType, long ownerId,
+				boolean optional) {
+			this(property, type, id, ownerType, ownerId, null, null, 0l, optional);
+		}
+
+		public Reference(String property, Class<? extends AbstractEntity> type, long id,
+				Class<? extends AbstractEntity> ownerType, long ownerId,
+				String nestedProperty, Class<? extends AbstractEntity> nestedOwnerType,
+				long nestedOwnerId, boolean optional) {
+			this.property = property;
+			this.type = type.getCanonicalName();
 			this.id = id;
+			this.ownerType = ownerType.getCanonicalName();
+			this.ownerId = ownerId;
+			this.nestedProperty = nestedProperty;
+			this.nestedOwnerType = nestedOwnerType != null ? nestedOwnerType
+					.getCanonicalName() : null;
+			this.nestedOwnerId = nestedOwnerId;
 			this.optional = optional;
 		}
+
+		@SuppressWarnings("unchecked")
+		public Class<? extends AbstractEntity> getType() {
+			try {
+				return (Class<? extends AbstractEntity>) Class.forName(type);
+			} catch (ClassNotFoundException e) {
+				return null;
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public Class<? extends AbstractEntity> getOwnerType() {
+			try {
+				return (Class<? extends AbstractEntity>) Class
+						.forName(ownerType);
+			} catch (ClassNotFoundException e) {
+				return null;
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public Class<? extends AbstractEntity> getNestedOwnerType() {
+			if (nestedOwnerType == null)
+				return null;
+			try {
+				return (Class<? extends AbstractEntity>) Class
+						.forName(nestedOwnerType);
+			} catch (ClassNotFoundException e) {
+				return null;
+			}
+		}
+
 	}
 
 }
