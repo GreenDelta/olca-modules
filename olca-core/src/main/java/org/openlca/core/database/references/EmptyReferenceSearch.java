@@ -14,7 +14,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 class EmptyReferenceSearch<T extends CategorizedDescriptor> extends BaseReferenceSearch<T> {
 
 	EmptyReferenceSearch() {
-		super(null);
+		super(null, null);
 	}
 
 	@Override

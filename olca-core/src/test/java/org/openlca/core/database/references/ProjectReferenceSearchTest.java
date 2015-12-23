@@ -27,31 +27,45 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected Project createModel() {
 		Project project = new Project();
-		project.setCategory(insertAndAddExpected(new Category()));
-		project.setAuthor(insertAndAddExpected(new Actor()));
-		project.setImpactMethodId(insertAndAddExpected(new ImpactMethod())
-				.getId());
-		project.getVariants().add(
-				createProjectVariant(project.getImpactMethodId(), true));
-		project.getVariants().add(
-				createProjectVariant(project.getImpactMethodId(), false));
-		Parameter globalUnreferenced = createParameter("p1", "3*3", true);
-		Parameter globalUnreferenced2 = createParameter("p3", "3*3", true);
+		project.setCategory(insertAndAddExpected("category", new Category()));
+		project.setAuthor(insertAndAddExpected("author", new Actor()));
+		project.setImpactMethodId(insertAndAddExpected("impactMethodId",
+				new ImpactMethod()).getId());
+		String n1 = generateName();
+		String n2 = generateName();
+		String n3 = generateName();
+		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
+		Parameter globalUnreferenced2 = createParameter(n3, "3*3", true);
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		return Tests.insert(project);
+		project.getVariants().add(
+				createProjectVariant(n1, n2, n3, project.getImpactMethodId(),
+						true));
+		project.getVariants().add(
+				createProjectVariant(n1, n2, n3, project.getImpactMethodId(),
+						false));
+		project = Tests.insert(project);
+		for (ProjectVariant variant : project.getVariants()) {
+			addExpected("productSystem", variant.getProductSystem(),
+					"variants", ProjectVariant.class, variant.getId());
+			addExpected("unit", variant.getUnit(), "variants",
+					ProjectVariant.class, variant.getId());
+			addExpected("flowPropertyFactor", variant.getFlowPropertyFactor(),
+					"variants", ProjectVariant.class, variant.getId());
+		}
+		return project;
 	}
 
-	private ProjectVariant createProjectVariant(long methodId,
-			boolean createParameters) {
+	private ProjectVariant createProjectVariant(String p1Name, String p2Name,
+			String p3Name, long methodId, boolean createParameters) {
 		ProjectVariant variant = new ProjectVariant();
-		variant.setProductSystem(insertAndAddExpected(new ProductSystem()));
+		variant.setProductSystem(Tests.insert(new ProductSystem()));
 		variant.getParameterRedefs().add(
-				createParameterRedef("p1", methodId, createParameters));
+				createParameterRedef(p1Name, methodId, createParameters));
 		// formula with parameter to see if added as reference (unexpected)
 		variant.getParameterRedefs().add(
-				createParameterRedef("p2", "p3*5", createParameters));
+				createParameterRedef(p2Name, p3Name + "*5", createParameters));
 		FlowPropertyFactor factor = new FlowPropertyFactor();
 		factor.setFlowProperty(Tests.insert(new FlowProperty()));
 		variant.setFlowPropertyFactor(factor);
@@ -59,16 +73,13 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 		Unit unit = new Unit();
 		unit.setName("unit");
 		unitGroup.getUnits().add(unit);
-		variant.setUnit(unit);
 		unitGroup = Tests.insert(unitGroup);
 		unit = unitGroup.getUnit(unit.getName());
+		variant.setUnit(unit);
 		Flow flow = new Flow();
 		flow.getFlowPropertyFactors().add(factor);
 		// don't add flow to expected references, just for persisting the factor
 		flow = Tests.insert(flow);
-		factor = flow.getFactor(factor.getFlowProperty());
-		addExpected(unit);
-		addExpected(factor);
 		return variant;
 	}
 
@@ -81,8 +92,8 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 			redef.setContextType(ModelType.IMPACT_METHOD);
 			redef.setContextId((long) contextOrValue);
 		} else if (contextOrValue instanceof String && createParameter)
-			insertAndAddExpected(createParameter(name,
-					contextOrValue.toString(), true));
+			insertAndAddExpected("parameterRedefs",
+					createParameter(name, contextOrValue.toString(), true));
 		return redef;
 	}
 

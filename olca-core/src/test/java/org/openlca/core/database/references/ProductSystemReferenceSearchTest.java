@@ -26,7 +26,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 	@Override
 	protected ProductSystem createModel() {
 		ProductSystem system = new ProductSystem();
-		system.setCategory(insertAndAddExpected(new Category()));
+		system.setCategory(insertAndAddExpected("category", new Category()));
 		system.setReferenceProcess(createProcess());
 		system.setReferenceExchange(system.getReferenceProcess().getExchanges()
 				.get(0));
@@ -35,19 +35,22 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		system.setTargetUnit(system.getTargetFlowPropertyFactor()
 				.getFlowProperty().getUnitGroup().getUnits().get(0));
 		system.getProcesses().add(system.getReferenceProcess().getId());
-		Process p1 = insertAndAddExpected(new Process());
-		Process p2 = insertAndAddExpected(new Process());
-		Process p3 = insertAndAddExpected(new Process());
+		Process p1 = insertAndAddExpected("processes", new Process());
+		Process p2 = insertAndAddExpected("processes", new Process());
+		Process p3 = insertAndAddExpected("processes", new Process());
 		system.getProcesses().add(p1.getId());
 		system.getProcesses().add(p2.getId());
 		system.getProcesses().add(p3.getId());
 		system.getProcessLinks().add(createLink(p1, p2));
 		system.getProcessLinks().add(createLink(p2, p3));
-		system.getParameterRedefs().add(createParameterRedef("p1", p1.getId()));
+		String n1 = generateName();
+		String n2 = generateName();
+		String n3 = generateName();
+		system.getParameterRedefs().add(createParameterRedef(n1, p1.getId()));
 		// formula with parameter to see if added as reference (unexpected)
-		system.getParameterRedefs().add(createParameterRedef("p2", "p3*5"));
-		Parameter globalUnreferenced = createParameter("p1", "3*3", true);
-		Parameter globalUnreferenced2 = createParameter("p3", "3*3", true);
+		system.getParameterRedefs().add(createParameterRedef(n2, n3 + "*5"));
+		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
+		Parameter globalUnreferenced2 = createParameter(n3, "3*3", true);
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
@@ -56,17 +59,15 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Process createProcess() {
 		Process process = new Process();
-		process.getExchanges().add(createExchange(true));
-		process = insertAndAddExpected(process);
-		addExpected(process.getExchanges().get(0));
+		process.getExchanges().add(createExchange());
+		process = insertAndAddExpected("processes", process);
+		addExpected("referenceExchange", process.getExchanges().get(0));
 		return process;
 	}
 
-	private Exchange createExchange(boolean reference) {
+	private Exchange createExchange() {
 		Exchange exchange = new Exchange();
-		exchange.setFlow(createFlow(reference));
-		if (!reference)
-			return exchange;
+		exchange.setFlow(createFlow(true));
 		exchange.setFlowPropertyFactor(exchange.getFlow()
 				.getFlowPropertyFactors().get(0));
 		exchange.setUnit(exchange.getFlowPropertyFactor().getFlowProperty()
@@ -76,7 +77,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Flow createFlow(boolean reference) {
 		if (!reference)
-			return insertAndAddExpected(new Flow());
+			return insertAndAddExpected("flow", new Flow());
 		Flow flow = new Flow();
 		FlowProperty property = new FlowProperty();
 		FlowPropertyFactor factor = new FlowPropertyFactor();
@@ -88,10 +89,10 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		property.setUnitGroup(group);
 		flow.getFlowPropertyFactors().add(factor);
 		group = Tests.insert(group);
-		addExpected(group.getUnit(unit.getName()));
+		addExpected("targetUnit", group.getUnit(unit.getName()));
 		property = Tests.insert(property);
 		flow = Tests.insert(flow);
-		addExpected(flow.getFactor(property));
+		addExpected("targetFlowPropertyFactor", flow.getFactor(property));
 		return flow;
 	}
 
@@ -119,8 +120,8 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 			redef.setContextType(ModelType.PROCESS);
 			redef.setContextId((long) contextOrValue);
 		} else if (contextOrValue instanceof String) {
-			insertAndAddExpected(createParameter(name,
-					contextOrValue.toString(), true));
+			insertAndAddExpected("parameterRedefs",
+					createParameter(name, contextOrValue.toString(), true));
 		}
 		return redef;
 	}

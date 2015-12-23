@@ -9,6 +9,8 @@ public interface IDao<T> {
 
 	boolean contains(long id);
 
+	Map<Long, Boolean> contains(Set<Long> ids);
+
 	void delete(T entity);
 
 	void deleteAll(Collection<T> entities);

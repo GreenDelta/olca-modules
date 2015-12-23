@@ -13,12 +13,12 @@ public class CurrencyReferenceSearch extends
 		BaseReferenceSearch<CurrencyDescriptor> {
 
 	private final static Ref[] references = { 
-		new Ref(Category.class, "f_category", true), 
-		new Ref(Currency.class, "f_reference_currency") 
+		new Ref(Category.class, "category", "f_category", true), 
+		new Ref(Currency.class, "referenceCurrency", "f_reference_currency") 
 	};
 
 	public CurrencyReferenceSearch(IDatabase database, boolean includeOptional) {
-		super(database, includeOptional);
+		super(database, Currency.class, includeOptional);
 	}
 
 	@Override
