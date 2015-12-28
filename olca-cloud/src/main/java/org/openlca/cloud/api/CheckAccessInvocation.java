@@ -17,7 +17,7 @@ class CheckAccessInvocation {
 	String repositoryId;
 
 	/**
-	 * Checks if the specified repository can be access by the specified user
+	 * Checks if the specified repository can be access by the current user
 	 * 
 	 * @throws WebRequestException
 	 *             if repository does not exist or user does not have access
