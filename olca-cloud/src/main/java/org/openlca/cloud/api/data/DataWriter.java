@@ -49,8 +49,8 @@ abstract class DataWriter {
 
 	void putDescriptor(Dataset descriptor) {
 		JsonObject element = (JsonObject) new Gson().toJsonTree(descriptor);
-		element.addProperty("@id", descriptor.getRefId());
-		descriptorStore.put(descriptor.getType(), element);
+		element.addProperty("@id", descriptor.refId);
+		descriptorStore.put(descriptor.type, element);
 	}
 
 	public void close() throws IOException {

@@ -33,15 +33,14 @@ public class FetchWriter extends DataWriter {
 			JsonElement element = new Gson().fromJson(data, JsonElement.class);
 			JsonObject object = element.isJsonObject() ? element
 					.getAsJsonObject() : null;
-			entityStore.put(descriptor.getType(), object);
+			entityStore.put(descriptor.type, object);
 			if (binDir != null && binDir.exists())
 				putBin(descriptor, binDir);
 		}
 		putDescriptor(descriptor);
 	}
 
-	private void putBin(Dataset descriptor, File binDir)
-			throws IOException {
+	private void putBin(Dataset descriptor, File binDir) throws IOException {
 		Stack<File> dirs = new Stack<>();
 		dirs.push(binDir);
 		Path dirPath = binDir.toPath();
@@ -59,8 +58,7 @@ public class FetchWriter extends DataWriter {
 			throws IOException {
 		String filename = relativize(binDir, file);
 		byte[] data = Files.readAllBytes(file);
-		entityStore.putBin(descriptor.getType(), descriptor.getRefId(),
-				filename, data);
+		entityStore.putBin(descriptor.type, descriptor.refId, filename, data);
 	}
 
 	private String relativize(Path dir, Path file) {

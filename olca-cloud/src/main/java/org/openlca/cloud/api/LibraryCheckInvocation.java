@@ -44,7 +44,7 @@ class LibraryCheckInvocation {
 		String url = Strings.concat(baseUrl, PATH);
 		List<String> refIds = new ArrayList<>();
 		for (Dataset dataset : datasets)
-			refIds.add(dataset.getRefId());
+			refIds.add(dataset.refId);
 		ClientResponse response = WebRequests.call(Type.POST, url, sessionId,
 				refIds);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
@@ -59,7 +59,7 @@ class LibraryCheckInvocation {
 				}.getType());
 		Map<String, Dataset> map = new HashMap<>();
 		for (Dataset dataset : datasets)
-			map.put(dataset.getRefId(), dataset);
+			map.put(dataset.refId, dataset);
 		Map<Dataset, String> mapped = new HashMap<>();
 		for (String refId : result.keySet())
 			mapped.put(map.get(refId), result.get(refId));

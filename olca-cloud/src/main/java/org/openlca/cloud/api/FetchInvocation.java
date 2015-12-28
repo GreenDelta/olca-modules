@@ -130,11 +130,10 @@ class FetchInvocation {
 		jsonImport.run();
 		for (Dataset descriptor : reader.getDescriptors())
 			if (!reader.hasData(descriptor))
-				delete(createDao(descriptor.getType()), descriptor.getRefId());
+				delete(createDao(descriptor.type), descriptor.refId);
 		for (Entry<Dataset, JsonObject> entry : mergedData.entrySet())
 			if (entry.getValue() == null)
-				delete(createDao(entry.getKey().getType()), entry.getKey()
-						.getRefId());
+				delete(createDao(entry.getKey().type), entry.getKey().refId);
 		return reader.getCommitId();
 	}
 
@@ -149,7 +148,7 @@ class FetchInvocation {
 			json.addProperty("version", Version.asString(version.getValue()));
 			json.addProperty("lastChange",
 					Dates.toString(Calendar.getInstance().getTime()));
-			store.put(entry.getKey().getType(), json);
+			store.put(entry.getKey().type, json);
 			if (isImpactMethod(json)) {
 				putReferences(json, "impactCategories",
 						ModelType.IMPACT_CATEGORY, store);

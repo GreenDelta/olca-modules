@@ -22,16 +22,16 @@ public class CommitReader extends DataReader {
 	}
 
 	public String getData(Dataset descriptor) {
-		JsonObject element = entityStore.get(descriptor.getType(),
-				descriptor.getRefId());
+		JsonObject element = entityStore.get(descriptor.type, descriptor.refId);
 		if (element == null)
 			return null;
 		return new Gson().toJson(element);
 	}
 
-	public void copyBinaries(Dataset descriptor, File binDir) throws IOException {
-		List<String> paths = entityStore.getBinFiles(descriptor.getType(),
-				descriptor.getRefId());
+	public void copyBinaries(Dataset descriptor, File binDir)
+			throws IOException {
+		List<String> paths = entityStore.getBinFiles(descriptor.type,
+				descriptor.refId);
 		if (paths.isEmpty())
 			return;
 		for (String path : paths)
