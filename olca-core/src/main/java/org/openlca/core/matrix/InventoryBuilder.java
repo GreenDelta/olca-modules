@@ -187,6 +187,7 @@ class InventoryBuilder {
 		// the following would be not correct.
 		double v1 = e1.input ? e1.costValue : -e1.costValue;
 		double v2 = e2.input ? e2.costValue : -e2.costValue;
+		// TODO: cost formulas
 		return Math.abs(v1 + v2);
 	}
 }

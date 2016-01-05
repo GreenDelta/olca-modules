@@ -55,6 +55,10 @@ class ExchangeCell {
 			double v = scope.eval(exchange.parameter3Formula);
 			exchange.parameter3 = v;
 		}
+		if (exchange.costFormula != null) {
+			double v = scope.eval(exchange.costFormula);
+			exchange.costValue = v;
+		}
 	}
 
 	double getMatrixValue() {

@@ -26,5 +26,6 @@ public class CalcExchange {
 	public boolean avoidedProduct;
 
 	public double costValue;
+	public String costFormula;
 	public long currency;
 }
