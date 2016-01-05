@@ -35,6 +35,7 @@ public class ProjectCalculator {
 			setup.impactMethod = method;
 			setup.nwSet = nwSet;
 			setup.parameterRedefs.addAll(v.getParameterRedefs());
+			setup.withCosts = true;
 			ContributionResult cr = calculator.calculateContributions(setup);
 			result.addResult(v, cr);
 		}
