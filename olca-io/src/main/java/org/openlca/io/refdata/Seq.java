@@ -1,26 +1,32 @@
 package org.openlca.io.refdata;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.NativeSql.QueryResultHandler;
-import org.openlca.core.model.ModelType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.persistence.Table;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.persistence.Table;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.ModelType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 class Seq {
 
-	private final ModelType[] TYPES = {ModelType.LOCATION, ModelType.CATEGORY,
-			ModelType.UNIT, ModelType.UNIT_GROUP, ModelType.FLOW_PROPERTY,
-			ModelType.FLOW, ModelType.IMPACT_CATEGORY, ModelType.IMPACT_METHOD,
-			ModelType.NW_SET};
+	private final ModelType[] TYPES = {
+			ModelType.LOCATION,
+			ModelType.CATEGORY,
+			ModelType.UNIT,
+			ModelType.UNIT_GROUP,
+			ModelType.FLOW_PROPERTY,
+			ModelType.FLOW,
+			ModelType.CURRENCY,
+			ModelType.IMPACT_CATEGORY,
+			ModelType.IMPACT_METHOD,
+			ModelType.NW_SET
+	};
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase db;
@@ -41,17 +47,14 @@ class Seq {
 	private void initType(ModelType type) {
 		Table table = type.getModelClass().getAnnotation(Table.class);
 		String query = "select id, ref_id from " + table.name();
-		final HashMap<String, Long> seq = new HashMap<>();
-		final HashSet<String> inDb = new HashSet<>();
+		HashMap<String, Long> seq = new HashMap<>();
+		HashSet<String> inDb = new HashSet<>();
 		try {
-			NativeSql.on(db).query(query, new QueryResultHandler() {
-				@Override
-				public boolean nextResult(ResultSet result) throws SQLException {
-					String refId = result.getString(2);
-					seq.put(refId, result.getLong(1));
-					inDb.add(refId);
-					return true;
-				}
+			NativeSql.on(db).query(query, result -> {
+				String refId = result.getString(2);
+				seq.put(refId, result.getLong(1));
+				inDb.add(refId);
+				return true;
 			});
 		} catch (Exception e) {
 			log.error("failed to initialize sequence map for " + type, e);
@@ -61,15 +64,12 @@ class Seq {
 	}
 
 	private void initSeqCount() {
-		final AtomicLong seq = new AtomicLong(0L);
+		AtomicLong seq = new AtomicLong(0L);
 		String query = "select seq_count from sequence";
 		try {
-			NativeSql.on(db).query(query, new QueryResultHandler() {
-				@Override
-				public boolean nextResult(ResultSet result) throws SQLException {
-					seq.set(result.getLong(1));
-					return true;
-				}
+			NativeSql.on(db).query(query, result -> {
+				seq.set(result.getLong(1));
+				return true;
 			});
 		} catch (Exception e) {
 			log.error("failed to get sequence count", e);

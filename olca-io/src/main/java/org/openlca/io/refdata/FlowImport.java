@@ -23,7 +23,8 @@ class FlowImport extends AbstractImport {
 	protected CellProcessor[] getCellProcessors() {
 		CellProcessor notEmpty = new StrNotNullOrEmpty();
 		CellProcessor optional = new Optional();
-		return new CellProcessor[] { notEmpty, // id
+		return new CellProcessor[] {
+				notEmpty, // id
 				notEmpty, // name
 				optional, // description
 				optional, // category ID
