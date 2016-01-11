@@ -108,6 +108,11 @@ class Search {
 			Map<Class<? extends AbstractEntity>, Map<Class<? extends AbstractEntity>, String>> nestedProperties) {
 		List<Reference> results = new ArrayList<>();
 		for (Reference r : references) {
+			if (!ownerTypes.containsKey(r.ownerId)
+					|| !ownerIds.containsKey(r.ownerId)) {
+				results.add(r);
+				continue;
+			}
 			Class<? extends AbstractEntity> ownerType = ownerTypes
 					.get(r.ownerId);
 			long ownerId = ownerIds.get(r.ownerId);

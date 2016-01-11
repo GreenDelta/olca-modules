@@ -129,6 +129,8 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 	}
 
 	private Set<String> getParameterNames(Set<Long> ids) {
+		if (ids.isEmpty())
+			return new HashSet<>();
 		String query = "SELECT name FROM tbl_parameters WHERE id IN "
 				+ Search.asSqlList(ids);
 		Set<String> names = new HashSet<>();
