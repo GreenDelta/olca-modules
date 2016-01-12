@@ -57,7 +57,8 @@ class IntersectionsCalculator {
 		int length = featureGeo.getNumGeometries();
 		for (int i = 0; i < length; i++) {
 			Geometry next = featureGeo.getGeometryN(i);
-			result.putAll(calculatePoint(next, parameters, 1 / length));
+			double share = 1d / (double) length;
+			result.putAll(calculatePoint(next, parameters, share));
 		}
 		return result;
 	}

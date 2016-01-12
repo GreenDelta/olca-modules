@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+  <Folder>
+    <name>OpenLayers export</name>
+    <description>Exported on Tue Aug 19 2014 09:07:27 GMT+0200 (W. Europe Daylight Time)</description>
+    <Placemark>
+      <name>OpenLayers_Feature_Vector_160</name>
+      <description>No description available</description>
+	  <MultiGeometry>
+	      <Point>
+	        <coordinates>-104.37011718750457,35.67514743608417</coordinates>
+	      </Point>
+	      <Point>
+	        <coordinates>-98.49285274744295,37.77151404990764</coordinates>
+	      </Point>
+	  </MultiGeometry>
+    </Placemark>
+  </Folder>
+</kml>
