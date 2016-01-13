@@ -36,8 +36,9 @@ public class RegionalizedCalculator {
 		this.solver = solver;
 	}
 
-	public RegionalizedResult calculate(RegionalizationSetup setup, FullResult baseResult,
-			FormulaInterpreter interpreter, ImpactTable impactTable) {
+	public RegionalizedResult calculate(RegionalizationSetup setup,
+			FullResult baseResult, FormulaInterpreter interpreter,
+			ImpactTable impactTable) {
 		this.setup = setup;
 		this.interpreter = interpreter;
 		this.impactTable = impactTable;
@@ -53,26 +54,63 @@ public class RegionalizedCalculator {
 		return null;
 	}
 
+	private FullResult initRegioResult(FullResult baseResult) {
+		FullResult regioResult = new FullResult();
+		regioResult.productIndex = baseResult.productIndex;
+		regioResult.flowIndex = baseResult.flowIndex;
+		regioResult.impactIndex = baseResult.impactIndex;
+		regioResult.scalingFactors = baseResult.scalingFactors;
+		regioResult.impactFactors = baseResult.impactFactors;
+		regioResult.singleFlowResults = baseResult.singleFlowResults;
+		regioResult.upstreamFlowResults = baseResult.upstreamFlowResults;
+		regioResult.totalFlowResults = baseResult.totalFlowResults;
+		regioResult.hasCostResults = baseResult.hasCostResults;
+		regioResult.singleCostResults = baseResult.singleCostResults;
+		regioResult.upstreamCostResults = baseResult.upstreamCostResults;
+		regioResult.totalCostResult = baseResult.totalCostResult;
+		regioResult.totalRequirements = baseResult.totalRequirements;
+		regioResult.singleFlowImpacts = baseResult.singleFlowImpacts;
+		regioResult.linkContributions = baseResult.linkContributions;
+		// copy impact results - they will be modified
+		regioResult.singleImpactResults = baseResult.singleImpactResults.copy();
+		regioResult.upstreamImpactResults = baseResult.upstreamImpactResults
+				.copy();
+		// total impact results will be recalculated later
+		return regioResult;
+	}
+
 	private FullResult calcRegioResult(FullResult baseResult) {
 		List<KmlLoadResult> features = setup.getKmlData();
 		ParameterSet parameterSet = setup.getParameterSet();
 		FullResult regioResult = initRegioResult(baseResult);
-		IMatrix impactResultMatrix = regioResult.singleImpactResults;
 		Map<LongPair, Integer> indices = getIndices(regioResult.productIndex);
 		for (KmlLoadResult result : features) {
-			Map<String, Double> parameters = parameterSet.getFor(result.getLocationId());
+			Map<String, Double> parameters = parameterSet.getFor(result
+					.getLocationId());
 			ImpactMatrix impacts = createImpactMatrix(parameters);
 			IMatrix factors = impacts.getFactorMatrix();
-			for (LongPair processProduct : result.getProcessProducts()) {
-				int index = indices.get(processProduct);
-				double[] flowResults = baseResult.singleFlowResults.getColumn(index);
-				double[] impactResults = solver.multiply(factors, flowResults);
-				for (int row = 0; row < impactResults.length; row++)
-					impactResultMatrix.setEntry(row, index, impactResults[row]);
+			for (LongPair product : result.getProcessProducts()) {
+				int index = indices.get(product);
+				updateImpacts(index, factors, regioResult, false);
+//				updateImpacts(index, factors, regioResult, true);
 			}
 		}
 		calcTotalImpactResult(regioResult);
 		return regioResult;
+	}
+
+	private void updateImpacts(int index, IMatrix factors, FullResult result,
+			boolean upstream) {
+		IMatrix flows = result.singleFlowResults;
+		IMatrix impacts = result.singleImpactResults;
+		if (upstream) {
+			flows = result.upstreamFlowResults;
+			impacts = result.upstreamImpactResults;
+		}
+		double[] flowResults = flows.getColumn(index);
+		double[] impactResults = solver.multiply(factors, flowResults);
+		for (int row = 0; row < impactResults.length; row++)
+			impacts.setEntry(row, index, impactResults[row]);
 	}
 
 	private Map<LongPair, Integer> getIndices(ProductIndex index) {
@@ -82,23 +120,6 @@ public class RegionalizedCalculator {
 			indices.put(processProduct, i);
 		}
 		return indices;
-	}
-
-	private FullResult initRegioResult(FullResult baseResult) {
-		FullResult regioResult = new FullResult();
-		regioResult.productIndex = baseResult.productIndex;
-		regioResult.flowIndex = baseResult.flowIndex;
-		regioResult.impactIndex = baseResult.impactIndex;
-		regioResult.impactFactors = baseResult.impactFactors;
-		regioResult.totalFlowResults = baseResult.totalFlowResults;
-		regioResult.scalingFactors = baseResult.scalingFactors;
-		regioResult.singleFlowResults = baseResult.singleFlowResults;
-		regioResult.singleFlowImpacts = baseResult.singleFlowImpacts;
-		regioResult.singleImpactResults = baseResult.singleImpactResults.copy();
-		regioResult.linkContributions = baseResult.linkContributions;
-		regioResult.upstreamFlowResults = baseResult.upstreamFlowResults;
-		regioResult.upstreamImpactResults = baseResult.upstreamImpactResults;
-		return regioResult;
 	}
 
 	private ImpactMatrix createImpactMatrix(Map<String, Double> params) {
@@ -116,11 +137,9 @@ public class RegionalizedCalculator {
 	private void calcTotalImpactResult(ContributionResult regioResult) {
 		IMatrix singleResults = regioResult.singleImpactResults;
 		double[] totalResults = new double[singleResults.getRowDimension()];
-		for (int row = 0; row < singleResults.getRowDimension(); row++) {
-			for (int col = 0; col < singleResults.getColumnDimension(); col++) {
+		for (int row = 0; row < singleResults.getRowDimension(); row++)
+			for (int col = 0; col < singleResults.getColumnDimension(); col++)
 				totalResults[row] += singleResults.getEntry(row, col);
-			}
-		}
 		regioResult.totalImpactResults = totalResults;
 	}
 
