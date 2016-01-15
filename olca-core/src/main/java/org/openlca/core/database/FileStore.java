@@ -148,5 +148,9 @@ public class FileStore {
 			return "unknown";
 		}
 	}
+	
+	public static String getPath(ModelType type, String refId) {
+		return getPath(type) + File.separator + refId;
+	}
 
 }

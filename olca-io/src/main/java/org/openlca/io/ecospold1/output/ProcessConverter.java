@@ -261,6 +261,7 @@ class ProcessConverter {
 			exchange.setInputGroup(mapFlowType(flow.getFlowType(), true));
 		else
 			exchange.setOutputGroup(mapFlowType(flow.getFlowType(), false));
+		exchange.setGeneralComment(inExchange.description);
 		CategoryMapper.map(flow.getCategory(), exchange, config);
 		Util.mapFlowInformation(exchange, inExchange.getFlow());
 		exchange.setUnit(inExchange.getUnit().getName());

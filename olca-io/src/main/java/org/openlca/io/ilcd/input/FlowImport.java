@@ -113,6 +113,7 @@ public class FlowImport {
 		flow.setName(Strings.cut(ilcdFlow.getName(), 254));
 		flow.setDescription(ilcdFlow.getComment());
 		flow.setCasNumber(ilcdFlow.getCasNumber());
+		flow.synonyms = ilcdFlow.getSynonyms();
 		flow.setFormula(ilcdFlow.getSumFormula());
 		String v = ilcdFlow.getVersion();
 		flow.setVersion(Version.fromString(v).getValue());

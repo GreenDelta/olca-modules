@@ -206,6 +206,7 @@ class ProcessHandler {
 		}
 		Exchange exchange = new Exchange();
 		exchange.setFlow(flow);
+		exchange.description = row.getComment();
 		setExchangeUnit(exchange, flow, row.getUnit());
 		setAmount(exchange, row.getAmount(), scopeId);
 		Uncertainty uncertainty = Uncertainties.get(

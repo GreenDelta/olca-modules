@@ -139,6 +139,7 @@ public class ProcessImport {
 		mapLciMethod(doc);
 		mapRepresentativeness(doc);
 		mapReviews(doc);
+		addSources(doc);
 		return doc;
 	}
 
@@ -237,7 +238,6 @@ public class ProcessImport {
 	}
 
 	private void mapLciMethod(ProcessDocumentation doc) {
-
 		if (ilcdProcess.getProcessType() != null) {
 			switch (ilcdProcess.getProcessType()) {
 			case UNIT_PROCESS_BLACK_BOX:
@@ -251,7 +251,6 @@ public class ProcessImport {
 				break;
 			}
 		}
-
 		LCIMethod iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
 			String lciPrinciple = LangString.get(iMethod
@@ -261,7 +260,6 @@ public class ProcessImport {
 					.getModellingConstants()));
 			process.setDefaultAllocationMethod(getAllocation(iMethod));
 		}
-
 	}
 
 	private AllocationMethod getAllocation(LCIMethod iMethod) {
@@ -285,40 +283,42 @@ public class ProcessImport {
 
 	private void mapRepresentativeness(ProcessDocumentation doc) {
 		Representativeness repr = ilcdProcess.getRepresentativeness();
-		if (repr != null) {
-			doc.setCompleteness(LangString.get(repr
-					.getDataCutOffAndCompletenessPrinciples()));
-			doc.setDataSelection(LangString.get(repr
-					.getDataSelectionAndCombinationPrinciples()));
-			doc.setDataTreatment(LangString.get(repr
-					.getDataTreatmentAndExtrapolationsPrinciples()));
-			doc.setSampling(LangString.get(repr
-					.getSamplingProcedure()));
-			doc.setDataCollectionPeriod(LangString.get(repr
-					.getDataCollectionPeriod()));
-			addSources(doc, repr);
-		}
+		if (repr == null)
+			return;
+		doc.setCompleteness(LangString.get(repr
+				.getDataCutOffAndCompletenessPrinciples()));
+		doc.setDataSelection(LangString.get(repr
+				.getDataSelectionAndCombinationPrinciples()));
+		doc.setDataTreatment(LangString.get(repr
+				.getDataTreatmentAndExtrapolationsPrinciples()));
+		doc.setSampling(LangString.get(repr.getSamplingProcedure()));
+		doc.setDataCollectionPeriod(LangString.get(repr
+				.getDataCollectionPeriod()));
 	}
 
-	private void addSources(ProcessDocumentation doc, Representativeness repr) {
-		for (DataSetReference sourceRef : repr.getReferenceToDataSource()) {
-			Source source = fetchSource(sourceRef);
+	private void addSources(ProcessDocumentation doc) {
+		List<DataSetReference> refs = ilcdProcess.getAllSources();
+		for (DataSetReference ref : refs) {
+			if (ref == null)
+				continue;
+			Source source = fetchSource(ref);
 			if (source == null || doc.getSources().contains(source))
 				continue;
 			doc.getSources().add(source);
 		}
+
 	}
 
 	private void mapReviews(ProcessDocumentation doc) {
-		if (!ilcdProcess.getReviews().isEmpty()) {
-			Review iReview = ilcdProcess.getReviews().get(0);
-			if (!iReview.getReferenceToNameOfReviewerAndInstitution().isEmpty()) {
-				DataSetReference ref = iReview
-						.getReferenceToNameOfReviewerAndInstitution().get(0);
-				doc.setReviewer(fetchActor(ref));
-			}
-			doc.setReviewDetails(LangString.get(iReview.getReviewDetails()));
+		if (ilcdProcess.getReviews().isEmpty())
+			return;
+		Review iReview = ilcdProcess.getReviews().get(0);
+		if (!iReview.getReferenceToNameOfReviewerAndInstitution().isEmpty()) {
+			DataSetReference ref = iReview
+					.getReferenceToNameOfReviewerAndInstitution().get(0);
+			doc.setReviewer(fetchActor(ref));
 		}
+		doc.setReviewDetails(LangString.get(iReview.getReviewDetails()));
 	}
 
 	private Actor fetchActor(DataSetReference reference) {

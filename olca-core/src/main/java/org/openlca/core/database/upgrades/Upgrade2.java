@@ -32,8 +32,10 @@ public class Upgrade2 implements IUpgrade {
 	public void exec(IDatabase database) throws Exception {
 		this.database = database;
 		this.util = new UpgradeUtil(database);
-		convertProcessKmzData();
-		util.checkDropColumn("tbl_processes", "kmz");
+		if (util.columnExists("tbl_processes", "kmz")) {
+			convertProcessKmzData();
+			util.checkDropColumn("tbl_processes", "kmz");
+		}
 		addVersionFields();
 		createSocialTables();
 		createCurrencyTable();
@@ -44,6 +46,9 @@ public class Upgrade2 implements IUpgrade {
 				"f_category BIGINT");
 		util.renameColumn("tbl_categories", "f_parent_category", "f_category",
 				"BIGINT");
+		util.checkCreateColumn("tbl_exchanges", "description", "description "
+				+ util.getTextType());
+		util.checkCreateColumn("tbl_flows", "synonyms", "synonyms VARCHAR(255)");
 		Upgrade2Files.apply(database);
 	}
 
@@ -53,16 +58,14 @@ public class Upgrade2 implements IUpgrade {
 	 */
 	private void convertProcessKmzData() throws SQLException {
 		try (Connection con = database.createConnection()) {
-			String updateSql = "UPDATE tbl_processes "
-					+ "SET f_location = ? "
+			String updateSql = "UPDATE tbl_processes " + "SET f_location = ? "
 					+ "WHERE id = ?";
 			PreparedStatement updateStmt = con.prepareStatement(updateSql);
 			String insertSql = "INSERT INTO tbl_locations(id, name, description, ref_id, kmz) "
 					+ "VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement insertStmt = con.prepareStatement(insertSql);
 			String query = "SELECT id, ref_id, name, kmz "
-					+ "FROM tbl_processes "
-					+ "WHERE kmz is not null";
+					+ "FROM tbl_processes " + "WHERE kmz is not null";
 			KmzResultHandler handler = new KmzResultHandler(updateStmt,
 					insertStmt);
 			handler.currentId = getSequenceId(con);
@@ -75,8 +78,7 @@ public class Upgrade2 implements IUpgrade {
 	}
 
 	private long getSequenceId(Connection con) throws SQLException {
-		String query = "SELECT SEQ_COUNT "
-				+ "FROM SEQUENCE "
+		String query = "SELECT SEQ_COUNT " + "FROM SEQUENCE "
 				+ "WHERE SEQ_NAME = 'entity_seq'";
 		try (Statement stmt = con.createStatement();
 				ResultSet rs = stmt.executeQuery(query)) {
@@ -87,8 +89,7 @@ public class Upgrade2 implements IUpgrade {
 
 	private void updateSequenceId(Connection con, long newId)
 			throws SQLException {
-		String query = "UPDATE SEQUENCE "
-				+ "SET SEQ_COUNT = " + newId
+		String query = "UPDATE SEQUENCE " + "SET SEQ_COUNT = " + newId
 				+ " WHERE SEQ_NAME = 'entity_seq'";
 		try (Statement stmt = con.createStatement()) {
 			stmt.executeUpdate(query);
@@ -106,62 +107,49 @@ public class Upgrade2 implements IUpgrade {
 			util.checkCreateColumn(table, "version", "version BIGINT");
 			util.checkCreateColumn(table, "last_change", "last_change BIGINT");
 		}
-		util.checkCreateColumn("tbl_parameters", "ref_id",
-				"ref_id VARCHAR(36)");
+		util.checkCreateColumn("tbl_parameters", "ref_id", "ref_id VARCHAR(36)");
 		List<String> updates = new ArrayList<>();
-		NativeSql.on(database).query("select id from tbl_parameters", (r) -> {
-			long id = r.getLong(1);
-			String update = "update tbl_parameters set ref_id = '"
-					+ UUID.randomUUID().toString() + "' where id = " + id;
-			updates.add(update);
-			return true;
-		});
+		NativeSql.on(database).query(
+				"select id from tbl_parameters",
+				(r) -> {
+					long id = r.getLong(1);
+					String update = "update tbl_parameters set ref_id = '"
+							+ UUID.randomUUID().toString() + "' where id = "
+							+ id;
+					updates.add(update);
+					return true;
+				});
 		NativeSql.on(database).batchUpdate(updates);
 	}
 
 	private void createCurrencyTable() throws Exception {
 		util.checkCreateTable("tbl_currencies",
-				"CREATE TABLE tbl_currencies ( "
-						+ "id BIGINT NOT NULL, "
-						+ "name VARCHAR(255), "
-						+ "ref_id VARCHAR(36), "
-						+ "version BIGINT, "
-						+ "last_change BIGINT, "
-						+ "f_category BIGINT, "
-						+ "description CLOB(64 K), "
-						+ "code VARCHAR(255), "
-						+ "conversion_factor DOUBLE, "
+				"CREATE TABLE tbl_currencies ( " + "id BIGINT NOT NULL, "
+						+ "name VARCHAR(255), " + "ref_id VARCHAR(36), "
+						+ "version BIGINT, " + "last_change BIGINT, "
+						+ "f_category BIGINT, " + "description CLOB(64 K), "
+						+ "code VARCHAR(255), " + "conversion_factor DOUBLE, "
 						+ "f_reference_currency BIGINT, "
 						+ "PRIMARY KEY (id)) ");
 	}
 
 	private void createSocialTables() throws Exception {
 		String indicators = "CREATE TABLE tbl_social_indicators ( "
-				+ "id BIGINT NOT NULL, "
-				+ "ref_id VARCHAR(36), "
-				+ "name VARCHAR(255), "
-				+ "version BIGINT, "
-				+ "last_change BIGINT, "
-				+ "f_category BIGINT, "
+				+ "id BIGINT NOT NULL, " + "ref_id VARCHAR(36), "
+				+ "name VARCHAR(255), " + "version BIGINT, "
+				+ "last_change BIGINT, " + "f_category BIGINT, "
 				+ "description CLOB(64 K), "
 				+ "activity_variable VARCHAR(255), "
-				+ "f_activity_quantity BIGINT, "
-				+ "f_activity_unit BIGINT, "
+				+ "f_activity_quantity BIGINT, " + "f_activity_unit BIGINT, "
 				+ "unit_of_measurement VARCHAR(255), "
-				+ "evaluation_scheme CLOB(64 K), "
-				+ "PRIMARY KEY (id)) ";
+				+ "evaluation_scheme CLOB(64 K), " + "PRIMARY KEY (id)) ";
 		util.checkCreateTable("tbl_social_indicators", indicators);
 		String aspects = "CREATE TABLE tbl_social_aspects ( "
-				+ "id BIGINT NOT NULL, "
-				+ "f_process BIGINT, "
-				+ "f_indicator BIGINT, "
-				+ "activity_value DOUBLE, "
-				+ "raw_amount VARCHAR(255), "
-				+ "risk_level VARCHAR(255), "
-				+ "comment CLOB(64 K), "
-				+ "f_source BIGINT, "
-				+ "quality VARCHAR(255), "
-				+ "PRIMARY KEY (id)) ";
+				+ "id BIGINT NOT NULL, " + "f_process BIGINT, "
+				+ "f_indicator BIGINT, " + "activity_value DOUBLE, "
+				+ "raw_amount VARCHAR(255), " + "risk_level VARCHAR(255), "
+				+ "comment CLOB(64 K), " + "f_source BIGINT, "
+				+ "quality VARCHAR(255), " + "PRIMARY KEY (id)) ";
 		util.checkCreateTable("tbl_social_aspects", aspects);
 	}
 

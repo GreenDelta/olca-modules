@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.input;
 import org.openlca.core.model.Exchange;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.util.ExchangeExtension;
+import org.openlca.ilcd.util.LangString;
 
 /**
  * A helper class for the conversion of ILCD exchanges to openLCA exchanges. The
@@ -36,6 +37,7 @@ class ExchangeConversion {
 		Exchange e = new Exchange();
 		boolean input = ilcdExchange.getExchangeDirection() == ExchangeDirection.INPUT;
 		e.setInput(input);
+		e.description = LangString.get(ilcdExchange.getGeneralComment());
 		if (extension != null) {
 			e.setPedigreeUncertainty(extension.getPedigreeUncertainty());
 			e.setBaseUncertainty(extension.getBaseUncertainty());

@@ -7,6 +7,7 @@ import java.util.List;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
+import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.Label;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ProcessType;
@@ -256,6 +257,10 @@ public class ProcessBag implements IBag<Process> {
 				return (ProductModel) extension;
 		}
 		return null;
+	}
+
+	public List<DataSetReference> getAllSources() {
+		return SourceRefCollection.getAll(process);
 	}
 
 	public boolean hasProductModel() {

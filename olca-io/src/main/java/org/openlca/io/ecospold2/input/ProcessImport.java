@@ -228,6 +228,7 @@ class ProcessImport {
 		Exchange exchange = new Exchange();
 		exchange.setFlow(flow);
 		exchange.setFlowPropertyFactor(flow.getReferenceFactor());
+		exchange.description = original.getComment();
 		Unit unit = getFlowUnit(original, flowRefId, flow);
 		if (unit == null)
 			return null;

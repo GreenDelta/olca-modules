@@ -146,6 +146,11 @@ public class FlowBag implements IBag<Flow> {
 			return geo.getLocation();
 	}
 
+	public String getSynonyms() {
+		return LangString.get(flow.getFlowInformation().getDataSetInformation()
+				.getSynonyms());
+	}
+
 	private List<Category> getCompartments(FlowCategoryInformation categoryInfo) {
 		if (categoryInfo != null) {
 			List<FlowCategorization> categorizations = categoryInfo
@@ -197,8 +202,7 @@ public class FlowBag implements IBag<Flow> {
 	public Date getTimeStamp() {
 		if (flow == null)
 			return null;
-		AdministrativeInformation info = flow
-				.getAdministrativeInformation();
+		AdministrativeInformation info = flow.getAdministrativeInformation();
 		if (info == null)
 			return null;
 		DataEntry entry = info.getDataEntry();

@@ -2,7 +2,9 @@ package org.openlca.io.ilcd.output;
 
 import java.io.File;
 
+import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.ClassificationInformation;
@@ -62,7 +64,8 @@ public class SourceExport {
 		File dbDir = database.getFileStorageLocation();
 		if (dbDir == null)
 			return null;
-		File docDir = new File(dbDir, "external_docs");
+		String path = FileStore.getPath(ModelType.SOURCE, source.getRefId());
+		File docDir = new File(dbDir, path);
 		if (!docDir.exists())
 			return null;
 		File file = new File(docDir, name);

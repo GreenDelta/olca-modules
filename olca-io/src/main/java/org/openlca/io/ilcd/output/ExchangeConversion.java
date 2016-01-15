@@ -19,6 +19,7 @@ import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterList;
 import org.openlca.ilcd.processes.ProcessInformation;
 import org.openlca.ilcd.util.ExchangeExtension;
+import org.openlca.ilcd.util.LangString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,9 @@ class ExchangeConversion {
 
 	private org.openlca.ilcd.processes.Exchange mapExchange(Exchange oExchange) {
 		org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
+		if (oExchange.description != null)
+			LangString.addLabel(iExchange.getGeneralComment(),
+					oExchange.description);
 		mapFlow(oExchange, iExchange);
 		mapDirection(oExchange, iExchange);
 		double resultingAmount = getRefAmount(oExchange);
@@ -73,8 +77,7 @@ class ExchangeConversion {
 
 	private double getRefAmount(Exchange oExchange) {
 		double propFactor = oExchange.getFlowPropertyFactor() != null ? oExchange
-				.getFlowPropertyFactor().getConversionFactor()
-				: 1;
+				.getFlowPropertyFactor().getConversionFactor() : 1;
 		double unitFactor = oExchange.getUnit() != null ? oExchange.getUnit()
 				.getConversionFactor() : 1;
 		return oExchange.getAmountValue() * propFactor * unitFactor;

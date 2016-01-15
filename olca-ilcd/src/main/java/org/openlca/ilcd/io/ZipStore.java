@@ -64,8 +64,7 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public <T> T get(Class<T> type, String id)
-			throws DataStoreException {
+	public <T> T get(Class<T> type, String id) throws DataStoreException {
 		log.trace("Get {} for id {} from zip", type, id);
 		Path entry = findEntry(Dir.get(type), id);
 		if (entry == null)
@@ -102,7 +101,10 @@ public class ZipStore implements DataStore {
 		if (file == null)
 			return;
 		Path entry = zip.getPath("ILCD/external_docs/" + file.getName());
+		Path parent = entry.getParent();
 		try {
+			if (parent != null && !Files.exists(parent))
+				Files.createDirectories(parent);
 			Files.copy(file.toPath(), entry,
 					StandardCopyOption.REPLACE_EXISTING);
 			List<Path> list = getEntries("external_docs");

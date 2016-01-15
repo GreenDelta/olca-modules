@@ -71,6 +71,8 @@ public class FlowExport {
 					flow.getDescription());
 		info.setCASNumber(flow.getCasNumber());
 		info.setSumFormula(flow.getFormula());
+		if (flow.synonyms != null)
+			LangString.addFreeText(info.getSynonyms(), flow.synonyms);
 		makeCategoryInfo(info);
 		return info;
 	}

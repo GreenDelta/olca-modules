@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 
+import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Category;
@@ -117,14 +118,15 @@ public class SourceImport {
 
 	private void copyFile(File dbDir, String uri) throws Exception {
 		String fileName = new File(uri).getName();
-		File docDir = new File(dbDir, "external_docs");
+		String path = FileStore.getPath(ModelType.SOURCE, source.getRefId());
+		File docDir = new File(dbDir, path);
 		if (!docDir.exists())
 			docDir.mkdirs();
 		File dbFile = new File(docDir, fileName);
 		if (dbFile.exists())
 			return;
-		try (InputStream in = dataStore.getExternalDocument(
-				ilcdSource.getId(), fileName)) {
+		try (InputStream in = dataStore.getExternalDocument(ilcdSource.getId(),
+				fileName)) {
 			if (in == null)
 				return;
 			Files.copy(in, dbFile.toPath());

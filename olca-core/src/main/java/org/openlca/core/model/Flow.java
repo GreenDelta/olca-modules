@@ -35,6 +35,9 @@ public class Flow extends CategorizedEntity {
 	@Column(name = "infrastructure_flow")
 	private boolean infrastructureFlow;
 
+	@Column(name = "synonyms")
+	public String synonyms;
+	
 	@OneToOne
 	@JoinColumn(name = "f_location")
 	private Location location;
