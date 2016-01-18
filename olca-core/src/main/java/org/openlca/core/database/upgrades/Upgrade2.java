@@ -48,7 +48,7 @@ public class Upgrade2 implements IUpgrade {
 				"BIGINT");
 		util.checkCreateColumn("tbl_exchanges", "description", "description "
 				+ util.getTextType());
-		util.checkCreateColumn("tbl_flows", "synonyms", "synonyms VARCHAR(255)");
+		util.checkCreateColumn("tbl_flows", "synonyms", "synonyms VARCHAR(32672)");
 		Upgrade2Files.apply(database);
 	}
 
