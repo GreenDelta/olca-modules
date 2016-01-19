@@ -5,24 +5,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.commons.ClassificationInformation;
 import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.FreeText;
 import org.openlca.ilcd.commons.LCIMethodApproach;
 import org.openlca.ilcd.commons.LCIMethodPrinciple;
+import org.openlca.ilcd.commons.Label;
 import org.openlca.ilcd.commons.ReviewType;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.processes.AdministrativeInformation;
 import org.openlca.ilcd.processes.DataSetInformation;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
 import org.openlca.ilcd.processes.Parameter;
+import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
@@ -38,25 +38,23 @@ import org.slf4j.LoggerFactory;
  */
 public class ProcessExport {
 
-	private Logger log = LoggerFactory.getLogger(this.getClass());
-
-	private Process process;
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final ExportConfig config;
+	private org.openlca.core.model.Process process;
 	private ProcessDocumentation doc;
-	private IDatabase database;
-	private DataStore dataStore;
 
-	public ProcessExport(IDatabase database, DataStore dataStore) {
-		this.database = database;
-		this.dataStore = dataStore;
+	public ProcessExport(ExportConfig config) {
+		this.config = config;
 	}
 
-	public org.openlca.ilcd.processes.Process run(Process process)
+	public Process run(org.openlca.core.model.Process process)
 			throws DataStoreException {
+		if (config.store.contains(Process.class, process.getRefId()))
+			return config.store.get(Process.class, process.getRefId());
 		log.trace("Run process export with {}", process);
 		this.process = process;
 		this.doc = process.getDocumentation();
-		org.openlca.ilcd.processes.Process iProcess = ProcessBuilder
-				.makeProcess().with(makeLciMethod())
+		Process iProcess = ProcessBuilder.makeProcess().with(makeLciMethod())
 				.withAdminInfo(makeAdminInformation())
 				.withDataSetInfo(makeDataSetInfo())
 				.withGeography(makeGeography())
@@ -65,7 +63,7 @@ public class ProcessExport {
 				.withReviews(makeReviews()).withTechnology(makeTechnology())
 				.withTime(makeTime()).getProcess();
 		addExchanges(iProcess);
-		dataStore.put(iProcess, process.getRefId());
+		config.store.put(iProcess, process.getRefId());
 		return iProcess;
 	}
 
@@ -75,10 +73,9 @@ public class ProcessExport {
 		dataSetInfo.setUUID(process.getRefId());
 		ProcessName processName = new ProcessName();
 		dataSetInfo.setName(processName);
-		LangString.addLabel(processName.getBaseName(), process.getName());
+		addLabel(processName.getBaseName(), process.getName());
 		if (Strings.notEmpty(process.getDescription())) {
-			LangString.addFreeText(dataSetInfo.getGeneralComment(),
-					process.getDescription());
+			addText(dataSetInfo.getGeneralComment(), process.getDescription());
 		}
 		addClassification(dataSetInfo);
 		return dataSetInfo;
@@ -120,7 +117,7 @@ public class ProcessExport {
 			extension.setEndDate(doc.getValidUntil());
 		}
 		if (Strings.notEmpty(doc.getTime())) {
-			LangString.addFreeText(iTime.getDescription(), doc.getTime());
+			addText(iTime.getDescription(), doc.getTime());
 		}
 	}
 
@@ -141,8 +138,7 @@ public class ProcessExport {
 			iLocation.setLatitudeAndLongitude(pos);
 		}
 		if (Strings.notEmpty(doc.getGeography())) {
-			LangString.addFreeText(iLocation.getDescription(),
-					doc.getGeography());
+			addText(iLocation.getDescription(), doc.getGeography());
 		}
 		return geography;
 	}
@@ -155,8 +151,7 @@ public class ProcessExport {
 		org.openlca.ilcd.processes.Technology iTechnology = null;
 		if (Strings.notEmpty(doc.getTechnology())) {
 			iTechnology = new org.openlca.ilcd.processes.Technology();
-			LangString.addFreeText(
-					iTechnology.getTechnologyDescriptionAndIncludedProcesses(),
+			addText(iTechnology.getTechnologyDescriptionAndIncludedProcesses(),
 					doc.getTechnology());
 		}
 		return iTechnology;
@@ -164,9 +159,8 @@ public class ProcessExport {
 
 	private List<Parameter> makeParameters() {
 		log.trace("Create process parameters.");
-		ProcessParameterConversion conv = new ProcessParameterConversion(
-				process, database);
-		return conv.run();
+		ProcessParameterConversion conv = new ProcessParameterConversion(config);
+		return conv.run(process);
 	}
 
 	private LCIMethod makeLciMethod() {
@@ -183,15 +177,12 @@ public class ProcessExport {
 		iMethod.setLCIMethodPrinciple(LCIMethodPrinciple.OTHER);
 
 		if (doc != null) {
-			if (Strings.notEmpty(doc.getInventoryMethod())) {
-				iMethod.getDeviationsFromLCIMethodPrinciple().add(
-						LangString.freeText(doc.getInventoryMethod()));
-			}
-
-			if (Strings.notEmpty(doc.getModelingConstants())) {
-				iMethod.getModellingConstants().add(
-						LangString.freeText(doc.getModelingConstants()));
-			}
+			if (Strings.notEmpty(doc.getInventoryMethod()))
+				addText(iMethod.getDeviationsFromLCIMethodPrinciple(),
+						doc.getInventoryMethod());
+			if (Strings.notEmpty(doc.getModelingConstants()))
+				addText(iMethod.getModellingConstants(),
+						doc.getModelingConstants());
 		}
 
 		LCIMethodApproach allocation = getAllocationMethod();
@@ -225,47 +216,46 @@ public class ProcessExport {
 
 			// completeness
 			if (Strings.notEmpty(doc.getCompleteness())) {
-				iRepri.getDataCutOffAndCompletenessPrinciples().add(
-						LangString.freeText(doc.getCompleteness()));
-				iRepri.getDeviationsFromCutOffAndCompletenessPrinciples().add(
-						LangString.freeText("None."));
+				addText(iRepri.getDataCutOffAndCompletenessPrinciples(),
+						doc.getCompleteness());
+				addText(iRepri
+						.getDeviationsFromCutOffAndCompletenessPrinciples(),
+						"None.");
 			}
 
 			// data selection
 			if (Strings.notEmpty(doc.getDataSelection())) {
-				iRepri.getDataSelectionAndCombinationPrinciples().add(
-						LangString.freeText(doc.getDataSelection()));
-				iRepri.getDeviationsFromSelectionAndCombinationPrinciples()
-						.add(LangString.freeText("None."));
+				addText(iRepri.getDataSelectionAndCombinationPrinciples(),
+						doc.getDataSelection());
+				addText(iRepri
+						.getDeviationsFromSelectionAndCombinationPrinciples(),
+						"None.");
 			}
 
 			// data treatment
 			if (Strings.notEmpty(doc.getDataTreatment())) {
-				iRepri.getDataTreatmentAndExtrapolationsPrinciples().add(
-						LangString.freeText(doc.getDataTreatment()));
-				iRepri.getDataTreatmentAndExtrapolationsPrinciples().add(
-						LangString.freeText("None."));
+				List<FreeText> ePrinciples = iRepri
+						.getDataTreatmentAndExtrapolationsPrinciples();
+				addText(ePrinciples, doc.getDataTreatment());
+				addText(ePrinciples, "None.");
 			}
 
 			// data sources
 			for (Source source : doc.getSources()) {
 				DataSetReference ref = ExportDispatch.forwardExportCheck(
-						source, database, dataStore);
+						source, config);
 				if (ref != null)
 					iRepri.getReferenceToDataSource().add(ref);
 			}
 
 			// sampling procedure
-			if (Strings.notEmpty(doc.getSampling())) {
-				iRepri.getSamplingProcedure().add(
-						LangString.freeText(doc.getSampling()));
-			}
+			if (Strings.notEmpty(doc.getSampling()))
+				addText(iRepri.getSamplingProcedure(), doc.getSampling());
 
 			// data collection period
-			if (Strings.notEmpty(doc.getDataCollectionPeriod())) {
-				iRepri.getDataCollectionPeriod().add(
-						LangString.label(doc.getDataCollectionPeriod()));
-			}
+			if (Strings.notEmpty(doc.getDataCollectionPeriod()))
+				addLabel(iRepri.getDataCollectionPeriod(),
+						doc.getDataCollectionPeriod());
 		}
 
 		return iRepri;
@@ -283,15 +273,14 @@ public class ProcessExport {
 
 			if (doc.getReviewer() != null) {
 				DataSetReference ref = ExportDispatch.forwardExportCheck(
-						doc.getReviewer(), database, dataStore);
+						doc.getReviewer(), config);
 				if (ref != null)
 					review.getReferenceToNameOfReviewerAndInstitution()
 							.add(ref);
 			}
 
 			if (Strings.notEmpty(doc.getReviewDetails())) {
-				review.getReviewDetails().add(
-						LangString.freeText(doc.getReviewDetails()));
+				addText(review.getReviewDetails(), doc.getReviewDetails());
 			}
 		}
 		return reviews;
@@ -301,17 +290,27 @@ public class ProcessExport {
 		log.trace("Create process administrative information.");
 		if (doc == null)
 			return null;
-		ProcessAdminInfo processAdminInfo = new ProcessAdminInfo(process);
-		AdministrativeInformation iAdminInfo = processAdminInfo.create(
-				database, dataStore);
+		ProcessAdminInfo processAdminInfo = new ProcessAdminInfo(config);
+		AdministrativeInformation iAdminInfo = processAdminInfo.create(process);
 		return iAdminInfo;
 	}
 
 	private void addExchanges(org.openlca.ilcd.processes.Process ilcdProcess) {
 		log.trace("Create process exchanges.");
-		ExchangeConversion conversion = new ExchangeConversion(process,
-				database, dataStore);
+		ExchangeConversion conversion = new ExchangeConversion(process, config);
 		conversion.run(ilcdProcess);
+	}
+
+	private void addLabel(List<Label> labels, String value) {
+		if (Strings.nullOrEmpty(value))
+			return;
+		LangString.addLabel(labels, value, config.ilcdConfig);
+	}
+
+	private void addText(List<FreeText> texts, String value) {
+		if (Strings.nullOrEmpty(value))
+			return;
+		LangString.addFreeText(texts, value, config.ilcdConfig);
 	}
 
 }

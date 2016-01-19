@@ -1,6 +1,12 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.database.IDatabase;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import javax.xml.namespace.QName;
+
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.ilcd.commons.TypeOfLCIAMethod;
@@ -11,12 +17,6 @@ import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.namespace.QName;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 final class MethodFetch {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -24,23 +24,23 @@ final class MethodFetch {
 	private final ImpactMethodDao dao;
 	private final LCIAMethod ilcdMethod;
 
-	private MethodFetch(IDatabase database, LCIAMethod ilcdMethod) {
-		this.dao = new ImpactMethodDao(database);
+	private MethodFetch(ImportConfig config, LCIAMethod ilcdMethod) {
+		this.dao = new ImpactMethodDao(config.db);
 		this.ilcdMethod = ilcdMethod;
 	}
 
 	/**
 	 * Gets the LCIA method(s) for the given ILCD data set from the openLCA
 	 * database. If no method can be found a new one is created. Note that a
-	 * LCIA-Method data set in ILCD is the same as an LCIA-Category data set
-	 * in openLCA.
+	 * LCIA-Method data set in ILCD is the same as an LCIA-Category data set in
+	 * openLCA.
 	 */
 	public static List<ImpactMethod> getOrCreate(LCIAMethod ilcdMethod,
-			IDatabase database) {
-		if (ilcdMethod == null || database == null)
+			ImportConfig config) {
+		if (ilcdMethod == null || config.db == null)
 			return Collections.emptyList();
 		else
-			return new MethodFetch(database, ilcdMethod).run();
+			return new MethodFetch(config, ilcdMethod).run();
 	}
 
 	private List<ImpactMethod> run() {

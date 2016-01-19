@@ -1,6 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Flow;
@@ -10,7 +9,6 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.contacts.Contact;
-import org.openlca.ilcd.io.DataStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,32 +28,32 @@ class ExportDispatch {
 	 * data set reference to the exported model in the store.
 	 */
 	public static DataSetReference forwardExportCheck(CategorizedEntity model,
-			IDatabase db, DataStore target) {
+			ExportConfig config) {
 		if (model instanceof Source)
-			return checkRunSourceExort((Source) model, db, target);
+			return checkRunSourceExort((Source) model, config);
 		if (model instanceof Actor)
-			return checkRunActorExport((Actor) model, db, target);
+			return checkRunActorExport((Actor) model, config);
 		if (model instanceof Flow)
-			return checkRunFlowExport((Flow) model, db, target);
+			return checkRunFlowExport((Flow) model, config);
 		if (model instanceof FlowProperty)
-			return checkRunFlowPropertyExport((FlowProperty) model, db, target);
+			return checkRunFlowPropertyExport((FlowProperty) model, config);
 		if (model instanceof Process)
-			return checkRunProcessExport((Process) model, db, target);
+			return checkRunProcessExport((Process) model, config);
 		if (model instanceof UnitGroup)
-			return checkRunUnitGroupExport((UnitGroup) model, db, target);
+			return checkRunUnitGroupExport((UnitGroup) model, config);
 		log.warn("Cannot export {}", model);
 		return null;
 	}
 
 	private static DataSetReference checkRunSourceExort(Source source,
-			IDatabase db, DataStore target) {
+			ExportConfig config) {
 		try {
-			if (!target.contains(org.openlca.ilcd.sources.Source.class,
+			if (!config.store.contains(org.openlca.ilcd.sources.Source.class,
 					source.getRefId())) {
-				SourceExport sourceExport = new SourceExport(db, target);
+				SourceExport sourceExport = new SourceExport(config);
 				sourceExport.run(source);
 			}
-			return DataSetRef.makeRef(source);
+			return DataSetRef.makeRef(source, config);
 		} catch (Exception e) {
 			log.warn("Export of source {} failed.", source);
 			return null;
@@ -63,13 +61,13 @@ class ExportDispatch {
 	}
 
 	private static DataSetReference checkRunActorExport(Actor actor,
-			IDatabase database, DataStore target) {
+			ExportConfig config) {
 		try {
-			if (!target.contains(Contact.class, actor.getRefId())) {
-				ActorExport actorExport = new ActorExport(target);
+			if (!config.store.contains(Contact.class, actor.getRefId())) {
+				ActorExport actorExport = new ActorExport(config);
 				actorExport.run(actor);
 			}
-			return DataSetRef.makeRef(actor);
+			return DataSetRef.makeRef(actor, config);
 		} catch (Exception e) {
 			log.warn("Export of actor {} failed.", actor);
 			return null;
@@ -77,14 +75,14 @@ class ExportDispatch {
 	}
 
 	private static DataSetReference checkRunFlowExport(Flow flow,
-			IDatabase database, DataStore target) {
+			ExportConfig config) {
 		try {
-			if (!target.contains(org.openlca.ilcd.flows.Flow.class,
+			if (!config.store.contains(org.openlca.ilcd.flows.Flow.class,
 					flow.getRefId())) {
-				FlowExport flowExport = new FlowExport(database, target);
+				FlowExport flowExport = new FlowExport(config);
 				flowExport.run(flow);
 			}
-			return DataSetRef.makeRef(flow);
+			return DataSetRef.makeRef(flow, config);
 		} catch (Exception e) {
 			log.warn("Export of flow {} failed.", flow);
 			return null;
@@ -92,16 +90,16 @@ class ExportDispatch {
 	}
 
 	private static DataSetReference checkRunFlowPropertyExport(
-			FlowProperty flowProperty, IDatabase database, DataStore target) {
+			FlowProperty flowProperty, ExportConfig config) {
 		try {
-			if (!target.contains(
+			if (!config.store.contains(
 					org.openlca.ilcd.flowproperties.FlowProperty.class,
 					flowProperty.getRefId())) {
 				FlowPropertyExport propertyExport = new FlowPropertyExport(
-						database, target);
+						config);
 				propertyExport.run(flowProperty);
 			}
-			return DataSetRef.makeRef(flowProperty);
+			return DataSetRef.makeRef(flowProperty, config);
 		} catch (Exception e) {
 			log.warn("Export of flow property {} failed.", flowProperty);
 			return null;
@@ -109,14 +107,14 @@ class ExportDispatch {
 	}
 
 	private static DataSetReference checkRunUnitGroupExport(
-			UnitGroup unitGroup, IDatabase database, DataStore target) {
+			UnitGroup unitGroup, ExportConfig config) {
 		try {
-			if (!target.contains(org.openlca.ilcd.units.UnitGroup.class,
+			if (!config.store.contains(org.openlca.ilcd.units.UnitGroup.class,
 					unitGroup.getRefId())) {
-				UnitGroupExport export = new UnitGroupExport(target);
+				UnitGroupExport export = new UnitGroupExport(config);
 				export.run(unitGroup);
 			}
-			return DataSetRef.makeRef(unitGroup);
+			return DataSetRef.makeRef(unitGroup, config);
 		} catch (Exception e) {
 			log.warn("Export of unit group {} failed.", unitGroup);
 			return null;
@@ -124,14 +122,15 @@ class ExportDispatch {
 	}
 
 	private static DataSetReference checkRunProcessExport(Process process,
-			IDatabase database, DataStore target) {
+			ExportConfig config) {
 		try {
-			if (!target.contains(org.openlca.ilcd.processes.Process.class,
+			if (!config.store.contains(
+					org.openlca.ilcd.processes.Process.class,
 					process.getRefId())) {
-				ProcessExport export = new ProcessExport(database, target);
+				ProcessExport export = new ProcessExport(config);
 				export.run(process);
 			}
-			return DataSetRef.makeRef(process);
+			return DataSetRef.makeRef(process, config);
 		} catch (Exception e) {
 			log.warn("Export of process {} failed.", process);
 			return null;

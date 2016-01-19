@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
@@ -13,7 +12,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterList;
@@ -25,16 +23,13 @@ import org.slf4j.LoggerFactory;
 
 class ExchangeConversion {
 
+	private final ExportConfig config;
 	private org.openlca.ilcd.processes.Process ilcdProcess;
 	private Process process;
-	private IDatabase database;
-	private DataStore dataStore;
 
-	public ExchangeConversion(Process process, IDatabase database,
-			DataStore dataStore) {
+	public ExchangeConversion(Process process, ExportConfig config) {
 		this.process = process;
-		this.database = database;
-		this.dataStore = dataStore;
+		this.config = config;
 	}
 
 	public void run(org.openlca.ilcd.processes.Process ilcdProcess) {
@@ -61,7 +56,7 @@ class ExchangeConversion {
 		org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
 		if (oExchange.description != null)
 			LangString.addLabel(iExchange.getGeneralComment(),
-					oExchange.description);
+					oExchange.description, config.ilcdConfig);
 		mapFlow(oExchange, iExchange);
 		mapDirection(oExchange, iExchange);
 		double resultingAmount = getRefAmount(oExchange);
@@ -111,7 +106,7 @@ class ExchangeConversion {
 		if (provider == 0)
 			return;
 		try {
-			ProcessDao dao = new ProcessDao(database);
+			ProcessDao dao = new ProcessDao(config.db);
 			ProcessDescriptor d = dao.getDescriptor(provider);
 			if (d != null)
 				ext.setDefaultProvider(d.getRefId());
@@ -161,7 +156,7 @@ class ExchangeConversion {
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		if (oExchange.getFlow() != null) {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
-					oExchange.getFlow(), database, dataStore);
+					oExchange.getFlow(), config);
 			if (ref != null) {
 				iExchange.setFlow(ref);
 			}

@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -16,7 +15,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.flows.FlowPropertyReference;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.util.Strings;
@@ -26,18 +24,16 @@ import org.slf4j.LoggerFactory;
 public class FlowImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
-	private DataStore dataStore;
+	private final ImportConfig config;
 	private FlowBag ilcdFlow;
 	private Flow flow;
 
-	public FlowImport(DataStore dataStore, IDatabase database) {
-		this.database = database;
-		this.dataStore = dataStore;
+	public FlowImport(ImportConfig config) {
+		this.config = config;
 	}
 
 	public Flow run(org.openlca.ilcd.flows.Flow flow) throws ImportException {
-		this.ilcdFlow = new FlowBag(flow);
+		this.ilcdFlow = new FlowBag(flow, config.ilcdConfig);
 		Flow oFlow = findExisting(ilcdFlow.getId());
 		if (oFlow != null)
 			return oFlow;
@@ -49,13 +45,13 @@ public class FlowImport {
 		if (flow != null)
 			return flow;
 		org.openlca.ilcd.flows.Flow iFlow = tryGetFlow(flowId);
-		ilcdFlow = new FlowBag(iFlow);
+		ilcdFlow = new FlowBag(iFlow, config.ilcdConfig);
 		return createNew();
 	}
 
 	private Flow findExisting(String flowId) throws ImportException {
 		try {
-			FlowDao dao = new FlowDao(database);
+			FlowDao dao = new FlowDao(config.db);
 			return dao.getForRefId(flowId);
 		} catch (Exception e) {
 			String message = String
@@ -77,7 +73,7 @@ public class FlowImport {
 	private org.openlca.ilcd.flows.Flow tryGetFlow(String flowId)
 			throws ImportException {
 		try {
-			org.openlca.ilcd.flows.Flow iFlow = dataStore.get(
+			org.openlca.ilcd.flows.Flow iFlow = config.store.get(
 					org.openlca.ilcd.flows.Flow.class, flowId);
 			if (iFlow == null) {
 				throw new ImportException("No ILCD flow for ID " + flowId
@@ -90,7 +86,7 @@ public class FlowImport {
 	}
 
 	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(database,
+		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.FLOW);
 		Category category = categoryImport.run(ilcdFlow.getSortedClasses());
 		flow.setCategory(category);
@@ -98,8 +94,7 @@ public class FlowImport {
 
 	private void importAndSetCompartment() throws ImportException {
 		if (ilcdFlow.getFlowType() == org.openlca.ilcd.commons.FlowType.ELEMENTARY_FLOW) {
-			CompartmentImport compartmentImport = new CompartmentImport(
-					database);
+			CompartmentImport compartmentImport = new CompartmentImport(config);
 			Category category = compartmentImport.run(ilcdFlow
 					.getSortedCompartments());
 			flow.setCategory(category);
@@ -132,8 +127,8 @@ public class FlowImport {
 	private void mapLocation() {
 		if (ilcdFlow == null || flow == null)
 			return;
-		String code = LangString.get(ilcdFlow.getLocation());
-		Location location = Locations.get(code, database);
+		String code = LangString.get(ilcdFlow.getLocation(), config.ilcdConfig);
+		Location location = Locations.get(code, config);
 		flow.setLocation(location);
 	}
 
@@ -160,8 +155,7 @@ public class FlowImport {
 		if (ref == null)
 			return null;
 		try {
-			FlowPropertyImport propImport = new FlowPropertyImport(dataStore,
-					database);
+			FlowPropertyImport propImport = new FlowPropertyImport(config);
 			return propImport.run(ref.getFlowProperty().getUuid());
 		} catch (Exception e) {
 			log.warn("failed to get flow property " + ref.getFlowProperty(), e);
@@ -218,7 +212,7 @@ public class FlowImport {
 
 	private void saveInDatabase(Flow obj) throws ImportException {
 		try {
-			database.createDao(Flow.class).insert(obj);
+			config.db.createDao(Flow.class).insert(obj);
 		} catch (Exception e) {
 			String message = String.format("Save operation failed in flow %s.",
 					flow.getRefId());

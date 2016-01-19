@@ -16,7 +16,8 @@ class DataSetRef {
 	private DataSetRef() {
 	}
 
-	public static DataSetReference makeRef(CategorizedEntity model) {
+	public static DataSetReference makeRef(CategorizedEntity model,
+			ExportConfig config) {
 		if (model == null) {
 			return new DataSetReference();
 		}
@@ -25,12 +26,14 @@ class DataSetRef {
 		ref.setUuid(model.getRefId());
 		setUriAndType(model, ref);
 		if (model.getName() != null) {
-			LangString.addShortText(ref.getShortDescription(), model.getName());
+			LangString.addShortText(ref.getShortDescription(), model.getName(),
+					config.ilcdConfig);
 		}
 		return ref;
 	}
 
-	private static void setUriAndType(CategorizedEntity iModel, DataSetReference ref) {
+	private static void setUriAndType(CategorizedEntity iModel,
+			DataSetReference ref) {
 		String uri = "../";
 		if (iModel instanceof Actor) {
 			ref.setType(DataSetType.CONTACT_DATA_SET);

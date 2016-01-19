@@ -7,32 +7,28 @@ import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.database.FileStore;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.SourceBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SourceImport {
 
-	private IDatabase database;
-	private DataStore dataStore;
+	private final ImportConfig config;
 	private SourceBag ilcdSource;
 	private Source source;
 
-	public SourceImport(DataStore dataStore, IDatabase database) {
-		this.database = database;
-		this.dataStore = dataStore;
+	public SourceImport(ImportConfig config) {
+		this.config = config;
 	}
 
 	public Source run(org.openlca.ilcd.sources.Source source)
 			throws ImportException {
-		this.ilcdSource = new SourceBag(source);
+		this.ilcdSource = new SourceBag(source, config.ilcdConfig);
 		Source oSource = findExisting(ilcdSource.getId());
 		if (oSource != null)
 			return oSource;
@@ -44,13 +40,13 @@ public class SourceImport {
 		if (source != null)
 			return source;
 		org.openlca.ilcd.sources.Source iSource = tryGetSource(sourceId);
-		ilcdSource = new SourceBag(iSource);
+		ilcdSource = new SourceBag(iSource, config.ilcdConfig);
 		return createNew();
 	}
 
 	private Source findExisting(String sourceId) throws ImportException {
 		try {
-			SourceDao dao = new SourceDao(database);
+			SourceDao dao = new SourceDao(config.db);
 			return dao.getForRefId(sourceId);
 		} catch (Exception e) {
 			String message = String.format("Search for source %s failed.",
@@ -71,7 +67,7 @@ public class SourceImport {
 	private org.openlca.ilcd.sources.Source tryGetSource(String sourceId)
 			throws ImportException {
 		try {
-			org.openlca.ilcd.sources.Source iSource = dataStore.get(
+			org.openlca.ilcd.sources.Source iSource = config.store.get(
 					org.openlca.ilcd.sources.Source.class, sourceId);
 			if (iSource == null) {
 				throw new ImportException("No ILCD source for ID " + sourceId
@@ -96,7 +92,7 @@ public class SourceImport {
 	}
 
 	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(database,
+		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.SOURCE);
 		Category category = categoryImport.run(ilcdSource.getSortedClasses());
 		source.setCategory(category);
@@ -104,7 +100,7 @@ public class SourceImport {
 
 	private void importExternalFile() {
 		List<String> uris = ilcdSource.getExternalFileURIs();
-		File dbDir = database.getFileStorageLocation();
+		File dbDir = config.db.getFileStorageLocation();
 		if (uris.isEmpty() || dbDir == null)
 			return;
 		String uri = uris.get(0);
@@ -125,8 +121,8 @@ public class SourceImport {
 		File dbFile = new File(docDir, fileName);
 		if (dbFile.exists())
 			return;
-		try (InputStream in = dataStore.getExternalDocument(ilcdSource.getId(),
-				fileName)) {
+		try (InputStream in = config.store.getExternalDocument(
+				ilcdSource.getId(), fileName)) {
 			if (in == null)
 				return;
 			Files.copy(in, dbFile.toPath());
@@ -136,7 +132,7 @@ public class SourceImport {
 
 	private void saveInDatabase() throws ImportException {
 		try {
-			database.createDao(Source.class).insert(source);
+			config.db.createDao(Source.class).insert(source);
 		} catch (Exception e) {
 			String message = String.format(
 					"Cannot save source %s in database.", source.getRefId());

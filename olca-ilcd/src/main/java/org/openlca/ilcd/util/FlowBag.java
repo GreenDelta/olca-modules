@@ -30,9 +30,11 @@ import org.openlca.ilcd.flows.QuantitativeReference;
 public class FlowBag implements IBag<Flow> {
 
 	private Flow flow;
+	private IlcdConfig config;
 
-	public FlowBag(Flow flow) {
+	public FlowBag(Flow flow, IlcdConfig config) {
 		this.flow = flow;
+		this.config = config;
 	}
 
 	@Override
@@ -53,7 +55,7 @@ public class FlowBag implements IBag<Flow> {
 		if (info != null) {
 			FlowName flowName = info.getName();
 			if (flowName != null) {
-				return LangString.get(flowName.getBaseName());
+				return LangString.get(flowName.getBaseName(), config);
 			}
 		}
 		return null;
@@ -76,7 +78,7 @@ public class FlowBag implements IBag<Flow> {
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getGeneralComment());
+			return LangString.get(info.getGeneralComment(), config);
 		return null;
 	}
 
@@ -148,7 +150,7 @@ public class FlowBag implements IBag<Flow> {
 
 	public String getSynonyms() {
 		return LangString.get(flow.getFlowInformation().getDataSetInformation()
-				.getSynonyms());
+				.getSynonyms(), config);
 	}
 
 	private List<Category> getCompartments(FlowCategoryInformation categoryInfo) {

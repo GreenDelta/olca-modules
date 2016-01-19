@@ -12,6 +12,7 @@ import org.openlca.ilcd.contacts.ContactInformation;
 import org.openlca.ilcd.contacts.DataSetInformation;
 import org.openlca.ilcd.contacts.Publication;
 import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.LangString;
 
 public class NetworkPutContactTest {
@@ -40,8 +41,10 @@ public class NetworkPutContactTest {
 	private DataSetInformation makeDataInfo(String id) {
 		DataSetInformation dataSetInfo = new DataSetInformation();
 		String name = "xtest contact - " + new Random().nextInt(1000);
-		LangString.addLabel(dataSetInfo.getName(), name);
-		LangString.addLabel(dataSetInfo.getShortName(), name);
+		LangString.addLabel(dataSetInfo.getName(), name,
+				IlcdConfig.getDefault());
+		LangString.addLabel(dataSetInfo.getShortName(), name,
+				IlcdConfig.getDefault());
 		dataSetInfo.setUUID(id);
 		return dataSetInfo;
 	}

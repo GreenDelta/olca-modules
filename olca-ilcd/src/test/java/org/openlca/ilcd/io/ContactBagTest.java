@@ -12,6 +12,7 @@ import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.util.ContactBag;
+import org.openlca.ilcd.util.IlcdConfig;
 
 public class ContactBagTest {
 
@@ -23,7 +24,7 @@ public class ContactBagTest {
 				"contact.xml")) {
 			XmlBinder binder = new XmlBinder();
 			Contact contact = binder.fromStream(Contact.class, stream);
-			bag = new ContactBag(contact);
+			bag = new ContactBag(contact, IlcdConfig.getDefault());
 		}
 	}
 

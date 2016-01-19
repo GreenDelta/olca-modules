@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import org.junit.Assume;
@@ -40,9 +41,11 @@ public class NetworkGetTest {
 
 	@Ignore
 	@Test(expected = Exception.class)
-	public void testCreateWithWrongPassword() {
+	public void testCreateWithWrongPassword() throws IOException {
 		Assume.assumeTrue(Network.isAppAlive());
-		new NetworkClient(Network.RESOURCE_URL, "user", "invalid");
+		NetworkClient client = new NetworkClient(Network.RESOURCE_URL, "user",
+				"invalid");
+		client.close();
 	}
 
 	@Test

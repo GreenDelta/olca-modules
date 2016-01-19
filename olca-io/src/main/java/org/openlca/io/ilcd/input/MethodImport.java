@@ -7,7 +7,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.Flow;
@@ -17,7 +16,6 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.methods.DataSetInformation;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
@@ -25,9 +23,7 @@ import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.LCIAMethodInformation;
 import org.openlca.ilcd.methods.QuantitativeReference;
 import org.openlca.ilcd.util.LangString;
-import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
-import org.openlca.io.maps.MapType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,16 +36,12 @@ import org.slf4j.LoggerFactory;
 public class MethodImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
+	private final ImportConfig config;
 	private ImpactMethodDao dao;
-	private IDatabase database;
-	private DataStore ilcdStore;
-	private FlowMap flowMap;
 
-	public MethodImport(DataStore ilcdStore, IDatabase database) {
-		this.dao = new ImpactMethodDao(database);
-		this.database = database;
-		this.ilcdStore = ilcdStore;
-		flowMap = new FlowMap(MapType.ILCD_FLOW);
+	public MethodImport(ImportConfig config) {
+		this.config = config;
+		this.dao = new ImpactMethodDao(config.db);
 	}
 
 	public void run(LCIAMethod iMethod) {
@@ -60,7 +52,7 @@ public class MethodImport {
 		String categoryName = getCategoryName(iMethod);
 		if (categoryName == null)
 			return;
-		for (ImpactMethod oMethod : MethodFetch.getOrCreate(iMethod, database)) {
+		for (ImpactMethod oMethod : MethodFetch.getOrCreate(iMethod, config)) {
 			if (!hasCategory(oMethod, categoryName))
 				addCategory(oMethod, categoryName, iMethod);
 		}
@@ -71,7 +63,7 @@ public class MethodImport {
 		if (uuid == null)
 			return false;
 		try {
-			ImpactCategoryDao dao = new ImpactCategoryDao(database);
+			ImpactCategoryDao dao = new ImpactCategoryDao(config.db);
 			ImpactCategory category = dao.getForRefId(uuid);
 			if (category != null) {
 				log.info("LCIA category {} not imported because it "
@@ -160,13 +152,13 @@ public class MethodImport {
 		LCIAMethodInformation info = iMethod.getLCIAMethodInformation();
 		if (info == null || info.getDataSetInformation() == null)
 			return null;
-		return LangString.get(info.getDataSetInformation().getGeneralComment());
+		return LangString.get(info.getDataSetInformation().getGeneralComment(),
+				config.ilcdConfig);
 	}
 
 	private Unit getReferenceUnit(String propertyId) {
 		try {
-			FlowPropertyImport propertyImport = new FlowPropertyImport(
-					ilcdStore, database);
+			FlowPropertyImport propertyImport = new FlowPropertyImport(config);
 			FlowProperty prop = propertyImport.run(propertyId);
 			if (prop == null)
 				return null;
@@ -216,14 +208,14 @@ public class MethodImport {
 		Flow flow = getMappedFlow(flowId);
 		if (flow != null)
 			return flow;
-		return new FlowImport(ilcdStore, database).run(flowId);
+		return new FlowImport(config).run(flowId);
 	}
 
 	private Flow getMappedFlow(String flowId) {
-		FlowMapEntry entry = flowMap.getEntry(flowId);
+		FlowMapEntry entry = config.flowMap.getEntry(flowId);
 		if (entry == null)
 			return null;
-		FlowDao dao = new FlowDao(database);
+		FlowDao dao = new FlowDao(config.db);
 		return dao.getForRefId(entry.getOpenlcaFlowKey());
 	}
 

@@ -9,19 +9,17 @@ import java.util.Map;
 
 import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.FlowPropertyDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.processes.AllocationFactor;
 import org.openlca.ilcd.util.ExchangeExtension;
 import org.openlca.ilcd.util.ProcessBag;
-import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,50 +29,20 @@ import org.slf4j.LoggerFactory;
  */
 class ProcessExchanges {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private DataStore dataStore;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private ImportConfig config;
 	private ProcessBag ilcdProcess;
-	private IDatabase database;
-	private org.openlca.core.model.Process olcaProcess;
-	private FlowMap flowMap;
 	private List<MappedPair> mappedPairs = new ArrayList<>();
 
-	private ProcessExchanges() {
+	ProcessExchanges(ImportConfig config) {
+		this.config = config;
 	}
 
-	public static Dispatch mapFrom(DataStore dataStore, ProcessBag ilcdProcess) {
-		Dispatch dispatch = new Dispatch();
-		dispatch.dataStore = dataStore;
-		dispatch.ilcdProcess = ilcdProcess;
-		return dispatch;
-	}
-
-	static class Dispatch {
-		private DataStore dataStore;
-		private ProcessBag ilcdProcess;
-		private FlowMap flowMap;
-
-		Dispatch withFlowMap(FlowMap flowMap) {
-			this.flowMap = flowMap;
-			return this;
-		}
-
-		void to(IDatabase database, org.openlca.core.model.Process process) {
-			ProcessExchanges exchanges = new ProcessExchanges();
-			exchanges.database = database;
-			exchanges.dataStore = this.dataStore;
-			exchanges.ilcdProcess = this.ilcdProcess;
-			exchanges.olcaProcess = process;
-			exchanges.flowMap = this.flowMap;
-			exchanges.map();
-		}
-	}
-
-	private void map() {
+	void map(ProcessBag ilcdProcess, Process process) {
 		for (org.openlca.ilcd.processes.Exchange iExchange : ilcdProcess
 				.getExchanges()) {
 			ExchangeFlow exchangeFlow = new ExchangeFlow(iExchange);
-			exchangeFlow.findOrImport(database, dataStore, flowMap);
+			exchangeFlow.findOrImport(config);
 			Exchange exchange = createExchange(iExchange, exchangeFlow);
 			ExchangeExtension extension = new ExchangeExtension(iExchange);
 			if (extension.isValid())
@@ -82,15 +50,15 @@ class ProcessExchanges {
 			else
 				mapPropertyAndUnit(exchangeFlow, exchange);
 			if (isValid(exchange)) {
-				olcaProcess.getExchanges().add(exchange);
+				process.getExchanges().add(exchange);
 				mappedPairs.add(new MappedPair(exchange, iExchange));
 			} else {
 				log.warn("invalid exchange {} - not added to process {}",
-						exchange, olcaProcess);
+						exchange, process);
 			}
 		}
-		mapAllocation();
-		mapReferenceFlow();
+		mapAllocation(process);
+		mapReferenceFlow(process);
 	}
 
 	private boolean isValid(Exchange exchange) {
@@ -102,7 +70,7 @@ class ProcessExchanges {
 	private Exchange createExchange(
 			org.openlca.ilcd.processes.Exchange iExchange,
 			ExchangeFlow exchangeFlow) {
-		Exchange oExchange = new ExchangeConversion(iExchange).map();
+		Exchange oExchange = new ExchangeConversion(iExchange, config).map();
 		if (exchangeFlow.getFlow() != null) {
 			oExchange.setFlow(exchangeFlow.getFlow());
 			if (exchangeFlow.isMapped())
@@ -147,10 +115,10 @@ class ProcessExchanges {
 		}
 		try {
 			BaseEntityDao<Unit> unitDao = new BaseEntityDao<>(Unit.class,
-					database);
+					config.db);
 			Unit unit = unitDao.getForRefId(extension.getUnitId());
 			exchange.setUnit(unit);
-			FlowPropertyDao propDao = new FlowPropertyDao(database);
+			FlowPropertyDao propDao = new FlowPropertyDao(config.db);
 			FlowProperty property = propDao.getForRefId(extension
 					.getPropertyId());
 			FlowPropertyFactor factor = flowInfo.getFactor(property);
@@ -161,7 +129,7 @@ class ProcessExchanges {
 		}
 	}
 
-	private void mapAllocation() {
+	private void mapAllocation(Process process) {
 		for (MappedPair p : mappedPairs) {
 			if (p.iExchange.getAllocation() == null)
 				continue;
@@ -171,18 +139,17 @@ class ProcessExchanges {
 						.getReferenceToCoProduct());
 				BigDecimal fraction = iFactor.getAllocatedFraction();
 				if (productId != null && fraction != null)
-					createAllocationFactor(p, productId, fraction);
+					createAllocationFactor(p, productId, fraction, process);
 			}
 		}
 	}
 
 	private void createAllocationFactor(MappedPair p, long productId,
-			BigDecimal fraction) {
+			BigDecimal fraction, Process process) {
 		Exchange oExchange = p.oExchange;
 		if (oExchange.getFlow() == null)
 			return;
-		org.openlca.core.model.AllocationFactor f = new
-				org.openlca.core.model.AllocationFactor();
+		org.openlca.core.model.AllocationFactor f = new org.openlca.core.model.AllocationFactor();
 		f.setProductId(productId);
 		f.setValue(fraction.doubleValue() / 100);
 		if (oExchange.getFlow().getId() == productId)
@@ -191,7 +158,7 @@ class ProcessExchanges {
 			f.setAllocationType(AllocationMethod.CAUSAL);
 			f.setExchange(oExchange);
 		}
-		olcaProcess.getAllocationFactors().add(f);
+		process.getAllocationFactors().add(f);
 	}
 
 	private Long findMappedFlowId(BigInteger iExchangeId) {
@@ -206,12 +173,11 @@ class ProcessExchanges {
 		return null;
 	}
 
-	private void mapReferenceFlow() {
+	private void mapReferenceFlow(Process process) {
 		Map<BigInteger, Exchange> map = new HashMap<>();
 		for (MappedPair pair : mappedPairs)
 			map.put(pair.iExchange.getDataSetInternalID(), pair.oExchange);
-		new ProcessRefFlowMapper(ilcdProcess, olcaProcess, map)
-				.setReferenceFlow();
+		new ProcessRefFlowMapper(ilcdProcess, process, map).setReferenceFlow();
 	}
 
 	private class MappedPair {

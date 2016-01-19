@@ -4,20 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.productmodel.Connector;
 import org.openlca.ilcd.productmodel.ConsumedBy;
 import org.openlca.ilcd.productmodel.Parameter;
@@ -29,19 +26,17 @@ import org.openlca.ilcd.util.ProcessInfoExtension;
 
 public class SystemImport {
 
-	private IDatabase database;
-	private DataStore dataStore;
+	private final ImportConfig config;
 	private ProcessBag ilcdProcessBag;
 	private ProductSystem system;
 
-	public SystemImport(DataStore dataStore, IDatabase database) {
-		this.database = database;
-		this.dataStore = dataStore;
+	public SystemImport(ImportConfig config) {
+		this.config = config;
 	}
 
 	public ProductSystem run(org.openlca.ilcd.processes.Process ilcdProcess)
 			throws ImportException {
-		ilcdProcessBag = new ProcessBag(ilcdProcess);
+		ilcdProcessBag = new ProcessBag(ilcdProcess, config.ilcdConfig);
 		if (!ilcdProcessBag.hasProductModel())
 			return null;
 		ProductSystem system = findExisting(ilcdProcessBag.getId());
@@ -52,7 +47,7 @@ public class SystemImport {
 
 	private ProductSystem findExisting(String systemId) throws ImportException {
 		try {
-			ProductSystemDao dao = new ProductSystemDao(database);
+			ProductSystemDao dao = new ProductSystemDao(config.db);
 			return dao.getForRefId(systemId);
 		} catch (Exception e) {
 			throw new ImportException("Could not load product system id="
@@ -68,7 +63,7 @@ public class SystemImport {
 		importAndSetCategory();
 		mapContent();
 		try {
-			database.createDao(ProductSystem.class).insert(system);
+			config.db.createDao(ProductSystem.class).insert(system);
 			return system;
 		} catch (Exception e) {
 			throw new ImportException("Failed to save in database", e);
@@ -76,7 +71,7 @@ public class SystemImport {
 	}
 
 	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(database,
+		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.PRODUCT_SYSTEM);
 		Category category = categoryImport.run(ilcdProcessBag
 				.getSortedClasses());
@@ -95,7 +90,7 @@ public class SystemImport {
 		ProductModel model = ilcdProcessBag.getProductModel();
 		for (ProcessNode node : model.getNodes()) {
 			String processId = node.getUuid();
-			ProcessImport processImport = new ProcessImport(dataStore, database);
+			ProcessImport processImport = new ProcessImport(config);
 			Process p = processImport.run(processId);
 			if (p != null) {
 				result.put(processId, p);
@@ -205,12 +200,12 @@ public class SystemImport {
 				&& iParam.getName() != null && iParam.getScope() != null;
 	}
 
-	private ParameterRedef convert(Parameter iParam) {
-		ParameterRedef redef = new ParameterRedef();
-		redef.setName(iParam.getName());
-		redef.setValue(iParam.getValue());
-		return redef;
-	}
+	// private ParameterRedef convert(Parameter iParam) {
+	// ParameterRedef redef = new ParameterRedef();
+	// redef.setName(iParam.getName());
+	// redef.setValue(iParam.getValue());
+	// return redef;
+	// }
 
 	// private void addOrInsert(org.openlca.core.model.Parameter param) {
 	// if (param.getScope() == ParameterScope.PRODUCT_SYSTEM) {

@@ -1,14 +1,10 @@
 package org.openlca.io.ilcd;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.io.ZipStore;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
@@ -24,13 +20,12 @@ import org.openlca.io.ImportEvent;
 import org.openlca.io.ilcd.input.ContactImport;
 import org.openlca.io.ilcd.input.FlowImport;
 import org.openlca.io.ilcd.input.FlowPropertyImport;
+import org.openlca.io.ilcd.input.ImportConfig;
 import org.openlca.io.ilcd.input.MethodImport;
 import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.SystemImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
-import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.MapType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,17 +34,12 @@ import com.google.common.eventbus.EventBus;
 public class ILCDImport implements FileImport {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
-	private File zip;
-	private IDatabase database;
-	private boolean importFlows = false;
 	private boolean canceled = false;
 	private EventBus eventBus;
+	private final ImportConfig config;
 
-	public ILCDImport(File zip, IDatabase database) {
-		if (zip == null)
-			throw new IllegalArgumentException("NULL argument(s) not allowed.");
-		this.zip = zip;
-		this.database = database;
+	public ILCDImport(ImportConfig config) {
+		this.config = config;
 	}
 
 	@Override
@@ -62,67 +52,58 @@ public class ILCDImport implements FileImport {
 		this.canceled = true;
 	}
 
-	public void setImportFlows(boolean importFlows) {
-		this.importFlows = importFlows;
-	}
-
 	@Override
 	public void run() {
 		if (canceled)
 			return;
-		try {
-			ZipStore zipStore = new ZipStore(zip);
-			tryImportContacts(zipStore);
-			tryImportSources(zipStore);
-			tryImportUnits(zipStore);
-			tryImportFlowProperties(zipStore);
-			if (importFlows) {
-				tryImportFlows(zipStore);
-			}
-			tryImportProcesses(zipStore);
-			tryImportMethods(zipStore);
-			tryCloseStore(zipStore);
-		} catch (IOException e) {
-			log.error("Could not open zipstore", e);
-		}
+		tryImportContacts();
+		tryImportSources();
+		tryImportUnits();
+		tryImportFlowProperties();
+		if (config.importFlows)
+			tryImportFlows();
+		tryImportProcesses();
+		tryImportMethods();
+		tryCloseStore();
 	}
 
-	private void tryCloseStore(ZipStore zipStore) {
+	private void tryCloseStore() {
 		try {
-			zipStore.close();
+			config.store.close();
 		} catch (Exception e) {
-			log.warn("Could not close zip file " + zip, e);
+			log.warn("Could not close zip file", e);
 		}
 	}
 
-	private void tryImportContacts(ZipStore zipStore) {
+	private void tryImportContacts() {
 		if (canceled)
 			return;
 		try {
-			importContacts(zipStore);
+			importContacts();
 		} catch (Exception e) {
 			log.error("Contact import failed", e);
 		}
 	}
 
-	private void importContacts(ZipStore zipStore) throws Exception {
-		Iterator<Contact> it = zipStore.iterator(Contact.class);
+	private void importContacts() throws Exception {
+		Iterator<Contact> it = config.store.iterator(Contact.class);
 		while (it.hasNext() && !canceled) {
 			Contact contact = it.next();
-			ContactImport contactImport = new ContactImport(zipStore, database);
+			ContactImport contactImport = new ContactImport(config);
 			contactImport.run(contact);
 		}
 	}
 
-	private void tryImportSources(ZipStore zipStore) {
+	private void tryImportSources() {
 		if (canceled)
 			return;
 		try {
-			Iterator<Source> it = zipStore.iterator(Source.class);
+			Iterator<Source> it = config.store.iterator(Source.class);
 			while (it.hasNext() && !canceled) {
 				Source source = it.next();
-				fireEvent(new SourceBag(source).getShortName());
-				SourceImport sourceImport = new SourceImport(zipStore, database);
+				fireEvent(new SourceBag(source, config.ilcdConfig)
+						.getShortName());
+				SourceImport sourceImport = new SourceImport(config);
 				sourceImport.run(source);
 			}
 		} catch (Exception e) {
@@ -130,15 +111,15 @@ public class ILCDImport implements FileImport {
 		}
 	}
 
-	private void tryImportUnits(ZipStore zipStore) {
+	private void tryImportUnits() {
 		if (canceled)
 			return;
 		try {
-			Iterator<UnitGroup> it = zipStore.iterator(UnitGroup.class);
+			Iterator<UnitGroup> it = config.store.iterator(UnitGroup.class);
 			while (it.hasNext() && !canceled) {
 				UnitGroup group = it.next();
-				fireEvent(new UnitGroupBag(group).getName());
-				UnitGroupImport groupImport = new UnitGroupImport(zipStore, database);
+				fireEvent(new UnitGroupBag(group, config.ilcdConfig).getName());
+				UnitGroupImport groupImport = new UnitGroupImport(config);
 				groupImport.run(group);
 			}
 		} catch (Exception e) {
@@ -146,15 +127,18 @@ public class ILCDImport implements FileImport {
 		}
 	}
 
-	private void tryImportFlowProperties(ZipStore zipStore) {
+	private void tryImportFlowProperties() {
 		if (canceled)
 			return;
 		try {
-			Iterator<FlowProperty> it = zipStore.iterator(FlowProperty.class);
+			Iterator<FlowProperty> it = config.store
+					.iterator(FlowProperty.class);
 			while (it.hasNext() && !canceled) {
 				FlowProperty property = it.next();
-				fireEvent(new FlowPropertyBag(property).getName());
-				FlowPropertyImport propertyImport = new FlowPropertyImport(zipStore, database);
+				fireEvent(new FlowPropertyBag(property, config.ilcdConfig)
+						.getName());
+				FlowPropertyImport propertyImport = new FlowPropertyImport(
+						config);
 				propertyImport.run(property);
 			}
 		} catch (Exception e) {
@@ -162,15 +146,15 @@ public class ILCDImport implements FileImport {
 		}
 	}
 
-	private void tryImportFlows(ZipStore zipStore) {
+	private void tryImportFlows() {
 		if (canceled)
 			return;
 		try {
-			Iterator<Flow> it = zipStore.iterator(Flow.class);
+			Iterator<Flow> it = config.store.iterator(Flow.class);
 			while (it.hasNext() && !canceled) {
 				Flow flow = it.next();
-				fireEvent(new FlowBag(flow).getName());
-				FlowImport flowImport = new FlowImport(zipStore, database);
+				fireEvent(new FlowBag(flow, config.ilcdConfig).getName());
+				FlowImport flowImport = new FlowImport(config);
 				flowImport.run(flow);
 			}
 		} catch (Exception e) {
@@ -178,27 +162,25 @@ public class ILCDImport implements FileImport {
 		}
 	}
 
-	private void tryImportProcesses(ZipStore zipStore) {
+	private void tryImportProcesses() {
 		if (canceled)
 			return;
 		try {
-			importProcesses(zipStore);
+			importProcesses();
 		} catch (Exception e) {
 			log.error("Process import failed", e);
 		}
 	}
 
-	private void importProcesses(ZipStore zipStore) throws Exception {
-		FlowMap flowMap = new FlowMap(MapType.ILCD_FLOW);
-		Iterator<Process> it = zipStore.iterator(Process.class);
-		ProcessImport processImport = new ProcessImport(zipStore, database);
-		processImport.setFlowMap(flowMap);
+	private void importProcesses() throws Exception {
+		Iterator<Process> it = config.store.iterator(Process.class);
+		ProcessImport processImport = new ProcessImport(config);
 		while (it.hasNext() && !canceled) {
 			Process process = it.next();
-			ProcessBag bag = new ProcessBag(process);
+			ProcessBag bag = new ProcessBag(process, config.ilcdConfig);
 			fireEvent(bag.getName());
 			if (bag.hasProductModel()) {
-				SystemImport systemImport = new SystemImport(zipStore, database);
+				SystemImport systemImport = new SystemImport(config);
 				systemImport.run(process);
 			} else {
 				processImport.run(process);
@@ -206,16 +188,16 @@ public class ILCDImport implements FileImport {
 		}
 	}
 
-	private void tryImportMethods(ZipStore zipStore) {
+	private void tryImportMethods() {
 		if (canceled)
 			return;
 		try {
-			Iterator<LCIAMethod> it = zipStore.iterator(LCIAMethod.class);
+			Iterator<LCIAMethod> it = config.store.iterator(LCIAMethod.class);
 			while (it.hasNext() && !canceled) {
 				LCIAMethod method = it.next();
 				MethodBag bag = new MethodBag(method);
 				fireEvent(bag.getImpactIndicator());
-				MethodImport methodImport = new MethodImport(zipStore, database);
+				MethodImport methodImport = new MethodImport(config);
 				methodImport.run(method);
 			}
 		} catch (Exception e) {

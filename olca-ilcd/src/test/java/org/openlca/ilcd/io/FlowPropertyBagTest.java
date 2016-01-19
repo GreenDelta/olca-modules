@@ -11,6 +11,7 @@ import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.util.FlowPropertyBag;
+import org.openlca.ilcd.util.IlcdConfig;
 
 public class FlowPropertyBagTest {
 
@@ -22,7 +23,7 @@ public class FlowPropertyBagTest {
 				"flowproperty.xml")) {
 			XmlBinder binder = new XmlBinder();
 			FlowProperty group = binder.fromStream(FlowProperty.class, stream);
-			this.bag = new FlowPropertyBag(group);
+			this.bag = new FlowPropertyBag(group, IlcdConfig.getDefault());
 		}
 	}
 

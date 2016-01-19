@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 
@@ -14,9 +13,9 @@ abstract class AbstractCategoryImport<C> {
 	private CategoryDao dao;
 	private ModelType modelType;
 
-	public AbstractCategoryImport(IDatabase database, ModelType modelType) {
+	public AbstractCategoryImport(ImportConfig config, ModelType modelType) {
 		this.modelType = modelType;
-		dao = new CategoryDao(database);
+		dao = new CategoryDao(config.db);
 	}
 
 	/** Hook method that needs to be implemented by the concrete sub-class */

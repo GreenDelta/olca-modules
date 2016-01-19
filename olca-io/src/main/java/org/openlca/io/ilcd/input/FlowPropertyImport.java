@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 
 import org.openlca.core.database.FlowPropertyDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
@@ -11,25 +10,22 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.FlowPropertyBag;
 
 public class FlowPropertyImport {
 
-	private IDatabase database;
-	private DataStore dataStore;
+	private final ImportConfig config;
 	private FlowPropertyBag ilcdProperty;
 	private FlowProperty property;
 
-	public FlowPropertyImport(DataStore dataStore, IDatabase database) {
-		this.database = database;
-		this.dataStore = dataStore;
+	public FlowPropertyImport(ImportConfig config) {
+		this.config = config;
 	}
 
 	public FlowProperty run(
 			org.openlca.ilcd.flowproperties.FlowProperty property)
 			throws ImportException {
-		this.ilcdProperty = new FlowPropertyBag(property);
+		this.ilcdProperty = new FlowPropertyBag(property, config.ilcdConfig);
 		FlowProperty oProperty = findExisting(ilcdProperty.getId());
 		if (oProperty != null)
 			return oProperty;
@@ -41,13 +37,13 @@ public class FlowPropertyImport {
 		if (property != null)
 			return property;
 		org.openlca.ilcd.flowproperties.FlowProperty iProp = tryGetFlowProperty(propertyId);
-		ilcdProperty = new FlowPropertyBag(iProp);
+		ilcdProperty = new FlowPropertyBag(iProp, config.ilcdConfig);
 		return createNew();
 	}
 
 	private FlowProperty findExisting(String propertyId) throws ImportException {
 		try {
-			FlowPropertyDao dao = new FlowPropertyDao(database);
+			FlowPropertyDao dao = new FlowPropertyDao(config.db);
 			return dao.getForRefId(propertyId);
 		} catch (Exception e) {
 			String message = String.format(
@@ -67,9 +63,9 @@ public class FlowPropertyImport {
 	private org.openlca.ilcd.flowproperties.FlowProperty tryGetFlowProperty(
 			String propertyId) throws ImportException {
 		try {
-			org.openlca.ilcd.flowproperties.FlowProperty iProp = dataStore.get(
-					org.openlca.ilcd.flowproperties.FlowProperty.class,
-					propertyId);
+			org.openlca.ilcd.flowproperties.FlowProperty iProp = config.store
+					.get(org.openlca.ilcd.flowproperties.FlowProperty.class,
+							propertyId);
 			if (iProp == null) {
 				throw new ImportException("No ILCD flow property for ID "
 						+ propertyId + " found");
@@ -81,7 +77,7 @@ public class FlowPropertyImport {
 	}
 
 	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(database,
+		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.FLOW_PROPERTY);
 		Category category = categoryImport.run(ilcdProperty.getSortedClasses());
 		property.setCategory(category);
@@ -116,8 +112,7 @@ public class FlowPropertyImport {
 	private void createUnitGroupReference() throws ImportException {
 		DataSetReference unitGroupRef = ilcdProperty.getUnitGroupReference();
 		if (unitGroupRef != null) {
-			UnitGroupImport unitGroupImport = new UnitGroupImport(dataStore,
-					database);
+			UnitGroupImport unitGroupImport = new UnitGroupImport(config);
 			UnitGroup unitGroup = unitGroupImport.run(unitGroupRef.getUuid());
 			property.setUnitGroup(unitGroup);
 		}
@@ -125,7 +120,7 @@ public class FlowPropertyImport {
 
 	private void saveInDatabase(FlowProperty obj) throws ImportException {
 		try {
-			database.createDao(FlowProperty.class).insert(obj);
+			config.db.createDao(FlowProperty.class).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in flow property %s.",

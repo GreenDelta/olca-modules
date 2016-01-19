@@ -15,8 +15,8 @@ import org.openlca.ilcd.processes.Technology;
 
 class SourceRefCollection {
 
-	static List<DataSetReference> getAll(Process process) {
-		ProcessBag bag = new ProcessBag(process);
+	static List<DataSetReference> getAll(Process process, IlcdConfig config) {
+		ProcessBag bag = new ProcessBag(process, config);
 		List<DataSetReference> refs = new ArrayList<>();
 		refs.addAll(getFrom(bag.getRepresentativeness()));
 		refs.addAll(getFrom(bag.getDataEntry()));

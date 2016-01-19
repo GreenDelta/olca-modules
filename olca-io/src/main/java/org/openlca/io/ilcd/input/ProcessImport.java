@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.List;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
@@ -18,7 +17,6 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LCIMethodApproach;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
@@ -27,7 +25,6 @@ import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.ProcessBag;
-import org.openlca.io.maps.FlowMap;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,24 +32,19 @@ import org.slf4j.LoggerFactory;
 public class ProcessImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
-	private DataStore dataStore;
+	private ImportConfig config;
+	private ProcessExchanges exchanges;
 	private ProcessBag ilcdProcess;
 	private Process process;
-	private FlowMap flowMap;
 
-	public ProcessImport(DataStore dataStore, IDatabase database) {
-		this.database = database;
-		this.dataStore = dataStore;
-	}
-
-	public void setFlowMap(FlowMap flowMap) {
-		this.flowMap = flowMap;
+	public ProcessImport(ImportConfig config) {
+		this.config = config;
+		this.exchanges = new ProcessExchanges(config);
 	}
 
 	public Process run(org.openlca.ilcd.processes.Process process)
 			throws ImportException {
-		this.ilcdProcess = new ProcessBag(process);
+		this.ilcdProcess = new ProcessBag(process, config.ilcdConfig);
 		Process oProcess = findExisting(ilcdProcess.getId());
 		if (oProcess != null)
 			return oProcess;
@@ -64,13 +56,13 @@ public class ProcessImport {
 		if (process != null)
 			return process;
 		org.openlca.ilcd.processes.Process iProcess = tryGetProcess(processId);
-		ilcdProcess = new ProcessBag(iProcess);
+		ilcdProcess = new ProcessBag(iProcess, config.ilcdConfig);
 		return createNew();
 	}
 
 	private Process findExisting(String processId) throws ImportException {
 		try {
-			ProcessDao dao = new ProcessDao(database);
+			ProcessDao dao = new ProcessDao(config.db);
 			return dao.getForRefId(processId);
 		} catch (Exception e) {
 			String message = String.format("Search for process %s failed.",
@@ -94,7 +86,7 @@ public class ProcessImport {
 	private org.openlca.ilcd.processes.Process tryGetProcess(String processId)
 			throws ImportException {
 		try {
-			org.openlca.ilcd.processes.Process iProcess = dataStore.get(
+			org.openlca.ilcd.processes.Process iProcess = config.store.get(
 					org.openlca.ilcd.processes.Process.class, processId);
 			if (iProcess == null) {
 				throw new ImportException("No ILCD process for ID " + processId
@@ -107,7 +99,7 @@ public class ProcessImport {
 	}
 
 	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(database,
+		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.PROCESS);
 		Category category = categoryImport.run(ilcdProcess.getSortedClasses());
 		process.setCategory(category);
@@ -120,15 +112,14 @@ public class ProcessImport {
 		ProcessDocumentation doc = mapDocumentation();
 		process.setDocumentation(doc);
 		ProcessParameterConversion paramConv = new ProcessParameterConversion(
-				process, database);
+				process, config);
 		paramConv.run(ilcdProcess);
-		ProcessExchanges.mapFrom(dataStore, ilcdProcess).withFlowMap(flowMap)
-				.to(database, process);
+		exchanges.map(ilcdProcess, process);
 	}
 
 	private ProcessDocumentation mapDocumentation() throws ImportException {
 		ProcessDocumentation doc = new ProcessDocumentation();
-		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime());
+		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime(), config);
 		processTime.map(doc);
 		mapGeography(doc);
 		mapTechnology(doc);
@@ -148,11 +139,11 @@ public class ProcessImport {
 		if (iGeography == null || iGeography.getLocation() == null)
 			return;
 		doc.setGeography(LangString.get(iGeography.getLocation()
-				.getDescription()));
+				.getDescription(), config.ilcdConfig));
 		if (iGeography.getLocation().getLocation() == null)
 			return;
 		String code = iGeography.getLocation().getLocation();
-		Location location = Locations.getOrCreate(code, database);
+		Location location = Locations.getOrCreate(code, config);
 		process.setLocation(location);
 	}
 
@@ -160,8 +151,9 @@ public class ProcessImport {
 		org.openlca.ilcd.processes.Technology iTechnology = ilcdProcess
 				.getTechnology();
 		if (iTechnology != null) {
-			doc.setTechnology(LangString.get(iTechnology
-					.getTechnologyDescriptionAndIncludedProcesses()));
+			doc.setTechnology(LangString.get(
+					iTechnology.getTechnologyDescriptionAndIncludedProcesses(),
+					config.ilcdConfig));
 		}
 	}
 
@@ -182,8 +174,8 @@ public class ProcessImport {
 				doc.setPublication(fetchSource(publicationRef));
 
 			// access and use restrictions
-			doc.setRestrictions(LangString.get(iPublication
-					.getAccessRestrictions()));
+			doc.setRestrictions(LangString.get(
+					iPublication.getAccessRestrictions(), config.ilcdConfig));
 
 			// version
 			process.setVersion(Version.fromString(
@@ -229,10 +221,11 @@ public class ProcessImport {
 		if (ilcdProcess.getCommissionerAndGoal() != null) {
 			CommissionerAndGoal comAndGoal = ilcdProcess
 					.getCommissionerAndGoal();
-			String intendedApp = LangString.get(comAndGoal
-					.getIntendedApplications());
+			String intendedApp = LangString.get(
+					comAndGoal.getIntendedApplications(), config.ilcdConfig);
 			doc.setIntendedApplication(intendedApp);
-			String project = LangString.get(comAndGoal.getProject());
+			String project = LangString.get(comAndGoal.getProject(),
+					config.ilcdConfig);
 			doc.setProject(project);
 		}
 	}
@@ -253,11 +246,12 @@ public class ProcessImport {
 		}
 		LCIMethod iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
-			String lciPrinciple = LangString.get(iMethod
-					.getDeviationsFromLCIMethodPrinciple());
+			String lciPrinciple = LangString.get(
+					iMethod.getDeviationsFromLCIMethodPrinciple(),
+					config.ilcdConfig);
 			doc.setInventoryMethod(lciPrinciple);
-			doc.setModelingConstants(LangString.get(iMethod
-					.getModellingConstants()));
+			doc.setModelingConstants(LangString.get(
+					iMethod.getModellingConstants(), config.ilcdConfig));
 			process.setDefaultAllocationMethod(getAllocation(iMethod));
 		}
 	}
@@ -285,15 +279,19 @@ public class ProcessImport {
 		Representativeness repr = ilcdProcess.getRepresentativeness();
 		if (repr == null)
 			return;
-		doc.setCompleteness(LangString.get(repr
-				.getDataCutOffAndCompletenessPrinciples()));
-		doc.setDataSelection(LangString.get(repr
-				.getDataSelectionAndCombinationPrinciples()));
-		doc.setDataTreatment(LangString.get(repr
-				.getDataTreatmentAndExtrapolationsPrinciples()));
-		doc.setSampling(LangString.get(repr.getSamplingProcedure()));
-		doc.setDataCollectionPeriod(LangString.get(repr
-				.getDataCollectionPeriod()));
+		doc.setCompleteness(LangString.get(
+				repr.getDataCutOffAndCompletenessPrinciples(),
+				config.ilcdConfig));
+		doc.setDataSelection(LangString.get(
+				repr.getDataSelectionAndCombinationPrinciples(),
+				config.ilcdConfig));
+		doc.setDataTreatment(LangString.get(
+				repr.getDataTreatmentAndExtrapolationsPrinciples(),
+				config.ilcdConfig));
+		doc.setSampling(LangString.get(repr.getSamplingProcedure(),
+				config.ilcdConfig));
+		doc.setDataCollectionPeriod(LangString.get(
+				repr.getDataCollectionPeriod(), config.ilcdConfig));
 	}
 
 	private void addSources(ProcessDocumentation doc) {
@@ -318,14 +316,15 @@ public class ProcessImport {
 					.getReferenceToNameOfReviewerAndInstitution().get(0);
 			doc.setReviewer(fetchActor(ref));
 		}
-		doc.setReviewDetails(LangString.get(iReview.getReviewDetails()));
+		doc.setReviewDetails(LangString.get(iReview.getReviewDetails(),
+				config.ilcdConfig));
 	}
 
 	private Actor fetchActor(DataSetReference reference) {
 		if (reference == null)
 			return null;
 		try {
-			ContactImport contactImport = new ContactImport(dataStore, database);
+			ContactImport contactImport = new ContactImport(config);
 			return contactImport.run(reference.getUuid());
 		} catch (Exception e) {
 			log.warn("Failed to get contact {} referenced from process {}",
@@ -338,7 +337,7 @@ public class ProcessImport {
 		if (reference == null)
 			return null;
 		try {
-			SourceImport sourceImport = new SourceImport(dataStore, database);
+			SourceImport sourceImport = new SourceImport(config);
 			return sourceImport.run(reference.getUuid());
 		} catch (Exception e) {
 			log.warn("Failed to get source {} referenced from process {}",
@@ -351,7 +350,7 @@ public class ProcessImport {
 	private <T> void saveInDatabase(T obj) throws ImportException {
 		try {
 			Class<T> clazz = (Class<T>) obj.getClass();
-			database.createDao(clazz).insert(obj);
+			config.db.createDao(clazz).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in process %s.", process.getRefId());

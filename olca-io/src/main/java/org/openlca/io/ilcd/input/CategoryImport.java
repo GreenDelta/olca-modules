@@ -1,6 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 
 /**
@@ -9,8 +8,8 @@ import org.openlca.core.model.ModelType;
 class CategoryImport extends
 		AbstractCategoryImport<org.openlca.ilcd.commons.Class> {
 
-	public CategoryImport(IDatabase database, ModelType modelType) {
-		super(database, modelType);
+	public CategoryImport(ImportConfig config, ModelType modelType) {
+		super(config, modelType);
 	}
 
 	@Override

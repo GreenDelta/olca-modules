@@ -14,12 +14,15 @@ import org.openlca.ilcd.util.LangString;
  */
 class ExchangeConversion {
 
+	private ImportConfig config;
 	private org.openlca.ilcd.processes.Exchange ilcdExchange;
 	private ExchangeExtension extension;
 	private Exchange olcaExchange;
 
-	public ExchangeConversion(org.openlca.ilcd.processes.Exchange ilcdExchange) {
+	public ExchangeConversion(
+			org.openlca.ilcd.processes.Exchange ilcdExchange,ImportConfig config) {
 		this.ilcdExchange = ilcdExchange;
+		this.config = config;
 		ExchangeExtension ext = new ExchangeExtension(ilcdExchange);
 		if (ext.isValid())
 			extension = ext;
@@ -37,7 +40,8 @@ class ExchangeConversion {
 		Exchange e = new Exchange();
 		boolean input = ilcdExchange.getExchangeDirection() == ExchangeDirection.INPUT;
 		e.setInput(input);
-		e.description = LangString.get(ilcdExchange.getGeneralComment());
+		e.description = LangString.get(ilcdExchange.getGeneralComment(),
+				config.ilcdConfig);
 		if (extension != null) {
 			e.setPedigreeUncertainty(extension.getPedigreeUncertainty());
 			e.setBaseUncertainty(extension.getBaseUncertainty());

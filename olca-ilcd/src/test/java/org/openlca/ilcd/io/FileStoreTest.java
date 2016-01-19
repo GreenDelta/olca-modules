@@ -17,6 +17,7 @@ import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.sources.DataSetInformation;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.UnitGroupBag;
 
 public class FileStoreTest {
@@ -52,7 +53,7 @@ public class FileStoreTest {
 		UnitGroup group = fileStore.get(UnitGroup.class,
 				"93a60a57-a4c8-11da-a746-0800200c9a66");
 		assertNotNull(group);
-		UnitGroupBag bag = new UnitGroupBag(group);
+		UnitGroupBag bag = new UnitGroupBag(group, IlcdConfig.getDefault());
 		assertEquals("Units of mass", bag.getName());
 	}
 

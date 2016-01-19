@@ -12,6 +12,7 @@ import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.ContactBag;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.FlowPropertyBag;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.ilcd.util.SourceBag;
 import org.openlca.ilcd.util.UnitGroupBag;
@@ -33,35 +34,35 @@ class DataSets {
 
 	private static void putContact(NetworkClient client) throws Exception {
 		Contact contact = load(Contact.class, "contact.xml");
-		ContactBag bag = new ContactBag(contact);
+		ContactBag bag = new ContactBag(contact, IlcdConfig.getDefault());
 		if (!client.contains(Contact.class, bag.getId()))
 			client.put(contact, bag.getId());
 	}
 
 	private static void putFlowProperty(NetworkClient client) throws Exception {
 		FlowProperty flowProperty = load(FlowProperty.class, "flowproperty.xml");
-		FlowPropertyBag bag = new FlowPropertyBag(flowProperty);
+		FlowPropertyBag bag = new FlowPropertyBag(flowProperty, IlcdConfig.getDefault());
 		if (!client.contains(FlowProperty.class, bag.getId()))
 			client.put(flowProperty, bag.getId());
 	}
 
 	private static void putFlow(NetworkClient client) throws Exception {
 		Flow flow = load(Flow.class, "flow.xml");
-		FlowBag bag = new FlowBag(flow);
+		FlowBag bag = new FlowBag(flow, IlcdConfig.getDefault());
 		if (!client.contains(Flow.class, bag.getId()))
 			client.put(flow, bag.getId());
 	}
 
 	private static void putProcess(NetworkClient client) throws Exception {
 		Process process = load(Process.class, "process.xml");
-		ProcessBag bag = new ProcessBag(process);
+		ProcessBag bag = new ProcessBag(process, IlcdConfig.getDefault());
 		if (!client.contains(Process.class, bag.getId()))
 			client.put(process, bag.getId());
 	}
 
 	private static void putSource(NetworkClient client) throws Exception {
 		Source source = load(Source.class, "source.xml");
-		SourceBag bag = new SourceBag(source);
+		SourceBag bag = new SourceBag(source, IlcdConfig.getDefault());
 		if (!client.contains(Source.class, bag.getId()))
 			client.put(source, bag.getId());
 	}
@@ -69,7 +70,7 @@ class DataSets {
 	private static void putUnitGroup(NetworkClient client) throws Exception,
 			DataStoreException {
 		UnitGroup group = load(UnitGroup.class, "unit.xml");
-		UnitGroupBag bag = new UnitGroupBag(group);
+		UnitGroupBag bag = new UnitGroupBag(group, IlcdConfig.getDefault());
 		if (!client.contains(UnitGroup.class, bag.getId()))
 			client.put(group, bag.getId());
 	}

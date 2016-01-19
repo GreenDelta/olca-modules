@@ -16,6 +16,7 @@ import org.openlca.ilcd.processes.DataSetInformation;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessInformation;
 import org.openlca.ilcd.productmodel.ProductModel;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.ProcessBag;
 
 public class ProductModelTest {
@@ -45,7 +46,7 @@ public class ProductModelTest {
 	@Test
 	public void testNoModelInProcessBag() throws Exception {
 		Process process = unmarshal(marshal(makePlainProcess()));
-		ProcessBag bag = new ProcessBag(process);
+		ProcessBag bag = new ProcessBag(process, IlcdConfig.getDefault());
 		assertFalse(bag.hasProductModel());
 		assertNull(bag.getProductModel());
 	}
@@ -53,7 +54,7 @@ public class ProductModelTest {
 	@Test
 	public void testModelInProcessBag() throws Exception {
 		Process process = unmarshal(marshal(makeProductModel()));
-		ProcessBag bag = new ProcessBag(process);
+		ProcessBag bag = new ProcessBag(process, IlcdConfig.getDefault());
 		assertTrue(bag.hasProductModel());
 		assertEquals("test-model", bag.getProductModel().getName());
 	}

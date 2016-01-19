@@ -12,6 +12,7 @@ import org.openlca.ilcd.units.DataSetInformation;
 import org.openlca.ilcd.units.Publication;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInformation;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.LangString;
 
 public class NetworkPutUnitGroupTest {
@@ -40,7 +41,7 @@ public class NetworkPutUnitGroupTest {
 	private DataSetInformation makeDataInfo(String id) {
 		DataSetInformation info = new DataSetInformation();
 		String name = "xtest UnitGroup - " + new Random().nextInt(1000);
-		LangString.addLabel(info.getName(), name);
+		LangString.addLabel(info.getName(), name, IlcdConfig.getDefault());
 		info.setUUID(id);
 		return info;
 	}
