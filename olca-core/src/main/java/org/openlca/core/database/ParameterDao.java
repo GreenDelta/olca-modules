@@ -67,4 +67,15 @@ public class ParameterDao extends
 				getDescriptorFields(), parameters);
 		return createDescriptors(results);
 	}
+
+	public boolean existsGlobal(String name) {
+		String jpql = "SELECT count(param) FROM Parameter param "
+				+ "WHERE param.name = :name "
+				+ "AND param.scope = :scope";
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("name", name);
+		parameters.put("scope", ParameterScope.GLOBAL);
+		return getCount(jpql, parameters) > 0;
+	}
+
 }
