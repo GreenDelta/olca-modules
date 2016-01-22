@@ -13,9 +13,9 @@ import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.geo.kml.LocationKml;
 import org.openlca.geo.kml.KmlLoader;
 import org.openlca.geo.parameter.ParameterCalculator;
-import org.openlca.geo.parameter.ParameterRepository;
+import org.openlca.geo.parameter.ParameterCache;
 import org.openlca.geo.parameter.ParameterSet;
-import org.openlca.geo.parameter.ShapeFileRepository;
+import org.openlca.geo.parameter.ShapeFileFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +29,8 @@ public class RegionalizationSetup {
 	private List<LocationKml> kmlData;
 	private File shapeFileDir;
 	private List<Parameter> shapeFileParameters;
-	private ShapeFileRepository shapeFileRepository;
-	private ParameterRepository parameterRepository;
+	private ShapeFileFolder shapeFileRepository;
+	private ParameterCache parameterRepository;
 	private ParameterSet parameterSet;
 
 	public RegionalizationSetup(IDatabase database,
@@ -95,8 +95,8 @@ public class RegionalizationSetup {
 					+ shapeFileDir.getAbsolutePath());
 			return false;
 		}
-		shapeFileRepository = new ShapeFileRepository(shapeFileDir);
-		parameterRepository = new ParameterRepository(shapeFileRepository);
+		shapeFileRepository = new ShapeFileFolder(shapeFileDir);
+		parameterRepository = new ParameterCache(shapeFileRepository);
 		return true;
 	}
 

@@ -10,7 +10,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 import org.geotools.geometry.jts.GeometryBuilder;
-import org.openlca.geo.parameter.ShapeFileRepository;
+import org.openlca.geo.parameter.ShapeFileFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class Tests {
 
-	private static ShapeFileRepository repository;
+	private static ShapeFileFolder repository;
 
 	private Tests() {
 	}
@@ -51,13 +51,13 @@ public class Tests {
 		return builder.geometryCollection(geometries);
 	}
 
-	public static ShapeFileRepository getRepository() {
+	public static ShapeFileFolder getRepository() {
 		if (repository == null)
 			repository = initRepository();
 		return repository;
 	}
 
-	private static ShapeFileRepository initRepository() {
+	private static ShapeFileFolder initRepository() {
 		File tempDir = new File(System.getProperty("java.io.tmpdir"));
 		File testDir = new File(tempDir, "olca_geo_test_dir");
 		File repoDir = new File(testDir, "repo");
@@ -65,7 +65,7 @@ public class Tests {
 			repoDir.mkdirs();
 			extractSampleShapeFile(repoDir);
 		}
-		return new ShapeFileRepository(repoDir);
+		return new ShapeFileFolder(repoDir);
 	}
 
 	private static void extractSampleShapeFile(File repoDir) {

@@ -14,22 +14,26 @@ import com.google.common.base.Strings;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
-public class ParameterRepository {
+/**
+ * This does not save the parameters values but the parameter shares of
+ * geometric features of locations.
+ */
+public class ParameterCache {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Gson gson = new Gson();
 
-	private ShapeFileRepository shapeFileRepository;
+	private ShapeFileFolder shapeFileFolder;
 
-	public ParameterRepository(ShapeFileRepository shapeFileRepository) {
-		this.shapeFileRepository = shapeFileRepository;
+	public ParameterCache(ShapeFileFolder shapeFileFolder) {
+		this.shapeFileFolder = shapeFileFolder;
 	}
 
 	public Map<String, Double> load(long locationId, String shapeFile) {
 		if (!contains(locationId, shapeFile)) // also checks that input
 												// is valid
 			return null;
-		File file = getFile(locationId, shapeFile);
+		File file = getParameterFile(locationId, shapeFile);
 		try (FileReader reader = new FileReader(file)) {
 			return gson.fromJson(reader, MapType.get());
 		} catch (IOException e) {
@@ -38,11 +42,10 @@ public class ParameterRepository {
 		}
 	}
 
-	public void save(long locationId, String shapeFile,
-			Map<String, Double> parameterMap) {
+	public void save(long locationId, String shapeFile, Map<String, Double> parameterMap) {
 		if (!isValidInput(locationId, shapeFile, parameterMap))
 			return;
-		File file = getFile(locationId, shapeFile);
+		File file = getParameterFile(locationId, shapeFile);
 		if (!file.exists())
 			if (!create(file))
 				return;
@@ -56,14 +59,14 @@ public class ParameterRepository {
 	public void remove(long locationId, String shapeFile) {
 		if (!isValidInput(locationId, shapeFile))
 			return;
-		File file = getFile(locationId, shapeFile);
+		File file = getParameterFile(locationId, shapeFile);
 		if (!file.exists())
 			return;
 		file.delete();
 	}
 
 	public void remove(String shapeFile) {
-		File folder = shapeFileRepository.getFolder();
+		File folder = shapeFileFolder.folder;
 		File shapeFileFolder = new File(folder, shapeFile);
 		if (!shapeFileFolder.exists())
 			return;
@@ -76,11 +79,10 @@ public class ParameterRepository {
 			shapeFileFolder.deleteOnExit();
 	}
 
-	private File getFile(long locationId, String shapeFile) {
-		File folder = shapeFileRepository.getFolder();
-		File shapeFileFolder = new File(folder, shapeFile);
-		File featureFile = new File(shapeFileFolder, Long.toString(locationId));
-		return featureFile;
+	private File getParameterFile(long locationId, String shapeFile) {
+		File folder = shapeFileFolder.folder;
+		File paramFolder = new File(folder, shapeFile);
+		return new File(paramFolder, Long.toString(locationId));
 	}
 
 	private boolean create(File file) {
@@ -98,11 +100,7 @@ public class ParameterRepository {
 	}
 
 	private boolean isValidInput(long locationId, String shapeFile) {
-		if (locationId == 0l)
-			return false;
-		if (Strings.isNullOrEmpty(shapeFile))
-			return false;
-		return true;
+		return locationId > 0 && !Strings.isNullOrEmpty(shapeFile);
 	}
 
 	private boolean isValidInput(long locationId, String shapeFile,
@@ -117,7 +115,7 @@ public class ParameterRepository {
 	public boolean contains(long locationId, String shapeFile) {
 		if (!isValidInput(locationId, shapeFile))
 			return false;
-		File file = getFile(locationId, shapeFile);
+		File file = getParameterFile(locationId, shapeFile);
 		return file.exists();
 	}
 

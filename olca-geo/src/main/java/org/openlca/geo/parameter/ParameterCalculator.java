@@ -21,11 +21,11 @@ public class ParameterCalculator {
 	private Map<String, List<String>> groups;
 	private Map<String, DataStore> stores;
 	private Map<String, Double> defaults;
-	private ParameterRepository repository;
+	private ParameterCache repository;
 
 	public ParameterCalculator(List<Parameter> parameters,
-			ShapeFileRepository shapeFileRepository,
-			ParameterRepository parameterRepository) {
+			ShapeFileFolder shapeFileRepository,
+			ParameterCache parameterRepository) {
 		groups = groupParameters(parameters);
 		stores = openStores(groups.keySet(), shapeFileRepository);
 		defaults = getDefaultValues(parameters);
@@ -102,7 +102,7 @@ public class ParameterCalculator {
 	}
 
 	private static Map<String, DataStore> openStores(Set<String> shapeFiles,
-			ShapeFileRepository repository) {
+			ShapeFileFolder repository) {
 		Map<String, DataStore> stores = new HashMap<>();
 		for (String shapeFile : shapeFiles) {
 			DataStore store = repository.openDataStore(shapeFile);

@@ -27,23 +27,19 @@ import com.google.common.io.Files;
 import com.google.gson.Gson;
 
 /**
- * A shapefile repository is a disk folder where shapefiles are stored.
+ * A folder where shapefiles are stored.
  */
-public class ShapeFileRepository {
+public class ShapeFileFolder {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final File folder;
+	public final File folder;
 
-	public ShapeFileRepository(File folder) {
+	public ShapeFileFolder(File folder) {
 		log.trace("init shapefile repository @ {}", folder);
 		this.folder = folder;
 		if (!folder.exists())
 			folder.mkdirs();
-	}
-
-	public File getFolder() {
-		return folder;
 	}
 
 	/**
@@ -170,13 +166,13 @@ public class ShapeFileRepository {
 			ShapeFileParameter param = params.get(name);
 			if (param == null) {
 				param = new ShapeFileParameter();
-				param.setName(name);
-				param.setMax(value);
-				param.setMin(value);
+				param.name = name;
+				param.max = value;
+				param.min = value;
 				params.put(name, param);
 			} else {
-				param.setMax(Math.max(param.getMax(), value));
-				param.setMin(Math.min(param.getMin(), value));
+				param.max = Math.max(param.max, value);
+				param.min = Math.min(param.min, value);
 			}
 		}
 	}

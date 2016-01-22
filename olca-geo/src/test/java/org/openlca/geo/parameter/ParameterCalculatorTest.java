@@ -21,7 +21,7 @@ public class ParameterCalculatorTest {
 
 	@Before
 	public void setUp() throws Exception {
-		ShapeFileRepository repository = Tests.getRepository();
+		ShapeFileFolder repository = Tests.getRepository();
 		dataStore = repository.openDataStore("states");
 		intersectionsCalculator = new IntersectionsCalculator(dataStore);
 		featureCalculator = new FeatureCalculator(dataStore);
