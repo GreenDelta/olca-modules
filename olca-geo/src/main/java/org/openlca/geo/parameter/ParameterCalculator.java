@@ -10,7 +10,7 @@ import org.geotools.data.DataStore;
 import org.openlca.core.model.Parameter;
 import org.openlca.geo.kml.FeatureType;
 import org.openlca.geo.kml.KmlFeature;
-import org.openlca.geo.kml.KmlLoadResult;
+import org.openlca.geo.kml.LocationKml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +45,11 @@ public class ParameterCalculator {
 		return parameterMap;
 	}
 
-	public ParameterSet calculate(List<KmlLoadResult> kmlData) {
+	public ParameterSet calculate(List<LocationKml> kmlData) {
 		ParameterSet set = new ParameterSet(defaults);
 		if (groups.isEmpty())
 			return set;
-		for (KmlLoadResult data : kmlData) {
+		for (LocationKml data : kmlData) {
 			KmlFeature feature = data.kmlFeature;
 			if (feature == null || feature.type == FeatureType.EMPTY)
 				continue;

@@ -1,6 +1,5 @@
 package org.openlca.geo;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,12 +8,11 @@ import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
-import org.openlca.geo.kml.KmlLoadResult;
+import org.openlca.geo.kml.LocationKml;
 import org.openlca.geo.parameter.ParameterSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,16 +75,15 @@ public class RegionalizedCalculator {
 	}
 
 	private FullResult calcRegioResult(FullResult baseResult) {
-		List<KmlLoadResult> features = setup.getKmlData();
+		List<LocationKml> features = setup.getKmlData();
 		ParameterSet parameterSet = setup.getParameterSet();
 		FullResult regioResult = initRegioResult(baseResult);
-		Map<LongPair, Integer> indices = getIndices(regioResult.productIndex);
-		for (KmlLoadResult result : features) {
+		for (LocationKml result : features) {
 			Map<String, Double> parameters = parameterSet.getFor(result.locationId);
 			ImpactMatrix impacts = createImpactMatrix(parameters);
 			IMatrix factors = impacts.getFactorMatrix();
 			for (LongPair product : result.processProducts) {
-				int index = indices.get(product);
+				int index = regioResult.productIndex.getIndex(product);
 				updateImpacts(index, factors, regioResult, false);
 				// updateImpacts(index, factors, regioResult, true);
 			}
@@ -107,15 +104,6 @@ public class RegionalizedCalculator {
 		double[] impactResults = solver.multiply(factors, flowResults);
 		for (int row = 0; row < impactResults.length; row++)
 			impacts.setEntry(row, index, impactResults[row]);
-	}
-
-	private Map<LongPair, Integer> getIndices(ProductIndex index) {
-		Map<LongPair, Integer> indices = new HashMap<>();
-		for (int i = 0; i < index.size(); i++) {
-			LongPair processProduct = index.getProductAt(i);
-			indices.put(processProduct, i);
-		}
-		return indices;
 	}
 
 	private ImpactMatrix createImpactMatrix(Map<String, Double> params) {

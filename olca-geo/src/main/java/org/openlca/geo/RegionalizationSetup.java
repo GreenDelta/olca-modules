@@ -10,8 +10,8 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.geo.kml.IKmlLoader;
-import org.openlca.geo.kml.KmlLoadResult;
+import org.openlca.geo.kml.LocationKml;
+import org.openlca.geo.kml.KmlLoader;
 import org.openlca.geo.parameter.ParameterCalculator;
 import org.openlca.geo.parameter.ParameterRepository;
 import org.openlca.geo.parameter.ParameterSet;
@@ -26,7 +26,7 @@ public class RegionalizationSetup {
 	private final IDatabase database;
 	private final ImpactMethodDescriptor impactMethod;
 
-	private List<KmlLoadResult> kmlData;
+	private List<LocationKml> kmlData;
 	private File shapeFileDir;
 	private List<Parameter> shapeFileParameters;
 	private ShapeFileRepository shapeFileRepository;
@@ -45,7 +45,7 @@ public class RegionalizationSetup {
 	 * false if a regionalized calculation cannot be done and logs the
 	 * respective problem in this case.
 	 */
-	public boolean init(IKmlLoader kmlLoader, ProductIndex productIndex) {
+	public boolean init(KmlLoader kmlLoader, ProductIndex productIndex) {
 		shapeFileParameters = getShapeFileParameters();
 		if (shapeFileParameters.isEmpty()) {
 			log.warn("Cannot calculate regionalized LCIA because there is "
@@ -122,7 +122,7 @@ public class RegionalizationSetup {
 		parameterSet = calculator.calculate(kmlData);
 	}
 
-	public List<KmlLoadResult> getKmlData() {
+	public List<LocationKml> getKmlData() {
 		return kmlData;
 	}
 
