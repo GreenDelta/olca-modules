@@ -7,25 +7,12 @@ import org.openlca.core.matrix.LongPair;
 
 public class KmlLoadResult {
 
-	private KmlFeature kmlFeature;
-	private long locationId;
-	private List<LongPair> processProducts = new ArrayList<>();
+	public final KmlFeature kmlFeature;
+	public final long locationId;
+	public final List<LongPair> processProducts = new ArrayList<>();
 
 	public KmlLoadResult(KmlFeature kmlFeature, long locationId) {
 		this.kmlFeature = kmlFeature;
 		this.locationId = locationId;
 	}
-
-	public KmlFeature getKmlFeature() {
-		return kmlFeature;
-	}
-
-	public long getLocationId() {
-		return locationId;
-	}
-
-	public List<LongPair> getProcessProducts() {
-		return processProducts;
-	}
-
 }

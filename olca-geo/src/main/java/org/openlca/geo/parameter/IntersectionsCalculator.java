@@ -31,10 +31,10 @@ class IntersectionsCalculator {
 	}
 
 	public Map<String, Double> calculate(KmlFeature feature, List<String> params) {
-		if (feature.getType() == null)
+		if (feature.type == null)
 			return Collections.emptyMap();
-		Geometry geo = feature.getGeometry();
-		switch (feature.getType()) {
+		Geometry geo = feature.geometry;
+		switch (feature.type) {
 		case POINT:
 			return calculatePoint(geo, params, 1d);
 		case MULTI_POINT:
@@ -46,7 +46,7 @@ class IntersectionsCalculator {
 		case MULTI_POLYGON:
 			return calculate(geo, params, new PolygonValueFetch());
 		default:
-			log.warn("cannot calculate shares for type {}", feature.getType());
+			log.warn("cannot calculate shares for type {}", feature.type);
 			return Collections.emptyMap();
 		}
 	}

@@ -27,13 +27,13 @@ class FeatureCalculator {
 	public Map<String, Double> calculate(KmlFeature feature,
 			List<String> parameters, Map<String, Double> defaults,
 			Map<String, Double> shares) {
-		if (feature.getType() == null)
+		if (feature.type == null)
 			return Collections.emptyMap();
-		switch (feature.getType()) {
+		switch (feature.type) {
 		case EMPTY:
 		case MULTI_GEOMETRY:
 			log.warn("cannot calculate parameter values for type {}",
-					feature.getType());
+					feature.type);
 			return Collections.emptyMap();
 		default:
 			return fetchValues(parameters, defaults, shares);

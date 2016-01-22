@@ -43,15 +43,12 @@ public class RegionalizedCalculator {
 		this.interpreter = interpreter;
 		this.impactTable = impactTable;
 		try {
-			RegionalizedResult result = new RegionalizedResult();
-			result.setBaseResult(baseResult);
 			FullResult regioResult = calcRegioResult(baseResult);
-			result.setRegionalizedResult(regioResult);
-			return result;
+			return new RegionalizedResult(baseResult, regioResult);
 		} catch (Exception e) {
 			log.error("failed to calculate regionalized result", e);
+			return null;
 		}
-		return null;
 	}
 
 	private FullResult initRegioResult(FullResult baseResult) {
@@ -85,14 +82,13 @@ public class RegionalizedCalculator {
 		FullResult regioResult = initRegioResult(baseResult);
 		Map<LongPair, Integer> indices = getIndices(regioResult.productIndex);
 		for (KmlLoadResult result : features) {
-			Map<String, Double> parameters = parameterSet.getFor(result
-					.getLocationId());
+			Map<String, Double> parameters = parameterSet.getFor(result.locationId);
 			ImpactMatrix impacts = createImpactMatrix(parameters);
 			IMatrix factors = impacts.getFactorMatrix();
-			for (LongPair product : result.getProcessProducts()) {
+			for (LongPair product : result.processProducts) {
 				int index = indices.get(product);
 				updateImpacts(index, factors, regioResult, false);
-//				updateImpacts(index, factors, regioResult, true);
+				// updateImpacts(index, factors, regioResult, true);
 			}
 		}
 		calcTotalImpactResult(regioResult);

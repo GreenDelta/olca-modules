@@ -50,11 +50,11 @@ public class ParameterCalculator {
 		if (groups.isEmpty())
 			return set;
 		for (KmlLoadResult data : kmlData) {
-			if (data.getKmlFeature().getType() == FeatureType.EMPTY)
+			KmlFeature feature = data.kmlFeature;
+			if (feature == null || feature.type == FeatureType.EMPTY)
 				continue;
-			Map<String, Double> parameterMap = calculate(data.getLocationId(),
-					data.getKmlFeature());
-			set.put(data.getLocationId(), parameterMap);
+			Map<String, Double> parameters = calculate(data.locationId, feature);
+			set.put(data.locationId, parameters);
 		}
 		return set;
 	}

@@ -41,13 +41,13 @@ public class KmlLoader implements IKmlLoader {
 			queryLocationTable();
 			List<KmlLoadResult> results = new ArrayList<>();
 			for (int i = 0; i < index.size(); i++) {
-				LongPair processProduct = index.getProductAt(i);
-				KmlLoadResult result = getFeatureResult(processProduct);
-				if (result != null) {
-					if (!results.contains(result))
-						results.add(result);
-					result.getProcessProducts().add(processProduct);
-				}
+				LongPair product = index.getProductAt(i);
+				KmlLoadResult result = getFeatureResult(product);
+				if (result == null)
+					continue;
+				if (!results.contains(result))
+					results.add(result);
+				result.processProducts.add(product);
 			}
 			return results;
 		} catch (Exception e) {
