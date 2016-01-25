@@ -33,11 +33,11 @@ class ImpactTableBuilder {
 		if (categoryIndex.isEmpty() || flowIndex.isEmpty())
 			return null;
 		ImpactTable table = new ImpactTable();
-		table.setCategoryIndex(categoryIndex);
-		table.setFlowIndex(flowIndex);
+		table.categoryIndex = categoryIndex;
+		table.flowIndex = flowIndex;
 		ImpactFactorMatrix matrix = new ImpactFactorMatrix(
 				categoryIndex.size(), flowIndex.size());
-		table.setFactorMatrix(matrix);
+		table.factorMatrix = matrix;
 		fill(matrix, categoryIndex);
 		log.trace("Impact factor matrix ready");
 		return table;

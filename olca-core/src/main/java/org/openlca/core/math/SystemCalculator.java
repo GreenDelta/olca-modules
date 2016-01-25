@@ -52,7 +52,7 @@ public class SystemCalculator {
 		LcaCalculator calculator = new LcaCalculator(solver, inventoryMatrix);
 		if (setup.impactMethod != null) {
 			ImpactTable impactTable = ImpactTable.build(matrixCache,
-					setup.impactMethod.getId(), inventory.getFlowIndex());
+					setup.impactMethod.getId(), inventory.flowIndex);
 			ImpactMatrix impactMatrix = impactTable.createMatrix(
 					solver.getMatrixFactory(), interpreter);
 			calculator.setImpactMatrix(impactMatrix);

@@ -66,8 +66,8 @@ public class CsvMatrixExport implements Runnable {
 
 	private void writeTechMatrix(Inventory inventory, BufferedWriter buffer)
 			throws Exception {
-		ExchangeMatrix techMatrix = inventory.getTechnologyMatrix();
-		ProductIndex productIndex = inventory.getProductIndex();
+		ExchangeMatrix techMatrix = inventory.technologyMatrix;
+		ProductIndex productIndex = inventory.productIndex;
 		int size = productIndex.size();
 		for (int row = 0; row < size; row++) {
 			LongPair product = productIndex.getProductAt(row);
@@ -96,12 +96,12 @@ public class CsvMatrixExport implements Runnable {
 
 	private void writeEnviMatrix(Inventory inventory, BufferedWriter buffer)
 			throws Exception {
-		ProductIndex productIndex = inventory.getProductIndex();
-		FlowIndex flowIndex = inventory.getFlowIndex();
+		ProductIndex productIndex = inventory.productIndex;
+		FlowIndex flowIndex = inventory.flowIndex;
 		int rows = flowIndex.size();
 		int columns = productIndex.size();
 		writeEnviMatrixHeader(buffer, productIndex);
-		ExchangeMatrix matrix = inventory.getInterventionMatrix();
+		ExchangeMatrix matrix = inventory.interventionMatrix;
 		for (int row = 0; row < rows; row++) {
 			FlowDescriptor flow = getFlow(flowIndex.getFlowAt(row));
 			writeName(flow, buffer);

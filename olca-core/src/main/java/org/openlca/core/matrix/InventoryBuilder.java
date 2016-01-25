@@ -42,11 +42,11 @@ class InventoryBuilder {
 
 	private Inventory createInventory() {
 		Inventory inventory = new Inventory();
-		inventory.setAllocationMethod(allocationMethod);
-		inventory.setFlowIndex(flowIndex);
-		inventory.setInterventionMatrix(interventionMatrix);
-		inventory.setProductIndex(productIndex);
-		inventory.setTechnologyMatrix(technologyMatrix);
+		inventory.allocationMethod = allocationMethod;
+		inventory.flowIndex = flowIndex;
+		inventory.interventionMatrix = interventionMatrix;
+		inventory.productIndex = productIndex;
+		inventory.technologyMatrix = technologyMatrix;
 		fillMatrices();
 		return inventory;
 	}

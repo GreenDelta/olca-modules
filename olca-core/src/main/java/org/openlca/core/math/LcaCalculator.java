@@ -34,16 +34,16 @@ public class LcaCalculator {
 	public SimpleResult calculateSimple() {
 
 		SimpleResult result = new SimpleResult();
-		result.flowIndex = inventory.getFlowIndex();
-		result.productIndex = inventory.getProductIndex();
+		result.flowIndex = inventory.flowIndex;
+		result.productIndex = inventory.productIndex;
 
-		IMatrix techMatrix = inventory.getTechnologyMatrix();
-		ProductIndex productIndex = inventory.getProductIndex();
+		IMatrix techMatrix = inventory.technologyMatrix;
+		ProductIndex productIndex = inventory.productIndex;
 		int idx = productIndex.getIndex(productIndex.getRefProduct());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 		result.scalingFactors = s;
 		result.totalRequirements = getTotalRequirements(techMatrix, s);
-		IMatrix enviMatrix = inventory.getInterventionMatrix();
+		IMatrix enviMatrix = inventory.interventionMatrix;
 
 		result.totalFlowResults = solver.multiply(enviMatrix, s);
 
@@ -62,17 +62,17 @@ public class LcaCalculator {
 	public ContributionResult calculateContributions() {
 
 		ContributionResult result = new ContributionResult();
-		result.flowIndex = inventory.getFlowIndex();
-		result.productIndex = inventory.getProductIndex();
+		result.flowIndex = inventory.flowIndex;
+		result.productIndex = inventory.productIndex;
 
-		IMatrix techMatrix = inventory.getTechnologyMatrix();
-		ProductIndex productIndex = inventory.getProductIndex();
+		IMatrix techMatrix = inventory.technologyMatrix;
+		ProductIndex productIndex = inventory.productIndex;
 		int idx = productIndex.getIndex(productIndex.getRefProduct());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 		result.scalingFactors = s;
 		result.totalRequirements = getTotalRequirements(techMatrix, s);
 
-		IMatrix enviMatrix = inventory.getInterventionMatrix();
+		IMatrix enviMatrix = inventory.interventionMatrix;
 		IMatrix singleResult = enviMatrix.copy();
 		solver.scaleColumns(singleResult, s);
 		result.singleFlowResults = singleResult;
@@ -96,12 +96,12 @@ public class LcaCalculator {
 	public FullResult calculateFull() {
 
 		FullResult result = new FullResult();
-		result.flowIndex = inventory.getFlowIndex();
-		result.productIndex = inventory.getProductIndex();
+		result.flowIndex = inventory.flowIndex;
+		result.productIndex = inventory.productIndex;
 
-		ProductIndex productIdx = inventory.getProductIndex();
-		IMatrix techMatrix = inventory.getTechnologyMatrix();
-		IMatrix enviMatrix = inventory.getInterventionMatrix();
+		ProductIndex productIdx = inventory.productIndex;
+		IMatrix techMatrix = inventory.technologyMatrix;
+		IMatrix enviMatrix = inventory.interventionMatrix;
 		IMatrix inverse = solver.invert(techMatrix);
 		double[] scalingVector = getScalingVector(inverse, productIdx);
 		result.scalingFactors = scalingVector;
@@ -126,11 +126,11 @@ public class LcaCalculator {
 
 		if (impactMatrix != null) {
 			addDirectImpacts(result);
-			IMatrix factors = impactMatrix.getFactorMatrix();
+			IMatrix factors = impactMatrix.factorMatrix;
 			IMatrix totalImpactResult = solver.multiply(factors, totalResult);
 			result.upstreamImpactResults = totalImpactResult;
 			// total impacts = upstream result of reference product
-			result.impactIndex = impactMatrix.getCategoryIndex();
+			result.impactIndex = impactMatrix.categoryIndex;
 			result.totalImpactResults = totalImpactResult.getColumn(refIdx);
 		}
 
@@ -157,7 +157,7 @@ public class LcaCalculator {
 	 * where d is the demand vector and.
 	 * 
 	 */
-	private double[] getScalingVector(IMatrix inverse, ProductIndex productIdx) {
+	public double[] getScalingVector(IMatrix inverse, ProductIndex productIdx) {
 		LongPair refProduct = productIdx.getRefProduct();
 		int idx = productIdx.getIndex(refProduct);
 		double[] s = inverse.getColumn(idx);
@@ -176,7 +176,7 @@ public class LcaCalculator {
 	 * where s is the scaling vector and A the technology matrix.
 	 * 
 	 */
-	private double[] getTotalRequirements(IMatrix techMatrix,
+	public double[] getTotalRequirements(IMatrix techMatrix,
 			double[] scalingVector) {
 		double[] tr = new double[scalingVector.length];
 		for (int i = 0; i < scalingVector.length; i++) {
@@ -188,7 +188,7 @@ public class LcaCalculator {
 	/**
 	 * Calculate the real demand vector for the analysis.
 	 */
-	private double[] getRealDemands(double[] totalRequirements,
+	public double[] getRealDemands(double[] totalRequirements,
 			ProductIndex productIdx) {
 		double refDemand = productIdx.getDemand();
 		int i = productIdx.getIndex(productIdx.getRefProduct());
@@ -206,14 +206,14 @@ public class LcaCalculator {
 	}
 
 	private void addTotalImpacts(SimpleResult result) {
-		result.impactIndex = impactMatrix.getCategoryIndex();
-		IMatrix factors = impactMatrix.getFactorMatrix();
+		result.impactIndex = impactMatrix.categoryIndex;
+		IMatrix factors = impactMatrix.factorMatrix;
 		double[] totals = solver.multiply(factors, result.totalFlowResults);
 		result.totalImpactResults = totals;
 	}
 
 	private void addDirectImpacts(ContributionResult result) {
-		IMatrix factors = impactMatrix.getFactorMatrix();
+		IMatrix factors = impactMatrix.factorMatrix;
 		result.impactFactors = factors;
 		IMatrix directResults = solver.multiply(factors, result.singleFlowResults);
 		result.singleImpactResults = directResults;

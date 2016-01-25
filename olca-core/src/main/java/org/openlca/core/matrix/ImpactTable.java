@@ -1,5 +1,6 @@
 package org.openlca.core.matrix;
 
+import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.expressions.FormulaInterpreter;
@@ -10,9 +11,9 @@ import org.openlca.expressions.FormulaInterpreter;
  */
 public class ImpactTable {
 
-	private LongIndex categoryIndex;
-	private FlowIndex flowIndex;
-	private ImpactFactorMatrix factorMatrix;
+	public LongIndex categoryIndex;
+	public FlowIndex flowIndex;
+	public ImpactFactorMatrix factorMatrix;
 
 	public static ImpactTable build(MatrixCache cache, long impactMethodId,
 			FlowIndex flowIndex) {
@@ -25,30 +26,6 @@ public class ImpactTable {
 				|| factorMatrix == null || factorMatrix.isEmpty();
 	}
 
-	public LongIndex getCategoryIndex() {
-		return categoryIndex;
-	}
-
-	public void setCategoryIndex(LongIndex categoryIndex) {
-		this.categoryIndex = categoryIndex;
-	}
-
-	public FlowIndex getFlowIndex() {
-		return flowIndex;
-	}
-
-	public void setFlowIndex(FlowIndex flowIndex) {
-		this.flowIndex = flowIndex;
-	}
-
-	public ImpactFactorMatrix getFactorMatrix() {
-		return factorMatrix;
-	}
-
-	public void setFactorMatrix(ImpactFactorMatrix factorMatrix) {
-		this.factorMatrix = factorMatrix;
-	}
-
 	public ImpactMatrix createMatrix(IMatrixFactory<?> factory) {
 		return createMatrix(factory, null);
 	}
@@ -57,10 +34,10 @@ public class ImpactTable {
 			FormulaInterpreter interpreter) {
 		evalFormulas(interpreter);
 		ImpactMatrix matrix = new ImpactMatrix();
-		matrix.setCategoryIndex(categoryIndex);
+		matrix.categoryIndex = categoryIndex;
 		if (factorMatrix != null)
-			matrix.setFactorMatrix(factorMatrix.createRealMatrix(factory));
-		matrix.setFlowIndex(flowIndex);
+			matrix.factorMatrix = (IMatrix) factorMatrix.createRealMatrix(factory);
+		matrix.flowIndex = flowIndex;
 		return matrix;
 	}
 
@@ -75,7 +52,7 @@ public class ImpactTable {
 	public void simulate(ImpactMatrix matrix, FormulaInterpreter interpreter) {
 		evalFormulas(interpreter);
 		if (factorMatrix != null)
-			factorMatrix.simulate(matrix.getFactorMatrix());
+			factorMatrix.simulate(matrix.factorMatrix);
 	}
 
 	private void evalFormulas(FormulaInterpreter interpreter) {
