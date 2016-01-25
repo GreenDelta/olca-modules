@@ -75,11 +75,11 @@ public class RegionalizedCalculator {
 	}
 
 	private FullResult calcRegioResult(FullResult baseResult) {
-		List<LocationKml> features = setup.getKmlData();
-		ParameterSet parameterSet = setup.getParameterSet();
+		List<LocationKml> features = setup.kmlData;
+		ParameterSet parameterSet = setup.parameterSet;
 		FullResult regioResult = initRegioResult(baseResult);
 		for (LocationKml result : features) {
-			Map<String, Double> parameters = parameterSet.getFor(result.locationId);
+			Map<String, Double> parameters = parameterSet.get(result.locationId);
 			ImpactMatrix impacts = createImpactMatrix(parameters);
 			IMatrix factors = impacts.getFactorMatrix();
 			for (LongPair product : result.processProducts) {
@@ -107,7 +107,7 @@ public class RegionalizedCalculator {
 	}
 
 	private ImpactMatrix createImpactMatrix(Map<String, Double> params) {
-		long methodId = setup.getImpactMethod().getId();
+		long methodId = setup.method.getId();
 		Scope scope = interpreter.getScope(methodId);
 		for (String param : params.keySet()) {
 			Double val = params.get(param);
