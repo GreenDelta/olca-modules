@@ -27,8 +27,8 @@ public class RegionalizationSetup {
 	final ImpactMethodDescriptor method;
 
 	public boolean canCalculate;
-	List<LocationKml> kmlData;
-	ParameterSet parameterSet;
+	public List<LocationKml> kmlData;
+	public ParameterSet parameterSet;
 
 	/**
 	 * Initializes the resources for regionalized LCIA calculation. The field
