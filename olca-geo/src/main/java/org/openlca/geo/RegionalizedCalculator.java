@@ -3,6 +3,7 @@ package org.openlca.geo;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.IMatrix;
@@ -34,12 +35,15 @@ public class RegionalizedCalculator {
 		this.solver = solver;
 	}
 
-	public FullResult calculate(RegionalizationSetup regioSetup, MatrixCache cache) {
-		if (!regioSetup.canCalculate)
-			return null;
+	public RegionalizedResult calculate(IDatabase db, MatrixCache cache) {
 		try {
-
 			Inventory inventory = DataStructures.createInventory(setup, cache);
+			RegionalizationSetup regioSetup = RegionalizationSetup.create(db,
+					setup.impactMethod, inventory.productIndex);
+
+			if (!regioSetup.canCalculate)
+				return null;
+
 			ParameterTable parameterTable = DataStructures
 					.createParameterTable(regioSetup.database, setup, inventory);
 			FormulaInterpreter interpreter = parameterTable.createInterpreter();
@@ -93,7 +97,8 @@ public class RegionalizedCalculator {
 			r.totalFlowResults = r.upstreamFlowResults.getColumn(refIdx);
 			r.totalImpactResults = r.upstreamImpactResults.getColumn(refIdx);
 
-			return r;
+			return new RegionalizedResult(r, regioSetup.kmlData,
+					regioSetup.parameterSet);
 		} catch (Exception e) {
 			log.error("failed to calculate regionalized result", e);
 			return null;

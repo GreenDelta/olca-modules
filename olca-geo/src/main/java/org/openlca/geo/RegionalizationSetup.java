@@ -19,7 +19,7 @@ import org.openlca.geo.parameter.ShapeFileFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegionalizationSetup {
+class RegionalizationSetup {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
