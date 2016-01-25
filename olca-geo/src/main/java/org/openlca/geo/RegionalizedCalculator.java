@@ -74,10 +74,11 @@ public class RegionalizedCalculator {
 			r.impactFactors = factors;
 			IMatrix assessedEnvi = solver.multiply(factors, m.interventionMatrix);
 			eachKml(regioSetup, impactTable, interpreter, (kml, kmlFactors) -> {
+				IMatrix assessedKml = solver.multiply(kmlFactors, m.interventionMatrix);
 				for (LongPair product : kml.processProducts) {
 					int col = r.productIndex.getIndex(product);
 					for (int row = 0; row < assessedEnvi.getRowDimension(); row++) {
-						assessedEnvi.setEntry(row, col, kmlFactors.getEntry(row, col));
+						assessedEnvi.setEntry(row, col, assessedKml.getEntry(row, col));
 					}
 				}
 			});
