@@ -126,7 +126,7 @@ class InventoryBuilder {
 			// note that the allocation table assures that the factor is 1.0 for
 			// reference products
 			double factor = allocationTable.getFactor(processProduct, exchange);
-			cell.setAllocationFactor(factor);
+			cell.allocationFactor = factor;
 		}
 		matrix.setEntry(row, col, cell);
 	}

@@ -12,15 +12,11 @@ import org.slf4j.LoggerFactory;
 class ExchangeCell {
 
 	final CalcExchange exchange;
-	private double allocationFactor = 1d;
+	public double allocationFactor = 1d;
 	private NumberGenerator generator;
 
 	ExchangeCell(CalcExchange exchange) {
 		this.exchange = exchange;
-	}
-
-	void setAllocationFactor(double allocationFactor) {
-		this.allocationFactor = allocationFactor;
 	}
 
 	void eval(FormulaInterpreter interpreter) {

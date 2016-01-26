@@ -26,24 +26,24 @@ public class CostVector {
 
 	public IMatrix asMatrix(IMatrixFactory<?> factory) {
 		IMatrix m = factory.create(1, values.length);
-		for(int col = 0; col < values.length; col++) {
+		for (int col = 0; col < values.length; col++) {
 			m.setEntry(0, col, values[col]);
 		}
 		return m;
 	}
 
 	public static CostVector build(Inventory inventory, IDatabase db) {
-		return new CostMatrixBuilder(inventory, db).build();
+		return new Builder(inventory, db).build();
 	}
 
-	private static class CostMatrixBuilder {
+	private static class Builder {
 
 		private Inventory inventory;
 		private CurrencyTable currencyTable;
 
 		private double[] values;
 
-		private CostMatrixBuilder(Inventory inventory, IDatabase db) {
+		private Builder(Inventory inventory, IDatabase db) {
 			this.inventory = inventory;
 			this.currencyTable = CurrencyTable.create(db);
 		}
@@ -66,7 +66,7 @@ public class CostVector {
 					return;
 				}
 				val = currencyTable.getFactor(cell.exchange.currency) * val;
-				values[col] += val;
+				values[col] += (val * cell.allocationFactor);
 			});
 		}
 	}
