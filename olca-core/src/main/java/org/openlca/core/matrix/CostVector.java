@@ -66,7 +66,7 @@ public class CostVector {
 					return;
 				}
 				val = currencyTable.getFactor(cell.exchange.currency) * val;
-				values[col] += (val * cell.allocationFactor);
+				values[col] += val;
 			});
 		}
 	}
