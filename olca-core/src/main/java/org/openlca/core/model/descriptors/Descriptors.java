@@ -112,6 +112,7 @@ public class Descriptors {
 			descriptor.setLocation(process.getLocation().getId());
 		if (process.getQuantitativeReference() != null)
 			descriptor.setQuantitativeReference(process.getQuantitativeReference().getId());
+		descriptor.setProcessType(process.getProcessType());
 		return descriptor;
 	}
 
