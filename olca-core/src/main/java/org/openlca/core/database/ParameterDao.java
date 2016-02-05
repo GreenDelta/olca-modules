@@ -28,12 +28,13 @@ public class ParameterDao extends
 		return getAll(jpql, args);
 	}
 
-	public List<ParameterDescriptor> getGlobalParameterDescriptors() {
+	public List<ParameterDescriptor> getGlobalDescriptors() {
 		String sql = getDescriptorQuery();
+		List<Object> parameters = new ArrayList<>();
 		sql += " where scope = ?";
-		List<Object> args = new ArrayList<>();
-		args.add(ParameterScope.GLOBAL.name());
-		List<Object[]> results = selectAll(sql, getDescriptorFields(), args);
+		parameters.add(ParameterScope.GLOBAL.name());
+		List<Object[]> results = selectAll(sql, getDescriptorFields(),
+				parameters);
 		return createDescriptors(results);
 	}
 

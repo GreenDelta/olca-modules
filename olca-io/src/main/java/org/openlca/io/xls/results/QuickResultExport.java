@@ -18,7 +18,7 @@ import org.openlca.io.xls.Excel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QuickResultExport implements Runnable {
+public class QuickResultExport implements IExcelExport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -38,7 +38,8 @@ public class QuickResultExport implements Runnable {
 		this.cache = cache;
 	}
 
-	public void setExportFile(File exportFile) {
+	@Override
+	public void setFile(File exportFile) {
 		this.exportFile = exportFile;
 	}
 
@@ -63,6 +64,7 @@ public class QuickResultExport implements Runnable {
 		}
 	}
 
+	@Override
 	public boolean doneWithSuccess() {
 		return success;
 	}

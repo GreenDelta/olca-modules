@@ -1,5 +1,8 @@
 package org.openlca.core.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Enumeration of the basic types in the openLCA domain model. */
 public enum ModelType {
 
@@ -48,11 +51,20 @@ public enum ModelType {
 	public Class<? extends AbstractEntity> getModelClass() {
 		return modelClass;
 	}
-	
+
 	public boolean isCategorized() {
 		if (modelClass == null)
 			return false;
 		return CategorizedEntity.class.isAssignableFrom(modelClass);
+	}
+
+	public boolean isOneOf(ModelType... types) {
+		if (types == null || types.length == 0)
+			return false;
+		for (ModelType type : types)
+			if (this == type)
+				return true;
+		return false;
 	}
 
 	public static ModelType forModelClass(Class<?> clazz) {
@@ -63,6 +75,16 @@ public enum ModelType {
 				return type;
 		}
 		return null;
+	}
+
+	public static ModelType[] categorized() {
+		List<ModelType> categorized = new ArrayList<>();
+		for (ModelType type : values()) {
+			if (!type.isCategorized())
+				continue;
+			categorized.add(type);
+		}
+		return categorized.toArray(new ModelType[categorized.size()]);
 	}
 
 }

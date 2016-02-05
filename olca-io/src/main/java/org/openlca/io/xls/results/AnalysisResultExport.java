@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * we flush its rows which means that these rows are written to disk and not
  * accessible from memory any more.
  */
-public class AnalysisResultExport implements Runnable {
+public class AnalysisResultExport implements IExcelExport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private CalculationSetup setup;
@@ -44,10 +44,14 @@ public class AnalysisResultExport implements Runnable {
 
 	private boolean success = false;
 
-	public AnalysisResultExport(CalculationSetup setup, File file, FullResultProvider result) {
+	public AnalysisResultExport(CalculationSetup setup, FullResultProvider result) {
 		this.setup = setup;
-		this.file = file;
 		this.result = result;
+	}
+
+	@Override
+	public void setFile(File file) {
+		this.file = file;
 	}
 
 	@Override
