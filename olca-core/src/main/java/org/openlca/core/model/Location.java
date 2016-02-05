@@ -33,6 +33,7 @@ public class Location extends CategorizedEntity {
 		clone.setCode(getCode());
 		clone.setLatitude(getLatitude());
 		clone.setLongitude(getLongitude());
+		clone.setKmz(getKmz());
 		return clone;
 	}
 
