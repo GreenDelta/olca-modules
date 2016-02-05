@@ -31,10 +31,13 @@ class UnitGroupSync {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private UnitGroup olcaGroup;
 	private UnitGroupBag ilcdGroup;
+	private ImportConfig config;
 
-	public UnitGroupSync(UnitGroup olcaGroup, UnitGroupBag ilcdGroup) {
+	public UnitGroupSync(UnitGroup olcaGroup, UnitGroupBag ilcdGroup,
+			ImportConfig config) {
 		this.olcaGroup = olcaGroup;
 		this.ilcdGroup = ilcdGroup;
+		this.config = config;
 	}
 
 	public void run(IDatabase database) {
@@ -76,7 +79,8 @@ class UnitGroupSync {
 			unit.setRefId(id);
 			unit.setName(ilcdUnit.getName());
 			unit.setConversionFactor(factor * ilcdUnit.getMeanValue());
-			unit.setDescription(LangString.get(ilcdUnit.getGeneralComment()));
+			unit.setDescription(LangString.get(ilcdUnit.getGeneralComment(),
+					config.ilcdConfig));
 			olcaGroup.getUnits().add(unit);
 			changed = true;
 		}

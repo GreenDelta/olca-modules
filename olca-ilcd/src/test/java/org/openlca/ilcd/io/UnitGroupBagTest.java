@@ -12,6 +12,7 @@ import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.UnitGroupBag;
 
 public class UnitGroupBagTest {
@@ -24,7 +25,7 @@ public class UnitGroupBagTest {
 				"unit.xml")) {
 			XmlBinder binder = new XmlBinder();
 			UnitGroup group = binder.fromStream(UnitGroup.class, stream);
-			this.bag = new UnitGroupBag(group);
+			this.bag = new UnitGroupBag(group, IlcdConfig.getDefault());
 		}
 	}
 

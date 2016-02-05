@@ -7,6 +7,7 @@ import org.openlca.ilcd.sources.DataSetInformation;
 import org.openlca.ilcd.sources.Publication;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInformation;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.LangString;
 
 public final class SampleSource {
@@ -26,7 +27,8 @@ public final class SampleSource {
 	private static DataSetInformation makeDataInfo() {
 		String id = UUID.randomUUID().toString();
 		DataSetInformation info = new DataSetInformation();
-		LangString.addLabel(info.getShortName(), "test source");
+		LangString.addLabel(info.getShortName(), "test source",
+				IlcdConfig.getDefault());
 		info.setUUID(id);
 		return info;
 	}

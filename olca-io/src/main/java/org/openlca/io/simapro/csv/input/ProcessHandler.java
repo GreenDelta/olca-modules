@@ -2,18 +2,19 @@ package org.openlca.io.simapro.csv.input;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.io.Categories;
-import org.openlca.util.KeyGen;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.simapro.csv.model.AbstractExchangeRow;
@@ -25,6 +26,7 @@ import org.openlca.simapro.csv.model.process.ProcessBlock;
 import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 import org.openlca.simapro.csv.model.process.RefProductRow;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +84,7 @@ class ProcessHandler {
 		mapProductOutputs(scope);
 		mapProductInputs(scope);
 		mapElementaryFlows(scope);
+		mapAllocation();
 	}
 
 	private void mapName() {
@@ -102,6 +105,41 @@ class ProcessHandler {
 		if (refFlow == null)
 			return;
 		process.setLocation(refFlow.getLocation());
+	}
+
+	private void mapAllocation() {
+		for (ProductOutputRow output : block.getProducts()) {
+			double value = output.getAllocation() / 100d;
+			long productId = refData.getProduct(output.getName()).getId();
+			addFactor(AllocationMethod.PHYSICAL, productId, value);
+			addFactor(AllocationMethod.ECONOMIC, productId, value);
+			for (Exchange e : process.getExchanges())
+				if (!isOutputProduct(e))
+					addCausalFactor(productId, e, value);
+		}
+	}
+
+	private boolean isOutputProduct(Exchange exchange) {
+		return exchange != null && exchange.getFlow() != null
+				&& !exchange.isInput() && !exchange.isAvoidedProduct()
+				&& exchange.getFlow().getFlowType() == FlowType.PRODUCT_FLOW;
+	}
+
+	private void addFactor(AllocationMethod method, long productId, double value) {
+		AllocationFactor factor = new AllocationFactor();
+		factor.setAllocationType(method);
+		factor.setValue(value);
+		factor.setProductId(productId);
+		process.getAllocationFactors().add(factor);
+	}
+
+	private void addCausalFactor(long productId, Exchange exchange, double value) {
+		AllocationFactor factor = new AllocationFactor();
+		factor.setAllocationType(AllocationMethod.CAUSAL);
+		factor.setValue(value);
+		factor.setProductId(productId);
+		factor.setExchange(exchange);
+		process.getAllocationFactors().add(factor);
 	}
 
 	private Flow getRefFlow() {
@@ -206,10 +244,11 @@ class ProcessHandler {
 		}
 		Exchange exchange = new Exchange();
 		exchange.setFlow(flow);
+		exchange.description = row.getComment();
 		setExchangeUnit(exchange, flow, row.getUnit());
 		setAmount(exchange, row.getAmount(), scopeId);
-		Uncertainty uncertainty = Uncertainties.get(
-				exchange.getAmountValue(), row.getUncertaintyDistribution());
+		Uncertainty uncertainty = Uncertainties.get(exchange.getAmountValue(),
+				row.getUncertaintyDistribution());
 		exchange.setUncertainty(uncertainty);
 		process.getExchanges().add(exchange);
 		return exchange;

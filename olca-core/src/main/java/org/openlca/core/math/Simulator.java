@@ -86,17 +86,17 @@ public class Simulator {
 				setup, inventory);
 		inventoryMatrix = inventory.createMatrix(factory);
 		result = new SimulationResult();
-		result.productIndex = inventory.getProductIndex();
-		result.flowIndex = inventory.getFlowIndex();
+		result.productIndex = inventory.productIndex;
+		result.flowIndex = inventory.flowIndex;
 		if (impactMethod != null) {
 			ImpactTable impactTable = ImpactTable.build(cache,
-					impactMethod.getId(), inventory.getFlowIndex());
+					impactMethod.getId(), inventory.flowIndex);
 			if (impactTable.isEmpty()) {
 				return;
 			}
 			this.impactTable = impactTable;
 			this.impactMatrix = impactTable.createMatrix(factory);
-			result.impactIndex = impactTable.getCategoryIndex();
+			result.impactIndex = impactTable.categoryIndex;
 		}
 	}
 }

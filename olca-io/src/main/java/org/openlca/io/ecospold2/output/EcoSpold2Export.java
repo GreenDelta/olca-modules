@@ -198,6 +198,7 @@ public class EcoSpold2Export implements Runnable {
 		e2Exchange.setId(new UUID(exchange.getId(), 0L).toString());
 		e2Exchange.setAmount(exchange.getAmountValue());
 		e2Exchange.setMathematicalRelation(exchange.getAmountFormula());
+		e2Exchange.setComment(exchange.description);
 		e2Exchange.setCasNumber(exchange.getFlow().getCasNumber());
 		e2Exchange.setUncertainty(UncertaintyConverter.fromOpenLCA(exchange
 				.getUncertainty()));

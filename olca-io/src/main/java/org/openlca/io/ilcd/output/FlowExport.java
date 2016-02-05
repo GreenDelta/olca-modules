@@ -2,8 +2,6 @@ package org.openlca.io.ilcd.output;
 
 import java.math.BigInteger;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Version;
@@ -15,6 +13,7 @@ import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.flows.AdministrativeInformation;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInformation;
+import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowInformation;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.FlowPropertyList;
@@ -24,26 +23,25 @@ import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
 import org.openlca.ilcd.flows.Publication;
 import org.openlca.ilcd.flows.QuantitativeReference;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
 
 public class FlowExport {
 
-	private Flow flow;
-	private IDatabase database;
-	private DataStore dataStore;
+	private final ExportConfig config;
+	private org.openlca.core.model.Flow flow;
 	private String baseUri;
 
-	public FlowExport(IDatabase database, DataStore dataStore) {
-		this.database = database;
-		this.dataStore = dataStore;
+	public FlowExport(ExportConfig config) {
+		this.config = config;
 	}
 
-	public org.openlca.ilcd.flows.Flow run(Flow flow) throws DataStoreException {
+	public Flow run(org.openlca.core.model.Flow flow) throws DataStoreException {
+		if (config.store.contains(Flow.class, flow.getRefId()))
+			return config.store.get(Flow.class, flow.getRefId());
 		this.flow = flow;
-		org.openlca.ilcd.flows.Flow iFlow = new org.openlca.ilcd.flows.Flow();
+		Flow iFlow = new Flow();
 		iFlow.setVersion("1.1");
 		FlowInformation info = new FlowInformation();
 		iFlow.setFlowInformation(info);
@@ -55,7 +53,7 @@ public class FlowExport {
 		iFlow.setModellingAndValidation(makeModellingInfo());
 		iFlow.setFlowProperties(makeFlowProperties());
 		addLocation(iFlow);
-		dataStore.put(iFlow, flow.getRefId());
+		config.store.put(iFlow, flow.getRefId());
 		this.flow = null;
 		return iFlow;
 	}
@@ -65,12 +63,16 @@ public class FlowExport {
 		info.setUUID(flow.getRefId());
 		FlowName flowName = new FlowName();
 		info.setName(flowName);
-		LangString.addLabel(flowName.getBaseName(), flow.getName());
+		LangString.addLabel(flowName.getBaseName(), flow.getName(),
+				config.ilcdConfig);
 		if (flow.getDescription() != null)
 			LangString.addFreeText(info.getGeneralComment(),
-					flow.getDescription());
+					flow.getDescription(), config.ilcdConfig);
 		info.setCASNumber(flow.getCasNumber());
 		info.setSumFormula(flow.getFormula());
+		if (flow.synonyms != null)
+			LangString.addFreeText(info.getSynonyms(), flow.synonyms,
+					config.ilcdConfig);
 		makeCategoryInfo(info);
 		return info;
 	}
@@ -103,7 +105,7 @@ public class FlowExport {
 			list.getFlowProperty().add(propRef);
 			FlowProperty property = factor.getFlowProperty();
 			DataSetReference ref = ExportDispatch.forwardExportCheck(property,
-					database, dataStore);
+					config);
 			propRef.setFlowProperty(ref);
 			if (property.equals(referenceProperty))
 				propRef.setDataSetInternalID(BigInteger.valueOf(0));
@@ -118,7 +120,7 @@ public class FlowExport {
 		if (flow != null && flow.getLocation() != null) {
 			Geography geography = new Geography();
 			LangString.addLabel(geography.getLocation(), flow.getLocation()
-					.getCode());
+					.getCode(), config.ilcdConfig);
 			iFlow.getFlowInformation().setGeography(geography);
 		}
 	}
@@ -128,7 +130,8 @@ public class FlowExport {
 		DataEntry entry = new DataEntry();
 		info.setDataEntry(entry);
 		entry.setTimeStamp(Out.getTimestamp(flow));
-		entry.getReferenceToDataSetFormat().add(Reference.forIlcdFormat());
+		entry.getReferenceToDataSetFormat().add(
+				Reference.forIlcdFormat(config.ilcdConfig));
 		addPublication(info);
 		return info;
 	}

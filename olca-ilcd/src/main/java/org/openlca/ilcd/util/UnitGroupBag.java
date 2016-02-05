@@ -21,9 +21,11 @@ import org.openlca.ilcd.units.UnitList;
 public class UnitGroupBag implements IBag<UnitGroup> {
 
 	private UnitGroup unitGroup;
+	private IlcdConfig config;
 
-	public UnitGroupBag(UnitGroup unitGroup) {
+	public UnitGroupBag(UnitGroup unitGroup, IlcdConfig config) {
 		this.unitGroup = unitGroup;
+		this.config = config;
 	}
 
 	@Override
@@ -59,14 +61,14 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 	public String getName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getName());
+			return LangString.get(info.getName(), config);
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getGeneralComment());
+			return LangString.get(info.getGeneralComment(), config);
 		return null;
 	}
 

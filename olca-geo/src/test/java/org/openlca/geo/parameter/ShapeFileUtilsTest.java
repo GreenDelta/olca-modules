@@ -1,17 +1,15 @@
 package org.openlca.geo.parameter;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.openlca.geo.Tests;
-import org.openlca.geo.parameter.ShapeFileRepository;
-import org.openlca.geo.parameter.ShapeFileUtils;
-
 import java.io.File;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.openlca.geo.Tests;
+
 public class ShapeFileUtilsTest {
 
-	private ShapeFileRepository repository = Tests.getRepository();
+	private ShapeFileFolder repository = Tests.getRepository();
 
 	@Test
 	public void testGetName() {
@@ -24,16 +22,16 @@ public class ShapeFileUtilsTest {
 
 	@Test
 	public void testGetAllFiles() {
-		File shapeFile = new File(repository.getFolder(), "states.shp");
+		File shapeFile = new File(repository.folder, "states.shp");
 		List<File> files = ShapeFileUtils.getAllFiles(shapeFile);
 		Assert.assertTrue(files.size() >= 7);
 	}
 
 	@Test
 	public void testIsValid() {
-		File shapeFile = new File(repository.getFolder(), "states.shp");
+		File shapeFile = new File(repository.folder, "states.shp");
 		Assert.assertTrue(ShapeFileUtils.isValid(shapeFile));
-		shapeFile = new File(repository.getFolder(), "states_not_exists.shp");
+		shapeFile = new File(repository.folder, "states_not_exists.shp");
 		Assert.assertFalse(ShapeFileUtils.isValid(shapeFile));
 	}
 

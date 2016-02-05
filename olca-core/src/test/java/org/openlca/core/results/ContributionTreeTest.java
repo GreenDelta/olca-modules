@@ -24,20 +24,20 @@ public class ContributionTreeTest {
 		productIndex.put(LongPair.of(3, 3));
 		productIndex.putLink(LongPair.of(1, 2), LongPair.of(2, 2));
 		productIndex.putLink(LongPair.of(1, 3), LongPair.of(3, 3));
-		matrix.setProductIndex(productIndex);
+		matrix.productIndex = productIndex;
 
 		FlowIndex flowIndex = new FlowIndex();
 		flowIndex.putOutputFlow(4);
-		matrix.setFlowIndex(flowIndex);
+		matrix.flowIndex = flowIndex;
 
 		IMatrixFactory<?> factory = Tests.getDefaultSolver()
 				.getMatrixFactory();
 		IMatrix techMatrix = MatrixUtils.create(new double[][] { { 1, 0, 0 },
 				{ -1, 1, 0 }, { -1, 0, 1 } }, factory);
-		matrix.setTechnologyMatrix(techMatrix);
+		matrix.technologyMatrix = techMatrix;
 		IMatrix enviMatrix = MatrixUtils.create(
 				new double[][] { { 0, 0.5, 0.5 } }, factory);
-		matrix.setInterventionMatrix(enviMatrix);
+		matrix.interventionMatrix = enviMatrix;
 
 		FullResult result = new LcaCalculator(Tests.getDefaultSolver(), matrix)
 				.calculateFull();

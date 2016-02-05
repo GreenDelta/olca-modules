@@ -26,35 +26,35 @@ public class CostVector {
 
 	public IMatrix asMatrix(IMatrixFactory<?> factory) {
 		IMatrix m = factory.create(1, values.length);
-		for(int col = 0; col < values.length; col++) {
+		for (int col = 0; col < values.length; col++) {
 			m.setEntry(0, col, values[col]);
 		}
 		return m;
 	}
 
 	public static CostVector build(Inventory inventory, IDatabase db) {
-		return new CostMatrixBuilder(inventory, db).build();
+		return new Builder(inventory, db).build();
 	}
 
-	private static class CostMatrixBuilder {
+	private static class Builder {
 
 		private Inventory inventory;
 		private CurrencyTable currencyTable;
 
 		private double[] values;
 
-		private CostMatrixBuilder(Inventory inventory, IDatabase db) {
+		private Builder(Inventory inventory, IDatabase db) {
 			this.inventory = inventory;
 			this.currencyTable = CurrencyTable.create(db);
 		}
 
 		private CostVector build() {
-			if (inventory == null || inventory.getProductIndex() == null)
+			if (inventory == null || inventory.productIndex == null)
 				return new CostVector(null, null);
-			values = new double[inventory.getProductIndex().size()];
-			scan(inventory.getTechnologyMatrix());
-			scan(inventory.getInterventionMatrix());
-			return new CostVector(inventory.getProductIndex(), values);
+			values = new double[inventory.productIndex.size()];
+			scan(inventory.technologyMatrix);
+			scan(inventory.interventionMatrix);
+			return new CostVector(inventory.productIndex, values);
 		}
 
 		private void scan(ExchangeMatrix matrix) {

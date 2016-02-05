@@ -12,6 +12,7 @@ import org.openlca.ilcd.sources.DataSetInformation;
 import org.openlca.ilcd.sources.Publication;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInformation;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.LangString;
 
 public class NetworkPutSourceTest {
@@ -40,7 +41,7 @@ public class NetworkPutSourceTest {
 	private DataSetInformation makeDataInfo(String id) {
 		DataSetInformation info = new DataSetInformation();
 		String name = "xtest Source - " + new Random().nextInt(1000);
-		LangString.addLabel(info.getShortName(), name);
+		LangString.addLabel(info.getShortName(), name, IlcdConfig.getDefault());
 		info.setUUID(id);
 		return info;
 	}

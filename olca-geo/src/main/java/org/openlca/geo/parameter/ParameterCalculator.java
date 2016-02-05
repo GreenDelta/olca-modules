@@ -10,7 +10,7 @@ import org.geotools.data.DataStore;
 import org.openlca.core.model.Parameter;
 import org.openlca.geo.kml.FeatureType;
 import org.openlca.geo.kml.KmlFeature;
-import org.openlca.geo.kml.KmlLoadResult;
+import org.openlca.geo.kml.LocationKml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,15 +21,13 @@ public class ParameterCalculator {
 	private Map<String, List<String>> groups;
 	private Map<String, DataStore> stores;
 	private Map<String, Double> defaults;
-	private ParameterRepository repository;
+	private ParameterCache cache;
 
-	public ParameterCalculator(List<Parameter> parameters,
-			ShapeFileRepository shapeFileRepository,
-			ParameterRepository parameterRepository) {
-		groups = groupParameters(parameters);
-		stores = openStores(groups.keySet(), shapeFileRepository);
+	public ParameterCalculator(List<Parameter> parameters, ShapeFileFolder folder) {
+		groups = groupByShapeFile(parameters);
+		stores = openStores(groups.keySet(), folder);
 		defaults = getDefaultValues(parameters);
-		repository = parameterRepository;
+		cache = new ParameterCache(folder);
 	}
 
 	public Map<String, Double> calculate(long locationId, KmlFeature feature) {
@@ -45,23 +43,23 @@ public class ParameterCalculator {
 		return parameterMap;
 	}
 
-	public ParameterSet calculate(List<KmlLoadResult> kmlData) {
+	public ParameterSet calculate(List<LocationKml> kmlData) {
 		ParameterSet set = new ParameterSet(defaults);
 		if (groups.isEmpty())
 			return set;
-		for (KmlLoadResult data : kmlData) {
-			if (data.getKmlFeature().getType() == FeatureType.EMPTY)
+		for (LocationKml data : kmlData) {
+			KmlFeature feature = data.kmlFeature;
+			if (feature == null || feature.type == FeatureType.EMPTY)
 				continue;
-			Map<String, Double> parameterMap = calculate(data.getLocationId(),
-					data.getKmlFeature());
-			set.put(data.getLocationId(), parameterMap);
+			Map<String, Double> parameters = calculate(data.locationId, feature);
+			set.put(data.locationId, parameters);
 		}
 		return set;
 	}
 
 	private Map<String, Double> loadOrCalculateShares(long locationId,
 			KmlFeature feature, String shapeFile) {
-		Map<String, Double> result = repository.load(locationId, shapeFile);
+		Map<String, Double> result = cache.load(locationId, shapeFile);
 		if (result != null)
 			return result;
 		DataStore store = stores.get(shapeFile);
@@ -69,7 +67,7 @@ public class ParameterCalculator {
 		List<String> group = groups.get(shapeFile);
 		log.debug("Calculating shares for location " + locationId);
 		result = calculator.calculate(feature, group);
-		repository.save(locationId, shapeFile, result);
+		cache.save(locationId, shapeFile, result);
 		return result != null ? result : new HashMap<String, Double>();
 	}
 
@@ -84,7 +82,7 @@ public class ParameterCalculator {
 		return result != null ? result : new HashMap<String, Double>();
 	}
 
-	private static void fillDefaults(Map<String, Double> results,
+	private void fillDefaults(Map<String, Double> results,
 			Map<String, Double> defaults) {
 		for (String param : defaults.keySet()) {
 			Double r = results.get(param);
@@ -93,28 +91,26 @@ public class ParameterCalculator {
 		}
 	}
 
-	private static Map<String, Double> getDefaultValues(
-			List<Parameter> parameters) {
-		Map<String, Double> defaultValues = new HashMap<>();
-		for (Parameter parameter : parameters)
-			defaultValues.put(parameter.getName(), parameter.getValue());
-		return defaultValues;
+	private Map<String, Double> getDefaultValues(List<Parameter> params) {
+		Map<String, Double> map = new HashMap<>();
+		for (Parameter p : params)
+			map.put(p.getName(), p.getValue());
+		return map;
 	}
 
-	private static Map<String, DataStore> openStores(Set<String> shapeFiles,
-			ShapeFileRepository repository) {
+	private Map<String, DataStore> openStores(Set<String> shapeFiles,
+			ShapeFileFolder folder) {
 		Map<String, DataStore> stores = new HashMap<>();
 		for (String shapeFile : shapeFiles) {
-			DataStore store = repository.openDataStore(shapeFile);
+			DataStore store = folder.openDataStore(shapeFile);
 			stores.put(shapeFile, store);
 		}
 		return stores;
 	}
 
-	private static Map<String, List<String>> groupParameters(
-			List<Parameter> parameters) {
+	private Map<String, List<String>> groupByShapeFile(List<Parameter> params) {
 		Map<String, List<String>> groups = new HashMap<>();
-		for (Parameter param : parameters) {
+		for (Parameter param : params) {
 			String shapeFile = param.getExternalSource();
 			List<String> group = groups.get(shapeFile);
 			if (group == null) {

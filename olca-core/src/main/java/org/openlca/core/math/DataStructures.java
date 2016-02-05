@@ -77,8 +77,8 @@ public class DataStructures {
 		Set<Long> contexts = new HashSet<>();
 		if (setup.impactMethod != null)
 			contexts.add(setup.impactMethod.getId());
-		if (inventory.getProductIndex() != null)
-			contexts.addAll(inventory.getProductIndex().getProcessIds());
+		if (inventory.productIndex != null)
+			contexts.addAll(inventory.productIndex.getProcessIds());
 		ParameterTable table = ParameterTable.build(db, contexts);
 		table.apply(setup.parameterRedefs);
 		return table;

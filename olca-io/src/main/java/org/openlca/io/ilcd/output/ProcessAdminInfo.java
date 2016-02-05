@@ -6,14 +6,12 @@ import java.util.GregorianCalendar;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.processes.AdministrativeInformation;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataGenerator;
@@ -26,23 +24,20 @@ import org.slf4j.LoggerFactory;
 
 class ProcessAdminInfo {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ExportConfig config;
 	private Process process;
 	private ProcessDocumentation documentation;
 	private AdministrativeInformation iAdminInfo;
-	private IDatabase database;
-	private DataStore dataStore;
-	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	public ProcessAdminInfo(Process process) {
-		this.process = process;
-		this.documentation = process.getDocumentation();
+	ProcessAdminInfo(ExportConfig config) {
+		this.config = config;
 	}
 
-	public AdministrativeInformation create(IDatabase database,
-			DataStore dataStore) {
+	AdministrativeInformation create(Process process) {
+		this.process = process;
+		this.documentation = process.getDocumentation();
 		iAdminInfo = new AdministrativeInformation();
-		this.database = database;
-		this.dataStore = dataStore;
 		createDataGenerator();
 		createDataEntry();
 		createPublication();
@@ -54,10 +49,11 @@ class ProcessAdminInfo {
 		DataEntry dataEntry = new DataEntry();
 		iAdminInfo.setDataEntry(dataEntry);
 		dataEntry.setTimeStamp(toXmlCalender(new Date()));
-		dataEntry.getReferenceToDataSetFormat().add(Reference.forIlcdFormat());
+		dataEntry.getReferenceToDataSetFormat().add(
+				Reference.forIlcdFormat(config.ilcdConfig));
 		if (documentation.getDataDocumentor() != null) {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
-					documentation.getDataDocumentor(), database, dataStore);
+					documentation.getDataDocumentor(), config);
 			if (ref != null) {
 				dataEntry.setReferenceToPersonOrEntityEnteringTheData(ref);
 			}
@@ -69,7 +65,7 @@ class ProcessAdminInfo {
 			DataGenerator generator = new DataGenerator();
 			iAdminInfo.setDataGenerator(generator);
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
-					documentation.getDataGenerator(), database, dataStore);
+					documentation.getDataGenerator(), config);
 			if (ref != null)
 				generator.getReferenceToPersonOrEntityGeneratingTheDataSet()
 						.add(ref);
@@ -102,7 +98,8 @@ class ProcessAdminInfo {
 		mapDataSetOwner(publication);
 		if (!Strings.nullOrEmpty(documentation.getRestrictions())) {
 			publication.getAccessRestrictions().add(
-					LangString.freeText(documentation.getRestrictions()));
+					LangString.freeText(documentation.getRestrictions(),
+							config.ilcdConfig));
 		}
 		mapPublicationSource(publication);
 	}
@@ -110,7 +107,7 @@ class ProcessAdminInfo {
 	private void mapDataSetOwner(Publication publication) {
 		if (documentation.getDataSetOwner() != null) {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
-					documentation.getDataSetOwner(), database, dataStore);
+					documentation.getDataSetOwner(), config);
 			if (ref != null) {
 				publication.setReferenceToOwnershipOfDataSet(ref);
 			}
@@ -121,8 +118,8 @@ class ProcessAdminInfo {
 		Source source = documentation.getPublication();
 		if (source == null)
 			return;
-		DataSetReference ref = ExportDispatch.forwardExportCheck(source,
-				database, dataStore);
+		DataSetReference ref = ExportDispatch
+				.forwardExportCheck(source, config);
 		if (ref != null)
 			publication.setReferenceToUnchangedRepublication(ref);
 	}
@@ -134,13 +131,14 @@ class ProcessAdminInfo {
 		CommissionerAndGoal comAndGoal = new CommissionerAndGoal();
 		iAdminInfo.setCommissionerAndGoal(comAndGoal);
 		if (!Strings.nullOrEmpty(documentation.getIntendedApplication())) {
-			comAndGoal.getIntendedApplications()
-					.add(LangString.freeText(documentation
-							.getIntendedApplication()));
+			comAndGoal.getIntendedApplications().add(
+					LangString.freeText(documentation.getIntendedApplication(),
+							config.ilcdConfig));
 		}
 		if (!Strings.nullOrEmpty(documentation.getProject())) {
 			comAndGoal.getProject().add(
-					LangString.label(documentation.getProject()));
+					LangString.label(documentation.getProject(),
+							config.ilcdConfig));
 		}
 	}
 

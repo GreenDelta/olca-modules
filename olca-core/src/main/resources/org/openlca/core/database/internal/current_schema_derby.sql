@@ -177,6 +177,7 @@ CREATE TABLE tbl_flows (
 	version BIGINT,
 	last_change BIGINT,
 	f_category BIGINT,
+	synonyms VARCHAR(32672),
 	description CLOB(64 K),
 
 	flow_type VARCHAR(255), 
@@ -288,6 +289,7 @@ CREATE TABLE tbl_exchanges (
 	resulting_amount_formula VARCHAR(1000), 
 	avoided_product SMALLINT default 0,
 	f_default_provider BIGINT,
+	description CLOB(64 K),
 	
 	cost_value DOUBLE,
 	cost_formula VARCHAR(1000),

@@ -14,9 +14,12 @@ import org.openlca.ilcd.util.TimeExtension;
 class ProcessTime {
 
 	private org.openlca.ilcd.commons.Time ilcdTime;
+	private ImportConfig config;
 
-	public ProcessTime(org.openlca.ilcd.commons.Time ilcdTime) {
+	public ProcessTime(org.openlca.ilcd.commons.Time ilcdTime,
+			ImportConfig config) {
 		this.ilcdTime = ilcdTime;
+		this.config = config;
 	}
 
 	public void map(ProcessDocumentation documentation) {
@@ -29,7 +32,7 @@ class ProcessTime {
 		TimeExtension extension = new TimeExtension(ilcdTime);
 		mapStartDate(extension, doc);
 		mapEndDate(extension, doc);
-		doc.setTime(LangString.get(ilcdTime.getDescription()));
+		doc.setTime(LangString.get(ilcdTime.getDescription(), config.ilcdConfig));
 	}
 
 	private void mapStartDate(TimeExtension extension, ProcessDocumentation doc) {

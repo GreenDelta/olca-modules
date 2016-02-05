@@ -46,7 +46,7 @@ class IOSheet {
 			write(exchange);
 			row++;
 		}
-		Excel.autoSize(sheet, 0, 8);
+		Excel.autoSize(sheet, 0, 12);
 	}
 
 	private void witeHeader() {
@@ -56,11 +56,14 @@ class IOSheet {
 		config.header(sheet, row, 3, "Unit");
 		config.header(sheet, row, 4, "Amount");
 		config.header(sheet, row, 5, "Formula");
-		config.header(sheet, row, 6, "Uncertainty");
-		config.header(sheet, row, 7, "(g)mean | mode");
-		config.header(sheet, row, 8, "SD | GSD");
-		config.header(sheet, row, 9, "Minimum");
-		config.header(sheet, row, 10, "Maximum");
+		config.header(sheet, row, 6, "Description");
+		config.header(sheet, row, 7, "Uncertainty");
+		config.header(sheet, row, 8, "(g)mean | mode");
+		config.header(sheet, row, 9, "SD | GSD");
+		config.header(sheet, row, 10, "Minimum");
+		config.header(sheet, row, 11, "Maximum");
+		if (!forInputs)
+			config.header(sheet, row, 12, "Is avoided product?");
 	}
 
 	private void write(Exchange exchange) {
@@ -71,7 +74,10 @@ class IOSheet {
 		Excel.cell(sheet, row, 3, getUnit(exchange));
 		Excel.cell(sheet, row, 4, exchange.getAmountValue());
 		Excel.cell(sheet, row, 5, exchange.getAmountFormula());
-		config.uncertainty(sheet, row, 6, exchange.getUncertainty());
+		Excel.cell(sheet, row, 6, exchange.description);
+		config.uncertainty(sheet, row, 7, exchange.getUncertainty());
+		if (!forInputs)
+			Excel.cell(sheet, row, 12, exchange.isAvoidedProduct() ? "Yes": "");
 	}
 
 	private String getFlowProperty(Exchange exchange) {

@@ -1,26 +1,22 @@
 package org.openlca.geo;
 
+import java.util.List;
+
 import org.openlca.core.results.FullResult;
+import org.openlca.geo.kml.LocationKml;
+import org.openlca.geo.parameter.ParameterSet;
 
 public class RegionalizedResult {
 
-	private FullResult baseResult;
-	private FullResult regionalizedResult;
+	public final FullResult result;
+	public final List<LocationKml> kmlData;
+	public final ParameterSet parameterSet;
 
-	public void setBaseResult(FullResult baseResult) {
-		this.baseResult = baseResult;
-	}
-
-	public FullResult getBaseResult() {
-		return baseResult;
-	}
-
-	public void setRegionalizedResult(FullResult regionalizedResult) {
-		this.regionalizedResult = regionalizedResult;
-	}
-
-	public FullResult getRegionalizedResult() {
-		return regionalizedResult;
+	RegionalizedResult(FullResult result, List<LocationKml> kmlData,
+			ParameterSet parameterSet) {
+		this.result = result;
+		this.kmlData = kmlData;
+		this.parameterSet = parameterSet;
 	}
 
 }

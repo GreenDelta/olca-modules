@@ -9,19 +9,18 @@ import org.openlca.ilcd.contacts.ContactInformation;
 import org.openlca.ilcd.contacts.DataEntry;
 import org.openlca.ilcd.contacts.DataSetInformation;
 import org.openlca.ilcd.contacts.Publication;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
 
 public class ActorExport {
 
+	private final ExportConfig config;
 	private Actor actor;
-	private DataStore dataStore;
 	private String baseUri;
 
-	public ActorExport(DataStore dataStore) {
-		this.dataStore = dataStore;
+	public ActorExport(ExportConfig config) {
+		this.config = config;
 	}
 
 	public void setBaseUri(String baseUri) {
@@ -29,6 +28,8 @@ public class ActorExport {
 	}
 
 	public Contact run(Actor actor) throws DataStoreException {
+		if (config.store.contains(Contact.class, actor.getRefId()))
+			return config.store.get(Contact.class, actor.getRefId());
 		this.actor = actor;
 		Contact contact = new Contact();
 		contact.setVersion("1.1");
@@ -36,7 +37,7 @@ public class ActorExport {
 		contact.setContactInformation(info);
 		info.setDataSetInformation(makeDataSetInfo());
 		contact.setAdministrativeInformation(makeAdminInfo());
-		dataStore.put(contact, actor.getRefId());
+		config.store.put(contact, actor.getRefId());
 		this.actor = null;
 		return contact;
 	}
@@ -44,7 +45,8 @@ public class ActorExport {
 	private DataSetInformation makeDataSetInfo() {
 		DataSetInformation dataSetInfo = new DataSetInformation();
 		dataSetInfo.setUUID(actor.getRefId());
-		LangString.addLabel(dataSetInfo.getName(), actor.getName());
+		LangString.addLabel(dataSetInfo.getName(), actor.getName(),
+				config.ilcdConfig);
 		dataSetInfo.setEmail(actor.getEmail());
 		dataSetInfo.setTelefax(actor.getTelefax());
 		dataSetInfo.setTelephone(actor.getTelephone());
@@ -52,7 +54,7 @@ public class ActorExport {
 		addAddress(dataSetInfo);
 		if (actor.getDescription() != null) {
 			LangString.addShortText(dataSetInfo.getDescription(),
-					actor.getDescription());
+					actor.getDescription(), config.ilcdConfig);
 		}
 		addClassification(dataSetInfo);
 		return dataSetInfo;
@@ -66,8 +68,8 @@ public class ActorExport {
 			address += ", " + actor.getZipCode();
 		if (actor.getCity() != null)
 			address += " " + actor.getCity();
-		LangString.addShortText(dataSetInfo.getCentralContactPoint(),
-				address);
+		LangString.addShortText(dataSetInfo.getCentralContactPoint(), address,
+				config.ilcdConfig);
 	}
 
 	private void addClassification(DataSetInformation dataSetInfo) {
@@ -86,7 +88,8 @@ public class ActorExport {
 		DataEntry entry = new DataEntry();
 		info.setDataEntry(entry);
 		entry.setTimeStamp(Out.getTimestamp(actor));
-		entry.getReferenceToDataSetFormat().add(Reference.forIlcdFormat());
+		entry.getReferenceToDataSetFormat().add(
+				Reference.forIlcdFormat(config.ilcdConfig));
 		addPublication(info);
 		return info;
 	}

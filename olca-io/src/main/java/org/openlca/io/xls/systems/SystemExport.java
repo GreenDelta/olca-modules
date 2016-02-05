@@ -16,8 +16,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.DataStructures;
+import org.openlca.core.math.IMatrix;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
@@ -58,7 +58,7 @@ public class SystemExport {
 				conf.getAllocationMethod(), conf.getMatrixCache());
 		if (conf.getImpactMethod() != null) {
 			impactTable = ImpactTable.build(conf.getMatrixCache(), conf
-					.getImpactMethod().getId(), inventory.getFlowIndex());
+					.getImpactMethod().getId(), inventory.flowIndex);
 		}
 	}
 
@@ -100,8 +100,8 @@ public class SystemExport {
 
 		String name = conf.getSystem().getName();
 		int processes = conf.getSystem().getProcesses().size();
-		int products = inventory.getProductIndex().size();
-		int flows = inventory.getFlowIndex().size();
+		int products = inventory.productIndex.size();
+		int flows = inventory.flowIndex.size();
 		String dimensions = flows + "x" + products;
 
 		currentRow = line(sheet, currentRow, "Product system:", name);
@@ -147,7 +147,7 @@ public class SystemExport {
 
 		String name = conf.getSystem().getName();
 		int processes = conf.getSystem().getProcesses().size();
-		int products = inventory.getProductIndex().size();
+		int products = inventory.productIndex.size();
 		String dimensions = products + "x" + products;
 
 		currentRow = line(sheet, currentRow, "Product system:", name);
@@ -173,8 +173,8 @@ public class SystemExport {
 
 		String name = conf.getSystem().getName();
 		String methodName = conf.getImpactMethod().getName();
-		int categories = impactTable.getCategoryIndex().size();
-		int factors = impactTable.getFlowIndex().size();
+		int categories = impactTable.categoryIndex.size();
+		int factors = impactTable.flowIndex.size();
 		String dimensions = factors + "x" + categories;
 
 		currentRow = line(sheet, currentRow, "Product system:", name);
@@ -265,25 +265,23 @@ public class SystemExport {
 	}
 
 	private void createElementarySheet(Workbook workbook) {
-		ExcelHeader columnHeader = createProductHeader(inventory
-				.getProductIndex());
-		ExcelHeader rowHeader = createFlowHeader(inventory.getFlowIndex());
+		ExcelHeader columnHeader = createProductHeader(inventory.productIndex);
+		ExcelHeader rowHeader = createFlowHeader(inventory.flowIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
-		export.setMatrix(inventory.getInterventionMatrix().createRealMatrix(
+		export.setMatrix(inventory.interventionMatrix.createRealMatrix(
 				conf.getMatrixFactory()));
 		export.writeTo(workbook);
 	}
 
 	private void createProductSheet(Workbook workbook) {
-		ExcelHeader columnHeader = createProductHeader(inventory
-				.getProductIndex());
-		ExcelHeader rowHeader = createProductHeader(inventory.getProductIndex());
+		ExcelHeader columnHeader = createProductHeader(inventory.productIndex);
+		ExcelHeader rowHeader = createProductHeader(inventory.productIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
-		export.setMatrix(inventory.getTechnologyMatrix().createRealMatrix(
+		export.setMatrix(inventory.technologyMatrix.createRealMatrix(
 				conf.getMatrixFactory()));
 		Sheet sheet = export.writeTo(workbook);
 		int columnOffSet = rowHeader.getHeaderSize() + 1;
@@ -293,13 +291,13 @@ public class SystemExport {
 	}
 
 	private void createImpactMethodSheet(Workbook workbook) {
-		ExcelHeader columnHeader = createImpactCategoryHeader(impactTable
-				.getCategoryIndex());
-		ExcelHeader rowHeader = createFlowHeader(impactTable.getFlowIndex());
+		ExcelHeader columnHeader = createImpactCategoryHeader(
+				impactTable.categoryIndex);
+		ExcelHeader rowHeader = createFlowHeader(impactTable.flowIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
-		export.setMatrix(transpose(impactTable.getFactorMatrix()
+		export.setMatrix(transpose(impactTable.factorMatrix
 				.createRealMatrix(conf.getMatrixFactory())));
 		export.writeTo(workbook);
 	}

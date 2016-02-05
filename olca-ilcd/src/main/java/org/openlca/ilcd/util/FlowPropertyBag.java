@@ -20,9 +20,11 @@ import org.openlca.ilcd.flowproperties.QuantitativeReference;
 public class FlowPropertyBag implements IBag<FlowProperty> {
 
 	private FlowProperty flowProperty;
+	private IlcdConfig config;
 
-	public FlowPropertyBag(FlowProperty flowProperty) {
+	public FlowPropertyBag(FlowProperty flowProperty, IlcdConfig config) {
 		this.flowProperty = flowProperty;
+		this.config = config;
 	}
 
 	@Override
@@ -41,14 +43,14 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 	public String getName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getName());
+			return LangString.get(info.getName(), config);
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getGeneralComment());
+			return LangString.get(info.getGeneralComment(), config);
 		return null;
 	}
 

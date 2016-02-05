@@ -11,6 +11,7 @@ import org.openlca.ilcd.descriptors.UnitGroupDescriptor;
 import org.openlca.ilcd.io.NetworkClient;
 import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.units.UnitGroup;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.UnitGroupBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class DescriptorTest {
 		XmlBinder binder = new XmlBinder();
 		UnitGroup group = binder.fromStream(UnitGroup.class, getClass()
 				.getResourceAsStream("unit.xml"));
-		UnitGroupBag bag = new UnitGroupBag(group);
+		UnitGroupBag bag = new UnitGroupBag(group, IlcdConfig.getDefault());
 		if (client.contains(UnitGroup.class, bag.getId()))
 			return;
 		client.put(group, group.getUnitGroupInformation()

@@ -5,106 +5,116 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.geo.kml.IKmlLoader;
-import org.openlca.geo.kml.KmlLoadResult;
+import org.openlca.geo.kml.KmlLoader;
+import org.openlca.geo.kml.LocationKml;
 import org.openlca.geo.parameter.ParameterCalculator;
-import org.openlca.geo.parameter.ParameterRepository;
 import org.openlca.geo.parameter.ParameterSet;
-import org.openlca.geo.parameter.ShapeFileRepository;
+import org.openlca.geo.parameter.ShapeFileFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegionalizationSetup {
+class RegionalizationSetup {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final IDatabase database;
-	private final ImpactMethodDescriptor impactMethod;
+	final IDatabase database;
+	final ImpactMethodDescriptor method;
 
-	private List<KmlLoadResult> kmlData;
-	private File shapeFileDir;
-	private List<Parameter> shapeFileParameters;
-	private ShapeFileRepository shapeFileRepository;
-	private ParameterRepository parameterRepository;
-	private ParameterSet parameterSet;
-
-	public RegionalizationSetup(IDatabase database,
-			ImpactMethodDescriptor impactMethod, File shapeFileDir) {
-		this.database = database;
-		this.impactMethod = impactMethod;
-		this.shapeFileDir = shapeFileDir;
-	}
+	public boolean canCalculate;
+	public List<LocationKml> kmlData;
+	public ParameterSet parameterSet;
 
 	/**
-	 * Initializes the resources for regionalized LCIA calculation. Returns
-	 * false if a regionalized calculation cannot be done and logs the
-	 * respective problem in this case.
+	 * Initializes the resources for regionalized LCIA calculation. The field
+	 * <code>canCalculate</code> is false if a regionalized calculation cannot
+	 * be done. The respective error message is logged the in this case.
 	 */
-	public boolean init(IKmlLoader kmlLoader, ProductIndex productIndex) {
-		shapeFileParameters = getShapeFileParameters();
-		if (shapeFileParameters.isEmpty()) {
+	public static RegionalizationSetup create(IDatabase db,
+			ImpactMethodDescriptor method, ProductIndex index) {
+		RegionalizationSetup setup = new RegionalizationSetup(db, method);
+		if (db == null || method == null || index == null) {
+			setup.canCalculate = false;
+			return setup;
+		}
+		try {
+			setup.init(index);
+		} catch (Exception e) {
+			setup.canCalculate = false;
+			setup.log.error("failed to create regionalization setup", e);
+		}
+		return setup;
+	}
+
+	private RegionalizationSetup(IDatabase database,
+			ImpactMethodDescriptor method) {
+		this.database = database;
+		this.method = method;
+	}
+
+	private void init(ProductIndex index) {
+		canCalculate = true;
+		List<Parameter> params = getShapeFileParameters();
+		if (params.isEmpty()) {
 			log.warn("Cannot calculate regionalized LCIA because there is "
 					+ "no LCIA method with shapefile parameters selected.");
-			return false;
+			canCalculate = false;
+			return;
 		}
-		kmlData = kmlLoader.load(productIndex);
+		kmlData = new KmlLoader(database).load(index);
 		if (kmlData.isEmpty()) {
 			log.warn("Cannot calculate regionalized LCIA because none of the "
 					+ "processes in the product system contains a KML feature.");
-			return false;
+			canCalculate = false;
+			return;
 		}
-		if (!initRepositories())
-			return false;
-		if (!shapeFilesExist())
-			return false;
-		initParameterSet();
-		return true;
+		ShapeFileFolder folder = getShapeFileFolder();
+		if (!shapeFilesExist(folder, params)) {
+			canCalculate = false;
+			return;
+		}
+		ParameterCalculator calculator = new ParameterCalculator(params, folder);
+		parameterSet = calculator.calculate(kmlData);
 	}
 
 	private List<Parameter> getShapeFileParameters() {
-		if (impactMethod == null)
-			return Collections.emptyList();
-		long methodId = impactMethod.getId();
 		String query = "select m.parameters from ImpactMethod m where "
 				+ "m.id = :methodId";
 		ParameterDao dao = new ParameterDao(database);
-		List<Parameter> allParams = dao.getAll(query,
-				Collections.singletonMap("methodId", methodId));
-		List<Parameter> shapeFileParams = new ArrayList<>();
-		for (Parameter param : allParams) {
-			if (param == null)
-				continue;
+		List<Parameter> all = dao.getAll(query,
+				Collections.singletonMap("methodId", method.getId()));
+		List<Parameter> params = new ArrayList<>();
+		for (Parameter param : all) {
 			if (param.getExternalSource() == null)
 				continue;
 			if (!"SHAPE_FILE".equals(param.getSourceType()))
 				continue;
-			shapeFileParams.add(param);
+			params.add(param);
 		}
-		return shapeFileParams;
+		return params;
 	}
 
-	private boolean initRepositories() {
-		if (!shapeFileDir.exists()) {
+	private ShapeFileFolder getShapeFileFolder() {
+		File dir = new FileStore(database).getFolder(method);
+		if (dir == null || !dir.exists()) {
 			log.warn("Cannot calculate regionalized LCIA because no shapefiles "
-					+ "where found (location for shapefiles is "
-					+ shapeFileDir.getAbsolutePath());
-			return false;
+					+ "where found (location for shapefiles is {})", dir);
+			canCalculate = false;
+			return null;
 		}
-		shapeFileRepository = new ShapeFileRepository(shapeFileDir);
-		parameterRepository = new ParameterRepository(shapeFileRepository);
-		return true;
+		return new ShapeFileFolder(dir);
 	}
 
-	private boolean shapeFilesExist() {
-		if (shapeFileRepository == null)
+	private boolean shapeFilesExist(ShapeFileFolder folder, List<Parameter> params) {
+		if (folder == null)
 			return false;
-		List<String> shapeFiles = shapeFileRepository.getShapeFiles();
-		for (Parameter parameter : shapeFileParameters) {
+		List<String> shapeFiles = folder.getShapeFiles();
+		for (Parameter parameter : params) {
 			String shapefile = parameter.getExternalSource();
 			if (shapeFiles.contains(shapefile))
 				continue;
@@ -114,24 +124,6 @@ public class RegionalizationSetup {
 			return false;
 		}
 		return true;
-	}
-
-	private void initParameterSet() {
-		ParameterCalculator calculator = new ParameterCalculator(
-				shapeFileParameters, shapeFileRepository, parameterRepository);
-		parameterSet = calculator.calculate(kmlData);
-	}
-
-	public List<KmlLoadResult> getKmlData() {
-		return kmlData;
-	}
-
-	public ParameterSet getParameterSet() {
-		return parameterSet;
-	}
-
-	public ImpactMethodDescriptor getImpactMethod() {
-		return impactMethod;
 	}
 
 }

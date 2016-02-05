@@ -21,7 +21,7 @@ public class ParameterCalculatorTest {
 
 	@Before
 	public void setUp() throws Exception {
-		ShapeFileRepository repository = Tests.getRepository();
+		ShapeFileFolder repository = Tests.getRepository();
 		dataStore = repository.openDataStore("states");
 		intersectionsCalculator = new IntersectionsCalculator(dataStore);
 		featureCalculator = new FeatureCalculator(dataStore);
@@ -78,6 +78,21 @@ public class ParameterCalculatorTest {
 						new HashMap<String, Double>(), shares);
 		double val = params.get("DRAWSEQ");
 		Assert.assertTrue(32 < val && val < 42);
+	}
+
+	@Test
+	public void testMultiPoint() throws Exception {
+		// two points
+		// New Mexico; DRAWSEQ = 42
+		// Kansas; DRAWSEQ = 34
+		KmlFeature feature = KmlTests.parse(Tests.getKml("multipoint.kml"));
+		Map<String, Double> shares = intersectionsCalculator.calculate(feature,
+				Arrays.asList("DRAWSEQ"));
+		Map<String, Double> params = featureCalculator
+				.calculate(feature, Arrays.asList("DRAWSEQ"),
+						new HashMap<String, Double>(), shares);
+		Assert.assertTrue(params.size() == 1);
+		Assert.assertEquals(38, params.get("DRAWSEQ"), 1e-17);
 	}
 
 }

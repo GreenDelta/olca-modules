@@ -16,6 +16,7 @@ import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Process;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.ProcessBag;
 
 public class ProcessBagTest {
@@ -28,7 +29,7 @@ public class ProcessBagTest {
 				"process.xml")) {
 			XmlBinder binder = new XmlBinder();
 			Process process = binder.fromStream(Process.class, stream);
-			bag = new ProcessBag(process);
+			bag = new ProcessBag(process, IlcdConfig.getDefault());
 		}
 	}
 

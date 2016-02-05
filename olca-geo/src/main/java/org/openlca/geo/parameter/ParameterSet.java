@@ -3,23 +3,26 @@ package org.openlca.geo.parameter;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Stores parameter values for locations. If a location does not have location
+ * specific values the default parameter values are returned for this location.
+ */
 public class ParameterSet {
 
-	private Map<Long, Map<String, Double>> maps = new HashMap<>();
-	private Map<String, Double> defaults = new HashMap<>();
+	private Map<Long, Map<String, Double>> specificValues = new HashMap<>();
+	private Map<String, Double> defaultValues = new HashMap<>();
 
-	ParameterSet(Map<String, Double> defaults) {
-		this.defaults = defaults;
+	ParameterSet(Map<String, Double> defaultValues) {
+		this.defaultValues = defaultValues;
 	}
 
 	void put(long locationId, Map<String, Double> map) {
-		maps.put(locationId, map);
+		specificValues.put(locationId, map);
 	}
 
-	public Map<String, Double> getFor(long locationId) {
-		if (!maps.containsKey(locationId))
-			return defaults;
-		return maps.get(locationId);
+	public Map<String, Double> get(long locationId) {
+		if (!specificValues.containsKey(locationId))
+			return defaultValues;
+		return specificValues.get(locationId);
 	}
-
 }

@@ -15,14 +15,14 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class KmlFeature {
 
-	private final String kml;
-	private final Geometry geometry;
-	private final FeatureType type;
+	public final String kml;
+	public final Geometry geometry;
+	public final FeatureType type;
 
 	KmlFeature(String kml, Geometry geometry, FeatureType type) {
+		this.kml = kml;
 		this.geometry = geometry;
 		this.type = type;
-		this.kml = kml;
 	}
 
 	public static KmlFeature empty() {
@@ -48,7 +48,7 @@ public class KmlFeature {
 		}
 		Geometry geometry = merge(geometries);
 		FeatureType type = getType(geometry);
-		return new KmlFeature(kml, geometry, type);
+		return new KmlFeature(null, geometry, type);
 	}
 
 	private static Geometry merge(List<Geometry> geometries) {
@@ -98,25 +98,26 @@ public class KmlFeature {
 
 	private static FeatureType getCollectionType(List<Geometry> geometries) {
 		FeatureType type = null;
-		for (Geometry geometry : geometries)
+		for (Geometry geometry : geometries) {
 			if (type == null) // first geometry type
 				type = getType(geometry);
 			else if (type == getType(geometry)) // same type as first
 				continue;
 			else
-				// mixed type, return null
-				return null;
+				return null; // mixed type, return null
+		}
 		return type;
 	}
 
 	private static List<Geometry> collectSingleGeometries(Geometry geometry) {
 		List<Geometry> collected = new ArrayList<Geometry>();
-		if (isSingleGeometry(geometry))
+		if (isSingleGeometry(geometry)) {
 			collected.add(geometry);
-		else
-			for (int n = 0; n < geometry.getNumGeometries(); n++)
-				collected.addAll(collectSingleGeometries(geometry
-						.getGeometryN(n)));
+			return collected;
+		}
+		for (int n = 0; n < geometry.getNumGeometries(); n++) {
+			collected.addAll(collectSingleGeometries(geometry.getGeometryN(n)));
+		}
 		return collected;
 	}
 
@@ -153,18 +154,6 @@ public class KmlFeature {
 			log.warn("unknown geometry {}; set type as empty", typeString);
 			return null;
 		}
-	}
-
-	public Geometry getGeometry() {
-		return geometry;
-	}
-
-	public FeatureType getType() {
-		return type;
-	}
-
-	public String getKml() {
-		return kml;
 	}
 
 }

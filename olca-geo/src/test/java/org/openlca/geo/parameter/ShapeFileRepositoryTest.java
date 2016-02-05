@@ -10,12 +10,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.openlca.geo.Tests;
-import org.openlca.geo.parameter.ShapeFileParameter;
-import org.openlca.geo.parameter.ShapeFileRepository;
 
 public class ShapeFileRepositoryTest {
 
-	private ShapeFileRepository repository = Tests.getRepository();
+	private ShapeFileFolder repository = Tests.getRepository();
 	@Rule
 	public TemporaryFolder tempFolder = new TemporaryFolder();
 
@@ -43,17 +41,17 @@ public class ShapeFileRepositoryTest {
 				.getParameters("states");
 		Assert.assertEquals(1, parameters.size());
 		ShapeFileParameter parameter = parameters.get(0);
-		Assert.assertEquals("DRAWSEQ", parameter.getName());
-		Assert.assertEquals(1, parameter.getMin(), 1e-17);
-		Assert.assertEquals(51, parameter.getMax(), 1e-17);
+		Assert.assertEquals("DRAWSEQ", parameter.name);
+		Assert.assertEquals(1, parameter.min, 1e-17);
+		Assert.assertEquals(51, parameter.max, 1e-17);
 	}
 
 	@Test
 	public void testImportFile() {
-		ShapeFileRepository tempRepository = new ShapeFileRepository(
+		ShapeFileFolder tempRepository = new ShapeFileFolder(
 				tempFolder.getRoot());
 		Assert.assertTrue(tempRepository.getShapeFiles().isEmpty());
-		File shapeFile = new File(repository.getFolder(), "states.shp");
+		File shapeFile = new File(repository.folder, "states.shp");
 		tempRepository.importFile(shapeFile);
 		Assert.assertTrue(tempRepository.getShapeFiles().size() == 1);
 	}

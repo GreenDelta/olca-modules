@@ -35,6 +35,9 @@ public class Flow extends CategorizedEntity {
 	@Column(name = "infrastructure_flow")
 	private boolean infrastructureFlow;
 
+	@Column(name = "synonyms")
+	public String synonyms;
+
 	@OneToOne
 	@JoinColumn(name = "f_location")
 	private Location location;
@@ -57,6 +60,7 @@ public class Flow extends CategorizedEntity {
 		for (FlowPropertyFactor factor : getFlowPropertyFactors()) {
 			clone.getFlowPropertyFactors().add(factor.clone());
 		}
+		clone.synonyms = synonyms;
 		return clone;
 	}
 

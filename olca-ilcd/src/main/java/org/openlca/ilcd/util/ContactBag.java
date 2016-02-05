@@ -17,9 +17,11 @@ import org.openlca.ilcd.contacts.Publication;
 public class ContactBag implements IBag<Contact> {
 
 	private Contact contact;
+	private IlcdConfig config;
 
-	public ContactBag(Contact contact) {
+	public ContactBag(Contact contact, IlcdConfig config) {
 		this.contact = contact;
+		this.config = config;
 	}
 
 	@Override
@@ -38,14 +40,14 @@ public class ContactBag implements IBag<Contact> {
 	public String getShortName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getShortName());
+			return LangString.get(info.getShortName(), config);
 		return null;
 	}
 
 	public String getName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getName());
+			return LangString.get(info.getName(), config);
 		return null;
 	}
 
@@ -62,7 +64,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getContactAddress() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getContactAddress());
+			return LangString.get(info.getContactAddress(), config);
 		return null;
 	}
 
@@ -90,7 +92,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getCentralContactPoint() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getCentralContactPoint());
+			return LangString.get(info.getCentralContactPoint(), config);
 		return null;
 	}
 
@@ -104,7 +106,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getDescription());
+			return LangString.get(info.getDescription(), config);
 		return null;
 	}
 
