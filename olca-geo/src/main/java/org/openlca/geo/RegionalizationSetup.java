@@ -11,6 +11,7 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.geo.kml.IKmlLoader;
 import org.openlca.geo.kml.KmlLoader;
 import org.openlca.geo.kml.LocationKml;
 import org.openlca.geo.parameter.ParameterCalculator;
@@ -19,13 +20,14 @@ import org.openlca.geo.parameter.ShapeFileFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class RegionalizationSetup {
+public class RegionalizationSetup {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	private final IKmlLoader kmlLoader;
 	final IDatabase database;
 	final ImpactMethodDescriptor method;
-
+	
 	public boolean canCalculate;
 	public List<LocationKml> kmlData;
 	public ParameterSet parameterSet;
@@ -37,7 +39,17 @@ class RegionalizationSetup {
 	 */
 	public static RegionalizationSetup create(IDatabase db,
 			ImpactMethodDescriptor method, ProductIndex index) {
-		RegionalizationSetup setup = new RegionalizationSetup(db, method);
+		return create(db, method, index, new KmlLoader(db));
+	}
+
+	/**
+	 * Initializes the resources for regionalized LCIA calculation. The field
+	 * <code>canCalculate</code> is false if a regionalized calculation cannot
+	 * be done. The respective error message is logged the in this case.
+	 */
+	public static RegionalizationSetup create(IDatabase db,
+			ImpactMethodDescriptor method, ProductIndex index, IKmlLoader kmlLoader) {
+		RegionalizationSetup setup = new RegionalizationSetup(db, method, kmlLoader);
 		if (db == null || method == null || index == null) {
 			setup.canCalculate = false;
 			return setup;
@@ -52,9 +64,10 @@ class RegionalizationSetup {
 	}
 
 	private RegionalizationSetup(IDatabase database,
-			ImpactMethodDescriptor method) {
+			ImpactMethodDescriptor method, IKmlLoader kmlLoader) {
 		this.database = database;
 		this.method = method;
+		this.kmlLoader = kmlLoader;
 	}
 
 	private void init(ProductIndex index) {
@@ -66,7 +79,7 @@ class RegionalizationSetup {
 			canCalculate = false;
 			return;
 		}
-		kmlData = new KmlLoader(database).load(index);
+		kmlData = kmlLoader.load(index);
 		if (kmlData.isEmpty()) {
 			log.warn("Cannot calculate regionalized LCIA because none of the "
 					+ "processes in the product system contains a KML feature.");

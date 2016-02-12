@@ -36,11 +36,14 @@ public class RegionalizedCalculator {
 	}
 
 	public RegionalizedResult calculate(IDatabase db, MatrixCache cache) {
+		return calculate(db, cache, null);
+	}
+
+	public RegionalizedResult calculate(IDatabase db, MatrixCache cache, RegionalizationSetup regioSetup) {
 		try {
 			Inventory inventory = DataStructures.createInventory(setup, cache);
-			RegionalizationSetup regioSetup = RegionalizationSetup.create(db,
-					setup.impactMethod, inventory.productIndex);
-
+			if (regioSetup == null)
+				regioSetup = RegionalizationSetup.create(db, setup.impactMethod, inventory.productIndex);
 			if (!regioSetup.canCalculate)
 				return null;
 

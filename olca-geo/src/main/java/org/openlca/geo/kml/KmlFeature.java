@@ -48,7 +48,7 @@ public class KmlFeature {
 		}
 		Geometry geometry = merge(geometries);
 		FeatureType type = getType(geometry);
-		return new KmlFeature(null, geometry, type);
+		return new KmlFeature(kml, geometry, type);
 	}
 
 	private static Geometry merge(List<Geometry> geometries) {
