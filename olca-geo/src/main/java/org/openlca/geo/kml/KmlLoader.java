@@ -18,30 +18,31 @@ import org.slf4j.LoggerFactory;
 /**
  * Loads the KML features for a given set of process products from a database.
  */
-public class KmlLoader {
+public class KmlLoader implements IKmlLoader {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final IDatabase database;
+	protected final IDatabase database;
 
-	private HashMap<Long, byte[]> locationKmz = new HashMap<>();
-	private HashMap<Long, LocationKml> resultByLocationId = new HashMap<>();
+	protected final HashMap<Long, byte[]> locationKmz = new HashMap<>();
+	protected final HashMap<Long, LocationKml> resultByLocationId = new HashMap<>();
+	protected final Map<Long, Long> processLocations = new HashMap<>();
 
 	public KmlLoader(IDatabase database) {
 		this.database = database;
 	}
 
-	public List<LocationKml> load(ProductIndex index) {
+	@Override
+	public final List<LocationKml> load(ProductIndex index) {
 		if (index == null)
 			return Collections.emptyList();
 		try {
-			Map<Long, Long> processLocs = getProcessLocations(index);
-			queryLocationTable(processLocs);
+			loadProcessLocations(index);
+			queryLocationTable();
 			List<LocationKml> results = new ArrayList<>();
 			for (int i = 0; i < index.size(); i++) {
 				LongPair product = index.getProductAt(i);
-				Long locationId = processLocs.get(product.getFirst());
-				LocationKml result = getFeatureResult(locationId);
+				LocationKml result = getFeatureResult(product.getFirst());
 				if (result == null)
 					continue;
 				if (!results.contains(result))
@@ -55,8 +56,7 @@ public class KmlLoader {
 		}
 	}
 
-	private Map<Long, Long> getProcessLocations(ProductIndex idx) throws Exception {
-		Map<Long, Long> m = new HashMap<>();
+	private void loadProcessLocations(ProductIndex idx) throws Exception {
 		Set<Long> processIds = idx.getProcessIds();
 		String query = "select id, f_location from tbl_processes";
 		NativeSql.on(database).query(query, rs -> {
@@ -66,17 +66,16 @@ public class KmlLoader {
 			long locationId = rs.getLong("f_location");
 			if (rs.wasNull())
 				return true;
-			m.put(id, locationId);
+			processLocations.put(id, locationId);
 			return true;
 		});
-		return m;
 	}
 
-	private void queryLocationTable(Map<Long, Long> processLocations) throws Exception {
+	private void queryLocationTable() throws Exception {
 		String query = "select id, ref_id, kmz from tbl_locations";
 		NativeSql.on(database).query(query, rs -> {
 			long id = rs.getLong("id");
-			if (!processLocations.containsValue(id))
+			if (!needToLoadLocation(id))
 				return true;
 			byte[] kmz = rs.getBytes("kmz");
 			if (kmz != null)
@@ -85,7 +84,12 @@ public class KmlLoader {
 		});
 	}
 
-	private LocationKml getFeatureResult(Long locationId) {
+	protected boolean needToLoadLocation(Long id) {
+		return processLocations.containsValue(id);
+	}
+
+	protected LocationKml getFeatureResult(Long processId) {
+		Long locationId = processLocations.get(processId);
 		if (locationId == null)
 			return null;
 		LocationKml result = resultByLocationId.get(locationId);
@@ -99,7 +103,7 @@ public class KmlLoader {
 		return result;
 	}
 
-	private LocationKml createResult(long locationId, byte[] kmz) {
+	protected final LocationKml createResult(long locationId, byte[] kmz) {
 		if (kmz == null)
 			return null;
 		try {

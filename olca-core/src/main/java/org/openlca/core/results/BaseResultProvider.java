@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongIndex;
