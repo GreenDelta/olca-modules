@@ -53,24 +53,22 @@ class ProcessImport extends BaseImport<Process> {
 			p.currency = CurrencyImport.run(curId, conf);
 		addParameters(json, p);
 		// avoid cyclic reference problems
-		if (hasDefaultProviders(json, true) || hasDefaultProviders(json, false))
+		if (hasDefaultProviders(json))
 			p = conf.db.put(p);
-		addExchanges(json, p, true);
-		addExchanges(json, p, false);
+		addExchanges(json, p);
 		addSocialAspects(json, p);
 		addAllocationFactors(json, p);
 		return conf.db.put(p);
 	}
 
-	private boolean hasDefaultProviders(JsonObject json, boolean inputs) {
-		JsonArray exchanges = In.getArray(json, inputs ? "inputs" : "outputs");
+	private boolean hasDefaultProviders(JsonObject json) {
+		JsonArray exchanges = In.getArray(json, "exchanges");
 		if (exchanges == null || exchanges.size() == 0)
 			return false;
 		for (JsonElement e : exchanges) {
 			if (!e.isJsonObject())
 				continue;
-			String providerRefId = In.getRefId(e.getAsJsonObject(),
-					"defaultProvider");
+			String providerRefId = In.getRefId(e.getAsJsonObject(), "defaultProvider");
 			if (providerRefId != null)
 				return true;
 		}
@@ -100,8 +98,8 @@ class ProcessImport extends BaseImport<Process> {
 		}
 	}
 
-	private void addExchanges(JsonObject json, Process p, boolean inputs) {
-		JsonArray exchanges = In.getArray(json, inputs ? "inputs" : "outputs");
+	private void addExchanges(JsonObject json, Process p) {
+		JsonArray exchanges = In.getArray(json, "exchanges");
 		if (exchanges == null || exchanges.size() == 0)
 			return;
 		for (JsonElement e : exchanges) {
