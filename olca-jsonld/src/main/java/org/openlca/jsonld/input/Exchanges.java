@@ -12,10 +12,10 @@ import com.google.gson.JsonObject;
 
 class Exchanges {
 
-	static ExchangeWithId map(JsonObject json, boolean input, ImportConfig conf) {
+	static ExchangeWithId map(JsonObject json, ImportConfig conf) {
 		Exchange e = new Exchange();
 		e.setAvoidedProduct(In.getBool(json, "avoidedProduct", false));
-		e.setInput(In.getBool(json, "input", input));
+		e.setInput(In.getBool(json, "input", false));
 		e.setBaseUncertainty(In.getOptionalDouble(json, "baseUncertainty"));
 		e.setAmountValue(In.getDouble(json, "amount", 0));
 		e.setAmountFormula(In.getString(json, "amountFormula"));
