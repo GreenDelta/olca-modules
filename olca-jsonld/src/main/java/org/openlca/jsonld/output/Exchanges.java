@@ -16,7 +16,6 @@ class Exchanges {
 			return null;
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
 		Out.put(obj, "avoidedProduct", e.isAvoidedProduct());
-		Out.put(obj, "input", e.isInput());
 		Out.put(obj, "baseUncertainty", e.getBaseUncertainty());
 		Out.put(obj, "amount", e.getAmountValue());
 		Out.put(obj, "amountFormula", e.getAmountFormula());

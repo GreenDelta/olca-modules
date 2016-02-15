@@ -108,7 +108,7 @@ class ProcessImport extends BaseImport<Process> {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject o = e.getAsJsonObject();
-			ExchangeWithId ex = Exchanges.map(o, conf);
+			ExchangeWithId ex = Exchanges.map(o, inputs, conf);
 			exchangeMap.put(ex.internalId, ex.exchange);
 			p.getExchanges().add(ex.exchange);
 			boolean isRef = In.getBool(o, "quantitativeReference", false);
