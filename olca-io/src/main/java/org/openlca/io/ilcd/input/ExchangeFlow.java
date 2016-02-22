@@ -86,11 +86,14 @@ class ExchangeFlow {
 	private Flow fetchFromFlowMap(String flowId) {
 		if (config.flowMap == null)
 			return null;
-		mapEntry = config.flowMap.getEntry(flowId);
-		if (mapEntry != null)
-			return fetchFromDatabase(mapEntry.getOpenlcaFlowKey());
-		else
+		FlowMapEntry e = config.flowMap.getEntry(flowId);
+		if (e == null)
 			return null;
+		Flow f = fetchFromDatabase(e.getOpenlcaFlowKey());
+		if (f != null) {
+			mapEntry = e;
+		}
+		return f;
 	}
 
 	private Flow fetchFromImport(String flowId) {
