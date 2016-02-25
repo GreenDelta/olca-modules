@@ -41,11 +41,16 @@ class ImpactCategories {
 		ImpactFactor factor = new ImpactFactor();
 		factor.setValue(In.getDouble(json, "value", 0));
 		factor.setFormula(In.getString(json, "formula"));
-		Flow flow = FlowImport.run(In.getRefId(json, "flow"), conf);
+		String flowId = In.getRefId(json, "flow");
+		Flow flow = FlowImport.run(flowId, conf);
 		factor.setFlow(flow);
 		Unit unit = conf.db.getUnit(In.getRefId(json, "unit"));
 		factor.setUnit(unit);
 		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
+		if (flow == null || unit == null || propFac == null) {
+			conf.log.warn("invalid flow {}; LCIA factor not imported");
+			return null;
+		}
 		factor.setFlowPropertyFactor(propFac);
 		JsonElement u = json.get("uncertainty");
 		if (u != null && u.isJsonObject())
