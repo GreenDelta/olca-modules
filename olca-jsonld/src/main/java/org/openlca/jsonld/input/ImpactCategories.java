@@ -48,7 +48,7 @@ class ImpactCategories {
 		factor.setUnit(unit);
 		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
 		if (flow == null || unit == null || propFac == null) {
-			conf.log.warn("invalid flow {}; LCIA factor not imported");
+			conf.log.warn("invalid flow {}; LCIA factor not imported", flowId);
 			return null;
 		}
 		factor.setFlowPropertyFactor(propFac);
