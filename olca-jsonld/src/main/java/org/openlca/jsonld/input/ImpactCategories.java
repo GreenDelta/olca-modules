@@ -16,7 +16,7 @@ import com.google.gson.JsonObject;
 class ImpactCategories {
 
 	static ImpactCategory map(JsonObject json, ImportConfig conf) {
-		if (json == null)
+		if (json == null || conf == null)
 			return null;
 		ImpactCategory cat = new ImpactCategory();
 		In.mapAtts(json, cat, 0);
@@ -28,12 +28,16 @@ class ImpactCategories {
 			if (!e.isJsonObject())
 				continue;
 			ImpactFactor factor = mapFactor(e.getAsJsonObject(), conf);
+			if (factor == null)
+				continue;
 			cat.getImpactFactors().add(factor);
 		}
 		return cat;
 	}
 
 	private static ImpactFactor mapFactor(JsonObject json, ImportConfig conf) {
+		if (json == null || conf == null)
+			return null;
 		ImpactFactor factor = new ImpactFactor();
 		factor.setValue(In.getDouble(json, "value", 0));
 		factor.setFormula(In.getString(json, "formula"));
@@ -51,6 +55,8 @@ class ImpactCategories {
 
 	private static FlowPropertyFactor getPropertyFactor(JsonObject json,
 			Flow flow) {
+		if (json == null || flow == null)
+			return null;
 		String propId = In.getRefId(json, "flowProperty");
 		for (FlowPropertyFactor fac : flow.getFlowPropertyFactors()) {
 			FlowProperty prop = fac.getFlowProperty();
