@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.geotools.kml.v22.KMLConfiguration;
@@ -15,8 +16,8 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
-import org.openlca.util.KeyGen;
 import org.openlca.util.BinUtils;
+import org.openlca.util.KeyGen;
 
 public class MultiKmlImport {
 
@@ -62,7 +63,11 @@ public class MultiKmlImport {
 
 	private void insertLocation(String name, String code, String kml)
 			throws UnsupportedEncodingException, IOException {
-		String refId = KeyGen.get(code);
+		String refId = null;
+		if (code == null || code.isEmpty())
+			refId = UUID.randomUUID().toString();
+		else
+			refId = KeyGen.get(code);
 		if (dao.contains(refId))
 			return;
 		Location location = new Location();
@@ -90,10 +95,10 @@ public class MultiKmlImport {
 	}
 
 	private String getNextKml() {
-		String placemark = placemarks.substring(0,
-				placemarks.toLowerCase().indexOf("</placemark>") + 12);
-		placemarks = placemarks
-				.substring(placemarks.toLowerCase().indexOf("</placemark>") + 12);
+		String placemark = placemarks.substring(0, placemarks.toLowerCase()
+				.indexOf("</placemark>") + 12);
+		placemarks = placemarks.substring(placemarks.toLowerCase().indexOf(
+				"</placemark>") + 12);
 		return kmlStart + placemark + kmlEnd;
 	}
 
