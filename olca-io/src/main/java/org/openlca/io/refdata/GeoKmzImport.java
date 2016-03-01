@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.UUID;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -25,6 +26,8 @@ import org.openlca.util.BinUtils;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 public class GeoKmzImport {
 
@@ -135,6 +138,10 @@ public class GeoKmzImport {
 			double latitude, byte[] kmz) {
 		Location location = new Location();
 		location.setName(name);
+		if (Strings.isNullOrEmpty(shortName))
+			location.setRefId(UUID.randomUUID().toString());
+		else
+			location.setRefId(KeyGen.get(shortName));
 		location.setCode(shortName);
 		location.setLongitude(longitude);
 		location.setLatitude(latitude);
