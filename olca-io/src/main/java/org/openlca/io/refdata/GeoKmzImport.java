@@ -48,9 +48,9 @@ public class GeoKmzImport {
 			setUp();
 			while (reader.hasNext()) {
 				reader.next();
-				if (isStart(reader, "geography"))
-					if (handleGeography())
-						foundDataInFile = true;
+				if (isStart(reader, "geography")) {
+					foundDataInFile = handleGeography();
+				}
 			}
 			reader.close();
 			return foundDataInFile;
@@ -88,13 +88,9 @@ public class GeoKmzImport {
 				String lang = reader.getAttributeValue(0);
 				if (name != null && !"en".equals(lang))
 					continue;
-				reader.next();
-				if (reader.isCharacters())
-					name = reader.getText();
+				name = readText();
 			} else if (isStart(reader, "shortname")) {
-				reader.next();
-				if (reader.isCharacters())
-					shortName = reader.getText();
+				shortName = readText();
 			} else if (isStart(reader, "kml"))
 				kmz = getKmz(reader);
 			if (isEnd(reader, "geography"))
@@ -104,6 +100,16 @@ public class GeoKmzImport {
 		double la = parseDouble(latitude);
 		insertOrUpdate(name, shortName, lo, la, kmz);
 		return kmz != null;
+	}
+
+	private String readText() throws Exception {
+		StringBuilder b = new StringBuilder();
+		reader.next();
+		while (reader.isCharacters()) {
+			b.append(reader.getText());
+			reader.next();
+		}
+		return b.toString();
 	}
 
 	private double parseDouble(String value) {
@@ -134,6 +140,7 @@ public class GeoKmzImport {
 	private void insert(String name, String shortName, double longitude,
 			double latitude, byte[] kmz) {
 		Location location = new Location();
+		location.setRefId(KeyGen.get(shortName));
 		location.setName(name);
 		location.setCode(shortName);
 		location.setLongitude(longitude);
