@@ -5,7 +5,7 @@ import org.openlca.ecospold.IPerson;
 import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 
 /**
  * Generator for name-based UUIDs (version 3) for EcoSpold 01 entities.

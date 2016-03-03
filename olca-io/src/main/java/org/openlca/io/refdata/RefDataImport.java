@@ -31,8 +31,8 @@ public class RefDataImport implements Runnable {
 			importFile("unit_groups.csv", new UnitGroupImport());
 			importFile("flow_properties.csv", new FlowPropertyImport());
 			importFile("flows.csv", new FlowImport());
-			importFile("flow_property_factors.csv",
-					new FlowPropertyFactorImport());
+			importFile("flow_property_factors.csv", new FlowPropertyFactorImport());
+			importFile("currencies.csv", new CurrencyImport());
 			importFile("lcia_methods.csv", new ImpactMethodImport());
 			importFile("lcia_categories.csv", new ImpactCategoryImport());
 			importFile("lcia_factors.csv", new ImpactFactorImport());

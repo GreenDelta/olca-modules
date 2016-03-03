@@ -25,10 +25,10 @@ public class ContributionsTest {
 					}
 				});
 		ContributionItem<?> item = set.getContribution(null);
-		Assert.assertNull(item.getItem());
-		Assert.assertEquals(1, item.getAmount(), 1e-27);
-		Assert.assertEquals(0.5, item.getShare(), 1e-27);
-		Assert.assertTrue(item.isRest());
+		Assert.assertNull(item.item);
+		Assert.assertEquals(1, item.amount, 1e-27);
+		Assert.assertEquals(0.5, item.share, 1e-27);
+		Assert.assertTrue(item.rest);
 	}
 
 	@Test
@@ -47,25 +47,25 @@ public class ContributionsTest {
 		checkAmounts(items, 2, 2, 1, 1, 0);
 		items = Contributions.topWithRest(rawItems, 3);
 		checkAmounts(items, 2, 2, 2);
-		Assert.assertEquals(true, items.get(2).isRest());
+		Assert.assertEquals(true, items.get(2).rest);
 		items = Contributions.topWithRest(rawItems, 1);
 		checkAmounts(items, 6);
-		Assert.assertEquals(true, items.get(0).isRest());
+		Assert.assertEquals(true, items.get(0).rest);
 	}
 
 	private <T> void checkAmounts(List<ContributionItem<T>> items,
 	                              double... values) {
 		Assert.assertEquals(values.length, items.size());
 		for (int i = 0; i < items.size(); i++)
-			Assert.assertEquals(values[i], items.get(i).getAmount(), 1e-16);
+			Assert.assertEquals(values[i], items.get(i).amount, 1e-16);
 	}
 
 	private List<ContributionItem<String>> createSampleItems() {
 		List<ContributionItem<String>> items = new ArrayList<>();
 		for (int i = 1; i < 6; i++) {
 			ContributionItem<String> item = new ContributionItem<>();
-			item.setAmount(i % 3);
-			item.setItem("item_" + i);
+			item.amount = (double) (i % 3);
+			item.item = "item_" + i;
 			items.add(item);
 		}
 		return items;

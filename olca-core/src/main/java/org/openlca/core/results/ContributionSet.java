@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class ContributionSet<T> {
 
-	private List<ContributionItem<T>> contributions = new ArrayList<>();
+	public final List<ContributionItem<T>> contributions = new ArrayList<>();
 
 	public ContributionSet(List<ContributionItem<T>> contributions) {
 		this.contributions.addAll(contributions);
@@ -22,13 +22,9 @@ public class ContributionSet<T> {
 		return set;
 	}
 
-	public List<ContributionItem<T>> getContributions() {
-		return contributions;
-	}
-
 	public ContributionItem<T> getContribution(T item) {
 		for (ContributionItem<T> contribution : contributions) {
-			if (Objects.equals(item, contribution.getItem()))
+			if (Objects.equals(item, contribution.item))
 				return contribution;
 		}
 		return null;

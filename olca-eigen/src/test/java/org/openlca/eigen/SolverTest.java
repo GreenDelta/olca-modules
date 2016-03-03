@@ -61,28 +61,28 @@ public class SolverTest {
 		ProductIndex productIndex = new ProductIndex(LongPair.of(1, 1));
 		productIndex.put(LongPair.of(1, 1));
 		productIndex.setDemand(1d);
-		matrix.setProductIndex(productIndex);
+		matrix.productIndex = productIndex;
 
 		FlowIndex flowIndex = new FlowIndex();
 		flowIndex.putInputFlow(1);
 		flowIndex.putInputFlow(2);
 		flowIndex.putOutputFlow(3);
 		flowIndex.putOutputFlow(4);
-		matrix.setFlowIndex(flowIndex);
+		matrix.flowIndex = flowIndex;
 
 		IMatrix techMatrix = factory.create(1, 1);
 		techMatrix.setEntry(0, 0, 1);
-		matrix.setTechnologyMatrix(techMatrix);
+		matrix.technologyMatrix = techMatrix;
 
 		IMatrix enviMatrix = factory.create(4, 1);
 		for (int r = 0; r < 4; r++)
 			enviMatrix.setEntry(r, 0, 1 * r);
-		matrix.setInterventionMatrix(enviMatrix);
+		matrix.interventionMatrix = enviMatrix;
 
-		LcaCalculator calculator = new LcaCalculator(solver);
-		SimpleResult result = calculator.calculateSimple(matrix);
+		LcaCalculator calculator = new LcaCalculator(solver, matrix);
+		SimpleResult result = calculator.calculateSimple();
 		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },
-				result.getTotalFlowResults(), 1e-14);
+				result.totalFlowResults, 1e-14);
 	}
 
 	@Theory

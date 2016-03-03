@@ -56,6 +56,7 @@ public class BaseDao<T> implements IDao<T> {
 			em.getTransaction().begin();
 			em.remove(em.merge(entity));
 			em.getTransaction().commit();
+			database.notifyDelete(entity);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while deleting "
 					+ entityType.getSimpleName(), e);
@@ -76,6 +77,8 @@ public class BaseDao<T> implements IDao<T> {
 				em.remove(em.merge(entity));
 			}
 			em.getTransaction().commit();
+			for (T entity : entities) 
+				database.notifyDelete(entity);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while deleting "
 					+ entityType.getSimpleName(), e);
@@ -93,6 +96,7 @@ public class BaseDao<T> implements IDao<T> {
 			em.getTransaction().begin();
 			T retval = em.merge(entity);
 			em.getTransaction().commit();
+			database.notifyUpdate(entity);
 			return retval;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while updating "
@@ -112,6 +116,7 @@ public class BaseDao<T> implements IDao<T> {
 			em.getTransaction().begin();
 			em.persist(entity);
 			em.getTransaction().commit();
+			database.notifyInsert(entity);
 			return entity;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while inserting "

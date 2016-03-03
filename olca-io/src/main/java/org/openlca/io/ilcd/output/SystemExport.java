@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.output;
 import java.math.BigInteger;
 
 import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.ProcessLink;
@@ -14,7 +13,6 @@ import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.processes.DataSetInformation;
 import org.openlca.ilcd.processes.Exchange;
@@ -35,18 +33,17 @@ import org.slf4j.LoggerFactory;
 
 public class SystemExport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private IDatabase database;
-	private DataStore dataStore;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ExportConfig config;
 	private ProductSystem system;
 
-	public SystemExport(IDatabase database, DataStore dataStore) {
-		this.database = database;
-		this.dataStore = dataStore;
+	public SystemExport(ExportConfig config) {
+		this.config = config;
 	}
 
 	public Process run(ProductSystem system) throws DataStoreException {
+		if (config.store.contains(Process.class, system.getRefId()))
+			return config.store.get(Process.class, system.getRefId());
 		this.system = system;
 		log.trace("Run product system export with {}", system);
 		if (!canRun()) {
@@ -54,7 +51,7 @@ public class SystemExport {
 			return null;
 		}
 		Process process = createProcess();
-		dataStore.put(process, system.getRefId());
+		config.store.put(process, system.getRefId());
 		this.system = null;
 		return process;
 	}
@@ -83,12 +80,12 @@ public class SystemExport {
 	}
 
 	private void exportProcesses(ProductModel model) {
-		ProcessDao processDao = new ProcessDao(database);
+		ProcessDao processDao = new ProcessDao(config.db);
 		for (Long processId : system.getProcesses()) {
 			org.openlca.core.model.Process proc = processDao
 					.getForId(processId);
 			DataSetReference ref = ExportDispatch.forwardExportCheck(proc,
-					database, dataStore);
+					config);
 			ProcessNode node = new ProcessNode();
 			node.setId(proc.getRefId());
 			node.setName(proc.getName());
@@ -100,8 +97,8 @@ public class SystemExport {
 
 	private void exportLinks(ProductModel model) {
 		int c = 0;
-		ProcessDao processDao = new ProcessDao(database);
-		FlowDao flowDao = new FlowDao(database);
+		ProcessDao processDao = new ProcessDao(config.db);
+		FlowDao flowDao = new FlowDao(config.db);
 		for (ProcessLink link : this.system.getProcessLinks()) {
 			Connector connector = new Connector();
 			model.getConnections().add(connector);
@@ -149,7 +146,7 @@ public class SystemExport {
 		exchange.setDataSetInternalID(new BigInteger("1"));
 		exchange.setExchangeDirection(ExchangeDirection.OUTPUT);
 		DataSetReference flowRef = ExportDispatch.forwardExportCheck(
-				refExchange.getFlow(), database, dataStore);
+				refExchange.getFlow(), config);
 		exchange.setFlow(flowRef);
 		double refAmount = ReferenceAmount.get(system);
 		exchange.setMeanAmount(refAmount);
@@ -169,10 +166,10 @@ public class SystemExport {
 		ProcessName processName = new ProcessName();
 		info.setName(processName);
 		String name = system.getName() + " (product system)";
-		LangString.addLabel(processName.getBaseName(), name);
+		LangString.addLabel(processName.getBaseName(), name, config.ilcdConfig);
 		if (system.getDescription() != null) {
 			LangString.addFreeText(info.getGeneralComment(),
-					system.getDescription());
+					system.getDescription(), config.ilcdConfig);
 		}
 		addClassification(info);
 		return info;

@@ -1,5 +1,14 @@
-target
-olca-modules.iml
-.idea
+# IDE files and folders
+**/.idea/
 *.iml
+**/.settings/
+.classpath
+.project
+
+# generated files
+**/apidocs/
+**/target/
+**/bin/
+derby.log
+
 *.*~

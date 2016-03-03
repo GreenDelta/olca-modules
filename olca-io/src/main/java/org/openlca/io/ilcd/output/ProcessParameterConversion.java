@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.output;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
@@ -16,18 +15,16 @@ import org.slf4j.LoggerFactory;
 
 class ProcessParameterConversion {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private Process process;
-	private IDatabase database;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ExportConfig config;
 
-	public ProcessParameterConversion(Process process, IDatabase database) {
-		this.process = process;
-		this.database = database;
+	public ProcessParameterConversion(ExportConfig config) {
+		this.config = config;
 	}
 
-	public List<org.openlca.ilcd.processes.Parameter> run() {
+	public List<org.openlca.ilcd.processes.Parameter> run(Process process) {
 		log.trace("Create process parameters.");
-		List<org.openlca.ilcd.processes.Parameter> params = processParams();
+		List<org.openlca.ilcd.processes.Parameter> params = processParams(process);
 		try {
 			addDatabaseParams(params);
 		} catch (Exception e) {
@@ -38,7 +35,7 @@ class ProcessParameterConversion {
 
 	private void addDatabaseParams(
 			List<org.openlca.ilcd.processes.Parameter> params) {
-		ParameterDao dao = new ParameterDao(database);
+		ParameterDao dao = new ParameterDao(config.db);
 		for (Parameter param : dao.getGlobalParameters()) {
 			if (!valid(param))
 				continue;
@@ -48,7 +45,8 @@ class ProcessParameterConversion {
 		}
 	}
 
-	private List<org.openlca.ilcd.processes.Parameter> processParams() {
+	private List<org.openlca.ilcd.processes.Parameter> processParams(
+			Process process) {
 		List<org.openlca.ilcd.processes.Parameter> iParameters = new ArrayList<>();
 		for (Parameter oParam : process.getParameters()) {
 			if (!valid(oParam))
@@ -67,8 +65,9 @@ class ProcessParameterConversion {
 		iParameter.setMeanValue(oParam.getValue());
 		new UncertaintyConverter().map(oParam, iParameter);
 		if (Strings.notEmpty(oParam.getDescription())) {
-			iParameter.getComment().add(
-					LangString.label(oParam.getDescription()));
+			iParameter.getComment()
+					.add(LangString.label(oParam.getDescription(),
+							config.ilcdConfig));
 		}
 		return iParameter;
 	}

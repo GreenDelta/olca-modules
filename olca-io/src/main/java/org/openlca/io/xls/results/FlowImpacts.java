@@ -22,8 +22,7 @@ class FlowImpacts {
 	private int startRow;
 	private int startCol;
 
-	private FlowImpacts(Sheet sheet, ContributionResultProvider<?> result,
-			AnalysisResultExport export) {
+	private FlowImpacts(Sheet sheet, ContributionResultProvider<?> result, AnalysisResultExport export) {
 		this.sheet = sheet;
 		this.result = result;
 		this.export = export;
@@ -31,8 +30,7 @@ class FlowImpacts {
 		startCol = CellWriter.FLOW_INFO_SIZE;
 	}
 
-	public static void write(Sheet sheet, ContributionResultProvider<?> result,
-			AnalysisResultExport export) {
+	public static void write(Sheet sheet, ContributionResultProvider<?> result, AnalysisResultExport export) {
 		new FlowImpacts(sheet, result, export).doIt();
 	}
 
@@ -44,8 +42,7 @@ class FlowImpacts {
 		int col = startCol + 1;
 		for (ImpactCategoryDescriptor impact : export.getImpacts()) {
 			export.getWriter().writeImpactColInfo(sheet, col, impact);
-			ContributionSet<FlowDescriptor> contributions = result
-					.getFlowContributions(impact);
+			ContributionSet<FlowDescriptor> contributions = result.getFlowContributions(impact);
 			valueWriter.setNext(contributions, col);
 			export.visitFlows(valueWriter);
 			col++;
@@ -80,7 +77,7 @@ class FlowImpacts {
 			ContributionItem<FlowDescriptor> c = set.getContribution(flow);
 			if (c == null)
 				return;
-			Excel.cell(sheet, row++, col, c.getAmount());
+			Excel.cell(sheet, row++, col, c.amount);
 		}
 	}
 

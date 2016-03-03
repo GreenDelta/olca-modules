@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -19,7 +19,7 @@ public class ContainsTest {
 
 	@Test
 	public void test() throws Exception {
-		IDatabase db = TestSession.getDefaultDatabase();
+		IDatabase db = Tests.getDb();
 		test(Actor.class, new ActorDao(db));
 		test(Source.class, new SourceDao(db));
 		test(UnitGroup.class, new UnitGroupDao(db));

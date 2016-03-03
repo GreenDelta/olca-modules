@@ -1,29 +1,28 @@
 package org.openlca.core.model;
 
 import java.util.Objects;
-import java.util.UUID;
 
 class ProcessCopy {
 
 	public Process create(Process origin) {
 		Process copy = new Process();
-		copy.setRefId(UUID.randomUUID().toString());
-		copy.setName(origin.getName());
+		Util.cloneRootFields(origin, copy);
 		copyFields(origin, copy);
 		copyParameters(origin, copy);
 		copyExchanges(origin, copy);
 		copyAllocationFactors(origin, copy);
+		for (SocialAspect a : origin.socialAspects)
+			copy.socialAspects.add(a.clone());
 		return copy;
 	}
 
 	private void copyFields(Process origin, Process copy) {
 		copy.setDefaultAllocationMethod(origin.getDefaultAllocationMethod());
 		copy.setCategory(origin.getCategory());
-		copy.setDescription(origin.getDescription());
 		copy.setLocation(origin.getLocation());
 		copy.setProcessType(origin.getProcessType());
 		copy.setInfrastructureProcess(origin.isInfrastructureProcess());
-		copy.setKmz(origin.getKmz());
+		copy.currency = origin.currency;
 		if (origin.getDocumentation() != null)
 			copy.setDocumentation(origin.getDocumentation().clone());
 	}
@@ -56,14 +55,14 @@ class ProcessCopy {
 	}
 
 	private Exchange findExchange(Exchange origin, Process processCopy) {
-		if(origin == null)
+		if (origin == null)
 			return null;
-		for(Exchange copy : processCopy.getExchanges()) {
+		for (Exchange copy : processCopy.getExchanges()) {
 			boolean equal = origin.isInput() == copy.isInput()
 					&& Objects.equals(origin.getFlow(), copy.getFlow())
 					&& origin.getAmountValue() == copy.getAmountValue()
 					&& Objects.equals(origin.getUnit(), copy.getUnit());
-			if(equal)
+			if (equal)
 				return copy;
 		}
 		return null;

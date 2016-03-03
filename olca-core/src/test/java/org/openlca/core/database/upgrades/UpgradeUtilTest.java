@@ -2,12 +2,12 @@ package org.openlca.core.database.upgrades;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 
 public class UpgradeUtilTest {
 
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 	private UpgradeUtil util = new UpgradeUtil(database);
 
 	@Test

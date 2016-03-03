@@ -2,20 +2,22 @@ package org.openlca.core.database;
 
 import java.util.List;
 import java.util.UUID;
-
+import com.google.common.base.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.ListUtils;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -23,15 +25,13 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 public class CategorizedEntityDaoTest {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Test
 	public void runCrudTests() throws Exception {
-		IDatabase database = TestSession.getDefaultDatabase();
+		IDatabase database = Tests.getDb();
 		run(Actor.class, new ActorDao(database));
 		run(Source.class, new SourceDao(database));
 		run(UnitGroup.class, new UnitGroupDao(database));
@@ -41,6 +41,8 @@ public class CategorizedEntityDaoTest {
 		run(ImpactMethod.class, new ImpactMethodDao(database));
 		run(ProductSystem.class, new ProductSystemDao(database));
 		run(Project.class, new ProjectDao(database));
+		run(Currency.class, new CurrencyDao(database));
+		run(SocialIndicator.class, new SocialIndicatorDao(database));
 	}
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void run(
@@ -68,7 +70,7 @@ public class CategorizedEntityDaoTest {
 		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.forModelClass(clazz));
-		BaseDao<Category> catDao = TestSession.getDefaultDatabase().createDao(
+		BaseDao<Category> catDao = Tests.getDb().createDao(
 				Category.class);
 		catDao.insert(category);
 		instance.setCategory(category);
@@ -83,7 +85,7 @@ public class CategorizedEntityDaoTest {
 		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
-		TestSession.getDefaultDatabase().createDao(Category.class)
+		Tests.getDb().createDao(Category.class)
 				.delete(category);
 	}
 

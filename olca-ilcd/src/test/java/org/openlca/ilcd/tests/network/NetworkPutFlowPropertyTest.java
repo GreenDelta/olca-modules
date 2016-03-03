@@ -12,6 +12,7 @@ import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInformation;
 import org.openlca.ilcd.flowproperties.Publication;
 import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.LangString;
 
 public class NetworkPutFlowPropertyTest {
@@ -40,7 +41,7 @@ public class NetworkPutFlowPropertyTest {
 	private DataSetInformation makeDataInfo(String id) {
 		DataSetInformation info = new DataSetInformation();
 		String name = "xtest FlowProperty - " + new Random().nextInt(1000);
-		LangString.addLabel(info.getName(), name);
+		LangString.addLabel(info.getName(), name, IlcdConfig.getDefault());
 		info.setUUID(id);
 		return info;
 	}

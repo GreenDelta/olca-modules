@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (3);
+INSERT INTO openlca_version (version) VALUES (4);
 
 
 CREATE TABLE tbl_categories (
@@ -31,12 +31,15 @@ CREATE TABLE tbl_categories (
 	ref_id VARCHAR(36), 
 	name VARCHAR(255),
 	description CLOB(64 K),
+	version BIGINT,
+	last_change BIGINT,
+	
 	model_type VARCHAR(255), 
-	f_parent_category BIGINT,
+	f_category BIGINT,
 		
 	PRIMARY KEY (id)
 );
-CREATE INDEX idx_category_parent ON tbl_categories(f_parent_category);
+CREATE INDEX idx_category_parent ON tbl_categories(f_category);
 CREATE INDEX idx_category_ref_id ON tbl_categories(ref_id);
 
 CREATE TABLE tbl_actors (
@@ -69,14 +72,19 @@ CREATE TABLE tbl_locations (
 	ref_id VARCHAR(36),
 	name VARCHAR(255),
 	description CLOB(64 K),
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
 
 	longitude DOUBLE,
 	latitude DOUBLE, 
 	code VARCHAR(255),
     kmz BLOB(16 M),
+    location_type VARCHAR(255),
 	
 	PRIMARY KEY (id)
 );
+CREATE INDEX idx_location_category ON tbl_locations(f_category);
 CREATE INDEX idx_location_ref_id ON tbl_locations(ref_id);
 
 CREATE TABLE tbl_sources (
@@ -106,6 +114,8 @@ CREATE TABLE tbl_units (
 	ref_id VARCHAR(36),
 	name VARCHAR(255),
 	description CLOB(64 K),
+	version BIGINT,
+	last_change BIGINT,
 
 	conversion_factor DOUBLE,
 	synonyms VARCHAR(255),
@@ -167,6 +177,7 @@ CREATE TABLE tbl_flows (
 	version BIGINT,
 	last_change BIGINT,
 	f_category BIGINT,
+	synonyms VARCHAR(32672),
 	description CLOB(64 K),
 
 	flow_type VARCHAR(255), 
@@ -214,7 +225,7 @@ CREATE TABLE tbl_processes (
 	f_quantitative_reference BIGINT, 
 	f_location BIGINT, 
 	f_process_doc BIGINT, 
-	kmz BLOB(16 M),
+	f_currency BIGINT,
 
 	PRIMARY KEY (id)	
 
@@ -278,6 +289,11 @@ CREATE TABLE tbl_exchanges (
 	resulting_amount_formula VARCHAR(1000), 
 	avoided_product SMALLINT default 0,
 	f_default_provider BIGINT,
+	description CLOB(64 K),
+	
+	cost_value DOUBLE,
+	cost_formula VARCHAR(1000),
+	f_currency BIGINT,
 	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
@@ -374,6 +390,8 @@ CREATE TABLE tbl_impact_categories (
 	ref_id VARCHAR(36),
 	name VARCHAR(255),
 	description CLOB(64 K),
+	version BIGINT,
+	last_change BIGINT,
 
 	reference_unit VARCHAR(255),
 	f_impact_method BIGINT, 
@@ -413,6 +431,8 @@ CREATE TABLE tbl_nw_sets (
     ref_id VARCHAR(36),
     name VARCHAR(255),
     description CLOB(64 K),
+    version BIGINT,
+	last_change BIGINT,
 
 	f_impact_method BIGINT,
 	weighted_score_unit VARCHAR(255),
@@ -438,8 +458,13 @@ CREATE TABLE tbl_nw_factors (
 CREATE TABLE tbl_parameters (
 
 	id BIGINT NOT NULL, 
+	ref_id VARCHAR(36),
 	name VARCHAR(255), 
 	description CLOB(64 K), 
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT, 
+	
 	is_input_param SMALLINT default 0,
 	f_owner BIGINT, 
 	scope VARCHAR(255), 
@@ -458,6 +483,7 @@ CREATE TABLE tbl_parameters (
 	
 	PRIMARY KEY (id)
 );
+CREATE INDEX idx_parameter_category ON tbl_parameters(f_category);
 
 CREATE TABLE tbl_parameter_redefs (
 
@@ -525,23 +551,23 @@ CREATE TABLE tbl_mapping_files (
 );
 
 
-CREATE TABLE tbl_cost_categories (	
+CREATE TABLE tbl_currencies (
+
 	id BIGINT NOT NULL,
 	name VARCHAR(255),
+	ref_id VARCHAR(36),
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
 	description CLOB(64 K),
-	fix SMALLINT default 0,
+	
+	code VARCHAR(255),
+	conversion_factor DOUBLE,
+	f_reference_currency BIGINT,	
+	
 	PRIMARY KEY (id)
-) ;
 
-
-CREATE TABLE tbl_process_cost_entries (
-	id BIGINT NOT NULL,
-	f_process BIGINT,
-	f_exchange BIGINT,
-	f_cost_category BIGINT,
-	amount DOUBLE,	
-	PRIMARY KEY (id)
-) ;
+);
 
 
 CREATE TABLE tbl_process_group_sets (
@@ -551,3 +577,38 @@ CREATE TABLE tbl_process_group_sets (
 	PRIMARY KEY (id)	
 ) ;
 
+
+CREATE TABLE tbl_social_indicators (
+
+	id BIGINT NOT NULL,
+	ref_id VARCHAR(36),
+	name VARCHAR(255),
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
+	description CLOB(64 K),
+	
+	activity_variable VARCHAR(255),
+	f_activity_quantity BIGINT,
+	f_activity_unit BIGINT,
+	unit_of_measurement VARCHAR(255),
+	evaluation_scheme CLOB(64 K),
+	
+	PRIMARY KEY (id)
+);
+
+
+CREATE TABLE tbl_social_aspects (
+
+	id BIGINT NOT NULL,
+	f_process BIGINT,
+	f_indicator BIGINT,
+	activity_value DOUBLE,
+	raw_amount VARCHAR(255),
+	risk_level VARCHAR(255),
+	comment CLOB(64 K),
+	f_source BIGINT,
+	quality VARCHAR(255),
+
+	PRIMARY KEY (id)
+);

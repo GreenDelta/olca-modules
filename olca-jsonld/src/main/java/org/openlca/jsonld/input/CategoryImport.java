@@ -1,61 +1,37 @@
 package org.openlca.jsonld.input;
 
 import java.util.Objects;
-import com.google.gson.JsonObject;
+
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-class CategoryImport {
+import com.google.gson.JsonObject;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private String refId;
-	private ImportConfig conf;
+class CategoryImport extends BaseImport<Category> {
 
 	private CategoryImport(String refId, ImportConfig conf) {
-		this.refId = refId;
-		this.conf = conf;
+		super(ModelType.CATEGORY, refId, conf);
 	}
 
 	static Category run(String refId, ImportConfig conf) {
 		return new CategoryImport(refId, conf).run();
 	}
 
-	private Category run() {
-		if (refId == null || conf == null)
-			return null;
-		try {
-			Category category = conf.db.getCategory(refId);
-			if (category != null)
-				return category;
-			JsonObject json = conf.store.get(ModelType.CATEGORY, refId);
-			return map(json);
-		} catch (Exception e) {
-			log.error("failed to import category " + refId, e);
-			return null;
-		}
-	}
-
-	private Category map(JsonObject json) {
+	@Override
+	Category map(JsonObject json, long id) {
 		if (json == null)
 			return null;
-		Category category = new Category();
-		In.mapAtts(json, category);
-		String typeString = In.getString(json, "modelType");
-		if (typeString != null)
-			category.setModelType(ModelType.valueOf(typeString));
-		String parentId = In.getRefId(json, "parentCategory");
-		Category parent = CategoryImport.run(parentId, conf);
-		if (parent == null)
-			return conf.db.put(category);
+		Category c = new Category();
+		In.mapAtts(json, c, id, conf);
+		c.setModelType(In.getEnum(json, "modelType", ModelType.class));
+		if (c.getCategory() == null)
+			return conf.db.put(c);
 		else
-			return updateParent(parent, category);
+			return updateParent(c);
 	}
 
-	private Category updateParent(Category parent, Category category) {
-		category.setParentCategory(parent);
+	private Category updateParent(Category category) {
+		Category parent = category.getCategory();
 		parent.getChildCategories().add(category);
 		parent = conf.db.updateChilds(parent);
 		for (Category child : parent.getChildCategories()) {

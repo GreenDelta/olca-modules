@@ -31,6 +31,13 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 	@Column(name = "description")
 	private String description;
 
+	// @Version
+	@Column(name = "version")
+	private long version;
+
+	@Column(name = "last_change")
+	private long lastChange;
+
 	public abstract Object clone();
 
 	public String getRefId() {
@@ -55,6 +62,22 @@ public abstract class RootEntity extends AbstractEntity implements Cloneable {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public long getVersion() {
+		return version;
+	}
+
+	public void setVersion(long version) {
+		this.version = version;
+	}
+
+	public long getLastChange() {
+		return lastChange;
+	}
+
+	public void setLastChange(long lastChange) {
+		this.lastChange = lastChange;
 	}
 
 	@Override

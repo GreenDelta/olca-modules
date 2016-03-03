@@ -129,14 +129,14 @@ public class NwSetTable {
 			return Collections.emptyList();
 		List<ImpactResult> applied = new ArrayList<>();
 		for (ImpactResult result : results) {
-			if (result.getImpactCategory() == null)
+			if (result.impactCategory == null)
 				continue;
 			ImpactResult r = new ImpactResult();
-			r.setImpactCategory(result.getImpactCategory());
+			r.impactCategory = result.impactCategory;
 			applied.add(r);
-			long impactId = result.getImpactCategory().getId();
+			long impactId = result.impactCategory.getId();
 			double f = getFactor(type, impactId);
-			r.setValue(f * result.getValue());
+			r.value = f * result.value;
 		}
 		return applied;
 	}

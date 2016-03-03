@@ -7,7 +7,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.MappingFile;
 import org.openlca.util.BinUtils;
 
@@ -17,7 +17,7 @@ public class MappingDaoTest {
 	private final String CONTENT = "kg;1.0\ng;1000\n";
 
 	private MappingFileDao dao = new MappingFileDao(
-			TestSession.getDefaultDatabase());
+			Tests.getDb());
 
 	@Before
 	public void setUp() throws Exception {

@@ -1,12 +1,11 @@
 package org.openlca.core.model;
 
-import javax.persistence.Column;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 
 /**
- * A categorised entity is a root entity with a category.
+ * A categorized entity is a root entity with a category.
  */
 @MappedSuperclass
 public abstract class CategorizedEntity extends RootEntity {
@@ -14,13 +13,6 @@ public abstract class CategorizedEntity extends RootEntity {
 	@OneToOne
 	@JoinColumn(name = "f_category")
 	private Category category;
-
-	// @Version
-	@Column(name = "version")
-	private long version;
-
-	@Column(name = "last_change")
-	private long lastChange;
 
 	public Category getCategory() {
 		return category;
@@ -30,19 +22,4 @@ public abstract class CategorizedEntity extends RootEntity {
 		this.category = category;
 	}
 
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
-	public long getLastChange() {
-		return lastChange;
-	}
-
-	public void setLastChange(long lastChange) {
-		this.lastChange = lastChange;
-	}
 }

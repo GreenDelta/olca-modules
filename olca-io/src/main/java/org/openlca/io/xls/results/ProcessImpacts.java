@@ -43,8 +43,7 @@ class ProcessImpacts {
 			int row = startRow + 1;
 			for (ProcessDescriptor process : export.getProcesses()) {
 				export.getWriter().writeProcessRowInfo(sheet, row, process);
-				double val = result.getSingleImpactResult(process,
-						impact).getValue();
+				double val = result.getSingleImpactResult(process, impact).value;
 				if (val != 0)
 					Excel.cell(sheet, row, col, val);
 				row++;

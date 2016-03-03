@@ -6,7 +6,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.io.Categories;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

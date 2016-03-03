@@ -1,9 +1,5 @@
 package org.openlca.io.olca;
 
-import gnu.trove.iterator.TLongLongIterator;
-import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.map.hash.TLongLongHashMap;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,6 +19,10 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.iterator.TLongLongIterator;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TLongLongHashMap;
 
 class ProcessImport {
 
@@ -73,8 +73,6 @@ class ProcessImport {
 		destProcess.setLocation(refs.switchRef(srcProcess.getLocation()));
 		Set<Long> providerUpdates = switchExchangeRefs(destProcess);
 		switchAllocationProducts(srcProcess, destProcess);
-		destProcess.getCostEntries().clear(); // TODO: remove
-		// TODO: switchCostCategories(srcProcess, destProcess);
 		switchDocRefs(destProcess);
 		destProcess = destDao.insert(destProcess);
 		seq.put(seq.PROCESS, srcProcess.getRefId(), destProcess.getId());

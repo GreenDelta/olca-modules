@@ -1,5 +1,6 @@
 package org.openlca.core.math;
 
+import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
@@ -12,161 +13,231 @@ import org.openlca.core.results.SimpleResult;
 public class LcaCalculator {
 
 	private final IMatrixSolver solver;
+	private final InventoryMatrix inventory;
 
-	public LcaCalculator(IMatrixSolver solver) {
+	private ImpactMatrix impactMatrix;
+	private CostVector costVector;
+
+	public LcaCalculator(IMatrixSolver solver, InventoryMatrix inventory) {
 		this.solver = solver;
+		this.inventory = inventory;
 	}
 
-	public SimpleResult calculateSimple(InventoryMatrix matrix) {
-		return calculateSimple(matrix, null);
+	public void setImpactMatrix(ImpactMatrix impactMatrix) {
+		this.impactMatrix = impactMatrix;
 	}
 
-	public SimpleResult calculateSimple(InventoryMatrix matrix,
-	                                    ImpactMatrix impactMatrix) {
+	public void setCostVector(CostVector costVector) {
+		this.costVector = costVector;
+	}
+
+	public SimpleResult calculateSimple() {
 
 		SimpleResult result = new SimpleResult();
-		result.setFlowIndex(matrix.getFlowIndex());
-		result.setProductIndex(matrix.getProductIndex());
+		result.flowIndex = inventory.flowIndex;
+		result.productIndex = inventory.productIndex;
 
-		IMatrix techMatrix = matrix.getTechnologyMatrix();
-		ProductIndex productIndex = matrix.getProductIndex();
+		IMatrix techMatrix = inventory.technologyMatrix;
+		ProductIndex productIndex = inventory.productIndex;
 		int idx = productIndex.getIndex(productIndex.getRefProduct());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
-		IMatrix enviMatrix = matrix.getInterventionMatrix();
+		result.scalingFactors = s;
+		result.totalRequirements = getTotalRequirements(techMatrix, s);
+		IMatrix enviMatrix = inventory.interventionMatrix;
 
-		double[] g = solver.multiply(enviMatrix, s);
-		result.setTotalFlowResults(g);
+		result.totalFlowResults = solver.multiply(enviMatrix, s);
 
 		if (impactMatrix != null) {
-			IMatrix impactFactors = impactMatrix.getFactorMatrix();
-			double[] i = solver.multiply(impactFactors, g);
-			result.setImpactIndex(impactMatrix.getCategoryIndex());
-			result.setTotalImpactResults(i);
+			addTotalImpacts(result);
 		}
+
+		if (costVector != null) {
+			result.hasCostResults = true;
+			addTotalCosts(result, s);
+		}
+
 		return result;
 	}
 
-	public ContributionResult calculateContributions(InventoryMatrix matrix) {
-		return calculateContributions(matrix, null);
-	}
-
-	public ContributionResult calculateContributions(InventoryMatrix matrix,
-	                                                 ImpactMatrix impactMatrix) {
+	public ContributionResult calculateContributions() {
 
 		ContributionResult result = new ContributionResult();
-		result.setFlowIndex(matrix.getFlowIndex());
-		result.setProductIndex(matrix.getProductIndex());
+		result.flowIndex = inventory.flowIndex;
+		result.productIndex = inventory.productIndex;
 
-		IMatrix techMatrix = matrix.getTechnologyMatrix();
-		ProductIndex productIndex = matrix.getProductIndex();
+		IMatrix techMatrix = inventory.technologyMatrix;
+		ProductIndex productIndex = inventory.productIndex;
 		int idx = productIndex.getIndex(productIndex.getRefProduct());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
-		result.setScalingFactors(s);
+		result.scalingFactors = s;
+		result.totalRequirements = getTotalRequirements(techMatrix, s);
 
-		IMatrix enviMatrix = matrix.getInterventionMatrix();
+		IMatrix enviMatrix = inventory.interventionMatrix;
 		IMatrix singleResult = enviMatrix.copy();
 		solver.scaleColumns(singleResult, s);
-		result.setSingleFlowResults(singleResult);
-		double[] g = solver.multiply(enviMatrix, s);
-		result.setTotalFlowResults(g);
-
-		LinkContributions linkContributions = LinkContributions.calculate(
+		result.singleFlowResults = singleResult;
+		result.totalFlowResults = solver.multiply(enviMatrix, s);
+		result.linkContributions = LinkContributions.calculate(
 				techMatrix, productIndex, s);
-		result.setLinkContributions(linkContributions);
 
 		if (impactMatrix != null) {
-			IMatrix impactFactors = impactMatrix.getFactorMatrix();
-			double[] i = solver.multiply(impactFactors, g);
-			result.setImpactIndex(impactMatrix.getCategoryIndex());
-			result.setTotalImpactResults(i);
-			IMatrix singleImpactResult = solver.multiply(impactFactors,
-					singleResult);
-			result.setSingleImpactResults(singleImpactResult);
+			addTotalImpacts(result);
+			addDirectImpacts(result);
+		}
 
-			IMatrix singleFlowImpacts = impactFactors.copy();
-			solver.scaleColumns(singleFlowImpacts, g);
-			result.setSingleFlowImpacts(singleFlowImpacts);
-
+		if (costVector != null) {
+			result.hasCostResults = true;
+			addTotalCosts(result, s);
+			addDirectCosts(result, s);
 		}
 		return result;
 	}
 
-	public FullResult calculateFull(InventoryMatrix matrix) {
-		return calculateFull(matrix, null);
-	}
-
-	public FullResult calculateFull(InventoryMatrix matrix,
-	                                ImpactMatrix impactMatrix) {
+	public FullResult calculateFull() {
 
 		FullResult result = new FullResult();
-		result.setFlowIndex(matrix.getFlowIndex());
-		result.setProductIndex(matrix.getProductIndex());
+		result.flowIndex = inventory.flowIndex;
+		result.productIndex = inventory.productIndex;
 
-		ProductIndex productIndex = matrix.getProductIndex();
-		IMatrix techMatrix = matrix.getTechnologyMatrix();
-		IMatrix enviMatrix = matrix.getInterventionMatrix();
+		ProductIndex productIdx = inventory.productIndex;
+		IMatrix techMatrix = inventory.technologyMatrix;
+		IMatrix enviMatrix = inventory.interventionMatrix;
 		IMatrix inverse = solver.invert(techMatrix);
-		double[] scalingVector = getScalingVector(inverse, productIndex);
-		result.setScalingFactors(scalingVector);
+		double[] scalingVector = getScalingVector(inverse, productIdx);
+		result.scalingFactors = scalingVector;
 
-		// single results
+		// direct results
 		IMatrix singleResult = enviMatrix.copy();
 		solver.scaleColumns(singleResult, scalingVector);
-		result.setSingleFlowResults(singleResult);
+		result.singleFlowResults = singleResult;
+		result.totalRequirements = getTotalRequirements(techMatrix, scalingVector);
 
-		// total results
-		double[] demands = new double[productIndex.size()];
-		for (int i = 0; i < productIndex.size(); i++) {
-			double entry = techMatrix.getEntry(i, i);
-			double s = scalingVector[i];
-			demands[i] = s * entry;
-		}
-		int idx = productIndex.getIndex(productIndex.getRefProduct());
-		if(Math.abs(demands[idx] - productIndex.getDemand()) > 1e-9) {
-			// 'self-loop' correction for total result scale
-			double f = productIndex.getDemand() / demands[idx];
-			for(int k = 0; k < scalingVector.length; k++)
-				demands[k] = demands[k] * f;
-		}
-		
+		// upstream results
+		double[] demands = getRealDemands(result.totalRequirements, productIdx);
 		IMatrix totalResult = solver.multiply(enviMatrix, inverse);
-		inverse = null; // allow GC
+		if (costVector == null)
+			inverse = null; // allow GC
 		solver.scaleColumns(totalResult, demands);
-		result.setUpstreamFlowResults(totalResult);
-		int refIdx = productIndex.getIndex(productIndex.getRefProduct());
-		double[] g = totalResult.getColumn(refIdx);
-		result.setTotalFlowResults(g);
-
-		LinkContributions linkContributions = LinkContributions.calculate(
-				techMatrix, productIndex, scalingVector);
-		result.setLinkContributions(linkContributions);
+		result.upstreamFlowResults = totalResult;
+		int refIdx = productIdx.getIndex(productIdx.getRefProduct());
+		result.totalFlowResults = totalResult.getColumn(refIdx);
+		result.linkContributions = LinkContributions.calculate(
+				techMatrix, productIdx, scalingVector);
 
 		if (impactMatrix != null) {
-			result.setImpactIndex(impactMatrix.getCategoryIndex());
-			IMatrix factors = impactMatrix.getFactorMatrix();
-			IMatrix singleImpactResult = solver.multiply(factors, singleResult);
-			result.setSingleImpactResults(singleImpactResult);
-
-			IMatrix singleFlowImpacts = factors.copy();
-			solver.scaleColumns(singleFlowImpacts, g);
-			result.setSingleFlowImpacts(singleFlowImpacts);
-
+			addDirectImpacts(result);
+			IMatrix factors = impactMatrix.factorMatrix;
 			IMatrix totalImpactResult = solver.multiply(factors, totalResult);
-			result.setUpstreamImpactResults(totalImpactResult);
-			result.setTotalImpactResults(totalImpactResult.getColumn(refIdx));
+			result.upstreamImpactResults = totalImpactResult;
+			// total impacts = upstream result of reference product
+			result.impactIndex = impactMatrix.categoryIndex;
+			result.totalImpactResults = totalImpactResult.getColumn(refIdx);
 		}
+
+		if (costVector != null) {
+			result.hasCostResults = true;
+			addDirectCosts(result, scalingVector);
+			IMatrix costValues = costVector.asMatrix(solver.getMatrixFactory());
+			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
+			solver.scaleColumns(upstreamCosts, demands);
+			result.totalCostResult = upstreamCosts.getEntry(0, refIdx);
+			result.upstreamCostResults = upstreamCosts;
+		}
+
 		return result;
 
 	}
 
-	private double[] getScalingVector(IMatrix inverse, ProductIndex productIndex) {
-		LongPair refProduct = productIndex.getRefProduct();
-		int idx = productIndex.getIndex(refProduct);
+	/**
+	 * Calculates the scaling vector for the reference product i from the given
+	 * inverse of the technology matrix:
+	 * 
+	 * s = d[i] .* Inverse[:, i]
+	 * 
+	 * where d is the demand vector and.
+	 * 
+	 */
+	public double[] getScalingVector(IMatrix inverse, ProductIndex productIdx) {
+		LongPair refProduct = productIdx.getRefProduct();
+		int idx = productIdx.getIndex(refProduct);
 		double[] s = inverse.getColumn(idx);
-		double demand = productIndex.getDemand();
+		double demand = productIdx.getDemand();
 		for (int i = 0; i < s.length; i++)
 			s[i] *= demand;
 		return s;
+	}
+
+	/**
+	 * Calculates the total requirements of the respective product amounts to
+	 * fulfill the demand of the product system:
+	 * 
+	 * tr = s .* diag(A)
+	 * 
+	 * where s is the scaling vector and A the technology matrix.
+	 * 
+	 */
+	public double[] getTotalRequirements(IMatrix techMatrix,
+			double[] scalingVector) {
+		double[] tr = new double[scalingVector.length];
+		for (int i = 0; i < scalingVector.length; i++) {
+			tr[i] = scalingVector[i] * techMatrix.getEntry(i, i);
+		}
+		return tr;
+	}
+
+	/**
+	 * Calculate the real demand vector for the analysis.
+	 */
+	public double[] getRealDemands(double[] totalRequirements,
+			ProductIndex productIdx) {
+		double refDemand = productIdx.getDemand();
+		int i = productIdx.getIndex(productIdx.getRefProduct());
+		double[] rd = new double[totalRequirements.length];
+		if (Math.abs(totalRequirements[i] - refDemand) > 1e-9) {
+			// 'self-loop' correction for total result scale
+			double f = refDemand / totalRequirements[i];
+			for (int k = 0; k < totalRequirements.length; k++)
+				rd[k] = f * totalRequirements[k];
+		} else {
+			int length = totalRequirements.length;
+			System.arraycopy(totalRequirements, 0, rd, 0, length);
+		}
+		return rd;
+	}
+
+	private void addTotalImpacts(SimpleResult result) {
+		result.impactIndex = impactMatrix.categoryIndex;
+		IMatrix factors = impactMatrix.factorMatrix;
+		double[] totals = solver.multiply(factors, result.totalFlowResults);
+		result.totalImpactResults = totals;
+	}
+
+	private void addDirectImpacts(ContributionResult result) {
+		IMatrix factors = impactMatrix.factorMatrix;
+		result.impactFactors = factors;
+		IMatrix directResults = solver.multiply(factors, result.singleFlowResults);
+		result.singleImpactResults = directResults;
+		IMatrix singleFlowImpacts = factors.copy();
+		solver.scaleColumns(singleFlowImpacts, result.totalFlowResults);
+		result.singleFlowImpacts = singleFlowImpacts;
+	}
+
+	private void addTotalCosts(SimpleResult result, double[] scalingVector) {
+		double[] costValues = costVector.values;
+		double total = 0;
+		for (int i = 0; i < scalingVector.length; i++) {
+			total += scalingVector[i] * costValues[i];
+		}
+		result.totalCostResult = total;
+	}
+
+	private void addDirectCosts(ContributionResult result, double[] scalingVector) {
+		double[] costValues = costVector.values;
+		double[] directCosts = new double[costValues.length];
+		for (int i = 0; i < scalingVector.length; i++) {
+			directCosts[i] = costValues[i] * scalingVector[i];
+		}
+		result.singleCostResults = directCosts;
 	}
 
 }

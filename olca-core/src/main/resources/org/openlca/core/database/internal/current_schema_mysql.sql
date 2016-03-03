@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (3);
+INSERT INTO openlca_version (version) VALUES (4);
 
 
 CREATE TABLE tbl_categories (
@@ -31,13 +31,16 @@ CREATE TABLE tbl_categories (
 	ref_id VARCHAR(36), 
 	name VARCHAR(255),
 	description TEXT,
+	version BIGINT,
+	last_change BIGINT,
+	
 	model_type VARCHAR(255), 
-	f_parent_category BIGINT,
+	f_category BIGINT,
 		
 	PRIMARY KEY (id)
 );
-CREATE INDEX idx_category_parent ON tbl_categories(f_parent_category);
-
+CREATE INDEX idx_category_parent ON tbl_categories(f_category);
+CREATE INDEX idx_category_ref_id ON tbl_categories(ref_id);
 
 CREATE TABLE tbl_actors (
 
@@ -61,6 +64,7 @@ CREATE TABLE tbl_actors (
 	PRIMARY KEY (id)
 );
 CREATE INDEX idx_actor_category ON tbl_actors(f_category);
+CREATE INDEX idx_actor_ref_id ON tbl_actors(ref_id);
 
 CREATE TABLE tbl_locations (
 
@@ -68,15 +72,20 @@ CREATE TABLE tbl_locations (
 	ref_id VARCHAR(36),
 	name VARCHAR(255),
 	description TEXT,
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
 
 	longitude DOUBLE,
 	latitude DOUBLE, 
-	code VARCHAR(255), 
-	kmz MEDIUMBLOB,
-
+	code VARCHAR(255),
+    kmz MEDIUMBLOB,
+    location_type VARCHAR(255),
+	
 	PRIMARY KEY (id)
 );
-
+CREATE INDEX idx_location_category ON tbl_locations(f_category);
+CREATE INDEX idx_location_ref_id ON tbl_locations(ref_id);
 
 CREATE TABLE tbl_sources (
 
@@ -89,7 +98,7 @@ CREATE TABLE tbl_sources (
 	description TEXT,
 
 	source_year SMALLINT,
-	text_reference TEXT,
+	text_reference TEXT, 
 	doi VARCHAR(255),
 	external_file VARCHAR(255),
 	
@@ -97,7 +106,7 @@ CREATE TABLE tbl_sources (
 	
 );
 CREATE INDEX idx_source_category ON tbl_sources(f_category);
-
+CREATE INDEX idx_source_ref_id ON tbl_sources(ref_id);
 
 CREATE TABLE tbl_units (
 
@@ -105,6 +114,8 @@ CREATE TABLE tbl_units (
 	ref_id VARCHAR(36),
 	name VARCHAR(255),
 	description TEXT,
+	version BIGINT,
+	last_change BIGINT,
 
 	conversion_factor DOUBLE,
 	synonyms VARCHAR(255),
@@ -114,6 +125,7 @@ CREATE TABLE tbl_units (
 	
 );
 CREATE INDEX idx_unit_unit_group ON tbl_units(f_unit_group);
+CREATE INDEX idx_unit_ref_id ON tbl_units(ref_id);
 
 
 CREATE TABLE tbl_unit_groups (
@@ -135,7 +147,7 @@ CREATE TABLE tbl_unit_groups (
 CREATE INDEX idx_unit_group_category ON tbl_unit_groups(f_category);
 CREATE INDEX idx_unit_group_refunit ON tbl_unit_groups(f_reference_unit);
 CREATE INDEX idx_unit_group_flowprop ON tbl_unit_groups(f_default_flow_property);
-
+CREATE INDEX idx_unit_group_ref_id ON tbl_unit_groups(ref_id);
 
 CREATE TABLE tbl_flow_properties (
 
@@ -155,6 +167,7 @@ CREATE TABLE tbl_flow_properties (
 );
 CREATE INDEX idx_flowprop_category ON tbl_flow_properties(f_category);
 CREATE INDEX idx_flowprop_unti_group ON tbl_flow_properties(f_unit_group);
+CREATE INDEX idx_flowprop_ref_id ON tbl_flow_properties(ref_id);
 
 CREATE TABLE tbl_flows (
 
@@ -179,7 +192,7 @@ CREATE TABLE tbl_flows (
 CREATE INDEX idx_flow_category ON tbl_flows(f_category);
 CREATE INDEX idx_flow_flow_property ON tbl_flows(f_reference_flow_property);
 CREATE INDEX idx_flow_location ON tbl_flows(f_location);
-
+CREATE INDEX idx_flow_ref_id ON tbl_flows(ref_id);
 
 CREATE TABLE tbl_flow_property_factors (
 
@@ -207,11 +220,11 @@ CREATE TABLE tbl_processes (
 
 	process_type VARCHAR(255), 
 	default_allocation_method VARCHAR(255), 	
-	infrastructure_process TINYINT default 0,
+	infrastructure_process TINYINT default 0, 
 	f_quantitative_reference BIGINT, 
 	f_location BIGINT, 
 	f_process_doc BIGINT, 
-	kmz MEDIUMBLOB,
+	f_currency BIGINT,
 
 	PRIMARY KEY (id)	
 
@@ -219,12 +232,13 @@ CREATE TABLE tbl_processes (
 CREATE INDEX idx_process_category ON tbl_processes(f_category);
 CREATE INDEX idx_process_qref ON tbl_processes(f_quantitative_reference);
 CREATE INDEX idx_process_location ON tbl_processes(f_location);
+CREATE INDEX idx_process_ref_id ON tbl_processes(ref_id);
 
 
 CREATE TABLE tbl_process_docs (
 	
 	id BIGINT NOT NULL,
-	geography TEXT,
+	geography TEXT, 
 	technology TEXT,
 	
 	time TEXT,
@@ -232,20 +246,20 @@ CREATE TABLE tbl_process_docs (
 	valid_until DATE, 
 	
 	modeling_constants TEXT,
-	data_treatment TEXT,
-	sampling TEXT,
+	data_treatment TEXT, 
+	sampling TEXT, 
 	completeness TEXT,
 	review_details TEXT,
-	inventory_method TEXT,
-	data_collection_period TEXT,
-	data_selection TEXT,
+	inventory_method TEXT, 
+	data_collection_period TEXT, 
+	data_selection TEXT, 
 	f_reviewer BIGINT, 
 	
 	project VARCHAR(255), 
 	creation_date TIMESTAMP, 
-	intended_application TEXT,
+	intended_application TEXT, 
 	restrictions TEXT,
-	copyright TINYINT default 0,
+	copyright TINYINT default 0, 
 	f_data_generator BIGINT,
 	f_dataset_owner BIGINT, 
 	f_data_documentor BIGINT, 
@@ -268,13 +282,16 @@ CREATE TABLE tbl_exchanges (
 	f_owner BIGINT, 
 	f_flow BIGINT, 
 	f_unit BIGINT, 
-	is_input TINYINT default 0,
+	is_input TINYINT default 0, 
 	f_flow_property_factor BIGINT, 
 	resulting_amount_value DOUBLE, 
 	resulting_amount_formula VARCHAR(1000), 
 	avoided_product TINYINT default 0,
 	f_default_provider BIGINT,
 	
+	cost_value DOUBLE,
+	cost_formula VARCHAR(1000),
+
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
 	parameter1_formula VARCHAR(1000), 
@@ -370,6 +387,8 @@ CREATE TABLE tbl_impact_categories (
 	ref_id VARCHAR(36),
 	name VARCHAR(255),
 	description TEXT,
+	version BIGINT,
+	last_change BIGINT,
 
 	reference_unit VARCHAR(255),
 	f_impact_method BIGINT, 
@@ -409,6 +428,8 @@ CREATE TABLE tbl_nw_sets (
     ref_id VARCHAR(36),
     name VARCHAR(255),
     description TEXT,
+    version BIGINT,
+	last_change BIGINT,
 
 	f_impact_method BIGINT,
 	weighted_score_unit VARCHAR(255),
@@ -434,8 +455,13 @@ CREATE TABLE tbl_nw_factors (
 CREATE TABLE tbl_parameters (
 
 	id BIGINT NOT NULL, 
+	ref_id VARCHAR(36),
 	name VARCHAR(255), 
-	description TEXT,
+	description TEXT, 
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT, 
+	
 	is_input_param TINYINT default 0,
 	f_owner BIGINT, 
 	scope VARCHAR(255), 
@@ -454,6 +480,7 @@ CREATE TABLE tbl_parameters (
 	
 	PRIMARY KEY (id)
 );
+CREATE INDEX idx_parameter_category ON tbl_parameters(f_category);
 
 CREATE TABLE tbl_parameter_redefs (
 
@@ -487,9 +514,9 @@ CREATE TABLE tbl_projects (
 	description TEXT,
 
 	creation_date TIMESTAMP,
-	functional_unit TEXT,
+	functional_unit TEXT, 
 	last_modification_date TIMESTAMP,
-	goal TEXT,
+	goal TEXT, 
 	f_author BIGINT, 
 	f_impact_method BIGINT,
 	f_nwset BIGINT,
@@ -521,29 +548,64 @@ CREATE TABLE tbl_mapping_files (
 );
 
 
-CREATE TABLE tbl_cost_categories (	
+CREATE TABLE tbl_currencies (
+
 	id BIGINT NOT NULL,
 	name VARCHAR(255),
+	ref_id VARCHAR(36),
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
 	description TEXT,
-	fix TINYINT default 0,
+	
+	code VARCHAR(255),
+	conversion_factor DOUBLE,
+	f_reference_currency BIGINT,	
+	
 	PRIMARY KEY (id)
-) ;
 
-
-CREATE TABLE tbl_process_cost_entries (
-	id BIGINT NOT NULL,
-	f_process BIGINT,
-	f_exchange BIGINT,
-	f_cost_category BIGINT,
-	amount DOUBLE,	
-	PRIMARY KEY (id)
-) ;
+);
 
 
 CREATE TABLE tbl_process_group_sets (
 	id BIGINT NOT NULL,
 	name VARCHAR(255), 
-	groups_blob MEDIUMBLOB,
+	groups_blob MEDIUMBLOB,		
 	PRIMARY KEY (id)	
 ) ;
 
+
+CREATE TABLE tbl_social_indicators (
+
+	id BIGINT NOT NULL,
+	ref_id VARCHAR(36),
+	name VARCHAR(255),
+	version BIGINT,
+	last_change BIGINT,
+	f_category BIGINT,
+	description TEXT,
+	
+	activity_variable VARCHAR(255),
+	f_activity_quantity BIGINT,
+	f_activity_unit BIGINT,
+	unit_of_measurement VARCHAR(255),
+	evaluation_scheme TEXT,
+	
+	PRIMARY KEY (id)
+);
+
+
+CREATE TABLE tbl_social_aspects (
+
+	id BIGINT NOT NULL,
+	f_process BIGINT,
+	f_indicator BIGINT,
+	activity_value DOUBLE,
+	raw_amount VARCHAR(255),
+	risk_level VARCHAR(255),
+	comment TEXT,
+	f_source BIGINT,
+	quality VARCHAR(255),
+
+	PRIMARY KEY (id)
+);

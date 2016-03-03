@@ -4,32 +4,8 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class FlowResult {
 
-	private FlowDescriptor flow;
-	private boolean input;
-	private double value;
-
-	public FlowDescriptor getFlow() {
-		return flow;
-	}
-
-	public void setFlow(FlowDescriptor flow) {
-		this.flow = flow;
-	}
-
-	public boolean isInput() {
-		return input;
-	}
-
-	public void setInput(boolean input) {
-		this.input = input;
-	}
-
-	public double getValue() {
-		return value;
-	}
-
-	public void setValue(double value) {
-		this.value = value;
-	}
+	public FlowDescriptor flow;
+	public boolean input;
+	public double value;
 
 }

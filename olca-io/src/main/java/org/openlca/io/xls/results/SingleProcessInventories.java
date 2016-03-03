@@ -124,7 +124,7 @@ class SingleProcessInventories {
 				return;
 			if (process == null || flow == null)
 				return;
-			double val = result.getSingleFlowResult(process, flow).getValue();
+			double val = result.getSingleFlowResult(process, flow).value;
 			if (val != 0)
 				Excel.cell(sheet, currentRow, column, val);
 			currentRow++;

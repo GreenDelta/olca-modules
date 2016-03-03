@@ -97,7 +97,7 @@ public class NetworkClient implements DataStore {
 	public <T> T get(Class<T> type, String id) throws DataStoreException {
 		checkConnection();
 		WebResource resource = client.resource(baseUri)
-				.path(Path.forClass(type)).path(id).queryParam("format", "xml");
+				.path(Dir.get(type)).path(id).queryParam("format", "xml");
 		log.info("Get resource: {}", resource.getURI());
 		ClientResponse response = resource.get(ClientResponse.class);
 		eval(response);
@@ -113,7 +113,7 @@ public class NetworkClient implements DataStore {
 	public void put(Object obj, String id) throws DataStoreException {
 		checkConnection();
 		WebResource resource = client.resource(baseUri).path(
-				Path.forClass(obj.getClass()));
+				Dir.get(obj.getClass()));
 		log.info("Publish resource: {}/{}", resource.getURI(), id);
 		try {
 			byte[] bytes = binder.toByteArray(obj);
@@ -196,7 +196,7 @@ public class NetworkClient implements DataStore {
 			throws DataStoreException {
 		checkConnection();
 		WebResource resource = client.resource(baseUri)
-				.path(Path.forClass(type)).path(id).queryParam("format", "xml");
+				.path(Dir.get(type)).path(id).queryParam("format", "xml");
 		log.trace("Contains resource {} ?", resource.getURI());
 		ClientResponse response = resource.head();
 		log.trace("Server response: {}", response);
@@ -227,10 +227,10 @@ public class NetworkClient implements DataStore {
 
 	private WebResource initSearchRequest(Class<?> type) {
 		if (dataStock == null)
-			return client.resource(baseUri).path(Path.forClass(type));
+			return client.resource(baseUri).path(Dir.get(type));
 		else
 			return client.resource(baseUri).path("datastocks")
-					.path(dataStock.getUuid()).path(Path.forClass(type));
+					.path(dataStock.getUuid()).path(Dir.get(type));
 	}
 
 	private void eval(ClientResponse response) throws DataStoreException {

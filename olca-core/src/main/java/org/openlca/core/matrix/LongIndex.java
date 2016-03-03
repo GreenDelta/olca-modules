@@ -11,13 +11,11 @@ import gnu.trove.map.hash.TLongIntHashMap;
  */
 public class LongIndex {
 
-	//@formatter:off
 	private final TLongIntHashMap map = new TLongIntHashMap(
-			Constants.DEFAULT_CAPACITY, 
+			Constants.DEFAULT_CAPACITY,
 			Constants.DEFAULT_LOAD_FACTOR,
 			Constants.DEFAULT_LONG_NO_ENTRY_VALUE, // = 0
 			-1); // default value for no-index = -1
-	//@formatter:on
 
 	private final TLongArrayList values = new TLongArrayList();
 
@@ -43,10 +41,7 @@ public class LongIndex {
 	 * contained in the map.
 	 */
 	public int getIndex(long key) {
-		Integer val = map.get(key);
-		if (val == null)
-			return -1;
-		return val;
+		return map.get(key);
 	}
 
 	/**

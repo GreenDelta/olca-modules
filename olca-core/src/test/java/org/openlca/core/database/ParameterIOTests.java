@@ -1,8 +1,10 @@
 package org.openlca.core.database;
 
+import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
@@ -12,19 +14,20 @@ import org.openlca.core.model.Uncertainty;
 
 public class ParameterIOTests {
 
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 	private ParameterDao parameterDao = new ParameterDao(database);
 
 	@Test
 	public void testGlobalParameters() {
 		Parameter param = new Parameter();
+		param.setRefId(UUID.randomUUID().toString());
 		param.setDescription("test parameter");
 		param.setInputParameter(true);
 		param.setScope(ParameterScope.GLOBAL);
 		param.setName("p_342637");
 		param.setValue(42);
 		parameterDao.insert(param);
-		TestSession.emptyCache();
+		Tests.emptyCache();
 		Parameter alias = parameterDao.getForId(param.getId());
 		Assert.assertEquals("p_342637", alias.getName());
 		Assert.assertTrue(parameterDao.getGlobalParameters().contains(alias));
@@ -36,6 +39,7 @@ public class ParameterIOTests {
 		Process process = new Process();
 		process.setName("test-proc");
 		Parameter param = new Parameter();
+		param.setRefId(UUID.randomUUID().toString());
 		param.setDescription("test parameter");
 		param.setInputParameter(true);
 		param.setScope(ParameterScope.PROCESS);
@@ -45,7 +49,7 @@ public class ParameterIOTests {
 		process.getParameters().add(param);
 		ProcessDao dao = new ProcessDao(database);
 		dao.insert(process);
-		TestSession.emptyCache();
+		Tests.emptyCache();
 		dao.getForId(process.getId());
 		Assert.assertTrue(process.getParameters().get(0).getValue() == 42);
 		Assert.assertTrue(parameterDao.getAll().contains(param));
@@ -66,9 +70,10 @@ public class ParameterIOTests {
 		system.getParameterRedefs().add(redef);
 		ProductSystemDao dao = new ProductSystemDao(database);
 		dao.insert(system);
-		TestSession.emptyCache();
+		Tests.emptyCache();
 		ProductSystem alias = dao.getForId(system.getId());
-		Assert.assertTrue(alias.getParameterRedefs().get(0).getContextId() == 123L);
+		Assert.assertTrue(
+				alias.getParameterRedefs().get(0).getContextId() == 123L);
 		dao.delete(system);
 	}
 

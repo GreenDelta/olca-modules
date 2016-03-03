@@ -1,51 +1,41 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
-
 import org.openlca.core.model.Location;
-import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
+import org.openlca.util.BinUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
-class LocationWriter implements Writer<Location> {
+class LocationWriter extends Writer<Location> {
 
-	private EntityStore store;
-
-	public LocationWriter() {
+	LocationWriter(ExportConfig conf) {
+		super(conf);
 	}
-
-	public LocationWriter(EntityStore store) {
-		this.store = store;
-	}
-
+	
 	@Override
-	public void write(Location location) {
-		if (location == null || store == null)
-			return;
-		if (store.contains(ModelType.LOCATION, location.getRefId()))
-			return;
-		JsonObject obj = serialize(location, null, null);
-		store.put(ModelType.LOCATION, obj);
-	}
-
-	@Override
-	public JsonObject serialize(Location location, Type type,
-			JsonSerializationContext context) {
-		JsonObject obj = store == null ? new JsonObject() : store.initJson();
-		map(location, obj);
+	public JsonObject write(Location location) {
+		JsonObject obj = super.write(location);
+		if (obj == null)
+			return null;
+		Out.put(obj, "code", location.getCode());
+		Out.put(obj, "latitude", location.getLatitude());
+		Out.put(obj, "longitude", location.getLongitude());
+		mapGeometry(location, obj);
 		return obj;
 	}
 
-	private void map(Location location, JsonObject obj) {
-		if (location == null || obj == null)
+	private void mapGeometry(Location location, JsonObject obj) {
+		if (location.getKmz() == null)
 			return;
-		JsonExport.addAttributes(location, obj, store);
-		obj.addProperty("code", location.getCode());
-		obj.addProperty("latitude", location.getLatitude());
-		obj.addProperty("longitude", location.getLongitude());
-		// TODO: add kml
+		try {
+			byte[] bin = BinUtils.unzip(location.getKmz());
+			String kml = new String(bin, "utf-8");
+			JsonObject geoJson = Kml2GeoJson.convert(kml);
+			Out.put(obj, "geometry", geoJson);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.error("failed to convert KML to GeoJSON", e);
+		}
 	}
-
 }

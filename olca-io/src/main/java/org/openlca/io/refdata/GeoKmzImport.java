@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.UUID;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
@@ -21,12 +22,14 @@ import org.jdom2.output.XMLOutputter;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
-import org.openlca.io.KeyGen;
 import org.openlca.util.BinUtils;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class GeoKmzImport {
+import com.google.common.base.Strings;
+
+public class GeoKmzImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -42,17 +45,21 @@ class GeoKmzImport {
 		dao = new LocationDao(database);
 	}
 
-	public void run() {
+	public boolean run() {
+		boolean foundDataInFile = false;
 		try {
 			setUp();
 			while (reader.hasNext()) {
 				reader.next();
-				if (isStart(reader, "geography"))
-					handleGeography();
+				if (isStart(reader, "geography")) {
+					foundDataInFile = handleGeography();
+				}
 			}
 			reader.close();
+			return foundDataInFile;
 		} catch (Exception e) {
 			log.error("failed to import KML data for geographies", e);
+			return false;
 		}
 	}
 
@@ -65,45 +72,94 @@ class GeoKmzImport {
 		builder = new SAXBuilder();
 	}
 
-	private void handleGeography() throws Exception {
-		boolean nextIsShortName = false;
-		String shortName = null;
-		byte[] kmz = null;
+	private boolean handleGeography() throws Exception {
+		Loc loc = new Loc();
+		readLonLat(loc);
 		while (reader.hasNext()) {
 			reader.next();
+			if (isStart(reader, "name")) {
+				String lang = reader.getAttributeValue(0);
+				if (loc.name != null && !"en".equals(lang))
+					continue;
+				loc.name = readText();
+			} else if (isStart(reader, "shortname")) {
+				loc.shortName = readText();
+			} else if (isStart(reader, "kml"))
+				loc.kmz = getKmz(reader);
 			if (isEnd(reader, "geography"))
 				break;
-			else if (isStart(reader, "shortname"))
-				nextIsShortName = true;
-			else if (reader.isCharacters() && nextIsShortName) {
-				shortName = reader.getText();
-				nextIsShortName = false;
-			} else if (isStart(reader, "kml")) {
-				kmz = getKmz(reader);
-			}
 		}
-		checkUpdate(shortName, kmz);
+		insertOrUpdate(loc);
+		return loc.kmz != null;
 	}
 
-	private void checkUpdate(String shortName, byte[] kmz) {
-		if (shortName == null || kmz == null)
-			return;
-		log.trace("try insert KML for location {}", shortName);
+	private void readLonLat(Loc loc) {
+		String longitude = null;
+		String latitude = null;
+		for (int i = 0; i < reader.getAttributeCount(); i++) {
+			String attributeName = reader.getAttributeLocalName(i);
+			if ("longitude".equals(attributeName))
+				longitude = reader.getAttributeValue(i);
+			else if ("latitude".equals(attributeName))
+				latitude = reader.getAttributeValue(i);
+		}
 		try {
-			String refId = KeyGen.get(shortName);
+			if (longitude != null)
+				loc.longitude = Double.parseDouble(longitude);
+			if (latitude != null)
+				loc.latitude = Double.parseDouble(latitude);
+		} catch (Exception e) {
+			log.error("Invalid latitude or longitude "
+					+ latitude + "," + longitude, e);
+		}
+	}
+
+	private String readText() throws Exception {
+		StringBuilder b = new StringBuilder();
+		reader.next();
+		while (reader.isCharacters()) {
+			b.append(reader.getText());
+			reader.next();
+		}
+		return b.toString();
+	}
+
+	private void insertOrUpdate(Loc loc) {
+		if (loc == null || !loc.valid())
+			return;
+		log.trace("try insert KML for location {}", loc.name);
+		try {
+			String refId = KeyGen.get(loc.shortName);
 			Location location = dao.getForRefId(refId);
 			if (location == null) {
-				log.info(
-						"could not insert KML for location {} ({}); not found",
-						shortName, refId);
-				return;
+				insert(loc);
+			} else if (loc.kmz != null) {
+				update(location, loc.kmz);
 			}
-			location.setKmz(kmz);
-			dao.update(location);
-			log.trace("KML in location {} updated", shortName);
 		} catch (Exception e) {
-			log.error("failed to insert KML for location " + shortName, e);
+			log.error("failed to insert KML for location " + loc.shortName, e);
 		}
+	}
+
+	private void insert(Loc loc) {
+		Location location = new Location();
+		location.setName(loc.name);
+		if (Strings.isNullOrEmpty(loc.shortName))
+			location.setRefId(UUID.randomUUID().toString());
+		else
+			location.setRefId(KeyGen.get(loc.shortName));
+		location.setCode(loc.shortName);
+		location.setLongitude(loc.longitude);
+		location.setLatitude(loc.latitude);
+		location.setKmz(loc.kmz);
+		dao.insert(location);
+		log.trace("New location added {}", loc.name);
+	}
+
+	private void update(Location location, byte[] kmz) {
+		location.setKmz(kmz);
+		dao.update(location);
+		log.trace("KML in location {} updated", location.getName());
 	}
 
 	private byte[] getKmz(XMLStreamReader reader) {
@@ -114,7 +170,7 @@ class GeoKmzImport {
 			StringReader source = new StringReader(writer.toString());
 			Document doc = builder.build(source);
 			Namespace ns = Namespace
-					.getNamespace("http://earth.google.com/kml/2.0");
+					.getNamespace("http://earth.google.com/kml/2.1");
 			switchNamespace(doc.getRootElement(), ns);
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			new XMLOutputter().output(doc, bout);
@@ -138,5 +194,18 @@ class GeoKmzImport {
 
 	private boolean isEnd(XMLStreamReader reader, String tagName) {
 		return reader.isEndElement() && reader.getLocalName().equals(tagName);
+	}
+
+	/** Internal class for parsed data. */
+	private class Loc {
+		String name;
+		String shortName;
+		double longitude;
+		double latitude;
+		byte[] kmz;
+
+		boolean valid() {
+			return name != null && shortName != null;
+		}
 	}
 }

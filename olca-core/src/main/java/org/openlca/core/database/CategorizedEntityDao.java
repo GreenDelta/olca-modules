@@ -36,6 +36,20 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 		}
 	}
 
+	@Override
+	protected V createDescriptor(Object[] queryResult) {
+		V descriptor = super.createDescriptor(queryResult);
+		if (descriptor != null)
+			descriptor.setCategory((Long) queryResult[6]);
+		return descriptor;
+	}
+
+	@Override
+	protected String[] getDescriptorFields() {
+		return new String[] { "id", "ref_id", "name", "description", "version",
+				"last_change", "f_category" };
+	}
+
 	public void updateCategory(BaseDescriptor model, Optional<Category> category) {
 		String jpql = "update " + entityType.getSimpleName()
 				+ " e set e.category = :category where e.id = :id";

@@ -16,6 +16,7 @@ import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
 import org.openlca.ilcd.flows.Publication;
 import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.LangString;
 
 public class FlowUpdateTest {
@@ -36,8 +37,7 @@ public class FlowUpdateTest {
 		Flow flow = makeFlow(id);
 		client.put(flow, id);
 		Assert.assertTrue(client.contains(Flow.class, id));
-		flow.getAdministrativeInformation()
-				.getPublication()
+		flow.getAdministrativeInformation().getPublication()
 				.setDataSetVersion("02.00.000");
 		client.put(flow, id);
 		flow = client.get(Flow.class, id);
@@ -54,7 +54,8 @@ public class FlowUpdateTest {
 		info.setDataSetInformation(dataInfo);
 		FlowName name = new FlowName();
 		dataInfo.setName(name);
-		LangString.addLabel(name.getBaseName(), "test flow - " + id);
+		LangString.addLabel(name.getBaseName(), "test flow - " + id,
+				IlcdConfig.getDefault());
 		AdministrativeInformation adminInfo = new AdministrativeInformation();
 		Publication pub = new Publication();
 		adminInfo.setPublication(pub);

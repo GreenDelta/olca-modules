@@ -37,7 +37,7 @@ import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.MapType;
@@ -335,6 +335,7 @@ public class EcoSpold01Import implements FileImport {
 			outExchange.setInput(inExchange.getInputGroup() != null);
 			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange,
 					inExchange);
+			outExchange.description = inExchange.getGeneralComment();
 			exchangeAmount.map(flow.conversionFactor);
 			ioProcess.getExchanges().add(outExchange);
 			localExchangeCache.put(inExchange.getNumber(), outExchange);

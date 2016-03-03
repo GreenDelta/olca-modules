@@ -1,13 +1,5 @@
-/target
-/apidocs
-
 # C++ project files and binaries
 /cpp/lib
 /cpp/nbproject
 /cpp/bin
 *.exe
-
-/.idea
-olca-eigen.iml
-
-/bin

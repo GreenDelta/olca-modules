@@ -13,13 +13,17 @@ import java.util.Set;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.CurrencyDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
+import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
@@ -57,7 +61,8 @@ public class EntityCache {
 				return null;
 			return clazz.cast(obj);
 		} catch (Exception e) {
-			log.error("failed to get from cache " + clazz + " with id " + id, e);
+			log.error("failed to get from cache " + clazz + " with id " + id,
+					e);
 			return null;
 		}
 	}
@@ -149,25 +154,23 @@ public class EntityCache {
 		}
 
 		/** Registers the DAOs for the descriptor types. */
-		private void registerDescriptorDaos(IDatabase database) {
+		private void registerDescriptorDaos(IDatabase db) {
 			log.trace("register descriptor DAOs");
-			descriptorDaos.put(ActorDescriptor.class, new ActorDao(database));
-			descriptorDaos.put(SourceDescriptor.class, new SourceDao(database));
-			descriptorDaos.put(UnitGroupDescriptor.class, new UnitGroupDao(
-					database));
-			descriptorDaos.put(FlowPropertyDescriptor.class,
-					new FlowPropertyDao(database));
-			descriptorDaos.put(FlowDescriptor.class, new FlowDao(database));
-			descriptorDaos.put(ProcessDescriptor.class,
-					new ProcessDao(database));
-			descriptorDaos.put(ProductSystemDescriptor.class,
-					new ProductSystemDao(database));
-			descriptorDaos.put(ImpactMethodDescriptor.class,
-					new ImpactMethodDao(database));
-			descriptorDaos.put(ProjectDescriptor.class,
-					new ProjectDao(database));
-			descriptorDaos.put(ImpactCategoryDescriptor.class,
-					new ImpactCategoryDao(database));
+			HashMap<Class<?>, RootEntityDao<?, ?>> m = descriptorDaos;
+			m.put(ActorDescriptor.class, new ActorDao(db));
+			m.put(SourceDescriptor.class, new SourceDao(db));
+			m.put(UnitGroupDescriptor.class, new UnitGroupDao(db));
+			m.put(FlowPropertyDescriptor.class, new FlowPropertyDao(db));
+			m.put(FlowDescriptor.class, new FlowDao(db));
+			m.put(ProcessDescriptor.class, new ProcessDao(db));
+			m.put(ProductSystemDescriptor.class, new ProductSystemDao(db));
+			m.put(ImpactMethodDescriptor.class, new ImpactMethodDao(db));
+			m.put(ProjectDescriptor.class, new ProjectDao(db));
+			m.put(ImpactCategoryDescriptor.class, new ImpactCategoryDao(db));
+			m.put(SocialIndicatorDescriptor.class, new SocialIndicatorDao(db));
+			m.put(CurrencyDescriptor.class, new CurrencyDao(db));
+			m.put(LocationDescriptor.class, new LocationDao(db));
+			m.put(ParameterDescriptor.class, new ParameterDao(db));
 		}
 
 		@Override

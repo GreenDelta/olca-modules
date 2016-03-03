@@ -35,7 +35,7 @@ class TotalImpacts {
 		int row = 2;
 		for (ImpactCategoryDescriptor impact : export.getImpacts()) {
 			export.getWriter().writeImpactRowInfo(sheet, row, impact);
-			double val = result.getTotalImpactResult(impact).getValue();
+			double val = result.getTotalImpactResult(impact).value;
 			Excel.cell(sheet, row, col, val);
 			row++;
 		}

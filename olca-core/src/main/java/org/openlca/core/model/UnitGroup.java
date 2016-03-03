@@ -3,7 +3,6 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -39,22 +38,20 @@ public class UnitGroup extends CategorizedEntity {
 
 	@Override
 	public UnitGroup clone() {
-		final UnitGroup unitGroup = new UnitGroup();
-		unitGroup.setRefId(UUID.randomUUID().toString());
-		unitGroup.setName(getName());
-		unitGroup.setDescription(getDescription());
-		unitGroup.setCategory(getCategory());
-		unitGroup.setDefaultFlowProperty(getDefaultFlowProperty());
+		UnitGroup clone = new UnitGroup();
+		Util.cloneRootFields(this, clone);
+		clone.setCategory(getCategory());
+		clone.setDefaultFlowProperty(getDefaultFlowProperty());
 		Unit refUnit = getReferenceUnit();
 		for (Unit unit : getUnits()) {
 			final boolean isRef = Objects.equals(refUnit, unit);
 			final Unit copy = unit.clone();
-			unitGroup.getUnits().add(copy);
+			clone.getUnits().add(copy);
 			if (isRef) {
-				unitGroup.setReferenceUnit(copy);
+				clone.setReferenceUnit(copy);
 			}
 		}
-		return unitGroup;
+		return clone;
 	}
 
 	/**

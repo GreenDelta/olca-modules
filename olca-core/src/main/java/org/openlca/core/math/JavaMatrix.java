@@ -60,4 +60,34 @@ class JavaMatrix implements IMatrix {
 		return new JavaMatrix(matrix.copy());
 	}
 
+	@Override
+	public String toString() {
+		if (matrix == null)
+			return super.toString();
+		StringBuilder s = new StringBuilder();
+		int max = 10;
+		int rows = matrix.getRowDimension();
+		int cols = matrix.getColumnDimension();
+		s.append("[");
+		for (int row = 0; row < rows; row++) {
+			for (int col = 0; col < cols; col++) {
+				if (col >= max) {
+					s.append(" ...");
+					break;
+				}
+				double val = matrix.getEntry(row, col);
+				s.append(val);
+				if (col < (cols - 1))
+					s.append(" ");
+			}
+			if(row >= max) {
+				s.append("; ...");
+				break;
+			}
+			if (row < (rows - 1))
+				s.append("; ");
+		}
+		s.append("]");
+		return s.toString();
+	}
 }

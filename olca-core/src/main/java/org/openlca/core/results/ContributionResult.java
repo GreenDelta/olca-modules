@@ -1,7 +1,5 @@
 package org.openlca.core.results;
 
-import java.util.List;
-
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.matrix.LongPair;
 
@@ -13,61 +11,42 @@ import org.openlca.core.matrix.LongPair;
  */
 public class ContributionResult extends SimpleResult {
 
-	protected double[] scalingFactors;
-	protected IMatrix singleFlowResults;
-	protected IMatrix singleImpactResults;
-	protected IMatrix singleFlowImpacts;
-	protected LinkContributions linkContributions;
-
-	public void setScalingFactors(double[] scalingFactors) {
-		this.scalingFactors = scalingFactors;
-	}
+	/**
+	 * This is a matrix with single flow results where the flows are mapped to
+	 * the rows and the process-products to the columns. Inputs have negative
+	 * values here.
+	 */
+	public IMatrix singleFlowResults;
 
 	/**
-	 * Get the scaling factors for the process-product columns.
+	 * The single LCIA category results in a matrix where the LCIA categories
+	 * are mapped to the rows and the process-products to the columns.
 	 */
-	public double[] getScalingFactors() {
-		return scalingFactors;
-	}
+	public IMatrix singleImpactResults;
 
 	/**
-	 * Get the scaling factor of the given process-product.
+	 * Contains the direct net-costs. Each entry contains the net-costs of the
+	 * respective process-product at the respective index.
 	 */
-	public double getScalingFactor(LongPair processProduct) {
-		int idx = productIndex.getIndex(processProduct);
-		if (idx < 0 || idx > scalingFactors.length)
-			return 0;
-		return scalingFactors[idx];
-	}
+	public double[] singleCostResults;
 
 	/**
-	 * Get the sum of all scaling factors for the products of the process with
-	 * the given ID.
+	 * The single LCIA category result for each intervention flow in a matrix
+	 * where the LCIA categories are mapped to the rows and the intervention
+	 * flows to the columns.
 	 */
-	public double getScalingFactor(long processId) {
-		double factor = 0;
-		List<LongPair> productIds = productIndex.getProducts(processId);
-		for (LongPair product : productIds) {
-			int idx = productIndex.getIndex(product);
-			if (idx < 0 || idx > scalingFactors.length)
-				continue;
-			factor += scalingFactors[idx];
-		}
-		return factor;
-	}
-
-	public void setSingleFlowResults(IMatrix singleFlowResults) {
-		this.singleFlowResults = singleFlowResults;
-	}
+	public IMatrix singleFlowImpacts;
 
 	/**
-	 * Get the single flow results in a matrix where the flows are mapped to the
-	 * rows and the process-products to the columns. Inputs have negative values
-	 * here.
+	 * Contains the characterization factors in a matrix where the LCIA
+	 * categories are mapped to rows and elementary flows to columns.
 	 */
-	public IMatrix getSingleFlowResults() {
-		return singleFlowResults;
-	}
+	public IMatrix impactFactors;
+
+	/**
+	 * The contributions of the product-links in the scaled product system.
+	 */
+	public LinkContributions linkContributions;
 
 	/**
 	 * Get the single flow result of the flow with the given ID for the given
@@ -89,24 +68,12 @@ public class ContributionResult extends SimpleResult {
 		return getProcessValue(singleFlowResults, row, processId);
 	}
 
-	public void setSingleImpactResults(IMatrix singleImpactResults) {
-		this.singleImpactResults = singleImpactResults;
-	}
-
-	/**
-	 * Get the single LCIA category results in a matrix where the LCIA
-	 * categories are mapped to the rows and the process-products to the
-	 * columns.
-	 */
-	public IMatrix getSingleImpactResults() {
-		return singleImpactResults;
-	}
-
 	/**
 	 * Get the single LCIA category result of the LCIA category with the given
 	 * ID for the given process-product.
 	 */
-	public double getSingleImpactResult(LongPair processProduct, long impactId) {
+	public double getSingleImpactResult(LongPair processProduct,
+			long impactId) {
 		if (!hasImpactResults())
 			return 0;
 		int row = impactIndex.getIndex(impactId);
@@ -125,17 +92,23 @@ public class ContributionResult extends SimpleResult {
 		return getProcessValue(singleImpactResults, row, processId);
 	}
 
-	public void setSingleFlowImpacts(IMatrix singleFlowImpacts) {
-		this.singleFlowImpacts = singleFlowImpacts;
+	public double getSingleCostResult(LongPair processProduct) {
+		if (!hasCostResults)
+			return 0;
+		int col = productIndex.getIndex(processProduct);
+		if (col >= singleCostResults.length)
+			return 0;
+		return singleCostResults[col];
 	}
 
-	/**
-	 * Get the single LCIA category result for each intervention flow in a
-	 * matrix where the LCIA categories are mapped to the rows and the
-	 * intervention flows to the columns.
-	 */
-	public IMatrix getSingleFlowImpacts() {
-		return singleFlowImpacts;
+	public double getSingleCostResult(long processId) {
+		if (!hasCostResults)
+			return 0;
+		double sum = 0;
+		for (LongPair product : productIndex.getProducts(processId)) {
+			sum += getSingleCostResult(product);
+		}
+		return sum;
 	}
 
 	/**
@@ -148,17 +121,6 @@ public class ContributionResult extends SimpleResult {
 		int row = impactIndex.getIndex(impactId);
 		int col = flowIndex.getIndex(flowId);
 		return getValue(singleFlowImpacts, row, col);
-	}
-
-	public void setLinkContributions(LinkContributions linkContributions) {
-		this.linkContributions = linkContributions;
-	}
-
-	/**
-	 * Get the contributions of the product-links in the scaled product system.
-	 */
-	public LinkContributions getLinkContributions() {
-		return linkContributions;
 	}
 
 	protected double getProcessValue(IMatrix matrix, int row, long processId) {

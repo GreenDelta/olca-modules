@@ -4,23 +4,33 @@ import java.util.HashMap;
 import java.util.Map;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -37,7 +47,13 @@ class Db {
 	private Map<String, Long> methodIds = new HashMap<>();
 	private Map<String, Long> actorIds = new HashMap<>();
 	private Map<String, Long> sourceIds = new HashMap<>();
+	private Map<String, Long> parameterIds = new HashMap<>();
 	private Map<String, Long> processIds = new HashMap<>();
+	private Map<String, Long> indicatorIds = new HashMap<>();
+	private Map<String, Long> currencyIds = new HashMap<>();
+	private Map<String, Long> costCategoryIds = new HashMap<>();
+	private Map<String, Long> systemIds = new HashMap<>();
+	private Map<String, Long> projectIds = new HashMap<>();
 
 	private IDatabase db;
 
@@ -109,8 +125,7 @@ class Db {
 	}
 
 	public UnitGroup update(UnitGroup group) {
-		UnitGroupDao dao = new UnitGroupDao(db);
-		return dao.update(group);
+		return new UnitGroupDao(db).update(group);
 	}
 
 	public Unit getUnit(String refId) {
@@ -135,10 +150,6 @@ class Db {
 		return put(new FlowDao(db), flow, flowIds);
 	}
 
-	public Flow update(Flow flow) {
-		return new FlowDao(db).update(flow);
-	}
-
 	public ImpactMethod getMethod(String refId) {
 		return get(new ImpactMethodDao(db), refId, methodIds);
 	}
@@ -153,6 +164,46 @@ class Db {
 
 	public Process put(Process process) {
 		return put(new ProcessDao(db), process, processIds);
+	}
+
+	public SocialIndicator getSocialIndicator(String refId) {
+		return get(new SocialIndicatorDao(db), refId, indicatorIds);
+	}
+
+	public SocialIndicator put(SocialIndicator indicator) {
+		return put(new SocialIndicatorDao(db), indicator, indicatorIds);
+	}
+
+	public Currency getCurrency(String refId) {
+		return get(new CurrencyDao(db), refId, currencyIds);
+	}
+
+	public Currency put(Currency currency) {
+		return put(new CurrencyDao(db), currency, currencyIds);
+	}
+
+	public Parameter getParameter(String refId) {
+		return get(new ParameterDao(db), refId, parameterIds);
+	}
+
+	public Parameter put(Parameter parameter) {
+		return put(new ParameterDao(db), parameter, parameterIds);
+	}
+
+	public ProductSystem getSystem(String refId) {
+		return get(new ProductSystemDao(db), refId, systemIds);
+	}
+
+	public ProductSystem put(ProductSystem system) {
+		return put(new ProductSystemDao(db), system, systemIds);
+	}
+	
+	public Project getProject(String refId) {
+		return get(new ProjectDao(db), refId, projectIds);
+	}
+
+	public Project put(Project project) {
+		return put(new ProjectDao(db), project, projectIds);
 	}
 
 	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,
@@ -171,9 +222,13 @@ class Db {
 			Map<String, Long> idCache) {
 		if (entity == null)
 			return null;
-		entity = dao.insert(entity);
+		if (entity.getId() == 0L)
+			entity = dao.insert(entity);
+		else {
+			dao.detach(dao.getForId(entity.getId()));
+			entity = dao.update(entity);
+		}
 		idCache.put(entity.getRefId(), entity.getId());
 		return entity;
 	}
-
 }

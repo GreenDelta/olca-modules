@@ -75,12 +75,12 @@ class CategoryWriter implements Closeable {
 			org.openlca.core.model.Category category, int type) {
 		Category cat = new Category();
 		cat.setType(type);
-		if (category.getParentCategory() == null) {
+		if (category.getCategory() == null) {
 			cat.setName(category.getName());
 			cat.setLocalName(category.getName());
 		} else {
 			org.openlca.core.model.Category parent = category
-					.getParentCategory();
+					.getCategory();
 			cat.setName(parent.getName());
 			cat.setLocalName(parent.getName());
 			SubCategory sub = new SubCategory();

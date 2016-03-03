@@ -10,21 +10,24 @@ import org.openlca.core.matrix.LongPair;
  */
 public class FullResult extends ContributionResult {
 
-	protected IMatrix upstreamFlowResults;
-	protected IMatrix upstreamImpactResults;
-
-	public void setUpstreamFlowResults(IMatrix upstreamFlowResults) {
-		this.upstreamFlowResults = upstreamFlowResults;
-	}
+	/**
+	 * The upstream flow results in a matrix where the flows are mapped to the
+	 * rows and the process-products to the columns. Inputs have negative values
+	 * here.
+	 */
+	public IMatrix upstreamFlowResults;
 
 	/**
-	 * Get the upstream flow results in a matrix where the flows are mapped to
-	 * the rows and the process-products to the columns. Inputs have negative
-	 * values here.
+	 * The upstream LCIA category results in a matrix where the LCIA categories
+	 * are mapped to the rows and the process-products to the columns.
 	 */
-	public IMatrix getUpstreamFlowResults() {
-		return upstreamFlowResults;
-	}
+	public IMatrix upstreamImpactResults;
+
+	/**
+	 * The upstream cost results is a simple row vector where each entry
+	 * contains the upstream costs for the product at the given index.
+	 */
+	public IMatrix upstreamCostResults;
 
 	/**
 	 * Get the upstream flow result of the flow with the given ID for the given
@@ -44,19 +47,6 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamFlowResult(long processId, long flowId) {
 		int row = flowIndex.getIndex(flowId);
 		return getProcessValue(upstreamFlowResults, row, processId);
-	}
-
-	public void setUpstreamImpactResults(IMatrix upstreamImpactResults) {
-		this.upstreamImpactResults = upstreamImpactResults;
-	}
-
-	/**
-	 * Get the upstream LCIA category results in a matrix where the LCIA
-	 * categories are mapped to the rows and the process-products to the
-	 * columns.
-	 */
-	public IMatrix getUpstreamImpactResults() {
-		return upstreamImpactResults;
 	}
 
 	/**
@@ -80,6 +70,25 @@ public class FullResult extends ContributionResult {
 			return 0;
 		int row = impactIndex.getIndex(impactId);
 		return getProcessValue(upstreamImpactResults, row, processId);
+	}
+
+	/**
+	 * Get the upstream cost result of the given process-product.
+	 */
+	public double getUpstreamCostResult(LongPair processProduct) {
+		if (!hasCostResults)
+			return 0;
+		int col = productIndex.getIndex(processProduct);
+		return getValue(upstreamCostResults, 0, col);
+	}
+
+	/**
+	 * Get the upstream cost result of the given process.
+	 */
+	public double getUpstreamCostResult(long processId) {
+		if (!hasCostResults)
+			return 0;
+		return getProcessValue(upstreamCostResults, 0, processId);
 	}
 
 }

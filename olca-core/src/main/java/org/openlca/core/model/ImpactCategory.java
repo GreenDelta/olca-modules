@@ -2,7 +2,6 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -25,9 +24,7 @@ public class ImpactCategory extends RootEntity {
 	@Override
 	public ImpactCategory clone() {
 		ImpactCategory clone = new ImpactCategory();
-		clone.setRefId(UUID.randomUUID().toString());
-		clone.setDescription(getDescription());
-		clone.setName(getName());
+		Util.cloneRootFields(this, clone);
 		clone.setReferenceUnit(getReferenceUnit());
 		for (ImpactFactor lciaFactor : getImpactFactors())
 			clone.getImpactFactors().add(lciaFactor.clone());

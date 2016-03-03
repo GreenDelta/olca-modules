@@ -3,7 +3,6 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -30,10 +29,8 @@ public class ImpactMethod extends CategorizedEntity {
 	@Override
 	public ImpactMethod clone() {
 		ImpactMethod clone = new ImpactMethod();
-		clone.setRefId(UUID.randomUUID().toString());
-		clone.setName(getName());
+		Util.cloneRootFields(this, clone);
 		clone.setCategory(getCategory());
-		clone.setDescription(getDescription());
 		HashMap<ImpactCategory, ImpactCategory> impactMap = new HashMap<>();
 		for (ImpactCategory origCat : getImpactCategories()) {
 			ImpactCategory clonedCat = origCat.clone();

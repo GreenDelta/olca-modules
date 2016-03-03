@@ -1,38 +1,22 @@
 package org.openlca.geo;
 
-import org.openlca.core.matrix.LongPair;
-import org.openlca.core.results.ContributionResultProvider;
+import java.util.List;
 
-import java.util.Map;
+import org.openlca.core.results.FullResult;
+import org.openlca.geo.kml.LocationKml;
+import org.openlca.geo.parameter.ParameterSet;
 
 public class RegionalizedResult {
 
-	private ContributionResultProvider<?> baseResult;
-	private ContributionResultProvider<?> regionalizedResult;
-	private Map<LongPair, KmlFeature> kmlFeatures;
+	public final FullResult result;
+	public final List<LocationKml> kmlData;
+	public final ParameterSet parameterSet;
 
-	public void setBaseResult(ContributionResultProvider<?> baseResult) {
-		this.baseResult = baseResult;
+	RegionalizedResult(FullResult result, List<LocationKml> kmlData,
+			ParameterSet parameterSet) {
+		this.result = result;
+		this.kmlData = kmlData;
+		this.parameterSet = parameterSet;
 	}
 
-	public ContributionResultProvider<?> getBaseResult() {
-		return baseResult;
-	}
-
-	public void setRegionalizedResult(ContributionResultProvider<?>
-			regionalizedResult) {
-		this.regionalizedResult = regionalizedResult;
-	}
-
-	public ContributionResultProvider<?> getRegionalizedResult() {
-		return regionalizedResult;
-	}
-
-	public void setKmlFeatures(Map<LongPair, KmlFeature> kmlFeatures) {
-		this.kmlFeatures = kmlFeatures;
-	}
-
-	public Map<LongPair, KmlFeature> getKmlFeatures() {
-		return kmlFeatures;
-	}
 }

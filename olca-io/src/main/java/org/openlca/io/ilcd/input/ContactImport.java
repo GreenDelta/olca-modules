@@ -3,31 +3,27 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 
 import org.openlca.core.database.ActorDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.contacts.Contact;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.ContactBag;
 
 public class ContactImport {
 
-	private IDatabase database;
+	private final ImportConfig config;
 	private ActorDao dao;
-	private DataStore dataStore;
 	private ContactBag ilcdContact;
 	private Actor actor;
 
-	public ContactImport(DataStore dataStore, IDatabase database) {
-		this.dataStore = dataStore;
-		this.database = database;
-		this.dao = new ActorDao(database);
+	public ContactImport(ImportConfig config) {
+		this.config = config;
+		this.dao = new ActorDao(config.db);
 	}
 
 	public Actor run(Contact contact) throws ImportException {
-		this.ilcdContact = new ContactBag(contact);
+		this.ilcdContact = new ContactBag(contact, config.ilcdConfig);
 		Actor actor = findExisting(ilcdContact.getId());
 		if (actor != null)
 			return actor;
@@ -39,7 +35,7 @@ public class ContactImport {
 		if (actor != null)
 			return actor;
 		Contact contact = tryGetContact(contactId);
-		ilcdContact = new ContactBag(contact);
+		ilcdContact = new ContactBag(contact, config.ilcdConfig);
 		return createNew();
 	}
 
@@ -64,7 +60,7 @@ public class ContactImport {
 
 	private Contact tryGetContact(String contactId) throws ImportException {
 		try {
-			Contact contact = dataStore.get(Contact.class, contactId);
+			Contact contact = config.store.get(Contact.class, contactId);
 			if (contact == null) {
 				throw new ImportException("No ILCD contact for ID " + contactId
 						+ " found");
@@ -76,7 +72,7 @@ public class ContactImport {
 	}
 
 	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(database,
+		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.ACTOR);
 		Category category = categoryImport.run(ilcdContact.getSortedClasses());
 		actor.setCategory(category);

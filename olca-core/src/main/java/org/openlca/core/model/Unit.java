@@ -20,10 +20,9 @@ public class Unit extends RootEntity {
 
 	@Override
 	public Unit clone() {
-		final Unit unit = new Unit();
-		unit.setName(getName());
+		Unit unit = new Unit();
+		Util.cloneRootFields(this, unit);
 		unit.setConversionFactor(getConversionFactor());
-		unit.setDescription(getDescription());
 		unit.setSynonyms(getSynonyms());
 		return unit;
 	}

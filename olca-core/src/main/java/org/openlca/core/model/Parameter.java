@@ -5,19 +5,11 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_parameters")
-public class Parameter extends AbstractEntity {
-
-	@Column(name = "name")
-	private String name;
-
-	@Lob
-	@Column(name = "description")
-	private String description;
+public class Parameter extends CategorizedEntity {
 
 	@Column(name = "scope")
 	@Enumerated(EnumType.STRING)
@@ -64,10 +56,9 @@ public class Parameter extends AbstractEntity {
 	@Override
 	public Parameter clone() {
 		Parameter clone = new Parameter();
-		clone.setDescription(getDescription());
+		Util.cloneRootFields(this, clone);
 		clone.setFormula(getFormula());
 		clone.setInputParameter(isInputParameter());
-		clone.setName(getName());
 		clone.setScope(getScope());
 		if (getUncertainty() != null)
 			clone.setUncertainty(getUncertainty().clone());
@@ -77,24 +68,8 @@ public class Parameter extends AbstractEntity {
 		return clone;
 	}
 
-	public String getDescription() {
-		return description;
-	}
-
-	public String getName() {
-		return name;
-	}
-
 	public void setScope(ParameterScope type) {
 		this.scope = type;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public boolean isInputParameter() {
@@ -151,8 +126,8 @@ public class Parameter extends AbstractEntity {
 
 	@Override
 	public String toString() {
-		return "Parameter [formula=" + formula + ", name=" + name + ", type="
-				+ scope + "]";
+		return "Parameter [formula=" + formula + ", name=" + getName()
+				+ ", type=" + scope + "]";
 	}
 
 }

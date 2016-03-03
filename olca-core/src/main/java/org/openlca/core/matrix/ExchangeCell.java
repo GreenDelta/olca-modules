@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.math.NumberGenerator;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
@@ -11,15 +12,11 @@ import org.slf4j.LoggerFactory;
 class ExchangeCell {
 
 	final CalcExchange exchange;
-	private double allocationFactor = 1d;
+	public double allocationFactor = 1d;
 	private NumberGenerator generator;
 
 	ExchangeCell(CalcExchange exchange) {
 		this.exchange = exchange;
-	}
-
-	void setAllocationFactor(double allocationFactor) {
-		this.allocationFactor = allocationFactor;
 	}
 
 	void eval(FormulaInterpreter interpreter) {
@@ -54,6 +51,10 @@ class ExchangeCell {
 			double v = scope.eval(exchange.parameter3Formula);
 			exchange.parameter3 = v;
 		}
+		if (exchange.costFormula != null) {
+			double v = scope.eval(exchange.costFormula);
+			exchange.costValue = v;
+		}
 	}
 
 	double getMatrixValue() {
@@ -65,6 +66,16 @@ class ExchangeCell {
 			return -amount;
 		else
 			return amount;
+	}
+
+	double getCostValue() {
+		if (exchange == null)
+			return 0;
+		double val = exchange.costValue * allocationFactor;
+		if (exchange.flowType == FlowType.PRODUCT_FLOW && !exchange.input)
+			return -val;
+		else
+			return val;
 	}
 
 	double getNextSimulationValue() {

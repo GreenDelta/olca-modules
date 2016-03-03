@@ -1,119 +1,81 @@
 package org.openlca.jsonld.input;
 
-import java.util.Objects;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.core.model.NwSet;
+import org.openlca.core.model.Parameter;
 
-class ImpactMethodImport {
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private String refId;
-	private ImportConfig conf;
+class ImpactMethodImport extends BaseImport<ImpactMethod> {
 
 	private ImpactMethodImport(String refId, ImportConfig conf) {
-		this.refId = refId;
-		this.conf = conf;
+		super(ModelType.IMPACT_METHOD, refId, conf);
 	}
 
 	static ImpactMethod run(String refId, ImportConfig conf) {
 		return new ImpactMethodImport(refId, conf).run();
 	}
 
-	private ImpactMethod run() {
-		if (refId == null || conf == null)
-			return null;
-		try {
-			ImpactMethod m = conf.db.getMethod(refId);
-			if (m != null)
-				return m;
-			JsonObject json = conf.store.get(ModelType.IMPACT_METHOD, refId);
-			return map(json);
-		} catch (Exception e) {
-			log.error("failed to import impact method " + refId, e);
-			return null;
-		}
-	}
-
-	private ImpactMethod map(JsonObject json) {
+	@Override
+	ImpactMethod map(JsonObject json, long id) {
 		if (json == null)
 			return null;
 		ImpactMethod m = new ImpactMethod();
-		In.mapAtts(json, m);
-		String catId = In.getRefId(json, "category");
-		m.setCategory(CategoryImport.run(catId, conf));
+		In.mapAtts(json, m, id, conf);
 		mapCategories(json, m);
+		mapNwSets(json, m);
+		mapParameters(json, m);
 		return conf.db.put(m);
 	}
 
 	private void mapCategories(JsonObject json, ImpactMethod m) {
-		JsonElement elem = json.get("impactCategories");
-		if (elem == null || !elem.isJsonArray())
+		JsonArray array = In.getArray(json, "impactCategories");
+		if (array == null || array.size() == 0)
 			return;
-		for (JsonElement e : elem.getAsJsonArray()) {
+		for (JsonElement e : array) {
 			if (!e.isJsonObject())
 				continue;
 			String catId = In.getString(e.getAsJsonObject(), "@id");
-			JsonObject catJson = conf.store.get(ModelType.IMPACT_CATEGORY, catId);
-			ImpactCategory category = mapCategory(catJson);
+			JsonObject catJson = conf.store.get(ModelType.IMPACT_CATEGORY,
+					catId);
+			ImpactCategory category = ImpactCategories.map(catJson, conf);
 			if (category != null)
 				m.getImpactCategories().add(category);
 		}
 	}
 
-	private ImpactCategory mapCategory(JsonObject json) {
-		if (json == null)
-			return null;
-		ImpactCategory cat = new ImpactCategory();
-		In.mapAtts(json, cat);
-		cat.setReferenceUnit(In.getString(json, "referenceUnitName"));
-		JsonElement factorsElem = json.get("impactFactors");
-		if (factorsElem == null || !factorsElem.isJsonArray())
-			return cat;
-		for (JsonElement e : factorsElem.getAsJsonArray()) {
+	private void mapNwSets(JsonObject json, ImpactMethod m) {
+		JsonArray array = In.getArray(json, "nwSets");
+		if (array == null)
+			return;
+		for (JsonElement e : array) {
 			if (!e.isJsonObject())
 				continue;
-			ImpactFactor factor = mapFactor(e.getAsJsonObject());
-			cat.getImpactFactors().add(factor);
+			String nwSetId = In.getString(e.getAsJsonObject(), "@id");
+			JsonObject nwSetJson = conf.store.get(ModelType.NW_SET, nwSetId);
+			NwSet set = NwSets.map(nwSetJson, m.getImpactCategories());
+			if (set != null)
+				m.getNwSets().add(set);
 		}
-		return cat;
 	}
 
-	private ImpactFactor mapFactor(JsonObject json) {
-		ImpactFactor factor = new ImpactFactor();
-		factor.setValue(In.getDouble(json, "value", 0));
-		Flow flow = FlowImport.run(In.getRefId(json, "flow"), conf);
-		factor.setFlow(flow);
-		Unit unit = conf.db.getUnit(In.getRefId(json, "unit"));
-		factor.setUnit(unit);
-		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
-		factor.setFlowPropertyFactor(propFac);
-		JsonElement u = json.get("uncertainty");
-		if (u != null && u.isJsonObject())
-			factor.setUncertainty(Uncertainties.read(u.getAsJsonObject()));
-		// TODO: formula
-		return factor;
-	}
-
-	private FlowPropertyFactor getPropertyFactor(JsonObject json, Flow flow) {
-		String propId = In.getRefId(json, "flowProperty");
-		for (FlowPropertyFactor fac : flow.getFlowPropertyFactors()) {
-			FlowProperty prop = fac.getFlowProperty();
-			if (prop == null)
+	private void mapParameters(JsonObject json, ImpactMethod method) {
+		JsonArray parameters = In.getArray(json, "parameters");
+		if (parameters == null || parameters.size() == 0)
+			return;
+		for (JsonElement e : parameters) {
+			if (!e.isJsonObject())
 				continue;
-			if (Objects.equals(propId, prop.getRefId()))
-				return fac;
+			JsonObject o = e.getAsJsonObject();
+			String refId = In.getString(o, "@id");
+			ParameterImport pi = new ParameterImport(refId, conf);
+			Parameter parameter = new Parameter();
+			pi.mapFields(o, parameter);
+			method.getParameters().add(parameter);
 		}
-		return null;
 	}
 }

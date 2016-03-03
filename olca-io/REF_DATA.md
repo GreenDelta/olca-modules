@@ -95,10 +95,29 @@ Flow property factors
 ---------------------
 (relations between flows and flow properties)
 File:       `flow_property_factors.csv`
+Columns:
 
 0. flow ID (UUID, required)
 1. flow property ID (UUID, required)
 2. factor (double, required) (1 if it is the reference flow property)
+
+
+Currencies
+----------
+Every currency must have a link to a reference currency. The reference currency
+has a link to itself. For a correct import, currently the reference currency 
+must be the first line of the file.
+  
+File:       `currencies.csv`
+Columns:
+
+0. reference ID (UUID, required)
+1. name (string, required)
+2. description (string, optional)
+3. category ID (UUID, optional)
+4. reference currency ID (UUID, required)
+5. currency code (string, required)
+6. conversion factor (double, required) (1 if it is the reference currency)
 
 
 LCIA methods

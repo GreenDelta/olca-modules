@@ -88,7 +88,13 @@ class IOSheet {
 		if (!Strings.nullOrEmpty(formula)) {
 			exchange.setAmountFormula(formula);
 		}
-		exchange.setUncertainty(config.getUncertainty(sheet, row, 6));
+		String description = config.getString(sheet, row, 6);
+		if (!Strings.nullOrEmpty(description)) {
+			exchange.description = description;
+		}
+		exchange.setUncertainty(config.getUncertainty(sheet, row, 7));
+		if ("Yes".equals(config.getString(sheet, row, 12)))
+			exchange.setAvoidedProduct(true);
 		return exchange;
 	}
 

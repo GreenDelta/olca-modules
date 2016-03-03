@@ -173,7 +173,7 @@ public class FileStore implements DataStore {
 	}
 
 	public File getFolder(Class<?> clazz) {
-		String name = Path.forClass(clazz);
+		String name = Dir.get(clazz);
 		File folder = findFolder(name, rootDir);
 		if (folder == null) {
 			folder = new File(rootDir, name);

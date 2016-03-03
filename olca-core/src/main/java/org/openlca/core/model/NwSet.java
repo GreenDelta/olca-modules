@@ -1,15 +1,15 @@
 package org.openlca.core.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Normalisation and weighting set.
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Table(name = "tbl_nw_sets")
 public class NwSet extends RootEntity {
 
-	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_nw_set")
 	private final List<NwFactor> factors = new ArrayList<>();
 
@@ -28,11 +28,9 @@ public class NwSet extends RootEntity {
 	@Override
 	public NwSet clone() {
 		NwSet clone = new NwSet();
-		clone.setName(getName());
-		clone.setDescription(getDescription());
-		clone.setRefId(UUID.randomUUID().toString());
+		Util.cloneRootFields(this, clone);
 		clone.setWeightedScoreUnit(getWeightedScoreUnit());
-		for(NwFactor factor : getFactors())
+		for (NwFactor factor : getFactors())
 			clone.getFactors().add(factor.clone());
 		return clone;
 	}

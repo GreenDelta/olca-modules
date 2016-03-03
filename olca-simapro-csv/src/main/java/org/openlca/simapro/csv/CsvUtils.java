@@ -1,5 +1,7 @@
 package org.openlca.simapro.csv;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,10 +38,34 @@ public class CsvUtils {
 	public static String[] split(String line, CsvConfig config) {
 		if (line == null)
 			return new String[0];
-		if (config == null || config.getSeparator() == null)
+		if (config == null || config.getSeparator() == 0)
 			return new String[] { line };
-		// TODO: do not split within quoted strings!!
-		return line.split(config.getSeparator());
+		return _split(line, config);
+	}
+
+	private static String[] _split(String line, CsvConfig config) {
+		List<String> lines = new ArrayList<>();
+		String current = "";
+		boolean inString = false;
+		boolean lastWasDelimiter = false;
+		for (char next : line.toCharArray()) {
+			if (next == config.getDelimiter()) {
+				inString = !inString;
+				if (!lastWasDelimiter) {
+					lastWasDelimiter = true;
+					continue;
+				}
+			}
+			lastWasDelimiter = false;
+			if (next == config.getSeparator() && !inString) {
+				lines.add(current);
+				current = "";
+				continue;
+			}
+			current += next;
+		}
+		lines.add(current);
+		return lines.toArray(new String[lines.size()]);
 	}
 
 	public static String get(String[] columns, int col) {

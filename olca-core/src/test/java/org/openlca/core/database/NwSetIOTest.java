@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class NwSetIOTest {
 
-	private IDatabase db = TestSession.getDefaultDatabase();
+	private IDatabase db = Tests.getDb();
 
 	private final int CATEGORY_COUNT = 5;
 	private final int NWSET_COUNT = 3;
@@ -45,7 +45,7 @@ public class NwSetIOTest {
 			}
 		}
 		this.method = db.createDao(ImpactMethod.class).insert(method);
-		TestSession.emptyCache();
+		Tests.emptyCache();
 	}
 
 	@After

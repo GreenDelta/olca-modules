@@ -28,9 +28,9 @@ class InfoSheet {
 		sheet = wb.createSheet("Calculation setup");
 		headerStyle = Excel.headerStyle(wb);
 		row(1, title);
-		if (setup == null || setup.getProductSystem() == null)
+		if (setup == null || setup.productSystem == null)
 			return;
-		ProductSystem system = setup.getProductSystem();
+		ProductSystem system = setup.productSystem;
 		row(2, "Product system:", system.getName());
 		row(3, "Product:", product(system));
 		row(4, "Amount:", amount(system));
@@ -59,21 +59,21 @@ class InfoSheet {
 	}
 
 	private String method(CalculationSetup setup) {
-		if (setup.getImpactMethod() == null)
+		if (setup.impactMethod == null)
 			return "none";
 		else
-			return setup.getImpactMethod().getName();
+			return setup.impactMethod.getName();
 	}
 
 	private String nwset(CalculationSetup setup) {
-		if (setup.getNwSet() == null)
+		if (setup.nwSet == null)
 			return "none";
 		else
-			return setup.getNwSet().getName();
+			return setup.nwSet.getName();
 	}
 
 	private String allocation(CalculationSetup setup) {
-		AllocationMethod method = setup.getAllocationMethod();
+		AllocationMethod method = setup.allocationMethod;
 		if (method == null)
 			return "none";
 		switch (method) {

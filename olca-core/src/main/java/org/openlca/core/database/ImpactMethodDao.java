@@ -19,7 +19,7 @@ public class ImpactMethodDao extends
 	public List<ImpactCategoryDescriptor> getCategoryDescriptors(long methodId) {
 		try {
 			String jpql = "select cat.id, cat.refId, cat.name, cat.referenceUnit, "
-					+ "cat.description from ImpactMethod m join m.impactCategories "
+					+ "cat.description, cat.version, cat.lastChange from ImpactMethod m join m.impactCategories "
 					+ "cat where m.id = :methodId ";
 			List<Object[]> vals = Query.on(getDatabase()).getAll(
 					Object[].class, jpql,
@@ -32,6 +32,10 @@ public class ImpactMethodDao extends
 				d.setName((String) val[2]);
 				d.setReferenceUnit((String) val[3]);
 				d.setDescription((String) val[4]);
+				if (val[5] != null)
+					d.setVersion((long) val[5]);
+				if (val[6] != null)
+					d.setLastChange((long) val[6]);
 				list.add(d);
 			}
 			return list;

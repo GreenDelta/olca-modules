@@ -19,9 +19,11 @@ import org.openlca.ilcd.sources.Source;
 public class SourceBag implements IBag<Source> {
 
 	private Source source;
+	private IlcdConfig config;
 
-	public SourceBag(Source source) {
+	public SourceBag(Source source, IlcdConfig config) {
 		this.source = source;
+		this.config = config;
 	}
 
 	@Override
@@ -40,14 +42,14 @@ public class SourceBag implements IBag<Source> {
 	public String getShortName() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getShortName());
+			return LangString.get(info.getShortName(), config);
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getSourceDescriptionOrComment());
+			return LangString.get(info.getSourceDescriptionOrComment(), config);
 		return null;
 	}
 

@@ -99,26 +99,28 @@ class UpgradeUtil {
 	 * Checks if a column with the given name exists in the table with the given
 	 * name. If not, it is created using the given column definition.
 	 */
-	void checkCreateColumn(String tableName, String columnName, String columnDef)
-			throws Exception {
+	boolean checkCreateColumn(String tableName, String columnName,
+			String columnDef) throws Exception {
 		log.trace("Check if column {} exists in {}", columnName, tableName);
-		if (columnExists(tableName, columnName))
+		if (columnExists(tableName, columnName)) {
 			log.trace("column exists");
-		else {
-			log.info("add column {} to {}", columnName, tableName);
-			String stmt = "ALTER TABLE " + tableName + " ADD COLUMN "
-					+ columnDef;
-			NativeSql.on(database).runUpdate(stmt);
+			return false;
 		}
+		log.info("add column {} to {}", columnName, tableName);
+		String stmt = "ALTER TABLE " + tableName + " ADD COLUMN " + columnDef;
+		NativeSql.on(database).runUpdate(stmt);
+		return true;
 	}
 
 	/** Deletes the given column from the given table if it exists. */
-	void checkDropColumn(String tableName, String columnName) throws Exception {
+	boolean checkDropColumn(String tableName, String columnName)
+			throws Exception {
 		log.trace("drop column {} in table {}", columnName, tableName);
 		if (!columnExists(tableName, columnName))
-			return;
+			return false;
 		String stmt = "ALTER TABLE " + tableName + " DROP COLUMN " + columnName;
 		NativeSql.on(database).runUpdate(stmt);
+		return true;
 	}
 
 	/**

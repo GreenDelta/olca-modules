@@ -54,7 +54,7 @@ public class ProcessExport implements Runnable {
 		Category category = process.getCategory();
 		while (category != null) {
 			path.set(0, category.getName());
-			category = category.getParentCategory();
+			category = category.getCategory();
 		}
 		cell(sheet, row++, "Category", Joiner.on('/').join(path));
 		cell(sheet, row++, "Infractructure process",

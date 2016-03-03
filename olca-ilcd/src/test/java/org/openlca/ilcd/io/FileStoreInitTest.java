@@ -27,8 +27,9 @@ public class FileStoreInitTest {
 		String path = System.getProperty("java.io.tmpdir");
 		File rootDir = new File(path + File.separator + "itest_"
 				+ UUID.randomUUID().toString());
-		FileStore fileStore = new FileStore(rootDir);
-		fileStore.prepareFolder();
+		try (FileStore fileStore = new FileStore(rootDir)) {
+			fileStore.prepareFolder();
+		}
 		return rootDir;
 	}
 

@@ -7,7 +7,7 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.io.TestSession;
+import org.openlca.io.Tests;
 import org.openlca.io.ecospold2.input.IsicTree.IsicNode;
 
 public class IsicTreeTest {
@@ -33,7 +33,7 @@ public class IsicTreeTest {
 
 	@Test
 	public void testSyncFlowCategories() {
-		IDatabase database = TestSession.getDerbyDatabase();
+		IDatabase database = Tests.getDb();
 		CategoryDao dao = new CategoryDao(database);
 		Category cat = new Category();
 		cat.setName("0121:Growing of grapes");
@@ -41,14 +41,14 @@ public class IsicTreeTest {
 		cat = dao.insert(cat);
 		new IsicCategoryTreeSync(database, ModelType.FLOW).run();
 		cat = dao.getForId(cat.getId());
-		Assert.assertNotNull(cat.getParentCategory());
+		Assert.assertNotNull(cat.getCategory());
 		Assert.assertEquals("012:Growing of perennial crops", cat
-				.getParentCategory().getName());
+				.getCategory().getName());
 	}
 
 	@Test
 	public void testSyncProcessCategories() {
-		IDatabase database = TestSession.getDerbyDatabase();
+		IDatabase database = Tests.getDb();
 		CategoryDao dao = new CategoryDao(database);
 		Category cat = new Category();
 		String catName = "01:Crop and animal production, hunting and related service activities";
@@ -57,9 +57,9 @@ public class IsicTreeTest {
 		cat = dao.insert(cat);
 		new IsicCategoryTreeSync(database, ModelType.PROCESS).run();
 		cat = dao.getForId(cat.getId());
-		Assert.assertNotNull(cat.getParentCategory());
+		Assert.assertNotNull(cat.getCategory());
 		Assert.assertEquals("A:Agriculture, forestry and fishing", cat
-				.getParentCategory().getName());
+				.getCategory().getName());
 	}
 
 }

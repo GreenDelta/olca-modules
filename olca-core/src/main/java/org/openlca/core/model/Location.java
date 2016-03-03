@@ -4,17 +4,16 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import java.util.UUID;
 
 @Entity
 @Table(name = "tbl_locations")
-public class Location extends RootEntity {
+public class Location extends CategorizedEntity {
 
 	@Column(name = "code")
 	private String code;
 
 	@Column(name = "latitude")
-	private double latitude; 
+	private double latitude;
 
 	@Column(name = "longitude")
 	private double longitude;
@@ -30,12 +29,11 @@ public class Location extends RootEntity {
 	@Override
 	public Location clone() {
 		Location clone = new Location();
+		Util.cloneRootFields(this, clone);
 		clone.setCode(getCode());
-		clone.setDescription(getDescription());
 		clone.setLatitude(getLatitude());
 		clone.setLongitude(getLongitude());
-		clone.setName(getName());
-		clone.setRefId(UUID.randomUUID().toString());
+		clone.setKmz(getKmz());
 		return clone;
 	}
 
@@ -66,4 +64,5 @@ public class Location extends RootEntity {
 	public void setKmz(byte[] kmz) {
 		this.kmz = kmz;
 	}
+
 }

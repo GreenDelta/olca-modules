@@ -11,11 +11,11 @@ import org.openlca.expressions.FormulaInterpreter;
  */
 public class Inventory {
 
-	private ProductIndex productIndex;
-	private FlowIndex flowIndex;
-	private ExchangeMatrix technologyMatrix;
-	private ExchangeMatrix interventionMatrix;
-	private AllocationMethod allocationMethod;
+	public ProductIndex productIndex;
+	public FlowIndex flowIndex;
+	public ExchangeMatrix technologyMatrix;
+	public ExchangeMatrix interventionMatrix;
+	public AllocationMethod allocationMethod;
 
 	public static Inventory build(MatrixCache matrixCache,
 			ProductIndex productIndex, AllocationMethod allocationMethod) {
@@ -30,46 +30,6 @@ public class Inventory {
 				|| interventionMatrix == null || interventionMatrix.isEmpty();
 	}
 
-	public AllocationMethod getAllocationMethod() {
-		return allocationMethod;
-	}
-
-	void setAllocationMethod(AllocationMethod allocationMethod) {
-		this.allocationMethod = allocationMethod;
-	}
-
-	public ProductIndex getProductIndex() {
-		return productIndex;
-	}
-
-	void setProductIndex(ProductIndex productIndex) {
-		this.productIndex = productIndex;
-	}
-
-	public FlowIndex getFlowIndex() {
-		return flowIndex;
-	}
-
-	void setFlowIndex(FlowIndex flowIndex) {
-		this.flowIndex = flowIndex;
-	}
-
-	public ExchangeMatrix getTechnologyMatrix() {
-		return technologyMatrix;
-	}
-
-	void setTechnologyMatrix(ExchangeMatrix technologyMatrix) {
-		this.technologyMatrix = technologyMatrix;
-	}
-
-	public ExchangeMatrix getInterventionMatrix() {
-		return interventionMatrix;
-	}
-
-	void setInterventionMatrix(ExchangeMatrix interventionMatrix) {
-		this.interventionMatrix = interventionMatrix;
-	}
-
 	public InventoryMatrix createMatrix(IMatrixFactory<?> factory) {
 		return createMatrix(factory, null);
 	}
@@ -78,12 +38,12 @@ public class Inventory {
 			FormulaInterpreter interpreter) {
 		evalFormulas(interpreter);
 		InventoryMatrix matrix = new InventoryMatrix();
-		matrix.setFlowIndex(flowIndex);
-		matrix.setProductIndex(productIndex);
+		matrix.flowIndex = flowIndex;
+		matrix.productIndex = productIndex;
 		IMatrix enviMatrix = interventionMatrix.createRealMatrix(factory);
-		matrix.setInterventionMatrix(enviMatrix);
+		matrix.interventionMatrix = enviMatrix;
 		IMatrix techMatrix = technologyMatrix.createRealMatrix(factory);
-		matrix.setTechnologyMatrix(techMatrix);
+		matrix.technologyMatrix = techMatrix;
 		return matrix;
 	}
 
@@ -97,9 +57,9 @@ public class Inventory {
 	public void simulate(InventoryMatrix matrix, FormulaInterpreter interpreter) {
 		evalFormulas(interpreter);
 		if (technologyMatrix != null)
-			technologyMatrix.simulate(matrix.getTechnologyMatrix());
+			technologyMatrix.simulate(matrix.technologyMatrix);
 		if (interventionMatrix != null)
-			interventionMatrix.simulate(matrix.getInterventionMatrix());
+			interventionMatrix.simulate(matrix.interventionMatrix);
 	}
 
 	private void evalFormulas(FormulaInterpreter interpreter) {

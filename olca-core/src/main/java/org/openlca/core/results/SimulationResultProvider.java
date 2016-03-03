@@ -28,7 +28,7 @@ public class SimulationResultProvider<T extends SimulationResult> extends
 	protected double adoptFlowResult(double value, long flowId) {
 		if (value == 0)
 			return 0; // avoid -0 in the results
-		boolean inputFlow = result.getFlowIndex().isInput(flowId);
+		boolean inputFlow = result.flowIndex.isInput(flowId);
 		return inputFlow ? -value : value;
 	}
 

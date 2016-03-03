@@ -10,7 +10,6 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.Contributions.Function;
 
 /**
  * Calculates the contributions of the single process results in an analysis
@@ -19,7 +18,7 @@ import org.openlca.core.results.Contributions.Function;
 public class LocationContribution {
 
 	private ContributionResultProvider<?> result;
-	private Map<Location, List<ProcessDescriptor>> processIndex = new HashMap<>();
+	private Map<Location, List<ProcessDescriptor>> index = new HashMap<>();
 
 	public LocationContribution(ContributionResultProvider<?> result) {
 		this.result = result;
@@ -29,57 +28,75 @@ public class LocationContribution {
 	private void initProcessIndex() {
 		if (result == null)
 			return;
-		EntityCache cache = result.getCache();
+		EntityCache cache = result.cache;
 		for (ProcessDescriptor process : result.getProcessDescriptors()) {
 			Location loc = null;
 			if (process.getLocation() != null)
 				loc = cache.get(Location.class, process.getLocation());
-			List<ProcessDescriptor> list = processIndex.get(loc);
+			List<ProcessDescriptor> list = index.get(loc);
 			if (list == null) {
 				list = new ArrayList<>();
-				processIndex.put(loc, list);
+				index.put(loc, list);
 			}
 			list.add(process);
 		}
 	}
 
 	/** Calculates contributions to an inventory flow. */
-	public ContributionSet<Location> calculate(final FlowDescriptor flow) {
+	public ContributionSet<Location> calculate(FlowDescriptor flow) {
 		if (flow == null || result == null)
 			return ContributionSet.empty();
-		double total = result.getTotalFlowResult(flow).getValue();
-		return Contributions.calculate(processIndex.keySet(), total,
-				new Function<Location>() {
-					@Override
-					public double value(Location loc) {
-						List<ProcessDescriptor> list = processIndex.get(loc);
-						double amount = 0;
-						for (ProcessDescriptor p : list)
-							amount += result.getSingleFlowResult(p, flow)
-									.getValue();
-						return amount;
-					}
-				});
+		double total = result.getTotalFlowResult(flow).value;
+		return Contributions.calculate(index.keySet(), total, location -> {
+			double amount = 0;
+			for (ProcessDescriptor p : index.get(location))
+				amount += result.getSingleFlowResult(p, flow).value;
+			return amount;
+		});
 	}
 
-	/** Calculates contributions to an impact assessment method. */
-	public ContributionSet<Location> calculate(
-			final ImpactCategoryDescriptor impact) {
+	/** Calculates contributions to an impact category. */
+	public ContributionSet<Location> calculate(ImpactCategoryDescriptor impact) {
 		if (impact == null || result == null)
 			return ContributionSet.empty();
-		double total = result.getTotalImpactResult(impact).getValue();
-		return Contributions.calculate(processIndex.keySet(), total,
-				new Function<Location>() {
-					@Override
-					public double value(Location loc) {
-						List<ProcessDescriptor> list = processIndex.get(loc);
-						double amount = 0;
-						for (ProcessDescriptor p : list)
-							amount += result.getSingleImpactResult(p, impact)
-									.getValue();
-						return amount;
-					}
-				});
+		double total = result.getTotalImpactResult(impact).value;
+		return Contributions.calculate(index.keySet(), total, location -> {
+			double amount = 0;
+			for (ProcessDescriptor p : index.get(location))
+				amount += result.getSingleImpactResult(p, impact).value;
+			return amount;
+		});
+	}
+
+	/** Calculates added values aggregated by location. */
+	public ContributionSet<Location> addedValues() {
+		if (result == null)
+			return ContributionSet.empty();
+		double total = result.getTotalCostResult();
+		total = total == 0 ? 0 : -total;
+		return Contributions.calculate(index.keySet(), total, location -> {
+			double amount = 0;
+			for (ProcessDescriptor p : index.get(location)) {
+				double r = result.getSingleCostResult(p);
+				r = r == 0 ? 0 : -r;
+				amount += r;
+			}
+			return amount;
+		});
+	}
+
+	/** Calculates net-costs aggregated by location. */
+	public ContributionSet<Location> netCosts() {
+		if (result == null)
+			return ContributionSet.empty();
+		double total = result.getTotalCostResult();
+		return Contributions.calculate(index.keySet(), total, location -> {
+			double amount = 0;
+			for (ProcessDescriptor p : index.get(location)) {
+				amount += result.getSingleCostResult(p);
+			}
+			return amount;
+		});
 	}
 
 }

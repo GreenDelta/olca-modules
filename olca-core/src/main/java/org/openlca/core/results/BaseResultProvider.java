@@ -15,23 +15,14 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class BaseResultProvider<T extends BaseResult> implements
-		IResultProvider {
+public class BaseResultProvider<T extends BaseResult> implements IResultProvider {
 
-	protected T result;
-	protected EntityCache cache;
+	public final T result;
+	public final EntityCache cache;
 
 	public BaseResultProvider(T result, EntityCache cache) {
 		this.result = result;
 		this.cache = cache;
-	}
-
-	public T getResult() {
-		return result;
-	}
-
-	public EntityCache getCache() {
-		return cache;
 	}
 
 	@Override
@@ -40,8 +31,13 @@ public class BaseResultProvider<T extends BaseResult> implements
 	}
 
 	@Override
+	public boolean hasCostResults() {
+		return result.hasCostResults;
+	}
+
+	@Override
 	public Set<ProcessDescriptor> getProcessDescriptors() {
-		ProductIndex index = result.getProductIndex();
+		ProductIndex index = result.productIndex;
 		if (index == null)
 			return Collections.emptySet();
 		Map<Long, ProcessDescriptor> values = cache.getAll(
@@ -53,7 +49,7 @@ public class BaseResultProvider<T extends BaseResult> implements
 
 	@Override
 	public Set<FlowDescriptor> getFlowDescriptors() {
-		FlowIndex index = result.getFlowIndex();
+		FlowIndex index = result.flowIndex;
 		if (index == null)
 			return Collections.emptySet();
 		List<Long> ids = new ArrayList<>(index.size());
@@ -68,7 +64,7 @@ public class BaseResultProvider<T extends BaseResult> implements
 
 	@Override
 	public Set<ImpactCategoryDescriptor> getImpactDescriptors() {
-		LongIndex index = result.getImpactIndex();
+		LongIndex index = result.impactIndex;
 		if (index == null)
 			return Collections.emptySet();
 		List<Long> ids = new ArrayList<>(index.size());
@@ -80,5 +76,4 @@ public class BaseResultProvider<T extends BaseResult> implements
 		descriptors.addAll(values.values());
 		return descriptors;
 	}
-
 }

@@ -153,7 +153,7 @@ public class DataSetInformation
         }
         return this.synonyms;
     }
-
+    
     /**
      * Gets the value of the classificationInformation property.
      * 

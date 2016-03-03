@@ -6,15 +6,14 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
-
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 
 class UpstreamTreeCalculator {
 
@@ -26,8 +25,8 @@ class UpstreamTreeCalculator {
 
 	public UpstreamTreeCalculator(FullResult result) {
 		this.result = result;
-		this.linkContributions = result.getLinkContributions();
-		this.links = makeLinks(result.getProductIndex());
+		this.linkContributions = result.linkContributions;
+		this.links = makeLinks(result.productIndex);
 	}
 
 	private Multimap<LongPair, LongPair> makeLinks(ProductIndex index) {
@@ -59,12 +58,17 @@ class UpstreamTreeCalculator {
 		return calculate(fn);
 	}
 
+	public UpstreamTree calculateCosts() {
+		CostResultFetch fn = new CostResultFetch();
+		return calculate(fn);
+	}
+
 	private UpstreamTree calculate(ResultFetch fn) {
 
 		UpstreamTree tree = new UpstreamTree();
 		tree.setReference(fn.getReference());
 		UpstreamTreeNode root = new UpstreamTreeNode();
-		LongPair refProduct = result.getProductIndex().getRefProduct();
+		LongPair refProduct = result.productIndex.getRefProduct();
 		root.setShare(1d);
 		root.setProcessProduct(refProduct);
 		root.setAmount(fn.getTotalAmount(refProduct));
@@ -133,7 +137,7 @@ class UpstreamTreeCalculator {
 		public FlowResultFetch(FlowDescriptor flow) {
 			this.flow = flow;
 			this.flowId = flow.getId();
-			this.isInput = result.getFlowIndex().isInput(flowId);
+			this.isInput = result.flowIndex.isInput(flowId);
 		}
 
 		@Override
@@ -168,6 +172,22 @@ class UpstreamTreeCalculator {
 		@Override
 		public BaseDescriptor getReference() {
 			return impact;
+		}
+	}
+
+	private class CostResultFetch implements ResultFetch {
+
+		@Override
+		public double getTotalAmount(LongPair product) {
+			return result.getUpstreamCostResult(product);
+		}
+
+		@Override
+		public BaseDescriptor getReference() {
+			BaseDescriptor d = new BaseDescriptor();
+			d.setId(0);
+			d.setType(ModelType.CURRENCY);
+			return d;
 		}
 	}
 

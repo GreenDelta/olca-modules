@@ -35,7 +35,7 @@ public class Simulator {
 
 	public Simulator(CalculationSetup setup, MatrixCache database,
 			IMatrixSolver solver) {
-		this.impactMethod = setup.getImpactMethod();
+		this.impactMethod = setup.impactMethod;
 		this.cache = database;
 		this.setup = setup;
 		this.factory = solver.getMatrixFactory();
@@ -58,12 +58,14 @@ public class Simulator {
 			log.trace("next simulation run");
 			FormulaInterpreter interpreter = parameterTable.simulate();
 			inventory.simulate(inventoryMatrix, interpreter);
-			if (impactMatrix != null)
+			LcaCalculator solver = new LcaCalculator(matrixSolver,
+					inventoryMatrix);
+			if (impactMatrix != null) {
 				impactTable.simulate(impactMatrix, interpreter);
-			LcaCalculator solver = new LcaCalculator(matrixSolver);
-			SimpleResult inventoryResult = solver.calculateFull(
-					inventoryMatrix, impactMatrix);
-			appendResults(inventoryResult);
+				solver.setImpactMatrix(impactMatrix);
+			}
+			SimpleResult result = solver.calculateSimple();
+			appendResults(result);
 			return true;
 		} catch (Throwable e) {
 			log.trace("simulation run failed", e);
@@ -72,9 +74,9 @@ public class Simulator {
 	}
 
 	private void appendResults(SimpleResult result) {
-		this.result.appendFlowResults(result.getTotalFlowResults());
+		this.result.appendFlowResults(result.totalFlowResults);
 		if (this.result.hasImpactResults())
-			this.result.appendImpactResults(result.getTotalImpactResults());
+			this.result.appendImpactResults(result.totalImpactResults);
 	}
 
 	private void setUp() {
@@ -84,17 +86,17 @@ public class Simulator {
 				setup, inventory);
 		inventoryMatrix = inventory.createMatrix(factory);
 		result = new SimulationResult();
-		result.setProductIndex(inventory.getProductIndex());
-		result.setFlowIndex(inventory.getFlowIndex());
+		result.productIndex = inventory.productIndex;
+		result.flowIndex = inventory.flowIndex;
 		if (impactMethod != null) {
 			ImpactTable impactTable = ImpactTable.build(cache,
-					impactMethod.getId(), inventory.getFlowIndex());
+					impactMethod.getId(), inventory.flowIndex);
 			if (impactTable.isEmpty()) {
 				return;
 			}
 			this.impactTable = impactTable;
 			this.impactMatrix = impactTable.createMatrix(factory);
-			result.setImpactIndex(impactTable.getCategoryIndex());
+			result.impactIndex = impactTable.categoryIndex;
 		}
 	}
 }

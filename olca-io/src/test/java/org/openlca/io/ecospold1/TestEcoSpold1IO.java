@@ -11,7 +11,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Process;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
-import org.openlca.io.TestSession;
+import org.openlca.io.Tests;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.ecospold1.input.EcoSpold01Import;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
@@ -19,7 +19,7 @@ import org.openlca.io.ecospold1.output.ExportConfig;
 
 public class TestEcoSpold1IO {
 
-	private IDatabase database = TestSession.getDerbyDatabase();
+	private IDatabase database = Tests.getDb();
 
 	@Test
 	public void testIO() throws Exception {

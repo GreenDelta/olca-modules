@@ -13,10 +13,10 @@ import javax.persistence.EntityManagerFactory;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.DatabaseContent;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.Notifiable;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.jolbox.bonecp.BoneCP;
 import com.jolbox.bonecp.BoneCPConfig;
 
-public class DerbyDatabase implements IDatabase {
+public class DerbyDatabase extends Notifiable implements IDatabase {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private EntityManagerFactory entityFactory;
@@ -34,19 +34,18 @@ public class DerbyDatabase implements IDatabase {
 	private boolean closed = false;
 	private BoneCP connectionPool;
 
-	public static DerbyDatabase createInMemory(DatabaseContent content) {
-		return new DerbyDatabase(content);
+	public static DerbyDatabase createInMemory() {
+		return new DerbyDatabase();
 	}
 
 	/** Creates an in-memory database. */
-	private DerbyDatabase(DatabaseContent content) {
+	private DerbyDatabase() {
 		registerDriver();
 		String name = "olcaInMemDB"
 				+ Integer.toHexString((int) (Math.random() * 1000));
 		log.trace("create in memory database");
 		url = "jdbc:derby:memory:" + name + ";create=true";
 		createNew(url);
-		fill(content);
 		connect();
 	}
 
@@ -115,26 +114,6 @@ public class DerbyDatabase implements IDatabase {
 		if (!dir.exists())
 			dir.mkdirs();
 		return dir;
-	}
-
-	/** Fill the database with the given content. */
-	public void fill(DatabaseContent content) {
-		if (content == null || content == DatabaseContent.EMPTY)
-			return;
-		log.trace("fill database with content: {}", content);
-		Resource resource = null;
-		if (content == DatabaseContent.ALL_REF_DATA)
-			resource = Resource.REF_DATA_ALL;
-		else if (content == DatabaseContent.UNITS)
-			resource = Resource.REF_DATA_UNITS;
-		if (resource == null)
-			return;
-		try {
-			ScriptRunner runner = new ScriptRunner(this);
-			runner.run(resource.getStream(), "utf-8");
-		} catch (Exception e) {
-			log.error("failed to fill database with  content", e);
-		}
 	}
 
 	private void connect() {

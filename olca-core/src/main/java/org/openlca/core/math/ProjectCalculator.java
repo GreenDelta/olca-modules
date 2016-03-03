@@ -31,10 +31,11 @@ public class ProjectCalculator {
 			setup.setUnit(v.getUnit());
 			setup.setFlowPropertyFactor(v.getFlowPropertyFactor());
 			setup.setAmount(v.getAmount());
-			setup.setAllocationMethod(v.getAllocationMethod());
-			setup.setImpactMethod(method);
-			setup.setNwSet(nwSet);
-			setup.getParameterRedefs().addAll(v.getParameterRedefs());
+			setup.allocationMethod = v.getAllocationMethod();
+			setup.impactMethod = method;
+			setup.nwSet = nwSet;
+			setup.parameterRedefs.addAll(v.getParameterRedefs());
+			setup.withCosts = true;
 			ContributionResult cr = calculator.calculateContributions(setup);
 			result.addResult(v, cr);
 		}

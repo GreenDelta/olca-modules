@@ -6,7 +6,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -17,11 +17,12 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 
 public class FlowPropertyUseSearchTest {
 
-	private IDatabase db = TestSession.getDefaultDatabase();
+	private IDatabase db = Tests.getDb();
 
 	private FlowProperty unused;
 	private FlowProperty used;
@@ -58,18 +59,18 @@ public class FlowPropertyUseSearchTest {
 
 	@Test
 	public void testUnused() {
-		IUseSearch<BaseDescriptor> search = IUseSearch.FACTORY.createFor(
+		IUseSearch<CategorizedDescriptor> search = IUseSearch.FACTORY.createFor(
 				ModelType.FLOW_PROPERTY, db);
-		List<BaseDescriptor> list = search.findUses(
+		List<CategorizedDescriptor> list = search.findUses(
 				Descriptors.toDescriptor(unused));
 		Assert.assertTrue(list.isEmpty());
 	}
 
 	@Test
 	public void testUsed() {
-		IUseSearch<BaseDescriptor> search = IUseSearch.FACTORY.createFor(
+		IUseSearch<CategorizedDescriptor> search = IUseSearch.FACTORY.createFor(
 				ModelType.FLOW_PROPERTY, db);
-		List<BaseDescriptor> list = search.findUses(
+		List<CategorizedDescriptor> list = search.findUses(
 				Descriptors.toDescriptor(used));
 		Assert.assertEquals(2, list.size());
 		for (BaseDescriptor d : list) {

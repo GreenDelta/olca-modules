@@ -139,9 +139,9 @@ public class SimaProCSV {
 			if (header.getShortDateFormat() != null)
 				config.setDateFormat(header.getShortDateFormat());
 			if (Objects.equals("Semicolon", header.getCsvSeparator()))
-				config.setSeparator(";");
+				config.setSeparator(';');
 			else if (Objects.equals("Comma", header.getCsvSeparator()))
-				config.setSeparator(",");
+				config.setSeparator(',');
 		} catch (Exception e) {
 			log.error("failed to read header CSV entries from " + file, e);
 		}

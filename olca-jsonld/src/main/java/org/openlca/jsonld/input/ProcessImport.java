@@ -1,146 +1,171 @@
 package org.openlca.jsonld.input;
 
-import java.util.Objects;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.core.model.RiskLevel;
+import org.openlca.core.model.SocialAspect;
+import org.openlca.jsonld.input.Exchanges.ExchangeWithId;
 
-class ProcessImport {
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private String refId;
-	private ImportConfig conf;
+class ProcessImport extends BaseImport<Process> {
+
+	private Map<String, Exchange> exchangeMap = new HashMap<>();
 
 	private ProcessImport(String refId, ImportConfig conf) {
-		this.refId = refId;
-		this.conf = conf;
+		super(ModelType.PROCESS, refId, conf);
 	}
 
 	static Process run(String refId, ImportConfig conf) {
 		return new ProcessImport(refId, conf).run();
 	}
 
-	private Process run() {
-		if (refId == null || conf == null)
-			return null;
-		try {
-			Process p = conf.db.getProcess(refId);
-			if (p != null)
-				return p;
-			JsonObject json = conf.store.get(ModelType.PROCESS, refId);
-			return map(json);
-		} catch (Exception e) {
-			log.error("failed to import source " + refId, e);
-			return null;
-		}
-	}
-
-	private Process map(JsonObject json) {
+	@Override
+	Process map(JsonObject json, long id) {
 		if (json == null)
 			return null;
 		Process p = new Process();
-		In.mapAtts(json, p);
-		String catId = In.getRefId(json, "category");
-		p.setCategory(CategoryImport.run(catId, conf));
-		mapProcessType(json, p);
-		mapAllocationType(json, p);
+		In.mapAtts(json, p, id, conf);
+		p.setProcessType(getType(json));
+		p.setInfrastructureProcess(In.getBool(json, "infrastructureProcess",
+				false));
+		p.setDefaultAllocationMethod(In.getEnum(json,
+				"defaultAllocationMethod", AllocationMethod.class));
 		ProcessDocumentation doc = ProcessDocReader.read(json, conf);
 		p.setDocumentation(doc);
 		String locId = In.getRefId(json, "location");
 		if (locId != null)
 			p.setLocation(LocationImport.run(locId, conf));
+		String curId = In.getRefId(json, "currency");
+		if (curId != null)
+			p.currency = CurrencyImport.run(curId, conf);
+		addParameters(json, p);
+		// avoid cyclic reference problems
+		if (hasDefaultProviders(json))
+			p = conf.db.put(p);
 		addExchanges(json, p);
+		addSocialAspects(json, p);
+		addAllocationFactors(json, p);
 		return conf.db.put(p);
 	}
 
-	private void mapProcessType(JsonObject json, Process p) {
-		String type = In.getString(json, "processTyp");
-		if (type == null)
-			return;
-		try {
-			p.setProcessType(ProcessType.valueOf(type));
-		} catch (Exception e) {
-			log.warn("unknown process type " + type, e);
+	private boolean hasDefaultProviders(JsonObject json) {
+		JsonArray exchanges = In.getArray(json, "exchanges");
+		if (exchanges == null || exchanges.size() == 0)
+			return false;
+		for (JsonElement e : exchanges) {
+			if (!e.isJsonObject())
+				continue;
+			String providerRefId = In.getRefId(e.getAsJsonObject(), "defaultProvider");
+			if (providerRefId != null)
+				return true;
 		}
+		return false;
 	}
 
-	private void mapAllocationType(JsonObject json, Process p) {
-		String type = In.getString(json, "defaultAllocationMethod");
-		if (type == null)
+	private ProcessType getType(JsonObject json) {
+		ProcessType type = In.getEnum(json, "processType", ProcessType.class);
+		if (type == null) // support old versions with typo
+			type = In.getEnum(json, "processTyp", ProcessType.class);
+		return type;
+	}
+
+	private void addParameters(JsonObject json, Process p) {
+		JsonArray parameters = In.getArray(json, "parameters");
+		if (parameters == null || parameters.size() == 0)
 			return;
-		switch (type) {
-			case "CAUSAL_ALLOCATION":
-				p.setDefaultAllocationMethod(AllocationMethod.CAUSAL);
-				break;
-			case "ECONOMIC_ALLOCATION":
-				p.setDefaultAllocationMethod(AllocationMethod.ECONOMIC);
-				break;
-			case "PHYSICAL_ALLOCATION":
-				p.setDefaultAllocationMethod(AllocationMethod.PHYSICAL);
-				break;
-			default:
-				log.warn("unknown allocation type " + type);
+		for (JsonElement e : parameters) {
+			if (!e.isJsonObject())
+				continue;
+			JsonObject o = e.getAsJsonObject();
+			String refId = In.getString(o, "@id");
+			ParameterImport pi = new ParameterImport(refId, conf);
+			Parameter parameter = new Parameter();
+			pi.mapFields(o, parameter);
+			p.getParameters().add(parameter);
 		}
 	}
 
 	private void addExchanges(JsonObject json, Process p) {
-		JsonElement exchanges = json.get("exchanges");
-		if (exchanges == null || !exchanges.isJsonArray())
+		JsonArray exchanges = In.getArray(json, "exchanges");
+		if (exchanges == null || exchanges.size() == 0)
 			return;
-		for (JsonElement e : exchanges.getAsJsonArray()) {
+		for (JsonElement e : exchanges) {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject o = e.getAsJsonObject();
-			Exchange exchange = exchange(o);
-			p.getExchanges().add(exchange);
+			ExchangeWithId ex = Exchanges.map(o, conf);
+			exchangeMap.put(ex.internalId, ex.exchange);
+			p.getExchanges().add(ex.exchange);
 			boolean isRef = In.getBool(o, "quantitativeReference", false);
 			if (isRef)
-				p.setQuantitativeReference(exchange);
+				p.setQuantitativeReference(ex.exchange);
 		}
 	}
 
-	private Exchange exchange(JsonObject json) {
-		Exchange e = new Exchange();
-		e.setAvoidedProduct(In.getBool(json, "avoidedProduct", false));
-		e.setInput(In.getBool(json, "input", false));
-		e.setBaseUncertainty(In.getDouble(json, "baseUncertainty", 0));
-		e.setAmountValue(In.getDouble(json, "amount", 0));
-		// TODO: import formulas when parameters are imported
-		// e.setAmountFormula(In.getString(json, "amountFormula"));
-		e.setPedigreeUncertainty(In.getString(json, "pedigreeUncertainty"));
-		JsonElement u = json.get("uncertainty");
-		if (u != null && u.isJsonObject())
-			e.setUncertainty(Uncertainties.read(u.getAsJsonObject()));
-		addExchangeRefs(json, e);
-		return e;
-	}
-
-	private void addExchangeRefs(JsonObject json, Exchange e) {
-		String flowId = In.getRefId(json, "flow");
-		Flow flow = FlowImport.run(flowId, conf);
-		e.setFlow(flow);
-		String unitId = In.getRefId(json, "unit");
-		e.setUnit(conf.db.getUnit(unitId));
-		String propId = In.getRefId(json, "flowProperty");
-		for (FlowPropertyFactor f : flow.getFlowPropertyFactors()) {
-			FlowProperty prop = f.getFlowProperty();
-			if (prop == null)
+	private void addSocialAspects(JsonObject json, Process p) {
+		JsonArray aspects = In.getArray(json, "socialAspects");
+		if (aspects == null || aspects.size() == 0)
+			return;
+		for (JsonElement a : aspects) {
+			if (!a.isJsonObject())
 				continue;
-			if (Objects.equals(propId, prop.getRefId())) {
-				e.setFlowPropertyFactor(f);
-				break;
-			}
+			JsonObject o = a.getAsJsonObject();
+			SocialAspect aspect = aspect(o);
+			p.socialAspects.add(aspect);
 		}
+	}
+
+	private SocialAspect aspect(JsonObject json) {
+		SocialAspect a = new SocialAspect();
+		a.indicator = SocialIndicatorImport.run(
+				In.getRefId(json, "socialIndicator"), conf);
+		a.comment = In.getString(json, "comment");
+		a.quality = In.getString(json, "quality");
+		a.rawAmount = In.getString(json, "rawAmount");
+		a.activityValue = In.getDouble(json, "activityValue", 0d);
+		a.riskLevel = In.getEnum(json, "riskLevel", RiskLevel.class);
+		a.source = SourceImport.run(In.getRefId(json, "source"), conf);
+		return a;
+	}
+
+	private void addAllocationFactors(JsonObject json, Process p) {
+		JsonArray factors = In.getArray(json, "allocationFactors");
+		if (factors == null || factors.size() == 0)
+			return;
+		for (JsonElement f : factors) {
+			if (!f.isJsonObject())
+				continue;
+			JsonObject o = f.getAsJsonObject();
+			AllocationFactor factor = allocationFactor(o);
+			p.getAllocationFactors().add(factor);
+		}
+	}
+
+	private AllocationFactor allocationFactor(JsonObject json) {
+		AllocationFactor factor = new AllocationFactor();
+		String productId = In.getRefId(json, "product");
+		String exchangeId = In.getRefId(json, "exchange");
+		if (exchangeId != null)
+			factor.setExchange(exchangeMap.get(exchangeId));
+		Flow product = FlowImport.run(productId, conf);
+		factor.setProductId(product.getId());
+		factor.setValue(In.getDouble(json, "value", 1));
+		factor.setAllocationType(In.getEnum(json, "allocationType",
+				AllocationMethod.class));
+		return factor;
 	}
 
 }

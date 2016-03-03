@@ -2,7 +2,6 @@ package org.openlca.io.ilcd.input;
 
 import java.util.List;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
@@ -24,10 +23,12 @@ class ProcessParameterConversion {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private Process olcaProcess;
 	private ParameterDao dao;
+	private ImportConfig config;
 
-	public ProcessParameterConversion(Process olcaProcess, IDatabase database) {
+	public ProcessParameterConversion(Process olcaProcess, ImportConfig config) {
 		this.olcaProcess = olcaProcess;
-		this.dao = new ParameterDao(database);
+		this.config = config;
+		this.dao = new ParameterDao(config.db);
 	}
 
 	public void run(ProcessBag ilcdProcess) {
@@ -50,7 +51,7 @@ class ProcessParameterConversion {
 		Parameter param = new Parameter();
 		param.setScope(scope);
 		param.setName(iParameter.getName());
-		param.setDescription(LangString.get(iParameter.getComment()));
+		param.setDescription(LangString.get(iParameter.getComment(), config.ilcdConfig));
 		Double mean = iParameter.getMeanValue();
 		if (mean != null)
 			param.setValue(mean);

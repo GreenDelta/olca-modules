@@ -6,7 +6,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
@@ -14,8 +14,8 @@ import org.openlca.core.model.Process;
 public class FlowUseQueryTest {
 
 	private ProcessDao processDao = new ProcessDao(
-			TestSession.getDefaultDatabase());
-	private FlowDao dao = new FlowDao(TestSession.getDefaultDatabase());
+			Tests.getDb());
+	private FlowDao dao = new FlowDao(Tests.getDb());
 	private Flow flow;
 	private Process process;
 

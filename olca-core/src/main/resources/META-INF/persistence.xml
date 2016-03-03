@@ -8,8 +8,8 @@
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<class>org.openlca.core.model.Actor</class>
 		<class>org.openlca.core.model.AllocationFactor</class>
-		<class>org.openlca.core.model.CalculationProperty</class>
 		<class>org.openlca.core.model.Category</class>
+		<class>org.openlca.core.model.Currency</class>
 		<class>org.openlca.core.model.Exchange</class>
 		<class>org.openlca.core.model.Flow</class>
 		<class>org.openlca.core.model.FlowProperty</class>
@@ -18,7 +18,6 @@
 		<class>org.openlca.core.model.ImpactFactor</class>
 		<class>org.openlca.core.model.ImpactMethod</class>
 		<class>org.openlca.core.model.Location</class>
-		<class>org.openlca.core.model.ModelingAndValidation</class>
 		<class>org.openlca.core.model.NwSet</class>
 		<class>org.openlca.core.model.NwFactor</class>
 		<class>org.openlca.core.model.Parameter</class>
@@ -30,12 +29,11 @@
 		<class>org.openlca.core.model.ProductSystem</class>
 		<class>org.openlca.core.model.Project</class>
 		<class>org.openlca.core.model.ProjectVariant</class>
+		<class>org.openlca.core.model.SocialAspect</class>
 		<class>org.openlca.core.model.Source</class>
 		<class>org.openlca.core.model.Unit</class>
 		<class>org.openlca.core.model.UnitGroup</class>
-		<class>org.openlca.core.model.CostCategory</class>
-		<class>org.openlca.core.model.ProcessCostEntry</class>
-		<class>org.openlca.core.model.ProductCostEntry</class>
+		<class>org.openlca.core.model.SocialIndicator</class>
 		<class>org.openlca.core.model.MappingFile</class>
 
 		<properties>

@@ -1,12 +1,12 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.iterator.TIntObjectIterator;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
 import org.openlca.expressions.FormulaInterpreter;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.iterator.TIntObjectIterator;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ExchangeMatrix {
 
@@ -69,44 +69,34 @@ public class ExchangeMatrix {
 	}
 
 	public <M extends IMatrix> M createRealMatrix(IMatrixFactory<M> factory) {
-		final M matrix = factory.create(rows, columns);
-		iterate(new Fn() {
-			@Override
-			public void apply(int row, int col, ExchangeCell cell) {
-				matrix.setEntry(row, col, cell.getMatrixValue());
-			}
+		if(rows == 0 || columns == 0)
+			return null;
+		M matrix = factory.create(rows, columns);
+		iterate((row, col, cell) -> {
+			matrix.setEntry(row, col, cell.getMatrixValue());
 		});
 		return matrix;
 	}
 
-	void eval(final FormulaInterpreter interpreter) {
-		iterate(new Fn() {
-			@Override
-			public void apply(int row, int col, ExchangeCell cell) {
-				cell.eval(interpreter);
-			}
+	void eval(FormulaInterpreter interpreter) {
+		iterate((row, col, cell) -> {
+			cell.eval(interpreter);
 		});
 	}
 
-	void apply(final IMatrix matrix) {
-		iterate(new Fn() {
-			@Override
-			public void apply(int row, int col, ExchangeCell cell) {
-				matrix.setEntry(row, col, cell.getMatrixValue());
-			}
+	void apply(IMatrix matrix) {
+		iterate((row, col, cell) -> {
+			matrix.setEntry(row, col, cell.getMatrixValue());
 		});
 	}
 
-	void simulate(final IMatrix matrix) {
-		iterate(new Fn() {
-			@Override
-			public void apply(int row, int col, ExchangeCell cell) {
-				matrix.setEntry(row, col, cell.getNextSimulationValue());
-			}
+	void simulate(IMatrix matrix) {
+		iterate((row, col, cell) -> {
+			matrix.setEntry(row, col, cell.getNextSimulationValue());
 		});
 	}
 
-	private void iterate(Fn fn) {
+	void iterate(CellFunction fn) {
 		TIntObjectIterator<TIntObjectHashMap<ExchangeCell>> rowIterator = cells
 				.iterator();
 		while (rowIterator.hasNext()) {
@@ -127,8 +117,11 @@ public class ExchangeMatrix {
 		}
 	}
 
-	private interface Fn {
+	@FunctionalInterface
+	interface CellFunction {
+
 		void apply(int row, int col, ExchangeCell cell);
+
 	}
 
 }

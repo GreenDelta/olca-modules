@@ -2,7 +2,6 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,24 +10,19 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_categories")
-public class Category extends RootEntity {
+public class Category extends CategorizedEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
-	@JoinColumn(name = "f_parent_category")
+	@JoinColumn(name = "f_category")
 	private List<Category> childCategories = new ArrayList<>();
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "model_type")
 	private ModelType modelType;
-
-	@OneToOne
-	@JoinColumn(name = "f_parent_category")
-	private Category parentCategory;
 
 	public ModelType getModelType() {
 		return modelType;
@@ -45,31 +39,20 @@ public class Category extends RootEntity {
 	@Override
 	public Category clone() {
 		Category clone = new Category();
-		clone.setDescription(getDescription());
+		Util.cloneRootFields(this, clone);
 		clone.setModelType(getModelType());
-		clone.setName(getName());
-		clone.setParentCategory(getParentCategory());
-		clone.setRefId(UUID.randomUUID().toString());
+		clone.setCategory(getCategory());
 		for (Category child : getChildCategories()) {
 			Category childCopy = child.clone();
 			clone.getChildCategories().add(childCopy);
-			childCopy.setParentCategory(clone);
+			childCopy.setCategory(clone);
 		}
 		return clone;
 	}
 
-	public Category getParentCategory() {
-		return parentCategory;
-	}
-
-	public void setParentCategory(Category parentCategory) {
-		this.parentCategory = parentCategory;
-	}
-
 	@Override
 	public String toString() {
-		return String.format("Category {modelType=%s, refId=%s, name=%s}",
-				getModelType(), getRefId(), getName());
+		return String.format("Category {modelType=%s, refId=%s, name=%s}", getModelType(), getRefId(), getName());
 	}
 
 }

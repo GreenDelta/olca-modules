@@ -42,11 +42,11 @@ class InventoryBuilder {
 
 	private Inventory createInventory() {
 		Inventory inventory = new Inventory();
-		inventory.setAllocationMethod(allocationMethod);
-		inventory.setFlowIndex(flowIndex);
-		inventory.setInterventionMatrix(interventionMatrix);
-		inventory.setProductIndex(productIndex);
-		inventory.setTechnologyMatrix(technologyMatrix);
+		inventory.allocationMethod = allocationMethod;
+		inventory.flowIndex = flowIndex;
+		inventory.interventionMatrix = interventionMatrix;
+		inventory.productIndex = productIndex;
+		inventory.technologyMatrix = technologyMatrix;
 		fillMatrices();
 		return inventory;
 	}
@@ -126,7 +126,7 @@ class InventoryBuilder {
 			// note that the allocation table assures that the factor is 1.0 for
 			// reference products
 			double factor = allocationTable.getFactor(processProduct, exchange);
-			cell.setAllocationFactor(factor);
+			cell.allocationFactor = factor;
 		}
 		matrix.setEntry(row, col, cell);
 	}
@@ -150,6 +150,7 @@ class InventoryBuilder {
 			newExchange.amountFormula = "abs( " + getMergeFormula(exExchange)
 					+ " + " + getMergeFormula(addExchange) + ")";
 		}
+		newExchange.costValue = getMergeCosts(exExchange, addExchange);
 		// TODO: adding up uncertainty information (with formulas!) is not yet
 		// handled
 		return newExchange;
@@ -174,5 +175,19 @@ class InventoryBuilder {
 		if (e.input && !e.avoidedProduct)
 			f = "( -1 * (" + f + "))";
 		return f;
+	}
+
+	private double getMergeCosts(CalcExchange e1, CalcExchange e2) {
+		if (e1.costValue == 0)
+			return e2.costValue;
+		if (e2.costValue == 0)
+			return e1.costValue;
+		// TODO: this would be rarely the case but if the same flow in a single
+		// process is given in different currencies with different conversion
+		// the following would be not correct.
+		double v1 = e1.input ? e1.costValue : -e1.costValue;
+		double v2 = e2.input ? e2.costValue : -e2.costValue;
+		// TODO: cost formulas
+		return Math.abs(v1 + v2);
 	}
 }

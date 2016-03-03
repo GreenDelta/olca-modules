@@ -7,10 +7,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.openlca</groupId>
   <artifactId>olca-modules</artifactId>
-  <version>1.4</version>
+  <version>1.5</version>
   <packaging>pom</packaging>
   
   <modules>	
+	<module>olca-cloud</module>
 	<module>olca-core</module>
 	<module>olca-ecospold-1</module>
 	<module>olca-ecospold-2</module>

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.openlca</groupId>
   <artifactId>olca-ecospold-1</artifactId>
-  <version>1.0.0</version>
+  <version>1.5.0</version>
   <name>openLCA API for EcoSpold 01</name>
   <description>The openLCA API for the EcoSpold 01 data format</description>
   
@@ -19,8 +19,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.5.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>

@@ -1,80 +1,42 @@
 package org.openlca.jsonld.input;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-class FlowImport {
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private String refId;
-	private ImportConfig conf;
+class FlowImport extends BaseImport<Flow> {
 
 	private FlowImport(String refId, ImportConfig conf) {
-		this.refId = refId;
-		this.conf = conf;
+		super(ModelType.FLOW, refId, conf);
 	}
 
 	static Flow run(String refId, ImportConfig conf) {
 		return new FlowImport(refId, conf).run();
 	}
 
-	private Flow run() {
-		if (refId == null || conf == null)
-			return null;
-		try {
-			Flow f = conf.db.getFlow(refId);
-			if (f != null && !conf.updateExisting)
-				return f;
-			JsonObject json = conf.store.get(ModelType.FLOW, refId);
-			if(f == null)
-				return createFlow(json);
-			else
-				return checkUpdate(json, f);
-		} catch (Exception e) {
-			log.error("failed to import flow " + refId, e);
-			return null;
-		}
-	}
-
-	private Flow createFlow(JsonObject json) {
+	@Override
+	Flow map(JsonObject json, long id) {
 		if (json == null)
 			return null;
 		Flow flow = new Flow();
+		In.mapAtts(json, flow, id, conf);
 		mapFlowAtts(json, flow);
 		addFactors(json, flow);
-		flow = conf.db.put(flow);
-		return flow;
-	}
-
-	private Flow checkUpdate(JsonObject json, Flow flow) {
-		long jsonVersion = In.getVersion(json);
-		long jsonDate = In.getLastChange(json);
-		if(jsonVersion < flow.getVersion())
-			return flow;
-		if(jsonVersion == flow.getVersion() && jsonDate <= flow.getLastChange())
-			return flow;
-		// newer version or same version with newer date
-		mapFlowAtts(json, flow);
-		return conf.db.update(flow);
+		return conf.db.put(flow);
 	}
 
 	private void mapFlowAtts(JsonObject json, Flow flow) {
-		In.mapAtts(json, flow);
 		String catId = In.getRefId(json, "category");
 		flow.setCategory(CategoryImport.run(catId, conf));
-		String typeString = In.getString(json, "flowType");
-		if (typeString != null)
-			flow.setFlowType(FlowType.valueOf(typeString));
+		flow.setFlowType(In.getEnum(json, "flowType", FlowType.class));
 		flow.setCasNumber(In.getString(json, "cas"));
 		flow.setFormula(In.getString(json, "formula"));
+		flow.setInfrastructureFlow(In.getBool(json, "infrastructureFlow", false));
 		String locId = In.getRefId(json, "location");
 		if (locId != null)
 			flow.setLocation(LocationImport.run(locId, conf));
@@ -96,7 +58,8 @@ class FlowImport {
 			boolean isRef = In.getBool(facObj, "referenceFlowProperty", false);
 			if (isRef)
 				flow.setReferenceFlowProperty(property);
-			fac.setConversionFactor(In.getDouble(facObj, "conversionFactor", 1.0));
+			fac.setConversionFactor(In.getDouble(facObj, "conversionFactor",
+					1.0));
 		}
 	}
 }

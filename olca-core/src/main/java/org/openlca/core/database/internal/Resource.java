@@ -9,11 +9,7 @@ public enum Resource {
 
 	CURRENT_SCHEMA_DERBY("current_schema_derby.sql"),
 
-	CURRENT_SCHEMA_MYSQL("current_schema_mysql.sql"),
-
-	REF_DATA_ALL("ref_data_all.sql"),
-
-	REF_DATA_UNITS("ref_data_units.sql");
+	CURRENT_SCHEMA_MYSQL("current_schema_mysql.sql");
 
 	private final String file;
 

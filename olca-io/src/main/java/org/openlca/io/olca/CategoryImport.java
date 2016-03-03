@@ -59,7 +59,7 @@ class CategoryImport implements Runnable {
 			if (destChild == null) {
 				destChild = copy(srcChild);
 				destCat.getChildCategories().add(destChild);
-				destChild.setParentCategory(destCat);
+				destChild.setCategory(destCat);
 			}
 			synchCategories(srcChild, destChild);
 		}

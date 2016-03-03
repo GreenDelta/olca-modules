@@ -3,7 +3,6 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -53,12 +52,10 @@ public class Project extends CategorizedEntity {
 	@Override
 	public Project clone() {
 		Project clone = new Project();
-		clone.setRefId(UUID.randomUUID().toString());
-		clone.setName(getName());
+		Util.cloneRootFields(this, clone);
 		clone.setAuthor(getAuthor());
 		clone.setCategory(getCategory());
 		clone.setCreationDate(getCreationDate());
-		clone.setDescription(getDescription());
 		clone.setFunctionalUnit(getFunctionalUnit());
 		clone.setGoal(getGoal());
 		clone.setLastModificationDate(getLastModificationDate());

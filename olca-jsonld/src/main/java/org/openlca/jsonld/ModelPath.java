@@ -7,12 +7,18 @@ public final class ModelPath {
 	private ModelPath() {
 	}
 
+	public static String getBin(ModelType type, String refId) {
+		return "bin/" + ModelPath.get(type) + "/" + refId;
+	}
+
 	public static String get(ModelType type) {
 		if (type == null)
 			return "";
 		switch (type) {
 		case CATEGORY:
 			return "categories";
+		case CURRENCY:
+			return "currencies";
 		case PROCESS:
 			return "processes";
 		case FLOW:
@@ -29,10 +35,14 @@ public final class ModelPath {
 			return "locations";
 		case NW_SET:
 			return "nw_sets";
+		case PARAMETER:
+			return "parameters";
 		case PRODUCT_SYSTEM:
 			return "product_systems";
 		case PROJECT:
 			return "projects";
+		case SOCIAL_INDICATOR:
+			return "social_indicators";
 		case SOURCE:
 			return "sources";
 		case UNIT:

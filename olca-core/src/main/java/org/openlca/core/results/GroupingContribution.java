@@ -26,15 +26,14 @@ public class GroupingContribution {
 	public ContributionSet<ProcessGrouping> calculate(final FlowDescriptor flow) {
 		if (result == null || groupings == null)
 			return ContributionSet.empty();
-		double total = result.getTotalFlowResult(flow).getValue();
+		double total = result.getTotalFlowResult(flow).value;
 		return Contributions.calculate(groupings, total,
 				new Function<ProcessGrouping>() {
 					@Override
 					public double value(ProcessGrouping grouping) {
 						double amount = 0;
-						for (ProcessDescriptor p : grouping.getProcesses())
-							amount += result.getSingleFlowResult(p, flow)
-									.getValue();
+						for (ProcessDescriptor p : grouping.processes)
+							amount += result.getSingleFlowResult(p, flow).value;
 						return amount;
 					}
 				});
@@ -45,15 +44,14 @@ public class GroupingContribution {
 			final ImpactCategoryDescriptor impact) {
 		if (result == null || groupings == null)
 			return ContributionSet.empty();
-		double total = result.getTotalImpactResult(impact).getValue();
+		double total = result.getTotalImpactResult(impact).value;
 		return Contributions.calculate(groupings, total,
 				new Function<ProcessGrouping>() {
 					@Override
 					public double value(ProcessGrouping grouping) {
 						double amount = 0;
-						for (ProcessDescriptor p : grouping.getProcesses())
-							amount += result.getSingleImpactResult(p, impact)
-									.getValue();
+						for (ProcessDescriptor p : grouping.processes)
+							amount += result.getSingleImpactResult(p, impact).value;
 						return amount;
 					}
 				});

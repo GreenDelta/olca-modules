@@ -50,6 +50,19 @@ public class Exchange extends AbstractEntity {
 	@Embedded
 	private Uncertainty uncertainty;
 
+	@Column(name = "cost_value")
+	public Double costValue;
+
+	@Column(name = "cost_formula")
+	public String costFormula;
+
+	@Column(name = "description")
+	public String description;
+
+	@OneToOne
+	@JoinColumn(name = "f_currency")
+	public Currency currency;
+
 	public double getAmountValue() {
 		return amountValue;
 	}
@@ -159,6 +172,10 @@ public class Exchange extends AbstractEntity {
 		if (this.getUncertainty() != null)
 			clone.setUncertainty(this.getUncertainty().clone());
 		clone.setUnit(this.getUnit());
+		clone.costValue = costValue;
+		clone.costFormula = costFormula;
+		clone.currency = currency;
+		clone.description = description;
 		return clone;
 	}
 

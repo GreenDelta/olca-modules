@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Upgrades {
 
-	private final IUpgrade[] upgrades = { new Upgrade1() };
+	private final IUpgrade[] upgrades = { new Upgrade1(), new Upgrade2() };
 	private Logger log = LoggerFactory.getLogger(Upgrades.class);
 
 	private Upgrades() {
@@ -37,8 +37,7 @@ public class Upgrades {
 	private void run(IDatabase database) throws Exception {
 		IUpgrade nextUpgrade = null;
 		while ((nextUpgrade = findNextUpgrade(database)) != null) {
-			log.trace("execute update from v({}) to v{}",
-					nextUpgrade.getInitialVersions(),
+			log.trace("execute update from v({}) to v{}", nextUpgrade.getInitialVersions(),
 					nextUpgrade.getEndVersion());
 			nextUpgrade.exec(database);
 			updateVersion(nextUpgrade.getEndVersion(), database);
@@ -46,10 +45,8 @@ public class Upgrades {
 		log.trace("no more upgrades");
 	}
 
-	private void updateVersion(int version, IDatabase database)
-			throws Exception {
-		NativeSql.on(database).runUpdate(
-				"update openlca_version set version = " + version);
+	private void updateVersion(int version, IDatabase database) throws Exception {
+		NativeSql.on(database).runUpdate("update openlca_version set version = " + version);
 	}
 
 	private IUpgrade findNextUpgrade(IDatabase database) {

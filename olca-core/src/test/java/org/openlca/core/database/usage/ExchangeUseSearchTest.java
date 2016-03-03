@@ -3,11 +3,12 @@ package org.openlca.core.database.usage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
@@ -17,7 +18,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
 /**
  * Creates a simple product system with 2 processes p and q. Process p has 3
@@ -33,7 +34,7 @@ public class ExchangeUseSearchTest {
 	private Process p;
 	private Process q;
 	private Stack<CategorizedEntity> modelStack = new Stack<>();
-	private IDatabase database = TestSession.getDefaultDatabase();
+	private IDatabase database = Tests.getDb();
 
 	@Before
 	public void setUp() {
@@ -93,7 +94,7 @@ public class ExchangeUseSearchTest {
 	@Test
 	public void testSingleFindNothing() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
-		List<BaseDescriptor> list = search.findUses(p.getExchanges().get(2));
+		List<CategorizedDescriptor> list = search.findUses(p.getExchanges().get(2));
 		Assert.assertTrue(list.isEmpty());
 	}
 
@@ -102,14 +103,14 @@ public class ExchangeUseSearchTest {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, q);
 		List<Exchange> exchanges = Arrays.asList(
 				q.getExchanges().get(0), q.getExchanges().get(2));
-		List<BaseDescriptor> list = search.findUses(exchanges);
+		List<CategorizedDescriptor> list = search.findUses(exchanges);
 		Assert.assertTrue(list.isEmpty());
 	}
 
 	@Test
 	public void testFindInReference() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
-		List<BaseDescriptor> list = search.findUses(p.getExchanges().get(0));
+		List<CategorizedDescriptor> list = search.findUses(p.getExchanges().get(0));
 		Assert.assertEquals(list.get(0).getName(), SYS_NAME);
 		Assert.assertEquals(list.size(), 1);
 	}
@@ -117,7 +118,7 @@ public class ExchangeUseSearchTest {
 	@Test
 	public void testFindInLinks() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
-		List<BaseDescriptor> list = search.findUses(p.getExchanges().get(1));
+		List<CategorizedDescriptor> list = search.findUses(p.getExchanges().get(1));
 		Assert.assertEquals(list.get(0).getName(), SYS_NAME);
 		Assert.assertEquals(list.size(), 1);
 	}
@@ -125,7 +126,7 @@ public class ExchangeUseSearchTest {
 	@Test
 	public void testFindAllDistinct() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
-		List<BaseDescriptor> list = search.findUses(p.getExchanges());
+		List<CategorizedDescriptor> list = search.findUses(p.getExchanges());
 		Assert.assertEquals(list.get(0).getName(), SYS_NAME);
 		Assert.assertEquals(list.size(), 1);
 	}

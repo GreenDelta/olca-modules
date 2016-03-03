@@ -13,6 +13,7 @@ import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.Notifiable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ import com.jolbox.bonecp.BoneCPConfig;
  * IDatabase implementation for MySQL database. The URL schema is
  * "jdbc:mysql://" [host] ":" [port] "/" [database]
  */
-public class MySQLDatabase implements IDatabase {
+public class MySQLDatabase extends Notifiable implements IDatabase {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private EntityManagerFactory entityFactory;

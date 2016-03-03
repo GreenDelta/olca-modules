@@ -2,7 +2,6 @@ package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -19,27 +18,27 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	 * Returns the flow results of the inventory results.
 	 */
 	public List<FlowResult> getTotalFlowResults() {
-		FlowIndex index = result.getFlowIndex();
+		FlowIndex index = result.flowIndex;
 		List<FlowResult> results = new ArrayList<>();
 		for (FlowDescriptor d : getFlowDescriptors()) {
 			double val = result.getTotalFlowResult(d.getId());
 			FlowResult r = new FlowResult();
-			r.setFlow(d);
-			r.setInput(index.isInput(d.getId()));
-			r.setValue(adoptFlowResult(val, d.getId()));
+			r.flow = d;
+			r.input = index.isInput(d.getId());
+			r.value = adoptFlowResult(val, d.getId());
 			results.add(r);
 		}
 		return results;
 	}
 
 	public FlowResult getTotalFlowResult(FlowDescriptor flow) {
-		FlowIndex index = result.getFlowIndex();
+		FlowIndex index = result.flowIndex;
 		long flowId = flow.getId();
 		FlowResult r = new FlowResult();
-		r.setFlow(flow);
-		r.setInput(index.isInput(flowId));
+		r.flow = flow;
+		r.input = index.isInput(flowId);
 		double val = result.getTotalFlowResult(flow.getId());
-		r.setValue(adoptFlowResult(val, flowId));
+		r.value = adoptFlowResult(val, flowId);
 		return r;
 	}
 
@@ -47,8 +46,16 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	protected double adoptFlowResult(double value, long flowId) {
 		if (value == 0)
 			return 0; // avoid -0 in the results
-		boolean inputFlow = result.getFlowIndex().isInput(flowId);
+		boolean inputFlow = result.flowIndex.isInput(flowId);
 		return inputFlow ? -value : value;
+	}
+
+	public ImpactResult getTotalImpactResult(ImpactCategoryDescriptor impact) {
+		double val = result.getTotalImpactResult(impact.getId());
+		ImpactResult r = new ImpactResult();
+		r.impactCategory = impact;
+		r.value = val;
+		return r;
 	}
 
 	/**
@@ -64,11 +71,7 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 		return results;
 	}
 
-	public ImpactResult getTotalImpactResult(ImpactCategoryDescriptor impact) {
-		double val = result.getTotalImpactResult(impact.getId());
-		ImpactResult r = new ImpactResult();
-		r.setImpactCategory(impact);
-		r.setValue(val);
-		return r;
+	public double getTotalCostResult() {
+		return result.totalCostResult;
 	}
 }

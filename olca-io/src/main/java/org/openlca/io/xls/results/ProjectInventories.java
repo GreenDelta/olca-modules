@@ -35,8 +35,7 @@ class ProjectInventories {
 	private void run() {
 		List<ProjectVariant> variants = Utils
 				.sortVariants(result.getVariants());
-		List<FlowDescriptor> flows = Utils.sortFlows(result.getFlowDescriptors(),
-				result.getCache());
+		List<FlowDescriptor> flows = Utils.sortFlows(result.getFlowDescriptors(), result.cache);
 		if (variants.isEmpty() || flows.isEmpty())
 			return;
 		int row = 1;
@@ -56,7 +55,7 @@ class ProjectInventories {
 		}
 		row++;
 		writeHeader(row++);
-		FlowIndex index = result.getResult(variants.get(0)).getResult().getFlowIndex();
+		FlowIndex index = result.getResult(variants.get(0)).result.flowIndex;
 		for (FlowDescriptor flow : flows) {
 			if (inputs != index.isInput(flow.getId()))
 				continue;
@@ -69,7 +68,7 @@ class ProjectInventories {
 				ContributionItem<?> c = contributions.getContribution(variant);
 				if (c == null)
 					continue;
-				Excel.cell(sheet, row, col, c.getAmount());
+				Excel.cell(sheet, row, col, c.amount);
 			}
 			row++;
 		}
@@ -80,11 +79,10 @@ class ProjectInventories {
 		int col = 1;
 		Excel.cell(sheet, row, col++, flow.getRefId());
 		Excel.cell(sheet, row, col++, flow.getName());
-		CategoryPair flowCat = CategoryPair.create(flow, result.getCache());
+		CategoryPair flowCat = CategoryPair.create(flow, result.cache);
 		Excel.cell(sheet, row, col++, flowCat.getCategory());
 		Excel.cell(sheet, row, col++, flowCat.getSubCategory());
-		Excel.cell(sheet, row, col++, DisplayValues.referenceUnit(flow,
-				result.getCache()));
+		Excel.cell(sheet, row, col++, DisplayValues.referenceUnit(flow, result.cache));
 	}
 
 	private void writeHeader(int row) {

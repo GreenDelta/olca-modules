@@ -3,36 +3,32 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.UUID;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroupBag;
 
 public class UnitGroupImport {
 
-	private IDatabase database;
-	private DataStore dataStore;
+	private final ImportConfig config;
 	private UnitGroupBag ilcdUnitGroup;
 	private UnitGroup unitGroup;
 
-	public UnitGroupImport(DataStore dataStore, IDatabase database) {
-		this.database = database;
-		this.dataStore = dataStore;
+	public UnitGroupImport(ImportConfig config) {
+		this.config = config;
 	}
 
 	public UnitGroup run(org.openlca.ilcd.units.UnitGroup group)
 			throws ImportException {
-		this.ilcdUnitGroup = new UnitGroupBag(group);
+		this.ilcdUnitGroup = new UnitGroupBag(group, config.ilcdConfig);
 		UnitGroup oGroup = findExisting(ilcdUnitGroup.getId());
 		if (oGroup != null) {
-			new UnitGroupSync(oGroup, ilcdUnitGroup).run(database);
+			new UnitGroupSync(oGroup, ilcdUnitGroup, config).run(config.db);
 			return oGroup;
 		}
 		return createNew();
@@ -44,13 +40,13 @@ public class UnitGroupImport {
 			// TODO: check if reference unit is in database!
 			return unitGroup;
 		org.openlca.ilcd.units.UnitGroup group = tryGetUnitGroup(unitGroupId);
-		ilcdUnitGroup = new UnitGroupBag(group);
+		ilcdUnitGroup = new UnitGroupBag(group, config.ilcdConfig);
 		return createNew();
 	}
 
 	private UnitGroup findExisting(String unitGroupId) throws ImportException {
 		try {
-			UnitGroupDao dao = new UnitGroupDao(database);
+			UnitGroupDao dao = new UnitGroupDao(config.db);
 			return dao.getForRefId(unitGroupId);
 		} catch (Exception e) {
 			String message = String.format("Search for unit group %s failed.",
@@ -70,7 +66,7 @@ public class UnitGroupImport {
 	private org.openlca.ilcd.units.UnitGroup tryGetUnitGroup(String unitGroupId)
 			throws ImportException {
 		try {
-			org.openlca.ilcd.units.UnitGroup group = dataStore.get(
+			org.openlca.ilcd.units.UnitGroup group = config.store.get(
 					org.openlca.ilcd.units.UnitGroup.class, unitGroupId);
 			if (group == null)
 				throw new ImportException("No ILCD unit group for ID "
@@ -82,7 +78,7 @@ public class UnitGroupImport {
 	}
 
 	private void importAndSetCategory() throws ImportException {
-		CategoryImport categoryImport = new CategoryImport(database,
+		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.UNIT_GROUP);
 		Category category = categoryImport
 				.run(ilcdUnitGroup.getSortedClasses());
@@ -136,13 +132,14 @@ public class UnitGroupImport {
 		else
 			oUnit.setRefId(UUID.randomUUID().toString());
 		oUnit.setName(iUnit.getName());
-		oUnit.setDescription(LangString.get(iUnit.getGeneralComment()));
+		oUnit.setDescription(LangString.get(iUnit.getGeneralComment(),
+				config.ilcdConfig));
 		oUnit.setConversionFactor(iUnit.getMeanValue());
 	}
 
 	private void saveInDatabase(UnitGroup obj) throws ImportException {
 		try {
-			database.createDao(UnitGroup.class).insert(obj);
+			config.db.createDao(UnitGroup.class).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in unit group %s.",

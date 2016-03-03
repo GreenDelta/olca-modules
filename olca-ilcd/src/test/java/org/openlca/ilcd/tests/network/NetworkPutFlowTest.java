@@ -16,6 +16,7 @@ import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
 import org.openlca.ilcd.flows.Publication;
 import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.LangString;
 
 public class NetworkPutFlowTest {
@@ -51,7 +52,7 @@ public class NetworkPutFlowTest {
 		String name = "xtest Flow - " + new Random().nextInt(1000);
 		FlowName fName = new FlowName();
 		info.setName(fName);
-		LangString.addLabel(fName.getBaseName(), name);
+		LangString.addLabel(fName.getBaseName(), name, IlcdConfig.getDefault());
 		info.setUUID(id);
 		return info;
 	}

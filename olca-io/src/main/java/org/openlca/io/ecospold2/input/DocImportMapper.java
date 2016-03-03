@@ -20,7 +20,7 @@ import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
-import org.openlca.io.KeyGen;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

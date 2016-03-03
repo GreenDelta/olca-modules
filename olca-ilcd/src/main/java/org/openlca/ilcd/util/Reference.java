@@ -6,23 +6,25 @@ import org.openlca.ilcd.units.UnitGroup;
 
 public class Reference {
 
-	private Reference() {		
+	private Reference() {
 	}
-	
-	public static DataSetReference forIlcdFormat() {
+
+	public static DataSetReference forIlcdFormat(IlcdConfig config) {
 		DataSetReference ref = new DataSetReference();
 		ref.setType(DataSetType.SOURCE_DATA_SET);
 		ref.setUri("../sources/a97a0155-0234-4b87-b4ce-a45da52f2a40_01.01.000.xml");
 		ref.setUuid("a97a0155-0234-4b87-b4ce-a45da52f2a40");
 		ref.setVersion("01.01.000");
-		LangString.addShortText(ref.getShortDescription(), "ILCD format");
+		LangString.addShortText(ref.getShortDescription(), "ILCD format",
+				config);
 		return ref;
 	}
-	
-	public static DataSetReference forUnitGroup(UnitGroup group) {
-		if(group == null)
+
+	public static DataSetReference forUnitGroup(UnitGroup group,
+			IlcdConfig config) {
+		if (group == null)
 			return new DataSetReference();
-		UnitGroupBag bag = new UnitGroupBag(group);
+		UnitGroupBag bag = new UnitGroupBag(group, config);
 		DataSetReference ref = new DataSetReference();
 		ref.setType(DataSetType.UNIT_GROUP_DATA_SET);
 		ref.setUri("../unitgroups/" + bag.getId());
@@ -30,5 +32,5 @@ public class Reference {
 		ref.setVersion(bag.getVersion());
 		return ref;
 	}
-	
+
 }

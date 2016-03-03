@@ -1,165 +1,119 @@
 package org.openlca.jsonld.output;
 
-import java.lang.reflect.Type;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
-import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.Source;
-import org.openlca.jsonld.EntityStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.core.model.SocialAspect;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
-class ProcessWriter implements Writer<Process> {
+class ProcessWriter extends Writer<Process> {
 
-	private EntityStore store;
+	private Process process;
+	private Map<Long, String> idToRefId = new HashMap<>();
 
-	public ProcessWriter() {
-	}
-
-	public ProcessWriter(EntityStore store) {
-		this.store = store;
+	ProcessWriter(ExportConfig conf) {
+		super(conf);
 	}
 
 	@Override
-	public void write(Process process) {
-		if (process == null || store == null)
-			return;
-		if (store.contains(ModelType.PROCESS, process.getRefId()))
-			return;
-		JsonObject obj = serialize(process, null, null);
-		store.put(ModelType.PROCESS, obj);
-	}
-
-	@Override
-	public JsonObject serialize(Process process, Type type,
-			JsonSerializationContext jsonSerializationContext) {
-		JsonObject obj = store == null ? new JsonObject() : store.initJson();
-		map(process, obj);
+	JsonObject write(Process p) {
+		JsonObject obj = super.write(p);
+		if (obj == null)
+			return null;
+		this.process = p;
+		Out.put(obj, "processType", p.getProcessType());
+		Out.put(obj, "defaultAllocationMethod", p.getDefaultAllocationMethod());
+		Out.put(obj, "infrastructureProcess", p.isInfrastructureProcess());
+		Out.put(obj, "location", p.getLocation(), conf);
+		Out.put(obj, "processDocumentation", Documentation.create(p, conf));
+		Out.put(obj, "currency", p.currency, conf);
+		mapParameters(obj);
+		mapExchanges(obj);
+		mapSocialAspects(obj);
+		mapAllocationFactors(obj);
+		ParameterReferences.writeReferencedParameters(p, conf);
 		return obj;
 	}
 
-	private void map(Process process, JsonObject obj) {
-		if (process == null || obj == null)
-			return;
-		JsonExport.addAttributes(process, obj, store);
-		mapProcessType(process, obj);
-		obj.addProperty("defaultAllocationMethod", getAllocationType(
-				process.getDefaultAllocationMethod()));
-		obj.add("location", Out.put(process.getLocation(), store));
-		obj.add("processDocumentation", createDoc(process));
-		mapExchanges(process, obj);
+	private void mapParameters(JsonObject json) {
+		JsonArray parameters = new JsonArray();
+		for (Parameter p : process.getParameters()) {
+			JsonObject obj = Writer.initJson();
+			ParameterWriter.mapAttr(obj, p);
+			parameters.add(obj);
+		}
+		Out.put(json, "parameters", parameters);
 	}
 
-	private void mapExchanges(Process p, JsonObject obj) {
+	private void mapExchanges(JsonObject json) {
 		JsonArray exchanges = new JsonArray();
-		for (Exchange e : p.getExchanges()) {
-			JsonObject eObj = new JsonObject();
-			new ExchangeWriter(store).map(e, eObj);
-			if(Objects.equals(p.getQuantitativeReference(), e))
-				eObj.addProperty("quantitativeReference", true);
-			exchanges.add(eObj);
+		for (Exchange e : process.getExchanges()) {
+			JsonObject obj = new JsonObject();
+			String id = Exchanges.map(e, process.getRefId(), obj, conf);
+			if (id == null)
+				continue;
+			idToRefId.put(e.getId(), id);
+			if (Objects.equals(process.getQuantitativeReference(), e))
+				Out.put(obj, "quantitativeReference", true);
+			exchanges.add(obj);
 		}
-		obj.add("exchanges", exchanges);
+		Out.put(json, "exchanges", exchanges);
 	}
 
-	private JsonObject createDoc(Process process) {
-		ProcessDocumentation d = process.getDocumentation();
-		if (d == null)
-			return null;
-		JsonObject o = new JsonObject();
-		o.addProperty("@type", "ProcessDocumentation");
-		mapSimpleDocFields(d, o);
-		o.add("reviewer", Out.put(d.getReviewer(), store));
-		o.add("dataDocumentor", Out.put(d.getDataDocumentor(), store));
-		o.add("dataGenerator", Out.put(d.getDataGenerator(), store));
-		o.add("dataSetOwner", Out.put(d.getDataSetOwner(), store));
-		o.add("publication", Out.put(d.getPublication(), store));
-		mapSources(d, o);
-		return o;
-	}
-
-	private void mapSources(ProcessDocumentation d, JsonObject o) {
-		if (d.getSources().isEmpty())
-			return;
-		JsonArray sources = new JsonArray();
-		for (Source source : d.getSources()) {
-			JsonObject ref = Out.put(source, store);
-			sources.add(ref);
+	private void mapSocialAspects(JsonObject json) {
+		JsonArray aspects = new JsonArray();
+		for (SocialAspect a : process.socialAspects) {
+			JsonObject obj = new JsonObject();
+			Out.put(obj, "@type", SocialAspect.class.getSimpleName());
+			Out.put(obj, "socialIndicator", a.indicator, conf);
+			Out.put(obj, "comment", a.comment);
+			Out.put(obj, "quality", a.quality);
+			Out.put(obj, "rawAmount", a.rawAmount);
+			Out.put(obj, "activityValue", a.activityValue);
+			Out.put(obj, "riskLevel", a.riskLevel);
+			Out.put(obj, "source", a.source, conf);
+			aspects.add(obj);
 		}
-		o.add("sources", sources);
+		Out.put(json, "socialAspects", aspects);
 	}
 
-	private void mapSimpleDocFields(ProcessDocumentation d, JsonObject o) {
-		o.addProperty("timeDescription", d.getTime());
-		o.addProperty("technologyDescription", d.getTechnology());
-		o.addProperty("dataCollectionDescription", d.getDataCollectionPeriod());
-		o.addProperty("completenessDescription", d.getCompleteness());
-		o.addProperty("dataSelectionDescription", d.getDataSelection());
-		o.addProperty("reviewDetails", d.getReviewDetails());
-		o.addProperty("dataTreatmentDescription", d.getDataTreatment());
-		o.addProperty("inventoryMethodDescription", d.getInventoryMethod());
-		o.addProperty("modelingConstantsDescription", d.getModelingConstants());
-		o.addProperty("samplingDescription", d.getSampling());
-		o.addProperty("restrictionsDescription", d.getRestrictions());
-		o.addProperty("copyright", d.isCopyright());
-		o.addProperty("validFrom", asXmlDate(d.getValidFrom()));
-		o.addProperty("validUntil", asXmlDate(d.getValidUntil()));
-		o.addProperty("creationDate", asXmlDate(d.getCreationDate()));
-		o.addProperty("intendedApplication", d.getIntendedApplication());
-		o.addProperty("projectDescription", d.getProject());
-		o.addProperty("geographyDescription", d.getGeography());
-	}
-
-	private String getAllocationType(AllocationMethod method) {
-		if (method == null)
-			return null;
-		switch (method) {
-		case CAUSAL:
-			return "CAUSAL_ALLOCATION";
-		case ECONOMIC:
-			return "ECONOMIC_ALLOCATION";
-		case PHYSICAL:
-			return "PHYSICAL_ALLOCATION";
-		default:
-			return null;
+	private void mapAllocationFactors(JsonObject json) {
+		JsonArray factors = new JsonArray();
+		for (AllocationFactor f : process.getAllocationFactors()) {
+			JsonObject obj = new JsonObject();
+			Out.put(obj, "@type", AllocationFactor.class.getSimpleName());
+			Out.put(obj, "exchange", createExchangeRef(f.getExchange()));
+			Out.put(obj, "product", findProduct(f.getProductId()), conf);
+			Out.put(obj, "value", f.getValue());
+			Out.put(obj, "allocationType", f.getAllocationType());
+			factors.add(obj);
 		}
+		Out.put(json, "allocationFactors", factors);
 	}
 
-	private void mapProcessType(Process process, JsonObject obj) {
-		ProcessType type = process.getProcessType();
-		if (type == null)
-			return;
-		obj.addProperty("processTyp", type.name());
+	private Flow findProduct(long id) {
+		for (Exchange e : process.getExchanges())
+			if (e.getFlow().getId() == id)
+				return e.getFlow();
+		return null;
 	}
 
-	private String asXmlDate(Date date) {
-		if (date == null)
+	private JsonObject createExchangeRef(Exchange exchange) {
+		if (exchange == null)
 			return null;
-		try {
-			GregorianCalendar cal = new GregorianCalendar();
-			cal.setTime(date);
-			XMLGregorianCalendar xml = DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(cal);
-			return xml.toXMLFormat();
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(ProcessWriter.class);
-			log.error("Could not convert to XML date format", e);
-			return null;
-		}
+		JsonObject obj = new JsonObject();
+		Out.put(obj, "@type", Exchange.class.getSimpleName());
+		Out.put(obj, "@id", idToRefId.get(exchange.getId()));
+		Out.put(obj, "flow", exchange.getFlow(), conf);
+		return obj;
 	}
 
 }

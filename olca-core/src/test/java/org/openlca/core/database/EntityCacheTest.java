@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.TestSession;
+import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 
@@ -19,7 +19,7 @@ public class EntityCacheTest {
 
 	@Before
 	public void setUp() {
-		database = TestSession.getDefaultDatabase();
+		database = Tests.getDb();
 		cache = EntityCache.create(database);
 	}
 

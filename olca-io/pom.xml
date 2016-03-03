@@ -3,15 +3,23 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openlca</groupId>
 	<artifactId>olca-io</artifactId>
-	<version>1.0.0</version>
+	<version>1.5.0</version>
 
 	<packaging>jar</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<dependencies>
+	<repositories>
+		<repository>
+			<id>osgeo</id>
+			<name>Open Source Geospatial Foundation Repository</name>
+			<url>http://download.osgeo.org/webdav/geotools/</url>
+		</repository>
+	</repositories>
 
+	<dependencies>
+	
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -19,27 +27,57 @@
 		</dependency>
 
 		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>1.0.b2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.trove4j</groupId>
+			<artifactId>trove4j</artifactId>
+			<version>3.0.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>14.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>javax.persistence</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-core</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ilcd</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ecospold-1</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-simapro-csv</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openlca</groupId>
+			<artifactId>olca-formula</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
@@ -51,7 +89,7 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ecospold-2</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
@@ -69,19 +107,19 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.9</version>
+			<version>3.12</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.9</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.2.4</version>
+			<version>3.12</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>stax-api</artifactId>
+					<groupId>stax</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -120,8 +158,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.5.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>

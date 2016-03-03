@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,6 +49,20 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 		return createDescriptors(results);
 	}
 
+	public List<V> getDescriptorsForRefIds(Set<String> refIds) {
+		if (refIds == null || refIds.isEmpty())
+			return Collections.emptyList();
+		Set<String> quotedIds = new HashSet<>();
+		for (String refId : refIds) {
+			quotedIds.add('\'' + refId + '\'');
+		}
+		String sql = getDescriptorQuery() + " where ref_id in ("
+				+ Strings.join(quotedIds, ',') + ")";
+		List<Object[]> results = selectAll(sql, getDescriptorFields(),
+				Collections.emptyList());
+		return createDescriptors(results);
+	}
+
 	/**
 	 * Returns all descriptors of the entity type of this DAO from the database.
 	 */
@@ -74,7 +89,8 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 	 * Subclass may override to provide more information. Use sql column names !
 	 */
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description" };
+		return new String[] { "id", "ref_id", "name", "description", "version",
+				"last_change" };
 	}
 
 	/**
@@ -107,6 +123,10 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 			descriptor.setRefId((String) queryResult[1]);
 			descriptor.setName((String) queryResult[2]);
 			descriptor.setDescription((String) queryResult[3]);
+			if (queryResult[4] != null)
+				descriptor.setVersion((long) queryResult[4]);
+			if (queryResult[5] != null)
+				descriptor.setLastChange((long) queryResult[5]);
 			descriptor.setType(ModelType.forModelClass(entityType));
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log,
@@ -126,6 +146,21 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor>
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log,
 					"failed to get instance for refId " + refId, e);
+			return null;
+		}
+	}
+
+	public List<T> getForRefIds(Set<String> refIds) {
+		if (refIds == null || refIds.isEmpty())
+			return Collections.emptyList();
+		String jpql = "select e from " + entityType.getSimpleName()
+				+ " e where e.refId in :refIds";
+		try {
+			return Query.on(getDatabase()).getAll(entityType, jpql,
+					Collections.singletonMap("refIds", refIds));
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log,
+					"failed to get instance for refId list", e);
 			return null;
 		}
 	}
