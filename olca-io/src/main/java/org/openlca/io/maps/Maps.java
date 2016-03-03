@@ -1,5 +1,12 @@
 package org.openlca.io.maps;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
@@ -10,13 +17,6 @@ import org.openlca.util.BinUtils;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A helper class for using import / export maps. We store the mappings in CSV
@@ -57,6 +57,11 @@ public class Maps {
 	 */
 	public static final String ES2_FLOW_EXPORT = "es2_flow_export_map.csv";
 
+	/**
+	 * A mapping file that maps location codes to UUIDs of locations.
+	 */
+	public static final String LOCATION_IMPORT = "location_import.csv";
+
 	private Maps() {
 	}
 
@@ -67,11 +72,24 @@ public class Maps {
 	 */
 	public static List<List<Object>> readAll(String fileName,
 			IDatabase database, CellProcessor... cellProcessors)
-			throws Exception {
+					throws Exception {
 		try (CsvListReader reader = open(fileName, database)) {
 			List<List<Object>> results = new ArrayList<>();
 			List<Object> nextRow = null;
 			while ((nextRow = reader.read(cellProcessors)) != null) {
+				results.add(nextRow);
+			}
+			return results;
+		}
+	}
+
+	public static List<List<Object>> readAll(String file,
+			CellProcessor... processors) throws Exception {
+		InputStream in = Maps.class.getResourceAsStream(file);
+		try (CsvListReader reader = createReader(in)) {
+			List<List<Object>> results = new ArrayList<>();
+			List<Object> nextRow = null;
+			while ((nextRow = reader.read(processors)) != null) {
 				results.add(nextRow);
 			}
 			return results;
