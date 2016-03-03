@@ -31,7 +31,6 @@ class ProcessExchanges {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private ImportConfig config;
-	private ProcessBag ilcdProcess;
 	private List<MappedPair> mappedPairs = new ArrayList<>();
 
 	ProcessExchanges(ImportConfig config) {
@@ -58,7 +57,7 @@ class ProcessExchanges {
 			}
 		}
 		mapAllocation(process);
-		mapReferenceFlow(process);
+		mapReferenceFlow(ilcdProcess, process);
 	}
 
 	private boolean isValid(Exchange exchange) {
@@ -173,7 +172,7 @@ class ProcessExchanges {
 		return null;
 	}
 
-	private void mapReferenceFlow(Process process) {
+	private void mapReferenceFlow(ProcessBag ilcdProcess, Process process) {
 		Map<BigInteger, Exchange> map = new HashMap<>();
 		for (MappedPair pair : mappedPairs)
 			map.put(pair.iExchange.getDataSetInternalID(), pair.oExchange);
