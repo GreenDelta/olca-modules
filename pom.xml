@@ -5,13 +5,12 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<openlca.version>1.5.0</openlca.version>
 	</properties>
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openlca</groupId>
 	<artifactId>olca-modules</artifactId>
-	<version>${openlca.version}</version>
+	<version>1.5.0</version>
 	<packaging>pom</packaging>
 
 	<modules>

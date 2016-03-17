@@ -2,17 +2,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.openlca</groupId>
-		<artifactId>olca-modules</artifactId>
-		<version>${openlca.version}</version>
-	</parent>
-
-	<artifactId>olca-ecospold-2</artifactId>
-	<packaging>jar</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
+	<parent>
+		<groupId>org.openlca</groupId>
+		<artifactId>olca-modules</artifactId>
+		<version>1.5.0</version>
+	</parent>
+	<artifactId>olca-ecospold-2</artifactId>
+	<packaging>jar</packaging>
 
 	<dependencies>
 
