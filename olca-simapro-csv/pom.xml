@@ -1,14 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.openlca</groupId>
+	
+	<parent>
+		<groupId>org.openlca</groupId>
+		<artifactId>olca-modules</artifactId>
+		<version>${openlca.version}</version>
+	</parent>
+	
 	<artifactId>olca-simapro-csv</artifactId>
-	<version>1.5.0</version>
-	<name>openLCA SimaPro CSV API</name>
-	<description>The openLCA API to read and write data sets in the SimaPro CSV format</description>
-
 	<packaging>jar</packaging>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>

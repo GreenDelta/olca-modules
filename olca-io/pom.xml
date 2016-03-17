@@ -1,10 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.openlca</groupId>
+	
+	<parent>
+		<groupId>org.openlca</groupId>
+		<artifactId>olca-modules</artifactId>
+		<version>${openlca.version}</version>
+	</parent>
+	
 	<artifactId>olca-io</artifactId>
-	<version>1.5.0</version>
-
 	<packaging>jar</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -53,31 +57,31 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-core</artifactId>
-			<version>${project.version}</version>
+			<version>${openlca.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ilcd</artifactId>
-			<version>${project.version}</version>
+			<version>${openlca.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ecospold-1</artifactId>
-			<version>${project.version}</version>
+			<version>${openlca.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-simapro-csv</artifactId>
-			<version>${project.version}</version>
+			<version>${openlca.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-formula</artifactId>
-			<version>${project.version}</version>
+			<version>${openlca.version}</version>
 		</dependency>
 
 		<dependency>
@@ -89,7 +93,7 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ecospold-2</artifactId>
-			<version>${project.version}</version>
+			<version>${openlca.version}</version>
 		</dependency>
 
 		<dependency>

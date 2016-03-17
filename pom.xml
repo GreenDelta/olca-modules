@@ -1,27 +1,31 @@
 ﻿<?xml version="1.0"?>
-<project 
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" 
-	xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.openlca</groupId>
-  <artifactId>olca-modules</artifactId>
-  <version>1.5</version>
-  <packaging>pom</packaging>
-  
-  <modules>	
-	<module>olca-cloud</module>
-	<module>olca-core</module>
-	<module>olca-ecospold-1</module>
-	<module>olca-ecospold-2</module>
-	<module>olca-formula</module>
-	<module>olca-eigen</module>
-	<module>olca-geo</module>
-	<module>olca-ilcd</module>
-	<module>olca-io</module>
-	<module>olca-jsonld</module>
-	<module>olca-simapro-csv</module>	
-  </modules>
-  
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<openlca.version>1.5.0</openlca.version>
+	</properties>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openlca</groupId>
+	<artifactId>olca-modules</artifactId>
+	<version>${openlca.version}</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>olca-cloud</module>
+		<module>olca-core</module>
+		<module>olca-ecospold-1</module>
+		<module>olca-ecospold-2</module>
+		<module>olca-formula</module>
+		<module>olca-eigen</module>
+		<module>olca-geo</module>
+		<module>olca-ilcd</module>
+		<module>olca-io</module>
+		<module>olca-jsonld</module>
+		<module>olca-simapro-csv</module>
+	</modules>
+
 </project>
