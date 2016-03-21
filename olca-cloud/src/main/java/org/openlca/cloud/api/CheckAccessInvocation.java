@@ -11,7 +11,7 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
  */
 class CheckAccessInvocation {
 
-	private static final String PATH = "/access";
+	private static final String PATH = "/repository";
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
