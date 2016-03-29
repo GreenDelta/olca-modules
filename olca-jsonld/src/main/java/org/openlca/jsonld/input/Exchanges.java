@@ -6,6 +6,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.Process;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,8 +22,11 @@ class Exchanges {
 		e.setAmountFormula(In.getString(json, "amountFormula"));
 		e.setPedigreeUncertainty(In.getString(json, "pedigreeUncertainty"));
 		String providerId = In.getRefId(json, "defaultProvider");
-		if (providerId != null)
-			e.setDefaultProviderId(ProcessImport.run(providerId, conf).getId());
+		if (providerId != null) {
+			Process provider = ProcessImport.run(providerId, conf);
+			if (provider != null)
+				e.setDefaultProviderId(provider.getId());
+		}
 		addCostEntries(json, e, conf);
 		JsonElement u = json.get("uncertainty");
 		if (u != null && u.isJsonObject())
