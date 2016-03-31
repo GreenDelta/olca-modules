@@ -11,13 +11,14 @@ import com.google.common.io.Files;
 
 public class Directories {
 
-	public static void delete(File file) {
+	public static boolean delete(File file) {
 		if (!file.exists())
-			return;
+			return false;
 		if (file.isDirectory())
 			for (File child : file.listFiles())
-				delete(child);
-		file.delete();
+				if (!delete(child))
+					return false;
+		return file.delete();
 	}
 
 	public static void streamZipped(File directory, OutputStream out) throws IOException {

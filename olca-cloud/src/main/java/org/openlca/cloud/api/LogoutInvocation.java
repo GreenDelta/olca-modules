@@ -1,6 +1,5 @@
 package org.openlca.cloud.api;
 
-import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
@@ -24,7 +23,7 @@ class LogoutInvocation {
 	void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
-		String url = Strings.concat(baseUrl, PATH);
+		String url = baseUrl + PATH;
 		WebRequests.call(Type.POST, url, sessionId);
 	}
 }

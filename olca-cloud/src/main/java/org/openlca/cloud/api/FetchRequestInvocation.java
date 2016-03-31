@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.cloud.model.data.FetchRequestData;
-import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
@@ -41,8 +40,7 @@ class FetchRequestInvocation {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (lastCommitId == null || lastCommitId.isEmpty())
 			lastCommitId = "null";
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
-				lastCommitId);
+		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyList();

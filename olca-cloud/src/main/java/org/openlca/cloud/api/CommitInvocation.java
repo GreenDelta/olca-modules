@@ -3,17 +3,15 @@ package org.openlca.cloud.api;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import org.openlca.core.database.IDatabase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.openlca.cloud.api.data.CommitWriter;
 import org.openlca.cloud.util.Directories;
-import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
+import org.openlca.core.database.IDatabase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Invokes a web service call to commit data to a repository
@@ -49,8 +47,7 @@ public class CommitInvocation extends CommitWriter {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (lastCommitId == null)
 			lastCommitId = "null";
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
-				lastCommitId);
+		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
 		try {
 			close();
 			String commitId = WebRequests.call(Type.POST, url, sessionId,

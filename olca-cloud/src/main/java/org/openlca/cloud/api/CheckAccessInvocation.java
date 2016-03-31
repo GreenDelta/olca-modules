@@ -1,6 +1,5 @@
 package org.openlca.cloud.api;
 
-import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
@@ -26,7 +25,7 @@ class CheckAccessInvocation {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		String url = Strings.concat(baseUrl, PATH, "/", repositoryId);
+		String url = baseUrl + PATH + "/" + repositoryId;
 		WebRequests.call(Type.GET, url, sessionId);
 	}
 

@@ -11,15 +11,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
+
 import org.openlca.cloud.api.data.FetchReader;
 import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.util.Directories;
-import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
@@ -51,6 +46,12 @@ import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Invokes a web service call to fetch the latest changes after the specified
@@ -88,8 +89,7 @@ class FetchInvocation {
 			lastCommitId = "null";
 		if (fetchData == null) // still call service to receive latest commit id
 			fetchData = new ArrayList<>();
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/",
-				lastCommitId);
+		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
 		ClientResponse response = WebRequests.call(Type.POST, url, sessionId,
 				fetchData);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())

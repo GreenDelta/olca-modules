@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.cloud.model.data.Dataset;
-import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
@@ -41,7 +40,7 @@ class LibraryCheckInvocation {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(datasets, "datasets");
-		String url = Strings.concat(baseUrl, PATH);
+		String url = baseUrl + PATH;
 		List<String> refIds = new ArrayList<>();
 		for (Dataset dataset : datasets)
 			refIds.add(dataset.refId);
