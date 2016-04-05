@@ -1,18 +1,20 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.openlca</groupId>
-  <artifactId>olca-ecospold-1</artifactId>
-  <version>1.5.0</version>
-  <name>openLCA API for EcoSpold 01</name>
-  <description>The openLCA API for the EcoSpold 01 data format</description>
-  
-  <packaging>jar</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-  
-  <build>
+
+	<parent>
+		<groupId>org.openlca</groupId>
+		<artifactId>olca-modules</artifactId>
+		<version>1.5.0</version>
+	</parent>
+	<artifactId>olca-ecospold-1</artifactId>
+	<packaging>jar</packaging>
+
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

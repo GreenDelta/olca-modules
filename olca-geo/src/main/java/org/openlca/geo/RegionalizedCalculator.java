@@ -9,6 +9,7 @@ import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.math.LcaCalculator;
+import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
@@ -100,6 +101,27 @@ public class RegionalizedCalculator {
 			int refIdx = r.productIndex.getIndex(r.productIndex.getRefProduct());
 			r.totalFlowResults = r.upstreamFlowResults.getColumn(refIdx);
 			r.totalImpactResults = r.upstreamImpactResults.getColumn(refIdx);
+
+			// add LCC results
+			if (setup.withCosts) {
+				r.hasCostResults = true;
+				CostVector costVector = CostVector.build(inventory, db);
+
+				// direct LCC
+				double[] costValues = costVector.values;
+				double[] directCosts = new double[costValues.length];
+				for (int i = 0; i < r.scalingFactors.length; i++) {
+					directCosts[i] = costValues[i] * r.scalingFactors[i];
+				}
+				r.singleCostResults = directCosts;
+
+				// upstream LCC
+				IMatrix costMatrix = costVector.asMatrix(solver.getMatrixFactory());
+				IMatrix upstreamCosts = solver.multiply(costMatrix, inverse);
+				solver.scaleColumns(upstreamCosts, demands);
+				r.totalCostResult = upstreamCosts.getEntry(0, refIdx);
+				r.upstreamCostResults = upstreamCosts;
+			}
 
 			return new RegionalizedResult(r, regioSetup.kmlData,
 					regioSetup.parameterSet);

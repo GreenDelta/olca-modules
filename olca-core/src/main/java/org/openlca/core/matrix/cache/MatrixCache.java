@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.CalcAllocationFactor;
-import org.openlca.core.matrix.CalcCostEntry;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.model.ModelType;
@@ -23,7 +22,6 @@ public final class MatrixCache {
 	private LoadingCache<Long, List<CalcAllocationFactor>> allocationCache;
 	private LoadingCache<Long, List<CalcImpactFactor>> impactCache;
 	private LoadingCache<Long, List<CalcExchange>> exchangeCache;
-	private LoadingCache<Long, List<CalcCostEntry>> costCache;
 
 	public static MatrixCache createEager(IDatabase database) {
 		return new MatrixCache(database, false);
@@ -44,7 +42,6 @@ public final class MatrixCache {
 					flowTypeTable);
 			allocationCache = AllocationCache.create(database);
 			impactCache = ImpactFactorCache.create(database, conversionTable);
-			costCache = CostEntryCache.create(database);
 		}
 	}
 
@@ -90,12 +87,6 @@ public final class MatrixCache {
 		return exchangeCache;
 	}
 
-	public LoadingCache<Long, List<CalcCostEntry>> getCostCache() {
-		if (costCache == null)
-			costCache = CostEntryCache.create(database);
-		return costCache;
-	}
-
 	public synchronized void evictAll() {
 		if (flowTypeTable != null)
 			flowTypeTable.reload();
@@ -109,8 +100,6 @@ public final class MatrixCache {
 			allocationCache.invalidateAll();
 		if (impactCache != null)
 			impactCache.invalidateAll();
-		if (costCache != null)
-			costCache.invalidateAll();
 	}
 
 	public synchronized void evict(ModelType type, long id) {
@@ -167,8 +156,6 @@ public final class MatrixCache {
 			exchangeCache.invalidate(id);
 		if (allocationCache != null)
 			allocationCache.invalidate(id);
-		if (costCache != null)
-			costCache.invalidate(id);
 	}
 
 	private void reloadProcessTable() {

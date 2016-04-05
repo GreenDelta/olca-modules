@@ -5,9 +5,9 @@ import org.openlca.core.model.Flow;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IReferenceFunction;
 
-final class CategoryMapper {
+final class Categories {
 
-	private CategoryMapper() {
+	private Categories() {
 	}
 
 	static void map(Flow flow, IReferenceFunction refFun, ExportConfig config) {

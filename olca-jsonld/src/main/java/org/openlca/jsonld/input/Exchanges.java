@@ -6,6 +6,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.Process;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,22 +15,36 @@ class Exchanges {
 
 	static ExchangeWithId map(JsonObject json, ImportConfig conf) {
 		Exchange e = new Exchange();
+		addAttributes(json, e);
+		addProvider(json, e, conf);
+		addCostEntries(json, e, conf);
+		addExchangeRefs(json, e, conf);
+		String internalId = In.getString(json, "@id");
+		return new ExchangeWithId(internalId, e);
+	}
+
+	private static void addAttributes(JsonObject json, Exchange e) {
 		e.setAvoidedProduct(In.getBool(json, "avoidedProduct", false));
 		e.setInput(In.getBool(json, "input", false));
 		e.setBaseUncertainty(In.getOptionalDouble(json, "baseUncertainty"));
 		e.setAmountValue(In.getDouble(json, "amount", 0));
 		e.setAmountFormula(In.getString(json, "amountFormula"));
 		e.setPedigreeUncertainty(In.getString(json, "pedigreeUncertainty"));
-		String providerId = In.getRefId(json, "defaultProvider");
-		if (providerId != null)
-			e.setDefaultProviderId(ProcessImport.run(providerId, conf).getId());
-		addCostEntries(json, e, conf);
+		e.description = In.getString(json, "description");
 		JsonElement u = json.get("uncertainty");
-		if (u != null && u.isJsonObject())
+		if (u != null && u.isJsonObject()) {
 			e.setUncertainty(Uncertainties.read(u.getAsJsonObject()));
-		addExchangeRefs(json, e, conf);
-		String internalId = In.getString(json, "@id");
-		return new ExchangeWithId(internalId, e);
+		}
+	}
+
+	private static void addProvider(JsonObject json, Exchange e, ImportConfig conf) {
+		String providerId = In.getRefId(json, "defaultProvider");
+		if (providerId == null)
+			return;
+		Process provider = ProcessImport.run(providerId, conf);
+		if (provider == null)
+			return;
+		e.setDefaultProviderId(provider.getId());
 	}
 
 	private static void addCostEntries(JsonObject json, Exchange e,

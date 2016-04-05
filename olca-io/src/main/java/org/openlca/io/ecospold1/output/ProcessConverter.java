@@ -246,7 +246,7 @@ class ProcessConverter {
 		refFun.setUnit(exchange.getUnit().getName());
 		refFun.setInfrastructureProcess(flow.isInfrastructureFlow());
 		refFun.setAmount(exchange.getAmountValue());
-		CategoryMapper.map(flow, refFun, config);
+		Categories.map(flow, refFun, config);
 		refFun.setLocalCategory(refFun.getCategory());
 		refFun.setLocalSubCategory(refFun.getSubCategory());
 		return refFun;
@@ -257,20 +257,34 @@ class ProcessConverter {
 		Flow flow = inExchange.getFlow();
 		exchange.setNumber((int) flow.getId());
 		exchange.setName(inExchange.getFlow().getName());
-		if (inExchange.isInput())
+		if (inExchange.isInput()) {
 			exchange.setInputGroup(mapFlowType(flow.getFlowType(), true));
-		else
+		} else {
 			exchange.setOutputGroup(mapFlowType(flow.getFlowType(), false));
-		exchange.setGeneralComment(inExchange.description);
-		CategoryMapper.map(flow.getCategory(), exchange, config);
+		}
+		Categories.map(flow.getCategory(), exchange, config);
 		Util.mapFlowInformation(exchange, inExchange.getFlow());
-		exchange.setUnit(inExchange.getUnit().getName());
-		if (inExchange.getUncertainty() == null)
+		if (inExchange.getUnit() != null) {
+			exchange.setUnit(inExchange.getUnit().getName());
+		}
+		if (inExchange.getUncertainty() == null) {
 			exchange.setMeanValue(inExchange.getAmountValue());
-		else
+		} else {
 			mapUncertainty(inExchange, exchange);
-		exchange.setGeneralComment(inExchange.getPedigreeUncertainty());
+		}
+		mapComment(inExchange, exchange);
 		return exchange;
+	}
+
+	private void mapComment(Exchange inExchange, IExchange exchange) {
+		if (inExchange.description == null) {
+			exchange.setGeneralComment(inExchange.getPedigreeUncertainty());
+		} else if (inExchange.getPedigreeUncertainty() == null) {
+			exchange.setGeneralComment(inExchange.description);
+		} else {
+			exchange.setGeneralComment(inExchange.getPedigreeUncertainty()
+					+ "; " + inExchange.description);
+		}
 	}
 
 	private int mapFlowType(FlowType flowType, boolean input) {

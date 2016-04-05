@@ -65,7 +65,7 @@ class MethodConverter {
 		IExchange exchange = factory.createExchange();
 		Flow flow = factor.getFlow();
 		exchange.setNumber((int) flow.getId());
-		CategoryMapper.map(factor.getFlow().getCategory(), exchange, config);
+		Categories.map(factor.getFlow().getCategory(), exchange, config);
 		Util.mapFlowInformation(exchange, factor.getFlow());
 		exchange.setUnit(factor.getUnit().getName());
 		exchange.setName(factor.getFlow().getName());

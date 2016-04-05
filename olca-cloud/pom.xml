@@ -1,21 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.openlca</groupId>
-	<artifactId>olca-cloud</artifactId>
-	<version>1.5.0</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	
+
+	<parent>
+		<groupId>org.openlca</groupId>
+		<artifactId>olca-modules</artifactId>
+		<version>1.5.0</version>
+	</parent>
+	<artifactId>olca-cloud</artifactId>
+	<packaging>jar</packaging>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-client</artifactId>
 			<version>1.19</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>jsr311-api</artifactId>
@@ -26,20 +31,20 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>14.0.1</version>
-		</dependency>		
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.2.4</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>1.9</version>
-		</dependency>		
-		
+		</dependency>
+
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-core</artifactId>
