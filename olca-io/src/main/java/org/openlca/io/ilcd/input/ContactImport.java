@@ -83,6 +83,9 @@ public class ContactImport {
 		actor.setName(ilcdContact.getName());
 		actor.setDescription(ilcdContact.getComment());
 		actor.setAddress(ilcdContact.getContactAddress());
+		if (actor.getAddress() == null) {
+			actor.setAddress(ilcdContact.getCentralContactPoint());
+		}
 		actor.setEmail(ilcdContact.getEmail());
 		actor.setTelefax(ilcdContact.getTelefax());
 		actor.setTelephone(ilcdContact.getTelephone());
