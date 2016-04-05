@@ -11,6 +11,7 @@ public class Property {
 	private String unitName;
 	private String variableName;
 	private String mathematicalRelation;
+	private boolean isDefiningValue;
 
 	public String getId() {
 		return id;
@@ -68,6 +69,14 @@ public class Property {
 		this.mathematicalRelation = mathematicalRelation;
 	}
 
+	public boolean isDefiningValue() {
+		return isDefiningValue;
+	}
+
+	public void setIsDefiningValue(boolean isDefiningValue) {
+		this.isDefiningValue = isDefiningValue;
+	}
+
 	static Property fromXml(Element e) {
 		if (e == null)
 			return null;
@@ -79,6 +88,9 @@ public class Property {
 		p.unitName = In.childText(e, "unitName");
 		p.mathematicalRelation = e.getAttributeValue("mathematicalRelation");
 		p.variableName = e.getAttributeValue("variableName");
+		Boolean isDefiningValue = In.optionalBool("isDefiningValue");
+		if (isDefiningValue != null && isDefiningValue)
+			p.isDefiningValue = true;
 		return p;
 	}
 
@@ -86,11 +98,14 @@ public class Property {
 		Element e = new Element("property", IO.NS);
 		e.setAttribute("amount", Double.toString(amount));
 		e.setAttribute("propertyId", id);
-		e.setAttribute("unitId", unitId);
+		if (unitId != null)
+			e.setAttribute("unitId", unitId);
 		if (mathematicalRelation != null)
 			e.setAttribute("mathematicalRelation", mathematicalRelation);
 		if (variableName != null)
 			e.setAttribute("variableName", variableName);
+		if (isDefiningValue)
+			e.setAttribute("isDefiningValue", "true");
 		Out.addChild(e, "name", name);
 		Out.addChild(e, "unitName", unitName);
 		return e;
