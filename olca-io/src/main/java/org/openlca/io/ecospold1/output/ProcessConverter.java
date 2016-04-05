@@ -195,9 +195,9 @@ class ProcessConverter {
 		if (!config.isCreateDefaults())
 			return;
 		if (time.getStartDate() == null)
-			time.setStartDate(Util.toXml(new Short((short) 9999)));
+			time.setStartDate(Util.toXml(new Date(253370761200000L)));
 		if (time.getEndDate() == null)
-			time.setEndDate(Util.toXml(new Short((short) 9999)));
+			time.setEndDate(Util.toXml(new Date(253402210800000L)));
 	}
 
 	private boolean isMultiOutput() {

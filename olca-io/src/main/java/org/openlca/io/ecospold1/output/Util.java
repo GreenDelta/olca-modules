@@ -1,9 +1,7 @@
 package org.openlca.io.ecospold1.output;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -41,13 +39,10 @@ class Util {
 	static XMLGregorianCalendar toXml(Short year) {
 		if (year == null)
 			return null;
-		GregorianCalendar cal = new GregorianCalendar(
-				TimeZone.getTimeZone("UTC"));
-		cal.set(Calendar.YEAR, year);
 		try {
 			XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(cal);
-			xmlCal.normalize();
+					.newXMLGregorianCalendar();
+			xmlCal.setYear(year);
 			return xmlCal;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(Util.class);
