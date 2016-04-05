@@ -68,7 +68,7 @@ public class ActorExport {
 			address += ", " + actor.getZipCode();
 		if (actor.getCity() != null)
 			address += " " + actor.getCity();
-		LangString.addShortText(dataSetInfo.getCentralContactPoint(), address,
+		LangString.addShortText(dataSetInfo.getContactAddress(), address,
 				config.ilcdConfig);
 	}
 
