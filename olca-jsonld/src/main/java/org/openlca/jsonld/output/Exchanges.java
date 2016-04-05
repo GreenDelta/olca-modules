@@ -21,6 +21,7 @@ class Exchanges {
 		Out.put(obj, "amount", e.getAmountValue());
 		Out.put(obj, "amountFormula", e.getAmountFormula());
 		Out.put(obj, "pedigreeUncertainty", e.getPedigreeUncertainty());
+		Out.put(obj, "description", e.description);
 		Out.put(obj, "costFormula", e.costFormula);
 		Out.put(obj, "costValue", e.costValue);
 		Out.put(obj, "currency", e.currency, conf);
