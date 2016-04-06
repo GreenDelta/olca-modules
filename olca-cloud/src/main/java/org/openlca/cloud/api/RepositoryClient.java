@@ -100,6 +100,16 @@ public class RepositoryClient {
 		});
 	}
 
+	public List<Commit> fetchCommitHistory() throws WebRequestException {
+		return executeLoggedIn(() -> {
+			HistoryInvocation invocation = new HistoryInvocation();
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			return invocation.execute();
+		});
+	}
+
 	public List<Commit> fetchNewCommitHistory() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			HistoryInvocation invocation = new HistoryInvocation();
@@ -110,7 +120,6 @@ public class RepositoryClient {
 			return invocation.execute();
 		});
 	}
-
 	public Map<Dataset, String> performLibraryCheck(Set<Dataset> datasets)
 			throws WebRequestException {
 		return executeLoggedIn(() -> {
