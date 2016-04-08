@@ -1,10 +1,25 @@
 package org.openlca.core.database;
 
+import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.ModelType;
 
 public class Daos {
 
-	public static RootEntityDao<?, ?> createRootDao(IDatabase database, ModelType type) {
+	@SuppressWarnings("unchecked")
+	public static <T extends AbstractEntity> BaseDao<T> createBaseDao(
+			IDatabase database, Class<T> clazz) {
+		if (database == null)
+			return null;
+		if (clazz == null)
+			return null;
+		ModelType type = ModelType.forModelClass(clazz);
+		if (type != null)
+			return (BaseDao<T>) createRootDao(database, type);
+		return database.createDao(clazz);
+	}
+
+	public static RootEntityDao<?, ?> createRootDao(IDatabase database,
+			ModelType type) {
 		if (database == null)
 			return null;
 		if (type == null)
@@ -20,8 +35,8 @@ public class Daos {
 		return null;
 	}
 
-	public static  CategorizedEntityDao<?, ?> createCategorizedDao(IDatabase database,
-			ModelType type) {
+	public static CategorizedEntityDao<?, ?> createCategorizedDao(
+			IDatabase database, ModelType type) {
 		if (database == null)
 			return null;
 		if (type == null)

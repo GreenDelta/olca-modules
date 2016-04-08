@@ -1,15 +1,14 @@
 package org.openlca.cloud.api;
 
+import org.openlca.cloud.util.Valid;
+import org.openlca.cloud.util.WebRequests;
+import org.openlca.cloud.util.WebRequests.Type;
+import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.model.ModelType;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.cloud.util.Strings;
-import org.openlca.cloud.util.Valid;
-import org.openlca.cloud.util.WebRequests;
-import org.openlca.cloud.util.WebRequests.Type;
-import org.openlca.cloud.util.WebRequests.WebRequestException;
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
@@ -43,7 +42,7 @@ class DatasetContentInvocation {
 		Valid.checkNotEmpty(refId, "reference id");
 		if (commitId == null)
 			commitId = "null";
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/", type, "/", refId, "/", commitId);
+		String url = baseUrl + PATH + repositoryId + "/" + type + "/" + refId + "/" + commitId;
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		String json = response.getEntity(String.class);
 		JsonElement element = new Gson().fromJson(json, JsonElement.class);

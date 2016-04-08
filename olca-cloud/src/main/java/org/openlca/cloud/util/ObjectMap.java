@@ -16,7 +16,7 @@ public class ObjectMap extends HashMap<String, Object> {
 
 	private static final long serialVersionUID = 8510487677972200938L;
 	private static final Gson mapper = new Gson();
-	
+
 	public ObjectMap() {
 		this(new HashMap<>());
 	}
@@ -44,7 +44,8 @@ public class ObjectMap extends HashMap<String, Object> {
 	private static Map<String, Object> toMap(String json) {
 		if (json == null)
 			return null;
-		return mapper.fromJson(json, new TypeToken<Map<String, Object>>(){}.getType());
+		return mapper.fromJson(json, new TypeToken<Map<String, Object>>() {
+		}.getType());
 	}
 
 	public void removeAllBut(String... fields) {
@@ -59,6 +60,15 @@ public class ObjectMap extends HashMap<String, Object> {
 		for (String key : new HashSet<>(keySet()))
 			if (!fieldSet.contains(key))
 				remove(key);
+	}
+
+	@Override
+	public boolean remove(Object key, Object value) {
+		if (key instanceof String && value instanceof String) {
+			remove(new String[] { key.toString(), value.toString() });
+			return true;
+		} else
+			return super.remove(key, value);
 	}
 
 	public void remove(String... fields) {

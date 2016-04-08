@@ -26,7 +26,7 @@ public class WebRequests {
 
 	public static ClientResponse call(Type type, String url, String sessionId,
 			Object data) throws WebRequestException {
-		log.info(Strings.concat("Calling ", url, " with type " + type.name()));
+		log.info("Calling " + url, " with type " + type.name());
 		Client client = Client.create();
 		WebResource resource = client.resource(url);
 		Builder responseBuilder = resource.accept(

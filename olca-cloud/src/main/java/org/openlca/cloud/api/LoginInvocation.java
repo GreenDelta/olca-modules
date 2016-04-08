@@ -5,11 +5,11 @@ import java.util.Map;
 
 import javax.ws.rs.core.NewCookie;
 
-import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
+
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
@@ -26,13 +26,14 @@ class LoginInvocation {
 	 * Login with the specificied credentials
 	 * 
 	 * @throws WebRequestException
-	 *             if the credentials were invalid or the user is already logged in
+	 *             if the credentials were invalid or the user is already logged
+	 *             in
 	 */
 	String execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(username, "username");
 		Valid.checkNotEmpty(password, "password");
-		String url = Strings.concat(baseUrl, PATH);
+		String url = baseUrl + PATH;
 		Map<String, String> data = new HashMap<>();
 		data.put("username", username);
 		data.put("password", password);

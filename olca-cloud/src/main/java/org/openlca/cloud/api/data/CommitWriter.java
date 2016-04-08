@@ -67,23 +67,23 @@ public class CommitWriter extends DataWriter {
 	private Dataset toDescriptor(CategorizedEntity entity) {
 		Dataset descriptor = toDescriptor((RootEntity) entity);
 		if (entity.getCategory() != null)
-			descriptor.setCategoryRefId(entity.getCategory().getRefId());
+			descriptor.categoryRefId = entity.getCategory().getRefId();
 		if (entity instanceof Category)
-			descriptor.setCategoryType(((Category) entity).getModelType());
+			descriptor.categoryType = ((Category) entity).getModelType();
 		else
-			descriptor.setCategoryType(ModelType.forModelClass(entity
-					.getClass()));
-		descriptor.setFullPath(getFullPath(entity));
+			descriptor.categoryType = ModelType
+					.forModelClass(entity.getClass());
+		descriptor.fullPath = getFullPath(entity);
 		return descriptor;
 	}
 
 	private Dataset toDescriptor(RootEntity entity) {
 		Dataset descriptor = new Dataset();
-		descriptor.setLastChange(entity.getLastChange());
-		descriptor.setRefId(entity.getRefId());
-		descriptor.setName(entity.getName());
-		descriptor.setType(ModelType.forModelClass(entity.getClass()));
-		descriptor.setVersion(new Version(entity.getVersion()).toString());
+		descriptor.lastChange = entity.getLastChange();
+		descriptor.refId = entity.getRefId();
+		descriptor.name = entity.getName();
+		descriptor.type = ModelType.forModelClass(entity.getClass());
+		descriptor.version = new Version(entity.getVersion()).toString();
 		return descriptor;
 	}
 

@@ -5,6 +5,7 @@ import java.io.File;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
+import org.openlca.core.database.Daos;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -167,6 +168,18 @@ public class Tests {
 		default:
 			return null;
 		}
+	}
+
+	public static void clearDb() {
+		IDatabase database = getDb();
+		ModelType[] types = { ModelType.PROJECT, ModelType.PRODUCT_SYSTEM,
+				ModelType.PROCESS, ModelType.IMPACT_METHOD, ModelType.CURRENCY,
+				ModelType.SOCIAL_INDICATOR, ModelType.FLOW,
+				ModelType.FLOW_PROPERTY, ModelType.UNIT_GROUP, ModelType.ACTOR,
+				ModelType.SOURCE, ModelType.CATEGORY, ModelType.LOCATION,
+				ModelType.PARAMETER };
+		for (ModelType type : types)
+			Daos.createCategorizedDao(database, type).deleteAll();
 	}
 
 	public static void delete(CategorizedEntity entity) {

@@ -17,8 +17,7 @@ public class FetchReader extends DataReader {
 	}
 
 	public boolean hasData(Dataset descriptor) {
-		return entityStore
-				.contains(descriptor.getType(), descriptor.getRefId());
+		return entityStore.contains(descriptor.type, descriptor.refId);
 	}
 
 	@Override

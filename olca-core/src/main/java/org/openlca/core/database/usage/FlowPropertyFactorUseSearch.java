@@ -29,6 +29,8 @@ public class FlowPropertyFactorUseSearch {
 		if (flow == null || factor == null || database == null)
 			return Collections.emptyList();
 		List<CategorizedDescriptor> results = new ArrayList<>();
+		// only exchange and impact factor are relevant, because all others can
+		// only refer to units that are used in one of them
 		Set<Long> categoryIds = Search.on(database).queryForIds(
 				getImpactCategoryQuery(factor));
 		results.addAll(Search.on(database).queryFor(ModelType.IMPACT_METHOD,

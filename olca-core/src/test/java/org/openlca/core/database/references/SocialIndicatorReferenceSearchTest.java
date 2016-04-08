@@ -1,5 +1,6 @@
 package org.openlca.core.database.references;
 
+import org.openlca.core.Tests;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
@@ -17,14 +18,16 @@ public class SocialIndicatorReferenceSearchTest extends BaseReferenceSearchTest 
 	@Override
 	protected SocialIndicator createModel() {
 		SocialIndicator indicator = new SocialIndicator();
-		indicator.setCategory(addExpected( new Category()));
-		indicator.activityQuantity = addExpected(new FlowProperty());
+		indicator.setCategory(insertAndAddExpected("category", new Category()));
+		indicator.activityQuantity = insertAndAddExpected("activityQuantity",
+				new FlowProperty());
 		UnitGroup group = new UnitGroup();
 		Unit unit = new Unit();
 		group.getUnits().add(unit);
 		indicator.activityUnit = unit;
-		addExpected(group);
-		return indicator;
+		group = Tests.insert(group);
+		addExpected("activityUnit", unit);
+		return Tests.insert(indicator);
 	}
 
 }

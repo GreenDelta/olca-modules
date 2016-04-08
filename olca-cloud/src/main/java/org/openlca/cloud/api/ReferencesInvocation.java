@@ -3,7 +3,6 @@ package org.openlca.cloud.api;
 import java.util.List;
 
 import org.openlca.cloud.model.data.FetchRequestData;
-import org.openlca.cloud.util.Strings;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
@@ -39,7 +38,7 @@ class ReferencesInvocation {
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		Valid.checkNotEmpty(commitId, "commit id");
-		String url = Strings.concat(baseUrl, PATH, repositoryId, "/", commitId);
+		String url = baseUrl + PATH + repositoryId + "/" + commitId;
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		return new Gson().fromJson(response.getEntity(String.class),
 				new TypeToken<List<FetchRequestData>>() {

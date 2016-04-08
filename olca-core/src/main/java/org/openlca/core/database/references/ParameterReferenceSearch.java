@@ -1,60 +1,87 @@
 package org.openlca.core.database.references;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.references.Search.Reference;
-import org.openlca.core.model.ModelType;
+import org.openlca.core.database.references.Search.Ref;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.util.Formula;
 
 public class ParameterReferenceSearch extends
 		BaseReferenceSearch<ParameterDescriptor> {
 
-	private final static Reference[] references = { 
-		new Reference(ModelType.CATEGORY, "f_category", true) 
-	};
+	private final static Ref[] references = { new Ref(Category.class,
+			"category", "f_category", true) };
 
 	public ParameterReferenceSearch(IDatabase database, boolean includeOptional) {
-		super(database, includeOptional);
+		super(database, Parameter.class, includeOptional);
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
-		List<CategorizedDescriptor> results = new ArrayList<>();
+	public List<Reference> findReferences(Set<Long> ids) {
+		List<Reference> results = new ArrayList<>();
 		results.addAll(findReferences("tbl_parameters", "id", ids, references));
 		results.addAll(findParameterReferences(ids));
 		return results;
 	}
 
-	private List<ParameterDescriptor> findParameterReferences(Set<Long> ids) {
+	private List<Reference> findParameterReferences(Set<Long> ids) {
 		String formulaQuery = createFormulaQuery(ids);
-		Set<String> variables = getVariablesUsedInFormulas(formulaQuery);
-		String[] names = variables.toArray(new String[variables.size()]);
-		return new ParameterDao(database).getDescriptors(names,
-				ParameterScope.GLOBAL);
+		Map<Long, Set<String>> variables = getVariablesUsedInFormulas(formulaQuery);
+		Set<String> names = new HashSet<>();
+		for (Set<String> n : variables.values())
+			names.addAll(n);
+		List<Reference> results = new ArrayList<>();
+		List<ParameterDescriptor> descriptors = new ParameterDao(database)
+				.getDescriptors(names.toArray(new String[names.size()]),
+						ParameterScope.GLOBAL);
+		results.addAll(toReferences(descriptors, false, variables, null));
+		Set<String> found = new HashSet<>();
+		for (ParameterDescriptor d : descriptors)
+			found.add(d.getName());
+		for (String name : names)
+			if (!found.contains(name)) {
+				Reference ref = createMissingReference(name, variables);
+				if (ref != null)
+					results.add(ref);
+			}
+		return results;
 	}
 
-	protected Set<String> getVariablesUsedInFormulas(String formulaQuery) {
-		Set<String> formulas = new HashSet<>();
-		Search.on(database).query(formulaQuery, (result) -> {
-			formulas.add(result.getString(1));
+	private Reference createMissingReference(String name,
+			Map<Long, Set<String>> ownerToNames) {
+		for (long ownerId : ownerToNames.keySet())
+			if (ownerToNames.get(ownerId).contains(name))
+				return new Reference("", Parameter.class, 0, Parameter.class,
+						ownerId);
+		return null;
+	}
+
+	protected Map<Long, Set<String>> getVariablesUsedInFormulas(
+			String formulaQuery) {
+		Map<Long, Set<String>> variables = new HashMap<>();
+		Search.on(database, null).query(formulaQuery, (result) -> {
+			long ownerId = result.getLong(1);
+			Set<String> set = variables.get(ownerId);
+			if (set == null)
+				variables.put(ownerId, set = new HashSet<>());
+			set.addAll(Formula.getVariables(result.getString(2)));
 		});
-		Set<String> variables = new HashSet<>();
-		for (String formula : formulas)
-			variables.addAll(Formula.getVariables(formula));
 		return variables;
 	}
-	
+
 	private String createFormulaQuery(Set<Long> ids) {
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT formula FROM tbl_parameters ");
+		query.append("SELECT id, formula FROM tbl_parameters ");
 		query.append("WHERE id IN (" + Search.asSqlList(ids.toArray()) + ")");
 		return query.toString();
 	}

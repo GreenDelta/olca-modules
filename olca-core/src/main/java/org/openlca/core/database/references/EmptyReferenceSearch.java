@@ -14,11 +14,11 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 class EmptyReferenceSearch<T extends CategorizedDescriptor> extends BaseReferenceSearch<T> {
 
 	EmptyReferenceSearch() {
-		super(null);
+		super(null, null);
 	}
 
 	@Override
-	public List<CategorizedDescriptor> findReferences(Set<Long> ids) {
+	public List<Reference> findReferences(Set<Long> ids) {
 		return Collections.emptyList();
 	}
 
