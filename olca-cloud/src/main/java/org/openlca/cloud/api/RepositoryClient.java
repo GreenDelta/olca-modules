@@ -120,6 +120,7 @@ public class RepositoryClient {
 			return invocation.execute();
 		});
 	}
+
 	public Map<Dataset, String> performLibraryCheck(Set<Dataset> datasets)
 			throws WebRequestException {
 		return executeLoggedIn(() -> {
@@ -157,8 +158,7 @@ public class RepositoryClient {
 	public void fetch(List<Dataset> fetchData,
 			Map<Dataset, JsonObject> mergedData) throws WebRequestException {
 		executeLoggedIn(() -> {
-			FetchInvocation invocation = new FetchInvocation(
-					config.getDatabase());
+			FetchInvocation invocation = new FetchInvocation(config.getDatabase());
 			invocation.baseUrl = config.getBaseUrl();
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.getRepositoryId();
@@ -166,6 +166,22 @@ public class RepositoryClient {
 			invocation.fetchData = fetchData;
 			invocation.mergedData = mergedData;
 			config.setLastCommitId(invocation.execute());
+		});
+	}
+
+	public void checkout(String commitId) throws WebRequestException {
+		if (commitId == null)
+			return;
+		if (commitId.equals(config.getLastCommitId()))
+			return;
+		executeLoggedIn(() -> {
+			CheckoutInvocation invocation = new CheckoutInvocation(config.getDatabase());
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.commitId = commitId;
+			invocation.execute();
+			config.setLastCommitId(commitId);
 		});
 	}
 
