@@ -6,7 +6,6 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
@@ -21,8 +20,7 @@ public class ConversionTableTest {
 		// the default factor for unknown units and flow properties should be 1
 		ConversionTable table = ConversionTable.create(database);
 		Assert.assertEquals(1d, table.getUnitFactor(999999999999L), 1e-16);
-		Assert.assertEquals(1d, table.getFlowPropertyFactor(999999999999L),
-				1e-16);
+		Assert.assertEquals(1d, table.getPropertyFactor(999999999999L), 1e-16);
 	}
 
 	@Test
@@ -42,8 +40,7 @@ public class ConversionTableTest {
 		dao.insert(group);
 		ConversionTable table = ConversionTable.create(database);
 		Assert.assertEquals(1d, table.getUnitFactor(refUnit.getId()), 1e-16);
-		Assert.assertEquals(42.42, table.getUnitFactor(otherUnit.getId()),
-				1e-16);
+		Assert.assertEquals(42.42, table.getUnitFactor(otherUnit.getId()), 1e-16);
 		dao.delete(group);
 	}
 
@@ -60,10 +57,8 @@ public class ConversionTableTest {
 		flow.getFlowPropertyFactors().add(factor2);
 		dao.insert(flow);
 		ConversionTable table = ConversionTable.create(database);
-		Assert.assertEquals(1d, table.getFlowPropertyFactor(factor1.getId()),
-				1e-16);
-		Assert.assertEquals(0.42, table.getFlowPropertyFactor(factor2.getId()),
-				1e-16);
+		Assert.assertEquals(1d, table.getPropertyFactor(factor1.getId()), 1e-16);
+		Assert.assertEquals(0.42, table.getPropertyFactor(factor2.getId()), 1e-16);
 		dao.delete(flow);
 	}
 }

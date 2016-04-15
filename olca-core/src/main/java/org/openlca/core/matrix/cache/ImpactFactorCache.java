@@ -109,7 +109,7 @@ public class ImpactFactorCache {
 		private double getConversionFactor(ResultSet record) throws Exception {
 			long propertyFactorId = record.getLong("f_flow_property_factor");
 			double propertyFactor = conversionTable
-					.getFlowPropertyFactor(propertyFactorId);
+					.getPropertyFactor(propertyFactorId);
 			long unitId = record.getLong("f_unit");
 			double unitFactor = conversionTable.getUnitFactor(unitId);
 			if (unitFactor == 0)
