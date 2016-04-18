@@ -1,6 +1,7 @@
 package org.openlca.core.database.references;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,30 +30,32 @@ public class ProcessReferenceSearch extends
 		BaseReferenceSearch<ProcessDescriptor> {
 
 	private final static Ref[] references = {
-		new Ref(Category.class, "category", "f_category", true),
-		new Ref(Location.class, "location", "f_location", true),
-		new Ref(Currency.class, "currency", "f_currency", true), 
-		new Ref(ProcessDocumentation.class, "documentation", "f_process_doc", true) 
+			new Ref(Category.class, "category", "f_category", true),
+			new Ref(Location.class, "location", "f_location", true),
+			new Ref(Currency.class, "currency", "f_currency", true),
+			new Ref(ProcessDocumentation.class, "documentation", "f_process_doc", true)
 	};
 	private final static Ref[] exchangeReferences = {
-		new Ref(Flow.class, "flow", Exchange.class, "exchanges", "f_flow"),
-		new Ref(FlowPropertyFactor.class, "flowPropertyFactor", Exchange.class, "exchanges", "f_flow_property_factor"),
-		new Ref(Unit.class, "unit",Exchange.class, "exchanges", "f_unit"), 
-		new Ref(Process.class, "defaultProviderId", Exchange.class, "exchanges", "f_default_provider", true) 
+			new Ref(Flow.class, "flow", Exchange.class, "exchanges", "f_flow"),
+			new Ref(FlowPropertyFactor.class, "flowPropertyFactor", Exchange.class, "exchanges",
+					"f_flow_property_factor"),
+			new Ref(Unit.class, "unit", Exchange.class, "exchanges", "f_unit"),
+			new Ref(Process.class, "defaultProviderId", Exchange.class, "exchanges", "f_default_provider", true)
 	};
-	private final static Ref[] socialAspectReferences = { 
-		new Ref(SocialIndicator.class, "indicator", SocialAspect.class, "socialAspects", "f_indicator", true), 
-		new Ref(Source.class, "source", SocialAspect.class, "socialAspects", "f_source", true) 
+	private final static Ref[] socialAspectReferences = {
+			new Ref(SocialIndicator.class, "indicator", SocialAspect.class, "socialAspects", "f_indicator", true),
+			new Ref(Source.class, "source", SocialAspect.class, "socialAspects", "f_source", true)
 	};
 	private final static Ref[] documentationReferences = {
-		new Ref(Actor.class, "reviewer", ProcessDocumentation.class, "documentation", "f_reviewer", true),
-		new Ref(Actor.class, "dataDocumentor", ProcessDocumentation.class, "documentation", "f_data_documentor", true),
-		new Ref(Actor.class, "dataGenerator", ProcessDocumentation.class, "documentation", "f_data_generator", true),
-		new Ref(Actor.class, "dataSetOwner", ProcessDocumentation.class, "documentation", "f_dataset_owner", true),
-		new Ref(Source.class, "publication", ProcessDocumentation.class, "documentation", "f_publication", true) 
+			new Ref(Actor.class, "reviewer", ProcessDocumentation.class, "documentation", "f_reviewer", true),
+			new Ref(Actor.class, "dataDocumentor", ProcessDocumentation.class, "documentation", "f_data_documentor",
+					true),
+			new Ref(Actor.class, "dataGenerator", ProcessDocumentation.class, "documentation", "f_data_generator", true),
+			new Ref(Actor.class, "dataSetOwner", ProcessDocumentation.class, "documentation", "f_dataset_owner", true),
+			new Ref(Source.class, "publication", ProcessDocumentation.class, "documentation", "f_publication", true)
 	};
-	private final static Ref[] sourceReferences = { 
-		new Ref(Source.class, "sources", ProcessDocumentation.class, "documentation", "f_source", true) 
+	private final static Ref[] sourceReferences = {
+			new Ref(Source.class, "sources", ProcessDocumentation.class, "documentation", "f_source", true)
 	};
 
 	public ProcessReferenceSearch(IDatabase database, boolean includeOptional) {
@@ -97,6 +100,8 @@ public class ProcessReferenceSearch extends
 	}
 
 	private Map<Long, Set<String>> getExchangeFormulas(Set<Long> ids) {
+		if (ids.isEmpty())
+			return Collections.emptyMap();
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT f_owner, resulting_amount_formula FROM tbl_exchanges ");
 		String list = Search.asSqlList(ids.toArray());
