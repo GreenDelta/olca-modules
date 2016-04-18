@@ -56,7 +56,7 @@ class ExchangeFlow {
 			return cache(uuid, flow);
 		flow = fetchFromFlowMap(uuid);
 		if (flow != null)
-			return cache(uuid, flow);
+			return flow; // do not cache mapped flows!
 		flow = fetchFromImport(uuid);
 		return cache(uuid, flow);
 	}
@@ -89,7 +89,7 @@ class ExchangeFlow {
 		FlowMapEntry e = config.flowMap.getEntry(flowId);
 		if (e == null)
 			return null;
-		Flow f = fetchFromDatabase(e.getOpenlcaFlowKey());
+		Flow f = fetch(e.getOpenlcaFlowKey());
 		if (f != null) {
 			mapEntry = e;
 		}
