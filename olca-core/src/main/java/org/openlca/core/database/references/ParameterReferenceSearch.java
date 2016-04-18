@@ -1,6 +1,7 @@
 package org.openlca.core.database.references;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +36,8 @@ public class ParameterReferenceSearch extends
 	}
 
 	private List<Reference> findParameterReferences(Set<Long> ids) {
+		if (ids.isEmpty())
+			return Collections.emptyList();
 		String formulaQuery = createFormulaQuery(ids);
 		Map<Long, Set<String>> variables = getVariablesUsedInFormulas(formulaQuery);
 		Set<String> names = new HashSet<>();
