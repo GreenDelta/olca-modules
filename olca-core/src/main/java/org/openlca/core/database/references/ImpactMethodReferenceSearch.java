@@ -22,17 +22,18 @@ public class ImpactMethodReferenceSearch extends
 		BaseReferenceSearch<ImpactMethodDescriptor> {
 
 	private final static Ref[] references = {
-		new Ref(Category.class, "category", "f_category", true),
+			new Ref(Category.class, "category", "f_category", true),
 	};
 	private final static Ref[] categoryReferences = {
-		new Ref(ImpactCategory.class, "id", "id") 
+			new Ref(ImpactCategory.class, "id", "id")
 	};
 	private final static Ref[] factorReferences = {
-		new Ref(Flow.class, "flow", ImpactFactor.class, "impactFactors", "f_flow"),
-		new Ref(FlowPropertyFactor.class, "flowPropertyFactor", ImpactFactor.class, "impactFactors", "f_flow_property_factor"),
-		new Ref(Unit.class, "unit", ImpactFactor.class, "impactFactors", "f_unit") 
+			new Ref(Flow.class, "flow", ImpactFactor.class, "impactFactors", "f_flow"),
+			new Ref(FlowPropertyFactor.class, "flowPropertyFactor", ImpactFactor.class, "impactFactors",
+					"f_flow_property_factor"),
+			new Ref(Unit.class, "unit", ImpactFactor.class, "impactFactors", "f_unit")
 	};
-	
+
 	public ImpactMethodReferenceSearch(IDatabase database, boolean includeOptional) {
 		super(database, ImpactMethod.class, includeOptional);
 	}
@@ -64,21 +65,23 @@ public class ImpactMethodReferenceSearch extends
 	}
 
 	private Map<Long, Set<String>> getFactorFormulas(Set<Long> ids) {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT f_impact_method, formula FROM tbl_impact_factors ");
-		query.append("INNER JOIN tbl_impact_categories ");
-		query.append("ON tbl_impact_categories.id = tbl_impact_factors.f_impact_category ");
-		String list = Search.asSqlList(ids.toArray());
-		query.append("WHERE f_impact_method IN (" + list + ")");
+		StringBuilder subquery = new StringBuilder();
+		subquery.append("SELECT f_impact_method, formula FROM tbl_impact_factors ");
+		subquery.append("INNER JOIN tbl_impact_categories ");
+		subquery.append("ON tbl_impact_categories.id = tbl_impact_factors.f_impact_category ");
 		Map<Long, Set<String>> formulas = new HashMap<>();
-		Search.on(database, null).query(query.toString(), (result) -> {
-			long methodId = result.getLong(1);
-			Set<String> set = formulas.get(methodId);	
-			if (set == null)
-				formulas.put(methodId, set = new HashSet<>());
-			set.add(result.getString(2));
-		});
+		List<String> lists = Search.asSqlLists(ids.toArray());
+		for (String list : lists) {
+			String query = subquery.toString() + "WHERE f_impact_method IN (" + list + ")";
+			Search.on(database, null).query(query.toString(), (result) -> {
+				long methodId = result.getLong(1);
+				Set<String> set = formulas.get(methodId);
+				if (set == null)
+					formulas.put(methodId, set = new HashSet<>());
+				set.add(result.getString(2));
+			});
+		}
 		return formulas;
 	}
-	
+
 }

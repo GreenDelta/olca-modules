@@ -41,22 +41,23 @@ class Search {
 		if (ids.isEmpty())
 			return Collections.emptyList();
 		List<Reference> references = new ArrayList<Reference>();
-		String query = createQuery(table, idField, ids, refs);
-		query(query, (result) -> {
-			long ownerId = result.getLong(1);
-			long nestedOwnerId = 0;
-			if (idToOwnerId != null) {
-				nestedOwnerId = ownerId;
-				ownerId = idToOwnerId.get(ownerId);
-			}
-			for (int i = 0; i < refs.length; i++) {
-				if (refs[i].optional && !includeOptional)
-					continue;
-				long id = result.getLong(i + 2);
-				references.add(createReference(refs[i], id, ownerId,
-						nestedOwnerId));
-			}
-		});
+		List<String> queries = createQueries(table, idField, ids, refs);
+		for (String query : queries)
+			query(query, (result) -> {
+				long ownerId = result.getLong(1);
+				long nestedOwnerId = 0;
+				if (idToOwnerId != null) {
+					nestedOwnerId = ownerId;
+					ownerId = idToOwnerId.get(ownerId);
+				}
+				for (int i = 0; i < refs.length; i++) {
+					if (refs[i].optional && !includeOptional)
+						continue;
+					long id = result.getLong(i + 2);
+					references.add(createReference(refs[i], id, ownerId,
+							nestedOwnerId));
+				}
+			});
 		return references;
 	}
 
@@ -73,32 +74,43 @@ class Search {
 				return true;
 			});
 		} catch (SQLException e) {
-			log.error("Error executing native query '" + query + "'");
+			log.error("Error executing native query '" + query + "'", e);
 		}
 	}
 
-	private String createQuery(String table, String idField, Set<Long> ids,
+	private List<String> createQueries(String table, String idField, Set<Long> ids,
 			Ref[] references) {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT DISTINCT " + idField);
+		List<String> queries = new ArrayList<>();
+		StringBuilder subquery = new StringBuilder();
+		subquery.append("SELECT DISTINCT " + idField);
 		for (int i = 0; i < references.length; i++) {
-			query.append(", ");
-			query.append(references[i].field);
+			subquery.append(", ");
+			subquery.append(references[i].field);
 		}
-		query.append(" FROM " + table);
-		query.append(" WHERE " + idField + " IN (" + asSqlList(ids.toArray())
-				+ ")");
-		return query.toString();
+		subquery.append(" FROM " + table);
+		subquery.append(" WHERE " + idField + " IN ");
+		List<String> idLists = asSqlLists(ids.toArray());
+		for (String idList : idLists)
+			queries.add(subquery + "(" + idList + ")");
+		return queries;
 	}
 
-	static String asSqlList(Object[] values) {
+	/**
+	 * Creates comma separated lists, each containing a thousand ids
+	 */
+	static List<String> asSqlLists(Object[] values) {
+		List<String> idLists = new ArrayList<>();
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < values.length; i++) {
-			if (i != 0)
+			if (i % 1000 != 0)
 				builder.append(',');
 			builder.append(values[i].toString());
+			if ((i + 1) % 1000 == 0 || (i + 1) == values.length) {
+				idLists.add(builder.toString());
+				builder = new StringBuilder();
+			}
 		}
-		return builder.toString();
+		return idLists;
 	}
 
 	static List<Reference> applyOwnerMaps(

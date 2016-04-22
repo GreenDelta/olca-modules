@@ -76,22 +76,24 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		if (ids.size() == 0)
 			return Collections.emptyList();
 		Map<Long, Set<String>> idToNames = new HashMap<>();
-		String idList = Search.asSqlList(ids.toArray());
-		String paramQuery = "SELECT f_owner, name, is_input_param, formula FROM tbl_parameters "
-				+ "WHERE f_owner IN (" + idList + ")";
-		Search.on(database, type).query(paramQuery, (result) -> {
-			long ownerId = result.getLong(1);
-			Set<String> names = idToNames.get(ownerId);
-			if (names == null)
-				idToNames.put(ownerId, names = new HashSet<>());
-			names.add(result.getString(2));
-			if (!result.getBoolean(3)) {
-				Set<String> formulas = idToFormulas.get(ownerId);
-				if (formulas == null)
-					idToFormulas.put(ownerId, formulas = new HashSet<>());
-				formulas.add(result.getString(4));
-			}
-		});
+		List<String> idLists = Search.asSqlLists(ids.toArray());
+		for (String idList : idLists) {
+			String paramQuery = "SELECT f_owner, name, is_input_param, formula FROM tbl_parameters "
+					+ "WHERE f_owner IN (" + idList + ")";
+			Search.on(database, type).query(paramQuery, (result) -> {
+				long ownerId = result.getLong(1);
+				Set<String> names = idToNames.get(ownerId);
+				if (names == null)
+					idToNames.put(ownerId, names = new HashSet<>());
+				names.add(result.getString(2));
+				if (!result.getBoolean(3)) {
+					Set<String> formulas = idToFormulas.get(ownerId);
+					if (formulas == null)
+						idToFormulas.put(ownerId, formulas = new HashSet<>());
+					formulas.add(result.getString(4));
+				}
+			});
+		}
 		Map<Long, Set<String>> undeclared = findUndeclaredParameters(idToNames,
 				idToFormulas);
 		Set<String> names = new HashSet<>();
@@ -152,18 +154,21 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		if (ids.size() == 0)
 			return Collections.emptyList();
 		Map<Long, Set<String>> idToNames = new HashMap<>();
-		String query = "SELECT f_owner, name FROM tbl_parameter_redefs "
-				+ "WHERE (f_context is null OR f_context = 0) AND f_owner IN ("
-				+ Search.asSqlList(ids.toArray()) + ")";
-		Search.on(database, type).query(query, (result) -> {
-			long ownerId = result.getLong(1);
-			if (idToOwnerId != null)
-				ownerId = idToOwnerId.get(ownerId);
-			Set<String> names = idToNames.get(ownerId);
-			if (names == null)
-				idToNames.put(ownerId, names = new HashSet<>());
-			names.add(result.getString(2));
-		});
+		List<String> idLists = Search.asSqlLists(ids.toArray());
+		for (String idList : idLists) {
+			String query = "SELECT f_owner, name FROM tbl_parameter_redefs "
+					+ "WHERE (f_context is null OR f_context = 0) AND f_owner IN ("
+					+ idList + ")";
+			Search.on(database, type).query(query, (result) -> {
+				long ownerId = result.getLong(1);
+				if (idToOwnerId != null)
+					ownerId = idToOwnerId.get(ownerId);
+				Set<String> names = idToNames.get(ownerId);
+				if (names == null)
+					idToNames.put(ownerId, names = new HashSet<>());
+				names.add(result.getString(2));
+			});
+		}
 		Set<String> names = new HashSet<>();
 		for (Set<String> n : idToNames.values())
 			names.addAll(n);
