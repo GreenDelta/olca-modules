@@ -38,8 +38,8 @@ public class ParameterReferenceSearch extends
 	private List<Reference> findParameterReferences(Set<Long> ids) {
 		if (ids.isEmpty())
 			return Collections.emptyList();
-		String formulaQuery = createFormulaQuery(ids);
-		Map<Long, Set<String>> variables = getVariablesUsedInFormulas(formulaQuery);
+		List<String> formulaQueries = createFormulaQueries(ids);
+		Map<Long, Set<String>> variables = getVariablesUsedInFormulas(formulaQueries);
 		Set<String> names = new HashSet<>();
 		for (Set<String> n : variables.values())
 			names.addAll(n);
@@ -69,24 +69,28 @@ public class ParameterReferenceSearch extends
 		return null;
 	}
 
-	protected Map<Long, Set<String>> getVariablesUsedInFormulas(
-			String formulaQuery) {
+	protected Map<Long, Set<String>> getVariablesUsedInFormulas(List<String> formulaQueries) {
 		Map<Long, Set<String>> variables = new HashMap<>();
-		Search.on(database, null).query(formulaQuery, (result) -> {
-			long ownerId = result.getLong(1);
-			Set<String> set = variables.get(ownerId);
-			if (set == null)
-				variables.put(ownerId, set = new HashSet<>());
-			set.addAll(Formula.getVariables(result.getString(2)));
-		});
+		for (String formulaQuery : formulaQueries)
+			Search.on(database, null).query(formulaQuery, (result) -> {
+				long ownerId = result.getLong(1);
+				Set<String> set = variables.get(ownerId);
+				if (set == null)
+					variables.put(ownerId, set = new HashSet<>());
+				set.addAll(Formula.getVariables(result.getString(2)));
+			});
 		return variables;
 	}
 
-	private String createFormulaQuery(Set<Long> ids) {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT id, formula FROM tbl_parameters ");
-		query.append("WHERE id IN (" + Search.asSqlList(ids.toArray()) + ")");
-		return query.toString();
+	private List<String> createFormulaQueries(Set<Long> ids) {
+		List<String> queries = new ArrayList<>();
+		List<String> idLists = Search.asSqlLists(ids.toArray());
+		for (String idList : idLists) {
+			StringBuilder query = new StringBuilder();
+			query.append("SELECT id, formula FROM tbl_parameters ");
+			query.append("WHERE id IN (" + idList + ")");
+			queries.add(query.toString());
+		}
+		return queries;
 	}
-
 }

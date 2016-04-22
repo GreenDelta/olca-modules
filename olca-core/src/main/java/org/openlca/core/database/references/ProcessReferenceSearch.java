@@ -102,18 +102,19 @@ public class ProcessReferenceSearch extends
 	private Map<Long, Set<String>> getExchangeFormulas(Set<Long> ids) {
 		if (ids.isEmpty())
 			return Collections.emptyMap();
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT f_owner, resulting_amount_formula FROM tbl_exchanges ");
-		String list = Search.asSqlList(ids.toArray());
-		query.append("WHERE f_owner IN (" + list + ")");
+		String subquery = "SELECT f_owner, resulting_amount_formula FROM tbl_exchanges ";
+		List<String> idLists = Search.asSqlLists(ids.toArray());
 		Map<Long, Set<String>> formulas = new HashMap<>();
-		Search.on(database, null).query(query.toString(), (result) -> {
-			long methodId = result.getLong(1);
-			Set<String> set = formulas.get(methodId);
-			if (set == null)
-				formulas.put(methodId, set = new HashSet<>());
-			set.add(result.getString(2));
-		});
+		for (String idList : idLists) {
+			String query = subquery + "WHERE f_owner IN (" + idList + ")";
+			Search.on(database, null).query(query.toString(), (result) -> {
+				long methodId = result.getLong(1);
+				Set<String> set = formulas.get(methodId);
+				if (set == null)
+					formulas.put(methodId, set = new HashSet<>());
+				set.add(result.getString(2));
+			});
+		}
 		return formulas;
 	}
 
