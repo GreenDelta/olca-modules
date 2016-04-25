@@ -1,9 +1,6 @@
 package org.openlca.core.database;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,21 +52,69 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 		return getProcessIdsWhereUsed(flowId, true);
 	}
 
-	private Set<Long> getProcessIdsWhereUsed(long flowId, boolean input) {
-		String query = "select f_owner from tbl_exchanges where f_flow = "
-				+ flowId + " and is_input = " + (input ? 1 : 0);
-		try (Connection con = getDatabase().createConnection()) {
-			Statement stmt = con.createStatement();
-			ResultSet results = stmt.executeQuery(query);
-			Set<Long> ids = new HashSet<>();
-			while (results.next())
-				ids.add(results.getLong("f_owner"));
-			results.close();
-			stmt.close();
+	public Set<Long> getUsed() {
+		Set<Long> ids = new HashSet<>();
+		String query = "SELECT DISTINCT f_flow FROM tbl_exchanges";
+		try {
+			NativeSql.on(database).query(query, (rs) -> {
+				ids.add(rs.getLong("f_flow"));
+				return true;
+			});
 			return ids;
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log,
-					"failed to load processes for flow " + flowId, e);
+			DatabaseException.logAndThrow(log, "failed to load used flows", e);
+			return Collections.emptySet();
+		}
+	}
+
+	public Set<Long> getReplacementCandidates(long flowId, FlowType type) {
+		Set<Long> ids = new HashSet<>();
+		String query = "SELECT DISTINCT f_flow FROM tbl_flow_property_factors WHERE f_flow_property IN "
+				+ "(SELECT f_flow_property FROM tbl_flow_property_factors WHERE f_flow = " + flowId + ") "
+				+ "AND f_flow IN (SELECT DISTINCT id FROM tbl_flows WHERE flow_type = '" + type.name() + "')";
+		try {
+			NativeSql.on(database).query(query, (rs) -> {
+				ids.add(rs.getLong("f_flow"));
+				return true;
+			});
+			ids.remove(flowId);
+			return ids;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "failed to load replacement candidate flows for " + flowId, e);
+			return Collections.emptySet();
+		}
+	}
+
+	public void replace(long oldId, long newId, boolean excludeExchangesWithProviders) {
+		try {
+			String statement = null;
+			if (excludeExchangesWithProviders) {
+				statement = "UPDATE tbl_exchanges SET f_flow = " + newId + " "
+						+ "WHERE f_flow = " + oldId + " AND f_default_provider IS NULL";
+			} else {
+				statement = "UPDATE tbl_exchanges SET f_flow = " + newId + ", f_default_provider = null"
+						+ "WHERE f_flow = " + oldId;
+			}
+			NativeSql.on(database).runUpdate(statement);
+			statement = "UPDATE tbl_impact_factors SET f_flow = " + newId + " WHERE f_flow = " + oldId;
+			NativeSql.on(database).runUpdate(statement);
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "failed to replace flow " + oldId + " with " + newId, e);
+		}
+	}
+
+	private Set<Long> getProcessIdsWhereUsed(long flowId, boolean input) {
+		Set<Long> ids = new HashSet<>();
+		String query = "SELECT f_owner FROM tbl_exchanges WHERE f_flow = "
+				+ flowId + " AND is_input = " + (input ? 1 : 0);
+		try {
+			NativeSql.on(database).query(query, (rs) -> {
+				ids.add(rs.getLong("f_owner"));
+				return true;
+			});
+			return ids;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "failed to load processes for flow " + flowId, e);
 			return Collections.emptySet();
 		}
 	}

@@ -16,8 +16,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class ProcessDao extends
-		CategorizedEntityDao<Process, ProcessDescriptor> {
+public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor> {
 
 	public ProcessDao(IDatabase database) {
 		super(Process.class, ProcessDescriptor.class, database);
@@ -52,6 +51,32 @@ public class ProcessDao extends
 			ProcessDescriptor descriptor) {
 		Set<Long> flowIds = getTechnologies(descriptor, false);
 		return loadFlowDescriptors(flowIds);
+	}
+
+	public Set<Long> getUsed() {
+		Set<Long> ids = new HashSet<>();
+		String query = "SELECT DISTINCT f_default_provider FROM tbl_exchanges";
+		try {
+			NativeSql.on(database).query(query, (rs) -> {
+				ids.add(rs.getLong("f_default_provider"));
+				return true;
+			});
+			return ids;
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "failed to load used providers", e);
+			return Collections.emptySet();
+		}
+	}
+
+	public void replace(long oldId, long productId, Long newId) {
+		String statement = "UPDATE tbl_exchanges SET f_default_provider = " + newId + " "
+				+ "WHERE f_default_provider = " + oldId + " AND f_flow = " + productId;
+		try {
+			NativeSql.on(database).runUpdate(statement);
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "failed to replace provider " + oldId + " for product " + productId
+					+ " with " + newId, e);
+		}
 	}
 
 	private Set<Long> getTechnologies(ProcessDescriptor descriptor,
