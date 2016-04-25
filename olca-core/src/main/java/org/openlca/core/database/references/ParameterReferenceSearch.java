@@ -87,7 +87,7 @@ public class ParameterReferenceSearch extends
 		List<String> idLists = Search.asSqlLists(ids.toArray());
 		for (String idList : idLists) {
 			StringBuilder query = new StringBuilder();
-			query.append("SELECT id, formula FROM tbl_parameters ");
+			query.append("SELECT id, lower(formula) FROM tbl_parameters ");
 			query.append("WHERE id IN (" + idList + ")");
 			queries.add(query.toString());
 		}
