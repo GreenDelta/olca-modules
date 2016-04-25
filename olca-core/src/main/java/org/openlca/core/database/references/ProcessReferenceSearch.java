@@ -102,7 +102,7 @@ public class ProcessReferenceSearch extends
 	private Map<Long, Set<String>> getExchangeFormulas(Set<Long> ids) {
 		if (ids.isEmpty())
 			return Collections.emptyMap();
-		String subquery = "SELECT f_owner, resulting_amount_formula FROM tbl_exchanges ";
+		String subquery = "SELECT f_owner, lower(resulting_amount_formula) FROM tbl_exchanges ";
 		List<String> idLists = Search.asSqlLists(ids.toArray());
 		Map<Long, Set<String>> formulas = new HashMap<>();
 		for (String idList : idLists) {
