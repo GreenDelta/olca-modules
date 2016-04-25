@@ -17,13 +17,14 @@ import org.openlca.util.Formula;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
 /**
  * Searches for the use of parameters in other entities.
  */
 public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 
-	private final static Logger log = LoggerFactory
-			.getLogger(ParameterUseSearch.class);
+	private final static Logger log = LoggerFactory.getLogger(ParameterUseSearch.class);
 	private IDatabase database;
 
 	public ParameterUseSearch(IDatabase database) {
@@ -66,7 +67,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 
 	private boolean hasDefinedLocalParameter(ParameterRef ref) {
 		String query = "SELECT count(id) FROM tbl_parameters WHERE f_owner = "
-				+ ref.ownerId + " AND name = '" + ref.name + "'";
+				+ ref.ownerId + " AND lower(name) = '" + ref.name.toLowerCase() + "'";
 		Set<Boolean> value = new HashSet<>();
 		try {
 			NativeSql.on(database).query(query, (result) -> {
@@ -80,7 +81,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 	}
 
 	private List<ParameterRef> findReferencing(Set<String> names) {
-		String query = "SELECT scope, formula, id, f_owner FROM tbl_parameters";
+		String query = "SELECT scope, lower(formula), id, f_owner FROM tbl_parameters";
 		List<ParameterRef> refs = new ArrayList<>();
 		try {
 			NativeSql.on(database).query(query, (result) -> {
@@ -97,6 +98,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		} catch (SQLException e) {
 			log.error("Error while loading parameters", e);
 		}
+		refs.addAll(findInExchanges(names));
 		return refs;
 	}
 
@@ -106,10 +108,9 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		return ParameterScope.valueOf(value);
 	}
 
-	private List<CategorizedDescriptor> findInRedefs(
-			Set<String> names) {
+	private List<CategorizedDescriptor> findInRedefs(Set<String> names) {
 		String query = "SELECT f_owner FROM tbl_parameter_redefs WHERE "
-				+ "context_type IS NULL AND name IN "
+				+ "context_type IS NULL AND lower(name) IN "
 				+ Search.asSqlList(names.toArray());
 		Set<Long> ids = new HashSet<>();
 		try {
@@ -122,17 +123,34 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		}
 		List<CategorizedDescriptor> results = new ArrayList<>();
 		results.addAll(loadDescriptors(ModelType.PRODUCT_SYSTEM, ids));
-		Set<Long> projectIds = queryForIds("f_project", "tbl_project_variants",
-				ids, "id");
+		Set<Long> projectIds = queryForIds("f_project", "tbl_project_variants", ids, "id");
 		results.addAll(loadDescriptors(ModelType.PROJECT, projectIds));
 		return results;
+	}
+	
+	private List<ParameterRef> findInExchanges(Set<String> names) {
+		String query = "SELECT lower(resulting_amount_formula), f_owner FROM tbl_exchanges";
+		List<ParameterRef> refs = new ArrayList<>();
+		try {
+			NativeSql.on(database).query(query, (result) -> {
+				String formula = result.getString(1);
+				long ownerId = result.getLong(2);
+				Set<String> variables = Formula.getVariables(formula);
+				for (String name : names)
+					if (variables.contains(name))
+						refs.add(new ParameterRef(0, ownerId, name, ParameterScope.PROCESS));
+				return true;
+			});
+		} catch (SQLException e) {
+			log.error("Error while loading parameters", e);
+		}
+		return refs;
 	}
 
 	private Set<String> getParameterNames(Set<Long> ids) {
 		if (ids.isEmpty())
 			return new HashSet<>();
-		String query = "SELECT name FROM tbl_parameters WHERE id IN "
-				+ Search.asSqlList(ids);
+		String query = "SELECT lower(name) FROM tbl_parameters WHERE id IN " + Search.asSqlList(ids);
 		Set<String> names = new HashSet<>();
 		try {
 			NativeSql.on(database).query(query, (result) -> {
@@ -153,8 +171,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		private String name;
 		private ParameterScope scope;
 
-		private ParameterRef(long id, long ownerId, String name,
-				ParameterScope scope) {
+		private ParameterRef(long id, long ownerId, String name, ParameterScope scope) {
 			this.id = id;
 			this.ownerId = ownerId;
 			this.name = name;
