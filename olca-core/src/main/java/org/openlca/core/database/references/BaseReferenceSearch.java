@@ -78,7 +78,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		Map<Long, Set<String>> idToNames = new HashMap<>();
 		List<String> idLists = Search.asSqlLists(ids.toArray());
 		for (String idList : idLists) {
-			String paramQuery = "SELECT f_owner, name, is_input_param, formula FROM tbl_parameters "
+			String paramQuery = "SELECT f_owner, lower(name), is_input_param, lower(formula) FROM tbl_parameters "
 					+ "WHERE f_owner IN (" + idList + ")";
 			Search.on(database, type).query(paramQuery, (result) -> {
 				long ownerId = result.getLong(1);
