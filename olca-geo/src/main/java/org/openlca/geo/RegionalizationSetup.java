@@ -27,7 +27,7 @@ public class RegionalizationSetup {
 	private final IKmlLoader kmlLoader;
 	final IDatabase database;
 	final ImpactMethodDescriptor method;
-	
+
 	public boolean canCalculate;
 	public List<LocationKml> kmlData;
 	public ParameterSet parameterSet;
@@ -91,8 +91,9 @@ public class RegionalizationSetup {
 			canCalculate = false;
 			return;
 		}
-		ParameterCalculator calculator = new ParameterCalculator(params, folder);
-		parameterSet = calculator.calculate(kmlData);
+		try (ParameterCalculator pCalc = new ParameterCalculator(params, folder)) {
+			parameterSet = pCalc.calculate(kmlData);
+		}
 	}
 
 	private List<Parameter> getShapeFileParameters() {
