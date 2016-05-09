@@ -67,8 +67,8 @@ public class ParameterDao extends
 		List<Object> parameters = new ArrayList<>();
 		String[] list = new String[names.length];
 		for (int i = 0; i < names.length; i++)
-			list[i] = "'" + names[i] + "'";
-		sql.append(" WHERE name IN (" + Strings.join(list, ',') + ")");
+			list[i] = "'" + names[i].toLowerCase() + "'";
+		sql.append(" WHERE lower(name) IN (" + Strings.join(list, ',') + ")");
 		if (scope != null) {
 			sql.append(" AND scope = ?");
 			parameters.add(scope.name());
@@ -79,11 +79,13 @@ public class ParameterDao extends
 	}
 
 	public boolean existsGlobal(String name) {
+		if (name == null)
+			return false;
 		String jpql = "SELECT count(param) FROM Parameter param "
-				+ "WHERE param.name = :name "
+				+ "WHERE lower(param.name) = :name "
 				+ "AND param.scope = :scope";
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("name", name);
+		parameters.put("name", name.toLowerCase());
 		parameters.put("scope", ParameterScope.GLOBAL);
 		return getCount(jpql, parameters) > 0;
 	}
