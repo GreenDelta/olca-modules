@@ -1,7 +1,5 @@
 package org.openlca.core.matrix.cache;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -11,7 +9,12 @@ import org.openlca.core.model.FlowType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class FlowTypeTable {
+import gnu.trove.map.hash.TLongObjectHashMap;
+
+/**
+ * A simple data structure that holds the flow types of the flows in a database.
+ */
+public class FlowTypeTable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
@@ -28,6 +31,7 @@ class FlowTypeTable {
 
 	public void reload() {
 		map.clear();
+		init();
 	}
 
 	private void init() {
@@ -36,8 +40,9 @@ class FlowTypeTable {
 			String query = "select id, flow_type from tbl_flows";
 			Statement statement = con.createStatement();
 			ResultSet result = statement.executeQuery(query);
-			while (result.next())
+			while (result.next()) {
 				fetchFlowType(result);
+			}
 			result.close();
 			statement.close();
 			log.trace("{} flow types fetched", map.size());

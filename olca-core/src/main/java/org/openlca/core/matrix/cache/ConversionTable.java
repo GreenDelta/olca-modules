@@ -1,8 +1,5 @@
 package org.openlca.core.matrix.cache;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongDoubleHashMap;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -11,13 +8,16 @@ import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongDoubleHashMap;
+
 /**
  * A table that contains the conversion factors for units and flow property
  * factors. (Note: A flow can have multiple flow properties and a flow property
  * factor describes the flow specific conversion of a flow property to the
  * reference flow property of a flow).
  */
-class ConversionTable {
+public class ConversionTable {
 
 	private IDatabase database;
 
@@ -79,7 +79,7 @@ class ConversionTable {
 	 * Get the conversion factor of the given flow property factor to the
 	 * reference flow property factor of a flow.
 	 */
-	public double getFlowPropertyFactor(long flowPropertyFactorId) {
+	public double getPropertyFactor(long flowPropertyFactorId) {
 		return propertyFactors.get(flowPropertyFactorId);
 	}
 }

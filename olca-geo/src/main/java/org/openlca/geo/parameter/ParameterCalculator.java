@@ -1,5 +1,6 @@
 package org.openlca.geo.parameter;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +15,7 @@ import org.openlca.geo.kml.LocationKml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ParameterCalculator {
+public class ParameterCalculator implements Closeable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -28,6 +29,13 @@ public class ParameterCalculator {
 		stores = openStores(groups.keySet(), folder);
 		defaults = getDefaultValues(parameters);
 		cache = new ParameterCache(folder);
+	}
+
+	@Override
+	public void close() {
+		for (DataStore dataStore : stores.values()) {
+			dataStore.dispose();
+		}
 	}
 
 	public Map<String, Double> calculate(long locationId, KmlFeature feature) {

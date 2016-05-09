@@ -122,8 +122,7 @@ class ExchangeCache {
 
 		private double getConversionFactor(ResultSet record) throws Exception {
 			long propertyFactorId = record.getLong("f_flow_property_factor");
-			double propertyFactor = conversionTable
-					.getFlowPropertyFactor(propertyFactorId);
+			double propertyFactor = conversionTable.getPropertyFactor(propertyFactorId);
 			long unitId = record.getLong("f_unit");
 			double unitFactor = conversionTable.getUnitFactor(unitId);
 			if (propertyFactor == 0)
