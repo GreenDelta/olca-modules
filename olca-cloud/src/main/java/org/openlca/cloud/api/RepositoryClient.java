@@ -172,8 +172,6 @@ public class RepositoryClient {
 	public void checkout(String commitId) throws WebRequestException {
 		if (commitId == null)
 			return;
-		if (commitId.equals(config.getLastCommitId()))
-			return;
 		executeLoggedIn(() -> {
 			CheckoutInvocation invocation = new CheckoutInvocation(config.getDatabase());
 			invocation.baseUrl = config.getBaseUrl();
