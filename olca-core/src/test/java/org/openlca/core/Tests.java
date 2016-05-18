@@ -1,11 +1,12 @@
 package org.openlca.core;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
-import org.openlca.core.database.Daos;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -171,15 +172,27 @@ public class Tests {
 	}
 
 	public static void clearDb() {
-		IDatabase database = getDb();
-		ModelType[] types = { ModelType.PROJECT, ModelType.PRODUCT_SYSTEM,
-				ModelType.PROCESS, ModelType.IMPACT_METHOD, ModelType.CURRENCY,
-				ModelType.SOCIAL_INDICATOR, ModelType.FLOW,
-				ModelType.FLOW_PROPERTY, ModelType.UNIT_GROUP, ModelType.ACTOR,
-				ModelType.SOURCE, ModelType.CATEGORY, ModelType.LOCATION,
-				ModelType.PARAMETER };
-		for (ModelType type : types)
-			Daos.createCategorizedDao(database, type).deleteAll();
+		try {
+			IDatabase db = getDb();
+			List<String> tables = new ArrayList<>();
+			// type = T means user table
+			String sql = "SELECT TABLENAME FROM SYS.SYSTABLES WHERE TABLETYPE = 'T'";
+			NativeSql.on(db).query(sql, r -> {
+				tables.add(r.getString(1));
+				return true;
+			});
+			for (String table : tables) {
+				if (table.equalsIgnoreCase("SEQUENCE"))
+					continue;
+				if (table.equalsIgnoreCase("OPENLCA_VERSION"))
+					continue;
+				NativeSql.on(db).runUpdate("DELETE FROM " + table);
+			}
+			NativeSql.on(db).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
+			db.getEntityFactory().getCache().evictAll();
+		} catch (Exception e) {
+			throw new RuntimeException("failed to clear database", e);
+		}
 	}
 
 	public static void delete(CategorizedEntity entity) {
