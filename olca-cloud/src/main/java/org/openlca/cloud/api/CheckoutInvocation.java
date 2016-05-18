@@ -76,6 +76,7 @@ class CheckoutInvocation {
 				NativeSql.on(database).runUpdate("DELETE FROM " + table);
 			}
 			NativeSql.on(database).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
+			database.getEntityFactory().getCache().evictAll();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
