@@ -155,15 +155,13 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<FetchRequestData> sync(String untilCommitId, List<Dataset> localChanges) throws WebRequestException {
+	public List<FetchRequestData> sync(String untilCommitId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			SyncInvocation invocation = new SyncInvocation();
 			invocation.baseUrl = config.getBaseUrl();
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.getRepositoryId();
-			invocation.lastCommitId = config.getLastCommitId();
 			invocation.untilCommitId = untilCommitId;
-			invocation.localChanges = localChanges;
 			return invocation.execute();
 		});
 	}

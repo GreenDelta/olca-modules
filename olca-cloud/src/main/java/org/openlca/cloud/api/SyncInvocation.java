@@ -1,10 +1,8 @@
 package org.openlca.cloud.api;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.model.data.FetchRequestData;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
@@ -27,9 +25,7 @@ class SyncInvocation {
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
-	String lastCommitId;
 	String untilCommitId;
-	List<Dataset> localChanges;
 	
 	/**
 	 * Retrieves data sets descriptors of all changed data sets and for
@@ -45,14 +41,10 @@ class SyncInvocation {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		if (lastCommitId == null || lastCommitId.isEmpty())
-			lastCommitId = "null";
 		if (untilCommitId == null || untilCommitId.isEmpty())
 			untilCommitId = "null";
-		if (localChanges == null)
-			localChanges = new ArrayList<>();
-		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId + "/" + untilCommitId;
-		ClientResponse response = WebRequests.call(Type.POST, url, sessionId, localChanges);
+		String url = baseUrl + PATH + repositoryId + "/" + untilCommitId;
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyList();
 		return new Gson().fromJson(response.getEntity(String.class),
