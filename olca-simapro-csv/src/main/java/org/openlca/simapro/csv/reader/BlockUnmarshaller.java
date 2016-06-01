@@ -59,7 +59,7 @@ public class BlockUnmarshaller {
 		SectionRow sectionRow = field.getAnnotation(SectionRow.class);
 		String sectionHeader = sectionRow.value();
 		Section section = block.getSection(sectionHeader);
-		if (section == null || section.getDataRows().isEmpty())
+		if (section == null || section.dataRows.isEmpty())
 			return;
 		Class<?> type = field.getType();
 		if (!(IDataRow.class.isAssignableFrom(type))) {
@@ -68,7 +68,7 @@ public class BlockUnmarshaller {
 		}
 		field.setAccessible(true);
 		IDataRow instance = (IDataRow) type.newInstance();
-		String row = section.getDataRows().get(0);
+		String row = section.dataRows.get(0);
 		instance.fill(row, config);
 		field.set(model, instance);
 	}
@@ -76,7 +76,7 @@ public class BlockUnmarshaller {
 	private void setBlockRows(Field field) {
 		if (field == null)
 			return;
-		setDataRows(field, block.getDataRows());
+		setDataRows(field, block.dataRows);
 	}
 
 	private void setSectionRows(Field field) {
@@ -84,9 +84,9 @@ public class BlockUnmarshaller {
 			return;
 		SectionRows rows = field.getAnnotation(SectionRows.class);
 		Section section = block.getSection(rows.value());
-		if (section == null || section.getDataRows().isEmpty())
+		if (section == null || section.dataRows.isEmpty())
 			return;
-		setDataRows(field, section.getDataRows());
+		setDataRows(field, section.dataRows);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -159,9 +159,9 @@ public class BlockUnmarshaller {
 			SectionValue sectionValue = field.getAnnotation(SectionValue.class);
 			String sectionHeader = sectionValue.value();
 			Section section = block.getSection(sectionHeader);
-			if (section == null || section.getDataRows().isEmpty())
+			if (section == null || section.dataRows.isEmpty())
 				return;
-			String val = section.getDataRows().get(0);
+			String val = section.dataRows.get(0);
 			if (val.isEmpty())
 				return;
 			field.setAccessible(true);

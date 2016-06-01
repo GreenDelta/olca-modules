@@ -54,9 +54,9 @@ public class ModelReader implements Closeable {
 	}
 
 	private Object tryGetModel(Block block) throws Exception {
-		if (block == null || block.getHeader() == null)
+		if (block == null || block.header == null)
 			return null;
-		Class<?> clazz = blockTypes.get(block.getHeader());
+		Class<?> clazz = blockTypes.get(block.header);
 		if (clazz == null)
 			return null;
 		return unmarshaller.unmarshall(block, clazz);

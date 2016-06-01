@@ -65,13 +65,13 @@ public class BlockReader implements Closeable {
 				inSections = true;
 			} else {
 				if (!inSections)
-					block.getDataRows().add(line);
+					block.dataRows.add(line);
 				else if (section == null) {
 					log.trace("read next section {}", line);
 					section = new Section(line);
 					block.addSection(section);
 				} else {
-					section.getDataRows().add(line);
+					section.dataRows.add(line);
 				}
 			}
 		}
