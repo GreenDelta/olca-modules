@@ -1,4 +1,4 @@
-package org.openlca.simapro.csv.reader;
+package org.openlca.simapro.csv.io;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;

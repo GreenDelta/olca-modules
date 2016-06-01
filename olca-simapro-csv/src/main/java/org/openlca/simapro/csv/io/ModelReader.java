@@ -1,4 +1,4 @@
-package org.openlca.simapro.csv.reader;
+package org.openlca.simapro.csv.io;
 
 import java.io.Closeable;
 import java.io.IOException;

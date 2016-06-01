@@ -8,9 +8,9 @@ import java.io.InputStreamReader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.simapro.csv.io.BlockReader;
+import org.openlca.simapro.csv.io.ModelReader;
 import org.openlca.simapro.csv.model.refdata.SystemDescriptionBlock;
-import org.openlca.simapro.csv.reader.BlockReader;
-import org.openlca.simapro.csv.reader.ModelReader;
 
 public class SystemDescriptionBlockTest {
 

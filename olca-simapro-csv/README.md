@@ -93,12 +93,15 @@ always unique within a block:
 ```java
 Block block = ...
 Section section = block.getSection(<section name>);
-if(section != null) {
+if (section != null) {
     for(String dataRow : section.dataRows) {
         // do something
     }
 }
 ```
+
+Reading data sets
+-----------------
 
 For accessing these blocks and sections from a file there is a block reader in
 this API. You can use the `BlockReader` like a standard `BufferedReader`:
@@ -109,11 +112,6 @@ this API. You can use the `BlockReader` like a standard `BufferedReader`:
 			// do something with the block
 		}
 	}
-
-
-Reference data
---------------
-
 
 
 File encoding

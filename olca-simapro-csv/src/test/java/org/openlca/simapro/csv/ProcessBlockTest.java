@@ -8,6 +8,8 @@ import java.text.SimpleDateFormat;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.simapro.csv.io.BlockReader;
+import org.openlca.simapro.csv.io.ModelReader;
 import org.openlca.simapro.csv.model.enums.BoundaryWithNature;
 import org.openlca.simapro.csv.model.enums.CutOffRule;
 import org.openlca.simapro.csv.model.enums.Geography;
@@ -21,8 +23,6 @@ import org.openlca.simapro.csv.model.enums.Substitution;
 import org.openlca.simapro.csv.model.enums.Technology;
 import org.openlca.simapro.csv.model.enums.TimePeriod;
 import org.openlca.simapro.csv.model.process.ProcessBlock;
-import org.openlca.simapro.csv.reader.BlockReader;
-import org.openlca.simapro.csv.reader.ModelReader;
 
 public class ProcessBlockTest {
 

@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import org.openlca.simapro.csv.io.BlockReader;
+import org.openlca.simapro.csv.io.FileHeaderReader;
+import org.openlca.simapro.csv.io.ModelReader;
 import org.openlca.simapro.csv.model.FileHeader;
 import org.openlca.simapro.csv.model.annotations.BlockHandler;
 import org.openlca.simapro.csv.model.annotations.BlockModel;
-import org.openlca.simapro.csv.reader.BlockReader;
-import org.openlca.simapro.csv.reader.FileHeaderReader;
-import org.openlca.simapro.csv.reader.ModelReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
