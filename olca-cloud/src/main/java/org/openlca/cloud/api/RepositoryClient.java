@@ -166,8 +166,19 @@ public class RepositoryClient {
 		});
 	}
 
-	public void fetch(List<Dataset> fetchData,
-			Map<Dataset, JsonObject> mergedData) throws WebRequestException {
+	public void download(List<Dataset> requestData, String commitId) throws WebRequestException {
+		executeLoggedIn(() -> {
+			DownloadInvocation invocation = new DownloadInvocation(config.getDatabase());
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.untilCommitId = commitId;
+			invocation.requestData = requestData;
+			invocation.execute();
+		});	
+	}
+	
+	public void fetch(List<Dataset> fetchData, Map<Dataset, JsonObject> mergedData) throws WebRequestException {
 		executeLoggedIn(() -> {
 			FetchInvocation invocation = new FetchInvocation(config.getDatabase());
 			invocation.baseUrl = config.getBaseUrl();

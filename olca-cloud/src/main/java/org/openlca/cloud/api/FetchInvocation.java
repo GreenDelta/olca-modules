@@ -19,22 +19,9 @@ import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
-import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategorizedEntityDao;
-import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.CurrencyDao;
-import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.FlowPropertyDao;
+import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.LocationDao;
-import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.ProjectDao;
-import org.openlca.core.database.SocialIndicatorDao;
-import org.openlca.core.database.SourceDao;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
@@ -124,16 +111,15 @@ class FetchInvocation {
 
 	private String doImport(FetchReader reader) {
 		putMergedData(reader.getEntityStore());
-		JsonImport jsonImport = new JsonImport(reader.getEntityStore(),
-				database);
+		JsonImport jsonImport = new JsonImport(reader.getEntityStore(), database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		jsonImport.run();
 		for (Dataset descriptor : reader.getDescriptors())
 			if (!reader.hasData(descriptor))
-				delete(createDao(descriptor.type), descriptor.refId);
+				delete(Daos.createCategorizedDao(database, descriptor.type), descriptor.refId);
 		for (Entry<Dataset, JsonObject> entry : mergedData.entrySet())
 			if (entry.getValue() == null)
-				delete(createDao(entry.getKey().type), entry.getKey().refId);
+				delete(Daos.createCategorizedDao(database, entry.getKey().type), entry.getKey().refId);
 		return reader.getCommitId();
 	}
 
@@ -175,41 +161,6 @@ class FetchInvocation {
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void delete(
 			CategorizedEntityDao<T, V> dao, String refId) {
 		dao.delete(dao.getForRefId(refId));
-	}
-
-	private CategorizedEntityDao<?, ?> createDao(ModelType type) {
-		switch (type) {
-		case ACTOR:
-			return new ActorDao(database);
-		case CURRENCY:
-			return new CurrencyDao(database);
-		case FLOW:
-			return new FlowDao(database);
-		case FLOW_PROPERTY:
-			return new FlowPropertyDao(database);
-		case IMPACT_METHOD:
-			return new ImpactMethodDao(database);
-		case PROCESS:
-			return new ProcessDao(database);
-		case PRODUCT_SYSTEM:
-			return new ProductSystemDao(database);
-		case PROJECT:
-			return new ProjectDao(database);
-		case SOCIAL_INDICATOR:
-			return new SocialIndicatorDao(database);
-		case SOURCE:
-			return new SourceDao(database);
-		case UNIT_GROUP:
-			return new UnitGroupDao(database);
-		case LOCATION:
-			return new LocationDao(database);
-		case PARAMETER:
-			return new ParameterDao(database);
-		case CATEGORY:
-			return new CategoryDao(database);
-		default:
-			return null;
-		}
 	}
 
 }

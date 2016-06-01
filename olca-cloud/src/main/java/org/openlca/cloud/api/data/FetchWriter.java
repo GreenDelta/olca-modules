@@ -67,8 +67,9 @@ public class FetchWriter extends DataWriter {
 
 	@Override
 	protected void writeMetaData(FileSystem zip) throws IOException {
-		Files.write(zip.getPath("id.txt"), commitId.getBytes(),
-				StandardOpenOption.CREATE);
+		if (commitId == null)
+			return;
+		Files.write(zip.getPath("id.txt"), commitId.getBytes(), StandardOpenOption.CREATE);
 	}
 
 	@Override
