@@ -82,6 +82,5 @@ public class Parser implements Closeable {
 				handler.accept(Event.DATA_ROW, line);
 			}
 		}
-
 	}
 }
