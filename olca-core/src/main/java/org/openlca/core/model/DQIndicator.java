@@ -20,14 +20,25 @@ public class DQIndicator extends AbstractEntity implements Comparable<DQIndicato
 
 	@Column(name = "position")
 	public int position;
-	
+
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "f_dq_indicator")
-	public List<DQScore> scores = new ArrayList<>();
+	public final List<DQScore> scores = new ArrayList<>();
 
 	@Override
 	public int compareTo(DQIndicator o) {
 		return Integer.compare(position, o.position);
 	}
-	
+
+	@Override
+	public DQIndicator clone() {
+		DQIndicator clone = new DQIndicator();
+		clone.name = name;
+		clone.position = position;
+		for (DQScore score : scores) {
+			clone.scores.add(score.clone());
+		}
+		return clone;
+	}
+
 }

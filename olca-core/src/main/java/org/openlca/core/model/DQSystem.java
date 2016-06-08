@@ -20,16 +20,19 @@ public class DQSystem extends CategorizedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "f_dq_system")
-	public List<DQIndicator> indicators = new ArrayList<>();
-	
+	public final List<DQIndicator> indicators = new ArrayList<>();
+
 	@Override
 	public DQSystem clone() {
 		DQSystem clone = new DQSystem();
 		Util.cloneRootFields(this, clone);
 		clone.hasUncertainties = hasUncertainties;
+		for (DQIndicator indicator : indicators) {
+			clone.indicators.add(indicator.clone());
+		}
 		return clone;
 	}
-	
+
 	public int getScoreCount() {
 		if (indicators == null || indicators.isEmpty())
 			return 0;
