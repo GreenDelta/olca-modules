@@ -72,6 +72,8 @@ public class Daos {
 			return new ParameterDao(database);
 		case CATEGORY:
 			return new CategoryDao(database);
+		case DQ_SYSTEM:
+			return new DQSystemDao(database);
 		default:
 			return null;
 		}

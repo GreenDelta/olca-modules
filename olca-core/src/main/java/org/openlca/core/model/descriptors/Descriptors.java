@@ -4,6 +4,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -67,6 +68,8 @@ public class Descriptors {
 			return toDescriptor((Parameter) entity);
 		if (entity instanceof Category)
 			return toDescriptor((Category) entity);
+		if (entity instanceof DQSystem)
+			return toDescriptor((DQSystem) entity);
 		return createUnknownDescriptor(entity);
 	}
 
@@ -217,6 +220,14 @@ public class Descriptors {
 		NwSetDescriptor descriptor = new NwSetDescriptor();
 		setBaseValues(nwSet, descriptor);
 		descriptor.setWeightedScoreUnit(nwSet.getWeightedScoreUnit());
+		return descriptor;
+	}
+
+	public static DQSystemDescriptor toDescriptor(DQSystem system) {
+		if (system == null)
+			return null;
+		DQSystemDescriptor descriptor = new DQSystemDescriptor();
+		setBaseValues(system, descriptor);
 		return descriptor;
 	}
 

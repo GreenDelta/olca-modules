@@ -40,7 +40,9 @@ public enum ModelType {
 
 	CURRENCY(Currency.class),
 
-	PARAMETER(Parameter.class);
+	PARAMETER(Parameter.class),
+	
+	DQ_SYSTEM(DQSystem.class);
 
 	final Class<? extends AbstractEntity> modelClass;
 

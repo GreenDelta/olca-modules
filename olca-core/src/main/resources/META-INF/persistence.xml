@@ -34,6 +34,9 @@
 		<class>org.openlca.core.model.Unit</class>
 		<class>org.openlca.core.model.UnitGroup</class>
 		<class>org.openlca.core.model.SocialIndicator</class>
+		<class>org.openlca.core.model.DQSystem</class>
+		<class>org.openlca.core.model.DQIndicator</class>
+		<class>org.openlca.core.model.DQScore</class>
 		<class>org.openlca.core.model.MappingFile</class>
 
 		<properties>
