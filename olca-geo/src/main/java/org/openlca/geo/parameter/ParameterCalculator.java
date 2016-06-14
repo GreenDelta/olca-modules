@@ -81,11 +81,10 @@ public class ParameterCalculator implements Closeable {
 	private Map<String, Double> applyParameters(Map<String, Double> shares,
 			long id, KmlFeature feature, String shapeFile) {
 		DataStore store = stores.get(shapeFile);
-		FeatureCalculator calculator = new FeatureCalculator(store);
+		FeatureCalculator calculator = new FeatureCalculator(store, defaults);
 		List<String> group = groups.get(shapeFile);
 		log.debug("Calculating parameters for location " + id);
-		Map<String, Double> result = calculator.calculate(feature, group,
-				defaults, shares);
+		Map<String, Double> result = calculator.calculate(feature, group, shares);
 		return result != null ? result : new HashMap<String, Double>();
 	}
 

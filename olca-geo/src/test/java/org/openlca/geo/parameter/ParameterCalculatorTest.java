@@ -1,7 +1,7 @@
 package org.openlca.geo.parameter;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 import org.geotools.data.DataStore;
@@ -24,7 +24,8 @@ public class ParameterCalculatorTest {
 		ShapeFileFolder repository = Tests.getRepository();
 		dataStore = repository.openDataStore("states");
 		intersectionsCalculator = new IntersectionsCalculator(dataStore);
-		featureCalculator = new FeatureCalculator(dataStore);
+		featureCalculator = new FeatureCalculator(dataStore,
+				Collections.emptyMap());
 	}
 
 	@After
@@ -38,8 +39,7 @@ public class ParameterCalculatorTest {
 		KmlFeature feature = KmlTests.parse(Tests.getKml("point.kml"));
 		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
-				.calculate(feature, Arrays.asList("DRAWSEQ"),
-						new HashMap<String, Double>(), shares);
+				.calculate(feature, Arrays.asList("DRAWSEQ"), shares);
 		Assert.assertTrue(params.size() == 1);
 		Assert.assertEquals(42, params.get("DRAWSEQ"), 1e-17);
 	}
@@ -54,8 +54,7 @@ public class ParameterCalculatorTest {
 		KmlFeature feature = KmlTests.parse(Tests.getKml("line.kml"));
 		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
-				.calculate(feature, Arrays.asList("DRAWSEQ"),
-						new HashMap<String, Double>(), shares);
+				.calculate(feature, Arrays.asList("DRAWSEQ"), shares);
 		double val = params.get("DRAWSEQ");
 		Assert.assertTrue(34 < val && val < 42);
 	}
@@ -71,8 +70,7 @@ public class ParameterCalculatorTest {
 		KmlFeature feature = KmlTests.parse(Tests.getKml("polygon.kml"));
 		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
-				.calculate(feature, Arrays.asList("DRAWSEQ"),
-						new HashMap<String, Double>(), shares);
+				.calculate(feature, Arrays.asList("DRAWSEQ"), shares);
 		double val = params.get("DRAWSEQ");
 		Assert.assertTrue(32 < val && val < 42);
 	}
@@ -85,8 +83,7 @@ public class ParameterCalculatorTest {
 		KmlFeature feature = KmlTests.parse(Tests.getKml("multipoint.kml"));
 		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
-				.calculate(feature, Arrays.asList("DRAWSEQ"),
-						new HashMap<String, Double>(), shares);
+				.calculate(feature, Arrays.asList("DRAWSEQ"), shares);
 		Assert.assertTrue(params.size() == 1);
 		Assert.assertEquals(38, params.get("DRAWSEQ"), 1e-17);
 	}

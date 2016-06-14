@@ -19,6 +19,12 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.precision.GeometryPrecisionReducer;
 
+/**
+ * Calculates the intersections between a KML feature of a location and the
+ * respective shapes in an shape file. It returns a map which contains the IDs
+ * of the intersected shapes and the respective shares of the shapes to the
+ * total value (e.g. total intersected area).
+ */
 class IntersectionsCalculator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
