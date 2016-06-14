@@ -137,7 +137,7 @@ public class BaseDao<T> implements IDao<T> {
 			em.getTransaction().begin();
 			T retval = em.merge(entity);
 			em.getTransaction().commit();
-			database.notifyUpdate(entity);
+			database.notifyUpdate(retval);
 			return retval;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while updating "
