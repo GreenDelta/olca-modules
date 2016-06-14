@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -61,9 +60,6 @@ class FeatureCalculator {
 	private Map<String, Double> fetchValues(Map<SimpleFeature, Double> shares,
 			List<String> params) {
 		Map<String, Double> results = new HashMap<>();
-		double sum = calcTotal(shares);
-		if (sum < 1)
-			shares.put(null, (1 - sum));
 		for (SimpleFeature feature : shares.keySet()) {
 			Double share = shares.get(feature);
 			if (share == null)
@@ -98,16 +94,6 @@ class FeatureCalculator {
 			map.put(param, number.doubleValue());
 		}
 		return map;
-	}
-
-	private double calcTotal(Map<?, Double> shares) {
-		double total = 0;
-		for (Entry<?, Double> entry : shares.entrySet()) {
-			if (entry.getValue() != null) {
-				total += entry.getValue();
-			}
-		}
-		return total;
 	}
 
 	private SimpleFeatureIterator getIterator() throws Exception {

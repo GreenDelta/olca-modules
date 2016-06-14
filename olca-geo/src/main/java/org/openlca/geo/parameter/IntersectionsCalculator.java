@@ -23,7 +23,8 @@ import com.vividsolutions.jts.precision.GeometryPrecisionReducer;
  * Calculates the intersections between a KML feature of a location and the
  * respective shapes in an shape file. It returns a map which contains the IDs
  * of the intersected shapes and the respective shares of the shapes to the
- * total value (e.g. total intersected area).
+ * total value (e.g. total intersected area). Note that the shares are related
+ * to the intersection total and not to the total of the feature.
  */
 class IntersectionsCalculator {
 
@@ -41,7 +42,9 @@ class IntersectionsCalculator {
 		Geometry geo = feature.geometry;
 		switch (feature.type) {
 		case POINT:
-			return calculatePoint(geo, 1d);
+			String shapeId = findPointShape(geo);
+			return shapeId == null ? Collections.emptyMap()
+					: Collections.singletonMap(shapeId, 1d);
 		case MULTI_POINT:
 			return calculateMultiPoint((MultiPoint) geo);
 		case LINE:
@@ -58,27 +61,28 @@ class IntersectionsCalculator {
 
 	private Map<String, Double> calculateMultiPoint(MultiPoint featureGeo) {
 		Map<String, Double> result = new HashMap<>();
-		int length = featureGeo.getNumGeometries();
-		for (int i = 0; i < length; i++) {
-			Geometry next = featureGeo.getGeometryN(i);
-			double share = 1d / (double) length;
-			result.putAll(calculatePoint(next, share));
+		int num = featureGeo.getNumGeometries();
+		for (int i = 0; i < num; i++) {
+			Geometry geo = featureGeo.getGeometryN(i);
+			String shapeId = findPointShape(geo);
+			if (shapeId != null) {
+				result.put(shapeId, 1d);
+			}
 		}
-		return result;
+		return makeRelative(result, result.size());
 	}
 
-	private Map<String, Double> calculatePoint(Geometry feature, double share) {
+	private String findPointShape(Geometry feature) {
 		try (SimpleFeatureIterator iterator = getIterator()) {
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
-				Geometry geometry = (Geometry) shape.getDefaultGeometry();
-				if (geometry instanceof Point) {
-					if (geometry.equalsExact(feature, 1e-6))
-						return Collections.singletonMap(shape.getID(), share);
-				} else if (geometry.contains(feature))
-					return Collections.singletonMap(shape.getID(), share);
+				Geometry geo = (Geometry) shape.getDefaultGeometry();
+				if (geo instanceof Point && geo.equalsExact(feature, 1e-6))
+					return shape.getID();
+				else if (geo.contains(feature))
+					return shape.getID();
 			}
-			return Collections.emptyMap();
+			return null;
 		} catch (Exception e) {
 			log.error("failed to fetch point values", e);
 			return null;
@@ -86,11 +90,11 @@ class IntersectionsCalculator {
 	}
 
 	private Map<String, Double> calculate(Geometry featureGeo, ValueFetch fetch) {
-		double totalValue = fetch.fetchTotal(featureGeo);
-		double total = 0;
-		if (totalValue == 0)
+		double featureTotal = fetch.fetchTotal(featureGeo);
+		if (featureTotal == 0)
 			return Collections.emptyMap();
 		try (SimpleFeatureIterator iterator = getIterator()) {
+			double total = 0;
 			Map<String, Double> shares = new HashMap<>();
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
@@ -98,19 +102,29 @@ class IntersectionsCalculator {
 				if (fetch.skip(featureGeo, shapeGeo))
 					continue;
 				double value = fetch.fetchSingle(featureGeo, shapeGeo);
-				shares.put(shape.getID(), value / totalValue);
+				shares.put(shape.getID(), value);
 				total += value;
-				if (total >= totalValue) // >= because of float representation
-											// (might be 1.0000000002 e.g.)
-					// found all intersections (per definition shape files do
-					// not contain overlapping features)
+				if (Math.abs(total - featureTotal) < 1e-16)
 					break;
 			}
-			return shares;
+			return makeRelative(shares, total);
 		} catch (Exception e) {
 			log.error("failed to fetch parameters for feature", e);
 			return null;
 		}
+	}
+
+	private Map<String, Double> makeRelative(Map<String, Double> shares,
+			double total) {
+		for (String id : shares.keySet()) {
+			double val = shares.get(id);
+			if (total == 0) {
+				shares.put(id, 0d);
+			} else {
+				shares.put(id, val / total);
+			}
+		}
+		return shares;
 	}
 
 	private SimpleFeatureIterator getIterator() throws Exception {
