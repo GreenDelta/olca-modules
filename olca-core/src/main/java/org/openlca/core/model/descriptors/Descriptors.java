@@ -231,6 +231,8 @@ public class Descriptors {
 		descriptor.setDescription(entity.getDescription());
 		descriptor.setId(entity.getId());
 		descriptor.setName(entity.getName());
+		descriptor.setLastChange(entity.getLastChange());
+		descriptor.setVersion(entity.getVersion());
 	}
 
 	private static CategorizedDescriptor createUnknownDescriptor(CategorizedEntity entity) {
