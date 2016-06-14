@@ -72,9 +72,8 @@ public class ParameterCalculator implements Closeable {
 			return result;
 		DataStore store = stores.get(shapeFile);
 		IntersectionsCalculator calculator = new IntersectionsCalculator(store);
-		List<String> group = groups.get(shapeFile);
 		log.debug("Calculating shares for location " + locationId);
-		result = calculator.calculate(feature, group);
+		result = calculator.calculate(feature);
 		cache.save(locationId, shapeFile, result);
 		return result != null ? result : new HashMap<String, Double>();
 	}

@@ -2,7 +2,6 @@ package org.openlca.geo.parameter;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.geotools.data.DataStore;
@@ -26,53 +25,51 @@ class IntersectionsCalculator {
 
 	private final DataStore dataStore;
 
-	public IntersectionsCalculator(DataStore dataStore) {
+	IntersectionsCalculator(DataStore dataStore) {
 		this.dataStore = dataStore;
 	}
 
-	public Map<String, Double> calculate(KmlFeature feature, List<String> params) {
+	Map<String, Double> calculate(KmlFeature feature) {
 		if (feature.type == null)
 			return Collections.emptyMap();
 		Geometry geo = feature.geometry;
 		switch (feature.type) {
 		case POINT:
-			return calculatePoint(geo, params, 1d);
+			return calculatePoint(geo, 1d);
 		case MULTI_POINT:
-			return calculateMulti((MultiPoint) geo, params);
+			return calculateMultiPoint((MultiPoint) geo);
 		case LINE:
 		case MULTI_LINE:
-			return calculate(geo, params, new LineStringValueFetch());
+			return calculate(geo, new LineStringValueFetch());
 		case POLYGON:
 		case MULTI_POLYGON:
-			return calculate(geo, params, new PolygonValueFetch());
+			return calculate(geo, new PolygonValueFetch());
 		default:
 			log.warn("cannot calculate shares for type {}", feature.type);
 			return Collections.emptyMap();
 		}
 	}
 
-	private Map<String, Double> calculateMulti(MultiPoint featureGeo,
-			List<String> parameters) {
+	private Map<String, Double> calculateMultiPoint(MultiPoint featureGeo) {
 		Map<String, Double> result = new HashMap<>();
 		int length = featureGeo.getNumGeometries();
 		for (int i = 0; i < length; i++) {
 			Geometry next = featureGeo.getGeometryN(i);
 			double share = 1d / (double) length;
-			result.putAll(calculatePoint(next, parameters, share));
+			result.putAll(calculatePoint(next, share));
 		}
 		return result;
 	}
 
-	private Map<String, Double> calculatePoint(Geometry featureGeo,
-			List<String> parameters, double share) {
+	private Map<String, Double> calculatePoint(Geometry feature, double share) {
 		try (SimpleFeatureIterator iterator = getIterator()) {
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
 				Geometry geometry = (Geometry) shape.getDefaultGeometry();
 				if (geometry instanceof Point) {
-					if (geometry.equalsExact(featureGeo, 1e-6))
+					if (geometry.equalsExact(feature, 1e-6))
 						return Collections.singletonMap(shape.getID(), share);
-				} else if (geometry.contains(featureGeo))
+				} else if (geometry.contains(feature))
 					return Collections.singletonMap(shape.getID(), share);
 			}
 			return Collections.emptyMap();
@@ -82,9 +79,8 @@ class IntersectionsCalculator {
 		}
 	}
 
-	private Map<String, Double> calculate(Geometry featureGeo,
-			List<String> parameters, ValueFetch valueFetch) {
-		double totalValue = valueFetch.fetchTotal(featureGeo);
+	private Map<String, Double> calculate(Geometry featureGeo, ValueFetch fetch) {
+		double totalValue = fetch.fetchTotal(featureGeo);
 		double total = 0;
 		if (totalValue == 0)
 			return Collections.emptyMap();
@@ -93,9 +89,9 @@ class IntersectionsCalculator {
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
 				Geometry shapeGeo = (Geometry) shape.getDefaultGeometry();
-				if (valueFetch.skip(featureGeo, shapeGeo))
+				if (fetch.skip(featureGeo, shapeGeo))
 					continue;
-				double value = valueFetch.fetchSingle(featureGeo, shapeGeo);
+				double value = fetch.fetchSingle(featureGeo, shapeGeo);
 				shares.put(shape.getID(), value / totalValue);
 				total += value;
 				if (total >= totalValue) // >= because of float representation
@@ -159,9 +155,8 @@ class IntersectionsCalculator {
 				return feature.intersection(shape).getArea();
 			} catch (TopologyException e) {
 				// see http://tsusiatsoftware.net/jts/jts-faq/jts-faq.html#D9
-				log.warn(
-						"Topology exception in feature calculation, reducing precision of original model",
-						e);
+				log.warn("Topology exception in feature calculation, "
+						+ "reducing precision of original model", e);
 				feature = GeometryPrecisionReducer.reduce(feature,
 						new PrecisionModel(PrecisionModel.FLOATING_SINGLE));
 				return feature.intersection(shape).getArea();
@@ -172,7 +167,5 @@ class IntersectionsCalculator {
 		public boolean skip(Geometry feature, Geometry shape) {
 			return !feature.intersects(shape);
 		}
-
 	}
-
 }

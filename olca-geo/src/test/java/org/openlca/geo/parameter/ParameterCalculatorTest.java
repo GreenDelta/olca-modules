@@ -36,8 +36,7 @@ public class ParameterCalculatorTest {
 	public void testPoint() throws Exception {
 		// a point in New Mexico; DRAWSEQ = 42
 		KmlFeature feature = KmlTests.parse(Tests.getKml("point.kml"));
-		Map<String, Double> shares = intersectionsCalculator.calculate(feature,
-				Arrays.asList("DRAWSEQ"));
+		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
 				.calculate(feature, Arrays.asList("DRAWSEQ"),
 						new HashMap<String, Double>(), shares);
@@ -53,8 +52,7 @@ public class ParameterCalculatorTest {
 		// Oklahoma; DRAWSEQ = 38
 		// Kansas; DRAWSEQ = 34
 		KmlFeature feature = KmlTests.parse(Tests.getKml("line.kml"));
-		Map<String, Double> shares = intersectionsCalculator.calculate(feature,
-				Arrays.asList("DRAWSEQ"));
+		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
 				.calculate(feature, Arrays.asList("DRAWSEQ"),
 						new HashMap<String, Double>(), shares);
@@ -71,8 +69,7 @@ public class ParameterCalculatorTest {
 		// Kansas; DRAWSEQ = 34
 		// Colorado; DRAWSEQ = 32
 		KmlFeature feature = KmlTests.parse(Tests.getKml("polygon.kml"));
-		Map<String, Double> shares = intersectionsCalculator.calculate(feature,
-				Arrays.asList("DRAWSEQ"));
+		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
 				.calculate(feature, Arrays.asList("DRAWSEQ"),
 						new HashMap<String, Double>(), shares);
@@ -86,8 +83,7 @@ public class ParameterCalculatorTest {
 		// New Mexico; DRAWSEQ = 42
 		// Kansas; DRAWSEQ = 34
 		KmlFeature feature = KmlTests.parse(Tests.getKml("multipoint.kml"));
-		Map<String, Double> shares = intersectionsCalculator.calculate(feature,
-				Arrays.asList("DRAWSEQ"));
+		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
 				.calculate(feature, Arrays.asList("DRAWSEQ"),
 						new HashMap<String, Double>(), shares);
