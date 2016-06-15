@@ -54,7 +54,8 @@ class Db {
 	private Map<String, Long> costCategoryIds = new HashMap<>();
 	private Map<String, Long> systemIds = new HashMap<>();
 	private Map<String, Long> projectIds = new HashMap<>();
-
+	public Map<String, String> categoryRefIdMapping = new HashMap<String, String>();
+	
 	private IDatabase db;
 
 	public Db(IDatabase db) {

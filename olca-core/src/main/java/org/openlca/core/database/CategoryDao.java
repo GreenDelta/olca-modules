@@ -44,4 +44,54 @@ public class CategoryDao extends
 		return getAll(jpql, m);
 	}
 
+	@Override
+	// see update(category)
+	public Category insert(Category category) {
+		category.setRefId(Category.createRefId(category));
+		Category forRefId = getForRefId(category.getRefId());
+		if (forRefId != null) {
+			mergeChildren(forRefId, category);
+			return update(forRefId);
+		}
+		return super.insert(category);
+	}
+
+	@Override
+	// categories should be identified by their path, therefore the refID will
+	// be generated depending on the category path. This way, we can treat the
+	// category model as a normal entity and still compare categories by path
+	public Category update(Category category) {
+		String refId = category.getRefId();
+		String newRefId = Category.createRefId(category);
+		Category forRefId = getForRefId(newRefId);
+		if (refId.equals(newRefId) || forRefId == null) {
+			category.setRefId(newRefId);
+			category = super.update(category);
+			for (Category child : category.getChildCategories())
+				update(child);
+			return category;
+		}
+		mergeChildren(forRefId, category);
+		forRefId = super.update(forRefId);
+		for (Category child : forRefId.getChildCategories())
+			update(child);
+		return forRefId;
+	}
+
+	private void mergeChildren(Category into, Category from) {
+		for (Category child : from.getChildCategories()) {
+			if (contains(into.getChildCategories(), child))
+				continue;
+			child.setCategory(into);
+			into.getChildCategories().add(child);
+		}
+	}
+
+	private boolean contains(List<Category> categories, Category category) {
+		for (Category child : categories)
+			if (Category.createRefId(child).equals(Category.createRefId(category)))
+				return true;
+		return false;
+	}
+
 }

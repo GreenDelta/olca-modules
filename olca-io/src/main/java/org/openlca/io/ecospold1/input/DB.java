@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
@@ -175,7 +176,7 @@ class DB {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T> void put(T entity, String genKey) {
+	public <T extends AbstractEntity> void put(T entity, String genKey) {
 		if (entity == null)
 			return;
 		try {

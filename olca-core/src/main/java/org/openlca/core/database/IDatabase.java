@@ -6,6 +6,8 @@ import java.sql.Connection;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.openlca.core.model.AbstractEntity;
+
 /**
  * The common interface for openLCA databases.
  */
@@ -33,7 +35,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	 * operations like insert, update, or delete. Alternatively, specific DAOs
 	 * can be created using the entity manager factory from this class.
 	 */
-	<T> BaseDao<T> createDao(Class<T> clazz);
+	<T extends AbstractEntity> BaseDao<T> createDao(Class<T> clazz);
 
 	/**
 	 * Returns the database name.

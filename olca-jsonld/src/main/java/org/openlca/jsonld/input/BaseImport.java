@@ -36,9 +36,8 @@ abstract class BaseImport<T extends RootEntity> {
 			if (!doImport(model, json))
 				return model;
 			conf.visited(modelType, refId);
-			long id = model != null ? model.getId() : 0L;
 			importBinFiles();
-			return map(json, id);
+			return map(json, model);
 		} catch (Exception e) {
 			log.error("failed to import " + modelType.name() + " " + refId, e);
 			return null;
@@ -63,7 +62,7 @@ abstract class BaseImport<T extends RootEntity> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private T get(String refId) {
+	protected T get(String refId) {
 		switch (modelType) {
 		case ACTOR:
 			return (T) conf.db.getActor(refId);
@@ -119,6 +118,12 @@ abstract class BaseImport<T extends RootEntity> {
 			log.error("failed to import bin files for " + modelType + ":"
 					+ refId, e);
 		}
+	}
+
+	T map(JsonObject json, T model) {
+		if (model == null)
+			return map(json, 0l);
+		return map(json, model.getId());
 	}
 
 	abstract T map(JsonObject json, long id);

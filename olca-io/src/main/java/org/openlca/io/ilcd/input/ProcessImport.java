@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
@@ -347,7 +348,7 @@ public class ProcessImport {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> void saveInDatabase(T obj) throws ImportException {
+	private <T extends AbstractEntity> void saveInDatabase(T obj) throws ImportException {
 		try {
 			Class<T> clazz = (Class<T>) obj.getClass();
 			config.db.createDao(clazz).insert(obj);
