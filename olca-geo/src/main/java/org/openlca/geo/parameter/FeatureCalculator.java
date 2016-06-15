@@ -1,9 +1,11 @@
 package org.openlca.geo.parameter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -59,41 +61,28 @@ class FeatureCalculator {
 
 	private Map<String, Double> fetchValues(Map<SimpleFeature, Double> shares,
 			List<String> params) {
-		Map<String, Double> results = new HashMap<>();
-		for (SimpleFeature feature : shares.keySet()) {
-			Double share = shares.get(feature);
-			if (share == null)
-				continue;
-			Map<String, Double> vals = featureValues(feature, params);
-			for (String param : params) {
-				Double v = vals.get(param);
-				if (v == null)
-					continue;
-				double value = share * v;
-				Double total = results.get(param);
-				if (total == null) {
-					results.put(param, value);
-				} else {
-					results.put(param, total + value);
-				}
+		Map<String, Double> parameterResults = new HashMap<>();
+		for (String param : params) {
+			ValSet vals = new ValSet(param);
+			for (Entry<SimpleFeature, Double> entry : shares.entrySet()) {
+				Double val = getValue(entry.getKey(), param);
+				Double share = entry.getValue();
+				vals.add(val, share);
 			}
+			parameterResults.put(param, vals.getValue());
 		}
-		return results;
+		return parameterResults;
 	}
 
-	private Map<String, Double> featureValues(SimpleFeature feature,
-			List<String> params) {
-		if (feature == null)
-			return defaults;
-		Map<String, Double> map = new HashMap<>();
-		for (String param : params) {
-			Object obj = feature.getAttribute(param);
-			if (!(obj instanceof Number))
-				continue;
-			Number number = (Number) obj;
-			map.put(param, number.doubleValue());
-		}
-		return map;
+	private Double getValue(SimpleFeature shape, String param) {
+		if (shape == null || param == null)
+			return null;
+		Object obj = shape.getAttribute(param);
+		if (!(obj instanceof Number))
+			return null;
+		Number number = (Number) obj;
+		double val = number.doubleValue();
+		return Val.isNaN(val) ? null : val;
 	}
 
 	private SimpleFeatureIterator getIterator() throws Exception {
@@ -103,4 +92,49 @@ class FeatureCalculator {
 		return collection.features();
 	}
 
+	/**
+	 * Set of values and shares of a parameter. A value of null means 'not
+	 * available'.
+	 */
+	private class ValSet {
+
+		String parameter;
+
+		ArrayList<Double> values = new ArrayList<>();
+		ArrayList<Double> shares = new ArrayList<>();
+		int nanCount = 0;
+
+		ValSet(String parameter) {
+			this.parameter = parameter;
+		}
+
+		void add(Double value, Double share) {
+			values.add(value);
+			shares.add(share);
+			if (value == null) {
+				nanCount++;
+			}
+		}
+
+		double getValue() {
+			if (nanCount == values.size()) {
+				Double v = defaults.get(parameter);
+				return v == null ? 0 : v;
+			}
+			double shareSum = 0;
+			double total = 0;
+			for (int i = 0; i < values.size(); i++) {
+				Double val = values.get(i);
+				if (val == null)
+					continue;
+				Double s = shares.get(i);
+				double share = s == null ? 0 : s;
+				total += val * share;
+				shareSum += share;
+			}
+			if (nanCount == 0)
+				return total;
+			return shareSum == 0 ? 0 : total / shareSum;
+		}
+	}
 }
