@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.geo.Tests;
 import org.openlca.geo.kml.KmlFeature;
-import org.openlca.geo.kml.KmlTests;
 
 public class ParameterCalculatorTest {
 
@@ -36,7 +35,7 @@ public class ParameterCalculatorTest {
 	@Test
 	public void testPoint() throws Exception {
 		// a point in New Mexico; DRAWSEQ = 42
-		KmlFeature feature = KmlTests.parse(Tests.getKml("point.kml"));
+		KmlFeature feature = KmlFeature.parse(Tests.getKml("point.kml"));
 		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
 				.calculate(feature, Arrays.asList("DRAWSEQ"), shares);
@@ -51,7 +50,7 @@ public class ParameterCalculatorTest {
 		// Texas; DRAWSEQ = 41
 		// Oklahoma; DRAWSEQ = 38
 		// Kansas; DRAWSEQ = 34
-		KmlFeature feature = KmlTests.parse(Tests.getKml("line.kml"));
+		KmlFeature feature = KmlFeature.parse(Tests.getKml("line.kml"));
 		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
 				.calculate(feature, Arrays.asList("DRAWSEQ"), shares);
@@ -67,7 +66,7 @@ public class ParameterCalculatorTest {
 		// Oklahoma; DRAWSEQ = 38
 		// Kansas; DRAWSEQ = 34
 		// Colorado; DRAWSEQ = 32
-		KmlFeature feature = KmlTests.parse(Tests.getKml("polygon.kml"));
+		KmlFeature feature = KmlFeature.parse(Tests.getKml("polygon.kml"));
 		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
 				.calculate(feature, Arrays.asList("DRAWSEQ"), shares);
@@ -80,7 +79,7 @@ public class ParameterCalculatorTest {
 		// two points
 		// New Mexico; DRAWSEQ = 42
 		// Kansas; DRAWSEQ = 34
-		KmlFeature feature = KmlTests.parse(Tests.getKml("multipoint.kml"));
+		KmlFeature feature = KmlFeature.parse(Tests.getKml("multipoint.kml"));
 		Map<String, Double> shares = intersectionsCalculator.calculate(feature);
 		Map<String, Double> params = featureCalculator
 				.calculate(feature, Arrays.asList("DRAWSEQ"), shares);

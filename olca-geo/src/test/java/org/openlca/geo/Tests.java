@@ -23,13 +23,6 @@ public class Tests {
 	private Tests() {
 	}
 
-	public static void main(String[] args) {
-		for (int i = 2; i <= 50; i++)
-			System.out.print("+" + ((int) (Math.random() * 100)) + "*x^" + i);
-		for (int i = 2; i <= 50; i++)
-			System.out.print("+" + ((int) (Math.random() * 100)) + "*y^" + i);
-	}
-
 	public static String getKml(String file) {
 		try {
 			return IOUtils.toString(Tests.class.getResourceAsStream(file),
