@@ -12,12 +12,12 @@ class Upgrade3 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {
-		return new int[] { 3 };
+		return new int[] { 4 };
 	}
 
 	@Override
 	public int getEndVersion() {
-		return 4;
+		return 5;
 	}
 
 	@Override
