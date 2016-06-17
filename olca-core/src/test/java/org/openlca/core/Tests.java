@@ -1,44 +1,17 @@
 package org.openlca.core;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.openlca.core.database.ActorDao;
-import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.CurrencyDao;
-import org.openlca.core.database.Daos;
-import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.FlowPropertyDao;
+import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.database.ProjectDao;
-import org.openlca.core.database.SocialIndicatorDao;
-import org.openlca.core.database.SourceDao;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.database.derby.DerbyDatabase;
 import org.openlca.core.database.upgrades.Upgrades;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.math.JavaSolver;
-import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
-import org.openlca.core.model.Category;
-import org.openlca.core.model.Currency;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.Location;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Parameter;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Project;
-import org.openlca.core.model.SocialIndicator;
-import org.openlca.core.model.Source;
-import org.openlca.core.model.UnitGroup;
 
 public class Tests {
 
@@ -86,151 +59,50 @@ public class Tests {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T extends CategorizedEntity> T insert(T entity) {
-		IDatabase database = getDb();
-		ModelType type = ModelType.forModelClass(entity.getClass());
-		switch (type) {
-		case ACTOR:
-			return (T) new ActorDao(database).insert((Actor) entity);
-		case CURRENCY:
-			return (T) new CurrencyDao(database).insert((Currency) entity);
-		case FLOW:
-			return (T) new FlowDao(database).insert((Flow) entity);
-		case FLOW_PROPERTY:
-			return (T) new FlowPropertyDao(database)
-					.insert((FlowProperty) entity);
-		case IMPACT_METHOD:
-			return (T) new ImpactMethodDao(database)
-					.insert((ImpactMethod) entity);
-		case PROCESS:
-			return (T) new ProcessDao(database).insert((Process) entity);
-		case PRODUCT_SYSTEM:
-			return (T) new ProductSystemDao(database)
-					.insert((ProductSystem) entity);
-		case PROJECT:
-			return (T) new ProjectDao(database).insert((Project) entity);
-		case SOCIAL_INDICATOR:
-			return (T) new SocialIndicatorDao(database)
-					.insert((SocialIndicator) entity);
-		case SOURCE:
-			return (T) new SourceDao(database).insert((Source) entity);
-		case UNIT_GROUP:
-			return (T) new UnitGroupDao(database).insert((UnitGroup) entity);
-		case LOCATION:
-			return (T) new LocationDao(database).insert((Location) entity);
-		case PARAMETER:
-			return (T) new ParameterDao(database).insert((Parameter) entity);
-		case CATEGORY:
-			return (T) new CategoryDao(database).insert((Category) entity);
-		default:
+	public static <T extends CategorizedEntity> T insert(T e) {
+		if (e == null)
 			return null;
-		}
+		return dao(e).insert(e);
+	}
+
+	public static <T extends CategorizedEntity> T update(T e) {
+		if (e == null)
+			return null;
+		return dao(e).update(e);
+	}
+
+	public static <T extends CategorizedEntity> void delete(T e) {
+		if (e == null)
+			return;
+		dao(e).delete(e);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends CategorizedEntity> T update(T entity) {
-		IDatabase database = getDb();
-		ModelType type = ModelType.forModelClass(entity.getClass());
-		switch (type) {
-		case ACTOR:
-			return (T) new ActorDao(database).update((Actor) entity);
-		case CURRENCY:
-			return (T) new CurrencyDao(database).update((Currency) entity);
-		case FLOW:
-			return (T) new FlowDao(database).update((Flow) entity);
-		case FLOW_PROPERTY:
-			return (T) new FlowPropertyDao(database)
-					.update((FlowProperty) entity);
-		case IMPACT_METHOD:
-			return (T) new ImpactMethodDao(database)
-					.update((ImpactMethod) entity);
-		case PROCESS:
-			return (T) new ProcessDao(database).update((Process) entity);
-		case PRODUCT_SYSTEM:
-			return (T) new ProductSystemDao(database)
-					.update((ProductSystem) entity);
-		case PROJECT:
-			return (T) new ProjectDao(database).update((Project) entity);
-		case SOCIAL_INDICATOR:
-			return (T) new SocialIndicatorDao(database)
-					.update((SocialIndicator) entity);
-		case SOURCE:
-			return (T) new SourceDao(database).update((Source) entity);
-		case UNIT_GROUP:
-			return (T) new UnitGroupDao(database).update((UnitGroup) entity);
-		case LOCATION:
-			return (T) new LocationDao(database).update((Location) entity);
-		case PARAMETER:
-			return (T) new ParameterDao(database).update((Parameter) entity);
-		case CATEGORY:
-			return (T) new CategoryDao(database).update((Category) entity);
-		default:
-			return null;
-		}
+	public static <T> BaseDao<T> dao(T entity) {
+		return (BaseDao<T>) new BaseDao<>(entity.getClass(), getDb());
 	}
 
 	public static void clearDb() {
-		IDatabase database = getDb();
-		ModelType[] types = { ModelType.PROJECT, ModelType.PRODUCT_SYSTEM,
-				ModelType.PROCESS, ModelType.IMPACT_METHOD, ModelType.CURRENCY,
-				ModelType.SOCIAL_INDICATOR, ModelType.FLOW,
-				ModelType.FLOW_PROPERTY, ModelType.UNIT_GROUP, ModelType.ACTOR,
-				ModelType.SOURCE, ModelType.CATEGORY, ModelType.LOCATION,
-				ModelType.PARAMETER };
-		for (ModelType type : types)
-			Daos.createCategorizedDao(database, type).deleteAll();
-	}
-
-	public static void delete(CategorizedEntity entity) {
-		IDatabase database = getDb();
-		ModelType type = ModelType.forModelClass(entity.getClass());
-		switch (type) {
-		case ACTOR:
-			new ActorDao(database).delete((Actor) entity);
-			break;
-		case CURRENCY:
-			new CurrencyDao(database).delete((Currency) entity);
-			break;
-		case FLOW:
-			new FlowDao(database).delete((Flow) entity);
-			break;
-		case FLOW_PROPERTY:
-			new FlowPropertyDao(database).delete((FlowProperty) entity);
-			break;
-		case IMPACT_METHOD:
-			new ImpactMethodDao(database).delete((ImpactMethod) entity);
-			break;
-		case PROCESS:
-			new ProcessDao(database).delete((Process) entity);
-			break;
-		case PRODUCT_SYSTEM:
-			new ProductSystemDao(database).delete((ProductSystem) entity);
-			break;
-		case PROJECT:
-			new ProjectDao(database).delete((Project) entity);
-			break;
-		case SOCIAL_INDICATOR:
-			new SocialIndicatorDao(database).delete((SocialIndicator) entity);
-			break;
-		case SOURCE:
-			new SourceDao(database).delete((Source) entity);
-			break;
-		case UNIT_GROUP:
-			new UnitGroupDao(database).delete((UnitGroup) entity);
-			break;
-		case LOCATION:
-			new LocationDao(database).delete((Location) entity);
-			break;
-		case PARAMETER:
-			new ParameterDao(database).delete((Parameter) entity);
-			break;
-		case CATEGORY:
-			new CategoryDao(database).delete((Category) entity);
-			break;
-		default:
-			break;
+		try {
+			IDatabase db = getDb();
+			List<String> tables = new ArrayList<>();
+			// type = T means user table
+			String sql = "SELECT TABLENAME FROM SYS.SYSTABLES WHERE TABLETYPE = 'T'";
+			NativeSql.on(db).query(sql, r -> {
+				tables.add(r.getString(1));
+				return true;
+			});
+			for (String table : tables) {
+				if (table.equalsIgnoreCase("SEQUENCE"))
+					continue;
+				if (table.equalsIgnoreCase("OPENLCA_VERSION"))
+					continue;
+				NativeSql.on(db).runUpdate("DELETE FROM " + table);
+			}
+			NativeSql.on(db).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
+			db.getEntityFactory().getCache().evictAll();
+		} catch (Exception e) {
+			throw new RuntimeException("failed to clear database", e);
 		}
 	}
-
 }

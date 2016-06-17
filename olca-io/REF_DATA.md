@@ -154,6 +154,7 @@ Columns:
 2. reference ID of the flow property of the factor (UUID, required)
 3. reference ID of the unit of the factor (UUID, required)
 4. value of the factor (double, required)
+5. formula of the factor (string, optional)
 
 
 Normalisation and weighting sets

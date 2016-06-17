@@ -9,9 +9,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.simapro.csv.model.refdata.QuantityRow;
+import org.openlca.simapro.csv.io.BlockReader;
+import org.openlca.simapro.csv.io.ModelReader;
 import org.openlca.simapro.csv.model.refdata.QuantityBlock;
-import org.openlca.simapro.csv.reader.BlockReader;
-import org.openlca.simapro.csv.reader.ModelReader;
 
 public class QuantityBlockTest {
 

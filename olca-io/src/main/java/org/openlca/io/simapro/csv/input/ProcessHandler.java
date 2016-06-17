@@ -7,6 +7,7 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
@@ -14,6 +15,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.io.Categories;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
@@ -113,33 +115,35 @@ class ProcessHandler {
 			long productId = refData.getProduct(output.getName()).getId();
 			addFactor(AllocationMethod.PHYSICAL, productId, value);
 			addFactor(AllocationMethod.ECONOMIC, productId, value);
-			for (Exchange e : process.getExchanges())
-				if (!isOutputProduct(e))
+			for (Exchange e : process.getExchanges()) {
+				if (!isOutputProduct(e)) {
 					addCausalFactor(productId, e, value);
+				}
+			}
 		}
 	}
 
-	private boolean isOutputProduct(Exchange exchange) {
-		return exchange != null && exchange.getFlow() != null
-				&& !exchange.isInput() && !exchange.isAvoidedProduct()
-				&& exchange.getFlow().getFlowType() == FlowType.PRODUCT_FLOW;
+	private boolean isOutputProduct(Exchange e) {
+		return e != null && e.getFlow() != null
+				&& !e.isInput() && !e.isAvoidedProduct()
+				&& e.getFlow().getFlowType() == FlowType.PRODUCT_FLOW;
 	}
 
 	private void addFactor(AllocationMethod method, long productId, double value) {
-		AllocationFactor factor = new AllocationFactor();
-		factor.setAllocationType(method);
-		factor.setValue(value);
-		factor.setProductId(productId);
-		process.getAllocationFactors().add(factor);
+		AllocationFactor f = new AllocationFactor();
+		f.setAllocationType(method);
+		f.setValue(value);
+		f.setProductId(productId);
+		process.getAllocationFactors().add(f);
 	}
 
-	private void addCausalFactor(long productId, Exchange exchange, double value) {
-		AllocationFactor factor = new AllocationFactor();
-		factor.setAllocationType(AllocationMethod.CAUSAL);
-		factor.setValue(value);
-		factor.setProductId(productId);
-		factor.setExchange(exchange);
-		process.getAllocationFactors().add(factor);
+	private void addCausalFactor(long productId, Exchange e, double value) {
+		AllocationFactor f = new AllocationFactor();
+		f.setAllocationType(AllocationMethod.CAUSAL);
+		f.setValue(value);
+		f.setProductId(productId);
+		f.setExchange(e);
+		process.getAllocationFactors().add(f);
 	}
 
 	private Flow getRefFlow() {
@@ -154,125 +158,151 @@ class ProcessHandler {
 		return null;
 	}
 
-	private void mapProductOutputs(long scopeId) {
+	private void mapProductOutputs(long scope) {
 		boolean first = true;
 		for (ProductOutputRow row : block.getProducts()) {
-			Exchange exchange = createProductOutput(row, scopeId);
-			if (first && exchange != null) {
-				process.setQuantitativeReference(exchange);
+			Exchange e = createProductOutput(row, scope);
+			if (first && e != null) {
+				process.setQuantitativeReference(e);
 				first = false;
 			}
 		}
 		if (block.getWasteTreatment() != null) {
-			Exchange exchange = createProductOutput(block.getWasteTreatment(),
-					scopeId);
-			process.setQuantitativeReference(exchange);
+			Exchange e = createProductOutput(block.getWasteTreatment(),
+					scope);
+			process.setQuantitativeReference(e);
 		}
+	}
+
+	private Exchange createProductOutput(RefProductRow row, long scope) {
+		Flow flow = refData.getProduct(row.getName());
+		Exchange e = initExchange(row, scope, flow);
+		if (e == null)
+			return null;
+		e.setInput(false);
+		setUnit(e, row.getUnit());
+		process.getExchanges().add(e);
+		return e;
 	}
 
 	private void mapProductInputs(long scope) {
 		for (ProductType type : ProductType.values()) {
 			for (ProductExchangeRow row : block.getProductExchanges(type)) {
 				Flow flow = refData.getProduct(row.getName());
-				if (flow == null) {
-					log.error("unknown flow {}; could not create exchange", row);
+				Exchange e = initExchange(row, scope, flow);
+				if (e == null)
 					continue;
-				}
-				Exchange exchange = addExchange(row, scope, flow);
-				if (exchange != null) {
-					exchange.setInput(true);
-					exchange.setAvoidedProduct(type == ProductType.AVOIDED_PRODUCTS);
-				}
+				e.setInput(true);
+				e.setAvoidedProduct(type == ProductType.AVOIDED_PRODUCTS);
+				setUnit(e, row.getUnit());
+				process.getExchanges().add(e);
 			}
 		}
 	}
 
 	private void mapElementaryFlows(long scope) {
 		for (ElementaryFlowType type : ElementaryFlowType.values()) {
-			boolean isInputType = type == ElementaryFlowType.RESOURCES;
+			boolean isInput = type == ElementaryFlowType.RESOURCES;
 			for (ElementaryExchangeRow row : block
 					.getElementaryExchangeRows(type)) {
 				String key = KeyGen.get(row.getName(),
 						type.getExchangeHeader(), row.getSubCompartment(),
 						row.getUnit());
-				MapFactor<Flow> mappedFlow = refData.getMappedFlow(key);
-				Exchange exchange;
-				if (mappedFlow != null)
-					exchange = createMappedExchange(mappedFlow, row, scope);
-				else {
+				MapFactor<Flow> factor = refData.getMappedFlow(key);
+				Exchange e;
+				if (factor != null) {
+					e = initMappedExchange(factor, row, scope);
+					setRefUnit(e);
+				} else {
 					Flow flow = refData.getElemFlow(key);
-					exchange = addExchange(row, scope, flow);
+					e = initExchange(row, scope, flow);
+					setUnit(e, row.getUnit());
 				}
-				if (exchange != null) {
-					exchange.setInput(isInputType);
-				}
+				if (e == null)
+					continue;
+				e.setInput(isInput);
+				process.getExchanges().add(e);
 			}
 		}
 	}
 
-	private Exchange createMappedExchange(MapFactor<Flow> mappedFlow,
+	private Exchange initMappedExchange(MapFactor<Flow> mappedFlow,
 			ElementaryExchangeRow row, long scope) {
 		Flow flow = mappedFlow.getEntity();
-		Exchange exchange = addExchange(row, scope, flow);
-		if (exchange == null)
+		Exchange e = initExchange(row, scope, flow);
+		if (e == null)
 			return null;
 		double f = mappedFlow.getFactor();
-		exchange.setAmountValue(f * exchange.getAmountValue());
-		if (exchange.getAmountFormula() != null) {
-			String formula = f + " * ( " + exchange.getAmountFormula() + " )";
-			exchange.setAmountFormula(formula);
+		e.setAmountValue(f * e.getAmountValue());
+		if (e.getAmountFormula() != null) {
+			String formula = f + " * ( " + e.getAmountFormula() + " )";
+			e.setAmountFormula(formula);
 		}
-		if (exchange.getUncertainty() != null)
-			exchange.getUncertainty().scale(f);
-		return exchange;
+		if (e.getUncertainty() != null) {
+			e.getUncertainty().scale(f);
+		}
+		return e;
 	}
 
-	private Exchange createProductOutput(RefProductRow row, long scopeId) {
-		Flow flow = refData.getProduct(row.getName());
-		Exchange exchange = addExchange(row, scopeId, flow);
-		if (exchange != null)
-			exchange.setInput(false);
-		return exchange;
-	}
-
-	private Exchange addExchange(AbstractExchangeRow row, long scopeId,
+	private Exchange initExchange(AbstractExchangeRow row, long scopeId,
 			Flow flow) {
 		if (flow == null) {
 			log.error("could not create exchange as there was now flow found "
 					+ "for {}", row);
 			return null;
 		}
-		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
-		exchange.description = row.getComment();
-		setExchangeUnit(exchange, flow, row.getUnit());
-		setAmount(exchange, row.getAmount(), scopeId);
-		Uncertainty uncertainty = Uncertainties.get(exchange.getAmountValue(),
+		Exchange e = new Exchange();
+		e.setFlow(flow);
+		e.description = row.getComment();
+		setAmount(e, row.getAmount(), scopeId);
+		Uncertainty uncertainty = Uncertainties.get(e.getAmountValue(),
 				row.getUncertaintyDistribution());
-		exchange.setUncertainty(uncertainty);
-		process.getExchanges().add(exchange);
-		return exchange;
+		e.setUncertainty(uncertainty);
+		return e;
 	}
 
-	private void setExchangeUnit(Exchange exchange, Flow flow, String unit) {
+	/** Sets the exchange unit and flow property for the given SimaPro unit. */
+	private void setUnit(Exchange e, String unit) {
+		if (e == null || e.getFlow() == null)
+			return;
 		UnitMappingEntry entry = refData.getUnitMapping().getEntry(unit);
 		if (entry == null) {
 			log.error("unknown unit {}; could not set exchange unit", unit);
 			return;
 		}
-		exchange.setUnit(entry.getUnit());
+		Flow flow = e.getFlow();
+		e.setUnit(entry.getUnit());
 		FlowPropertyFactor factor = flow.getFactor(entry.getFlowProperty());
-		exchange.setFlowPropertyFactor(factor);
+		e.setFlowPropertyFactor(factor);
 	}
 
-	private void setAmount(Exchange exchange, String amountText, long scope) {
+	/**
+	 * Sets the exchange unit and flow property from the flow reference data
+	 * (used for mapped reference flows).
+	 */
+	private void setRefUnit(Exchange e) {
+		if (e == null || e.getFlow() == null)
+			return;
+		Flow f = e.getFlow();
+		FlowPropertyFactor fac = f.getReferenceFactor();
+		if (fac == null || fac.getFlowProperty() == null)
+			return;
+		e.setFlowPropertyFactor(fac);
+		FlowProperty prop = fac.getFlowProperty();
+		UnitGroup group = prop.getUnitGroup();
+		if (group == null || group.getReferenceUnit() == null)
+			return;
+		e.setUnit(group.getReferenceUnit());
+	}
+
+	private void setAmount(Exchange e, String amountText, long scope) {
 		try {
 			double val = Double.parseDouble(amountText);
-			exchange.setAmountValue(val);
-		} catch (Exception e) {
+			e.setAmountValue(val);
+		} catch (Exception ex) {
 			double val = parameterMapper.eval(amountText, scope);
-			exchange.setAmountValue(val);
-			exchange.setAmountFormula(amountText);
+			e.setAmountValue(val);
+			e.setAmountFormula(amountText);
 		}
 	}
 
@@ -299,5 +329,4 @@ class ProcessHandler {
 		else
 			process.setProcessType(ProcessType.UNIT_PROCESS);
 	}
-
 }

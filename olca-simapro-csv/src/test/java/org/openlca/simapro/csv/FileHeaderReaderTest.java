@@ -4,8 +4,8 @@ import java.io.StringReader;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.simapro.csv.io.FileHeaderReader;
 import org.openlca.simapro.csv.model.FileHeader;
-import org.openlca.simapro.csv.reader.FileHeaderReader;
 
 public class FileHeaderReaderTest {
 

@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.simapro.csv.io.BlockReader;
+import org.openlca.simapro.csv.io.BlockUnmarshaller;
 import org.openlca.simapro.csv.model.Block;
 import org.openlca.simapro.csv.model.refdata.AirEmissionBlock;
 import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
-import org.openlca.simapro.csv.reader.BlockReader;
-import org.openlca.simapro.csv.reader.BlockUnmarshaller;
 
 public class ElementaryFlowTest {
 

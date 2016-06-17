@@ -1,5 +1,6 @@
 package org.openlca.geo.parameter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -10,51 +11,40 @@ import org.geotools.data.DataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
+import org.openlca.geo.kml.FeatureType;
 import org.openlca.geo.kml.KmlFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Calculates the parameter values for a given feature from intersecting shapes.
+ */
 class FeatureCalculator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final DataStore dataStore;
+	private DataStore dataStore;
+	private Map<String, Double> defaults;
 
-	public FeatureCalculator(DataStore dataStore) {
+	public FeatureCalculator(DataStore dataStore, Map<String, Double> defaults) {
 		this.dataStore = dataStore;
+		this.defaults = defaults;
 	}
 
 	public Map<String, Double> calculate(KmlFeature feature,
-			List<String> parameters, Map<String, Double> defaults,
+			List<String> parameters, Map<String, Double> shares) {
+		FeatureType type = feature.type;
+		if (type == null
+				|| type == FeatureType.EMPTY
+				|| type == FeatureType.MULTI_GEOMETRY) {
+			log.warn("cannot calculate parameter values for type {}", type);
+			return Collections.emptyMap();
+		}
+		return calculate(parameters, shares);
+	}
+
+	private Map<String, Double> calculate(List<String> parameters,
 			Map<String, Double> shares) {
-		if (feature.type == null)
-			return Collections.emptyMap();
-		switch (feature.type) {
-		case EMPTY:
-		case MULTI_GEOMETRY:
-			log.warn("cannot calculate parameter values for type {}",
-					feature.type);
-			return Collections.emptyMap();
-		default:
-			return fetchValues(parameters, defaults, shares);
-		}
-	}
-
-	private Map<String, Double> fetchValues(SimpleFeature feature,
-			List<String> parameters) {
-		Map<String, Double> map = new HashMap<>();
-		for (String param : parameters) {
-			Object obj = feature.getAttribute(param);
-			if (!(obj instanceof Number))
-				continue;
-			Number number = (Number) obj;
-			map.put(param, number.doubleValue());
-		}
-		return map;
-	}
-
-	private Map<String, Double> fetchValues(List<String> parameters,
-			Map<String, Double> defaults, Map<String, Double> shares) {
 		try (SimpleFeatureIterator iterator = getIterator()) {
 			Map<SimpleFeature, Double> _shares = new HashMap<>();
 			while (iterator.hasNext()) {
@@ -62,7 +52,7 @@ class FeatureCalculator {
 				if (shares.containsKey(shape.getID()))
 					_shares.put(shape, shares.get(shape.getID()));
 			}
-			return fetchValues(_shares, parameters, defaults);
+			return fetchValues(_shares, parameters);
 		} catch (Exception e) {
 			log.error("failed to fetch parameters for feature", e);
 			return null;
@@ -70,39 +60,29 @@ class FeatureCalculator {
 	}
 
 	private Map<String, Double> fetchValues(Map<SimpleFeature, Double> shares,
-			List<String> parameters, Map<String, Double> defaults) {
-		Map<String, Double> results = new HashMap<>();
-		double totalShare = calculateTotalShare(shares);
-		if (totalShare < 1)
-			shares.put(null, (1 - totalShare));
-		for (SimpleFeature feature : shares.keySet()) {
-			Double share = shares.get(feature);
-			if (share == null)
-				continue;
-			Map<String, Double> vals = defaults;
-			if (feature != null)
-				vals = fetchValues(feature, parameters);
-			for (String param : parameters) {
-				Double val = vals.get(param);
-				if (val == null)
-					continue;
-				double featureResult = share * val;
-				Double totalResult = results.get(param);
-				if (totalResult == null)
-					results.put(param, featureResult);
-				else
-					results.put(param, totalResult + featureResult);
+			List<String> params) {
+		Map<String, Double> parameterResults = new HashMap<>();
+		for (String param : params) {
+			ValSet vals = new ValSet(param);
+			for (Entry<SimpleFeature, Double> entry : shares.entrySet()) {
+				Double val = getValue(entry.getKey(), param);
+				Double share = entry.getValue();
+				vals.add(val, share);
 			}
+			parameterResults.put(param, vals.getValue());
 		}
-		return results;
+		return parameterResults;
 	}
 
-	private double calculateTotalShare(Map<SimpleFeature, Double> shares) {
-		double share = 0;
-		for (Entry<SimpleFeature, Double> entry : shares.entrySet())
-			if (entry.getValue() != null)
-				share += entry.getValue();
-		return share;
+	private Double getValue(SimpleFeature shape, String param) {
+		if (shape == null || param == null)
+			return null;
+		Object obj = shape.getAttribute(param);
+		if (!(obj instanceof Number))
+			return null;
+		Number number = (Number) obj;
+		double val = number.doubleValue();
+		return Val.isNaN(val) ? null : val;
 	}
 
 	private SimpleFeatureIterator getIterator() throws Exception {
@@ -112,4 +92,49 @@ class FeatureCalculator {
 		return collection.features();
 	}
 
+	/**
+	 * Set of values and shares of a parameter. A value of null means 'not
+	 * available'.
+	 */
+	private class ValSet {
+
+		String parameter;
+
+		ArrayList<Double> values = new ArrayList<>();
+		ArrayList<Double> shares = new ArrayList<>();
+		int nanCount = 0;
+
+		ValSet(String parameter) {
+			this.parameter = parameter;
+		}
+
+		void add(Double value, Double share) {
+			values.add(value);
+			shares.add(share);
+			if (value == null) {
+				nanCount++;
+			}
+		}
+
+		double getValue() {
+			if (nanCount == values.size()) {
+				Double v = defaults.get(parameter);
+				return v == null ? 0 : v;
+			}
+			double shareSum = 0;
+			double total = 0;
+			for (int i = 0; i < values.size(); i++) {
+				Double val = values.get(i);
+				if (val == null)
+					continue;
+				Double s = shares.get(i);
+				double share = s == null ? 0 : s;
+				total += val * share;
+				shareSum += share;
+			}
+			if (nanCount == 0)
+				return total;
+			return shareSum == 0 ? 0 : total / shareSum;
+		}
+	}
 }
