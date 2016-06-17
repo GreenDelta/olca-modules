@@ -7,6 +7,7 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
@@ -14,6 +15,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.io.Categories;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
@@ -171,7 +173,7 @@ class ProcessHandler {
 			process.setQuantitativeReference(e);
 		}
 	}
-	
+
 	private Exchange createProductOutput(RefProductRow row, long scope) {
 		Flow flow = refData.getProduct(row.getName());
 		Exchange e = initExchange(row, scope, flow);
@@ -238,7 +240,7 @@ class ProcessHandler {
 		}
 		if (e.getUncertainty() != null) {
 			e.getUncertainty().scale(f);
-		}				
+		}
 		return e;
 	}
 
@@ -255,7 +257,7 @@ class ProcessHandler {
 		setAmount(e, row.getAmount(), scopeId);
 		Uncertainty uncertainty = Uncertainties.get(e.getAmountValue(),
 				row.getUncertaintyDistribution());
-		e.setUncertainty(uncertainty);		
+		e.setUncertainty(uncertainty);
 		return e;
 	}
 
@@ -263,7 +265,7 @@ class ProcessHandler {
 	private void setUnit(Exchange e, String unit) {
 		if (e == null || e.getFlow() == null)
 			return;
-		UnitMappingEntry entry = refData.getUnitMapping().getEntry(unit);		
+		UnitMappingEntry entry = refData.getUnitMapping().getEntry(unit);
 		if (entry == null) {
 			log.error("unknown unit {}; could not set exchange unit", unit);
 			return;
@@ -273,9 +275,9 @@ class ProcessHandler {
 		FlowPropertyFactor factor = flow.getFactor(entry.getFlowProperty());
 		e.setFlowPropertyFactor(factor);
 	}
-	
-	/** 
-	 * Sets the exchange unit and flow property from the flow reference data 
+
+	/**
+	 * Sets the exchange unit and flow property from the flow reference data
 	 * (used for mapped reference flows).
 	 */
 	private void setRefUnit(Exchange e) {
@@ -297,7 +299,7 @@ class ProcessHandler {
 		try {
 			double val = Double.parseDouble(amountText);
 			e.setAmountValue(val);
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			double val = parameterMapper.eval(amountText, scope);
 			e.setAmountValue(val);
 			e.setAmountFormula(amountText);
