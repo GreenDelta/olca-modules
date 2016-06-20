@@ -143,7 +143,19 @@ public class RepositoryClient {
 			return invocation.execute();
 		});
 	}
-
+	public String getPreviousReference(ModelType type, String refId, String beforeCommitId)
+			throws WebRequestException {
+		return executeLoggedIn(() -> {
+			PreviousCommitInvocation invocation = new PreviousCommitInvocation();
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.type = type;
+			invocation.refId = refId;
+			invocation.commitId = beforeCommitId;
+			return invocation.execute();
+		});
+	}
 	public List<FetchRequestData> requestFetch() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
