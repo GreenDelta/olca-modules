@@ -190,7 +190,7 @@ public class RepositoryClient {
 		});	
 	}
 	
-	public void fetch(List<Dataset> fetchData, Map<Dataset, JsonObject> mergedData) throws WebRequestException {
+	public void fetch(List<String> fetchData, Map<Dataset, JsonObject> mergedData) throws WebRequestException {
 		executeLoggedIn(() -> {
 			FetchInvocation invocation = new FetchInvocation(config.getDatabase());
 			invocation.baseUrl = config.getBaseUrl();

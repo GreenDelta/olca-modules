@@ -53,7 +53,7 @@ class FetchInvocation {
 	String sessionId;
 	String repositoryId;
 	String lastCommitId;
-	List<Dataset> fetchData;
+	List<String> fetchData;
 	Map<Dataset, JsonObject> mergedData;
 
 	FetchInvocation(IDatabase database) {
@@ -114,9 +114,11 @@ class FetchInvocation {
 		JsonImport jsonImport = new JsonImport(reader.getEntityStore(), database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		jsonImport.run();
-		for (Dataset descriptor : reader.getDescriptors())
-			if (!reader.hasData(descriptor))
-				delete(Daos.createCategorizedDao(database, descriptor.type), descriptor.refId);
+		for (Dataset descriptor : reader.getDescriptors()) {
+			if (reader.hasData(descriptor))
+				continue;
+			delete(Daos.createCategorizedDao(database, descriptor.type), descriptor.refId);
+		}
 		for (Entry<Dataset, JsonObject> entry : mergedData.entrySet())
 			if (entry.getValue() == null)
 				delete(Daos.createCategorizedDao(database, entry.getKey().type), entry.getKey().refId);
