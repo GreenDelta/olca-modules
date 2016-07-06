@@ -12,6 +12,9 @@ public class DQScore extends AbstractEntity implements Comparable<DQScore> {
 	@Column(name = "position")
 	public int position;
 
+	@Column(name = "label")
+	public String label;
+
 	@Lob
 	@Column(name = "description")
 	public String description;

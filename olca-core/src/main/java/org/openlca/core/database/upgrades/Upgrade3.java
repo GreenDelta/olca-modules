@@ -22,6 +22,8 @@ public class Upgrade3 implements IUpgrade {
 		createDQSystemTable();
 		createDQIndicatorTable();
 		createDQScoreTable();
+		modifyProcessTable();
+		modifyExchangeTable();
 	}
 
 	private void createDQSystemTable() throws Exception {
@@ -45,8 +47,18 @@ public class Upgrade3 implements IUpgrade {
 	private void createDQScoreTable() throws Exception {
 		util.checkCreateTable("tbl_dq_scores", "CREATE TABLE tbl_dq_scores ( "
 				+ "id BIGINT NOT NULL, " + "position INTEGER NOT NULL, "
-				+ "description CLOB(64 K), " + "uncertainty DOUBLE default 0, "
+				+ "description CLOB(64 K), " + "label VARCHAR(255), " + "uncertainty DOUBLE default 0, "
 				+ "f_dq_indicator BIGINT, " + "PRIMARY KEY (id)) ");
 	}
 
+	private void modifyProcessTable() throws Exception {
+		util.checkCreateColumn("tbl_processes", "dq_entry", "dq_entry VARCHAR(50)");
+		util.checkCreateColumn("tbl_processes", "f_dq_system", "f_dq_system BIGINT");
+		util.checkCreateColumn("tbl_processes", "f_exchange_dq_system", "f_exchange_dq_system BIGINT");
+	}
+	
+	private void modifyExchangeTable() throws Exception {
+		util.renameColumn("tbl_exchanges", "pedigree_uncertainty", "dq_entry", "VARCHAR(50)");
+	}
+	
 }

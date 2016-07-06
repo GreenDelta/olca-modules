@@ -35,6 +35,9 @@ class ProcessWriter extends Writer<Process> {
 		Out.put(obj, "location", p.getLocation(), conf);
 		Out.put(obj, "processDocumentation", Documentation.create(p, conf));
 		Out.put(obj, "currency", p.currency, conf);
+		Out.put(obj, "dqSystem", p.dqSystem, conf);
+		Out.put(obj, "dqEntry", p.dqEntry);
+		Out.put(obj, "exchangeDqSystem", p.exchangeDqSystem, conf);
 		mapParameters(obj);
 		mapExchanges(obj);
 		mapSocialAspects(obj);

@@ -26,8 +26,9 @@ public class JsonImport implements Runnable {
 	@Override
 	public void run() {
 		checkSchemaSupported();
-		ImportConfig conf = ImportConfig.create(new Db(database), store,
-				updateMode);
+		ImportConfig conf = ImportConfig.create(new Db(database), store, updateMode);
+		for (String sysId : store.getRefIds(ModelType.DQ_SYSTEM))
+			DQSystemImport.run(sysId, conf);
 		for (String locId : store.getRefIds(ModelType.LOCATION))
 			LocationImport.run(locId, conf);
 		for (String catId : store.getRefIds(ModelType.CATEGORY))

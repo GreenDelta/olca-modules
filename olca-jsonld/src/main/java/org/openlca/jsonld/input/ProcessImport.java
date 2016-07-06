@@ -48,6 +48,13 @@ class ProcessImport extends BaseImport<Process> {
 		String locId = In.getRefId(json, "location");
 		if (locId != null)
 			p.setLocation(LocationImport.run(locId, conf));
+		String dqSystemId = In.getRefId(json, "dqSystem");
+		if (dqSystemId != null)
+			p.dqSystem = DQSystemImport.run(dqSystemId, conf);
+		p.dqEntry = In.getString(json, "dqEntry");
+		String exchangeDqSystemId = In.getRefId(json, "exchangeDqSystem");
+		if (exchangeDqSystemId != null)
+			p.exchangeDqSystem = DQSystemImport.run(exchangeDqSystemId, conf);
 		String curId = In.getRefId(json, "currency");
 		if (curId != null)
 			p.currency = CurrencyImport.run(curId, conf);

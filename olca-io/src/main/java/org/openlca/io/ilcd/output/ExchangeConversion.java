@@ -88,7 +88,7 @@ class ExchangeConversion {
 		setProvider(oExchange, ext);
 		ext.setAmount(oExchange.getAmountValue());
 		ext.setBaseUncertainty(oExchange.getBaseUncertainty());
-		ext.setPedigreeUncertainty(oExchange.getPedigreeUncertainty());
+		ext.setPedigreeUncertainty(oExchange.getDqEntry());
 		if (oExchange.getAmountFormula() != null)
 			ext.setFormula(oExchange.getAmountFormula());
 		if (oExchange.getUnit() != null)

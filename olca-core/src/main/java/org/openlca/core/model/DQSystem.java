@@ -36,7 +36,31 @@ public class DQSystem extends CategorizedEntity {
 	public int getScoreCount() {
 		if (indicators == null || indicators.isEmpty())
 			return 0;
+		if (indicators.get(0).scores == null)
+			return 0;
 		return indicators.get(0).scores.size();
 	}
+	
+	public String getScoreLabel(int index) {
+		if (indicators == null || indicators.isEmpty())
+			return null;
+		if (indicators.get(0).scores == null)
+			return null;
+		if (indicators.get(0).scores.size() <= index)
+			return null;
+		return indicators.get(0).scores.get(index).label;
+	}
 
+	public void setScoreLabel(int index, String label) {
+		if (indicators == null || indicators.isEmpty())
+			return;
+		if (indicators.get(0).scores == null)
+			return;
+		if (indicators.get(0).scores.size() <= index)
+			return;
+		for (DQIndicator indicator : indicators) {
+			indicator.scores.get(index).label = label;
+		}
+	}
+	
 }

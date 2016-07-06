@@ -44,8 +44,8 @@ public class Exchange extends AbstractEntity {
 	@JoinColumn(name = "f_unit")
 	private Unit unit;
 
-	@Column(name = "pedigree_uncertainty")
-	private String pedigreeUncertainty;
+	@Column(name = "dq_entry")
+	private String dqEntry;
 
 	@Embedded
 	private Uncertainty uncertainty;
@@ -119,12 +119,12 @@ public class Exchange extends AbstractEntity {
 		this.unit = unit;
 	}
 
-	public String getPedigreeUncertainty() {
-		return pedigreeUncertainty;
+	public String getDqEntry() {
+		return dqEntry;
 	}
 
-	public void setPedigreeUncertainty(String pedigreeUncertainty) {
-		this.pedigreeUncertainty = pedigreeUncertainty;
+	public void setDqEntry(String dqEntry) {
+		this.dqEntry = dqEntry;
 	}
 
 	public Double getBaseUncertainty() {
@@ -168,7 +168,7 @@ public class Exchange extends AbstractEntity {
 		clone.setFlow(this.getFlow());
 		clone.setFlowPropertyFactor(this.getFlowPropertyFactor());
 		clone.setInput(this.isInput());
-		clone.setPedigreeUncertainty(this.getPedigreeUncertainty());
+		clone.setDqEntry(this.getDqEntry());
 		if (this.getUncertainty() != null)
 			clone.setUncertainty(this.getUncertainty().clone());
 		clone.setUnit(this.getUnit());

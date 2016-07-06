@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import com.google.gson.JsonObject;
+
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
@@ -15,6 +15,7 @@ import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -31,6 +32,8 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.EntityStore;
+
+import com.google.gson.JsonObject;
 
 /**
  * Writes entities to an entity store (e.g. a document or zip file). It also
@@ -157,8 +160,9 @@ public class JsonExport {
 			return Writer.class.cast(new ProductSystemWriter(conf));
 		if (entity instanceof Project)
 			return Writer.class.cast(new ProjectWriter(conf));
-		else
-			return null;
+		if (entity instanceof DQSystem)
+			return Writer.class.cast(new DQSystemWriter(conf));
+		return null;
 	}
 
 	public void setExportDefaultProviders(boolean value) {
