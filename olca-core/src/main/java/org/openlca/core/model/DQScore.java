@@ -31,6 +31,7 @@ public class DQScore extends AbstractEntity implements Comparable<DQScore> {
 	public DQScore clone() {
 		DQScore clone = new DQScore();
 		clone.position = position;
+		clone.label = label;
 		clone.description = description;
 		clone.uncertainty = uncertainty;
 		return clone;
