@@ -41,4 +41,12 @@ public class DQIndicator extends AbstractEntity implements Comparable<DQIndicato
 		return clone;
 	}
 
+	public DQScore getScore(int pos) {
+		for (DQScore score : scores)
+			if (score.position == pos)
+				return score;
+		return null;
+	}
+
+	
 }

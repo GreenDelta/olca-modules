@@ -45,26 +45,35 @@ public class DQSystem extends CategorizedEntity {
 		return indicators.get(0).scores.size();
 	}
 
-	public String getScoreLabel(int index) {
+	public String getScoreLabel(int pos) {
 		if (indicators == null || indicators.isEmpty())
 			return null;
 		if (indicators.get(0).scores == null)
 			return null;
-		if (indicators.get(0).scores.size() <= index)
-			return null;
-		return indicators.get(0).scores.get(index).label;
+		for (DQScore score : indicators.get(0).scores)
+			if (score.position == pos)
+				return score.label;
+		return null;
 	}
 
-	public void setScoreLabel(int index, String label) {
+	public void setScoreLabel(int pos, String label) {
 		if (indicators == null || indicators.isEmpty())
 			return;
 		if (indicators.get(0).scores == null)
 			return;
-		if (indicators.get(0).scores.size() <= index)
+		if (indicators.get(0).scores.size() < pos)
 			return;
-		for (DQIndicator indicator : indicators) {
-			indicator.scores.get(index).label = label;
-		}
+		for (DQIndicator indicator : indicators)
+			for (DQScore score : indicator.scores)
+				if (score.position == pos)
+					score.label = label;
+	}
+
+	public DQIndicator getIndicator(int pos) {
+		for (DQIndicator indicator : indicators)
+			if (indicator.position == pos)
+				return indicator;
+		return null;
 	}
 
 }
