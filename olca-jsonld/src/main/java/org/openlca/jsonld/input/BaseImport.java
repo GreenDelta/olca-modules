@@ -93,6 +93,8 @@ abstract class BaseImport<T extends RootEntity> {
 			return (T) conf.db.getSystem(refId);
 		case PROJECT:
 			return (T) conf.db.getProject(refId);
+		case DQ_SYSTEM:
+			return (T) conf.db.getDqSystem(refId);
 		default:
 			throw new RuntimeException(modelType.name() + " not supported");
 		}

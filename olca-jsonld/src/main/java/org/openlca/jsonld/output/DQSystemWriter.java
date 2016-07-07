@@ -40,7 +40,7 @@ class DQSystemWriter extends Writer<DQSystem> {
 		JsonArray scores = new JsonArray();
 		for (DQScore s : indicator.scores) {
 			JsonObject obj = Writer.initJson();
-			Out.put(obj, "name", s.position);
+			Out.put(obj, "position", s.position);
 			Out.put(obj, "label", s.label);
 			Out.put(obj, "description", s.description);
 			Out.put(obj, "uncertainty", s.uncertainty);

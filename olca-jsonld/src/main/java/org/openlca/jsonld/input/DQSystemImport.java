@@ -48,7 +48,7 @@ class DQSystemImport extends BaseImport<DQSystem> {
 	}
 
 	private void mapScores(JsonObject json, DQIndicator i) {
-		JsonArray scores = In.getArray(json, "indicators");
+		JsonArray scores = In.getArray(json, "scores");
 		if (scores == null || scores.size() == 0)
 			return;
 		for (JsonElement e : scores) {
