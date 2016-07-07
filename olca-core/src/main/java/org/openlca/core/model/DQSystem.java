@@ -76,4 +76,60 @@ public class DQSystem extends CategorizedEntity {
 		return null;
 	}
 
+	public String toString(int... values) {
+		if (values == null || values.length == 0)
+			return null;
+		if (values.length != indicators.size())
+			return null;
+		String s = null;
+		for (int pos = 1; pos <= indicators.size(); pos++) {
+			DQIndicator indicator = getIndicator(pos);
+			if (indicator == null)
+				return null;
+			int value = values[pos - 1];
+			DQScore score = indicator.getScore(value);
+			if (value != 0 && score == null)
+				return null;
+			if (s == null) {
+				s = "(";
+			} else {
+				s += ";";
+			}
+			if (value == 0) {
+				s += "n.a.";
+			} else {
+				s += score.position;
+			}
+		}
+		return s + ")";
+	}
+
+	public int[] toValues(String s) {
+		if (s == null || s.length() < 2)
+			return null;
+		String[] sValues = s.substring(1, s.length() - 1).split(";");
+		if (sValues == null || sValues.length != indicators.size())
+			return null;
+		int[] values = new int[sValues.length];
+		for (int pos = 1; pos <= sValues.length; pos++) {
+			DQIndicator indicator = getIndicator(pos);
+			if (indicator == null)
+				return null;
+			String sValue = sValues[pos - 1];
+			if ("n.a.".equals(sValue)) {
+				values[pos - 1] = 0;
+			} else {
+				try {
+					DQScore score = indicator.getScore(Integer.parseInt(sValue));
+					if (score == null)
+						return null;
+					values[pos - 1] = score.position;
+				} catch (NumberFormatException e) {
+					return null;
+				}
+			}
+		}
+		return values;
+	}
+
 }
