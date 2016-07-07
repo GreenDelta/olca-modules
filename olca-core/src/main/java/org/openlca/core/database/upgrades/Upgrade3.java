@@ -56,6 +56,7 @@ public class Upgrade3 implements IUpgrade {
 		util.checkCreateColumn("tbl_processes", "dq_entry", "dq_entry VARCHAR(50)");
 		util.checkCreateColumn("tbl_processes", "f_dq_system", "f_dq_system BIGINT");
 		util.checkCreateColumn("tbl_processes", "f_exchange_dq_system", "f_exchange_dq_system BIGINT");
+		util.checkCreateColumn("tbl_processes", "f_social_dq_system", "f_social_dq_system BIGINT");
 	}
 	
 	private void modifyExchangeTable() throws Exception {

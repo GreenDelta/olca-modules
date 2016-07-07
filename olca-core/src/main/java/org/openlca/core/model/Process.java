@@ -71,6 +71,10 @@ public class Process extends CategorizedEntity {
 	@JoinColumn(name = "f_exchange_dq_system")
 	public DQSystem exchangeDqSystem;
 
+	@OneToOne
+	@JoinColumn(name = "f_social_dq_system")
+	public DQSystem socialDqSystem;
+
 	public ProcessDocumentation getDocumentation() {
 		return documentation;
 	}
