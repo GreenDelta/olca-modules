@@ -33,7 +33,6 @@ public class Upgrade3 implements IUpgrade {
 						+ "version BIGINT, " + "last_change BIGINT, "
 						+ "f_category BIGINT, " + "description CLOB(64 K), "
 						+ "has_uncertainties SMALLINT default 0, "
-						+ "summable SMALLINT default 0, "
 						+ "PRIMARY KEY (id)) ");
 	}
 

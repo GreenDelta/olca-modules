@@ -626,7 +626,6 @@ CREATE TABLE tbl_dq_systems (
 	f_category BIGINT, 
 	description CLOB(64 K),
 	has_uncertainties SMALLINT default 0,
-	summable SMALLINT default 0, 
 
 	PRIMARY KEY (id)
 );

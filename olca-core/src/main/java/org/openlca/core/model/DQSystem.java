@@ -18,9 +18,6 @@ public class DQSystem extends CategorizedEntity {
 	@Column(name = "has_uncertainties")
 	public boolean hasUncertainties;
 
-	@Column(name = "summable")
-	public boolean summable;
-
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "f_dq_system")
 	public final List<DQIndicator> indicators = new ArrayList<>();
@@ -30,7 +27,6 @@ public class DQSystem extends CategorizedEntity {
 		DQSystem clone = new DQSystem();
 		Util.cloneRootFields(this, clone);
 		clone.hasUncertainties = hasUncertainties;
-		clone.summable = summable;
 		for (DQIndicator indicator : indicators) {
 			clone.indicators.add(indicator.clone());
 		}
