@@ -150,7 +150,7 @@ public class DQResultTest {
 		CalculationSetup setup = new CalculationSetup(pSystem);
 		setup.setAmount(1);
 		ContributionResult cResult = calculator.calculateContributions(setup);
-		DQResult result = DQResult.calculate(Tests.getDb(), cResult, pSystem.getId());
+		DQResult result = DQResult.calculate(Tests.getDb(), cResult, AggregationType.WEIGHTED_AVERAGE, pSystem.getId());
 		Assert.assertArrayEquals(new int[] { 3, 4, 3, 3, 2 }, result.getFlowQuality(eFlow.getId()));
 	}
 
