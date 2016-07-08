@@ -26,7 +26,6 @@ class DQSystemImport extends BaseImport<DQSystem> {
 		DQSystem s = new DQSystem();
 		In.mapAtts(json, s, id, conf);
 		s.hasUncertainties = In.getBool(json, "hasUncertainties", false);
-		s.summable = In.getBool(json, "summable", false);
 		mapIndicators(json, s);
 		return conf.db.put(s);
 	}
