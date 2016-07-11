@@ -23,11 +23,15 @@ class DQData {
 	public static DQData load(IDatabase db, long productSystemId) {
 		DQData data = new DQData();
 		data.loadSystems(db, productSystemId);
-		data.loadProcessEntries(db, productSystemId);
-		data.loadExchangeEntries(db, productSystemId);
+		if (data.processSystem != null) {
+			data.loadProcessEntries(db, productSystemId);
+		}
+		if (data.exchangeSystem != null) {
+			data.loadExchangeEntries(db, productSystemId);
+		}
 		return data;
 	}
-	
+
 	private DQData() {
 		// hide constructor
 	}
@@ -39,10 +43,20 @@ class DQData {
 		try {
 			NativeSql.on(db).query(query.toString(), (res) -> {
 				long processSystemId = res.getLong("f_dq_system");
+				if (processSystem != null && processSystem.getId() != processSystemId) {
+					processSystem = null;
+					exchangeSystem = null;
+					return false;
+				}
 				long exchangeSystemId = res.getLong("f_exchange_dq_system");
+				if (exchangeSystem != null && exchangeSystem.getId() != exchangeSystemId) {
+					processSystem = null;
+					exchangeSystem = null;
+					return false;
+				}
 				processSystem = loadSystem(db, processSystemId);
 				exchangeSystem = loadSystem(db, exchangeSystemId);
-				return processSystem == null || exchangeSystem == null;
+				return true;
 			});
 		} catch (SQLException e) {
 			log.error("Error loading linked data quality systems", e);

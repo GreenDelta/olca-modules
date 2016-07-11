@@ -46,8 +46,14 @@ public class DQResult {
 		if (db == null || result == null || type == null || productSystemId == 0l)
 			return null;
 		DQData data = DQData.load(db, productSystemId);
+		if (data.processSystem == null && data.exchangeSystem == null)
+			return null;
 		DQResult dqResult = new DQResult(data.processSystem, data.exchangeSystem, type);
-		dqResult.processValues = data.processData;
+		if (data.processSystem != null) {
+			dqResult.processValues = data.processData;
+		}
+		if (data.exchangeSystem == null)
+			return dqResult;
 		dqResult.flowValuesPerProcess = data.exchangeData;
 		if (type == AggregationType.NONE)
 			return dqResult;
@@ -67,6 +73,8 @@ public class DQResult {
 				if (flowResult == 0d)
 					continue;
 				int[] values = data.exchangeData.get(new LongPair(processId, flowId));
+				if (values == null)
+					continue;
 				toAggregate.add(new AggregationValue(values, flowResult));
 			}
 			flowValues.put(flowId, Aggregation.applyTo(toAggregate, type));
@@ -81,6 +89,8 @@ public class DQResult {
 				if (impactFactor == 0d)
 					continue;
 				int[] values = flowValues.get(flowId);
+				if (values == null)
+					continue;
 				toAggregate.add(new AggregationValue(values, impactFactor));
 			}
 			impactValues.put(impactId, Aggregation.applyTo(toAggregate, type));
@@ -99,6 +109,8 @@ public class DQResult {
 					if (impactFactor == 0d)
 						continue;
 					int[] values = data.exchangeData.get(new LongPair(processId, flowId));
+					if (values == null)
+						continue;
 					toAggregate.add(new AggregationValue(values, flowResult));
 				}
 				impactValuesPerProcess.put(new LongPair(processId, impactId), Aggregation.applyTo(toAggregate, type));
