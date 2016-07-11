@@ -69,7 +69,7 @@ public class DQResult {
 		for (long flowId : result.flowIndex.getFlowIds()) {
 			List<AggregationValue> toAggregate = new ArrayList<>();
 			for (long processId : result.productIndex.getProcessIds()) {
-				double flowResult = result.getSingleFlowResult(processId, flowId);
+				double flowResult = Math.abs(result.getSingleFlowResult(processId, flowId));
 				if (flowResult == 0d)
 					continue;
 				int[] values = data.exchangeData.get(new LongPair(processId, flowId));
@@ -85,7 +85,7 @@ public class DQResult {
 		for (long impactId : result.impactIndex.getKeys()) {
 			List<AggregationValue> toAggregate = new ArrayList<>();
 			for (long flowId : result.flowIndex.getFlowIds()) {
-				double impactFactor = getImpactFactor(result, impactId, flowId);
+				double impactFactor = Math.abs(getImpactFactor(result, impactId, flowId));
 				if (impactFactor == 0d)
 					continue;
 				int[] values = flowValues.get(flowId);
@@ -102,10 +102,10 @@ public class DQResult {
 			for (long processId : result.productIndex.getProcessIds()) {
 				List<AggregationValue> toAggregate = new ArrayList<>();
 				for (long flowId : result.flowIndex.getFlowIds()) {
-					double flowResult = result.getSingleFlowResult(processId, flowId);
+					double flowResult = Math.abs(result.getSingleFlowResult(processId, flowId));
 					if (flowResult == 0d)
 						continue;
-					double impactFactor = getImpactFactor(result, impactId, flowId);
+					double impactFactor = Math.abs(getImpactFactor(result, impactId, flowId));
 					if (impactFactor == 0d)
 						continue;
 					int[] values = data.exchangeData.get(new LongPair(processId, flowId));
