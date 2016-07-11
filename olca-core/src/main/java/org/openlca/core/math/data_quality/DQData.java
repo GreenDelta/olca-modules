@@ -37,30 +37,51 @@ class DQData {
 	}
 
 	private void loadSystems(IDatabase db, long productSystemId) {
-		String query = "SELECT DISTINCT f_dq_system, f_exchange_dq_system FROM tbl_processes";
-		query += " INNER JOIN tbl_product_system_processes ON tbl_processes.id = tbl_product_system_processes.f_process ";
-		query += " WHERE tbl_product_system_processes.f_product_system = " + productSystemId;
+		loadProcessSystem(db, productSystemId);
+		loadExchangeSystem(db, productSystemId);
+	}
+
+	private void loadProcessSystem(IDatabase db, long productSystemId) {
+		String query = getLoadSystemQuery("f_dq_system", productSystemId);
 		try {
 			NativeSql.on(db).query(query.toString(), (res) -> {
-				long processSystemId = res.getLong("f_dq_system");
-				if (processSystem != null && processSystem.getId() != processSystemId) {
+				long systemId = res.getLong("f_dq_system");
+				if (processSystem == null) {
+					processSystem = loadSystemFromDb(db, systemId);
+				} else if (processSystem.getId() != systemId) {
 					processSystem = null;
-					exchangeSystem = null;
 					return false;
 				}
-				long exchangeSystemId = res.getLong("f_exchange_dq_system");
-				if (exchangeSystem != null && exchangeSystem.getId() != exchangeSystemId) {
-					processSystem = null;
-					exchangeSystem = null;
-					return false;
-				}
-				processSystem = loadSystem(db, processSystemId);
-				exchangeSystem = loadSystem(db, exchangeSystemId);
 				return true;
 			});
 		} catch (SQLException e) {
 			log.error("Error loading linked data quality systems", e);
 		}
+	}
+
+	private void loadExchangeSystem(IDatabase db, long productSystemId) {
+		String query = getLoadSystemQuery("f_exchange_dq_system", productSystemId);
+		try {
+			NativeSql.on(db).query(query.toString(), (res) -> {
+				long systemId = res.getLong("f_exchange_dq_system");
+				if (exchangeSystem == null) {
+					exchangeSystem = loadSystemFromDb(db, systemId);
+				} else if (exchangeSystem.getId() != systemId) {
+					exchangeSystem = null;
+					return false;
+				}
+				return true;
+			});
+		} catch (SQLException e) {
+			log.error("Error loading linked data quality systems", e);
+		}
+	}
+
+	private String getLoadSystemQuery(String field, long productSystemId) {
+		String query = "SELECT DISTINCT " + field + " FROM tbl_processes";
+		query += " INNER JOIN tbl_product_system_processes ON tbl_processes.id = tbl_product_system_processes.f_process ";
+		query += " WHERE tbl_product_system_processes.f_product_system = " + productSystemId;
+		return query;
 	}
 
 	private void loadProcessEntries(IDatabase db, long productSystemId) {
@@ -96,7 +117,7 @@ class DQData {
 		}
 	}
 
-	private DQSystem loadSystem(IDatabase db, long id) {
+	private DQSystem loadSystemFromDb(IDatabase db, long id) {
 		if (id == 0l)
 			return null;
 		return new DQSystemDao(db).getForId(id);
