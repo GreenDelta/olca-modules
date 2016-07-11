@@ -48,7 +48,7 @@ class DQData {
 				long systemId = res.getLong("f_dq_system");
 				if (processSystem == null) {
 					processSystem = loadSystemFromDb(db, systemId);
-				} else if (processSystem.getId() != systemId) {
+				} else if (processSystem.getId() != systemId && systemId != 0l) {
 					processSystem = null;
 					return false;
 				}
@@ -66,7 +66,7 @@ class DQData {
 				long systemId = res.getLong("f_exchange_dq_system");
 				if (exchangeSystem == null) {
 					exchangeSystem = loadSystemFromDb(db, systemId);
-				} else if (exchangeSystem.getId() != systemId) {
+				} else if (exchangeSystem.getId() != systemId && systemId != 0l) {
 					exchangeSystem = null;
 					return false;
 				}

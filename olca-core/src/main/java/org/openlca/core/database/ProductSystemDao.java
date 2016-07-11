@@ -40,4 +40,24 @@ public class ProductSystemDao extends
 		return result;
 	}
 
+	public int countProcessDqSystems(long productSystemId) {
+		return countSystems("f_dq_system", productSystemId);
+	}
+
+	public int countExchangeDqSystems(long productSystemId) {
+		return countSystems("f_exchange_dq_system", productSystemId);
+	}
+
+	private int countSystems(String field, long productSystemId) {
+		String query = "SELECT count(DISTINCT " + field + ") FROM tbl_processes";
+		query += " INNER JOIN tbl_product_system_processes ON tbl_processes.id = tbl_product_system_processes.f_process ";
+		query += " WHERE tbl_product_system_processes.f_product_system = " + productSystemId;
+		try {
+			return NativeSql.on(database).getCount(query);
+		} catch (SQLException e) {
+			log.error("Error counting process data quality systems", e);
+			return 0;
+		}
+	}
+
 }
