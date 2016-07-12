@@ -1,12 +1,9 @@
 package org.openlca.core.math.data_quality;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.data_quality.Aggregation.AggregationValue;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.results.ContributionResult;
@@ -57,72 +54,12 @@ public class DQResult {
 		dqResult.flowValuesPerProcess = data.exchangeData;
 		if (type == AggregationType.NONE)
 			return dqResult;
-		dqResult.calculateFlowValues(result, type, data);
-		if (!result.hasImpactResults())
-			return dqResult;
-		dqResult.calculateImpactValues(result, type, data);
-		dqResult.calculateImpactValuesPerProcess(result, type, data);
+		DQCalculator calculator = new DQCalculator(result, data);
+		calculator.calculate();
+		dqResult.flowValues = calculator.getFlowValues(type);
+		dqResult.impactValues = calculator.getImpactValues(type);
+		dqResult.impactValuesPerProcess = calculator.getImpactPerProcessValues(type);
 		return dqResult;
-	}
-
-	private void calculateFlowValues(ContributionResult result, AggregationType type, DQData data) {
-		for (long flowId : result.flowIndex.getFlowIds()) {
-			List<AggregationValue> toAggregate = new ArrayList<>();
-			for (long processId : result.productIndex.getProcessIds()) {
-				double flowResult = Math.abs(result.getSingleFlowResult(processId, flowId));
-				if (flowResult == 0d)
-					continue;
-				int[] values = data.exchangeData.get(new LongPair(processId, flowId));
-				if (values == null)
-					continue;
-				toAggregate.add(new AggregationValue(values, flowResult));
-			}
-			flowValues.put(flowId, Aggregation.applyTo(toAggregate, type));
-		}
-	}
-
-	private void calculateImpactValues(ContributionResult result, AggregationType type, DQData data) {
-		for (long impactId : result.impactIndex.getKeys()) {
-			List<AggregationValue> toAggregate = new ArrayList<>();
-			for (long flowId : result.flowIndex.getFlowIds()) {
-				double impactFactor = Math.abs(getImpactFactor(result, impactId, flowId));
-				if (impactFactor == 0d)
-					continue;
-				int[] values = flowValues.get(flowId);
-				if (values == null)
-					continue;
-				toAggregate.add(new AggregationValue(values, impactFactor));
-			}
-			impactValues.put(impactId, Aggregation.applyTo(toAggregate, type));
-		}
-	}
-
-	private void calculateImpactValuesPerProcess(ContributionResult result, AggregationType type, DQData data) {
-		for (long impactId : result.impactIndex.getKeys()) {
-			for (long processId : result.productIndex.getProcessIds()) {
-				List<AggregationValue> toAggregate = new ArrayList<>();
-				for (long flowId : result.flowIndex.getFlowIds()) {
-					double flowResult = Math.abs(result.getSingleFlowResult(processId, flowId));
-					if (flowResult == 0d)
-						continue;
-					double impactFactor = Math.abs(getImpactFactor(result, impactId, flowId));
-					if (impactFactor == 0d)
-						continue;
-					int[] values = data.exchangeData.get(new LongPair(processId, flowId));
-					if (values == null)
-						continue;
-					toAggregate.add(new AggregationValue(values, flowResult));
-				}
-				impactValuesPerProcess.put(new LongPair(processId, impactId), Aggregation.applyTo(toAggregate, type));
-			}
-		}
-	}
-
-	private double getImpactFactor(ContributionResult result, long impactId, long flowId) {
-		int flowIndex = result.flowIndex.getIndex(flowId);
-		int impactIndex = result.impactIndex.getIndex(impactId);
-		return result.impactFactors.getEntry(impactIndex, flowIndex);
-
 	}
 
 	private DQResult(DQSystem processSystem, DQSystem exchangeSystem, AggregationType type) {
