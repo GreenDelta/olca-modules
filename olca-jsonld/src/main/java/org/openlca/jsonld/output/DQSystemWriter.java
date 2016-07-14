@@ -19,6 +19,7 @@ class DQSystemWriter extends Writer<DQSystem> {
 		if (obj == null)
 			return null;
 		Out.put(obj, "hasUncertainties", system.hasUncertainties);
+		Out.put(obj, "source", system.source, conf);
 		writeIndicators(system, obj);
 		return obj;
 	}
