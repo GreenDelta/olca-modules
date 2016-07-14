@@ -31,8 +31,8 @@ public class Upgrade3 implements IUpgrade {
 				"CREATE TABLE tbl_dq_systems ( " + "id BIGINT NOT NULL, "
 						+ "name VARCHAR(255), " + "ref_id VARCHAR(36), "
 						+ "version BIGINT, " + "last_change BIGINT, "
-						+ "f_category BIGINT, " + "description CLOB(64 K), "
-						+ "has_uncertainties SMALLINT default 0, "
+						+ "f_category BIGINT, " + "f_source BIGINT, "
+						+ "description CLOB(64 K), " + "has_uncertainties SMALLINT default 0, "
 						+ "PRIMARY KEY (id)) ");
 	}
 
@@ -57,9 +57,9 @@ public class Upgrade3 implements IUpgrade {
 		util.checkCreateColumn("tbl_processes", "f_exchange_dq_system", "f_exchange_dq_system BIGINT");
 		util.checkCreateColumn("tbl_processes", "f_social_dq_system", "f_social_dq_system BIGINT");
 	}
-	
+
 	private void modifyExchangeTable() throws Exception {
 		util.renameColumn("tbl_exchanges", "pedigree_uncertainty", "dq_entry", "VARCHAR(50)");
 	}
-	
+
 }

@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -17,6 +18,10 @@ public class DQSystem extends CategorizedEntity {
 
 	@Column(name = "has_uncertainties")
 	public boolean hasUncertainties;
+
+	@OneToOne
+	@JoinColumn(name = "f_source")
+	public Source source;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "f_dq_system")

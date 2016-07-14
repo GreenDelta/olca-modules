@@ -29,8 +29,10 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.results.ContributionResult;
 
@@ -181,18 +183,23 @@ public class DQResultTest {
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		ContributionResult cResult = calculator.calculateContributions(setup);
 		DQResult result = DQResult.calculate(Tests.getDb(), cResult, AggregationType.WEIGHTED_AVERAGE, pSystem.getId());
-		long impactId = method.getImpactCategories().get(0).getId();
-		Assert.assertArrayEquals(new int[] { 4, 4, 3, 2, 2 }, result.getFlowQuality(eFlow1.getId()));
-		Assert.assertArrayEquals(new int[] { 2, 3, 3, 4, 4 }, result.getFlowQuality(eFlow2.getId()));
-		Assert.assertArrayEquals(new int[] { 2, 3, 3, 3, 4 }, result.getImpactQuality(impactId));
-		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, result.getFlowQuality(process1.getId(), eFlow1.getId()));
-		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, result.getFlowQuality(process2.getId(), eFlow1.getId()));
-		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, result.getFlowQuality(process1.getId(), eFlow2.getId()));
-		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, result.getFlowQuality(process2.getId(), eFlow2.getId()));
-		Assert.assertArrayEquals(new int[] { 3, 3, 3, 3, 3 }, result.getImpactQuality(process1.getId(), impactId));
-		Assert.assertArrayEquals(new int[] { 3, 3, 3, 3, 3 }, result.getImpactQuality(process2.getId(), impactId));
-		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, result.getProcessQuality(process1.getId()));
-		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, result.getProcessQuality(process2.getId()));
+		ImpactCategory impactCategory = method.getImpactCategories().get(0);
+		Assert.assertArrayEquals(new int[] { 4, 4, 3, 2, 2 }, result.get(toDesc(eFlow1)));
+		Assert.assertArrayEquals(new int[] { 2, 3, 3, 4, 4 }, result.get(toDesc(eFlow2)));
+		Assert.assertArrayEquals(new int[] { 2, 3, 3, 3, 4 }, result.get(toDesc(impactCategory)));
+		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, result.get(toDesc(process1), toDesc(eFlow1)));
+		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, result.get(toDesc(process2), toDesc(eFlow1)));
+		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, result.get(toDesc(process1), toDesc(eFlow2)));
+		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, result.get(toDesc(process2), toDesc(eFlow2)));
+		Assert.assertArrayEquals(new int[] { 4, 4, 3, 2, 2 }, result.get(toDesc(process1), toDesc(impactCategory)));
+		Assert.assertArrayEquals(new int[] { 2, 2, 3, 4, 4 }, result.get(toDesc(process2), toDesc(impactCategory)));
+		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, result.get(toDesc(process1)));
+		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, result.get(toDesc(process2)));
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends BaseDescriptor> T toDesc(RootEntity entity) {
+		return (T) Descriptors.toDescriptor(entity);
 	}
 
 	@After

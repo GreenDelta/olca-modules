@@ -624,6 +624,7 @@ CREATE TABLE tbl_dq_systems (
 	version BIGINT, 
 	last_change BIGINT,
 	f_category BIGINT, 
+	f_source BIGINT, 
 	description CLOB(64 K),
 	has_uncertainties SMALLINT default 0,
 

@@ -7,9 +7,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.SourceDao;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
@@ -25,6 +27,8 @@ public class SourceUseSearchTest {
 	private Source source;
 	private Process process;
 	private ProcessDao processDao;
+	private DQSystem dqSystem;
+	private DQSystemDao dqSystemDao;
 
 	@Before
 	public void setUp() {
@@ -39,11 +43,15 @@ public class SourceUseSearchTest {
 		ProcessDocumentation doc = new ProcessDocumentation();
 		process.setDocumentation(doc);
 		this.process = processDao.insert(process);
+		dqSystemDao = new DQSystemDao(database);
+		DQSystem system = new DQSystem();
+		this.dqSystem = dqSystemDao.insert(system);
 	}
 
 	@After
 	public void tearDown() {
 		processDao.delete(process);
+		dqSystemDao.delete(dqSystem);
 		SourceDao sourceDao = new SourceDao(database);
 		sourceDao.delete(source);
 	}
@@ -75,4 +83,15 @@ public class SourceUseSearchTest {
 		Assert.assertEquals(1, models.size());
 		Assert.assertEquals(Descriptors.toDescriptor(process), models.get(0));
 	}
+
+	@Test
+	public void testFindInDQSystem() {
+		dqSystem.source = source;
+		dqSystem = dqSystemDao.update(dqSystem);
+		List<CategorizedDescriptor> models = search.findUses(Descriptors
+				.toDescriptor(source));
+		Assert.assertEquals(1, models.size());
+		Assert.assertEquals(Descriptors.toDescriptor(dqSystem), models.get(0));
+	}
+
 }

@@ -56,6 +56,8 @@ public interface IUseSearch<T extends CategorizedDescriptor> {
 				return (IUseSearch<T>) new CategoryUseSearch(db);
 			case PARAMETER: 
 				return (IUseSearch<T>) new ParameterUseSearch(db);				
+			case DQ_SYSTEM: 
+				return (IUseSearch<T>) new DQSystemUseSearch(db);				
 			default:
 				return new EmptyUseSearch<T>();
 			}
