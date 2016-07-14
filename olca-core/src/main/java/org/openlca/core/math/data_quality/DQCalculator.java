@@ -11,9 +11,10 @@ import org.openlca.core.results.ContributionResult;
 
 class DQCalculator {
 
-	private final Map<Long, List<AggregationValue>> impactAggregations = new HashMap<>();
-	private final Map<LongPair, List<AggregationValue>> impactAggregationsPerProcess = new HashMap<>();
 	private final Map<Long, List<AggregationValue>> flowAggregations = new HashMap<>();
+	private final Map<Long, List<AggregationValue>> impactAggregations = new HashMap<>();
+	private final Map<LongPair, List<AggregationValue>> impactAggregationsPerFlow = new HashMap<>();
+	private final Map<LongPair, List<AggregationValue>> impactAggregationsPerProcess = new HashMap<>();
 	private final ContributionResult result;
 	private final DQData data;
 
@@ -46,8 +47,10 @@ class DQCalculator {
 			double impactFactor = getImpactFactor(result, impactId, flowId);
 			if (impactFactor == 0d)
 				continue;
-			addValue(impactAggregations, impactId, flowResult * impactFactor, dqValues);
-			addValue(impactAggregationsPerProcess, new LongPair(processId, impactId), flowResult, dqValues);
+			double factor = flowResult * impactFactor;
+			addValue(impactAggregations, impactId, factor, dqValues);
+			addValue(impactAggregationsPerFlow, new LongPair(flowId, impactId), factor, dqValues);
+			addValue(impactAggregationsPerProcess, new LongPair(processId, impactId), factor, dqValues);
 		}
 	}
 
@@ -74,6 +77,10 @@ class DQCalculator {
 
 	Map<LongPair, int[]> getImpactPerProcessValues(AggregationType aggregationType) {
 		return aggregate(impactAggregationsPerProcess, aggregationType);
+	}
+	
+	Map<LongPair, int[]> getImpactPerFlowValues(AggregationType aggregationType) {
+		return aggregate(impactAggregationsPerFlow, aggregationType);
 	}
 
 	private <T> Map<T, int[]> aggregate(Map<T, List<AggregationValue>> map, AggregationType aggregationType) {

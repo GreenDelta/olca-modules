@@ -6,6 +6,9 @@ import java.util.Map;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ContributionResult;
 
 public class DQResult {
@@ -17,26 +20,31 @@ public class DQResult {
 	private Map<Long, int[]> flowValues = new HashMap<>();
 	private Map<Long, int[]> impactValues = new HashMap<>();
 	private Map<LongPair, int[]> flowValuesPerProcess = new HashMap<>();
+	private Map<LongPair, int[]> impactValuesPerFlow = new HashMap<>();
 	private Map<LongPair, int[]> impactValuesPerProcess = new HashMap<>();
 
-	public int[] getProcessQuality(long processId) {
-		return processValues.get(processId);
+	public int[] get(ProcessDescriptor process) {
+		return processValues.get(process.getId());
 	}
 
-	public int[] getFlowQuality(long flowId) {
-		return flowValues.get(flowId);
+	public int[] get(FlowDescriptor flow) {
+		return flowValues.get(flow.getId());
 	}
 
-	public int[] getImpactQuality(long impactCategoryId) {
-		return impactValues.get(impactCategoryId);
+	public int[] get(ImpactCategoryDescriptor impact) {
+		return impactValues.get(impact.getId());
 	}
 
-	public int[] getFlowQuality(long processId, long flowId) {
-		return flowValuesPerProcess.get(new LongPair(processId, flowId));
+	public int[] get(ProcessDescriptor process, FlowDescriptor flow) {
+		return flowValuesPerProcess.get(new LongPair(process.getId(), flow.getId()));
 	}
 
-	public int[] getImpactQuality(long processId, long impactCategoryId) {
-		return impactValuesPerProcess.get(new LongPair(processId, impactCategoryId));
+	public int[] get(ProcessDescriptor process, ImpactCategoryDescriptor impact) {
+		return impactValuesPerProcess.get(new LongPair(process.getId(), impact.getId()));
+	}
+
+	public int[] get(FlowDescriptor flow, ImpactCategoryDescriptor impact) {
+		return impactValuesPerFlow.get(new LongPair(flow.getId(), impact.getId()));
 	}
 
 	public static DQResult calculate(IDatabase db, ContributionResult result, AggregationType type, long productSystemId) {
@@ -57,6 +65,7 @@ public class DQResult {
 		DQCalculator calculator = new DQCalculator(result, data);
 		calculator.calculate();
 		dqResult.flowValues = calculator.getFlowValues(type);
+		dqResult.impactValuesPerFlow = calculator.getImpactPerFlowValues(type);
 		dqResult.impactValues = calculator.getImpactValues(type);
 		dqResult.impactValuesPerProcess = calculator.getImpactPerProcessValues(type);
 		return dqResult;
