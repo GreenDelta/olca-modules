@@ -4,7 +4,7 @@ import java.util.List;
 
 class Aggregation {
 
-	public static int[] applyTo(List<AggregationValue> values, AggregationType type) {
+	public static double[] applyTo(List<AggregationValue> values, AggregationType type) {
 		if (values.isEmpty())
 			return null;
 		switch (type) {
@@ -19,7 +19,7 @@ class Aggregation {
 		}
 	}
 
-	private static int[] weightedAverageOf(List<AggregationValue> values, boolean squared) {
+	private static double[] weightedAverageOf(List<AggregationValue> values, boolean squared) {
 		double[] aggregated = new double[values.get(0).values.length];
 		double[] divisors = new double[values.get(0).values.length];
 		for (AggregationValue value : values) {
@@ -34,7 +34,7 @@ class Aggregation {
 				divisors[i] += value.factor;
 			}
 		}
-		int[] result = new int[aggregated.length];
+		double[] result = new double[aggregated.length];
 		for (int i = 0; i < aggregated.length; i++) {
 			if (aggregated[i] == 0 || divisors[i] == 0)
 				continue;
@@ -42,13 +42,13 @@ class Aggregation {
 			if (squared) {
 				value = Math.sqrt(value);
 			}
-			result[i] = (int) Math.round(value);
+			result[i] = value;
 		}
 		return result;
 	}
 
-	private static int[] maximumOf(List<AggregationValue> values) {
-		int[] result = new int[values.get(0).values.length];
+	private static double[] maximumOf(List<AggregationValue> values) {
+		double[] result = new double[values.get(0).values.length];
 		for (AggregationValue value : values) {
 			for (int i = 0; i < value.values.length; i++) {
 				result[i] = Math.max(result[i], value.values[i]);
@@ -59,10 +59,10 @@ class Aggregation {
 
 	static class AggregationValue {
 
-		private final int[] values;
+		private final double[] values;
 		private final double factor;
 
-		AggregationValue(int[] values, double factor) {
+		AggregationValue(double[] values, double factor) {
 			this.values = values;
 			this.factor = factor;
 		}

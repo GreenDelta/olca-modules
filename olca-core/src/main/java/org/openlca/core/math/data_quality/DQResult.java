@@ -1,5 +1,6 @@
 package org.openlca.core.math.data_quality;
 
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,44 +17,46 @@ public class DQResult {
 	public final DQSystem processSystem;
 	public final DQSystem exchangeSystem;
 	public final AggregationType aggregationType;
-	private Map<Long, int[]> processValues = new HashMap<>();
-	private Map<Long, int[]> flowValues = new HashMap<>();
-	private Map<Long, int[]> impactValues = new HashMap<>();
-	private Map<LongPair, int[]> flowValuesPerProcess = new HashMap<>();
-	private Map<LongPair, int[]> impactValuesPerFlow = new HashMap<>();
-	private Map<LongPair, int[]> impactValuesPerProcess = new HashMap<>();
+	public final RoundingMode rounding;
+	private Map<Long, double[]> processValues = new HashMap<>();
+	private Map<Long, double[]> flowValues = new HashMap<>();
+	private Map<Long, double[]> impactValues = new HashMap<>();
+	private Map<LongPair, double[]> flowValuesPerProcess = new HashMap<>();
+	private Map<LongPair, double[]> impactValuesPerFlow = new HashMap<>();
+	private Map<LongPair, double[]> impactValuesPerProcess = new HashMap<>();
 
-	public int[] get(ProcessDescriptor process) {
+	public double[] get(ProcessDescriptor process) {
 		return processValues.get(process.getId());
 	}
 
-	public int[] get(FlowDescriptor flow) {
+	public double[] get(FlowDescriptor flow) {
 		return flowValues.get(flow.getId());
 	}
 
-	public int[] get(ImpactCategoryDescriptor impact) {
+	public double[] get(ImpactCategoryDescriptor impact) {
 		return impactValues.get(impact.getId());
 	}
 
-	public int[] get(ProcessDescriptor process, FlowDescriptor flow) {
+	public double[] get(ProcessDescriptor process, FlowDescriptor flow) {
 		return flowValuesPerProcess.get(new LongPair(process.getId(), flow.getId()));
 	}
 
-	public int[] get(ProcessDescriptor process, ImpactCategoryDescriptor impact) {
+	public double[] get(ProcessDescriptor process, ImpactCategoryDescriptor impact) {
 		return impactValuesPerProcess.get(new LongPair(process.getId(), impact.getId()));
 	}
 
-	public int[] get(FlowDescriptor flow, ImpactCategoryDescriptor impact) {
+	public double[] get(FlowDescriptor flow, ImpactCategoryDescriptor impact) {
 		return impactValuesPerFlow.get(new LongPair(flow.getId(), impact.getId()));
 	}
 
-	public static DQResult calculate(IDatabase db, ContributionResult result, AggregationType type, long productSystemId) {
+	public static DQResult calculate(IDatabase db, ContributionResult result, AggregationType type,
+			RoundingMode rounding, long productSystemId) {
 		if (db == null || result == null || type == null || productSystemId == 0l)
 			return null;
 		DQData data = DQData.load(db, productSystemId);
 		if (data.processSystem == null && data.exchangeSystem == null)
 			return null;
-		DQResult dqResult = new DQResult(data.processSystem, data.exchangeSystem, type);
+		DQResult dqResult = new DQResult(data.processSystem, data.exchangeSystem, type, rounding);
 		if (data.processSystem != null) {
 			dqResult.processValues = data.processData;
 		}
@@ -71,10 +74,11 @@ public class DQResult {
 		return dqResult;
 	}
 
-	private DQResult(DQSystem processSystem, DQSystem exchangeSystem, AggregationType type) {
+	private DQResult(DQSystem processSystem, DQSystem exchangeSystem, AggregationType type, RoundingMode rounding) {
 		this.processSystem = processSystem;
 		this.exchangeSystem = exchangeSystem;
 		this.aggregationType = type;
+		this.rounding = rounding;
 	}
 
 }

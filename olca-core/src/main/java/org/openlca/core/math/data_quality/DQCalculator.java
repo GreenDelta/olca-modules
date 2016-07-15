@@ -32,7 +32,7 @@ class DQCalculator {
 	}
 
 	private void addValues(long processId, long flowId) {
-		int[] dqValues = getDqValues(processId, flowId);
+		double[] dqValues = getDqValues(processId, flowId);
 		double flowResult = getFlowResult(processId, flowId);
 		if (dqValues == null || flowResult == 0d)
 			return;
@@ -42,7 +42,7 @@ class DQCalculator {
 		addImpactValues(processId, flowId, flowResult, dqValues);
 	}
 
-	private void addImpactValues(long processId, long flowId, double flowResult, int[] dqValues) {
+	private void addImpactValues(long processId, long flowId, double flowResult, double[] dqValues) {
 		for (long impactId : result.impactIndex.getKeys()) {
 			double impactFactor = getImpactFactor(result, impactId, flowId);
 			if (impactFactor == 0d)
@@ -54,12 +54,12 @@ class DQCalculator {
 		}
 	}
 
-	private <T> void addValue(Map<T, List<AggregationValue>> map, T key, double factor, int[] dqValues) {
+	private <T> void addValue(Map<T, List<AggregationValue>> map, T key, double factor, double[] dqValues) {
 		List<AggregationValue> list = safeGetList(key, map);
 		list.add(new AggregationValue(dqValues, factor));
 	}
 
-	private int[] getDqValues(long processId, long flowId) {
+	private double[] getDqValues(long processId, long flowId) {
 		return data.exchangeData.get(new LongPair(processId, flowId));
 	}
 
@@ -67,27 +67,27 @@ class DQCalculator {
 		return Math.abs(result.getSingleFlowResult(processId, flowId));
 	}
 
-	Map<Long, int[]> getFlowValues(AggregationType aggregationType) {
+	Map<Long, double[]> getFlowValues(AggregationType aggregationType) {
 		return aggregate(flowAggregations, aggregationType);
 	}
 
-	Map<Long, int[]> getImpactValues(AggregationType aggregationType) {
+	Map<Long, double[]> getImpactValues(AggregationType aggregationType) {
 		return aggregate(impactAggregations, aggregationType);
 	}
 
-	Map<LongPair, int[]> getImpactPerProcessValues(AggregationType aggregationType) {
+	Map<LongPair, double[]> getImpactPerProcessValues(AggregationType aggregationType) {
 		return aggregate(impactAggregationsPerProcess, aggregationType);
 	}
 	
-	Map<LongPair, int[]> getImpactPerFlowValues(AggregationType aggregationType) {
+	Map<LongPair, double[]> getImpactPerFlowValues(AggregationType aggregationType) {
 		return aggregate(impactAggregationsPerFlow, aggregationType);
 	}
 
-	private <T> Map<T, int[]> aggregate(Map<T, List<AggregationValue>> map, AggregationType aggregationType) {
-		Map<T, int[]> values = new HashMap<>();
+	private <T> Map<T, double[]> aggregate(Map<T, List<AggregationValue>> map, AggregationType aggregationType) {
+		Map<T, double[]> values = new HashMap<>();
 		for (T key : map.keySet()) {
 			List<AggregationValue> toAggregate = map.get(key);
-			int[] result = Aggregation.applyTo(toAggregate, aggregationType);
+			double[] result = Aggregation.applyTo(toAggregate, aggregationType);
 			values.put(key, result);
 		}
 		return values;
@@ -106,4 +106,6 @@ class DQCalculator {
 		int impactIndex = result.impactIndex.getIndex(impactId);
 		return result.impactFactors.getEntry(impactIndex, flowIndex);
 	}
+	
+	
 }

@@ -1,5 +1,7 @@
 package org.openlca.core.math.data_quality;
 
+import java.math.RoundingMode;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,10 +31,8 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.results.ContributionResult;
 
@@ -182,24 +182,40 @@ public class DQResultTest {
 		setup.setAmount(1);
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		ContributionResult cResult = calculator.calculateContributions(setup);
-		DQResult result = DQResult.calculate(Tests.getDb(), cResult, AggregationType.WEIGHTED_AVERAGE, pSystem.getId());
-		ImpactCategory impactCategory = method.getImpactCategories().get(0);
-		Assert.assertArrayEquals(new int[] { 4, 4, 3, 2, 2 }, result.get(toDesc(eFlow1)));
-		Assert.assertArrayEquals(new int[] { 2, 3, 3, 4, 4 }, result.get(toDesc(eFlow2)));
-		Assert.assertArrayEquals(new int[] { 2, 3, 3, 3, 4 }, result.get(toDesc(impactCategory)));
-		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, result.get(toDesc(process1), toDesc(eFlow1)));
-		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, result.get(toDesc(process2), toDesc(eFlow1)));
-		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, result.get(toDesc(process1), toDesc(eFlow2)));
-		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, result.get(toDesc(process2), toDesc(eFlow2)));
-		Assert.assertArrayEquals(new int[] { 4, 4, 3, 2, 2 }, result.get(toDesc(process1), toDesc(impactCategory)));
-		Assert.assertArrayEquals(new int[] { 2, 2, 3, 4, 4 }, result.get(toDesc(process2), toDesc(impactCategory)));
-		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, result.get(toDesc(process1)));
-		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, result.get(toDesc(process2)));
+		DQResult result = DQResult.calculate(Tests.getDb(), cResult, AggregationType.WEIGHTED_AVERAGE,
+				RoundingMode.HALF_UP, pSystem.getId());
+		ImpactCategory impact = method.getImpactCategories().get(0);
+		Assert.assertArrayEquals(new double[] { 4, 4, 3, 2, 2 }, getResult(result, eFlow1), 0.5);
+		Assert.assertArrayEquals(new double[] { 2, 3, 3, 4, 4 }, getResult(result, eFlow2), 0.5);
+		Assert.assertArrayEquals(new double[] { 2, 3, 3, 3, 4 }, getResult(result, impact), 0.5);
+		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, getResult(result, process1, eFlow1), 0.5);
+		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, getResult(result, process2, eFlow1), 0.5);
+		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, getResult(result, process1, eFlow2), 0.5);
+		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, getResult(result, process2, eFlow2), 0.5);
+		Assert.assertArrayEquals(new double[] { 4, 4, 3, 2, 2 }, getResult(result, process1, impact), 0.5);
+		Assert.assertArrayEquals(new double[] { 2, 2, 3, 4, 4 }, getResult(result, process2, impact), 0.5);
+		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, getResult(result, process1), 0.5);
+		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, getResult(result, process2), 0.5);
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T extends BaseDescriptor> T toDesc(RootEntity entity) {
-		return (T) Descriptors.toDescriptor(entity);
+	private double[] getResult(DQResult result, Flow flow) {
+		return result.get(Descriptors.toDescriptor(flow));
+	}
+
+	private double[] getResult(DQResult result, Process process) {
+		return result.get(Descriptors.toDescriptor(process));
+	}
+
+	private double[] getResult(DQResult result, ImpactCategory impact) {
+		return result.get(Descriptors.toDescriptor(impact));
+	}
+
+	private double[] getResult(DQResult result, Process process, Flow flow) {
+		return result.get(Descriptors.toDescriptor(process), Descriptors.toDescriptor(flow));
+	}
+
+	private double[] getResult(DQResult result, Process process, ImpactCategory impact) {
+		return result.get(Descriptors.toDescriptor(process), Descriptors.toDescriptor(impact));
 	}
 
 	@After

@@ -17,8 +17,8 @@ class DQData {
 	private static Logger log = LoggerFactory.getLogger(DQData.class);
 	DQSystem processSystem;
 	DQSystem exchangeSystem;
-	Map<Long, int[]> processData = new HashMap<>();
-	Map<LongPair, int[]> exchangeData = new HashMap<>();
+	Map<Long, double[]> processData = new HashMap<>();
+	Map<LongPair, double[]> exchangeData = new HashMap<>();
 
 	public static DQData load(IDatabase db, long productSystemId) {
 		DQData data = new DQData();
@@ -92,7 +92,7 @@ class DQData {
 			NativeSql.on(db).query(query.toString(), (res) -> {
 				long processId = res.getLong("id");
 				String dqEntry = res.getString("dq_entry");
-				processData.put(processId, processSystem.toValues(dqEntry));
+				processData.put(processId, toDouble(processSystem.toValues(dqEntry)));
 				return true;
 			});
 		} catch (SQLException e) {
@@ -109,7 +109,7 @@ class DQData {
 				long processId = res.getLong("f_owner");
 				long flowId = res.getLong("f_flow");
 				String dqEntry = res.getString("dq_entry");
-				exchangeData.put(new LongPair(processId, flowId), exchangeSystem.toValues(dqEntry));
+				exchangeData.put(new LongPair(processId, flowId), toDouble(exchangeSystem.toValues(dqEntry)));
 				return true;
 			});
 		} catch (SQLException e) {
@@ -121,6 +121,14 @@ class DQData {
 		if (id == 0l)
 			return null;
 		return new DQSystemDao(db).getForId(id);
+	}
+	
+	private double[] toDouble(int[] values) {
+		double[] result = new double[values.length];
+		for (int i = 0; i < values.length; i++) {
+			result[i] = values[i];
+		}
+		return result;
 	}
 
 }

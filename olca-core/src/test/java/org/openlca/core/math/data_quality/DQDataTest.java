@@ -79,12 +79,12 @@ public class DQDataTest {
 		DQData data = DQData.load(Tests.getDb(), pSystem.getId());
 		Assert.assertEquals(dqSystem.getId(), data.processSystem.getId());
 		Assert.assertEquals(dqSystem.getId(), data.exchangeSystem.getId());
-		Assert.assertArrayEquals(new int[] { 1, 2, 3, 4, 5 }, data.processData.get(process1.getId()));
-		Assert.assertArrayEquals(new int[] { 5, 4, 3, 2, 1 }, data.processData.get(process2.getId()));
-		Assert.assertArrayEquals(new int[] { 2, 1, 4, 3, 5 },
-				data.exchangeData.get(new LongPair(process1.getId(), flow.getId())));
-		Assert.assertArrayEquals(new int[] { 4, 5, 2, 3, 1 },
-				data.exchangeData.get(new LongPair(process2.getId(), flow.getId())));
+		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, data.processData.get(process1.getId()), 0);
+		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, data.processData.get(process2.getId()), 0);
+		Assert.assertArrayEquals(new double[] { 2, 1, 4, 3, 5 },
+				data.exchangeData.get(new LongPair(process1.getId(), flow.getId())), 0);
+		Assert.assertArrayEquals(new double[] { 4, 5, 2, 3, 1 },
+				data.exchangeData.get(new LongPair(process2.getId(), flow.getId())), 0);
 	}
 
 	@After
