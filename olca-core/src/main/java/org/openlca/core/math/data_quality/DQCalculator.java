@@ -17,10 +17,12 @@ class DQCalculator {
 	private final Map<LongPair, List<AggregationValue>> impactAggregationsPerProcess = new HashMap<>();
 	private final ContributionResult result;
 	private final DQData data;
+	private final DQCalculationSetup setup;
 
-	public DQCalculator(ContributionResult result, DQData data) {
+	public DQCalculator(ContributionResult result, DQData data, DQCalculationSetup setup) {
 		this.result = result;
 		this.data = data;
+		this.setup = setup;
 	}
 
 	void calculate() {
@@ -56,6 +58,13 @@ class DQCalculator {
 
 	private <T> void addValue(Map<T, List<AggregationValue>> map, T key, double factor, double[] dqValues) {
 		List<AggregationValue> list = safeGetList(key, map);
+		int max = setup.exchangeDqSystem.getScoreCount();
+		for (int i = 0; i < dqValues.length; i++) {
+			double v = dqValues[i];
+			if (v != 0d || setup.processingType == ProcessingType.EXCLUDE)
+				continue;
+			dqValues[i] = max;
+		}
 		list.add(new AggregationValue(dqValues, factor));
 	}
 
@@ -67,27 +76,27 @@ class DQCalculator {
 		return Math.abs(result.getSingleFlowResult(processId, flowId));
 	}
 
-	Map<Long, double[]> getFlowValues(AggregationType aggregationType) {
-		return aggregate(flowAggregations, aggregationType);
+	Map<Long, double[]> getFlowValues() {
+		return aggregate(flowAggregations);
 	}
 
-	Map<Long, double[]> getImpactValues(AggregationType aggregationType) {
-		return aggregate(impactAggregations, aggregationType);
+	Map<Long, double[]> getImpactValues() {
+		return aggregate(impactAggregations);
 	}
 
-	Map<LongPair, double[]> getImpactPerProcessValues(AggregationType aggregationType) {
-		return aggregate(impactAggregationsPerProcess, aggregationType);
-	}
-	
-	Map<LongPair, double[]> getImpactPerFlowValues(AggregationType aggregationType) {
-		return aggregate(impactAggregationsPerFlow, aggregationType);
+	Map<LongPair, double[]> getImpactPerProcessValues() {
+		return aggregate(impactAggregationsPerProcess);
 	}
 
-	private <T> Map<T, double[]> aggregate(Map<T, List<AggregationValue>> map, AggregationType aggregationType) {
+	Map<LongPair, double[]> getImpactPerFlowValues() {
+		return aggregate(impactAggregationsPerFlow);
+	}
+
+	private <T> Map<T, double[]> aggregate(Map<T, List<AggregationValue>> map) {
 		Map<T, double[]> values = new HashMap<>();
 		for (T key : map.keySet()) {
 			List<AggregationValue> toAggregate = map.get(key);
-			double[] result = Aggregation.applyTo(toAggregate, aggregationType);
+			double[] result = Aggregation.applyTo(toAggregate, setup.aggregationType);
 			values.put(key, result);
 		}
 		return values;
@@ -106,6 +115,5 @@ class DQCalculator {
 		int impactIndex = result.impactIndex.getIndex(impactId);
 		return result.impactFactors.getEntry(impactIndex, flowIndex);
 	}
-	
-	
+
 }

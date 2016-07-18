@@ -182,8 +182,9 @@ public class DQResultTest {
 		setup.setAmount(1);
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		ContributionResult cResult = calculator.calculateContributions(setup);
-		DQResult result = DQResult.calculate(Tests.getDb(), cResult, AggregationType.WEIGHTED_AVERAGE,
-				RoundingMode.HALF_UP, pSystem.getId());
+		DQCalculationSetup dqSetup = new DQCalculationSetup(pSystem.getId(), AggregationType.WEIGHTED_AVERAGE,
+				RoundingMode.HALF_UP, ProcessingType.EXCLUDE, dqSystem, dqSystem);
+		DQResult result = DQResult.calculate(Tests.getDb(), cResult, dqSetup);
 		ImpactCategory impact = method.getImpactCategories().get(0);
 		Assert.assertArrayEquals(new double[] { 4, 4, 3, 2, 2 }, getResult(result, eFlow1), 0.5);
 		Assert.assertArrayEquals(new double[] { 2, 3, 3, 4, 4 }, getResult(result, eFlow2), 0.5);

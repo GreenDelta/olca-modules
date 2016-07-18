@@ -1,5 +1,7 @@
 package org.openlca.core.math.data_quality;
 
+import java.math.RoundingMode;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -76,9 +78,11 @@ public class DQDataTest {
 
 	@Test
 	public void test() {
-		DQData data = DQData.load(Tests.getDb(), pSystem.getId());
-		Assert.assertEquals(dqSystem.getId(), data.processSystem.getId());
-		Assert.assertEquals(dqSystem.getId(), data.exchangeSystem.getId());
+		DQCalculationSetup setup = new DQCalculationSetup(pSystem.getId(), AggregationType.WEIGHTED_AVERAGE,
+				RoundingMode.HALF_UP, ProcessingType.EXCLUDE, dqSystem, dqSystem);
+		DQData data = DQData.load(Tests.getDb(), setup);
+		Assert.assertEquals(dqSystem.getId(), setup.processDqSystem.getId());
+		Assert.assertEquals(dqSystem.getId(), setup.exchangeDqSystem.getId());
 		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, data.processData.get(process1.getId()), 0);
 		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, data.processData.get(process2.getId()), 0);
 		Assert.assertArrayEquals(new double[] { 2, 1, 4, 3, 5 },

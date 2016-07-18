@@ -1,12 +1,10 @@
 package org.openlca.core.math.data_quality;
 
-import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -14,10 +12,7 @@ import org.openlca.core.results.ContributionResult;
 
 public class DQResult {
 
-	public final DQSystem processSystem;
-	public final DQSystem exchangeSystem;
-	public final AggregationType aggregationType;
-	public final RoundingMode rounding;
+	public final DQCalculationSetup setup;
 	private Map<Long, double[]> processValues = new HashMap<>();
 	private Map<Long, double[]> flowValues = new HashMap<>();
 	private Map<Long, double[]> impactValues = new HashMap<>();
@@ -49,36 +44,33 @@ public class DQResult {
 		return impactValuesPerFlow.get(new LongPair(flow.getId(), impact.getId()));
 	}
 
-	public static DQResult calculate(IDatabase db, ContributionResult result, AggregationType type,
-			RoundingMode rounding, long productSystemId) {
-		if (db == null || result == null || type == null || productSystemId == 0l)
+	public static DQResult calculate(IDatabase db, ContributionResult result, DQCalculationSetup setup) {
+		if (db == null || result == null || setup == null)
 			return null;
-		DQData data = DQData.load(db, productSystemId);
-		if (data.processSystem == null && data.exchangeSystem == null)
+		if (setup.processDqSystem == null && setup.exchangeDqSystem == null || setup.aggregationType == null
+				|| setup.productSystemId == 0l)
 			return null;
-		DQResult dqResult = new DQResult(data.processSystem, data.exchangeSystem, type, rounding);
-		if (data.processSystem != null) {
+		DQData data = DQData.load(db, setup);
+		DQResult dqResult = new DQResult(setup);
+		if (setup.processDqSystem != null) {
 			dqResult.processValues = data.processData;
 		}
-		if (data.exchangeSystem == null)
+		if (setup.exchangeDqSystem == null)
 			return dqResult;
 		dqResult.flowValuesPerProcess = data.exchangeData;
-		if (type == AggregationType.NONE)
+		if (setup.aggregationType == AggregationType.NONE)
 			return dqResult;
-		DQCalculator calculator = new DQCalculator(result, data);
+		DQCalculator calculator = new DQCalculator(result, data, setup);
 		calculator.calculate();
-		dqResult.flowValues = calculator.getFlowValues(type);
-		dqResult.impactValuesPerFlow = calculator.getImpactPerFlowValues(type);
-		dqResult.impactValues = calculator.getImpactValues(type);
-		dqResult.impactValuesPerProcess = calculator.getImpactPerProcessValues(type);
+		dqResult.flowValues = calculator.getFlowValues();
+		dqResult.impactValuesPerFlow = calculator.getImpactPerFlowValues();
+		dqResult.impactValues = calculator.getImpactValues();
+		dqResult.impactValuesPerProcess = calculator.getImpactPerProcessValues();
 		return dqResult;
 	}
 
-	private DQResult(DQSystem processSystem, DQSystem exchangeSystem, AggregationType type, RoundingMode rounding) {
-		this.processSystem = processSystem;
-		this.exchangeSystem = exchangeSystem;
-		this.aggregationType = type;
-		this.rounding = rounding;
+	private DQResult(DQCalculationSetup setup) {
+		this.setup = setup;
 	}
 
 }
