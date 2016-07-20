@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 /** Exports a simulation result to Excel. */
 public class SimulationResultExport {
 
+	private static final String[] FLOW_HEADER = { "Flow UUID", "Flow", "Category", "Sub-category", "Unit" };
+	private static final String[] IMPACT_HEADER = { "Impact category UUID", "Impact category", "Reference unit" };
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private CalculationSetup setup;
@@ -44,8 +46,8 @@ public class SimulationResultExport {
 	 */
 	public void run(File file) throws Exception {
 		Workbook workbook = createWorkbook();
-		InfoSheet.write(workbook, setup, "Simulation result");
 		writer = new CellWriter(cache, workbook);
+		InfoSheet.write(workbook, writer, setup, null, "Simulation result");
 		writeInventorySheet(workbook);
 		if (result.hasImpactResults())
 			writeImpactSheet(workbook);
@@ -71,12 +73,12 @@ public class SimulationResultExport {
 		List<ImpactCategoryDescriptor> impacts = Utils.getSortedImpacts(result
 				.result.impactIndex, cache);
 		for (ImpactCategoryDescriptor impact : impacts) {
-			writer.writeImpactRowInfo(sheet, row, impact);
+			writer.impact(sheet, row, 1, impact, false);
 			List<Double> values = result.getImpactResults(impact);
-			writeValues(sheet, row, CellWriter.IMPACT_INFO_SIZE + 1, values);
+			writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
 			row++;
 		}
-		for (int i = 0; i < CellWriter.IMPACT_INFO_SIZE + 7; i++)
+		for (int i = 0; i < IMPACT_HEADER.length + 7; i++)
 			sheet.autoSizeColumn(i);
 	}
 
@@ -88,7 +90,7 @@ public class SimulationResultExport {
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
 		if (!useStreaming) {
-			for (int i = 0; i < CellWriter.FLOW_INFO_SIZE + 7; i++)
+			for (int i = 0; i < FLOW_HEADER.length + 7; i++)
 				sheet.autoSizeColumn(i);
 		}
 		flushSheet(sheet);
@@ -115,9 +117,9 @@ public class SimulationResultExport {
 		for (FlowDescriptor flow : flows) {
 			if (idx.isInput(flow.getId()) != forInputs)
 				continue;
-			writer.writeFlowRowInfo(sheet, row, flow);
+			writer.flow(sheet, row, 1, flow, false);
 			List<Double> values = result.getFlowResults(flow);
-			writeValues(sheet, row, CellWriter.FLOW_INFO_SIZE + 1, values);
+			writeValues(sheet, row, FLOW_HEADER.length + 1, values);
 			row++;
 		}
 	}
@@ -125,18 +127,18 @@ public class SimulationResultExport {
 	private void writeInventoryHeader(Sheet sheet, boolean inputs) {
 		row++;
 		String section = inputs ? "Inputs" : "Outputs";
-		writer.header(sheet, row, 1, section);
+		writer.cell(sheet, row, 1, section, true);
 		row++;
-		writer.writeFlowRowHeader(sheet, row);
-		int nextCol = CellWriter.FLOW_INFO_SIZE + 1;
+		writer.headerRow(sheet, row, 1, FLOW_HEADER);
+		int nextCol = FLOW_HEADER.length + 1;
 		writeValueHeaders(sheet, row, nextCol);
 		row++;
 	}
 
 	private void writerImpactHeader(Sheet sheet) {
 		row++;
-		writer.writeImpactRowHeader(sheet, row);
-		int nextCol = CellWriter.IMPACT_INFO_SIZE + 1;
+		writer.headerRow(sheet, row, 1, IMPACT_HEADER);
+		int nextCol = IMPACT_HEADER.length + 1;
 		writeValueHeaders(sheet, row, nextCol);
 		row++;
 	}
@@ -145,10 +147,10 @@ public class SimulationResultExport {
 		String[] vals = { "Mean", "Standard deviation", "Minimum", "Maximum",
 				"Median", "5% Percentile", "95% Percentile" };
 		for (int i = 0; i < vals.length; i++)
-			writer.header(sheet, row, startCol + i, vals[i]);
+			writer.cell(sheet, row, startCol + i, vals[i], true);
 		int nextCol = startCol + vals.length;
 		for (int i = 0; i < result.getNumberOfRuns(); i++)
-			writer.header(sheet, row, nextCol++, "Run " + (i + 1));
+			writer.cell(sheet, row, nextCol++, "Run " + (i + 1), true);
 	}
 
 	private void writeValues(Sheet sheet, int row, int startCol,
