@@ -104,7 +104,7 @@ public class RegionalizationSetup {
 				Collections.singletonMap("methodId", method.getId()));
 		List<Parameter> params = new ArrayList<>();
 		for (Parameter param : all) {
-			if (param.getExternalSource() == null)
+			if (param == null || param.getExternalSource() == null)
 				continue;
 			if (!"SHAPE_FILE".equals(param.getSourceType()))
 				continue;
