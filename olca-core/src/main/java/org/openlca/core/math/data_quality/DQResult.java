@@ -13,6 +13,7 @@ import org.openlca.core.results.ContributionResult;
 public class DQResult {
 
 	public final DQCalculationSetup setup;
+	public final DQStatistics statistics;
 	private Map<Long, double[]> processValues = new HashMap<>();
 	private Map<Long, double[]> flowValues = new HashMap<>();
 	private Map<Long, double[]> impactValues = new HashMap<>();
@@ -50,8 +51,8 @@ public class DQResult {
 		if (setup.processDqSystem == null && setup.exchangeDqSystem == null || setup.aggregationType == null
 				|| setup.productSystemId == 0l)
 			return null;
-		DQData data = DQData.load(db, setup);
-		DQResult dqResult = new DQResult(setup);
+		DQData data = DQData.load(db, setup, result.flowIndex.getFlowIds());
+		DQResult dqResult = new DQResult(setup, data.statistics);
 		if (setup.processDqSystem != null) {
 			dqResult.processValues = data.processData;
 		}
@@ -69,8 +70,9 @@ public class DQResult {
 		return dqResult;
 	}
 
-	private DQResult(DQCalculationSetup setup) {
+	private DQResult(DQCalculationSetup setup, DQStatistics statistics) {
 		this.setup = setup;
+		this.statistics = statistics;
 	}
 
 }
