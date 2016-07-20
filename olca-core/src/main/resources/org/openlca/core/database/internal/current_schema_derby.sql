@@ -340,6 +340,7 @@ CREATE TABLE tbl_product_systems (
 	f_category BIGINT,
 	description CLOB(64 K),
 
+	cutoff DOUBLE,
 	target_amount DOUBLE,
 	f_reference_process BIGINT, 
 	f_reference_exchange BIGINT, 

@@ -24,7 +24,7 @@ public class ProductSystem extends CategorizedEntity {
 	private final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
 	@ElementCollection
-	@CollectionTable(name = "tbl_process_links", joinColumns = @JoinColumn(name = "f_product_system") )
+	@CollectionTable(name = "tbl_process_links", joinColumns = @JoinColumn(name = "f_product_system"))
 	private final List<ProcessLink> processLinks = new ArrayList<>();
 
 	@OneToOne
@@ -51,6 +51,9 @@ public class ProductSystem extends CategorizedEntity {
 	@CollectionTable(name = "tbl_product_system_processes", joinColumns = {
 			@JoinColumn(name = "f_product_system") })
 	private final Set<Long> processes = new HashSet<>();
+
+	@Column
+	public Double cutoff;
 
 	@Override
 	public ProductSystem clone() {

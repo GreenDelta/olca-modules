@@ -24,6 +24,7 @@ public class Upgrade3 implements IUpgrade {
 		createDQScoreTable();
 		modifyProcessTable();
 		modifyExchangeTable();
+		modifyProductSystemTable();
 	}
 
 	private void createDQSystemTable() throws Exception {
@@ -60,6 +61,10 @@ public class Upgrade3 implements IUpgrade {
 
 	private void modifyExchangeTable() throws Exception {
 		util.renameColumn("tbl_exchanges", "pedigree_uncertainty", "dq_entry", "VARCHAR(50)");
+	}
+
+	private void modifyProductSystemTable() throws Exception {
+		util.checkCreateColumn("tbl_product_systems", "cutoff", "cutoff DOUBLE");
 	}
 
 }
