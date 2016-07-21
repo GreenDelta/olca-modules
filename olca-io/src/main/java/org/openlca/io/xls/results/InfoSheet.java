@@ -110,10 +110,9 @@ class InfoSheet {
 	}
 
 	private static String amount(ProductSystem system) {
-		Exchange e = system.getReferenceExchange();
-		if (e == null || e.getUnit() == null)
+		if (system.getTargetUnit() == null)
 			return "";
-		return e.getAmountValue() + " " + e.getUnit().getName();
+		return system.getTargetAmount() + " " + system.getTargetUnit().getName();
 	}
 
 	private static String method(CalculationSetup setup) {
