@@ -29,7 +29,7 @@ class Exchanges {
 		e.setBaseUncertainty(In.getOptionalDouble(json, "baseUncertainty"));
 		e.setAmountValue(In.getDouble(json, "amount", 0));
 		e.setAmountFormula(In.getString(json, "amountFormula"));
-		e.setPedigreeUncertainty(In.getString(json, "pedigreeUncertainty"));
+		e.setDqEntry(In.getString(json, "dqEntry"));
 		e.description = In.getString(json, "description");
 		JsonElement u = json.get("uncertainty");
 		if (u != null && u.isJsonObject()) {

@@ -43,7 +43,7 @@ class ExchangeConversion {
 		e.description = LangString.get(ilcdExchange.getGeneralComment(),
 				config.ilcdConfig);
 		if (extension != null) {
-			e.setPedigreeUncertainty(extension.getPedigreeUncertainty());
+			e.setDqEntry(extension.getPedigreeUncertainty());
 			e.setBaseUncertainty(extension.getBaseUncertainty());
 			e.setAmountValue(extension.getAmount());
 		} else {

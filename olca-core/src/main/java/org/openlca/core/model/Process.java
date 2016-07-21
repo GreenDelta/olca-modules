@@ -59,6 +59,21 @@ public class Process extends CategorizedEntity {
 	@OneToOne
 	@JoinColumn(name = "f_currency")
 	public Currency currency;
+	
+	@OneToOne
+	@JoinColumn(name = "f_dq_system")
+	public DQSystem dqSystem;
+	
+	@Column(name = "dq_entry")
+	public String dqEntry;
+
+	@OneToOne
+	@JoinColumn(name = "f_exchange_dq_system")
+	public DQSystem exchangeDqSystem;
+
+	@OneToOne
+	@JoinColumn(name = "f_social_dq_system")
+	public DQSystem socialDqSystem;
 
 	public ProcessDocumentation getDocumentation() {
 		return documentation;

@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 
 public class Schema {
 
-	public static final String URI = "http://openlca.org/schema/v1.0/";
+	public static final String URI = "http://openlca.org/schema/v1.1/";
 	public static final String CONTEXT_URI = "http://greendelta.github.io/olca-schema/context.jsonld";
 	private static final String[] SUPPORTED = { URI };
 

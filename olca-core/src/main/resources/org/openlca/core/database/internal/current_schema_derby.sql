@@ -225,6 +225,10 @@ CREATE TABLE tbl_processes (
 	f_location BIGINT, 
 	f_process_doc BIGINT, 
 	f_currency BIGINT,
+	f_dq_system BIGINT,
+	dq_entry VARCHAR(50),
+	f_exchange_dq_system BIGINT,
+	f_social_dq_system BIGINT,
 
 	PRIMARY KEY (id)	
 
@@ -302,7 +306,7 @@ CREATE TABLE tbl_exchanges (
 	parameter3_value DOUBLE, 
 	parameter3_formula VARCHAR(1000), 
 	
-	pedigree_uncertainty VARCHAR(50),
+	dq_entry VARCHAR(50),
 	base_uncertainty DOUBLE,
 	
 	PRIMARY KEY (id)
@@ -336,6 +340,7 @@ CREATE TABLE tbl_product_systems (
 	f_category BIGINT,
 	description CLOB(64 K),
 
+	cutoff DOUBLE,
 	target_amount DOUBLE,
 	f_reference_process BIGINT, 
 	f_reference_exchange BIGINT, 
@@ -609,5 +614,40 @@ CREATE TABLE tbl_social_aspects (
 	f_source BIGINT,
 	quality VARCHAR(255),
 
+	PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_dq_systems (
+
+	id BIGINT NOT NULL,
+	name VARCHAR(255), 
+	ref_id VARCHAR(36),
+	version BIGINT, 
+	last_change BIGINT,
+	f_category BIGINT, 
+	f_source BIGINT, 
+	description CLOB(64 K),
+	has_uncertainties SMALLINT default 0,
+
+	PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_dq_indicators ( 
+	id BIGINT NOT NULL, 
+	name VARCHAR(255), 
+	position INTEGER NOT NULL, 
+	f_dq_system BIGINT, 
+
+	PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_dq_scores ( 
+	id BIGINT NOT NULL, 
+	position INTEGER NOT NULL, 
+	description CLOB(64 K), 
+	label VARCHAR(255), 
+	uncertainty DOUBLE default 0, 
+	f_dq_indicator BIGINT,
+				
 	PRIMARY KEY (id)
 );

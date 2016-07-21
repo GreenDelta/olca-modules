@@ -278,12 +278,11 @@ class ProcessConverter {
 
 	private void mapComment(Exchange inExchange, IExchange exchange) {
 		if (inExchange.description == null) {
-			exchange.setGeneralComment(inExchange.getPedigreeUncertainty());
-		} else if (inExchange.getPedigreeUncertainty() == null) {
+			exchange.setGeneralComment(inExchange.getDqEntry());
+		} else if (inExchange.getDqEntry() == null) {
 			exchange.setGeneralComment(inExchange.description);
 		} else {
-			exchange.setGeneralComment(inExchange.getPedigreeUncertainty()
-					+ "; " + inExchange.description);
+			exchange.setGeneralComment(inExchange.getDqEntry() + "; " + inExchange.description);
 		}
 	}
 

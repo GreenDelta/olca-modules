@@ -23,7 +23,7 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProductSystemBuilder  {
+public class ProductSystemBuilder {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -31,14 +31,14 @@ public class ProductSystemBuilder  {
 	private IDatabase database;
 	private boolean preferSystemProcesses;
 	private Double cutoff;
-	
+
 	public ProductSystemBuilder(MatrixCache matrixCache,
 			boolean preferSystemProcesses) {
 		this.matrixCache = matrixCache;
 		this.database = matrixCache.getDatabase();
 		this.preferSystemProcesses = preferSystemProcesses;
 	}
-	
+
 	public void setCutoff(Double cutoff) {
 		this.cutoff = cutoff;
 	}
@@ -72,7 +72,7 @@ public class ProductSystemBuilder  {
 
 	private void run(ProductSystem system, LongPair processProduct) {
 		log.trace("build product index");
-		IProductIndexBuilder builder = getProductIndexBuilder();
+		IProductIndexBuilder builder = getProductIndexBuilder(system);
 		builder.setPreferredType(preferSystemProcesses ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS);
 		ProductIndex index = builder.build(processProduct);
@@ -83,11 +83,10 @@ public class ProductSystemBuilder  {
 		addLinksAndProcesses(system, index);
 	}
 
-	private IProductIndexBuilder getProductIndexBuilder() {
-		if(cutoff == null || cutoff == 0)
-			return new ProductIndexBuilder(matrixCache);
-		else
-			return new ProductIndexCutoffBuilder(matrixCache, cutoff);
+	private IProductIndexBuilder getProductIndexBuilder(ProductSystem system) {
+		if (cutoff == null || cutoff == 0)
+			return new ProductIndexBuilder(matrixCache, system);
+		return new ProductIndexCutoffBuilder(matrixCache, system, cutoff);
 	}
 
 	private void addLinksAndProcesses(ProductSystem system, ProductIndex index) {

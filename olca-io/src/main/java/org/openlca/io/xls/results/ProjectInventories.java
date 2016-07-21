@@ -33,9 +33,8 @@ class ProjectInventories {
 	}
 
 	private void run() {
-		List<ProjectVariant> variants = Utils
-				.sortVariants(result.getVariants());
-		List<FlowDescriptor> flows = Utils.sortFlows(result.getFlowDescriptors(), result.cache);
+		List<ProjectVariant> variants = Sort.variants(result.getVariants());
+		List<FlowDescriptor> flows = Sort.flows(result.getFlowDescriptors(), result.cache);
 		if (variants.isEmpty() || flows.isEmpty())
 			return;
 		int row = 1;

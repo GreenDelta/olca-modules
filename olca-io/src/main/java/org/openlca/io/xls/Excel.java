@@ -16,6 +16,13 @@ public class Excel {
 	private Excel() {
 	}
 
+	public static int width(int pixel) {
+		int[] offsetMap = { 0, 36, 73, 109, 146, 182, 219 };
+		short widthUnits = (short) (256 * (pixel / 7));
+		widthUnits += offsetMap[(pixel % 7)];
+		return widthUnits;
+	}
+
 	public static void headerStyle(Workbook workbook, Sheet sheet, int row,
 			int column) {
 		Cell cell = cell(sheet, row, column);
@@ -37,10 +44,13 @@ public class Excel {
 
 	public static CellStyle dateStyle(Workbook workbook) {
 		CellStyle style = workbook.createCellStyle();
-		DataFormat format = workbook.createDataFormat();
-		short f = format.getFormat("mm/dd/yyyy hh:mm");
-		style.setDataFormat(f);
+		style.setDataFormat(dateFormat(workbook));
 		return style;
+	}
+
+	public static short dateFormat(Workbook workbook) {
+		DataFormat format = workbook.createDataFormat();
+		return format.getFormat("mm/dd/yyyy hh:mm");
 	}
 
 	public static Row row(Sheet sheet, int row) {

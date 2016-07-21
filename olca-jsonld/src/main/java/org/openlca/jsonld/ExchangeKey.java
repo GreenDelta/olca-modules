@@ -22,7 +22,7 @@ public class ExchangeKey {
 		kg.add(toString(e.getFlowPropertyFactor()));
 		kg.add(toString(e.getUnit()));
 		kg.add(e.getAmountFormula());
-		kg.add(e.getPedigreeUncertainty());
+		kg.add(e.getDqEntry());
 		kg.add(toString(e.getAmountValue()));
 		kg.add(toString(e.getBaseUncertainty()));
 		kg.addAll(toString(e.getUncertainty()));

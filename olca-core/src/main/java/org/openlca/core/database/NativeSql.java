@@ -23,8 +23,18 @@ public final class NativeSql {
 		this.database = database;
 	}
 
-	public void query(String query, QueryResultHandler handler)
-			throws SQLException {
+	public int getCount(String query) throws SQLException {
+		log.trace("execute query {}", query);
+		try (Connection con = database.createConnection();
+				Statement stmt = con.createStatement();
+				ResultSet result = stmt.executeQuery(query)) {
+			if (result.next())
+				return result.getInt(1);
+		}
+		return 0;
+	}
+
+	public void query(String query, QueryResultHandler handler) throws SQLException {
 		log.trace("execute query {}", query);
 		try (Connection con = database.createConnection()) {
 			Statement stmt = con.createStatement();

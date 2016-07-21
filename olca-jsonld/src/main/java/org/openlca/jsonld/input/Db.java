@@ -2,9 +2,11 @@ package org.openlca.jsonld.input;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
+import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -21,6 +23,7 @@ import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
@@ -44,6 +47,7 @@ class Db {
 	private Map<String, Long> flowPropertyIds = new HashMap<>();
 	private Map<String, Long> flowIds = new HashMap<>();
 	private Map<String, Long> locationIds = new HashMap<>();
+	private Map<String, Long> dqSystemIds = new HashMap<>();
 	private Map<String, Long> methodIds = new HashMap<>();
 	private Map<String, Long> actorIds = new HashMap<>();
 	private Map<String, Long> sourceIds = new HashMap<>();
@@ -72,6 +76,14 @@ class Db {
 
 	public Location put(Location loc) {
 		return put(new LocationDao(db), loc, locationIds);
+	}
+
+	public DQSystem getDqSystem(String refId) {
+		return get(new DQSystemDao(db), refId, dqSystemIds);
+	}
+
+	public DQSystem put(DQSystem sys) {
+		return put(new DQSystemDao(db), sys, dqSystemIds);
 	}
 
 	public Category getCategory(String refId) {
@@ -198,7 +210,7 @@ class Db {
 	public ProductSystem put(ProductSystem system) {
 		return put(new ProductSystemDao(db), system, systemIds);
 	}
-	
+
 	public Project getProject(String refId) {
 		return get(new ProjectDao(db), refId, projectIds);
 	}

@@ -18,7 +18,7 @@ class ProjectImpacts {
 	private CellStyle headerStyle;
 
 	public static void write(ProjectResultProvider result, Sheet sheet,
-	                         CellStyle headerStyle) {
+			CellStyle headerStyle) {
 		ProjectImpacts writer = new ProjectImpacts();
 		writer.result = result;
 		writer.sheet = sheet;
@@ -30,10 +30,8 @@ class ProjectImpacts {
 	}
 
 	private void run() {
-		List<ProjectVariant> variants = Utils
-				.sortVariants(result.getVariants());
-		List<ImpactCategoryDescriptor> impacts = Utils.sortImpacts(result
-				.getImpactDescriptors());
+		List<ProjectVariant> variants = Sort.variants(result.getVariants());
+		List<ImpactCategoryDescriptor> impacts = Sort.impacts(result.getImpactDescriptors());
 		int row = 1;
 		header(sheet, row++, 1, "LCIA Results");
 		writeRows(row, variants, impacts);
@@ -41,7 +39,7 @@ class ProjectImpacts {
 	}
 
 	private int writeRows(int row, List<ProjectVariant> variants,
-	                      List<ImpactCategoryDescriptor> impacts) {
+			List<ImpactCategoryDescriptor> impacts) {
 		for (int i = 0; i < variants.size(); i++) {
 			int col = i + 4;
 			header(sheet, row, col, variants.get(i).getName());
