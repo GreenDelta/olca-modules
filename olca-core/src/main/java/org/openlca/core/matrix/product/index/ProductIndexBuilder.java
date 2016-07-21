@@ -13,7 +13,9 @@ import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +25,11 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 	private ProcessType preferredType = ProcessType.LCI_RESULT;
 	private MatrixCache cache;
 	private ProcessTable processTable;
+	private ProductSystem system;
 
-	public ProductIndexBuilder(MatrixCache cache) {
+	public ProductIndexBuilder(MatrixCache cache, ProductSystem system) {
 		this.cache = cache;
+		this.system = system;
 		this.processTable = cache.getProcessTable();
 	}
 
@@ -43,6 +47,13 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 	public ProductIndex build(LongPair refProduct, double demand) {
 		log.trace("build product index for {}", refProduct);
 		ProductIndex index = new ProductIndex(refProduct);
+		if (system != null) {
+			for (ProcessLink link : system.getProcessLinks()) {
+				LongPair inputKey = new LongPair(link.getRecipientId(), link.getFlowId());
+				LongPair outputKey = new LongPair(link.getProviderId(), link.getFlowId());
+				index.putLink(inputKey, outputKey);
+			}
+		}
 		index.setDemand(demand);
 		List<LongPair> block = new ArrayList<>();
 		block.add(refProduct);
