@@ -4,8 +4,8 @@ import java.io.StringReader;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.simapro.csv.io.BlockReader;
 import org.openlca.simapro.csv.model.Block;
-import org.openlca.simapro.csv.reader.BlockReader;
 
 public class BlockReaderTest {
 
@@ -61,21 +61,19 @@ public class BlockReaderTest {
 	}
 
 	private void checkQuantityBlock(Block block) {
-		Assert.assertEquals("Quantities", block.getHeader());
-		Assert.assertEquals(2, block.getDataRows().size());
-		Assert.assertEquals("Mass;Yes", block.getDataRows().get(0));
-		Assert.assertEquals("Length;Yes", block.getDataRows().get(1));
+		Assert.assertEquals("Quantities", block.header);
+		Assert.assertEquals(2, block.dataRows.size());
+		Assert.assertEquals("Mass;Yes", block.dataRows.get(0));
+		Assert.assertEquals("Length;Yes", block.dataRows.get(1));
 	}
 
 	private void checkProcessBlock(Block block) {
-		Assert.assertEquals("Process", block.getHeader());
+		Assert.assertEquals("Process", block.header);
 		Assert.assertEquals(3, block.getSections().size());
-		Assert.assertEquals("material", block.getSection("Category type")
-				.getDataRows().get(0));
+		Assert.assertEquals("material", block.getSection("Category type").dataRows.get(0));
 		Assert.assertEquals("DefaultX25250700002",
-				block.getSection("Process identifier").getDataRows().get(0));
-		Assert.assertEquals("Unit process", block.getSection("Type")
-				.getDataRows().get(0));
+				block.getSection("Process identifier").dataRows.get(0));
+		Assert.assertEquals("Unit process", block.getSection("Type").dataRows.get(0));
 	}
 
 }

@@ -13,7 +13,9 @@ import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ProductIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +25,13 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 
 	private MatrixCache cache;
 	private ProviderSearch providerSearch;
+	private ProductSystem system;
 	private double cutoff;
 
-	public ProductIndexCutoffBuilder(MatrixCache cache, double cutoff) {
+	public ProductIndexCutoffBuilder(MatrixCache cache, ProductSystem system, double cutoff) {
 		this.cache = cache;
 		this.cutoff = cutoff;
+		this.system = system;
 		this.providerSearch = new ProviderSearch(cache.getProcessTable(),
 				ProcessType.LCI_RESULT);
 	}
@@ -47,6 +51,13 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 		log.trace("build product index for {} with cutoff=", refProduct,
 				cutoff);
 		ProductIndex index = new ProductIndex(refProduct);
+		if (system != null) {
+			for (ProcessLink link : system.getProcessLinks()) {
+				LongPair inputKey = new LongPair(link.getRecipientId(), link.getFlowId());
+				LongPair outputKey = new LongPair(link.getProviderId(), link.getFlowId());
+				index.putLink(inputKey, outputKey);
+			}
+		}
 		index.setDemand(demand);
 		Graph g = new Graph(refProduct, demand);
 		while (!g.next.isEmpty())

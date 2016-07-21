@@ -8,20 +8,12 @@ import java.util.Map;
 
 public class Block {
 
-	private final String header;
-	private final List<String> dataRows = new ArrayList<>();
+	public final String header;
+	public final List<String> dataRows = new ArrayList<>();
 	private final Map<String, Section> sections = new HashMap<>();
 
 	public Block(String header) {
 		this.header = header;
-	}
-
-	public String getHeader() {
-		return header;
-	}
-
-	public List<String> getDataRows() {
-		return dataRows;
 	}
 
 	public Collection<Section> getSections() {
@@ -29,9 +21,9 @@ public class Block {
 	}
 
 	public void addSection(Section section) {
-		if (section == null || section.getHeader() == null)
+		if (section == null || section.header == null)
 			return;
-		sections.put(section.getHeader(), section);
+		sections.put(section.header, section);
 	}
 
 	public Section getSection(String header) {

@@ -70,8 +70,7 @@ public class SimulationResultExport {
 		Sheet sheet = workbook.createSheet("Impact Assessment");
 		row = 0;
 		writerImpactHeader(sheet);
-		List<ImpactCategoryDescriptor> impacts = Utils.getSortedImpacts(result
-				.result.impactIndex, cache);
+		List<ImpactCategoryDescriptor> impacts = Sort.impacts(result.getImpactDescriptors());
 		for (ImpactCategoryDescriptor impact : impacts) {
 			writer.impact(sheet, row, 1, impact, false);
 			List<Double> values = result.getImpactResults(impact);
@@ -85,8 +84,7 @@ public class SimulationResultExport {
 	private void writeInventorySheet(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Inventory");
 		row = 0;
-		FlowIndex flowIndex = result.result.flowIndex;
-		List<FlowDescriptor> flows = Utils.getSortedFlows(flowIndex, cache);
+		List<FlowDescriptor> flows = Sort.flows(result.getFlowDescriptors(), cache);
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
 		if (!useStreaming) {

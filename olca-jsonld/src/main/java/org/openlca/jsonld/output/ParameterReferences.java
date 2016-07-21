@@ -147,7 +147,7 @@ public class ParameterReferences {
 	}
 
 	private static Parameter loadParameter(String name, ParameterDao dao) {
-		String jpql = "SELECT p FROM Parameter p WHERE p.scope = :scope AND p.name = :name";
+		String jpql = "SELECT p FROM Parameter p WHERE p.scope = :scope AND LOWER(p.name) = :name";
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("name", name);
 		parameters.put("scope", ParameterScope.GLOBAL);

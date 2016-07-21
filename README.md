@@ -1,14 +1,31 @@
 openLCA – modules
 =================
-This project provides a reusable set of libraries for the JVM with clear 
-dependencies to other open source libraries for the
-[openLCA framework](http://openlca.org). Since version version 1.4 the 
-[openLCA application](https://github.com/GreenDelta/olca-app) is built on top of 
-these components.
+This project provides the core functionality of [openLCA](http://openlca.org) as
+a set of [Maven](https://maven.apache.org/) modules. Since version version 1.4 
+the [openLCA application](https://github.com/GreenDelta/olca-app) is built on 
+top of these components.
+
+
+Installation
+------------
+In order to install the modules, you need to have a [JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+and [Maven 3](https://maven.apache.org/install.html) installed. [Download](https://github.com/GreenDelta/olca-modules/archive/master.zip) 
+the repository (or get it via git), navigate to the root folder and type the 
+following command in your console:
+
+	cd  olca-modules
+	mvn install
+
+This will build the modules from source and install them into your local 
+Maven repository. If the build fails because of failing tests you can skip the
+tests via:
+
+	mvn install -DskipTests=true
 
 
 Content
 -------
+* olca-cloud: a client API to communicate with remote data repositories
 * olca-core: the openLCA kernel with the openLCA model, the database layer, 
   LCA calculation, etc.
 * olca-ecospold-1: an API for reading and writing EcoSpold 01 files.
@@ -16,29 +33,15 @@ Content
 * olca-eigen: a JNI wrapper for the high performance math libraries 
   [Eigen](https://bitbucket.org/eigen/eigen/) and 
   [OpenBLAS](http://xianyi.github.io/OpenBLAS/).
-* olca-formula: the openLCA formula iterpreter
+* olca-formula: the openLCA formula interpreter
 * olca-geo: provides tools for regionalized LCIA calculation based on shapefiles
   and KML definitions
 * olca-ilcd: an API for reading and writing ILCD data sets with an 
   implementation of the ILCD network interface
 * olca-io: the import-export API of openLCA
+* olca-jsonld: import/export API for data sets in the [olca-schema](https://github.com/GreenDelta/olca-schema) 
+  format
 * olca-simapro-csv: an API for reading and writing SimaPro CSV files. 
-
-
-Building
---------
-To compile the modules you need to have a 
-[Java Development Kit >= 7](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-and [Maven](http://maven.apache.org/) installed. Download the repository, 
-navigate to the root folder and type the following command in your console:
-
-	mvn install
-
-This will build the modules from source and install them into your local 
-Maven repository. If the build failes because of failing tests you can skip the
-tests via:
-
-	mvn install -DskipTests=true
 
 
 License
