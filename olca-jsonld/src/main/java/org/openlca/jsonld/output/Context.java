@@ -1,15 +1,13 @@
 package org.openlca.jsonld.output;
 
-import org.openlca.jsonld.Schema;
-
 import com.google.gson.JsonObject;
 
 public class Context {
 
-	public static JsonObject write() {
+	public static JsonObject write(String version) {
 		JsonObject context = new JsonObject();
-		Out.put(context, "@vocab", Schema.URI);
-		Out.put(context, "@base", Schema.URI);
+		Out.put(context, "@vocab", version);
+		Out.put(context, "@base", version);
 		JsonObject vocabType = new JsonObject();
 		Out.put(vocabType, "@type", "@vocab");
 		Out.put(context, "modelType", vocabType);
