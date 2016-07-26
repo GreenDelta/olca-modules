@@ -28,6 +28,7 @@ class DQSystemWriter extends Writer<DQSystem> {
 		JsonArray indicators = new JsonArray();
 		for (DQIndicator i : system.indicators) {
 			JsonObject obj = Writer.initJson();
+			Out.put(obj, "@type", DQIndicator.class.getSimpleName());
 			Out.put(obj, "name", i.name);
 			Out.put(obj, "position", i.position);
 			writeScores(i, obj);
@@ -40,6 +41,7 @@ class DQSystemWriter extends Writer<DQSystem> {
 		JsonArray scores = new JsonArray();
 		for (DQScore s : indicator.scores) {
 			JsonObject obj = Writer.initJson();
+			Out.put(obj, "@type", DQScore.class.getSimpleName());
 			Out.put(obj, "position", s.position);
 			Out.put(obj, "label", s.label);
 			Out.put(obj, "description", s.description);
