@@ -75,7 +75,7 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 		private final String nestedOwnerType;
 		public final long nestedOwnerId;
 		public final boolean optional;
-
+		
 		public Reference(String property, Class<? extends AbstractEntity> type, long id,
 				Class<? extends AbstractEntity> ownerType, long ownerId) {
 			this(property, type, id, ownerType, ownerId, null, null, 0l, false);

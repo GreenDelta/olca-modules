@@ -20,8 +20,9 @@ import org.openlca.util.Formula;
 public class ParameterReferenceSearch extends
 		BaseReferenceSearch<ParameterDescriptor> {
 
-	private final static Ref[] references = { new Ref(Category.class,
-			"category", "f_category", true) };
+	private final static Ref[] references = {
+			new Ref(Category.class, "category", "f_category", true)
+	};
 
 	public ParameterReferenceSearch(IDatabase database, boolean includeOptional) {
 		super(database, Parameter.class, includeOptional);
@@ -64,8 +65,7 @@ public class ParameterReferenceSearch extends
 			Map<Long, Set<String>> ownerToNames) {
 		for (long ownerId : ownerToNames.keySet())
 			if (ownerToNames.get(ownerId).contains(name))
-				return new Reference("", Parameter.class, 0, Parameter.class,
-						ownerId);
+				return new Reference("", Parameter.class, 0, Parameter.class, ownerId);
 		return null;
 	}
 

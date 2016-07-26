@@ -60,15 +60,13 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		return findReferences(Collections.singleton(id));
 	}
 
-	protected List<Reference> findReferences(String table, String idField,
-			Set<Long> ids, Ref[] references) {
+	protected List<Reference> findReferences(String table, String idField, Set<Long> ids, Ref[] references) {
 		return findReferences(table, idField, ids, null, references);
 	}
 
 	protected List<Reference> findReferences(String table, String idField,
 			Set<Long> ids, Map<Long, Long> idToOwnerId, Ref[] references) {
-		return Search.on(database, type).findReferences(table, idField, ids,
-				idToOwnerId, references, includeOptional);
+		return Search.on(database, type).findReferences(table, idField, ids, idToOwnerId, references, includeOptional);
 	}
 
 	protected List<Reference> findGlobalParameters(Set<Long> ids,

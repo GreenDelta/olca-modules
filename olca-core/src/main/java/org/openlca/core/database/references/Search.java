@@ -54,8 +54,7 @@ class Search {
 					if (refs[i].optional && !includeOptional)
 						continue;
 					long id = result.getLong(i + 2);
-					references.add(createReference(refs[i], id, ownerId,
-							nestedOwnerId));
+					references.add(createReference(refs[i], id, ownerId, nestedOwnerId));
 				}
 			});
 		return references;

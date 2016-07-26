@@ -14,6 +14,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -33,23 +34,24 @@ public class ProcessReferenceSearch extends
 			new Ref(Category.class, "category", "f_category", true),
 			new Ref(Location.class, "location", "f_location", true),
 			new Ref(Currency.class, "currency", "f_currency", true),
+			new Ref(DQSystem.class, "dqSystem", "f_dq_system", true),
+			new Ref(DQSystem.class, "exchangeDqSystem", "f_exchange_dq_system", true),
+			new Ref(DQSystem.class, "socialDqSystem", "f_social_dq_system", true),
 			new Ref(ProcessDocumentation.class, "documentation", "f_process_doc", true)
 	};
 	private final static Ref[] exchangeReferences = {
 			new Ref(Flow.class, "flow", Exchange.class, "exchanges", "f_flow"),
-			new Ref(FlowPropertyFactor.class, "flowPropertyFactor", Exchange.class, "exchanges",
-					"f_flow_property_factor"),
+			new Ref(FlowPropertyFactor.class, "flowPropertyFactor", Exchange.class, "exchanges", "f_flow_property_factor"),
 			new Ref(Unit.class, "unit", Exchange.class, "exchanges", "f_unit"),
 			new Ref(Process.class, "defaultProviderId", Exchange.class, "exchanges", "f_default_provider", true)
 	};
 	private final static Ref[] socialAspectReferences = {
-			new Ref(SocialIndicator.class, "indicator", SocialAspect.class, "socialAspects", "f_indicator", true),
+			new Ref(SocialIndicator.class, "indicator", SocialAspect.class, "socialAspects", "f_indicator", false),
 			new Ref(Source.class, "source", SocialAspect.class, "socialAspects", "f_source", true)
 	};
 	private final static Ref[] documentationReferences = {
 			new Ref(Actor.class, "reviewer", ProcessDocumentation.class, "documentation", "f_reviewer", true),
-			new Ref(Actor.class, "dataDocumentor", ProcessDocumentation.class, "documentation", "f_data_documentor",
-					true),
+			new Ref(Actor.class, "dataDocumentor", ProcessDocumentation.class, "documentation", "f_data_documentor", true),
 			new Ref(Actor.class, "dataGenerator", ProcessDocumentation.class, "documentation", "f_data_generator", true),
 			new Ref(Actor.class, "dataSetOwner", ProcessDocumentation.class, "documentation", "f_dataset_owner", true),
 			new Ref(Source.class, "publication", ProcessDocumentation.class, "documentation", "f_publication", true)
