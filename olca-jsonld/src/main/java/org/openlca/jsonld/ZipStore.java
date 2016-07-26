@@ -49,7 +49,7 @@ public class ZipStore implements EntityStore {
 
 	@Override
 	public void putContext() {
-		JsonObject context = Context.write();
+		JsonObject context = Context.write(Schema.URI);
 		if (context == null)
 			return;
 		try {
