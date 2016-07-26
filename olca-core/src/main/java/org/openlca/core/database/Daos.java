@@ -15,7 +15,7 @@ public class Daos {
 		ModelType type = ModelType.forModelClass(clazz);
 		if (type != null)
 			return (BaseDao<T>) createRootDao(database, type);
-		return database.createDao(clazz);
+		return new BaseDao<>(clazz, database);
 	}
 
 	public static RootEntityDao<?, ?> createRootDao(IDatabase database,
