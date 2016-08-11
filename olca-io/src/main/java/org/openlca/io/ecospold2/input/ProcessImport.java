@@ -24,8 +24,8 @@ import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.util.KeyGen;
 import org.openlca.io.ecospold2.UncertaintyConverter;
+import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,20 +35,21 @@ import com.google.common.base.Joiner;
 class ProcessImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
+	private IDatabase db;
 	private RefDataIndex index;
 	private ProcessDao dao;
+	private PriceMapper prices;
 	private final ImportConfig config;
 
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
 
-	public ProcessImport(IDatabase database, RefDataIndex index,
-			ImportConfig config) {
-		this.database = database;
+	public ProcessImport(IDatabase db, RefDataIndex index, ImportConfig config) {
+		this.db = db;
 		this.index = index;
 		this.config = config;
-		dao = new ProcessDao(database);
+		dao = new ProcessDao(db);
+		prices = new PriceMapper(db);
 	}
 
 	public void importDataSet(DataSet dataSet) {
@@ -116,8 +117,8 @@ class ProcessImport {
 			log.warn("could not set a quantitative reference for process {}",
 					refId);
 		createElementaryExchanges(dataSet, process);
-		new DocImportMapper(database).map(dataSet, process);
-		database.createDao(Process.class).insert(process);
+		new DocImportMapper(db).map(dataSet, process);
+		db.createDao(Process.class).insert(process);
 		index.putProcessId(refId, process.getId());
 		flushLinkQueue(process);
 	}
@@ -131,7 +132,7 @@ class ProcessImport {
 			else if (p.getScope() == ParameterScope.GLOBAL)
 				newGlobals.add(p);
 		}
-		ParameterDao dao = new ParameterDao(database);
+		ParameterDao dao = new ParameterDao(db);
 		Map<String, Boolean> map = new HashMap<>();
 		for (Parameter p : dao.getGlobalParameters())
 			map.put(p.getName(), Boolean.TRUE);
@@ -164,7 +165,7 @@ class ProcessImport {
 		if (exchanges == null || process.getId() == 0)
 			return;
 		try {
-			BaseDao<Exchange> dao = database.createDao(Exchange.class);
+			BaseDao<Exchange> dao = db.createDao(Exchange.class);
 			for (Exchange exchange : exchanges) {
 				exchange.setDefaultProviderId(process.getId());
 				dao.update(exchange);
@@ -189,26 +190,27 @@ class ProcessImport {
 	}
 
 	private void createProductExchanges(DataSet dataSet, Process process) {
-		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
-			boolean isRefFlow = e.getOutputGroup() != null
-					&& e.getOutputGroup() == 0;
-			if (e.getAmount() == 0 && config.skipNullExchanges)
+		for (IntermediateExchange ie : dataSet.getIntermediateExchanges()) {
+			boolean isRefFlow = ie.getOutputGroup() != null
+					&& ie.getOutputGroup() == 0;
+			if (ie.getAmount() == 0 && config.skipNullExchanges)
 				continue;
-			String refId = RefId.forProductFlow(dataSet, e);
+			String refId = RefId.forProductFlow(dataSet, ie);
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not get flow for {}", refId);
 				continue;
 			}
-			Exchange exchange = createExchange(e, refId, flow, process);
-			if (exchange == null)
+			Exchange e = createExchange(ie, refId, flow, process);
+			if (e == null)
 				continue;
-			if (isAvoidedProduct(refId, exchange))
-				exchange.setAvoidedProduct(true);
-			if (e.getActivityLinkId() != null)
-				addActivityLink(e, exchange);
+			if (isAvoidedProduct(refId, e))
+				e.setAvoidedProduct(true);
+			if (ie.getActivityLinkId() != null)
+				addActivityLink(ie, e);
 			if (isRefFlow)
-				process.setQuantitativeReference(exchange);
+				process.setQuantitativeReference(e);
+			prices.map(ie, e);
 		}
 	}
 
@@ -225,34 +227,25 @@ class ProcessImport {
 			String flowRefId, Flow flow, Process process) {
 		if (flow == null || flow.getReferenceFlowProperty() == null)
 			return null;
-		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
-		exchange.setFlowPropertyFactor(flow.getReferenceFactor());
-		exchange.description = original.getComment();
+		Exchange e = new Exchange();
+		e.setFlow(flow);
+		e.setFlowPropertyFactor(flow.getReferenceFactor());
+		e.description = original.getComment();
 		Unit unit = getFlowUnit(original, flowRefId, flow);
 		if (unit == null)
 			return null;
-		exchange.setUnit(unit);
-		exchange.setInput(original.getInputGroup() != null);
+		e.setUnit(unit);
+		e.setInput(original.getInputGroup() != null);
 		double amount = original.getAmount();
 		if (index.isMappedFlow(flowRefId))
 			amount = amount * index.getMappedFlowFactor(flowRefId);
-		exchange.setAmountValue(amount);
-		// we could switch the input/output side for negative inputs
-		// but this could be a problem with waste treatment processes
-		// if (amount > 0)
-		// exchange.setAmountValue(amount);
-		// else {
-		// // switch input / output side for negative values
-		// exchange.setInput(!exchange.isInput());
-		// exchange.setAmountValue(Math.abs(amount));
-		// }
+		e.setAmountValue(amount);
 		if (config.withParameters && config.withParameterFormulas)
-			mapFormula(original, process, exchange);
-		exchange.setUncertainty(UncertaintyConverter.toOpenLCA(original
+			mapFormula(original, process, e);
+		e.setUncertainty(UncertaintyConverter.toOpenLCA(original
 				.getUncertainty()));
-		process.getExchanges().add(exchange);
-		return exchange;
+		process.getExchanges().add(e);
+		return e;
 	}
 
 	private Unit getFlowUnit(org.openlca.ecospold2.Exchange original,
