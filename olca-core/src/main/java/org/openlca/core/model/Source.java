@@ -10,7 +10,7 @@ import javax.persistence.Table;
 public class Source extends CategorizedEntity {
 
 	@Column(name = "doi")
-	private String doi;
+	private String url;
 
 	@Lob
 	@Column(name = "text_reference")
@@ -27,19 +27,19 @@ public class Source extends CategorizedEntity {
 		Source clone = new Source();
 		Util.cloneRootFields(this, clone);
 		clone.setCategory(getCategory());
-		clone.setDoi(getDoi());
+		clone.setUrl(getUrl());
 		clone.setTextReference(getTextReference());
 		clone.setYear(getYear());
 		clone.setExternalFile(getExternalFile());
 		return clone;
 	}
 
-	public String getDoi() {
-		return doi;
+	public String getUrl() {
+		return url;
 	}
 
-	public void setDoi(String doi) {
-		this.doi = doi;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	public String getTextReference() {

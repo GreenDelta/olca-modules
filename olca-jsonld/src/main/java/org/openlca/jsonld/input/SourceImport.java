@@ -27,7 +27,7 @@ class SourceImport extends BaseImport<Source> {
 	}
 
 	private void mapAtts(JsonObject json, Source s) {
-		s.setDoi(In.getString(json, "doi"));
+		s.setUrl(In.getString(json, "url"));
 		s.setExternalFile(In.getString(json, "externalFile"));
 		s.setTextReference(In.getString(json, "textReference"));
 		JsonElement year = json.get("year");
