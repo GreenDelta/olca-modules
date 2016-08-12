@@ -74,7 +74,7 @@ class SourceSheet {
 		if (lastChange != null) {
 			source.setLastChange(lastChange.getTime());
 		}
-		source.setDoi(config.getString(sheet, row, 6));
+		source.setUrl(config.getString(sheet, row, 6));
 		source.setTextReference(config.getString(sheet, row, 7));
 		Cell yearCell = config.getCell(sheet, row, 8);
 		if (yearCell != null
