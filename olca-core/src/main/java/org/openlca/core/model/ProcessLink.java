@@ -28,7 +28,7 @@ public class ProcessLink implements Cloneable {
 	 * ID of the process that has a link to the provider (has a product input or
 	 * waste output).
 	 */
-	@Column(name = "f_recipient")
+	@Column(name = "f_process")
 	public long processId;
 
 	/**

@@ -77,9 +77,6 @@ public class ProductSystemBuilder {
 		builder.setPreferredType(preferSystemProcesses ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS);
 		TechIndex index = builder.build(processProduct);
-		log.trace(
-				"built a product index with {} process products and {} links",
-				index.size(), index.getLinkedExchanges().size());
 		log.trace("create new process links");
 		addLinksAndProcesses(system, index);
 	}

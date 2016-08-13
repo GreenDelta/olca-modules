@@ -54,13 +54,10 @@ public class ExchangeUseSearch {
 	}
 
 	private String getProductSystemQuery(Set<Long> flowIds) {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT DISTINCT f_product_system FROM tbl_process_links ");
-		query.append("WHERE (");
-		query.append(" f_provider = " + process.getId());
-		query.append(" OR f_recipient = " + process.getId());
-		query.append(") ");
-		query.append("AND f_flow IN " + Search.asSqlList(flowIds));
-		return query.toString();
+		String query = "SELECT DISTINCT f_product_system FROM tbl_process_links "
+				+ "WHERE (f_provider = " + process.getId()
+				+ " OR f_process = " + process.getId() + ")"
+				+ "AND f_flow IN " + Search.asSqlList(flowIds);
+		return query;
 	}
 }

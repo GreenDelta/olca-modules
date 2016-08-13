@@ -190,8 +190,9 @@ public class TechIndex {
 	 */
 	public Set<Long> getProcessIds() {
 		HashSet<Long> set = new HashSet<>();
-		for (LongPair product : providers)
+		for (LongPair product : providers) {
 			set.add(product.getFirst());
+		}
 		return set;
 	}
 }
