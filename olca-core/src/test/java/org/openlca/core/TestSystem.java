@@ -78,8 +78,10 @@ public class TestSystem {
 				link.providerId = provider.getId();
 				link.flowId = flowId;
 				link.processId = p.getId();
-				if (!system.getProcessLinks().contains(link))
+				link.exchangeId = e.getId();
+				if (!system.getProcessLinks().contains(link)) {
 					system.getProcessLinks().add(link);
+				}
 			}
 		}
 		return this;

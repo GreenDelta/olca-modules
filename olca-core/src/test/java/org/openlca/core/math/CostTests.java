@@ -93,10 +93,12 @@ public class CostTests {
 				.prodIn("p1", 0.5, "kg")
 				.elemIn("water", 1, "m3")
 				.get();
+		long exchangeId = -1;
 		for (Exchange e : p1.getExchanges()) {
 			if (e.getFlow().getName().equals("p1") && e.isInput()) {
 				e.costValue = 0.4d;
 				e.currency = p1.getQuantitativeReference().currency;
+				exchangeId = e.getId();
 				break;
 			}
 		}
@@ -108,6 +110,7 @@ public class CostTests {
 		selfLink.flowId = p1.getQuantitativeReference().getFlow().getId();
 		selfLink.providerId = p1.getId();
 		selfLink.processId = p1.getId();
+		selfLink.exchangeId = exchangeId;
 		system.getProcessLinks().add(selfLink);
 		system = Tests.update(system);
 
