@@ -79,9 +79,9 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 				if (link.demand < cutoff)
 					continue;
 				Node provider = link.provider;
-				LongPair input = LongPair.of(node.product.getFirst(),
-						provider.product.getSecond());
-				index.putLink(input, provider.product);
+				LongPair exchange = LongPair.of(node.product.getFirst(),
+						link.exchangeId);
+				index.putLink(exchange, provider.product);
 			}
 		}
 	}
@@ -135,14 +135,16 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 					continue;
 				double inputAmount = amount(input);
 				double inputDemand = node.scalingFactor * inputAmount;
-				Node providerNode = nodes.get(inputProduct);
-				if (providerNode != null)
-					checkSubGraph(inputDemand, providerNode, nextLayer, false);
+				Node provider = nodes.get(inputProduct);
+				if (provider != null)
+					checkSubGraph(inputDemand, provider, nextLayer, false);
 				else {
-					providerNode = createNode(inputDemand, inputProduct,
+					provider = createNode(inputDemand, inputProduct,
 							nextLayer);
 				}
-				node.addLink(providerNode, inputAmount, inputDemand);
+				Link link = new Link(provider, input.exchangeId,
+						inputAmount, inputDemand);
+				node.inputLinks.add(link);
 			}
 		}
 

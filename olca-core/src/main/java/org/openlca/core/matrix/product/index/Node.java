@@ -40,7 +40,7 @@ class Node implements Comparable<Node> {
 	double scalingFactor;
 
 	/**
-	 * The set of inputs to this node.
+	 * The product inputs of this Node.
 	 */
 	List<Link> inputLinks = new ArrayList<>();
 
@@ -48,11 +48,6 @@ class Node implements Comparable<Node> {
 		this.product = product;
 		this.demand = demand;
 		state = NodeState.WAITING;
-	}
-
-	void addLink(Node provider, double amount, double demand) {
-		Link link = new Link(provider, amount, demand);
-		inputLinks.add(link);
 	}
 
 	/**
