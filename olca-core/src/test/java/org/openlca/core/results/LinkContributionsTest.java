@@ -90,7 +90,7 @@ public class LinkContributionsTest {
 		ProcessLink link = new ProcessLink();
 		link.flowId = flow;
 		link.providerId = provider;
-		link.recipientId = recipient;
+		link.processId = recipient;
 		return link;
 	}
 }

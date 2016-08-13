@@ -155,7 +155,7 @@ public class ProductSystemBuilder {
 						ProcessLink link = links.get(i);
 						ps.setLong(1, systemId);
 						ps.setLong(2, link.providerId);
-						ps.setLong(3, link.recipientId);
+						ps.setLong(3, link.processId);
 						ps.setLong(4, link.flowId);
 						return true;
 					}

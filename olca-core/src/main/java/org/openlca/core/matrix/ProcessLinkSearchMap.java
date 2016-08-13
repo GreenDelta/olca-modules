@@ -32,7 +32,7 @@ public final class ProcessLinkSearchMap {
 		for (int i = 0; i < data.size(); i++) {
 			ProcessLink link = data.get(i);
 			index(link.providerId, i, providerIndex);
-			index(link.recipientId, i, recipientIndex);
+			index(link.processId, i, recipientIndex);
 		}
 	}
 

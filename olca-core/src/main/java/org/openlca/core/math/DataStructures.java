@@ -39,7 +39,7 @@ public class DataStructures {
 		for (ProcessLink link : system.getProcessLinks()) {
 			long flow = link.flowId;
 			long provider = link.providerId;
-			long recipient = link.recipientId;
+			long recipient = link.processId;
 			LongPair processProduct = new LongPair(provider, flow);
 			index.put(processProduct);
 			LongPair input = new LongPair(recipient, flow);

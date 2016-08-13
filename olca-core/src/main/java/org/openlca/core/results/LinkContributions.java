@@ -46,7 +46,7 @@ public class LinkContributions {
 		HashMap<Long, Double> map = shares.get(output);
 		if (map == null)
 			return 0;
-		Double share = map.get(link.recipientId);
+		Double share = map.get(link.processId);
 		return share == null ? 0 : share;
 	}
 

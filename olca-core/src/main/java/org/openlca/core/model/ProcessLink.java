@@ -24,15 +24,26 @@ public class ProcessLink implements Cloneable {
 	@Column(name = "f_provider")
 	public long providerId;
 
+	/**
+	 * ID of the process that has a link to the provider (has a product input or
+	 * waste output).
+	 */
 	@Column(name = "f_recipient")
-	public long recipientId;
+	public long processId;
+
+	/**
+	 * ID of the product input or waste output that is linked to a provider.
+	 */
+	@Column(name = "f_exchange")
+	public long exchangeId;
 
 	@Override
 	public ProcessLink clone() {
 		ProcessLink clone = new ProcessLink();
 		clone.flowId = flowId;
 		clone.providerId = providerId;
-		clone.recipientId = recipientId;
+		clone.processId = processId;
+		clone.exchangeId = exchangeId;
 		return clone;
 	}
 
@@ -47,12 +58,14 @@ public class ProcessLink implements Cloneable {
 		ProcessLink other = (ProcessLink) obj;
 		return this.flowId == other.flowId
 				&& this.providerId == other.providerId
-				&& this.recipientId == other.recipientId;
+				&& this.processId == other.processId
+				&& this.exchangeId == other.exchangeId;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.flowId, this.providerId, this.recipientId);
+		return Objects.hash(this.flowId, this.providerId,
+				this.processId, this.exchangeId);
 	}
 
 }

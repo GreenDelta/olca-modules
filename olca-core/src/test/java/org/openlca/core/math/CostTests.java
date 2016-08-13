@@ -107,7 +107,7 @@ public class CostTests {
 		ProcessLink selfLink = new ProcessLink();
 		selfLink.flowId = p1.getQuantitativeReference().getFlow().getId();
 		selfLink.providerId = p1.getId();
-		selfLink.recipientId = p1.getId();
+		selfLink.processId = p1.getId();
 		system.getProcessLinks().add(selfLink);
 		system = Tests.update(system);
 

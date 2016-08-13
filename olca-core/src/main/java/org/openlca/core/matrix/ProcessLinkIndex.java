@@ -27,7 +27,7 @@ class ProcessLinkIndex {
 	 * contained in this index.
 	 */
 	public boolean contains(ProcessLink link) {
-		return contains(link.providerId, link.recipientId,
+		return contains(link.providerId, link.processId,
 				link.flowId);
 	}
 
@@ -52,7 +52,7 @@ class ProcessLinkIndex {
 	public void put(ProcessLink link) {
 		if (link == null)
 			return;
-		put(link.providerId, link.recipientId, link.flowId);
+		put(link.providerId, link.processId, link.flowId);
 	}
 
 	/**
@@ -91,7 +91,7 @@ class ProcessLinkIndex {
 					ProcessLink link = new ProcessLink();
 					link.flowId = flow;
 					link.providerId = provider;
-					link.recipientId = recipient;
+					link.processId = recipient;
 					links.add(link);
 				}
 			}
