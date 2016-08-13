@@ -105,9 +105,9 @@ public class CostTests {
 		ProductSystem system = TestSystem.of(p1).get();
 		// add a link to the process itself
 		ProcessLink selfLink = new ProcessLink();
-		selfLink.setFlowId(p1.getQuantitativeReference().getFlow().getId());
-		selfLink.setProviderId(p1.getId());
-		selfLink.setRecipientId(p1.getId());
+		selfLink.flowId = p1.getQuantitativeReference().getFlow().getId();
+		selfLink.providerId = p1.getId();
+		selfLink.recipientId = p1.getId();
 		system.getProcessLinks().add(selfLink);
 		system = Tests.update(system);
 

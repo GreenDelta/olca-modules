@@ -154,9 +154,9 @@ public class ProductSystemBuilder {
 							throws SQLException {
 						ProcessLink link = links.get(i);
 						ps.setLong(1, systemId);
-						ps.setLong(2, link.getProviderId());
-						ps.setLong(3, link.getRecipientId());
-						ps.setLong(4, link.getFlowId());
+						ps.setLong(2, link.providerId);
+						ps.setLong(3, link.recipientId);
+						ps.setLong(4, link.flowId);
 						return true;
 					}
 				});

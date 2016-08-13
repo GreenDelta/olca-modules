@@ -75,9 +75,9 @@ public class TestSystem {
 				if (provider == null)
 					continue;
 				ProcessLink link = new ProcessLink();
-				link.setProviderId(provider.getId());
-				link.setFlowId(flowId);
-				link.setRecipientId(p.getId());
+				link.providerId = provider.getId();
+				link.flowId = flowId;
+				link.recipientId = p.getId();
 				if (!system.getProcessLinks().contains(link))
 					system.getProcessLinks().add(link);
 			}

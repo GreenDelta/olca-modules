@@ -27,8 +27,8 @@ class ProcessLinkIndex {
 	 * contained in this index.
 	 */
 	public boolean contains(ProcessLink link) {
-		return contains(link.getProviderId(), link.getRecipientId(),
-				link.getFlowId());
+		return contains(link.providerId, link.recipientId,
+				link.flowId);
 	}
 
 	/**
@@ -52,7 +52,7 @@ class ProcessLinkIndex {
 	public void put(ProcessLink link) {
 		if (link == null)
 			return;
-		put(link.getProviderId(), link.getRecipientId(), link.getFlowId());
+		put(link.providerId, link.recipientId, link.flowId);
 	}
 
 	/**
@@ -89,9 +89,9 @@ class ProcessLinkIndex {
 					continue;
 				for (long flow : flowIds.toArray()) {
 					ProcessLink link = new ProcessLink();
-					link.setFlowId(flow);
-					link.setProviderId(provider);
-					link.setRecipientId(recipient);
+					link.flowId = flow;
+					link.providerId = provider;
+					link.recipientId = recipient;
 					links.add(link);
 				}
 			}

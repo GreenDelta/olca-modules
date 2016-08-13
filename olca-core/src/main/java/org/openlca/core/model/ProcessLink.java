@@ -5,54 +5,35 @@ import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-/**
- * A process link is a link between a providing process and a receiving process.
- * The link is realized with a providing exchange and a receiving exchange,
- * which must have the same flow
- */
+/** A process link is a connection between two processes in a product system. */
 @Embeddable
 public class ProcessLink implements Cloneable {
 
+	/**
+	 * ID of the flow that is an output of the one process and an input of the
+	 * of the other process.
+	 */
 	@Column(name = "f_flow")
-	private long flowId;
+	public long flowId;
 
+	/**
+	 * ID of the process that is an provider of a product (has a product output)
+	 * or a waste treatment (has a waste input). The pair (providerId, flowId)
+	 * is used to index the matrices in the calculation.
+	 */
 	@Column(name = "f_provider")
-	private long providerId;
+	public long providerId;
 
 	@Column(name = "f_recipient")
-	private long recipientId;
+	public long recipientId;
 
 	@Override
 	public ProcessLink clone() {
 		ProcessLink clone = new ProcessLink();
-		clone.setFlowId(getFlowId());
-		clone.setProviderId(getProviderId());
-		clone.setRecipientId(getRecipientId());
+		clone.flowId = flowId;
+		clone.providerId = providerId;
+		clone.recipientId = recipientId;
 		return clone;
-	}
-
-	public long getFlowId() {
-		return flowId;
-	}
-
-	public void setFlowId(long flowId) {
-		this.flowId = flowId;
-	}
-
-	public long getProviderId() {
-		return providerId;
-	}
-
-	public void setProviderId(long providerId) {
-		this.providerId = providerId;
-	}
-
-	public long getRecipientId() {
-		return recipientId;
-	}
-
-	public void setRecipientId(long recipientId) {
-		this.recipientId = recipientId;
 	}
 
 	@Override

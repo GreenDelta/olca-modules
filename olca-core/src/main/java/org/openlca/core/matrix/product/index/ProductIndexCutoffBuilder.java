@@ -53,8 +53,8 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 		ProductIndex index = new ProductIndex(refProduct);
 		if (system != null) {
 			for (ProcessLink link : system.getProcessLinks()) {
-				LongPair inputKey = new LongPair(link.getRecipientId(), link.getFlowId());
-				LongPair outputKey = new LongPair(link.getProviderId(), link.getFlowId());
+				LongPair inputKey = new LongPair(link.recipientId, link.flowId);
+				LongPair outputKey = new LongPair(link.providerId, link.flowId);
 				index.putLink(inputKey, outputKey);
 			}
 		}

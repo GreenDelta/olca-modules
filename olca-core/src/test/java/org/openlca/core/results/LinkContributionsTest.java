@@ -88,9 +88,9 @@ public class LinkContributionsTest {
 
 	private ProcessLink link(long provider, long flow, long recipient) {
 		ProcessLink link = new ProcessLink();
-		link.setFlowId(flow);
-		link.setProviderId(provider);
-		link.setRecipientId(recipient);
+		link.flowId = flow;
+		link.providerId = provider;
+		link.recipientId = recipient;
 		return link;
 	}
 }

@@ -37,9 +37,9 @@ public class DataStructures {
 		ProductIndex index = new ProductIndex(refProduct);
 		index.setDemand(demand);
 		for (ProcessLink link : system.getProcessLinks()) {
-			long flow = link.getFlowId();
-			long provider = link.getProviderId();
-			long recipient = link.getRecipientId();
+			long flow = link.flowId;
+			long provider = link.providerId;
+			long recipient = link.recipientId;
 			LongPair processProduct = new LongPair(provider, flow);
 			index.put(processProduct);
 			LongPair input = new LongPair(recipient, flow);
