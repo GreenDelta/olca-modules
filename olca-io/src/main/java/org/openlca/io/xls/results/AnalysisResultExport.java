@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -129,16 +128,13 @@ public class AnalysisResultExport implements IExcelExport {
 	private void prepareProcesses() {
 		Set<ProcessDescriptor> procs = result.getProcessDescriptors();
 		processes = new ArrayList<>(procs);
-		final long refProcess = result.result.productIndex.getRefProduct().getFirst();
-		Collections.sort(processes, new Comparator<ProcessDescriptor>() {
-			@Override
-			public int compare(ProcessDescriptor o1, ProcessDescriptor o2) {
-				if (o1.getId() == refProcess)
-					return -1;
-				if (o2.getId() == refProcess)
-					return 1;
-				return Strings.compare(o1.getName(), o2.getName());
-			}
+		long refProcess = result.result.productIndex.getRefFlow().getFirst();
+		Collections.sort(processes, (d1, d2) -> {
+			if (d1.getId() == refProcess)
+				return -1;
+			if (d2.getId() == refProcess)
+				return 1;
+			return Strings.compare(d1.getName(), d2.getName());
 		});
 	}
 

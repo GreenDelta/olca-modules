@@ -1,7 +1,5 @@
 package org.openlca.io.olca;
 
-import gnu.trove.map.hash.TLongLongHashMap;
-
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
@@ -20,6 +18,8 @@ import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.map.hash.TLongLongHashMap;
 
 class ProductSystemImport {
 
@@ -144,14 +144,15 @@ class ProductSystemImport {
 
 	private void switchProcessLinkIds(ProductSystem destSystem) {
 		for (ProcessLink link : destSystem.getProcessLinks()) {
-			long destProviderId = processMap.get(link.getProviderId());
-			long destFlowId = flowMap.get(link.getFlowId());
-			long destRecipientId = processMap.get(link.getRecipientId());
+			long destProviderId = processMap.get(link.providerId);
+			long destFlowId = flowMap.get(link.flowId);
+			long destRecipientId = processMap.get(link.processId);
 			if (destProviderId == 0 || destFlowId == 0 || destRecipientId == 0)
 				log.warn("could not translate process link {}", link);
-			link.setProviderId(destProviderId);
-			link.setFlowId(destFlowId);
-			link.setRecipientId(destRecipientId);
+			link.processId = destProviderId;
+			link.flowId = destFlowId;
+			link.processId = destRecipientId;
+			// TODO: exchange link ID
 		}
 	}
 
