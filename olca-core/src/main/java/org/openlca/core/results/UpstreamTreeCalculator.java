@@ -6,14 +6,16 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 class UpstreamTreeCalculator {
 
@@ -31,11 +33,12 @@ class UpstreamTreeCalculator {
 
 	private Multimap<LongPair, LongPair> makeLinks(TechIndex index) {
 		Multimap<LongPair, LongPair> links = ArrayListMultimap.create();
-		for (LongPair input : index.getLinkedExchanges()) {
-			long recipientProcess = input.getFirst();
-			LongPair provider = index.getLinkedProvider(input);
-			for (LongPair recipient : index.getProviders(recipientProcess))
+		for (LongPair exchange : index.getLinkedExchanges()) {
+			long processId = exchange.getFirst();
+			LongPair provider = index.getLinkedProvider(exchange);
+			for (LongPair recipient : index.getProviders(processId)) {
 				links.put(recipient, provider);
+			}
 		}
 		return links;
 	}

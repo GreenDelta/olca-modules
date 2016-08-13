@@ -1,11 +1,9 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.set.hash.TLongHashSet;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
@@ -22,6 +20,9 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.set.hash.TLongHashSet;
 
 public class ProductSystemBuilder {
 
@@ -90,42 +91,46 @@ public class ProductSystemBuilder {
 	}
 
 	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {
-		ProcessLinkIndex links = new ProcessLinkIndex();
+		List<ProcessLink> links = new ArrayList<>();
+		TLongHashSet linkIds = new TLongHashSet(Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR, -1);
 		TLongHashSet processes = new TLongHashSet(Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR, -1);
-		addSystemLinksAndProcesses(system, links, processes);
-		log.trace("add new processes and links");
-		for (LongPair input : index.getLinkedExchanges()) {
-			LongPair output = index.getLinkedProvider(input);
-			if (output == null)
+
+		// links and processes from system
+		for (ProcessLink link : system.getProcessLinks()) {
+			if (linkIds.add(link.exchangeId)) {
+				links.add(link);
+			}
+		}
+		processes.addAll(system.getProcesses());
+
+		// links and processes from tech-index
+		for (LongPair exchange : index.getLinkedExchanges()) {
+			LongPair provider = index.getLinkedProvider(exchange);
+			if (provider == null)
 				continue;
-			long provider = output.getFirst();
-			long recipient = input.getFirst();
-			long flow = input.getSecond();
-			processes.add(provider);
-			processes.add(recipient);
-			links.put(provider, recipient, flow);
+			processes.add(provider.getFirst());
+			processes.add(exchange.getFirst());
+			long exchangeId = exchange.getSecond();
+			if (linkIds.add(exchangeId)) {
+				ProcessLink link = new ProcessLink();
+				link.exchangeId = exchangeId;
+				link.flowId = provider.getSecond();
+				link.processId = exchange.getFirst();
+				link.providerId = provider.getFirst();
+				links.add(link);
+			}
 		}
 		updateDatabase(system, links, processes);
 	}
 
-	private void addSystemLinksAndProcesses(ProductSystem system,
-			ProcessLinkIndex linkIndex, TLongHashSet processes) {
-		log.trace("the system already contains {} links and {} processes",
-				system.getProcessLinks().size(), system.getProcesses().size());
-		for (ProcessLink link : system.getProcessLinks()) {
-			linkIndex.put(link);
-		}
-		for (long procId : system.getProcesses())
-			processes.add(procId);
-	}
-
-	private void updateDatabase(ProductSystem system, ProcessLinkIndex links,
+	private void updateDatabase(ProductSystem system, List<ProcessLink> links,
 			TLongHashSet processes) {
 		try {
 			log.trace("update product system tables");
 			cleanTables(system.getId());
-			insertLinks(system.getId(), links.createLinks());
+			insertLinks(system.getId(), links);
 			insertProcesses(system.getId(), processes);
 		} catch (Exception e) {
 			log.error("faile to update database in process builder", e);
@@ -148,17 +153,13 @@ public class ProductSystemBuilder {
 		String stmt = "insert into tbl_process_links(f_product_system, "
 				+ "f_provider, f_recipient, f_flow) values (?, ?, ?, ?)";
 		NativeSql.on(database).batchInsert(stmt, links.size(),
-				new BatchInsertHandler() {
-					@Override
-					public boolean addBatch(int i, PreparedStatement ps)
-							throws SQLException {
-						ProcessLink link = links.get(i);
-						ps.setLong(1, systemId);
-						ps.setLong(2, link.providerId);
-						ps.setLong(3, link.processId);
-						ps.setLong(4, link.flowId);
-						return true;
-					}
+				(int i, PreparedStatement ps) -> {
+					ProcessLink link = links.get(i);
+					ps.setLong(1, systemId);
+					ps.setLong(2, link.providerId);
+					ps.setLong(3, link.processId);
+					ps.setLong(4, link.flowId);
+					return true;
 				});
 	}
 
