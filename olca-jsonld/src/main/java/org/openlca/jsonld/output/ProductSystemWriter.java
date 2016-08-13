@@ -60,18 +60,16 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		for (ProcessLink link : system.getProcessLinks()) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", ProcessLink.class.getSimpleName());
-			JsonObject provider = createProcessRef(link.getProviderId());
+			JsonObject provider = createProcessRef(link.providerId);
 			Out.put(obj, "provider", provider);
 			String providerRefId = provider.get("@id").getAsString();
-			Exchange eOutput = loadExchange(link.getProviderId(),
-					link.getFlowId());
+			Exchange eOutput = loadExchange(link.providerId, link.flowId);
 			JsonObject output = createExchangeRef(providerRefId, eOutput);
 			Out.put(obj, "providerOutput", output);
-			JsonObject recipient = createProcessRef(link.getRecipientId());
+			JsonObject recipient = createProcessRef(link.processId);
 			Out.put(obj, "recipient", recipient);
 			String recipientRefId = recipient.get("@id").getAsString();
-			Exchange eInput = loadExchange(link.getRecipientId(),
-					link.getFlowId());
+			Exchange eInput = loadExchange(link.processId, link.flowId);
 			JsonObject input = createExchangeRef(recipientRefId, eInput);
 			Out.put(obj, "recipientInput", input);
 			links.add(obj);
