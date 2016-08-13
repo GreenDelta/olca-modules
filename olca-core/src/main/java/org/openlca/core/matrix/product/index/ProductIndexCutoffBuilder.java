@@ -51,20 +51,24 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 		log.trace("build product index for {} with cutoff=", refProduct,
 				cutoff);
 		TechIndex index = new TechIndex(refProduct);
-		if (system != null) {
-			for (ProcessLink link : system.getProcessLinks()) {
-				LongPair inputKey = new LongPair(link.processId, link.flowId);
-				LongPair outputKey = new LongPair(link.providerId, link.flowId);
-				index.putLink(inputKey, outputKey);
-			}
-		}
 		index.setDemand(demand);
+		addSystemLinks(index);
 		Graph g = new Graph(refProduct, demand);
 		while (!g.next.isEmpty())
 			g.handleNext();
 		fillIndex(g, index);
 		log.trace("created the index with {} products", index.size());
 		return index;
+	}
+
+	private void addSystemLinks(TechIndex index) {
+		if (system == null)
+			return;
+		for (ProcessLink link : system.getProcessLinks()) {
+			LongPair provider = new LongPair(link.providerId, link.flowId);
+			LongPair exchange = new LongPair(link.processId, link.exchangeId);
+			index.putLink(exchange, provider);
+		}
 	}
 
 	private void fillIndex(Graph g, TechIndex index) {

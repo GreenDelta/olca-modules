@@ -44,19 +44,13 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 	}
 
 	@Override
-	public TechIndex build(LongPair refProduct, double demand) {
-		log.trace("build product index for {}", refProduct);
-		TechIndex index = new TechIndex(refProduct);
-		if (system != null) {
-			for (ProcessLink link : system.getProcessLinks()) {
-				LongPair inputKey = new LongPair(link.processId, link.flowId);
-				LongPair outputKey = new LongPair(link.providerId, link.flowId);
-				index.putLink(inputKey, outputKey);
-			}
-		}
+	public TechIndex build(LongPair refFlow, double demand) {
+		log.trace("build product index for {}", refFlow);
+		TechIndex index = new TechIndex(refFlow);
 		index.setDemand(demand);
+		addSystemLinks(index);
 		List<LongPair> block = new ArrayList<>();
-		block.add(refProduct);
+		block.add(refFlow);
 		HashSet<LongPair> handled = new HashSet<>();
 		while (!block.isEmpty()) {
 			List<LongPair> nextBlock = new ArrayList<>();
@@ -64,25 +58,34 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 			Map<Long, List<CalcExchange>> exchanges = fetchExchanges(block);
 			for (LongPair recipient : block) {
 				handled.add(recipient);
-				List<CalcExchange> processExchanges = exchanges.get(recipient
+				List<CalcExchange> allExchanges = exchanges.get(recipient
 						.getFirst());
 				List<CalcExchange> productInputs = getProductInputs(
-						processExchanges);
+						allExchanges);
 				for (CalcExchange productInput : productInputs) {
 					LongPair provider = findProvider(productInput);
 					if (provider == null)
 						continue;
-					LongPair recipientInput = new LongPair(
-							recipient.getFirst(), productInput.flowId);
-					index.putLink(recipientInput, provider);
-					if (!handled.contains(provider)
-							&& !nextBlock.contains(provider))
+					LongPair exchange = new LongPair(recipient.getFirst(),
+							productInput.exchangeId);
+					index.putLink(exchange, provider);
+					if (!handled.contains(provider) && !nextBlock.contains(provider))
 						nextBlock.add(provider);
 				}
 			}
 			block = nextBlock;
 		}
 		return index;
+	}
+
+	private void addSystemLinks(TechIndex index) {
+		if (system == null)
+			return;
+		for (ProcessLink link : system.getProcessLinks()) {
+			LongPair provider = new LongPair(link.providerId, link.flowId);
+			LongPair exchange = new LongPair(link.processId, link.exchangeId);
+			index.putLink(exchange, provider);
+		}
 	}
 
 	private List<CalcExchange> getProductInputs(

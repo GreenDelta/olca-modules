@@ -11,8 +11,6 @@ import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 
@@ -29,21 +27,17 @@ public class DataStructures {
 	 * Creates a product index from the given product system.
 	 */
 	public static TechIndex createProductIndex(ProductSystem system) {
-		Process refProcess = system.getReferenceProcess();
+		long providerId = system.getReferenceProcess().getId();
 		Exchange refExchange = system.getReferenceExchange();
-		Flow refFlow = refExchange.getFlow();
-		LongPair refProduct = new LongPair(refProcess.getId(), refFlow.getId());
-		double demand = ReferenceAmount.get(system);
-		TechIndex index = new TechIndex(refProduct);
-		index.setDemand(demand);
+		long flowId = refExchange.getFlow().getId();
+		LongPair refFlow = new LongPair(providerId, flowId);
+		TechIndex index = new TechIndex(refFlow);
+		index.setDemand(ReferenceAmount.get(system));
 		for (ProcessLink link : system.getProcessLinks()) {
-			long flow = link.flowId;
-			long provider = link.providerId;
-			long recipient = link.processId;
-			LongPair processProduct = new LongPair(provider, flow);
-			index.put(processProduct);
-			LongPair input = new LongPair(recipient, flow);
-			index.putLink(input, processProduct);
+			LongPair provider = new LongPair(link.providerId, link.flowId);
+			index.put(provider);
+			LongPair exchange = new LongPair(link.processId, link.exchangeId);
+			index.putLink(exchange, provider);
 		}
 		return index;
 	}
