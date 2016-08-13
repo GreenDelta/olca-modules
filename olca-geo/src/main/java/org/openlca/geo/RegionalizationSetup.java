@@ -8,7 +8,7 @@ import java.util.List;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.geo.kml.IKmlLoader;
@@ -38,7 +38,7 @@ public class RegionalizationSetup {
 	 * be done. The respective error message is logged the in this case.
 	 */
 	public static RegionalizationSetup create(IDatabase db,
-			ImpactMethodDescriptor method, ProductIndex index) {
+			ImpactMethodDescriptor method, TechIndex index) {
 		return create(db, method, index, new KmlLoader(db));
 	}
 
@@ -48,7 +48,7 @@ public class RegionalizationSetup {
 	 * be done. The respective error message is logged the in this case.
 	 */
 	public static RegionalizationSetup create(IDatabase db,
-			ImpactMethodDescriptor method, ProductIndex index, IKmlLoader kmlLoader) {
+			ImpactMethodDescriptor method, TechIndex index, IKmlLoader kmlLoader) {
 		RegionalizationSetup setup = new RegionalizationSetup(db, method, kmlLoader);
 		if (db == null || method == null || index == null) {
 			setup.canCalculate = false;
@@ -70,7 +70,7 @@ public class RegionalizationSetup {
 		this.kmlLoader = kmlLoader;
 	}
 
-	private void init(ProductIndex index) {
+	private void init(TechIndex index) {
 		canCalculate = true;
 		List<Parameter> params = getShapeFileParameters();
 		if (params.isEmpty()) {
