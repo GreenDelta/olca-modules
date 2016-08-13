@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
@@ -39,14 +39,14 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 	}
 
 	@Override
-	public ProductIndex build(LongPair refProduct) {
+	public TechIndex build(LongPair refProduct) {
 		return build(refProduct, 1.0);
 	}
 
 	@Override
-	public ProductIndex build(LongPair refProduct, double demand) {
+	public TechIndex build(LongPair refProduct, double demand) {
 		log.trace("build product index for {}", refProduct);
-		ProductIndex index = new ProductIndex(refProduct);
+		TechIndex index = new TechIndex(refProduct);
 		if (system != null) {
 			for (ProcessLink link : system.getProcessLinks()) {
 				LongPair inputKey = new LongPair(link.processId, link.flowId);

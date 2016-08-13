@@ -18,7 +18,7 @@ import gnu.trove.map.hash.TLongDoubleHashMap;
 class AllocationIndex {
 
 	private MatrixCache cache;
-	private ProductIndex productIndex;
+	private TechIndex productIndex;
 	private AllocationMethod method;
 
 	/**
@@ -33,12 +33,12 @@ class AllocationIndex {
 	 */
 	private HashMap<LongPair, TLongDoubleHashMap> exchangeFactors;
 
-	public static AllocationIndex create(ProductIndex productIndex,
+	public static AllocationIndex create(TechIndex productIndex,
 			AllocationMethod method, MatrixCache cache) {
 		return new AllocationIndex(productIndex, method, cache);
 	}
 
-	private AllocationIndex(ProductIndex productIndex, AllocationMethod method,
+	private AllocationIndex(TechIndex productIndex, AllocationMethod method,
 			MatrixCache cache) {
 		this.method = method;
 		this.productIndex = productIndex;

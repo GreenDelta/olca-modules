@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 class InventoryBuilder {
 
 	private final MatrixCache cache;
-	private final ProductIndex productIndex;
+	private final TechIndex productIndex;
 	private final AllocationMethod allocationMethod;
 
 	private FlowIndex flowIndex;
@@ -20,7 +20,7 @@ class InventoryBuilder {
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	InventoryBuilder(MatrixCache matrixCache, ProductIndex productIndex,
+	InventoryBuilder(MatrixCache matrixCache, TechIndex productIndex,
 			AllocationMethod allocationMethod) {
 		this.cache = matrixCache;
 		this.productIndex = productIndex;
@@ -58,7 +58,7 @@ class InventoryBuilder {
 			for (Long processId : productIndex.getProcessIds()) {
 				List<CalcExchange> exchanges = map.get(processId);
 				List<LongPair> processProducts = productIndex
-						.getProducts(processId);
+						.getProviders(processId);
 				for (LongPair processProduct : processProducts) {
 					for (CalcExchange exchange : exchanges) {
 						putExchangeValue(processProduct, exchange);
@@ -84,7 +84,7 @@ class InventoryBuilder {
 		} else if (e.input) {
 
 			LongPair inputProduct = new LongPair(e.processId, e.flowId);
-			if (productIndex.isLinkedInput(inputProduct)) {
+			if (productIndex.isLinked(inputProduct)) {
 				// linked product inputs
 				addProcessLink(processProduct, e, inputProduct);
 			} else {
@@ -101,7 +101,7 @@ class InventoryBuilder {
 
 	private void addProcessLink(LongPair processProduct, CalcExchange e,
 			LongPair inputProduct) {
-		LongPair linkedOutput = productIndex.getLinkedOutput(inputProduct);
+		LongPair linkedOutput = productIndex.getLinkedProvider(inputProduct);
 		int row = productIndex.getIndex(linkedOutput);
 		add(row, processProduct, technologyMatrix, e);
 	}

@@ -2,7 +2,7 @@ package org.openlca.core.results;
 
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongIndex;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 
 public abstract class BaseResult {
 
@@ -11,7 +11,7 @@ public abstract class BaseResult {
 	 * column and row indices of the matrices and vectors of the mathematical
 	 * model.
 	 */
-	public ProductIndex productIndex;
+	public TechIndex productIndex;
 
 	/**
 	 * The flow index which maps the flow-IDs from the interventions to column

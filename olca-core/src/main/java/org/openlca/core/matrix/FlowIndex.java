@@ -14,7 +14,7 @@ public class FlowIndex {
 	private LongIndex flowIndex = new LongIndex();
 	private TLongByteHashMap inputMap = new TLongByteHashMap();
 
-	public static FlowIndex build(MatrixCache cache, ProductIndex productIndex,
+	public static FlowIndex build(MatrixCache cache, TechIndex productIndex,
 			AllocationMethod allocationMethod) {
 		return new FlowIndexBuilder(cache, productIndex, allocationMethod)
 				.build();

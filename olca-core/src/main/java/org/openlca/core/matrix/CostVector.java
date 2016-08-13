@@ -12,10 +12,10 @@ import org.openlca.core.math.IMatrixFactory;
  */
 public class CostVector {
 
-	public final ProductIndex productIndex;
+	public final TechIndex productIndex;
 	public final double[] values;
 
-	CostVector(ProductIndex products, double[] values) {
+	CostVector(TechIndex products, double[] values) {
 		this.productIndex = products;
 		this.values = values;
 	}

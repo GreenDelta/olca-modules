@@ -20,10 +20,10 @@ class FlowIndexBuilder {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final MatrixCache cache;
-	private final ProductIndex productIndex;
+	private final TechIndex productIndex;
 	private final AllocationMethod allocationMethod;
 
-	FlowIndexBuilder(MatrixCache cache, ProductIndex productIndex,
+	FlowIndexBuilder(MatrixCache cache, TechIndex productIndex,
 			AllocationMethod allocationMethod) {
 		this.allocationMethod = allocationMethod;
 		this.cache = cache;
@@ -41,7 +41,7 @@ class FlowIndexBuilder {
 				LongPair productCandidate = new LongPair(e.processId, e.flowId);
 				if (productIndex.contains(productCandidate))
 					continue; // the exchange is an output product
-				if (productIndex.isLinkedInput(productCandidate))
+				if (productIndex.isLinked(productCandidate))
 					continue; // the exchange is a linked input
 				if (e.input || e.flowType == FlowType.ELEMENTARY_FLOW)
 					indexFlow(e, index);

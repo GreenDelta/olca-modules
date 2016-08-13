@@ -75,10 +75,10 @@ public class ProductSystemBuilder {
 		IProductIndexBuilder builder = getProductIndexBuilder(system);
 		builder.setPreferredType(preferSystemProcesses ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS);
-		ProductIndex index = builder.build(processProduct);
+		TechIndex index = builder.build(processProduct);
 		log.trace(
 				"built a product index with {} process products and {} links",
-				index.size(), index.getLinkedInputs().size());
+				index.size(), index.getLinkedExchanges().size());
 		log.trace("create new process links");
 		addLinksAndProcesses(system, index);
 	}
@@ -89,14 +89,14 @@ public class ProductSystemBuilder {
 		return new ProductIndexCutoffBuilder(matrixCache, system, cutoff);
 	}
 
-	private void addLinksAndProcesses(ProductSystem system, ProductIndex index) {
+	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {
 		ProcessLinkIndex links = new ProcessLinkIndex();
 		TLongHashSet processes = new TLongHashSet(Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR, -1);
 		addSystemLinksAndProcesses(system, links, processes);
 		log.trace("add new processes and links");
-		for (LongPair input : index.getLinkedInputs()) {
-			LongPair output = index.getLinkedOutput(input);
+		for (LongPair input : index.getLinkedExchanges()) {
+			LongPair output = index.getLinkedProvider(input);
 			if (output == null)
 				continue;
 			long provider = output.getFirst();

@@ -6,7 +6,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.util.MatrixUtils;
 
@@ -30,7 +30,7 @@ public class LinkContributionsTest {
 				{ 0, -0.5, -0.5, 1 } }, factory);
 		// @formatter:on
 
-		ProductIndex index = new ProductIndex(LongPair.of(1, 1));
+		TechIndex index = new TechIndex(LongPair.of(1, 1));
 		index.put(LongPair.of(2, 2));
 		index.put(LongPair.of(3, 3));
 		index.put(LongPair.of(4, 4));
@@ -61,7 +61,7 @@ public class LinkContributionsTest {
 				.getMatrixFactory();
 		int size = 4000;
 		IMatrix techMatrix = factory.create(size, size);
-		ProductIndex index = new ProductIndex(LongPair.of(1, 1));
+		TechIndex index = new TechIndex(LongPair.of(1, 1));
 		double[] s = new double[size];
 		for (int i = 0; i < size; i++) {
 			index.put(LongPair.of(i + 1, i + 1));
@@ -73,7 +73,7 @@ public class LinkContributionsTest {
 						LongPair.of(i + 2, i + 2));
 			}
 		}
-		Assert.assertEquals(size - 1, index.getLinkedInputs().size());
+		Assert.assertEquals(size - 1, index.getLinkedExchanges().size());
 		LinkContributions cons = LinkContributions.calculate(techMatrix, index,
 				s);
 		for (int i = 0; i < size; i++) {
