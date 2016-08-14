@@ -144,11 +144,12 @@ public class ProductSystemBuilder {
 		NativeSql.on(database).runUpdate(sql);
 	}
 
-	private void insertLinks(final long systemId, final List<ProcessLink> links)
+	private void insertLinks(long systemId, List<ProcessLink> links)
 			throws Exception {
 		log.trace("insert {} process links", links.size());
 		String stmt = "insert into tbl_process_links(f_product_system, "
-				+ "f_provider, f_recipient, f_flow) values (?, ?, ?, ?)";
+				+ "f_provider, f_process, f_flow, f_exchange) "
+				+ "values (?, ?, ?, ?, ?)";
 		NativeSql.on(database).batchInsert(stmt, links.size(),
 				(int i, PreparedStatement ps) -> {
 					ProcessLink link = links.get(i);
@@ -156,6 +157,7 @@ public class ProductSystemBuilder {
 					ps.setLong(2, link.providerId);
 					ps.setLong(3, link.processId);
 					ps.setLong(4, link.flowId);
+					ps.setLong(5, link.exchangeId);
 					return true;
 				});
 	}
