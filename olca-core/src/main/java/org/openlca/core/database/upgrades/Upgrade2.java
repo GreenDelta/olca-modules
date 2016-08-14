@@ -16,7 +16,7 @@ import org.openlca.core.database.NativeSql.QueryResultHandler;
 public class Upgrade2 implements IUpgrade {
 
 	private IDatabase database;
-	private UpgradeUtil util;
+	private Util util;
 
 	@Override
 	public int[] getInitialVersions() {
@@ -31,24 +31,24 @@ public class Upgrade2 implements IUpgrade {
 	@Override
 	public void exec(IDatabase database) throws Exception {
 		this.database = database;
-		this.util = new UpgradeUtil(database);
+		this.util = new Util(database);
 		if (util.columnExists("tbl_processes", "kmz")) {
 			convertProcessKmzData();
-			util.checkDropColumn("tbl_processes", "kmz");
+			util.dropColumn("tbl_processes", "kmz");
 		}
 		addVersionFields();
 		createSocialTables();
 		createCurrencyTable();
 		createCostColumns();
-		util.checkCreateColumn("tbl_locations", "f_category",
+		util.createColumn("tbl_locations", "f_category",
 				"f_category BIGINT");
-		util.checkCreateColumn("tbl_parameters", "f_category",
+		util.createColumn("tbl_parameters", "f_category",
 				"f_category BIGINT");
 		util.renameColumn("tbl_categories", "f_parent_category", "f_category",
 				"BIGINT");
-		util.checkCreateColumn("tbl_exchanges", "description", "description "
+		util.createColumn("tbl_exchanges", "description", "description "
 				+ util.getTextType());
-		util.checkCreateColumn("tbl_flows", "synonyms", "synonyms VARCHAR(32672)");
+		util.createColumn("tbl_flows", "synonyms", "synonyms VARCHAR(32672)");
 		Upgrade2Files.apply(database);
 	}
 
@@ -104,10 +104,10 @@ public class Upgrade2 implements IUpgrade {
 		String[] tables = { "tbl_categories", "tbl_impact_categories",
 				"tbl_locations", "tbl_nw_sets", "tbl_parameters", "tbl_units" };
 		for (String table : tables) {
-			util.checkCreateColumn(table, "version", "version BIGINT");
-			util.checkCreateColumn(table, "last_change", "last_change BIGINT");
+			util.createColumn(table, "version", "version BIGINT");
+			util.createColumn(table, "last_change", "last_change BIGINT");
 		}
-		util.checkCreateColumn("tbl_parameters", "ref_id", "ref_id VARCHAR(36)");
+		util.createColumn("tbl_parameters", "ref_id", "ref_id VARCHAR(36)");
 		List<String> updates = new ArrayList<>();
 		NativeSql.on(database).query(
 				"select id from tbl_parameters",
@@ -123,7 +123,7 @@ public class Upgrade2 implements IUpgrade {
 	}
 
 	private void createCurrencyTable() throws Exception {
-		util.checkCreateTable("tbl_currencies",
+		util.createTable("tbl_currencies",
 				"CREATE TABLE tbl_currencies ( " + "id BIGINT NOT NULL, "
 						+ "name VARCHAR(255), " + "ref_id VARCHAR(36), "
 						+ "version BIGINT, " + "last_change BIGINT, "
@@ -143,24 +143,24 @@ public class Upgrade2 implements IUpgrade {
 				+ "f_activity_quantity BIGINT, " + "f_activity_unit BIGINT, "
 				+ "unit_of_measurement VARCHAR(255), "
 				+ "evaluation_scheme CLOB(64 K), " + "PRIMARY KEY (id)) ";
-		util.checkCreateTable("tbl_social_indicators", indicators);
+		util.createTable("tbl_social_indicators", indicators);
 		String aspects = "CREATE TABLE tbl_social_aspects ( "
 				+ "id BIGINT NOT NULL, " + "f_process BIGINT, "
 				+ "f_indicator BIGINT, " + "activity_value DOUBLE, "
 				+ "raw_amount VARCHAR(255), " + "risk_level VARCHAR(255), "
 				+ "comment CLOB(64 K), " + "f_source BIGINT, "
 				+ "quality VARCHAR(255), " + "PRIMARY KEY (id)) ";
-		util.checkCreateTable("tbl_social_aspects", aspects);
+		util.createTable("tbl_social_aspects", aspects);
 	}
 
 	private void createCostColumns() throws Exception {
-		util.checkCreateColumn("tbl_processes", "f_currency",
+		util.createColumn("tbl_processes", "f_currency",
 				"f_currency BIGINT");
-		util.checkCreateColumn("tbl_exchanges", "cost_value",
+		util.createColumn("tbl_exchanges", "cost_value",
 				"cost_value DOUBLE");
-		util.checkCreateColumn("tbl_exchanges", "cost_formula",
+		util.createColumn("tbl_exchanges", "cost_formula",
 				"cost_formula VARCHAR(1000)");
-		util.checkCreateColumn("tbl_exchanges", "f_currency",
+		util.createColumn("tbl_exchanges", "f_currency",
 				"f_currency BIGINT");
 	}
 

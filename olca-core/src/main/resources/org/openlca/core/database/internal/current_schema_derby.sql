@@ -98,7 +98,7 @@ CREATE TABLE tbl_sources (
 
 	source_year SMALLINT,
 	text_reference CLOB(64 K), 
-	doi VARCHAR(255),
+	url VARCHAR(255),
 	external_file VARCHAR(255),
 	
 	PRIMARY KEY (id)

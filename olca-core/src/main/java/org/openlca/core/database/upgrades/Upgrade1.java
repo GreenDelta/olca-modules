@@ -12,7 +12,7 @@ import java.util.UUID;
 
 class Upgrade1 implements IUpgrade {
 
-	private UpgradeUtil util;
+	private Util util;
 	private IDatabase database;
 
 	@Override
@@ -28,7 +28,7 @@ class Upgrade1 implements IUpgrade {
 	@Override
 	public void exec(IDatabase database) throws Exception {
 		this.database = database;
-		this.util = new UpgradeUtil(database);
+		this.util = new Util(database);
 		createNwSetTable();
 		createNwFactorTable();
 		changeSimpleColumns();
@@ -38,20 +38,20 @@ class Upgrade1 implements IUpgrade {
 	}
 
 	private void changeSimpleColumns() throws Exception {
-		util.checkCreateColumn("tbl_sources", "external_file",
+		util.createColumn("tbl_sources", "external_file",
 				"external_file VARCHAR(255)");
-		util.checkCreateColumn("tbl_parameters", "external_source",
+		util.createColumn("tbl_parameters", "external_source",
 				"external_source VARCHAR(255)");
-		util.checkCreateColumn("tbl_parameters", "source_type",
+		util.createColumn("tbl_parameters", "source_type",
 				"source_type VARCHAR(255)");
-		util.checkCreateColumn("tbl_impact_factors", "formula",
+		util.createColumn("tbl_impact_factors", "formula",
 				"formula VARCHAR(1000)");
-		util.checkCreateColumn("tbl_processes", "kmz",
+		util.createColumn("tbl_processes", "kmz",
 				"kmz " + util.getBlobType());
-		util.checkCreateColumn("tbl_locations", "kmz",
+		util.createColumn("tbl_locations", "kmz",
 				"kmz " + util.getBlobType());
-		util.checkDropColumn("tbl_process_docs", "last_change");
-		util.checkDropColumn("tbl_process_docs", "version");
+		util.dropColumn("tbl_process_docs", "last_change");
+		util.dropColumn("tbl_process_docs", "version");
 	}
 
 	private void updateMappingTable() throws Exception {
@@ -74,7 +74,7 @@ class Upgrade1 implements IUpgrade {
 					  	+ "PRIMARY KEY (id))";
 			//@formatter:on
 		}
-		util.checkCreateTable("tbl_mapping_files", tableDef);
+		util.createTable("tbl_mapping_files", tableDef);
 	}
 
 	private void createNwSetTable() throws Exception {
@@ -89,7 +89,7 @@ class Upgrade1 implements IUpgrade {
 				+ "weighted_score_unit VARCHAR(255), " 
 				+ "PRIMARY KEY (id))";
 		// @formatter:on
-		util.checkCreateTable("tbl_nw_sets", tableDef);
+		util.createTable("tbl_nw_sets", tableDef);
 		copyNwSetTable();
 		util.dropTable("tbl_normalisation_weighting_sets");
 	}
@@ -131,7 +131,7 @@ class Upgrade1 implements IUpgrade {
 				+ " normalisation_factor DOUBLE,"
 				+ " f_impact_category BIGINT," + " f_nw_set BIGINT,"
 				+ " PRIMARY KEY (id))";
-		util.checkCreateTable("tbl_nw_factors", tableDef);
+		util.createTable("tbl_nw_factors", tableDef);
 		copyNwFactorTable();
 		util.dropTable("tbl_normalisation_weighting_factors");
 	}
@@ -189,7 +189,7 @@ class Upgrade1 implements IUpgrade {
 		util.renameColumn("tbl_parameter_redefs", "f_process", "f_context",
 				"BIGINT");
 		if (!util.columnExists("tbl_parameter_redefs", "context_type")) {
-			util.checkCreateColumn("tbl_parameter_redefs", "context_type",
+			util.createColumn("tbl_parameter_redefs", "context_type",
 					"context_type VARCHAR(255)");
 			NativeSql.on(database).runUpdate(
 					"update tbl_parameter_redefs "
@@ -203,8 +203,8 @@ class Upgrade1 implements IUpgrade {
 				"tbl_flow_properties", "tbl_flows", "tbl_processes",
 				"tbl_product_systems", "tbl_impact_methods", "tbl_projects" };
 		for (String table : tables) {
-			util.checkCreateColumn(table, "version", "version BIGINT");
-			util.checkCreateColumn(table, "last_change", "last_change BIGINT");
+			util.createColumn(table, "version", "version BIGINT");
+			util.createColumn(table, "last_change", "last_change BIGINT");
 		}
 	}
 
