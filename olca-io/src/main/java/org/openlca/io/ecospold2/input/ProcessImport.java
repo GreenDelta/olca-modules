@@ -195,7 +195,7 @@ class ProcessImport {
 					&& ie.getOutputGroup() == 0;
 			if (ie.getAmount() == 0 && config.skipNullExchanges)
 				continue;
-			String refId = RefId.forProductFlow(dataSet, ie);
+			String refId = ie.getIntermediateExchangeId();
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not get flow for {}", refId);

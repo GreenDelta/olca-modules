@@ -25,10 +25,10 @@ import org.openlca.ecospold2.Exchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.io.Categories;
-import org.openlca.util.KeyGen;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.MapType;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,7 +181,7 @@ class RefDataImport {
 	}
 
 	private void productFlow(DataSet dataSet, IntermediateExchange exchange) {
-		String refId = RefId.forProductFlow(dataSet, exchange);
+		String refId = exchange.getIntermediateExchangeId();
 		Flow flow = index.getFlow(refId);
 		if (flow == null) {
 			flow = flowDao.getForRefId(refId);
@@ -197,11 +197,6 @@ class RefDataImport {
 		index.putNegativeFlow(refId, exchange.getAmount() < 0);
 		Category category = getProductCategory(dataSet, exchange);
 		flow.setCategory(category);
-		if (dataSet.getGeography() != null) {
-			Location location = index.getLocation(dataSet.getGeography()
-					.getId());
-			flow.setLocation(location);
-		}
 		flow = flowDao.update(flow);
 		index.putFlow(refId, flow);
 	}
