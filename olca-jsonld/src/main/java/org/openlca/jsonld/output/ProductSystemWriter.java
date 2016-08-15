@@ -1,11 +1,7 @@
 package org.openlca.jsonld.output;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
@@ -22,8 +18,9 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 
 	ProductSystemWriter(ExportConfig conf) {
 		super(conf);
-		if (conf.db != null)
+		if (conf.db != null) {
 			exchangeDao = new BaseDao<>(Exchange.class, conf.db);
+		}
 	}
 
 	@Override
@@ -36,8 +33,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		String processRefId = null;
 		if (system.getReferenceProcess() != null)
 			processRefId = system.getReferenceProcess().getRefId();
-		JsonObject eObj = createExchangeRef(processRefId,
-				system.getReferenceExchange());
+		JsonObject eObj = exchangeRef(processRefId, system.getReferenceExchange());
 		Out.put(obj, "referenceExchange", eObj);
 		FlowProperty property = null;
 		if (system.getTargetFlowPropertyFactor() != null)
@@ -46,7 +42,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "targetUnit", system.getTargetUnit(), conf);
 		Out.put(obj, "targetAmount", system.getTargetAmount());
 		ParameterRedefs.map(obj, system.getParameterRedefs(), conf.db, conf, (
-				type, id) -> createProcessRef(id));
+				type, id) -> processRef(id));
 		if (conf.db == null)
 			return obj;
 		mapProcesses(obj);
@@ -59,19 +55,15 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		JsonArray links = new JsonArray();
 		for (ProcessLink link : system.getProcessLinks()) {
 			JsonObject obj = new JsonObject();
-			Out.put(obj, "@type", ProcessLink.class.getSimpleName());
-			JsonObject provider = createProcessRef(link.providerId);
-			Out.put(obj, "provider", provider);
-			String providerRefId = provider.get("@id").getAsString();
-			Exchange eOutput = loadExchange(link.providerId, link.flowId);
-			JsonObject output = createExchangeRef(providerRefId, eOutput);
-			Out.put(obj, "providerOutput", output);
-			JsonObject recipient = createProcessRef(link.processId);
-			Out.put(obj, "recipient", recipient);
-			String recipientRefId = recipient.get("@id").getAsString();
-			Exchange eInput = loadExchange(link.processId, link.flowId);
-			JsonObject input = createExchangeRef(recipientRefId, eInput);
-			Out.put(obj, "recipientInput", input);
+			Out.put(obj, "@type", "ProcessLink");
+			Out.put(obj, "provider", processRef(link.providerId));
+			Out.put(obj, "flow", References.create(
+					ModelType.FLOW, link.flowId, conf, true));
+			JsonObject process = processRef(link.processId);
+			Out.put(obj, "process", process);
+			JsonObject exchange = getExchange(link,
+					process.get("@id").getAsString());
+			Out.put(obj, "exchange", exchange);
 			links.add(obj);
 		}
 		Out.put(json, "processLinks", links);
@@ -80,34 +72,36 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	private void mapProcesses(JsonObject json) {
 		JsonArray processes = new JsonArray();
 		for (Long pId : system.getProcesses())
-			processes.add(createProcessRef(pId));
+			processes.add(processRef(pId));
 		Out.put(json, "processes", processes);
 	}
 
-	private JsonObject createProcessRef(Long id) {
+	private JsonObject processRef(Long id) {
 		if (id == null)
 			return null;
 		return References.create(ModelType.PROCESS, id, conf, true);
 	}
 
-	private JsonObject createFlowRef(Flow flow) {
-		if (flow == null)
-			return null;
-		return References.create(flow, conf, true);
-	}
-
-	private JsonObject createExchangeRef(String pRefId, Exchange e) {
+	private JsonObject exchangeRef(String pRefId, Exchange e) {
 		if (e == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
 		String id = ExchangeKey.get(pRefId, getProviderRefId(e), e);
 		Out.put(obj, "@id", id);
-		Out.put(obj, "flow", createFlowRef(e.getFlow()));
-		if (!e.isInput())
+		return obj;
+	}
+
+	private JsonObject getExchange(ProcessLink link, String processRefId) {
+		JsonObject obj = new JsonObject();
+		Out.put(obj, "@type", Exchange.class.getSimpleName());
+		if (exchangeDao == null)
 			return obj;
-		Out.put(obj, "defaultProvider",
-				createProcessRef(e.getDefaultProviderId()));
+		Exchange e = exchangeDao.getForId(link.exchangeId);
+		if (e == null)
+			return obj;
+		String id = ExchangeKey.get(processRefId, getProviderRefId(e), e);
+		Out.put(obj, "@id", id);
 		return obj;
 	}
 
@@ -119,15 +113,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		if (provider == null)
 			return null;
 		return provider.get("@id").getAsString();
-	}
-
-	private Exchange loadExchange(long processId, long flowId) {
-		String jpql = "SELECT e FROM Process p JOIN p.exchanges e "
-				+ "WHERE p.id = :processId AND e.flow.id = :flowId";
-		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("processId", processId);
-		parameters.put("flowId", flowId);
-		return exchangeDao.getFirst(jpql, parameters);
 	}
 
 	@Override
