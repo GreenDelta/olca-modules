@@ -15,6 +15,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
+import org.openlca.core.model.PedigreeMatrixRow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
@@ -24,6 +25,7 @@ import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.PedigreeMatrix;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
@@ -223,29 +225,44 @@ class ProcessImport {
 		// return isNeg != index.isNegativeFlow(refId) && exchange.isInput();
 	}
 
-	private Exchange createExchange(org.openlca.ecospold2.Exchange original,
+	private Exchange createExchange(org.openlca.ecospold2.Exchange es2,
 			String flowRefId, Flow flow, Process process) {
 		if (flow == null || flow.getReferenceFlowProperty() == null)
 			return null;
 		Exchange e = new Exchange();
 		e.setFlow(flow);
 		e.setFlowPropertyFactor(flow.getReferenceFactor());
-		e.description = original.getComment();
-		Unit unit = getFlowUnit(original, flowRefId, flow);
+		e.description = es2.getComment();
+		Unit unit = getFlowUnit(es2, flowRefId, flow);
 		if (unit == null)
 			return null;
 		e.setUnit(unit);
-		e.setInput(original.getInputGroup() != null);
-		double amount = original.getAmount();
+		e.setInput(es2.getInputGroup() != null);
+		double amount = es2.getAmount();
 		if (index.isMappedFlow(flowRefId))
 			amount = amount * index.getMappedFlowFactor(flowRefId);
 		e.setAmountValue(amount);
 		if (config.withParameters && config.withParameterFormulas)
-			mapFormula(original, process, e);
-		e.setUncertainty(UncertaintyConverter.toOpenLCA(original
-				.getUncertainty()));
+			mapFormula(es2, process, e);
+		e.setUncertainty(UncertaintyConverter.toOpenLCA(es2.getUncertainty()));
+		e.setPedigreeUncertainty(getPedigreeMatrix(es2));
 		process.getExchanges().add(e);
 		return e;
+	}
+
+	private String getPedigreeMatrix(org.openlca.ecospold2.Exchange es2) {
+		if (es2 == null || es2.getUncertainty() == null)
+			return null;
+		PedigreeMatrix pm = es2.getUncertainty().pedigreeMatrix;
+		if (pm == null)
+			return null;
+		Map<PedigreeMatrixRow, Integer> m = new HashMap<>();
+		m.put(PedigreeMatrixRow.RELIABILITY, pm.reliability);
+		m.put(PedigreeMatrixRow.COMPLETENESS, pm.completeness);
+		m.put(PedigreeMatrixRow.TIME, pm.temporalCorrelation);
+		m.put(PedigreeMatrixRow.GEOGRAPHY, pm.geographicalCorrelation);
+		m.put(PedigreeMatrixRow.TECHNOLOGY, pm.technologyCorrelation);
+		return org.openlca.core.model.PedigreeMatrix.toString(m);
 	}
 
 	private Unit getFlowUnit(org.openlca.ecospold2.Exchange original,
