@@ -6,10 +6,12 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.util.RefIdMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +78,31 @@ class ProductSystemExchanges {
 			return;
 		Exchange refExchange = db.createDao(Exchange.class).getForId(id);
 		system.setReferenceExchange(refExchange);
+		system.setTargetFlowPropertyFactor(findFactor(json, system));
+		system.setTargetUnit(findUnit(json, system));
+	}
+
+	private FlowPropertyFactor findFactor(JsonObject json, ProductSystem s) {
+		Exchange e = s.getReferenceExchange();
+		if (e == null)
+			return null;
+		String propertyRefId = In.getRefId(json, "targetFlowProperty");
+		for (FlowPropertyFactor f : e.getFlow().getFlowPropertyFactors())
+			if (f.getFlowProperty().getRefId().equals(propertyRefId))
+				return f;
+		return null;
+	}
+
+	private Unit findUnit(JsonObject json, ProductSystem s) {
+		FlowPropertyFactor f = s.getTargetFlowPropertyFactor();
+		if (f == null)
+			return null;
+		String unitRefId = In.getRefId(json, "targetUnit");
+		UnitGroup ug = f.getFlowProperty().getUnitGroup();
+		for (Unit u : ug.getUnits())
+			if (u.getRefId().equals(unitRefId))
+				return u;
+		return null;
 	}
 
 	/**
