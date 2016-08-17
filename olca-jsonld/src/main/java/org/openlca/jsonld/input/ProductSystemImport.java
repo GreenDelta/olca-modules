@@ -109,25 +109,26 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		if (array == null || array.size() == 0)
 			return;
 		for (JsonElement element : array) {
-			JsonObject ref = element.getAsJsonObject();
+			JsonObject obj = element.getAsJsonObject();
 			ProcessLink link = new ProcessLink();
-			String providerRefId = In.getRefId(ref, "provider");
+			String providerRefId = In.getRefId(obj, "provider");
 			Process provider = ProcessImport.run(providerRefId, conf);
 			if (provider == null)
 				continue;
 			link.providerId = provider.getId();
-			String recipientRefId = In.getRefId(ref, "recipient");
-			Process recipient = ProcessImport.run(recipientRefId, conf);
-			if (recipient == null)
+			String processRefId = In.getRefId(obj, "process");
+			Process process = ProcessImport.run(processRefId, conf);
+			if (process == null)
 				continue;
-			link.processId = recipient.getId();
-			JsonObject oObj = In.getObject(ref, "providerOutput");
-			String flowRefId = In.getRefId(oObj, "flow");
+			link.processId = process.getId();
+			String flowRefId = In.getRefId(obj, "flow");
 			Flow flow = FlowImport.run(flowRefId, conf);
 			if (flow == null)
 				continue;
 			link.flowId = flow.getId();
-			// TODO: set exchange ID
+
+			// TODO:
+
 			s.getProcessLinks().add(link);
 		}
 	}
