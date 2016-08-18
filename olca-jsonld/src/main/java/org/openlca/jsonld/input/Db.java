@@ -2,6 +2,7 @@ package org.openlca.jsonld.input;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
@@ -51,7 +52,6 @@ class Db {
 	private Map<String, Long> processIds = new HashMap<>();
 	private Map<String, Long> indicatorIds = new HashMap<>();
 	private Map<String, Long> currencyIds = new HashMap<>();
-	private Map<String, Long> costCategoryIds = new HashMap<>();
 	private Map<String, Long> systemIds = new HashMap<>();
 	private Map<String, Long> projectIds = new HashMap<>();
 
@@ -197,7 +197,7 @@ class Db {
 	public ProductSystem put(ProductSystem system) {
 		return put(new ProductSystemDao(db), system, systemIds);
 	}
-	
+
 	public Project getProject(String refId) {
 		return get(new ProjectDao(db), refId, projectIds);
 	}

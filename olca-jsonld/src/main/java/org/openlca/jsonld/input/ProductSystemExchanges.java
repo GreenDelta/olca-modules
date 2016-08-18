@@ -115,11 +115,12 @@ class ProductSystemExchanges {
 		long flowId = getId(json, "flow", Flow.class);
 		long unitId = getId(json, "unit", Unit.class);
 		long providerId = getId(json, "defaultProvider", Process.class);
+		int input = In.getBool(json, "input", true) ? 1 : 0;
 		double amount = In.getDouble(json, "amount", 0);
 		String sql = "select id, resulting_amount_value from tbl_exchanges "
 				+ "where f_owner=" + processId + " and f_flow=" + flowId
 				+ " and f_unit=" + unitId + " and f_default_provider="
-				+ providerId;
+				+ providerId + " and is_input=" + input;
 		try {
 			return queryId(amount, sql);
 		} catch (Exception e) {

@@ -101,6 +101,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		addRef(obj, "flow", e.getFlow());
 		addRef(obj, "unit", e.getUnit());
 		Out.put(obj, "amount", e.getAmountValue());
+		Out.put(obj, "input", e.isInput());
 		if (providerId != null) {
 			JsonObject providerRef = new JsonObject();
 			Out.put(providerRef, "@type", "Process");
