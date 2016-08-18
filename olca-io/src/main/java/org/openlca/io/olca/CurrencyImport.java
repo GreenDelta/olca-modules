@@ -50,7 +50,8 @@ class CurrencyImport {
 		if (Objects.equal(srcCurrency, srcCurrency.referenceCurrency)) {
 			destCurrency.referenceCurrency = destCurrency;
 		} else {
-			destCurrency.referenceCurrency = refs.switchRef(srcCurrency);
+			destCurrency.referenceCurrency = refs.switchRef(
+					srcCurrency.referenceCurrency);
 		}
 		destCurrency = destDao.insert(destCurrency);
 		seq.put(seq.CURRENCY, srcCurrency.getRefId(), destCurrency.getId());
