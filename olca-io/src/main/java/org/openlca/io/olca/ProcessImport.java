@@ -98,17 +98,18 @@ class ProcessImport {
 	private Set<Long> switchExchangeRefs(Process destProcess) {
 		List<Exchange> removals = new ArrayList<>();
 		Set<Long> oldProviders = new HashSet<>();
-		for (Exchange exchange : destProcess.getExchanges()) {
-			if (!isValid(exchange)) {
-				removals.add(exchange);
+		for (Exchange e : destProcess.getExchanges()) {
+			if (!isValid(e)) {
+				removals.add(e);
 				continue;
 			}
-			checkSetProvider(exchange, oldProviders);
-			Flow destFlow = refs.switchRef(exchange.getFlow());
-			exchange.setFlow(destFlow);
-			exchange.setFlowPropertyFactor(refs.switchRef(
-					exchange.getFlowPropertyFactor(), destFlow));
-			exchange.setUnit(refs.switchRef(exchange.getUnit()));
+			checkSetProvider(e, oldProviders);
+			Flow destFlow = refs.switchRef(e.getFlow());
+			e.setFlow(destFlow);
+			e.setFlowPropertyFactor(refs.switchRef(
+					e.getFlowPropertyFactor(), destFlow));
+			e.setUnit(refs.switchRef(e.getUnit()));
+			e.currency = refs.switchRef(e.currency);
 		}
 		if (!removals.isEmpty()) {
 			log.warn("there where invalid exchanges in {} "
