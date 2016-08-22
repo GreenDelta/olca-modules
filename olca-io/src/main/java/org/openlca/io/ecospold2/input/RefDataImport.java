@@ -95,14 +95,14 @@ class RefDataImport {
 		try {
 			classification(dataSet);
 			geography(dataSet);
-			for (IntermediateExchange exchange : dataSet
-					.getIntermediateExchanges()) {
-				if (exchange.getAmount() == 0 && config.skipNullExchanges)
+			for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
+				if (e.getAmount() == 0 && config.skipNullExchanges)
 					continue;
-				productFlow(dataSet, exchange);
+				productFlow(dataSet, e);
 			}
-			for (ElementaryExchange exchange : dataSet.getElementaryExchanges())
-				elementaryFlow(exchange);
+			for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+				elementaryFlow(e);
+			}
 		} catch (Exception e) {
 			log.error("failed to import reference data from data set", e);
 		}
@@ -110,8 +110,7 @@ class RefDataImport {
 
 	private void classification(DataSet dataSet) {
 		Classification classification = findClassification(dataSet);
-		if (classification == null
-				|| classification.getClassificationId() == null)
+		if (classification == null || classification.getClassificationId() == null)
 			return;
 		String refId = classification.getClassificationId();
 		Category category = index.getProcessCategory(refId);
@@ -286,15 +285,10 @@ class RefDataImport {
 	 * Returns only a value if the given exchange is the reference product of
 	 * the data set.
 	 */
-	private Category getProductCategory(DataSet dataSet,
-			IntermediateExchange exchange) {
-		String refId = exchange.getIntermediateExchangeId();
-		Integer og = exchange.getOutputGroup();
+	private Category getProductCategory(DataSet dataSet, IntermediateExchange e) {
+		Integer og = e.getOutputGroup();
 		if (og == null || og != 0)
 			return null;
-		Category category = index.getProductCategory(refId);
-		if (category != null)
-			return category;
 		Classification clazz = findClassification(dataSet);
 		if (clazz == null || clazz.getClassificationValue() == null)
 			return null;
