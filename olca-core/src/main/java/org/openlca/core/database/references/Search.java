@@ -3,6 +3,7 @@ package org.openlca.core.database.references;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,6 @@ class Search {
 
 	List<Reference> findReferences(String table, String idField, Set<Long> ids,
 			Map<Long, Long> idToOwnerId, Ref[] refs, boolean includeOptional) {
-		if (ids.isEmpty())
-			return Collections.emptyList();
 		List<Reference> references = new ArrayList<Reference>();
 		List<String> queries = createQueries(table, idField, ids, refs);
 		for (String query : queries)
@@ -87,10 +86,24 @@ class Search {
 			subquery.append(references[i].field);
 		}
 		subquery.append(" FROM " + table);
+		if (ids.isEmpty())
+			return Collections.singletonList(subquery.toString());
 		subquery.append(" WHERE " + idField + " IN ");
 		List<String> idLists = asSqlLists(ids.toArray());
 		for (String idList : idLists)
 			queries.add(subquery + "(" + idList + ")");
+		return queries;
+	}
+
+	static List<String> createQueries(String base, String where, Collection<Long> ids) {
+		if (ids.isEmpty())
+			return Collections.singletonList(base);
+		base += " " + where + " ";
+		List<String> idLists = Search.asSqlLists(ids.toArray());
+		List<String> queries = new ArrayList<>();
+		for (String idList : idLists) {
+			queries.add(base + "(" + idList + ")");
+		}
 		return queries;
 	}
 

@@ -12,6 +12,8 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 /** Search of used entities within an entity. */
 public interface IReferenceSearch<T extends CategorizedDescriptor> {
 
+	public List<Reference> findReferences();
+
 	/**
 	 * Returns a list of descriptors of entities that are used in the entity
 	 * with the given id

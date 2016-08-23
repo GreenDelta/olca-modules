@@ -65,14 +65,12 @@ public class ImpactMethodReferenceSearch extends
 	}
 
 	private Map<Long, Set<String>> getFactorFormulas(Set<Long> ids) {
-		StringBuilder subquery = new StringBuilder();
-		subquery.append("SELECT f_impact_method, formula FROM tbl_impact_factors ");
-		subquery.append("INNER JOIN tbl_impact_categories ");
-		subquery.append("ON tbl_impact_categories.id = tbl_impact_factors.f_impact_category ");
+		String select = "SELECT f_impact_method, formula FROM tbl_impact_factors "
+				+ "INNER JOIN tbl_impact_categories "
+				+ "ON tbl_impact_categories.id = tbl_impact_factors.f_impact_category ";
 		Map<Long, Set<String>> formulas = new HashMap<>();
-		List<String> lists = Search.asSqlLists(ids.toArray());
-		for (String list : lists) {
-			String query = subquery.toString() + "WHERE f_impact_method IN (" + list + ")";
+		List<String> queries = Search.createQueries(select, "WHERE f_impact_method IN", ids);
+		for (String query : queries) {
 			Search.on(database, null).query(query.toString(), (result) -> {
 				long methodId = result.getLong(1);
 				Set<String> set = formulas.get(methodId);

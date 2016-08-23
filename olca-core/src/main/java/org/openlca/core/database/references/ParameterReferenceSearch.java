@@ -1,7 +1,6 @@
 package org.openlca.core.database.references;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,9 +36,8 @@ public class ParameterReferenceSearch extends
 	}
 
 	private List<Reference> findParameterReferences(Set<Long> ids) {
-		if (ids.isEmpty())
-			return Collections.emptyList();
-		List<String> formulaQueries = createFormulaQueries(ids);
+		List<String> formulaQueries = Search.createQueries("SELECT id, lower(formula) FROM tbl_parameters"
+				, "WHERE id IN", ids);
 		Map<Long, Set<String>> variables = getVariablesUsedInFormulas(formulaQueries);
 		Set<String> names = new HashSet<>();
 		for (Set<String> n : variables.values())
@@ -82,15 +80,4 @@ public class ParameterReferenceSearch extends
 		return variables;
 	}
 
-	private List<String> createFormulaQueries(Set<Long> ids) {
-		List<String> queries = new ArrayList<>();
-		List<String> idLists = Search.asSqlLists(ids.toArray());
-		for (String idList : idLists) {
-			StringBuilder query = new StringBuilder();
-			query.append("SELECT id, lower(formula) FROM tbl_parameters ");
-			query.append("WHERE id IN (" + idList + ")");
-			queries.add(query.toString());
-		}
-		return queries;
-	}
 }
