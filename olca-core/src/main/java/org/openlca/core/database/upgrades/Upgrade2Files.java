@@ -101,7 +101,7 @@ class Upgrade2Files {
 
 	private Map<String, List<String>> getSourceDocs() throws Exception {
 		Map<String, List<String>> map = new HashMap<>();
-		String query = "select id, external_file from tbl_sources";
+		String query = "select ref_id, external_file from tbl_sources";
 		NativeSql.on(db).query(query, r -> {
 			String id = r.getString(1);
 			String file = r.getString(2);

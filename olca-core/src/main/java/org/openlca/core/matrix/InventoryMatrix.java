@@ -10,7 +10,7 @@ public class InventoryMatrix {
 
 	public IMatrix technologyMatrix;
 	public IMatrix interventionMatrix;
-	public ProductIndex productIndex;
+	public TechIndex productIndex;
 	public FlowIndex flowIndex;
 
 	/**

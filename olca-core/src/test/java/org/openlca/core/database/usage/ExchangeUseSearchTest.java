@@ -72,9 +72,9 @@ public class ExchangeUseSearchTest {
 		system.setReferenceExchange(p.getExchanges().get(0));
 		Flow linkFlow = p.getExchanges().get(1).getFlow();
 		ProcessLink link = new ProcessLink();
-		link.setProviderId(p.getId());
-		link.setRecipientId(q.getId());
-		link.setFlowId(linkFlow.getId());
+		link.providerId = p.getId();
+		link.processId = q.getId();
+		link.flowId = linkFlow.getId();
 		system.getProcessLinks().add(link);
 		system = database.createDao(ProductSystem.class).insert(system);
 		modelStack.push(system);

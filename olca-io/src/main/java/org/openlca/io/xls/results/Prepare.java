@@ -18,7 +18,7 @@ public class Prepare {
 
 	static List<ProcessDescriptor> processes(ContributionResultProvider<?> result) {
 		Set<ProcessDescriptor> procs = result.getProcessDescriptors();
-		long refProcessId = result.result.productIndex.getRefProduct().getFirst();
+		long refProcessId = result.result.productIndex.getRefFlow().getFirst();
 		return Sort.processes(procs, refProcessId);
 	}
 

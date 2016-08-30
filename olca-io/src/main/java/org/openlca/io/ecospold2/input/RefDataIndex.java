@@ -17,7 +17,6 @@ class RefDataIndex {
 	private Map<String, Long> processIds = new HashMap<>();
 	private Map<String, Category> processCategories = new HashMap<>();
 	private Map<String, Category> compartments = new HashMap<>();
-	private Map<String, Category> productCategories = new HashMap<>();
 	private Map<String, Location> locations = new HashMap<>();
 	private Map<String, Unit> units = new HashMap<>();
 	private Map<String, FlowProperty> flowProperties = new HashMap<>();
@@ -64,16 +63,6 @@ class RefDataIndex {
 
 	public void putCompartment(String key, Category category) {
 		compartments.put(key, category);
-	}
-
-	/** The key is the ID of the product, NOT the ID of the category. */
-	public Category getProductCategory(String key) {
-		return productCategories.get(key);
-	}
-
-	/** The key is the ID of the product, NOT the ID of the category. */
-	public void putProductCategory(String key, Category category) {
-		productCategories.put(key, category);
 	}
 
 	public Flow getFlow(String key) {

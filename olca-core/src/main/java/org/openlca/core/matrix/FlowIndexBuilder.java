@@ -20,29 +20,28 @@ class FlowIndexBuilder {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final MatrixCache cache;
-	private final ProductIndex productIndex;
+	private final TechIndex techIndex;
 	private final AllocationMethod allocationMethod;
 
-	FlowIndexBuilder(MatrixCache cache, ProductIndex productIndex,
+	FlowIndexBuilder(MatrixCache cache, TechIndex techIndex,
 			AllocationMethod allocationMethod) {
 		this.allocationMethod = allocationMethod;
 		this.cache = cache;
-		this.productIndex = productIndex;
+		this.techIndex = techIndex;
 	}
 
 	FlowIndex build() {
 		FlowIndex index = new FlowIndex();
 		Map<Long, List<CalcExchange>> map = loadExchanges();
-		for (Long processId : productIndex.getProcessIds()) {
+		for (Long processId : techIndex.getProcessIds()) {
 			List<CalcExchange> exchanges = map.get(processId);
 			for (CalcExchange e : exchanges) {
 				if (index.contains(e.flowId))
 					continue; // already indexed as flow
-				LongPair productCandidate = new LongPair(e.processId, e.flowId);
-				if (productIndex.contains(productCandidate))
+				if (techIndex.contains(LongPair.of(e.processId, e.flowId)))
 					continue; // the exchange is an output product
-				if (productIndex.isLinkedInput(productCandidate))
-					continue; // the exchange is a linked input
+				if (techIndex.isLinked(LongPair.of(e.processId, e.exchangeId)))
+					continue; // the exchange is a linked exchange
 				if (e.input || e.flowType == FlowType.ELEMENTARY_FLOW)
 					indexFlow(e, index);
 				else if (allocationMethod == null
@@ -57,7 +56,7 @@ class FlowIndexBuilder {
 	private Map<Long, List<CalcExchange>> loadExchanges() {
 		try {
 			Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
-					.getAll(productIndex.getProcessIds());
+					.getAll(techIndex.getProcessIds());
 			return map;
 		} catch (Exception e) {
 			log.error("failed to load exchanges from cache", e);

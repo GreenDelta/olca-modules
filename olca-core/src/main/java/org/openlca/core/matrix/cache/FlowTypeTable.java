@@ -52,15 +52,15 @@ public class FlowTypeTable {
 	}
 
 	private void fetchFlowType(ResultSet result) throws Exception {
-		long id = result.getLong("id");
-		String typeString = result.getString("flow_type");
+		long id = result.getLong(1);
+		String typeString = result.getString(2);
 		if (typeString == null)
 			return;
 		FlowType type = FlowType.valueOf(typeString);
 		map.put(id, type);
 	}
 
-	public FlowType getType(long flowId) {
+	public FlowType get(long flowId) {
 		return map.get(flowId);
 	}
 

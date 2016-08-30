@@ -84,9 +84,12 @@ public class DQResultTest {
 		pSystem.getProcesses().add(process1.getId());
 		pSystem.getProcesses().add(process2.getId());
 		ProcessLink link = new ProcessLink();
-		link.setFlowId(pFlow2.getId());
-		link.setProviderId(process2.getId());
-		link.setRecipientId(process1.getId());
+		link.flowId = pFlow2.getId();
+		link.providerId = process2.getId();
+		for (Exchange e : process1.getExchanges())
+			if (e.getFlow().getId() == pFlow1.getId())
+				link.exchangeId = e.getId();
+		link.processId = process1.getId();
 		pSystem.getProcessLinks().add(link);
 		pSystem.setReferenceProcess(process1);
 		pSystem.setReferenceExchange(process1.getQuantitativeReference());

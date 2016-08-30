@@ -11,7 +11,7 @@ import org.openlca.core.database.mysql.MySQLDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class UpgradeUtil {
+class Util {
 
 	private final int TYPE_DERBY = 0;
 	private final int TYPE_MYSQL = 1;
@@ -21,7 +21,7 @@ class UpgradeUtil {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	UpgradeUtil(IDatabase database) {
+	Util(IDatabase database) {
 		this.database = database;
 		if (database instanceof MySQLDatabase)
 			dbType = TYPE_MYSQL;
@@ -68,12 +68,12 @@ class UpgradeUtil {
 	 * Checks if a table with the given name exists in the database. If not it
 	 * is created using the given table definition.
 	 */
-	void checkCreateTable(String tableName, String tableDef) throws Exception {
-		log.trace("Check if table {} exists", tableName);
-		if (tableExists(tableName))
+	void createTable(String table, String tableDef) throws Exception {
+		log.trace("Check if table {} exists", table);
+		if (tableExists(table))
 			log.trace("table exists");
 		else {
-			log.info("create table {}", tableName);
+			log.info("create table {}", table);
 			NativeSql.on(database).runUpdate(tableDef);
 		}
 	}
@@ -99,26 +99,25 @@ class UpgradeUtil {
 	 * Checks if a column with the given name exists in the table with the given
 	 * name. If not, it is created using the given column definition.
 	 */
-	boolean checkCreateColumn(String tableName, String columnName,
-			String columnDef) throws Exception {
-		log.trace("Check if column {} exists in {}", columnName, tableName);
-		if (columnExists(tableName, columnName)) {
+	boolean createColumn(String table, String column, String columnDef)
+			throws Exception {
+		log.trace("Check if column {} exists in {}", column, table);
+		if (columnExists(table, column)) {
 			log.trace("column exists");
 			return false;
 		}
-		log.info("add column {} to {}", columnName, tableName);
-		String stmt = "ALTER TABLE " + tableName + " ADD COLUMN " + columnDef;
+		log.info("add column {} to {}", column, table);
+		String stmt = "ALTER TABLE " + table + " ADD COLUMN " + columnDef;
 		NativeSql.on(database).runUpdate(stmt);
 		return true;
 	}
 
 	/** Deletes the given column from the given table if it exists. */
-	boolean checkDropColumn(String tableName, String columnName)
-			throws Exception {
-		log.trace("drop column {} in table {}", columnName, tableName);
-		if (!columnExists(tableName, columnName))
+	boolean dropColumn(String table, String column) throws Exception {
+		log.trace("drop column {} in table {}", column, table);
+		if (!columnExists(table, column))
 			return false;
-		String stmt = "ALTER TABLE " + tableName + " DROP COLUMN " + columnName;
+		String stmt = "ALTER TABLE " + table + " DROP COLUMN " + column;
 		NativeSql.on(database).runUpdate(stmt);
 		return true;
 	}

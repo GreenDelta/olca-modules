@@ -75,11 +75,13 @@ public class TestSystem {
 				if (provider == null)
 					continue;
 				ProcessLink link = new ProcessLink();
-				link.setProviderId(provider.getId());
-				link.setFlowId(flowId);
-				link.setRecipientId(p.getId());
-				if (!system.getProcessLinks().contains(link))
+				link.providerId = provider.getId();
+				link.flowId = flowId;
+				link.processId = p.getId();
+				link.exchangeId = e.getId();
+				if (!system.getProcessLinks().contains(link)) {
 					system.getProcessLinks().add(link);
+				}
 			}
 		}
 		return this;

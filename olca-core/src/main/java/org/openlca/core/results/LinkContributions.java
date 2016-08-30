@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.ProcessLink;
 
 /**
@@ -28,7 +28,7 @@ public class LinkContributions {
 	}
 
 	public static LinkContributions calculate(IMatrix technologyMatrix,
-			ProductIndex index, double[] scalingFactors) {
+			TechIndex index, double[] scalingFactors) {
 		LinkContributions contributions = new LinkContributions();
 		contributions.calculateShares(technologyMatrix, index, scalingFactors);
 		return contributions;
@@ -42,11 +42,11 @@ public class LinkContributions {
 	public double getShare(ProcessLink link) {
 		if (link == null)
 			return 0;
-		LongPair output = new LongPair(link.getProviderId(), link.getFlowId());
+		LongPair output = new LongPair(link.providerId, link.flowId);
 		HashMap<Long, Double> map = shares.get(output);
 		if (map == null)
 			return 0;
-		Double share = map.get(link.getRecipientId());
+		Double share = map.get(link.processId);
 		return share == null ? 0 : share;
 	}
 
@@ -60,10 +60,10 @@ public class LinkContributions {
 		return share == null ? 0 : share;
 	}
 
-	private void calculateShares(IMatrix matrix, ProductIndex index,
+	private void calculateShares(IMatrix matrix, TechIndex index,
 			double[] scalingFactors) {
 		for (int i = 0; i < index.size(); i++) {
-			LongPair outProduct = index.getProductAt(i);
+			LongPair outProduct = index.getProviderAt(i);
 			double outVal = scalingFactors[i] * matrix.getEntry(i, i);
 			if (outVal == 0)
 				continue;
@@ -74,7 +74,7 @@ public class LinkContributions {
 				if (rawInVal == 0)
 					continue;
 				double contr = -(scalingFactors[k] * rawInVal) / outVal;
-				LongPair inProduct = index.getProductAt(k);
+				LongPair inProduct = index.getProviderAt(k);
 				putShare(outProduct, inProduct, contr);
 			}
 		}

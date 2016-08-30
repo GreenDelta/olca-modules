@@ -100,7 +100,7 @@ class ExchangeCache {
 			e.conversionFactor = factor;
 			e.exchangeId = r.getLong("id");
 			e.flowId = r.getLong("f_flow");
-			e.flowType = flowTypes.getType(e.flowId);
+			e.flowType = flowTypes.get(e.flowId);
 			e.input = r.getBoolean("is_input");
 			e.defaultProviderId = r.getLong("f_default_provider");
 			e.avoidedProduct = r.getBoolean("avoided_product");

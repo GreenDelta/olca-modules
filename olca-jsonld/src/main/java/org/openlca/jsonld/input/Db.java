@@ -55,7 +55,6 @@ class Db {
 	private Map<String, Long> processIds = new HashMap<>();
 	private Map<String, Long> indicatorIds = new HashMap<>();
 	private Map<String, Long> currencyIds = new HashMap<>();
-	private Map<String, Long> costCategoryIds = new HashMap<>();
 	private Map<String, Long> systemIds = new HashMap<>();
 	private Map<String, Long> projectIds = new HashMap<>();
 	public Map<String, String> categoryRefIdMapping = new HashMap<String, String>();

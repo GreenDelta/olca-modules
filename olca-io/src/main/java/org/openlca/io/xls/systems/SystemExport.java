@@ -22,7 +22,7 @@ import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.LongIndex;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.io.xls.Excel;
@@ -164,83 +164,77 @@ public class SystemExport {
 	private void createImpactMethodCoverSheet(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("General information");
 
-		int currentRow = 0;
-		currentRow = writeHeaderInformation(sheet, currentRow,
-				TITLES.IMPACT_FACTORS);
-		currentRow++;
-		currentRow = writeSoftwareInformation(sheet, currentRow);
-		currentRow++;
+		int row = 0;
+		row = writeHeaderInformation(sheet, row, TITLES.IMPACT_FACTORS);
+		row++;
+		row = writeSoftwareInformation(sheet, row);
+		row++;
 
 		String name = conf.getSystem().getName();
-		String methodName = conf.getImpactMethod().getName();
+		String method = conf.getImpactMethod().getName();
 		int categories = impactTable.categoryIndex.size();
 		int factors = impactTable.flowIndex.size();
 		String dimensions = factors + "x" + categories;
 
-		currentRow = line(sheet, currentRow, "Product system:", name);
-		currentRow = line(sheet, currentRow, "Impact method:", methodName);
-		currentRow = line(sheet, currentRow, "No. of impact categories:",
-				categories);
-		currentRow = line(sheet, currentRow, "No. of impact factors:", factors);
-		currentRow = line(sheet, currentRow, "Matrix dimensions:", dimensions);
+		row = line(sheet, row, "Product system:", name);
+		row = line(sheet, row, "Impact method:", method);
+		row = line(sheet, row, "No. of impact categories:", categories);
+		row = line(sheet, row, "No. of impact factors:", factors);
+		row = line(sheet, row, "Matrix dimensions:", dimensions);
 
-		Excel.autoSize(sheet, new int[] { 0, 1 });
+		Excel.autoSize(sheet, 0, 1);
 	}
 
-	private int writeHeaderInformation(Sheet sheet, int currentRow,
-			String subTitle) {
+	private int writeHeaderInformation(Sheet sheet, int row, String title) {
 		String date = DateFormat.getDateInstance().format(
 				GregorianCalendar.getInstance().getTime());
-
-		Excel.cell(sheet, currentRow, 0, TITLES.MAIN_TITLE);
-		currentRow++;
-		Excel.cell(sheet, currentRow, 0, subTitle);
-		currentRow++;
-		currentRow++;
-		Excel.cell(sheet, currentRow, 0, date);
-		currentRow++;
-		return currentRow;
+		Excel.cell(sheet, row, 0, TITLES.MAIN_TITLE);
+		row++;
+		Excel.cell(sheet, row, 0, title);
+		row++;
+		row++;
+		Excel.cell(sheet, row, 0, date);
+		row++;
+		return row;
 	}
 
-	private int writeSoftwareInformation(Sheet sheet, int currentRow) {
-		currentRow = line(sheet, currentRow, "Software:", "openLCA");
-		currentRow = line(sheet, currentRow, "Version:", conf.getOlcaVersion());
-		currentRow = line(sheet, currentRow, "Database:", conf.getDatabase()
-				.getName());
-		return currentRow;
+	private int writeSoftwareInformation(Sheet sheet, int row) {
+		row = line(sheet, row, "Software:", "openLCA");
+		row = line(sheet, row, "Version:", conf.getOlcaVersion());
+		row = line(sheet, row, "Database:", conf.getDatabase().getName());
+		return row;
 	}
 
-	private int line(Sheet sheet, int row, String designator, String value) {
-		Excel.cell(sheet, row, 0, designator);
+	private int line(Sheet sheet, int row, String label, String value) {
+		Excel.cell(sheet, row, 0, label);
 		Excel.cell(sheet, row, 1, value);
 		return row + 1;
 	}
 
-	private int line(Sheet sheet, int row, String designator, double value) {
-		Excel.cell(sheet, row, 0, designator);
+	private int line(Sheet sheet, int row, String label, double value) {
+		Excel.cell(sheet, row, 0, label);
 		Excel.cell(sheet, row, 1, value);
 		return row + 1;
 	}
 
-	private ExcelHeader createFlowHeader(FlowIndex flowIndex) {
+	private ExcelHeader createFlowHeader(FlowIndex index) {
 		ExcelHeader header = new ExcelHeader();
 		header.setHeaders(HEADERS.FLOW.VALUES);
-		List<IExcelHeaderEntry> headerEntries = new ArrayList<>();
-		List<FlowInfo> sortedFlows = mapFlowIndices(header, flowIndex);
-		for (FlowInfo flowInfo : sortedFlows) {
-			headerEntries.add(new FlowHeaderEntry(flowInfo));
+		List<IExcelHeaderEntry> entries = new ArrayList<>();
+		List<FlowInfo> sortedFlows = mapFlowIndices(header, index);
+		for (FlowInfo info : sortedFlows) {
+			entries.add(new FlowHeaderEntry(info));
 		}
-		header.setEntries(headerEntries
-				.toArray(new IExcelHeaderEntry[headerEntries.size()]));
+		header.setEntries(entries.toArray(new IExcelHeaderEntry[entries.size()]));
 		return header;
 	}
 
-	private ExcelHeader createProductHeader(ProductIndex productIndex) {
+	private ExcelHeader createProductHeader(TechIndex index) {
 		ExcelHeader header = new ExcelHeader();
 		header.setHeaders(HEADERS.PRODUCT.VALUES);
 		List<IExcelHeaderEntry> headerEntries = new ArrayList<>();
 		List<ProductInfo> sortedProducts = mapProductIndices(header,
-				productIndex);
+				index);
 		for (ProductInfo product : sortedProducts) {
 			headerEntries.add(new ProductHeaderEntry(product));
 		}
@@ -315,18 +309,15 @@ public class SystemExport {
 		return sortedFlows;
 	}
 
-	private List<ProductInfo> mapProductIndices(ExcelHeader header,
-			ProductIndex productIndex) {
-		List<ProductInfo> sortedProducts = ProductInfo.getAll(conf,
-				productIndex);
-		Collections.sort(sortedProducts);
-		int counter = 0;
-		for (ProductInfo product : sortedProducts) {
-			header.putIndexMapping(counter,
-					productIndex.getIndex(product.getLongPair()));
-			counter++;
+	private List<ProductInfo> mapProductIndices(ExcelHeader header, TechIndex index) {
+		List<ProductInfo> products = ProductInfo.getAll(conf, index);
+		Collections.sort(products);
+		int i = 0;
+		for (ProductInfo product : products) {
+			header.putIndexMapping(i, index.getIndex(product.getLongPair()));
+			i++;
 		}
-		return sortedProducts;
+		return products;
 	}
 
 	private List<ImpactCategoryDescriptor> mapImpactCategoryIndices(
@@ -403,9 +394,7 @@ public class SystemExport {
 	private interface FILE_NAMES {
 
 		String ELEMENTARY = "ElementaryFlows.xlsx";
-		String ELEMENTARY_ALLOCATED = "ElementaryFlowsAllocated.xlsx";
 		String PRODUCT = "ProductFlows.xlsx";
-		String PRODUCT_ALLOCATED = "ProductFlowsAllocated.xlsx";
 		String IMPACT_FACTORS = "ImpactFactors.xlsx";
 
 	}

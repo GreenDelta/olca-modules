@@ -1,6 +1,7 @@
 package org.openlca.io.olca;
 
 import java.util.HashMap;
+
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
@@ -72,6 +73,7 @@ public class DatabaseImport implements Runnable {
 
 	private void importStructs(Sequence seq) {
 		new FlowImport(source, dest, seq).run();
+		new CurrencyImport(source, dest, seq).run();
 		new ProcessImport(source, dest, seq).run();
 		new ProductSystemImport(source, dest, seq).run();
 		new ImpactMethodImport(source, dest, seq).run();

@@ -25,10 +25,10 @@ import org.openlca.ecospold2.Exchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.io.Categories;
-import org.openlca.util.KeyGen;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.openlca.io.maps.MapType;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,14 +95,14 @@ class RefDataImport {
 		try {
 			classification(dataSet);
 			geography(dataSet);
-			for (IntermediateExchange exchange : dataSet
-					.getIntermediateExchanges()) {
-				if (exchange.getAmount() == 0 && config.skipNullExchanges)
+			for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
+				if (e.getAmount() == 0 && config.skipNullExchanges)
 					continue;
-				productFlow(dataSet, exchange);
+				productFlow(dataSet, e);
 			}
-			for (ElementaryExchange exchange : dataSet.getElementaryExchanges())
-				elementaryFlow(exchange);
+			for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+				elementaryFlow(e);
+			}
 		} catch (Exception e) {
 			log.error("failed to import reference data from data set", e);
 		}
@@ -110,8 +110,7 @@ class RefDataImport {
 
 	private void classification(DataSet dataSet) {
 		Classification classification = findClassification(dataSet);
-		if (classification == null
-				|| classification.getClassificationId() == null)
+		if (classification == null || classification.getClassificationId() == null)
 			return;
 		String refId = classification.getClassificationId();
 		Category category = index.getProcessCategory(refId);
@@ -181,7 +180,7 @@ class RefDataImport {
 	}
 
 	private void productFlow(DataSet dataSet, IntermediateExchange exchange) {
-		String refId = RefId.forProductFlow(dataSet, exchange);
+		String refId = exchange.getIntermediateExchangeId();
 		Flow flow = index.getFlow(refId);
 		if (flow == null) {
 			flow = flowDao.getForRefId(refId);
@@ -197,11 +196,6 @@ class RefDataImport {
 		index.putNegativeFlow(refId, exchange.getAmount() < 0);
 		Category category = getProductCategory(dataSet, exchange);
 		flow.setCategory(category);
-		if (dataSet.getGeography() != null) {
-			Location location = index.getLocation(dataSet.getGeography()
-					.getId());
-			flow.setLocation(location);
-		}
 		flow = flowDao.update(flow);
 		index.putFlow(refId, flow);
 	}
@@ -291,15 +285,10 @@ class RefDataImport {
 	 * Returns only a value if the given exchange is the reference product of
 	 * the data set.
 	 */
-	private Category getProductCategory(DataSet dataSet,
-			IntermediateExchange exchange) {
-		String refId = exchange.getIntermediateExchangeId();
-		Integer og = exchange.getOutputGroup();
+	private Category getProductCategory(DataSet dataSet, IntermediateExchange e) {
+		Integer og = e.getOutputGroup();
 		if (og == null || og != 0)
 			return null;
-		Category category = index.getProductCategory(refId);
-		if (category != null)
-			return category;
 		Classification clazz = findClassification(dataSet);
 		if (clazz == null || clazz.getClassificationValue() == null)
 			return null;

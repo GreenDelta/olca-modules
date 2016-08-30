@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 class InventoryBuilder {
 
 	private final MatrixCache cache;
-	private final ProductIndex productIndex;
+	private final TechIndex techIndex;
 	private final AllocationMethod allocationMethod;
 
 	private FlowIndex flowIndex;
@@ -20,23 +20,23 @@ class InventoryBuilder {
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	InventoryBuilder(MatrixCache matrixCache, ProductIndex productIndex,
+	InventoryBuilder(MatrixCache matrixCache, TechIndex productIndex,
 			AllocationMethod allocationMethod) {
 		this.cache = matrixCache;
-		this.productIndex = productIndex;
+		this.techIndex = productIndex;
 		this.allocationMethod = allocationMethod;
 	}
 
 	Inventory build() {
 		if (allocationMethod != null
 				&& allocationMethod != AllocationMethod.NONE)
-			allocationTable = AllocationIndex.create(productIndex,
+			allocationTable = AllocationIndex.create(techIndex,
 					allocationMethod, cache);
-		flowIndex = FlowIndex.build(cache, productIndex, allocationMethod);
-		technologyMatrix = new ExchangeMatrix(productIndex.size(),
-				productIndex.size());
+		flowIndex = FlowIndex.build(cache, techIndex, allocationMethod);
+		technologyMatrix = new ExchangeMatrix(techIndex.size(),
+				techIndex.size());
 		interventionMatrix = new ExchangeMatrix(flowIndex.size(),
-				productIndex.size());
+				techIndex.size());
 		return createInventory();
 	}
 
@@ -45,7 +45,7 @@ class InventoryBuilder {
 		inventory.allocationMethod = allocationMethod;
 		inventory.flowIndex = flowIndex;
 		inventory.interventionMatrix = interventionMatrix;
-		inventory.productIndex = productIndex;
+		inventory.productIndex = techIndex;
 		inventory.technologyMatrix = technologyMatrix;
 		fillMatrices();
 		return inventory;
@@ -54,11 +54,11 @@ class InventoryBuilder {
 	private void fillMatrices() {
 		try {
 			Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
-					.getAll(productIndex.getProcessIds());
-			for (Long processId : productIndex.getProcessIds()) {
+					.getAll(techIndex.getProcessIds());
+			for (Long processId : techIndex.getProcessIds()) {
 				List<CalcExchange> exchanges = map.get(processId);
-				List<LongPair> processProducts = productIndex
-						.getProducts(processId);
+				List<LongPair> processProducts = techIndex
+						.getProviders(processId);
 				for (LongPair processProduct : processProducts) {
 					for (CalcExchange exchange : exchanges) {
 						putExchangeValue(processProduct, exchange);
@@ -74,7 +74,7 @@ class InventoryBuilder {
 	private void putExchangeValue(LongPair processProduct, CalcExchange e) {
 		if (!e.input && processProduct.equals(e.processId, e.flowId)) {
 			// the reference product
-			int idx = productIndex.getIndex(processProduct);
+			int idx = techIndex.getIndex(processProduct);
 			add(idx, processProduct, technologyMatrix, e);
 
 		} else if (e.flowType == FlowType.ELEMENTARY_FLOW) {
@@ -83,10 +83,9 @@ class InventoryBuilder {
 
 		} else if (e.input) {
 
-			LongPair inputProduct = new LongPair(e.processId, e.flowId);
-			if (productIndex.isLinkedInput(inputProduct)) {
+			if (techIndex.isLinked(LongPair.of(e.processId, e.exchangeId))) {
 				// linked product inputs
-				addProcessLink(processProduct, e, inputProduct);
+				addProcessLink(processProduct, e);
 			} else {
 				// an unlinked product input
 				addIntervention(processProduct, e);
@@ -99,10 +98,10 @@ class InventoryBuilder {
 		}
 	}
 
-	private void addProcessLink(LongPair processProduct, CalcExchange e,
-			LongPair inputProduct) {
-		LongPair linkedOutput = productIndex.getLinkedOutput(inputProduct);
-		int row = productIndex.getIndex(linkedOutput);
+	private void addProcessLink(LongPair processProduct, CalcExchange e) {
+		LongPair exchange = LongPair.of(e.processId, e.exchangeId);
+		LongPair provider = techIndex.getLinkedProvider(exchange);
+		int row = techIndex.getIndex(provider);
 		add(row, processProduct, technologyMatrix, e);
 	}
 
@@ -113,7 +112,7 @@ class InventoryBuilder {
 
 	private void add(int row, LongPair processProduct, ExchangeMatrix matrix,
 			CalcExchange exchange) {
-		int col = productIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(processProduct);
 		if (row < 0 || col < 0)
 			return;
 		ExchangeCell existingCell = matrix.getEntry(row, col);

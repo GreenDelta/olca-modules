@@ -14,11 +14,11 @@ public class AllocationIndexTest {
 
 	@Test
 	public void testDefaultFactor() {
-		ProductIndex index = new ProductIndex(
+		TechIndex index = new TechIndex(
 				LongPair.of(999999999, 999999999));
 		AllocationIndex allocationIndex = AllocationIndex.create(index,
 				AllocationMethod.USE_DEFAULT, MatrixCache.createLazy(database));
-		double f = allocationIndex.getFactor(index.getRefProduct(),
+		double f = allocationIndex.getFactor(index.getRefFlow(),
 				new CalcExchange());
 		assertEquals(1.0, f, 1e-16);
 	}

@@ -12,7 +12,7 @@ import org.openlca.core.matrix.ExchangeMatrix;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
@@ -67,10 +67,10 @@ public class CsvMatrixExport implements Runnable {
 	private void writeTechMatrix(Inventory inventory, BufferedWriter buffer)
 			throws Exception {
 		ExchangeMatrix techMatrix = inventory.technologyMatrix;
-		ProductIndex productIndex = inventory.productIndex;
-		int size = productIndex.size();
+		TechIndex techIndex = inventory.productIndex;
+		int size = techIndex.size();
 		for (int row = 0; row < size; row++) {
-			LongPair product = productIndex.getProductAt(row);
+			LongPair product = techIndex.getProviderAt(row);
 			FlowDescriptor flow = getFlow(product.getSecond());
 			writeName(flow, buffer);
 			sep(buffer);
@@ -96,11 +96,11 @@ public class CsvMatrixExport implements Runnable {
 
 	private void writeEnviMatrix(Inventory inventory, BufferedWriter buffer)
 			throws Exception {
-		ProductIndex productIndex = inventory.productIndex;
+		TechIndex techIndex = inventory.productIndex;
 		FlowIndex flowIndex = inventory.flowIndex;
 		int rows = flowIndex.size();
-		int columns = productIndex.size();
-		writeEnviMatrixHeader(buffer, productIndex);
+		int columns = techIndex.size();
+		writeEnviMatrixHeader(buffer, techIndex);
 		ExchangeMatrix matrix = inventory.interventionMatrix;
 		for (int row = 0; row < rows; row++) {
 			FlowDescriptor flow = getFlow(flowIndex.getFlowAt(row));
@@ -119,12 +119,12 @@ public class CsvMatrixExport implements Runnable {
 	}
 
 	private void writeEnviMatrixHeader(BufferedWriter buffer,
-			ProductIndex productIndex) throws Exception, IOException {
+			TechIndex techIndex) throws Exception, IOException {
 		sep(buffer);
 		sep(buffer);
-		int columns = productIndex.size();
+		int columns = techIndex.size();
 		for (int col = 0; col < columns; col++) {
-			LongPair product = productIndex.getProductAt(col);
+			LongPair product = techIndex.getProviderAt(col);
 			FlowDescriptor flow = getFlow(product.getSecond());
 			writeName(flow, buffer);
 			sep(buffer, col, columns);
@@ -133,7 +133,7 @@ public class CsvMatrixExport implements Runnable {
 		sep(buffer);
 		sep(buffer);
 		for (int col = 0; col < columns; col++) {
-			LongPair product = productIndex.getProductAt(col);
+			LongPair product = techIndex.getProviderAt(col);
 			FlowDescriptor flow = getFlow(product.getSecond());
 			writeCategory(flow, buffer);
 			sep(buffer, col, columns);

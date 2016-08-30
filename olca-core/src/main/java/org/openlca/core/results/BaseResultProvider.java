@@ -10,7 +10,7 @@ import java.util.Set;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongIndex;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -37,7 +37,7 @@ public class BaseResultProvider<T extends BaseResult> implements IResultProvider
 
 	@Override
 	public Set<ProcessDescriptor> getProcessDescriptors() {
-		ProductIndex index = result.productIndex;
+		TechIndex index = result.productIndex;
 		if (index == null)
 			return Collections.emptySet();
 		Map<Long, ProcessDescriptor> values = cache.getAll(

@@ -10,7 +10,7 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class KmlLoader implements IKmlLoader {
 	}
 
 	@Override
-	public final List<LocationKml> load(ProductIndex index) {
+	public final List<LocationKml> load(TechIndex index) {
 		if (index == null)
 			return Collections.emptyList();
 		try {
@@ -41,7 +41,7 @@ public class KmlLoader implements IKmlLoader {
 			queryLocationTable();
 			List<LocationKml> results = new ArrayList<>();
 			for (int i = 0; i < index.size(); i++) {
-				LongPair product = index.getProductAt(i);
+				LongPair product = index.getProviderAt(i);
 				LocationKml result = getFeatureResult(product.getFirst());
 				if (result == null)
 					continue;
@@ -56,7 +56,7 @@ public class KmlLoader implements IKmlLoader {
 		}
 	}
 
-	private void loadProcessLocations(ProductIndex idx) throws Exception {
+	private void loadProcessLocations(TechIndex idx) throws Exception {
 		Set<Long> processIds = idx.getProcessIds();
 		String query = "select id, f_location from tbl_processes";
 		NativeSql.on(database).query(query, rs -> {

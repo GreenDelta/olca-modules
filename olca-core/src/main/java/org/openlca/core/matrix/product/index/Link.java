@@ -18,8 +18,12 @@ class Link {
 
 	double demand;
 
-	Link(Node provider, double inputAmount, double demand) {
+	/** The ID of the product-input exchange. */
+	long exchangeId;
+
+	Link(Node provider, long exchangeId, double inputAmount, double demand) {
 		this.provider = provider;
+		this.exchangeId = exchangeId;
 		this.inputAmount = inputAmount;
 		this.demand = demand;
 	}

@@ -105,7 +105,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasCostResults)
 			return 0;
 		double sum = 0;
-		for (LongPair product : productIndex.getProducts(processId)) {
+		for (LongPair product : productIndex.getProviders(processId)) {
 			sum += getSingleCostResult(product);
 		}
 		return sum;
@@ -127,7 +127,7 @@ public class ContributionResult extends SimpleResult {
 		if (matrix == null)
 			return 0;
 		double colSum = 0;
-		for (LongPair product : productIndex.getProducts(processId)) {
+		for (LongPair product : productIndex.getProviders(processId)) {
 			int col = productIndex.getIndex(product);
 			colSum += getValue(matrix, row, col);
 		}
