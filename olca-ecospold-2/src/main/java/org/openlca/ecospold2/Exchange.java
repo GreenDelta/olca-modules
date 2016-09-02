@@ -30,13 +30,15 @@ public abstract class Exchange {
 	protected void readValues(Element element) {
 		this.amount = In.optionalDecimal(element.getAttributeValue("amount"));
 		this.id = element.getAttributeValue("id");
-		this.mathematicalRelation = element.getAttributeValue("mathematicalRelation");
+		this.mathematicalRelation = element
+				.getAttributeValue("mathematicalRelation");
 		this.variableName = element.getAttributeValue("variableName");
 		this.name = In.childText(element, "name");
 		this.unitName = In.childText(element, "unitName");
 		this.comment = In.childText(element, "comment");
 		this.unitId = element.getAttributeValue("unitId");
-		this.uncertainty = Uncertainty.fromXml(In.child(element, "uncertainty"));
+		this.uncertainty = Uncertainty
+				.fromXml(In.child(element, "uncertainty"));
 		this.casNumber = element.getAttributeValue("casNumber");
 		List<Element> propElems = In.childs(element, "property");
 		for (Element propElem : propElems) {
@@ -83,7 +85,8 @@ public abstract class Exchange {
 		if (inputGroup != null)
 			Out.addChild(element, "inputGroup").setText(inputGroup.toString());
 		else if (outputGroup != null)
-			Out.addChild(element, "outputGroup").setText(outputGroup.toString());
+			Out.addChild(element, "outputGroup")
+					.setText(outputGroup.toString());
 	}
 
 }

@@ -46,7 +46,8 @@ class ProcessImport {
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
 
-	public ProcessImport(IDatabase db, RefDataIndex index, ImportConfig config) {
+	public ProcessImport(IDatabase db, RefDataIndex index,
+			ImportConfig config) {
 		this.db = db;
 		this.index = index;
 		this.config = config;
@@ -152,13 +153,11 @@ class ProcessImport {
 		ProcessType type = activity.getType() == 2 ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS;
 		process.setProcessType(type);
-		String description = Joiner
-				.on(" ")
-				.skipNulls()
-				.join(activity.getGeneralComment(),
-						activity.getIncludedActivitiesStart(),
-						activity.getIncludedActivitiesEnd(),
-						activity.getAllocationComment());
+		String description = Joiner.on(" ").skipNulls().join(
+				activity.getGeneralComment(),
+				activity.getIncludedActivitiesStart(),
+				activity.getIncludedActivitiesEnd(),
+				activity.getAllocationComment());
 		process.setDescription(description);
 	}
 
@@ -191,38 +190,44 @@ class ProcessImport {
 		}
 	}
 
-	private void createProductExchanges(DataSet dataSet, Process process) {
-		for (IntermediateExchange ie : dataSet.getIntermediateExchanges()) {
-			boolean isRefFlow = ie.outputGroup != null
-					&& ie.outputGroup == 0;
-			if (ie.amount == 0 && config.skipNullExchanges)
+	private void createProductExchanges(DataSet ds, Process process) {
+		IntermediateExchange ref = Exchanges.findRef(ds);
+		Exchange qRef = null;
+		if (ref != null) {
+			qRef = createProductExchange(ref, process);
+			process.setQuantitativeReference(qRef);
+		}
+		for (IntermediateExchange ie : ds.getIntermediateExchanges()) {
+			if (Exchanges.eq(ref, ie))
 				continue;
-			String refId = ie.intermediateExchangeId;
-			Flow flow = index.getFlow(refId);
-			if (flow == null) {
-				log.warn("could not get flow for {}", refId);
+			// data sets can have self loops in ecoinvent and we try
+			// to merge them here
+			if (Exchanges.isSelfLoop(ie, ref, ds) && qRef != null) {
+				qRef.setAmountValue(qRef.getAmountValue() - ie.amount);
 				continue;
 			}
-			Exchange e = createExchange(ie, refId, flow, process);
-			if (e == null)
-				continue;
-			if (isAvoidedProduct(refId, e))
-				e.setAvoidedProduct(true);
-			if (ie.activityLinkId != null)
-				addActivityLink(ie, e);
-			if (isRefFlow)
-				process.setQuantitativeReference(e);
-			prices.map(ie, e);
+			createProductExchange(ie, process);
 		}
 	}
 
-	private boolean isAvoidedProduct(String refId, Exchange exchange) {
-		return false;
-		// If the sign of an product/waste input is different from the sign of
-		// the product/waste output of the linked activity it could be an
-		// avoided product. Not sure, if this is true for ecoinvent 3
-		// boolean isNeg = exchange.getAmountValue() < 0;
-		// return isNeg != index.isNegativeFlow(refId) && exchange.isInput();
+	private Exchange createProductExchange(IntermediateExchange ie,
+			Process process) {
+		if ((ie.amount == null || ie.amount == 0) && config.skipNullExchanges)
+			return null;
+		String refId = ie.intermediateExchangeId;
+		Flow flow = index.getFlow(refId);
+		if (flow == null) {
+			log.warn("could not get flow for {}", refId);
+			return null;
+		}
+		Exchange e = createExchange(ie, refId, flow, process);
+		if (e == null)
+			return null;
+		if (ie.activityLinkId != null) {
+			addActivityLink(ie, e);
+		}
+		prices.map(ie, e);
+		return e;
 	}
 
 	private Exchange createExchange(org.openlca.ecospold2.Exchange es2,
@@ -284,10 +289,8 @@ class ProcessImport {
 		if (Strings.notEmpty(var)) {
 			if (Parameters.contains(var, process.getParameters()))
 				exchange.setAmountFormula(var);
-		} else if (Parameters.isValid(original.mathematicalRelation,
-				config)) {
-			exchange.setAmountFormula(
-					original.mathematicalRelation.trim());
+		} else if (Parameters.isValid(original.mathematicalRelation, config)) {
+			exchange.setAmountFormula(original.mathematicalRelation.trim());
 		}
 	}
 
