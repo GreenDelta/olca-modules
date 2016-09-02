@@ -13,12 +13,12 @@ public class Upgrade6 implements IUpgrade {
 	
 	@Override
 	public int[] getInitialVersions() {
-		return new int[] { 4 };
+		return new int[] { 5 };
 	}
 
 	@Override
 	public int getEndVersion() {
-		return 5;
+		return 6;
 	}
 
 	@Override
