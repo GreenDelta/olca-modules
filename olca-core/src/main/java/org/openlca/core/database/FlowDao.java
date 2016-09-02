@@ -92,7 +92,7 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 				statement = "UPDATE tbl_exchanges SET f_flow = " + newId + " "
 						+ "WHERE f_flow = " + oldId + " AND f_default_provider IS NULL";
 			} else {
-				statement = "UPDATE tbl_exchanges SET f_flow = " + newId + ", f_default_provider = null"
+				statement = "UPDATE tbl_exchanges SET f_flow = " + newId + ", f_default_provider = null "
 						+ "WHERE f_flow = " + oldId;
 			}
 			NativeSql.on(database).runUpdate(statement);
