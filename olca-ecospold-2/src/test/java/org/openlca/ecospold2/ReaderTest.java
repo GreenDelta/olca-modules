@@ -64,7 +64,7 @@ public class ReaderTest {
 		Assert.assertEquals(dataSet.getElementaryExchanges().size(), 3);
 		double sum = 0;
 		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
-			sum += e.getAmount();
+			sum += e.amount;
 		}
 		Assert.assertEquals(27, sum, 1e-15);
 	}
@@ -75,10 +75,10 @@ public class ReaderTest {
 		Assert.assertEquals(2, dataSet.getIntermediateExchanges().size());
 		boolean found = false;
 		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
-			if (e.getOutputGroup() == null || e.getOutputGroup() != 0)
+			if (e.outputGroup == null || e.outputGroup != 0)
 				continue;
 			found = true;
-			Assert.assertEquals("1-pentanol", e.getName());
+			Assert.assertEquals("1-pentanol", e.name);
 		}
 		Assert.assertTrue(found);
 	}

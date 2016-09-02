@@ -8,80 +8,29 @@ import org.jdom2.Namespace;
 
 public class IntermediateExchange extends Exchange {
 
-	private String intermediateExchangeId;
-	private String activityLinkId;
-	private Double productionVolumeAmount;
-	private String productionVolumeVariableName;
-	private String productionVolumeMathematicalRelation;
-	private List<Classification> classifications = new ArrayList<>();
-
-	public String getIntermediateExchangeId() {
-		return intermediateExchangeId;
-	}
-
-	public void setIntermediateExchangeId(String intermediateExchangeId) {
-		this.intermediateExchangeId = intermediateExchangeId;
-	}
-
-	public String getActivityLinkId() {
-		return activityLinkId;
-	}
-
-	public void setActivityLinkId(String activityLinkId) {
-		this.activityLinkId = activityLinkId;
-	}
-
-	public Double getProductionVolumeAmount() {
-		return productionVolumeAmount;
-	}
-
-	public void setProductionVolumeAmount(Double productionVolumeAmount) {
-		this.productionVolumeAmount = productionVolumeAmount;
-	}
-
-	public String getProductionVolumeVariableName() {
-		return productionVolumeVariableName;
-	}
-
-	public void setProductionVolumeVariableName(
-			String productionVolumeVariableName) {
-		this.productionVolumeVariableName = productionVolumeVariableName;
-	}
-
-	public String getProductionVolumeMathematicalRelation() {
-		return productionVolumeMathematicalRelation;
-	}
-
-	public void setProductionVolumeMathematicalRelation(
-			String productionVolumeMathematicalRelation) {
-		this.productionVolumeMathematicalRelation = productionVolumeMathematicalRelation;
-	}
-
-	public List<Classification> getClassifications() {
-		return classifications;
-	}
+	public String intermediateExchangeId;
+	public String activityLinkId;
+	public Double productionVolumeAmount;
+	public String productionVolumeVariableName;
+	public String productionVolumeMathematicalRelation;
+	public final List<Classification> classifications = new ArrayList<>();
 
 	static IntermediateExchange fromXml(Element e) {
 		if (e == null)
 			return null;
-		IntermediateExchange exchange = new IntermediateExchange();
-		exchange.readValues(e);
-		exchange.setActivityLinkId(e.getAttributeValue("activityLinkId"));
-		exchange.setIntermediateExchangeId(e
-				.getAttributeValue("intermediateExchangeId"));
-		exchange.setProductionVolumeAmount(In.optionalDecimal(e
-				.getAttributeValue("productionVolumeAmount")));
-		exchange.setProductionVolumeMathematicalRelation(e
-				.getAttributeValue("productionVolumeMathematicalRelation"));
-		exchange.setProductionVolumeVariableName(e
-				.getAttributeValue("productionVolumeVariableName"));
+		IntermediateExchange ie = new IntermediateExchange();
+		ie.readValues(e);
+		ie.activityLinkId = e.getAttributeValue("activityLinkId");
+		ie.intermediateExchangeId = e.getAttributeValue("intermediateExchangeId");
+		ie.productionVolumeAmount = In.optionalDecimal(e.getAttributeValue("productionVolumeAmount"));
+		ie.productionVolumeMathematicalRelation = e.getAttributeValue("productionVolumeMathematicalRelation");
+		ie.productionVolumeVariableName = e.getAttributeValue("productionVolumeVariableName");
 		List<Element> classElements = In.childs(e, "classification");
 		for (Element classElement : classElements) {
-			Classification classification = Classification
-					.fromXml(classElement);
-			exchange.classifications.add(classification);
+			Classification classification = Classification.fromXml(classElement);
+			ie.classifications.add(classification);
 		}
-		return exchange;
+		return ie;
 	}
 
 	Element toXml() {
@@ -89,26 +38,22 @@ public class IntermediateExchange extends Exchange {
 	}
 
 	Element toXml(Namespace ns) {
-		Element element = new Element("intermediateExchange", ns);
+		Element e = new Element("intermediateExchange", ns);
 		if (intermediateExchangeId != null)
-			element.setAttribute("intermediateExchangeId",
-					intermediateExchangeId);
+			e.setAttribute("intermediateExchangeId", intermediateExchangeId);
 		if (activityLinkId != null)
-			element.setAttribute("activityLinkId", activityLinkId);
+			e.setAttribute("activityLinkId", activityLinkId);
 		if (productionVolumeAmount != null)
-			element.setAttribute("productionVolumeAmount",
-					productionVolumeAmount.toString());
+			e.setAttribute("productionVolumeAmount", productionVolumeAmount.toString());
 		if (productionVolumeMathematicalRelation != null)
-			element.setAttribute("productionVolumeMathematicalRelation",
-					productionVolumeMathematicalRelation);
+			e.setAttribute("productionVolumeMathematicalRelation", productionVolumeMathematicalRelation);
 		if (productionVolumeVariableName != null)
-			element.setAttribute("productionVolumeVariableName",
-					productionVolumeVariableName);
-		writeValues(element);
+			e.setAttribute("productionVolumeVariableName", productionVolumeVariableName);
+		writeValues(e);
 		for (Classification classification : classifications)
-			element.addContent(classification.toXml(ns));
-		writeInputOutputGroup(element);
-		return element;
+			e.addContent(classification.toXml(ns));
+		writeInputOutputGroup(e);
+		return e;
 	}
 
 }

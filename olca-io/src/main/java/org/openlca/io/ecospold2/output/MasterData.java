@@ -36,23 +36,23 @@ final class MasterData {
 			UserMasterData masterData) {
 		ElementaryExchange masterFlow = new ElementaryExchange();
 		masterData.getElementaryExchanges().add(masterFlow);
-		masterFlow.setId(elemFlow.getElementaryExchangeId());
-		masterFlow.setName(elemFlow.getName());
-		masterFlow.setUnitId(elemFlow.getUnitId());
-		masterFlow.setUnitName(elemFlow.getUnitName());
-		masterFlow.setCompartment(elemFlow.getCompartment());
-		masterFlow.setCasNumber(elemFlow.getCasNumber());
-		masterFlow.setFormula(elemFlow.getFormula());
+		masterFlow.id = elemFlow.elementaryExchangeId;
+		masterFlow.name = elemFlow.name;
+		masterFlow.unitId = elemFlow.unitId;
+		masterFlow.unitName = elemFlow.unitName;
+		masterFlow.compartment = elemFlow.compartment;
+		masterFlow.casNumber = elemFlow.casNumber;
+		masterFlow.formula = elemFlow.formula;
 	}
 
 	public static void writeTechFlow(IntermediateExchange techFlow,
 			UserMasterData masterData) {
 		IntermediateExchange masterFlow = new IntermediateExchange();
 		masterData.getIntermediateExchanges().add(masterFlow);
-		masterFlow.setId(techFlow.getIntermediateExchangeId()); // !
-		masterFlow.setUnitId(techFlow.getUnitId());
-		masterFlow.setName(techFlow.getName());
-		masterFlow.setUnitName(techFlow.getUnitName());
+		masterFlow.id = techFlow.intermediateExchangeId; // !
+		masterFlow.unitId = techFlow.unitId;
+		masterFlow.name = techFlow.name;
+		masterFlow.unitName = techFlow.unitName;
 	}
 
 	public static void writeIndexEntry(DataSet dataSet) {

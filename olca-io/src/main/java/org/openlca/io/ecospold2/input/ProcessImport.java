@@ -94,11 +94,11 @@ class ProcessImport {
 		IntermediateExchange refFlow = null;
 		for (IntermediateExchange techFlow : dataSet
 				.getIntermediateExchanges()) {
-			if (techFlow.getOutputGroup() == null)
+			if (techFlow.outputGroup == null)
 				continue;
-			if (techFlow.getOutputGroup() != 0)
+			if (techFlow.outputGroup != 0)
 				continue;
-			if (techFlow.getAmount() == 0)
+			if (techFlow.amount == 0)
 				continue;
 			refFlow = techFlow;
 			break;
@@ -179,13 +179,13 @@ class ProcessImport {
 
 	private void createElementaryExchanges(DataSet dataSet, Process process) {
 		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
-			if (e.getAmount() == 0 && config.skipNullExchanges)
+			if (e.amount == 0 && config.skipNullExchanges)
 				continue;
-			String refId = e.getElementaryExchangeId();
+			String refId = e.elementaryExchangeId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not create flow for {}",
-						e.getElementaryExchangeId());
+						e.elementaryExchangeId);
 			}
 			createExchange(e, refId, flow, process);
 		}
@@ -193,11 +193,11 @@ class ProcessImport {
 
 	private void createProductExchanges(DataSet dataSet, Process process) {
 		for (IntermediateExchange ie : dataSet.getIntermediateExchanges()) {
-			boolean isRefFlow = ie.getOutputGroup() != null
-					&& ie.getOutputGroup() == 0;
-			if (ie.getAmount() == 0 && config.skipNullExchanges)
+			boolean isRefFlow = ie.outputGroup != null
+					&& ie.outputGroup == 0;
+			if (ie.amount == 0 && config.skipNullExchanges)
 				continue;
-			String refId = ie.getIntermediateExchangeId();
+			String refId = ie.intermediateExchangeId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not get flow for {}", refId);
@@ -208,7 +208,7 @@ class ProcessImport {
 				continue;
 			if (isAvoidedProduct(refId, e))
 				e.setAvoidedProduct(true);
-			if (ie.getActivityLinkId() != null)
+			if (ie.activityLinkId != null)
 				addActivityLink(ie, e);
 			if (isRefFlow)
 				process.setQuantitativeReference(e);
@@ -232,28 +232,28 @@ class ProcessImport {
 		Exchange e = new Exchange();
 		e.setFlow(flow);
 		e.setFlowPropertyFactor(flow.getReferenceFactor());
-		e.description = es2.getComment();
+		e.description = es2.comment;
 		Unit unit = getFlowUnit(es2, flowRefId, flow);
 		if (unit == null)
 			return null;
 		e.setUnit(unit);
-		e.setInput(es2.getInputGroup() != null);
-		double amount = es2.getAmount();
+		e.setInput(es2.inputGroup != null);
+		double amount = es2.amount;
 		if (index.isMappedFlow(flowRefId))
 			amount = amount * index.getMappedFlowFactor(flowRefId);
 		e.setAmountValue(amount);
 		if (config.withParameters && config.withParameterFormulas)
 			mapFormula(es2, process, e);
-		e.setUncertainty(UncertaintyConverter.toOpenLCA(es2.getUncertainty()));
+		e.setUncertainty(UncertaintyConverter.toOpenLCA(es2.uncertainty));
 		e.setPedigreeUncertainty(getPedigreeMatrix(es2));
 		process.getExchanges().add(e);
 		return e;
 	}
 
 	private String getPedigreeMatrix(org.openlca.ecospold2.Exchange es2) {
-		if (es2 == null || es2.getUncertainty() == null)
+		if (es2 == null || es2.uncertainty == null)
 			return null;
-		PedigreeMatrix pm = es2.getUncertainty().pedigreeMatrix;
+		PedigreeMatrix pm = es2.uncertainty.pedigreeMatrix;
 		if (pm == null)
 			return null;
 		Map<PedigreeMatrixRow, Integer> m = new HashMap<>();
@@ -268,7 +268,7 @@ class ProcessImport {
 	private Unit getFlowUnit(org.openlca.ecospold2.Exchange original,
 			String flowRefId, Flow flow) {
 		if (!index.isMappedFlow(flowRefId))
-			return index.getUnit(original.getUnitId());
+			return index.getUnit(original.unitId);
 		FlowProperty refProp = flow.getReferenceFlowProperty();
 		if (refProp == null)
 			return null;
@@ -280,20 +280,20 @@ class ProcessImport {
 
 	private void mapFormula(org.openlca.ecospold2.Exchange original,
 			Process process, Exchange exchange) {
-		String var = original.getVariableName();
+		String var = original.variableName;
 		if (Strings.notEmpty(var)) {
 			if (Parameters.contains(var, process.getParameters()))
 				exchange.setAmountFormula(var);
-		} else if (Parameters.isValid(original.getMathematicalRelation(),
+		} else if (Parameters.isValid(original.mathematicalRelation,
 				config)) {
 			exchange.setAmountFormula(
-					original.getMathematicalRelation().trim());
+					original.mathematicalRelation.trim());
 		}
 	}
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
-		String providerId = e.getActivityLinkId();
-		String flowId = e.getIntermediateExchangeId();
+		String providerId = e.activityLinkId;
+		String flowId = e.intermediateExchangeId;
 		String refId = KeyGen.get(providerId, flowId);
 		Long processId = index.getProcessId(refId);
 		if (processId != null) {

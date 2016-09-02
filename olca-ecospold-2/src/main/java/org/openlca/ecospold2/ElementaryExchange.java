@@ -5,44 +5,19 @@ import org.jdom2.Namespace;
 
 public class ElementaryExchange extends Exchange {
 
-	private String elementaryExchangeId;
-	private Compartment compartment;
-	private String formula;
-
-	public String getElementaryExchangeId() {
-		return elementaryExchangeId;
-	}
-
-	public void setElementaryExchangeId(String elementaryExchangeId) {
-		this.elementaryExchangeId = elementaryExchangeId;
-	}
-
-	public void setCompartment(Compartment compartment) {
-		this.compartment = compartment;
-	}
-
-	public Compartment getCompartment() {
-		return compartment;
-	}
-
-	public void setFormula(String formula) {
-		this.formula = formula;
-	}
-
-	public String getFormula() {
-		return formula;
-	}
+	public String elementaryExchangeId;
+	public Compartment compartment;
+	public String formula;
 
 	static ElementaryExchange fromXml(Element e) {
 		if (e == null)
 			return null;
-		ElementaryExchange exchange = new ElementaryExchange();
-		exchange.elementaryExchangeId = e
-				.getAttributeValue("elementaryExchangeId");
-		exchange.formula = e.getAttributeValue("formula");
-		exchange.readValues(e);
-		exchange.setCompartment(Compartment.fromXml(In.child(e, "compartment")));
-		return exchange;
+		ElementaryExchange ee = new ElementaryExchange();
+		ee.elementaryExchangeId = e.getAttributeValue("elementaryExchangeId");
+		ee.formula = e.getAttributeValue("formula");
+		ee.readValues(e);
+		ee.compartment = Compartment.fromXml(In.child(e, "compartment"));
+		return ee;
 	}
 
 	Element toXml() {
@@ -50,16 +25,16 @@ public class ElementaryExchange extends Exchange {
 	}
 
 	Element toXml(Namespace ns) {
-		Element element = new Element("elementaryExchange", ns);
-		writeValues(element);
+		Element e = new Element("elementaryExchange", ns);
+		writeValues(e);
 		if (elementaryExchangeId != null)
-			element.setAttribute("elementaryExchangeId", elementaryExchangeId);
+			e.setAttribute("elementaryExchangeId", elementaryExchangeId);
 		if (compartment != null)
-			element.addContent(compartment.toXml());
+			e.addContent(compartment.toXml());
 		if (formula != null)
-			element.setAttribute("formula", formula);
-		writeInputOutputGroup(element);
-		return element;
+			e.setAttribute("formula", formula);
+		writeInputOutputGroup(e);
+		return e;
 	}
 
 }

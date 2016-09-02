@@ -36,12 +36,12 @@ class PriceMapper {
 	}
 
 	void map(IntermediateExchange ie, Exchange e) {
-		if (currency == null || ie == null || ie.getAmount() == null || e == null)
+		if (currency == null || ie == null || ie.amount == null || e == null)
 			return;
 		Property price = findPrice(ie);
 		if (price == null)
 			return;
-		double val = ie.getAmount() * price.getAmount();
+		double val = ie.amount * price.getAmount();
 		if (val == 0)
 			return;
 		e.costValue = val;
@@ -49,7 +49,7 @@ class PriceMapper {
 	}
 
 	private Property findPrice(IntermediateExchange ie) {
-		for (Property p : ie.getProperties()) {
+		for (Property p : ie.properties) {
 			String name = p.getName();
 			String unit = p.getUnitName();
 			if (name == null || unit == null)
