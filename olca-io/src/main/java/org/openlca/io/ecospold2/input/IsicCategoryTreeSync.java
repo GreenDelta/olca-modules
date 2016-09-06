@@ -1,13 +1,14 @@
 package org.openlca.io.ecospold2.input;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.ecospold2.input.IsicTree.IsicNode;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.openlca.util.KeyGen;
 
 /**
  * Adds ISIC top-level categories to existing ISIC categories. In ecoinvent 3
@@ -88,11 +89,11 @@ public class IsicCategoryTreeSync implements Runnable {
 	}
 
 	private Category createCategory(IsicNode node) {
-		Category category = new Category();
-		category.setModelType(type);
-		category.setName(node.getCode() + ":" + node.getName());
-		category.setRefId(org.openlca.util.KeyGen.get(category.getName()));
-		return category;
+		Category c = new Category();
+		c.setModelType(type);
+		c.setName(node.getCode() + ":" + node.getName());
+		c.setRefId(KeyGen.get(type.name() + "/" + c.getName()));
+		return c;
 	}
 
 }
