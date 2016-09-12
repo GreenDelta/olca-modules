@@ -4,6 +4,7 @@ package org.openlca.ilcd.descriptors;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -11,428 +12,67 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-
-/**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType>
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI}uuid" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI}permanentUri" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI}dataSetVersion" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI}name" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI}shortName" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI}classification" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI}generalComment" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI/Contact}centralContactPoint" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI/Contact}phone" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI/Contact}fax" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI/Contact}email" minOccurs="0"/>
- *         &lt;element ref="{http://www.ilcd-network.org/ILCD/ServiceAPI/Contact}www" minOccurs="0"/>
- *       &lt;/sequence>
- *       &lt;attribute ref="{http://www.w3.org/1999/xlink}href"/>
- *       &lt;attribute ref="{http://www.ilcd-network.org/ILCD/ServiceAPI}sourceId"/>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "uuid",
-    "permanentUri",
-    "dataSetVersion",
-    "name",
-    "shortName",
-    "classification",
-    "generalComment",
-    "centralContactPoint",
-    "phone",
-    "fax",
-    "email",
-    "www"
+		"uuid",
+		"permanentUri",
+		"dataSetVersion",
+		"name",
+		"shortName",
+		"classification",
+		"generalComment",
+		"centralContactPoint",
+		"phone",
+		"fax",
+		"email",
+		"www"
 })
-public class ContactDescriptor implements Serializable
-{
+public class ContactDescriptor implements Serializable {
 
-    private final static long serialVersionUID = 1L;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-    protected String uuid;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-    @XmlSchemaType(name = "anyURI")
-    protected String permanentUri;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-    protected String dataSetVersion;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-    protected LangString name;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-    protected String shortName;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-    protected List<Classification> classification;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-    protected LangString generalComment;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
-    protected String centralContactPoint;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
-    protected String phone;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
-    protected String fax;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
-    protected String email;
-    @XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
-    protected String www;
-    @XmlAttribute(name = "href", namespace = "http://www.w3.org/1999/xlink")
-    @XmlSchemaType(name = "anyURI")
-    protected String href;
-    @XmlAttribute(name = "sourceId", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-    protected String sourceId;
+	private final static long serialVersionUID = 1L;
 
-    /**
-     * Gets the value of the uuid property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUuid() {
-        return uuid;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public String uuid;
 
-    /**
-     * Sets the value of the uuid property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUuid(String value) {
-        this.uuid = value;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	@XmlSchemaType(name = "anyURI")
+	public String permanentUri;
 
-    /**
-     * Gets the value of the permanentUri property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPermanentUri() {
-        return permanentUri;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public String dataSetVersion;
 
-    /**
-     * Sets the value of the permanentUri property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPermanentUri(String value) {
-        this.permanentUri = value;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public LangString name;
 
-    /**
-     * Gets the value of the dataSetVersion property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getDataSetVersion() {
-        return dataSetVersion;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public String shortName;
 
-    /**
-     * Sets the value of the dataSetVersion property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setDataSetVersion(String value) {
-        this.dataSetVersion = value;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public final List<Classification> classification = new ArrayList<>();
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link LangString }
-     *     
-     */
-    public LangString getName() {
-        return name;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public LangString generalComment;
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link LangString }
-     *     
-     */
-    public void setName(LangString value) {
-        this.name = value;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
+	public String centralContactPoint;
 
-    /**
-     * Gets the value of the shortName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getShortName() {
-        return shortName;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
+	public String phone;
 
-    /**
-     * Sets the value of the shortName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setShortName(String value) {
-        this.shortName = value;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
+	public String fax;
 
-    /**
-     * Gets the value of the classification property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the classification property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getClassification().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Classification }
-     * 
-     * 
-     */
-    public List<Classification> getClassification() {
-        if (classification == null) {
-            classification = new ArrayList<>();
-        }
-        return this.classification;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
+	public String email;
 
-    /**
-     * Gets the value of the generalComment property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link LangString }
-     *     
-     */
-    public LangString getGeneralComment() {
-        return generalComment;
-    }
+	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact")
+	public String www;
 
-    /**
-     * Sets the value of the generalComment property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link LangString }
-     *     
-     */
-    public void setGeneralComment(LangString value) {
-        this.generalComment = value;
-    }
+	@XmlAttribute(name = "href", namespace = "http://www.w3.org/1999/xlink")
+	@XmlSchemaType(name = "anyURI")
+	public String href;
 
-    /**
-     * Gets the value of the centralContactPoint property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCentralContactPoint() {
-        return centralContactPoint;
-    }
-
-    /**
-     * Sets the value of the centralContactPoint property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCentralContactPoint(String value) {
-        this.centralContactPoint = value;
-    }
-
-    /**
-     * Gets the value of the phone property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPhone() {
-        return phone;
-    }
-
-    /**
-     * Sets the value of the phone property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPhone(String value) {
-        this.phone = value;
-    }
-
-    /**
-     * Gets the value of the fax property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getFax() {
-        return fax;
-    }
-
-    /**
-     * Sets the value of the fax property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setFax(String value) {
-        this.fax = value;
-    }
-
-    /**
-     * Gets the value of the email property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Sets the value of the email property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEmail(String value) {
-        this.email = value;
-    }
-
-    /**
-     * Gets the value of the www property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getWww() {
-        return www;
-    }
-
-    /**
-     * Sets the value of the www property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setWww(String value) {
-        this.www = value;
-    }
-
-    /**
-     * Gets the value of the href property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getHref() {
-        return href;
-    }
-
-    /**
-     * Sets the value of the href property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setHref(String value) {
-        this.href = value;
-    }
-
-    /**
-     * Gets the value of the sourceId property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSourceId() {
-        return sourceId;
-    }
-
-    /**
-     * Sets the value of the sourceId property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSourceId(String value) {
-        this.sourceId = value;
-    }
+	@XmlAttribute(name = "sourceId", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public String sourceId;
 
 }

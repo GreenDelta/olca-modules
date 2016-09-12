@@ -98,7 +98,7 @@ public class ProcessDescriptor implements Serializable {
 	protected String overallQuality;
 	protected LangString useAdvice;
 	protected String technicalPurpose;
-	protected AccessInformation accessInformation;
+	protected AccessInfo accessInformation;
 	protected String format;
 	protected DataSetReference ownership;
 	protected DataSetReference approvedBy;
@@ -560,10 +560,10 @@ public class ProcessDescriptor implements Serializable {
 	/**
 	 * Gets the value of the accessInformation property.
 	 * 
-	 * @return possible object is {@link AccessInformation }
+	 * @return possible object is {@link AccessInfo }
 	 * 
 	 */
-	public AccessInformation getAccessInformation() {
+	public AccessInfo getAccessInformation() {
 		return accessInformation;
 	}
 
@@ -571,10 +571,10 @@ public class ProcessDescriptor implements Serializable {
 	 * Sets the value of the accessInformation property.
 	 * 
 	 * @param value
-	 *            allowed object is {@link AccessInformation }
+	 *            allowed object is {@link AccessInfo }
 	 * 
 	 */
-	public void setAccessInformation(AccessInformation value) {
+	public void setAccessInformation(AccessInfo value) {
 		this.accessInformation = value;
 	}
 

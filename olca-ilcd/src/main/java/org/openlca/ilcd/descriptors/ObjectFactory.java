@@ -239,11 +239,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link AccessInformation }
+	 * Create an instance of {@link AccessInfo }
 	 * 
 	 */
-	public AccessInformation createAccessInformation() {
-		return new AccessInformation();
+	public AccessInfo createAccessInformation() {
+		return new AccessInfo();
 	}
 
 	/**
