@@ -5,7 +5,7 @@ import java.io.File;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.sources.AdministrativeInformation;
 import org.openlca.ilcd.sources.DataEntry;
@@ -84,7 +84,7 @@ public class SourceExport {
 		}
 		addTextReference(info);
 		CategoryConverter converter = new CategoryConverter();
-		ClassificationInformation classInfo = converter
+		ClassificationInfo classInfo = converter
 				.getClassificationInformation(source.getCategory());
 		info.setClassificationInformation(classInfo);
 		return info;

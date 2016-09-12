@@ -222,9 +222,9 @@ public class ProcessImport {
 			CommissionerAndGoal comAndGoal = ilcdProcess
 					.getCommissionerAndGoal();
 			String intendedApp = LangString.get(
-					comAndGoal.getIntendedApplications(), config.ilcdConfig);
+					comAndGoal.intendedApplications, config.ilcdConfig);
 			doc.setIntendedApplication(intendedApp);
-			String project = LangString.get(comAndGoal.getProject(),
+			String project = LangString.get(comAndGoal.project,
 					config.ilcdConfig);
 			doc.setProject(project);
 		}
@@ -325,10 +325,10 @@ public class ProcessImport {
 			return null;
 		try {
 			ContactImport contactImport = new ContactImport(config);
-			return contactImport.run(reference.getUuid());
+			return contactImport.run(reference.uuid);
 		} catch (Exception e) {
 			log.warn("Failed to get contact {} referenced from process {}",
-					reference.getUuid(), process.getRefId());
+					reference.uuid, process.getRefId());
 			return null;
 		}
 	}
@@ -338,10 +338,10 @@ public class ProcessImport {
 			return null;
 		try {
 			SourceImport sourceImport = new SourceImport(config);
-			return sourceImport.run(reference.getUuid());
+			return sourceImport.run(reference.uuid);
 		} catch (Exception e) {
 			log.warn("Failed to get source {} referenced from process {}",
-					reference.getUuid(), process.getRefId());
+					reference.uuid, process.getRefId());
 			return null;
 		}
 	}

@@ -41,7 +41,7 @@ class ExchangeFlow {
 			return;
 		}
 		try {
-			this.flow = fetch(ref.getUuid());
+			this.flow = fetch(ref.uuid);
 		} catch (Exception e) {
 			log.error("failed to get flow ", e);
 		}

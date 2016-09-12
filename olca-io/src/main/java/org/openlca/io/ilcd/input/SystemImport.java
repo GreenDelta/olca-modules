@@ -108,7 +108,7 @@ public class SystemImport {
 		system.setReferenceProcess(refProc);
 		org.openlca.ilcd.processes.Exchange iExchange = ilcdProcessBag
 				.getExchanges().get(0);
-		String flowId = iExchange.getFlow().getUuid();
+		String flowId = iExchange.getFlow().uuid;
 		Exchange refExchange = findRefExchange(refProc, flowId, false);
 		system.setReferenceExchange(refExchange);
 		system.setTargetAmount(iExchange.getResultingAmount());

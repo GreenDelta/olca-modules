@@ -9,7 +9,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.FreeText;
 import org.openlca.ilcd.commons.LCIMethodApproach;
@@ -85,7 +85,7 @@ public class ProcessExport {
 		log.trace("Add classification");
 		if (process.getCategory() != null) {
 			CategoryConverter converter = new CategoryConverter();
-			ClassificationInformation classification = converter
+			ClassificationInfo classification = converter
 					.getClassificationInformation(process.getCategory());
 			if (classification != null) {
 				dataSetInfo.setClassificationInformation(classification);
@@ -108,16 +108,16 @@ public class ProcessExport {
 		TimeExtension extension = new TimeExtension(iTime);
 		if (doc.getValidFrom() != null) {
 			String _start = dFormat.format(doc.getValidFrom());
-			iTime.setReferenceYear(new BigInteger(_start));
+			iTime.referenceYear = new BigInteger(_start);
 			extension.setStartDate(doc.getValidFrom());
 		}
 		if (doc.getValidUntil() != null) {
 			String _end = dFormat.format(doc.getValidUntil());
-			iTime.setValidUntil(new BigInteger(_end));
+			iTime.validUntil = new BigInteger(_end);
 			extension.setEndDate(doc.getValidUntil());
 		}
 		if (Strings.notEmpty(doc.getTime())) {
-			addText(iTime.getDescription(), doc.getTime());
+			addText(iTime.description, doc.getTime());
 		}
 	}
 

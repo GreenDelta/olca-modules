@@ -131,12 +131,12 @@ class ProcessAdminInfo {
 		CommissionerAndGoal comAndGoal = new CommissionerAndGoal();
 		iAdminInfo.setCommissionerAndGoal(comAndGoal);
 		if (!Strings.nullOrEmpty(documentation.getIntendedApplication())) {
-			comAndGoal.getIntendedApplications().add(
+			comAndGoal.intendedApplications.add(
 					LangString.freeText(documentation.getIntendedApplication(),
 							config.ilcdConfig));
 		}
 		if (!Strings.nullOrEmpty(documentation.getProject())) {
-			comAndGoal.getProject().add(
+			comAndGoal.project.add(
 					LangString.label(documentation.getProject(),
 							config.ilcdConfig));
 		}

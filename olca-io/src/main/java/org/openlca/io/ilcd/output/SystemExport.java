@@ -8,7 +8,7 @@ import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.Other;
@@ -89,7 +89,7 @@ public class SystemExport {
 			ProcessNode node = new ProcessNode();
 			node.setId(proc.getRefId());
 			node.setName(proc.getName());
-			node.setUri(ref.getUri());
+			node.setUri(ref.uri);
 			node.setUuid(proc.getRefId());
 			model.getNodes().add(node);
 		}
@@ -175,7 +175,7 @@ public class SystemExport {
 
 	private void addClassification(DataSetInformation info) {
 		CategoryConverter conv = new CategoryConverter();
-		ClassificationInformation classInfo = conv
+		ClassificationInfo classInfo = conv
 				.getClassificationInformation(system.getCategory());
 		if (classInfo != null)
 			info.setClassificationInformation(classInfo);
