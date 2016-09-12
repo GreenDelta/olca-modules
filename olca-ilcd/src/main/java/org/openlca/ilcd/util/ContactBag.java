@@ -7,7 +7,7 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.contacts.DataEntry;
@@ -54,7 +54,7 @@ public class ContactBag implements IBag<Contact> {
 	public List<Class> getSortedClasses() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null) {
-			ClassificationInformation classInfo = info.classificationInformation;
+			ClassificationInfo classInfo = info.classificationInformation;
 			return ClassList.sortedList(classInfo);
 		}
 		return Collections.emptyList();

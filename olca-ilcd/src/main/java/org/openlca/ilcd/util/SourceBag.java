@@ -8,7 +8,7 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.sources.AdministrativeInformation;
 import org.openlca.ilcd.sources.DataEntry;
 import org.openlca.ilcd.sources.DataSetInformation;
@@ -63,7 +63,7 @@ public class SourceBag implements IBag<Source> {
 	public List<Class> getSortedClasses() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null) {
-			ClassificationInformation classInfo = info
+			ClassificationInfo classInfo = info
 					.getClassificationInformation();
 			return ClassList.sortedList(classInfo);
 		}

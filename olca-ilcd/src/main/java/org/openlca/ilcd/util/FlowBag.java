@@ -10,7 +10,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowCategorization;
-import org.openlca.ilcd.commons.FlowCategoryInformation;
+import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.Label;
 import org.openlca.ilcd.flows.AdminInfo;
@@ -114,10 +114,9 @@ public class FlowBag implements IBag<Flow> {
 	public List<org.openlca.ilcd.commons.Class> getSortedClasses() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null) {
-			FlowCategoryInformation categoryInfo = info.classificationInformation;
+			FlowCategoryInfo categoryInfo = info.classificationInformation;
 			if (categoryInfo != null) {
-				List<Classification> classifications = categoryInfo
-						.getClassifications();
+				List<Classification> classifications = categoryInfo.classifications;
 				if (classifications != null && classifications.size() > 0) {
 					return ClassList.sortedList(classifications.get(0));
 				}
@@ -129,7 +128,7 @@ public class FlowBag implements IBag<Flow> {
 	public List<Category> getSortedCompartments() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null) {
-			FlowCategoryInformation categoryInfo = info.classificationInformation;
+			FlowCategoryInfo categoryInfo = info.classificationInformation;
 			return getCompartments(categoryInfo);
 		}
 		return Collections.emptyList();
@@ -150,13 +149,12 @@ public class FlowBag implements IBag<Flow> {
 		return LangString.get(flow.flowInformation.getDataSetInformation().synonyms, config);
 	}
 
-	private List<Category> getCompartments(FlowCategoryInformation categoryInfo) {
+	private List<Category> getCompartments(FlowCategoryInfo categoryInfo) {
 		if (categoryInfo != null) {
-			List<FlowCategorization> categorizations = categoryInfo
-					.getElementaryFlowCategorizations();
+			List<FlowCategorization> categorizations = categoryInfo.elementaryFlowCategorizations;
 			if (categorizations != null && categorizations.size() > 0) {
 				FlowCategorization categorization = categorizations.get(0);
-				List<Category> categories = categorization.getCategories();
+				List<Category> categories = categorization.categories;
 				if (categories != null && categories.size() > 0) {
 					sort(categories);
 					return categories;
@@ -171,8 +169,8 @@ public class FlowBag implements IBag<Flow> {
 			@Override
 			public int compare(Category cat1, Category cat2) {
 				int c = 0;
-				if (cat1.getLevel() != null && cat2.getLevel() != null) {
-					c = cat1.getLevel().compareTo(cat2.getLevel());
+				if (cat1.level != null && cat2.level != null) {
+					c = cat1.level.compareTo(cat2.level);
 				}
 				return c;
 			}

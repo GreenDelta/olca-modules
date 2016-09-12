@@ -47,8 +47,7 @@ public class ContactBagTest {
 	public void testGetSortedClasses() {
 		List<Class> classes = bag.getSortedClasses();
 		assertTrue(classes.size() == 1);
-		assertEquals("Working groups within organisation", classes.get(0)
-				.getValue());
+		assertEquals("Working groups within organisation", classes.get(0).value);
 	}
 
 	@Test

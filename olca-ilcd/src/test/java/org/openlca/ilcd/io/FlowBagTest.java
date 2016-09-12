@@ -66,7 +66,7 @@ public class FlowBagTest {
 				.getFlowPropertyReferences();
 		assertTrue(flowPropertyReferences.size() == 1);
 		FlowPropertyRef ref = flowPropertyReferences.get(0);
-		assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66", ref.flowProperty.getUuid());
+		assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66", ref.flowProperty.uuid);
 	}
 
 	@Test
@@ -79,10 +79,10 @@ public class FlowBagTest {
 	public void testGetSortedCompartments() {
 		List<Category> categories = bag.getSortedCompartments();
 		assertTrue(categories.size() == 3);
-		assertEquals("Emissions", categories.get(0).getValue().trim());
-		assertEquals("Emissions to air", categories.get(1).getValue().trim());
+		assertEquals("Emissions", categories.get(0).value.trim());
+		assertEquals("Emissions to air", categories.get(1).value.trim());
 		assertEquals("Emissions to lower stratosphere and upper troposphere",
-				categories.get(2).getValue().trim());
+				categories.get(2).value.trim());
 	}
 
 }

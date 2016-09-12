@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.FlowCategoryInformation;
+import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FreeText;
 import org.openlca.ilcd.commons.Other;
 
@@ -41,7 +41,7 @@ public class DataSetInfo implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public final List<FreeText> synonyms = new ArrayList<>();
 
-	public FlowCategoryInformation classificationInformation;
+	public FlowCategoryInfo classificationInformation;
 
 	@XmlElement(name = "CASNumber")
 	public String casNumber;

@@ -7,7 +7,7 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.flowproperties.AdministrativeInformation;
 import org.openlca.ilcd.flowproperties.DataEntry;
@@ -57,7 +57,7 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 	public List<Class> getSortedClasses() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null) {
-			ClassificationInformation classInfo = info
+			ClassificationInfo classInfo = info
 					.getClassificationInformation();
 			return ClassList.sortedList(classInfo);
 		}

@@ -4,30 +4,6 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-/**
- * <p>
- * Java class for DataQualityIndicatorValues.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * <p>
- * 
- * <pre>
- * &lt;simpleType name="DataQualityIndicatorValues">
- *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *     &lt;enumeration value="Technological representativeness"/>
- *     &lt;enumeration value="Time representativeness"/>
- *     &lt;enumeration value="Geographical representativeness"/>
- *     &lt;enumeration value="Completeness"/>
- *     &lt;enumeration value="Precision"/>
- *     &lt;enumeration value="Methodological appropriateness and consistency"/>
- *     &lt;enumeration value="Overall quality"/>
- *   &lt;/restriction>
- * &lt;/simpleType>
- * </pre>
- * 
- */
 @XmlType(name = "DataQualityIndicatorValues")
 @XmlEnum
 public enum QualityIndicator {
@@ -88,7 +64,7 @@ public enum QualityIndicator {
 	 */
 	@XmlEnumValue("Methodological appropriateness and consistency")
 	METHODOLOGICAL_APPROPRIATENESS_AND_CONSISTENCY(
-			"Methodological appropriateness and consistency"),
+													"Methodological appropriateness and consistency"),
 
 	/**
 	 * The degree to which the data set's overall representativeness,

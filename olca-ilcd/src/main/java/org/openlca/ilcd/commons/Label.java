@@ -10,25 +10,6 @@ import javax.xml.bind.annotation.XmlValue;
 
 /**
  * Multi-lang string with a maximum length of 500 characters.
- * 
- * <p>
- * Java class for StringMultiLang complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
- * <pre>
- * &lt;complexType name="StringMultiLang">
- *   &lt;simpleContent>
- *     &lt;extension base="&lt;http://lca.jrc.it/ILCD/Common>String">
- *       &lt;attribute ref="{http://www.w3.org/XML/1998/namespace}lang default="en""/>
- *     &lt;/extension>
- *   &lt;/simpleContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "StringMultiLang", propOrder = { "value" })

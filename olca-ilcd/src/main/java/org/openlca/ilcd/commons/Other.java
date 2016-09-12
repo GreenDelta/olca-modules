@@ -12,36 +12,15 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.w3c.dom.Element;
 
-/**
- * <p>
- * Java class for anonymous complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
- * <pre>
- * &lt;complexType>
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;any processContents='lax' namespace='##other' maxOccurs="unbounded"/>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = { "any" })
 @XmlRootElement(name = "other")
 public class Other implements Serializable {
 
 	private final static long serialVersionUID = 1L;
+
 	@XmlAnyElement(lax = true)
-	protected List<Object> any;
+	public final List<Object> any = new ArrayList<>();
 
 	/**
 	 * Gets the value of the any property.
@@ -67,9 +46,6 @@ public class Other implements Serializable {
 	 * 
 	 */
 	public List<Object> getAny() {
-		if (any == null) {
-			any = new ArrayList<>();
-		}
 		return this.any;
 	}
 

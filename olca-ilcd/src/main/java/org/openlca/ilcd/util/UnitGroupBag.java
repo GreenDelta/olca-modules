@@ -7,7 +7,7 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.units.AdministrativeInformation;
 import org.openlca.ilcd.units.DataEntry;
 import org.openlca.ilcd.units.DataSetInformation;
@@ -75,7 +75,7 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 	public List<Class> getSortedClasses() {
 		DataSetInformation info = getDataSetInformation();
 		if (info != null) {
-			ClassificationInformation classInfo = info
+			ClassificationInfo classInfo = info
 					.getClassificationInformation();
 			return ClassList.sortedList(classInfo);
 		}

@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.Label;
 import org.openlca.ilcd.commons.Other;
@@ -37,7 +37,7 @@ public class DataSetInfo implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public final List<Label> name = new ArrayList<>();
 
-	public ClassificationInformation classificationInformation;
+	public ClassificationInfo classificationInformation;
 
 	public final List<ShortText> contactAddress = new ArrayList<>();
 

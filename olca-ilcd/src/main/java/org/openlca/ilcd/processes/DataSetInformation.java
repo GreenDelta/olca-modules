@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.FreeText;
 import org.openlca.ilcd.commons.Other;
@@ -70,7 +70,7 @@ public class DataSetInformation
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected List<FreeText> synonyms;
     protected ComplementingProcesseList complementingProcesses;
-    protected ClassificationInformation classificationInformation;
+    protected ClassificationInfo classificationInformation;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected List<FreeText> generalComment;
     @XmlElement(name = "referenceToExternalDocumentation")
@@ -211,10 +211,10 @@ public class DataSetInformation
      * 
      * @return
      *     possible object is
-     *     {@link ClassificationInformation }
+     *     {@link ClassificationInfo }
      *     
      */
-    public ClassificationInformation getClassificationInformation() {
+    public ClassificationInfo getClassificationInformation() {
         return classificationInformation;
     }
 
@@ -223,10 +223,10 @@ public class DataSetInformation
      * 
      * @param value
      *     allowed object is
-     *     {@link ClassificationInformation }
+     *     {@link ClassificationInfo }
      *     
      */
-    public void setClassificationInformation(ClassificationInformation value) {
+    public void setClassificationInformation(ClassificationInfo value) {
         this.classificationInformation = value;
     }
 

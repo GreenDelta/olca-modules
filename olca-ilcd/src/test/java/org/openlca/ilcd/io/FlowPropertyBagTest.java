@@ -40,14 +40,14 @@ public class FlowPropertyBagTest {
 	@Test
 	public void testGetClasses() {
 		Class clazz = bag.getSortedClasses().get(0);
-		assertEquals(0, clazz.getLevel().intValue());
-		assertEquals("Technical flow properties", clazz.getValue().trim());
+		assertEquals(0, clazz.level.intValue());
+		assertEquals("Technical flow properties", clazz.value.trim());
 	}
 
 	@Test
 	public void testGetUnitGroupReference() {
 		DataSetReference ref = bag.getUnitGroupReference();
-		assertEquals("93a60a57-a3c8-11da-a746-0800200c9a66", ref.getUuid());
+		assertEquals("93a60a57-a3c8-11da-a746-0800200c9a66", ref.uuid);
 	}
 
 }

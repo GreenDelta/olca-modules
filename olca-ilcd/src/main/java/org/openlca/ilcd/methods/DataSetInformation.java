@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.AreaOfProtection;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.FreeText;
 import org.openlca.ilcd.commons.Label;
@@ -65,7 +65,7 @@ public class DataSetInformation implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected List<Label> name;
 	protected List<String> methodology;
-	protected ClassificationInformation classificationInformation;
+	protected ClassificationInfo classificationInformation;
 	protected List<String> impactCategory;
 	protected List<AreaOfProtection> areaOfProtection;
 	protected String impactIndicator;
@@ -167,10 +167,10 @@ public class DataSetInformation implements Serializable {
 	/**
 	 * Gets the value of the classificationInformation property.
 	 * 
-	 * @return possible object is {@link ClassificationInformation }
+	 * @return possible object is {@link ClassificationInfo }
 	 * 
 	 */
-	public ClassificationInformation getClassificationInformation() {
+	public ClassificationInfo getClassificationInformation() {
 		return classificationInformation;
 	}
 
@@ -178,10 +178,10 @@ public class DataSetInformation implements Serializable {
 	 * Sets the value of the classificationInformation property.
 	 * 
 	 * @param value
-	 *            allowed object is {@link ClassificationInformation }
+	 *            allowed object is {@link ClassificationInfo }
 	 * 
 	 */
-	public void setClassificationInformation(ClassificationInformation value) {
+	public void setClassificationInformation(ClassificationInfo value) {
 		this.classificationInformation = value;
 	}
 

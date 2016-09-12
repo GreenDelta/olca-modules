@@ -58,14 +58,14 @@ public class ProcessBagTest {
 	public void testGetSortedClasses() {
 		List<Class> classes = bag.getSortedClasses();
 		assertTrue(classes.size() == 2);
-		assertEquals("Materials production", classes.get(0).getValue());
-		assertEquals("Plastics", classes.get(1).getValue());
+		assertEquals("Materials production", classes.get(0).value);
+		assertEquals("Plastics", classes.get(1).value);
 	}
 
 	@Test
 	public void testGetTime() {
 		Time time = bag.getTime();
-		assertEquals(1996, time.getReferenceYear().intValue());
+		assertEquals(1996, time.referenceYear.intValue());
 	}
 
 	@Test

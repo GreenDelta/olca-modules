@@ -10,12 +10,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "DataQualityIndicatorsType", propOrder = { "indicators" })
-public class DataQualityIndicatorList implements Serializable {
+@XmlType(name = "ClassificationInformationType", propOrder = { "classifications" })
+public class ClassificationInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(name = "dataQualityIndicator", required = true)
-	public final List<DataQualityIndicator> indicators = new ArrayList<>();
+	@XmlElement(name = "classification")
+	public final List<Classification> classifications = new ArrayList<>();
 
 }

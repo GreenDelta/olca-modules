@@ -55,7 +55,7 @@ public class SourceBagTest {
 	public void testGetSortedClasses() {
 		List<Class> classes = bag.getSortedClasses();
 		assertTrue(classes.size() == 1);
-		assertEquals("Images", classes.get(0).getValue());
+		assertEquals("Images", classes.get(0).value);
 	}
 
 }

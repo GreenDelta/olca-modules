@@ -63,8 +63,8 @@ public class UnitGroupBagTest {
 	@Test
 	public void testGetClasses() {
 		Class clazz = bag.getSortedClasses().get(0);
-		assertEquals(0, clazz.getLevel().intValue());
-		assertEquals("Technical unit groups", clazz.getValue().trim());
+		assertEquals(0, clazz.level.intValue());
+		assertEquals("Technical unit groups", clazz.value.trim());
 	}
 
 }

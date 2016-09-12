@@ -1,37 +1,31 @@
+
 package org.openlca.ilcd.commons;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlValue;
 import javax.xml.namespace.QName;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ClassificationType", propOrder = { "classes", "other" })
-public class Classification implements Serializable {
+@XmlType(name = "LocationType", propOrder = {
+		"value"
+})
+public class Location implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(name = "class", required = true)
-	public final List<Class> classes = new ArrayList<>();
+	@XmlValue
+	public String value;
 
-	public Other other;
-
-	@XmlAttribute(name = "name")
-	public String name;
-
-	@XmlAttribute(name = "classes")
-	@XmlSchemaType(name = "anyURI")
-	public String url;
+	@XmlAttribute(name = "latitudeAndLongitude")
+	public String latitudeAndLongitude;
 
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
