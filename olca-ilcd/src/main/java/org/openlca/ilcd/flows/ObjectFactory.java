@@ -55,11 +55,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link DataSetInformation }
+	 * Create an instance of {@link DataSetInfo }
 	 * 
 	 */
-	public DataSetInformation createDataSetInformation() {
-		return new DataSetInformation();
+	public DataSetInfo createDataSetInformation() {
+		return new DataSetInfo();
 	}
 
 	/**
@@ -79,11 +79,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link FlowInformation }
+	 * Create an instance of {@link FlowInfo }
 	 * 
 	 */
-	public FlowInformation createFlowInformation() {
-		return new FlowInformation();
+	public FlowInfo createFlowInformation() {
+		return new FlowInfo();
 	}
 
 	/**
@@ -103,11 +103,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link FlowPropertyReference }
+	 * Create an instance of {@link FlowPropertyRef }
 	 * 
 	 */
-	public FlowPropertyReference createFlowPropertyReference() {
-		return new FlowPropertyReference();
+	public FlowPropertyRef createFlowPropertyReference() {
+		return new FlowPropertyRef();
 	}
 
 	/**
@@ -127,11 +127,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link AdministrativeInformation }
+	 * Create an instance of {@link AdminInfo }
 	 * 
 	 */
-	public AdministrativeInformation createAdministrativeInformation() {
-		return new AdministrativeInformation();
+	public AdminInfo createAdministrativeInformation() {
+		return new AdminInfo();
 	}
 
 	/**

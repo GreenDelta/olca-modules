@@ -1,9 +1,8 @@
+
 package org.openlca.ilcd.flows;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,19 +15,25 @@ import javax.xml.namespace.QName;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ComplianceDeclarationsType", propOrder = {
-		"complianceDeclatations", "other" })
-public class ComplianceDeclarationList implements Serializable {
+@XmlType(name = "AdministrativeInformationType", propOrder = {
+		"dataEntry",
+		"publication",
+		"other"
+})
+public class AdminInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(name = "compliance", required = true)
-	public final List<ComplianceDeclaration> complianceDeclatations = new ArrayList<>();
+	@XmlElement(name = "dataEntryBy")
+	public DataEntry dataEntry;
+
+	@XmlElement(name = "publicationAndOwnership")
+	public Publication publication;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
 
 	@XmlAnyAttribute
-	public Map<QName, String> otherAttributes = new HashMap<>();
+	public final Map<QName, String> otherAttributes = new HashMap<>();
 
 }

@@ -7,10 +7,10 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.FlowType;
-import org.openlca.ilcd.flows.AdministrativeInformation;
-import org.openlca.ilcd.flows.DataSetInformation;
+import org.openlca.ilcd.flows.AdminInfo;
+import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.flows.FlowInformation;
+import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
@@ -35,33 +35,33 @@ public class NetworkPutFlowTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		Flow flow = new Flow();
-		FlowInformation info = new FlowInformation();
-		flow.setFlowInformation(info);
+		FlowInfo info = new FlowInfo();
+		flow.flowInformation = info;
 		info.setDataSetInformation(makeDataInfo(id));
-		flow.setAdministrativeInformation(makeAdminInfo());
+		flow.administrativeInformation = makeAdminInfo();
 		ModellingAndValidation mav = new ModellingAndValidation();
-		flow.setModellingAndValidation(mav);
+		flow.modellingAndValidation = mav;
 		LCIMethod method = new LCIMethod();
-		mav.setLCIMethod(method);
-		method.setFlowType(FlowType.ELEMENTARY_FLOW);
+		mav.lciMethod = method;
+		method.flowType = FlowType.ELEMENTARY_FLOW;
 		client.put(flow, id);
 	}
 
-	private DataSetInformation makeDataInfo(String id) {
-		DataSetInformation info = new DataSetInformation();
+	private DataSetInfo makeDataInfo(String id) {
+		DataSetInfo info = new DataSetInfo();
 		String name = "xtest Flow - " + new Random().nextInt(1000);
 		FlowName fName = new FlowName();
-		info.setName(fName);
-		LangString.addLabel(fName.getBaseName(), name, IlcdConfig.getDefault());
-		info.setUUID(id);
+		info.name = fName;
+		LangString.addLabel(fName.baseName, name, IlcdConfig.getDefault());
+		info.uuid = id;
 		return info;
 	}
 
-	private AdministrativeInformation makeAdminInfo() {
-		AdministrativeInformation info = new AdministrativeInformation();
+	private AdminInfo makeAdminInfo() {
+		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
-		info.setPublication(pub);
-		pub.setDataSetVersion("01.00.000");
+		info.publication = pub;
+		pub.dataSetVersion = "01.00.000";
 		return info;
 	}
 }
