@@ -46,8 +46,8 @@ public class SearchTest {
 		for (Object obj : list.descriptors) {
 			assertTrue(obj instanceof ProcessDescriptor);
 			ProcessDescriptor descriptor = (ProcessDescriptor) obj;
-			log.debug("process found: id={}, name={}", descriptor.getUuid(),
-					descriptor.getName().value);
+			log.debug("process found: id={}, name={}", descriptor.uuid,
+					descriptor.name.value);
 		}
 	}
 
@@ -92,8 +92,8 @@ public class SearchTest {
 		for (Object obj : list.descriptors) {
 			assertTrue(obj instanceof UnitGroupDescriptor);
 			UnitGroupDescriptor descriptor = (UnitGroupDescriptor) obj;
-			log.debug("unit group found: id={}, name={}", descriptor.getUuid(),
-					descriptor.getName().value);
+			log.debug("unit group found: id={}, name={}", descriptor.uuid,
+					descriptor.name.value);
 		}
 	}
 
@@ -124,8 +124,8 @@ public class SearchTest {
 		for (Object obj : list.descriptors) {
 			assertTrue(obj instanceof SourceDescriptor);
 			SourceDescriptor descriptor = (SourceDescriptor) obj;
-			log.debug("contact found: id={}, name={}", descriptor.getUuid(),
-					descriptor.getName().value);
+			log.debug("contact found: id={}, name={}", descriptor.uuid,
+					descriptor.name.value);
 		}
 	}
 
