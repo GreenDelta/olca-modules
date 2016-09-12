@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
@@ -16,28 +15,22 @@ import javax.xml.namespace.QName;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "FlowPropertyDataSetType", propOrder = {
-		"flowPropertyInformation",
-		"modellingAndValidation",
-		"administrativeInformation",
+@XmlType(name = "FlowPropertiesInformationType", propOrder = {
+		"dataSetInformation",
+		"quantitativeReference",
 		"other"
 })
-public class FlowProperty implements Serializable {
+public class FlowPropertyInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(name = "flowPropertiesInformation", required = true)
-	public FlowPropertyInfo flowPropertyInformation;
+	@XmlElement(required = true)
+	public DataSetInfo dataSetInformation;
 
-	public ModellingAndValidation modellingAndValidation;
-
-	public AdminInfo administrativeInformation;
+	public QuantitativeReference quantitativeReference;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
-
-	@XmlAttribute(name = "version", required = true)
-	public String version;
 
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
