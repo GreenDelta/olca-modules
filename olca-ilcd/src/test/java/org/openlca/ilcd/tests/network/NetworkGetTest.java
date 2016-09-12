@@ -92,8 +92,8 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "177ca340-ffa2-11da-92e3-0800200c9a66";
 		Contact contact = client.get(Contact.class, id);
-		assertEquals(id, contact.getContactInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(id, contact.contactInformation
+		.getDataSetInformation().uuid);
 		testContains(Contact.class, id);
 	}
 

@@ -6,10 +6,10 @@ import java.util.UUID;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.contacts.AdministrativeInformation;
+import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
-import org.openlca.ilcd.contacts.ContactInformation;
-import org.openlca.ilcd.contacts.DataSetInformation;
+import org.openlca.ilcd.contacts.ContactInfo;
+import org.openlca.ilcd.contacts.DataSetInfo;
 import org.openlca.ilcd.contacts.Publication;
 import org.openlca.ilcd.io.NetworkClient;
 import org.openlca.ilcd.util.IlcdConfig;
@@ -31,29 +31,29 @@ public class NetworkPutContactTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		Contact contact = new Contact();
-		ContactInformation info = new ContactInformation();
-		contact.setContactInformation(info);
+		ContactInfo info = new ContactInfo();
+		contact.contactInformation = info;
 		info.setDataSetInformation(makeDataInfo(id));
-		contact.setAdministrativeInformation(makeAdminInfo());
+		contact.administrativeInformation = makeAdminInfo();
 		client.put(contact, id);
 	}
 
-	private DataSetInformation makeDataInfo(String id) {
-		DataSetInformation dataSetInfo = new DataSetInformation();
+	private DataSetInfo makeDataInfo(String id) {
+		DataSetInfo dataSetInfo = new DataSetInfo();
 		String name = "xtest contact - " + new Random().nextInt(1000);
-		LangString.addLabel(dataSetInfo.getName(), name,
+		LangString.addLabel(dataSetInfo.name, name,
 				IlcdConfig.getDefault());
-		LangString.addLabel(dataSetInfo.getShortName(), name,
+		LangString.addLabel(dataSetInfo.shortName, name,
 				IlcdConfig.getDefault());
-		dataSetInfo.setUUID(id);
+		dataSetInfo.uuid = id;
 		return dataSetInfo;
 	}
 
-	private AdministrativeInformation makeAdminInfo() {
-		AdministrativeInformation info = new AdministrativeInformation();
+	private AdminInfo makeAdminInfo() {
+		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
-		info.setPublication(pub);
-		pub.setDataSetVersion("01.00.000");
+		info.publication = pub;
+		pub.dataSetVersion = "01.00.000";
 		return info;
 	}
 }

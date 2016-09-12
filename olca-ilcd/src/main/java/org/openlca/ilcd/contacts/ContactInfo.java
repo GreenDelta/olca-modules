@@ -39,13 +39,13 @@ import org.openlca.ilcd.commons.Other;
     "dataSetInformation",
     "other"
 })
-public class ContactInformation
+public class ContactInfo
     implements Serializable
 {
 
     private final static long serialVersionUID = 1L;
     @XmlElement(required = true)
-    protected DataSetInformation dataSetInformation;
+    protected DataSetInfo dataSetInformation;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected Other other;
     @XmlAnyAttribute
@@ -56,10 +56,10 @@ public class ContactInformation
      * 
      * @return
      *     possible object is
-     *     {@link DataSetInformation }
+     *     {@link DataSetInfo }
      *     
      */
-    public DataSetInformation getDataSetInformation() {
+    public DataSetInfo getDataSetInformation() {
         return dataSetInformation;
     }
 
@@ -68,10 +68,10 @@ public class ContactInformation
      * 
      * @param value
      *     allowed object is
-     *     {@link DataSetInformation }
+     *     {@link DataSetInfo }
      *     
      */
-    public void setDataSetInformation(DataSetInformation value) {
+    public void setDataSetInformation(DataSetInfo value) {
         this.dataSetInformation = value;
     }
 
