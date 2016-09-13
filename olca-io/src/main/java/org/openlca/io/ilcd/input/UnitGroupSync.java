@@ -47,7 +47,7 @@ class UnitGroupSync {
 			if (ilcdRefUnit == null)
 				return;
 			double factor = olcaRefUnit.getConversionFactor()
-					/ ilcdRefUnit.getMeanValue();
+					/ ilcdRefUnit.meanValue;
 			boolean changed = syncUnits(factor);
 			if (changed)
 				database.createDao(UnitGroup.class).update(olcaGroup);
@@ -77,9 +77,9 @@ class UnitGroupSync {
 				continue;
 			Unit unit = new Unit();
 			unit.setRefId(id);
-			unit.setName(ilcdUnit.getName());
-			unit.setConversionFactor(factor * ilcdUnit.getMeanValue());
-			unit.setDescription(LangString.get(ilcdUnit.getGeneralComment(),
+			unit.setName(ilcdUnit.name);
+			unit.setConversionFactor(factor * ilcdUnit.meanValue);
+			unit.setDescription(LangString.get(ilcdUnit.generalComment,
 					config.ilcdConfig));
 			olcaGroup.getUnits().add(unit);
 			changed = true;
