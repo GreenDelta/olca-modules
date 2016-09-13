@@ -55,7 +55,7 @@ public class Process implements Serializable {
 	@XmlElement(required = true)
 	protected ProcessInformation processInformation;
 	protected ModellingAndValidation modellingAndValidation;
-	protected AdministrativeInformation administrativeInformation;
+	protected AdminInfo administrativeInformation;
 	protected ExchangeList exchanges;
 	@XmlElement(name = "LCIAResults")
 	protected LCIAResultList lciaResults;
@@ -115,10 +115,10 @@ public class Process implements Serializable {
 	/**
 	 * Gets the value of the administrativeInformation property.
 	 * 
-	 * @return possible object is {@link AdministrativeInformation }
+	 * @return possible object is {@link AdminInfo }
 	 * 
 	 */
-	public AdministrativeInformation getAdministrativeInformation() {
+	public AdminInfo getAdministrativeInformation() {
 		return administrativeInformation;
 	}
 
@@ -126,10 +126,10 @@ public class Process implements Serializable {
 	 * Sets the value of the administrativeInformation property.
 	 * 
 	 * @param value
-	 *            allowed object is {@link AdministrativeInformation }
+	 *            allowed object is {@link AdminInfo }
 	 * 
 	 */
-	public void setAdministrativeInformation(AdministrativeInformation value) {
+	public void setAdministrativeInformation(AdminInfo value) {
 		this.administrativeInformation = value;
 	}
 

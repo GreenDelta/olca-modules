@@ -56,7 +56,7 @@ public class ProcessInformation
 
     private final static long serialVersionUID = 1L;
     @XmlElement(required = true)
-    protected DataSetInformation dataSetInformation;
+    protected DataSetInfo dataSetInformation;
     protected QuantitativeReference quantitativeReference;
     protected Time time;
     protected Geography geography;
@@ -73,10 +73,10 @@ public class ProcessInformation
      * 
      * @return
      *     possible object is
-     *     {@link DataSetInformation }
+     *     {@link DataSetInfo }
      *     
      */
-    public DataSetInformation getDataSetInformation() {
+    public DataSetInfo getDataSetInformation() {
         return dataSetInformation;
     }
 
@@ -85,10 +85,10 @@ public class ProcessInformation
      * 
      * @param value
      *     allowed object is
-     *     {@link DataSetInformation }
+     *     {@link DataSetInfo }
      *     
      */
-    public void setDataSetInformation(DataSetInformation value) {
+    public void setDataSetInformation(DataSetInfo value) {
         this.dataSetInformation = value;
     }
 

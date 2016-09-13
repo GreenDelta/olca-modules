@@ -1,7 +1,7 @@
 package org.openlca.ilcd.io;
 
 import org.junit.Test;
-import org.openlca.ilcd.processes.DataSetInformation;
+import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Process;
@@ -20,19 +20,19 @@ public class ProcessReadWriteTest {
 	}
 
 	private void setNameAndComment(Process process) {
-		DataSetInformation dataSetInformation = makeDataSetInfo(process);
+		DataSetInfo dataSetInformation = makeDataSetInfo(process);
 		ProcessName name = new ProcessName();
 		LangString.addLabel(name.getBaseName(), "process name",
 				IlcdConfig.getDefault());
-		dataSetInformation.setName(name);
-		LangString.addFreeText(dataSetInformation.getGeneralComment(),
+		dataSetInformation.name = name;
+		LangString.addFreeText(dataSetInformation.generalComment,
 				"process description", IlcdConfig.getDefault());
 	}
 
-	private DataSetInformation makeDataSetInfo(Process process) {
+	private DataSetInfo makeDataSetInfo(Process process) {
 		ProcessInformation information = new ProcessInformation();
 		process.setProcessInformation(information);
-		DataSetInformation dataSetInformation = new DataSetInformation();
+		DataSetInfo dataSetInformation = new DataSetInfo();
 		information.setDataSetInformation(dataSetInformation);
 		return dataSetInformation;
 	}
@@ -41,7 +41,7 @@ public class ProcessReadWriteTest {
 		ExchangeList exchangeList = new ExchangeList();
 		process.setExchanges(exchangeList);
 		Exchange exchange = new Exchange();
-		exchange.setMeanAmount(1.5);
+		exchange.meanAmount = 1.5;
 
 	}
 

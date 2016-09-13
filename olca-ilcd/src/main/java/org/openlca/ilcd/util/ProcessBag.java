@@ -12,13 +12,13 @@ import org.openlca.ilcd.commons.Label;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.Time;
-import org.openlca.ilcd.processes.AdministrativeInformation;
+import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.Completeness;
 import org.openlca.ilcd.processes.ComplianceDeclaration;
 import org.openlca.ilcd.processes.ComplianceDeclarationList;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataGenerator;
-import org.openlca.ilcd.processes.DataSetInformation;
+import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Geography;
@@ -54,17 +54,17 @@ public class ProcessBag implements IBag<Process> {
 
 	@Override
 	public String getId() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return info.getUUID();
+			return info.uuid;
 		return null;
 	}
 
 	public String getName() {
-		DataSetInformation info = getDataSetInformation();
-		if (info == null || info.getName() == null)
+		DataSetInfo info = getDataSetInformation();
+		if (info == null || info.name == null)
 			return null;
-		ProcessName processName = info.getName();
+		ProcessName processName = info.name;
 		StringBuilder builder = new StringBuilder();
 		appendNamePart(processName.getBaseName(), builder, null);
 		appendNamePart(processName.getMixAndLocationTypes(), builder, ", ");
@@ -88,26 +88,25 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public String getSynonyms() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getSynonyms(), config);
+			return LangString.get(info.synonyms, config);
 		return null;
 	}
 
 	public List<Class> getSortedClasses() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null) {
-			ClassificationInfo classInfo = info
-					.getClassificationInformation();
+			ClassificationInfo classInfo = info.classificationInformation;
 			return ClassList.sortedList(classInfo);
 		}
 		return Collections.emptyList();
 	}
 
 	public String getComment() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getGeneralComment(), config);
+			return LangString.get(info.generalComment, config);
 		return null;
 	}
 
@@ -193,45 +192,45 @@ public class ProcessBag implements IBag<Process> {
 		ModellingAndValidation mav = process.getModellingAndValidation();
 		if (mav != null) {
 			ComplianceDeclarationList list = mav.getComplianceDeclarations();
-			if (list != null && list.getComplianceDeclatations() != null) {
-				return list.getComplianceDeclatations();
+			if (list != null && list.complianceDeclatations != null) {
+				return list.complianceDeclatations;
 			}
 		}
 		return Collections.emptyList();
 	}
 
 	public CommissionerAndGoal getCommissionerAndGoal() {
-		AdministrativeInformation info = process.getAdministrativeInformation();
+		AdminInfo info = process.getAdministrativeInformation();
 		if (info != null)
-			return info.getCommissionerAndGoal();
+			return info.commissionerAndGoal;
 		return null;
 	}
 
 	public DataGenerator getDataGenerator() {
-		AdministrativeInformation info = process.getAdministrativeInformation();
+		AdminInfo info = process.getAdministrativeInformation();
 		if (info != null)
-			return info.getDataGenerator();
+			return info.dataGenerator;
 		return null;
 	}
 
 	public DataEntry getDataEntry() {
-		AdministrativeInformation info = process.getAdministrativeInformation();
+		AdminInfo info = process.getAdministrativeInformation();
 		if (info != null)
-			return info.getDataEntry();
+			return info.dataEntry;
 		return null;
 	}
 
 	public Publication getPublication() {
-		AdministrativeInformation info = process.getAdministrativeInformation();
+		AdminInfo info = process.getAdministrativeInformation();
 		if (info != null)
-			return info.getPublication();
+			return info.publication;
 		return null;
 	}
 
 	public List<Exchange> getExchanges() {
 		ExchangeList list = process.getExchanges();
-		if (list != null && list.getExchanges() != null)
-			return list.getExchanges();
+		if (list != null && list.exchanges != null)
+			return list.exchanges;
 		return Collections.emptyList();
 	}
 
@@ -242,7 +241,7 @@ public class ProcessBag implements IBag<Process> {
 		return null;
 	}
 
-	private DataSetInformation getDataSetInformation() {
+	private DataSetInfo getDataSetInformation() {
 		if (process.getProcessInformation() != null)
 			return process.getProcessInformation().getDataSetInformation();
 		return null;

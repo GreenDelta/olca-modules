@@ -116,14 +116,14 @@ public class ExchangeExtension {
 		if (exchange == null || value == null)
 			return;
 		QName qName = Extensions.getQName(attribute);
-		exchange.getOtherAttributes().put(qName, value);
+		exchange.otherAttributes.put(qName, value);
 	}
 
 	private String getStringValue(String attribute) {
 		if (exchange == null)
 			return null;
 		QName qName = Extensions.getQName(attribute);
-		return exchange.getOtherAttributes().get(qName);
+		return exchange.otherAttributes.get(qName);
 	}
 
 	private void setBooleanValue(String attribute, boolean value) {

@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.commons.Time;
-import org.openlca.ilcd.processes.AdministrativeInformation;
-import org.openlca.ilcd.processes.DataSetInformation;
+import org.openlca.ilcd.processes.AdminInfo;
+import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Geography;
@@ -25,7 +25,7 @@ import org.openlca.ilcd.processes.Validation;
 public class ProcessBuilder {
 
 	private Process process;
-	private DataSetInformation dataSetInfo;
+	private DataSetInfo dataSetInfo;
 	private Integer refFlowId;
 	private Time time;
 	private Geography geography;
@@ -34,7 +34,7 @@ public class ProcessBuilder {
 	private LCIMethod lciMethod;
 	private Representativeness representativeness;
 	private List<Review> reviews;
-	private AdministrativeInformation adminInfo;
+	private AdminInfo adminInfo;
 	private List<Exchange> exchanges;
 
 	private ProcessBuilder() {
@@ -46,7 +46,7 @@ public class ProcessBuilder {
 		return new ProcessBuilder();
 	}
 
-	public ProcessBuilder withDataSetInfo(DataSetInformation dataSetInfo) {
+	public ProcessBuilder withDataSetInfo(DataSetInfo dataSetInfo) {
 		this.dataSetInfo = dataSetInfo;
 		return this;
 	}
@@ -92,7 +92,7 @@ public class ProcessBuilder {
 		return this;
 	}
 
-	public ProcessBuilder withAdminInfo(AdministrativeInformation adminInfo) {
+	public ProcessBuilder withAdminInfo(AdminInfo adminInfo) {
 		this.adminInfo = adminInfo;
 		return this;
 	}
@@ -180,7 +180,7 @@ public class ProcessBuilder {
 			list = new ExchangeList();
 			process.setExchanges(list);
 		}
-		list.getExchanges().addAll(exchanges);
+		list.exchanges.addAll(exchanges);
 	}
 
 }

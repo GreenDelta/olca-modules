@@ -20,7 +20,7 @@ public class ExchangeExtensionTest {
 	@Test
 	public void testEmpty() {
 		Exchange raw = new Exchange();
-		raw.setDataSetInternalID(new BigInteger("1"));
+		raw.dataSetInternalID = new BigInteger("1");
 		Exchange exchange = io(raw);
 		assertTrue(exchange != raw);
 		ExchangeExtension extension = new ExchangeExtension(exchange);
@@ -68,8 +68,8 @@ public class ExchangeExtensionTest {
 
 	private Exchange createExchange() {
 		Exchange exchange = new Exchange();
-		exchange.setDataSetInternalID(new BigInteger("1"));
-		exchange.setMeanAmount(500);
+		exchange.dataSetInternalID = new BigInteger("1");
+		exchange.meanAmount = (double) 500;
 		ExchangeExtension extension = new ExchangeExtension(exchange);
 		extension.setAmount(42);
 		extension.setFormula("2 * Pi * sqr(r)");

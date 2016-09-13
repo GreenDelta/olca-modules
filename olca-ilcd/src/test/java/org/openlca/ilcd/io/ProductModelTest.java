@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.openlca.ilcd.commons.Other;
-import org.openlca.ilcd.processes.DataSetInformation;
+import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessInformation;
 import org.openlca.ilcd.productmodel.ProductModel;
@@ -28,9 +28,8 @@ public class ProductModelTest {
 		Process process = makePlainProcess();
 		String xml = marshal(process);
 		Process copy = unmarshal(xml);
-		assertEquals(process.getProcessInformation().getDataSetInformation()
-				.getUUID(), copy.getProcessInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(process.getProcessInformation().getDataSetInformation().uuid, copy.getProcessInformation()
+				.getDataSetInformation().uuid);
 	}
 
 	@Test
@@ -63,9 +62,9 @@ public class ProductModelTest {
 		Process process = new Process();
 		ProcessInformation procInfo = new ProcessInformation();
 		process.setProcessInformation(procInfo);
-		DataSetInformation dataSetInfo = new DataSetInformation();
+		DataSetInfo dataSetInfo = new DataSetInfo();
 		procInfo.setDataSetInformation(dataSetInfo);
-		dataSetInfo.setUUID(UUID.randomUUID().toString());
+		dataSetInfo.uuid = UUID.randomUUID().toString();
 		return process;
 	}
 
