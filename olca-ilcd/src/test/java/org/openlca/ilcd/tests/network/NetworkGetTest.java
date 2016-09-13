@@ -81,8 +81,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "59f191d6-5dd3-4553-af88-1a32accfe308";
 		UnitGroup group = client.get(UnitGroup.class, id);
-		assertEquals(id, group.getUnitGroupInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(id, group.unitGroupInformation.dataSetInformation.uuid);
 		testContains(UnitGroup.class, id);
 	}
 

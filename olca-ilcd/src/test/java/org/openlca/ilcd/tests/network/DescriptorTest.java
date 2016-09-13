@@ -36,8 +36,7 @@ public class DescriptorTest {
 		UnitGroupBag bag = new UnitGroupBag(group, IlcdConfig.getDefault());
 		if (client.contains(UnitGroup.class, bag.getId()))
 			return;
-		client.put(group, group.getUnitGroupInformation()
-				.getDataSetInformation().getUUID());
+		client.put(group, group.unitGroupInformation.dataSetInformation.uuid);
 	}
 
 	@Test
@@ -83,11 +82,9 @@ public class DescriptorTest {
 				.path(descriptor.uuid).queryParam("format", "xml");
 		log.trace("Get full unit group: {}", resource.getURI());
 		UnitGroup unitGroup = resource.get(UnitGroup.class);
-		assertEquals(descriptor.name.value, unitGroup
-				.getUnitGroupInformation().getDataSetInformation().getName()
+		assertEquals(descriptor.name.value, unitGroup.unitGroupInformation.dataSetInformation.name
 				.get(0).getValue());
-		assertEquals(descriptor.uuid, unitGroup.getUnitGroupInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(descriptor.uuid, unitGroup.unitGroupInformation.dataSetInformation.uuid);
 	}
 
 }

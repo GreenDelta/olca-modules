@@ -36,9 +36,9 @@ public class UnitExtensionTest {
 
 	private Unit createUnit() {
 		Unit unit = new Unit();
-		unit.setDataSetInternalID(new BigInteger("1"));
-		unit.setMeanValue(42);
-		unit.setName("kg");
+		unit.dataSetInternalID = new BigInteger("1");
+		unit.meanValue = (double) 42;
+		unit.name = "kg";
 		return unit;
 	}
 

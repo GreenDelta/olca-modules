@@ -21,14 +21,14 @@ public class UnitExtension {
 		if(unit == null)
 			return;
 		QName qName = Extensions.getQName(UNIT_ID);
-		unit.getOtherAttributes().put(qName, id);
+		unit.otherAttributes.put(qName, id);
 	}
 	
 	public String getUnitId() {
 		if(unit == null)
 			return null;
 		QName qName = Extensions.getQName(UNIT_ID);
-		return unit.getOtherAttributes().get(qName);
+		return unit.otherAttributes.get(qName);
 	}
 	
 }
