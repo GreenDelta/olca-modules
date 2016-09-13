@@ -101,8 +101,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "2c699413-f88b-4cb5-a56d-98cb4068472f";
 		Source source = client.get(Source.class, id);
-		assertEquals(id, source.getSourceInformation().getDataSetInformation()
-				.getUUID());
+		assertEquals(id, source.sourceInformation.dataSetInformation.uuid);
 		testContains(Source.class, id);
 	}
 

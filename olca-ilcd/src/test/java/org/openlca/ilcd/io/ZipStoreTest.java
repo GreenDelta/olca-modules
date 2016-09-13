@@ -17,7 +17,7 @@ import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessInformation;
 import org.openlca.ilcd.productmodel.ProductModel;
-import org.openlca.ilcd.sources.DataSetInformation;
+import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Source;
 
 public class ZipStoreTest {
@@ -43,16 +43,14 @@ public class ZipStoreTest {
 
 	@Test
 	public void testWithSource() throws Exception {
-		DataSetInformation dataSetInfo = new DataSetInformation();
+		DataSetInfo dataSetInfo = new DataSetInfo();
 		String id = "110_abc";
-		dataSetInfo.setUUID(id);
+		dataSetInfo.uuid = id;
 		Source source = SampleSource.create();
 		store.put(source, id);
 		assertTrue(store.contains(Source.class, id));
 		Source copy = store.get(Source.class, id);
-		assertEquals(source.getSourceInformation().getDataSetInformation()
-				.getUUID(), copy.getSourceInformation().getDataSetInformation()
-						.getUUID());
+		assertEquals(source.sourceInformation.dataSetInformation.uuid, copy.sourceInformation.dataSetInformation.uuid);
 		assertNotNull(store.iterator(Source.class).next());
 	}
 

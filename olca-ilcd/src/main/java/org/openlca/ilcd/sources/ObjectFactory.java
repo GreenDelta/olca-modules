@@ -39,27 +39,27 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link DigitalFileReference }
+	 * Create an instance of {@link DigitalFileRef }
 	 * 
 	 */
-	public DigitalFileReference createDigitalFileReference() {
-		return new DigitalFileReference();
+	public DigitalFileRef createDigitalFileReference() {
+		return new DigitalFileRef();
 	}
 
 	/**
-	 * Create an instance of {@link SourceInformation }
+	 * Create an instance of {@link SourceInfo }
 	 * 
 	 */
-	public SourceInformation createSourceInformation() {
-		return new SourceInformation();
+	public SourceInfo createSourceInformation() {
+		return new SourceInfo();
 	}
 
 	/**
-	 * Create an instance of {@link DataSetInformation }
+	 * Create an instance of {@link DataSetInfo }
 	 * 
 	 */
-	public DataSetInformation createDataSetInformation() {
-		return new DataSetInformation();
+	public DataSetInfo createDataSetInformation() {
+		return new DataSetInfo();
 	}
 
 	/**
@@ -79,11 +79,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link AdministrativeInformation }
+	 * Create an instance of {@link AdminInfo }
 	 * 
 	 */
-	public AdministrativeInformation createAdministrativeInformation() {
-		return new AdministrativeInformation();
+	public AdminInfo createAdministrativeInformation() {
+		return new AdminInfo();
 	}
 
 	/**

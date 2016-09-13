@@ -2,9 +2,7 @@
 package org.openlca.ilcd.sources;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -12,27 +10,23 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "DataEntryByType", propOrder = {
-		"timeStamp",
-		"referenceToDataSetFormat",
+@XmlType(name = "AdministrativeInformationType", propOrder = {
+		"dataEntryBy",
+		"publicationAndOwnership",
 		"other"
 })
-public class DataEntry implements Serializable {
+public class AdminInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public XMLGregorianCalendar timeStamp;
+	public DataEntry dataEntryBy;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<DataSetReference> referenceToDataSetFormat = new ArrayList<>();
+	public Publication publicationAndOwnership;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
