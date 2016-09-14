@@ -199,11 +199,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ParameterList }
+	 * Create an instance of {@link ParameterSection }
 	 * 
 	 */
-	public ParameterList createParameterList() {
-		return new ParameterList();
+	public ParameterSection createParameterList() {
+		return new ParameterSection();
 	}
 
 	/**
@@ -255,11 +255,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ProcessInformation }
+	 * Create an instance of {@link ProcessInfo }
 	 * 
 	 */
-	public ProcessInformation createProcessInformation() {
-		return new ProcessInformation();
+	public ProcessInfo createProcessInformation() {
+		return new ProcessInfo();
 	}
 
 	/**

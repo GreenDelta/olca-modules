@@ -15,7 +15,7 @@ import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.ProcessInformation;
+import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.productmodel.ProductModel;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Source;
@@ -66,18 +66,17 @@ public class ZipStoreTest {
 		store.put(p, "abc_123");
 		assertTrue(store.contains(Process.class, "abc_123"));
 		Process copy = store.get(Process.class, "abc_123");
-		ProductModel model = (ProductModel) copy.getProcessInformation()
-		.getDataSetInformation().other.getAny().get(0);
+		ProductModel model = (ProductModel) copy.processInformation.dataSetInformation.other.getAny().get(0);
 		String name = model.getName();
 		assertEquals("product-model-name", name);
 	}
 
 	private Process makeProductModel() {
 		Process process = new Process();
-		ProcessInformation pi = new ProcessInformation();
-		process.setProcessInformation(pi);
+		ProcessInfo pi = new ProcessInfo();
+		process.processInformation = pi;
 		org.openlca.ilcd.processes.DataSetInfo info = new org.openlca.ilcd.processes.DataSetInfo();
-		pi.setDataSetInformation(info);
+		pi.dataSetInformation = info;
 		ProductModel productModel = new ProductModel();
 		productModel.setName("product-model-name");
 		Other other = new Other();

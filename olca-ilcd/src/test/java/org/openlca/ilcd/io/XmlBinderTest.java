@@ -19,7 +19,7 @@ import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.ProcessInformation;
+import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 
@@ -95,10 +95,10 @@ public class XmlBinderTest {
 
 	private Process makeProcess() {
 		Process process = new Process();
-		ProcessInformation pi = new ProcessInformation();
+		ProcessInfo pi = new ProcessInfo();
 		DataSetInfo info = new DataSetInfo();
-		process.setProcessInformation(pi);
-		pi.setDataSetInformation(info);
+		process.processInformation = pi;
+		pi.dataSetInformation = info;
 		info.uuid = UUID.randomUUID().toString();
 		return process;
 	}

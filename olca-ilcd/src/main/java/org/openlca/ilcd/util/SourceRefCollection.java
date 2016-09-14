@@ -36,7 +36,7 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (repr == null)
 			return refs;
-		for (DataSetReference ref : repr.getReferenceToDataSource())
+		for (DataSetReference ref : repr.referenceToDataSource)
 			refs.add(ref);
 		return refs;
 	}
@@ -63,8 +63,8 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (method == null)
 			return refs;
-		if (method.getReferenceToLCAMethodDetails() != null)
-			refs.addAll(method.getReferenceToLCAMethodDetails());
+		if (method.referenceToLCAMethodDetails != null)
+			refs.addAll(method.referenceToLCAMethodDetails);
 		return refs;
 	}
 
@@ -72,7 +72,7 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (pub == null)
 			return refs;
-		refs.add(pub.getReferenceToUnchangedRepublication());
+		refs.add(pub.referenceToUnchangedRepublication);
 		return refs;
 	}
 
@@ -80,9 +80,9 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (tec == null)
 			return refs;
-		refs.add(tec.getReferenceToTechnologyPictogramme());
-		if (tec.getReferenceToTechnologyFlowDiagrammOrPicture() != null)
-			refs.addAll(tec.getReferenceToTechnologyFlowDiagrammOrPicture());
+		refs.add(tec.referenceToTechnologyPictogramme);
+		if (tec.referenceToTechnologyFlowDiagrammOrPicture != null)
+			refs.addAll(tec.referenceToTechnologyFlowDiagrammOrPicture);
 		return refs;
 	}
 
@@ -90,7 +90,7 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (rev == null)
 			return refs;
-		refs.add(rev.getReferenceToCompleteReviewReport());
+		refs.add(rev.referenceToCompleteReviewReport);
 		return refs;
 	}
 

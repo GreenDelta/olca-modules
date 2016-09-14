@@ -1,4 +1,3 @@
-
 package org.openlca.ilcd.processes;
 
 import java.io.Serializable;
@@ -14,29 +13,20 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.FreeText;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "NameType", propOrder = {
-		"baseName",
-		"treatmentStandardsRoutes",
-		"mixAndLocationTypes",
-		"functionalUnitFlowProperties",
-		"other"
-})
-public class ProcessName implements Serializable {
+@XmlType(name = "MathematicalRelationsType", propOrder = { "modelDescription",
+		"parameters", "other" })
+public class ParameterSection implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(required = true)
-	public final List<Label> baseName = new ArrayList<>();
+	public final List<FreeText> modelDescription = new ArrayList<>();
 
-	public final List<Label> treatmentStandardsRoutes = new ArrayList<>();
-
-	public final List<Label> mixAndLocationTypes = new ArrayList<>();
-
-	public final List<Label> functionalUnitFlowProperties = new ArrayList<>();
+	@XmlElement(name = "variableParameter")
+	public final List<Parameter> parameters = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

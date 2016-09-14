@@ -53,8 +53,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "76d6aaa4-37e2-40b2-994c-03292b600074";
 		Process process = client.get(Process.class, id);
-		assertEquals(id, process.getProcessInformation()
-		.getDataSetInformation().uuid);
+		assertEquals(id, process.processInformation.dataSetInformation.uuid);
 		testContains(Process.class, id);
 	}
 

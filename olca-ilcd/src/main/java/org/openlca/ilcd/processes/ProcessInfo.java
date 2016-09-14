@@ -1,3 +1,4 @@
+
 package org.openlca.ilcd.processes;
 
 import java.io.Serializable;
@@ -7,44 +8,43 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.Time;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ProcessDataSetType", propOrder = { "processInformation",
-		"modellingAndValidation", "administrativeInformation", "exchanges",
-		"lciaResults", "other" })
-public class Process implements Serializable {
+@XmlType(name = "ProcessInformationType", propOrder = {
+		"dataSetInformation",
+		"quantitativeReference",
+		"time",
+		"geography",
+		"technology",
+		"parameters",
+		"other"
+})
+public class ProcessInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
 	@XmlElement(required = true)
-	public ProcessInfo processInformation;
+	public DataSetInfo dataSetInformation;
 
-	public ModellingAndValidation modellingAndValidation;
+	public QuantitativeReference quantitativeReference;
 
-	public AdminInfo administrativeInformation;
+	public Time time;
 
-	public ExchangeList exchanges;
+	public Geography geography;
 
-	@XmlElement(name = "LCIAResults")
-	public LCIAResultList lciaResults;
+	public Technology technology;
+
+	@XmlElement(name = "mathematicalRelations")
+	public ParameterSection parameters;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
-
-	@XmlAttribute(name = "version", required = true)
-	public String version;
-
-	@XmlAttribute(name = "locations")
-	public String locations;
-
-	@XmlAttribute(name = "metaDataOnly")
-	public Boolean metaDataOnly;
 
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();

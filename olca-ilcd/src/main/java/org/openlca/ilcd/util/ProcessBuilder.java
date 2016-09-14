@@ -13,9 +13,9 @@ import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
 import org.openlca.ilcd.processes.ModellingAndValidation;
 import org.openlca.ilcd.processes.Parameter;
-import org.openlca.ilcd.processes.ParameterList;
+import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.ProcessInformation;
+import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.processes.QuantitativeReference;
 import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
@@ -39,7 +39,7 @@ public class ProcessBuilder {
 
 	private ProcessBuilder() {
 		process = new Process();
-		process.setVersion("1.1");
+		process.version = "1.1";
 	}
 
 	public static ProcessBuilder makeProcess() {
@@ -111,74 +111,74 @@ public class ProcessBuilder {
 		fillProcessInfo();
 		fillModelling();
 		if (adminInfo != null) {
-			process.setAdministrativeInformation(adminInfo);
+			process.administrativeInformation = adminInfo;
 		}
 		fillExchanges();
 	}
 
 	private void fillProcessInfo() {
-		ProcessInformation information = new ProcessInformation();
-		process.setProcessInformation(information);
+		ProcessInfo information = new ProcessInfo();
+		process.processInformation = information;
 		if (dataSetInfo != null) {
-			information.setDataSetInformation(dataSetInfo);
+			information.dataSetInformation = dataSetInfo;
 		}
 		if (geography != null) {
-			information.setGeography(geography);
+			information.geography = geography;
 		}
 		if (time != null) {
-			information.setTime(time);
+			information.time = time;
 		}
 		if (technology != null) {
-			information.setTechnology(technology);
+			information.technology = technology;
 		}
 		makeQuanRef(information);
 		addParameters(information);
 	}
 
-	private void makeQuanRef(ProcessInformation information) {
+	private void makeQuanRef(ProcessInfo information) {
 		if (refFlowId != null) {
 			QuantitativeReference qRef = new QuantitativeReference();
-			information.setQuantitativeReference(qRef);
-			qRef.setType(QuantitativeReferenceType.REFERENCE_FLOW_S);
-			qRef.getReferenceToReferenceFlow().add(
+			information.quantitativeReference = qRef;
+			qRef.type = QuantitativeReferenceType.REFERENCE_FLOW_S;
+			qRef.referenceToReferenceFlow.add(
 					BigInteger.valueOf(refFlowId));
 		}
 	}
 
-	private void addParameters(ProcessInformation information) {
+	private void addParameters(ProcessInfo information) {
 		if (parameters == null || parameters.isEmpty())
 			return;
-		ParameterList list = information.getParameters();
+		ParameterSection list = information.parameters;
 		if (list == null) {
-			list = new ParameterList();
-			information.setParameters(list);
+			list = new ParameterSection();
+			information.parameters = list;
 		}
-		list.getParameters().addAll(parameters);
+		list.parameters.addAll(parameters);
 	}
 
 	private void fillModelling() {
 		ModellingAndValidation mav = new ModellingAndValidation();
-		process.setModellingAndValidation(mav);
+		process.modellingAndValidation = mav;
 		if (lciMethod != null) {
-			mav.setLciMethod(lciMethod);
+			mav.lciMethod = lciMethod;
 		}
 		if (representativeness != null) {
-			mav.setRepresentativeness(representativeness);
+			mav.representativeness = representativeness;
 		}
 		if (reviews != null && !reviews.isEmpty()) {
 			Validation validation = new Validation();
-			mav.setValidation(validation);
-			validation.getReview().addAll(reviews);
+			mav.validation = validation;
+			validation.review.addAll(reviews);
 		}
 	}
 
 	private void fillExchanges() {
 		if (exchanges == null || exchanges.isEmpty())
 			return;
-		ExchangeList list = process.getExchanges();
+		ExchangeList list = process.exchanges;
 		if (list == null) {
 			list = new ExchangeList();
-			process.setExchanges(list);
+			process.exchanges = list;
 		}
 		list.exchanges.addAll(exchanges);
 	}

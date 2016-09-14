@@ -25,9 +25,9 @@ import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
 import org.openlca.ilcd.processes.ModellingAndValidation;
 import org.openlca.ilcd.processes.Parameter;
-import org.openlca.ilcd.processes.ParameterList;
+import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.ProcessInformation;
+import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.QuantitativeReference;
@@ -66,10 +66,10 @@ public class ProcessBag implements IBag<Process> {
 			return null;
 		ProcessName processName = info.name;
 		StringBuilder builder = new StringBuilder();
-		appendNamePart(processName.getBaseName(), builder, null);
-		appendNamePart(processName.getMixAndLocationTypes(), builder, ", ");
-		appendNamePart(processName.getTreatmentStandardsRoutes(), builder, ", ");
-		appendNamePart(processName.getFunctionalUnitFlowProperties(), builder,
+		appendNamePart(processName.baseName, builder, null);
+		appendNamePart(processName.mixAndLocationTypes, builder, ", ");
+		appendNamePart(processName.treatmentStandardsRoutes, builder, ", ");
+		appendNamePart(processName.functionalUnitFlowProperties, builder,
 				", ");
 		return builder.toString();
 	}
@@ -111,87 +111,87 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public Time getTime() {
-		ProcessInformation info = process.getProcessInformation();
+		ProcessInfo info = process.processInformation;
 		if (info != null) {
-			return info.getTime();
+			return info.time;
 		}
 		return null;
 	}
 
 	public Geography getGeography() {
-		ProcessInformation info = process.getProcessInformation();
+		ProcessInfo info = process.processInformation;
 		if (info != null)
-			return info.getGeography();
+			return info.geography;
 		return null;
 	}
 
 	public List<BigInteger> getReferenceFlowIds() {
-		ProcessInformation info = process.getProcessInformation();
+		ProcessInfo info = process.processInformation;
 		if (info != null) {
-			QuantitativeReference qRef = info.getQuantitativeReference();
+			QuantitativeReference qRef = info.quantitativeReference;
 			if (qRef != null)
-				return qRef.getReferenceToReferenceFlow();
+				return qRef.referenceToReferenceFlow;
 		}
 		return Collections.emptyList();
 	}
 
 	public Technology getTechnology() {
-		ProcessInformation info = process.getProcessInformation();
+		ProcessInfo info = process.processInformation;
 		if (info != null)
-			return info.getTechnology();
+			return info.technology;
 		return null;
 	}
 
 	public List<Parameter> getParameters() {
-		ProcessInformation info = process.getProcessInformation();
+		ProcessInfo info = process.processInformation;
 		if (info != null) {
-			ParameterList list = info.getParameters();
-			if (list != null && list.getParameters() != null) {
-				return list.getParameters();
+			ParameterSection list = info.parameters;
+			if (list != null && list.parameters != null) {
+				return list.parameters;
 			}
 		}
 		return Collections.emptyList();
 	}
 
 	public ProcessType getProcessType() {
-		ModellingAndValidation mav = process.getModellingAndValidation();
+		ModellingAndValidation mav = process.modellingAndValidation;
 		if (mav != null) {
-			LCIMethod method = mav.getLciMethod();
+			LCIMethod method = mav.lciMethod;
 			if (method != null)
-				return method.getProcessType();
+				return method.processType;
 		}
 		return null;
 	}
 
 	public Representativeness getRepresentativeness() {
-		ModellingAndValidation mav = process.getModellingAndValidation();
+		ModellingAndValidation mav = process.modellingAndValidation;
 		if (mav != null)
-			return mav.getRepresentativeness();
+			return mav.representativeness;
 		return null;
 	}
 
 	public Completeness getCompleteness() {
-		ModellingAndValidation mav = process.getModellingAndValidation();
+		ModellingAndValidation mav = process.modellingAndValidation;
 		if (mav != null)
-			return mav.getCompleteness();
+			return mav.completeness;
 		return null;
 	}
 
 	public List<Review> getReviews() {
-		ModellingAndValidation mav = process.getModellingAndValidation();
+		ModellingAndValidation mav = process.modellingAndValidation;
 		if (mav != null) {
-			Validation validation = mav.getValidation();
-			if (validation != null && validation.getReview() != null) {
-				return validation.getReview();
+			Validation validation = mav.validation;
+			if (validation != null && validation.review != null) {
+				return validation.review;
 			}
 		}
 		return Collections.emptyList();
 	}
 
 	public List<ComplianceDeclaration> getComplianceDeclarations() {
-		ModellingAndValidation mav = process.getModellingAndValidation();
+		ModellingAndValidation mav = process.modellingAndValidation;
 		if (mav != null) {
-			ComplianceDeclarationList list = mav.getComplianceDeclarations();
+			ComplianceDeclarationList list = mav.complianceDeclarations;
 			if (list != null && list.complianceDeclatations != null) {
 				return list.complianceDeclatations;
 			}
@@ -200,57 +200,57 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public CommissionerAndGoal getCommissionerAndGoal() {
-		AdminInfo info = process.getAdministrativeInformation();
+		AdminInfo info = process.administrativeInformation;
 		if (info != null)
 			return info.commissionerAndGoal;
 		return null;
 	}
 
 	public DataGenerator getDataGenerator() {
-		AdminInfo info = process.getAdministrativeInformation();
+		AdminInfo info = process.administrativeInformation;
 		if (info != null)
 			return info.dataGenerator;
 		return null;
 	}
 
 	public DataEntry getDataEntry() {
-		AdminInfo info = process.getAdministrativeInformation();
+		AdminInfo info = process.administrativeInformation;
 		if (info != null)
 			return info.dataEntry;
 		return null;
 	}
 
 	public Publication getPublication() {
-		AdminInfo info = process.getAdministrativeInformation();
+		AdminInfo info = process.administrativeInformation;
 		if (info != null)
 			return info.publication;
 		return null;
 	}
 
 	public List<Exchange> getExchanges() {
-		ExchangeList list = process.getExchanges();
+		ExchangeList list = process.exchanges;
 		if (list != null && list.exchanges != null)
 			return list.exchanges;
 		return Collections.emptyList();
 	}
 
 	public LCIMethod getLciMethod() {
-		ModellingAndValidation mav = process.getModellingAndValidation();
+		ModellingAndValidation mav = process.modellingAndValidation;
 		if (mav != null)
-			return mav.getLciMethod();
+			return mav.lciMethod;
 		return null;
 	}
 
 	private DataSetInfo getDataSetInformation() {
-		if (process.getProcessInformation() != null)
-			return process.getProcessInformation().getDataSetInformation();
+		if (process.processInformation != null)
+			return process.processInformation.dataSetInformation;
 		return null;
 	}
 
 	public ProductModel getProductModel() {
-		if (process.getProcessInformation() == null)
+		if (process.processInformation == null)
 			return null;
-		Other other = process.getProcessInformation().getOther();
+		Other other = process.processInformation.other;
 		if (other == null)
 			return null;
 		for (Object extension : other.getAny()) {

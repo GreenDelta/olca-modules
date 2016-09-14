@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.ProcessInformation;
+import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.productmodel.ProductModel;
 import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.ProcessBag;
@@ -28,8 +28,7 @@ public class ProductModelTest {
 		Process process = makePlainProcess();
 		String xml = marshal(process);
 		Process copy = unmarshal(xml);
-		assertEquals(process.getProcessInformation().getDataSetInformation().uuid, copy.getProcessInformation()
-				.getDataSetInformation().uuid);
+		assertEquals(process.processInformation.dataSetInformation.uuid, copy.processInformation.dataSetInformation.uuid);
 	}
 
 	@Test
@@ -37,8 +36,7 @@ public class ProductModelTest {
 		Process process = makeProductModel();
 		String xml = marshal(process);
 		Process copy = unmarshal(xml);
-		ProductModel model = (ProductModel) copy.getProcessInformation()
-				.getOther().getAny().get(0);
+		ProductModel model = (ProductModel) copy.processInformation.other.getAny().get(0);
 		assertEquals("test-model", model.getName());
 	}
 
@@ -60,10 +58,10 @@ public class ProductModelTest {
 
 	private Process makePlainProcess() {
 		Process process = new Process();
-		ProcessInformation procInfo = new ProcessInformation();
-		process.setProcessInformation(procInfo);
+		ProcessInfo procInfo = new ProcessInfo();
+		process.processInformation = procInfo;
 		DataSetInfo dataSetInfo = new DataSetInfo();
-		procInfo.setDataSetInformation(dataSetInfo);
+		procInfo.dataSetInformation = dataSetInfo;
 		dataSetInfo.uuid = UUID.randomUUID().toString();
 		return process;
 	}
@@ -71,7 +69,7 @@ public class ProductModelTest {
 	private Process makeProductModel() {
 		Process process = makePlainProcess();
 		Other other = new Other();
-		process.getProcessInformation().setOther(other);
+		process.processInformation.other = other;
 		List<Object> extension = other.getAny();
 		ProductModel model = new ProductModel();
 		model.setName("test-model");
