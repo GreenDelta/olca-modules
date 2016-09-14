@@ -14,8 +14,8 @@ import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Parameter;
-import org.openlca.ilcd.processes.ParameterList;
-import org.openlca.ilcd.processes.ProcessInformation;
+import org.openlca.ilcd.processes.ParameterSection;
+import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.util.ExchangeExtension;
 import org.openlca.ilcd.util.LangString;
 import org.slf4j.Logger;
@@ -39,34 +39,34 @@ class ExchangeConversion {
 		for (Exchange oExchange : process.getExchanges()) {
 			org.openlca.ilcd.processes.Exchange iExchange = mapExchange(oExchange);
 			if (oExchange.equals(process.getQuantitativeReference()))
-				iExchange.setDataSetInternalID(BigInteger.valueOf(0));
+				iExchange.dataSetInternalID = BigInteger.valueOf(0);
 			else {
-				iExchange.setDataSetInternalID(BigInteger.valueOf(id));
+				iExchange.dataSetInternalID = BigInteger.valueOf(id);
 				id++;
 			}
 			exchangeMap.put(oExchange, iExchange);
 		}
 		ExchangeList list = new ExchangeList();
-		ilcdProcess.setExchanges(list);
-		list.getExchanges().addAll(exchangeMap.values());
+		ilcdProcess.exchanges = list;
+		list.exchanges.addAll(exchangeMap.values());
 		AllocationFactors.map(process, exchangeMap);
 	}
 
 	private org.openlca.ilcd.processes.Exchange mapExchange(Exchange oExchange) {
 		org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
 		if (oExchange.description != null)
-			LangString.addLabel(iExchange.getGeneralComment(),
+			LangString.addLabel(iExchange.generalComment,
 					oExchange.description, config.ilcdConfig);
 		mapFlow(oExchange, iExchange);
 		mapDirection(oExchange, iExchange);
 		double resultingAmount = getRefAmount(oExchange);
-		iExchange.setResultingAmount(resultingAmount);
+		iExchange.resultingAmount = resultingAmount;
 		mapExtensions(oExchange, iExchange);
 		new UncertaintyConverter().map(oExchange, iExchange);
 		if (oExchange.getAmountFormula() != null)
 			mapParameter(oExchange, iExchange);
 		else
-			iExchange.setMeanAmount(resultingAmount);
+			iExchange.meanAmount = resultingAmount;
 		return iExchange;
 	}
 
@@ -82,7 +82,7 @@ class ExchangeConversion {
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		ExchangeExtension ext = new ExchangeExtension(iExchange);
 		if (oExchange.isAvoidedProduct()) {
-			iExchange.setExchangeDirection(ExchangeDirection.OUTPUT);
+			iExchange.exchangeDirection = ExchangeDirection.OUTPUT;
 			ext.setAvoidedProduct(true);
 		}
 		setProvider(oExchange, ext);
@@ -119,37 +119,37 @@ class ExchangeConversion {
 	private void mapParameter(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		String paramName = "temp_olca_param" + getParamSize();
-		iExchange.setParameterName(paramName);
-		iExchange.setMeanAmount(1d);
+		iExchange.parameterName = paramName;
+		iExchange.meanAmount = 1d;
 		Parameter parameter = new Parameter();
-		parameter.setFormula(oExchange.getAmountFormula());
-		parameter.setMeanValue(oExchange.getAmountValue());
-		parameter.setName(paramName);
+		parameter.formula = oExchange.getAmountFormula();
+		parameter.meanValue = oExchange.getAmountValue();
+		parameter.name = paramName;
 		addParameter(parameter);
 	}
 
 	private int getParamSize() {
-		ProcessInformation info = ilcdProcess.getProcessInformation();
+		ProcessInfo info = ilcdProcess.processInformation;
 		if (info == null)
 			return 0;
-		ParameterList list = info.getParameters();
+		ParameterSection list = info.parameters;
 		if (list == null)
 			return 0;
-		return list.getParameters().size();
+		return list.parameters.size();
 	}
 
 	private void addParameter(Parameter parameter) {
-		ProcessInformation info = ilcdProcess.getProcessInformation();
+		ProcessInfo info = ilcdProcess.processInformation;
 		if (info == null) {
-			info = new ProcessInformation();
-			ilcdProcess.setProcessInformation(info);
+			info = new ProcessInfo();
+			ilcdProcess.processInformation = info;
 		}
-		ParameterList list = info.getParameters();
+		ParameterSection list = info.parameters;
 		if (list == null) {
-			list = new ParameterList();
-			info.setParameters(list);
+			list = new ParameterSection();
+			info.parameters = list;
 		}
-		list.getParameters().add(parameter);
+		list.parameters.add(parameter);
 	}
 
 	private void mapFlow(Exchange oExchange,
@@ -158,7 +158,7 @@ class ExchangeConversion {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
 					oExchange.getFlow(), config);
 			if (ref != null) {
-				iExchange.setFlow(ref);
+				iExchange.flow = ref;
 			}
 		}
 	}
@@ -166,9 +166,9 @@ class ExchangeConversion {
 	private void mapDirection(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		if (oExchange.isInput()) {
-			iExchange.setExchangeDirection(ExchangeDirection.INPUT);
+			iExchange.exchangeDirection = ExchangeDirection.INPUT;
 		} else {
-			iExchange.setExchangeDirection(ExchangeDirection.OUTPUT);
+			iExchange.exchangeDirection = ExchangeDirection.OUTPUT;
 		}
 	}
 

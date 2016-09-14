@@ -130,13 +130,11 @@ class ProcessExchanges {
 
 	private void mapAllocation(Process process) {
 		for (MappedPair p : mappedPairs) {
-			if (p.iExchange.getAllocation() == null)
+			if (p.iExchange.allocation == null)
 				continue;
-			for (AllocationFactor iFactor : p.iExchange.getAllocation()
-					.getFactors()) {
-				Long productId = findMappedFlowId(iFactor
-						.getReferenceToCoProduct());
-				BigDecimal fraction = iFactor.getAllocatedFraction();
+			for (AllocationFactor iFactor : p.iExchange.allocation.factors) {
+				Long productId = findMappedFlowId(iFactor.referenceToCoProduct);
+				BigDecimal fraction = iFactor.allocatedFraction;
 				if (productId != null && fraction != null)
 					createAllocationFactor(p, productId, fraction, process);
 			}
@@ -164,7 +162,7 @@ class ProcessExchanges {
 		if (iExchangeId == null)
 			return null;
 		for (MappedPair p : mappedPairs) {
-			if (iExchangeId.equals(p.iExchange.getDataSetInternalID())) {
+			if (iExchangeId.equals(p.iExchange.dataSetInternalID)) {
 				if (p.oExchange.getFlow() != null)
 					return p.oExchange.getFlow().getId();
 			}
@@ -175,7 +173,7 @@ class ProcessExchanges {
 	private void mapReferenceFlow(ProcessBag ilcdProcess, Process process) {
 		Map<BigInteger, Exchange> map = new HashMap<>();
 		for (MappedPair pair : mappedPairs)
-			map.put(pair.iExchange.getDataSetInternalID(), pair.oExchange);
+			map.put(pair.iExchange.dataSetInternalID, pair.oExchange);
 		new ProcessRefFlowMapper(ilcdProcess, process, map).setReferenceFlow();
 	}
 

@@ -20,7 +20,7 @@ class ExchangeConversion {
 	private Exchange olcaExchange;
 
 	public ExchangeConversion(
-			org.openlca.ilcd.processes.Exchange ilcdExchange,ImportConfig config) {
+			org.openlca.ilcd.processes.Exchange ilcdExchange, ImportConfig config) {
 		this.ilcdExchange = ilcdExchange;
 		this.config = config;
 		ExchangeExtension ext = new ExchangeExtension(ilcdExchange);
@@ -38,16 +38,16 @@ class ExchangeConversion {
 
 	private Exchange initExchange() {
 		Exchange e = new Exchange();
-		boolean input = ilcdExchange.getExchangeDirection() == ExchangeDirection.INPUT;
+		boolean input = ilcdExchange.exchangeDirection == ExchangeDirection.INPUT;
 		e.setInput(input);
-		e.description = LangString.get(ilcdExchange.getGeneralComment(),
+		e.description = LangString.get(ilcdExchange.generalComment,
 				config.ilcdConfig);
 		if (extension != null) {
 			e.setPedigreeUncertainty(extension.getPedigreeUncertainty());
 			e.setBaseUncertainty(extension.getBaseUncertainty());
 			e.setAmountValue(extension.getAmount());
 		} else {
-			Double amount = ilcdExchange.getResultingAmount();
+			Double amount = ilcdExchange.resultingAmount;
 			if (amount != null)
 				e.setAmountValue(amount);
 		}
@@ -55,7 +55,7 @@ class ExchangeConversion {
 	}
 
 	private boolean isParameterized() {
-		return ilcdExchange.getParameterName() != null
+		return ilcdExchange.parameterName != null
 				|| (extension != null && extension.getFormula() != null);
 	}
 
@@ -64,9 +64,9 @@ class ExchangeConversion {
 		if (formula != null)
 			olcaExchange.setAmountFormula(formula);
 		else {
-			double meanAmount = ilcdExchange.getMeanAmount();
+			double meanAmount = ilcdExchange.meanAmount;
 			String meanAmountStr = Double.toString(meanAmount);
-			String parameter = ilcdExchange.getParameterName();
+			String parameter = ilcdExchange.parameterName;
 			formula = meanAmount == 1.0 ? parameter : meanAmountStr + " * "
 					+ parameter + "";
 			olcaExchange.setAmountFormula(formula);

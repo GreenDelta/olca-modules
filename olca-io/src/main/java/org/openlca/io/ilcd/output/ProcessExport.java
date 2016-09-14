@@ -17,8 +17,8 @@ import org.openlca.ilcd.commons.LCIMethodPrinciple;
 import org.openlca.ilcd.commons.Label;
 import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.processes.AdministrativeInformation;
-import org.openlca.ilcd.processes.DataSetInformation;
+import org.openlca.ilcd.processes.AdminInfo;
+import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
 import org.openlca.ilcd.processes.Parameter;
@@ -67,28 +67,28 @@ public class ProcessExport {
 		return iProcess;
 	}
 
-	private DataSetInformation makeDataSetInfo() {
+	private DataSetInfo makeDataSetInfo() {
 		log.trace("Create data set info.");
-		DataSetInformation dataSetInfo = new DataSetInformation();
-		dataSetInfo.setUUID(process.getRefId());
+		DataSetInfo dataSetInfo = new DataSetInfo();
+		dataSetInfo.uuid = process.getRefId();
 		ProcessName processName = new ProcessName();
-		dataSetInfo.setName(processName);
-		addLabel(processName.getBaseName(), process.getName());
+		dataSetInfo.name = processName;
+		addLabel(processName.baseName, process.getName());
 		if (Strings.notEmpty(process.getDescription())) {
-			addText(dataSetInfo.getGeneralComment(), process.getDescription());
+			addText(dataSetInfo.generalComment, process.getDescription());
 		}
 		addClassification(dataSetInfo);
 		return dataSetInfo;
 	}
 
-	private void addClassification(DataSetInformation dataSetInfo) {
+	private void addClassification(DataSetInfo dataSetInfo) {
 		log.trace("Add classification");
 		if (process.getCategory() != null) {
 			CategoryConverter converter = new CategoryConverter();
 			ClassificationInfo classification = converter
 					.getClassificationInformation(process.getCategory());
 			if (classification != null) {
-				dataSetInfo.setClassificationInformation(classification);
+				dataSetInfo.classificationInformation = classification;
 			}
 		}
 	}
@@ -129,16 +129,16 @@ public class ProcessExport {
 			return null;
 		Geography geography = new Geography();
 		org.openlca.ilcd.processes.Location iLocation = new org.openlca.ilcd.processes.Location();
-		geography.setLocation(iLocation);
+		geography.location = iLocation;
 		if (process.getLocation() != null) {
 			Location oLocation = process.getLocation();
-			iLocation.setLocation(oLocation.getCode());
+			iLocation.location = oLocation.getCode();
 			String pos = "" + oLocation.getLatitude() + ","
 					+ oLocation.getLongitude();
-			iLocation.setLatitudeAndLongitude(pos);
+			iLocation.latitudeAndLongitude = pos;
 		}
 		if (Strings.notEmpty(doc.getGeography())) {
-			addText(iLocation.getDescription(), doc.getGeography());
+			addText(iLocation.description, doc.getGeography());
 		}
 		return geography;
 	}
@@ -151,7 +151,7 @@ public class ProcessExport {
 		org.openlca.ilcd.processes.Technology iTechnology = null;
 		if (Strings.notEmpty(doc.getTechnology())) {
 			iTechnology = new org.openlca.ilcd.processes.Technology();
-			addText(iTechnology.getTechnologyDescriptionAndIncludedProcesses(),
+			addText(iTechnology.technologyDescriptionAndIncludedProcesses,
 					doc.getTechnology());
 		}
 		return iTechnology;
@@ -168,26 +168,26 @@ public class ProcessExport {
 		LCIMethod iMethod = new LCIMethod();
 		if (process.getProcessType() != null) {
 			if (process.getProcessType() == ProcessType.UNIT_PROCESS) {
-				iMethod.setProcessType(org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX);
+				iMethod.processType = org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX;
 			} else {
-				iMethod.setProcessType(org.openlca.ilcd.commons.ProcessType.LCI_RESULT);
+				iMethod.processType = org.openlca.ilcd.commons.ProcessType.LCI_RESULT;
 			}
 		}
 
-		iMethod.setLCIMethodPrinciple(LCIMethodPrinciple.OTHER);
+		iMethod.lciMethodPrinciple = LCIMethodPrinciple.OTHER;
 
 		if (doc != null) {
 			if (Strings.notEmpty(doc.getInventoryMethod()))
-				addText(iMethod.getDeviationsFromLCIMethodPrinciple(),
+				addText(iMethod.deviationsFromLCIMethodPrinciple,
 						doc.getInventoryMethod());
 			if (Strings.notEmpty(doc.getModelingConstants()))
-				addText(iMethod.getModellingConstants(),
+				addText(iMethod.modellingConstants,
 						doc.getModelingConstants());
 		}
 
 		LCIMethodApproach allocation = getAllocationMethod();
 		if (allocation != null)
-			iMethod.getLCIMethodApproaches().add(allocation);
+			iMethod.lciMethodApproaches.add(allocation);
 
 		return iMethod;
 	}
@@ -216,26 +216,23 @@ public class ProcessExport {
 
 			// completeness
 			if (Strings.notEmpty(doc.getCompleteness())) {
-				addText(iRepri.getDataCutOffAndCompletenessPrinciples(),
+				addText(iRepri.dataCutOffAndCompletenessPrinciples,
 						doc.getCompleteness());
-				addText(iRepri
-						.getDeviationsFromCutOffAndCompletenessPrinciples(),
+				addText(iRepri.deviationsFromCutOffAndCompletenessPrinciples,
 						"None.");
 			}
 
 			// data selection
 			if (Strings.notEmpty(doc.getDataSelection())) {
-				addText(iRepri.getDataSelectionAndCombinationPrinciples(),
+				addText(iRepri.dataSelectionAndCombinationPrinciples,
 						doc.getDataSelection());
-				addText(iRepri
-						.getDeviationsFromSelectionAndCombinationPrinciples(),
+				addText(iRepri.deviationsFromSelectionAndCombinationPrinciples,
 						"None.");
 			}
 
 			// data treatment
 			if (Strings.notEmpty(doc.getDataTreatment())) {
-				List<FreeText> ePrinciples = iRepri
-						.getDataTreatmentAndExtrapolationsPrinciples();
+				List<FreeText> ePrinciples = iRepri.dataTreatmentAndExtrapolationsPrinciples;
 				addText(ePrinciples, doc.getDataTreatment());
 				addText(ePrinciples, "None.");
 			}
@@ -245,16 +242,16 @@ public class ProcessExport {
 				DataSetReference ref = ExportDispatch.forwardExportCheck(
 						source, config);
 				if (ref != null)
-					iRepri.getReferenceToDataSource().add(ref);
+					iRepri.referenceToDataSource.add(ref);
 			}
 
 			// sampling procedure
 			if (Strings.notEmpty(doc.getSampling()))
-				addText(iRepri.getSamplingProcedure(), doc.getSampling());
+				addText(iRepri.samplingProcedure, doc.getSampling());
 
 			// data collection period
 			if (Strings.notEmpty(doc.getDataCollectionPeriod()))
-				addLabel(iRepri.getDataCollectionPeriod(),
+				addLabel(iRepri.dataCollectionPeriod,
 						doc.getDataCollectionPeriod());
 		}
 
@@ -269,29 +266,28 @@ public class ProcessExport {
 
 			Review review = new Review();
 			reviews.add(review);
-			review.setType(ReviewType.NOT_REVIEWED);
+			review.type = ReviewType.NOT_REVIEWED;
 
 			if (doc.getReviewer() != null) {
 				DataSetReference ref = ExportDispatch.forwardExportCheck(
 						doc.getReviewer(), config);
 				if (ref != null)
-					review.getReferenceToNameOfReviewerAndInstitution()
-							.add(ref);
+					review.referenceToNameOfReviewerAndInstitution.add(ref);
 			}
 
 			if (Strings.notEmpty(doc.getReviewDetails())) {
-				addText(review.getReviewDetails(), doc.getReviewDetails());
+				addText(review.reviewDetails, doc.getReviewDetails());
 			}
 		}
 		return reviews;
 	}
 
-	private AdministrativeInformation makeAdminInformation() {
+	private AdminInfo makeAdminInformation() {
 		log.trace("Create process administrative information.");
 		if (doc == null)
 			return null;
 		ProcessAdminInfo processAdminInfo = new ProcessAdminInfo(config);
-		AdministrativeInformation iAdminInfo = processAdminInfo.create(process);
+		AdminInfo iAdminInfo = processAdminInfo.create(process);
 		return iAdminInfo;
 	}
 

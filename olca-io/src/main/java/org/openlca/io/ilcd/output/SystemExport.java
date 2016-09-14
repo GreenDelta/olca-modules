@@ -14,11 +14,11 @@ import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.processes.DataSetInformation;
+import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.ProcessInformation;
+import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.QuantitativeReference;
 import org.openlca.ilcd.productmodel.Connector;
@@ -58,22 +58,22 @@ public class SystemExport {
 
 	private Process createProcess() {
 		Process process = new Process();
-		ProcessInformation info = new ProcessInformation();
-		process.setProcessInformation(info);
-		info.setDataSetInformation(makeDataSetInfo());
-		info.setQuantitativeReference(makeQuantitativeReference());
+		ProcessInfo info = new ProcessInfo();
+		process.processInformation = info;
+		info.dataSetInformation = makeDataSetInfo();
+		info.quantitativeReference = makeQuantitativeReference();
 		addRefProcessInfo(info);
 		addExchange(process);
 		addProductModel(info);
 		return process;
 	}
 
-	private void addProductModel(ProcessInformation info) {
+	private void addProductModel(ProcessInfo info) {
 		ProductModel model = new ProductModel();
 		model.setName(system.getName());
 		Other other = new Other();
 		other.getAny().add(model);
-		info.setOther(other);
+		info.other = other;
 		exportProcesses(model);
 		exportLinks(model);
 		// addParamaters(model);
@@ -138,17 +138,17 @@ public class SystemExport {
 		org.openlca.core.model.Exchange refExchange = system
 				.getReferenceExchange();
 		ExchangeList list = new ExchangeList();
-		process.setExchanges(list);
+		process.exchanges = list;
 		Exchange exchange = new Exchange();
-		list.getExchanges().add(exchange);
-		exchange.setDataSetInternalID(new BigInteger("1"));
-		exchange.setExchangeDirection(ExchangeDirection.OUTPUT);
+		list.exchanges.add(exchange);
+		exchange.dataSetInternalID = new BigInteger("1");
+		exchange.exchangeDirection = ExchangeDirection.OUTPUT;
 		DataSetReference flowRef = ExportDispatch.forwardExportCheck(
 				refExchange.getFlow(), config);
-		exchange.setFlow(flowRef);
+		exchange.flow = flowRef;
 		double refAmount = ReferenceAmount.get(system);
-		exchange.setMeanAmount(refAmount);
-		exchange.setResultingAmount(refAmount);
+		exchange.meanAmount = refAmount;
+		exchange.resultingAmount = refAmount;
 	}
 
 	private boolean canRun() {
@@ -158,37 +158,37 @@ public class SystemExport {
 				&& system.getReferenceProcess() != null;
 	}
 
-	private DataSetInformation makeDataSetInfo() {
-		DataSetInformation info = new DataSetInformation();
-		info.setUUID(system.getRefId());
+	private DataSetInfo makeDataSetInfo() {
+		DataSetInfo info = new DataSetInfo();
+		info.uuid = system.getRefId();
 		ProcessName processName = new ProcessName();
-		info.setName(processName);
+		info.name = processName;
 		String name = system.getName() + " (product system)";
-		LangString.addLabel(processName.getBaseName(), name, config.ilcdConfig);
+		LangString.addLabel(processName.baseName, name, config.ilcdConfig);
 		if (system.getDescription() != null) {
-			LangString.addFreeText(info.getGeneralComment(),
+			LangString.addFreeText(info.generalComment,
 					system.getDescription(), config.ilcdConfig);
 		}
 		addClassification(info);
 		return info;
 	}
 
-	private void addClassification(DataSetInformation info) {
+	private void addClassification(DataSetInfo info) {
 		CategoryConverter conv = new CategoryConverter();
 		ClassificationInfo classInfo = conv
 				.getClassificationInformation(system.getCategory());
 		if (classInfo != null)
-			info.setClassificationInformation(classInfo);
+			info.classificationInformation = classInfo;
 	}
 
 	private QuantitativeReference makeQuantitativeReference() {
 		QuantitativeReference qRef = new QuantitativeReference();
-		qRef.setType(QuantitativeReferenceType.REFERENCE_FLOW_S);
-		qRef.getReferenceToReferenceFlow().add(new BigInteger("1"));
+		qRef.type = QuantitativeReferenceType.REFERENCE_FLOW_S;
+		qRef.referenceToReferenceFlow.add(new BigInteger("1"));
 		return qRef;
 	}
 
-	private void addRefProcessInfo(ProcessInformation info) {
+	private void addRefProcessInfo(ProcessInfo info) {
 		org.openlca.core.model.Process refProcess = system
 				.getReferenceProcess();
 		ProcessInfoExtension ext = new ProcessInfoExtension(info);

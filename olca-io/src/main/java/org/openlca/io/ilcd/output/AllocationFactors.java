@@ -46,7 +46,7 @@ class AllocationFactors {
 		Exchange product = findProduct(factor);
 		if (product == null)
 			return;
-		addFactor(exchange, factor.getValue(), product.getDataSetInternalID());
+		addFactor(exchange, factor.getValue(), product.dataSetInternalID);
 	}
 
 	private void addOtherFactor(AllocationFactor factor) {
@@ -55,20 +55,19 @@ class AllocationFactors {
 		Exchange product = findProduct(factor);
 		if (product == null)
 			return;
-		addFactor(product, factor.getValue(), product.getDataSetInternalID());
+		addFactor(product, factor.getValue(), product.dataSetInternalID);
 	}
 
 	private void addFactor(Exchange iExchange, double factor, BigInteger ref) {
-		Allocation alloc = iExchange.getAllocation();
+		Allocation alloc = iExchange.allocation;
 		if (alloc == null) {
 			alloc = new Allocation();
-			iExchange.setAllocation(alloc);
+			iExchange.allocation = alloc;
 		}
-		org.openlca.ilcd.processes.AllocationFactor f =
-				new org.openlca.ilcd.processes.AllocationFactor();
-		f.setAllocatedFraction(BigDecimal.valueOf(factor * 100));
-		f.setReferenceToCoProduct(ref);
-		alloc.getFactors().add(f);
+		org.openlca.ilcd.processes.AllocationFactor f = new org.openlca.ilcd.processes.AllocationFactor();
+		f.allocatedFraction = BigDecimal.valueOf(factor * 100);
+		f.referenceToCoProduct = ref;
+		alloc.factors.add(f);
 	}
 
 	private Exchange findProduct(AllocationFactor factor) {

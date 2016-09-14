@@ -45,7 +45,7 @@ public class Parameter implements Serializable {
 
 	public UncertaintyDistribution uncertaintyDistributionType;
 
-	protected BigDecimal relativeStandardDeviation95In;
+	public BigDecimal relativeStandardDeviation95In;
 
 	public final List<Label> comment = new ArrayList<>();
 
