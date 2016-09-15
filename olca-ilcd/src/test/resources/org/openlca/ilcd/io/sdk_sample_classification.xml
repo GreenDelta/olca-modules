@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CategorySystem xmlns="http://lca.jrc.it/ILCD/Categories"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ILCD"
+	xsi:schemaLocation="http://lca.jrc.it/ILCD/Categories ../schemas/ILCD_Categories.xsd">
+	<categories dataType="Process">
+		<category id="1" name="class0">
+			<category id="1.1" name="class1" />
+		</category>
+		<category id="2" name="class2">
+			<category id="2.1" name="class3" />
+		</category>
+	</categories>
+	<categories dataType="LCIAMethod">
+		<category id="1" name="class0">
+			<category id="1.1" name="class1" />
+		</category>
+		<category id="2" name="class2">
+			<category id="2.1" name="class3" />
+		</category>
+	</categories>
+	<categories dataType="Flow">
+		<category id="1" name="class0">
+			<category id="1.1" name="class1" />
+		</category>
+		<category id="2" name="class2">
+			<category id="2.1" name="class3" />
+		</category>
+		<category id="3" name="Energy">
+			<category id="3.1" name="Electricity" />
+		</category>
+	</categories>
+	<categories dataType="FlowProperty">
+		<category id="1" name="class0">
+			<category id="1.1" name="class1" />
+		</category>
+		<category id="2" name="class2">
+			<category id="2.1" name="class3" />
+		</category>
+	</categories>
+	<categories dataType="UnitGroup">
+		<category id="1" name="class0">
+			<category id="1.1" name="class1" />
+		</category>
+		<category id="2" name="class2">
+			<category id="2.1" name="class3" />
+		</category>
+	</categories>
+	<categories dataType="Contact">
+		<category id="1" name="class0">
+			<category id="1.1" name="class1" />
+		</category>
+		<category id="2" name="class2">
+			<category id="2.1" name="class3" />
+		</category>
+	</categories>
+	<categories dataType="Source">
+		<category id="1" name="class0">
+			<category id="1.1" name="class1" />
+		</category>
+		<category id="2" name="class2">
+			<category id="2.1" name="class3" />
+		</category>
+	</categories>
+</CategorySystem>
