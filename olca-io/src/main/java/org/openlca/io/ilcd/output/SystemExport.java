@@ -16,7 +16,6 @@ import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
-import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.processes.ProcessName;
@@ -137,10 +136,8 @@ public class SystemExport {
 	private void addExchange(Process process) {
 		org.openlca.core.model.Exchange refExchange = system
 				.getReferenceExchange();
-		ExchangeList list = new ExchangeList();
-		process.exchanges = list;
 		Exchange exchange = new Exchange();
-		list.exchanges.add(exchange);
+		process.exchanges.add(exchange);
 		exchange.dataSetInternalID = new BigInteger("1");
 		exchange.exchangeDirection = ExchangeDirection.OUTPUT;
 		DataSetReference flowRef = ExportDispatch.forwardExportCheck(

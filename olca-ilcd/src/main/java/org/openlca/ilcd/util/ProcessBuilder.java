@@ -8,7 +8,6 @@ import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
-import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
 import org.openlca.ilcd.processes.ModellingAndValidation;
@@ -175,12 +174,7 @@ public class ProcessBuilder {
 	private void fillExchanges() {
 		if (exchanges == null || exchanges.isEmpty())
 			return;
-		ExchangeList list = process.exchanges;
-		if (list == null) {
-			list = new ExchangeList();
-			process.exchanges = list;
-		}
-		list.exchanges.addAll(exchanges);
+		process.exchanges.addAll(exchanges);
 	}
 
 }

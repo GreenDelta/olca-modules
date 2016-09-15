@@ -183,14 +183,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ExchangeList }
-	 * 
-	 */
-	public ExchangeList createExchangeList() {
-		return new ExchangeList();
-	}
-
-	/**
 	 * Create an instance of {@link ComplianceDeclarationList }
 	 * 
 	 */
@@ -220,14 +212,6 @@ public class ObjectFactory {
 	 */
 	public Validation createValidation() {
 		return new Validation();
-	}
-
-	/**
-	 * Create an instance of {@link LCIAResultList }
-	 * 
-	 */
-	public LCIAResultList createLCIAResultList() {
-		return new LCIAResultList();
 	}
 
 	/**
@@ -303,7 +287,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Process }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Process
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Process", name = "processDataSet")

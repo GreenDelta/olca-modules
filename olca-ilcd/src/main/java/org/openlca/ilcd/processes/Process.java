@@ -1,7 +1,9 @@
 package org.openlca.ilcd.processes;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,6 +11,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
@@ -29,10 +32,13 @@ public class Process implements Serializable {
 
 	public AdminInfo administrativeInformation;
 
-	public ExchangeList exchanges;
+	@XmlElementWrapper(name = "exchanges")
+	@XmlElement(name = "exchange")
+	public final List<Exchange> exchanges = new ArrayList<>();
 
-	@XmlElement(name = "LCIAResults")
-	public LCIAResultList lciaResults;
+	@XmlElementWrapper(name = "LCIAResults")
+	@XmlElement(name = "LCIAResult")
+	public final List<LCIAResult> lciaResults = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

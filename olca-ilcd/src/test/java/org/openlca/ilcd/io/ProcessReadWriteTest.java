@@ -3,7 +3,6 @@ package org.openlca.ilcd.io;
 import org.junit.Test;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
-import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.processes.ProcessName;
@@ -38,11 +37,9 @@ public class ProcessReadWriteTest {
 	}
 
 	private void createExchange(Process process) {
-		ExchangeList exchangeList = new ExchangeList();
-		process.exchanges = exchangeList;
 		Exchange exchange = new Exchange();
 		exchange.meanAmount = 1.5;
-
+		process.exchanges.add(exchange);
 	}
 
 }

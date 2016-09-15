@@ -12,7 +12,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
-import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.ProcessInfo;
@@ -37,7 +36,8 @@ class ExchangeConversion {
 		Map<Exchange, org.openlca.ilcd.processes.Exchange> exchangeMap = new HashMap<>();
 		int id = 1;
 		for (Exchange oExchange : process.getExchanges()) {
-			org.openlca.ilcd.processes.Exchange iExchange = mapExchange(oExchange);
+			org.openlca.ilcd.processes.Exchange iExchange = mapExchange(
+					oExchange);
 			if (oExchange.equals(process.getQuantitativeReference()))
 				iExchange.dataSetInternalID = BigInteger.valueOf(0);
 			else {
@@ -46,13 +46,12 @@ class ExchangeConversion {
 			}
 			exchangeMap.put(oExchange, iExchange);
 		}
-		ExchangeList list = new ExchangeList();
-		ilcdProcess.exchanges = list;
-		list.exchanges.addAll(exchangeMap.values());
+		ilcdProcess.exchanges.addAll(exchangeMap.values());
 		AllocationFactors.map(process, exchangeMap);
 	}
 
-	private org.openlca.ilcd.processes.Exchange mapExchange(Exchange oExchange) {
+	private org.openlca.ilcd.processes.Exchange mapExchange(
+			Exchange oExchange) {
 		org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
 		if (oExchange.description != null)
 			LangString.addLabel(iExchange.generalComment,
@@ -71,8 +70,10 @@ class ExchangeConversion {
 	}
 
 	private double getRefAmount(Exchange oExchange) {
-		double propFactor = oExchange.getFlowPropertyFactor() != null ? oExchange
-				.getFlowPropertyFactor().getConversionFactor() : 1;
+		double propFactor = oExchange.getFlowPropertyFactor() != null
+				? oExchange
+						.getFlowPropertyFactor().getConversionFactor()
+				: 1;
 		double unitFactor = oExchange.getUnit() != null ? oExchange.getUnit()
 				.getConversionFactor() : 1;
 		return oExchange.getAmountValue() * propFactor * unitFactor;

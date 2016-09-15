@@ -20,7 +20,6 @@ import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataGenerator;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
-import org.openlca.ilcd.processes.ExchangeList;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
 import org.openlca.ilcd.processes.ModellingAndValidation;
@@ -228,10 +227,7 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public List<Exchange> getExchanges() {
-		ExchangeList list = process.exchanges;
-		if (list != null && list.exchanges != null)
-			return list.exchanges;
-		return Collections.emptyList();
+		return process.exchanges;
 	}
 
 	public LCIMethod getLciMethod() {
