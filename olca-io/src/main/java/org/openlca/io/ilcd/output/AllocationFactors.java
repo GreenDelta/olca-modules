@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Map;
 
 import org.openlca.core.model.AllocationFactor;
@@ -46,7 +44,7 @@ class AllocationFactors {
 		Exchange product = findProduct(factor);
 		if (product == null)
 			return;
-		addFactor(exchange, factor.getValue(), product.dataSetInternalID);
+		addFactor(exchange, factor.getValue(), product.id);
 	}
 
 	private void addOtherFactor(AllocationFactor factor) {
@@ -55,17 +53,17 @@ class AllocationFactors {
 		Exchange product = findProduct(factor);
 		if (product == null)
 			return;
-		addFactor(product, factor.getValue(), product.dataSetInternalID);
+		addFactor(product, factor.getValue(), product.id);
 	}
 
-	private void addFactor(Exchange iExchange, double factor, BigInteger ref) {
+	private void addFactor(Exchange iExchange, double factor, int ref) {
 		Allocation alloc = iExchange.allocation;
 		if (alloc == null) {
 			alloc = new Allocation();
 			iExchange.allocation = alloc;
 		}
 		org.openlca.ilcd.processes.AllocationFactor f = new org.openlca.ilcd.processes.AllocationFactor();
-		f.allocatedFraction = BigDecimal.valueOf(factor * 100);
+		f.allocatedFraction = factor * 100;
 		f.referenceToCoProduct = ref;
 		alloc.factors.add(f);
 	}

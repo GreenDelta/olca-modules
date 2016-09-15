@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.math.BigInteger;
-
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.ReferenceAmount;
@@ -138,7 +136,7 @@ public class SystemExport {
 				.getReferenceExchange();
 		Exchange exchange = new Exchange();
 		process.exchanges.add(exchange);
-		exchange.dataSetInternalID = new BigInteger("1");
+		exchange.id = 1;
 		exchange.exchangeDirection = ExchangeDirection.OUTPUT;
 		DataSetReference flowRef = ExportDispatch.forwardExportCheck(
 				refExchange.getFlow(), config);
@@ -181,7 +179,7 @@ public class SystemExport {
 	private QuantitativeReference makeQuantitativeReference() {
 		QuantitativeReference qRef = new QuantitativeReference();
 		qRef.type = QuantitativeReferenceType.REFERENCE_FLOW_S;
-		qRef.referenceToReferenceFlow.add(new BigInteger("1"));
+		qRef.referenceToReferenceFlow.add(1);
 		return qRef;
 	}
 

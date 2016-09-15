@@ -1,6 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,9 +38,9 @@ class ExchangeConversion {
 			org.openlca.ilcd.processes.Exchange iExchange = mapExchange(
 					oExchange);
 			if (oExchange.equals(process.getQuantitativeReference()))
-				iExchange.dataSetInternalID = BigInteger.valueOf(0);
+				iExchange.id = 0;
 			else {
-				iExchange.dataSetInternalID = BigInteger.valueOf(id);
+				iExchange.id = id;
 				id++;
 			}
 			exchangeMap.put(oExchange, iExchange);

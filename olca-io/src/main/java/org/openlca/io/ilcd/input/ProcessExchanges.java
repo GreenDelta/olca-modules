@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +76,8 @@ class ProcessExchanges {
 		return oExchange;
 	}
 
-	private void applyFlowAssignment(Exchange oExchange, FlowMapEntry mapEntry) {
+	private void applyFlowAssignment(Exchange oExchange,
+			FlowMapEntry mapEntry) {
 		double amount = oExchange.getAmountValue();
 		double newVal = mapEntry.getConversionFactor() * amount;
 		oExchange.setAmountValue(newVal);
@@ -134,21 +133,22 @@ class ProcessExchanges {
 				continue;
 			for (AllocationFactor iFactor : p.iExchange.allocation.factors) {
 				Long productId = findMappedFlowId(iFactor.referenceToCoProduct);
-				BigDecimal fraction = iFactor.allocatedFraction;
-				if (productId != null && fraction != null)
-					createAllocationFactor(p, productId, fraction, process);
+				if (productId == null)
+					continue;
+				createAllocationFactor(p, productId, iFactor.allocatedFraction,
+						process);
 			}
 		}
 	}
 
 	private void createAllocationFactor(MappedPair p, long productId,
-			BigDecimal fraction, Process process) {
+			double fraction, Process process) {
 		Exchange oExchange = p.oExchange;
 		if (oExchange.getFlow() == null)
 			return;
 		org.openlca.core.model.AllocationFactor f = new org.openlca.core.model.AllocationFactor();
 		f.setProductId(productId);
-		f.setValue(fraction.doubleValue() / 100);
+		f.setValue(fraction / 100);
 		if (oExchange.getFlow().getId() == productId)
 			f.setAllocationType(AllocationMethod.PHYSICAL);
 		else {
@@ -158,11 +158,9 @@ class ProcessExchanges {
 		process.getAllocationFactors().add(f);
 	}
 
-	private Long findMappedFlowId(BigInteger iExchangeId) {
-		if (iExchangeId == null)
-			return null;
+	private Long findMappedFlowId(int iExchangeId) {
 		for (MappedPair p : mappedPairs) {
-			if (iExchangeId.equals(p.iExchange.dataSetInternalID)) {
+			if (iExchangeId == p.iExchange.id) {
 				if (p.oExchange.getFlow() != null)
 					return p.oExchange.getFlow().getId();
 			}
@@ -171,9 +169,9 @@ class ProcessExchanges {
 	}
 
 	private void mapReferenceFlow(ProcessBag ilcdProcess, Process process) {
-		Map<BigInteger, Exchange> map = new HashMap<>();
+		Map<Integer, Exchange> map = new HashMap<>();
 		for (MappedPair pair : mappedPairs)
-			map.put(pair.iExchange.dataSetInternalID, pair.oExchange);
+			map.put(pair.iExchange.id, pair.oExchange);
 		new ProcessRefFlowMapper(ilcdProcess, process, map).setReferenceFlow();
 	}
 

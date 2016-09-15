@@ -1,6 +1,5 @@
 package org.openlca.ilcd.util;
 
-import java.math.BigInteger;
 import java.util.List;
 
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
@@ -139,8 +138,7 @@ public class ProcessBuilder {
 			QuantitativeReference qRef = new QuantitativeReference();
 			information.quantitativeReference = qRef;
 			qRef.type = QuantitativeReferenceType.REFERENCE_FLOW_S;
-			qRef.referenceToReferenceFlow.add(
-					BigInteger.valueOf(refFlowId));
+			qRef.referenceToReferenceFlow.add(refFlowId);
 		}
 	}
 

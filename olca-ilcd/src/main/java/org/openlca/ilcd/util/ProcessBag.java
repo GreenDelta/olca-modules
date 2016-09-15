@@ -1,6 +1,5 @@
 package org.openlca.ilcd.util;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 
@@ -124,7 +123,7 @@ public class ProcessBag implements IBag<Process> {
 		return null;
 	}
 
-	public List<BigInteger> getReferenceFlowIds() {
+	public List<Integer> getReferenceFlowIds() {
 		ProcessInfo info = process.processInformation;
 		if (info != null) {
 			QuantitativeReference qRef = info.quantitativeReference;

@@ -2,7 +2,6 @@ package org.openlca.ilcd.processes;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +33,10 @@ import org.openlca.ilcd.commons.UncertaintyDistribution;
 public class Exchange implements Serializable {
 
 	private final static long serialVersionUID = 1L;
+
+	/** The data set internal ID (dataSetInternalID) of the exchange. */
+	@XmlAttribute(name = "dataSetInternalID", required = true)
+	public int id;
 
 	@XmlElement(name = "referenceToFlowDataSet", required = true)
 	public DataSetReference flow;
@@ -76,9 +79,6 @@ public class Exchange implements Serializable {
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
-
-	@XmlAttribute(name = "dataSetInternalID", required = true)
-	public BigInteger dataSetInternalID;
 
 	@XmlAnyAttribute
 	public Map<QName, String> otherAttributes = new HashMap<>();

@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.math.BigInteger;
 
 import javax.xml.bind.JAXB;
 
@@ -20,7 +19,7 @@ public class ExchangeExtensionTest {
 	@Test
 	public void testEmpty() {
 		Exchange raw = new Exchange();
-		raw.dataSetInternalID = new BigInteger("1");
+		raw.id = 1;
 		Exchange exchange = io(raw);
 		assertTrue(exchange != raw);
 		ExchangeExtension extension = new ExchangeExtension(exchange);
@@ -68,7 +67,7 @@ public class ExchangeExtensionTest {
 
 	private Exchange createExchange() {
 		Exchange exchange = new Exchange();
-		exchange.dataSetInternalID = new BigInteger("1");
+		exchange.id = 1;
 		exchange.meanAmount = (double) 500;
 		ExchangeExtension extension = new ExchangeExtension(exchange);
 		extension.setAmount(42);

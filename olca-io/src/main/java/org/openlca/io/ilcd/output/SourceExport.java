@@ -102,7 +102,7 @@ public class SourceExport {
 
 	private void addFileRef(DataSetInfo info, File extFile) {
 		DigitalFileRef fileRef = new DigitalFileRef();
-		fileRef.uri = extFile.getName();
+		fileRef.uri = "../external_docs/" + extFile.getName();
 		info.referenceToDigitalFile.add(fileRef);
 	}
 

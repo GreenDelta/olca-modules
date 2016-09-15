@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.util.List;
 
 import org.junit.Before;
@@ -12,7 +11,6 @@ import org.junit.Test;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.Time;
-import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Process;
@@ -76,14 +74,15 @@ public class ProcessBagTest {
 
 	@Test
 	public void testGetReferenceFlowIds() {
-		List<BigInteger> refs = bag.getReferenceFlowIds();
+		List<Integer> refs = bag.getReferenceFlowIds();
 		assertTrue(refs.size() == 1);
-		assertEquals(new BigInteger("56"), refs.get(0));
+		assertEquals(Integer.valueOf(56), refs.get(0));
 	}
 
 	@Test
 	public void testGetProcessType() {
-		assertEquals(ProcessType.PARTLY_TERMINATED_SYSTEM, bag.getProcessType());
+		assertEquals(ProcessType.PARTLY_TERMINATED_SYSTEM,
+				bag.getProcessType());
 	}
 
 	@Test

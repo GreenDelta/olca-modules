@@ -1,7 +1,6 @@
 package org.openlca.ilcd.processes;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,7 @@ public class QuantitativeReference implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	public final List<BigInteger> referenceToReferenceFlow = new ArrayList<>();
+	public final List<Integer> referenceToReferenceFlow = new ArrayList<>();
 
 	public final List<Label> functionalUnitOrOther = new ArrayList<>();
 
