@@ -9,7 +9,7 @@ public class Uncertainty {
 	private Triangular triangular;
 	private UndefinedUncertainty undefined;
 	private Uniform uniform;
-	private PedigreeMatrix pedigreeMatrix;
+	public PedigreeMatrix pedigreeMatrix;
 	private String comment;
 
 	public LogNormal getLogNormal() {
@@ -50,14 +50,6 @@ public class Uncertainty {
 
 	public void setUndefined(UndefinedUncertainty undefined) {
 		this.undefined = undefined;
-	}
-
-	public PedigreeMatrix getPedigreeMatrix() {
-		return pedigreeMatrix;
-	}
-
-	public void setPedigreeMatrix(PedigreeMatrix pedigreeMatrix) {
-		this.pedigreeMatrix = pedigreeMatrix;
 	}
 
 	public String getComment() {

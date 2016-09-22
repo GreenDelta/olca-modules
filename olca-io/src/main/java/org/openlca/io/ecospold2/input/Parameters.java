@@ -66,7 +66,7 @@ final class Parameters {
 			List<Parameter> params, ImportConfig config) {
 		for (Exchange exchange : exchanges) {
 			fetchFromExchange(exchange, params, config);
-			fetchFromProperties(exchange.getProperties(), params, config);
+			fetchFromProperties(exchange.properties, params, config);
 			if (exchange instanceof IntermediateExchange)
 				fetchFromProductionVolume((IntermediateExchange) exchange,
 						params, config);
@@ -75,14 +75,14 @@ final class Parameters {
 
 	private static void fetchFromExchange(Exchange exchange,
 			List<Parameter> params, ImportConfig config) {
-		if (!canCreate(exchange.getVariableName(), params))
+		if (!canCreate(exchange.variableName, params))
 			return;
 		Parameter olcaParam = new Parameter();
-		olcaParam.setName(exchange.getVariableName());
+		olcaParam.setName(exchange.variableName);
 		olcaParam.setScope(ParameterScope.PROCESS);
-		olcaParam.setValue(exchange.getAmount());
-		olcaParam.setDescription(exchange.getUnitName());
-		String formula = exchange.getMathematicalRelation();
+		olcaParam.setValue(exchange.amount);
+		olcaParam.setDescription(exchange.unitName);
+		String formula = exchange.mathematicalRelation;
 		if (config.withParameterFormulas && isValid(formula, config)) {
 			olcaParam.setFormula(formula.trim());
 			olcaParam.setInputParameter(false);
@@ -94,10 +94,10 @@ final class Parameters {
 	private static void fetchFromProductionVolume(
 			IntermediateExchange exchange, List<Parameter> params,
 			ImportConfig config) {
-		String varName = exchange.getProductionVolumeVariableName();
-		Double amount = exchange.getProductionVolumeAmount();
-		String formula = exchange.getProductionVolumeMathematicalRelation();
-		if (!canCreate(exchange.getProductionVolumeVariableName(), params))
+		String varName = exchange.productionVolumeVariableName;
+		Double amount = exchange.productionVolumeAmount;
+		String formula = exchange.productionVolumeMathematicalRelation;
+		if (!canCreate(exchange.productionVolumeVariableName, params))
 			return;
 		Parameter param = new Parameter();
 		param.setName(varName);

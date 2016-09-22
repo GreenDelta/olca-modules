@@ -9,7 +9,7 @@ import javax.persistence.Table;
 @Table(name = "tbl_sources")
 public class Source extends CategorizedEntity {
 
-	@Column(name = "doi")
+	@Column(name = "url")
 	private String url;
 
 	@Lob

@@ -21,32 +21,14 @@ final class RefId {
 			return KeyGen.NULL_UUID;
 		String productId = null;
 		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges()) {
-			if (exchange.getOutputGroup() == null)
+			if (exchange.outputGroup == null)
 				continue;
-			if (exchange.getOutputGroup() == 0 && exchange.getAmount() != 0) {
-				productId = exchange.getIntermediateExchangeId();
+			if (exchange.outputGroup == 0 && exchange.amount != 0) {
+				productId = exchange.intermediateExchangeId;
 				break;
 			}
 		}
 		return KeyGen.get(dataSet.getActivity().getId(), productId);
-	}
-
-	/**
-	 * Returns the combination of product ID and related activity ID (in this
-	 * order) as UUID.
-	 */
-	public static String forProductFlow(DataSet dataSet,
-			IntermediateExchange productFlow) {
-		if (dataSet.getActivity() == null || productFlow == null)
-			return KeyGen.NULL_UUID;
-		if (productFlow.getOutputGroup() != null)
-			return KeyGen.get(productFlow.getIntermediateExchangeId(), dataSet
-					.getActivity().getId());
-		if (productFlow.getActivityLinkId() == null)
-			return productFlow.getIntermediateExchangeId();
-		else
-			return KeyGen.get(productFlow.getIntermediateExchangeId(),
-					productFlow.getActivityLinkId());
 	}
 
 }

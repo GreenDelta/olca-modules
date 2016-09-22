@@ -31,8 +31,8 @@ public final class ProcessLinkSearchMap {
 		data = new ArrayList<>(links);
 		for (int i = 0; i < data.size(); i++) {
 			ProcessLink link = data.get(i);
-			index(link.getProviderId(), i, providerIndex);
-			index(link.getRecipientId(), i, recipientIndex);
+			index(link.providerId, i, providerIndex);
+			index(link.processId, i, recipientIndex);
 		}
 	}
 

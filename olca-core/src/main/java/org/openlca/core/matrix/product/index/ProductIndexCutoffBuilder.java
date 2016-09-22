@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
@@ -42,23 +42,17 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 	}
 
 	@Override
-	public ProductIndex build(LongPair refProduct) {
+	public TechIndex build(LongPair refProduct) {
 		return build(refProduct, 1.0);
 	}
 
 	@Override
-	public ProductIndex build(LongPair refProduct, double demand) {
+	public TechIndex build(LongPair refProduct, double demand) {
 		log.trace("build product index for {} with cutoff=", refProduct,
 				cutoff);
-		ProductIndex index = new ProductIndex(refProduct);
-		if (system != null) {
-			for (ProcessLink link : system.getProcessLinks()) {
-				LongPair inputKey = new LongPair(link.getRecipientId(), link.getFlowId());
-				LongPair outputKey = new LongPair(link.getProviderId(), link.getFlowId());
-				index.putLink(inputKey, outputKey);
-			}
-		}
+		TechIndex index = new TechIndex(refProduct);
 		index.setDemand(demand);
+		addSystemLinks(index);
 		Graph g = new Graph(refProduct, demand);
 		while (!g.next.isEmpty())
 			g.handleNext();
@@ -67,7 +61,17 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 		return index;
 	}
 
-	private void fillIndex(Graph g, ProductIndex index) {
+	private void addSystemLinks(TechIndex index) {
+		if (system == null)
+			return;
+		for (ProcessLink link : system.getProcessLinks()) {
+			LongPair provider = new LongPair(link.providerId, link.flowId);
+			LongPair exchange = new LongPair(link.processId, link.exchangeId);
+			index.putLink(exchange, provider);
+		}
+	}
+
+	private void fillIndex(Graph g, TechIndex index) {
 		for (Node node : g.nodes.values()) {
 			if (node.state != NodeState.FOLLOWED)
 				continue;
@@ -75,9 +79,9 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 				if (link.demand < cutoff)
 					continue;
 				Node provider = link.provider;
-				LongPair input = LongPair.of(node.product.getFirst(),
-						provider.product.getSecond());
-				index.putLink(input, provider.product);
+				LongPair exchange = LongPair.of(node.product.getFirst(),
+						link.exchangeId);
+				index.putLink(exchange, provider.product);
 			}
 		}
 	}
@@ -131,14 +135,16 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 					continue;
 				double inputAmount = amount(input);
 				double inputDemand = node.scalingFactor * inputAmount;
-				Node providerNode = nodes.get(inputProduct);
-				if (providerNode != null)
-					checkSubGraph(inputDemand, providerNode, nextLayer, false);
+				Node provider = nodes.get(inputProduct);
+				if (provider != null)
+					checkSubGraph(inputDemand, provider, nextLayer, false);
 				else {
-					providerNode = createNode(inputDemand, inputProduct,
+					provider = createNode(inputDemand, inputProduct,
 							nextLayer);
 				}
-				node.addLink(providerNode, inputAmount, inputDemand);
+				Link link = new Link(provider, input.exchangeId,
+						inputAmount, inputDemand);
+				node.inputLinks.add(link);
 			}
 		}
 

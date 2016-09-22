@@ -4,7 +4,7 @@ import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.LinkContributions;
@@ -38,8 +38,8 @@ public class LcaCalculator {
 		result.productIndex = inventory.productIndex;
 
 		IMatrix techMatrix = inventory.technologyMatrix;
-		ProductIndex productIndex = inventory.productIndex;
-		int idx = productIndex.getIndex(productIndex.getRefProduct());
+		TechIndex productIndex = inventory.productIndex;
+		int idx = productIndex.getIndex(productIndex.getRefFlow());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 		result.scalingFactors = s;
 		result.totalRequirements = getTotalRequirements(techMatrix, s);
@@ -66,8 +66,8 @@ public class LcaCalculator {
 		result.productIndex = inventory.productIndex;
 
 		IMatrix techMatrix = inventory.technologyMatrix;
-		ProductIndex productIndex = inventory.productIndex;
-		int idx = productIndex.getIndex(productIndex.getRefProduct());
+		TechIndex productIndex = inventory.productIndex;
+		int idx = productIndex.getIndex(productIndex.getRefFlow());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 		result.scalingFactors = s;
 		result.totalRequirements = getTotalRequirements(techMatrix, s);
@@ -99,7 +99,7 @@ public class LcaCalculator {
 		result.flowIndex = inventory.flowIndex;
 		result.productIndex = inventory.productIndex;
 
-		ProductIndex productIdx = inventory.productIndex;
+		TechIndex productIdx = inventory.productIndex;
 		IMatrix techMatrix = inventory.technologyMatrix;
 		IMatrix enviMatrix = inventory.interventionMatrix;
 		IMatrix inverse = solver.invert(techMatrix);
@@ -119,7 +119,7 @@ public class LcaCalculator {
 			inverse = null; // allow GC
 		solver.scaleColumns(totalResult, demands);
 		result.upstreamFlowResults = totalResult;
-		int refIdx = productIdx.getIndex(productIdx.getRefProduct());
+		int refIdx = productIdx.getIndex(productIdx.getRefFlow());
 		result.totalFlowResults = totalResult.getColumn(refIdx);
 		result.linkContributions = LinkContributions.calculate(
 				techMatrix, productIdx, scalingVector);
@@ -157,8 +157,8 @@ public class LcaCalculator {
 	 * where d is the demand vector and.
 	 * 
 	 */
-	public double[] getScalingVector(IMatrix inverse, ProductIndex productIdx) {
-		LongPair refProduct = productIdx.getRefProduct();
+	public double[] getScalingVector(IMatrix inverse, TechIndex productIdx) {
+		LongPair refProduct = productIdx.getRefFlow();
 		int idx = productIdx.getIndex(refProduct);
 		double[] s = inverse.getColumn(idx);
 		double demand = productIdx.getDemand();
@@ -189,9 +189,9 @@ public class LcaCalculator {
 	 * Calculate the real demand vector for the analysis.
 	 */
 	public double[] getRealDemands(double[] totalRequirements,
-			ProductIndex productIdx) {
+			TechIndex productIdx) {
 		double refDemand = productIdx.getDemand();
-		int i = productIdx.getIndex(productIdx.getRefProduct());
+		int i = productIdx.getIndex(productIdx.getRefFlow());
 		double[] rd = new double[totalRequirements.length];
 		if (Math.abs(totalRequirements[i] - refDemand) > 1e-9) {
 			// 'self-loop' correction for total result scale

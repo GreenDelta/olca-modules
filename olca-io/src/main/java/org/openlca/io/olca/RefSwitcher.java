@@ -3,6 +3,7 @@ package org.openlca.io.olca;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -15,6 +16,7 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -104,6 +106,10 @@ class RefSwitcher {
 				return fac;
 		}
 		return null;
+	}
+
+	Currency switchRef(Currency srcCurrency) {
+		return switchRef(seq.CURRENCY, new CurrencyDao(dest), srcCurrency);
 	}
 
 	Process switchRef(Process srcProcess) {

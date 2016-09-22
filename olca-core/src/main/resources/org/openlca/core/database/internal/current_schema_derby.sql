@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (4);
+INSERT INTO openlca_version (version) VALUES (5);
 
 
 CREATE TABLE tbl_categories (
@@ -98,7 +98,7 @@ CREATE TABLE tbl_sources (
 
 	source_year SMALLINT,
 	text_reference CLOB(64 K), 
-	doi VARCHAR(255),
+	url VARCHAR(255),
 	external_file VARCHAR(255),
 	
 	PRIMARY KEY (id)
@@ -364,10 +364,11 @@ CREATE TABLE tbl_product_system_processes (
 
 CREATE TABLE tbl_process_links (
 
-	f_product_system BIGINT, 
-	f_provider BIGINT, 
-	f_recipient BIGINT, 
-	f_flow BIGINT 
+	f_product_system  BIGINT, 
+	f_provider        BIGINT, 
+	f_flow            BIGINT, 
+	f_process         BIGINT,
+	f_exchange        BIGINT
 	
 );
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);

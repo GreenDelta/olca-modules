@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -32,18 +32,18 @@ class ProductInfo implements Comparable<ProductInfo> {
 	private String productUnit;
 
 	public static List<ProductInfo> getAll(SystemExportConfig conf,
-			ProductIndex index) {
+			TechIndex index) {
 		EntityCache cache = conf.getEntityCache();
 		List<ProductInfo> infos = new ArrayList<>(index.size() + 2);
 		for (int i = 0; i < index.size(); i++) {
-			LongPair pair = index.getProductAt(i);
+			LongPair pair = index.getProviderAt(i);
 			ProcessDescriptor process = cache.get(ProcessDescriptor.class,
 					pair.getFirst());
 			FlowDescriptor product = cache.get(FlowDescriptor.class,
 					pair.getSecond());
 			ProductInfo info = new ProductInfo();
 			info.longPair = pair;
-			info.ref = pair.equals(index.getRefProduct());
+			info.ref = pair.equals(index.getRefFlow());
 			info.process = process.getName();
 			info.processId = process.getRefId();
 			info.product = product.getName();

@@ -105,9 +105,9 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		Exchange e2 = new Exchange();
 		e2.setFlow(flow);
 		p2.getExchanges().add(e2);
-		link.setRecipientId(p1.getId());
-		link.setProviderId(p2.getId());
-		link.setFlowId(flow.getId());
+		link.processId = p1.getId();
+		link.providerId = p2.getId();
+		link.flowId = flow.getId();
 		return link;
 	}
 

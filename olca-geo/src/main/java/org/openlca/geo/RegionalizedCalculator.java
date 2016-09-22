@@ -98,7 +98,7 @@ public class RegionalizedCalculator {
 			solver.scaleColumns(r.upstreamFlowResults, demands);
 			r.upstreamImpactResults = solver.multiply(assessedEnvi, inverse);
 			solver.scaleColumns(r.upstreamImpactResults, demands);
-			int refIdx = r.productIndex.getIndex(r.productIndex.getRefProduct());
+			int refIdx = r.productIndex.getIndex(r.productIndex.getRefFlow());
 			r.totalFlowResults = r.upstreamFlowResults.getColumn(refIdx);
 			r.totalImpactResults = r.upstreamImpactResults.getColumn(refIdx);
 

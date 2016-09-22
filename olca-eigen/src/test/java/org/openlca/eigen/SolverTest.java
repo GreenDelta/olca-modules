@@ -13,7 +13,7 @@ import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.eigen.solvers.BalancedSolver;
 import org.openlca.eigen.solvers.DenseSolver;
@@ -58,7 +58,7 @@ public class SolverTest {
 
 		InventoryMatrix matrix = new InventoryMatrix();
 
-		ProductIndex productIndex = new ProductIndex(LongPair.of(1, 1));
+		TechIndex productIndex = new TechIndex(LongPair.of(1, 1));
 		productIndex.put(LongPair.of(1, 1));
 		productIndex.setDemand(1d);
 		matrix.productIndex = productIndex;

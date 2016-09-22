@@ -9,7 +9,7 @@ import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.util.MatrixUtils;
 
@@ -19,7 +19,7 @@ public class ContributionTreeTest {
 	public void testSimpleTree() {
 
 		InventoryMatrix matrix = new InventoryMatrix();
-		ProductIndex productIndex = new ProductIndex(LongPair.of(1, 1));
+		TechIndex productIndex = new TechIndex(LongPair.of(1, 1));
 		productIndex.put(LongPair.of(2, 2));
 		productIndex.put(LongPair.of(3, 3));
 		productIndex.putLink(LongPair.of(1, 2), LongPair.of(2, 2));

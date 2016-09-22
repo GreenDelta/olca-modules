@@ -173,6 +173,7 @@ public class EntityCache {
 			m.put(LocationDescriptor.class, new LocationDao(db));
 			m.put(ParameterDescriptor.class, new ParameterDao(db));
 			m.put(DQSystemDescriptor.class, new DQSystemDao(db));
+			m.put(CategoryDescriptor.class, new CategoryDao(db));
 		}
 
 		@Override

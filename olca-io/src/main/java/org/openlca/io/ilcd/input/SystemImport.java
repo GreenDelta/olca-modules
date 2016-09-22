@@ -147,39 +147,39 @@ public class SystemImport {
 			Process provider = processes.get(con.getOrigin());
 			if (provider == null)
 				continue;
-			link.setProviderId(provider.getId());
+			link.providerId = provider.getId();
 
 			// provider output flow
 			Product product = con.getProducts().get(0);
 			String flowId = product.getUuid();
-			Flow outFlow = findFlow(provider, flowId, false);
-			if (outFlow == null)
+			Exchange output = findExchange(provider, flowId, false);
+			if (output == null)
 				continue;
-			link.setFlowId(outFlow.getId());
+			link.flowId = output.getFlow().getId();
 
-			// recipient process
+			// linked exchange
 			ConsumedBy consumedBy = product.getConsumedBy();
 			Process recipient = processes.get(consumedBy.getProcessId());
 			if (recipient == null)
 				continue;
-			link.setRecipientId(recipient.getId());
-
-			// recipient input flow
-			Flow inFlow = findFlow(recipient, flowId, true);
-			if (inFlow == null || !Objects.equals(outFlow, inFlow))
+			link.processId = recipient.getId();
+			Exchange input = findExchange(recipient, flowId, true);
+			if (input == null)
 				continue;
+			link.exchangeId = input.getId();
+
 			system.getProcessLinks().add(link);
 		}
 	}
 
-	private Flow findFlow(Process process, String flowRefId, boolean input) {
-		if (process == null || flowRefId == null)
+	private Exchange findExchange(Process p, String flowRefId, boolean input) {
+		if (p == null || flowRefId == null)
 			return null;
-		for (Exchange e : process.getExchanges()) {
+		for (Exchange e : p.getExchanges()) {
 			if (e.getFlow() == null || e.isInput() != input)
 				continue;
 			if (Objects.equals(e.getFlow().getRefId(), flowRefId))
-				return e.getFlow();
+				return e;
 		}
 		return null;
 	}

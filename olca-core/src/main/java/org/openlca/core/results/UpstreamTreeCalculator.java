@@ -6,14 +6,16 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ProductIndex;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 class UpstreamTreeCalculator {
 
@@ -29,13 +31,14 @@ class UpstreamTreeCalculator {
 		this.links = makeLinks(result.productIndex);
 	}
 
-	private Multimap<LongPair, LongPair> makeLinks(ProductIndex index) {
+	private Multimap<LongPair, LongPair> makeLinks(TechIndex index) {
 		Multimap<LongPair, LongPair> links = ArrayListMultimap.create();
-		for (LongPair input : index.getLinkedInputs()) {
-			long recipientProcess = input.getFirst();
-			LongPair provider = index.getLinkedOutput(input);
-			for (LongPair recipient : index.getProducts(recipientProcess))
+		for (LongPair exchange : index.getLinkedExchanges()) {
+			long processId = exchange.getFirst();
+			LongPair provider = index.getLinkedProvider(exchange);
+			for (LongPair recipient : index.getProviders(processId)) {
 				links.put(recipient, provider);
+			}
 		}
 		return links;
 	}
@@ -68,7 +71,7 @@ class UpstreamTreeCalculator {
 		UpstreamTree tree = new UpstreamTree();
 		tree.setReference(fn.getReference());
 		UpstreamTreeNode root = new UpstreamTreeNode();
-		LongPair refProduct = result.productIndex.getRefProduct();
+		LongPair refProduct = result.productIndex.getRefFlow();
 		root.setShare(1d);
 		root.setProcessProduct(refProduct);
 		root.setAmount(fn.getTotalAmount(refProduct));

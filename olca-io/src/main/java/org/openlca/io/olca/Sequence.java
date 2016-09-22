@@ -1,7 +1,11 @@
 package org.openlca.io.olca;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -18,9 +22,6 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Stores the mappings between reference IDs (UUID) and generated IDs (long) of
@@ -40,48 +41,48 @@ class Sequence {
 	int UNIT_GROUP = 5;
 	int FLOW_PROPERTY = 6;
 	int FLOW = 7;
-	int PROCESS = 8;
-	int PRODUCT_SYSTEM = 9;
-	int IMPACT_METHOD = 10;
-	int NW_SET = 11;
-	int PROJECT = 12;
+	int CURRENCY = 8;
+	int PROCESS = 9;
+	int PRODUCT_SYSTEM = 10;
+	int IMPACT_METHOD = 11;
+	int NW_SET = 12;
+	int PROJECT = 13;
 
 	private final HashMap<String, Long>[] sequences;
 
 	@SuppressWarnings("unchecked")
 	public Sequence(IDatabase database) {
-		sequences = new HashMap[13];
+		sequences = new HashMap[14];
 		for (int i = 0; i < sequences.length; i++)
 			sequences[i] = new HashMap<>();
 		init(database);
 	}
 
-	private void init(IDatabase database) {
-		index(CATEGORY, new CategoryDao(database));
-		index(LOCATION, new LocationDao(database));
-		index(ACTOR, new ActorDao(database));
-		index(SOURCE, new SourceDao(database));
-		index(UNIT, new RootEntityDao<>(Unit.class, BaseDescriptor.class,
-				database));
-		index(UNIT_GROUP, new UnitGroupDao(database));
-		index(FLOW_PROPERTY, new FlowPropertyDao(database));
-		index(FLOW, new FlowDao(database));
-		index(PROCESS, new ProcessDao(database));
-		index(PRODUCT_SYSTEM, new ProductSystemDao(database));
-		index(IMPACT_METHOD, new ImpactMethodDao(database));
-		index(NW_SET, new NwSetDao(database));
-		index(PROJECT, new ProjectDao(database));
+	private void init(IDatabase db) {
+		index(CATEGORY, new CategoryDao(db));
+		index(LOCATION, new LocationDao(db));
+		index(ACTOR, new ActorDao(db));
+		index(SOURCE, new SourceDao(db));
+		index(UNIT, new RootEntityDao<>(Unit.class, BaseDescriptor.class, db));
+		index(UNIT_GROUP, new UnitGroupDao(db));
+		index(FLOW_PROPERTY, new FlowPropertyDao(db));
+		index(FLOW, new FlowDao(db));
+		index(CURRENCY, new CurrencyDao(db));
+		index(PROCESS, new ProcessDao(db));
+		index(PRODUCT_SYSTEM, new ProductSystemDao(db));
+		index(IMPACT_METHOD, new ImpactMethodDao(db));
+		index(NW_SET, new NwSetDao(db));
+		index(PROJECT, new ProjectDao(db));
 	}
 
 	private void index(int type, RootEntityDao<?, ?> dao) {
 		List<? extends BaseDescriptor> descriptors = dao.getDescriptors();
-		for (BaseDescriptor descriptor : descriptors) {
-			if (descriptor.getRefId() == null) {
-				log.warn("found root entity without reference ID: {}",
-						descriptor);
+		for (BaseDescriptor d : descriptors) {
+			if (d.getRefId() == null) {
+				log.warn("found root entity without reference ID: {}", d);
 				continue;
 			}
-			put(type, descriptor.getRefId(), descriptor.getId());
+			put(type, d.getRefId(), d.getId());
 		}
 	}
 

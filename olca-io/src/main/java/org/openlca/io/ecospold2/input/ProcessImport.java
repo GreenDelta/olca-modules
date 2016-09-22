@@ -15,6 +15,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
+import org.openlca.core.model.PedigreeMatrixRow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
@@ -24,6 +25,7 @@ import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.PedigreeMatrix;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
@@ -44,7 +46,8 @@ class ProcessImport {
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
 
-	public ProcessImport(IDatabase db, RefDataIndex index, ImportConfig config) {
+	public ProcessImport(IDatabase db, RefDataIndex index,
+			ImportConfig config) {
 		this.db = db;
 		this.index = index;
 		this.config = config;
@@ -92,11 +95,11 @@ class ProcessImport {
 		IntermediateExchange refFlow = null;
 		for (IntermediateExchange techFlow : dataSet
 				.getIntermediateExchanges()) {
-			if (techFlow.getOutputGroup() == null)
+			if (techFlow.outputGroup == null)
 				continue;
-			if (techFlow.getOutputGroup() != 0)
+			if (techFlow.outputGroup != 0)
 				continue;
-			if (techFlow.getAmount() == 0)
+			if (techFlow.amount == 0)
 				continue;
 			refFlow = techFlow;
 			break;
@@ -150,13 +153,11 @@ class ProcessImport {
 		ProcessType type = activity.getType() == 2 ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS;
 		process.setProcessType(type);
-		String description = Joiner
-				.on(" ")
-				.skipNulls()
-				.join(activity.getGeneralComment(),
-						activity.getIncludedActivitiesStart(),
-						activity.getIncludedActivitiesEnd(),
-						activity.getAllocationComment());
+		String description = Joiner.on(" ").skipNulls().join(
+				activity.getGeneralComment(),
+				activity.getIncludedActivitiesStart(),
+				activity.getIncludedActivitiesEnd(),
+				activity.getAllocationComment());
 		process.setDescription(description);
 	}
 
@@ -177,81 +178,102 @@ class ProcessImport {
 
 	private void createElementaryExchanges(DataSet dataSet, Process process) {
 		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
-			if (e.getAmount() == 0 && config.skipNullExchanges)
+			if (e.amount == 0 && config.skipNullExchanges)
 				continue;
-			String refId = e.getElementaryExchangeId();
+			String refId = e.elementaryExchangeId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not create flow for {}",
-						e.getElementaryExchangeId());
+						e.elementaryExchangeId);
 			}
 			createExchange(e, refId, flow, process);
 		}
 	}
 
-	private void createProductExchanges(DataSet dataSet, Process process) {
-		for (IntermediateExchange ie : dataSet.getIntermediateExchanges()) {
-			boolean isRefFlow = ie.getOutputGroup() != null
-					&& ie.getOutputGroup() == 0;
-			if (ie.getAmount() == 0 && config.skipNullExchanges)
+	private void createProductExchanges(DataSet ds, Process process) {
+		IntermediateExchange ref = Exchanges.findRef(ds);
+		Exchange qRef = null;
+		if (ref != null) {
+			qRef = createProductExchange(ref, process);
+			process.setQuantitativeReference(qRef);
+		}
+		for (IntermediateExchange ie : ds.getIntermediateExchanges()) {
+			if (Exchanges.eq(ref, ie))
 				continue;
-			String refId = RefId.forProductFlow(dataSet, ie);
-			Flow flow = index.getFlow(refId);
-			if (flow == null) {
-				log.warn("could not get flow for {}", refId);
+			// data sets can have self loops in ecoinvent and we try
+			// to merge them here
+			if (Exchanges.isSelfLoop(ie, ref, ds) && qRef != null) {
+				qRef.setAmountValue(qRef.getAmountValue() - ie.amount);
 				continue;
 			}
-			Exchange e = createExchange(ie, refId, flow, process);
-			if (e == null)
-				continue;
-			if (isAvoidedProduct(refId, e))
-				e.setAvoidedProduct(true);
-			if (ie.getActivityLinkId() != null)
-				addActivityLink(ie, e);
-			if (isRefFlow)
-				process.setQuantitativeReference(e);
-			prices.map(ie, e);
+			createProductExchange(ie, process);
 		}
 	}
 
-	private boolean isAvoidedProduct(String refId, Exchange exchange) {
-		return false;
-		// If the sign of an product/waste input is different from the sign of
-		// the product/waste output of the linked activity it could be an
-		// avoided product. Not sure, if this is true for ecoinvent 3
-		// boolean isNeg = exchange.getAmountValue() < 0;
-		// return isNeg != index.isNegativeFlow(refId) && exchange.isInput();
+	private Exchange createProductExchange(IntermediateExchange ie,
+			Process process) {
+		if ((ie.amount == null || ie.amount == 0) && config.skipNullExchanges)
+			return null;
+		String refId = ie.intermediateExchangeId;
+		Flow flow = index.getFlow(refId);
+		if (flow == null) {
+			log.warn("could not get flow for {}", refId);
+			return null;
+		}
+		Exchange e = createExchange(ie, refId, flow, process);
+		if (e == null)
+			return null;
+		if (ie.activityLinkId != null) {
+			addActivityLink(ie, e);
+		}
+		prices.map(ie, e);
+		return e;
 	}
 
-	private Exchange createExchange(org.openlca.ecospold2.Exchange original,
+	private Exchange createExchange(org.openlca.ecospold2.Exchange es2,
 			String flowRefId, Flow flow, Process process) {
 		if (flow == null || flow.getReferenceFlowProperty() == null)
 			return null;
 		Exchange e = new Exchange();
 		e.setFlow(flow);
 		e.setFlowPropertyFactor(flow.getReferenceFactor());
-		e.description = original.getComment();
-		Unit unit = getFlowUnit(original, flowRefId, flow);
+		e.description = es2.comment;
+		Unit unit = getFlowUnit(es2, flowRefId, flow);
 		if (unit == null)
 			return null;
 		e.setUnit(unit);
-		e.setInput(original.getInputGroup() != null);
-		double amount = original.getAmount();
+		e.setInput(es2.inputGroup != null);
+		double amount = es2.amount;
 		if (index.isMappedFlow(flowRefId))
 			amount = amount * index.getMappedFlowFactor(flowRefId);
 		e.setAmountValue(amount);
 		if (config.withParameters && config.withParameterFormulas)
-			mapFormula(original, process, e);
-		e.setUncertainty(UncertaintyConverter.toOpenLCA(original
-				.getUncertainty()));
+			mapFormula(es2, process, e);
+		e.setUncertainty(UncertaintyConverter.toOpenLCA(es2.uncertainty));
+		e.setPedigreeUncertainty(getPedigreeMatrix(es2));
 		process.getExchanges().add(e);
 		return e;
+	}
+
+	private String getPedigreeMatrix(org.openlca.ecospold2.Exchange es2) {
+		if (es2 == null || es2.uncertainty == null)
+			return null;
+		PedigreeMatrix pm = es2.uncertainty.pedigreeMatrix;
+		if (pm == null)
+			return null;
+		Map<PedigreeMatrixRow, Integer> m = new HashMap<>();
+		m.put(PedigreeMatrixRow.RELIABILITY, pm.reliability);
+		m.put(PedigreeMatrixRow.COMPLETENESS, pm.completeness);
+		m.put(PedigreeMatrixRow.TIME, pm.temporalCorrelation);
+		m.put(PedigreeMatrixRow.GEOGRAPHY, pm.geographicalCorrelation);
+		m.put(PedigreeMatrixRow.TECHNOLOGY, pm.technologyCorrelation);
+		return org.openlca.core.model.PedigreeMatrix.toString(m);
 	}
 
 	private Unit getFlowUnit(org.openlca.ecospold2.Exchange original,
 			String flowRefId, Flow flow) {
 		if (!index.isMappedFlow(flowRefId))
-			return index.getUnit(original.getUnitId());
+			return index.getUnit(original.unitId);
 		FlowProperty refProp = flow.getReferenceFlowProperty();
 		if (refProp == null)
 			return null;
@@ -263,20 +285,18 @@ class ProcessImport {
 
 	private void mapFormula(org.openlca.ecospold2.Exchange original,
 			Process process, Exchange exchange) {
-		String var = original.getVariableName();
+		String var = original.variableName;
 		if (Strings.notEmpty(var)) {
 			if (Parameters.contains(var, process.getParameters()))
 				exchange.setAmountFormula(var);
-		} else if (Parameters.isValid(original.getMathematicalRelation(),
-				config)) {
-			exchange.setAmountFormula(
-					original.getMathematicalRelation().trim());
+		} else if (Parameters.isValid(original.mathematicalRelation, config)) {
+			exchange.setAmountFormula(original.mathematicalRelation.trim());
 		}
 	}
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
-		String providerId = e.getActivityLinkId();
-		String flowId = e.getIntermediateExchangeId();
+		String providerId = e.activityLinkId;
+		String flowId = e.intermediateExchangeId;
 		String refId = KeyGen.get(providerId, flowId);
 		Long processId = index.getProcessId(refId);
 		if (processId != null) {
