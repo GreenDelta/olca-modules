@@ -97,7 +97,7 @@ public class XmlBinderTest {
 		Process process = new Process();
 		ProcessInfo pi = new ProcessInfo();
 		DataSetInfo info = new DataSetInfo();
-		process.processInformation = pi;
+		process.processInfo = pi;
 		pi.dataSetInformation = info;
 		info.uuid = UUID.randomUUID().toString();
 		return process;

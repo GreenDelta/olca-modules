@@ -11,11 +11,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openlca.ilcd.commons.ProcessType;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = { "uuid", "permanentUri", "dataSetVersion",
 		"name", "classification", "generalComment", "synonyms", "type",
-		"quantitativeReference", "location", "time", "parameterized",
-		"hasResults", "lciMethodInformation", "completenessProductModel",
+		"location", "time", "parameterized", "hasResults",
+		"lciMethodInformation", "completenessProductModel",
 		"complianceSystem", "review", "overallQuality", "useAdvice",
 		"technicalPurpose", "accessInformation", "format", "ownership",
 		"approvedBy" })
@@ -45,9 +47,7 @@ public class ProcessDescriptor implements Serializable {
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public final List<LangString> synonyms = new ArrayList<>();
 
-	public TypeOfProcessValues type;
-
-	public QuantitativeReferenceType quantitativeReference;
+	public ProcessType type;
 
 	public String location;
 

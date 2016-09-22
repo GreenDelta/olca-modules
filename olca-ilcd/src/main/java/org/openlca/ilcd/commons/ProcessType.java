@@ -14,7 +14,7 @@ public enum ProcessType {
 	 * 
 	 */
 	@XmlEnumValue("Unit process, single operation")
-	UNIT_PROCESS_SINGLE_OPERATION("Unit process, single operation"),
+	UNIT_PROCESS("Unit process, single operation"),
 
 	/**
 	 * Process-chain or plant level unit process. This covers horizontally

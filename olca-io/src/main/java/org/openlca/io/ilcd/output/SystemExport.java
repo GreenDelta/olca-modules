@@ -56,7 +56,7 @@ public class SystemExport {
 	private Process createProcess() {
 		Process process = new Process();
 		ProcessInfo info = new ProcessInfo();
-		process.processInformation = info;
+		process.processInfo = info;
 		info.dataSetInformation = makeDataSetInfo();
 		info.quantitativeReference = makeQuantitativeReference();
 		addRefProcessInfo(info);
@@ -178,7 +178,7 @@ public class SystemExport {
 
 	private QuantitativeReference makeQuantitativeReference() {
 		QuantitativeReference qRef = new QuantitativeReference();
-		qRef.type = QuantitativeReferenceType.REFERENCE_FLOW_S;
+		qRef.type = QuantitativeReferenceType.REFERENCE_FLOWS;
 		qRef.referenceToReferenceFlow.add(1);
 		return qRef;
 	}

@@ -119,7 +119,8 @@ public class ProcessImport {
 
 	private ProcessDocumentation mapDocumentation() throws ImportException {
 		ProcessDocumentation doc = new ProcessDocumentation();
-		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime(), config);
+		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime(),
+				config);
 		processTime.map(doc);
 		mapGeography(doc);
 		mapTechnology(doc);
@@ -198,14 +199,16 @@ public class ProcessImport {
 				process.setLastChange(tStamp.getTime());
 		}
 		if (iEntry.referenceToPersonOrEntityEnteringTheData != null) {
-			Actor documentor = fetchActor(iEntry.referenceToPersonOrEntityEnteringTheData);
+			Actor documentor = fetchActor(
+					iEntry.referenceToPersonOrEntityEnteringTheData);
 			doc.setDataDocumentor(documentor);
 		}
 	}
 
 	private void mapDataGenerator(ProcessDocumentation doc) {
 		if (ilcdProcess.getDataGenerator() != null) {
-			List<DataSetReference> refs = ilcdProcess.getDataGenerator().referenceToPersonOrEntityGeneratingTheDataSet;
+			List<DataSetReference> refs = ilcdProcess
+					.getDataGenerator().referenceToPersonOrEntityGeneratingTheDataSet;
 			if (refs != null && !refs.isEmpty()) {
 				DataSetReference generatorRef = refs.get(0);
 				doc.setDataGenerator(fetchActor(generatorRef));
@@ -232,7 +235,7 @@ public class ProcessImport {
 			case UNIT_PROCESS_BLACK_BOX:
 				process.setProcessType(ProcessType.UNIT_PROCESS);
 				break;
-			case UNIT_PROCESS_SINGLE_OPERATION:
+			case UNIT_PROCESS:
 				process.setProcessType(ProcessType.UNIT_PROCESS);
 				break;
 			default:
@@ -308,7 +311,8 @@ public class ProcessImport {
 			return;
 		Review iReview = ilcdProcess.getReviews().get(0);
 		if (!iReview.referenceToNameOfReviewerAndInstitution.isEmpty()) {
-			DataSetReference ref = iReview.referenceToNameOfReviewerAndInstitution.get(0);
+			DataSetReference ref = iReview.referenceToNameOfReviewerAndInstitution
+					.get(0);
 			doc.setReviewer(fetchActor(ref));
 		}
 		doc.setReviewDetails(LangString.get(iReview.reviewDetails,

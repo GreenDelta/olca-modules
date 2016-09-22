@@ -116,7 +116,7 @@ public class ProcessBuilder {
 
 	private void fillProcessInfo() {
 		ProcessInfo information = new ProcessInfo();
-		process.processInformation = information;
+		process.processInfo = information;
 		if (dataSetInfo != null) {
 			information.dataSetInformation = dataSetInfo;
 		}
@@ -137,7 +137,7 @@ public class ProcessBuilder {
 		if (refFlowId != null) {
 			QuantitativeReference qRef = new QuantitativeReference();
 			information.quantitativeReference = qRef;
-			qRef.type = QuantitativeReferenceType.REFERENCE_FLOW_S;
+			qRef.type = QuantitativeReferenceType.REFERENCE_FLOWS;
 			qRef.referenceToReferenceFlow.add(refFlowId);
 		}
 	}

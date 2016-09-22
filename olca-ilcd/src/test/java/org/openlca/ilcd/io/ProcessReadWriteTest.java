@@ -30,7 +30,7 @@ public class ProcessReadWriteTest {
 
 	private DataSetInfo makeDataSetInfo(Process process) {
 		ProcessInfo information = new ProcessInfo();
-		process.processInformation = information;
+		process.processInfo = information;
 		DataSetInfo dataSetInformation = new DataSetInfo();
 		information.dataSetInformation = dataSetInformation;
 		return dataSetInformation;

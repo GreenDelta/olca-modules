@@ -103,7 +103,7 @@ public class SystemImport {
 	private void setRefProcess(Map<String, Process> processes)
 			throws ImportException {
 		String refProcessId = new ProcessInfoExtension(ilcdProcessBag
-				.getValue().processInformation).getModelRefProcess();
+				.getValue().processInfo).getModelRefProcess();
 		Process refProc = processes.get(refProcessId);
 		system.setReferenceProcess(refProc);
 		org.openlca.ilcd.processes.Exchange iExchange = ilcdProcessBag

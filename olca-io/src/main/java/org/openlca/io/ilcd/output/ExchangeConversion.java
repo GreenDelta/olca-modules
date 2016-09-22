@@ -129,7 +129,7 @@ class ExchangeConversion {
 	}
 
 	private int getParamSize() {
-		ProcessInfo info = ilcdProcess.processInformation;
+		ProcessInfo info = ilcdProcess.processInfo;
 		if (info == null)
 			return 0;
 		ParameterSection list = info.parameters;
@@ -139,10 +139,10 @@ class ExchangeConversion {
 	}
 
 	private void addParameter(Parameter parameter) {
-		ProcessInfo info = ilcdProcess.processInformation;
+		ProcessInfo info = ilcdProcess.processInfo;
 		if (info == null) {
 			info = new ProcessInfo();
-			ilcdProcess.processInformation = info;
+			ilcdProcess.processInfo = info;
 		}
 		ParameterSection list = info.parameters;
 		if (list == null) {

@@ -18,15 +18,15 @@ import javax.xml.namespace.QName;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ProcessDataSetType", propOrder = { "processInformation",
+@XmlType(name = "ProcessDataSetType", propOrder = { "processInfo",
 		"modellingAndValidation", "administrativeInformation", "exchanges",
 		"lciaResults", "other" })
 public class Process implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(required = true)
-	public ProcessInfo processInformation;
+	@XmlElement(required = true, name = "processInformation")
+	public ProcessInfo processInfo;
 
 	public ModellingAndValidation modellingAndValidation;
 

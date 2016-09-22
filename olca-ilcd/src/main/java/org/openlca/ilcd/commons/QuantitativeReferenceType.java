@@ -19,7 +19,7 @@ public enum QuantitativeReferenceType {
 	 * H2O' - '0.9 kg'].
 	 */
 	@XmlEnumValue("Reference flow(s)")
-	REFERENCE_FLOW_S("Reference flow(s)"),
+	REFERENCE_FLOWS("Reference flow(s)"),
 
 	/**
 	 * The functional unit of the process may relate to the process' performance

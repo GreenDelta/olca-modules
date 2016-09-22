@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.QuantitativeReferenceType;
+
 /**
  * This object contains factory methods for each Java content interface and Java
  * element interface generated in the org.openlca.ilcd.descriptors package.
@@ -49,15 +51,18 @@ public class ObjectFactory {
 	private final static QName _Location_QNAME = new QName(
 			"http://www.ilcd-network.org/ILCD/ServiceAPI/Process", "location");
 	private final static QName _ValidUntil_QNAME = new QName(
-			"http://www.ilcd-network.org/ILCD/ServiceAPI/Process", "validUntil");
+			"http://www.ilcd-network.org/ILCD/ServiceAPI/Process",
+			"validUntil");
 	private final static QName _ApprovedBy_QNAME = new QName(
-			"http://www.ilcd-network.org/ILCD/ServiceAPI/Process", "approvedBy");
+			"http://www.ilcd-network.org/ILCD/ServiceAPI/Process",
+			"approvedBy");
 	private final static QName _CasNumber_QNAME = new QName(
 			"http://www.ilcd-network.org/ILCD/ServiceAPI/Flow", "casNumber");
 	private final static QName _Www_QNAME = new QName(
 			"http://www.ilcd-network.org/ILCD/ServiceAPI/Contact", "www");
 	private final static QName _HasResults_QNAME = new QName(
-			"http://www.ilcd-network.org/ILCD/ServiceAPI/Process", "hasResults");
+			"http://www.ilcd-network.org/ILCD/ServiceAPI/Process",
+			"hasResults");
 	private final static QName _SumFormula_QNAME = new QName(
 			"http://www.ilcd-network.org/ILCD/ServiceAPI/Flow", "sumFormula");
 	private final static QName _OtherReviewDetails_QNAME = new QName(
@@ -279,14 +284,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link QuantitativeReferenceType }
-	 * 
-	 */
-	public QuantitativeReferenceType createQuantitativeReferenceType() {
-		return new QuantitativeReferenceType();
-	}
-
-	/**
 	 * Create an instance of {@link ProcessDescriptor }
 	 * 
 	 */
@@ -367,7 +364,8 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "reviewer")
-	public JAXBElement<DataSetReference> createReviewer(DataSetReference value) {
+	public JAXBElement<DataSetReference> createReviewer(
+			DataSetReference value) {
 		return new JAXBElement<>(_Reviewer_QNAME, DataSetReference.class, null,
 				value);
 	}
@@ -394,7 +392,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "licenseType")
@@ -403,7 +402,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact", name = "phone")
@@ -412,7 +412,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI", name = "dataSetVersion")
@@ -450,11 +451,13 @@ public class ObjectFactory {
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI", name = "synonyms")
 	public JAXBElement<LangString> createSynonyms(LangString value) {
-		return new JAXBElement<>(_Synonyms_QNAME, LangString.class, null, value);
+		return new JAXBElement<>(_Synonyms_QNAME, LangString.class, null,
+				value);
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Boolean
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "parameterized")
@@ -464,7 +467,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "location")
@@ -489,13 +493,15 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "approvedBy")
-	public JAXBElement<DataSetReference> createApprovedBy(DataSetReference value) {
+	public JAXBElement<DataSetReference> createApprovedBy(
+			DataSetReference value) {
 		return new JAXBElement<>(_ApprovedBy_QNAME, DataSetReference.class,
 				null, value);
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Flow", name = "casNumber")
@@ -504,7 +510,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact", name = "www")
@@ -513,7 +520,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Boolean
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "hasResults")
@@ -522,7 +530,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Flow", name = "sumFormula")
@@ -542,7 +551,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI", name = "shortName")
@@ -557,11 +567,13 @@ public class ObjectFactory {
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Source", name = "citation")
 	public JAXBElement<LangString> createCitation(LangString value) {
-		return new JAXBElement<>(_Citation_QNAME, LangString.class, null, value);
+		return new JAXBElement<>(_Citation_QNAME, LangString.class, null,
+				value);
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI", name = "uuid")
@@ -575,13 +587,15 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "ownership")
-	public JAXBElement<DataSetReference> createOwnership(DataSetReference value) {
+	public JAXBElement<DataSetReference> createOwnership(
+			DataSetReference value) {
 		return new JAXBElement<>(_Ownership_QNAME, DataSetReference.class,
 				null, value);
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact", name = "email")
@@ -590,7 +604,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "technicalPurpose")
@@ -649,13 +664,15 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Source", name = "belongsTo")
-	public JAXBElement<DataSetReference> createBelongsTo(DataSetReference value) {
+	public JAXBElement<DataSetReference> createBelongsTo(
+			DataSetReference value) {
 		return new JAXBElement<>(_BelongsTo_QNAME, DataSetReference.class,
 				null, value);
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "overallQuality")
@@ -665,7 +682,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact", name = "fax")
@@ -679,13 +697,15 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI", name = "reference")
-	public JAXBElement<DataSetReference> createReference(DataSetReference value) {
+	public JAXBElement<DataSetReference> createReference(
+			DataSetReference value) {
 		return new JAXBElement<>(_Reference_QNAME, DataSetReference.class,
 				null, value);
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/UnitGroup", name = "referenceUnit")
@@ -695,7 +715,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Contact", name = "centralContactPoint")
@@ -739,7 +760,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "format")
@@ -748,7 +770,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Boolean
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "copyright")
@@ -757,12 +780,14 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI", name = "permanentUri")
 	public JAXBElement<String> createPermanentUri(String value) {
-		return new JAXBElement<>(_PermanentUri_QNAME, String.class, null, value);
+		return new JAXBElement<>(_PermanentUri_QNAME, String.class, null,
+				value);
 	}
 
 	/**
@@ -789,8 +814,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link DescriptorList }
-	 * {@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link DescriptorList
+	 * } {@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI", name = "dataSetList")

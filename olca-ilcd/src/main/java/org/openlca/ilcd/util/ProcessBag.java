@@ -109,7 +109,7 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public Time getTime() {
-		ProcessInfo info = process.processInformation;
+		ProcessInfo info = process.processInfo;
 		if (info != null) {
 			return info.time;
 		}
@@ -117,14 +117,14 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public Geography getGeography() {
-		ProcessInfo info = process.processInformation;
+		ProcessInfo info = process.processInfo;
 		if (info != null)
 			return info.geography;
 		return null;
 	}
 
 	public List<Integer> getReferenceFlowIds() {
-		ProcessInfo info = process.processInformation;
+		ProcessInfo info = process.processInfo;
 		if (info != null) {
 			QuantitativeReference qRef = info.quantitativeReference;
 			if (qRef != null)
@@ -134,14 +134,14 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public Technology getTechnology() {
-		ProcessInfo info = process.processInformation;
+		ProcessInfo info = process.processInfo;
 		if (info != null)
 			return info.technology;
 		return null;
 	}
 
 	public List<Parameter> getParameters() {
-		ProcessInfo info = process.processInformation;
+		ProcessInfo info = process.processInfo;
 		if (info != null) {
 			ParameterSection list = info.parameters;
 			if (list != null && list.parameters != null) {
@@ -237,15 +237,15 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	private DataSetInfo getDataSetInformation() {
-		if (process.processInformation != null)
-			return process.processInformation.dataSetInformation;
+		if (process.processInfo != null)
+			return process.processInfo.dataSetInformation;
 		return null;
 	}
 
 	public ProductModel getProductModel() {
-		if (process.processInformation == null)
+		if (process.processInfo == null)
 			return null;
-		Other other = process.processInformation.other;
+		Other other = process.processInfo.other;
 		if (other == null)
 			return null;
 		for (Object extension : other.getAny()) {

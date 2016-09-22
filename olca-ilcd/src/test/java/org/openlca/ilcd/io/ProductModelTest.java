@@ -28,7 +28,7 @@ public class ProductModelTest {
 		Process process = makePlainProcess();
 		String xml = marshal(process);
 		Process copy = unmarshal(xml);
-		assertEquals(process.processInformation.dataSetInformation.uuid, copy.processInformation.dataSetInformation.uuid);
+		assertEquals(process.processInfo.dataSetInformation.uuid, copy.processInfo.dataSetInformation.uuid);
 	}
 
 	@Test
@@ -36,7 +36,7 @@ public class ProductModelTest {
 		Process process = makeProductModel();
 		String xml = marshal(process);
 		Process copy = unmarshal(xml);
-		ProductModel model = (ProductModel) copy.processInformation.other.getAny().get(0);
+		ProductModel model = (ProductModel) copy.processInfo.other.getAny().get(0);
 		assertEquals("test-model", model.getName());
 	}
 
@@ -59,7 +59,7 @@ public class ProductModelTest {
 	private Process makePlainProcess() {
 		Process process = new Process();
 		ProcessInfo procInfo = new ProcessInfo();
-		process.processInformation = procInfo;
+		process.processInfo = procInfo;
 		DataSetInfo dataSetInfo = new DataSetInfo();
 		procInfo.dataSetInformation = dataSetInfo;
 		dataSetInfo.uuid = UUID.randomUUID().toString();
@@ -69,7 +69,7 @@ public class ProductModelTest {
 	private Process makeProductModel() {
 		Process process = makePlainProcess();
 		Other other = new Other();
-		process.processInformation.other = other;
+		process.processInfo.other = other;
 		List<Object> extension = other.getAny();
 		ProductModel model = new ProductModel();
 		model.setName("test-model");
