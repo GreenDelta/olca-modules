@@ -2,18 +2,21 @@ package org.openlca.core.database.upgrades;
 
 import org.openlca.core.database.IDatabase;
 
-public class Upgrade3 implements IUpgrade {
+/**
+ * Adds data quality systems to the database.
+ */
+class Upgrade6 implements IUpgrade {
 
 	private Util util;
 
 	@Override
 	public int[] getInitialVersions() {
-		return new int[] { 4 };
+		return new int[] { 5 };
 	}
 
 	@Override
 	public int getEndVersion() {
-		return 5;
+		return 6;
 	}
 
 	@Override
