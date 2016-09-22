@@ -16,13 +16,15 @@ public class Prepare {
 		return Sort.flows(set, result.cache);
 	}
 
-	static List<ProcessDescriptor> processes(ContributionResultProvider<?> result) {
+	static List<ProcessDescriptor> processes(
+			ContributionResultProvider<?> result) {
 		Set<ProcessDescriptor> procs = result.getProcessDescriptors();
-		long refProcessId = result.result.productIndex.getRefProduct().getFirst();
+		long refProcessId = result.result.productIndex.getRefFlow().getFirst();
 		return Sort.processes(procs, refProcessId);
 	}
 
-	static List<ImpactCategoryDescriptor> impacts(ContributionResultProvider<?> result) {
+	static List<ImpactCategoryDescriptor> impacts(
+			ContributionResultProvider<?> result) {
 		if (!result.hasImpactResults())
 			return Collections.emptyList();
 		Set<ImpactCategoryDescriptor> set = result.getImpactDescriptors();

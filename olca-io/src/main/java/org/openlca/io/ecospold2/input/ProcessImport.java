@@ -15,7 +15,6 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.core.model.PedigreeMatrixRow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
@@ -25,7 +24,6 @@ import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.PedigreeMatrix;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
@@ -250,25 +248,23 @@ class ProcessImport {
 		if (config.withParameters && config.withParameterFormulas)
 			mapFormula(es2, process, e);
 		e.setUncertainty(UncertaintyConverter.toOpenLCA(es2.uncertainty));
-		e.setPedigreeUncertainty(getPedigreeMatrix(es2));
+		// e.setPedigreeUncertainty(getPedigreeMatrix(es2));
 		process.getExchanges().add(e);
 		return e;
 	}
 
-	private String getPedigreeMatrix(org.openlca.ecospold2.Exchange es2) {
-		if (es2 == null || es2.uncertainty == null)
-			return null;
-		PedigreeMatrix pm = es2.uncertainty.pedigreeMatrix;
-		if (pm == null)
-			return null;
-		Map<PedigreeMatrixRow, Integer> m = new HashMap<>();
-		m.put(PedigreeMatrixRow.RELIABILITY, pm.reliability);
-		m.put(PedigreeMatrixRow.COMPLETENESS, pm.completeness);
-		m.put(PedigreeMatrixRow.TIME, pm.temporalCorrelation);
-		m.put(PedigreeMatrixRow.GEOGRAPHY, pm.geographicalCorrelation);
-		m.put(PedigreeMatrixRow.TECHNOLOGY, pm.technologyCorrelation);
-		return org.openlca.core.model.PedigreeMatrix.toString(m);
-	}
+	/*
+	 * private String getPedigreeMatrix(org.openlca.ecospold2.Exchange es2) { if
+	 * (es2 == null || es2.uncertainty == null) return null; PedigreeMatrix pm =
+	 * es2.uncertainty.pedigreeMatrix; if (pm == null) return null;
+	 * Map<PedigreeMatrixRow, Integer> m = new HashMap<>();
+	 * m.put(PedigreeMatrixRow.RELIABILITY, pm.reliability);
+	 * m.put(PedigreeMatrixRow.COMPLETENESS, pm.completeness);
+	 * m.put(PedigreeMatrixRow.TIME, pm.temporalCorrelation);
+	 * m.put(PedigreeMatrixRow.GEOGRAPHY, pm.geographicalCorrelation);
+	 * m.put(PedigreeMatrixRow.TECHNOLOGY, pm.technologyCorrelation); return
+	 * org.openlca.core.model.PedigreeMatrix.toString(m); }
+	 */
 
 	private Unit getFlowUnit(org.openlca.ecospold2.Exchange original,
 			String flowRefId, Flow flow) {
