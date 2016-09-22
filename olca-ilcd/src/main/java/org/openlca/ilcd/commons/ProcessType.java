@@ -4,28 +4,6 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-/**
- * <p>
- * Java class for TypeOfProcessValues.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * <p>
- * 
- * <pre>
- * &lt;simpleType name="TypeOfProcessValues">
- *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *     &lt;enumeration value="Unit process, single operation"/>
- *     &lt;enumeration value="Unit process, black box"/>
- *     &lt;enumeration value="LCI result"/>
- *     &lt;enumeration value="Partly terminated system"/>
- *     &lt;enumeration value="Avoided product system"/>
- *   &lt;/restriction>
- * &lt;/simpleType>
- * </pre>
- * 
- */
 @XmlType(name = "TypeOfProcessValues")
 @XmlEnum
 public enum ProcessType {
@@ -36,7 +14,7 @@ public enum ProcessType {
 	 * 
 	 */
 	@XmlEnumValue("Unit process, single operation")
-	UNIT_PROCESS_SINGLE_OPERATION("Unit process, single operation"),
+	UNIT_PROCESS("Unit process, single operation"),
 
 	/**
 	 * Process-chain or plant level unit process. This covers horizontally
@@ -69,8 +47,8 @@ public enum ProcessType {
 	 * practitioner to saturate with an Electricity production LCI data set
 	 * (e.g. of the country where the machine is operated). Note that also
 	 * aggregated process data sets that include relevant amounts of waste flows
-	 * for which the waste management has not been modelled yet are
-	 * "partly terminated system" data sets.
+	 * for which the waste management has not been modelled yet are "partly
+	 * terminated system" data sets.
 	 * 
 	 */
 	@XmlEnumValue("Partly terminated system")

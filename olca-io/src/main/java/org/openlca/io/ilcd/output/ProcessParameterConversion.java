@@ -60,14 +60,13 @@ class ProcessParameterConversion {
 
 	private org.openlca.ilcd.processes.Parameter convertParam(Parameter oParam) {
 		org.openlca.ilcd.processes.Parameter iParameter = new org.openlca.ilcd.processes.Parameter();
-		iParameter.setName(oParam.getName());
-		iParameter.setFormula(oParam.getFormula());
-		iParameter.setMeanValue(oParam.getValue());
+		iParameter.name = oParam.getName();
+		iParameter.formula = oParam.getFormula();
+		iParameter.meanValue = oParam.getValue();
 		new UncertaintyConverter().map(oParam, iParameter);
 		if (Strings.notEmpty(oParam.getDescription())) {
-			iParameter.getComment()
-					.add(LangString.label(oParam.getDescription(),
-							config.ilcdConfig));
+			iParameter.comment.add(LangString.label(oParam.getDescription(),
+					config.ilcdConfig));
 		}
 		return iParameter;
 	}

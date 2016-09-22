@@ -131,7 +131,7 @@ public class MethodImport {
 		QuantitativeReference qRef = info.getQuantitativeReference();
 		if (qRef.getReferenceQuantity() == null)
 			return null;
-		String propertyId = qRef.getReferenceQuantity().getUuid();
+		String propertyId = qRef.getReferenceQuantity().uuid;
 		if (propertyId == null)
 			return null;
 		Unit unit = getReferenceUnit(propertyId);
@@ -190,7 +190,7 @@ public class MethodImport {
 
 	private void addFactor(ImpactCategory category, Factor factor)
 			throws Exception {
-		String flowId = factor.getReferenceToFlowDataSet().getUuid();
+		String flowId = factor.getReferenceToFlowDataSet().uuid;
 		Flow flow = getFlow(flowId);
 		if (flow == null) {
 			log.warn("Could not import flow {}", flowId);

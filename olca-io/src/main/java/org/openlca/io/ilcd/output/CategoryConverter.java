@@ -6,14 +6,14 @@ import java.util.Stack;
 import org.openlca.core.model.Category;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.FlowCategorization;
 
 class CategoryConverter {
 
-	ClassificationInformation getClassificationInformation(Category category) {
-		ClassificationInformation info = new ClassificationInformation();
-		info.getClassifications().add(getClassification(category));
+	ClassificationInfo getClassificationInformation(Category category) {
+		ClassificationInfo info = new ClassificationInfo();
+		info.classifications.add(getClassification(category));
 		return info;
 	}
 
@@ -56,10 +56,10 @@ class CategoryConverter {
 		while (!stack.isEmpty()) {
 			category = stack.pop();
 			org.openlca.ilcd.commons.Class clazz = new Class();
-			clazz.setClassId(category.getRefId());
-			clazz.setLevel(BigInteger.valueOf(level));
-			clazz.setValue(category.getName());
-			classification.getClasses().add(clazz);
+			clazz.classId = category.getRefId();
+			clazz.level = BigInteger.valueOf(level);
+			clazz.value = category.getName();
+			classification.classes.add(clazz);
 			level++;
 		}
 	}
@@ -71,10 +71,10 @@ class CategoryConverter {
 		while (!stack.isEmpty()) {
 			category = stack.pop();
 			org.openlca.ilcd.commons.Category ilcdCategory = new org.openlca.ilcd.commons.Category();
-			ilcdCategory.setCatId(category.getRefId());
-			ilcdCategory.setLevel(BigInteger.valueOf(level));
-			ilcdCategory.setValue(category.getName());
-			categorization.getCategories().add(ilcdCategory);
+			ilcdCategory.catId = category.getRefId();
+			ilcdCategory.level = BigInteger.valueOf(level);
+			ilcdCategory.value = category.getName();
+			categorization.categories.add(ilcdCategory);
 			level++;
 		}
 	}

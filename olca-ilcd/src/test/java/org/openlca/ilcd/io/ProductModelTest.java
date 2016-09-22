@@ -12,9 +12,9 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.openlca.ilcd.commons.Other;
-import org.openlca.ilcd.processes.DataSetInformation;
+import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.ProcessInformation;
+import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.productmodel.ProductModel;
 import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.ProcessBag;
@@ -28,9 +28,7 @@ public class ProductModelTest {
 		Process process = makePlainProcess();
 		String xml = marshal(process);
 		Process copy = unmarshal(xml);
-		assertEquals(process.getProcessInformation().getDataSetInformation()
-				.getUUID(), copy.getProcessInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(process.processInfo.dataSetInformation.uuid, copy.processInfo.dataSetInformation.uuid);
 	}
 
 	@Test
@@ -38,8 +36,7 @@ public class ProductModelTest {
 		Process process = makeProductModel();
 		String xml = marshal(process);
 		Process copy = unmarshal(xml);
-		ProductModel model = (ProductModel) copy.getProcessInformation()
-				.getOther().getAny().get(0);
+		ProductModel model = (ProductModel) copy.processInfo.other.getAny().get(0);
 		assertEquals("test-model", model.getName());
 	}
 
@@ -61,18 +58,18 @@ public class ProductModelTest {
 
 	private Process makePlainProcess() {
 		Process process = new Process();
-		ProcessInformation procInfo = new ProcessInformation();
-		process.setProcessInformation(procInfo);
-		DataSetInformation dataSetInfo = new DataSetInformation();
-		procInfo.setDataSetInformation(dataSetInfo);
-		dataSetInfo.setUUID(UUID.randomUUID().toString());
+		ProcessInfo procInfo = new ProcessInfo();
+		process.processInfo = procInfo;
+		DataSetInfo dataSetInfo = new DataSetInfo();
+		procInfo.dataSetInformation = dataSetInfo;
+		dataSetInfo.uuid = UUID.randomUUID().toString();
 		return process;
 	}
 
 	private Process makeProductModel() {
 		Process process = makePlainProcess();
 		Other other = new Other();
-		process.getProcessInformation().setOther(other);
+		process.processInfo.other = other;
 		List<Object> extension = other.getAny();
 		ProductModel model = new ProductModel();
 		model.setName("test-model");

@@ -17,7 +17,7 @@ public class CompartmentImport extends AbstractCategoryImport<Category> {
 	protected String getName(Category ilcdCategory) {
 		String name = null;
 		if (ilcdCategory != null)
-			name = ilcdCategory.getValue();
+			name = ilcdCategory.value;
 		return name == null ? "" : name;
 	}
 }

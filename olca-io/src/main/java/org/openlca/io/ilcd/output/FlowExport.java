@@ -8,16 +8,16 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.FlowCategorization;
-import org.openlca.ilcd.commons.FlowCategoryInformation;
+import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
-import org.openlca.ilcd.flows.AdministrativeInformation;
+import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
-import org.openlca.ilcd.flows.DataSetInformation;
+import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.flows.FlowInformation;
+import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.FlowPropertyList;
-import org.openlca.ilcd.flows.FlowPropertyReference;
+import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
@@ -42,53 +42,53 @@ public class FlowExport {
 			return config.store.get(Flow.class, flow.getRefId());
 		this.flow = flow;
 		Flow iFlow = new Flow();
-		iFlow.setVersion("1.1");
-		FlowInformation info = new FlowInformation();
-		iFlow.setFlowInformation(info);
+		iFlow.version = "1.1";
+		FlowInfo info = new FlowInfo();
+		iFlow.flowInformation = info;
 		info.setDataSetInformation(makeDataSetInfo());
 		QuantitativeReference qRef = new QuantitativeReference();
 		info.setQuantitativeReference(qRef);
-		qRef.setReferenceFlowProperty(BigInteger.ZERO);
-		iFlow.setAdministrativeInformation(makeAdminInfo());
-		iFlow.setModellingAndValidation(makeModellingInfo());
-		iFlow.setFlowProperties(makeFlowProperties());
+		qRef.referenceFlowProperty = BigInteger.ZERO;
+		iFlow.administrativeInformation = makeAdminInfo();
+		iFlow.modellingAndValidation = makeModellingInfo();
+		iFlow.flowProperties = makeFlowProperties();
 		addLocation(iFlow);
 		config.store.put(iFlow, flow.getRefId());
 		this.flow = null;
 		return iFlow;
 	}
 
-	private DataSetInformation makeDataSetInfo() {
-		DataSetInformation info = new DataSetInformation();
-		info.setUUID(flow.getRefId());
+	private DataSetInfo makeDataSetInfo() {
+		DataSetInfo info = new DataSetInfo();
+		info.uuid = flow.getRefId();
 		FlowName flowName = new FlowName();
-		info.setName(flowName);
-		LangString.addLabel(flowName.getBaseName(), flow.getName(),
+		info.name = flowName;
+		LangString.addLabel(flowName.baseName, flow.getName(),
 				config.ilcdConfig);
 		if (flow.getDescription() != null)
-			LangString.addFreeText(info.getGeneralComment(),
+			LangString.addFreeText(info.generalComment,
 					flow.getDescription(), config.ilcdConfig);
-		info.setCASNumber(flow.getCasNumber());
-		info.setSumFormula(flow.getFormula());
+		info.casNumber = flow.getCasNumber();
+		info.sumFormula = flow.getFormula();
 		if (flow.synonyms != null)
-			LangString.addFreeText(info.getSynonyms(), flow.synonyms,
+			LangString.addFreeText(info.synonyms, flow.synonyms,
 					config.ilcdConfig);
 		makeCategoryInfo(info);
 		return info;
 	}
 
-	private void makeCategoryInfo(DataSetInformation dataSetInfo) {
+	private void makeCategoryInfo(DataSetInfo dataSetInfo) {
 		CategoryConverter converter = new CategoryConverter();
-		FlowCategoryInformation info = new FlowCategoryInformation();
-		dataSetInfo.setClassificationInformation(info);
+		FlowCategoryInfo info = new FlowCategoryInfo();
+		dataSetInfo.classificationInformation = info;
 		if (flow.getFlowType() == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
 			FlowCategorization categorization = converter
 					.getElementaryFlowCategory(flow.getCategory());
-			info.getElementaryFlowCategorizations().add(categorization);
+			info.elementaryFlowCategorizations.add(categorization);
 		} else {
 			Classification classification = converter.getClassification(flow
 					.getCategory());
-			info.getClassifications().add(classification);
+			info.classifications.add(classification);
 		}
 	}
 
@@ -101,17 +101,17 @@ public class FlowExport {
 		FlowProperty referenceProperty = flow.getReferenceFlowProperty();
 		int pos = 1;
 		for (FlowPropertyFactor factor : flow.getFlowPropertyFactors()) {
-			FlowPropertyReference propRef = new FlowPropertyReference();
-			list.getFlowProperty().add(propRef);
+			FlowPropertyRef propRef = new FlowPropertyRef();
+			list.flowProperty.add(propRef);
 			FlowProperty property = factor.getFlowProperty();
 			DataSetReference ref = ExportDispatch.forwardExportCheck(property,
 					config);
-			propRef.setFlowProperty(ref);
+			propRef.flowProperty = ref;
 			if (property.equals(referenceProperty))
-				propRef.setDataSetInternalID(BigInteger.valueOf(0));
+				propRef.dataSetInternalID = BigInteger.valueOf(0);
 			else
-				propRef.setDataSetInternalID(BigInteger.valueOf(pos++));
-			propRef.setMeanValue(factor.getConversionFactor());
+				propRef.dataSetInternalID = BigInteger.valueOf(pos++);
+			propRef.meanValue = factor.getConversionFactor();
 		}
 		return list;
 	}
@@ -119,39 +119,39 @@ public class FlowExport {
 	private void addLocation(org.openlca.ilcd.flows.Flow iFlow) {
 		if (flow != null && flow.getLocation() != null) {
 			Geography geography = new Geography();
-			LangString.addLabel(geography.getLocation(), flow.getLocation()
+			LangString.addLabel(geography.location, flow.getLocation()
 					.getCode(), config.ilcdConfig);
-			iFlow.getFlowInformation().setGeography(geography);
+			iFlow.flowInformation.setGeography(geography);
 		}
 	}
 
-	private AdministrativeInformation makeAdminInfo() {
-		AdministrativeInformation info = new AdministrativeInformation();
+	private AdminInfo makeAdminInfo() {
+		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
-		info.setDataEntry(entry);
-		entry.setTimeStamp(Out.getTimestamp(flow));
-		entry.getReferenceToDataSetFormat().add(
+		info.dataEntry = entry;
+		entry.timeStamp = Out.getTimestamp(flow);
+		entry.referenceToDataSetFormat.add(
 				Reference.forIlcdFormat(config.ilcdConfig));
 		addPublication(info);
 		return info;
 	}
 
-	private void addPublication(AdministrativeInformation info) {
+	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
-		info.setPublication(pub);
-		pub.setDataSetVersion(Version.asString(flow.getVersion()));
+		info.publication = pub;
+		pub.dataSetVersion = Version.asString(flow.getVersion());
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.setPermanentDataSetURI(baseUri + "flows/" + flow.getRefId());
+		pub.permanentDataSetURI = baseUri + "flows/" + flow.getRefId();
 	}
 
 	private ModellingAndValidation makeModellingInfo() {
 		ModellingAndValidation mav = new ModellingAndValidation();
 		LCIMethod method = new LCIMethod();
-		mav.setLCIMethod(method);
-		method.setFlowType(getFlowType());
+		mav.lciMethod = method;
+		method.flowType = getFlowType();
 		return mav;
 	}
 

@@ -14,7 +14,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.contacts.Contact;
-import org.openlca.ilcd.sources.DataSetInformation;
+import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.IlcdConfig;
@@ -59,9 +59,9 @@ public class FileStoreTest {
 
 	@Test
 	public void testPut() throws Exception {
-		DataSetInformation dataSetInfo = new DataSetInformation();
+		DataSetInfo dataSetInfo = new DataSetInfo();
 		String id = "110";
-		dataSetInfo.setUUID(id);
+		dataSetInfo.uuid = id;
 		Source source = SampleSource.create();
 		fileStore.put(source, id);
 		assertTrue(fileStore.contains(Source.class, id));

@@ -40,7 +40,7 @@ public class TimeExtension {
 		if (time == null)
 			return null;
 		QName qName = Extensions.getQName(attribute);
-		String val = time.getOtherAttributes().get(qName);
+		String val = time.otherAttributes.get(qName);
 		if (val == null)
 			return null;
 		try {
@@ -56,7 +56,7 @@ public class TimeExtension {
 			return;
 		long l = date.getTime();
 		QName qName = Extensions.getQName(attribute);
-		time.getOtherAttributes().put(qName, Long.toString(l));
+		time.otherAttributes.put(qName, Long.toString(l));
 	}
 
 }

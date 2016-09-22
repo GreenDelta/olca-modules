@@ -117,8 +117,8 @@ public class UnitGroupImport {
 			Unit oUnit = new Unit();
 			unitGroup.getUnits().add(oUnit);
 			mapUnitAttributes(iUnit, oUnit);
-			if (iUnit.getDataSetInternalID() != null) {
-				int id = iUnit.getDataSetInternalID().intValue();
+			if (iUnit.dataSetInternalID != null) {
+				int id = iUnit.dataSetInternalID.intValue();
 				if (id == refUnitId)
 					unitGroup.setReferenceUnit(oUnit);
 			}
@@ -131,10 +131,10 @@ public class UnitGroupImport {
 			oUnit.setRefId(extension.getUnitId());
 		else
 			oUnit.setRefId(UUID.randomUUID().toString());
-		oUnit.setName(iUnit.getName());
-		oUnit.setDescription(LangString.get(iUnit.getGeneralComment(),
+		oUnit.setName(iUnit.name);
+		oUnit.setDescription(LangString.get(iUnit.generalComment,
 				config.ilcdConfig));
-		oUnit.setConversionFactor(iUnit.getMeanValue());
+		oUnit.setConversionFactor(iUnit.meanValue);
 	}
 
 	private void saveInDatabase(UnitGroup obj) throws ImportException {

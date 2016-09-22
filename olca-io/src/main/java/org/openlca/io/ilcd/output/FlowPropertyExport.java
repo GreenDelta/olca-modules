@@ -2,13 +2,13 @@ package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.flowproperties.AdministrativeInformation;
+import org.openlca.ilcd.flowproperties.AdminInfo;
 import org.openlca.ilcd.flowproperties.DataEntry;
-import org.openlca.ilcd.flowproperties.DataSetInformation;
+import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
-import org.openlca.ilcd.flowproperties.FlowPropertyInformation;
+import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
 import org.openlca.ilcd.flowproperties.Publication;
 import org.openlca.ilcd.flowproperties.QuantitativeReference;
 import org.openlca.ilcd.io.DataStoreException;
@@ -35,30 +35,30 @@ public class FlowPropertyExport {
 			return config.store.get(FlowProperty.class, property.getRefId());
 		this.flowProperty = property;
 		FlowProperty iProperty = new FlowProperty();
-		iProperty.setVersion("1.1");
-		FlowPropertyInformation info = new FlowPropertyInformation();
-		iProperty.setFlowPropertyInformation(info);
-		info.setDataSetInformation(makeDataSetInfo());
-		info.setQuantitativeReference(makeUnitGroupRef());
-		iProperty.setAdministrativeInformation(makeAdminInfo());
+		iProperty.version = "1.1";
+		FlowPropertyInfo info = new FlowPropertyInfo();
+		iProperty.flowPropertyInformation = info;
+		info.dataSetInformation = makeDataSetInfo();
+		info.quantitativeReference = makeUnitGroupRef();
+		iProperty.administrativeInformation = makeAdminInfo();
 		config.store.put(iProperty, property.getRefId());
 		this.flowProperty = null;
 		return iProperty;
 	}
 
-	private DataSetInformation makeDataSetInfo() {
-		DataSetInformation dataSetInfo = new DataSetInformation();
-		dataSetInfo.setUUID(flowProperty.getRefId());
-		LangString.addLabel(dataSetInfo.getName(), flowProperty.getName(),
+	private DataSetInfo makeDataSetInfo() {
+		DataSetInfo dataSetInfo = new DataSetInfo();
+		dataSetInfo.uuid = flowProperty.getRefId();
+		LangString.addLabel(dataSetInfo.name, flowProperty.getName(),
 				config.ilcdConfig);
 		if (flowProperty.getDescription() != null) {
-			LangString.addFreeText(dataSetInfo.getGeneralComment(),
+			LangString.addFreeText(dataSetInfo.generalComment,
 					flowProperty.getDescription(), config.ilcdConfig);
 		}
 		CategoryConverter converter = new CategoryConverter();
-		ClassificationInformation classInfo = converter
+		ClassificationInfo classInfo = converter
 				.getClassificationInformation(flowProperty.getCategory());
-		dataSetInfo.setClassificationInformation(classInfo);
+		dataSetInfo.classificationInformation = classInfo;
 		return dataSetInfo;
 	}
 
@@ -67,31 +67,30 @@ public class FlowPropertyExport {
 		UnitGroup unitGroup = flowProperty.getUnitGroup();
 		DataSetReference ref = ExportDispatch.forwardExportCheck(unitGroup,
 				config);
-		qRef.setUnitGroup(ref);
+		qRef.unitGroup = ref;
 		return qRef;
 	}
 
-	private AdministrativeInformation makeAdminInfo() {
-		AdministrativeInformation info = new AdministrativeInformation();
+	private AdminInfo makeAdminInfo() {
+		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
-		info.setDataEntry(entry);
-		entry.setTimeStamp(Out.getTimestamp(flowProperty));
-		entry.getReferenceToDataSetFormat().add(
+		info.dataEntry = entry;
+		entry.timeStamp = Out.getTimestamp(flowProperty);
+		entry.referenceToDataSetFormat.add(
 				Reference.forIlcdFormat(config.ilcdConfig));
 		addPublication(info);
 		return info;
 	}
 
-	private void addPublication(AdministrativeInformation info) {
+	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
-		info.setPublication(pub);
-		pub.setDataSetVersion(Version.asString(flowProperty.getVersion()));
+		info.publication = pub;
+		pub.dataSetVersion = Version.asString(flowProperty.getVersion());
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.setPermanentDataSetURI(baseUri + "flowproperties/"
-				+ flowProperty.getRefId());
+		pub.permanentDataSetURI = baseUri + "flowproperties/" + flowProperty.getRefId();
 	}
 
 }

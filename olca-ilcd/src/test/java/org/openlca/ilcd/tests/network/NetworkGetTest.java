@@ -53,8 +53,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "76d6aaa4-37e2-40b2-994c-03292b600074";
 		Process process = client.get(Process.class, id);
-		assertEquals(id, process.getProcessInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(id, process.processInfo.dataSetInformation.uuid);
 		testContains(Process.class, id);
 	}
 
@@ -63,8 +62,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "0d7a3ad1-6556-11dd-ad8b-0800200c9a66";
 		Flow flow = client.get(Flow.class, id);
-		assertEquals(id, flow.getFlowInformation().getDataSetInformation()
-				.getUUID());
+		assertEquals(id, flow.flowInformation.getDataSetInformation().uuid);
 		testContains(Flow.class, id);
 	}
 
@@ -73,8 +71,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "93a60a56-a3c8-14da-a746-0800200c9a66";
 		FlowProperty property = client.get(FlowProperty.class, id);
-		assertEquals(id, property.getFlowPropertyInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(id, property.flowPropertyInformation.dataSetInformation.uuid);
 		testContains(FlowProperty.class, id);
 	}
 
@@ -83,8 +80,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "59f191d6-5dd3-4553-af88-1a32accfe308";
 		UnitGroup group = client.get(UnitGroup.class, id);
-		assertEquals(id, group.getUnitGroupInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(id, group.unitGroupInformation.dataSetInformation.uuid);
 		testContains(UnitGroup.class, id);
 	}
 
@@ -93,8 +89,8 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "177ca340-ffa2-11da-92e3-0800200c9a66";
 		Contact contact = client.get(Contact.class, id);
-		assertEquals(id, contact.getContactInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(id, contact.contactInformation
+		.getDataSetInformation().uuid);
 		testContains(Contact.class, id);
 	}
 
@@ -103,8 +99,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "2c699413-f88b-4cb5-a56d-98cb4068472f";
 		Source source = client.get(Source.class, id);
-		assertEquals(id, source.getSourceInformation().getDataSetInformation()
-				.getUUID());
+		assertEquals(id, source.sourceInformation.dataSetInformation.uuid);
 		testContains(Source.class, id);
 	}
 

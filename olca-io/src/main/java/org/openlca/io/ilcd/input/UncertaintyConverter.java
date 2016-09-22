@@ -15,10 +15,10 @@ class UncertaintyConverter {
 
 	public void map(Exchange iExchange,
 			org.openlca.core.model.Exchange oExchange) {
-		if (iExchange.getUncertaintyDistribution() == null
-				|| iExchange.getUncertaintyDistribution() == UncertaintyDistribution.UNDEFINED)
+		if (iExchange.uncertaintyDistribution == null
+				|| iExchange.uncertaintyDistribution == UncertaintyDistribution.UNDEFINED)
 			return;
-		switch (iExchange.getUncertaintyDistribution()) {
+		switch (iExchange.uncertaintyDistribution) {
 		case LOG_NORMAL:
 			mapLogNormal(iExchange, oExchange);
 			break;
@@ -38,10 +38,10 @@ class UncertaintyConverter {
 
 	public void map(Parameter iParameter,
 			org.openlca.core.model.Parameter oParameter) {
-		if (iParameter.getUncertaintyDistributionType() == null
-				|| iParameter.getUncertaintyDistributionType() == UncertaintyDistribution.UNDEFINED)
+		if (iParameter.uncertaintyDistributionType == null
+				|| iParameter.uncertaintyDistributionType == UncertaintyDistribution.UNDEFINED)
 			return;
-		switch (iParameter.getUncertaintyDistributionType()) {
+		switch (iParameter.uncertaintyDistributionType) {
 		case LOG_NORMAL:
 			mapLogNormal(iParameter, oParameter);
 			break;
@@ -62,7 +62,7 @@ class UncertaintyConverter {
 	private void mapLogNormal(Exchange iExchange,
 			org.openlca.core.model.Exchange oExchange) {
 		double mean = getAmount(iExchange);
-		BigDecimal bigDec = iExchange.getRelativeStandardDeviation95In();
+		BigDecimal bigDec = iExchange.relativeStandardDeviation95In;
 		if (bigDec == null)
 			return;
 		double s = bigDec.doubleValue();
@@ -71,8 +71,8 @@ class UncertaintyConverter {
 
 	private void mapLogNormal(Parameter iParameter,
 			org.openlca.core.model.Parameter oParameter) {
-		Double mean = iParameter.getMeanValue();
-		BigDecimal std = iParameter.getRelativeStandardDeviation95In();
+		Double mean = iParameter.meanValue;
+		BigDecimal std = iParameter.relativeStandardDeviation95In;
 		if (mean == null || std == null)
 			return;
 		oParameter
@@ -82,7 +82,7 @@ class UncertaintyConverter {
 	private void mapNormal(Exchange iExchange,
 			org.openlca.core.model.Exchange oExchange) {
 		double mean = getAmount(iExchange);
-		BigDecimal bigDec = iExchange.getRelativeStandardDeviation95In();
+		BigDecimal bigDec = iExchange.relativeStandardDeviation95In;
 		if (bigDec == null)
 			return;
 		double s = bigDec.doubleValue();
@@ -91,8 +91,8 @@ class UncertaintyConverter {
 
 	private void mapNormal(Parameter iParameter,
 			org.openlca.core.model.Parameter oParameter) {
-		Double mean = iParameter.getMeanValue();
-		BigDecimal std = iParameter.getRelativeStandardDeviation95In();
+		Double mean = iParameter.meanValue;
+		BigDecimal std = iParameter.relativeStandardDeviation95In;
 		if (mean == null || std == null)
 			return;
 		oParameter.setUncertainty(Uncertainty.normal(mean, std.doubleValue()));
@@ -100,9 +100,9 @@ class UncertaintyConverter {
 
 	private void mapTriangular(Exchange iExchange,
 			org.openlca.core.model.Exchange oExchange) {
-		Double min = iExchange.getMinimumAmount();
+		Double min = iExchange.minimumAmount;
 		Double mode = new ExchangeExtension(iExchange).getMostLikelyValue();
-		Double max = iExchange.getMaximumAmount();
+		Double max = iExchange.maximumAmount;
 		if (min == null || mode == null || max == null)
 			return;
 		oExchange.setUncertainty(Uncertainty.triangle(min, mode, max));
@@ -110,9 +110,9 @@ class UncertaintyConverter {
 
 	private void mapTriangular(Parameter iParameter,
 			org.openlca.core.model.Parameter oParameter) {
-		Double min = iParameter.getMinimumValue();
-		Double mean = iParameter.getMeanValue();
-		Double max = iParameter.getMaximumValue();
+		Double min = iParameter.minimumValue;
+		Double mean = iParameter.meanValue;
+		Double max = iParameter.maximumValue;
 		if (min == null || mean == null || max == null)
 			return;
 		oParameter.setUncertainty(Uncertainty.triangle(min, mean, max));
@@ -120,8 +120,8 @@ class UncertaintyConverter {
 
 	private void mapUniform(Exchange iExchange,
 			org.openlca.core.model.Exchange oExchange) {
-		Double min = iExchange.getMinimumAmount();
-		Double max = iExchange.getMaximumAmount();
+		Double min = iExchange.minimumAmount;
+		Double max = iExchange.maximumAmount;
 		if (min == null || max == null)
 			return;
 		oExchange.setUncertainty(Uncertainty.uniform(min, max));
@@ -129,8 +129,8 @@ class UncertaintyConverter {
 
 	private void mapUniform(Parameter iParameter,
 			org.openlca.core.model.Parameter oParameter) {
-		Double min = iParameter.getMinimumValue();
-		Double max = iParameter.getMaximumValue();
+		Double min = iParameter.minimumValue;
+		Double max = iParameter.maximumValue;
 		if (min == null || max == null)
 			return;
 		oParameter.setUncertainty(Uncertainty.uniform(min, max));
@@ -141,10 +141,10 @@ class UncertaintyConverter {
 		Double val = ext.getAmount();
 		if (val != null)
 			return val;
-		val = iExchange.getResultingAmount();
+		val = iExchange.resultingAmount;
 		if (val != null)
 			return val;
-		return iExchange.getMeanAmount();
+		return iExchange.meanAmount;
 	}
 
 }

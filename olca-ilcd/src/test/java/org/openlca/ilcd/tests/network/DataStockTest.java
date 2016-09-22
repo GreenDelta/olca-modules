@@ -18,10 +18,10 @@ public class DataStockTest {
 		NetworkClient client = new NetworkClient(url);
 		client.connect();
 		DataStockList list = client.getDataStockList();
-		Assert.assertEquals(numberOfStocks, list.getDataStocks().size());
+		Assert.assertEquals(numberOfStocks, list.dataStocks.size());
 		boolean found = false;
-		for (DataStock dataStock : list.getDataStocks()) {
-			String sn = dataStock.getShortName().getValue();
+		for (DataStock dataStock : list.dataStocks) {
+			String sn = dataStock.shortName.value;
 			if (shortName.equals(sn)) {
 				found = true;
 				break;

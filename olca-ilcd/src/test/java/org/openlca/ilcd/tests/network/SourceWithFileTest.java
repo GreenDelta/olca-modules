@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.io.NetworkClient;
-import org.openlca.ilcd.sources.DigitalFileReference;
+import org.openlca.ilcd.sources.DigitalFileRef;
 import org.openlca.ilcd.sources.Source;
 
 public class SourceWithFileTest {
@@ -34,8 +34,7 @@ public class SourceWithFileTest {
 		Source source = makeSource(id);
 		client.put(source, id);
 		Source fromServer = client.get(Source.class, id);
-		Assert.assertEquals(id, fromServer.getSourceInformation()
-				.getDataSetInformation().getUUID());
+		Assert.assertEquals(id, fromServer.sourceInformation.dataSetInformation.uuid);
 	}
 
 	@Test
@@ -65,16 +64,14 @@ public class SourceWithFileTest {
 
 	private Source makeSource(String id) {
 		Source source = SampleSource.create();
-		source.getSourceInformation().getDataSetInformation().setUUID(id);
+		source.sourceInformation.dataSetInformation.uuid = id;
 		return source;
 	}
 
 	private void addFileLink(Source source, File file) {
-		DigitalFileReference ref = new DigitalFileReference();
-		ref.setUri("../external_docs/" + file.getName());
-		source.getSourceInformation()
-				.getDataSetInformation()
-				.getReferenceToDigitalFile()
+		DigitalFileRef ref = new DigitalFileRef();
+		ref.uri = "../external_docs/" + file.getName();
+		source.sourceInformation.dataSetInformation.referenceToDigitalFile
 				.add(ref);
 	}
 }

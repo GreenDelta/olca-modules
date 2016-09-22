@@ -13,171 +13,23 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-/**
- * <p>
- * Java class for CommissionerAndGoalType complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
- * <pre>
- * &lt;complexType name="CommissionerAndGoalType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="referenceToCommissioner" type="{http://lca.jrc.it/ILCD/Common}GlobalReferenceType" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="project" type="{http://lca.jrc.it/ILCD/Common}StringMultiLang" maxOccurs="100" minOccurs="0"/>
- *         &lt;element name="intendedApplications" type="{http://lca.jrc.it/ILCD/Common}FTMultiLang" maxOccurs="100" minOccurs="0"/>
- *         &lt;element ref="{http://lca.jrc.it/ILCD/Common}other" minOccurs="0"/>
- *       &lt;/sequence>
- *       &lt;anyAttribute processContents='lax' namespace='##other'/>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CommissionerAndGoalType", propOrder = { "commissioners",
 		"project", "intendedApplications", "other" })
 public class CommissionerAndGoal implements Serializable {
 
 	private final static long serialVersionUID = 1L;
+
 	@XmlElement(name = "referenceToCommissioner")
-	protected List<DataSetReference> commissioners;
-	protected List<Label> project;
-	protected List<FreeText> intendedApplications;
-	protected Other other;
+	public final List<DataSetReference> commissioners = new ArrayList<>();
+
+	public final List<Label> project = new ArrayList<>();
+
+	public final List<FreeText> intendedApplications = new ArrayList<>();
+
+	public Other other;
+
 	@XmlAnyAttribute
 	private Map<QName, String> otherAttributes = new HashMap<>();
-
-	/**
-	 * Gets the value of the commissioners property.
-	 * 
-	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the commissioners property.
-	 * 
-	 * <p>
-	 * For example, to add a new item, do as follows:
-	 * 
-	 * <pre>
-	 * getCommissioners().add(newItem);
-	 * </pre>
-	 * 
-	 * 
-	 * <p>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
-	 * 
-	 * 
-	 */
-	public List<DataSetReference> getCommissioners() {
-		if (commissioners == null) {
-			commissioners = new ArrayList<>();
-		}
-		return this.commissioners;
-	}
-
-	/**
-	 * Gets the value of the project property.
-	 * 
-	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the project property.
-	 * 
-	 * <p>
-	 * For example, to add a new item, do as follows:
-	 * 
-	 * <pre>
-	 * getProject().add(newItem);
-	 * </pre>
-	 * 
-	 * 
-	 * <p>
-	 * Objects of the following type(s) are allowed in the list {@link Label }
-	 * 
-	 * 
-	 */
-	public List<Label> getProject() {
-		if (project == null) {
-			project = new ArrayList<>();
-		}
-		return this.project;
-	}
-
-	/**
-	 * Gets the value of the intendedApplications property.
-	 * 
-	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the intendedApplications property.
-	 * 
-	 * <p>
-	 * For example, to add a new item, do as follows:
-	 * 
-	 * <pre>
-	 * getIntendedApplications().add(newItem);
-	 * </pre>
-	 * 
-	 * 
-	 * <p>
-	 * Objects of the following type(s) are allowed in the list {@link FreeText }
-	 * 
-	 * 
-	 */
-	public List<FreeText> getIntendedApplications() {
-		if (intendedApplications == null) {
-			intendedApplications = new ArrayList<>();
-		}
-		return this.intendedApplications;
-	}
-
-	/**
-	 * Gets the value of the other property.
-	 * 
-	 * @return possible object is {@link Other }
-	 * 
-	 */
-	public Other getOther() {
-		return other;
-	}
-
-	/**
-	 * Sets the value of the other property.
-	 * 
-	 * @param value
-	 *            allowed object is {@link Other }
-	 * 
-	 */
-	public void setOther(Other value) {
-		this.other = value;
-	}
-
-	/**
-	 * Gets a map that contains attributes that aren't bound to any typed
-	 * property on this class.
-	 * 
-	 * <p>
-	 * the map is keyed by the name of the attribute and the value is the string
-	 * value of the attribute.
-	 * 
-	 * the map returned by this method is live, and you can add new attribute by
-	 * updating the map directly. Because of this design, there's no setter.
-	 * 
-	 * 
-	 * @return always non-null
-	 */
-	public Map<QName, String> getOtherAttributes() {
-		return otherAttributes;
-	}
 
 }

@@ -1,6 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -29,14 +28,14 @@ public class ProcessRefFlowMapper {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private ProcessBag ilcdProcess;
 	private Process olcaProcess;
-	private Map<BigInteger, Exchange> map;
+	private Map<Integer, Exchange> map;
 
 	/**
 	 * Initialise the mapper: idMap is the mapping of ILCD data set internal IDs
 	 * of exchanges to the respective openLCA exchanges in the process.
 	 */
 	public ProcessRefFlowMapper(ProcessBag ilcdProcess, Process olcaProcess,
-			Map<BigInteger, Exchange> map) {
+			Map<Integer, Exchange> map) {
 		this.ilcdProcess = ilcdProcess;
 		this.olcaProcess = olcaProcess;
 		this.map = map;
@@ -50,16 +49,16 @@ public class ProcessRefFlowMapper {
 					olcaProcess);
 			return;
 		}
-		List<BigInteger> refFlowIds = ilcdProcess.getReferenceFlowIds();
+		List<Integer> refFlowIds = ilcdProcess.getReferenceFlowIds();
 		if (refFlowIds == null || refFlowIds.isEmpty())
 			handleNoReferenceFlow();
 		else
 			setReferenceFlow(refFlowIds);
 	}
 
-	private void setReferenceFlow(List<BigInteger> refFlowIds) {
+	private void setReferenceFlow(List<Integer> refFlowIds) {
 		Exchange candidate = null;
-		for (BigInteger flowId : refFlowIds) {
+		for (Integer flowId : refFlowIds) {
 			Exchange refExchange = map.get(flowId);
 			if (refExchange == null) {
 				log.warn("Reference flow ID {} in ILCD process {} does "
@@ -75,7 +74,8 @@ public class ProcessRefFlowMapper {
 
 	private void handleCandidate(Exchange candidate) {
 		if (candidate == null
-				|| candidate.getFlow().getFlowType() == FlowType.ELEMENTARY_FLOW)
+				|| candidate.getFlow()
+						.getFlowType() == FlowType.ELEMENTARY_FLOW)
 			handleNoReferenceFlow();
 		else {
 			if (candidate.isInput()) {
@@ -121,7 +121,8 @@ public class ProcessRefFlowMapper {
 		Exchange candidate = null;
 		for (Exchange exchange : olcaProcess.getExchanges()) {
 			if (exchange.isInput()
-					|| exchange.getFlow().getFlowType() == FlowType.ELEMENTARY_FLOW)
+					|| exchange.getFlow()
+							.getFlowType() == FlowType.ELEMENTARY_FLOW)
 				continue;
 			if (betterMatch(exchange, candidate))
 				candidate = exchange;
@@ -147,10 +148,12 @@ public class ProcessRefFlowMapper {
 		if (!newCandidate.isInput() && oldCandidate.isInput())
 			return true;
 		if (newCandidate.getFlow().getFlowType() == FlowType.PRODUCT_FLOW
-				&& oldCandidate.getFlow().getFlowType() != FlowType.PRODUCT_FLOW)
+				&& oldCandidate.getFlow()
+						.getFlowType() != FlowType.PRODUCT_FLOW)
 			return true;
 		if (newCandidate.getFlow().getFlowType() == FlowType.WASTE_FLOW
-				&& oldCandidate.getFlow().getFlowType() != FlowType.ELEMENTARY_FLOW)
+				&& oldCandidate.getFlow()
+						.getFlowType() != FlowType.ELEMENTARY_FLOW)
 			return true;
 		if (newCandidate.getAmountValue() > oldCandidate.getAmountValue())
 			return true;

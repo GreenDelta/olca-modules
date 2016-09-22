@@ -36,8 +36,7 @@ public class DescriptorTest {
 		UnitGroupBag bag = new UnitGroupBag(group, IlcdConfig.getDefault());
 		if (client.contains(UnitGroup.class, bag.getId()))
 			return;
-		client.put(group, group.getUnitGroupInformation()
-				.getDataSetInformation().getUUID());
+		client.put(group, group.unitGroupInformation.dataSetInformation.uuid);
 	}
 
 	@Test
@@ -47,25 +46,24 @@ public class DescriptorTest {
 		log.trace("Get unit groups: {}", unitUrl);
 		DescriptorList result = client.resource(unitUrl).get(
 				DescriptorList.class);
-		assertTrue(result.getDescriptors().size() > 0);
+		assertTrue(result.descriptors.size() > 0);
 		iterateAndCompareFirst(result);
 	}
 
 	private void iterateAndCompareFirst(DescriptorList result) {
-		for (Object obj : result.getDescriptors()) {
+		for (Object obj : result.descriptors) {
 			assertTrue(obj instanceof UnitGroupDescriptor);
 			UnitGroupDescriptor descriptor = (UnitGroupDescriptor) obj;
-			log.trace("Unit group '{}' found.", descriptor.getName().getValue());
+			log.trace("Unit group '{}' found.", descriptor.name.value);
 		}
-		UnitGroupDescriptor descriptorFromList = (UnitGroupDescriptor) result
-				.getDescriptors().get(0);
+		UnitGroupDescriptor descriptorFromList = (UnitGroupDescriptor) result.descriptors.get(0);
 		compareFirst(descriptorFromList);
 		loadFull(descriptorFromList);
 	}
 
 	private void compareFirst(UnitGroupDescriptor descriptorFromList) {
 		WebResource resource = client.resource(unitUrl)
-				.path(descriptorFromList.getUuid())
+				.path(descriptorFromList.uuid)
 				.queryParam("view", "overview");
 		log.trace("Get unit group descriptor: {}", resource.getURI());
 		UnitGroupDescriptor descriptor = resource
@@ -75,20 +73,18 @@ public class DescriptorTest {
 
 	private void compareDescriptors(UnitGroupDescriptor expected,
 			UnitGroupDescriptor actual) {
-		assertEquals(expected.getName().getValue(), actual.getName().getValue());
-		assertEquals(expected.getUuid(), actual.getUuid());
+		assertEquals(expected.name.value, actual.name.value);
+		assertEquals(expected.uuid, actual.uuid);
 	}
 
 	private void loadFull(UnitGroupDescriptor descriptor) {
 		WebResource resource = client.resource(unitUrl)
-				.path(descriptor.getUuid()).queryParam("format", "xml");
+				.path(descriptor.uuid).queryParam("format", "xml");
 		log.trace("Get full unit group: {}", resource.getURI());
 		UnitGroup unitGroup = resource.get(UnitGroup.class);
-		assertEquals(descriptor.getName().getValue(), unitGroup
-				.getUnitGroupInformation().getDataSetInformation().getName()
+		assertEquals(descriptor.name.value, unitGroup.unitGroupInformation.dataSetInformation.name
 				.get(0).getValue());
-		assertEquals(descriptor.getUuid(), unitGroup.getUnitGroupInformation()
-				.getDataSetInformation().getUUID());
+		assertEquals(descriptor.uuid, unitGroup.unitGroupInformation.dataSetInformation.uuid);
 	}
 
 }

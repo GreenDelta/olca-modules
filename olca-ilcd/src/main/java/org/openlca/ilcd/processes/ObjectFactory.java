@@ -71,11 +71,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link DataSetInformation }
+	 * Create an instance of {@link DataSetInfo }
 	 * 
 	 */
-	public DataSetInformation createDataSetInformation() {
-		return new DataSetInformation();
+	public DataSetInfo createDataSetInformation() {
+		return new DataSetInfo();
 	}
 
 	/**
@@ -127,11 +127,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link AdministrativeInformation }
+	 * Create an instance of {@link AdminInfo }
 	 * 
 	 */
-	public AdministrativeInformation createAdministrativeInformation() {
-		return new AdministrativeInformation();
+	public AdminInfo createAdministrativeInformation() {
+		return new AdminInfo();
 	}
 
 	/**
@@ -183,14 +183,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ExchangeList }
-	 * 
-	 */
-	public ExchangeList createExchangeList() {
-		return new ExchangeList();
-	}
-
-	/**
 	 * Create an instance of {@link ComplianceDeclarationList }
 	 * 
 	 */
@@ -199,11 +191,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ParameterList }
+	 * Create an instance of {@link ParameterSection }
 	 * 
 	 */
-	public ParameterList createParameterList() {
-		return new ParameterList();
+	public ParameterSection createParameterList() {
+		return new ParameterSection();
 	}
 
 	/**
@@ -220,14 +212,6 @@ public class ObjectFactory {
 	 */
 	public Validation createValidation() {
 		return new Validation();
-	}
-
-	/**
-	 * Create an instance of {@link LCIAResultList }
-	 * 
-	 */
-	public LCIAResultList createLCIAResultList() {
-		return new LCIAResultList();
 	}
 
 	/**
@@ -255,11 +239,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ProcessInformation }
+	 * Create an instance of {@link ProcessInfo }
 	 * 
 	 */
-	public ProcessInformation createProcessInformation() {
-		return new ProcessInformation();
+	public ProcessInfo createProcessInformation() {
+		return new ProcessInfo();
 	}
 
 	/**
@@ -303,7 +287,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Process }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Process
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Process", name = "processDataSet")

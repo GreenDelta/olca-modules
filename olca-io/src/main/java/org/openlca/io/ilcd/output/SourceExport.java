@@ -5,15 +5,15 @@ import java.io.File;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.sources.AdministrativeInformation;
+import org.openlca.ilcd.sources.AdminInfo;
 import org.openlca.ilcd.sources.DataEntry;
-import org.openlca.ilcd.sources.DataSetInformation;
-import org.openlca.ilcd.sources.DigitalFileReference;
+import org.openlca.ilcd.sources.DataSetInfo;
+import org.openlca.ilcd.sources.DigitalFileRef;
 import org.openlca.ilcd.sources.Publication;
 import org.openlca.ilcd.sources.Source;
-import org.openlca.ilcd.sources.SourceInformation;
+import org.openlca.ilcd.sources.SourceInfo;
 import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
 import org.slf4j.Logger;
@@ -41,12 +41,12 @@ public class SourceExport {
 		this.source = source;
 		log.trace("Run source export with {}", source);
 		Source iSource = new Source();
-		iSource.setVersion("1.1");
-		iSource.setAdministrativeInformation(makeAdminInfo());
-		SourceInformation info = new SourceInformation();
-		iSource.setSourceInformation(info);
-		DataSetInformation dataSetInfo = makeDateSetInfo();
-		info.setDataSetInformation(dataSetInfo);
+		iSource.version = "1.1";
+		iSource.administrativeInformation = makeAdminInfo();
+		SourceInfo info = new SourceInfo();
+		iSource.sourceInformation = info;
+		DataSetInfo dataSetInfo = makeDateSetInfo();
+		info.dataSetInformation = dataSetInfo;
 		File extFile = getExternalFile();
 		if (extFile == null)
 			config.store.put(iSource, source.getRefId());
@@ -72,59 +72,59 @@ public class SourceExport {
 		return file.exists() ? file : null;
 	}
 
-	private DataSetInformation makeDateSetInfo() {
+	private DataSetInfo makeDateSetInfo() {
 		log.trace("Create data set information.");
-		DataSetInformation info = new DataSetInformation();
-		info.setUUID(source.getRefId());
-		LangString.addLabel(info.getShortName(), source.getName(),
+		DataSetInfo info = new DataSetInfo();
+		info.uuid = source.getRefId();
+		LangString.addLabel(info.shortName, source.getName(),
 				config.ilcdConfig);
 		if (source.getDescription() != null) {
-			LangString.addFreeText(info.getSourceDescriptionOrComment(),
+			LangString.addFreeText(info.sourceDescriptionOrComment,
 					source.getDescription(), config.ilcdConfig);
 		}
 		addTextReference(info);
 		CategoryConverter converter = new CategoryConverter();
-		ClassificationInformation classInfo = converter
+		ClassificationInfo classInfo = converter
 				.getClassificationInformation(source.getCategory());
-		info.setClassificationInformation(classInfo);
+		info.classificationInformation = classInfo;
 		return info;
 	}
 
-	private void addTextReference(DataSetInformation dataSetInfo) {
+	private void addTextReference(DataSetInfo dataSetInfo) {
 		log.trace("Create text reference.");
 		String cit = source.getTextReference();
 		if (cit == null)
 			return;
 		if (source.getYear() != null)
 			cit += " " + source.getYear();
-		dataSetInfo.setSourceCitation(cit);
+		dataSetInfo.sourceCitation = cit;
 	}
 
-	private void addFileRef(DataSetInformation info, File extFile) {
-		DigitalFileReference fileRef = new DigitalFileReference();
-		fileRef.setUri(extFile.getName());
-		info.getReferenceToDigitalFile().add(fileRef);
+	private void addFileRef(DataSetInfo info, File extFile) {
+		DigitalFileRef fileRef = new DigitalFileRef();
+		fileRef.uri = "../external_docs/" + extFile.getName();
+		info.referenceToDigitalFile.add(fileRef);
 	}
 
-	private AdministrativeInformation makeAdminInfo() {
-		AdministrativeInformation info = new AdministrativeInformation();
+	private AdminInfo makeAdminInfo() {
+		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
-		info.setDataEntryBy(entry);
-		entry.setTimeStamp(Out.getTimestamp(source));
-		entry.getReferenceToDataSetFormat().add(
+		info.dataEntryBy = entry;
+		entry.timeStamp = Out.getTimestamp(source);
+		entry.referenceToDataSetFormat.add(
 				Reference.forIlcdFormat(config.ilcdConfig));
 		addPublication(info);
 		return info;
 	}
 
-	private void addPublication(AdministrativeInformation info) {
+	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
-		info.setPublicationAndOwnership(pub);
-		pub.setDataSetVersion(Version.asString(source.getVersion()));
+		info.publicationAndOwnership = pub;
+		pub.dataSetVersion = Version.asString(source.getVersion());
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.setPermanentDataSetURI(baseUri + "sources/" + source.getRefId());
+		pub.permanentDataSetURI = baseUri + "sources/" + source.getRefId();
 	}
 }
