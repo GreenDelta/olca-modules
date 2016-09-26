@@ -42,12 +42,12 @@ public class SearchTest {
 		String name = "ABS";
 		log.debug("test: search process with name '{}'", name);
 		DescriptorList list = client.search(Process.class, name);
-		assertTrue(list.getDescriptors().size() > 0);
-		for (Object obj : list.getDescriptors()) {
+		assertTrue(list.descriptors.size() > 0);
+		for (Object obj : list.descriptors) {
 			assertTrue(obj instanceof ProcessDescriptor);
 			ProcessDescriptor descriptor = (ProcessDescriptor) obj;
-			log.debug("process found: id={}, name={}", descriptor.getUuid(),
-					descriptor.getName().getValue());
+			log.debug("process found: id={}, name={}", descriptor.uuid,
+					descriptor.name.value);
 		}
 	}
 
@@ -57,12 +57,12 @@ public class SearchTest {
 		String name = "glycidol";
 		log.debug("test: search flow with name '{}'", name);
 		DescriptorList list = client.search(Flow.class, name);
-		assertTrue(list.getDescriptors().size() > 0);
-		for (Object obj : list.getDescriptors()) {
+		assertTrue(list.descriptors.size() > 0);
+		for (Object obj : list.descriptors) {
 			assertTrue(obj instanceof FlowDescriptor);
 			FlowDescriptor descriptor = (FlowDescriptor) obj;
-			log.debug("flow found: id={}, name={}", descriptor.getUuid(),
-					descriptor.getName().getValue());
+			log.debug("flow found: id={}, name={}", descriptor.uuid,
+					descriptor.name.value);
 		}
 	}
 
@@ -73,12 +73,12 @@ public class SearchTest {
 		String name = "calorific";
 		log.debug("test: search flow property with name '{}'", name);
 		DescriptorList list = client.search(FlowProperty.class, name);
-		assertTrue(list.getDescriptors().size() > 0);
-		for (Object obj : list.getDescriptors()) {
+		assertTrue(list.descriptors.size() > 0);
+		for (Object obj : list.descriptors) {
 			assertTrue(obj instanceof FlowPropertyDescriptor);
 			FlowPropertyDescriptor descriptor = (FlowPropertyDescriptor) obj;
 			log.debug("flow property found: id={}, name={}",
-					descriptor.getUuid(), descriptor.getName().getValue());
+					descriptor.uuid, descriptor.name.value);
 		}
 	}
 
@@ -88,12 +88,12 @@ public class SearchTest {
 		String name = "mass";
 		log.debug("test: search unit group with name '{}'", name);
 		DescriptorList list = client.search(UnitGroup.class, name);
-		assertTrue(list.getDescriptors().size() > 0);
-		for (Object obj : list.getDescriptors()) {
+		assertTrue(list.descriptors.size() > 0);
+		for (Object obj : list.descriptors) {
 			assertTrue(obj instanceof UnitGroupDescriptor);
 			UnitGroupDescriptor descriptor = (UnitGroupDescriptor) obj;
-			log.debug("unit group found: id={}, name={}", descriptor.getUuid(),
-					descriptor.getName().getValue());
+			log.debug("unit group found: id={}, name={}", descriptor.uuid,
+					descriptor.name.value);
 		}
 	}
 
@@ -104,12 +104,12 @@ public class SearchTest {
 		String name = "Review";
 		log.debug("test: search contact with name '{}'", name);
 		DescriptorList list = client.search(Contact.class, name);
-		assertTrue(list.getDescriptors().size() > 0);
-		for (Object obj : list.getDescriptors()) {
+		assertTrue(list.descriptors.size() > 0);
+		for (Object obj : list.descriptors) {
 			assertTrue(obj instanceof ContactDescriptor);
 			ContactDescriptor descriptor = (ContactDescriptor) obj;
-			log.debug("contact found: id={}, name={}", descriptor.getUuid(),
-					descriptor.getName().getValue());
+			log.debug("contact found: id={}, name={}", descriptor.uuid,
+					descriptor.name.value);
 		}
 	}
 
@@ -120,12 +120,12 @@ public class SearchTest {
 		String name = "IMA-Europe_Plastic";
 		log.debug("test: search source with name '{}'", name);
 		DescriptorList list = client.search(Source.class, name);
-		assertTrue(list.getDescriptors().size() > 0);
-		for (Object obj : list.getDescriptors()) {
+		assertTrue(list.descriptors.size() > 0);
+		for (Object obj : list.descriptors) {
 			assertTrue(obj instanceof SourceDescriptor);
 			SourceDescriptor descriptor = (SourceDescriptor) obj;
-			log.debug("contact found: id={}, name={}", descriptor.getUuid(),
-					descriptor.getName().getValue());
+			log.debug("contact found: id={}, name={}", descriptor.uuid,
+					descriptor.name.value);
 		}
 	}
 

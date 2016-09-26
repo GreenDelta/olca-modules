@@ -7,10 +7,10 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.FlowType;
-import org.openlca.ilcd.flows.AdministrativeInformation;
-import org.openlca.ilcd.flows.DataSetInformation;
+import org.openlca.ilcd.flows.AdminInfo;
+import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.flows.FlowInformation;
+import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
@@ -37,35 +37,33 @@ public class FlowUpdateTest {
 		Flow flow = makeFlow(id);
 		client.put(flow, id);
 		Assert.assertTrue(client.contains(Flow.class, id));
-		flow.getAdministrativeInformation().getPublication()
-				.setDataSetVersion("02.00.000");
+		flow.administrativeInformation.publication.dataSetVersion = "02.00.000";
 		client.put(flow, id);
 		flow = client.get(Flow.class, id);
-		Assert.assertEquals("02.00.000", flow.getAdministrativeInformation()
-				.getPublication().getDataSetVersion());
+		Assert.assertEquals("02.00.000", flow.administrativeInformation.publication.dataSetVersion);
 	}
 
 	private Flow makeFlow(String id) {
 		Flow flow = new Flow();
-		FlowInformation info = new FlowInformation();
-		flow.setFlowInformation(info);
-		DataSetInformation dataInfo = new DataSetInformation();
-		dataInfo.setUUID(id);
+		FlowInfo info = new FlowInfo();
+		flow.flowInformation = info;
+		DataSetInfo dataInfo = new DataSetInfo();
+		dataInfo.uuid = id;
 		info.setDataSetInformation(dataInfo);
 		FlowName name = new FlowName();
-		dataInfo.setName(name);
-		LangString.addLabel(name.getBaseName(), "test flow - " + id,
+		dataInfo.name = name;
+		LangString.addLabel(name.baseName, "test flow - " + id,
 				IlcdConfig.getDefault());
-		AdministrativeInformation adminInfo = new AdministrativeInformation();
+		AdminInfo adminInfo = new AdminInfo();
 		Publication pub = new Publication();
-		adminInfo.setPublication(pub);
-		pub.setDataSetVersion("01.00.000");
-		flow.setAdministrativeInformation(adminInfo);
+		adminInfo.publication = pub;
+		pub.dataSetVersion = "01.00.000";
+		flow.administrativeInformation = adminInfo;
 		ModellingAndValidation mav = new ModellingAndValidation();
-		flow.setModellingAndValidation(mav);
+		flow.modellingAndValidation = mav;
 		LCIMethod method = new LCIMethod();
-		mav.setLCIMethod(method);
-		method.setFlowType(FlowType.ELEMENTARY_FLOW);
+		mav.lciMethod = method;
+		method.flowType = FlowType.ELEMENTARY_FLOW;
 		return flow;
 	}
 }

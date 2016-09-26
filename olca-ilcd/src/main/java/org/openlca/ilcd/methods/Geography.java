@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.FreeText;
-import org.openlca.ilcd.commons.LocationType;
+import org.openlca.ilcd.commons.Location;
 import org.openlca.ilcd.commons.Other;
 
 /**
@@ -51,9 +51,9 @@ import org.openlca.ilcd.commons.Other;
 public class Geography implements Serializable {
 
 	private final static long serialVersionUID = 1L;
-	protected LocationType interventionLocation;
-	protected List<LocationType> interventionSubLocation;
-	protected LocationType impactLocation;
+	protected Location interventionLocation;
+	protected List<Location> interventionSubLocation;
+	protected Location impactLocation;
 	protected List<FreeText> geographicalRepresentativenessDescription;
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected Other other;
@@ -63,10 +63,10 @@ public class Geography implements Serializable {
 	/**
 	 * Gets the value of the interventionLocation property.
 	 * 
-	 * @return possible object is {@link LocationType }
+	 * @return possible object is {@link Location }
 	 * 
 	 */
-	public LocationType getInterventionLocation() {
+	public Location getInterventionLocation() {
 		return interventionLocation;
 	}
 
@@ -74,10 +74,10 @@ public class Geography implements Serializable {
 	 * Sets the value of the interventionLocation property.
 	 * 
 	 * @param value
-	 *            allowed object is {@link LocationType }
+	 *            allowed object is {@link Location }
 	 * 
 	 */
-	public void setInterventionLocation(LocationType value) {
+	public void setInterventionLocation(Location value) {
 		this.interventionLocation = value;
 	}
 
@@ -100,11 +100,11 @@ public class Geography implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link LocationType }
+	 * {@link Location }
 	 * 
 	 * 
 	 */
-	public List<LocationType> getInterventionSubLocation() {
+	public List<Location> getInterventionSubLocation() {
 		if (interventionSubLocation == null) {
 			interventionSubLocation = new ArrayList<>();
 		}
@@ -114,10 +114,10 @@ public class Geography implements Serializable {
 	/**
 	 * Gets the value of the impactLocation property.
 	 * 
-	 * @return possible object is {@link LocationType }
+	 * @return possible object is {@link Location }
 	 * 
 	 */
-	public LocationType getImpactLocation() {
+	public Location getImpactLocation() {
 		return impactLocation;
 	}
 
@@ -125,10 +125,10 @@ public class Geography implements Serializable {
 	 * Sets the value of the impactLocation property.
 	 * 
 	 * @param value
-	 *            allowed object is {@link LocationType }
+	 *            allowed object is {@link Location }
 	 * 
 	 */
-	public void setImpactLocation(LocationType value) {
+	public void setImpactLocation(Location value) {
 		this.impactLocation = value;
 	}
 

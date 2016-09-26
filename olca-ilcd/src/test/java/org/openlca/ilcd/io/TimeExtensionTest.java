@@ -18,7 +18,7 @@ public class TimeExtensionTest {
 	@Test
 	public void testEmpty() {
 		Time time = io(new Time());
-		time.setReferenceYear(new BigInteger("1979"));
+		time.referenceYear = new BigInteger("1979");
 		TimeExtension extension = new TimeExtension(time);
 		assertFalse(extension.isValid());
 		assertNull(extension.getStartDate());
@@ -45,7 +45,7 @@ public class TimeExtensionTest {
 
 	private Time createTime(Date date) {
 		Time time = io(new Time());
-		time.setReferenceYear(new BigInteger("1979"));
+		time.referenceYear = new BigInteger("1979");
 		TimeExtension extension = new TimeExtension(time);
 		extension.setStartDate(date);
 		extension.setEndDate(date);

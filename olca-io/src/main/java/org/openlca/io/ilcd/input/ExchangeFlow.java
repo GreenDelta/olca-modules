@@ -35,13 +35,13 @@ class ExchangeFlow {
 
 	public void findOrImport(ImportConfig config) {
 		this.config = config;
-		DataSetReference ref = ilcdExchange.getFlow();
+		DataSetReference ref = ilcdExchange.flow;
 		if (ref == null) {
 			log.warn("ILCD exchange without flow ID: {}", ilcdExchange);
 			return;
 		}
 		try {
-			this.flow = fetch(ref.getUuid());
+			this.flow = fetch(ref.uuid);
 		} catch (Exception e) {
 			log.error("failed to get flow ", e);
 		}

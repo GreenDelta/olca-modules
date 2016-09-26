@@ -91,7 +91,7 @@ public class FlowPropertyImport {
 
 	private void validateInput() throws ImportException {
 		DataSetReference unitGroupRef = ilcdProperty.getUnitGroupReference();
-		if (unitGroupRef == null || unitGroupRef.getUuid() == null) {
+		if (unitGroupRef == null || unitGroupRef.uuid == null) {
 			String message = "Invalid input: flow property data set.";
 			throw new ImportException(message);
 		}
@@ -113,7 +113,7 @@ public class FlowPropertyImport {
 		DataSetReference unitGroupRef = ilcdProperty.getUnitGroupReference();
 		if (unitGroupRef != null) {
 			UnitGroupImport unitGroupImport = new UnitGroupImport(config);
-			UnitGroup unitGroup = unitGroupImport.run(unitGroupRef.getUuid());
+			UnitGroup unitGroup = unitGroupImport.run(unitGroupRef.uuid);
 			property.setUnitGroup(unitGroup);
 		}
 	}

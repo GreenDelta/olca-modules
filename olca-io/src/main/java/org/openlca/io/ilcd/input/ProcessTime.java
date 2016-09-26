@@ -32,20 +32,20 @@ class ProcessTime {
 		TimeExtension extension = new TimeExtension(ilcdTime);
 		mapStartDate(extension, doc);
 		mapEndDate(extension, doc);
-		doc.setTime(LangString.get(ilcdTime.getDescription(), config.ilcdConfig));
+		doc.setTime(LangString.get(ilcdTime.description, config.ilcdConfig));
 	}
 
 	private void mapStartDate(TimeExtension extension, ProcessDocumentation doc) {
 		Date startDate = extension.getStartDate();
 		if (startDate == null)
-			startDate = date(ilcdTime.getReferenceYear());
+			startDate = date(ilcdTime.referenceYear);
 		doc.setValidFrom(startDate);
 	}
 
 	private void mapEndDate(TimeExtension extension, ProcessDocumentation doc) {
 		Date endDate = extension.getEndDate();
 		if (endDate == null)
-			endDate = date(ilcdTime.getValidUntil());
+			endDate = date(ilcdTime.validUntil);
 		doc.setValidUntil(endDate);
 	}
 

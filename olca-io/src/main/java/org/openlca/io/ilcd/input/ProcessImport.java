@@ -120,7 +120,8 @@ public class ProcessImport {
 
 	private ProcessDocumentation mapDocumentation() throws ImportException {
 		ProcessDocumentation doc = new ProcessDocumentation();
-		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime(), config);
+		ProcessTime processTime = new ProcessTime(ilcdProcess.getTime(),
+				config);
 		processTime.map(doc);
 		mapGeography(doc);
 		mapTechnology(doc);
@@ -137,13 +138,13 @@ public class ProcessImport {
 
 	private void mapGeography(ProcessDocumentation doc) throws ImportException {
 		Geography iGeography = ilcdProcess.getGeography();
-		if (iGeography == null || iGeography.getLocation() == null)
+		if (iGeography == null || iGeography.location == null)
 			return;
-		doc.setGeography(LangString.get(iGeography.getLocation()
-				.getDescription(), config.ilcdConfig));
-		if (iGeography.getLocation().getLocation() == null)
+		doc.setGeography(LangString.get(iGeography.location.description,
+				config.ilcdConfig));
+		if (iGeography.location.location == null)
 			return;
-		String code = iGeography.getLocation().getLocation();
+		String code = iGeography.location.location;
 		Location location = Locations.getOrCreate(code, config);
 		process.setLocation(location);
 	}
@@ -153,7 +154,7 @@ public class ProcessImport {
 				.getTechnology();
 		if (iTechnology != null) {
 			doc.setTechnology(LangString.get(
-					iTechnology.getTechnologyDescriptionAndIncludedProcesses(),
+					iTechnology.technologyDescriptionAndIncludedProcesses,
 					config.ilcdConfig));
 		}
 	}
@@ -163,28 +164,26 @@ public class ProcessImport {
 		if (iPublication != null) {
 
 			// data set owner
-			DataSetReference ownerRef = iPublication
-					.getReferenceToOwnershipOfDataSet();
+			DataSetReference ownerRef = iPublication.referenceToOwnershipOfDataSet;
 			if (ownerRef != null)
 				doc.setDataSetOwner(fetchActor(ownerRef));
 
 			// publication
-			DataSetReference publicationRef = iPublication
-					.getReferenceToUnchangedRepublication();
+			DataSetReference publicationRef = iPublication.referenceToUnchangedRepublication;
 			if (publicationRef != null)
 				doc.setPublication(fetchSource(publicationRef));
 
 			// access and use restrictions
 			doc.setRestrictions(LangString.get(
-					iPublication.getAccessRestrictions(), config.ilcdConfig));
+					iPublication.accessRestrictions, config.ilcdConfig));
 
 			// version
 			process.setVersion(Version.fromString(
-					iPublication.getDataSetVersion()).getValue());
+					iPublication.dataSetVersion).getValue());
 
 			// copyright
-			if (iPublication.isCopyright() != null) {
-				doc.setCopyright(iPublication.isCopyright());
+			if (iPublication.copyright != null) {
+				doc.setCopyright(iPublication.copyright);
 			}
 
 		}
@@ -194,23 +193,23 @@ public class ProcessImport {
 		DataEntry iEntry = ilcdProcess.getDataEntry();
 		if (iEntry == null)
 			return;
-		if (iEntry.getTimeStamp() != null) {
-			Date tStamp = iEntry.getTimeStamp().toGregorianCalendar().getTime();
+		if (iEntry.timeStamp != null) {
+			Date tStamp = iEntry.timeStamp.toGregorianCalendar().getTime();
 			doc.setCreationDate(tStamp);
 			if (tStamp != null)
 				process.setLastChange(tStamp.getTime());
 		}
-		if (iEntry.getReferenceToPersonOrEntityEnteringTheData() != null) {
-			Actor documentor = fetchActor(iEntry
-					.getReferenceToPersonOrEntityEnteringTheData());
+		if (iEntry.referenceToPersonOrEntityEnteringTheData != null) {
+			Actor documentor = fetchActor(
+					iEntry.referenceToPersonOrEntityEnteringTheData);
 			doc.setDataDocumentor(documentor);
 		}
 	}
 
 	private void mapDataGenerator(ProcessDocumentation doc) {
 		if (ilcdProcess.getDataGenerator() != null) {
-			List<DataSetReference> refs = ilcdProcess.getDataGenerator()
-					.getReferenceToPersonOrEntityGeneratingTheDataSet();
+			List<DataSetReference> refs = ilcdProcess
+					.getDataGenerator().referenceToPersonOrEntityGeneratingTheDataSet;
 			if (refs != null && !refs.isEmpty()) {
 				DataSetReference generatorRef = refs.get(0);
 				doc.setDataGenerator(fetchActor(generatorRef));
@@ -223,9 +222,9 @@ public class ProcessImport {
 			CommissionerAndGoal comAndGoal = ilcdProcess
 					.getCommissionerAndGoal();
 			String intendedApp = LangString.get(
-					comAndGoal.getIntendedApplications(), config.ilcdConfig);
+					comAndGoal.intendedApplications, config.ilcdConfig);
 			doc.setIntendedApplication(intendedApp);
-			String project = LangString.get(comAndGoal.getProject(),
+			String project = LangString.get(comAndGoal.project,
 					config.ilcdConfig);
 			doc.setProject(project);
 		}
@@ -237,7 +236,7 @@ public class ProcessImport {
 			case UNIT_PROCESS_BLACK_BOX:
 				process.setProcessType(ProcessType.UNIT_PROCESS);
 				break;
-			case UNIT_PROCESS_SINGLE_OPERATION:
+			case UNIT_PROCESS:
 				process.setProcessType(ProcessType.UNIT_PROCESS);
 				break;
 			default:
@@ -248,17 +247,17 @@ public class ProcessImport {
 		LCIMethod iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
 			String lciPrinciple = LangString.get(
-					iMethod.getDeviationsFromLCIMethodPrinciple(),
+					iMethod.deviationsFromLCIMethodPrinciple,
 					config.ilcdConfig);
 			doc.setInventoryMethod(lciPrinciple);
 			doc.setModelingConstants(LangString.get(
-					iMethod.getModellingConstants(), config.ilcdConfig));
+					iMethod.modellingConstants, config.ilcdConfig));
 			process.setDefaultAllocationMethod(getAllocation(iMethod));
 		}
 	}
 
 	private AllocationMethod getAllocation(LCIMethod iMethod) {
-		List<LCIMethodApproach> approaches = iMethod.getLCIMethodApproaches();
+		List<LCIMethodApproach> approaches = iMethod.lciMethodApproaches;
 		if (approaches == null || approaches.isEmpty())
 			return null;
 		for (LCIMethodApproach app : approaches) {
@@ -281,18 +280,18 @@ public class ProcessImport {
 		if (repr == null)
 			return;
 		doc.setCompleteness(LangString.get(
-				repr.getDataCutOffAndCompletenessPrinciples(),
+				repr.dataCutOffAndCompletenessPrinciples,
 				config.ilcdConfig));
 		doc.setDataSelection(LangString.get(
-				repr.getDataSelectionAndCombinationPrinciples(),
+				repr.dataSelectionAndCombinationPrinciples,
 				config.ilcdConfig));
 		doc.setDataTreatment(LangString.get(
-				repr.getDataTreatmentAndExtrapolationsPrinciples(),
+				repr.dataTreatmentAndExtrapolationsPrinciples,
 				config.ilcdConfig));
-		doc.setSampling(LangString.get(repr.getSamplingProcedure(),
+		doc.setSampling(LangString.get(repr.samplingProcedure,
 				config.ilcdConfig));
 		doc.setDataCollectionPeriod(LangString.get(
-				repr.getDataCollectionPeriod(), config.ilcdConfig));
+				repr.dataCollectionPeriod, config.ilcdConfig));
 	}
 
 	private void addSources(ProcessDocumentation doc) {
@@ -312,12 +311,12 @@ public class ProcessImport {
 		if (ilcdProcess.getReviews().isEmpty())
 			return;
 		Review iReview = ilcdProcess.getReviews().get(0);
-		if (!iReview.getReferenceToNameOfReviewerAndInstitution().isEmpty()) {
-			DataSetReference ref = iReview
-					.getReferenceToNameOfReviewerAndInstitution().get(0);
+		if (!iReview.referenceToNameOfReviewerAndInstitution.isEmpty()) {
+			DataSetReference ref = iReview.referenceToNameOfReviewerAndInstitution
+					.get(0);
 			doc.setReviewer(fetchActor(ref));
 		}
-		doc.setReviewDetails(LangString.get(iReview.getReviewDetails(),
+		doc.setReviewDetails(LangString.get(iReview.reviewDetails,
 				config.ilcdConfig));
 	}
 
@@ -326,10 +325,10 @@ public class ProcessImport {
 			return null;
 		try {
 			ContactImport contactImport = new ContactImport(config);
-			return contactImport.run(reference.getUuid());
+			return contactImport.run(reference.uuid);
 		} catch (Exception e) {
 			log.warn("Failed to get contact {} referenced from process {}",
-					reference.getUuid(), process.getRefId());
+					reference.uuid, process.getRefId());
 			return null;
 		}
 	}
@@ -339,10 +338,10 @@ public class ProcessImport {
 			return null;
 		try {
 			SourceImport sourceImport = new SourceImport(config);
-			return sourceImport.run(reference.getUuid());
+			return sourceImport.run(reference.uuid);
 		} catch (Exception e) {
 			log.warn("Failed to get source {} referenced from process {}",
-					reference.getUuid(), process.getRefId());
+					reference.uuid, process.getRefId());
 			return null;
 		}
 	}

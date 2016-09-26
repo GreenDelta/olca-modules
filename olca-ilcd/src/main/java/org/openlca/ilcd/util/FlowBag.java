@@ -10,17 +10,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowCategorization;
-import org.openlca.ilcd.commons.FlowCategoryInformation;
+import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.Label;
-import org.openlca.ilcd.flows.AdministrativeInformation;
+import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
-import org.openlca.ilcd.flows.DataSetInformation;
+import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.flows.FlowInformation;
+import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.FlowPropertyList;
-import org.openlca.ilcd.flows.FlowPropertyReference;
+import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
@@ -44,81 +44,79 @@ public class FlowBag implements IBag<Flow> {
 
 	@Override
 	public String getId() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return info.getUUID();
+			return info.uuid;
 		return null;
 	}
 
 	public String getName() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null) {
-			FlowName flowName = info.getName();
+			FlowName flowName = info.name;
 			if (flowName != null) {
-				return LangString.get(flowName.getBaseName(), config);
+				return LangString.get(flowName.baseName, config);
 			}
 		}
 		return null;
 	}
 
 	public String getCasNumber() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return info.getCASNumber();
+			return info.casNumber;
 		return null;
 	}
 
 	public String getSumFormula() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return info.getSumFormula();
+			return info.sumFormula;
 		return null;
 	}
 
 	public String getComment() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.getGeneralComment(), config);
+			return LangString.get(info.generalComment, config);
 		return null;
 	}
 
 	public Integer getReferenceFlowPropertyId() {
-		FlowInformation info = flow.getFlowInformation();
+		FlowInfo info = flow.flowInformation;
 		if (info != null) {
 			QuantitativeReference qRef = info.getQuantitativeReference();
-			if (qRef != null && qRef.getReferenceFlowProperty() != null) {
-				return qRef.getReferenceFlowProperty().intValue();
+			if (qRef != null && qRef.referenceFlowProperty != null) {
+				return qRef.referenceFlowProperty.intValue();
 			}
 		}
 		return null;
 	}
 
 	public FlowType getFlowType() {
-		ModellingAndValidation mav = flow.getModellingAndValidation();
+		ModellingAndValidation mav = flow.modellingAndValidation;
 		if (mav != null) {
-			LCIMethod method = mav.getLCIMethod();
+			LCIMethod method = mav.lciMethod;
 			if (method != null)
-				return method.getFlowType();
+				return method.flowType;
 		}
 		return null;
 	}
 
-	public List<FlowPropertyReference> getFlowPropertyReferences() {
-		FlowPropertyList list = flow.getFlowProperties();
+	public List<FlowPropertyRef> getFlowPropertyReferences() {
+		FlowPropertyList list = flow.flowProperties;
 		if (list != null) {
-			return list.getFlowProperty();
+			return list.flowProperty;
 		}
 		return Collections.emptyList();
 	}
 
 	public List<org.openlca.ilcd.commons.Class> getSortedClasses() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null) {
-			FlowCategoryInformation categoryInfo = info
-					.getClassificationInformation();
+			FlowCategoryInfo categoryInfo = info.classificationInformation;
 			if (categoryInfo != null) {
-				List<Classification> classifications = categoryInfo
-						.getClassifications();
+				List<Classification> classifications = categoryInfo.classifications;
 				if (classifications != null && classifications.size() > 0) {
 					return ClassList.sortedList(classifications.get(0));
 				}
@@ -128,38 +126,35 @@ public class FlowBag implements IBag<Flow> {
 	}
 
 	public List<Category> getSortedCompartments() {
-		DataSetInformation info = getDataSetInformation();
+		DataSetInfo info = getDataSetInformation();
 		if (info != null) {
-			FlowCategoryInformation categoryInfo = info
-					.getClassificationInformation();
+			FlowCategoryInfo categoryInfo = info.classificationInformation;
 			return getCompartments(categoryInfo);
 		}
 		return Collections.emptyList();
 	}
 
 	public List<Label> getLocation() {
-		FlowInformation info = flow.getFlowInformation();
+		FlowInfo info = flow.flowInformation;
 		if (info == null)
 			return Collections.emptyList();
 		Geography geo = info.getGeography();
 		if (geo == null)
 			return Collections.emptyList();
 		else
-			return geo.getLocation();
+			return geo.location;
 	}
 
 	public String getSynonyms() {
-		return LangString.get(flow.getFlowInformation().getDataSetInformation()
-				.getSynonyms(), config);
+		return LangString.get(flow.flowInformation.getDataSetInformation().synonyms, config);
 	}
 
-	private List<Category> getCompartments(FlowCategoryInformation categoryInfo) {
+	private List<Category> getCompartments(FlowCategoryInfo categoryInfo) {
 		if (categoryInfo != null) {
-			List<FlowCategorization> categorizations = categoryInfo
-					.getElementaryFlowCategorizations();
+			List<FlowCategorization> categorizations = categoryInfo.elementaryFlowCategorizations;
 			if (categorizations != null && categorizations.size() > 0) {
 				FlowCategorization categorization = categorizations.get(0);
-				List<Category> categories = categorization.getCategories();
+				List<Category> categories = categorization.categories;
 				if (categories != null && categories.size() > 0) {
 					sort(categories);
 					return categories;
@@ -174,43 +169,43 @@ public class FlowBag implements IBag<Flow> {
 			@Override
 			public int compare(Category cat1, Category cat2) {
 				int c = 0;
-				if (cat1.getLevel() != null && cat2.getLevel() != null) {
-					c = cat1.getLevel().compareTo(cat2.getLevel());
+				if (cat1.level != null && cat2.level != null) {
+					c = cat1.level.compareTo(cat2.level);
 				}
 				return c;
 			}
 		});
 	}
 
-	private DataSetInformation getDataSetInformation() {
-		if (flow.getFlowInformation() != null)
-			return flow.getFlowInformation().getDataSetInformation();
+	private DataSetInfo getDataSetInformation() {
+		if (flow.flowInformation != null)
+			return flow.flowInformation.getDataSetInformation();
 		return null;
 	}
 
 	public String getVersion() {
 		if (flow == null)
 			return null;
-		AdministrativeInformation info = flow.getAdministrativeInformation();
+		AdminInfo info = flow.administrativeInformation;
 		if (info == null)
 			return null;
-		Publication pub = info.getPublication();
+		Publication pub = info.publication;
 		if (pub == null)
 			return null;
 		else
-			return pub.getDataSetVersion();
+			return pub.dataSetVersion;
 	}
 
 	public Date getTimeStamp() {
 		if (flow == null)
 			return null;
-		AdministrativeInformation info = flow.getAdministrativeInformation();
+		AdminInfo info = flow.administrativeInformation;
 		if (info == null)
 			return null;
-		DataEntry entry = info.getDataEntry();
+		DataEntry entry = info.dataEntry;
 		if (entry == null)
 			return null;
-		XMLGregorianCalendar cal = entry.getTimeStamp();
+		XMLGregorianCalendar cal = entry.timeStamp;
 		if (cal == null)
 			return null;
 		else

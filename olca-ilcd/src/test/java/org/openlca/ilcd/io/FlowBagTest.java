@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.flows.FlowPropertyReference;
+import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.IlcdConfig;
@@ -62,12 +62,11 @@ public class FlowBagTest {
 
 	@Test
 	public void testGetFlowPropertyReferences() {
-		List<FlowPropertyReference> flowPropertyReferences = bag
+		List<FlowPropertyRef> flowPropertyReferences = bag
 				.getFlowPropertyReferences();
 		assertTrue(flowPropertyReferences.size() == 1);
-		FlowPropertyReference ref = flowPropertyReferences.get(0);
-		assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66", ref
-				.getFlowProperty().getUuid());
+		FlowPropertyRef ref = flowPropertyReferences.get(0);
+		assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66", ref.flowProperty.uuid);
 	}
 
 	@Test
@@ -80,10 +79,10 @@ public class FlowBagTest {
 	public void testGetSortedCompartments() {
 		List<Category> categories = bag.getSortedCompartments();
 		assertTrue(categories.size() == 3);
-		assertEquals("Emissions", categories.get(0).getValue().trim());
-		assertEquals("Emissions to air", categories.get(1).getValue().trim());
+		assertEquals("Emissions", categories.get(0).value.trim());
+		assertEquals("Emissions to air", categories.get(1).value.trim());
 		assertEquals("Emissions to lower stratosphere and upper troposphere",
-				categories.get(2).getValue().trim());
+				categories.get(2).value.trim());
 	}
 
 }

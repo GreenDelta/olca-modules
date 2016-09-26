@@ -55,11 +55,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link DataSetInformation }
+	 * Create an instance of {@link DataSetInfo }
 	 * 
 	 */
-	public DataSetInformation createDataSetInformation() {
-		return new DataSetInformation();
+	public DataSetInfo createDataSetInformation() {
+		return new DataSetInfo();
 	}
 
 	/**
@@ -79,11 +79,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link UnitGroupInformation }
+	 * Create an instance of {@link UnitGroupInfo }
 	 * 
 	 */
-	public UnitGroupInformation createUnitGroupInformation() {
-		return new UnitGroupInformation();
+	public UnitGroupInfo createUnitGroupInformation() {
+		return new UnitGroupInfo();
 	}
 
 	/**
@@ -119,11 +119,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link AdministrativeInformation }
+	 * Create an instance of {@link AdminInfo }
 	 * 
 	 */
-	public AdministrativeInformation createAdministrativeInformation() {
-		return new AdministrativeInformation();
+	public AdminInfo createAdministrativeInformation() {
+		return new AdminInfo();
 	}
 
 	/**

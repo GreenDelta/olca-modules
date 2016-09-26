@@ -11,11 +11,11 @@ public class Reference {
 
 	public static DataSetReference forIlcdFormat(IlcdConfig config) {
 		DataSetReference ref = new DataSetReference();
-		ref.setType(DataSetType.SOURCE_DATA_SET);
-		ref.setUri("../sources/a97a0155-0234-4b87-b4ce-a45da52f2a40_01.01.000.xml");
-		ref.setUuid("a97a0155-0234-4b87-b4ce-a45da52f2a40");
-		ref.setVersion("01.01.000");
-		LangString.addShortText(ref.getShortDescription(), "ILCD format",
+		ref.type = DataSetType.SOURCE_DATA_SET;
+		ref.uri = "../sources/a97a0155-0234-4b87-b4ce-a45da52f2a40_01.01.000.xml";
+		ref.uuid = "a97a0155-0234-4b87-b4ce-a45da52f2a40";
+		ref.version = "01.01.000";
+		LangString.addShortText(ref.shortDescription, "ILCD format",
 				config);
 		return ref;
 	}
@@ -26,10 +26,10 @@ public class Reference {
 			return new DataSetReference();
 		UnitGroupBag bag = new UnitGroupBag(group, config);
 		DataSetReference ref = new DataSetReference();
-		ref.setType(DataSetType.UNIT_GROUP_DATA_SET);
-		ref.setUri("../unitgroups/" + bag.getId());
-		ref.setUuid(bag.getId());
-		ref.setVersion(bag.getVersion());
+		ref.type = DataSetType.UNIT_GROUP_DATA_SET;
+		ref.uri = "../unitgroups/" + bag.getId();
+		ref.uuid = bag.getId();
+		ref.version = bag.getVersion();
 		return ref;
 	}
 

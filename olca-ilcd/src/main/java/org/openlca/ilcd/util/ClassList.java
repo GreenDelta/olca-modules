@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.ClassificationInformation;
+import org.openlca.ilcd.commons.ClassificationInfo;
 
 class ClassList {
 
 	private ClassList() {
 	}
 
-	static List<Class> sortedList(ClassificationInformation classInfo) {
+	static List<Class> sortedList(ClassificationInfo classInfo) {
 		if (classInfo != null)
 			return fromClassInfo(classInfo);
 		return Collections.emptyList();
@@ -23,8 +23,8 @@ class ClassList {
 		return fromClassification(classification);
 	}
 
-	private static List<Class> fromClassInfo(ClassificationInformation classInfo) {
-		List<Classification> classifications = classInfo.getClassifications();
+	private static List<Class> fromClassInfo(ClassificationInfo classInfo) {
+		List<Classification> classifications = classInfo.classifications;
 		if (classifications != null && classifications.size() > 0) {
 			Classification classification = classifications.get(0);
 			return fromClassification(classification);
@@ -33,8 +33,7 @@ class ClassList {
 	}
 
 	private static List<Class> fromClassification(Classification classification) {
-		List<org.openlca.ilcd.commons.Class> classes = classification
-				.getClasses();
+		List<org.openlca.ilcd.commons.Class> classes = classification.classes;
 		if (classes != null && classes.size() > 0) {
 			sortClasses(classes);
 			return classes;
@@ -48,8 +47,8 @@ class ClassList {
 					@Override
 					public int compare(Class c1, Class c2) {
 						int c = 0;
-						if (c1.getLevel() != null && c2.getLevel() != null) {
-							c = c1.getLevel().compareTo(c2.getLevel());
+						if (c1.level != null && c2.level != null) {
+							c = c1.level.compareTo(c2.level);
 						}
 						return c;
 					}

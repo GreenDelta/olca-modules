@@ -9,43 +9,20 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
 /**
- * Multi-lang free text with an unlimited length.
- * 
- * <p>
- * Java class for FTMultiLang complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
- * <pre>
- * &lt;complexType name="FTMultiLang">
- *   &lt;simpleContent>
- *     &lt;extension base="&lt;http://lca.jrc.it/ILCD/Common>FT">
- *       &lt;attribute ref="{http://www.w3.org/XML/1998/namespace}lang default="en""/>
- *     &lt;/extension>
- *   &lt;/simpleContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
+ * Free text with an unlimited length.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FTMultiLang", propOrder = { "value" })
 public class FreeText implements Serializable, ILangString {
 
 	private final static long serialVersionUID = 1L;
-	@XmlValue
-	protected String value;
-	@XmlAttribute(name = "lang", namespace = "http://www.w3.org/XML/1998/namespace")
-	protected String lang;
 
-	/**
-	 * Free text with an unlimited length.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
+	@XmlValue
+	public String value;
+
+	@XmlAttribute(name = "lang", namespace = "http://www.w3.org/XML/1998/namespace")
+	public String lang;
+
 	@Override
 	public String getValue() {
 		return value;

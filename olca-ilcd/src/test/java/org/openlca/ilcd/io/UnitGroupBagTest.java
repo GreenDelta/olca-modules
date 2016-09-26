@@ -38,7 +38,7 @@ public class UnitGroupBagTest {
 	public void testGetUnits() {
 		List<Unit> units = bag.getUnits();
 		assertTrue(units.size() == 4);
-		assertEquals("kg*a", units.get(0).getName());
+		assertEquals("kg*a", units.get(0).name);
 	}
 
 	@Test
@@ -63,8 +63,8 @@ public class UnitGroupBagTest {
 	@Test
 	public void testGetClasses() {
 		Class clazz = bag.getSortedClasses().get(0);
-		assertEquals(0, clazz.getLevel().intValue());
-		assertEquals("Technical unit groups", clazz.getValue().trim());
+		assertEquals(0, clazz.level.intValue());
+		assertEquals("Technical unit groups", clazz.value.trim());
 	}
 
 }

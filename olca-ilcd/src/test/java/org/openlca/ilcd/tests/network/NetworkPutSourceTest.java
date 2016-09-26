@@ -7,11 +7,11 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.io.NetworkClient;
-import org.openlca.ilcd.sources.AdministrativeInformation;
-import org.openlca.ilcd.sources.DataSetInformation;
+import org.openlca.ilcd.sources.AdminInfo;
+import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Publication;
 import org.openlca.ilcd.sources.Source;
-import org.openlca.ilcd.sources.SourceInformation;
+import org.openlca.ilcd.sources.SourceInfo;
 import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.LangString;
 
@@ -31,26 +31,26 @@ public class NetworkPutSourceTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		Source source = new Source();
-		SourceInformation info = new SourceInformation();
-		source.setSourceInformation(info);
-		info.setDataSetInformation(makeDataInfo(id));
-		source.setAdministrativeInformation(makeAdminInfo());
+		SourceInfo info = new SourceInfo();
+		source.sourceInformation = info;
+		info.dataSetInformation = makeDataInfo(id);
+		source.administrativeInformation = makeAdminInfo();
 		client.put(source, id);
 	}
 
-	private DataSetInformation makeDataInfo(String id) {
-		DataSetInformation info = new DataSetInformation();
+	private DataSetInfo makeDataInfo(String id) {
+		DataSetInfo info = new DataSetInfo();
 		String name = "xtest Source - " + new Random().nextInt(1000);
-		LangString.addLabel(info.getShortName(), name, IlcdConfig.getDefault());
-		info.setUUID(id);
+		LangString.addLabel(info.shortName, name, IlcdConfig.getDefault());
+		info.uuid = id;
 		return info;
 	}
 
-	private AdministrativeInformation makeAdminInfo() {
-		AdministrativeInformation info = new AdministrativeInformation();
+	private AdminInfo makeAdminInfo() {
+		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
-		info.setPublicationAndOwnership(pub);
-		pub.setDataSetVersion("01.00.000");
+		info.publicationAndOwnership = pub;
+		pub.dataSetVersion = "01.00.000";
 		return info;
 	}
 }

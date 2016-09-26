@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../stylesheets/source2html.xsl"?>
+<sourceDataSet xmlns="http://lca.jrc.it/ILCD/Source"
+	xmlns:common="http://lca.jrc.it/ILCD/Common" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://lca.jrc.it/ILCD/Source ../../schemas/ILCD_SourceDataSet.xsd"
+	version="1.1">
+	<sourceInformation>
+		<dataSetInformation>
+			<common:UUID>00000000-0000-0000-0000-000000000000</common:UUID>
+			<common:shortName xml:lang="en">shortName0
+			</common:shortName>
+			<common:shortName xml:lang="de">shortName1
+			</common:shortName>
+			<classificationInformation>
+				<common:classification>
+					<common:class level="0" classId="classId1">Other source types
+					</common:class>
+				</common:classification>
+				<common:classification name="Custom"
+					classes="../Example_Custom_Classification.xml">
+					<common:class level="0" classId="classId5">class2</common:class>
+					<common:class level="1" classId="classId7">class3</common:class>
+				</common:classification>
+			</classificationInformation>
+			<sourceCitation>sourceCitation0</sourceCitation>
+			<publicationType>Undefined</publicationType>
+			<sourceDescriptionOrComment xml:lang="en">sourceDescriptionOrComment0</sourceDescriptionOrComment>
+			<sourceDescriptionOrComment xml:lang="de">sourceDescriptionOrComment1</sourceDescriptionOrComment>
+			<referenceToDigitalFile uri="" />
+			<referenceToDigitalFile uri="" />
+			<referenceToContact type="contact data set"
+				refObjectId="00000000-0000-0000-0000-000000000000" version="00.00"
+				uri="">
+				<common:shortDescription xml:lang="en">shortDescription0
+				</common:shortDescription>
+				<common:shortDescription xml:lang="de">shortDescription1
+				</common:shortDescription>
+				<!--<common:other/> -->
+			</referenceToContact>
+			<referenceToContact type="contact data set"
+				refObjectId="00000000-0000-0000-0000-000000000000" version="00.00"
+				uri="">
+				<common:shortDescription xml:lang="en">shortDescription2
+				</common:shortDescription>
+				<common:shortDescription xml:lang="de">shortDescription3
+				</common:shortDescription>
+				<!--<common:other/> -->
+			</referenceToContact>
+			<referenceToLogo type="source data set"
+				refObjectId="00000000-0000-0000-0000-000000000000" version="00.00"
+				uri="">
+				<common:shortDescription xml:lang="en">shortDescription4
+				</common:shortDescription>
+				<common:shortDescription xml:lang="de">shortDescription5
+				</common:shortDescription>
+				<!--<common:other/> -->
+			</referenceToLogo>
+			<!--<common:other/> -->
+		</dataSetInformation>
+		<!--<common:other/> -->
+	</sourceInformation>
+	<administrativeInformation>
+		<dataEntryBy>
+			<common:timeStamp>2006-05-04T18:13:51.0Z</common:timeStamp>
+			<common:referenceToDataSetFormat
+				type="source data set"
+				uri="../sources/ILCD_Format_1_1_a97a0155-0234-4b87-b4ce-a45da52f2a40.xml"
+				refObjectId="a97a0155-0234-4b87-b4ce-a45da52f2a40">
+				<common:shortDescription>ILCD format 1.1</common:shortDescription>
+				<!--<common:other/> -->
+			</common:referenceToDataSetFormat>
+			<common:referenceToDataSetFormat
+				type="source data set" refObjectId="00000000-0000-0000-0000-000000000000"
+				version="00.00" uri="">
+				<common:shortDescription xml:lang="en">shortDescription8
+				</common:shortDescription>
+				<common:shortDescription xml:lang="de">shortDescription9
+				</common:shortDescription>
+				<!--<common:other/> -->
+			</common:referenceToDataSetFormat>
+			<!--<common:other/> -->
+		</dataEntryBy>
+		<publicationAndOwnership>
+			<common:dataSetVersion>00.00</common:dataSetVersion>
+			<common:referenceToPrecedingDataSetVersion
+				type="source data set" refObjectId="00000000-0000-0000-0000-000000000000"
+				version="00.00" uri="">
+				<common:shortDescription xml:lang="en">shortDescription10
+				</common:shortDescription>
+				<common:shortDescription xml:lang="de">shortDescription11
+				</common:shortDescription>
+				<!--<common:other/> -->
+			</common:referenceToPrecedingDataSetVersion>
+			<common:referenceToPrecedingDataSetVersion
+				type="source data set" refObjectId="00000000-0000-0000-0000-000000000000"
+				version="00.00" uri="">
+				<common:shortDescription xml:lang="en">shortDescription12
+				</common:shortDescription>
+				<common:shortDescription xml:lang="de">shortDescription13
+				</common:shortDescription>
+				<!--<common:other/> -->
+			</common:referenceToPrecedingDataSetVersion>
+			<common:permanentDataSetURI>http://www.ilcd-network.org/data/processes/sample_source.xml
+			</common:permanentDataSetURI>
+			<common:referenceToOwnershipOfDataSet
+				type="contact data set" refObjectId="00000000-0000-0000-0000-000000000000"
+				version="00.00" uri="">
+				<common:shortDescription xml:lang="en">shortDescription14
+				</common:shortDescription>
+				<common:shortDescription xml:lang="de">shortDescription15
+				</common:shortDescription>
+				<!--<common:other/> -->
+			</common:referenceToOwnershipOfDataSet>
+			<!--<common:other/> -->
+		</publicationAndOwnership>
+		<!--<common:other/> -->
+	</administrativeInformation>
+	<!--<common:other/> -->
+</sourceDataSet>

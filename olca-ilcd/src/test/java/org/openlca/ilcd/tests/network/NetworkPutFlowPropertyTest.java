@@ -6,10 +6,10 @@ import java.util.UUID;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.flowproperties.AdministrativeInformation;
-import org.openlca.ilcd.flowproperties.DataSetInformation;
+import org.openlca.ilcd.flowproperties.AdminInfo;
+import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
-import org.openlca.ilcd.flowproperties.FlowPropertyInformation;
+import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
 import org.openlca.ilcd.flowproperties.Publication;
 import org.openlca.ilcd.io.NetworkClient;
 import org.openlca.ilcd.util.IlcdConfig;
@@ -31,26 +31,26 @@ public class NetworkPutFlowPropertyTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		FlowProperty flowproperty = new FlowProperty();
-		FlowPropertyInformation info = new FlowPropertyInformation();
-		flowproperty.setFlowPropertyInformation(info);
-		info.setDataSetInformation(makeDataInfo(id));
-		flowproperty.setAdministrativeInformation(makeAdminInfo());
+		FlowPropertyInfo info = new FlowPropertyInfo();
+		flowproperty.flowPropertyInformation = info;
+		info.dataSetInformation = makeDataInfo(id);
+		flowproperty.administrativeInformation = makeAdminInfo();
 		client.put(flowproperty, id);
 	}
 
-	private DataSetInformation makeDataInfo(String id) {
-		DataSetInformation info = new DataSetInformation();
+	private DataSetInfo makeDataInfo(String id) {
+		DataSetInfo info = new DataSetInfo();
 		String name = "xtest FlowProperty - " + new Random().nextInt(1000);
-		LangString.addLabel(info.getName(), name, IlcdConfig.getDefault());
-		info.setUUID(id);
+		LangString.addLabel(info.name, name, IlcdConfig.getDefault());
+		info.uuid = id;
 		return info;
 	}
 
-	private AdministrativeInformation makeAdminInfo() {
-		AdministrativeInformation info = new AdministrativeInformation();
+	private AdminInfo makeAdminInfo() {
+		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
-		info.setPublication(pub);
-		pub.setDataSetVersion("01.00.000");
+		info.publication = pub;
+		pub.dataSetVersion = "01.00.000";
 		return info;
 	}
 }

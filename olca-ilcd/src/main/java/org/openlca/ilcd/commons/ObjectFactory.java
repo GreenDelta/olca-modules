@@ -136,11 +136,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link FlowCategoryInformation }
+	 * Create an instance of {@link FlowCategoryInfo }
 	 * 
 	 */
-	public FlowCategoryInformation createFlowCategoryInformation() {
-		return new FlowCategoryInformation();
+	public FlowCategoryInfo createFlowCategoryInformation() {
+		return new FlowCategoryInfo();
 	}
 
 	/**
@@ -152,19 +152,19 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ClassificationInformation }
+	 * Create an instance of {@link ClassificationInfo }
 	 * 
 	 */
-	public ClassificationInformation createClassificationInformation() {
-		return new ClassificationInformation();
+	public ClassificationInfo createClassificationInformation() {
+		return new ClassificationInfo();
 	}
 
 	/**
-	 * Create an instance of {@link LocationType }
+	 * Create an instance of {@link Location }
 	 * 
 	 */
-	public LocationType createLocationType() {
-		return new LocationType();
+	public Location createLocationType() {
+		return new Location();
 	}
 
 	/**

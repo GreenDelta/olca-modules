@@ -9,18 +9,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "dataStockList",
-		namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+@XmlRootElement(name = "dataStockList", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 public class DataStockList {
 
-	@XmlElement(name = "dataStock",
-			namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	private List<DataStock> dataStocks;
-
-	public List<DataStock> getDataStocks() {
-		if (dataStocks == null)
-			dataStocks = new ArrayList<>();
-		return dataStocks;
-	}
+	@XmlElement(name = "dataStock", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public final List<DataStock> dataStocks = new ArrayList<>();
 
 }

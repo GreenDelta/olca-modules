@@ -119,8 +119,8 @@ public class NetworkClient implements DataStore {
 			byte[] bytes = binder.toByteArray(obj);
 			Builder builder = resource.type(MediaType.APPLICATION_XML);
 			if (dataStock != null) {
-				log.trace("post to data stock {}", dataStock.getUuid());
-				builder = builder.header("stock", dataStock.getUuid());
+				log.trace("post to data stock {}", dataStock.uuid);
+				builder = builder.header("stock", dataStock.uuid);
 			}
 			ClientResponse response = builder.post(ClientResponse.class, bytes);
 			eval(response);
@@ -141,8 +141,8 @@ public class NetworkClient implements DataStore {
 		try {
 			FormDataMultiPart multiPart = new FormDataMultiPart();
 			if (dataStock != null) {
-				log.trace("post to data stock {}", dataStock.getUuid());
-				multiPart.field("stock", dataStock.getUuid());
+				log.trace("post to data stock {}", dataStock.uuid);
+				multiPart.field("stock", dataStock.uuid);
 			}
 			byte[] bytes = binder.toByteArray(source);
 			ByteArrayInputStream xmlStream = new ByteArrayInputStream(bytes);
@@ -230,7 +230,7 @@ public class NetworkClient implements DataStore {
 			return client.resource(baseUri).path(Dir.get(type));
 		else
 			return client.resource(baseUri).path("datastocks")
-					.path(dataStock.getUuid()).path(Dir.get(type));
+					.path(dataStock.uuid).path(Dir.get(type));
 	}
 
 	private void eval(ClientResponse response) throws DataStoreException {
