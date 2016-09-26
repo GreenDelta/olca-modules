@@ -21,10 +21,10 @@ final class RefId {
 			return KeyGen.NULL_UUID;
 		String productId = null;
 		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges()) {
-			if (exchange.getOutputGroup() == null)
+			if (exchange.outputGroup == null)
 				continue;
-			if (exchange.getOutputGroup() == 0 && exchange.getAmount() != 0) {
-				productId = exchange.getIntermediateExchangeId();
+			if (exchange.outputGroup == 0 && exchange.amount != 0) {
+				productId = exchange.intermediateExchangeId;
 				break;
 			}
 		}

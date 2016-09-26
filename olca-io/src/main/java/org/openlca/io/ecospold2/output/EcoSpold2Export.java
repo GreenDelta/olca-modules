@@ -149,12 +149,12 @@ public class EcoSpold2Export implements Runnable {
 			return e2Ex;
 		e2Ex = new ElementaryExchange();
 		if (exchange.isInput())
-			e2Ex.setInputGroup(4);
+			e2Ex.inputGroup = 4;
 		else
-			e2Ex.setOutputGroup(4);
+			e2Ex.outputGroup = 4;
 		Flow flow = exchange.getFlow();
-		e2Ex.setElementaryExchangeId(flow.getRefId());
-		e2Ex.setFormula(flow.getFormula());
+		e2Ex.elementaryExchangeId = flow.getRefId();
+		e2Ex.formula = flow.getFormula();
 		mapExchangeData(exchange, e2Ex);
 		compartmentMap.apply(flow.getCategory(), e2Ex);
 		unitMap.apply(exchange.getUnit(), e2Ex, masterData);
@@ -166,19 +166,19 @@ public class EcoSpold2Export implements Runnable {
 			Process process, UserMasterData masterData) {
 		IntermediateExchange e2Ex = new IntermediateExchange();
 		if (exchange.isInput())
-			e2Ex.setInputGroup(5);
+			e2Ex.inputGroup = 5;
 		else {
 			if (Objects.equals(exchange, process.getQuantitativeReference()))
-				e2Ex.setOutputGroup(0);
+				e2Ex.outputGroup = 0;
 			else if (exchange.getFlow().getFlowType() == FlowType.WASTE_FLOW)
-				e2Ex.setOutputGroup(3);
+				e2Ex.outputGroup = 3;
 			else
-				e2Ex.setOutputGroup(2);
+				e2Ex.outputGroup = 2;
 		}
-		e2Ex.setIntermediateExchangeId(exchange.getFlow().getRefId());
+		e2Ex.intermediateExchangeId = exchange.getFlow().getRefId();
 		ProcessDescriptor provider = getDefaultProvider(exchange);
 		if (provider != null)
-			e2Ex.setActivityLinkId(provider.getRefId());
+			e2Ex.activityLinkId = provider.getRefId();
 		mapExchangeData(exchange, e2Ex);
 		unitMap.apply(exchange.getUnit(), e2Ex, masterData);
 		MasterData.writeTechFlow(e2Ex, masterData);
@@ -194,14 +194,14 @@ public class EcoSpold2Export implements Runnable {
 
 	private void mapExchangeData(Exchange exchange,
 			org.openlca.ecospold2.Exchange e2Exchange) {
-		e2Exchange.setName(Strings.cut(exchange.getFlow().getName(), 120));
-		e2Exchange.setId(new UUID(exchange.getId(), 0L).toString());
-		e2Exchange.setAmount(exchange.getAmountValue());
-		e2Exchange.setMathematicalRelation(exchange.getAmountFormula());
-		e2Exchange.setComment(exchange.description);
-		e2Exchange.setCasNumber(exchange.getFlow().getCasNumber());
-		e2Exchange.setUncertainty(UncertaintyConverter.fromOpenLCA(exchange
-				.getUncertainty()));
+		e2Exchange.name = Strings.cut(exchange.getFlow().getName(), 120);
+		e2Exchange.id = new UUID(exchange.getId(), 0L).toString();
+		e2Exchange.amount = exchange.getAmountValue();
+		e2Exchange.mathematicalRelation = exchange.getAmountFormula();
+		e2Exchange.comment = exchange.description;
+		e2Exchange.casNumber = exchange.getFlow().getCasNumber();
+		e2Exchange.uncertainty = UncertaintyConverter.fromOpenLCA(exchange
+		.getUncertainty());
 	}
 
 	private void mapParameters(Process process, DataSet dataSet) {

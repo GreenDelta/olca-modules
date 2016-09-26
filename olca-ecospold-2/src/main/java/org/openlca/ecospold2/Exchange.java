@@ -7,133 +7,39 @@ import org.jdom2.Element;
 
 public abstract class Exchange {
 
-	private String id;
-	private String unitId;
-	private Double amount; // amount is a reference type because it can be
-							// optional in master data
-	private String name;
-	private String unitName;
-	private String variableName;
-	private String mathematicalRelation;
-	private String casNumber;
-	private String comment;
-	private Uncertainty uncertainty;
-	private List<Property> properties = new ArrayList<>();
-	private Integer outputGroup;
-	private Integer inputGroup;
+	public String id;
+	public String unitId;
 
-	public String getId() {
-		return id;
-	}
+	/**
+	 * Amount is a reference type because it is optional as exchanges are also
+	 * used in the master data
+	 */
+	public Double amount;
+	public String name;
+	public String unitName;
+	public String variableName;
+	public String mathematicalRelation;
+	public String casNumber;
+	public String comment;
+	public Uncertainty uncertainty;
+	public Integer outputGroup;
+	public Integer inputGroup;
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getUnitId() {
-		return unitId;
-	}
-
-	public void setUnitId(String unitId) {
-		this.unitId = unitId;
-	}
-
-	public Double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(Double amount) {
-		this.amount = amount;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getUnitName() {
-		return unitName;
-	}
-
-	public void setUnitName(String unitName) {
-		this.unitName = unitName;
-	}
-
-	public String getMathematicalRelation() {
-		return mathematicalRelation;
-	}
-
-	public void setMathematicalRelation(String mathematicalRelation) {
-		this.mathematicalRelation = mathematicalRelation;
-	}
-
-	public void setCasNumber(String casNumber) {
-		this.casNumber = casNumber;
-	}
-
-	public String getCasNumber() {
-		return casNumber;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
-	public void setUncertainty(Uncertainty uncertainty) {
-		this.uncertainty = uncertainty;
-	}
-
-	public Uncertainty getUncertainty() {
-		return uncertainty;
-	}
-
-	public Integer getInputGroup() {
-		return inputGroup;
-	}
-
-	public Integer getOutputGroup() {
-		return outputGroup;
-	}
-
-	public void setInputGroup(Integer inputGroup) {
-		this.inputGroup = inputGroup;
-	}
-
-	public void setOutputGroup(Integer outputGroup) {
-		this.outputGroup = outputGroup;
-	}
-
-	public String getVariableName() {
-		return variableName;
-	}
-
-	public void setVariableName(String variableName) {
-		this.variableName = variableName;
-	}
-
-	public List<Property> getProperties() {
-		return properties;
-	}
+	public final List<Property> properties = new ArrayList<>();
 
 	protected void readValues(Element element) {
-		setAmount(In.optionalDecimal(element.getAttributeValue("amount")));
-		setId(element.getAttributeValue("id"));
-		setMathematicalRelation(element
-				.getAttributeValue("mathematicalRelation"));
-		setVariableName(element.getAttributeValue("variableName"));
-		setName(In.childText(element, "name"));
-		setUnitName(In.childText(element, "unitName"));
-		setComment(In.childText(element, "comment"));
-		setUnitId(element.getAttributeValue("unitId"));
-		setUncertainty(Uncertainty.fromXml(In.child(element, "uncertainty")));
-		setCasNumber(element.getAttributeValue("casNumber"));
+		this.amount = In.optionalDecimal(element.getAttributeValue("amount"));
+		this.id = element.getAttributeValue("id");
+		this.mathematicalRelation = element
+				.getAttributeValue("mathematicalRelation");
+		this.variableName = element.getAttributeValue("variableName");
+		this.name = In.childText(element, "name");
+		this.unitName = In.childText(element, "unitName");
+		this.comment = In.childText(element, "comment");
+		this.unitId = element.getAttributeValue("unitId");
+		this.uncertainty = Uncertainty
+				.fromXml(In.child(element, "uncertainty"));
+		this.casNumber = element.getAttributeValue("casNumber");
 		List<Element> propElems = In.childs(element, "property");
 		for (Element propElem : propElems) {
 			Property property = Property.fromXml(propElem);
@@ -143,10 +49,10 @@ public abstract class Exchange {
 
 		String inGroup = In.childText(element, "inputGroup");
 		if (inGroup != null)
-			setInputGroup(In.integer(inGroup));
+			this.inputGroup = In.integer(inGroup);
 		else {
 			String outGroup = In.childText(element, "outputGroup");
-			setOutputGroup(In.integer(outGroup));
+			this.outputGroup = In.integer(outGroup);
 		}
 	}
 

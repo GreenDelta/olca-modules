@@ -51,7 +51,7 @@ class CompartmentMap {
 					category);
 			return;
 		}
-		exchange.setCompartment(createCompartment(record));
+		exchange.compartment = createCompartment(record);
 	}
 
 	private Compartment createCompartment(ExportRecord record) {

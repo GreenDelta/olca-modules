@@ -110,19 +110,19 @@ class ElemFlowMap {
 	private ElementaryExchange createExchange(Exchange olca, ExportRecord record) {
 		ElementaryExchange exchange = new ElementaryExchange();
 		if (olca.isInput())
-			exchange.setInputGroup(4);
+			exchange.inputGroup = 4;
 		else
-			exchange.setOutputGroup(4);
-		exchange.setId(new UUID(olca.getId(), 0L).toString());
-		exchange.setElementaryExchangeId(record.id);
-		exchange.setName(Strings.cut(record.name, 120));
-		exchange.setCompartment(createCompartment(record));
-		exchange.setUnitName(record.unitName);
-		exchange.setUnitId(record.unitId);
-		exchange.setAmount(record.conversionFactor * olca.getAmountValue());
+			exchange.outputGroup = 4;
+		exchange.id = new UUID(olca.getId(), 0L).toString();
+		exchange.elementaryExchangeId = record.id;
+		exchange.name = Strings.cut(record.name, 120);
+		exchange.compartment = createCompartment(record);
+		exchange.unitName = record.unitName;
+		exchange.unitId = record.unitId;
+		exchange.amount = record.conversionFactor * olca.getAmountValue();
 		if (olca.getAmountFormula() != null) {
-			exchange.setMathematicalRelation(record.conversionFactor + " * ("
-					+ olca.getAmountFormula() + ")");
+			exchange.mathematicalRelation = record.conversionFactor + " * ("
+			+ olca.getAmountFormula() + ")";
 		}
 		// TODO: convert uncertainty information
 		return exchange;
