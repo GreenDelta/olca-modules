@@ -1,6 +1,7 @@
 package org.openlca.core.results;
 
 import java.util.Set;
+
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -34,5 +35,8 @@ public interface IResultProvider {
 	 * Get the descriptors of all LCIA categories in the result.
 	 */
 	Set<ImpactCategoryDescriptor> getImpactDescriptors();
+
+	/** Returns true if the given flow is an input flow. */
+	boolean isInput(FlowDescriptor flow);
 
 }

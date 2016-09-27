@@ -76,4 +76,11 @@ public class BaseResultProvider<T extends BaseResult> implements IResultProvider
 		descriptors.addAll(values.values());
 		return descriptors;
 	}
+
+	@Override
+	public boolean isInput(FlowDescriptor flow) {
+		if (flow == null || result.flowIndex == null)
+			return false;
+		return result.flowIndex.isInput(flow.getId());
+	}
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -113,4 +114,14 @@ public class ProjectResultProvider implements IResultProvider {
 		return impacts;
 	}
 
+	@Override
+	public boolean isInput(FlowDescriptor flow) {
+		if (flow == null)
+			return false;
+		for (ContributionResultProvider<?> r : results.values()) {
+			if (r.getFlowDescriptors().contains(flow))
+				return r.isInput(flow);
+		}
+		return false;
+	}
 }
