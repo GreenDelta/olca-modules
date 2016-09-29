@@ -23,8 +23,8 @@ public class DQSystem extends CategorizedEntity {
 	@JoinColumn(name = "f_source")
 	public Source source;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	@JoinColumn(name = "f_dq_system")
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	public final List<DQIndicator> indicators = new ArrayList<>();
 
 	@Override
@@ -41,33 +41,30 @@ public class DQSystem extends CategorizedEntity {
 	public int getScoreCount() {
 		if (indicators == null || indicators.isEmpty())
 			return 0;
-		if (indicators.get(0).scores == null)
-			return 0;
 		return indicators.get(0).scores.size();
 	}
 
 	public String getScoreLabel(int pos) {
 		if (indicators == null || indicators.isEmpty())
 			return null;
-		if (indicators.get(0).scores == null)
-			return null;
-		for (DQScore score : indicators.get(0).scores)
+		for (DQScore score : indicators.get(0).scores) {
 			if (score.position == pos)
 				return score.label;
+		}
 		return null;
 	}
 
 	public void setScoreLabel(int pos, String label) {
 		if (indicators == null || indicators.isEmpty())
 			return;
-		if (indicators.get(0).scores == null)
-			return;
 		if (indicators.get(0).scores.size() < pos)
 			return;
-		for (DQIndicator indicator : indicators)
-			for (DQScore score : indicator.scores)
+		for (DQIndicator indicator : indicators) {
+			for (DQScore score : indicator.scores) {
 				if (score.position == pos)
 					score.label = label;
+			}
+		}
 	}
 
 	public DQIndicator getIndicator(int pos) {
@@ -109,19 +106,21 @@ public class DQSystem extends CategorizedEntity {
 	}
 
 	public int[] toValues(String s) {
-		if (s == null || s.length() <= 2)
-			return new int[indicators.size()];
-		String[] sValues = s.substring(1, s.length() - 1).split(";");
-		if (sValues == null || sValues.length == 0)
-			return new int[indicators.size()];
 		int[] values = new int[indicators.size()];
-		for (int pos = 1; pos <= sValues.length; pos++) {
+		if (s == null)
+			return values;
+		String raw = s.trim();
+		if (raw.length() <= 2)
+			return values;
+		String[] strings = raw.substring(1, raw.length() - 1).split(";");
+		for (int pos = 1; pos <= strings.length; pos++) {
 			DQIndicator indicator = getIndicator(pos);
-			String sValue = sValues[pos - 1];
-			if (indicator == null || "n.a.".equals(sValue))
+			String string = strings[pos - 1].trim();
+			if (indicator == null || "n.a.".equals(string))
 				continue;
 			try {
-				DQScore score = indicator.getScore(Integer.parseInt(sValue));
+				int val = Integer.parseInt(string);
+				DQScore score = indicator.getScore(val);
 				if (score == null)
 					continue;
 				values[pos - 1] = score.position;

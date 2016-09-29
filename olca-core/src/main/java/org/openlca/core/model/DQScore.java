@@ -24,6 +24,8 @@ public class DQScore extends AbstractEntity implements Comparable<DQScore> {
 
 	@Override
 	public int compareTo(DQScore o) {
+		if (o == null)
+			return 1;
 		return Integer.compare(position, o.position);
 	}
 

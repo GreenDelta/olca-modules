@@ -60,7 +60,7 @@ public class DQSystemTest {
 
 	@Test
 	public void testToValuesIncomplete() {
-		String s = "(3;n.a.;5;1)";
+		String s = " ( 3 ; n.a. ; 5 ; 1 ) ";
 		int[] result = system.toValues(s);
 		Assert.assertArrayEquals(new int[] { 3, 0, 5, 1, 0 }, result);
 	}
@@ -74,7 +74,7 @@ public class DQSystemTest {
 
 	@Test
 	public void testToValuesInvalidScores() {
-		String s = "(3;7;5;-1;0)";
+		String s = " (3; 7; 5; -1; 0) ";
 		int[] result = system.toValues(s);
 		Assert.assertArrayEquals(new int[] { 3, 0, 5, 0, 0 }, result);
 	}

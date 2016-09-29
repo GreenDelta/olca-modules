@@ -27,6 +27,8 @@ public class DQIndicator extends AbstractEntity implements Comparable<DQIndicato
 
 	@Override
 	public int compareTo(DQIndicator o) {
+		if (o == null)
+			return 1;
 		return Integer.compare(position, o.position);
 	}
 
@@ -42,11 +44,11 @@ public class DQIndicator extends AbstractEntity implements Comparable<DQIndicato
 	}
 
 	public DQScore getScore(int pos) {
-		for (DQScore score : scores)
+		for (DQScore score : scores) {
 			if (score.position == pos)
 				return score;
+		}
 		return null;
 	}
 
-	
 }
