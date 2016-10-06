@@ -3,7 +3,7 @@ package org.openlca.io.ilcd.input;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ilcd.util.LangString;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroupBag;
 import org.slf4j.Logger;
@@ -79,8 +79,8 @@ class UnitGroupSync {
 			unit.setRefId(id);
 			unit.setName(ilcdUnit.name);
 			unit.setConversionFactor(factor * ilcdUnit.meanValue);
-			unit.setDescription(LangString.get(ilcdUnit.generalComment,
-					config.ilcdConfig));
+			unit.setDescription(LangString.getVal(ilcdUnit.generalComment,
+					config.langConfig));
 			olcaGroup.getUnits().add(unit);
 			changed = true;
 		}

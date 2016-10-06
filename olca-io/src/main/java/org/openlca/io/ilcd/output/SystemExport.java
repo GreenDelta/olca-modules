@@ -9,6 +9,7 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.io.DataStoreException;
@@ -23,7 +24,6 @@ import org.openlca.ilcd.productmodel.ConsumedBy;
 import org.openlca.ilcd.productmodel.ProcessNode;
 import org.openlca.ilcd.productmodel.Product;
 import org.openlca.ilcd.productmodel.ProductModel;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.ProcessInfoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,10 +159,10 @@ public class SystemExport {
 		ProcessName processName = new ProcessName();
 		info.name = processName;
 		String name = system.getName() + " (product system)";
-		LangString.addLabel(processName.baseName, name, config.ilcdConfig);
+		LangString.set(processName.baseName, name, config.lang);
 		if (system.getDescription() != null) {
-			LangString.addFreeText(info.generalComment,
-					system.getDescription(), config.ilcdConfig);
+			LangString.set(info.generalComment,
+					system.getDescription(), config.lang);
 		}
 		addClassification(info);
 		return info;

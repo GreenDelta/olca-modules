@@ -36,7 +36,7 @@ public class SystemImport {
 
 	public ProductSystem run(org.openlca.ilcd.processes.Process ilcdProcess)
 			throws ImportException {
-		ilcdProcessBag = new ProcessBag(ilcdProcess, config.ilcdConfig);
+		ilcdProcessBag = new ProcessBag(ilcdProcess, config.langConfig);
 		if (!ilcdProcessBag.hasProductModel())
 			return null;
 		ProductSystem system = findExisting(ilcdProcessBag.getId());

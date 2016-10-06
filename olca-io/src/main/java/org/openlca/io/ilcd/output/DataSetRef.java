@@ -9,7 +9,7 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.DataSetType;
-import org.openlca.ilcd.util.LangString;
+import org.openlca.ilcd.commons.LangString;
 
 class DataSetRef {
 
@@ -26,8 +26,8 @@ class DataSetRef {
 		ref.uuid = model.getRefId();
 		setUriAndType(model, ref);
 		if (model.getName() != null) {
-			LangString.addShortText(ref.shortDescription, model.getName(),
-					config.ilcdConfig);
+			LangString.set(ref.shortDescription, model.getName(),
+					config.lang);
 		}
 		return ref;
 	}

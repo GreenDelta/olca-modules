@@ -10,13 +10,13 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.methods.DataSetInformation;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.LCIAMethodInformation;
-import org.openlca.ilcd.util.LangString;
 
 public class ImpactMethodExport {
 
@@ -53,8 +53,8 @@ public class ImpactMethodExport {
 		putAttribute("olca_category_unit", impact.getReferenceUnit(),
 				dataSetInfo.getOtherAttributes());
 		if (impact.getDescription() != null)
-			LangString.addFreeText(dataSetInfo.getGeneralComment(),
-					impact.getDescription(), config.ilcdConfig);
+			LangString.set(dataSetInfo.getGeneralComment(),
+					impact.getDescription(), config.lang);
 	}
 
 	private void putAttribute(String name, String value, Map<QName, String> map) {

@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.openlca.core.model.ProcessDocumentation;
-import org.openlca.ilcd.util.LangString;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.TimeExtension;
 
 /**
@@ -32,7 +32,7 @@ class ProcessTime {
 		TimeExtension extension = new TimeExtension(ilcdTime);
 		mapStartDate(extension, doc);
 		mapEndDate(extension, doc);
-		doc.setTime(LangString.get(ilcdTime.description, config.ilcdConfig));
+		doc.setTime(LangString.getVal(ilcdTime.description, config.langConfig));
 	}
 
 	private void mapStartDate(TimeExtension extension, ProcessDocumentation doc) {

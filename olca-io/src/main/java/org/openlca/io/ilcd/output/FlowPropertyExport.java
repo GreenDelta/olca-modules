@@ -4,6 +4,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flowproperties.AdminInfo;
 import org.openlca.ilcd.flowproperties.DataEntry;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
@@ -12,7 +13,6 @@ import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
 import org.openlca.ilcd.flowproperties.Publication;
 import org.openlca.ilcd.flowproperties.QuantitativeReference;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
 
 public class FlowPropertyExport {
@@ -49,11 +49,11 @@ public class FlowPropertyExport {
 	private DataSetInfo makeDataSetInfo() {
 		DataSetInfo dataSetInfo = new DataSetInfo();
 		dataSetInfo.uuid = flowProperty.getRefId();
-		LangString.addLabel(dataSetInfo.name, flowProperty.getName(),
-				config.ilcdConfig);
+		LangString.set(dataSetInfo.name, flowProperty.getName(),
+				config.lang);
 		if (flowProperty.getDescription() != null) {
-			LangString.addFreeText(dataSetInfo.generalComment,
-					flowProperty.getDescription(), config.ilcdConfig);
+			LangString.set(dataSetInfo.generalComment,
+					flowProperty.getDescription(), config.lang);
 		}
 		CategoryConverter converter = new CategoryConverter();
 		ClassificationInfo classInfo = converter
@@ -77,7 +77,7 @@ public class FlowPropertyExport {
 		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(flowProperty);
 		entry.referenceToDataSetFormat.add(
-				Reference.forIlcdFormat(config.ilcdConfig));
+				Reference.forIlcdFormat());
 		addPublication(info);
 		return info;
 	}

@@ -18,13 +18,13 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LCIMethodApproach;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class ProcessImport {
 
 	public Process run(org.openlca.ilcd.processes.Process process)
 			throws ImportException {
-		this.ilcdProcess = new ProcessBag(process, config.ilcdConfig);
+		this.ilcdProcess = new ProcessBag(process, config.langConfig);
 		Process oProcess = findExisting(ilcdProcess.getId());
 		if (oProcess != null)
 			return oProcess;
@@ -57,7 +57,7 @@ public class ProcessImport {
 		if (process != null)
 			return process;
 		org.openlca.ilcd.processes.Process iProcess = tryGetProcess(processId);
-		ilcdProcess = new ProcessBag(iProcess, config.ilcdConfig);
+		ilcdProcess = new ProcessBag(iProcess, config.langConfig);
 		return createNew();
 	}
 
@@ -140,8 +140,8 @@ public class ProcessImport {
 		Geography iGeography = ilcdProcess.getGeography();
 		if (iGeography == null || iGeography.location == null)
 			return;
-		doc.setGeography(LangString.get(iGeography.location.description,
-				config.ilcdConfig));
+		doc.setGeography(LangString.getVal(iGeography.location.description,
+				config.langConfig));
 		if (iGeography.location.location == null)
 			return;
 		String code = iGeography.location.location;
@@ -153,9 +153,9 @@ public class ProcessImport {
 		org.openlca.ilcd.processes.Technology iTechnology = ilcdProcess
 				.getTechnology();
 		if (iTechnology != null) {
-			doc.setTechnology(LangString.get(
+			doc.setTechnology(LangString.getVal(
 					iTechnology.technologyDescriptionAndIncludedProcesses,
-					config.ilcdConfig));
+					config.langConfig));
 		}
 	}
 
@@ -174,8 +174,8 @@ public class ProcessImport {
 				doc.setPublication(fetchSource(publicationRef));
 
 			// access and use restrictions
-			doc.setRestrictions(LangString.get(
-					iPublication.accessRestrictions, config.ilcdConfig));
+			doc.setRestrictions(LangString.getVal(
+					iPublication.accessRestrictions, config.langConfig));
 
 			// version
 			process.setVersion(Version.fromString(
@@ -221,11 +221,11 @@ public class ProcessImport {
 		if (ilcdProcess.getCommissionerAndGoal() != null) {
 			CommissionerAndGoal comAndGoal = ilcdProcess
 					.getCommissionerAndGoal();
-			String intendedApp = LangString.get(
-					comAndGoal.intendedApplications, config.ilcdConfig);
+			String intendedApp = LangString.getVal(
+					comAndGoal.intendedApplications, config.langConfig);
 			doc.setIntendedApplication(intendedApp);
-			String project = LangString.get(comAndGoal.project,
-					config.ilcdConfig);
+			String project = LangString.getVal(comAndGoal.project,
+					config.langConfig);
 			doc.setProject(project);
 		}
 	}
@@ -246,12 +246,12 @@ public class ProcessImport {
 		}
 		LCIMethod iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
-			String lciPrinciple = LangString.get(
+			String lciPrinciple = LangString.getVal(
 					iMethod.deviationsFromLCIMethodPrinciple,
-					config.ilcdConfig);
+					config.langConfig);
 			doc.setInventoryMethod(lciPrinciple);
-			doc.setModelingConstants(LangString.get(
-					iMethod.modellingConstants, config.ilcdConfig));
+			doc.setModelingConstants(LangString.getVal(
+					iMethod.modellingConstants, config.langConfig));
 			process.setDefaultAllocationMethod(getAllocation(iMethod));
 		}
 	}
@@ -279,19 +279,19 @@ public class ProcessImport {
 		Representativeness repr = ilcdProcess.getRepresentativeness();
 		if (repr == null)
 			return;
-		doc.setCompleteness(LangString.get(
+		doc.setCompleteness(LangString.getVal(
 				repr.dataCutOffAndCompletenessPrinciples,
-				config.ilcdConfig));
-		doc.setDataSelection(LangString.get(
+				config.langConfig));
+		doc.setDataSelection(LangString.getVal(
 				repr.dataSelectionAndCombinationPrinciples,
-				config.ilcdConfig));
-		doc.setDataTreatment(LangString.get(
+				config.langConfig));
+		doc.setDataTreatment(LangString.getVal(
 				repr.dataTreatmentAndExtrapolationsPrinciples,
-				config.ilcdConfig));
-		doc.setSampling(LangString.get(repr.samplingProcedure,
-				config.ilcdConfig));
-		doc.setDataCollectionPeriod(LangString.get(
-				repr.dataCollectionPeriod, config.ilcdConfig));
+				config.langConfig));
+		doc.setSampling(LangString.getVal(repr.samplingProcedure,
+				config.langConfig));
+		doc.setDataCollectionPeriod(LangString.getVal(
+				repr.dataCollectionPeriod, config.langConfig));
 	}
 
 	private void addSources(ProcessDocumentation doc) {
@@ -316,8 +316,8 @@ public class ProcessImport {
 					.get(0);
 			doc.setReviewer(fetchActor(ref));
 		}
-		doc.setReviewDetails(LangString.get(iReview.reviewDetails,
-				config.ilcdConfig));
+		doc.setReviewDetails(LangString.getVal(iReview.reviewDetails,
+				config.langConfig));
 	}
 
 	private Actor fetchActor(DataSetReference reference) {

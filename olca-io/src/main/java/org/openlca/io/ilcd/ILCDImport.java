@@ -101,7 +101,7 @@ public class ILCDImport implements FileImport {
 			Iterator<Source> it = config.store.iterator(Source.class);
 			while (it.hasNext() && !canceled) {
 				Source source = it.next();
-				fireEvent(new SourceBag(source, config.ilcdConfig)
+				fireEvent(new SourceBag(source, config.langConfig)
 						.getShortName());
 				SourceImport sourceImport = new SourceImport(config);
 				sourceImport.run(source);
@@ -118,7 +118,7 @@ public class ILCDImport implements FileImport {
 			Iterator<UnitGroup> it = config.store.iterator(UnitGroup.class);
 			while (it.hasNext() && !canceled) {
 				UnitGroup group = it.next();
-				fireEvent(new UnitGroupBag(group, config.ilcdConfig).getName());
+				fireEvent(new UnitGroupBag(group, config.langConfig).getName());
 				UnitGroupImport groupImport = new UnitGroupImport(config);
 				groupImport.run(group);
 			}
@@ -135,7 +135,7 @@ public class ILCDImport implements FileImport {
 					.iterator(FlowProperty.class);
 			while (it.hasNext() && !canceled) {
 				FlowProperty property = it.next();
-				fireEvent(new FlowPropertyBag(property, config.ilcdConfig)
+				fireEvent(new FlowPropertyBag(property, config.langConfig)
 						.getName());
 				FlowPropertyImport propertyImport = new FlowPropertyImport(
 						config);
@@ -153,7 +153,7 @@ public class ILCDImport implements FileImport {
 			Iterator<Flow> it = config.store.iterator(Flow.class);
 			while (it.hasNext() && !canceled) {
 				Flow flow = it.next();
-				fireEvent(new FlowBag(flow, config.ilcdConfig).getName());
+				fireEvent(new FlowBag(flow, config.langConfig).getName());
 				FlowImport flowImport = new FlowImport(config);
 				flowImport.run(flow);
 			}
@@ -177,7 +177,7 @@ public class ILCDImport implements FileImport {
 		ProcessImport processImport = new ProcessImport(config);
 		while (it.hasNext() && !canceled) {
 			Process process = it.next();
-			ProcessBag bag = new ProcessBag(process, config.ilcdConfig);
+			ProcessBag bag = new ProcessBag(process, config.langConfig);
 			fireEvent(bag.getName());
 			if (bag.hasProductModel()) {
 				SystemImport systemImport = new SystemImport(config);

@@ -7,7 +7,7 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
-import org.openlca.ilcd.util.LangString;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.ParameterExtension;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -65,8 +65,7 @@ class ProcessParameterConversion {
 		iParameter.meanValue = oParam.getValue();
 		new UncertaintyConverter().map(oParam, iParameter);
 		if (Strings.notEmpty(oParam.getDescription())) {
-			iParameter.comment.add(LangString.label(oParam.getDescription(),
-					config.ilcdConfig));
+			LangString.set(iParameter.comment, oParam.getDescription(), config.lang);
 		}
 		return iParameter;
 	}

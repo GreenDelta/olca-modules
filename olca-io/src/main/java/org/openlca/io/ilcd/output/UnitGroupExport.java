@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.units.AdminInfo;
 import org.openlca.ilcd.units.DataEntry;
@@ -14,7 +15,6 @@ import org.openlca.ilcd.units.QuantitativeReference;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
 import org.openlca.ilcd.units.UnitList;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
 import org.openlca.ilcd.util.UnitExtension;
 
@@ -53,11 +53,11 @@ public class UnitGroupExport {
 	private DataSetInfo makeDataSetInfo() {
 		DataSetInfo dataSetInfo = new DataSetInfo();
 		dataSetInfo.uuid = unitGroup.getRefId();
-		LangString.addLabel(dataSetInfo.name, unitGroup.getName(),
-				config.ilcdConfig);
+		LangString.set(dataSetInfo.name, unitGroup.getName(),
+				config.lang);
 		if (unitGroup.getDescription() != null)
-			LangString.addFreeText(dataSetInfo.generalComment,
-					unitGroup.getDescription(), config.ilcdConfig);
+			LangString.set(dataSetInfo.generalComment,
+					unitGroup.getDescription(), config.lang);
 		CategoryConverter converter = new CategoryConverter();
 		ClassificationInfo classInfo = converter
 				.getClassificationInformation(unitGroup.getCategory());
@@ -92,8 +92,8 @@ public class UnitGroupExport {
 		iUnit.meanValue = unit.getConversionFactor();
 		iUnit.name = unit.getName();
 		if (unit.getDescription() != null) {
-			LangString.addLabel(iUnit.generalComment,
-					unit.getDescription(), config.ilcdConfig);
+			LangString.set(iUnit.generalComment,
+					unit.getDescription(), config.lang);
 		}
 		UnitExtension unitExtension = new UnitExtension(iUnit);
 		unitExtension.setUnitId(unit.getRefId());
@@ -106,7 +106,7 @@ public class UnitGroupExport {
 		info.dataEntryBy = entry;
 		entry.timeStamp = Out.getTimestamp(unitGroup);
 		entry.referenceToDataSetFormat.add(
-				Reference.forIlcdFormat(config.ilcdConfig));
+				Reference.forIlcdFormat());
 		addPublication(info);
 		return info;
 	}

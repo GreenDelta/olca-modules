@@ -25,7 +25,7 @@ public class FlowPropertyImport {
 	public FlowProperty run(
 			org.openlca.ilcd.flowproperties.FlowProperty property)
 			throws ImportException {
-		this.ilcdProperty = new FlowPropertyBag(property, config.ilcdConfig);
+		this.ilcdProperty = new FlowPropertyBag(property, config.langConfig);
 		FlowProperty oProperty = findExisting(ilcdProperty.getId());
 		if (oProperty != null)
 			return oProperty;
@@ -37,7 +37,7 @@ public class FlowPropertyImport {
 		if (property != null)
 			return property;
 		org.openlca.ilcd.flowproperties.FlowProperty iProp = tryGetFlowProperty(propertyId);
-		ilcdProperty = new FlowPropertyBag(iProp, config.ilcdConfig);
+		ilcdProperty = new FlowPropertyBag(iProp, config.langConfig);
 		return createNew();
 	}
 

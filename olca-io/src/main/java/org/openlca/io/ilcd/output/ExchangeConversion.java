@@ -11,11 +11,11 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.util.ExchangeExtension;
-import org.openlca.ilcd.util.LangString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +53,8 @@ class ExchangeConversion {
 			Exchange oExchange) {
 		org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
 		if (oExchange.description != null)
-			LangString.addLabel(iExchange.generalComment,
-					oExchange.description, config.ilcdConfig);
+			LangString.set(iExchange.generalComment,
+					oExchange.description, config.lang);
 		mapFlow(oExchange, iExchange);
 		mapDirection(oExchange, iExchange);
 		double resultingAmount = getRefAmount(oExchange);

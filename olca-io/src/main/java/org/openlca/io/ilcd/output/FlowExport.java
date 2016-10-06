@@ -10,6 +10,7 @@ import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.FlowCategorization;
 import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
@@ -24,7 +25,6 @@ import org.openlca.ilcd.flows.ModellingAndValidation;
 import org.openlca.ilcd.flows.Publication;
 import org.openlca.ilcd.flows.QuantitativeReference;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
 
 public class FlowExport {
@@ -63,16 +63,16 @@ public class FlowExport {
 		info.uuid = flow.getRefId();
 		FlowName flowName = new FlowName();
 		info.name = flowName;
-		LangString.addLabel(flowName.baseName, flow.getName(),
-				config.ilcdConfig);
+		LangString.set(flowName.baseName, flow.getName(),
+				config.lang);
 		if (flow.getDescription() != null)
-			LangString.addFreeText(info.generalComment,
-					flow.getDescription(), config.ilcdConfig);
+			LangString.set(info.generalComment,
+					flow.getDescription(), config.lang);
 		info.casNumber = flow.getCasNumber();
 		info.sumFormula = flow.getFormula();
 		if (flow.synonyms != null)
-			LangString.addFreeText(info.synonyms, flow.synonyms,
-					config.ilcdConfig);
+			LangString.set(info.synonyms, flow.synonyms,
+					config.lang);
 		makeCategoryInfo(info);
 		return info;
 	}
@@ -119,8 +119,8 @@ public class FlowExport {
 	private void addLocation(org.openlca.ilcd.flows.Flow iFlow) {
 		if (flow != null && flow.getLocation() != null) {
 			Geography geography = new Geography();
-			LangString.addLabel(geography.location, flow.getLocation()
-					.getCode(), config.ilcdConfig);
+			LangString.set(geography.location, flow.getLocation()
+					.getCode(), config.lang);
 			iFlow.flowInformation.setGeography(geography);
 		}
 	}
@@ -131,7 +131,7 @@ public class FlowExport {
 		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(flow);
 		entry.referenceToDataSetFormat.add(
-				Reference.forIlcdFormat(config.ilcdConfig));
+				Reference.forIlcdFormat());
 		addPublication(info);
 		return info;
 	}

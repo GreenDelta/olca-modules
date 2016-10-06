@@ -74,7 +74,7 @@ public class LangString implements Serializable {
 		LangString s = get(list, lang);
 		if (s != null) {
 			s.value = value;
-		} else {
+		} else if (value != null) {
 			s = LangString.of(value, lang);
 			list.add(s);
 		}

@@ -12,11 +12,11 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataGenerator;
 import org.openlca.ilcd.processes.Publication;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ class ProcessAdminInfo {
 		iAdminInfo.dataEntry = dataEntry;
 		dataEntry.timeStamp = toXmlCalender(new Date());
 		dataEntry.referenceToDataSetFormat.add(
-				Reference.forIlcdFormat(config.ilcdConfig));
+				Reference.forIlcdFormat());
 		if (documentation.getDataDocumentor() != null) {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
 					documentation.getDataDocumentor(), config);
@@ -97,8 +97,8 @@ class ProcessAdminInfo {
 		mapDataSetOwner(publication);
 		if (!Strings.nullOrEmpty(documentation.getRestrictions())) {
 			publication.accessRestrictions.add(
-					LangString.freeText(documentation.getRestrictions(),
-							config.ilcdConfig));
+					LangString.of(documentation.getRestrictions(),
+							config.lang));
 		}
 		mapPublicationSource(publication);
 	}
@@ -131,13 +131,13 @@ class ProcessAdminInfo {
 		iAdminInfo.commissionerAndGoal = comAndGoal;
 		if (!Strings.nullOrEmpty(documentation.getIntendedApplication())) {
 			comAndGoal.intendedApplications.add(
-					LangString.freeText(documentation.getIntendedApplication(),
-							config.ilcdConfig));
+					LangString.of(documentation.getIntendedApplication(),
+							config.lang));
 		}
 		if (!Strings.nullOrEmpty(documentation.getProject())) {
 			comAndGoal.project.add(
-					LangString.label(documentation.getProject(),
-							config.ilcdConfig));
+					LangString.of(documentation.getProject(),
+							config.lang));
 		}
 	}
 

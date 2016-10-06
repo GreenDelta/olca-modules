@@ -6,6 +6,7 @@ import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.sources.AdminInfo;
 import org.openlca.ilcd.sources.DataEntry;
@@ -14,7 +15,6 @@ import org.openlca.ilcd.sources.DigitalFileRef;
 import org.openlca.ilcd.sources.Publication;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInfo;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,11 +76,10 @@ public class SourceExport {
 		log.trace("Create data set information.");
 		DataSetInfo info = new DataSetInfo();
 		info.uuid = source.getRefId();
-		LangString.addLabel(info.shortName, source.getName(),
-				config.ilcdConfig);
+		LangString.set(info.shortName, source.getName(), config.lang);
 		if (source.getDescription() != null) {
-			LangString.addFreeText(info.sourceDescriptionOrComment,
-					source.getDescription(), config.ilcdConfig);
+			LangString.set(info.sourceDescriptionOrComment,
+					source.getDescription(), config.lang);
 		}
 		addTextReference(info);
 		CategoryConverter converter = new CategoryConverter();
@@ -112,7 +111,7 @@ public class SourceExport {
 		info.dataEntryBy = entry;
 		entry.timeStamp = Out.getTimestamp(source);
 		entry.referenceToDataSetFormat.add(
-				Reference.forIlcdFormat(config.ilcdConfig));
+				Reference.forIlcdFormat());
 		addPublication(info);
 		return info;
 	}

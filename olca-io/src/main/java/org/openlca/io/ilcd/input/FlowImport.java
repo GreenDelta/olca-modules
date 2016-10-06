@@ -14,9 +14,9 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.util.FlowBag;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class FlowImport {
 	}
 
 	public Flow run(org.openlca.ilcd.flows.Flow flow) throws ImportException {
-		this.ilcdFlow = new FlowBag(flow, config.ilcdConfig);
+		this.ilcdFlow = new FlowBag(flow, config.langConfig);
 		Flow oFlow = findExisting(ilcdFlow.getId());
 		if (oFlow != null)
 			return oFlow;
@@ -45,7 +45,7 @@ public class FlowImport {
 		if (flow != null)
 			return flow;
 		org.openlca.ilcd.flows.Flow iFlow = tryGetFlow(flowId);
-		ilcdFlow = new FlowBag(iFlow, config.ilcdConfig);
+		ilcdFlow = new FlowBag(iFlow, config.langConfig);
 		return createNew();
 	}
 
@@ -127,7 +127,7 @@ public class FlowImport {
 	private void mapLocation() {
 		if (ilcdFlow == null || flow == null)
 			return;
-		String code = LangString.get(ilcdFlow.getLocation(), config.ilcdConfig);
+		String code = LangString.getVal(ilcdFlow.getLocation(), config.langConfig);
 		Location location = Locations.get(code, config);
 		flow.setLocation(location);
 	}

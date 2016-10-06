@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.output;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.contacts.ContactInfo;
@@ -10,7 +11,6 @@ import org.openlca.ilcd.contacts.DataEntry;
 import org.openlca.ilcd.contacts.DataSetInfo;
 import org.openlca.ilcd.contacts.Publication;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.Reference;
 
 public class ActorExport {
@@ -45,15 +45,15 @@ public class ActorExport {
 	private DataSetInfo makeDataSetInfo() {
 		DataSetInfo info = new DataSetInfo();
 		info.uuid = actor.getRefId();
-		LangString.addLabel(info.name, actor.getName(), config.ilcdConfig);
+		LangString.set(info.name, actor.getName(), config.lang);
 		info.email = actor.getEmail();
 		info.telefax = actor.getTelefax();
 		info.telephone = actor.getTelephone();
 		info.wwwAddress = actor.getWebsite();
 		addAddress(info);
 		if (actor.getDescription() != null) {
-			LangString.addShortText(info.description,
-					actor.getDescription(), config.ilcdConfig);
+			LangString.set(info.description,
+					actor.getDescription(), config.lang);
 		}
 		addClassification(info);
 		return info;
@@ -67,8 +67,8 @@ public class ActorExport {
 			address += ", " + actor.getZipCode();
 		if (actor.getCity() != null)
 			address += " " + actor.getCity();
-		LangString.addShortText(dataSetInfo.contactAddress, address,
-				config.ilcdConfig);
+		LangString.set(dataSetInfo.contactAddress, address,
+				config.lang);
 	}
 
 	private void addClassification(DataSetInfo dataSetInfo) {
@@ -88,7 +88,7 @@ public class ActorExport {
 		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(actor);
 		entry.referenceToDataSetFormat.add(
-				Reference.forIlcdFormat(config.ilcdConfig));
+				Reference.forIlcdFormat());
 		addPublication(info);
 		return info;
 	}

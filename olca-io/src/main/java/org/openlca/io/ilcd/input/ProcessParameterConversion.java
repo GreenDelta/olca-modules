@@ -6,7 +6,7 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
-import org.openlca.ilcd.util.LangString;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.ParameterExtension;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.util.Strings;
@@ -51,7 +51,7 @@ class ProcessParameterConversion {
 		Parameter param = new Parameter();
 		param.setScope(scope);
 		param.setName(iParameter.name);
-		param.setDescription(LangString.get(iParameter.comment, config.ilcdConfig));
+		param.setDescription(LangString.getVal(iParameter.comment, config.langConfig));
 		Double mean = iParameter.meanValue;
 		if (mean != null)
 			param.setValue(mean);

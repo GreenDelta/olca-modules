@@ -3,9 +3,9 @@ package org.openlca.io.ilcd.input;
 import java.io.File;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.ZipStore;
-import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.MapType;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ public class ImportConfig {
 	public final IDatabase db;
 	public final FlowMap flowMap;
 	public boolean importFlows;
-	public IlcdConfig ilcdConfig = IlcdConfig.getDefault();
+	public LangConfig langConfig = LangConfig.getDefault();
 
 	public ImportConfig(File zip, IDatabase database) {
 		DataStore store = null;

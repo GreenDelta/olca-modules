@@ -11,10 +11,9 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
 import org.openlca.ilcd.commons.LCIMethodApproach;
 import org.openlca.ilcd.commons.LCIMethodPrinciple;
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.processes.AdminInfo;
@@ -26,7 +25,6 @@ import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
-import org.openlca.ilcd.util.LangString;
 import org.openlca.ilcd.util.ProcessBuilder;
 import org.openlca.ilcd.util.TimeExtension;
 import org.openlca.util.Strings;
@@ -73,10 +71,8 @@ public class ProcessExport {
 		dataSetInfo.uuid = process.getRefId();
 		ProcessName processName = new ProcessName();
 		dataSetInfo.name = processName;
-		addLabel(processName.baseName, process.getName());
-		if (Strings.notEmpty(process.getDescription())) {
-			addText(dataSetInfo.generalComment, process.getDescription());
-		}
+		s(processName.baseName, process.getName());
+		s(dataSetInfo.generalComment, process.getDescription());
 		addClassification(dataSetInfo);
 		return dataSetInfo;
 	}
@@ -116,9 +112,7 @@ public class ProcessExport {
 			iTime.validUntil = new BigInteger(_end);
 			extension.setEndDate(doc.getValidUntil());
 		}
-		if (Strings.notEmpty(doc.getTime())) {
-			addText(iTime.description, doc.getTime());
-		}
+		s(iTime.description, doc.getTime());
 	}
 
 	private Geography makeGeography() {
@@ -137,9 +131,7 @@ public class ProcessExport {
 					+ oLocation.getLongitude();
 			iLocation.latitudeAndLongitude = pos;
 		}
-		if (Strings.notEmpty(doc.getGeography())) {
-			addText(iLocation.description, doc.getGeography());
-		}
+		s(iLocation.description, doc.getGeography());
 		return geography;
 	}
 
@@ -151,7 +143,7 @@ public class ProcessExport {
 		org.openlca.ilcd.processes.Technology iTechnology = null;
 		if (Strings.notEmpty(doc.getTechnology())) {
 			iTechnology = new org.openlca.ilcd.processes.Technology();
-			addText(iTechnology.technologyDescriptionAndIncludedProcesses,
+			s(iTechnology.technologyDescriptionAndIncludedProcesses,
 					doc.getTechnology());
 		}
 		return iTechnology;
@@ -177,12 +169,10 @@ public class ProcessExport {
 		iMethod.lciMethodPrinciple = LCIMethodPrinciple.OTHER;
 
 		if (doc != null) {
-			if (Strings.notEmpty(doc.getInventoryMethod()))
-				addText(iMethod.deviationsFromLCIMethodPrinciple,
-						doc.getInventoryMethod());
-			if (Strings.notEmpty(doc.getModelingConstants()))
-				addText(iMethod.modellingConstants,
-						doc.getModelingConstants());
+			s(iMethod.deviationsFromLCIMethodPrinciple,
+					doc.getInventoryMethod());
+			s(iMethod.modellingConstants,
+					doc.getModelingConstants());
 		}
 
 		LCIMethodApproach allocation = getAllocationMethod();
@@ -209,51 +199,34 @@ public class ProcessExport {
 
 	private Representativeness makeRepresentativeness() {
 		log.trace("Create process representativeness.");
-		Representativeness iRepri = null;
+		if (doc == null)
+			return null;
+		Representativeness iRepri = new Representativeness();
 
-		if (doc != null) {
-			iRepri = new Representativeness();
+		// completeness
+		s(iRepri.dataCutOffAndCompletenessPrinciples, doc.getCompleteness());
+		s(iRepri.deviationsFromCutOffAndCompletenessPrinciples, "None.");
 
-			// completeness
-			if (Strings.notEmpty(doc.getCompleteness())) {
-				addText(iRepri.dataCutOffAndCompletenessPrinciples,
-						doc.getCompleteness());
-				addText(iRepri.deviationsFromCutOffAndCompletenessPrinciples,
-						"None.");
-			}
+		// data selection
+		s(iRepri.dataSelectionAndCombinationPrinciples, doc.getDataSelection());
+		s(iRepri.deviationsFromSelectionAndCombinationPrinciples, "None.");
 
-			// data selection
-			if (Strings.notEmpty(doc.getDataSelection())) {
-				addText(iRepri.dataSelectionAndCombinationPrinciples,
-						doc.getDataSelection());
-				addText(iRepri.deviationsFromSelectionAndCombinationPrinciples,
-						"None.");
-			}
+		// data treatment
+		s(iRepri.dataTreatmentAndExtrapolationsPrinciples, doc.getDataTreatment());
 
-			// data treatment
-			if (Strings.notEmpty(doc.getDataTreatment())) {
-				List<FreeText> ePrinciples = iRepri.dataTreatmentAndExtrapolationsPrinciples;
-				addText(ePrinciples, doc.getDataTreatment());
-				addText(ePrinciples, "None.");
-			}
-
-			// data sources
-			for (Source source : doc.getSources()) {
-				DataSetReference ref = ExportDispatch.forwardExportCheck(
-						source, config);
-				if (ref != null)
-					iRepri.referenceToDataSource.add(ref);
-			}
-
-			// sampling procedure
-			if (Strings.notEmpty(doc.getSampling()))
-				addText(iRepri.samplingProcedure, doc.getSampling());
-
-			// data collection period
-			if (Strings.notEmpty(doc.getDataCollectionPeriod()))
-				addLabel(iRepri.dataCollectionPeriod,
-						doc.getDataCollectionPeriod());
+		// data sources
+		for (Source source : doc.getSources()) {
+			DataSetReference ref = ExportDispatch.forwardExportCheck(
+					source, config);
+			if (ref != null)
+				iRepri.referenceToDataSource.add(ref);
 		}
+
+		// sampling procedure
+		s(iRepri.samplingProcedure, doc.getSampling());
+
+		// data collection period
+		s(iRepri.dataCollectionPeriod, doc.getDataCollectionPeriod());
 
 		return iRepri;
 	}
@@ -275,9 +248,7 @@ public class ProcessExport {
 					review.referenceToNameOfReviewerAndInstitution.add(ref);
 			}
 
-			if (Strings.notEmpty(doc.getReviewDetails())) {
-				addText(review.reviewDetails, doc.getReviewDetails());
-			}
+			s(review.reviewDetails, doc.getReviewDetails());
 		}
 		return reviews;
 	}
@@ -297,16 +268,11 @@ public class ProcessExport {
 		conversion.run(ilcdProcess);
 	}
 
-	private void addLabel(List<Label> labels, String value) {
-		if (Strings.nullOrEmpty(value))
+	private void s(List<LangString> list, String val) {
+		if (Strings.nullOrEmpty(val))
 			return;
-		LangString.addLabel(labels, value, config.ilcdConfig);
-	}
+		LangString.set(list, val, config.lang);
 
-	private void addText(List<FreeText> texts, String value) {
-		if (Strings.nullOrEmpty(value))
-			return;
-		LangString.addFreeText(texts, value, config.ilcdConfig);
 	}
 
 }
