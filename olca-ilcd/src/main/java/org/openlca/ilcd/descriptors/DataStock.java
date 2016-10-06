@@ -8,19 +8,24 @@ import javax.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DataStock {
 
-	@XmlAttribute(name = "root", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	@XmlAttribute(name = "root")
 	public boolean root;
 
-	@XmlElement(name = "uuid", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	@XmlElement(name = "uuid")
 	public String uuid;
 
-	@XmlElement(name = "shortName", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	@XmlElement(name = "shortName")
 	public LangString shortName;
 
-	@XmlElement(name = "name", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	@XmlElement(name = "name")
 	public LangString name;
 
-	@XmlElement(name = "description", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	@XmlElement(name = "description")
 	public LangString description;
 
+	@Override
+	public String toString() {
+		String name = shortName != null ? shortName.value : "";
+		return "DataStock [ " + name + "/" + uuid + "/root=" + root + "]";
+	}
 }
