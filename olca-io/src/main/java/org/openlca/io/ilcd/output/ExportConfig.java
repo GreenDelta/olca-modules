@@ -14,7 +14,7 @@ public class ExportConfig {
 			.getLogger(ExportConfig.class);
 	public final IDatabase db;
 	public final DataStore store;
-	public String lang;
+	public String lang = "en";
 
 	public ExportConfig(IDatabase database, File zip) {
 		DataStore store = null;
