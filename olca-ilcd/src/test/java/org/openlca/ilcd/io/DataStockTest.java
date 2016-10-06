@@ -35,11 +35,11 @@ public class DataStockTest {
 			if (stock.root) {
 				Assert.assertEquals("8945a2f5-cdda-4ccd-b357-6debb3898ddd",
 						stock.uuid);
-				Assert.assertEquals("default", stock.shortName.value);
+				Assert.assertEquals("default", stock.shortName);
 			} else {
 				Assert.assertEquals("600695cc-24da-4f9d-b549-78d0c5e126d0",
 						stock.uuid);
-				Assert.assertEquals("other", stock.shortName.value);
+				Assert.assertEquals("other", stock.shortName);
 			}
 		}
 	}

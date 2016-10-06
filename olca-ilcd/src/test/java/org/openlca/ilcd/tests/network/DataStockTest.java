@@ -21,7 +21,7 @@ public class DataStockTest {
 		Assert.assertEquals(numberOfStocks, list.dataStocks.size());
 		boolean found = false;
 		for (DataStock dataStock : list.dataStocks) {
-			String sn = dataStock.shortName.value;
+			String sn = dataStock.shortName;
 			if (shortName.equals(sn)) {
 				found = true;
 				break;

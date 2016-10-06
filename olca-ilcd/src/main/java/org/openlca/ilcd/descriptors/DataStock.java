@@ -15,7 +15,7 @@ public class DataStock {
 	public String uuid;
 
 	@XmlElement(name = "shortName")
-	public LangString shortName;
+	public String shortName;
 
 	@XmlElement(name = "name")
 	public LangString name;
@@ -25,7 +25,6 @@ public class DataStock {
 
 	@Override
 	public String toString() {
-		String name = shortName != null ? shortName.value : "";
-		return "DataStock [ " + name + "/" + uuid + "/root=" + root + "]";
+		return "DataStock [ " + shortName + "/" + uuid + "/root=" + root + "]";
 	}
 }
