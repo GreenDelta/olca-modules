@@ -7,7 +7,7 @@ import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.Time;
@@ -72,10 +72,10 @@ public class ProcessBag implements IBag<Process> {
 		return builder.toString();
 	}
 
-	private void appendNamePart(List<Label> parts, StringBuilder builder,
+	private void appendNamePart(List<LangString> parts, StringBuilder builder,
 			String prefix) {
 		if (parts != null) {
-			String part = LangString.get(parts, config);
+			String part = LangString.getVal(parts, config);
 			if (part != null) {
 				if (prefix != null) {
 					builder.append(prefix);
@@ -88,7 +88,7 @@ public class ProcessBag implements IBag<Process> {
 	public String getSynonyms() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.synonyms, config);
+			return LangString.getVal(info.synonyms, config);
 		return null;
 	}
 
@@ -104,7 +104,7 @@ public class ProcessBag implements IBag<Process> {
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.generalComment, config);
+			return LangString.getVal(info.generalComment, config);
 		return null;
 	}
 

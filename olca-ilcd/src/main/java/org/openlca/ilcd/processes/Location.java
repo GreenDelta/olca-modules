@@ -15,8 +15,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "LocationOfOperationSupplyOrProductionType", propOrder = {
@@ -27,8 +28,9 @@ public class Location implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
+	@FreeText
 	@XmlElement(name = "descriptionOfRestrictions")
-	public final List<FreeText> description = new ArrayList<>();
+	public final List<LangString> description = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

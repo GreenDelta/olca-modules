@@ -10,43 +10,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
 import org.openlca.ilcd.commons.LCIAMethodPrinciple;
-import org.openlca.ilcd.commons.ShortText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.TypeOfLCIAMethod;
+import org.openlca.ilcd.commons.annotations.FreeText;
+import org.openlca.ilcd.commons.annotations.ShortText;
 
-/**
- * <p>
- * Java class for LCIAMethodNormalisationAndWeightingType complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
- * <pre>
- * &lt;complexType name="LCIAMethodNormalisationAndWeightingType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="typeOfDataSet" type="{http://lca.jrc.it/ILCD/Common}TypeOfLCIAMethodValues" minOccurs="0"/>
- *         &lt;element name="LCIAMethodPrinciple" type="{http://lca.jrc.it/ILCD/Common}LCIAMethodPrincipleValues" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="deviationsFromLCIAMethodPrinciple" type="{http://lca.jrc.it/ILCD/Common}FTMultiLang" maxOccurs="100" minOccurs="0"/>
- *         &lt;element name="normalisation" type="{http://lca.jrc.it/ILCD/Common}boolean" minOccurs="0"/>
- *         &lt;element name="referenceToUsableNormalisationDataSets" type="{http://lca.jrc.it/ILCD/Common}GlobalReferenceType" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="normalisationDescription" type="{http://lca.jrc.it/ILCD/Common}STMultiLang" maxOccurs="100" minOccurs="0"/>
- *         &lt;element name="referenceToIncludedNormalisationDataSets" type="{http://lca.jrc.it/ILCD/Common}GlobalReferenceType" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="weighting" type="{http://lca.jrc.it/ILCD/Common}boolean" minOccurs="0"/>
- *         &lt;element name="referenceToUsableWeightingDataSets" type="{http://lca.jrc.it/ILCD/Common}GlobalReferenceType" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="weightingDescription" type="{http://lca.jrc.it/ILCD/Common}STMultiLang" maxOccurs="100" minOccurs="0"/>
- *         &lt;element name="referenceToIncludedWeightingDataSets" type="{http://lca.jrc.it/ILCD/Common}GlobalReferenceType" maxOccurs="unbounded" minOccurs="0"/>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "LCIAMethodNormalisationAndWeightingType", propOrder = {
 		"typeOfDataSet", "lciaMethodPrinciple",
@@ -58,17 +27,31 @@ import org.openlca.ilcd.commons.TypeOfLCIAMethod;
 public class NormalisationAndWeighting implements Serializable {
 
 	private final static long serialVersionUID = 1L;
+
 	protected TypeOfLCIAMethod typeOfDataSet;
+
 	@XmlElement(name = "LCIAMethodPrinciple")
 	protected List<LCIAMethodPrinciple> lciaMethodPrinciple;
-	protected List<FreeText> deviationsFromLCIAMethodPrinciple;
+
+	@FreeText
+	protected List<LangString> deviationsFromLCIAMethodPrinciple;
+
 	protected Boolean normalisation;
+
 	protected List<DataSetReference> referenceToUsableNormalisationDataSets;
-	protected List<ShortText> normalisationDescription;
+
+	@ShortText
+	protected List<LangString> normalisationDescription;
+
 	protected List<DataSetReference> referenceToIncludedNormalisationDataSets;
+
 	protected Boolean weighting;
+
 	protected List<DataSetReference> referenceToUsableWeightingDataSets;
-	protected List<ShortText> weightingDescription;
+
+	@ShortText
+	protected List<LangString> weightingDescription;
+
 	protected List<DataSetReference> referenceToIncludedWeightingDataSets;
 
 	/**
@@ -141,11 +124,12 @@ public class NormalisationAndWeighting implements Serializable {
 	 * 
 	 * 
 	 * <p>
-	 * Objects of the following type(s) are allowed in the list {@link FreeText }
+	 * Objects of the following type(s) are allowed in the list {@link FreeText
+	 * }
 	 * 
 	 * 
 	 */
-	public List<FreeText> getDeviationsFromLCIAMethodPrinciple() {
+	public List<LangString> getDeviationsFromLCIAMethodPrinciple() {
 		if (deviationsFromLCIAMethodPrinciple == null) {
 			deviationsFromLCIAMethodPrinciple = new ArrayList<>();
 		}
@@ -222,12 +206,12 @@ public class NormalisationAndWeighting implements Serializable {
 	 * 
 	 * 
 	 * <p>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link ShortText }
+	 * Objects of the following type(s) are allowed in the list {@link ShortText
+	 * }
 	 * 
 	 * 
 	 */
-	public List<ShortText> getNormalisationDescription() {
+	public List<LangString> getNormalisationDescription() {
 		if (normalisationDescription == null) {
 			normalisationDescription = new ArrayList<>();
 		}
@@ -335,12 +319,12 @@ public class NormalisationAndWeighting implements Serializable {
 	 * 
 	 * 
 	 * <p>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link ShortText }
+	 * Objects of the following type(s) are allowed in the list {@link ShortText
+	 * }
 	 * 
 	 * 
 	 */
-	public List<ShortText> getWeightingDescription() {
+	public List<LangString> getWeightingDescription() {
 		if (weightingDescription == null) {
 			weightingDescription = new ArrayList<>();
 		}

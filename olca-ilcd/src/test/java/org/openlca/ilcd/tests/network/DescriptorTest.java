@@ -83,7 +83,7 @@ public class DescriptorTest {
 		log.trace("Get full unit group: {}", resource.getURI());
 		UnitGroup unitGroup = resource.get(UnitGroup.class);
 		assertEquals(descriptor.name.value, unitGroup.unitGroupInformation.dataSetInformation.name
-				.get(0).getValue());
+				.get(0).value);
 		assertEquals(descriptor.uuid, unitGroup.unitGroupInformation.dataSetInformation.uuid);
 	}
 

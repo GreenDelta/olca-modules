@@ -16,9 +16,10 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.FreeText;
+import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataSourcesTreatmentAndRepresentativenessType", propOrder = {
@@ -42,17 +43,23 @@ public class Representativeness implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	public final List<FreeText> dataCutOffAndCompletenessPrinciples = new ArrayList<>();
+	@FreeText
+	public final List<LangString> dataCutOffAndCompletenessPrinciples = new ArrayList<>();
 
-	public final List<FreeText> deviationsFromCutOffAndCompletenessPrinciples = new ArrayList<>();
+	@FreeText
+	public final List<LangString> deviationsFromCutOffAndCompletenessPrinciples = new ArrayList<>();
 
-	public final List<FreeText> dataSelectionAndCombinationPrinciples = new ArrayList<>();
+	@FreeText
+	public final List<LangString> dataSelectionAndCombinationPrinciples = new ArrayList<>();
 
-	public final List<FreeText> deviationsFromSelectionAndCombinationPrinciples = new ArrayList<>();
+	@FreeText
+	public final List<LangString> deviationsFromSelectionAndCombinationPrinciples = new ArrayList<>();
 
-	public final List<FreeText> dataTreatmentAndExtrapolationsPrinciples = new ArrayList<>();
+	@FreeText
+	public final List<LangString> dataTreatmentAndExtrapolationsPrinciples = new ArrayList<>();
 
-	public final List<FreeText> deviationsFromTreatmentAndExtrapolationPrinciples = new ArrayList<>();
+	@FreeText
+	public final List<LangString> deviationsFromTreatmentAndExtrapolationPrinciples = new ArrayList<>();
 
 	public final List<DataSetReference> referenceToDataHandlingPrinciples = new ArrayList<>();
 
@@ -60,15 +67,20 @@ public class Representativeness implements Serializable {
 
 	public BigDecimal percentageSupplyOrProductionCovered;
 
-	public final List<Label> annualSupplyOrProductionVolume = new ArrayList<>();
+	@Label
+	public final List<LangString> annualSupplyOrProductionVolume = new ArrayList<>();
 
-	public final List<FreeText> samplingProcedure = new ArrayList<>();
+	@FreeText
+	public final List<LangString> samplingProcedure = new ArrayList<>();
 
-	public final List<Label> dataCollectionPeriod = new ArrayList<>();
+	@Label
+	public final List<LangString> dataCollectionPeriod = new ArrayList<>();
 
-	public final List<FreeText> uncertaintyAdjustments = new ArrayList<>();
+	@FreeText
+	public final List<LangString> uncertaintyAdjustments = new ArrayList<>();
 
-	public final List<FreeText> useAdviceForDataSet = new ArrayList<>();
+	@FreeText
+	public final List<LangString> useAdviceForDataSet = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

@@ -2,13 +2,12 @@ package org.openlca.ilcd;
 
 import java.util.UUID;
 
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.sources.AdminInfo;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Publication;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInfo;
-import org.openlca.ilcd.util.IlcdConfig;
-import org.openlca.ilcd.util.LangString;
 
 public final class SampleSource {
 
@@ -27,8 +26,7 @@ public final class SampleSource {
 	private static DataSetInfo makeDataInfo() {
 		String id = UUID.randomUUID().toString();
 		DataSetInfo info = new DataSetInfo();
-		LangString.addLabel(info.shortName, "test source",
-				IlcdConfig.getDefault());
+		LangString.set(info.shortName, "test source", "en");
 		info.uuid = id;
 		return info;
 	}

@@ -14,6 +14,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.annotations.FreeText;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TimeType", propOrder = { "referenceYear", "validUntil",
 		"description", "other" })
@@ -26,8 +28,9 @@ public class Time implements Serializable {
 	@XmlElement(name = "dataSetValidUntil")
 	public BigInteger validUntil;
 
+	@FreeText
 	@XmlElement(name = "timeRepresentativenessDescription")
-	public final List<FreeText> description = new ArrayList<>();
+	public final List<LangString> description = new ArrayList<>();
 
 	public Other other;
 

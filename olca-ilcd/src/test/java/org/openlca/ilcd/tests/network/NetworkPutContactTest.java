@@ -6,14 +6,13 @@ import java.util.UUID;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.contacts.ContactInfo;
 import org.openlca.ilcd.contacts.DataSetInfo;
 import org.openlca.ilcd.contacts.Publication;
 import org.openlca.ilcd.io.NetworkClient;
-import org.openlca.ilcd.util.IlcdConfig;
-import org.openlca.ilcd.util.LangString;
 
 public class NetworkPutContactTest {
 
@@ -41,10 +40,8 @@ public class NetworkPutContactTest {
 	private DataSetInfo makeDataInfo(String id) {
 		DataSetInfo dataSetInfo = new DataSetInfo();
 		String name = "xtest contact - " + new Random().nextInt(1000);
-		LangString.addLabel(dataSetInfo.name, name,
-				IlcdConfig.getDefault());
-		LangString.addLabel(dataSetInfo.shortName, name,
-				IlcdConfig.getDefault());
+		LangString.set(dataSetInfo.name, name, "en");
+		LangString.set(dataSetInfo.shortName, name, "en");
 		dataSetInfo.uuid = id;
 		return dataSetInfo;
 	}

@@ -10,8 +10,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TechnologyType", propOrder = {
@@ -23,7 +24,8 @@ public class Technology implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	public List<FreeText> technologicalApplicability;
+	@FreeText
+	public List<LangString> technologicalApplicability;
 
 	@XmlElement(name = "referenceToTechnicalSpecification")
 	public List<DataSetReference> technicalSpecifications;

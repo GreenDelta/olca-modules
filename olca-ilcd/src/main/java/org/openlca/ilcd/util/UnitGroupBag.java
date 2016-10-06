@@ -8,6 +8,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.units.AdminInfo;
 import org.openlca.ilcd.units.DataEntry;
 import org.openlca.ilcd.units.DataSetInfo;
@@ -61,14 +62,14 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 	public String getName() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.name, config);
+			return LangString.getVal(info.name, config);
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.generalComment, config);
+			return LangString.getVal(info.generalComment, config);
 		return null;
 	}
 

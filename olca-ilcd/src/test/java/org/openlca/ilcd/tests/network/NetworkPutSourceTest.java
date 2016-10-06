@@ -6,14 +6,13 @@ import java.util.UUID;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.NetworkClient;
 import org.openlca.ilcd.sources.AdminInfo;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Publication;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInfo;
-import org.openlca.ilcd.util.IlcdConfig;
-import org.openlca.ilcd.util.LangString;
 
 public class NetworkPutSourceTest {
 
@@ -41,7 +40,7 @@ public class NetworkPutSourceTest {
 	private DataSetInfo makeDataInfo(String id) {
 		DataSetInfo info = new DataSetInfo();
 		String name = "xtest Source - " + new Random().nextInt(1000);
-		LangString.addLabel(info.shortName, name, IlcdConfig.getDefault());
+		LangString.set(info.shortName, name, "en");
 		info.uuid = id;
 		return info;
 	}

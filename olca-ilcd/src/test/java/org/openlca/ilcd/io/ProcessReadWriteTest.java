@@ -1,13 +1,12 @@
 package org.openlca.ilcd.io;
 
 import org.junit.Test;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.processes.ProcessName;
-import org.openlca.ilcd.util.IlcdConfig;
-import org.openlca.ilcd.util.LangString;
 
 public class ProcessReadWriteTest {
 
@@ -21,11 +20,10 @@ public class ProcessReadWriteTest {
 	private void setNameAndComment(Process process) {
 		DataSetInfo dataSetInformation = makeDataSetInfo(process);
 		ProcessName name = new ProcessName();
-		LangString.addLabel(name.baseName, "process name",
-				IlcdConfig.getDefault());
+		LangString.set(name.baseName, "process name", "en");
 		dataSetInformation.name = name;
-		LangString.addFreeText(dataSetInformation.generalComment,
-				"process description", IlcdConfig.getDefault());
+		LangString.set(dataSetInformation.generalComment,
+				"process description", "en");
 	}
 
 	private DataSetInfo makeDataSetInfo(Process process) {

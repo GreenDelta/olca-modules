@@ -15,10 +15,11 @@ import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.PublicationType;
+import org.openlca.ilcd.commons.annotations.FreeText;
+import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataSetInformationType", propOrder = { "uuid", "shortName",
@@ -32,8 +33,9 @@ public class DataSetInfo implements Serializable {
 	@XmlElement(name = "UUID", namespace = "http://lca.jrc.it/ILCD/Common", required = true)
 	public String uuid;
 
+	@Label
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<Label> shortName = new ArrayList<>();
+	public final List<LangString> shortName = new ArrayList<>();
 
 	public ClassificationInfo classificationInformation;
 
@@ -41,7 +43,8 @@ public class DataSetInfo implements Serializable {
 
 	public PublicationType publicationType;
 
-	public final List<FreeText> sourceDescriptionOrComment = new ArrayList<>();
+	@FreeText
+	public final List<LangString> sourceDescriptionOrComment = new ArrayList<>();
 
 	public final List<DigitalFileRef> referenceToDigitalFile = new ArrayList<>();
 

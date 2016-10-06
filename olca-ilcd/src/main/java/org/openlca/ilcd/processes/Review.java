@@ -16,11 +16,12 @@ import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataQualityIndicatorList;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ReviewMethod;
 import org.openlca.ilcd.commons.ReviewScope;
 import org.openlca.ilcd.commons.ReviewType;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ReviewType", propOrder = { "scope", "dataQualityIndicators",
@@ -36,14 +37,16 @@ public class Review implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public DataQualityIndicatorList dataQualityIndicators;
 
+	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<FreeText> reviewDetails = new ArrayList<>();
+	public final List<LangString> reviewDetails = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public final List<DataSetReference> referenceToNameOfReviewerAndInstitution = new ArrayList<>();
 
+	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<FreeText> otherReviewDetails = new ArrayList<>();
+	public final List<LangString> otherReviewDetails = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public DataSetReference referenceToCompleteReviewReport;

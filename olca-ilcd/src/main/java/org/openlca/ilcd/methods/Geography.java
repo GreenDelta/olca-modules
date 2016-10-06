@@ -13,37 +13,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Location;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
-/**
- * <p>
- * Java class for GeographyType complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
- * <pre>
- * &lt;complexType name="GeographyType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="interventionLocation" type="{http://lca.jrc.it/ILCD/Common}LocationType" minOccurs="0"/>
- *         &lt;element name="interventionSubLocation" type="{http://lca.jrc.it/ILCD/Common}LocationType" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="impactLocation" type="{http://lca.jrc.it/ILCD/Common}LocationType" minOccurs="0"/>
- *         &lt;element name="geographicalRepresentativenessDescription" type="{http://lca.jrc.it/ILCD/Common}FTMultiLang" maxOccurs="100" minOccurs="0"/>
- *         &lt;element ref="{http://lca.jrc.it/ILCD/Common}other" minOccurs="0"/>
- *       &lt;/sequence>
- *       &lt;anyAttribute processContents='lax' namespace='##other'/>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GeographyType", propOrder = { "interventionLocation",
 		"interventionSubLocation", "impactLocation",
@@ -51,12 +25,19 @@ import org.openlca.ilcd.commons.Other;
 public class Geography implements Serializable {
 
 	private final static long serialVersionUID = 1L;
+
 	protected Location interventionLocation;
+
 	protected List<Location> interventionSubLocation;
+
 	protected Location impactLocation;
-	protected List<FreeText> geographicalRepresentativenessDescription;
+
+	@FreeText
+	protected List<LangString> geographicalRepresentativenessDescription;
+
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected Other other;
+
 	@XmlAnyAttribute
 	private Map<QName, String> otherAttributes = new HashMap<>();
 
@@ -99,8 +80,8 @@ public class Geography implements Serializable {
 	 * 
 	 * 
 	 * <p>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link Location }
+	 * Objects of the following type(s) are allowed in the list {@link Location
+	 * }
 	 * 
 	 * 
 	 */
@@ -151,11 +132,12 @@ public class Geography implements Serializable {
 	 * 
 	 * 
 	 * <p>
-	 * Objects of the following type(s) are allowed in the list {@link FreeText }
+	 * Objects of the following type(s) are allowed in the list {@link FreeText
+	 * }
 	 * 
 	 * 
 	 */
-	public List<FreeText> getGeographicalRepresentativenessDescription() {
+	public List<LangString> getGeographicalRepresentativenessDescription() {
 		if (geographicalRepresentativenessDescription == null) {
 			geographicalRepresentativenessDescription = new ArrayList<>();
 		}

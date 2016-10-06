@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -35,7 +35,7 @@ public class Unit implements Serializable {
 
 	public double meanValue;
 
-	public final List<Label> generalComment = new ArrayList<>();
+	public final List<LangString> generalComment = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

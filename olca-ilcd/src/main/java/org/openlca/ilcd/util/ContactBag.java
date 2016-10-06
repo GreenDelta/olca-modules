@@ -8,6 +8,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.contacts.DataEntry;
@@ -40,14 +41,14 @@ public class ContactBag implements IBag<Contact> {
 	public String getShortName() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.shortName, config);
+			return LangString.getVal(info.shortName, config);
 		return null;
 	}
 
 	public String getName() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.name, config);
+			return LangString.getVal(info.name, config);
 		return null;
 	}
 
@@ -63,7 +64,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getContactAddress() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.contactAddress, config);
+			return LangString.getVal(info.contactAddress, config);
 		return null;
 	}
 
@@ -91,7 +92,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getCentralContactPoint() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.centralContactPoint, config);
+			return LangString.getVal(info.centralContactPoint, config);
 		return null;
 	}
 
@@ -105,7 +106,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.get(info.description, config);
+			return LangString.getVal(info.description, config);
 		return null;
 	}
 

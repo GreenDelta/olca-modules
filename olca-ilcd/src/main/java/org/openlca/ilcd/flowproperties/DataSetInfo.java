@@ -14,9 +14,10 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.ClassificationInfo;
-import org.openlca.ilcd.commons.FreeText;
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.FreeText;
+import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataSetInformationType", propOrder = { "uuid", "name",
@@ -28,16 +29,19 @@ public class DataSetInfo implements Serializable {
 	@XmlElement(name = "UUID", namespace = "http://lca.jrc.it/ILCD/Common", required = true)
 	public String uuid;
 
+	@Label
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<Label> name = new ArrayList<>();
+	public final List<LangString> name = new ArrayList<>();
 
+	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<FreeText> synonyms = new ArrayList<>();
+	public final List<LangString> synonyms = new ArrayList<>();
 
 	public ClassificationInfo classificationInformation;
 
+	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<FreeText> generalComment = new ArrayList<>();
+	public final List<LangString> generalComment = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

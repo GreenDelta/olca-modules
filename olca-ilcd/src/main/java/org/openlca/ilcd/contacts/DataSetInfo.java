@@ -15,9 +15,10 @@ import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
-import org.openlca.ilcd.commons.ShortText;
+import org.openlca.ilcd.commons.annotations.Label;
+import org.openlca.ilcd.commons.annotations.ShortText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataSetInformationType", propOrder = { "uuid", "shortName",
@@ -31,15 +32,18 @@ public class DataSetInfo implements Serializable {
 	@XmlElement(name = "UUID", namespace = "http://lca.jrc.it/ILCD/Common", required = true)
 	public String uuid;
 
+	@Label
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<Label> shortName = new ArrayList<>();
+	public final List<LangString> shortName = new ArrayList<>();
 
+	@Label
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<Label> name = new ArrayList<>();
+	public final List<LangString> name = new ArrayList<>();
 
 	public ClassificationInfo classificationInformation;
 
-	public final List<ShortText> contactAddress = new ArrayList<>();
+	@ShortText
+	public final List<LangString> contactAddress = new ArrayList<>();
 
 	public String telephone;
 
@@ -50,10 +54,12 @@ public class DataSetInfo implements Serializable {
 	@XmlElement(name = "WWWAddress")
 	public String wwwAddress;
 
-	public final List<ShortText> centralContactPoint = new ArrayList<>();
+	@ShortText
+	public final List<LangString> centralContactPoint = new ArrayList<>();
 
+	@ShortText
 	@XmlElement(name = "contactDescriptionOrComment")
-	public final List<ShortText> description = new ArrayList<>();
+	public final List<LangString> description = new ArrayList<>();
 
 	@XmlElement(name = "referenceToContact")
 	public final List<DataSetReference> belongsTo = new ArrayList<>();

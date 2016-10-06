@@ -14,11 +14,12 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
 import org.openlca.ilcd.commons.LCIMethodApproach;
 import org.openlca.ilcd.commons.LCIMethodPrinciple;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ProcessType;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "LCIMethodAndAllocationType", propOrder = { "processType",
@@ -36,16 +37,20 @@ public class LCIMethod implements Serializable {
 	@XmlElement(name = "LCIMethodPrinciple")
 	public LCIMethodPrinciple lciMethodPrinciple;
 
-	public final List<FreeText> deviationsFromLCIMethodPrinciple = new ArrayList<>();
+	@FreeText
+	public final List<LangString> deviationsFromLCIMethodPrinciple = new ArrayList<>();
 
 	@XmlElement(name = "LCIMethodApproaches")
 	public final List<LCIMethodApproach> lciMethodApproaches = new ArrayList<>();
 
-	public final List<FreeText> deviationsFromLCIMethodApproaches = new ArrayList<>();
+	@FreeText
+	public final List<LangString> deviationsFromLCIMethodApproaches = new ArrayList<>();
 
-	public final List<FreeText> modellingConstants = new ArrayList<>();
+	@FreeText
+	public final List<LangString> modellingConstants = new ArrayList<>();
 
-	public final List<FreeText> deviationsFromModellingConstants = new ArrayList<>();
+	@FreeText
+	public final List<LangString> deviationsFromModellingConstants = new ArrayList<>();
 
 	public final List<DataSetReference> referenceToLCAMethodDetails = new ArrayList<>();
 

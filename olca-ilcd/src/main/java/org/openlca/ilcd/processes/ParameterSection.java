@@ -13,8 +13,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MathematicalRelationsType", propOrder = { "modelDescription",
@@ -23,7 +24,8 @@ public class ParameterSection implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	public final List<FreeText> modelDescription = new ArrayList<>();
+	@FreeText
+	public final List<LangString> modelDescription = new ArrayList<>();
 
 	@XmlElement(name = "variableParameter")
 	public final List<Parameter> parameters = new ArrayList<>();

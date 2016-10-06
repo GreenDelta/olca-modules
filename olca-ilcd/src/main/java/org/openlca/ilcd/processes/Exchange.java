@@ -19,9 +19,10 @@ import org.openlca.ilcd.commons.DataDerivation;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.ExchangeFunction;
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
+import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExchangeType", propOrder = { "flow", "location",
@@ -75,7 +76,8 @@ public class Exchange implements Serializable {
 	@XmlElement(name = "referencesToDataSource")
 	public DataSourceReferenceList dataSources;
 
-	public final List<Label> generalComment = new ArrayList<>();
+	@Label
+	public final List<LangString> generalComment = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

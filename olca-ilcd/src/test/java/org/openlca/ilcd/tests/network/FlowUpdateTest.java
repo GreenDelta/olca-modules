@@ -7,6 +7,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.FlowType;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
@@ -16,8 +17,6 @@ import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
 import org.openlca.ilcd.flows.Publication;
 import org.openlca.ilcd.io.NetworkClient;
-import org.openlca.ilcd.util.IlcdConfig;
-import org.openlca.ilcd.util.LangString;
 
 public class FlowUpdateTest {
 
@@ -52,8 +51,7 @@ public class FlowUpdateTest {
 		info.setDataSetInformation(dataInfo);
 		FlowName name = new FlowName();
 		dataInfo.name = name;
-		LangString.addLabel(name.baseName, "test flow - " + id,
-				IlcdConfig.getDefault());
+		LangString.set(name.baseName, "test flow - " + id, "en");
 		AdminInfo adminInfo = new AdminInfo();
 		Publication pub = new Publication();
 		adminInfo.publication = pub;

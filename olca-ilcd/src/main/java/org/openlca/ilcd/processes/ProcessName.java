@@ -14,8 +14,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "NameType", propOrder = {
@@ -29,14 +30,18 @@ public class ProcessName implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
+	@Label
 	@XmlElement(required = true)
-	public final List<Label> baseName = new ArrayList<>();
+	public final List<LangString> baseName = new ArrayList<>();
 
-	public final List<Label> treatmentStandardsRoutes = new ArrayList<>();
+	@Label
+	public final List<LangString> treatmentStandardsRoutes = new ArrayList<>();
 
-	public final List<Label> mixAndLocationTypes = new ArrayList<>();
+	@Label
+	public final List<LangString> mixAndLocationTypes = new ArrayList<>();
 
-	public final List<Label> functionalUnitFlowProperties = new ArrayList<>();
+	@Label
+	public final List<LangString> functionalUnitFlowProperties = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

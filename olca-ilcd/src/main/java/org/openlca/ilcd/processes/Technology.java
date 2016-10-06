@@ -15,8 +15,9 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TechnologyType", propOrder = {
@@ -31,11 +32,13 @@ public class Technology implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	public final List<FreeText> technologyDescriptionAndIncludedProcesses = new ArrayList<>();
+	@FreeText
+	public final List<LangString> technologyDescriptionAndIncludedProcesses = new ArrayList<>();
 
 	public final List<DataSetReference> referenceToIncludedProcesses = new ArrayList<>();
 
-	public final List<FreeText> technologicalApplicability = new ArrayList<>();
+	@FreeText
+	public final List<LangString> technologicalApplicability = new ArrayList<>();
 
 	public DataSetReference referenceToTechnologyPictogramme;
 

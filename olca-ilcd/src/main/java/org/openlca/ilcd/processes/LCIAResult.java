@@ -15,9 +15,10 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
+import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "LCIAResultType", propOrder = {
@@ -42,7 +43,8 @@ public class LCIAResult implements Serializable {
 
 	public BigDecimal relativeStandardDeviation95In;
 
-	public final List<Label> generalComment = new ArrayList<>();
+	@Label
+	public final List<LangString> generalComment = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

@@ -15,8 +15,9 @@ import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.FlowCompleteness;
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CompletenessType", propOrder = { "completenessProductModel",
@@ -33,7 +34,8 @@ public class Completeness implements Serializable {
 
 	public final List<ElementaryFlowCompleteness> completenessElementaryFlows = new ArrayList<>();
 
-	public final List<FreeText> completenessOtherProblemField = new ArrayList<>();
+	@FreeText
+	public final List<LangString> completenessOtherProblemField = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

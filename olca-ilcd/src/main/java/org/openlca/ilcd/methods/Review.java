@@ -15,58 +15,11 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ReviewType;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
-/**
- * <p>
- * Java class for ReviewType complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
- * <pre>
- * &lt;complexType name="ReviewType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="scope" maxOccurs="unbounded" minOccurs="0">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;sequence>
- *                   &lt;element name="method" maxOccurs="unbounded" minOccurs="0">
- *                     &lt;complexType>
- *                       &lt;complexContent>
- *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                           &lt;attribute name="name" use="required" type="{http://lca.jrc.it/ILCD/LCIAMethod}MethodOfReviewValues" />
- *                           &lt;anyAttribute processContents='lax' namespace='##other'/>
- *                         &lt;/restriction>
- *                       &lt;/complexContent>
- *                     &lt;/complexType>
- *                   &lt;/element>
- *                 &lt;/sequence>
- *                 &lt;attribute name="name" use="required" type="{http://lca.jrc.it/ILCD/LCIAMethod}ScopeOfReviewValues" />
- *                 &lt;anyAttribute processContents='lax' namespace='##other'/>
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *         &lt;element ref="{http://lca.jrc.it/ILCD/Common}reviewDetails" maxOccurs="100" minOccurs="0"/>
- *         &lt;group ref="{http://lca.jrc.it/ILCD/Common}ValidationGroup3"/>
- *         &lt;element ref="{http://lca.jrc.it/ILCD/Common}other" minOccurs="0"/>
- *       &lt;/sequence>
- *       &lt;attribute name="type" use="required" type="{http://lca.jrc.it/ILCD/Common}TypeOfReviewValues" />
- *       &lt;anyAttribute processContents='lax' namespace='##other'/>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ReviewType", propOrder = { "scope", "reviewDetails",
 		"referenceToNameOfReviewerAndInstitution", "otherReviewDetails",
@@ -75,12 +28,18 @@ public class Review implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 	protected List<Review.Scope> scope;
+
+	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	protected List<FreeText> reviewDetails;
+	protected List<LangString> reviewDetails;
+
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected List<DataSetReference> referenceToNameOfReviewerAndInstitution;
+
+	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	protected List<FreeText> otherReviewDetails;
+	protected List<LangString> otherReviewDetails;
+
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected DataSetReference referenceToCompleteReviewReport;
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
@@ -149,11 +108,12 @@ public class Review implements Serializable {
 	 * 
 	 * 
 	 * <p>
-	 * Objects of the following type(s) are allowed in the list {@link FreeText }
+	 * Objects of the following type(s) are allowed in the list {@link FreeText
+	 * }
 	 * 
 	 * 
 	 */
-	public List<FreeText> getReviewDetails() {
+	public List<LangString> getReviewDetails() {
 		if (reviewDetails == null) {
 			reviewDetails = new ArrayList<>();
 		}
@@ -209,11 +169,12 @@ public class Review implements Serializable {
 	 * 
 	 * 
 	 * <p>
-	 * Objects of the following type(s) are allowed in the list {@link FreeText }
+	 * Objects of the following type(s) are allowed in the list {@link FreeText
+	 * }
 	 * 
 	 * 
 	 */
-	public List<FreeText> getOtherReviewDetails() {
+	public List<LangString> getOtherReviewDetails() {
 		if (otherReviewDetails == null) {
 			otherReviewDetails = new ArrayList<>();
 		}

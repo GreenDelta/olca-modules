@@ -104,27 +104,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link FreeText }
-	 * 
-	 */
-	public FreeText createFreeText() {
-		return new FreeText();
-	}
-
-	/**
 	 * Create an instance of {@link CommissionerAndGoal }
 	 * 
 	 */
 	public CommissionerAndGoal createCommissionerAndGoal() {
 		return new CommissionerAndGoal();
-	}
-
-	/**
-	 * Create an instance of {@link Label }
-	 * 
-	 */
-	public Label createLabel() {
-		return new Label();
 	}
 
 	/**
@@ -200,14 +184,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ShortText }
-	 * 
-	 */
-	public ShortText createShortText() {
-		return new ShortText();
-	}
-
-	/**
 	 * Create an instance of {@link Time }
 	 * 
 	 */
@@ -221,8 +197,8 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "reviewDetails")
-	public JAXBElement<FreeText> createReviewDetails(FreeText value) {
-		return new JAXBElement<>(_ReviewDetails_QNAME, FreeText.class, null,
+	public JAXBElement<LangString> createReviewDetails(LangString value) {
+		return new JAXBElement<>(_ReviewDetails_QNAME, LangString.class, null,
 				value);
 	}
 
@@ -299,12 +275,13 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Label }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Label
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "name")
-	public JAXBElement<Label> createName(Label value) {
-		return new JAXBElement<>(_Name_QNAME, Label.class, null, value);
+	public JAXBElement<LangString> createName(LangString value) {
+		return new JAXBElement<>(_Name_QNAME, LangString.class, null, value);
 	}
 
 	/**
@@ -313,8 +290,8 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "generalComment")
-	public JAXBElement<FreeText> createGeneralComment(FreeText value) {
-		return new JAXBElement<>(_GeneralComment_QNAME, FreeText.class, null,
+	public JAXBElement<LangString> createGeneralComment(LangString value) {
+		return new JAXBElement<>(_GeneralComment_QNAME, LangString.class, null,
 				value);
 	}
 
@@ -324,8 +301,8 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "synonyms")
-	public JAXBElement<FreeText> createSynonyms(FreeText value) {
-		return new JAXBElement<>(_Synonyms_QNAME, FreeText.class, null, value);
+	public JAXBElement<LangString> createSynonyms(LangString value) {
+		return new JAXBElement<>(_Synonyms_QNAME, LangString.class, null, value);
 	}
 
 	/**
@@ -341,7 +318,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "UUID")
@@ -363,7 +341,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Wrapper }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Wrapper
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Wrapper", name = "ILCD")
@@ -395,12 +374,13 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Label }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Label
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "shortName")
-	public JAXBElement<Label> createShortName(Label value) {
-		return new JAXBElement<>(_ShortName_QNAME, Label.class, null, value);
+	public JAXBElement<LangString> createShortName(LangString value) {
+		return new JAXBElement<>(_ShortName_QNAME, LangString.class, null, value);
 	}
 
 	/**
@@ -409,8 +389,8 @@ public class ObjectFactory {
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "accessRestrictions")
-	public JAXBElement<FreeText> createAccessRestrictions(FreeText value) {
-		return new JAXBElement<>(_AccessRestrictions_QNAME, FreeText.class,
+	public JAXBElement<LangString> createAccessRestrictions(LangString value) {
+		return new JAXBElement<>(_AccessRestrictions_QNAME, LangString.class,
 				null, value);
 	}
 
@@ -439,7 +419,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link String
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "registrationNumber")
@@ -460,7 +441,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Boolean }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Boolean
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "copyright")

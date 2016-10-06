@@ -7,6 +7,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.FlowType;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
@@ -16,8 +17,6 @@ import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.ModellingAndValidation;
 import org.openlca.ilcd.flows.Publication;
 import org.openlca.ilcd.io.NetworkClient;
-import org.openlca.ilcd.util.IlcdConfig;
-import org.openlca.ilcd.util.LangString;
 
 public class NetworkPutFlowTest {
 
@@ -52,7 +51,7 @@ public class NetworkPutFlowTest {
 		String name = "xtest Flow - " + new Random().nextInt(1000);
 		FlowName fName = new FlowName();
 		info.name = fName;
-		LangString.addLabel(fName.baseName, name, IlcdConfig.getDefault());
+		LangString.set(fName.baseName, name, "en");
 		info.uuid = id;
 		return info;
 	}

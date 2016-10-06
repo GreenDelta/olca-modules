@@ -15,8 +15,9 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.FlowCategoryInfo;
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataSetInformationType", propOrder = {
@@ -38,8 +39,9 @@ public class DataSetInfo implements Serializable {
 
 	public FlowName name;
 
+	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<FreeText> synonyms = new ArrayList<>();
+	public final List<LangString> synonyms = new ArrayList<>();
 
 	public FlowCategoryInfo classificationInformation;
 
@@ -48,8 +50,9 @@ public class DataSetInfo implements Serializable {
 
 	public String sumFormula;
 
+	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<FreeText> generalComment = new ArrayList<>();
+	public final List<LangString> generalComment = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

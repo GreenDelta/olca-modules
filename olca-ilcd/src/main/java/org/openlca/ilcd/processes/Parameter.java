@@ -16,9 +16,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.Label;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
+import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "VariableParameterType", propOrder = {
@@ -47,7 +48,8 @@ public class Parameter implements Serializable {
 
 	public BigDecimal relativeStandardDeviation95In;
 
-	public final List<Label> comment = new ArrayList<>();
+	@Label
+	public final List<LangString> comment = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

@@ -17,10 +17,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FreeText;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.LicenseType;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.PublicationStatus;
+import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PublicationAndOwnershipType", propOrder = {
@@ -80,8 +81,9 @@ public class Publication implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public LicenseType licenseType;
 
+	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<FreeText> accessRestrictions = new ArrayList<>();
+	public final List<LangString> accessRestrictions = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

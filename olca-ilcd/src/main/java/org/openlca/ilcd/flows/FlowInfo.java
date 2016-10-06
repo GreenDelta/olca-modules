@@ -22,8 +22,7 @@ import org.openlca.ilcd.commons.Other;
 		"technology",
 		"other"
 })
-public class FlowInfo
-		implements Serializable {
+public class FlowInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 	@XmlElement(required = true)

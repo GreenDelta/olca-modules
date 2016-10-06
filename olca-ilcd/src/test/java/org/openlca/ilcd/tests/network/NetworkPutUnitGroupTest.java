@@ -6,14 +6,13 @@ import java.util.UUID;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.NetworkClient;
 import org.openlca.ilcd.units.AdminInfo;
 import org.openlca.ilcd.units.DataSetInfo;
 import org.openlca.ilcd.units.Publication;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
-import org.openlca.ilcd.util.IlcdConfig;
-import org.openlca.ilcd.util.LangString;
 
 public class NetworkPutUnitGroupTest {
 
@@ -41,7 +40,7 @@ public class NetworkPutUnitGroupTest {
 	private DataSetInfo makeDataInfo(String id) {
 		DataSetInfo info = new DataSetInfo();
 		String name = "xtest UnitGroup - " + new Random().nextInt(1000);
-		LangString.addLabel(info.name, name, IlcdConfig.getDefault());
+		LangString.set(info.name, name, "en");
 		info.uuid = id;
 		return info;
 	}
