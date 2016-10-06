@@ -10,9 +10,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.sources.Source;
-import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.SourceBag;
 
 public class SourceBagTest {
@@ -25,7 +25,7 @@ public class SourceBagTest {
 				"source.xml")) {
 			XmlBinder binder = new XmlBinder();
 			Source source = binder.fromStream(Source.class, stream);
-			bag = new SourceBag(source, IlcdConfig.getDefault());
+			bag = new SourceBag(source, LangConfig.getDefault());
 		}
 	}
 

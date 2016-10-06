@@ -12,6 +12,7 @@ import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowCategorization;
 import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
+import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
@@ -30,9 +31,9 @@ import org.openlca.ilcd.flows.QuantitativeReference;
 public class FlowBag implements IBag<Flow> {
 
 	private Flow flow;
-	private IlcdConfig config;
+	private LangConfig config;
 
-	public FlowBag(Flow flow, IlcdConfig config) {
+	public FlowBag(Flow flow, LangConfig config) {
 		this.flow = flow;
 		this.config = config;
 	}

@@ -7,6 +7,7 @@ import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ProcessType;
@@ -38,9 +39,9 @@ import org.openlca.ilcd.productmodel.ProductModel;
 public class ProcessBag implements IBag<Process> {
 
 	private Process process;
-	private IlcdConfig config;
+	private LangConfig config;
 
-	public ProcessBag(Process process, IlcdConfig config) {
+	public ProcessBag(Process process, LangConfig config) {
 		this.process = process;
 		this.config = config;
 	}

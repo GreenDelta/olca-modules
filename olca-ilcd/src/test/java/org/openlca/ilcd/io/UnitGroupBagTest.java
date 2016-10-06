@@ -9,10 +9,10 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
-import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.UnitGroupBag;
 
 public class UnitGroupBagTest {
@@ -25,7 +25,7 @@ public class UnitGroupBagTest {
 				"unit.xml")) {
 			XmlBinder binder = new XmlBinder();
 			UnitGroup group = binder.fromStream(UnitGroup.class, stream);
-			this.bag = new UnitGroupBag(group, IlcdConfig.getDefault());
+			this.bag = new UnitGroupBag(group, LangConfig.getDefault());
 		}
 	}
 

@@ -9,6 +9,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.sources.AdminInfo;
 import org.openlca.ilcd.sources.DataEntry;
@@ -20,9 +21,9 @@ import org.openlca.ilcd.sources.Source;
 public class SourceBag implements IBag<Source> {
 
 	private Source source;
-	private IlcdConfig config;
+	private LangConfig config;
 
-	public SourceBag(Source source, IlcdConfig config) {
+	public SourceBag(Source source, LangConfig config) {
 		this.source = source;
 		this.config = config;
 	}

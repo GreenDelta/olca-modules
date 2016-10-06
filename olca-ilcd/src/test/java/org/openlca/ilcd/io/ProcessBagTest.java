@@ -9,12 +9,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.util.IlcdConfig;
 import org.openlca.ilcd.util.ProcessBag;
 
 public class ProcessBagTest {
@@ -27,7 +27,7 @@ public class ProcessBagTest {
 				"process.xml")) {
 			XmlBinder binder = new XmlBinder();
 			Process process = binder.fromStream(Process.class, stream);
-			bag = new ProcessBag(process, IlcdConfig.getDefault());
+			bag = new ProcessBag(process, LangConfig.getDefault());
 		}
 	}
 

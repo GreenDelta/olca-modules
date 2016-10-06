@@ -8,8 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
-import org.openlca.ilcd.util.IlcdConfig;
-
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LangString implements Serializable {
 
@@ -55,7 +53,7 @@ public class LangString implements Serializable {
 	 * Get the string value from the given list that best matches the given
 	 * language configuration.
 	 */
-	public static String getVal(List<LangString> list, IlcdConfig conf) {
+	public static String getVal(List<LangString> list, LangConfig conf) {
 		if (conf == null || list == null || list.isEmpty())
 			return null;
 		String s = getVal(list, conf.preferredLanguage);

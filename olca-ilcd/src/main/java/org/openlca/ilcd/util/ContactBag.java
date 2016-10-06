@@ -8,6 +8,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
@@ -18,9 +19,9 @@ import org.openlca.ilcd.contacts.Publication;
 public class ContactBag implements IBag<Contact> {
 
 	private Contact contact;
-	private IlcdConfig config;
+	private LangConfig config;
 
-	public ContactBag(Contact contact, IlcdConfig config) {
+	public ContactBag(Contact contact, LangConfig config) {
 		this.contact = contact;
 		this.config = config;
 	}
