@@ -54,17 +54,20 @@ public class Category extends CategorizedEntity {
 
 	@Override
 	public String toString() {
-		return String.format("Category {modelType=%s, refId=%s, name=%s}", getModelType(), getRefId(), getName());
+		return String.format("Category {modelType=%s, refId=%s, name=%s}",
+				getModelType(), getRefId(), getName());
 	}
-	
+
 	public static String createRefId(Category category) {
 		List<String> path = new ArrayList<>();
-		ModelType type = category.getModelType();
-		while (category != null) {
-			path.add(0, category.getName());
-			category = category.getCategory();
+		Category c = category;
+		while (c != null) {
+			path.add(0, c.getName());
+			c = c.getCategory();
 		}
-		path.add(0, type.name());
+		ModelType type = category.getModelType();
+		if (type != null)
+			path.add(0, type.name());
 		return KeyGen.get(path.toArray(new String[path.size()]));
 	}
 

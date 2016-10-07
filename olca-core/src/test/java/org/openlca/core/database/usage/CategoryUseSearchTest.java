@@ -54,8 +54,7 @@ public class CategoryUseSearchTest {
 	private Category createCategory() {
 		Category category = new Category();
 		category.setName("category");
-		database.createDao(Category.class).insert(category);
-		return category;
+		return database.createDao(Category.class).insert(category);
 	}
 
 	@Test
