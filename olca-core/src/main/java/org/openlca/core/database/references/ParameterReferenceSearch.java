@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.references.Search.Ref;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;

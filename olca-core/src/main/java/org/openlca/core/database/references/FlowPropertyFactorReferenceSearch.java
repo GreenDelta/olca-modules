@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.references.IReferenceSearch.Reference;
-import org.openlca.core.database.references.Search.Ref;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;

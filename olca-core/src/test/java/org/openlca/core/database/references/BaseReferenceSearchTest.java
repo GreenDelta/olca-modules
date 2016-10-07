@@ -161,14 +161,6 @@ public abstract class BaseReferenceSearchTest {
 				nestedOwnerType, nestedOwnerId, false));
 	}
 
-	protected final void addExpectedNull(String property,
-			Class<? extends AbstractEntity> entityClass, String nestedProperty,
-			Class<? extends AbstractEntity> nestedOwnerType, long nestedOwnerId) {
-		expectedReferences.add(new Reference(property, entityClass, 0,
-				getModelClass(), 0, nestedProperty, nestedOwnerType,
-				nestedOwnerId, false));
-	}
-
 	protected Class<? extends AbstractEntity> getModelClass() {
 		return getModelType().getModelClass();
 	}

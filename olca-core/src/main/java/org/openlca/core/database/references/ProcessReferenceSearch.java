@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.references.Search.Ref;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;

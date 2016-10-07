@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.references.Search.Ref;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Parameter;

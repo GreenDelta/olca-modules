@@ -71,9 +71,6 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 			if (provider != null)
 				addExpected("defaultProviderId", provider, "exchanges",
 						Exchange.class, e.getId());
-			else
-				addExpectedNull("defaultProviderId", Process.class,
-						"exchanges", Exchange.class, e.getId());
 		}
 		for (SocialAspect a : process.socialAspects) {
 			addExpected("indicator", a.indicator, "socialAspects",
