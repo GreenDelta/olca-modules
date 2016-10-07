@@ -2,7 +2,7 @@ package org.openlca.core.database;
 
 import java.util.List;
 import java.util.UUID;
-import com.google.common.base.Optional;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.ListUtils;
@@ -24,6 +24,8 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
 
 public class CategorizedEntityDaoTest {
 
@@ -47,7 +49,7 @@ public class CategorizedEntityDaoTest {
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void run(
 			Class<T> clazz, CategorizedEntityDao<T, V> dao) throws Exception {
-		log.info("run category entity tests for {}", clazz);
+		log.trace("run category entity tests for {}", clazz);
 		T instance = makeNew(clazz);
 		dao.insert(instance);
 		testFindForNullCategory(dao, instance);

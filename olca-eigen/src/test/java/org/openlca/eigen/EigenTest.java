@@ -1,6 +1,7 @@
 package org.openlca.eigen;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class EigenTest {
@@ -10,7 +11,7 @@ public class EigenTest {
 	}
 
 	@Test
-	public void testSuperLu() {
+	public void testSparseLu() {
 		HashMatrix a = new HashMatrix(2, 2);
 		a.setEntry(0, 0, 1);
 		a.setEntry(1, 0, -2);
@@ -25,6 +26,7 @@ public class EigenTest {
 	}
 
 	@Test
+	@Ignore
 	public void testBicgstab() {
 		HashMatrix a = new HashMatrix(2, 2);
 		a.setEntry(0, 0, 1);
@@ -40,6 +42,7 @@ public class EigenTest {
 	}
 
 	@Test
+	@Ignore
 	public void testBicgstabInvert() {
 		HashMatrix a = new HashMatrix(2, 2);
 		a.setEntry(0, 0, 1);
