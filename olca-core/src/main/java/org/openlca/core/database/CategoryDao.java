@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
@@ -48,10 +49,10 @@ public class CategoryDao extends
 	// see update(category)
 	public Category insert(Category category) {
 		category.setRefId(Category.createRefId(category));
-		Category forRefId = getForRefId(category.getRefId());
-		if (forRefId != null) {
-			mergeChildren(forRefId, category);
-			return update(forRefId);
+		Category existing = getForRefId(category.getRefId());
+		if (existing != null) {
+			mergeChildren(existing, category);
+			return update(existing);
 		}
 		return super.insert(category);
 	}
@@ -64,7 +65,7 @@ public class CategoryDao extends
 		String refId = category.getRefId();
 		String newRefId = Category.createRefId(category);
 		Category forRefId = getForRefId(newRefId);
-		if (refId.equals(newRefId) || forRefId == null) {
+		if (Objects.equals(refId, newRefId) || forRefId == null) {
 			category.setRefId(newRefId);
 			category = super.update(category);
 			for (Category child : category.getChildCategories())

@@ -1,7 +1,6 @@
 package org.openlca.core.database;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,10 +14,7 @@ public class CategoryDaoTest {
 
 	@Test
 	public void testSimple() {
-		Category category = create();
-		System.out.println(category.getId());
-		dao.insert(category);
-		System.out.println(category.getId());
+		Category category = dao.insert(create());
 		Tests.emptyCache();
 		Category alias = dao.getForId(category.getId());
 		Assert.assertEquals(category.getName(), alias.getName());
@@ -29,12 +25,12 @@ public class CategoryDaoTest {
 
 	@Test
 	public void testAddChild() {
-		Category parent = create();
-		dao.insert(parent);
+		Category parent = dao.insert(create());
 		Category child = create();
 		parent.getChildCategories().add(child);
 		child.setCategory(parent);
-		dao.update(parent);
+		parent = dao.update(parent);
+		child = parent.getChildCategories().get(0);
 		Tests.emptyCache();
 		Category alias = dao.getForId(parent.getId());
 		Assert.assertEquals(1, alias.getChildCategories().size());
@@ -77,7 +73,6 @@ public class CategoryDaoTest {
 
 	private Category create() {
 		Category category = new Category();
-		category.setRefId(UUID.randomUUID().toString());
 		category.setName("name");
 		category.setModelType(ModelType.FLOW);
 		return category;
