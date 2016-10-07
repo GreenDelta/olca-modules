@@ -37,8 +37,9 @@ import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.results.ContributionResult;
 
 public class DQResultTest {
+
 	private DQSystem dqSystem;
-	private ProductSystem pSystem;
+	private ProductSystem system;
 	private Process process1;
 	private Process process2;
 	private Flow pFlow1;
@@ -58,10 +59,32 @@ public class DQResultTest {
 		eFlow1 = createFlow(FlowType.ELEMENTARY_FLOW);
 		eFlow2 = createFlow(FlowType.ELEMENTARY_FLOW);
 		createDQSystem();
-		process1 = createProcess(pFlow1, "(1;2;3;4;5)", 2, pFlow2, 3, "(1;2;3;4;5)", 4, "(5;4;3;2;1)");
-		process2 = createProcess(pFlow2, "(5;4;3;2;1)", 5, "(5;4;3;2;1)", 6, "(1;2;3;4;5)");
+		process1 = process(
+				exchange(1, "(1;2;3;4;5)", pFlow1, false),
+				exchange(2, null, pFlow2, true),
+				exchange(3, "(1;2;3;4;5)", eFlow1, true),
+				exchange(4, "(5;4;3;2;1)", eFlow2, true));
+		process2 = process(
+				exchange(1, "(5;4;3;2;1)", pFlow2, false),
+				exchange(5, "(5;4;3;2;1)", eFlow1, true),
+				exchange(6, "(1;2;3;4;5)", eFlow2, true));
 		createProductSystem();
 		createImpactMethod();
+	}
+
+	@After
+	public void shutdown() {
+		new ImpactMethodDao(Tests.getDb()).delete(method);
+		new ProductSystemDao(Tests.getDb()).delete(system);
+		new ProcessDao(Tests.getDb()).delete(process1);
+		new ProcessDao(Tests.getDb()).delete(process2);
+		new DQSystemDao(Tests.getDb()).delete(dqSystem);
+		new FlowDao(Tests.getDb()).delete(pFlow1);
+		new FlowDao(Tests.getDb()).delete(pFlow2);
+		new FlowDao(Tests.getDb()).delete(eFlow1);
+		new FlowDao(Tests.getDb()).delete(eFlow2);
+		new FlowPropertyDao(Tests.getDb()).delete(property);
+		new UnitGroupDao(Tests.getDb()).delete(unitGroup);
 	}
 
 	private void createDQSystem() {
@@ -80,48 +103,39 @@ public class DQResultTest {
 	}
 
 	private void createProductSystem() {
-		pSystem = new ProductSystem();
-		pSystem.getProcesses().add(process1.getId());
-		pSystem.getProcesses().add(process2.getId());
+		system = new ProductSystem();
+		system.getProcesses().add(process1.getId());
+		system.getProcesses().add(process2.getId());
 		ProcessLink link = new ProcessLink();
 		link.flowId = pFlow2.getId();
 		link.providerId = process2.getId();
-		for (Exchange e : process1.getExchanges())
-			if (e.getFlow().getId() == pFlow1.getId())
+		for (Exchange e : process1.getExchanges()) {
+			if (e.getFlow().getId() == pFlow2.getId())
 				link.exchangeId = e.getId();
+		}
 		link.processId = process1.getId();
-		pSystem.getProcessLinks().add(link);
-		pSystem.setReferenceProcess(process1);
-		pSystem.setReferenceExchange(process1.getQuantitativeReference());
-		pSystem.setTargetAmount(1);
-		pSystem.setTargetFlowPropertyFactor(pFlow1.getReferenceFactor());
-		pSystem.setTargetUnit(unitGroup.getReferenceUnit());
-		pSystem = new ProductSystemDao(Tests.getDb()).insert(pSystem);
+		system.getProcessLinks().add(link);
+		system.setReferenceProcess(process1);
+		system.setReferenceExchange(process1.getQuantitativeReference());
+		system.setTargetAmount(1);
+		system.setTargetFlowPropertyFactor(pFlow1.getReferenceFactor());
+		system.setTargetUnit(unitGroup.getReferenceUnit());
+		system = new ProductSystemDao(Tests.getDb()).insert(system);
 	}
 
-	private Process createProcess(Flow pFlow, String dqEntry1, double elemAmount1, String elemDqEntry1,
-			double elemAmount2, String elemDqEntry2) {
-		return createProcess(pFlow, dqEntry1, 0, null, elemAmount1, elemDqEntry1, elemAmount2, elemDqEntry2);
+	/** The first exchange is the reference product. */
+	private Process process(Exchange... exchanges) {
+		Process p = new Process();
+		p.dqSystem = dqSystem;
+		p.dqEntry = exchanges[0].getDqEntry();
+		p.exchangeDqSystem = dqSystem;
+		p.setQuantitativeReference(exchanges[0]);
+		for (Exchange e : exchanges)
+			p.getExchanges().add(e);
+		return new ProcessDao(Tests.getDb()).insert(p);
 	}
 
-	private Process createProcess(Flow pFlow, String dqEntry, double inputAmount, Flow inputFlow, double elemAmount1,
-			String elemDqEntry1, double elemAmount2, String elemDqEntry2) {
-		Process process = new Process();
-		process.dqSystem = dqSystem;
-		process.dqEntry = dqEntry;
-		process.exchangeDqSystem = dqSystem;
-		Exchange product = createExchange(1, null, pFlow, false);
-		process.getExchanges().add(product);
-		process.setQuantitativeReference(product);
-		process.getExchanges().add(createExchange(elemAmount1, elemDqEntry1, eFlow1, true));
-		process.getExchanges().add(createExchange(elemAmount2, elemDqEntry2, eFlow2, true));
-		if (inputFlow == null)
-			return new ProcessDao(Tests.getDb()).insert(process);
-		process.getExchanges().add(createExchange(inputAmount, null, inputFlow, true));
-		return new ProcessDao(Tests.getDb()).insert(process);
-	}
-
-	private Exchange createExchange(double amount, String dqEntry, Flow flow, boolean input) {
+	private Exchange exchange(double amount, String dqEntry, Flow flow, boolean input) {
 		Exchange e = new Exchange();
 		e.setDqEntry(dqEntry);
 		e.setFlow(flow);
@@ -179,27 +193,37 @@ public class DQResultTest {
 
 	@Test
 	public void test() {
-		SystemCalculator calculator = new SystemCalculator(MatrixCache.createEager(Tests.getDb()),
+		SystemCalculator calculator = new SystemCalculator(
+				MatrixCache.createEager(Tests.getDb()),
 				Tests.getDefaultSolver());
-		CalculationSetup setup = new CalculationSetup(pSystem);
+		CalculationSetup setup = new CalculationSetup(system);
 		setup.setAmount(1);
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		ContributionResult cResult = calculator.calculateContributions(setup);
-		DQCalculationSetup dqSetup = new DQCalculationSetup(pSystem.getId(), AggregationType.WEIGHTED_AVERAGE,
+		DQCalculationSetup dqSetup = new DQCalculationSetup(system.getId(),
+				AggregationType.WEIGHTED_AVERAGE,
 				RoundingMode.HALF_UP, ProcessingType.EXCLUDE, dqSystem, dqSystem);
 		DQResult result = DQResult.calculate(Tests.getDb(), cResult, dqSetup);
 		ImpactCategory impact = method.getImpactCategories().get(0);
-		Assert.assertArrayEquals(new double[] { 4, 4, 3, 2, 2 }, getResult(result, eFlow1), 0.5);
-		Assert.assertArrayEquals(new double[] { 2, 3, 3, 4, 4 }, getResult(result, eFlow2), 0.5);
-		Assert.assertArrayEquals(new double[] { 2, 3, 3, 3, 4 }, getResult(result, impact), 0.5);
-		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, getResult(result, process1, eFlow1), 0.5);
-		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, getResult(result, process2, eFlow1), 0.5);
-		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, getResult(result, process1, eFlow2), 0.5);
-		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, getResult(result, process2, eFlow2), 0.5);
-		Assert.assertArrayEquals(new double[] { 4, 4, 3, 2, 2 }, getResult(result, process1, impact), 0.5);
-		Assert.assertArrayEquals(new double[] { 2, 2, 3, 4, 4 }, getResult(result, process2, impact), 0.5);
-		Assert.assertArrayEquals(new double[] { 1, 2, 3, 4, 5 }, getResult(result, process1), 0.5);
-		Assert.assertArrayEquals(new double[] { 5, 4, 3, 2, 1 }, getResult(result, process2), 0.5);
+		checkResults(result, impact);
+	}
+
+	private void checkResults(DQResult result, ImpactCategory impact) {
+		Assert.assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, eFlow1), 0.5);
+		Assert.assertArrayEquals(a(2, 3, 3, 4, 4), getResult(result, eFlow2), 0.5);
+		Assert.assertArrayEquals(a(2, 3, 3, 3, 4), getResult(result, impact), 0.5);
+		Assert.assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process1, eFlow1), 0.5);
+		Assert.assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process2, eFlow1), 0.5);
+		Assert.assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process1, eFlow2), 0.5);
+		Assert.assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process2, eFlow2), 0.5);
+		Assert.assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, process1, impact), 0.5);
+		Assert.assertArrayEquals(a(2, 2, 3, 4, 4), getResult(result, process2, impact), 0.5);
+		Assert.assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process1), 0.5);
+		Assert.assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process2), 0.5);
+	}
+
+	private double[] a(double... vals) {
+		return vals;
 	}
 
 	private double[] getResult(DQResult result, Flow flow) {
@@ -220,21 +244,6 @@ public class DQResultTest {
 
 	private double[] getResult(DQResult result, Process process, ImpactCategory impact) {
 		return result.get(Descriptors.toDescriptor(process), Descriptors.toDescriptor(impact));
-	}
-
-	@After
-	public void shutdown() {
-		new ImpactMethodDao(Tests.getDb()).delete(method);
-		new ProductSystemDao(Tests.getDb()).delete(pSystem);
-		new ProcessDao(Tests.getDb()).delete(process1);
-		new ProcessDao(Tests.getDb()).delete(process2);
-		new DQSystemDao(Tests.getDb()).delete(dqSystem);
-		new FlowDao(Tests.getDb()).delete(pFlow1);
-		new FlowDao(Tests.getDb()).delete(pFlow2);
-		new FlowDao(Tests.getDb()).delete(eFlow1);
-		new FlowDao(Tests.getDb()).delete(eFlow2);
-		new FlowPropertyDao(Tests.getDb()).delete(property);
-		new UnitGroupDao(Tests.getDb()).delete(unitGroup);
 	}
 
 }
