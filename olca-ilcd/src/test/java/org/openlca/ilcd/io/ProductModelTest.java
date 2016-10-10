@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.Test;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Process;
@@ -43,7 +42,7 @@ public class ProductModelTest {
 	@Test
 	public void testNoModelInProcessBag() throws Exception {
 		Process process = unmarshal(marshal(makePlainProcess()));
-		ProcessBag bag = new ProcessBag(process, LangConfig.getDefault());
+		ProcessBag bag = new ProcessBag(process, "en");
 		assertFalse(bag.hasProductModel());
 		assertNull(bag.getProductModel());
 	}
@@ -51,7 +50,7 @@ public class ProductModelTest {
 	@Test
 	public void testModelInProcessBag() throws Exception {
 		Process process = unmarshal(marshal(makeProductModel()));
-		ProcessBag bag = new ProcessBag(process, LangConfig.getDefault());
+		ProcessBag bag = new ProcessBag(process, "en");
 		assertTrue(bag.hasProductModel());
 		assertEquals("test-model", bag.getProductModel().getName());
 	}

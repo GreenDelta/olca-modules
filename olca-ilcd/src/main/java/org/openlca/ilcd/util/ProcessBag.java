@@ -7,7 +7,6 @@ import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ProcessType;
@@ -39,11 +38,11 @@ import org.openlca.ilcd.productmodel.ProductModel;
 public class ProcessBag implements IBag<Process> {
 
 	private Process process;
-	private LangConfig config;
+	private String[] langs;
 
-	public ProcessBag(Process process, LangConfig config) {
+	public ProcessBag(Process process, String... langs) {
 		this.process = process;
-		this.config = config;
+		this.langs = langs;
 	}
 
 	@Override
@@ -76,7 +75,7 @@ public class ProcessBag implements IBag<Process> {
 	private void appendNamePart(List<LangString> parts, StringBuilder builder,
 			String prefix) {
 		if (parts != null) {
-			String part = LangString.getVal(parts, config);
+			String part = LangString.getFirst(parts, langs);
 			if (part != null) {
 				if (prefix != null) {
 					builder.append(prefix);
@@ -89,7 +88,7 @@ public class ProcessBag implements IBag<Process> {
 	public String getSynonyms() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.synonyms, config);
+			return LangString.getFirst(info.synonyms, langs);
 		return null;
 	}
 
@@ -105,7 +104,7 @@ public class ProcessBag implements IBag<Process> {
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.generalComment, config);
+			return LangString.getFirst(info.generalComment, langs);
 		return null;
 	}
 
@@ -257,7 +256,7 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public List<DataSetReference> getAllSources() {
-		return SourceRefCollection.getAll(process, config);
+		return SourceRefCollection.getAll(process, langs);
 	}
 
 	public boolean hasProductModel() {

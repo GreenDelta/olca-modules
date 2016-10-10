@@ -28,7 +28,7 @@ public class SourceImport {
 
 	public Source run(org.openlca.ilcd.sources.Source source)
 			throws ImportException {
-		this.ilcdSource = new SourceBag(source, config.langConfig);
+		this.ilcdSource = new SourceBag(source, config.langs);
 		Source oSource = findExisting(ilcdSource.getId());
 		if (oSource != null)
 			return oSource;
@@ -40,7 +40,7 @@ public class SourceImport {
 		if (source != null)
 			return source;
 		org.openlca.ilcd.sources.Source iSource = tryGetSource(sourceId);
-		ilcdSource = new SourceBag(iSource, config.langConfig);
+		ilcdSource = new SourceBag(iSource, config.langs);
 		return createNew();
 	}
 

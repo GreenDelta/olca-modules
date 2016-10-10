@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.Class;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.Exchange;
@@ -27,7 +26,7 @@ public class ProcessBagTest {
 				"process.xml")) {
 			XmlBinder binder = new XmlBinder();
 			Process process = binder.fromStream(Process.class, stream);
-			bag = new ProcessBag(process, LangConfig.getDefault());
+			bag = new ProcessBag(process, "en");
 		}
 	}
 

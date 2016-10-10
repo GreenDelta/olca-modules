@@ -8,7 +8,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
@@ -19,11 +18,11 @@ import org.openlca.ilcd.contacts.Publication;
 public class ContactBag implements IBag<Contact> {
 
 	private Contact contact;
-	private LangConfig config;
+	private String[] langs;
 
-	public ContactBag(Contact contact, LangConfig config) {
+	public ContactBag(Contact contact, String... langs) {
 		this.contact = contact;
-		this.config = config;
+		this.langs = langs;
 	}
 
 	@Override
@@ -42,14 +41,14 @@ public class ContactBag implements IBag<Contact> {
 	public String getShortName() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.shortName, config);
+			return LangString.getFirst(info.shortName, langs);
 		return null;
 	}
 
 	public String getName() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.name, config);
+			return LangString.getFirst(info.name, langs);
 		return null;
 	}
 
@@ -65,7 +64,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getContactAddress() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.contactAddress, config);
+			return LangString.getFirst(info.contactAddress, langs);
 		return null;
 	}
 
@@ -93,7 +92,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getCentralContactPoint() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.centralContactPoint, config);
+			return LangString.getFirst(info.centralContactPoint, langs);
 		return null;
 	}
 
@@ -107,7 +106,7 @@ public class ContactBag implements IBag<Contact> {
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.description, config);
+			return LangString.getFirst(info.description, langs);
 		return null;
 	}
 

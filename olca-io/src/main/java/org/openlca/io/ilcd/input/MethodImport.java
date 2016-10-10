@@ -152,8 +152,8 @@ public class MethodImport {
 		LCIAMethodInformation info = iMethod.getLCIAMethodInformation();
 		if (info == null || info.getDataSetInformation() == null)
 			return null;
-		return LangString.getVal(info.getDataSetInformation().getGeneralComment(),
-				config.langConfig);
+		return LangString.getFirst(info.getDataSetInformation().getGeneralComment(),
+				config.langs);
 	}
 
 	private Unit getReferenceUnit(String propertyId) {

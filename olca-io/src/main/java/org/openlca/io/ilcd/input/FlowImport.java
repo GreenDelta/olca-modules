@@ -32,7 +32,7 @@ public class FlowImport {
 	}
 
 	public Flow run(org.openlca.ilcd.flows.Flow flow) throws ImportException {
-		this.ilcdFlow = new FlowBag(flow, config.langConfig);
+		this.ilcdFlow = new FlowBag(flow, config.langs);
 		Flow oFlow = findExisting(ilcdFlow.getId());
 		if (oFlow != null)
 			return oFlow;
@@ -44,7 +44,7 @@ public class FlowImport {
 		if (flow != null)
 			return flow;
 		org.openlca.ilcd.flows.Flow iFlow = tryGetFlow(flowId);
-		ilcdFlow = new FlowBag(iFlow, config.langConfig);
+		ilcdFlow = new FlowBag(iFlow, config.langs);
 		return createNew();
 	}
 
@@ -126,7 +126,7 @@ public class FlowImport {
 	private void mapLocation() {
 		if (ilcdFlow == null || flow == null)
 			return;
-		String code = LangString.getVal(ilcdFlow.getLocation(), config.langConfig);
+		String code = LangString.getFirst(ilcdFlow.getLocation(), config.langs);
 		Location location = Locations.get(code, config);
 		flow.setLocation(location);
 	}

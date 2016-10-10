@@ -23,7 +23,7 @@ public class ContactImport {
 	}
 
 	public Actor run(Contact contact) throws ImportException {
-		this.ilcdContact = new ContactBag(contact, config.langConfig);
+		this.ilcdContact = new ContactBag(contact, config.langs);
 		Actor actor = findExisting(ilcdContact.getId());
 		if (actor != null)
 			return actor;
@@ -35,7 +35,7 @@ public class ContactImport {
 		if (actor != null)
 			return actor;
 		Contact contact = tryGetContact(contactId);
-		ilcdContact = new ContactBag(contact, config.langConfig);
+		ilcdContact = new ContactBag(contact, config.langs);
 		return createNew();
 	}
 

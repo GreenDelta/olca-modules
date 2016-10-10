@@ -8,9 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.flowproperties.FlowProperty;
-import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.util.FlowPropertyBag;
 
 public class FlowPropertyBagTest {
@@ -23,7 +21,7 @@ public class FlowPropertyBagTest {
 				"flowproperty.xml")) {
 			XmlBinder binder = new XmlBinder();
 			FlowProperty group = binder.fromStream(FlowProperty.class, stream);
-			this.bag = new FlowPropertyBag(group, LangConfig.getDefault());
+			this.bag = new FlowPropertyBag(group, "en");
 		}
 	}
 

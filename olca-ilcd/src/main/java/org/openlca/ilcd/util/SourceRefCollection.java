@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.processes.ComplianceDeclaration;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.LCIMethod;
@@ -16,8 +15,8 @@ import org.openlca.ilcd.processes.Technology;
 
 class SourceRefCollection {
 
-	static List<DataSetReference> getAll(Process process, LangConfig config) {
-		ProcessBag bag = new ProcessBag(process, config);
+	static List<DataSetReference> getAll(Process process, String... langs) {
+		ProcessBag bag = new ProcessBag(process, langs);
 		List<DataSetReference> refs = new ArrayList<>();
 		refs.addAll(getFrom(bag.getRepresentativeness()));
 		refs.addAll(getFrom(bag.getDataEntry()));

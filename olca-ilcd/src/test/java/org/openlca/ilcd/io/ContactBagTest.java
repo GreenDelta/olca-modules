@@ -9,9 +9,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.Class;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.contacts.Contact;
-import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.util.ContactBag;
 
 public class ContactBagTest {
@@ -24,7 +22,7 @@ public class ContactBagTest {
 				"contact.xml")) {
 			XmlBinder binder = new XmlBinder();
 			Contact contact = binder.fromStream(Contact.class, stream);
-			bag = new ContactBag(contact, LangConfig.getDefault());
+			bag = new ContactBag(contact, "en");
 		}
 	}
 

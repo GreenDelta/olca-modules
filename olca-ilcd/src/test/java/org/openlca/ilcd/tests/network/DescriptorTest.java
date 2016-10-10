@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.descriptors.DescriptorList;
 import org.openlca.ilcd.descriptors.UnitGroupDescriptor;
 import org.openlca.ilcd.io.NetworkClient;
@@ -33,7 +32,7 @@ public class DescriptorTest {
 		XmlBinder binder = new XmlBinder();
 		UnitGroup group = binder.fromStream(UnitGroup.class, getClass()
 				.getResourceAsStream("unit.xml"));
-		UnitGroupBag bag = new UnitGroupBag(group, LangConfig.getDefault());
+		UnitGroupBag bag = new UnitGroupBag(group, "en");
 		if (client.contains(UnitGroup.class, bag.getId()))
 			return;
 		client.put(group, group.unitGroupInformation.dataSetInformation.uuid);

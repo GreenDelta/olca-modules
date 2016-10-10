@@ -9,7 +9,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flowproperties.AdminInfo;
 import org.openlca.ilcd.flowproperties.DataEntry;
@@ -22,11 +21,11 @@ import org.openlca.ilcd.flowproperties.QuantitativeReference;
 public class FlowPropertyBag implements IBag<FlowProperty> {
 
 	private FlowProperty flowProperty;
-	private LangConfig config;
+	private String[] langs;
 
-	public FlowPropertyBag(FlowProperty flowProperty, LangConfig config) {
+	public FlowPropertyBag(FlowProperty flowProperty, String... langs) {
 		this.flowProperty = flowProperty;
-		this.config = config;
+		this.langs = langs;
 	}
 
 	@Override
@@ -45,14 +44,14 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 	public String getName() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.name, config);
+			return LangString.getFirst(info.name, langs);
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.generalComment, config);
+			return LangString.getFirst(info.generalComment, langs);
 		return null;
 	}
 

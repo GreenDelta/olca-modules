@@ -12,7 +12,6 @@ import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowCategorization;
 import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
@@ -31,11 +30,11 @@ import org.openlca.ilcd.flows.QuantitativeReference;
 public class FlowBag implements IBag<Flow> {
 
 	private Flow flow;
-	private LangConfig config;
+	private String[] langs;
 
-	public FlowBag(Flow flow, LangConfig config) {
+	public FlowBag(Flow flow, String... langs) {
 		this.flow = flow;
-		this.config = config;
+		this.langs = langs;
 	}
 
 	@Override
@@ -56,7 +55,7 @@ public class FlowBag implements IBag<Flow> {
 		if (info != null) {
 			FlowName flowName = info.name;
 			if (flowName != null) {
-				return LangString.getVal(flowName.baseName, config);
+				return LangString.getFirst(flowName.baseName, langs);
 			}
 		}
 		return null;
@@ -79,7 +78,7 @@ public class FlowBag implements IBag<Flow> {
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getVal(info.generalComment, config);
+			return LangString.getFirst(info.generalComment, langs);
 		return null;
 	}
 
@@ -150,7 +149,7 @@ public class FlowBag implements IBag<Flow> {
 		DataSetInfo info = getDataSetInformation();
 		if (info == null)
 			return null;
-		return LangString.getVal(info.synonyms, config);
+		return LangString.getFirst(info.synonyms, langs);
 	}
 
 	private List<Category> getCompartments(FlowCategoryInfo categoryInfo) {

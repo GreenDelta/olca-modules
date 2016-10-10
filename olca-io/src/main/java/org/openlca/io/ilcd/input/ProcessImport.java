@@ -45,7 +45,7 @@ public class ProcessImport {
 
 	public Process run(org.openlca.ilcd.processes.Process process)
 			throws ImportException {
-		this.ilcdProcess = new ProcessBag(process, config.langConfig);
+		this.ilcdProcess = new ProcessBag(process, config.langs);
 		Process oProcess = findExisting(ilcdProcess.getId());
 		if (oProcess != null)
 			return oProcess;
@@ -57,7 +57,7 @@ public class ProcessImport {
 		if (process != null)
 			return process;
 		org.openlca.ilcd.processes.Process iProcess = tryGetProcess(processId);
-		ilcdProcess = new ProcessBag(iProcess, config.langConfig);
+		ilcdProcess = new ProcessBag(iProcess, config.langs);
 		return createNew();
 	}
 
@@ -140,8 +140,8 @@ public class ProcessImport {
 		Geography iGeography = ilcdProcess.getGeography();
 		if (iGeography == null || iGeography.location == null)
 			return;
-		doc.setGeography(LangString.getVal(iGeography.location.description,
-				config.langConfig));
+		doc.setGeography(LangString.getFirst(iGeography.location.description,
+				config.langs));
 		if (iGeography.location.location == null)
 			return;
 		String code = iGeography.location.location;
@@ -153,9 +153,9 @@ public class ProcessImport {
 		org.openlca.ilcd.processes.Technology iTechnology = ilcdProcess
 				.getTechnology();
 		if (iTechnology != null) {
-			doc.setTechnology(LangString.getVal(
+			doc.setTechnology(LangString.getFirst(
 					iTechnology.technologyDescriptionAndIncludedProcesses,
-					config.langConfig));
+					config.langs));
 		}
 	}
 
@@ -174,8 +174,8 @@ public class ProcessImport {
 				doc.setPublication(fetchSource(publicationRef));
 
 			// access and use restrictions
-			doc.setRestrictions(LangString.getVal(
-					iPublication.accessRestrictions, config.langConfig));
+			doc.setRestrictions(LangString.getFirst(
+					iPublication.accessRestrictions, config.langs));
 
 			// version
 			process.setVersion(Version.fromString(
@@ -221,11 +221,11 @@ public class ProcessImport {
 		if (ilcdProcess.getCommissionerAndGoal() != null) {
 			CommissionerAndGoal comAndGoal = ilcdProcess
 					.getCommissionerAndGoal();
-			String intendedApp = LangString.getVal(
-					comAndGoal.intendedApplications, config.langConfig);
+			String intendedApp = LangString.getFirst(
+					comAndGoal.intendedApplications, config.langs);
 			doc.setIntendedApplication(intendedApp);
-			String project = LangString.getVal(comAndGoal.project,
-					config.langConfig);
+			String project = LangString.getFirst(comAndGoal.project,
+					config.langs);
 			doc.setProject(project);
 		}
 	}
@@ -246,12 +246,12 @@ public class ProcessImport {
 		}
 		LCIMethod iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
-			String lciPrinciple = LangString.getVal(
+			String lciPrinciple = LangString.getFirst(
 					iMethod.deviationsFromLCIMethodPrinciple,
-					config.langConfig);
+					config.langs);
 			doc.setInventoryMethod(lciPrinciple);
-			doc.setModelingConstants(LangString.getVal(
-					iMethod.modellingConstants, config.langConfig));
+			doc.setModelingConstants(LangString.getFirst(
+					iMethod.modellingConstants, config.langs));
 			process.setDefaultAllocationMethod(getAllocation(iMethod));
 		}
 	}
@@ -279,19 +279,19 @@ public class ProcessImport {
 		Representativeness repr = ilcdProcess.getRepresentativeness();
 		if (repr == null)
 			return;
-		doc.setCompleteness(LangString.getVal(
+		doc.setCompleteness(LangString.getFirst(
 				repr.dataCutOffAndCompletenessPrinciples,
-				config.langConfig));
-		doc.setDataSelection(LangString.getVal(
+				config.langs));
+		doc.setDataSelection(LangString.getFirst(
 				repr.dataSelectionAndCombinationPrinciples,
-				config.langConfig));
-		doc.setDataTreatment(LangString.getVal(
+				config.langs));
+		doc.setDataTreatment(LangString.getFirst(
 				repr.dataTreatmentAndExtrapolationsPrinciples,
-				config.langConfig));
-		doc.setSampling(LangString.getVal(repr.samplingProcedure,
-				config.langConfig));
-		doc.setDataCollectionPeriod(LangString.getVal(
-				repr.dataCollectionPeriod, config.langConfig));
+				config.langs));
+		doc.setSampling(LangString.getFirst(repr.samplingProcedure,
+				config.langs));
+		doc.setDataCollectionPeriod(LangString.getFirst(
+				repr.dataCollectionPeriod, config.langs));
 	}
 
 	private void addSources(ProcessDocumentation doc) {
@@ -316,8 +316,8 @@ public class ProcessImport {
 					.get(0);
 			doc.setReviewer(fetchActor(ref));
 		}
-		doc.setReviewDetails(LangString.getVal(iReview.reviewDetails,
-				config.langConfig));
+		doc.setReviewDetails(LangString.getFirst(iReview.reviewDetails,
+				config.langs));
 	}
 
 	private Actor fetchActor(DataSetReference reference) {

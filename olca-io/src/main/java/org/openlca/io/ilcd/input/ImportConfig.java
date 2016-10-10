@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.input;
 import java.io.File;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.ZipStore;
 import org.openlca.io.maps.FlowMap;
@@ -19,7 +18,7 @@ public class ImportConfig {
 	public final IDatabase db;
 	public final FlowMap flowMap;
 	public boolean importFlows;
-	public LangConfig langConfig = LangConfig.getDefault();
+	public String[] langs = { "en" };
 
 	public ImportConfig(File zip, IDatabase database) {
 		DataStore store = null;

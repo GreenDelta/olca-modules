@@ -51,7 +51,7 @@ class ProcessParameterConversion {
 		Parameter param = new Parameter();
 		param.setScope(scope);
 		param.setName(iParameter.name);
-		param.setDescription(LangString.getVal(iParameter.comment, config.langConfig));
+		param.setDescription(LangString.getFirst(iParameter.comment, config.langs));
 		Double mean = iParameter.meanValue;
 		if (mean != null)
 			param.setValue(mean);

@@ -50,18 +50,20 @@ public class LangString implements Serializable {
 	}
 
 	/**
-	 * Get the string value from the given list that best matches the given
-	 * language configuration.
+	 * Get the first string value from the given list that matches a given
+	 * language code. The language codes are checked from left to right. If
+	 * there is no string with the given code in the list, the value of the
+	 * first language string will be returned. If the given list is empty, null
+	 * will be returned.
 	 */
-	public static String getVal(List<LangString> list, LangConfig conf) {
-		if (conf == null || list == null || list.isEmpty())
+	public static String getFirst(List<LangString> list, String... langs) {
+		if (list == null || list.isEmpty() || langs == null)
 			return null;
-		String s = getVal(list, conf.preferredLanguage);
-		if (s != null)
-			return s;
-		s = getVal(list, conf.defaultLanguage);
-		if (s != null)
-			return s;
+		for (String lang : langs) {
+			LangString s = get(list, lang);
+			if (s != null)
+				return s.value;
+		}
 		return list.get(0).value;
 	}
 

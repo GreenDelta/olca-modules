@@ -10,10 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.FlowType;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowPropertyRef;
-import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.util.FlowBag;
 
 public class FlowBagTest {
@@ -26,7 +24,7 @@ public class FlowBagTest {
 				"flow.xml")) {
 			XmlBinder binder = new XmlBinder();
 			Flow flow = binder.fromStream(Flow.class, stream);
-			bag = new FlowBag(flow, LangConfig.getDefault());
+			bag = new FlowBag(flow, "en");
 		}
 	}
 

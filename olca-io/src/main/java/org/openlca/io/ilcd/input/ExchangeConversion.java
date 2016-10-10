@@ -40,8 +40,8 @@ class ExchangeConversion {
 		Exchange e = new Exchange();
 		boolean input = ilcdExchange.exchangeDirection == ExchangeDirection.INPUT;
 		e.setInput(input);
-		e.description = LangString.getVal(ilcdExchange.generalComment,
-				config.langConfig);
+		e.description = LangString.getFirst(ilcdExchange.generalComment,
+				config.langs);
 		if (extension != null) {
 			e.setDqEntry(extension.getPedigreeUncertainty());
 			e.setBaseUncertainty(extension.getBaseUncertainty());

@@ -2,7 +2,6 @@ package org.openlca.ilcd.util;
 
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.DataSetType;
-import org.openlca.ilcd.commons.LangConfig;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.units.UnitGroup;
 
@@ -22,10 +21,10 @@ public class Reference {
 	}
 
 	public static DataSetReference forUnitGroup(UnitGroup group,
-			LangConfig config) {
+			String... langs) {
 		if (group == null)
 			return new DataSetReference();
-		UnitGroupBag bag = new UnitGroupBag(group, config);
+		UnitGroupBag bag = new UnitGroupBag(group, langs);
 		DataSetReference ref = new DataSetReference();
 		ref.type = DataSetType.UNIT_GROUP_DATA_SET;
 		ref.uri = "../unitgroups/" + bag.getId();

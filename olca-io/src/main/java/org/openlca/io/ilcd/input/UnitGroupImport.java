@@ -25,7 +25,7 @@ public class UnitGroupImport {
 
 	public UnitGroup run(org.openlca.ilcd.units.UnitGroup group)
 			throws ImportException {
-		this.ilcdUnitGroup = new UnitGroupBag(group, config.langConfig);
+		this.ilcdUnitGroup = new UnitGroupBag(group, config.langs);
 		UnitGroup oGroup = findExisting(ilcdUnitGroup.getId());
 		if (oGroup != null) {
 			new UnitGroupSync(oGroup, ilcdUnitGroup, config).run(config.db);
@@ -40,7 +40,7 @@ public class UnitGroupImport {
 			// TODO: check if reference unit is in database!
 			return unitGroup;
 		org.openlca.ilcd.units.UnitGroup group = tryGetUnitGroup(unitGroupId);
-		ilcdUnitGroup = new UnitGroupBag(group, config.langConfig);
+		ilcdUnitGroup = new UnitGroupBag(group, config.langs);
 		return createNew();
 	}
 
@@ -132,8 +132,8 @@ public class UnitGroupImport {
 		else
 			oUnit.setRefId(UUID.randomUUID().toString());
 		oUnit.setName(iUnit.name);
-		oUnit.setDescription(LangString.getVal(iUnit.generalComment,
-				config.langConfig));
+		oUnit.setDescription(LangString.getFirst(iUnit.generalComment,
+				config.langs));
 		oUnit.setConversionFactor(iUnit.meanValue);
 	}
 
