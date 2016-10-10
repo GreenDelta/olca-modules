@@ -20,8 +20,7 @@ class LoginInvocation {
 
 	private static final String PATH = "/public/login";
 	String baseUrl;
-	String username;
-	String password;
+	CredentialSupplier credentials;
 
 	/**
 	 * Login with the specificied credentials
@@ -30,31 +29,31 @@ class LoginInvocation {
 	 *             if the credentials were invalid or the user is already logged
 	 *             in
 	 */
-	String execute() throws WebRequestException, TokenRequiredException {
-		Valid.checkNotEmpty(baseUrl, "base url");
-		Valid.checkNotEmpty(username, "username");
-		Valid.checkNotEmpty(password, "password");
-		String url = baseUrl + PATH;
-		Map<String, String> data = new HashMap<>();
-		data.put("username", username);
-		data.put("password", password);
-		ClientResponse response = WebRequests.call(Type.POST, url, null, data);
+	String execute() throws WebRequestException {
+		ClientResponse response = _execute(null);
 		if (response.getStatus() != Status.OK.getStatusCode())
 			return null;
 		String result = response.getEntity(String.class);
-		if ("tokenRequired".equals(result))
-			throw new TokenRequiredException();
+		if ("tokenRequired".equals(result)) {
+			response = _execute(credentials.getToken());
+		}
 		for (NewCookie cookie : response.getCookies())
 			if (cookie.getName().equals("JSESSIONID"))
 				return cookie.getValue();
 		return null;
 	}
-	
-	public class TokenRequiredException extends Exception {
 
-		private static final long serialVersionUID = -3172312730216177292L;
-		
-		
+	private ClientResponse _execute(Integer token) throws WebRequestException {
+		Valid.checkNotEmpty(baseUrl, "base url");
+		Valid.checkNotEmpty(credentials.username, "username");
+		Valid.checkNotEmpty(credentials.password, "password");
+		String url = baseUrl + PATH;
+		Map<String, String> data = new HashMap<>();
+		data.put("username", credentials.username);
+		data.put("password", credentials.password);
+		if (token != null)
+			data.put("token", token.toString());
+		return WebRequests.call(Type.POST, url, null, data);
 	}
-	
+
 }

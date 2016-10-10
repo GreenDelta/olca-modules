@@ -13,23 +13,18 @@ import org.slf4j.LoggerFactory;
 
 public class RepositoryConfig {
 
-	private final static Logger log = LoggerFactory
-			.getLogger(RepositoryConfig.class);
-	private final IDatabase database;
-	private final String baseUrl;
-	private final String repositoryId;
-	private final String username;
-	private final String password;
+	private final static Logger log = LoggerFactory.getLogger(RepositoryConfig.class);
+	private IDatabase database;
+	private String baseUrl;
+	private String repositoryId;
 	private String lastCommitId;
+	private CredentialSupplier credentials;
 
-	RepositoryConfig(IDatabase database, String baseUrl, String repositoryId,
-			String lastCommitId, String username, String password) {
+	private RepositoryConfig(IDatabase database, String baseUrl, String repositoryId, CredentialSupplier credentials) {
 		this.database = database;
 		this.baseUrl = baseUrl;
 		this.repositoryId = repositoryId;
-		this.lastCommitId = lastCommitId;
-		this.username = username;
-		this.password = password;
+		this.credentials = credentials;
 	}
 
 	public static RepositoryConfig loadFor(IDatabase database) {
@@ -46,8 +41,10 @@ public class RepositoryConfig {
 			String password = properties.getProperty("password");
 			if ("null".equals(lastCommitId))
 				lastCommitId = null;
-			return new RepositoryConfig(database, baseUrl, repositoryId,
-					lastCommitId, username, password);
+			CredentialSupplier credentials = new CredentialSupplier(username, password);
+			RepositoryConfig config = new RepositoryConfig(database, baseUrl, repositoryId, credentials);
+			config.setLastCommitId(lastCommitId);
+			return config;
 		} catch (IOException e) {
 			log.error("Error loading repository properties", e);
 			return null;
@@ -66,18 +63,18 @@ public class RepositoryConfig {
 			if (lastCommitId == null)
 				lastCommitId = "null";
 			properties.setProperty("lastCommitId", lastCommitId);
-			properties.setProperty("username", username);
-			properties.setProperty("password", password); // TODO encrypt
+			properties.setProperty("username", credentials.username);
+			// TODO encrypt
+			properties.setProperty("password", credentials.password);
 			properties.store(stream, "");
 		} catch (IOException e) {
 			log.error("Error saving repository properties", e);
 		}
 	}
 
-	public static RepositoryConfig connect(IDatabase database, String baseUrl,
-			String repositoryId, String username, String password) {
-		RepositoryConfig config = new RepositoryConfig(database, baseUrl,
-				repositoryId, null, username, password);
+	public static RepositoryConfig connect(IDatabase database, String baseUrl, String repositoryId,
+			CredentialSupplier credentials) {
+		RepositoryConfig config = new RepositoryConfig(database, baseUrl, repositoryId, credentials);
 		config.save();
 		return config;
 	}
@@ -134,12 +131,8 @@ public class RepositoryConfig {
 		return database;
 	}
 
-	public String getUsername() {
-		return username;
-	}
-
-	String getPassword() {
-		return password;
+	public CredentialSupplier getCredentials() {
+		return credentials;
 	}
 
 }
