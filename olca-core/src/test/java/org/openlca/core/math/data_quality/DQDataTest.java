@@ -78,8 +78,13 @@ public class DQDataTest {
 
 	@Test
 	public void test() {
-		DQCalculationSetup setup = new DQCalculationSetup(pSystem.getId(), AggregationType.WEIGHTED_AVERAGE,
-				RoundingMode.HALF_UP, ProcessingType.EXCLUDE, dqSystem, dqSystem);
+		DQCalculationSetup setup = new DQCalculationSetup();
+		setup.productSystemId = pSystem.getId();
+		setup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
+		setup.roundingMode = RoundingMode.HALF_UP;
+		setup.processingType = ProcessingType.EXCLUDE;
+		setup.exchangeDqSystem = dqSystem;
+		setup.processDqSystem = dqSystem;
 		DQData data = DQData.load(Tests.getDb(), setup, new long[] { flow.getId() });
 		Assert.assertEquals(dqSystem.getId(), setup.processDqSystem.getId());
 		Assert.assertEquals(dqSystem.getId(), setup.exchangeDqSystem.getId());

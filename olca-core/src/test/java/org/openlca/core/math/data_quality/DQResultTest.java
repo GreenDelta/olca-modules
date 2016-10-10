@@ -200,9 +200,13 @@ public class DQResultTest {
 		setup.setAmount(1);
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		ContributionResult cResult = calculator.calculateContributions(setup);
-		DQCalculationSetup dqSetup = new DQCalculationSetup(system.getId(),
-				AggregationType.WEIGHTED_AVERAGE,
-				RoundingMode.HALF_UP, ProcessingType.EXCLUDE, dqSystem, dqSystem);
+		DQCalculationSetup dqSetup = new DQCalculationSetup();
+		dqSetup.productSystemId = system.getId();
+		dqSetup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
+		dqSetup.roundingMode = RoundingMode.HALF_UP;
+		dqSetup.processingType = ProcessingType.EXCLUDE;
+		dqSetup.exchangeDqSystem = dqSystem;
+		dqSetup.processDqSystem = dqSystem;
 		DQResult result = DQResult.calculate(Tests.getDb(), cResult, dqSetup);
 		ImpactCategory impact = method.getImpactCategories().get(0);
 		checkResults(result, impact);
