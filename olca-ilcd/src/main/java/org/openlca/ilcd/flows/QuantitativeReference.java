@@ -2,7 +2,6 @@
 package org.openlca.ilcd.flows;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ public class QuantitativeReference implements Serializable {
 	private final static long serialVersionUID = 1L;
 
 	@XmlElement(name = "referenceToReferenceFlowProperty", required = true)
-	public BigInteger referenceFlowProperty;
+	public Integer referenceFlowProperty;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

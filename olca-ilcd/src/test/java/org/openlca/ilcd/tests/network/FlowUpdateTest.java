@@ -48,7 +48,7 @@ public class FlowUpdateTest {
 		flow.flowInformation = info;
 		DataSetInfo dataInfo = new DataSetInfo();
 		dataInfo.uuid = id;
-		info.setDataSetInformation(dataInfo);
+		info.dataSetInfo = dataInfo;
 		FlowName name = new FlowName();
 		dataInfo.name = name;
 		LangString.set(name.baseName, "test flow - " + id, "en");

@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.math.BigInteger;
-
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Version;
@@ -45,10 +43,10 @@ public class FlowExport {
 		iFlow.version = "1.1";
 		FlowInfo info = new FlowInfo();
 		iFlow.flowInformation = info;
-		info.setDataSetInformation(makeDataSetInfo());
+		info.dataSetInfo = makeDataSetInfo();
 		QuantitativeReference qRef = new QuantitativeReference();
-		info.setQuantitativeReference(qRef);
-		qRef.referenceFlowProperty = BigInteger.ZERO;
+		info.quantitativeReference = qRef;
+		qRef.referenceFlowProperty = 0;
 		iFlow.administrativeInformation = makeAdminInfo();
 		iFlow.modellingAndValidation = makeModellingInfo();
 		iFlow.flowProperties = makeFlowProperties();
@@ -108,9 +106,9 @@ public class FlowExport {
 					config);
 			propRef.flowProperty = ref;
 			if (property.equals(referenceProperty))
-				propRef.dataSetInternalID = BigInteger.valueOf(0);
+				propRef.dataSetInternalID = 0;
 			else
-				propRef.dataSetInternalID = BigInteger.valueOf(pos++);
+				propRef.dataSetInternalID = pos++;
 			propRef.meanValue = factor.getConversionFactor();
 		}
 		return list;
@@ -121,7 +119,7 @@ public class FlowExport {
 			Geography geography = new Geography();
 			LangString.set(geography.location, flow.getLocation()
 					.getCode(), config.lang);
-			iFlow.flowInformation.setGeography(geography);
+			iFlow.flowInformation.geography = geography;
 		}
 	}
 

@@ -2,8 +2,6 @@
 package org.openlca.ilcd.flows;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +50,7 @@ public class FlowPropertyRef implements Serializable {
 	@XmlElement(name = "uncertaintyDistributionType")
 	public UncertaintyDistribution uncertaintyDistribution;
 
-	public BigDecimal relativeStandardDeviation95In;
+	public Double relativeStandardDeviation95In;
 
 	@XmlElement(name = "dataDerivationTypeStatus")
 	public FlowDataDerivation dataDerivation;
@@ -64,7 +62,7 @@ public class FlowPropertyRef implements Serializable {
 	public Other other;
 
 	@XmlAttribute(name = "dataSetInternalID")
-	public BigInteger dataSetInternalID;
+	public Integer dataSetInternalID;
 
 	@XmlAnyAttribute
 	public Map<QName, String> otherAttributes = new HashMap<>();

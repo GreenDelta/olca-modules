@@ -1,6 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
@@ -143,7 +142,7 @@ public class FlowImport {
 			factor.setFlowProperty(property);
 			factor.setConversionFactor(ref.meanValue);
 			flow.getFlowPropertyFactors().add(factor);
-			BigInteger propId = ref.dataSetInternalID;
+			Integer propId = ref.dataSetInternalID;
 			if (refPropertyId == null || propId == null)
 				continue;
 			if (refPropertyId.intValue() == propId.intValue())
@@ -188,7 +187,7 @@ public class FlowImport {
 		Integer internalId = ilcdFlow.getReferenceFlowPropertyId();
 		DataSetReference propRef = null;
 		for (FlowPropertyRef prop : ilcdFlow.getFlowPropertyReferences()) {
-			BigInteger propId = prop.dataSetInternalID;
+			Integer propId = prop.dataSetInternalID;
 			if (propId == null || internalId == null)
 				continue;
 			if (propId.intValue() == internalId.intValue()) {

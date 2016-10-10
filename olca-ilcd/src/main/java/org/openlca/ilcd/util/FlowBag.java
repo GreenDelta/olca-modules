@@ -86,7 +86,7 @@ public class FlowBag implements IBag<Flow> {
 	public Integer getReferenceFlowPropertyId() {
 		FlowInfo info = flow.flowInformation;
 		if (info != null) {
-			QuantitativeReference qRef = info.getQuantitativeReference();
+			QuantitativeReference qRef = info.quantitativeReference;
 			if (qRef != null && qRef.referenceFlowProperty != null) {
 				return qRef.referenceFlowProperty.intValue();
 			}
@@ -139,7 +139,7 @@ public class FlowBag implements IBag<Flow> {
 		FlowInfo info = flow.flowInformation;
 		if (info == null)
 			return Collections.emptyList();
-		Geography geo = info.getGeography();
+		Geography geo = info.geography;
 		if (geo == null)
 			return Collections.emptyList();
 		else
@@ -183,7 +183,7 @@ public class FlowBag implements IBag<Flow> {
 
 	private DataSetInfo getDataSetInformation() {
 		if (flow.flowInformation != null)
-			return flow.flowInformation.getDataSetInformation();
+			return flow.flowInformation.dataSetInfo;
 		return null;
 	}
 

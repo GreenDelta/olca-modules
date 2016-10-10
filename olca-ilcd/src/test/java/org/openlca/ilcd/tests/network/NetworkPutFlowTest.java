@@ -36,7 +36,7 @@ public class NetworkPutFlowTest {
 		Flow flow = new Flow();
 		FlowInfo info = new FlowInfo();
 		flow.flowInformation = info;
-		info.setDataSetInformation(makeDataInfo(id));
+		info.dataSetInfo = makeDataInfo(id);
 		flow.administrativeInformation = makeAdminInfo();
 		ModellingAndValidation mav = new ModellingAndValidation();
 		flow.modellingAndValidation = mav;
