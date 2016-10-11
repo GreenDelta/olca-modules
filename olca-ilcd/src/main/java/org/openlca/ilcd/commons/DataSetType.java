@@ -10,28 +10,28 @@ import javax.xml.bind.annotation.XmlType;
 public enum DataSetType {
 
 	@XmlEnumValue("source data set")
-	SOURCE_DATA_SET("source data set"),
+	SOURCE("source data set"),
 
 	@XmlEnumValue("process data set")
-	PROCESS_DATA_SET("process data set"),
+	PROCESS("process data set"),
 
 	@XmlEnumValue("flow data set")
-	FLOW_DATA_SET("flow data set"),
+	FLOW("flow data set"),
 
 	@XmlEnumValue("flow property data set")
-	FLOW_PROPERTY_DATA_SET("flow property data set"),
+	FLOW_PROPERTY("flow property data set"),
 
 	@XmlEnumValue("unit group data set")
-	UNIT_GROUP_DATA_SET("unit group data set"),
+	UNIT_GROUP("unit group data set"),
 
 	@XmlEnumValue("contact data set")
-	CONTACT_DATA_SET("contact data set"),
+	CONTACT("contact data set"),
 
 	@XmlEnumValue("LCIA method data set")
-	LCIA_METHOD_DATA_SET("LCIA method data set"),
+	LCIA_METHOD("LCIA method data set"),
 
 	@XmlEnumValue("other external file")
-	OTHER_EXTERNAL_FILE("other external file");
+	EXTERNAL_FILE("other external file");
 
 	private final String value;
 

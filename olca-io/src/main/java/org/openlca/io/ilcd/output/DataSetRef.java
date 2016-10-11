@@ -36,22 +36,22 @@ class DataSetRef {
 			DataSetReference ref) {
 		String uri = "../";
 		if (iModel instanceof Actor) {
-			ref.type = DataSetType.CONTACT_DATA_SET;
+			ref.type = DataSetType.CONTACT;
 			uri += "contacts/";
 		} else if (iModel instanceof Source) {
-			ref.type = DataSetType.SOURCE_DATA_SET;
+			ref.type = DataSetType.SOURCE;
 			uri += "sources/";
 		} else if (iModel instanceof UnitGroup) {
-			ref.type = DataSetType.UNIT_GROUP_DATA_SET;
+			ref.type = DataSetType.UNIT_GROUP;
 			uri += "unitgroups/";
 		} else if (iModel instanceof FlowProperty) {
-			ref.type = DataSetType.FLOW_PROPERTY_DATA_SET;
+			ref.type = DataSetType.FLOW_PROPERTY;
 			uri += "flowproperties/";
 		} else if (iModel instanceof Flow) {
-			ref.type = DataSetType.FLOW_DATA_SET;
+			ref.type = DataSetType.FLOW;
 			uri += "flows/";
 		} else if (iModel instanceof Process) {
-			ref.type = DataSetType.PROCESS_DATA_SET;
+			ref.type = DataSetType.PROCESS;
 			uri += "processes/";
 		}
 		uri += iModel.getRefId();

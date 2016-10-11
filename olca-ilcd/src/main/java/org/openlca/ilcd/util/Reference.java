@@ -12,7 +12,7 @@ public class Reference {
 
 	public static DataSetReference forIlcdFormat() {
 		DataSetReference ref = new DataSetReference();
-		ref.type = DataSetType.SOURCE_DATA_SET;
+		ref.type = DataSetType.SOURCE;
 		ref.uri = "../sources/a97a0155-0234-4b87-b4ce-a45da52f2a40_01.01.000.xml";
 		ref.uuid = "a97a0155-0234-4b87-b4ce-a45da52f2a40";
 		ref.version = "01.01.000";
@@ -26,7 +26,7 @@ public class Reference {
 			return new DataSetReference();
 		UnitGroupBag bag = new UnitGroupBag(group, langs);
 		DataSetReference ref = new DataSetReference();
-		ref.type = DataSetType.UNIT_GROUP_DATA_SET;
+		ref.type = DataSetType.UNIT_GROUP;
 		ref.uri = "../unitgroups/" + bag.getId();
 		ref.uuid = bag.getId();
 		ref.version = bag.getVersion();

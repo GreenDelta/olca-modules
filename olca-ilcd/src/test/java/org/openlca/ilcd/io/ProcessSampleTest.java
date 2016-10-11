@@ -24,16 +24,16 @@ public class ProcessSampleTest {
 			Assert.assertEquals(2, pub.precedingVersions.size());
 			Assert.assertEquals("http://www.ilcd-network.org/data/processes/sample_process.xml", pub.uri.trim());
 			Assert.assertEquals(PublicationStatus.WORKING_DRAFT, pub.status);
-			Assert.assertEquals(DataSetType.SOURCE_DATA_SET, pub.republication.type);
-			Assert.assertEquals(DataSetType.CONTACT_DATA_SET, pub.registrationAuthority.type);
-			Assert.assertEquals(DataSetType.CONTACT_DATA_SET, pub.owner.type);
+			Assert.assertEquals(DataSetType.SOURCE, pub.republication.type);
+			Assert.assertEquals(DataSetType.CONTACT, pub.registrationAuthority.type);
+			Assert.assertEquals(DataSetType.CONTACT, pub.owner.type);
 			Assert.assertEquals(2, pub.accessRestrictions.size());
 
 			DataEntry e = p.adminInfo.dataEntry;
 			Assert.assertNotNull(e.timeStamp);
 			Assert.assertEquals(2, e.formats.size());
-			Assert.assertEquals(DataSetType.SOURCE_DATA_SET, e.originalDataSet.type);
-			Assert.assertEquals(DataSetType.CONTACT_DATA_SET, e.documentor.type);
+			Assert.assertEquals(DataSetType.SOURCE, e.originalDataSet.type);
+			Assert.assertEquals(DataSetType.CONTACT, e.documentor.type);
 			Assert.assertEquals(2, e.useApprovals.size());
 		});
 	}

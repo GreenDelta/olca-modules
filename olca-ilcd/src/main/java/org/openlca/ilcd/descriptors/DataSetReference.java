@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.LangString;
 
 @XmlAccessorType(XmlAccessType.FIELD)
