@@ -35,7 +35,10 @@ class LoginInvocation {
 			return null;
 		String result = response.getEntity(String.class);
 		if ("tokenRequired".equals(result)) {
-			response = _execute(credentials.getToken());
+			Integer token = credentials.getToken();
+			if (token == null)
+				return null;
+			response = _execute(token);
 		}
 		for (NewCookie cookie : response.getCookies())
 			if (cookie.getName().equals("JSESSIONID"))

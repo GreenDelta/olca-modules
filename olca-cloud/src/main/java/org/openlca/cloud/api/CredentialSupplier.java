@@ -1,24 +1,24 @@
 package org.openlca.cloud.api;
 
-import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 public class CredentialSupplier {
 
 	public final String username;
 	final String password;
-	private IntSupplier tokenSupplier;
+	private Supplier<Integer> tokenSupplier;
 
 	public CredentialSupplier(String username, String password) {
 		this.username = username;
 		this.password = password;
 	}
 
-	public void setTokenSupplier(IntSupplier tokenSupplier) {
+	public void setTokenSupplier(Supplier<Integer> tokenSupplier) {
 		this.tokenSupplier = tokenSupplier;
 	}
 
-	int getToken() {
-		return tokenSupplier.getAsInt();
+	Integer getToken() {
+		return tokenSupplier.get();
 	}
 
 }
