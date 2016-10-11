@@ -57,8 +57,10 @@ public class LangString implements Serializable {
 	 * will be returned.
 	 */
 	public static String getFirst(List<LangString> list, String... langs) {
-		if (list == null || list.isEmpty() || langs == null)
+		if (list == null || list.isEmpty())
 			return null;
+		if (langs == null)
+			return list.get(0).value;
 		for (String lang : langs) {
 			LangString s = get(list, lang);
 			if (s != null)

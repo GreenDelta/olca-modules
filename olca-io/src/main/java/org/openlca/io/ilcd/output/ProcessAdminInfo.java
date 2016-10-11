@@ -49,13 +49,13 @@ class ProcessAdminInfo {
 		DataEntry dataEntry = new DataEntry();
 		iAdminInfo.dataEntry = dataEntry;
 		dataEntry.timeStamp = toXmlCalender(new Date());
-		dataEntry.referenceToDataSetFormat.add(
+		dataEntry.formats.add(
 				Reference.forIlcdFormat());
 		if (documentation.getDataDocumentor() != null) {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
 					documentation.getDataDocumentor(), config);
 			if (ref != null) {
-				dataEntry.referenceToPersonOrEntityEnteringTheData = ref;
+				dataEntry.documentor = ref;
 			}
 		}
 	}
@@ -89,10 +89,10 @@ class ProcessAdminInfo {
 		Publication publication = new Publication();
 		iAdminInfo.publication = publication;
 		if (process.getLastChange() != 0)
-			publication.dateOfLastRevision = toXmlCalender(new Date(process
+			publication.lastRevision = toXmlCalender(new Date(process
 					.getLastChange()));
 		String version = Version.asString(process.getVersion());
-		publication.dataSetVersion = version;
+		publication.version = version;
 		publication.copyright = documentation.isCopyright();
 		mapDataSetOwner(publication);
 		if (!Strings.nullOrEmpty(documentation.getRestrictions())) {
@@ -108,7 +108,7 @@ class ProcessAdminInfo {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
 					documentation.getDataSetOwner(), config);
 			if (ref != null) {
-				publication.referenceToOwnershipOfDataSet = ref;
+				publication.owner = ref;
 			}
 		}
 	}
@@ -120,7 +120,7 @@ class ProcessAdminInfo {
 		DataSetReference ref = ExportDispatch
 				.forwardExportCheck(source, config);
 		if (ref != null)
-			publication.referenceToUnchangedRepublication = ref;
+			publication.republication = ref;
 	}
 
 	private void createCommissionerAndGoal() {

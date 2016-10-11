@@ -164,12 +164,12 @@ public class ProcessImport {
 		if (iPublication != null) {
 
 			// data set owner
-			DataSetReference ownerRef = iPublication.referenceToOwnershipOfDataSet;
+			DataSetReference ownerRef = iPublication.owner;
 			if (ownerRef != null)
 				doc.setDataSetOwner(fetchActor(ownerRef));
 
 			// publication
-			DataSetReference publicationRef = iPublication.referenceToUnchangedRepublication;
+			DataSetReference publicationRef = iPublication.republication;
 			if (publicationRef != null)
 				doc.setPublication(fetchSource(publicationRef));
 
@@ -179,7 +179,7 @@ public class ProcessImport {
 
 			// version
 			process.setVersion(Version.fromString(
-					iPublication.dataSetVersion).getValue());
+					iPublication.version).getValue());
 
 			// copyright
 			if (iPublication.copyright != null) {
@@ -199,9 +199,9 @@ public class ProcessImport {
 			if (tStamp != null)
 				process.setLastChange(tStamp.getTime());
 		}
-		if (iEntry.referenceToPersonOrEntityEnteringTheData != null) {
+		if (iEntry.documentor != null) {
 			Actor documentor = fetchActor(
-					iEntry.referenceToPersonOrEntityEnteringTheData);
+					iEntry.documentor);
 			doc.setDataDocumentor(documentor);
 		}
 	}

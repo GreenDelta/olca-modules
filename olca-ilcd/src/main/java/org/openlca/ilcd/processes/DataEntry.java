@@ -21,10 +21,10 @@ import org.openlca.ilcd.commons.Other;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataEntryByType", propOrder = {
 		"timeStamp",
-		"referenceToDataSetFormat",
-		"referenceToConvertedOriginalDataSetFrom",
-		"referenceToPersonOrEntityEnteringTheData",
-		"referenceToDataSetUseApproval",
+		"formats",
+		"originalDataSet",
+		"documentor",
+		"useApprovals",
 		"other"
 })
 public class DataEntry implements Serializable {
@@ -34,17 +34,18 @@ public class DataEntry implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public XMLGregorianCalendar timeStamp;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<DataSetReference> referenceToDataSetFormat = new ArrayList<>();
+	/** Describes the format of the data set. */
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToDataSetFormat")
+	public final List<DataSetReference> formats = new ArrayList<>();
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public DataSetReference referenceToConvertedOriginalDataSetFrom;
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToConvertedOriginalDataSetFrom")
+	public DataSetReference originalDataSet;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public DataSetReference referenceToPersonOrEntityEnteringTheData;
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToPersonOrEntityEnteringTheData")
+	public DataSetReference documentor;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<DataSetReference> referenceToDataSetUseApproval = new ArrayList<>();
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToDataSetUseApproval")
+	public final List<DataSetReference> useApprovals = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

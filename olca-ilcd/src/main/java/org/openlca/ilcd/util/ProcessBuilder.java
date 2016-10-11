@@ -109,7 +109,7 @@ public class ProcessBuilder {
 		fillProcessInfo();
 		fillModelling();
 		if (adminInfo != null) {
-			process.administrativeInformation = adminInfo;
+			process.adminInfo = adminInfo;
 		}
 		fillExchanges();
 	}

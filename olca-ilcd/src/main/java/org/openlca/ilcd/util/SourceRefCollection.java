@@ -53,9 +53,9 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (entry == null)
 			return refs;
-		refs.add(entry.referenceToConvertedOriginalDataSetFrom);
-		if (entry.referenceToDataSetFormat != null)
-			refs.addAll(entry.referenceToDataSetFormat);
+		refs.add(entry.originalDataSet);
+		if (entry.formats != null)
+			refs.addAll(entry.formats);
 		return refs;
 	}
 
@@ -72,7 +72,7 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (pub == null)
 			return refs;
-		refs.add(pub.referenceToUnchangedRepublication);
+		refs.add(pub.republication);
 		return refs;
 	}
 

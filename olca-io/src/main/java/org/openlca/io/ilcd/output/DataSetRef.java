@@ -26,7 +26,7 @@ class DataSetRef {
 		ref.uuid = model.getRefId();
 		setUriAndType(model, ref);
 		if (model.getName() != null) {
-			LangString.set(ref.shortDescription, model.getName(),
+			LangString.set(ref.description, model.getName(),
 					config.lang);
 		}
 		return ref;

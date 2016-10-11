@@ -16,7 +16,7 @@ public class Reference {
 		ref.uri = "../sources/a97a0155-0234-4b87-b4ce-a45da52f2a40_01.01.000.xml";
 		ref.uuid = "a97a0155-0234-4b87-b4ce-a45da52f2a40";
 		ref.version = "01.01.000";
-		LangString.set(ref.shortDescription, "ILCD format", "en");
+		LangString.set(ref.description, "ILCD format", "en");
 		return ref;
 	}
 

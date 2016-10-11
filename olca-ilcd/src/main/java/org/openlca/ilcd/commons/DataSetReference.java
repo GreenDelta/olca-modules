@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
@@ -18,7 +19,7 @@ import org.openlca.ilcd.commons.annotations.ShortText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GlobalReferenceType", propOrder = { "subReference",
-		"shortDescription", "other" })
+		"description", "other" })
 public class DataSetReference implements Serializable {
 
 	private final static long serialVersionUID = 1L;
@@ -26,7 +27,8 @@ public class DataSetReference implements Serializable {
 	public final List<String> subReference = new ArrayList<>();
 
 	@ShortText
-	public final List<LangString> shortDescription = new ArrayList<>();
+	@XmlElement(name = "shortDescription")
+	public final List<LangString> description = new ArrayList<>();
 
 	public Other other;
 

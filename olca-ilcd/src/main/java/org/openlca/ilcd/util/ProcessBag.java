@@ -198,28 +198,28 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public CommissionerAndGoal getCommissionerAndGoal() {
-		AdminInfo info = process.administrativeInformation;
+		AdminInfo info = process.adminInfo;
 		if (info != null)
 			return info.commissionerAndGoal;
 		return null;
 	}
 
 	public DataGenerator getDataGenerator() {
-		AdminInfo info = process.administrativeInformation;
+		AdminInfo info = process.adminInfo;
 		if (info != null)
 			return info.dataGenerator;
 		return null;
 	}
 
 	public DataEntry getDataEntry() {
-		AdminInfo info = process.administrativeInformation;
+		AdminInfo info = process.adminInfo;
 		if (info != null)
 			return info.dataEntry;
 		return null;
 	}
 
 	public Publication getPublication() {
-		AdminInfo info = process.administrativeInformation;
+		AdminInfo info = process.adminInfo;
 		if (info != null)
 			return info.publication;
 		return null;

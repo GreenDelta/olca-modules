@@ -659,8 +659,7 @@
 			</common:referenceToPrecedingDataSetVersion>
 			<common:permanentDataSetURI>http://www.ilcd-network.org/data/processes/sample_process.xml
 			</common:permanentDataSetURI>
-			<common:workflowAndPublicationStatus>Working draft
-			</common:workflowAndPublicationStatus>
+			<common:workflowAndPublicationStatus>Working draft</common:workflowAndPublicationStatus>
 			<common:referenceToUnchangedRepublication
 				type="source data set" refObjectId="00000000-0000-0000-0000-000000000000"
 				version="00.00" uri="">
