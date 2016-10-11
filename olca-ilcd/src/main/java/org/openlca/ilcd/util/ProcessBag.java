@@ -248,7 +248,7 @@ public class ProcessBag implements IBag<Process> {
 		Other other = process.processInfo.other;
 		if (other == null)
 			return null;
-		for (Object extension : other.getAny()) {
+		for (Object extension : other.any) {
 			if (extension instanceof ProductModel)
 				return (ProductModel) extension;
 		}

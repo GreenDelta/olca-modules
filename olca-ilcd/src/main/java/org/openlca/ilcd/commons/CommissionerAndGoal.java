@@ -37,4 +37,16 @@ public class CommissionerAndGoal implements Serializable {
 	@XmlAnyAttribute
 	private Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public CommissionerAndGoal clone() {
+		CommissionerAndGoal clone = new CommissionerAndGoal();
+		DataSetReference.copy(commissioners, clone.commissioners);
+		LangString.copy(project, clone.project);
+		LangString.copy(intendedApplications, clone.intendedApplications);
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
+
 }

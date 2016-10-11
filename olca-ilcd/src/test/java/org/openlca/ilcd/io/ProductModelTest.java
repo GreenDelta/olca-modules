@@ -35,7 +35,7 @@ public class ProductModelTest {
 		Process process = makeProductModel();
 		String xml = marshal(process);
 		Process copy = unmarshal(xml);
-		ProductModel model = (ProductModel) copy.processInfo.other.getAny().get(0);
+		ProductModel model = (ProductModel) copy.processInfo.other.any.get(0);
 		assertEquals("test-model", model.getName());
 	}
 
@@ -69,7 +69,7 @@ public class ProductModelTest {
 		Process process = makePlainProcess();
 		Other other = new Other();
 		process.processInfo.other = other;
-		List<Object> extension = other.getAny();
+		List<Object> extension = other.any;
 		ProductModel model = new ProductModel();
 		model.setName("test-model");
 		extension.add(model);

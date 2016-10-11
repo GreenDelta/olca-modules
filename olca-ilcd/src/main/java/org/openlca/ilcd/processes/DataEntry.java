@@ -53,4 +53,20 @@ public class DataEntry implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public DataEntry clone() {
+		DataEntry clone = new DataEntry();
+		clone.timeStamp = timeStamp;
+		DataSetReference.copy(formats, clone.formats);
+		if (originalDataSet != null)
+			clone.originalDataSet = originalDataSet.clone();
+		if (documentor != null)
+			clone.documentor = documentor.clone();
+		DataSetReference.copy(useApprovals, clone.useApprovals);
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
+
 }

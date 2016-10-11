@@ -69,7 +69,7 @@ public class SystemExport {
 		ProductModel model = new ProductModel();
 		model.setName(system.getName());
 		Other other = new Other();
-		other.getAny().add(model);
+		other.any.add(model);
 		info.other = other;
 		exportProcesses(model);
 		exportLinks(model);

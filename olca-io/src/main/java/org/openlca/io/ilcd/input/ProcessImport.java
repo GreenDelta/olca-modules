@@ -209,7 +209,7 @@ public class ProcessImport {
 	private void mapDataGenerator(ProcessDocumentation doc) {
 		if (ilcdProcess.getDataGenerator() != null) {
 			List<DataSetReference> refs = ilcdProcess
-					.getDataGenerator().referenceToPersonOrEntityGeneratingTheDataSet;
+					.getDataGenerator().contacts;
 			if (refs != null && !refs.isEmpty()) {
 				DataSetReference generatorRef = refs.get(0);
 				doc.setDataGenerator(fetchActor(generatorRef));

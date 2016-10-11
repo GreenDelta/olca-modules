@@ -26,6 +26,30 @@ public class LangString implements Serializable {
 		return s;
 	}
 
+	@Override
+	public String toString() {
+		String v = value != null ? value : "";
+		if (lang == null)
+			return v;
+		return v + "@" + lang;
+	}
+
+	@Override
+	public LangString clone() {
+		return LangString.of(value, lang);
+	}
+
+	/**
+	 * Copies all language strings from the source list to the target list.
+	 */
+	public static void copy(List<LangString> source, List<LangString> target) {
+		if (source == null || target == null)
+			return;
+		for (LangString s : source) {
+			target.add(s.clone());
+		}
+	}
+
 	/**
 	 * Returns the language string with the given language code from the list.
 	 * Returns null if there is no such string in the list.

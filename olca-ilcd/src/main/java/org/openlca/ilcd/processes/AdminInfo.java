@@ -44,4 +44,20 @@ public class AdminInfo implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public AdminInfo clone() {
+		AdminInfo clone = new AdminInfo();
+		if (commissionerAndGoal != null)
+			clone.commissionerAndGoal = commissionerAndGoal.clone();
+		if (dataGenerator != null)
+			clone.dataGenerator = dataGenerator.clone();
+		if (dataEntry != null)
+			clone.dataEntry = dataEntry.clone();
+		if (publication != null)
+			clone.publication = publication.clone();
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

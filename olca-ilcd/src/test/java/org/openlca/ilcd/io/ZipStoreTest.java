@@ -66,7 +66,7 @@ public class ZipStoreTest {
 		store.put(p, "abc_123");
 		assertTrue(store.contains(Process.class, "abc_123"));
 		Process copy = store.get(Process.class, "abc_123");
-		ProductModel model = (ProductModel) copy.processInfo.dataSetInformation.other.getAny().get(0);
+		ProductModel model = (ProductModel) copy.processInfo.dataSetInformation.other.any.get(0);
 		String name = model.getName();
 		assertEquals("product-model-name", name);
 	}
@@ -81,7 +81,7 @@ public class ZipStoreTest {
 		productModel.setName("product-model-name");
 		Other other = new Other();
 		info.other = other;
-		other.getAny().add(productModel);
+		other.any.add(productModel);
 		return process;
 	}
 }

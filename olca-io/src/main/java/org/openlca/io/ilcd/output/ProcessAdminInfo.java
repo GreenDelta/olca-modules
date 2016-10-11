@@ -67,7 +67,7 @@ class ProcessAdminInfo {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
 					documentation.getDataGenerator(), config);
 			if (ref != null)
-				generator.referenceToPersonOrEntityGeneratingTheDataSet.add(ref);
+				generator.contacts.add(ref);
 		}
 	}
 

@@ -30,8 +30,6 @@ public class DataSetReference implements Serializable {
 	@XmlElement(name = "shortDescription")
 	public final List<LangString> description = new ArrayList<>();
 
-	public Other other;
-
 	@XmlAttribute(name = "type", required = true)
 	public DataSetType type;
 
@@ -45,6 +43,8 @@ public class DataSetReference implements Serializable {
 	@XmlSchemaType(name = "anyURI")
 	public String uri;
 
+	public Other other;
+
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
@@ -53,4 +53,33 @@ public class DataSetReference implements Serializable {
 		return "DataSetReference [type=" + type + ", uuid=" + uuid + "]";
 	}
 
+	@Override
+	public DataSetReference clone() {
+		DataSetReference clone = new DataSetReference();
+		clone.subReference.addAll(subReference);
+		LangString.copy(description, clone.description);
+		clone.type = type;
+		clone.uuid = uuid;
+		clone.version = version;
+		clone.uri = uri;
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
+
+	/**
+	 * Copies all data set references from the given source list to the given
+	 * target list.
+	 */
+	public static void copy(List<DataSetReference> source,
+			List<DataSetReference> target) {
+		if (source == null || target == null)
+			return;
+		for (DataSetReference ref : source) {
+			if (ref == null)
+				continue;
+			target.add(ref.clone());
+		}
+	}
 }

@@ -19,15 +19,15 @@ import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataGeneratorType", propOrder = {
-		"referenceToPersonOrEntityGeneratingTheDataSet",
+		"contacts",
 		"other"
 })
 public class DataGenerator implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<DataSetReference> referenceToPersonOrEntityGeneratingTheDataSet = new ArrayList<>();
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToPersonOrEntityGeneratingTheDataSet")
+	public final List<DataSetReference> contacts = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -35,4 +35,13 @@ public class DataGenerator implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public DataGenerator clone() {
+		DataGenerator clone = new DataGenerator();
+		DataSetReference.copy(contacts, clone.contacts);
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

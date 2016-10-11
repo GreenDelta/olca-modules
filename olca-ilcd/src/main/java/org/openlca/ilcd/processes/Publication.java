@@ -91,4 +91,29 @@ public class Publication implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public Publication clone() {
+		Publication clone = new Publication();
+		clone.lastRevision = lastRevision;
+		clone.version = version;
+		DataSetReference.copy(precedingVersions, clone.precedingVersions);
+		clone.uri = uri;
+		clone.status = status;
+		if (republication != null)
+			clone.republication = republication.clone();
+		if (registrationAuthority != null)
+			clone.registrationAuthority = registrationAuthority.clone();
+		clone.registrationNumber = registrationNumber;
+		if (owner != null)
+			clone.owner = owner.clone();
+		clone.copyright = copyright;
+		DataSetReference.copy(entitiesWithExclusiveAccess, clone.entitiesWithExclusiveAccess);
+		clone.license = license;
+		LangString.copy(accessRestrictions, clone.accessRestrictions);
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
+
 }
