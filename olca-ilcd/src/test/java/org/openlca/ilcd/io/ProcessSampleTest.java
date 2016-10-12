@@ -1,6 +1,7 @@
 package org.openlca.ilcd.io;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.function.Consumer;
 
 import javax.xml.bind.JAXB;
@@ -12,6 +13,7 @@ import org.openlca.ilcd.commons.PublicationStatus;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Publication;
+import org.openlca.ilcd.processes.Review;
 
 public class ProcessSampleTest {
 
@@ -35,6 +37,19 @@ public class ProcessSampleTest {
 			Assert.assertEquals(DataSetType.SOURCE, e.originalDataSet.type);
 			Assert.assertEquals(DataSetType.CONTACT, e.documentor.type);
 			Assert.assertEquals(2, e.useApprovals.size());
+		});
+	}
+
+	@Test
+	public void testReviews() throws Exception {
+		with(p -> {
+			List<Review> reviews = p.modelling.validation.reviews;
+			Assert.assertEquals(2, reviews.size());
+			for (Review r : reviews) {
+				Assert.assertEquals(2, r.scopes.size());
+				Assert.assertEquals(2, r.details.size());
+				Assert.assertEquals(2, r.indicators.length);
+			}
 		});
 	}
 

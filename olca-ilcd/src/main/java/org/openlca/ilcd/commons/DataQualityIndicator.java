@@ -27,4 +27,13 @@ public class DataQualityIndicator implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public DataQualityIndicator clone() {
+		DataQualityIndicator clone = new DataQualityIndicator();
+		clone.name = name;
+		clone.value = value;
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
+
 }

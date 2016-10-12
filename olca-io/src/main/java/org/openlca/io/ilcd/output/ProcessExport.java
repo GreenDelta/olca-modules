@@ -245,10 +245,10 @@ public class ProcessExport {
 				DataSetReference ref = ExportDispatch.forwardExportCheck(
 						doc.getReviewer(), config);
 				if (ref != null)
-					review.referenceToNameOfReviewerAndInstitution.add(ref);
+					review.reviewers.add(ref);
 			}
 
-			s(review.reviewDetails, doc.getReviewDetails());
+			s(review.details, doc.getReviewDetails());
 		}
 		return reviews;
 	}

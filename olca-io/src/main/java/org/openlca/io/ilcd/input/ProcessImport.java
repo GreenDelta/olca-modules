@@ -311,12 +311,12 @@ public class ProcessImport {
 		if (ilcdProcess.getReviews().isEmpty())
 			return;
 		Review iReview = ilcdProcess.getReviews().get(0);
-		if (!iReview.referenceToNameOfReviewerAndInstitution.isEmpty()) {
-			DataSetReference ref = iReview.referenceToNameOfReviewerAndInstitution
+		if (!iReview.reviewers.isEmpty()) {
+			DataSetReference ref = iReview.reviewers
 					.get(0);
 			doc.setReviewer(fetchActor(ref));
 		}
-		doc.setReviewDetails(LangString.getFirst(iReview.reviewDetails,
+		doc.setReviewDetails(LangString.getFirst(iReview.details,
 				config.langs));
 	}
 

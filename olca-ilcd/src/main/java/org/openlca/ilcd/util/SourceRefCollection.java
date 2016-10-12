@@ -90,7 +90,7 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (rev == null)
 			return refs;
-		refs.add(rev.referenceToCompleteReviewReport);
+		refs.add(rev.report);
 		return refs;
 	}
 

@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.annotations.FreeText;
+
 /**
  * This object contains factory methods for each Java content interface and Java
  * element interface generated in the org.openlca.ilcd.commons package.
@@ -109,14 +111,6 @@ public class ObjectFactory {
 	 */
 	public CommissionerAndGoal createCommissionerAndGoal() {
 		return new CommissionerAndGoal();
-	}
-
-	/**
-	 * Create an instance of {@link DataQualityIndicatorList }
-	 * 
-	 */
-	public DataQualityIndicatorList createDataQualityIndicatorList() {
-		return new DataQualityIndicatorList();
 	}
 
 	/**
@@ -235,18 +229,6 @@ public class ObjectFactory {
 			DataSetReference value) {
 		return new JAXBElement<>(_ReferenceToRegistrationAuthority_QNAME,
 				DataSetReference.class, null, value);
-	}
-
-	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link DataQualityIndicatorList }{@code >}
-	 * 
-	 */
-	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "dataQualityIndicators")
-	public JAXBElement<DataQualityIndicatorList> createDataQualityIndicators(
-			DataQualityIndicatorList value) {
-		return new JAXBElement<>(_DataQualityIndicators_QNAME,
-				DataQualityIndicatorList.class, null, value);
 	}
 
 	/**

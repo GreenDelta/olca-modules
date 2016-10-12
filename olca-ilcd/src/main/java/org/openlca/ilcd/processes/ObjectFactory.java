@@ -159,11 +159,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ModellingAndValidation }
+	 * Create an instance of {@link Modelling }
 	 * 
 	 */
-	public ModellingAndValidation createModellingAndValidation() {
-		return new ModellingAndValidation();
+	public Modelling createModellingAndValidation() {
+		return new Modelling();
 	}
 
 	/**
@@ -282,8 +282,8 @@ public class ObjectFactory {
 	 * Create an instance of {@link Review.Scope.Method }
 	 * 
 	 */
-	public Review.Scope.Method createReviewScopeMethod() {
-		return new Review.Scope.Method();
+	public Review.Method createReviewScopeMethod() {
+		return new Review.Method();
 	}
 
 	/**

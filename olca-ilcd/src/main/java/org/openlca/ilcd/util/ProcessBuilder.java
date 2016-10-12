@@ -9,7 +9,7 @@ import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
-import org.openlca.ilcd.processes.ModellingAndValidation;
+import org.openlca.ilcd.processes.Modelling;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.Process;
@@ -154,8 +154,8 @@ public class ProcessBuilder {
 	}
 
 	private void fillModelling() {
-		ModellingAndValidation mav = new ModellingAndValidation();
-		process.modellingAndValidation = mav;
+		Modelling mav = new Modelling();
+		process.modelling = mav;
 		if (lciMethod != null) {
 			mav.lciMethod = lciMethod;
 		}
@@ -165,7 +165,7 @@ public class ProcessBuilder {
 		if (reviews != null && !reviews.isEmpty()) {
 			Validation validation = new Validation();
 			mav.validation = validation;
-			validation.review.addAll(reviews);
+			validation.reviews.addAll(reviews);
 		}
 	}
 

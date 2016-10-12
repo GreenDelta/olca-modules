@@ -19,7 +19,7 @@ import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProcessDataSetType", propOrder = { "processInfo",
-		"modellingAndValidation", "adminInfo", "exchanges",
+		"modelling", "adminInfo", "exchanges",
 		"lciaResults", "other" })
 public class Process implements Serializable {
 
@@ -28,7 +28,8 @@ public class Process implements Serializable {
 	@XmlElement(required = true, name = "processInformation")
 	public ProcessInfo processInfo;
 
-	public ModellingAndValidation modellingAndValidation;
+	@XmlElement(name = "modellingAndValidation")
+	public Modelling modelling;
 
 	@XmlElement(name = "administrativeInformation")
 	public AdminInfo adminInfo;

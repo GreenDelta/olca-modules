@@ -21,7 +21,7 @@ import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.LCIMethod;
-import org.openlca.ilcd.processes.ModellingAndValidation;
+import org.openlca.ilcd.processes.Modelling;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.Process;
@@ -152,7 +152,7 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public ProcessType getProcessType() {
-		ModellingAndValidation mav = process.modellingAndValidation;
+		Modelling mav = process.modelling;
 		if (mav != null) {
 			LCIMethod method = mav.lciMethod;
 			if (method != null)
@@ -162,32 +162,32 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public Representativeness getRepresentativeness() {
-		ModellingAndValidation mav = process.modellingAndValidation;
+		Modelling mav = process.modelling;
 		if (mav != null)
 			return mav.representativeness;
 		return null;
 	}
 
 	public Completeness getCompleteness() {
-		ModellingAndValidation mav = process.modellingAndValidation;
+		Modelling mav = process.modelling;
 		if (mav != null)
 			return mav.completeness;
 		return null;
 	}
 
 	public List<Review> getReviews() {
-		ModellingAndValidation mav = process.modellingAndValidation;
+		Modelling mav = process.modelling;
 		if (mav != null) {
 			Validation validation = mav.validation;
-			if (validation != null && validation.review != null) {
-				return validation.review;
+			if (validation != null && validation.reviews != null) {
+				return validation.reviews;
 			}
 		}
 		return Collections.emptyList();
 	}
 
 	public List<ComplianceDeclaration> getComplianceDeclarations() {
-		ModellingAndValidation mav = process.modellingAndValidation;
+		Modelling mav = process.modelling;
 		if (mav != null) {
 			ComplianceDeclarationList list = mav.complianceDeclarations;
 			if (list != null && list.complianceDeclatations != null) {
@@ -230,7 +230,7 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public LCIMethod getLciMethod() {
-		ModellingAndValidation mav = process.modellingAndValidation;
+		Modelling mav = process.modelling;
 		if (mav != null)
 			return mav.lciMethod;
 		return null;

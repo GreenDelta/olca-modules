@@ -16,12 +16,13 @@ import javax.xml.namespace.QName;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ValidationType", propOrder = { "review", "other" })
+@XmlType(name = "ValidationType", propOrder = { "reviews", "other" })
 public class Validation implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	public final List<Review> review = new ArrayList<>();
+	@XmlElement(name = "review")
+	public final List<Review> reviews = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
