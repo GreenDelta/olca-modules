@@ -63,7 +63,7 @@ public class Review implements Serializable {
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
 	@XmlAccessorType(XmlAccessType.FIELD)
-	@XmlType(name = "", propOrder = { "method" })
+	@XmlType(name = "", propOrder = { "methods" })
 	public static class Scope implements Serializable {
 
 		private final static long serialVersionUID = 1L;
