@@ -1,6 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -49,7 +48,7 @@ class ProcessTime {
 		doc.setValidUntil(endDate);
 	}
 
-	private Date date(BigInteger bigInt) {
+	private Date date(Integer bigInt) {
 		if (bigInt == null)
 			return null;
 		int year = bigInt.intValue();

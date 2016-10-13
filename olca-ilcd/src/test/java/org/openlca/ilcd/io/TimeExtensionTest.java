@@ -1,10 +1,12 @@
 package org.openlca.ilcd.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.math.BigInteger;
 import java.util.Date;
 
 import javax.xml.bind.JAXB;
@@ -18,7 +20,7 @@ public class TimeExtensionTest {
 	@Test
 	public void testEmpty() {
 		Time time = io(new Time());
-		time.referenceYear = new BigInteger("1979");
+		time.referenceYear = 1979;
 		TimeExtension extension = new TimeExtension(time);
 		assertFalse(extension.isValid());
 		assertNull(extension.getStartDate());
@@ -45,7 +47,7 @@ public class TimeExtensionTest {
 
 	private Time createTime(Date date) {
 		Time time = io(new Time());
-		time.referenceYear = new BigInteger("1979");
+		time.referenceYear = 1979;
 		TimeExtension extension = new TimeExtension(time);
 		extension.setStartDate(date);
 		extension.setEndDate(date);

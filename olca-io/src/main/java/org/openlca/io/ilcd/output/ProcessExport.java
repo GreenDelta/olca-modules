@@ -1,8 +1,9 @@
 package org.openlca.io.ilcd.output;
 
-import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.openlca.core.model.Location;
@@ -99,19 +100,24 @@ public class ProcessExport {
 		log.trace("Map process time.");
 		if (doc == null)
 			return;
-		SimpleDateFormat dFormat = new SimpleDateFormat("yyyy");
 		TimeExtension extension = new TimeExtension(iTime);
 		if (doc.getValidFrom() != null) {
-			String _start = dFormat.format(doc.getValidFrom());
-			iTime.referenceYear = new BigInteger(_start);
+			iTime.referenceYear = getYear(doc.getValidFrom());
 			extension.setStartDate(doc.getValidFrom());
 		}
 		if (doc.getValidUntil() != null) {
-			String _end = dFormat.format(doc.getValidUntil());
-			iTime.validUntil = new BigInteger(_end);
+			iTime.validUntil = getYear(doc.getValidUntil());
 			extension.setEndDate(doc.getValidUntil());
 		}
 		s(iTime.description, doc.getTime());
+	}
+
+	private Integer getYear(Date date) {
+		if (date == null)
+			return null;
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.setTime(date);
+		return cal.get(Calendar.YEAR);
 	}
 
 	private Geography makeGeography() {
