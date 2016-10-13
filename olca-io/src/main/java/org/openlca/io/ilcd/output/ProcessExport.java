@@ -71,7 +71,7 @@ public class ProcessExport {
 		dataSetInfo.uuid = process.getRefId();
 		ProcessName processName = new ProcessName();
 		dataSetInfo.name = processName;
-		s(processName.baseName, process.getName());
+		s(processName.name, process.getName());
 		s(dataSetInfo.comment, process.getDescription());
 		addClassification(dataSetInfo);
 		return dataSetInfo;

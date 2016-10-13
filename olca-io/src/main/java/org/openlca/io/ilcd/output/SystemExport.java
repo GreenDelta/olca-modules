@@ -159,7 +159,7 @@ public class SystemExport {
 		ProcessName processName = new ProcessName();
 		info.name = processName;
 		String name = system.getName() + " (product system)";
-		LangString.set(processName.baseName, name, config.lang);
+		LangString.set(processName.name, name, config.lang);
 		if (system.getDescription() != null) {
 			LangString.set(info.comment,
 					system.getDescription(), config.lang);

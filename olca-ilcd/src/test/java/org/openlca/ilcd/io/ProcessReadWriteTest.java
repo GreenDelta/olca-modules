@@ -20,7 +20,7 @@ public class ProcessReadWriteTest {
 	private void setNameAndComment(Process process) {
 		DataSetInfo dataSetInformation = makeDataSetInfo(process);
 		ProcessName name = new ProcessName();
-		LangString.set(name.baseName, "process name", "en");
+		LangString.set(name.name, "process name", "en");
 		dataSetInformation.name = name;
 		LangString.set(dataSetInformation.comment,
 				"process description", "en");

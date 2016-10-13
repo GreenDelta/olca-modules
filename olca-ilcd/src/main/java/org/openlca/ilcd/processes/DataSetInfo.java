@@ -40,6 +40,9 @@ public class DataSetInfo implements Serializable {
 	@XmlElement(name = "UUID", namespace = "http://lca.jrc.it/ILCD/Common", required = true)
 	public String uuid;
 
+	/**
+	 * General descriptive and specifying name of the process.
+	 */
 	public ProcessName name;
 
 	/**
@@ -83,4 +86,33 @@ public class DataSetInfo implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public DataSetInfo clone() {
+		DataSetInfo clone = new DataSetInfo();
+		clone.uuid = uuid;
+		if (name != null)
+			clone.name = name.clone();
+		clone.subIdentifier = subIdentifier;
+		LangString.copy(synonyms, clone.synonyms);
+		if (complementingProcesses != null) {
+			clone.complementingProcesses = new DataSetReference[complementingProcesses.length];
+			for (int i = 0; i < complementingProcesses.length; i++) {
+				DataSetReference p = complementingProcesses[i];
+				if (p == null)
+					continue;
+				clone.complementingProcesses[i] = p.clone();
+			}
+		}
+		for (Classification c : classifications) {
+			if (c == null)
+				continue;
+			clone.classifications.add(c.clone());
+		}
+		LangString.copy(comment, clone.comment);
+		DataSetReference.copy(externalDocs, clone.externalDocs);
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

@@ -63,10 +63,10 @@ public class ProcessBag implements IBag<Process> {
 			return null;
 		ProcessName processName = info.name;
 		StringBuilder builder = new StringBuilder();
-		appendNamePart(processName.baseName, builder, null);
-		appendNamePart(processName.mixAndLocationTypes, builder, ", ");
-		appendNamePart(processName.treatmentStandardsRoutes, builder, ", ");
-		appendNamePart(processName.functionalUnitFlowProperties, builder,
+		appendNamePart(processName.name, builder, null);
+		appendNamePart(processName.mixAndLocation, builder, ", ");
+		appendNamePart(processName.technicalDetails, builder, ", ");
+		appendNamePart(processName.flowProperties, builder,
 				", ");
 		return builder.toString();
 	}

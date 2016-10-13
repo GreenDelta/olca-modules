@@ -36,4 +36,16 @@ public class Classification implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public Classification clone() {
+		Classification clone = new Classification();
+		for (Class c : classes)
+			clone.classes.add(c.clone());
+		if (other != null)
+			clone.other = other.clone();
+		clone.name = name;
+		clone.url = url;
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }
