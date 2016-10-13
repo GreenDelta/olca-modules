@@ -68,7 +68,7 @@ public class ProcessBagTest {
 	@Test
 	public void testGetGeography() {
 		Geography geography = bag.getGeography();
-		assertEquals("RER", geography.location.location);
+		assertEquals("RER", geography.location.code);
 	}
 
 	@Test

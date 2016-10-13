@@ -44,4 +44,16 @@ public class SubLocation implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public SubLocation clone() {
+		SubLocation clone = new SubLocation();
+		LangString.copy(description, clone.description);
+		if (other != null)
+			clone.other = other.clone();
+		clone.subLocation = subLocation;
+		clone.latitudeAndLongitude = latitudeAndLongitude;
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
+
 }

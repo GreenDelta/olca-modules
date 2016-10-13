@@ -21,15 +21,17 @@ import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QuantitativeReferenceType", propOrder = {
-		"referenceToReferenceFlow", "functionalUnitOrOther", "other" })
+		"referenceFlows", "functionalUnit", "other" })
 public class QuantitativeReference implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	public final List<Integer> referenceToReferenceFlow = new ArrayList<>();
+	@XmlElement(name = "referenceToReferenceFlow")
+	public final List<Integer> referenceFlows = new ArrayList<>();
 
 	@Label
-	public final List<LangString> functionalUnitOrOther = new ArrayList<>();
+	@XmlElement(name = "functionalUnitOrOther")
+	public final List<LangString> functionalUnit = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -40,4 +42,16 @@ public class QuantitativeReference implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public QuantitativeReference clone() {
+		QuantitativeReference clone = new QuantitativeReference();
+		for (Integer ref : referenceFlows)
+			clone.referenceFlows.add(ref);
+		LangString.copy(functionalUnit, clone.functionalUnit);
+		if (other != null)
+			clone.other = other.clone();
+		clone.type = type;
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

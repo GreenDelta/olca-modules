@@ -125,7 +125,7 @@ public class ProcessBag implements IBag<Process> {
 		if (info != null) {
 			QuantitativeReference qRef = info.quantitativeReference;
 			if (qRef != null)
-				return qRef.referenceToReferenceFlow;
+				return qRef.referenceFlows;
 		}
 		return Collections.emptyList();
 	}

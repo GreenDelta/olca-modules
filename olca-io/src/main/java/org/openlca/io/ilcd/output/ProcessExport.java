@@ -131,7 +131,7 @@ public class ProcessExport {
 		geography.location = iLocation;
 		if (process.getLocation() != null) {
 			Location oLocation = process.getLocation();
-			iLocation.location = oLocation.getCode();
+			iLocation.code = oLocation.getCode();
 			String pos = "" + oLocation.getLatitude() + ","
 					+ oLocation.getLongitude();
 			iLocation.latitudeAndLongitude = pos;
@@ -148,7 +148,7 @@ public class ProcessExport {
 		org.openlca.ilcd.processes.Technology iTechnology = null;
 		if (Strings.notEmpty(doc.getTechnology())) {
 			iTechnology = new org.openlca.ilcd.processes.Technology();
-			s(iTechnology.technologyDescriptionAndIncludedProcesses,
+			s(iTechnology.description,
 					doc.getTechnology());
 		}
 		return iTechnology;

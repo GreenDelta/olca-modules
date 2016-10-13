@@ -32,6 +32,18 @@ public class Geography implements Serializable {
 	public Other other;
 
 	@XmlAnyAttribute
-	public Map<QName, String> otherAttributes = new HashMap<>();
+	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public Geography clone() {
+		Geography clone = new Geography();
+		if (location != null)
+			clone.location = location.clone();
+		for (SubLocation sub : subLocations)
+			clone.subLocations.add(sub.clone());
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

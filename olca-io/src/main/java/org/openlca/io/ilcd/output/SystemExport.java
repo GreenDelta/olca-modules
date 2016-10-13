@@ -179,7 +179,7 @@ public class SystemExport {
 	private QuantitativeReference makeQuantitativeReference() {
 		QuantitativeReference qRef = new QuantitativeReference();
 		qRef.type = QuantitativeReferenceType.REFERENCE_FLOWS;
-		qRef.referenceToReferenceFlow.add(1);
+		qRef.referenceFlows.add(1);
 		return qRef;
 	}
 

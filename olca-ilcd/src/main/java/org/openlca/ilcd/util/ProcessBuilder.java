@@ -138,7 +138,7 @@ public class ProcessBuilder {
 			QuantitativeReference qRef = new QuantitativeReference();
 			information.quantitativeReference = qRef;
 			qRef.type = QuantitativeReferenceType.REFERENCE_FLOWS;
-			qRef.referenceToReferenceFlow.add(refFlowId);
+			qRef.referenceFlows.add(refFlowId);
 		}
 	}
 

@@ -21,11 +21,11 @@ import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TechnologyType", propOrder = {
-		"technologyDescriptionAndIncludedProcesses",
-		"referenceToIncludedProcesses",
-		"technologicalApplicability",
-		"referenceToTechnologyPictogramme",
-		"referenceToTechnologyFlowDiagrammOrPicture",
+		"description",
+		"includedProcesses",
+		"applicability",
+		"pictogramme",
+		"pictures",
 		"other"
 })
 public class Technology implements Serializable {
@@ -33,16 +33,21 @@ public class Technology implements Serializable {
 	private final static long serialVersionUID = 1L;
 
 	@FreeText
-	public final List<LangString> technologyDescriptionAndIncludedProcesses = new ArrayList<>();
+	@XmlElement(name = "technologyDescriptionAndIncludedProcesses")
+	public final List<LangString> description = new ArrayList<>();
 
-	public final List<DataSetReference> referenceToIncludedProcesses = new ArrayList<>();
+	@XmlElement(name = "referenceToIncludedProcesses")
+	public final List<DataSetReference> includedProcesses = new ArrayList<>();
 
 	@FreeText
-	public final List<LangString> technologicalApplicability = new ArrayList<>();
+	@XmlElement(name = "technologicalApplicability")
+	public final List<LangString> applicability = new ArrayList<>();
 
-	public DataSetReference referenceToTechnologyPictogramme;
+	@XmlElement(name = "referenceToTechnologyPictogramme")
+	public DataSetReference pictogramme;
 
-	public final List<DataSetReference> referenceToTechnologyFlowDiagrammOrPicture = new ArrayList<>();
+	@XmlElement(name = "referenceToTechnologyFlowDiagrammOrPicture")
+	public final List<DataSetReference> pictures = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -50,4 +55,18 @@ public class Technology implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public Technology clone() {
+		Technology clone = new Technology();
+		LangString.copy(description, clone.description);
+		DataSetReference.copy(includedProcesses, clone.includedProcesses);
+		LangString.copy(applicability, clone.applicability);
+		if (pictogramme != null)
+			clone.pictogramme = pictogramme.clone();
+		DataSetReference.copy(pictures, clone.pictures);
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

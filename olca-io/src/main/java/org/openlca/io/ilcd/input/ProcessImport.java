@@ -142,9 +142,9 @@ public class ProcessImport {
 			return;
 		doc.setGeography(LangString.getFirst(iGeography.location.description,
 				config.langs));
-		if (iGeography.location.location == null)
+		if (iGeography.location.code == null)
 			return;
-		String code = iGeography.location.location;
+		String code = iGeography.location.code;
 		Location location = Locations.getOrCreate(code, config);
 		process.setLocation(location);
 	}
@@ -154,7 +154,7 @@ public class ProcessImport {
 				.getTechnology();
 		if (iTechnology != null) {
 			doc.setTechnology(LangString.getFirst(
-					iTechnology.technologyDescriptionAndIncludedProcesses,
+					iTechnology.description,
 					config.langs));
 		}
 	}

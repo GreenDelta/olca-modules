@@ -80,9 +80,9 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (tec == null)
 			return refs;
-		refs.add(tec.referenceToTechnologyPictogramme);
-		if (tec.referenceToTechnologyFlowDiagrammOrPicture != null)
-			refs.addAll(tec.referenceToTechnologyFlowDiagrammOrPicture);
+		refs.add(tec.pictogramme);
+		if (tec.pictures != null)
+			refs.addAll(tec.pictures);
 		return refs;
 	}
 
