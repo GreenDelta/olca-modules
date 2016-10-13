@@ -38,7 +38,7 @@ public class FlowPropertyBagTest {
 	@Test
 	public void testGetClasses() {
 		Class clazz = bag.getSortedClasses().get(0);
-		assertEquals(0, clazz.level.intValue());
+		assertEquals(0, clazz.level);
 		assertEquals("Technical flow properties", clazz.value.trim());
 	}
 

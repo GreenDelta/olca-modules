@@ -66,7 +66,7 @@ public class ZipStoreTest {
 		store.put(p, "abc_123");
 		assertTrue(store.contains(Process.class, "abc_123"));
 		Process copy = store.get(Process.class, "abc_123");
-		ProductModel model = (ProductModel) copy.processInfo.dataSetInformation.other.any.get(0);
+		ProductModel model = (ProductModel) copy.processInfo.dataSetInfo.other.any.get(0);
 		String name = model.getName();
 		assertEquals("product-model-name", name);
 	}
@@ -76,7 +76,7 @@ public class ZipStoreTest {
 		ProcessInfo pi = new ProcessInfo();
 		process.processInfo = pi;
 		org.openlca.ilcd.processes.DataSetInfo info = new org.openlca.ilcd.processes.DataSetInfo();
-		pi.dataSetInformation = info;
+		pi.dataSetInfo = info;
 		ProductModel productModel = new ProductModel();
 		productModel.setName("product-model-name");
 		Other other = new Other();

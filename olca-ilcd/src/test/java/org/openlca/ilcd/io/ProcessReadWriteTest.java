@@ -22,7 +22,7 @@ public class ProcessReadWriteTest {
 		ProcessName name = new ProcessName();
 		LangString.set(name.baseName, "process name", "en");
 		dataSetInformation.name = name;
-		LangString.set(dataSetInformation.generalComment,
+		LangString.set(dataSetInformation.comment,
 				"process description", "en");
 	}
 
@@ -30,7 +30,7 @@ public class ProcessReadWriteTest {
 		ProcessInfo information = new ProcessInfo();
 		process.processInfo = information;
 		DataSetInfo dataSetInformation = new DataSetInfo();
-		information.dataSetInformation = dataSetInformation;
+		information.dataSetInfo = dataSetInformation;
 		return dataSetInformation;
 	}
 

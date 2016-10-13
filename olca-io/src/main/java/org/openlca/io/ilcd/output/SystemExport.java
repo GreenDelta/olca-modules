@@ -57,7 +57,7 @@ public class SystemExport {
 		Process process = new Process();
 		ProcessInfo info = new ProcessInfo();
 		process.processInfo = info;
-		info.dataSetInformation = makeDataSetInfo();
+		info.dataSetInfo = makeDataSetInfo();
 		info.quantitativeReference = makeQuantitativeReference();
 		addRefProcessInfo(info);
 		addExchange(process);
@@ -161,7 +161,7 @@ public class SystemExport {
 		String name = system.getName() + " (product system)";
 		LangString.set(processName.baseName, name, config.lang);
 		if (system.getDescription() != null) {
-			LangString.set(info.generalComment,
+			LangString.set(info.comment,
 					system.getDescription(), config.lang);
 		}
 		addClassification(info);
@@ -170,10 +170,10 @@ public class SystemExport {
 
 	private void addClassification(DataSetInfo info) {
 		CategoryConverter conv = new CategoryConverter();
-		ClassificationInfo classInfo = conv
+		ClassificationInfo ci = conv
 				.getClassificationInformation(system.getCategory());
-		if (classInfo != null)
-			info.classificationInformation = classInfo;
+		if (ci != null)
+			info.classifications.addAll(ci.classifications);
 	}
 
 	private QuantitativeReference makeQuantitativeReference() {

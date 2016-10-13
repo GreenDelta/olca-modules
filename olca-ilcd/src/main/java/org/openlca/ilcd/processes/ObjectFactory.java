@@ -55,14 +55,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ComplementingProcesseList }
-	 * 
-	 */
-	public ComplementingProcesseList createComplementingProcesseList() {
-		return new ComplementingProcesseList();
-	}
-
-	/**
 	 * Create an instance of {@link Parameter }
 	 * 
 	 */

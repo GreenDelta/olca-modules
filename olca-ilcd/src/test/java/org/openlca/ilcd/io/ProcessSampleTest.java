@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.PublicationStatus;
 import org.openlca.ilcd.processes.DataEntry;
+import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.Review;
@@ -37,6 +38,16 @@ public class ProcessSampleTest {
 			Assert.assertEquals(DataSetType.SOURCE, e.originalDataSet.type);
 			Assert.assertEquals(DataSetType.CONTACT, e.documentor.type);
 			Assert.assertEquals(2, e.useApprovals.size());
+		});
+	}
+
+	@Test
+	public void testDataSetInfo() throws Exception {
+		with(p -> {
+			DataSetInfo info = p.processInfo.dataSetInfo;
+			Assert.assertEquals(2, info.complementingProcesses.length);
+			Assert.assertEquals("identifierOfSubDataSet0", info.subIdentifier);
+			Assert.assertEquals(2, info.classifications.size());
 		});
 	}
 

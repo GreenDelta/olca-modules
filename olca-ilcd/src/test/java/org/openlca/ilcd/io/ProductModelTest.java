@@ -27,7 +27,7 @@ public class ProductModelTest {
 		Process process = makePlainProcess();
 		String xml = marshal(process);
 		Process copy = unmarshal(xml);
-		assertEquals(process.processInfo.dataSetInformation.uuid, copy.processInfo.dataSetInformation.uuid);
+		assertEquals(process.processInfo.dataSetInfo.uuid, copy.processInfo.dataSetInfo.uuid);
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class ProductModelTest {
 		ProcessInfo procInfo = new ProcessInfo();
 		process.processInfo = procInfo;
 		DataSetInfo dataSetInfo = new DataSetInfo();
-		procInfo.dataSetInformation = dataSetInfo;
+		procInfo.dataSetInfo = dataSetInfo;
 		dataSetInfo.uuid = UUID.randomUUID().toString();
 		return process;
 	}

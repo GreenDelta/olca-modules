@@ -118,7 +118,7 @@ public class ProcessBuilder {
 		ProcessInfo information = new ProcessInfo();
 		process.processInfo = information;
 		if (dataSetInfo != null) {
-			information.dataSetInformation = dataSetInfo;
+			information.dataSetInfo = dataSetInfo;
 		}
 		if (geography != null) {
 			information.geography = geography;

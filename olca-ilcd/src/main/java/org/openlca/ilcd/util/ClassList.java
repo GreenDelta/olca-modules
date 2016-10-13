@@ -1,7 +1,6 @@
 package org.openlca.ilcd.util;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.openlca.ilcd.commons.Class;
@@ -42,17 +41,7 @@ class ClassList {
 	}
 
 	private static void sortClasses(List<org.openlca.ilcd.commons.Class> classes) {
-		Collections.sort(classes,
-				new Comparator<org.openlca.ilcd.commons.Class>() {
-					@Override
-					public int compare(Class c1, Class c2) {
-						int c = 0;
-						if (c1.level != null && c2.level != null) {
-							c = c1.level.compareTo(c2.level);
-						}
-						return c;
-					}
-				});
+		Collections.sort(classes, (c1, c2) -> c1.level - c2.level);
 	}
 
 }

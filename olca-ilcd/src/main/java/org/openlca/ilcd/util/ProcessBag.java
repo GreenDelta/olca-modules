@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.ilcd.commons.Class;
-import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LangString;
@@ -94,17 +93,15 @@ public class ProcessBag implements IBag<Process> {
 
 	public List<Class> getSortedClasses() {
 		DataSetInfo info = getDataSetInformation();
-		if (info != null) {
-			ClassificationInfo classInfo = info.classificationInformation;
-			return ClassList.sortedList(classInfo);
-		}
-		return Collections.emptyList();
+		if (info == null || info.classifications.isEmpty())
+			return Collections.emptyList();
+		return ClassList.sortedList(info.classifications.get(0));
 	}
 
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFirst(info.generalComment, langs);
+			return LangString.getFirst(info.comment, langs);
 		return null;
 	}
 
@@ -238,7 +235,7 @@ public class ProcessBag implements IBag<Process> {
 
 	private DataSetInfo getDataSetInformation() {
 		if (process.processInfo != null)
-			return process.processInfo.dataSetInformation;
+			return process.processInfo.dataSetInfo;
 		return null;
 	}
 

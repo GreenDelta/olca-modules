@@ -72,7 +72,7 @@ public class ProcessExport {
 		ProcessName processName = new ProcessName();
 		dataSetInfo.name = processName;
 		s(processName.baseName, process.getName());
-		s(dataSetInfo.generalComment, process.getDescription());
+		s(dataSetInfo.comment, process.getDescription());
 		addClassification(dataSetInfo);
 		return dataSetInfo;
 	}
@@ -81,11 +81,10 @@ public class ProcessExport {
 		log.trace("Add classification");
 		if (process.getCategory() != null) {
 			CategoryConverter converter = new CategoryConverter();
-			ClassificationInfo classification = converter
+			ClassificationInfo ci = converter
 					.getClassificationInformation(process.getCategory());
-			if (classification != null) {
-				dataSetInfo.classificationInformation = classification;
-			}
+			if (ci != null)
+				dataSetInfo.classifications.addAll(ci.classifications);
 		}
 	}
 

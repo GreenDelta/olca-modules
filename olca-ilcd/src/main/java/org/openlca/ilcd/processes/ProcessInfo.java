@@ -17,7 +17,7 @@ import org.openlca.ilcd.commons.Time;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProcessInformationType", propOrder = {
-		"dataSetInformation",
+		"dataSetInfo",
 		"quantitativeReference",
 		"time",
 		"geography",
@@ -29,8 +29,8 @@ public class ProcessInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(required = true)
-	public DataSetInfo dataSetInformation;
+	@XmlElement(required = true, name = "dataSetInformation")
+	public DataSetInfo dataSetInfo;
 
 	public QuantitativeReference quantitativeReference;
 

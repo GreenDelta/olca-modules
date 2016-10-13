@@ -57,7 +57,7 @@ class CategoryConverter {
 			category = stack.pop();
 			org.openlca.ilcd.commons.Class clazz = new Class();
 			clazz.classId = category.getRefId();
-			clazz.level = BigInteger.valueOf(level);
+			clazz.level = level;
 			clazz.value = category.getName();
 			classification.classes.add(clazz);
 			level++;
