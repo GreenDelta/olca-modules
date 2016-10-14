@@ -17,8 +17,8 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Method;
@@ -280,14 +280,11 @@ public class ProcessImport {
 		if (repr == null)
 			return;
 		doc.setCompleteness(LangString.getFirst(
-				repr.dataCutOffAndCompletenessPrinciples,
-				config.langs));
+				repr.completeness, config.langs));
 		doc.setDataSelection(LangString.getFirst(
-				repr.dataSelectionAndCombinationPrinciples,
-				config.langs));
+				repr.dataSelection, config.langs));
 		doc.setDataTreatment(LangString.getFirst(
-				repr.dataTreatmentAndExtrapolationsPrinciples,
-				config.langs));
+				repr.dataTreatment, config.langs));
 		doc.setSampling(LangString.getFirst(repr.samplingProcedure,
 				config.langs));
 		doc.setDataCollectionPeriod(LangString.getFirst(
@@ -312,8 +309,7 @@ public class ProcessImport {
 			return;
 		Review iReview = ilcdProcess.getReviews().get(0);
 		if (!iReview.reviewers.isEmpty()) {
-			DataSetReference ref = iReview.reviewers
-					.get(0);
+			DataSetReference ref = iReview.reviewers.get(0);
 			doc.setReviewer(fetchActor(ref));
 		}
 		doc.setReviewDetails(LangString.getFirst(iReview.details,

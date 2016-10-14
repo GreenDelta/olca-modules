@@ -209,22 +209,22 @@ public class ProcessExport {
 		Representativeness iRepri = new Representativeness();
 
 		// completeness
-		s(iRepri.dataCutOffAndCompletenessPrinciples, doc.getCompleteness());
-		s(iRepri.deviationsFromCutOffAndCompletenessPrinciples, "None.");
+		s(iRepri.completeness, doc.getCompleteness());
+		s(iRepri.completenessComment, "None.");
 
 		// data selection
-		s(iRepri.dataSelectionAndCombinationPrinciples, doc.getDataSelection());
-		s(iRepri.deviationsFromSelectionAndCombinationPrinciples, "None.");
+		s(iRepri.dataSelection, doc.getDataSelection());
+		s(iRepri.dataSelectionComment, "None.");
 
 		// data treatment
-		s(iRepri.dataTreatmentAndExtrapolationsPrinciples, doc.getDataTreatment());
+		s(iRepri.dataTreatment, doc.getDataTreatment());
 
 		// data sources
 		for (Source source : doc.getSources()) {
 			DataSetReference ref = ExportDispatch.forwardExportCheck(
 					source, config);
 			if (ref != null)
-				iRepri.referenceToDataSource.add(ref);
+				iRepri.sources.add(ref);
 		}
 
 		// sampling procedure

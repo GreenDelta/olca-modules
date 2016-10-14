@@ -346,8 +346,7 @@
 			<!--<common:other/> -->
 		</dataSourcesTreatmentAndRepresentativeness>
 		<completeness>
-			<completenessProductModel>All relevant flows quantified
-			</completenessProductModel>
+			<completenessProductModel>All relevant flows quantified</completenessProductModel>
 			<referenceToSupportedImpactAssessmentMethods
 				type="LCIA method data set" refObjectId="00000000-0000-0000-0000-000000000000"
 				version="00.00" uri="">

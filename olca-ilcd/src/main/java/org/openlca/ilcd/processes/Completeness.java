@@ -20,22 +20,28 @@ import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "CompletenessType", propOrder = { "completenessProductModel",
-		"supportedLciaMethods", "completenessElementaryFlows",
-		"completenessOtherProblemField", "other" })
+@XmlType(name = "CompletenessType", propOrder = {
+		"type",
+		"supportedImpactMethods",
+		"entries",
+		"otherDetails",
+		"other" })
 public class Completeness implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	public FlowCompleteness completenessProductModel;
+	@XmlElement(name = "completenessProductModel")
+	public FlowCompleteness type;
 
 	@XmlElement(name = "referenceToSupportedImpactAssessmentMethods")
-	public final List<DataSetReference> supportedLciaMethods = new ArrayList<>();
+	public final List<DataSetReference> supportedImpactMethods = new ArrayList<>();
 
-	public final List<ElementaryFlowCompleteness> completenessElementaryFlows = new ArrayList<>();
+	@XmlElement(name = "completenessElementaryFlows")
+	public final List<FlowCompletenessEntry> entries = new ArrayList<>();
 
 	@FreeText
-	public final List<LangString> completenessOtherProblemField = new ArrayList<>();
+	@XmlElement(name = "completenessOtherProblemField")
+	public final List<LangString> otherDetails = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -43,4 +49,20 @@ public class Completeness implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public Completeness clone() {
+		Completeness clone = new Completeness();
+		clone.type = type;
+		DataSetReference.copy(supportedImpactMethods, clone.supportedImpactMethods);
+		for (FlowCompletenessEntry e : entries) {
+			if (e == null)
+				continue;
+			clone.entries.add(e.clone());
+		}
+		LangString.copy(otherDetails, clone.otherDetails);
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

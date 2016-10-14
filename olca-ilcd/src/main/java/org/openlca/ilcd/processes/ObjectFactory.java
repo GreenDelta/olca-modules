@@ -247,11 +247,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ElementaryFlowCompleteness }
+	 * Create an instance of {@link FlowCompletenessEntry }
 	 * 
 	 */
-	public ElementaryFlowCompleteness createElementaryFlowCompleteness() {
-		return new ElementaryFlowCompleteness();
+	public FlowCompletenessEntry createElementaryFlowCompleteness() {
+		return new FlowCompletenessEntry();
 	}
 
 	/**

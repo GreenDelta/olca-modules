@@ -2,7 +2,6 @@
 package org.openlca.ilcd.processes;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,20 +22,20 @@ import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataSourcesTreatmentAndRepresentativenessType", propOrder = {
-		"dataCutOffAndCompletenessPrinciples",
-		"deviationsFromCutOffAndCompletenessPrinciples",
-		"dataSelectionAndCombinationPrinciples",
-		"deviationsFromSelectionAndCombinationPrinciples",
-		"dataTreatmentAndExtrapolationsPrinciples",
-		"deviationsFromTreatmentAndExtrapolationPrinciples",
-		"referenceToDataHandlingPrinciples",
-		"referenceToDataSource",
-		"percentageSupplyOrProductionCovered",
-		"annualSupplyOrProductionVolume",
+		"completeness",
+		"completenessComment",
+		"dataSelection",
+		"dataSelectionComment",
+		"dataTreatment",
+		"datatTreatmentComment",
+		"dataHandlingSources",
+		"sources",
+		"coveredProduction",
+		"productionVolume",
 		"samplingProcedure",
 		"dataCollectionPeriod",
 		"uncertaintyAdjustments",
-		"useAdviceForDataSet",
+		"useAdvice",
 		"other"
 })
 public class Representativeness implements Serializable {
@@ -44,43 +43,57 @@ public class Representativeness implements Serializable {
 	private final static long serialVersionUID = 1L;
 
 	@FreeText
-	public final List<LangString> dataCutOffAndCompletenessPrinciples = new ArrayList<>();
+	@XmlElement(name = "dataCutOffAndCompletenessPrinciples")
+	public final List<LangString> completeness = new ArrayList<>();
 
 	@FreeText
-	public final List<LangString> deviationsFromCutOffAndCompletenessPrinciples = new ArrayList<>();
+	@XmlElement(name = "deviationsFromCutOffAndCompletenessPrinciples")
+	public final List<LangString> completenessComment = new ArrayList<>();
 
 	@FreeText
-	public final List<LangString> dataSelectionAndCombinationPrinciples = new ArrayList<>();
+	@XmlElement(name = "dataSelectionAndCombinationPrinciples")
+	public final List<LangString> dataSelection = new ArrayList<>();
 
 	@FreeText
-	public final List<LangString> deviationsFromSelectionAndCombinationPrinciples = new ArrayList<>();
+	@XmlElement(name = "deviationsFromSelectionAndCombinationPrinciples")
+	public final List<LangString> dataSelectionComment = new ArrayList<>();
 
 	@FreeText
-	public final List<LangString> dataTreatmentAndExtrapolationsPrinciples = new ArrayList<>();
+	@XmlElement(name = "dataTreatmentAndExtrapolationsPrinciples")
+	public final List<LangString> dataTreatment = new ArrayList<>();
 
 	@FreeText
-	public final List<LangString> deviationsFromTreatmentAndExtrapolationPrinciples = new ArrayList<>();
+	@XmlElement(name = "deviationsFromTreatmentAndExtrapolationPrinciples")
+	public final List<LangString> datatTreatmentComment = new ArrayList<>();
 
-	public final List<DataSetReference> referenceToDataHandlingPrinciples = new ArrayList<>();
+	@XmlElement(name = "referenceToDataHandlingPrinciples")
+	public final List<DataSetReference> dataHandlingSources = new ArrayList<>();
 
-	public final List<DataSetReference> referenceToDataSource = new ArrayList<>();
+	@XmlElement(name = "referenceToDataSource")
+	public final List<DataSetReference> sources = new ArrayList<>();
 
-	public BigDecimal percentageSupplyOrProductionCovered;
+	@XmlElement(name = "percentageSupplyOrProductionCovered")
+	public Double coveredProduction;
 
 	@Label
-	public final List<LangString> annualSupplyOrProductionVolume = new ArrayList<>();
+	@XmlElement(name = "annualSupplyOrProductionVolume")
+	public final List<LangString> productionVolume = new ArrayList<>();
 
 	@FreeText
+	@XmlElement(name = "samplingProcedure")
 	public final List<LangString> samplingProcedure = new ArrayList<>();
 
 	@Label
+	@XmlElement(name = "dataCollectionPeriod")
 	public final List<LangString> dataCollectionPeriod = new ArrayList<>();
 
 	@FreeText
+	@XmlElement(name = "uncertaintyAdjustments")
 	public final List<LangString> uncertaintyAdjustments = new ArrayList<>();
 
 	@FreeText
-	public final List<LangString> useAdviceForDataSet = new ArrayList<>();
+	@XmlElement(name = "useAdviceForDataSet")
+	public final List<LangString> useAdvice = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -88,4 +101,26 @@ public class Representativeness implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public Representativeness clone() {
+		Representativeness clone = new Representativeness();
+		LangString.copy(completeness, clone.completeness);
+		LangString.copy(completenessComment, clone.completenessComment);
+		LangString.copy(dataSelection, clone.dataSelection);
+		LangString.copy(dataSelectionComment, clone.dataSelectionComment);
+		LangString.copy(dataTreatment, clone.dataTreatment);
+		LangString.copy(datatTreatmentComment, clone.datatTreatmentComment);
+		DataSetReference.copy(dataHandlingSources, clone.dataHandlingSources);
+		DataSetReference.copy(sources, clone.sources);
+		clone.coveredProduction = coveredProduction;
+		LangString.copy(productionVolume, clone.productionVolume);
+		LangString.copy(samplingProcedure, clone.samplingProcedure);
+		LangString.copy(dataCollectionPeriod, clone.dataCollectionPeriod);
+		LangString.copy(uncertaintyAdjustments, clone.uncertaintyAdjustments);
+		LangString.copy(useAdvice, clone.useAdvice);
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

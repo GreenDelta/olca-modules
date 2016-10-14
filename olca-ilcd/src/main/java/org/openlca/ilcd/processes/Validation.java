@@ -29,4 +29,18 @@ public class Validation implements Serializable {
 
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
+
+	@Override
+	public Validation clone() {
+		Validation clone = new Validation();
+		for (Review r : reviews) {
+			if (r == null)
+				continue;
+			clone.reviews.add(r.clone());
+		}
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

@@ -48,4 +48,30 @@ public class Modelling implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public Modelling clone() {
+		Modelling clone = new Modelling();
+		if (method != null)
+			clone.method = method.clone();
+		if (representativeness != null)
+			clone.representativeness = representativeness.clone();
+		if (completeness != null)
+			clone.completeness = completeness.clone();
+		if (validation != null)
+			clone.validation = validation.clone();
+		if (complianceDeclatations != null) {
+			clone.complianceDeclatations = new ComplianceDeclaration[complianceDeclatations.length];
+			for (int i = 0; i < complianceDeclatations.length; i++) {
+				ComplianceDeclaration d = complianceDeclatations[i];
+				if (d == null)
+					continue;
+				clone.complianceDeclatations[i] = d.clone();
+			}
+		}
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
+
 }

@@ -17,12 +17,12 @@ import org.openlca.ilcd.commons.ImpactCategory;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CompletenessElementaryFlowsType")
-public class ElementaryFlowCompleteness implements Serializable {
+public class FlowCompletenessEntry implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
 	@XmlAttribute(name = "type")
-	public ImpactCategory impactCategory;
+	public ImpactCategory impact;
 
 	@XmlAttribute(name = "value")
 	public FlowCompleteness value;
@@ -30,4 +30,12 @@ public class ElementaryFlowCompleteness implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public FlowCompletenessEntry clone() {
+		FlowCompletenessEntry clone = new FlowCompletenessEntry();
+		clone.impact = impact;
+		clone.value = value;
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

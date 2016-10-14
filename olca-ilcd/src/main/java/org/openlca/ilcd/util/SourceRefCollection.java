@@ -48,7 +48,7 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (repr == null)
 			return refs;
-		for (DataSetReference ref : repr.referenceToDataSource)
+		for (DataSetReference ref : repr.sources)
 			refs.add(ref);
 		return refs;
 	}
