@@ -10,8 +10,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.PublicationStatus;
+import org.openlca.ilcd.commons.Time;
+import org.openlca.ilcd.commons.UncertaintyDistribution;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataSetInfo;
+import org.openlca.ilcd.processes.Location;
+import org.openlca.ilcd.processes.Parameter;
+import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.Review;
@@ -48,6 +53,42 @@ public class ProcessSampleTest {
 			Assert.assertEquals(2, info.complementingProcesses.length);
 			Assert.assertEquals("identifierOfSubDataSet0", info.subIdentifier);
 			Assert.assertEquals(2, info.classifications.size());
+		});
+	}
+
+	@Test
+	public void testTime() throws Exception {
+		with(p -> {
+			Time time = p.processInfo.time;
+			Assert.assertEquals(1234, time.referenceYear.intValue());
+			Assert.assertEquals(1234, time.validUntil.intValue());
+			Assert.assertEquals(2, time.description.size());
+		});
+	}
+
+	@Test
+	public void testGeography() throws Exception {
+		with(p -> {
+			Location loc = p.processInfo.geography.location;
+			Assert.assertEquals("EU-28", loc.code);
+			Assert.assertEquals(2, loc.description.size());
+		});
+	}
+
+	@Test
+	public void testParameters() throws Exception {
+		with(p -> {
+			ParameterSection section = p.processInfo.parameters;
+			Assert.assertEquals(2, section.description.size());
+			Assert.assertEquals(2, section.parameters.size());
+			Parameter param = section.parameters.get(0);
+			Assert.assertEquals("formula0", param.formula);
+			Assert.assertEquals(0.0, param.mean.doubleValue(), 0);
+			Assert.assertEquals(0.0, param.min.doubleValue(), 0);
+			Assert.assertEquals(0.0, param.max.doubleValue(), 0);
+			Assert.assertEquals(12.123, param.dispersion.doubleValue(), 1e-16);
+			Assert.assertEquals(UncertaintyDistribution.UNDEFINED, param.distribution);
+			Assert.assertEquals(2, param.comment.size());
 		});
 	}
 

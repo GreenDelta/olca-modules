@@ -49,4 +49,24 @@ public class ProcessInfo implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public ProcessInfo clone() {
+		ProcessInfo clone = new ProcessInfo();
+		if (dataSetInfo != null)
+			clone.dataSetInfo = dataSetInfo.clone();
+		if (quantitativeReference != null)
+			clone.quantitativeReference = quantitativeReference.clone();
+		if (time != null)
+			clone.time = time.clone();
+		if (geography != null)
+			clone.geography = geography.clone();
+		if (technology != null)
+			clone.technology = technology.clone();
+		if (parameters != null)
+			clone.parameters = parameters.clone();
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

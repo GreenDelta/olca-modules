@@ -52,7 +52,7 @@ class ProcessParameterConversion {
 		param.setScope(scope);
 		param.setName(iParameter.name);
 		param.setDescription(LangString.getFirst(iParameter.comment, config.langs));
-		Double mean = iParameter.meanValue;
+		Double mean = iParameter.mean;
 		if (mean != null)
 			param.setValue(mean);
 		new UncertaintyConverter().map(iParameter, param);

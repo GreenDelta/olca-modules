@@ -77,9 +77,8 @@ class UncertaintyConverter {
 		Double std = oParameter.getUncertainty().getParameter2Value();
 		if (std == null)
 			return;
-		BigDecimal stdDec = new BigDecimal(std);
-		iParameter.relativeStandardDeviation95In = stdDec;
-		iParameter.uncertaintyDistributionType = UncertaintyDistribution.LOG_NORMAL;
+		iParameter.dispersion = std;
+		iParameter.distribution = UncertaintyDistribution.LOG_NORMAL;
 	}
 
 	private void mapNormal(Exchange oExchange,
@@ -97,9 +96,8 @@ class UncertaintyConverter {
 		Double std = oParameter.getUncertainty().getParameter2Value();
 		if (std == null)
 			return;
-		BigDecimal stdDec = new BigDecimal(std);
-		iParameter.relativeStandardDeviation95In = stdDec;
-		iParameter.uncertaintyDistributionType = UncertaintyDistribution.NORMAL;
+		iParameter.dispersion = std;
+		iParameter.distribution = UncertaintyDistribution.NORMAL;
 	}
 
 	private void mapTriangular(Exchange oExchange,
@@ -124,9 +122,9 @@ class UncertaintyConverter {
 		Double max = oParameter.getUncertainty().getParameter3Value();
 		if (min == null || max == null)
 			return;
-		iParameter.minimumValue = min;
-		iParameter.maximumValue = max;
-		iParameter.uncertaintyDistributionType = UncertaintyDistribution.TRIANGULAR;
+		iParameter.min = min;
+		iParameter.max = max;
+		iParameter.distribution = UncertaintyDistribution.TRIANGULAR;
 	}
 
 	private void mapUniform(Exchange oExchange,
@@ -146,9 +144,9 @@ class UncertaintyConverter {
 		Double max = oParameter.getUncertainty().getParameter2Value();
 		if (min == null || max == null)
 			return;
-		iParameter.minimumValue = min;
-		iParameter.maximumValue = max;
-		iParameter.uncertaintyDistributionType = UncertaintyDistribution.UNIFORM;
+		iParameter.min = min;
+		iParameter.max = max;
+		iParameter.distribution = UncertaintyDistribution.UNIFORM;
 	}
 
 	private Double getUncertaintyParam(int param, Exchange oExchange) {

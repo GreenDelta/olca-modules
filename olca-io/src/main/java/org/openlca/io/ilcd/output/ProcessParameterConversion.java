@@ -62,7 +62,7 @@ class ProcessParameterConversion {
 		org.openlca.ilcd.processes.Parameter iParameter = new org.openlca.ilcd.processes.Parameter();
 		iParameter.name = oParam.getName();
 		iParameter.formula = oParam.getFormula();
-		iParameter.meanValue = oParam.getValue();
+		iParameter.mean = oParam.getValue();
 		new UncertaintyConverter().map(oParam, iParameter);
 		if (Strings.notEmpty(oParam.getDescription())) {
 			LangString.set(iParameter.comment, oParam.getDescription(), config.lang);

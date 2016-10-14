@@ -18,14 +18,15 @@ import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.annotations.FreeText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "MathematicalRelationsType", propOrder = { "modelDescription",
+@XmlType(name = "MathematicalRelationsType", propOrder = { "description",
 		"parameters", "other" })
 public class ParameterSection implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
 	@FreeText
-	public final List<LangString> modelDescription = new ArrayList<>();
+	@XmlElement(name = "modelDescription")
+	public final List<LangString> description = new ArrayList<>();
 
 	@XmlElement(name = "variableParameter")
 	public final List<Parameter> parameters = new ArrayList<>();
@@ -36,4 +37,18 @@ public class ParameterSection implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public ParameterSection clone() {
+		ParameterSection clone = new ParameterSection();
+		LangString.copy(description, clone.description);
+		for (Parameter p : parameters) {
+			if (p == null)
+				continue;
+			clone.parameters.add(p.clone());
+		}
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

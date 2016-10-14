@@ -123,7 +123,7 @@ class ExchangeConversion {
 		iExchange.meanAmount = 1d;
 		Parameter parameter = new Parameter();
 		parameter.formula = oExchange.getAmountFormula();
-		parameter.meanValue = oExchange.getAmountValue();
+		parameter.mean = oExchange.getAmountValue();
 		parameter.name = paramName;
 		addParameter(parameter);
 	}
