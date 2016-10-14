@@ -6,7 +6,7 @@ import java.util.List;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.processes.ComplianceDeclaration;
 import org.openlca.ilcd.processes.DataEntry;
-import org.openlca.ilcd.processes.LCIMethod;
+import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.Representativeness;
@@ -23,13 +23,25 @@ class SourceRefCollection {
 		refs.addAll(getFrom(bag.getLciMethod()));
 		refs.addAll(getFrom(bag.getPublication()));
 		refs.addAll(getFrom(bag.getTechnology()));
-		if (bag.getComplianceDeclarations() != null)
-			for (ComplianceDeclaration decl : bag.getComplianceDeclarations())
-				refs.addAll(getFrom(decl));
+		complianceSystems(process, refs);
 		if (bag.getReviews() != null)
 			for (Review review : bag.getReviews())
 				refs.addAll(getFrom(review));
 		return refs;
+	}
+
+	private static void complianceSystems(Process p, List<DataSetReference> refs) {
+		if (p.modelling == null)
+			return;
+		ComplianceDeclaration[] decls = p.modelling.complianceDeclatations;
+		if (decls == null)
+			return;
+		for (ComplianceDeclaration decl : decls) {
+			DataSetReference ref = decl.system;
+			if (ref == null)
+				continue;
+			refs.add(ref);
+		}
 	}
 
 	private static List<DataSetReference> getFrom(Representativeness repr) {
@@ -38,14 +50,6 @@ class SourceRefCollection {
 			return refs;
 		for (DataSetReference ref : repr.referenceToDataSource)
 			refs.add(ref);
-		return refs;
-	}
-
-	private static List<DataSetReference> getFrom(ComplianceDeclaration decl) {
-		List<DataSetReference> refs = new ArrayList<>();
-		if (decl == null)
-			return refs;
-		refs.add(decl.referenceToComplianceSystem);
 		return refs;
 	}
 
@@ -59,12 +63,12 @@ class SourceRefCollection {
 		return refs;
 	}
 
-	private static List<DataSetReference> getFrom(LCIMethod method) {
+	private static List<DataSetReference> getFrom(Method method) {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (method == null)
 			return refs;
-		if (method.referenceToLCAMethodDetails != null)
-			refs.addAll(method.referenceToLCAMethodDetails);
+		if (method.methodSources != null)
+			refs.addAll(method.methodSources);
 		return refs;
 	}
 
@@ -80,7 +84,7 @@ class SourceRefCollection {
 		List<DataSetReference> refs = new ArrayList<>();
 		if (tec == null)
 			return refs;
-		refs.add(tec.pictogramme);
+		refs.add(tec.pictogram);
 		if (tec.pictures != null)
 			refs.addAll(tec.pictures);
 		return refs;

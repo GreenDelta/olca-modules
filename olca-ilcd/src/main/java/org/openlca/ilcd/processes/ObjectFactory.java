@@ -175,14 +175,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ComplianceDeclarationList }
-	 * 
-	 */
-	public ComplianceDeclarationList createComplianceDeclarationList() {
-		return new ComplianceDeclarationList();
-	}
-
-	/**
 	 * Create an instance of {@link ParameterSection }
 	 * 
 	 */
@@ -223,11 +215,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link LCIMethod }
+	 * Create an instance of {@link Method }
 	 * 
 	 */
-	public LCIMethod createLCIMethod() {
-		return new LCIMethod();
+	public Method createLCIMethod() {
+		return new Method();
 	}
 
 	/**

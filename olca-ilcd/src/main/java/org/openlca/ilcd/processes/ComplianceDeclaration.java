@@ -18,39 +18,39 @@ import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ComplianceType", propOrder = {
-		"referenceToComplianceSystem",
-		"approvalOfOverallCompliance",
-		"nomenclatureCompliance",
-		"methodologicalCompliance",
-		"reviewCompliance",
-		"documentationCompliance",
-		"qualityCompliance",
+		"system",
+		"approval",
+		"nomenclature",
+		"method",
+		"review",
+		"documentation",
+		"quality",
 		"other"
 })
 public class ComplianceDeclaration implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", required = true)
-	public DataSetReference referenceToComplianceSystem;
+	@XmlElement(name = "referenceToComplianceSystem", namespace = "http://lca.jrc.it/ILCD/Common", required = true)
+	public DataSetReference system;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public Compliance approvalOfOverallCompliance;
+	@XmlElement(name = "approvalOfOverallCompliance", namespace = "http://lca.jrc.it/ILCD/Common")
+	public Compliance approval;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public Compliance nomenclatureCompliance;
+	@XmlElement(name = "nomenclatureCompliance", namespace = "http://lca.jrc.it/ILCD/Common")
+	public Compliance nomenclature;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public Compliance methodologicalCompliance;
+	@XmlElement(name = "methodologicalCompliance", namespace = "http://lca.jrc.it/ILCD/Common")
+	public Compliance method;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public Compliance reviewCompliance;
+	@XmlElement(name = "reviewCompliance", namespace = "http://lca.jrc.it/ILCD/Common")
+	public Compliance review;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public Compliance documentationCompliance;
+	@XmlElement(name = "documentationCompliance", namespace = "http://lca.jrc.it/ILCD/Common")
+	public Compliance documentation;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public Compliance qualityCompliance;
+	@XmlElement(name = "qualityCompliance", namespace = "http://lca.jrc.it/ILCD/Common")
+	public Compliance quality;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -58,4 +58,20 @@ public class ComplianceDeclaration implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public ComplianceDeclaration clone() {
+		ComplianceDeclaration clone = new ComplianceDeclaration();
+		if (system != null)
+			clone.system = system.clone();
+		clone.approval = approval;
+		clone.nomenclature = nomenclature;
+		clone.method = method;
+		clone.review = review;
+		clone.documentation = documentation;
+		clone.quality = quality;
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

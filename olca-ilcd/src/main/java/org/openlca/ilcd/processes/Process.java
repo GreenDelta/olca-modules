@@ -57,4 +57,9 @@ public class Process implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	public String getUUID() {
+		if (processInfo == null || processInfo.dataSetInfo == null)
+			return null;
+		return processInfo.dataSetInfo.uuid;
+	}
 }

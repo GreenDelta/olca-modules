@@ -8,13 +8,18 @@ import javax.xml.bind.JAXB;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.ilcd.commons.Compliance;
 import org.openlca.ilcd.commons.DataSetType;
+import org.openlca.ilcd.commons.ModellingPrinciple;
+import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.PublicationStatus;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
+import org.openlca.ilcd.processes.ComplianceDeclaration;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Location;
+import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.Process;
@@ -89,6 +94,37 @@ public class ProcessSampleTest {
 			Assert.assertEquals(12.123, param.dispersion.doubleValue(), 1e-16);
 			Assert.assertEquals(UncertaintyDistribution.UNDEFINED, param.distribution);
 			Assert.assertEquals(2, param.comment.size());
+		});
+	}
+
+	@Test
+	public void testCompliance() throws Exception {
+		with(p -> {
+			Assert.assertEquals(2, p.modelling.complianceDeclatations.length);
+			ComplianceDeclaration c = p.modelling.complianceDeclatations[0];
+			Assert.assertNotNull(c.system);
+			Compliance v = Compliance.FULLY_COMPLIANT;
+			Assert.assertEquals(v, c.approval);
+			Assert.assertEquals(v, c.nomenclature);
+			Assert.assertEquals(v, c.method);
+			Assert.assertEquals(v, c.review);
+			Assert.assertEquals(v, c.documentation);
+			Assert.assertEquals(v, c.quality);
+		});
+	}
+
+	@Test
+	public void testMethod() throws Exception {
+		with(p -> {
+			Method method = p.modelling.method;
+			Assert.assertEquals(ProcessType.UNIT_PROCESS, method.processType);
+			Assert.assertEquals(ModellingPrinciple.ATTRIBUTIONAL, method.principle);
+			Assert.assertEquals(2, method.approaches.size());
+			Assert.assertEquals(2, method.approachComment.size());
+			Assert.assertEquals(2, method.constants.size());
+			Assert.assertEquals(2, method.constantsComment.size());
+			Assert.assertEquals(2, method.methodSources.size());
+			Assert.assertEquals(2, method.principleComment.size());
 		});
 	}
 

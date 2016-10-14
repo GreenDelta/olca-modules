@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "LCIMethodApproachesValues")
 @XmlEnum
-public enum LCIMethodApproach {
+public enum ModellingApproach {
 
 	/**
 	 * Market-value based partitioning of the input and output flows of
@@ -267,7 +267,7 @@ public enum LCIMethodApproach {
 	OTHER("Other");
 	private final String value;
 
-	LCIMethodApproach(String v) {
+	ModellingApproach(String v) {
 		value = v;
 	}
 
@@ -275,8 +275,8 @@ public enum LCIMethodApproach {
 		return value;
 	}
 
-	public static LCIMethodApproach fromValue(String v) {
-		for (LCIMethodApproach c : LCIMethodApproach.values()) {
+	public static ModellingApproach fromValue(String v) {
+		for (ModellingApproach c : ModellingApproach.values()) {
 			if (c.value.equals(v)) {
 				return c;
 			}

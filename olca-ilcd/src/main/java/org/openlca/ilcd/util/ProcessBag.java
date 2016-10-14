@@ -12,14 +12,12 @@ import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.Completeness;
-import org.openlca.ilcd.processes.ComplianceDeclaration;
-import org.openlca.ilcd.processes.ComplianceDeclarationList;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataGenerator;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Geography;
-import org.openlca.ilcd.processes.LCIMethod;
+import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Modelling;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
@@ -151,7 +149,7 @@ public class ProcessBag implements IBag<Process> {
 	public ProcessType getProcessType() {
 		Modelling mav = process.modelling;
 		if (mav != null) {
-			LCIMethod method = mav.lciMethod;
+			Method method = mav.method;
 			if (method != null)
 				return method.processType;
 		}
@@ -178,17 +176,6 @@ public class ProcessBag implements IBag<Process> {
 			Validation validation = mav.validation;
 			if (validation != null && validation.reviews != null) {
 				return validation.reviews;
-			}
-		}
-		return Collections.emptyList();
-	}
-
-	public List<ComplianceDeclaration> getComplianceDeclarations() {
-		Modelling mav = process.modelling;
-		if (mav != null) {
-			ComplianceDeclarationList list = mav.complianceDeclarations;
-			if (list != null && list.complianceDeclatations != null) {
-				return list.complianceDeclatations;
 			}
 		}
 		return Collections.emptyList();
@@ -226,10 +213,10 @@ public class ProcessBag implements IBag<Process> {
 		return process.exchanges;
 	}
 
-	public LCIMethod getLciMethod() {
+	public Method getLciMethod() {
 		Modelling mav = process.modelling;
 		if (mav != null)
-			return mav.lciMethod;
+			return mav.method;
 		return null;
 	}
 

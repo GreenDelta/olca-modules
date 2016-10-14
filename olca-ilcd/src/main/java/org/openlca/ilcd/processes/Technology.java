@@ -24,7 +24,7 @@ import org.openlca.ilcd.commons.annotations.FreeText;
 		"description",
 		"includedProcesses",
 		"applicability",
-		"pictogramme",
+		"pictogram",
 		"pictures",
 		"other"
 })
@@ -44,7 +44,7 @@ public class Technology implements Serializable {
 	public final List<LangString> applicability = new ArrayList<>();
 
 	@XmlElement(name = "referenceToTechnologyPictogramme")
-	public DataSetReference pictogramme;
+	public DataSetReference pictogram;
 
 	@XmlElement(name = "referenceToTechnologyFlowDiagrammOrPicture")
 	public final List<DataSetReference> pictures = new ArrayList<>();
@@ -61,8 +61,8 @@ public class Technology implements Serializable {
 		LangString.copy(description, clone.description);
 		DataSetReference.copy(includedProcesses, clone.includedProcesses);
 		LangString.copy(applicability, clone.applicability);
-		if (pictogramme != null)
-			clone.pictogramme = pictogramme.clone();
+		if (pictogram != null)
+			clone.pictogram = pictogram.clone();
 		DataSetReference.copy(pictures, clone.pictures);
 		if (other != null)
 			clone.other = other.clone();

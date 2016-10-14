@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "LCIMethodPrincipleValues")
 @XmlEnum
-public enum LCIMethodPrinciple {
+public enum ModellingPrinciple {
 
 	/**
 	 * The process or product system is modeled in a strictly descriptive way
@@ -76,7 +76,7 @@ public enum LCIMethodPrinciple {
 	OTHER("Other");
 	private final String value;
 
-	LCIMethodPrinciple(String v) {
+	ModellingPrinciple(String v) {
 		value = v;
 	}
 
@@ -84,8 +84,8 @@ public enum LCIMethodPrinciple {
 		return value;
 	}
 
-	public static LCIMethodPrinciple fromValue(String v) {
-		for (LCIMethodPrinciple c : LCIMethodPrinciple.values()) {
+	public static ModellingPrinciple fromValue(String v) {
+		for (ModellingPrinciple c : ModellingPrinciple.values()) {
 			if (c.value.equals(v)) {
 				return c;
 			}

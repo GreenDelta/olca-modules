@@ -12,15 +12,15 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.LCIMethodApproach;
-import org.openlca.ilcd.commons.LCIMethodPrinciple;
+import org.openlca.ilcd.commons.ModellingApproach;
+import org.openlca.ilcd.commons.ModellingPrinciple;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Geography;
-import org.openlca.ilcd.processes.LCIMethod;
+import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessName;
@@ -160,9 +160,9 @@ public class ProcessExport {
 		return conv.run(process);
 	}
 
-	private LCIMethod makeLciMethod() {
+	private Method makeLciMethod() {
 		log.trace("Create process LCI method.");
-		LCIMethod iMethod = new LCIMethod();
+		Method iMethod = new Method();
 		if (process.getProcessType() != null) {
 			if (process.getProcessType() == ProcessType.UNIT_PROCESS) {
 				iMethod.processType = org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX;
@@ -171,32 +171,32 @@ public class ProcessExport {
 			}
 		}
 
-		iMethod.lciMethodPrinciple = LCIMethodPrinciple.OTHER;
+		iMethod.principle = ModellingPrinciple.OTHER;
 
 		if (doc != null) {
-			s(iMethod.deviationsFromLCIMethodPrinciple,
+			s(iMethod.principleComment,
 					doc.getInventoryMethod());
-			s(iMethod.modellingConstants,
+			s(iMethod.constants,
 					doc.getModelingConstants());
 		}
 
-		LCIMethodApproach allocation = getAllocationMethod();
+		ModellingApproach allocation = getAllocationMethod();
 		if (allocation != null)
-			iMethod.lciMethodApproaches.add(allocation);
+			iMethod.approaches.add(allocation);
 
 		return iMethod;
 	}
 
-	private LCIMethodApproach getAllocationMethod() {
+	private ModellingApproach getAllocationMethod() {
 		if (process.getDefaultAllocationMethod() == null)
 			return null;
 		switch (process.getDefaultAllocationMethod()) {
 		case CAUSAL:
-			return LCIMethodApproach.ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT;
+			return ModellingApproach.ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT;
 		case ECONOMIC:
-			return LCIMethodApproach.ALLOCATION_MARKET_VALUE;
+			return ModellingApproach.ALLOCATION_MARKET_VALUE;
 		case PHYSICAL:
-			return LCIMethodApproach.ALLOCATION_PHYSICAL_CAUSALITY;
+			return ModellingApproach.ALLOCATION_PHYSICAL_CAUSALITY;
 		default:
 			return null;
 		}

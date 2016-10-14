@@ -493,15 +493,11 @@
 					<common:shortDescription xml:lang="de">ILCD
 						Compliance</common:shortDescription>
 				</common:referenceToComplianceSystem>
-				<common:approvalOfOverallCompliance>Fully compliant
-				</common:approvalOfOverallCompliance>
-				<common:nomenclatureCompliance>Fully compliant
-				</common:nomenclatureCompliance>
-				<common:methodologicalCompliance>Fully compliant
-				</common:methodologicalCompliance>
+				<common:approvalOfOverallCompliance>Fully compliant</common:approvalOfOverallCompliance>
+				<common:nomenclatureCompliance>Fully compliant</common:nomenclatureCompliance>
+				<common:methodologicalCompliance>Fully compliant</common:methodologicalCompliance>
 				<common:reviewCompliance>Fully compliant</common:reviewCompliance>
-				<common:documentationCompliance>Fully compliant
-				</common:documentationCompliance>
+				<common:documentationCompliance>Fully compliant</common:documentationCompliance>
 				<common:qualityCompliance>Fully compliant</common:qualityCompliance>
 				<!--<common:other/> -->
 			</compliance>

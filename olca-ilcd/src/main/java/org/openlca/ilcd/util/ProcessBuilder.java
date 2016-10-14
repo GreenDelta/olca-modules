@@ -8,7 +8,7 @@ import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Geography;
-import org.openlca.ilcd.processes.LCIMethod;
+import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Modelling;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
@@ -29,7 +29,7 @@ public class ProcessBuilder {
 	private Geography geography;
 	private Technology technology;
 	private List<Parameter> parameters;
-	private LCIMethod lciMethod;
+	private Method lciMethod;
 	private Representativeness representativeness;
 	private List<Review> reviews;
 	private AdminInfo adminInfo;
@@ -74,7 +74,7 @@ public class ProcessBuilder {
 		return this;
 	}
 
-	public ProcessBuilder with(LCIMethod lciMethod) {
+	public ProcessBuilder with(Method lciMethod) {
 		this.lciMethod = lciMethod;
 		return this;
 	}
@@ -157,7 +157,7 @@ public class ProcessBuilder {
 		Modelling mav = new Modelling();
 		process.modelling = mav;
 		if (lciMethod != null) {
-			mav.lciMethod = lciMethod;
+			mav.method = lciMethod;
 		}
 		if (representativeness != null) {
 			mav.representativeness = representativeness;

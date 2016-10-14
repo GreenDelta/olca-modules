@@ -17,11 +17,11 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.LCIMethodApproach;
+import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.Geography;
-import org.openlca.ilcd.processes.LCIMethod;
+import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
@@ -244,23 +244,23 @@ public class ProcessImport {
 				break;
 			}
 		}
-		LCIMethod iMethod = ilcdProcess.getLciMethod();
+		Method iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
 			String lciPrinciple = LangString.getFirst(
-					iMethod.deviationsFromLCIMethodPrinciple,
+					iMethod.principleComment,
 					config.langs);
 			doc.setInventoryMethod(lciPrinciple);
 			doc.setModelingConstants(LangString.getFirst(
-					iMethod.modellingConstants, config.langs));
+					iMethod.constants, config.langs));
 			process.setDefaultAllocationMethod(getAllocation(iMethod));
 		}
 	}
 
-	private AllocationMethod getAllocation(LCIMethod iMethod) {
-		List<LCIMethodApproach> approaches = iMethod.lciMethodApproaches;
+	private AllocationMethod getAllocation(Method iMethod) {
+		List<ModellingApproach> approaches = iMethod.approaches;
 		if (approaches == null || approaches.isEmpty())
 			return null;
-		for (LCIMethodApproach app : approaches) {
+		for (ModellingApproach app : approaches) {
 			switch (app) {
 			case ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT:
 				return AllocationMethod.CAUSAL;
