@@ -99,6 +99,10 @@ class IntersectionsCalculator {
 			while (iterator.hasNext()) {
 				SimpleFeature shape = iterator.next();
 				Geometry shapeGeo = (Geometry) shape.getDefaultGeometry();
+				if (shapeGeo == null) {
+					log.warn("No default geometry found in shape " + shape.getID() + " - Skipping");
+					continue;
+				}
 				if (fetch.skip(featureGeo, shapeGeo))
 					continue;
 				double value = fetch.fetchSingle(featureGeo, shapeGeo);
