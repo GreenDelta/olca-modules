@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openlca.ilcd.commons.Compliance;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
 		"reference",
@@ -28,17 +30,17 @@ public class ComplianceSystem implements Serializable {
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public DataSetReference reference;
 
-	public ComplianceValues overallCompliance;
+	public Compliance overallCompliance;
 
-	public ComplianceValues nomenclatureCompliance;
+	public Compliance nomenclatureCompliance;
 
-	public ComplianceValues methodologicalCompliance;
+	public Compliance methodologicalCompliance;
 
-	public ComplianceValues reviewCompliance;
+	public Compliance reviewCompliance;
 
-	public ComplianceValues documentationCompliance;
+	public Compliance documentationCompliance;
 
-	public ComplianceValues qualityCompliance;
+	public Compliance qualityCompliance;
 
 	@XmlAttribute(name = "name")
 	public String name;

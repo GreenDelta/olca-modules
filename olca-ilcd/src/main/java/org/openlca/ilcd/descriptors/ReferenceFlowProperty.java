@@ -22,8 +22,7 @@ import org.openlca.ilcd.commons.LangString;
 		"reference"
 })
 @XmlRootElement(name = "referenceFlowProperty", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Flow")
-public class ReferenceFlowProperty
-		implements Serializable {
+public class ReferenceFlowProperty implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 

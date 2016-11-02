@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.ReviewType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = { "scope", "dataQualityIndicators",
@@ -31,6 +32,6 @@ public class Review implements Serializable {
 	public DataSetReference reviewer;
 
 	@XmlAttribute(name = "type", required = true)
-	public TypeOfReviewValues type;
+	public ReviewType type;
 
 }

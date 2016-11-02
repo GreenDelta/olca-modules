@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -59,7 +60,7 @@ public class FlowDescriptor implements Serializable {
 	public final List<FlowCategorization> flowCategorization = new ArrayList<>();
 
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Flow")
-	public TypeOfFlowValues type;
+	public FlowType type;
 
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Flow")
 	public String casNumber;

@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openlca.ilcd.commons.DataQualityIndicator;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = { "dataQualityIndicator" })
 @XmlRootElement(name = "dataQualityIndicators")

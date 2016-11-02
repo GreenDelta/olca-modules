@@ -269,14 +269,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link DataQualityIndicator }
-	 * 
-	 */
-	public DataQualityIndicator createDataQualityIndicator() {
-		return new DataQualityIndicator();
-	}
-
-	/**
 	 * Create an instance of {@link ComplianceSystem }
 	 * 
 	 */
@@ -627,18 +619,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link LCIMethodApproachesValues }{@code >}
-	 * 
-	 */
-	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "approach")
-	public JAXBElement<LCIMethodApproachesValues> createApproach(
-			LCIMethodApproachesValues value) {
-		return new JAXBElement<>(_Approach_QNAME,
-				LCIMethodApproachesValues.class, null, value);
-	}
-
-	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link BigInteger }
 	 * {@code >}
 	 * 
@@ -727,30 +707,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link PublicationTypeValues }{@code >}
-	 * 
-	 */
-	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Source", name = "publicationType")
-	public JAXBElement<PublicationTypeValues> createPublicationType(
-			PublicationTypeValues value) {
-		return new JAXBElement<>(_PublicationType_QNAME,
-				PublicationTypeValues.class, null, value);
-	}
-
-	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link LCIMethodPrincipleValues }{@code >}
-	 * 
-	 */
-	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "methodPrinciple")
-	public JAXBElement<LCIMethodPrincipleValues> createMethodPrinciple(
-			LCIMethodPrincipleValues value) {
-		return new JAXBElement<>(_MethodPrinciple_QNAME,
-				LCIMethodPrincipleValues.class, null, value);
-	}
-
-	/**
 	 * Create an instance of {@link JAXBElement }{@code <}{@link ClassType }
 	 * {@code >}
 	 * 
@@ -789,18 +745,6 @@ public class ObjectFactory {
 	public JAXBElement<String> createPermanentUri(String value) {
 		return new JAXBElement<>(_PermanentUri_QNAME, String.class, null,
 				value);
-	}
-
-	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link CompletenessValues }{@code >}
-	 * 
-	 */
-	@XmlElementDecl(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Process", name = "completenessProductModel")
-	public JAXBElement<CompletenessValues> createCompletenessProductModel(
-			CompletenessValues value) {
-		return new JAXBElement<>(_CompletenessProductModel_QNAME,
-				CompletenessValues.class, null, value);
 	}
 
 	/**
