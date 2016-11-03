@@ -6,11 +6,11 @@ import java.util.UUID;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.io.NetworkClient;
-import org.openlca.ilcd.units.AdminInfo;
 import org.openlca.ilcd.units.DataSetInfo;
-import org.openlca.ilcd.units.Publication;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
 
@@ -31,9 +31,9 @@ public class NetworkPutUnitGroupTest {
 		String id = UUID.randomUUID().toString();
 		UnitGroup unitgroup = new UnitGroup();
 		UnitGroupInfo info = new UnitGroupInfo();
-		unitgroup.unitGroupInformation = info;
-		info.dataSetInformation = makeDataInfo(id);
-		unitgroup.administrativeInformation = makeAdminInfo();
+		unitgroup.unitGroupInfo = info;
+		info.dataSetInfo = makeDataInfo(id);
+		unitgroup.adminInfo = makeAdminInfo();
 		client.put(unitgroup, id);
 	}
 
@@ -48,8 +48,8 @@ public class NetworkPutUnitGroupTest {
 	private AdminInfo makeAdminInfo() {
 		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
-		info.publicationAndOwnership = pub;
-		pub.dataSetVersion = "01.00.000";
+		info.publication = pub;
+		pub.version = "01.00.000";
 		return info;
 	}
 }

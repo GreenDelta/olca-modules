@@ -1,7 +1,6 @@
 
 package org.openlca.ilcd.units;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,26 +12,31 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.AdminInfo;
+import org.openlca.ilcd.commons.DataSetType;
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "UnitGroupDataSetType", propOrder = {
-		"unitGroupInformation",
-		"modellingAndValidation",
-		"administrativeInformation",
+		"unitGroupInfo",
+		"modelling",
+		"adminInfo",
 		"units",
 		"other"
 })
-public class UnitGroup implements Serializable {
+public class UnitGroup implements IDataSet {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(required = true)
-	public UnitGroupInfo unitGroupInformation;
+	@XmlElement(required = true, name = "unitGroupInformation")
+	public UnitGroupInfo unitGroupInfo;
 
-	public ModellingAndValidation modellingAndValidation;
+	@XmlElement(name = "modellingAndValidation")
+	public ModellingAndValidation modelling;
 
-	public AdminInfo administrativeInformation;
+	@XmlElement(name = "administrativeInformation")
+	public AdminInfo adminInfo;
 
 	public UnitList units;
 
@@ -45,4 +49,29 @@ public class UnitGroup implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public DataSetType getDataSetType() {
+		return DataSetType.UNIT_GROUP;
+	}
+
+	@Override
+	public String getURI() {
+		if (adminInfo == null || adminInfo.publication == null)
+			return null;
+		return adminInfo.publication.uri;
+	}
+
+	@Override
+	public String getUUID() {
+		if (unitGroupInfo == null || unitGroupInfo.dataSetInfo == null)
+			return null;
+		return unitGroupInfo.dataSetInfo.uuid;
+	}
+
+	@Override
+	public String getVersion() {
+		if (adminInfo == null || adminInfo.publication == null)
+			return null;
+		return adminInfo.publication.version;
+	}
 }

@@ -12,6 +12,7 @@ import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.sources.Source;
+import org.openlca.ilcd.units.UnitGroup;
 
 public class IDataSetTest {
 
@@ -33,6 +34,17 @@ public class IDataSetTest {
 			assertEquals("00.00", ds.getVersion());
 			assertEquals(DataSetType.CONTACT, ds.getDataSetType());
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_contact.xml",
+					ds.getURI().trim());
+		});
+	}
+
+	@Test
+	public void testUnitGroup() throws Exception {
+		with("sdk_sample_unitgroup.xml", UnitGroup.class, ds -> {
+			assertEquals("00000000-0000-0000-0000-000000000000", ds.getUUID());
+			assertEquals("00.00", ds.getVersion());
+			assertEquals(DataSetType.UNIT_GROUP, ds.getDataSetType());
+			assertEquals("http://www.ilcd-network.org/data/processes/sample_unitgroup.xml",
 					ds.getURI().trim());
 		});
 	}

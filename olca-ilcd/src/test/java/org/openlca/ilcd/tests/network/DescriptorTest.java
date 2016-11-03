@@ -35,7 +35,7 @@ public class DescriptorTest {
 		UnitGroupBag bag = new UnitGroupBag(group, "en");
 		if (client.contains(UnitGroup.class, bag.getId()))
 			return;
-		client.put(group, group.unitGroupInformation.dataSetInformation.uuid);
+		client.put(group, group.unitGroupInfo.dataSetInfo.uuid);
 	}
 
 	@Test
@@ -81,9 +81,9 @@ public class DescriptorTest {
 				.path(descriptor.uuid).queryParam("format", "xml");
 		log.trace("Get full unit group: {}", resource.getURI());
 		UnitGroup unitGroup = resource.get(UnitGroup.class);
-		assertEquals(descriptor.name.value, unitGroup.unitGroupInformation.dataSetInformation.name
+		assertEquals(descriptor.name.value, unitGroup.unitGroupInfo.dataSetInfo.name
 				.get(0).value);
-		assertEquals(descriptor.uuid, unitGroup.unitGroupInformation.dataSetInformation.uuid);
+		assertEquals(descriptor.uuid, unitGroup.unitGroupInfo.dataSetInfo.uuid);
 	}
 
 }

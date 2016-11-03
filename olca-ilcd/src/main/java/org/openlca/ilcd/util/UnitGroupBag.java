@@ -6,13 +6,13 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.units.AdminInfo;
-import org.openlca.ilcd.units.DataEntry;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.units.DataSetInfo;
-import org.openlca.ilcd.units.Publication;
 import org.openlca.ilcd.units.QuantitativeReference;
 import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
@@ -35,7 +35,7 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 	}
 
 	public Integer getReferenceUnitId() {
-		UnitGroupInfo info = unitGroup.unitGroupInformation;
+		UnitGroupInfo info = unitGroup.unitGroupInfo;
 		if (info != null) {
 			QuantitativeReference qRef = info.quantitativeReference;
 			if (qRef != null && qRef.referenceToReferenceUnit != null)
@@ -83,31 +83,31 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 	}
 
 	private DataSetInfo getDataSetInformation() {
-		if (unitGroup.unitGroupInformation != null)
-			return unitGroup.unitGroupInformation.dataSetInformation;
+		if (unitGroup.unitGroupInfo != null)
+			return unitGroup.unitGroupInfo.dataSetInfo;
 		return null;
 	}
 
 	public String getVersion() {
 		if (unitGroup == null)
 			return null;
-		AdminInfo info = unitGroup.administrativeInformation;
+		AdminInfo info = unitGroup.adminInfo;
 		if (info == null)
 			return null;
-		Publication pub = info.publicationAndOwnership;
+		Publication pub = info.publication;
 		if (pub == null)
 			return null;
 		else
-			return pub.dataSetVersion;
+			return pub.version;
 	}
 
 	public Date getTimeStamp() {
 		if (unitGroup == null)
 			return null;
-		AdminInfo info = unitGroup.administrativeInformation;
+		AdminInfo info = unitGroup.adminInfo;
 		if (info == null)
 			return null;
-		DataEntry entry = info.dataEntryBy;
+		DataEntry entry = info.dataEntry;
 		if (entry == null)
 			return null;
 		XMLGregorianCalendar cal = entry.timeStamp;

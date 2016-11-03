@@ -4,13 +4,13 @@ import java.math.BigInteger;
 
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
+import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.units.AdminInfo;
-import org.openlca.ilcd.units.DataEntry;
 import org.openlca.ilcd.units.DataSetInfo;
-import org.openlca.ilcd.units.Publication;
 import org.openlca.ilcd.units.QuantitativeReference;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
@@ -40,10 +40,10 @@ public class UnitGroupExport {
 		UnitGroup iUnitGroup = new UnitGroup();
 		iUnitGroup.version = "1.1";
 		UnitGroupInfo info = new UnitGroupInfo();
-		iUnitGroup.unitGroupInformation = info;
-		info.dataSetInformation = makeDataSetInfo();
+		iUnitGroup.unitGroupInfo = info;
+		info.dataSetInfo = makeDataSetInfo();
 		info.quantitativeReference = makeQRef();
-		iUnitGroup.administrativeInformation = makeAdminInfo();
+		iUnitGroup.adminInfo = makeAdminInfo();
 		iUnitGroup.units = makeUnits();
 		config.store.put(iUnitGroup, unitGroup.getRefId());
 		this.unitGroup = null;
@@ -103,23 +103,21 @@ public class UnitGroupExport {
 	private AdminInfo makeAdminInfo() {
 		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
-		info.dataEntryBy = entry;
+		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(unitGroup);
-		entry.referenceToDataSetFormat.add(
-				Reference.forIlcdFormat());
+		entry.formats.add(Reference.forIlcdFormat());
 		addPublication(info);
 		return info;
 	}
 
 	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
-		info.publicationAndOwnership = pub;
-		pub.dataSetVersion = Version.asString(unitGroup.getVersion());
+		info.publication = pub;
+		pub.version = Version.asString(unitGroup.getVersion());
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.permanentDataSetURI = baseUri + "unitgroups/"
-				+ unitGroup.getRefId();
+		pub.uri = baseUri + "unitgroups/" + unitGroup.getRefId();
 	}
 }
