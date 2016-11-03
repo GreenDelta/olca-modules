@@ -45,28 +45,28 @@ import org.openlca.ilcd.commons.Other;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PublicationAndOwnershipType", propOrder = {
-		"dataSetVersion",
-		"referenceToPrecedingDataSetVersion",
-		"permanentDataSetURI",
-		"referenceToOwnershipOfDataSet",
+		"version",
+		"precedingVersions",
+		"uri",
+		"owner",
 		"other"
 })
 public class Publication implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", required = true)
-	public String dataSetVersion;
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", required = true, name = "dataSetVersion")
+	public String version;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<DataSetReference> referenceToPrecedingDataSetVersion = new ArrayList<>();
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToPrecedingDataSetVersion")
+	public final List<DataSetReference> precedingVersions = new ArrayList<>();
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "permanentDataSetURI")
 	@XmlSchemaType(name = "anyURI")
-	public String permanentDataSetURI;
+	public String uri;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public DataSetReference referenceToOwnershipOfDataSet;
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToOwnershipOfDataSet")
+	public DataSetReference owner;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

@@ -31,9 +31,9 @@ public class NetworkPutSourceTest {
 		String id = UUID.randomUUID().toString();
 		Source source = new Source();
 		SourceInfo info = new SourceInfo();
-		source.sourceInformation = info;
-		info.dataSetInformation = makeDataInfo(id);
-		source.administrativeInformation = makeAdminInfo();
+		source.sourceInfo = info;
+		info.dataSetInfo = makeDataInfo(id);
+		source.adminInfo = makeAdminInfo();
 		client.put(source, id);
 	}
 
@@ -48,8 +48,8 @@ public class NetworkPutSourceTest {
 	private AdminInfo makeAdminInfo() {
 		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
-		info.publicationAndOwnership = pub;
-		pub.dataSetVersion = "01.00.000";
+		info.publication = pub;
+		pub.version = "01.00.000";
 		return info;
 	}
 }

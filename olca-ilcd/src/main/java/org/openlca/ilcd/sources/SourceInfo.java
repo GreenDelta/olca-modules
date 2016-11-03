@@ -16,15 +16,15 @@ import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SourceInformationType", propOrder = {
-		"dataSetInformation",
+		"dataSetInfo",
 		"other"
 })
 public class SourceInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(required = true)
-	public DataSetInfo dataSetInformation;
+	@XmlElement(required = true, name = "dataSetInformation")
+	public DataSetInfo dataSetInfo;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

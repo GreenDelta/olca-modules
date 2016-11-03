@@ -17,9 +17,9 @@ public final class SampleSource {
 	public static Source create() {
 		Source source = new Source();
 		SourceInfo info = new SourceInfo();
-		source.sourceInformation = info;
-		info.dataSetInformation = makeDataInfo();
-		source.administrativeInformation = makeAdminInfo();
+		source.sourceInfo = info;
+		info.dataSetInfo = makeDataInfo();
+		source.adminInfo = makeAdminInfo();
 		return source;
 	}
 
@@ -34,9 +34,9 @@ public final class SampleSource {
 	private static AdminInfo makeAdminInfo() {
 		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
-		info.publicationAndOwnership = pub;
-		pub.dataSetVersion = "01.00.101";
-		pub.permanentDataSetURI = "http://openlca.org/ilcd/resource/mytestsource";
+		info.publication = pub;
+		pub.version = "01.00.101";
+		pub.uri = "http://openlca.org/ilcd/resource/mytestsource";
 		return info;
 	}
 

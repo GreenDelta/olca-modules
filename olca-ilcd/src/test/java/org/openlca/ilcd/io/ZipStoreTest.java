@@ -50,7 +50,7 @@ public class ZipStoreTest {
 		store.put(source, id);
 		assertTrue(store.contains(Source.class, id));
 		Source copy = store.get(Source.class, id);
-		assertEquals(source.sourceInformation.dataSetInformation.uuid, copy.sourceInformation.dataSetInformation.uuid);
+		assertEquals(source.sourceInfo.dataSetInfo.uuid, copy.sourceInfo.dataSetInfo.uuid);
 		assertNotNull(store.iterator(Source.class).next());
 	}
 

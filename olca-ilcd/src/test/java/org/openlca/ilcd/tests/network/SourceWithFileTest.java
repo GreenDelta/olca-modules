@@ -34,7 +34,7 @@ public class SourceWithFileTest {
 		Source source = makeSource(id);
 		client.put(source, id);
 		Source fromServer = client.get(Source.class, id);
-		Assert.assertEquals(id, fromServer.sourceInformation.dataSetInformation.uuid);
+		Assert.assertEquals(id, fromServer.sourceInfo.dataSetInfo.uuid);
 	}
 
 	@Test
@@ -64,14 +64,14 @@ public class SourceWithFileTest {
 
 	private Source makeSource(String id) {
 		Source source = SampleSource.create();
-		source.sourceInformation.dataSetInformation.uuid = id;
+		source.sourceInfo.dataSetInfo.uuid = id;
 		return source;
 	}
 
 	private void addFileLink(Source source, File file) {
 		DigitalFileRef ref = new DigitalFileRef();
 		ref.uri = "../external_docs/" + file.getName();
-		source.sourceInformation.dataSetInformation.referenceToDigitalFile
+		source.sourceInfo.dataSetInfo.referenceToDigitalFile
 				.add(ref);
 	}
 }

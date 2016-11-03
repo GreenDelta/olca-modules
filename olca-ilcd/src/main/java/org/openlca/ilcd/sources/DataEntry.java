@@ -21,7 +21,7 @@ import org.openlca.ilcd.commons.Other;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataEntryByType", propOrder = {
 		"timeStamp",
-		"referenceToDataSetFormat",
+		"formats",
 		"other"
 })
 public class DataEntry implements Serializable {
@@ -31,8 +31,8 @@ public class DataEntry implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public XMLGregorianCalendar timeStamp;
 
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<DataSetReference> referenceToDataSetFormat = new ArrayList<>();
+	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToDataSetFormat")
+	public final List<DataSetReference> formats = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

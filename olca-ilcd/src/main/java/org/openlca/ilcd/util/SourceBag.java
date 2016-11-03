@@ -84,31 +84,31 @@ public class SourceBag implements IBag<Source> {
 	}
 
 	private DataSetInfo getDataSetInformation() {
-		if (source.sourceInformation != null)
-			return source.sourceInformation.dataSetInformation;
+		if (source.sourceInfo != null)
+			return source.sourceInfo.dataSetInfo;
 		return null;
 	}
 
 	public String getVersion() {
 		if (source == null)
 			return null;
-		AdminInfo info = source.administrativeInformation;
+		AdminInfo info = source.adminInfo;
 		if (info == null)
 			return null;
-		Publication pub = info.publicationAndOwnership;
+		Publication pub = info.publication;
 		if (pub == null)
 			return null;
 		else
-			return pub.dataSetVersion;
+			return pub.version;
 	}
 
 	public Date getTimeStamp() {
 		if (source == null)
 			return null;
-		AdminInfo info = source.administrativeInformation;
+		AdminInfo info = source.adminInfo;
 		if (info == null)
 			return null;
-		DataEntry entry = info.dataEntryBy;
+		DataEntry entry = info.dataEntry;
 		if (entry == null)
 			return null;
 		XMLGregorianCalendar cal = entry.timeStamp;

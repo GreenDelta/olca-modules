@@ -16,17 +16,19 @@ import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AdministrativeInformationType", propOrder = {
-		"dataEntryBy",
-		"publicationAndOwnership",
+		"dataEntry",
+		"publication",
 		"other"
 })
 public class AdminInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	public DataEntry dataEntryBy;
+	@XmlElement(name = "dataEntryBy")
+	public DataEntry dataEntry;
 
-	public Publication publicationAndOwnership;
+	@XmlElement(name = "publicationAndOwnership")
+	public Publication publication;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

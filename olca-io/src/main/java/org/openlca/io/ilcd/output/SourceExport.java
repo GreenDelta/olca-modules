@@ -42,11 +42,11 @@ public class SourceExport {
 		log.trace("Run source export with {}", source);
 		Source iSource = new Source();
 		iSource.version = "1.1";
-		iSource.administrativeInformation = makeAdminInfo();
+		iSource.adminInfo = makeAdminInfo();
 		SourceInfo info = new SourceInfo();
-		iSource.sourceInformation = info;
+		iSource.sourceInfo = info;
 		DataSetInfo dataSetInfo = makeDateSetInfo();
-		info.dataSetInformation = dataSetInfo;
+		info.dataSetInfo = dataSetInfo;
 		File extFile = getExternalFile();
 		if (extFile == null)
 			config.store.put(iSource, source.getRefId());
@@ -108,9 +108,9 @@ public class SourceExport {
 	private AdminInfo makeAdminInfo() {
 		AdminInfo info = new AdminInfo();
 		DataEntry entry = new DataEntry();
-		info.dataEntryBy = entry;
+		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(source);
-		entry.referenceToDataSetFormat.add(
+		entry.formats.add(
 				Reference.forIlcdFormat());
 		addPublication(info);
 		return info;
@@ -118,12 +118,12 @@ public class SourceExport {
 
 	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
-		info.publicationAndOwnership = pub;
-		pub.dataSetVersion = Version.asString(source.getVersion());
+		info.publication = pub;
+		pub.version = Version.asString(source.getVersion());
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.permanentDataSetURI = baseUri + "sources/" + source.getRefId();
+		pub.uri = baseUri + "sources/" + source.getRefId();
 	}
 }
