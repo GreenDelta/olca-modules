@@ -10,7 +10,6 @@ import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.units.DataSetInfo;
 import org.openlca.ilcd.units.QuantitativeReference;
 import org.openlca.ilcd.units.Unit;
@@ -52,10 +51,7 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 
 	@Override
 	public String getId() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null)
-			return info.uuid;
-		return null;
+		return unitGroup == null ? null : unitGroup.getUUID();
 	}
 
 	public String getName() {
@@ -73,11 +69,7 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 	}
 
 	public List<Class> getSortedClasses() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null && !info.classifications.isEmpty()) {
-			return ClassList.sortedList(info.classifications.get(0));
-		}
-		return Collections.emptyList();
+		return ClassList.sortedList(unitGroup);
 	}
 
 	private DataSetInfo getDataSetInformation() {
@@ -89,14 +81,7 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 	public String getVersion() {
 		if (unitGroup == null)
 			return null;
-		AdminInfo info = unitGroup.adminInfo;
-		if (info == null)
-			return null;
-		Publication pub = info.publication;
-		if (pub == null)
-			return null;
-		else
-			return pub.version;
+		return unitGroup.getVersion();
 	}
 
 	public Date getTimeStamp() {

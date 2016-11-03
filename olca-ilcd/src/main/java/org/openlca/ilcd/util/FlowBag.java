@@ -8,12 +8,10 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.Category;
-import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowCategorization;
 import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
@@ -43,10 +41,7 @@ public class FlowBag implements IBag<Flow> {
 
 	@Override
 	public String getId() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null)
-			return info.uuid;
-		return null;
+		return flow == null ? null : flow.getUUID();
 	}
 
 	public String getName() {
@@ -107,17 +102,7 @@ public class FlowBag implements IBag<Flow> {
 	}
 
 	public List<org.openlca.ilcd.commons.Class> getSortedClasses() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null) {
-			FlowCategoryInfo categoryInfo = info.classificationInformation;
-			if (categoryInfo != null) {
-				List<Classification> classifications = categoryInfo.classifications;
-				if (classifications != null && classifications.size() > 0) {
-					return ClassList.sortedList(classifications.get(0));
-				}
-			}
-		}
-		return Collections.emptyList();
+		return ClassList.sortedList(flow);
 	}
 
 	public List<Category> getSortedCompartments() {
@@ -184,14 +169,7 @@ public class FlowBag implements IBag<Flow> {
 	public String getVersion() {
 		if (flow == null)
 			return null;
-		AdminInfo info = flow.adminInfo;
-		if (info == null)
-			return null;
-		Publication pub = info.publication;
-		if (pub == null)
-			return null;
-		else
-			return pub.version;
+		return flow.getVersion();
 	}
 
 	public Date getTimeStamp() {

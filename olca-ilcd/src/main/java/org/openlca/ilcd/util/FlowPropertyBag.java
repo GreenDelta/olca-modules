@@ -1,6 +1,5 @@
 package org.openlca.ilcd.util;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
@@ -34,10 +32,7 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 
 	@Override
 	public String getId() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null)
-			return info.uuid;
-		return null;
+		return flowProperty == null ? null : flowProperty.getUUID();
 	}
 
 	public String getName() {
@@ -55,11 +50,7 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 	}
 
 	public List<Class> getSortedClasses() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null && !info.classifications.isEmpty()) {
-			return ClassList.sortedList(info.classifications.get(0));
-		}
-		return Collections.emptyList();
+		return ClassList.sortedList(flowProperty);
 	}
 
 	public DataSetReference getUnitGroupReference() {
@@ -82,14 +73,7 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 	public String getVersion() {
 		if (flowProperty == null)
 			return null;
-		AdminInfo info = flowProperty.adminInfo;
-		if (info == null)
-			return null;
-		Publication pub = info.publication;
-		if (pub == null)
-			return null;
-		else
-			return pub.version;
+		return flowProperty.getVersion();
 	}
 
 	public Date getTimeStamp() {

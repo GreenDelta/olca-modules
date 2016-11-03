@@ -49,10 +49,7 @@ public class ProcessBag implements IBag<Process> {
 
 	@Override
 	public String getId() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null)
-			return info.uuid;
-		return null;
+		return process == null ? null : process.getUUID();
 	}
 
 	public String getName() {
@@ -90,10 +87,7 @@ public class ProcessBag implements IBag<Process> {
 	}
 
 	public List<Class> getSortedClasses() {
-		DataSetInfo info = getDataSetInformation();
-		if (info == null || info.classifications.isEmpty())
-			return Collections.emptyList();
-		return ClassList.sortedList(info.classifications.get(0));
+		return ClassList.sortedList(process);
 	}
 
 	public String getComment() {
