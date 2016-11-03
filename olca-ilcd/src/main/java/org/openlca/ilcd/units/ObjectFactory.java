@@ -75,11 +75,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ModellingAndValidation }
+	 * Create an instance of {@link Modelling }
 	 * 
 	 */
-	public ModellingAndValidation createModellingAndValidation() {
-		return new ModellingAndValidation();
+	public Modelling createModellingAndValidation() {
+		return new Modelling();
 	}
 
 	/**

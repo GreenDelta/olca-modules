@@ -16,7 +16,7 @@ import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FlowPropertiesInformationType", propOrder = {
-		"dataSetInformation",
+		"dataSetInfo",
 		"quantitativeReference",
 		"other"
 })
@@ -24,8 +24,8 @@ public class FlowPropertyInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(required = true)
-	public DataSetInfo dataSetInformation;
+	@XmlElement(required = true, name = "dataSetInformation")
+	public DataSetInfo dataSetInfo;
 
 	public QuantitativeReference quantitativeReference;
 

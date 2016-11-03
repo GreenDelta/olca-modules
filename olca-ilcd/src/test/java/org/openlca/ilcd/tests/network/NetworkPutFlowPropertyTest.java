@@ -6,12 +6,12 @@ import java.util.UUID;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.flowproperties.AdminInfo;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
-import org.openlca.ilcd.flowproperties.Publication;
 import org.openlca.ilcd.io.NetworkClient;
 
 public class NetworkPutFlowPropertyTest {
@@ -31,9 +31,9 @@ public class NetworkPutFlowPropertyTest {
 		String id = UUID.randomUUID().toString();
 		FlowProperty flowproperty = new FlowProperty();
 		FlowPropertyInfo info = new FlowPropertyInfo();
-		flowproperty.flowPropertyInformation = info;
-		info.dataSetInformation = makeDataInfo(id);
-		flowproperty.administrativeInformation = makeAdminInfo();
+		flowproperty.flowPropertyInfo = info;
+		info.dataSetInfo = makeDataInfo(id);
+		flowproperty.adminInfo = makeAdminInfo();
 		client.put(flowproperty, id);
 	}
 
@@ -49,7 +49,7 @@ public class NetworkPutFlowPropertyTest {
 		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
 		info.publication = pub;
-		pub.dataSetVersion = "01.00.000";
+		pub.version = "01.00.000";
 		return info;
 	}
 }

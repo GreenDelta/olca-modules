@@ -33,7 +33,7 @@ public class UnitGroup implements IDataSet {
 	public UnitGroupInfo unitGroupInfo;
 
 	@XmlElement(name = "modellingAndValidation")
-	public ModellingAndValidation modelling;
+	public Modelling modelling;
 
 	@XmlElement(name = "administrativeInformation")
 	public AdminInfo adminInfo;

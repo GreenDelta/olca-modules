@@ -71,7 +71,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "93a60a56-a3c8-14da-a746-0800200c9a66";
 		FlowProperty property = client.get(FlowProperty.class, id);
-		assertEquals(id, property.flowPropertyInformation.dataSetInformation.uuid);
+		assertEquals(id, property.flowPropertyInfo.dataSetInfo.uuid);
 		testContains(FlowProperty.class, id);
 	}
 

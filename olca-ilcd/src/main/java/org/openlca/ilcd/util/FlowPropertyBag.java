@@ -6,16 +6,16 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.flowproperties.AdminInfo;
-import org.openlca.ilcd.flowproperties.DataEntry;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
-import org.openlca.ilcd.flowproperties.Publication;
 import org.openlca.ilcd.flowproperties.QuantitativeReference;
 
 public class FlowPropertyBag implements IBag<FlowProperty> {
@@ -65,7 +65,7 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 	}
 
 	public DataSetReference getUnitGroupReference() {
-		FlowPropertyInfo info = flowProperty.flowPropertyInformation;
+		FlowPropertyInfo info = flowProperty.flowPropertyInfo;
 		if (info != null) {
 			QuantitativeReference qRef = info.quantitativeReference;
 			if (qRef != null) {
@@ -76,28 +76,28 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 	}
 
 	private DataSetInfo getDataSetInformation() {
-		if (flowProperty.flowPropertyInformation != null)
-			return flowProperty.flowPropertyInformation.dataSetInformation;
+		if (flowProperty.flowPropertyInfo != null)
+			return flowProperty.flowPropertyInfo.dataSetInfo;
 		return null;
 	}
 
 	public String getVersion() {
 		if (flowProperty == null)
 			return null;
-		AdminInfo info = flowProperty.administrativeInformation;
+		AdminInfo info = flowProperty.adminInfo;
 		if (info == null)
 			return null;
 		Publication pub = info.publication;
 		if (pub == null)
 			return null;
 		else
-			return pub.dataSetVersion;
+			return pub.version;
 	}
 
 	public Date getTimeStamp() {
 		if (flowProperty == null)
 			return null;
-		AdminInfo info = flowProperty.administrativeInformation;
+		AdminInfo info = flowProperty.adminInfo;
 		if (info == null)
 			return null;
 		DataEntry entry = info.dataEntry;
