@@ -6,18 +6,13 @@ import java.util.Stack;
 import org.openlca.core.model.Category;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.FlowCategorization;
 
 class CategoryConverter {
 
-	ClassificationInfo getClassificationInformation(Category category) {
-		ClassificationInfo info = new ClassificationInfo();
-		info.classifications.add(getClassification(category));
-		return info;
-	}
-
 	Classification getClassification(Category category) {
+		if (category == null)
+			return null;
 		Classification classification = new Classification();
 		if (category != null) {
 			Stack<Category> stack = fillStack(category);

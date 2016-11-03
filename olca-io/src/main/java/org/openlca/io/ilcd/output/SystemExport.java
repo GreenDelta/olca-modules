@@ -6,7 +6,7 @@ import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.LangString;
@@ -170,10 +170,9 @@ public class SystemExport {
 
 	private void addClassification(DataSetInfo info) {
 		CategoryConverter conv = new CategoryConverter();
-		ClassificationInfo ci = conv
-				.getClassificationInformation(system.getCategory());
-		if (ci != null)
-			info.classifications.addAll(ci.classifications);
+		Classification c = conv.getClassification(system.getCategory());
+		if (c != null)
+			info.classifications.add(c);
 	}
 
 	private QuantitativeReference makeQuantitativeReference() {

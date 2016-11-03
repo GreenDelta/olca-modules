@@ -130,14 +130,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ClassificationInfo }
-	 * 
-	 */
-	public ClassificationInfo createClassificationInformation() {
-		return new ClassificationInfo();
-	}
-
-	/**
 	 * Create an instance of {@link Location }
 	 * 
 	 */

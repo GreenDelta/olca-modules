@@ -8,7 +8,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Class;
-import org.openlca.ilcd.commons.ClassificationInfo;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
@@ -75,9 +74,8 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 
 	public List<Class> getSortedClasses() {
 		DataSetInfo info = getDataSetInformation();
-		if (info != null) {
-			ClassificationInfo classInfo = info.classificationInformation;
-			return ClassList.sortedList(classInfo);
+		if (info != null && !info.classifications.isEmpty()) {
+			return ClassList.sortedList(info.classifications.get(0));
 		}
 		return Collections.emptyList();
 	}

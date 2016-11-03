@@ -2,6 +2,7 @@
 package org.openlca.ilcd.flows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,9 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetType;
+import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Other;
 
@@ -80,5 +83,15 @@ public class Flow implements IDataSet {
 		if (adminInfo == null || adminInfo.publication == null)
 			return null;
 		return adminInfo.publication.version;
+	}
+
+	@Override
+	public List<Classification> getClassifications() {
+		if (flowInfo == null || flowInfo.dataSetInfo == null)
+			return Collections.emptyList();
+		FlowCategoryInfo info = flowInfo.dataSetInfo.classificationInformation;
+		if (info == null)
+			return Collections.emptyList();
+		return info.classifications;
 	}
 }

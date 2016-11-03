@@ -1,7 +1,9 @@
 
 package org.openlca.ilcd.flowproperties;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,6 +15,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.AdminInfo;
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Other;
@@ -70,6 +73,13 @@ public class FlowProperty implements IDataSet {
 		if (adminInfo == null || adminInfo.publication == null)
 			return null;
 		return adminInfo.publication.version;
+	}
+
+	@Override
+	public List<Classification> getClassifications() {
+		if (flowPropertyInfo == null || flowPropertyInfo.dataSetInfo == null)
+			return Collections.emptyList();
+		return flowPropertyInfo.dataSetInfo.classifications;
 	}
 
 }

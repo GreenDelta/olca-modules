@@ -5,30 +5,14 @@ import java.util.List;
 
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.ClassificationInfo;
 
 class ClassList {
 
 	private ClassList() {
 	}
 
-	static List<Class> sortedList(ClassificationInfo classInfo) {
-		if (classInfo != null)
-			return fromClassInfo(classInfo);
-		return Collections.emptyList();
-	}
-
 	static List<Class> sortedList(Classification classification) {
 		return fromClassification(classification);
-	}
-
-	private static List<Class> fromClassInfo(ClassificationInfo classInfo) {
-		List<Classification> classifications = classInfo.classifications;
-		if (classifications != null && classifications.size() > 0) {
-			Classification classification = classifications.get(0);
-			return fromClassification(classification);
-		}
-		return Collections.emptyList();
 	}
 
 	private static List<Class> fromClassification(Classification classification) {

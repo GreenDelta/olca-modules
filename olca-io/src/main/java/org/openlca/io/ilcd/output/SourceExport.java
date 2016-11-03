@@ -6,7 +6,7 @@ import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.AdminInfo;
-import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
@@ -83,9 +83,10 @@ public class SourceExport {
 		}
 		addTextReference(info);
 		CategoryConverter converter = new CategoryConverter();
-		ClassificationInfo classInfo = converter
-				.getClassificationInformation(source.getCategory());
-		info.classificationInformation = classInfo;
+		Classification c = converter.getClassification(
+				source.getCategory());
+		if (c != null)
+			info.classifications.add(c);
 		return info;
 	}
 

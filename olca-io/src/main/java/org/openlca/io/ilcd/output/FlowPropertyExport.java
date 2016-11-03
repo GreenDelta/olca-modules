@@ -3,7 +3,7 @@ package org.openlca.io.ilcd.output;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.AdminInfo;
-import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LangString;
@@ -56,9 +56,10 @@ public class FlowPropertyExport {
 					flowProperty.getDescription(), config.lang);
 		}
 		CategoryConverter converter = new CategoryConverter();
-		ClassificationInfo classInfo = converter
-				.getClassificationInformation(flowProperty.getCategory());
-		dataSetInfo.classificationInformation = classInfo;
+		Classification c = converter.getClassification(
+				flowProperty.getCategory());
+		if (c != null)
+			dataSetInfo.classifications.add(c);
 		return dataSetInfo;
 	}
 
