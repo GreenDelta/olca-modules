@@ -4,6 +4,7 @@ package org.openlca.ilcd.commons;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -51,5 +52,28 @@ public class Category implements Serializable {
 		clone.classId = classId;
 		clone.otherAttributes.putAll(otherAttributes);
 		return clone;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (obj == this)
+			return true;
+		if (!(obj instanceof Category))
+			return false;
+		Category other = (Category) obj;
+		if (classId != null || other.classId != null)
+			return Objects.equals(classId, other.classId);
+		if (level != other.level)
+			return false;
+		return Objects.equals(value, other.value);
+	}
+
+	@Override
+	public int hashCode() {
+		if (classId != null)
+			return classId.hashCode();
+		return Objects.hash(level, value);
 	}
 }
