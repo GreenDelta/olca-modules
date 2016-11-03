@@ -62,7 +62,7 @@ public class NetworkGetTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = "0d7a3ad1-6556-11dd-ad8b-0800200c9a66";
 		Flow flow = client.get(Flow.class, id);
-		assertEquals(id, flow.flowInformation.dataSetInfo.uuid);
+		assertEquals(id, flow.flowInfo.dataSetInfo.uuid);
 		testContains(Flow.class, id);
 	}
 

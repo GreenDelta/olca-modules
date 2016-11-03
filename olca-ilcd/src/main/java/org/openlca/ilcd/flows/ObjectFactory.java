@@ -5,6 +5,8 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.Publication;
+
 /**
  * This object contains factory methods for each Java content interface and Java
  * element interface generated in the org.openlca.ilcd.flows package.
@@ -95,14 +97,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link FlowPropertyList }
-	 * 
-	 */
-	public FlowPropertyList createFlowPropertyList() {
-		return new FlowPropertyList();
-	}
-
-	/**
 	 * Create an instance of {@link FlowPropertyRef }
 	 * 
 	 */
@@ -143,11 +137,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ModellingAndValidation }
+	 * Create an instance of {@link Modelling }
 	 * 
 	 */
-	public ModellingAndValidation createModellingAndValidation() {
-		return new ModellingAndValidation();
+	public Modelling createModellingAndValidation() {
+		return new Modelling();
 	}
 
 	/**

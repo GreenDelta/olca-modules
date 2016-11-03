@@ -1,8 +1,9 @@
 
 package org.openlca.ilcd.flows;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,31 +11,38 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.DataSetType;
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FlowDataSetType", propOrder = {
-		"flowInformation",
-		"modellingAndValidation",
-		"administrativeInformation",
+		"flowInfo",
+		"modelling",
+		"adminInfo",
 		"flowProperties",
 		"other"
 })
-public class Flow implements Serializable {
+public class Flow implements IDataSet {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(required = true)
-	public FlowInfo flowInformation;
+	@XmlElement(required = true, name = "flowInformation")
+	public FlowInfo flowInfo;
 
-	public ModellingAndValidation modellingAndValidation;
+	@XmlElement(name = "modellingAndValidation")
+	public Modelling modelling;
 
-	public AdminInfo administrativeInformation;
+	@XmlElement(name = "administrativeInformation")
+	public AdminInfo adminInfo;
 
-	public FlowPropertyList flowProperties;
+	@XmlElementWrapper(name = "flowProperties")
+	@XmlElement(required = true, name = "flowProperty")
+	public final List<FlowPropertyRef> flowProperties = new ArrayList<>();
 
 	@XmlAttribute(name = "version", required = true)
 	public String version;
@@ -48,4 +56,29 @@ public class Flow implements Serializable {
 	@XmlAnyAttribute
 	public Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public DataSetType getDataSetType() {
+		return DataSetType.FLOW;
+	}
+
+	@Override
+	public String getURI() {
+		if (adminInfo == null || adminInfo.publication == null)
+			return null;
+		return adminInfo.publication.uri;
+	}
+
+	@Override
+	public String getUUID() {
+		if (flowInfo == null || flowInfo.dataSetInfo == null)
+			return null;
+		return flowInfo.dataSetInfo.uuid;
+	}
+
+	@Override
+	public String getVersion() {
+		if (adminInfo == null || adminInfo.publication == null)
+			return null;
+		return adminInfo.publication.version;
+	}
 }

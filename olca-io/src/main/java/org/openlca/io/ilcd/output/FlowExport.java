@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.List;
+
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Version;
@@ -9,18 +11,17 @@ import org.openlca.ilcd.commons.FlowCategorization;
 import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
-import org.openlca.ilcd.flows.FlowPropertyList;
 import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
-import org.openlca.ilcd.flows.ModellingAndValidation;
-import org.openlca.ilcd.flows.Publication;
+import org.openlca.ilcd.flows.Modelling;
 import org.openlca.ilcd.flows.QuantitativeReference;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.util.Reference;
@@ -42,14 +43,14 @@ public class FlowExport {
 		Flow iFlow = new Flow();
 		iFlow.version = "1.1";
 		FlowInfo info = new FlowInfo();
-		iFlow.flowInformation = info;
+		iFlow.flowInfo = info;
 		info.dataSetInfo = makeDataSetInfo();
 		QuantitativeReference qRef = new QuantitativeReference();
 		info.quantitativeReference = qRef;
 		qRef.referenceFlowProperty = 0;
-		iFlow.administrativeInformation = makeAdminInfo();
-		iFlow.modellingAndValidation = makeModellingInfo();
-		iFlow.flowProperties = makeFlowProperties();
+		iFlow.adminInfo = makeAdminInfo();
+		iFlow.modelling = makeModellingInfo();
+		makeFlowProperties(iFlow.flowProperties);
 		addLocation(iFlow);
 		config.store.put(iFlow, flow.getRefId());
 		this.flow = null;
@@ -94,13 +95,12 @@ public class FlowExport {
 	 * Exports the flow property factors. The reference flow property gets a
 	 * data set internal ID of 0, the others 1++.
 	 */
-	private FlowPropertyList makeFlowProperties() {
-		FlowPropertyList list = new FlowPropertyList();
+	private void makeFlowProperties(List<FlowPropertyRef> refs) {
 		FlowProperty referenceProperty = flow.getReferenceFlowProperty();
 		int pos = 1;
 		for (FlowPropertyFactor factor : flow.getFlowPropertyFactors()) {
 			FlowPropertyRef propRef = new FlowPropertyRef();
-			list.flowProperty.add(propRef);
+			refs.add(propRef);
 			FlowProperty property = factor.getFlowProperty();
 			DataSetReference ref = ExportDispatch.forwardExportCheck(property,
 					config);
@@ -111,7 +111,6 @@ public class FlowExport {
 				propRef.dataSetInternalID = pos++;
 			propRef.meanValue = factor.getConversionFactor();
 		}
-		return list;
 	}
 
 	private void addLocation(org.openlca.ilcd.flows.Flow iFlow) {
@@ -119,7 +118,7 @@ public class FlowExport {
 			Geography geography = new Geography();
 			LangString.set(geography.location, flow.getLocation()
 					.getCode(), config.lang);
-			iFlow.flowInformation.geography = geography;
+			iFlow.flowInfo.geography = geography;
 		}
 	}
 
@@ -128,7 +127,7 @@ public class FlowExport {
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(flow);
-		entry.referenceToDataSetFormat.add(
+		entry.formats.add(
 				Reference.forIlcdFormat());
 		addPublication(info);
 		return info;
@@ -137,16 +136,16 @@ public class FlowExport {
 	private void addPublication(AdminInfo info) {
 		Publication pub = new Publication();
 		info.publication = pub;
-		pub.dataSetVersion = Version.asString(flow.getVersion());
+		pub.version = Version.asString(flow.getVersion());
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.permanentDataSetURI = baseUri + "flows/" + flow.getRefId();
+		pub.uri = baseUri + "flows/" + flow.getRefId();
 	}
 
-	private ModellingAndValidation makeModellingInfo() {
-		ModellingAndValidation mav = new ModellingAndValidation();
+	private Modelling makeModellingInfo() {
+		Modelling mav = new Modelling();
 		LCIMethod method = new LCIMethod();
 		mav.lciMethod = method;
 		method.flowType = getFlowType();

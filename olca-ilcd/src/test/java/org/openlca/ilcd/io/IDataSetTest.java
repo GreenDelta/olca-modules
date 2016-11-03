@@ -12,6 +12,7 @@ import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
+import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 
@@ -57,6 +58,17 @@ public class IDataSetTest {
 			assertEquals("00.00", ds.getVersion());
 			assertEquals(DataSetType.FLOW_PROPERTY, ds.getDataSetType());
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_flowproperty.xml",
+					ds.getURI().trim());
+		});
+	}
+
+	@Test
+	public void testFlow() throws Exception {
+		with("sdk_sample_flow.xml", Flow.class, ds -> {
+			assertEquals("00000000-0000-0000-0000-000000000000", ds.getUUID());
+			assertEquals("00.00", ds.getVersion());
+			assertEquals(DataSetType.FLOW, ds.getDataSetType());
+			assertEquals("http://www.ilcd-network.org/data/processes/sample_flow.xml",
 					ds.getURI().trim());
 		});
 	}

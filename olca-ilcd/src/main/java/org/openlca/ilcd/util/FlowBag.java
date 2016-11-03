@@ -13,18 +13,17 @@ import org.openlca.ilcd.commons.FlowCategorization;
 import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
-import org.openlca.ilcd.flows.FlowPropertyList;
 import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
-import org.openlca.ilcd.flows.ModellingAndValidation;
-import org.openlca.ilcd.flows.Publication;
+import org.openlca.ilcd.flows.Modelling;
 import org.openlca.ilcd.flows.QuantitativeReference;
 
 public class FlowBag implements IBag<Flow> {
@@ -83,7 +82,7 @@ public class FlowBag implements IBag<Flow> {
 	}
 
 	public Integer getReferenceFlowPropertyId() {
-		FlowInfo info = flow.flowInformation;
+		FlowInfo info = flow.flowInfo;
 		if (info != null) {
 			QuantitativeReference qRef = info.quantitativeReference;
 			if (qRef != null && qRef.referenceFlowProperty != null) {
@@ -94,7 +93,7 @@ public class FlowBag implements IBag<Flow> {
 	}
 
 	public FlowType getFlowType() {
-		ModellingAndValidation mav = flow.modellingAndValidation;
+		Modelling mav = flow.modelling;
 		if (mav != null) {
 			LCIMethod method = mav.lciMethod;
 			if (method != null)
@@ -104,11 +103,7 @@ public class FlowBag implements IBag<Flow> {
 	}
 
 	public List<FlowPropertyRef> getFlowPropertyReferences() {
-		FlowPropertyList list = flow.flowProperties;
-		if (list != null) {
-			return list.flowProperty;
-		}
-		return Collections.emptyList();
+		return flow.flowProperties;
 	}
 
 	public List<org.openlca.ilcd.commons.Class> getSortedClasses() {
@@ -135,7 +130,7 @@ public class FlowBag implements IBag<Flow> {
 	}
 
 	public List<LangString> getLocation() {
-		FlowInfo info = flow.flowInformation;
+		FlowInfo info = flow.flowInfo;
 		if (info == null)
 			return Collections.emptyList();
 		Geography geo = info.geography;
@@ -181,28 +176,28 @@ public class FlowBag implements IBag<Flow> {
 	}
 
 	private DataSetInfo getDataSetInformation() {
-		if (flow.flowInformation != null)
-			return flow.flowInformation.dataSetInfo;
+		if (flow.flowInfo != null)
+			return flow.flowInfo.dataSetInfo;
 		return null;
 	}
 
 	public String getVersion() {
 		if (flow == null)
 			return null;
-		AdminInfo info = flow.administrativeInformation;
+		AdminInfo info = flow.adminInfo;
 		if (info == null)
 			return null;
 		Publication pub = info.publication;
 		if (pub == null)
 			return null;
 		else
-			return pub.dataSetVersion;
+			return pub.version;
 	}
 
 	public Date getTimeStamp() {
 		if (flow == null)
 			return null;
-		AdminInfo info = flow.administrativeInformation;
+		AdminInfo info = flow.adminInfo;
 		if (info == null)
 			return null;
 		DataEntry entry = info.dataEntry;

@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.Publication;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AdministrativeInformationType", propOrder = {

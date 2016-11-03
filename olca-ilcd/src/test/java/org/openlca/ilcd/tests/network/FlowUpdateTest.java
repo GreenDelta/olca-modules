@@ -8,14 +8,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.LCIMethod;
-import org.openlca.ilcd.flows.ModellingAndValidation;
-import org.openlca.ilcd.flows.Publication;
+import org.openlca.ilcd.flows.Modelling;
 import org.openlca.ilcd.io.NetworkClient;
 
 public class FlowUpdateTest {
@@ -36,16 +36,16 @@ public class FlowUpdateTest {
 		Flow flow = makeFlow(id);
 		client.put(flow, id);
 		Assert.assertTrue(client.contains(Flow.class, id));
-		flow.administrativeInformation.publication.dataSetVersion = "02.00.000";
+		flow.adminInfo.publication.version = "02.00.000";
 		client.put(flow, id);
 		flow = client.get(Flow.class, id);
-		Assert.assertEquals("02.00.000", flow.administrativeInformation.publication.dataSetVersion);
+		Assert.assertEquals("02.00.000", flow.adminInfo.publication.version);
 	}
 
 	private Flow makeFlow(String id) {
 		Flow flow = new Flow();
 		FlowInfo info = new FlowInfo();
-		flow.flowInformation = info;
+		flow.flowInfo = info;
 		DataSetInfo dataInfo = new DataSetInfo();
 		dataInfo.uuid = id;
 		info.dataSetInfo = dataInfo;
@@ -55,10 +55,10 @@ public class FlowUpdateTest {
 		AdminInfo adminInfo = new AdminInfo();
 		Publication pub = new Publication();
 		adminInfo.publication = pub;
-		pub.dataSetVersion = "01.00.000";
-		flow.administrativeInformation = adminInfo;
-		ModellingAndValidation mav = new ModellingAndValidation();
-		flow.modellingAndValidation = mav;
+		pub.version = "01.00.000";
+		flow.adminInfo = adminInfo;
+		Modelling mav = new Modelling();
+		flow.modelling = mav;
 		LCIMethod method = new LCIMethod();
 		mav.lciMethod = method;
 		method.flowType = FlowType.ELEMENTARY_FLOW;

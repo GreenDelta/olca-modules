@@ -8,14 +8,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.LCIMethod;
-import org.openlca.ilcd.flows.ModellingAndValidation;
-import org.openlca.ilcd.flows.Publication;
+import org.openlca.ilcd.flows.Modelling;
 import org.openlca.ilcd.io.NetworkClient;
 
 public class NetworkPutFlowTest {
@@ -35,11 +35,11 @@ public class NetworkPutFlowTest {
 		String id = UUID.randomUUID().toString();
 		Flow flow = new Flow();
 		FlowInfo info = new FlowInfo();
-		flow.flowInformation = info;
+		flow.flowInfo = info;
 		info.dataSetInfo = makeDataInfo(id);
-		flow.administrativeInformation = makeAdminInfo();
-		ModellingAndValidation mav = new ModellingAndValidation();
-		flow.modellingAndValidation = mav;
+		flow.adminInfo = makeAdminInfo();
+		Modelling mav = new Modelling();
+		flow.modelling = mav;
 		LCIMethod method = new LCIMethod();
 		mav.lciMethod = method;
 		method.flowType = FlowType.ELEMENTARY_FLOW;
@@ -60,7 +60,7 @@ public class NetworkPutFlowTest {
 		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
 		info.publication = pub;
-		pub.dataSetVersion = "01.00.000";
+		pub.version = "01.00.000";
 		return info;
 	}
 }
