@@ -1,6 +1,5 @@
 package org.openlca.ilcd.processes;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,13 +14,15 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.DataSetType;
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProcessDataSetType", propOrder = { "processInfo",
 		"modelling", "adminInfo", "exchanges",
 		"lciaResults", "other" })
-public class Process implements Serializable {
+public class Process implements IDataSet {
 
 	private final static long serialVersionUID = 1L;
 
@@ -57,9 +58,29 @@ public class Process implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public DataSetType getDataSetType() {
+		return DataSetType.PROCESS;
+	}
+
+	@Override
+	public String getURI() {
+		if (adminInfo == null || adminInfo.publication == null)
+			return null;
+		return adminInfo.publication.uri;
+	}
+
+	@Override
 	public String getUUID() {
 		if (processInfo == null || processInfo.dataSetInfo == null)
 			return null;
 		return processInfo.dataSetInfo.uuid;
+	}
+
+	@Override
+	public String getVersion() {
+		if (adminInfo == null || adminInfo.publication == null)
+			return null;
+		return adminInfo.publication.version;
 	}
 }
