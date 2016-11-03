@@ -136,8 +136,8 @@ public class FileStore implements DataStore {
 
 	@Override
 	public <T> Iterator<T> iterator(Class<T> type) throws DataStoreException {
-		// TODO Auto-generated method stub
-		return null;
+		File folder = getFolder(type);
+		return new FileIterator<>(type, folder);
 	}
 
 	@Override
@@ -204,4 +204,34 @@ public class FileStore implements DataStore {
 	public void close() throws IOException {
 	}
 
+	private class FileIterator<T> implements Iterator<T> {
+
+		final Class<T> type;
+		int idx = 0;
+		File[] files;
+
+		FileIterator(Class<T> type, File folder) {
+			this.type = type;
+			if (folder != null && folder.isDirectory()) {
+				files = folder.listFiles();
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			return files != null && idx < files.length;
+		}
+
+		@Override
+		public T next() {
+			try {
+				File file = files[idx];
+				idx++;
+				XmlBinder binder = new XmlBinder();
+				return binder.fromFile(type, file);
+			} catch (Exception e) {
+				throw new RuntimeException("failed to load unmarshal XML file", e);
+			}
+		}
+	}
 }
