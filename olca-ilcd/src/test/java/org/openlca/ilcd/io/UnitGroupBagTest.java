@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.UnitGroupBag;
@@ -60,7 +60,7 @@ public class UnitGroupBagTest {
 
 	@Test
 	public void testGetClasses() {
-		Class clazz = bag.getSortedClasses().get(0);
+		Category clazz = bag.getSortedClasses().get(0);
 		assertEquals(0, clazz.level);
 		assertEquals("Technical unit groups", clazz.value.trim());
 	}

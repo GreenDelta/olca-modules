@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.Exchange;
@@ -53,7 +53,7 @@ public class ProcessBagTest {
 
 	@Test
 	public void testGetSortedClasses() {
-		List<Class> classes = bag.getSortedClasses();
+		List<Category> classes = bag.getSortedClasses();
 		assertTrue(classes.size() == 2);
 		assertEquals("Materials production", classes.get(0).value);
 		assertEquals("Plastics", classes.get(1).value);

@@ -6,7 +6,7 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.AdminInfo;
-import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LangString;
@@ -49,7 +49,7 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 		return null;
 	}
 
-	public List<Class> getSortedClasses() {
+	public List<Category> getSortedClasses() {
 		return ClassList.sortedList(flowProperty);
 	}
 

@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.FlowType;
+import org.openlca.ilcd.flows.Compartment;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.util.FlowBag;
@@ -69,13 +69,13 @@ public class FlowBagTest {
 
 	@Test
 	public void testGetSortedClasses() {
-		List<org.openlca.ilcd.commons.Class> classes = bag.getSortedClasses();
+		List<org.openlca.ilcd.commons.Category> classes = bag.getSortedClasses();
 		assertTrue(classes.isEmpty());
 	}
 
 	@Test
 	public void testGetSortedCompartments() {
-		List<Category> categories = bag.getSortedCompartments();
+		List<Compartment> categories = bag.getSortedCompartments();
 		assertTrue(categories.size() == 3);
 		assertEquals("Emissions", categories.get(0).value.trim());
 		assertEquals("Emissions to air", categories.get(1).value.trim());

@@ -18,7 +18,6 @@ import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetType;
-import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Other;
 

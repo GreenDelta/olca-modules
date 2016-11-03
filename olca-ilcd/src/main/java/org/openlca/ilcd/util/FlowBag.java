@@ -1,21 +1,20 @@
 package org.openlca.ilcd.util;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.ilcd.commons.Category;
-import org.openlca.ilcd.commons.FlowCategorization;
-import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.AdminInfo;
+import org.openlca.ilcd.flows.Compartment;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
+import org.openlca.ilcd.flows.CompartmentList;
+import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.FlowPropertyRef;
@@ -101,11 +100,11 @@ public class FlowBag implements IBag<Flow> {
 		return flow.flowProperties;
 	}
 
-	public List<org.openlca.ilcd.commons.Class> getSortedClasses() {
+	public List<org.openlca.ilcd.commons.Category> getSortedClasses() {
 		return ClassList.sortedList(flow);
 	}
 
-	public List<Category> getSortedCompartments() {
+	public List<Compartment> getSortedCompartments() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null) {
 			FlowCategoryInfo categoryInfo = info.classificationInformation;
@@ -132,32 +131,19 @@ public class FlowBag implements IBag<Flow> {
 		return LangString.getFirst(info.synonyms, langs);
 	}
 
-	private List<Category> getCompartments(FlowCategoryInfo categoryInfo) {
+	private List<Compartment> getCompartments(FlowCategoryInfo categoryInfo) {
 		if (categoryInfo != null) {
-			List<FlowCategorization> categorizations = categoryInfo.elementaryFlowCategorizations;
+			List<CompartmentList> categorizations = categoryInfo.compartmentLists;
 			if (categorizations != null && categorizations.size() > 0) {
-				FlowCategorization categorization = categorizations.get(0);
-				List<Category> categories = categorization.categories;
+				CompartmentList categorization = categorizations.get(0);
+				List<Compartment> categories = categorization.compartments;
 				if (categories != null && categories.size() > 0) {
-					sort(categories);
+					Collections.sort(categories, (c1, c2) -> c1.level - c2.level);
 					return categories;
 				}
 			}
 		}
 		return Collections.emptyList();
-	}
-
-	private void sort(List<Category> categories) {
-		Collections.sort(categories, new Comparator<Category>() {
-			@Override
-			public int compare(Category cat1, Category cat2) {
-				int c = 0;
-				if (cat1.level != null && cat2.level != null) {
-					c = cat1.level.compareTo(cat2.level);
-				}
-				return c;
-			}
-		});
 	}
 
 	private DataSetInfo getDataSetInformation() {

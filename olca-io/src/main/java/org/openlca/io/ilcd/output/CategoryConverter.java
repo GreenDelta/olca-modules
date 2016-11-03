@@ -1,12 +1,11 @@
 package org.openlca.io.ilcd.output;
 
-import java.math.BigInteger;
 import java.util.Stack;
 
 import org.openlca.core.model.Category;
-import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.FlowCategorization;
+import org.openlca.ilcd.flows.Compartment;
+import org.openlca.ilcd.flows.CompartmentList;
 
 class CategoryConverter {
 
@@ -21,8 +20,8 @@ class CategoryConverter {
 		return classification;
 	}
 
-	FlowCategorization getElementaryFlowCategory(Category category) {
-		FlowCategorization categorization = new FlowCategorization();
+	CompartmentList getElementaryFlowCategory(Category category) {
+		CompartmentList categorization = new CompartmentList();
 		if (category != null) {
 			Stack<Category> stack = fillStack(category);
 			makeElementaryFlowCategories(categorization, stack);
@@ -50,26 +49,25 @@ class CategoryConverter {
 		int level = 0;
 		while (!stack.isEmpty()) {
 			category = stack.pop();
-			org.openlca.ilcd.commons.Class clazz = new Class();
+			org.openlca.ilcd.commons.Category clazz = new org.openlca.ilcd.commons.Category();
 			clazz.classId = category.getRefId();
 			clazz.level = level;
 			clazz.value = category.getName();
-			classification.classes.add(clazz);
+			classification.categories.add(clazz);
 			level++;
 		}
 	}
 
-	private void makeElementaryFlowCategories(
-			FlowCategorization categorization, Stack<Category> stack) {
+	private void makeElementaryFlowCategories(CompartmentList list, Stack<Category> stack) {
 		Category category;
 		int level = 0;
 		while (!stack.isEmpty()) {
 			category = stack.pop();
-			org.openlca.ilcd.commons.Category ilcdCategory = new org.openlca.ilcd.commons.Category();
-			ilcdCategory.catId = category.getRefId();
-			ilcdCategory.level = BigInteger.valueOf(level);
-			ilcdCategory.value = category.getName();
-			categorization.categories.add(ilcdCategory);
+			Compartment c = new Compartment();
+			list.compartments.add(c);
+			c.catId = category.getRefId();
+			c.level = level;
+			c.value = category.getName();
 			level++;
 		}
 	}

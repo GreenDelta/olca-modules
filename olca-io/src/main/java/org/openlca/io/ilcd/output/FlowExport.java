@@ -7,8 +7,6 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetReference;
-import org.openlca.ilcd.commons.FlowCategorization;
-import org.openlca.ilcd.commons.FlowCategoryInfo;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
@@ -16,6 +14,8 @@ import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
+import org.openlca.ilcd.flows.CompartmentList;
+import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.FlowPropertyRef;
@@ -81,9 +81,9 @@ public class FlowExport {
 		FlowCategoryInfo info = new FlowCategoryInfo();
 		dataSetInfo.classificationInformation = info;
 		if (flow.getFlowType() == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
-			FlowCategorization categorization = converter
+			CompartmentList categorization = converter
 					.getElementaryFlowCategory(flow.getCategory());
-			info.elementaryFlowCategorizations.add(categorization);
+			info.compartmentLists.add(categorization);
 		} else {
 			Classification classification = converter.getClassification(flow
 					.getCategory());

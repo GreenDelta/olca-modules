@@ -3,7 +3,7 @@ package org.openlca.ilcd.util;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LangString;
@@ -86,7 +86,7 @@ public class ProcessBag implements IBag<Process> {
 		return null;
 	}
 
-	public List<Class> getSortedClasses() {
+	public List<Category> getSortedClasses() {
 		return ClassList.sortedList(process);
 	}
 
