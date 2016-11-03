@@ -6,14 +6,14 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.contacts.AdminInfo;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.contacts.Contact;
-import org.openlca.ilcd.contacts.DataEntry;
 import org.openlca.ilcd.contacts.DataSetInfo;
-import org.openlca.ilcd.contacts.Publication;
 
 public class ContactBag implements IBag<Contact> {
 
@@ -111,28 +111,28 @@ public class ContactBag implements IBag<Contact> {
 	}
 
 	private DataSetInfo getDataSetInformation() {
-		if (contact.contactInformation != null)
-			return contact.contactInformation.getDataSetInformation();
+		if (contact.contactInfo != null)
+			return contact.contactInfo.dataSetInfo;
 		return null;
 	}
 
 	public String getVersion() {
 		if (contact == null)
 			return null;
-		AdminInfo info = contact.administrativeInformation;
+		AdminInfo info = contact.adminInfo;
 		if (info == null)
 			return null;
 		Publication pub = info.publication;
 		if (pub == null)
 			return null;
 		else
-			return pub.dataSetVersion;
+			return pub.version;
 	}
 
 	public Date getTimeStamp() {
 		if (contact == null)
 			return null;
-		AdminInfo info = contact.administrativeInformation;
+		AdminInfo info = contact.adminInfo;
 		if (info == null)
 			return null;
 		DataEntry entry = info.dataEntry;

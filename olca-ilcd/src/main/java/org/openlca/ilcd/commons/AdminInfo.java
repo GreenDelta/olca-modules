@@ -1,5 +1,5 @@
 
-package org.openlca.ilcd.sources;
+package org.openlca.ilcd.commons;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -11,8 +11,6 @@ import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-
-import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AdministrativeInformationType", propOrder = {

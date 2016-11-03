@@ -1,7 +1,6 @@
 
 package org.openlca.ilcd.contacts;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,22 +12,26 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.AdminInfo;
+import org.openlca.ilcd.commons.DataSetType;
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ContactDataSetType", propOrder = {
-		"contactInformation",
-		"administrativeInformation",
+		"contactInfo",
+		"adminInfo",
 		"other"
 })
-public class Contact implements Serializable {
+public class Contact implements IDataSet {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(required = true)
-	public ContactInfo contactInformation;
+	@XmlElement(required = true, name = "contactInformation")
+	public ContactInfo contactInfo;
 
-	public AdminInfo administrativeInformation;
+	@XmlElement(name = "administrativeInformation")
+	public AdminInfo adminInfo;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -38,5 +41,31 @@ public class Contact implements Serializable {
 
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
+
+	@Override
+	public DataSetType getDataSetType() {
+		return DataSetType.CONTACT;
+	}
+
+	@Override
+	public String getURI() {
+		if (adminInfo == null || adminInfo.publication == null)
+			return null;
+		return adminInfo.publication.uri;
+	}
+
+	@Override
+	public String getUUID() {
+		if (contactInfo == null || contactInfo.dataSetInfo == null)
+			return null;
+		return contactInfo.dataSetInfo.uuid;
+	}
+
+	@Override
+	public String getVersion() {
+		if (adminInfo == null || adminInfo.publication == null)
+			return null;
+		return adminInfo.publication.version;
+	}
 
 }

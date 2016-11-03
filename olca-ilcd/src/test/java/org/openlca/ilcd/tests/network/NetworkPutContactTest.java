@@ -6,12 +6,12 @@ import java.util.UUID;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.contacts.AdminInfo;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.contacts.ContactInfo;
 import org.openlca.ilcd.contacts.DataSetInfo;
-import org.openlca.ilcd.contacts.Publication;
 import org.openlca.ilcd.io.NetworkClient;
 
 public class NetworkPutContactTest {
@@ -31,9 +31,9 @@ public class NetworkPutContactTest {
 		String id = UUID.randomUUID().toString();
 		Contact contact = new Contact();
 		ContactInfo info = new ContactInfo();
-		contact.contactInformation = info;
-		info.setDataSetInformation(makeDataInfo(id));
-		contact.administrativeInformation = makeAdminInfo();
+		contact.contactInfo = info;
+		info.dataSetInfo = makeDataInfo(id);
+		contact.adminInfo = makeAdminInfo();
 		client.put(contact, id);
 	}
 
@@ -50,7 +50,7 @@ public class NetworkPutContactTest {
 		AdminInfo info = new AdminInfo();
 		Publication pub = new Publication();
 		info.publication = pub;
-		pub.dataSetVersion = "01.00.000";
+		pub.version = "01.00.000";
 		return info;
 	}
 }

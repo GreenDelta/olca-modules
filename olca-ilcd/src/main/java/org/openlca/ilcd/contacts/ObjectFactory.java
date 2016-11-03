@@ -5,6 +5,10 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.AdminInfo;
+import org.openlca.ilcd.commons.DataEntry;
+import org.openlca.ilcd.commons.Publication;
+
 /**
  * This object contains factory methods for each Java content interface and Java
  * element interface generated in the org.openlca.ilcd.contacts package.
@@ -79,7 +83,8 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Contact }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <}{@link Contact
+	 * }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Contact", name = "contactDataSet")

@@ -7,14 +7,14 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Class;
 import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.sources.AdminInfo;
-import org.openlca.ilcd.sources.DataEntry;
+import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.DigitalFileRef;
-import org.openlca.ilcd.sources.Publication;
 import org.openlca.ilcd.sources.Source;
 
 public class SourceBag implements IBag<Source> {

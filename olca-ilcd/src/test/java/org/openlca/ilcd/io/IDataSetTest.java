@@ -10,6 +10,7 @@ import javax.xml.bind.JAXB;
 import org.junit.Test;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
+import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.sources.Source;
 
 public class IDataSetTest {
@@ -21,6 +22,17 @@ public class IDataSetTest {
 			assertEquals("00.00", ds.getVersion());
 			assertEquals(DataSetType.SOURCE, ds.getDataSetType());
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_source.xml",
+					ds.getURI().trim());
+		});
+	}
+
+	@Test
+	public void testContact() throws Exception {
+		with("sdk_sample_contact.xml", Contact.class, ds -> {
+			assertEquals("00000000-0000-0000-0000-000000000000", ds.getUUID());
+			assertEquals("00.00", ds.getVersion());
+			assertEquals(DataSetType.CONTACT, ds.getDataSetType());
+			assertEquals("http://www.ilcd-network.org/data/processes/sample_contact.xml",
 					ds.getURI().trim());
 		});
 	}
