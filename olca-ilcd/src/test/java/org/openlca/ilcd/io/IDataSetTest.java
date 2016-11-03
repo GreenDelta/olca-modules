@@ -73,6 +73,17 @@ public class IDataSetTest {
 		});
 	}
 
+	@Test
+	public void testProcess() throws Exception {
+		with("sdk_sample_process.xml", org.openlca.ilcd.processes.Process.class, ds -> {
+			assertEquals("00000000-0000-0000-0000-000000000000", ds.getUUID());
+			assertEquals("00.00", ds.getVersion());
+			assertEquals(DataSetType.PROCESS, ds.getDataSetType());
+			assertEquals("http://www.ilcd-network.org/data/processes/sample_process.xml",
+					ds.getURI().trim());
+		});
+	}
+
 	private void with(String xml, Class<?> type, Consumer<IDataSet> fn)
 			throws Exception {
 		try (InputStream is = getClass().getResourceAsStream(xml)) {
