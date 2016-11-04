@@ -24,7 +24,7 @@ public class CommissionerAndGoal implements Serializable {
 	private final static long serialVersionUID = 1L;
 
 	@XmlElement(name = "referenceToCommissioner")
-	public final List<DataSetReference> commissioners = new ArrayList<>();
+	public final List<Ref> commissioners = new ArrayList<>();
 
 	@Label
 	public final List<LangString> project = new ArrayList<>();
@@ -40,7 +40,7 @@ public class CommissionerAndGoal implements Serializable {
 	@Override
 	public CommissionerAndGoal clone() {
 		CommissionerAndGoal clone = new CommissionerAndGoal();
-		DataSetReference.copy(commissioners, clone.commissioners);
+		Ref.copy(commissioners, clone.commissioners);
 		LangString.copy(project, clone.project);
 		LangString.copy(intendedApplications, clone.intendedApplications);
 		if (other != null)

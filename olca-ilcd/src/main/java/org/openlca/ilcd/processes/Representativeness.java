@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.annotations.FreeText;
@@ -67,10 +67,10 @@ public class Representativeness implements Serializable {
 	public final List<LangString> datatTreatmentComment = new ArrayList<>();
 
 	@XmlElement(name = "referenceToDataHandlingPrinciples")
-	public final List<DataSetReference> dataHandlingSources = new ArrayList<>();
+	public final List<Ref> dataHandlingSources = new ArrayList<>();
 
 	@XmlElement(name = "referenceToDataSource")
-	public final List<DataSetReference> sources = new ArrayList<>();
+	public final List<Ref> sources = new ArrayList<>();
 
 	@XmlElement(name = "percentageSupplyOrProductionCovered")
 	public Double coveredProduction;
@@ -110,8 +110,8 @@ public class Representativeness implements Serializable {
 		LangString.copy(dataSelectionComment, clone.dataSelectionComment);
 		LangString.copy(dataTreatment, clone.dataTreatment);
 		LangString.copy(datatTreatmentComment, clone.datatTreatmentComment);
-		DataSetReference.copy(dataHandlingSources, clone.dataHandlingSources);
-		DataSetReference.copy(sources, clone.sources);
+		Ref.copy(dataHandlingSources, clone.dataHandlingSources);
+		Ref.copy(sources, clone.sources);
 		clone.coveredProduction = coveredProduction;
 		LangString.copy(productionVolume, clone.productionVolume);
 		LangString.copy(samplingProcedure, clone.samplingProcedure);

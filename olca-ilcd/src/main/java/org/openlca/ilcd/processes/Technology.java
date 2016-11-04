@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.annotations.FreeText;
@@ -37,17 +37,17 @@ public class Technology implements Serializable {
 	public final List<LangString> description = new ArrayList<>();
 
 	@XmlElement(name = "referenceToIncludedProcesses")
-	public final List<DataSetReference> includedProcesses = new ArrayList<>();
+	public final List<Ref> includedProcesses = new ArrayList<>();
 
 	@FreeText
 	@XmlElement(name = "technologicalApplicability")
 	public final List<LangString> applicability = new ArrayList<>();
 
 	@XmlElement(name = "referenceToTechnologyPictogramme")
-	public DataSetReference pictogram;
+	public Ref pictogram;
 
 	@XmlElement(name = "referenceToTechnologyFlowDiagrammOrPicture")
-	public final List<DataSetReference> pictures = new ArrayList<>();
+	public final List<Ref> pictures = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -59,11 +59,11 @@ public class Technology implements Serializable {
 	public Technology clone() {
 		Technology clone = new Technology();
 		LangString.copy(description, clone.description);
-		DataSetReference.copy(includedProcesses, clone.includedProcesses);
+		Ref.copy(includedProcesses, clone.includedProcesses);
 		LangString.copy(applicability, clone.applicability);
 		if (pictogram != null)
 			clone.pictogram = pictogram.clone();
-		DataSetReference.copy(pictures, clone.pictures);
+		Ref.copy(pictures, clone.pictures);
 		if (other != null)
 			clone.other = other.clone();
 		clone.otherAttributes.putAll(otherAttributes);

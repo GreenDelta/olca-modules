@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.PublicationStatus;
@@ -44,16 +44,16 @@ public class Publication
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", required = true)
 	protected String dataSetVersion;
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	protected List<DataSetReference> referenceToPrecedingDataSetVersion;
+	protected List<Ref> referenceToPrecedingDataSetVersion;
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	@XmlSchemaType(name = "anyURI")
 	protected String permanentDataSetURI;
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected PublicationStatus workflowAndPublicationStatus;
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	protected DataSetReference referenceToUnchangedRepublication;
+	protected Ref referenceToUnchangedRepublication;
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	protected DataSetReference referenceToOwnershipOfDataSet;
+	protected Ref referenceToOwnershipOfDataSet;
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected Boolean copyright;
 
@@ -129,11 +129,11 @@ public class Publication
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToPrecedingDataSetVersion() {
+	public List<Ref> getReferenceToPrecedingDataSetVersion() {
 		if (referenceToPrecedingDataSetVersion == null) {
 			referenceToPrecedingDataSetVersion = new ArrayList<>();
 		}
@@ -185,10 +185,10 @@ public class Publication
 	/**
 	 * Gets the value of the referenceToUnchangedRepublication property.
 	 * 
-	 * @return possible object is {@link DataSetReference }
+	 * @return possible object is {@link Ref }
 	 * 
 	 */
-	public DataSetReference getReferenceToUnchangedRepublication() {
+	public Ref getReferenceToUnchangedRepublication() {
 		return referenceToUnchangedRepublication;
 	}
 
@@ -196,10 +196,10 @@ public class Publication
 	 * Sets the value of the referenceToUnchangedRepublication property.
 	 * 
 	 * @param value
-	 *            allowed object is {@link DataSetReference }
+	 *            allowed object is {@link Ref }
 	 * 
 	 */
-	public void setReferenceToUnchangedRepublication(DataSetReference value) {
+	public void setReferenceToUnchangedRepublication(Ref value) {
 		this.referenceToUnchangedRepublication = value;
 	}
 
@@ -207,10 +207,10 @@ public class Publication
 	 * "Contact data set" of the person or entity who owns this data set. (Note:
 	 * this is not necessarily the publisher of the data set.)
 	 * 
-	 * @return possible object is {@link DataSetReference }
+	 * @return possible object is {@link Ref }
 	 * 
 	 */
-	public DataSetReference getReferenceToOwnershipOfDataSet() {
+	public Ref getReferenceToOwnershipOfDataSet() {
 		return referenceToOwnershipOfDataSet;
 	}
 
@@ -218,10 +218,10 @@ public class Publication
 	 * Sets the value of the referenceToOwnershipOfDataSet property.
 	 * 
 	 * @param value
-	 *            allowed object is {@link DataSetReference }
+	 *            allowed object is {@link Ref }
 	 * 
 	 */
-	public void setReferenceToOwnershipOfDataSet(DataSetReference value) {
+	public void setReferenceToOwnershipOfDataSet(Ref value) {
 		this.referenceToOwnershipOfDataSet = value;
 	}
 

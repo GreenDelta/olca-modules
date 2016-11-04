@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
@@ -62,7 +62,7 @@ public class Method implements Serializable {
 	public final List<LangString> constantsComment = new ArrayList<>();
 
 	@XmlElement(name = "referenceToLCAMethodDetails")
-	public final List<DataSetReference> methodSources = new ArrayList<>();
+	public final List<Ref> methodSources = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -81,7 +81,7 @@ public class Method implements Serializable {
 		LangString.copy(approachComment, clone.approachComment);
 		LangString.copy(constants, clone.constants);
 		LangString.copy(constantsComment, clone.constantsComment);
-		DataSetReference.copy(methodSources, clone.methodSources);
+		Ref.copy(methodSources, clone.methodSources);
 		if (other != null)
 			clone.other = other.clone();
 		clone.otherAttributes.putAll(otherAttributes);

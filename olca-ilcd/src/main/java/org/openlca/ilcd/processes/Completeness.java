@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.FlowCompleteness;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
@@ -34,7 +34,7 @@ public class Completeness implements Serializable {
 	public FlowCompleteness type;
 
 	@XmlElement(name = "referenceToSupportedImpactAssessmentMethods")
-	public final List<DataSetReference> supportedImpactMethods = new ArrayList<>();
+	public final List<Ref> supportedImpactMethods = new ArrayList<>();
 
 	@XmlElement(name = "completenessElementaryFlows")
 	public final List<FlowCompletenessEntry> entries = new ArrayList<>();
@@ -53,7 +53,7 @@ public class Completeness implements Serializable {
 	public Completeness clone() {
 		Completeness clone = new Completeness();
 		clone.type = type;
-		DataSetReference.copy(supportedImpactMethods, clone.supportedImpactMethods);
+		Ref.copy(supportedImpactMethods, clone.supportedImpactMethods);
 		for (FlowCompletenessEntry e : entries) {
 			if (e == null)
 				continue;

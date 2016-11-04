@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LCIAMethodPrinciple;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.TypeOfLCIAMethod;
@@ -38,21 +38,21 @@ public class NormalisationAndWeighting implements Serializable {
 
 	protected Boolean normalisation;
 
-	protected List<DataSetReference> referenceToUsableNormalisationDataSets;
+	protected List<Ref> referenceToUsableNormalisationDataSets;
 
 	@ShortText
 	protected List<LangString> normalisationDescription;
 
-	protected List<DataSetReference> referenceToIncludedNormalisationDataSets;
+	protected List<Ref> referenceToIncludedNormalisationDataSets;
 
 	protected Boolean weighting;
 
-	protected List<DataSetReference> referenceToUsableWeightingDataSets;
+	protected List<Ref> referenceToUsableWeightingDataSets;
 
 	@ShortText
 	protected List<LangString> weightingDescription;
 
-	protected List<DataSetReference> referenceToIncludedWeightingDataSets;
+	protected List<Ref> referenceToIncludedWeightingDataSets;
 
 	/**
 	 * Gets the value of the typeOfDataSet property.
@@ -177,11 +177,11 @@ public class NormalisationAndWeighting implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToUsableNormalisationDataSets() {
+	public List<Ref> getReferenceToUsableNormalisationDataSets() {
 		if (referenceToUsableNormalisationDataSets == null) {
 			referenceToUsableNormalisationDataSets = new ArrayList<>();
 		}
@@ -238,11 +238,11 @@ public class NormalisationAndWeighting implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToIncludedNormalisationDataSets() {
+	public List<Ref> getReferenceToIncludedNormalisationDataSets() {
 		if (referenceToIncludedNormalisationDataSets == null) {
 			referenceToIncludedNormalisationDataSets = new ArrayList<>();
 		}
@@ -290,11 +290,11 @@ public class NormalisationAndWeighting implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToUsableWeightingDataSets() {
+	public List<Ref> getReferenceToUsableWeightingDataSets() {
 		if (referenceToUsableWeightingDataSets == null) {
 			referenceToUsableWeightingDataSets = new ArrayList<>();
 		}
@@ -351,11 +351,11 @@ public class NormalisationAndWeighting implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToIncludedWeightingDataSets() {
+	public List<Ref> getReferenceToIncludedWeightingDataSets() {
 		if (referenceToIncludedWeightingDataSets == null) {
 			referenceToIncludedWeightingDataSets = new ArrayList<>();
 		}

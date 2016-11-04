@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Other;
 
 
@@ -47,7 +47,7 @@ public class DataSourceList
 {
 
     private final static long serialVersionUID = 1L;
-    protected List<DataSetReference> referenceToDataSource;
+    protected List<Ref> referenceToDataSource;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected Other other;
     @XmlAnyAttribute
@@ -71,11 +71,11 @@ public class DataSourceList
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link DataSetReference }
+     * {@link Ref }
      * 
      * 
      */
-    public List<DataSetReference> getReferenceToDataSource() {
+    public List<Ref> getReferenceToDataSource() {
         if (referenceToDataSource == null) {
             referenceToDataSource = new ArrayList<>();
         }

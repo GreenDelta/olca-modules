@@ -101,11 +101,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link DataSetReference }
+	 * Create an instance of {@link Ref }
 	 * 
 	 */
-	public DataSetReference createDataSetReference() {
-		return new DataSetReference();
+	public Ref createDataSetReference() {
+		return new Ref();
 	}
 
 	/**
@@ -204,39 +204,39 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link DataSetReference }{@code >}
+	 * {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToOwnershipOfDataSet")
-	public JAXBElement<DataSetReference> createReferenceToOwnershipOfDataSet(
-			DataSetReference value) {
+	public JAXBElement<Ref> createReferenceToOwnershipOfDataSet(
+			Ref value) {
 		return new JAXBElement<>(_ReferenceToOwnershipOfDataSet_QNAME,
-				DataSetReference.class, null, value);
+				Ref.class, null, value);
 	}
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link DataSetReference }{@code >}
+	 * {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToRegistrationAuthority")
-	public JAXBElement<DataSetReference> createReferenceToRegistrationAuthority(
-			DataSetReference value) {
+	public JAXBElement<Ref> createReferenceToRegistrationAuthority(
+			Ref value) {
 		return new JAXBElement<>(_ReferenceToRegistrationAuthority_QNAME,
-				DataSetReference.class, null, value);
+				Ref.class, null, value);
 	}
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link DataSetReference }{@code >}
+	 * {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToConvertedOriginalDataSetFrom")
-	public JAXBElement<DataSetReference> createReferenceToConvertedOriginalDataSetFrom(
-			DataSetReference value) {
+	public JAXBElement<Ref> createReferenceToConvertedOriginalDataSetFrom(
+			Ref value) {
 		return new JAXBElement<>(
 				_ReferenceToConvertedOriginalDataSetFrom_QNAME,
-				DataSetReference.class, null, value);
+				Ref.class, null, value);
 	}
 
 	/**
@@ -284,14 +284,14 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link DataSetReference }{@code >}
+	 * {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToRawDataDocumentation")
-	public JAXBElement<DataSetReference> createReferenceToRawDataDocumentation(
-			DataSetReference value) {
+	public JAXBElement<Ref> createReferenceToRawDataDocumentation(
+			Ref value) {
 		return new JAXBElement<>(_ReferenceToRawDataDocumentation_QNAME,
-				DataSetReference.class, null, value);
+				Ref.class, null, value);
 	}
 
 	/**
@@ -306,15 +306,15 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link DataSetReference }{@code >}
+	 * {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToPersonOrEntityGeneratingTheDataSet")
-	public JAXBElement<DataSetReference> createReferenceToPersonOrEntityGeneratingTheDataSet(
-			DataSetReference value) {
+	public JAXBElement<Ref> createReferenceToPersonOrEntityGeneratingTheDataSet(
+			Ref value) {
 		return new JAXBElement<>(
 				_ReferenceToPersonOrEntityGeneratingTheDataSet_QNAME,
-				DataSetReference.class, null, value);
+				Ref.class, null, value);
 	}
 
 	/**
@@ -429,14 +429,14 @@ public class ObjectFactory {
 
 	/**
 	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link DataSetReference }{@code >}
+	 * {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToDataSetUseApproval")
-	public JAXBElement<DataSetReference> createReferenceToDataSetUseApproval(
-			DataSetReference value) {
+	public JAXBElement<Ref> createReferenceToDataSetUseApproval(
+			Ref value) {
 		return new JAXBElement<>(_ReferenceToDataSetUseApproval_QNAME,
-				DataSetReference.class, null, value);
+				Ref.class, null, value);
 	}
 
 }

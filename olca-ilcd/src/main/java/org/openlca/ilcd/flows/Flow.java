@@ -19,6 +19,7 @@ import javax.xml.namespace.QName;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -92,5 +93,15 @@ public class Flow implements IDataSet {
 		if (info == null)
 			return Collections.emptyList();
 		return info.classifications;
+	}
+
+	@Override
+	public List<LangString> getName() {
+		if (flowInfo == null || flowInfo.dataSetInfo == null)
+			return Collections.emptyList();
+		FlowName name = flowInfo.dataSetInfo.name;
+		if (name == null)
+			return Collections.emptyList();
+		return name.baseName;
 	}
 }

@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Other;
 
 
@@ -58,11 +58,11 @@ public class DataEntry
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected XMLGregorianCalendar timeStamp;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-    protected List<DataSetReference> referenceToDataSetFormat;
+    protected List<Ref> referenceToDataSetFormat;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-    protected DataSetReference referenceToConvertedOriginalDataSetFrom;
+    protected Ref referenceToConvertedOriginalDataSetFrom;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-    protected DataSetReference referenceToPersonOrEntityEnteringTheData;
+    protected Ref referenceToPersonOrEntityEnteringTheData;
     protected Recommendation recommendationBy;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected Other other;
@@ -111,11 +111,11 @@ public class DataEntry
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link DataSetReference }
+     * {@link Ref }
      * 
      * 
      */
-    public List<DataSetReference> getReferenceToDataSetFormat() {
+    public List<Ref> getReferenceToDataSetFormat() {
         if (referenceToDataSetFormat == null) {
             referenceToDataSetFormat = new ArrayList<>();
         }
@@ -131,10 +131,10 @@ public class DataEntry
      * 
      * @return
      *     possible object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public DataSetReference getReferenceToConvertedOriginalDataSetFrom() {
+    public Ref getReferenceToConvertedOriginalDataSetFrom() {
         return referenceToConvertedOriginalDataSetFrom;
     }
 
@@ -143,10 +143,10 @@ public class DataEntry
      * 
      * @param value
      *     allowed object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public void setReferenceToConvertedOriginalDataSetFrom(DataSetReference value) {
+    public void setReferenceToConvertedOriginalDataSetFrom(Ref value) {
         this.referenceToConvertedOriginalDataSetFrom = value;
     }
 
@@ -155,10 +155,10 @@ public class DataEntry
      * 
      * @return
      *     possible object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public DataSetReference getReferenceToPersonOrEntityEnteringTheData() {
+    public Ref getReferenceToPersonOrEntityEnteringTheData() {
         return referenceToPersonOrEntityEnteringTheData;
     }
 
@@ -167,10 +167,10 @@ public class DataEntry
      * 
      * @param value
      *     allowed object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public void setReferenceToPersonOrEntityEnteringTheData(DataSetReference value) {
+    public void setReferenceToPersonOrEntityEnteringTheData(Ref value) {
         this.referenceToPersonOrEntityEnteringTheData = value;
     }
 

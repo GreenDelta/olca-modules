@@ -18,6 +18,7 @@ import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -76,6 +77,13 @@ public class Contact implements IDataSet {
 		if (contactInfo == null || contactInfo.dataSetInfo == null)
 			return Collections.emptyList();
 		return contactInfo.dataSetInfo.classifications;
+	}
+
+	@Override
+	public List<LangString> getName() {
+		if (contactInfo == null || contactInfo.dataSetInfo == null)
+			return Collections.emptyList();
+		return contactInfo.dataSetInfo.name;
 	}
 
 }

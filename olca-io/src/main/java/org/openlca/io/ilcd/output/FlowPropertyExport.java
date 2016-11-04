@@ -5,7 +5,7 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
@@ -66,7 +66,7 @@ public class FlowPropertyExport {
 	private QuantitativeReference makeUnitGroupRef() {
 		QuantitativeReference qRef = new QuantitativeReference();
 		UnitGroup unitGroup = flowProperty.getUnitGroup();
-		DataSetReference ref = ExportDispatch.forwardExportCheck(unitGroup,
+		Ref ref = ExportDispatch.forwardExportCheck(unitGroup,
 				config);
 		qRef.unitGroup = ref;
 		return qRef;

@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.annotations.FreeText;
@@ -67,7 +67,7 @@ public class DataSetInfo implements Serializable {
 
 	@XmlElementWrapper(name = "complementingProcesses")
 	@XmlElement(name = "referenceToComplementingProcess", required = true)
-	public DataSetReference[] complementingProcesses;
+	public Ref[] complementingProcesses;
 
 	@XmlElementWrapper(name = "classificationInformation")
 	@XmlElement(name = "classification", namespace = "http://lca.jrc.it/ILCD/Common")
@@ -78,7 +78,7 @@ public class DataSetInfo implements Serializable {
 	public final List<LangString> comment = new ArrayList<>();
 
 	@XmlElement(name = "referenceToExternalDocumentation")
-	public final List<DataSetReference> externalDocs = new ArrayList<>();
+	public final List<Ref> externalDocs = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -95,9 +95,9 @@ public class DataSetInfo implements Serializable {
 		clone.subIdentifier = subIdentifier;
 		LangString.copy(synonyms, clone.synonyms);
 		if (complementingProcesses != null) {
-			clone.complementingProcesses = new DataSetReference[complementingProcesses.length];
+			clone.complementingProcesses = new Ref[complementingProcesses.length];
 			for (int i = 0; i < complementingProcesses.length; i++) {
-				DataSetReference p = complementingProcesses[i];
+				Ref p = complementingProcesses[i];
 				if (p == null)
 					continue;
 				clone.complementingProcesses[i] = p.clone();
@@ -109,7 +109,7 @@ public class DataSetInfo implements Serializable {
 			clone.classifications.add(c.clone());
 		}
 		LangString.copy(comment, clone.comment);
-		DataSetReference.copy(externalDocs, clone.externalDocs);
+		Ref.copy(externalDocs, clone.externalDocs);
 		if (other != null)
 			clone.other = other.clone();
 		clone.otherAttributes.putAll(otherAttributes);

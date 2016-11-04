@@ -2,7 +2,7 @@ package org.openlca.io.ilcd.input;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.io.maps.FlowMapEntry;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ class ExchangeFlow {
 
 	public void findOrImport(ImportConfig config) {
 		this.config = config;
-		DataSetReference ref = ilcdExchange.flow;
+		Ref ref = ilcdExchange.flow;
 		if (ref == null) {
 			log.warn("ILCD exchange without flow ID: {}", ilcdExchange);
 			return;

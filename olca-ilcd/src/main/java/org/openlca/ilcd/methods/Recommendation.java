@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.RecommendationLevel;
 import org.openlca.ilcd.commons.annotations.FreeText;
@@ -24,7 +24,7 @@ public class Recommendation
 		implements Serializable {
 
 	private final static long serialVersionUID = 1L;
-	protected List<DataSetReference> referenceToEntity;
+	protected List<Ref> referenceToEntity;
 	protected RecommendationLevel level;
 
 	@FreeText
@@ -49,11 +49,11 @@ public class Recommendation
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToEntity() {
+	public List<Ref> getReferenceToEntity() {
 		if (referenceToEntity == null) {
 			referenceToEntity = new ArrayList<>();
 		}

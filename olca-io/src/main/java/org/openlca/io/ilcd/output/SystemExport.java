@@ -7,7 +7,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
@@ -81,7 +81,7 @@ public class SystemExport {
 		for (Long processId : system.getProcesses()) {
 			org.openlca.core.model.Process proc = processDao
 					.getForId(processId);
-			DataSetReference ref = ExportDispatch.forwardExportCheck(proc,
+			Ref ref = ExportDispatch.forwardExportCheck(proc,
 					config);
 			ProcessNode node = new ProcessNode();
 			node.setId(proc.getRefId());
@@ -138,7 +138,7 @@ public class SystemExport {
 		process.exchanges.add(exchange);
 		exchange.id = 1;
 		exchange.exchangeDirection = ExchangeDirection.OUTPUT;
-		DataSetReference flowRef = ExportDispatch.forwardExportCheck(
+		Ref flowRef = ExportDispatch.forwardExportCheck(
 				refExchange.getFlow(), config);
 		exchange.flow = flowRef;
 		double refAmount = ReferenceAmount.get(system);

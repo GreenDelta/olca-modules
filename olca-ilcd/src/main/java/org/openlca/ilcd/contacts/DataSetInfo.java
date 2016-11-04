@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.annotations.Label;
@@ -65,10 +65,10 @@ public class DataSetInfo implements Serializable {
 	public final List<LangString> description = new ArrayList<>();
 
 	@XmlElement(name = "referenceToContact")
-	public final List<DataSetReference> belongsTo = new ArrayList<>();
+	public final List<Ref> belongsTo = new ArrayList<>();
 
 	@XmlElement(name = "referenceToLogo")
-	public DataSetReference logo;
+	public Ref logo;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

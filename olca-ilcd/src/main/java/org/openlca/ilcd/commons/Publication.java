@@ -31,14 +31,14 @@ public class Publication implements Serializable {
 	public String version;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToPrecedingDataSetVersion")
-	public final List<DataSetReference> precedingVersions = new ArrayList<>();
+	public final List<Ref> precedingVersions = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "permanentDataSetURI")
 	@XmlSchemaType(name = "anyURI")
 	public String uri;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToOwnershipOfDataSet")
-	public DataSetReference owner;
+	public Ref owner;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

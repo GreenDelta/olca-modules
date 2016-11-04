@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataDerivation;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.ExchangeFunction;
 import org.openlca.ilcd.commons.LangString;
@@ -40,7 +40,7 @@ public class Exchange implements Serializable {
 	public int id;
 
 	@XmlElement(name = "referenceToFlowDataSet", required = true)
-	public DataSetReference flow;
+	public Ref flow;
 
 	public String location;
 

@@ -12,7 +12,7 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.util.FlowBag;
@@ -185,7 +185,7 @@ public class FlowImport {
 
 	private void validateInput() throws ImportException {
 		Integer internalId = ilcdFlow.getReferenceFlowPropertyId();
-		DataSetReference propRef = null;
+		Ref propRef = null;
 		for (FlowPropertyRef prop : ilcdFlow.getFlowPropertyReferences()) {
 			Integer propId = prop.dataSetInternalID;
 			if (propId == null || internalId == null)

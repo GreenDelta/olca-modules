@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.LicenseType;
 import org.openlca.ilcd.commons.Other;
@@ -51,7 +51,7 @@ public class Publication implements Serializable {
 	public String version;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToPrecedingDataSetVersion")
-	public final List<DataSetReference> precedingVersions = new ArrayList<>();
+	public final List<Ref> precedingVersions = new ArrayList<>();
 
 	@XmlSchemaType(name = "anyURI")
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "permanentDataSetURI")
@@ -61,22 +61,22 @@ public class Publication implements Serializable {
 	public PublicationStatus status;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToUnchangedRepublication")
-	public DataSetReference republication;
+	public Ref republication;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToRegistrationAuthority")
-	public DataSetReference registrationAuthority;
+	public Ref registrationAuthority;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public String registrationNumber;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToOwnershipOfDataSet")
-	public DataSetReference owner;
+	public Ref owner;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Boolean copyright;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToEntitiesWithExclusiveAccess")
-	public final List<DataSetReference> entitiesWithExclusiveAccess = new ArrayList<>();
+	public final List<Ref> entitiesWithExclusiveAccess = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "licenseType")
 	public LicenseType license;
@@ -96,7 +96,7 @@ public class Publication implements Serializable {
 		Publication clone = new Publication();
 		clone.lastRevision = lastRevision;
 		clone.version = version;
-		DataSetReference.copy(precedingVersions, clone.precedingVersions);
+		Ref.copy(precedingVersions, clone.precedingVersions);
 		clone.uri = uri;
 		clone.status = status;
 		if (republication != null)
@@ -107,7 +107,7 @@ public class Publication implements Serializable {
 		if (owner != null)
 			clone.owner = owner.clone();
 		clone.copyright = copyright;
-		DataSetReference.copy(entitiesWithExclusiveAccess, clone.entitiesWithExclusiveAccess);
+		Ref.copy(entitiesWithExclusiveAccess, clone.entitiesWithExclusiveAccess);
 		clone.license = license;
 		LangString.copy(accessRestrictions, clone.accessRestrictions);
 		if (other != null)

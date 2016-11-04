@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataDerivation;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
@@ -45,7 +45,7 @@ public class Factor implements Serializable {
 	private final static long serialVersionUID = 1L;
 
 	@XmlElement(required = true)
-	protected DataSetReference referenceToFlowDataSet;
+	protected Ref referenceToFlowDataSet;
 
 	protected String location;
 
@@ -80,10 +80,10 @@ public class Factor implements Serializable {
 	/**
 	 * Gets the value of the referenceToFlowDataSet property.
 	 * 
-	 * @return possible object is {@link DataSetReference }
+	 * @return possible object is {@link Ref }
 	 * 
 	 */
-	public DataSetReference getReferenceToFlowDataSet() {
+	public Ref getReferenceToFlowDataSet() {
 		return referenceToFlowDataSet;
 	}
 
@@ -91,10 +91,10 @@ public class Factor implements Serializable {
 	 * Sets the value of the referenceToFlowDataSet property.
 	 * 
 	 * @param value
-	 *            allowed object is {@link DataSetReference }
+	 *            allowed object is {@link Ref }
 	 * 
 	 */
-	public void setReferenceToFlowDataSet(DataSetReference value) {
+	public void setReferenceToFlowDataSet(Ref value) {
 		this.referenceToFlowDataSet = value;
 	}
 

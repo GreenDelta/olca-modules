@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Other;
 
 
@@ -46,7 +46,7 @@ public class QuantitativeReference
 
     private final static long serialVersionUID = 1L;
     @XmlElement(required = true)
-    protected DataSetReference referenceQuantity;
+    protected Ref referenceQuantity;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected Other other;
     @XmlAnyAttribute
@@ -57,10 +57,10 @@ public class QuantitativeReference
      * 
      * @return
      *     possible object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public DataSetReference getReferenceQuantity() {
+    public Ref getReferenceQuantity() {
         return referenceQuantity;
     }
 
@@ -69,10 +69,10 @@ public class QuantitativeReference
      * 
      * @param value
      *     allowed object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public void setReferenceQuantity(DataSetReference value) {
+    public void setReferenceQuantity(Ref value) {
         this.referenceQuantity = value;
     }
 

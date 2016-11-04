@@ -8,7 +8,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.DataEntry;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
@@ -53,7 +53,7 @@ public class FlowPropertyBag implements IBag<FlowProperty> {
 		return ClassList.sortedList(flowProperty);
 	}
 
-	public DataSetReference getUnitGroupReference() {
+	public Ref getUnitGroupReference() {
 		FlowPropertyInfo info = flowProperty.flowPropertyInfo;
 		if (info != null) {
 			QuantitativeReference qRef = info.quantitativeReference;

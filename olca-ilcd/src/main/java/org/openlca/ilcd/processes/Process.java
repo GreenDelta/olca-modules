@@ -18,6 +18,7 @@ import javax.xml.namespace.QName;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -91,5 +92,15 @@ public class Process implements IDataSet {
 		if (processInfo == null || processInfo.dataSetInfo == null)
 			return Collections.emptyList();
 		return processInfo.dataSetInfo.classifications;
+	}
+
+	@Override
+	public List<LangString> getName() {
+		if (processInfo == null || processInfo.dataSetInfo == null)
+			return Collections.emptyList();
+		ProcessName name = processInfo.dataSetInfo.name;
+		if (name == null)
+			return Collections.emptyList();
+		return name.name;
 	}
 }

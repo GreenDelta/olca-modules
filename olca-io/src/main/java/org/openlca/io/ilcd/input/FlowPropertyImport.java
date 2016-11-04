@@ -9,7 +9,7 @@ import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.util.FlowPropertyBag;
 
 public class FlowPropertyImport {
@@ -90,7 +90,7 @@ public class FlowPropertyImport {
 	}
 
 	private void validateInput() throws ImportException {
-		DataSetReference unitGroupRef = ilcdProperty.getUnitGroupReference();
+		Ref unitGroupRef = ilcdProperty.getUnitGroupReference();
 		if (unitGroupRef == null || unitGroupRef.uuid == null) {
 			String message = "Invalid input: flow property data set.";
 			throw new ImportException(message);
@@ -110,7 +110,7 @@ public class FlowPropertyImport {
 	}
 
 	private void createUnitGroupReference() throws ImportException {
-		DataSetReference unitGroupRef = ilcdProperty.getUnitGroupReference();
+		Ref unitGroupRef = ilcdProperty.getUnitGroupReference();
 		if (unitGroupRef != null) {
 			UnitGroupImport unitGroupImport = new UnitGroupImport(config);
 			UnitGroup unitGroup = unitGroupImport.run(unitGroupRef.uuid);

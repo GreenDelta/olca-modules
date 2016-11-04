@@ -16,7 +16,7 @@ import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.AreaOfProtection;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.annotations.FreeText;
@@ -54,7 +54,7 @@ public class DataSetInformation implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected List<LangString> generalComment;
 
-	protected List<DataSetReference> referenceToExternalDocumentation;
+	protected List<Ref> referenceToExternalDocumentation;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected Other other;
@@ -284,11 +284,11 @@ public class DataSetInformation implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToExternalDocumentation() {
+	public List<Ref> getReferenceToExternalDocumentation() {
 		if (referenceToExternalDocumentation == null) {
 			referenceToExternalDocumentation = new ArrayList<>();
 		}

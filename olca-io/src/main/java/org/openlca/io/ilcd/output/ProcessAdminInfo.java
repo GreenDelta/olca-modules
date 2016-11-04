@@ -11,7 +11,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.DataEntry;
@@ -52,7 +52,7 @@ class ProcessAdminInfo {
 		dataEntry.formats.add(
 				Reference.forIlcdFormat());
 		if (documentation.getDataDocumentor() != null) {
-			DataSetReference ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExportCheck(
 					documentation.getDataDocumentor(), config);
 			if (ref != null) {
 				dataEntry.documentor = ref;
@@ -64,7 +64,7 @@ class ProcessAdminInfo {
 		if (documentation.getDataGenerator() != null) {
 			DataGenerator generator = new DataGenerator();
 			iAdminInfo.dataGenerator = generator;
-			DataSetReference ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExportCheck(
 					documentation.getDataGenerator(), config);
 			if (ref != null)
 				generator.contacts.add(ref);
@@ -105,7 +105,7 @@ class ProcessAdminInfo {
 
 	private void mapDataSetOwner(Publication publication) {
 		if (documentation.getDataSetOwner() != null) {
-			DataSetReference ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExportCheck(
 					documentation.getDataSetOwner(), config);
 			if (ref != null) {
 				publication.owner = ref;
@@ -117,7 +117,7 @@ class ProcessAdminInfo {
 		Source source = documentation.getPublication();
 		if (source == null)
 			return;
-		DataSetReference ref = ExportDispatch
+		Ref ref = ExportDispatch
 				.forwardExportCheck(source, config);
 		if (ref != null)
 			publication.republication = ref;

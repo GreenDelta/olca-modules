@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -24,7 +24,7 @@ public class Representativeness implements Serializable {
 	private final static long serialVersionUID = 1L;
 
 	@XmlElement(name = "referenceToDataSource")
-	public final List<DataSetReference> dataSource = new ArrayList<>();
+	public final List<Ref> dataSource = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

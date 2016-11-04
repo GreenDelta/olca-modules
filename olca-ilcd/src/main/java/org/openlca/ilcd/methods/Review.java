@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ReviewType;
@@ -34,14 +34,14 @@ public class Review implements Serializable {
 	protected List<LangString> reviewDetails;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	protected List<DataSetReference> referenceToNameOfReviewerAndInstitution;
+	protected List<Ref> referenceToNameOfReviewerAndInstitution;
 
 	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected List<LangString> otherReviewDetails;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	protected DataSetReference referenceToCompleteReviewReport;
+	protected Ref referenceToCompleteReviewReport;
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected Other other;
 	@XmlAttribute(name = "type", required = true)
@@ -140,11 +140,11 @@ public class Review implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToNameOfReviewerAndInstitution() {
+	public List<Ref> getReferenceToNameOfReviewerAndInstitution() {
 		if (referenceToNameOfReviewerAndInstitution == null) {
 			referenceToNameOfReviewerAndInstitution = new ArrayList<>();
 		}
@@ -184,10 +184,10 @@ public class Review implements Serializable {
 	/**
 	 * Gets the value of the referenceToCompleteReviewReport property.
 	 * 
-	 * @return possible object is {@link DataSetReference }
+	 * @return possible object is {@link Ref }
 	 * 
 	 */
-	public DataSetReference getReferenceToCompleteReviewReport() {
+	public Ref getReferenceToCompleteReviewReport() {
 		return referenceToCompleteReviewReport;
 	}
 
@@ -195,10 +195,10 @@ public class Review implements Serializable {
 	 * Sets the value of the referenceToCompleteReviewReport property.
 	 * 
 	 * @param value
-	 *            allowed object is {@link DataSetReference }
+	 *            allowed object is {@link Ref }
 	 * 
 	 */
-	public void setReferenceToCompleteReviewReport(DataSetReference value) {
+	public void setReferenceToCompleteReviewReport(Ref value) {
 		this.referenceToCompleteReviewReport = value;
 	}
 

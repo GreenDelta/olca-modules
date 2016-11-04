@@ -9,7 +9,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.methods.DataSetInformation;
@@ -72,7 +72,7 @@ public class ImpactMethodExport {
 			list.getFactor().add(ilcdFactor);
 			// TODO: uncertainty values + formulas
 			ilcdFactor.setMeanValue(getRefAmount(olcaFactor));
-			DataSetReference ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExportCheck(
 					olcaFactor.getFlow(), config);
 			ilcdFactor.setReferenceToFlowDataSet(ref);
 		}

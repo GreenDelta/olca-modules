@@ -7,7 +7,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.contacts.Contact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ class ExportDispatch {
 	 * Runs an export of the given model to the ILCD data store and returns the
 	 * data set reference to the exported model in the store.
 	 */
-	public static DataSetReference forwardExportCheck(CategorizedEntity model,
+	public static Ref forwardExportCheck(CategorizedEntity model,
 			ExportConfig config) {
 		if (model instanceof Source)
 			return checkRunSourceExort((Source) model, config);
@@ -45,7 +45,7 @@ class ExportDispatch {
 		return null;
 	}
 
-	private static DataSetReference checkRunSourceExort(Source source,
+	private static Ref checkRunSourceExort(Source source,
 			ExportConfig config) {
 		try {
 			if (!config.store.contains(org.openlca.ilcd.sources.Source.class,
@@ -60,7 +60,7 @@ class ExportDispatch {
 		}
 	}
 
-	private static DataSetReference checkRunActorExport(Actor actor,
+	private static Ref checkRunActorExport(Actor actor,
 			ExportConfig config) {
 		try {
 			if (!config.store.contains(Contact.class, actor.getRefId())) {
@@ -74,7 +74,7 @@ class ExportDispatch {
 		}
 	}
 
-	private static DataSetReference checkRunFlowExport(Flow flow,
+	private static Ref checkRunFlowExport(Flow flow,
 			ExportConfig config) {
 		try {
 			if (!config.store.contains(org.openlca.ilcd.flows.Flow.class,
@@ -89,7 +89,7 @@ class ExportDispatch {
 		}
 	}
 
-	private static DataSetReference checkRunFlowPropertyExport(
+	private static Ref checkRunFlowPropertyExport(
 			FlowProperty flowProperty, ExportConfig config) {
 		try {
 			if (!config.store.contains(
@@ -106,7 +106,7 @@ class ExportDispatch {
 		}
 	}
 
-	private static DataSetReference checkRunUnitGroupExport(
+	private static Ref checkRunUnitGroupExport(
 			UnitGroup unitGroup, ExportConfig config) {
 		try {
 			if (!config.store.contains(org.openlca.ilcd.units.UnitGroup.class,
@@ -121,7 +121,7 @@ class ExportDispatch {
 		}
 	}
 
-	private static DataSetReference checkRunProcessExport(Process process,
+	private static Ref checkRunProcessExport(Process process,
 			ExportConfig config) {
 		try {
 			if (!config.store.contains(

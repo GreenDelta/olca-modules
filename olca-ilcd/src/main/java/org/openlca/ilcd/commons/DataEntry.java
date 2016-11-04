@@ -29,7 +29,7 @@ public class DataEntry implements Serializable {
 	public XMLGregorianCalendar timeStamp;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToDataSetFormat")
-	public final List<DataSetReference> formats = new ArrayList<>();
+	public final List<Ref> formats = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

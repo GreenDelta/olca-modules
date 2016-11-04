@@ -16,7 +16,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.processes.DataEntry;
@@ -164,12 +164,12 @@ public class ProcessImport {
 		if (iPublication != null) {
 
 			// data set owner
-			DataSetReference ownerRef = iPublication.owner;
+			Ref ownerRef = iPublication.owner;
 			if (ownerRef != null)
 				doc.setDataSetOwner(fetchActor(ownerRef));
 
 			// publication
-			DataSetReference publicationRef = iPublication.republication;
+			Ref publicationRef = iPublication.republication;
 			if (publicationRef != null)
 				doc.setPublication(fetchSource(publicationRef));
 
@@ -208,10 +208,10 @@ public class ProcessImport {
 
 	private void mapDataGenerator(ProcessDocumentation doc) {
 		if (ilcdProcess.getDataGenerator() != null) {
-			List<DataSetReference> refs = ilcdProcess
+			List<Ref> refs = ilcdProcess
 					.getDataGenerator().contacts;
 			if (refs != null && !refs.isEmpty()) {
-				DataSetReference generatorRef = refs.get(0);
+				Ref generatorRef = refs.get(0);
 				doc.setDataGenerator(fetchActor(generatorRef));
 			}
 		}
@@ -292,8 +292,8 @@ public class ProcessImport {
 	}
 
 	private void addSources(ProcessDocumentation doc) {
-		List<DataSetReference> refs = ilcdProcess.getAllSources();
-		for (DataSetReference ref : refs) {
+		List<Ref> refs = ilcdProcess.getAllSources();
+		for (Ref ref : refs) {
 			if (ref == null)
 				continue;
 			Source source = fetchSource(ref);
@@ -309,14 +309,14 @@ public class ProcessImport {
 			return;
 		Review iReview = ilcdProcess.getReviews().get(0);
 		if (!iReview.reviewers.isEmpty()) {
-			DataSetReference ref = iReview.reviewers.get(0);
+			Ref ref = iReview.reviewers.get(0);
 			doc.setReviewer(fetchActor(ref));
 		}
 		doc.setReviewDetails(LangString.getFirst(iReview.details,
 				config.langs));
 	}
 
-	private Actor fetchActor(DataSetReference reference) {
+	private Actor fetchActor(Ref reference) {
 		if (reference == null)
 			return null;
 		try {
@@ -329,7 +329,7 @@ public class ProcessImport {
 		}
 	}
 
-	private Source fetchSource(DataSetReference reference) {
+	private Source fetchSource(Ref reference) {
 		if (reference == null)
 			return null;
 		try {

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ProcessType;
@@ -233,7 +233,7 @@ public class ProcessBag implements IBag<Process> {
 		return null;
 	}
 
-	public List<DataSetReference> getAllSources() {
+	public List<Ref> getAllSources() {
 		return SourceRefCollection.getAll(process, langs);
 	}
 

@@ -9,7 +9,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.Parameter;
@@ -155,7 +155,7 @@ class ExchangeConversion {
 	private void mapFlow(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		if (oExchange.getFlow() != null) {
-			DataSetReference ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExportCheck(
 					oExchange.getFlow(), config);
 			if (ref != null) {
 				iExchange.flow = ref;

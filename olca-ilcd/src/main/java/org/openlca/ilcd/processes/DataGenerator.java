@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -27,7 +27,7 @@ public class DataGenerator implements Serializable {
 	private final static long serialVersionUID = 1L;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToPersonOrEntityGeneratingTheDataSet")
-	public final List<DataSetReference> contacts = new ArrayList<>();
+	public final List<Ref> contacts = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -38,7 +38,7 @@ public class DataGenerator implements Serializable {
 	@Override
 	public DataGenerator clone() {
 		DataGenerator clone = new DataGenerator();
-		DataSetReference.copy(contacts, clone.contacts);
+		Ref.copy(contacts, clone.contacts);
 		if (other != null)
 			clone.other = other.clone();
 		clone.otherAttributes.putAll(otherAttributes);

@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Other;
 
 
@@ -45,7 +45,7 @@ public class DataSourceReferenceList
 {
 
     private final static long serialVersionUID = 1L;
-    protected DataSetReference referenceToDataSource;
+    protected Ref referenceToDataSource;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected Other other;
     @XmlAnyAttribute
@@ -56,10 +56,10 @@ public class DataSourceReferenceList
      * 
      * @return
      *     possible object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public DataSetReference getReferenceToDataSource() {
+    public Ref getReferenceToDataSource() {
         return referenceToDataSource;
     }
 
@@ -68,10 +68,10 @@ public class DataSourceReferenceList
      * 
      * @param value
      *     allowed object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public void setReferenceToDataSource(DataSetReference value) {
+    public void setReferenceToDataSource(Ref value) {
         this.referenceToDataSource = value;
     }
 

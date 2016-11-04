@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 import org.openlca.ilcd.commons.Compliance;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Other;
 
 
@@ -58,7 +58,7 @@ public class ComplianceDeclaration
 
     private final static long serialVersionUID = 1L;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", required = true)
-    protected DataSetReference referenceToComplianceSystem;
+    protected Ref referenceToComplianceSystem;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected Compliance approvalOfOverallCompliance;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
@@ -81,10 +81,10 @@ public class ComplianceDeclaration
      * 
      * @return
      *     possible object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public DataSetReference getReferenceToComplianceSystem() {
+    public Ref getReferenceToComplianceSystem() {
         return referenceToComplianceSystem;
     }
 
@@ -93,10 +93,10 @@ public class ComplianceDeclaration
      * 
      * @param value
      *     allowed object is
-     *     {@link DataSetReference }
+     *     {@link Ref }
      *     
      */
-    public void setReferenceToComplianceSystem(DataSetReference value) {
+    public void setReferenceToComplianceSystem(Ref value) {
         this.referenceToComplianceSystem = value;
     }
 

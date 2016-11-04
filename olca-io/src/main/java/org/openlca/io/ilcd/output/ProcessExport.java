@@ -11,7 +11,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
@@ -221,7 +221,7 @@ public class ProcessExport {
 
 		// data sources
 		for (Source source : doc.getSources()) {
-			DataSetReference ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExportCheck(
 					source, config);
 			if (ref != null)
 				iRepri.sources.add(ref);
@@ -247,7 +247,7 @@ public class ProcessExport {
 			review.type = ReviewType.NOT_REVIEWED;
 
 			if (doc.getReviewer() != null) {
-				DataSetReference ref = ExportDispatch.forwardExportCheck(
+				Ref ref = ExportDispatch.forwardExportCheck(
 						doc.getReviewer(), config);
 				if (ref != null)
 					review.reviewers.add(ref);

@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Other;
 
 
@@ -48,7 +48,7 @@ public class DataGenerator
 
     private final static long serialVersionUID = 1L;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", required = true)
-    protected List<DataSetReference> referenceToPersonOrEntityGeneratingTheDataSet;
+    protected List<Ref> referenceToPersonOrEntityGeneratingTheDataSet;
     @XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
     protected Other other;
     @XmlAnyAttribute
@@ -73,11 +73,11 @@ public class DataGenerator
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link DataSetReference }
+     * {@link Ref }
      * 
      * 
      */
-    public List<DataSetReference> getReferenceToPersonOrEntityGeneratingTheDataSet() {
+    public List<Ref> getReferenceToPersonOrEntityGeneratingTheDataSet() {
         if (referenceToPersonOrEntityGeneratingTheDataSet == null) {
             referenceToPersonOrEntityGeneratingTheDataSet = new ArrayList<>();
         }

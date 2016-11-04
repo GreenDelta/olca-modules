@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.annotations.FreeText;
@@ -39,14 +39,14 @@ public class ImpactModel implements Serializable {
 	@FreeText
 	protected List<LangString> modelDescription;
 
-	protected List<DataSetReference> referenceToModelSource;
+	protected List<Ref> referenceToModelSource;
 
-	protected List<DataSetReference> referenceToIncludedMethods;
+	protected List<Ref> referenceToIncludedMethods;
 
 	@ShortText
 	protected List<LangString> consideredMechanisms;
 
-	protected List<DataSetReference> referenceToMethodologyFlowChart;
+	protected List<Ref> referenceToMethodologyFlowChart;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	protected Other other;
@@ -124,11 +124,11 @@ public class ImpactModel implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToModelSource() {
+	public List<Ref> getReferenceToModelSource() {
 		if (referenceToModelSource == null) {
 			referenceToModelSource = new ArrayList<>();
 		}
@@ -154,11 +154,11 @@ public class ImpactModel implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToIncludedMethods() {
+	public List<Ref> getReferenceToIncludedMethods() {
 		if (referenceToIncludedMethods == null) {
 			referenceToIncludedMethods = new ArrayList<>();
 		}
@@ -214,11 +214,11 @@ public class ImpactModel implements Serializable {
 	 * 
 	 * <p>
 	 * Objects of the following type(s) are allowed in the list
-	 * {@link DataSetReference }
+	 * {@link Ref }
 	 * 
 	 * 
 	 */
-	public List<DataSetReference> getReferenceToMethodologyFlowChart() {
+	public List<Ref> getReferenceToMethodologyFlowChart() {
 		if (referenceToMethodologyFlowChart == null) {
 			referenceToMethodologyFlowChart = new ArrayList<>();
 		}

@@ -15,4 +15,6 @@ public interface IDataSet extends Serializable {
 
 	List<Classification> getClassifications();
 
+	List<LangString> getName();
+
 }

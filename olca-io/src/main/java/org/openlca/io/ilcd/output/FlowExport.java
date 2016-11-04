@@ -6,7 +6,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
@@ -102,7 +102,7 @@ public class FlowExport {
 			FlowPropertyRef propRef = new FlowPropertyRef();
 			refs.add(propRef);
 			FlowProperty property = factor.getFlowProperty();
-			DataSetReference ref = ExportDispatch.forwardExportCheck(property,
+			Ref ref = ExportDispatch.forwardExportCheck(property,
 					config);
 			propRef.flowProperty = ref;
 			if (property.equals(referenceProperty))

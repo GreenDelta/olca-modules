@@ -7,7 +7,7 @@ import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.Category;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.util.FlowPropertyBag;
 
@@ -44,7 +44,7 @@ public class FlowPropertyBagTest {
 
 	@Test
 	public void testGetUnitGroupReference() {
-		DataSetReference ref = bag.getUnitGroupReference();
+		Ref ref = bag.getUnitGroupReference();
 		assertEquals("93a60a57-a3c8-11da-a746-0800200c9a66", ref.uuid);
 	}
 

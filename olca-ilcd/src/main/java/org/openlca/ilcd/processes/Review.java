@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataQualityIndicator;
-import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ReviewMethod;
@@ -44,14 +44,14 @@ public class Review implements Serializable {
 	public final List<LangString> details = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToNameOfReviewerAndInstitution")
-	public final List<DataSetReference> reviewers = new ArrayList<>();
+	public final List<Ref> reviewers = new ArrayList<>();
 
 	@FreeText
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "otherReviewDetails")
 	public final List<LangString> otherDetails = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToCompleteReviewReport")
-	public DataSetReference report;
+	public Ref report;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -118,7 +118,7 @@ public class Review implements Serializable {
 			}
 		}
 		LangString.copy(details, clone.details);
-		DataSetReference.copy(reviewers, clone.reviewers);
+		Ref.copy(reviewers, clone.reviewers);
 		LangString.copy(otherDetails, clone.otherDetails);
 		if (report != null)
 			clone.report = report.clone();
