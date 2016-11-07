@@ -3,7 +3,7 @@ package org.openlca.ilcd.util;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LangString;
@@ -49,10 +49,7 @@ public class ProcessBag implements IBag<Process> {
 
 	@Override
 	public String getId() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null)
-			return info.uuid;
-		return null;
+		return process == null ? null : process.getUUID();
 	}
 
 	public String getName() {
@@ -89,11 +86,8 @@ public class ProcessBag implements IBag<Process> {
 		return null;
 	}
 
-	public List<Class> getSortedClasses() {
-		DataSetInfo info = getDataSetInformation();
-		if (info == null || info.classifications.isEmpty())
-			return Collections.emptyList();
-		return ClassList.sortedList(info.classifications.get(0));
+	public List<Category> getSortedClasses() {
+		return ClassList.sortedList(process);
 	}
 
 	public String getComment() {

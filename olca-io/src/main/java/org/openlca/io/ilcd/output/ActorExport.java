@@ -3,7 +3,7 @@ package org.openlca.io.ilcd.output;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.AdminInfo;
-import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
@@ -75,10 +75,10 @@ public class ActorExport {
 		if (actor.getCategory() == null)
 			return;
 		CategoryConverter converter = new CategoryConverter();
-		ClassificationInfo classification = converter
-				.getClassificationInformation(actor.getCategory());
+		Classification classification = converter.getClassification(
+				actor.getCategory());
 		if (classification != null) {
-			dataSetInfo.classificationInformation = classification;
+			dataSetInfo.classifications.add(classification);
 		}
 	}
 

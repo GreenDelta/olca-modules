@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.util.ContactBag;
 
@@ -43,7 +43,7 @@ public class ContactBagTest {
 
 	@Test
 	public void testGetSortedClasses() {
-		List<Class> classes = bag.getSortedClasses();
+		List<Category> classes = bag.getSortedClasses();
 		assertTrue(classes.size() == 1);
 		assertEquals("Working groups within organisation", classes.get(0).value);
 	}

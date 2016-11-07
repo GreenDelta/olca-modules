@@ -8,11 +8,9 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.ilcd.commons.AdminInfo;
-import org.openlca.ilcd.commons.Class;
-import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.DigitalFileRef;
 import org.openlca.ilcd.sources.Source;
@@ -34,10 +32,7 @@ public class SourceBag implements IBag<Source> {
 
 	@Override
 	public String getId() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null)
-			return info.uuid;
-		return null;
+		return source == null ? null : source.getUUID();
 	}
 
 	public String getShortName() {
@@ -61,13 +56,8 @@ public class SourceBag implements IBag<Source> {
 		return null;
 	}
 
-	public List<Class> getSortedClasses() {
-		DataSetInfo info = getDataSetInformation();
-		if (info != null) {
-			ClassificationInfo classInfo = info.classificationInformation;
-			return ClassList.sortedList(classInfo);
-		}
-		return Collections.emptyList();
+	public List<Category> getSortedClasses() {
+		return ClassList.sortedList(source);
 	}
 
 	public List<String> getExternalFileURIs() {
@@ -92,14 +82,7 @@ public class SourceBag implements IBag<Source> {
 	public String getVersion() {
 		if (source == null)
 			return null;
-		AdminInfo info = source.adminInfo;
-		if (info == null)
-			return null;
-		Publication pub = info.publication;
-		if (pub == null)
-			return null;
-		else
-			return pub.version;
+		return source.getVersion();
 	}
 
 	public Date getTimeStamp() {

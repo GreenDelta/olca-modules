@@ -10,11 +10,12 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.AreaOfProtection;
-import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
@@ -23,7 +24,7 @@ import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataSetInformationType", propOrder = { "uuid", "name",
-		"methodology", "classificationInformation", "impactCategory",
+		"methodology", "classifications", "impactCategory",
 		"areaOfProtection", "impactIndicator", "generalComment",
 		"referenceToExternalDocumentation", "other" })
 public class DataSetInformation implements Serializable {
@@ -39,7 +40,9 @@ public class DataSetInformation implements Serializable {
 
 	protected List<String> methodology;
 
-	protected ClassificationInfo classificationInformation;
+	@XmlElementWrapper(name = "classificationInformation")
+	@XmlElement(name = "classification", namespace = "http://lca.jrc.it/ILCD/Common")
+	public final List<Classification> classifications = new ArrayList<>();
 
 	protected List<String> impactCategory;
 
@@ -144,27 +147,6 @@ public class DataSetInformation implements Serializable {
 			methodology = new ArrayList<>();
 		}
 		return this.methodology;
-	}
-
-	/**
-	 * Gets the value of the classificationInformation property.
-	 * 
-	 * @return possible object is {@link ClassificationInfo }
-	 * 
-	 */
-	public ClassificationInfo getClassificationInformation() {
-		return classificationInformation;
-	}
-
-	/**
-	 * Sets the value of the classificationInformation property.
-	 * 
-	 * @param value
-	 *            allowed object is {@link ClassificationInfo }
-	 * 
-	 */
-	public void setClassificationInformation(ClassificationInfo value) {
-		this.classificationInformation = value;
 	}
 
 	/**

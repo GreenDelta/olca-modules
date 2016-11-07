@@ -10,10 +10,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
@@ -23,7 +24,7 @@ import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataSetInformationType", propOrder = { "uuid", "shortName",
-		"classificationInformation", "sourceCitation", "publicationType",
+		"classifications", "sourceCitation", "publicationType",
 		"sourceDescriptionOrComment", "referenceToDigitalFile",
 		"referenceToContact", "referenceToLogo", "other" })
 public class DataSetInfo implements Serializable {
@@ -37,7 +38,9 @@ public class DataSetInfo implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public final List<LangString> shortName = new ArrayList<>();
 
-	public ClassificationInfo classificationInformation;
+	@XmlElementWrapper(name = "classificationInformation")
+	@XmlElement(name = "classification", namespace = "http://lca.jrc.it/ILCD/Common")
+	public final List<Classification> classifications = new ArrayList<>();
 
 	public String sourceCitation;
 

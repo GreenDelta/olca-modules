@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.AdminInfo;
-import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
@@ -59,9 +59,10 @@ public class UnitGroupExport {
 			LangString.set(dataSetInfo.generalComment,
 					unitGroup.getDescription(), config.lang);
 		CategoryConverter converter = new CategoryConverter();
-		ClassificationInfo classInfo = converter
-				.getClassificationInformation(unitGroup.getCategory());
-		dataSetInfo.classificationInformation = classInfo;
+		Classification c = converter.getClassification(
+				unitGroup.getCategory());
+		if (c != null)
+			dataSetInfo.classifications.add(c);
 		return dataSetInfo;
 	}
 

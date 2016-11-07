@@ -26,6 +26,7 @@ public class IDataSetTest {
 			assertEquals(DataSetType.SOURCE, ds.getDataSetType());
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_source.xml",
 					ds.getURI().trim());
+			assertEquals(2, ds.getClassifications().size());
 		});
 	}
 
@@ -37,6 +38,7 @@ public class IDataSetTest {
 			assertEquals(DataSetType.CONTACT, ds.getDataSetType());
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_contact.xml",
 					ds.getURI().trim());
+			assertEquals(2, ds.getClassifications().size());
 		});
 	}
 
@@ -48,6 +50,7 @@ public class IDataSetTest {
 			assertEquals(DataSetType.UNIT_GROUP, ds.getDataSetType());
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_unitgroup.xml",
 					ds.getURI().trim());
+			assertEquals(2, ds.getClassifications().size());
 		});
 	}
 
@@ -59,6 +62,7 @@ public class IDataSetTest {
 			assertEquals(DataSetType.FLOW_PROPERTY, ds.getDataSetType());
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_flowproperty.xml",
 					ds.getURI().trim());
+			assertEquals(2, ds.getClassifications().size());
 		});
 	}
 
@@ -70,6 +74,7 @@ public class IDataSetTest {
 			assertEquals(DataSetType.FLOW, ds.getDataSetType());
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_flow.xml",
 					ds.getURI().trim());
+			assertEquals(2, ds.getClassifications().size());
 		});
 	}
 
@@ -81,6 +86,7 @@ public class IDataSetTest {
 			assertEquals(DataSetType.PROCESS, ds.getDataSetType());
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_process.xml",
 					ds.getURI().trim());
+			assertEquals(2, ds.getClassifications().size());
 		});
 	}
 

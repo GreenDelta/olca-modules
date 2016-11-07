@@ -7,6 +7,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.annotations.FreeText;
+import org.openlca.ilcd.flows.Compartment;
+import org.openlca.ilcd.flows.CompartmentList;
+import org.openlca.ilcd.flows.FlowCategoryInfo;
 
 /**
  * This object contains factory methods for each Java content interface and Java
@@ -122,19 +125,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link Category }
+	 * Create an instance of {@link Compartment }
 	 * 
 	 */
-	public Category createCategory() {
-		return new Category();
-	}
-
-	/**
-	 * Create an instance of {@link ClassificationInfo }
-	 * 
-	 */
-	public ClassificationInfo createClassificationInformation() {
-		return new ClassificationInfo();
+	public Compartment createCategory() {
+		return new Compartment();
 	}
 
 	/**
@@ -154,11 +149,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link FlowCategorization }
+	 * Create an instance of {@link CompartmentList }
 	 * 
 	 */
-	public FlowCategorization createFlowCategorization() {
-		return new FlowCategorization();
+	public CompartmentList createFlowCategorization() {
+		return new CompartmentList();
 	}
 
 	/**
@@ -170,11 +165,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link Class }
+	 * Create an instance of {@link Category }
 	 * 
 	 */
-	public Class createClass() {
-		return new Class();
+	public Category createClass() {
+		return new Category();
 	}
 
 	/**

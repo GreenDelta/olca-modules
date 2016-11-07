@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.ilcd.commons.Class;
+import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.DataSetReference;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.util.FlowPropertyBag;
@@ -37,7 +37,7 @@ public class FlowPropertyBagTest {
 
 	@Test
 	public void testGetClasses() {
-		Class clazz = bag.getSortedClasses().get(0);
+		Category clazz = bag.getSortedClasses().get(0);
 		assertEquals(0, clazz.level);
 		assertEquals("Technical flow properties", clazz.value.trim());
 	}

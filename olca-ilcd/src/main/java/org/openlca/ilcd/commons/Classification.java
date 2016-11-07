@@ -16,13 +16,13 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ClassificationType", propOrder = { "classes", "other" })
+@XmlType(name = "ClassificationType", propOrder = { "categories", "other" })
 public class Classification implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
 	@XmlElement(name = "class", required = true)
-	public final List<Class> classes = new ArrayList<>();
+	public final List<Category> categories = new ArrayList<>();
 
 	public Other other;
 
@@ -39,8 +39,8 @@ public class Classification implements Serializable {
 	@Override
 	public Classification clone() {
 		Classification clone = new Classification();
-		for (Class c : classes)
-			clone.classes.add(c.clone());
+		for (Category c : categories)
+			clone.categories.add(c.clone());
 		if (other != null)
 			clone.other = other.clone();
 		clone.name = name;

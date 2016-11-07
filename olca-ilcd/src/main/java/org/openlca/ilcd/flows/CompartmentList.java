@@ -1,4 +1,4 @@
-package org.openlca.ilcd.commons;
+package org.openlca.ilcd.flows;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,14 +15,16 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
+import org.openlca.ilcd.commons.Other;
+
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "FlowCategorizationType", propOrder = { "categories", "other" })
-public class FlowCategorization implements Serializable {
+@XmlType(name = "FlowCategorizationType", propOrder = { "compartments", "other" })
+public class CompartmentList implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
 	@XmlElement(name = "category", required = true)
-	public final List<Category> categories = new ArrayList<>();
+	public final List<Compartment> compartments = new ArrayList<>();
 
 	public Other other;
 

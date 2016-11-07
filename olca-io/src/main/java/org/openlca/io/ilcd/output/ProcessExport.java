@@ -10,11 +10,11 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
-import org.openlca.ilcd.commons.ClassificationInfo;
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetReference;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.processes.AdminInfo;
@@ -82,10 +82,10 @@ public class ProcessExport {
 		log.trace("Add classification");
 		if (process.getCategory() != null) {
 			CategoryConverter converter = new CategoryConverter();
-			ClassificationInfo ci = converter
-					.getClassificationInformation(process.getCategory());
-			if (ci != null)
-				dataSetInfo.classifications.addAll(ci.classifications);
+			Classification c = converter.getClassification(
+					process.getCategory());
+			if (c != null)
+				dataSetInfo.classifications.add(c);
 		}
 	}
 
