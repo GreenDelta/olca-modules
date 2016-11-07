@@ -1,5 +1,5 @@
 
-package org.openlca.ilcd.commons;
+package org.openlca.ilcd.methods;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;

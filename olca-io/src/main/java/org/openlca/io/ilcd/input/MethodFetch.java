@@ -9,8 +9,8 @@ import javax.xml.namespace.QName;
 
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.ilcd.commons.TypeOfLCIAMethod;
 import org.openlca.ilcd.methods.LCIAMethod;
+import org.openlca.ilcd.methods.LCIAMethodType;
 import org.openlca.ilcd.methods.MethodInfo;
 import org.openlca.ilcd.methods.Modelling;
 import org.openlca.util.KeyGen;
@@ -112,10 +112,9 @@ final class MethodFetch {
 
 	private String getType() {
 		Modelling mav = ilcdMethod.modelling;
-		if (mav == null || mav.getLCIAMethodNormalisationAndWeighting() == null)
+		if (mav == null || mav.normalisationAndWeighting == null)
 			return null;
-		TypeOfLCIAMethod type = mav.getLCIAMethodNormalisationAndWeighting()
-				.getTypeOfDataSet();
+		LCIAMethodType type = mav.normalisationAndWeighting.type;
 		return type == null ? null : type.value();
 	}
 }

@@ -1,5 +1,5 @@
 
-package org.openlca.ilcd.commons;
+package org.openlca.ilcd.methods;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "TypeOfLCIAMethodValues")
 @XmlEnum
-public enum TypeOfLCIAMethod {
+public enum LCIAMethodType {
 
 	/**
 	 * Method for an inventory indicator, i.e. without impact assessment method.
@@ -51,7 +51,7 @@ public enum TypeOfLCIAMethod {
 	LCIA_METHODOLOGY_DOCUMENTATION("LCIA methodology documentation");
 	private final String value;
 
-	TypeOfLCIAMethod(String v) {
+	LCIAMethodType(String v) {
 		value = v;
 	}
 
@@ -59,8 +59,8 @@ public enum TypeOfLCIAMethod {
 		return value;
 	}
 
-	public static TypeOfLCIAMethod fromValue(String v) {
-		for (TypeOfLCIAMethod c : TypeOfLCIAMethod.values()) {
+	public static LCIAMethodType fromValue(String v) {
+		for (LCIAMethodType c : LCIAMethodType.values()) {
 			if (c.value.equals(v)) {
 				return c;
 			}

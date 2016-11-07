@@ -135,14 +135,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link DataSourceList }
-	 * 
-	 */
-	public DataSourceList createDataSourceList() {
-		return new DataSourceList();
-	}
-
-	/**
 	 * Create an instance of {@link ComplianceDeclarationList }
 	 * 
 	 */

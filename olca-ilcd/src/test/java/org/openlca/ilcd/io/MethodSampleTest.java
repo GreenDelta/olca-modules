@@ -14,6 +14,7 @@ import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Geography;
 import org.openlca.ilcd.methods.ImpactModel;
 import org.openlca.ilcd.methods.LCIAMethod;
+import org.openlca.ilcd.methods.Modelling;
 import org.openlca.ilcd.methods.QuantitativeReference;
 import org.openlca.ilcd.methods.Time;
 
@@ -73,6 +74,15 @@ public class MethodSampleTest {
 			assertEquals(2, model.includedMethods.size());
 			assertEquals(2, model.consideredMechanisms.size());
 			assertEquals(2, model.flowCharts.size());
+		});
+	}
+
+	@Test
+	public void testModelling() throws Exception {
+		with(m -> {
+			Modelling modelling = m.modelling;
+			assertEquals(2, modelling.useAdvice.size());
+			assertEquals(2, modelling.dataSources.size());
 		});
 	}
 

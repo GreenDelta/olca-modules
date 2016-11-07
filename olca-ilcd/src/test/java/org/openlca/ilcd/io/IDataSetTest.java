@@ -13,6 +13,7 @@ import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
+import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 
@@ -87,6 +88,17 @@ public class IDataSetTest {
 			assertEquals("http://www.ilcd-network.org/data/processes/sample_process.xml",
 					ds.getURI().trim());
 			assertEquals(2, ds.getClassifications().size());
+		});
+	}
+
+	@Test
+	public void testMethod() throws Exception {
+		with("sdk_sample_lciamethod.xml", LCIAMethod.class, ds -> {
+			assertEquals("00000000-0000-0000-0000-000000000000", ds.getUUID());
+			assertEquals("00.00", ds.getVersion());
+			assertEquals(DataSetType.LCIA_METHOD, ds.getDataSetType());
+			assertEquals("", ds.getURI().trim());
+			assertEquals(1, ds.getClassifications().size());
 		});
 	}
 
