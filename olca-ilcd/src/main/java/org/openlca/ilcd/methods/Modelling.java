@@ -28,7 +28,7 @@ import org.openlca.ilcd.commons.annotations.ShortText;
 		"complianceDeclarations",
 		"other"
 })
-public class ModellingAndValidation implements Serializable {
+public class Modelling implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 

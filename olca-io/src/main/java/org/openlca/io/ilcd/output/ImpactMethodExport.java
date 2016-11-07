@@ -12,11 +12,11 @@ import org.openlca.core.model.Unit;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.methods.DataSetInformation;
+import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
-import org.openlca.ilcd.methods.LCIAMethodInformation;
+import org.openlca.ilcd.methods.MethodInfo;
 
 public class ImpactMethodExport {
 
@@ -34,7 +34,7 @@ public class ImpactMethodExport {
 		for (ImpactCategory impact : method.getImpactCategories()) {
 			LCIAMethod lciaMethod = new LCIAMethod();
 			putAttribute("olca_method_uuid", method.getRefId(),
-					lciaMethod.getOtherAttributes());
+					lciaMethod.otherAttributes);
 			addMethodInfo(method, impact, lciaMethod);
 			addFactors(impact, lciaMethod);
 			config.store.put(lciaMethod, impact.getRefId());
@@ -43,17 +43,17 @@ public class ImpactMethodExport {
 
 	private void addMethodInfo(ImpactMethod method, ImpactCategory impact,
 			LCIAMethod lciaMethod) {
-		LCIAMethodInformation info = new LCIAMethodInformation();
-		lciaMethod.setLCIAMethodInformation(info);
-		DataSetInformation dataSetInfo = new DataSetInformation();
-		info.setDataSetInformation(dataSetInfo);
-		dataSetInfo.setUUID(impact.getRefId());
-		dataSetInfo.getMethodology().add(method.getName());
-		dataSetInfo.getImpactCategory().add(impact.getName());
+		MethodInfo info = new MethodInfo();
+		lciaMethod.methodInfo = info;
+		DataSetInfo dataSetInfo = new DataSetInfo();
+		info.dataSetInfo = dataSetInfo;
+		dataSetInfo.uuid = impact.getRefId();
+		dataSetInfo.methods.add(method.getName());
+		dataSetInfo.impactCategories.add(impact.getName());
 		putAttribute("olca_category_unit", impact.getReferenceUnit(),
-				dataSetInfo.getOtherAttributes());
+				dataSetInfo.otherAttributes);
 		if (impact.getDescription() != null)
-			LangString.set(dataSetInfo.getGeneralComment(),
+			LangString.set(dataSetInfo.comment,
 					impact.getDescription(), config.lang);
 	}
 
@@ -66,7 +66,7 @@ public class ImpactMethodExport {
 
 	private void addFactors(ImpactCategory impact, LCIAMethod lciaMethod) {
 		FactorList list = new FactorList();
-		lciaMethod.setCharacterisationFactors(list);
+		lciaMethod.characterisationFactors = list;
 		for (ImpactFactor olcaFactor : impact.getImpactFactors()) {
 			Factor ilcdFactor = new Factor();
 			list.getFactor().add(ilcdFactor);

@@ -11,8 +11,8 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.ilcd.commons.TypeOfLCIAMethod;
 import org.openlca.ilcd.methods.LCIAMethod;
-import org.openlca.ilcd.methods.LCIAMethodInformation;
-import org.openlca.ilcd.methods.ModellingAndValidation;
+import org.openlca.ilcd.methods.MethodInfo;
+import org.openlca.ilcd.methods.Modelling;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ final class MethodFetch {
 	public ImpactMethod getFromExtension() {
 		QName refIdAtt = new QName("http://openlca.org/ilcd-extensions",
 				"olca_method_uuid");
-		String refId = ilcdMethod.getOtherAttributes().get(refIdAtt);
+		String refId = ilcdMethod.otherAttributes.get(refIdAtt);
 		if (refId == null)
 			return null;
 		ImpactMethod method = dao.getForRefId(refId);
@@ -104,14 +104,14 @@ final class MethodFetch {
 	}
 
 	private List<String> getMethodNames() {
-		LCIAMethodInformation info = ilcdMethod.getLCIAMethodInformation();
-		if (info == null || info.getDataSetInformation() == null)
+		MethodInfo info = ilcdMethod.methodInfo;
+		if (info == null || info.dataSetInfo == null)
 			return Collections.emptyList();
-		return info.getDataSetInformation().getMethodology();
+		return info.dataSetInfo.methods;
 	}
 
 	private String getType() {
-		ModellingAndValidation mav = ilcdMethod.getModellingAndValidation();
+		Modelling mav = ilcdMethod.modelling;
 		if (mav == null || mav.getLCIAMethodNormalisationAndWeighting() == null)
 			return null;
 		TypeOfLCIAMethod type = mav.getLCIAMethodNormalisationAndWeighting()
