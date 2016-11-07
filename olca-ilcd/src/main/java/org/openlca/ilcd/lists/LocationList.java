@@ -18,4 +18,14 @@ public class LocationList implements Serializable {
 	@XmlElement(name = "location", required = true)
 	public final List<Location> locations = new ArrayList<>();
 
+	@Override
+	public LocationList clone() {
+		LocationList clone = new LocationList();
+		for (Location loc : locations) {
+			if (loc == null)
+				continue;
+			clone.locations.add(loc.clone());
+		}
+		return clone;
+	}
 }
