@@ -129,9 +129,9 @@ public class MethodImport {
 		if (info == null || info.quantitativeReference == null)
 			return null;
 		QuantitativeReference qRef = info.quantitativeReference;
-		if (qRef.getReferenceQuantity() == null)
+		if (qRef.quantity == null)
 			return null;
-		String propertyId = qRef.getReferenceQuantity().uuid;
+		String propertyId = qRef.quantity.uuid;
 		if (propertyId == null)
 			return null;
 		Unit unit = getReferenceUnit(propertyId);

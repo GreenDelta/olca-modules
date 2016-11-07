@@ -10,6 +10,7 @@ import org.openlca.ilcd.commons.annotations.FreeText;
 import org.openlca.ilcd.flows.Compartment;
 import org.openlca.ilcd.flows.CompartmentList;
 import org.openlca.ilcd.flows.FlowCategoryInfo;
+import org.openlca.ilcd.methods.Location;
 
 /**
  * This object contains factory methods for each Java content interface and Java

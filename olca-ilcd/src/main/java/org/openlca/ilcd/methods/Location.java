@@ -1,5 +1,5 @@
 
-package org.openlca.ilcd.commons;
+package org.openlca.ilcd.methods;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -15,17 +15,17 @@ import javax.xml.namespace.QName;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "LocationType", propOrder = {
-		"value"
+		"code"
 })
 public class Location implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
 	@XmlValue
-	public String value;
+	public String code;
 
 	@XmlAttribute(name = "latitudeAndLongitude")
-	public String latitudeAndLongitude;
+	public String latLong;
 
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
