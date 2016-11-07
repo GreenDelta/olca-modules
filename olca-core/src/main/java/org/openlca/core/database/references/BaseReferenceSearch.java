@@ -18,10 +18,13 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.util.Formula;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		IReferenceSearch<T> {
 
+	private final static Logger log = LoggerFactory.getLogger(BaseReferenceSearch.class);
 	protected final IDatabase database;
 	private final Class<? extends CategorizedEntity> type;
 	private final boolean includeOptional;
@@ -42,7 +45,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 	public List<Reference> findReferences() {
 		return findReferences(new HashSet<Long>());
 	}
-	
+
 	@Override
 	public List<Reference> findReferences(T descriptor) {
 		if (descriptor == null || descriptor.getId() == 0l)
@@ -127,14 +130,18 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		for (long id : idToFormulas.keySet()) {
 			Set<String> formulas = idToFormulas.get(id);
 			for (String formula : formulas) {
-				for (String var : Formula.getVariables(formula)) {
-					Set<String> set = idToNames.get(id);
-					if (set != null && set.contains(var))
-						continue;
-					Set<String> names = undeclared.get(id);
-					if (names == null)
-						undeclared.put(id, names = new HashSet<>());
-					names.add(var);
+				try {
+					for (String var : Formula.getVariables(formula)) {
+						Set<String> set = idToNames.get(id);
+						if (set != null && set.contains(var))
+							continue;
+						Set<String> names = undeclared.get(id);
+						if (names == null)
+							undeclared.put(id, names = new HashSet<>());
+						names.add(var);
+					}
+				} catch (Throwable e) {
+					log.warn("Failed parsing formula " + formula + " in model " + id, e);
 				}
 			}
 		}
