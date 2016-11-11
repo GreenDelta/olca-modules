@@ -16,48 +16,51 @@ import com.sun.jersey.api.client.WebResource.Builder;
 
 public class WebRequests {
 
-	private static final Logger log = LoggerFactory
-			.getLogger(WebRequests.class);
+	private static final Logger log = LoggerFactory.getLogger(WebRequests.class);
+	private static final Client client = Client.create();
 
-	public static ClientResponse call(Type type, String url, String sessionId)
-			throws WebRequestException {
+	public static ClientResponse call(Type type, String url, String sessionId) throws WebRequestException {
 		return call(type, url, sessionId, null);
 	}
 
-	public static ClientResponse call(Type type, String url, String sessionId,
-			Object data) throws WebRequestException {
-		log.info("Calling " + url, " with type " + type.name());
-		Client client = Client.create();
-		WebResource resource = client.resource(url);
-		Builder responseBuilder = resource.accept(
-				MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_PLAIN_TYPE);
-		if (sessionId != null)
-			responseBuilder.cookie(new Cookie("JSESSIONID", sessionId));
-		if (data != null)
-			if (data instanceof InputStream)
-				responseBuilder.entity(data,
-						MediaType.APPLICATION_OCTET_STREAM_TYPE);
-			else
-				responseBuilder.entity(new Gson().toJson(data),
-						MediaType.APPLICATION_JSON_TYPE);
-		ClientResponse response = null;
-		switch (type) {
-		case GET:
-			response = responseBuilder.get(ClientResponse.class);
-			break;
-		case POST:
-			response = responseBuilder.post(ClientResponse.class);
-			break;
-		case PUT:
-			response = responseBuilder.put(ClientResponse.class);
-			break;
-		case DELETE:
-			response = responseBuilder.delete(ClientResponse.class);
-			break;
-		}
+	public static ClientResponse call(Type type, String url, String sessionId, Object data) throws WebRequestException {
+		log.info(type.name() + " " + url);
+		Builder request = builder(url, sessionId, data);
+		ClientResponse response = call(type, request);
 		if (response.getStatus() >= 400 && response.getStatus() <= 599)
 			throw new WebRequestException(response);
 		return response;
+	}
+
+	private static ClientResponse call(Type type, Builder builder) {
+		switch (type) {
+		case GET:
+			return builder.get(ClientResponse.class);
+		case POST:
+			return builder.post(ClientResponse.class);
+		case PUT:
+			return builder.put(ClientResponse.class);
+		case DELETE:
+			return builder.delete(ClientResponse.class);
+		default:
+			return null;
+		}
+	}
+
+	private static Builder builder(String url, String sessionId, Object data) {
+		WebResource resource = client.resource(url);
+		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_PLAIN_TYPE);
+		if (sessionId != null)
+			builder.cookie(new Cookie("JSESSIONID", sessionId));
+		if (data == null)
+			return builder;
+		if (data instanceof InputStream)
+			builder.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+		else {
+			log.info(new Gson().toJson(data));
+			builder.entity(new Gson().toJson(data), MediaType.APPLICATION_JSON_TYPE);
+		}
+		return builder;
 	}
 
 	public static enum Type {

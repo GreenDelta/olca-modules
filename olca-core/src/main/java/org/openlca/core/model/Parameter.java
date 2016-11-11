@@ -7,6 +7,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
+import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.expressions.InterpreterException;
+
 @Entity
 @Table(name = "tbl_parameters")
 public class Parameter extends CategorizedEntity {
@@ -49,6 +52,13 @@ public class Parameter extends CategorizedEntity {
 				return false;
 			if (i > 0 && !Character.isJavaIdentifierPart(c))
 				return false;
+		}
+		FormulaInterpreter interpreter = new FormulaInterpreter();
+		interpreter.bind(paramaterName, "1");
+		try {
+			interpreter.eval(paramaterName);
+		} catch (InterpreterException e) {
+			return false;
 		}
 		return true;
 	}

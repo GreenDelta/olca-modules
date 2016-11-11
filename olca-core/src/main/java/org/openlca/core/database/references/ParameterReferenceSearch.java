@@ -14,9 +14,12 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.util.Formula;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ParameterReferenceSearch extends
-		BaseReferenceSearch<ParameterDescriptor> {
+public class ParameterReferenceSearch extends BaseReferenceSearch<ParameterDescriptor> {
+
+	private final static Logger log = LoggerFactory.getLogger(ParameterReferenceSearch.class);
 
 	private final static Ref[] references = {
 			new Ref(Category.class, "category", "f_category", true)
@@ -74,7 +77,11 @@ public class ParameterReferenceSearch extends
 				Set<String> set = variables.get(ownerId);
 				if (set == null)
 					variables.put(ownerId, set = new HashSet<>());
-				set.addAll(Formula.getVariables(result.getString(2)));
+				try {
+					set.addAll(Formula.getVariables(result.getString(2)));
+				} catch (Throwable e) {
+					log.warn("Failed parsing formula of parameter in model " + ownerId, e);
+				}
 			});
 		return variables;
 	}

@@ -17,8 +17,6 @@ import org.openlca.util.Formula;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 /**
  * Searches for the use of parameters in other entities.
  */
@@ -89,10 +87,14 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 				String formula = result.getString(2);
 				long id = result.getLong(3);
 				long ownerId = result.getLong(4);
-				Set<String> variables = Formula.getVariables(formula);
-				for (String name : names)
-					if (variables.contains(name))
-						refs.add(new ParameterRef(id, ownerId, name, scope));
+				try {
+					Set<String> variables = Formula.getVariables(formula);
+					for (String name : names)
+						if (variables.contains(name))
+							refs.add(new ParameterRef(id, ownerId, name, scope));
+				} catch (Throwable e) {
+					log.warn("Failed parsing formula " + formula + " of parameter in model " + ownerId, e);
+				}
 				return true;
 			});
 		} catch (SQLException e) {
@@ -127,7 +129,7 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		results.addAll(loadDescriptors(ModelType.PROJECT, projectIds));
 		return results;
 	}
-	
+
 	private List<ParameterRef> findInExchanges(Set<String> names) {
 		String query = "SELECT lower(resulting_amount_formula), f_owner FROM tbl_exchanges";
 		List<ParameterRef> refs = new ArrayList<>();
@@ -135,10 +137,14 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 			NativeSql.on(database).query(query, (result) -> {
 				String formula = result.getString(1);
 				long ownerId = result.getLong(2);
-				Set<String> variables = Formula.getVariables(formula);
-				for (String name : names)
-					if (variables.contains(name))
-						refs.add(new ParameterRef(0, ownerId, name, ParameterScope.PROCESS));
+				try {
+					Set<String> variables = Formula.getVariables(formula);
+					for (String name : names)
+						if (variables.contains(name))
+							refs.add(new ParameterRef(0, ownerId, name, ParameterScope.PROCESS));
+				} catch (Throwable e) {
+					log.warn("Failed parsing formula " + formula + " of parameter in model " + ownerId, e);
+				}
 				return true;
 			});
 		} catch (SQLException e) {
