@@ -52,21 +52,21 @@ public abstract class NumberGenerator {
 	private static class LogNormal extends NumberGenerator {
 
 		private final Normal normal;
-		private final double delta;
+		private final double factor;
 
 		LogNormal(double geoMean, double geoStd) {
 			// the mean and the standard deviation of the *underlying*
 			// distribution is the natural logarithm of the geometric mean and
 			// geometric standard deviation
-			// if the geometric mean is negative (ecoinvent 3!), we shift
-			// it back and forth
+			// if the geometric mean is negative (ecoinvent 3!), we generate the
+			// values first for the positive value and multiply them with -1
 			double gmean;
 			if (geoMean < 0) {
 				gmean = Math.abs(geoMean);
-				delta = 2 * gmean;
+				factor = -1;
 			} else {
 				gmean = geoMean;
-				delta = 0;
+				factor = 1;
 			}
 			double mean = Math.log(gmean);
 			double std = Math.log(Math.abs(geoStd));
@@ -75,7 +75,7 @@ public abstract class NumberGenerator {
 
 		@Override
 		public double next() {
-			return Math.exp(normal.next()) - delta;
+			return Math.exp(normal.next()) * factor;
 		}
 	}
 
