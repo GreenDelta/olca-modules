@@ -64,13 +64,13 @@ public class LinkContributions {
 			double[] scalingFactors) {
 		for (int i = 0; i < index.size(); i++) {
 			LongPair outProduct = index.getProviderAt(i);
-			double outVal = scalingFactors[i] * matrix.getEntry(i, i);
+			double outVal = scalingFactors[i] * matrix.get(i, i);
 			if (outVal == 0)
 				continue;
 			for (int k = 0; k < index.size(); k++) {
 				if (k == i)
 					continue;
-				double rawInVal = matrix.getEntry(i, k);
+				double rawInVal = matrix.get(i, k);
 				if (rawInVal == 0)
 					continue;
 				double contr = -(scalingFactors[k] * rawInVal) / outVal;

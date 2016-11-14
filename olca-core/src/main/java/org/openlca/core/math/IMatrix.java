@@ -5,17 +5,17 @@ package org.openlca.core.math;
  */
 public interface IMatrix {
 
-	/** Get the number of rows of the matrix. */
-	int getRowDimension();
+	/** Returns the number of rows of the matrix. */
+	int rows();
 
-	/** Get the number of columns of the matrix. */
-	int getColumnDimension();
+	/** Returns the number of columns of the matrix. */
+	int columns();
 
 	/** Set the entry in the given row and column to the given value. */
-	void setEntry(int row, int col, double val);
+	void set(int row, int col, double val);
 
 	/** Get the value of the given row and column. */
-	double getEntry(int row, int col);
+	double get(int row, int col);
 
 	/** Get the row values of the given column. */
 	double[] getColumn(int i);
@@ -26,4 +26,20 @@ public interface IMatrix {
 	/** Creates a copy of this matrix and returns it */
 	IMatrix copy();
 
+	default void setValues(double[][] values) {
+		if (values == null)
+			return;
+		int rows = rows();
+		int cols = columns();
+		for (int i = 0; i < values.length; i++) {
+			double[] row = values[i];
+			if (i >= rows || row == null)
+				break;
+			for (int j = 0; j < row.length; j++) {
+				if (j >= cols)
+					break;
+				set(i, j, row[j]);
+			}
+		}
+	}
 }

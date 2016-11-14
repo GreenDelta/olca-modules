@@ -137,11 +137,11 @@ public class ContributionResult extends SimpleResult {
 	protected double getValue(IMatrix matrix, int row, int col) {
 		if (matrix == null)
 			return 0d;
-		if (row < 0 || row >= matrix.getRowDimension())
+		if (row < 0 || row >= matrix.rows())
 			return 0d;
-		if (col < 0 || col >= matrix.getColumnDimension())
+		if (col < 0 || col >= matrix.columns())
 			return 0d;
-		return matrix.getEntry(row, col);
+		return matrix.get(row, col);
 	}
 
 }

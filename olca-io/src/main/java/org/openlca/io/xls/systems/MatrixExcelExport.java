@@ -78,13 +78,13 @@ class MatrixExcelExport {
 	}
 
 	private void writeValues(Sheet sheet) {
-		for (int i = 0; i < matrix.getRowDimension(); i++) {
-			for (int j = 0; j < matrix.getColumnDimension(); j++) {
+		for (int i = 0; i < matrix.rows(); i++) {
+			for (int j = 0; j < matrix.columns(); j++) {
 				int row = i + columnHeader.getHeaderSize() + 1;
 				int column = j + rowHeader.getHeaderSize() + 1;
 				int rowIndex = rowHeader.mapIndex(i);
 				int columnIndex = columnHeader.mapIndex(j);
-				double value = matrix.getEntry(rowIndex, columnIndex);
+				double value = matrix.get(rowIndex, columnIndex);
 				if (value != 0)
 					Excel.cell(sheet, row, column, value);
 			}

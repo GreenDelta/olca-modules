@@ -65,10 +65,10 @@ public class LinkContributionsTest {
 		double[] s = new double[size];
 		for (int i = 0; i < size; i++) {
 			index.put(LongPair.of(i + 1, i + 1));
-			techMatrix.setEntry(i, i, 1.0);
+			techMatrix.set(i, i, 1.0);
 			s[i] = 1;
 			if (i < (size - 1)) {
-				techMatrix.setEntry(i + 1, i, -1);
+				techMatrix.set(i + 1, i, -1);
 				index.putLink(LongPair.of(i + 1, i + 2),
 						LongPair.of(i + 2, i + 2));
 			}

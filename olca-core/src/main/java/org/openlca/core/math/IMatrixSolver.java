@@ -45,7 +45,13 @@ public interface IMatrixSolver {
 	 * Scales the columns of matrix m with the factors in v. This is equivalent
 	 * to m * diag(v) but can be implemented in a more efficient way.
 	 */
-	void scaleColumns(IMatrix m, double[] v);
+	default void scaleColumns(IMatrix m, double[] v) {
+		for (int row = 0; row < m.rows(); row++) {
+			for (int col = 0; col < m.columns(); col++) {
+				m.set(row, col, v[col] * m.get(row, col));
+			}
+		}
+	}
 
 	/**
 	 * Returns the matrix factory of this solver.

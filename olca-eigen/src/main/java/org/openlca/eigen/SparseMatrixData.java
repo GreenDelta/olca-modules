@@ -39,8 +39,8 @@ public class SparseMatrixData implements Serializable {
 			}
 		});
 		this.numberOfEntries = rowList.size();
-		this.rows = matrix.getRowDimension();
-		this.columns = matrix.getColumnDimension();
+		this.rows = matrix.rows();
+		this.columns = matrix.columns();
 		this.rowIndices = rowList.toArray();
 		this.columnIndices = colList.toArray();
 		this.values = valList.toArray();

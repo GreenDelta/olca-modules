@@ -51,7 +51,7 @@ public class ImpactFactorMatrix {
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ImpactFactorCell cell) {
-				matrix.setEntry(row, col, cell.getMatrixValue());
+				matrix.set(row, col, cell.getMatrixValue());
 			}
 		});
 		return matrix;
@@ -70,7 +70,7 @@ public class ImpactFactorMatrix {
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ImpactFactorCell cell) {
-				matrix.setEntry(row, col, cell.getMatrixValue());
+				matrix.set(row, col, cell.getMatrixValue());
 			}
 		});
 	}
@@ -79,7 +79,7 @@ public class ImpactFactorMatrix {
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ImpactFactorCell cell) {
-				matrix.setEntry(row, col, cell.getNextSimulationValue());
+				matrix.set(row, col, cell.getNextSimulationValue());
 			}
 		});
 	}

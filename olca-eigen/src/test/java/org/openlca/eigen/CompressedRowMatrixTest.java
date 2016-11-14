@@ -28,7 +28,7 @@ public class CompressedRowMatrixTest {
 	private void setAllValues(CompressedRowMatrix m, double val) {
 		for (int row = 0; row < m.rows; row++) {
 			for (int col = 0; col < m.columns; col++)
-				m.setEntry(row, col, val);
+				m.set(row, col, val);
 		}
 	}
 
@@ -47,7 +47,7 @@ public class CompressedRowMatrixTest {
 		}
 		for (int row = 0; row < m.rows; row++) {
 			for (int col = 0; col < m.columns; col++)
-				Assert.assertEquals(val, m.getEntry(row, col), 1e-24);
+				Assert.assertEquals(val, m.get(row, col), 1e-24);
 		}
 	}
 
@@ -57,7 +57,7 @@ public class CompressedRowMatrixTest {
 		log.trace("test a {} x {} matrix", n, n);
 		CompressedRowMatrix m = new CompressedRowMatrix(n, n);
 		for (int i = 0; i < n; i++)
-			m.setEntry(i, i, 1);
+			m.set(i, i, 1);
 		testIdentityMatrix(n, m);
 	}
 
@@ -67,7 +67,7 @@ public class CompressedRowMatrixTest {
 		log.trace("test a {} x {} matrix", n, n);
 		HashMatrix hashMatrix = new HashMatrix(n, n);
 		for (int i = 0; i < n; i++)
-			hashMatrix.setEntry(i, i, 1);
+			hashMatrix.set(i, i, 1);
 		CompressedRowMatrix m = hashMatrix.compress();
 		testIdentityMatrix(n, m);
 	}

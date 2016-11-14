@@ -140,7 +140,7 @@ public class LcaCalculator {
 			IMatrix costValues = costVector.asMatrix(solver.getMatrixFactory());
 			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
 			solver.scaleColumns(upstreamCosts, demands);
-			result.totalCostResult = upstreamCosts.getEntry(0, refIdx);
+			result.totalCostResult = upstreamCosts.get(0, refIdx);
 			result.upstreamCostResults = upstreamCosts;
 		}
 
@@ -180,7 +180,7 @@ public class LcaCalculator {
 			double[] scalingVector) {
 		double[] tr = new double[scalingVector.length];
 		for (int i = 0; i < scalingVector.length; i++) {
-			tr[i] = scalingVector[i] * techMatrix.getEntry(i, i);
+			tr[i] = scalingVector[i] * techMatrix.get(i, i);
 		}
 		return tr;
 	}

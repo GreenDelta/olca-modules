@@ -37,22 +37,22 @@ public class HashMatrix implements IMatrix {
 		for (int row = 0; row < rows; row++) {
 			double[] rowVals = values[row];
 			for (int col = 0; col < rowVals.length; col++)
-				setEntry(row, col, rowVals[col]);
+				set(row, col, rowVals[col]);
 		}
 	}
 
 	@Override
-	public int getRowDimension() {
+	public int rows() {
 		return rows;
 	}
 
 	@Override
-	public int getColumnDimension() {
+	public int columns() {
 		return cols;
 	}
 
 	@Override
-	public void setEntry(int row, int col, double val) {
+	public void set(int row, int col, double val) {
 		if (Numbers.isZero(val) && !hasEntry(row, col))
 			return;
 		TIntDoubleHashMap rowMap = data.get(row);
@@ -72,7 +72,7 @@ public class HashMatrix implements IMatrix {
 	}
 
 	@Override
-	public double getEntry(int row, int col) {
+	public double get(int row, int col) {
 		TIntDoubleHashMap rowMap = data.get(row);
 		if (rowMap == null)
 			return 0;
@@ -83,7 +83,7 @@ public class HashMatrix implements IMatrix {
 	public double[] getColumn(int i) {
 		double[] column = new double[rows];
 		for (int row = 0; row < rows; row++) {
-			column[row] = getEntry(row, i);
+			column[row] = get(row, i);
 		}
 		return column;
 	}
@@ -92,7 +92,7 @@ public class HashMatrix implements IMatrix {
 	public double[] getRow(int i) {
 		double[] row = new double[cols];
 		for (int col = 0; col < cols; col++) {
-			row[col] = getEntry(i, col);
+			row[col] = get(i, col);
 		}
 		return row;
 	}
@@ -103,7 +103,7 @@ public class HashMatrix implements IMatrix {
 		iterate(new MatrixIterator() {
 			@Override
 			public void next(int row, int col, double val) {
-				copy.setEntry(row, col, val);
+				copy.set(row, col, val);
 			}
 		});
 		return copy;
@@ -172,7 +172,7 @@ public class HashMatrix implements IMatrix {
 		int maxCols = cols > 15 ? 15 : cols;
 		for (int row = 0; row < maxRows; row++) {
 			for (int col = 0; col < maxCols; col++) {
-				double val = getEntry(row, col);
+				double val = get(row, col);
 				builder.append(val);
 				if (col < (maxCols - 1))
 					builder.append(",");

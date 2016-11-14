@@ -49,11 +49,11 @@ public class PrecisionBenchmarkTest {
 		for (int row = 0; row < i; row++) {
 			for (int col = 0; col < i; col++) {
 				if (row == col)
-					matrix.setEntry(row, col, 1000 * Math.random());
+					matrix.set(row, col, 1000 * Math.random());
 				else if (col < row)
-					matrix.setEntry(row, col, -1 * Math.random() * FACTOR);
+					matrix.set(row, col, -1 * Math.random() * FACTOR);
 				else if (WITH_LOOPS)
-					matrix.setEntry(row, col, -1 * Math.random() * FACTOR
+					matrix.set(row, col, -1 * Math.random() * FACTOR
 							* FACTOR);
 			}
 		}
@@ -65,7 +65,7 @@ public class PrecisionBenchmarkTest {
 		double s = 0;
 		for (int row = 0; row < i; row++) {
 			for (int col = 0; col < i; col++) {
-				s += Math.abs(eye.getEntry(row, col));
+				s += Math.abs(eye.get(row, col));
 			}
 		}
 		return s;

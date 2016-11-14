@@ -27,7 +27,7 @@ public class CostVector {
 	public IMatrix asMatrix(IMatrixFactory<?> factory) {
 		IMatrix m = factory.create(1, values.length);
 		for (int col = 0; col < values.length; col++) {
-			m.setEntry(0, col, values[col]);
+			m.set(0, col, values[col]);
 		}
 		return m;
 	}
