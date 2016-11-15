@@ -13,9 +13,9 @@ public class EigenTest {
 	@Test
 	public void testSparseLu() {
 		HashMatrix a = new HashMatrix(2, 2);
-		a.setEntry(0, 0, 1);
-		a.setEntry(1, 0, -2);
-		a.setEntry(1, 1, 1);
+		a.set(0, 0, 1);
+		a.set(1, 0, -2);
+		a.set(1, 1, 1);
 		SparseMatrixData data = new SparseMatrixData(a);
 		double[] b = new double[2];
 		b[0] = 1;
@@ -29,9 +29,9 @@ public class EigenTest {
 	@Ignore
 	public void testBicgstab() {
 		HashMatrix a = new HashMatrix(2, 2);
-		a.setEntry(0, 0, 1);
-		a.setEntry(1, 0, -2);
-		a.setEntry(1, 1, 1);
+		a.set(0, 0, 1);
+		a.set(1, 0, -2);
+		a.set(1, 1, 1);
 		SparseMatrixData data = new SparseMatrixData(a);
 		double[] b = new double[2];
 		b[0] = 1;
@@ -45,9 +45,9 @@ public class EigenTest {
 	@Ignore
 	public void testBicgstabInvert() {
 		HashMatrix a = new HashMatrix(2, 2);
-		a.setEntry(0, 0, 1);
-		a.setEntry(1, 0, -2);
-		a.setEntry(1, 1, 1);
+		a.set(0, 0, 1);
+		a.set(1, 0, -2);
+		a.set(1, 1, 1);
 		CompressedRowMatrix m = a.compress();
 		double[] inverse = new double[4];
 		Eigen.bicgstabInvert(m, inverse);
@@ -57,9 +57,9 @@ public class EigenTest {
 	@Test
 	public void testSparseLuInvert() {
 		HashMatrix a = new HashMatrix(2, 2);
-		a.setEntry(0, 0, 1);
-		a.setEntry(1, 0, -2);
-		a.setEntry(1, 1, 1);
+		a.set(0, 0, 1);
+		a.set(1, 0, -2);
+		a.set(1, 1, 1);
 		SparseMatrixData data = new SparseMatrixData(a);
 		double[] inverse = new double[4];
 		Eigen.sparseLuInvert(2, data.numberOfEntries, data.rowIndices,

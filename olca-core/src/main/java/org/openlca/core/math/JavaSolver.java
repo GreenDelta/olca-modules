@@ -11,7 +11,7 @@ public class JavaSolver implements IMatrixSolver {
 	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
 		RealMatrix A = unwrap(a);
-		RealVector b = new ArrayRealVector(a.getRowDimension());
+		RealVector b = new ArrayRealVector(a.rows());
 		b.setEntry(idx, d);
 		RealVector x = new LUDecomposition(A).getSolver().solve(b);
 		return x.toArray();
@@ -51,15 +51,6 @@ public class JavaSolver implements IMatrixSolver {
 	@Override
 	public IMatrixFactory<?> getMatrixFactory() {
 		return new JavaMatrixFactory();
-	}
-
-	@Override
-	public void scaleColumns(IMatrix m, double[] v) {
-		for (int row = 0; row < m.getRowDimension(); row++) {
-			for (int col = 0; col < m.getColumnDimension(); col++) {
-				m.setEntry(row, col, v[col] * m.getEntry(row, col));
-			}
-		}
 	}
 
 }

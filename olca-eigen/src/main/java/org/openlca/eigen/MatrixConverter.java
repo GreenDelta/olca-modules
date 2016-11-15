@@ -22,24 +22,24 @@ public final class MatrixConverter {
 	}
 
 	public static DenseMatrix asDenseMatrix(HashMatrix sparseMatrix) {
-		final DenseMatrix m = new DenseMatrix(sparseMatrix.getRowDimension(),
-				sparseMatrix.getColumnDimension());
+		final DenseMatrix m = new DenseMatrix(sparseMatrix.rows(),
+				sparseMatrix.columns());
 		sparseMatrix.iterate(new MatrixIterator() {
 			@Override
 			public void next(int row, int col, double val) {
-				m.setEntry(row, col, val);
+				m.set(row, col, val);
 			}
 		});
 		return m;
 	}
 
 	public static DenseMatrix asDenseMatrix(DenseFloatMatrix floatMatrix) {
-		int rows = floatMatrix.getRowDimension();
-		int cols = floatMatrix.getColumnDimension();
+		int rows = floatMatrix.rows();
+		int cols = floatMatrix.columns();
 		DenseMatrix m = new DenseMatrix(rows, cols);
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
-				m.setEntry(row, cols, floatMatrix.getEntry(row, col));
+				m.set(row, cols, floatMatrix.get(row, col));
 			}
 		}
 		return m;
@@ -59,12 +59,12 @@ public final class MatrixConverter {
 	}
 
 	public static DenseFloatMatrix asDenseFloatMatrix(DenseMatrix matrix) {
-		int rows = matrix.getRowDimension();
-		int cols = matrix.getColumnDimension();
+		int rows = matrix.rows();
+		int cols = matrix.columns();
 		DenseFloatMatrix m = new DenseFloatMatrix(rows, cols);
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
-				m.setEntry(row, cols, matrix.getEntry(row, col));
+				m.set(row, cols, matrix.get(row, col));
 			}
 		}
 		return m;
@@ -72,12 +72,12 @@ public final class MatrixConverter {
 
 	public static DenseFloatMatrix asDenseFloatMatrix(HashMatrix sparseMatrix) {
 		final DenseFloatMatrix m = new DenseFloatMatrix(
-				sparseMatrix.getRowDimension(),
-				sparseMatrix.getColumnDimension());
+				sparseMatrix.rows(),
+				sparseMatrix.columns());
 		sparseMatrix.iterate(new MatrixIterator() {
 			@Override
 			public void next(int row, int col, double val) {
-				m.setEntry(row, col, val);
+				m.set(row, col, val);
 			}
 		});
 		return m;
@@ -86,15 +86,15 @@ public final class MatrixConverter {
 	public static HashMatrix asHashMatrix(IMatrix matrix) {
 		if (matrix instanceof HashMatrix)
 			return (HashMatrix) matrix;
-		int rows = matrix.getRowDimension();
-		int cols = matrix.getColumnDimension();
+		int rows = matrix.rows();
+		int cols = matrix.columns();
 		HashMatrix sparse = new HashMatrix(rows, cols);
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {
-				double val = matrix.getEntry(row, col);
+				double val = matrix.get(row, col);
 				if (Numbers.isZero(val))
 					continue;
-				sparse.setEntry(row, col, val);
+				sparse.set(row, col, val);
 			}
 		}
 		return sparse;

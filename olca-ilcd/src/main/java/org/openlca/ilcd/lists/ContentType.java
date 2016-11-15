@@ -5,27 +5,37 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name = "DataSetType")
+/**
+ * Specifies the type of data sets that can be contained in a category.
+ */
 @XmlEnum
-public enum DataSetType {
+@XmlType(name = "DataSetType")
+public enum ContentType {
 
 	@XmlEnumValue("Process")
 	PROCESS("Process"),
+
 	@XmlEnumValue("LCIAMethod")
 	LCIA_METHOD("LCIAMethod"),
+
 	@XmlEnumValue("Flow")
 	FLOW("Flow"),
+
 	@XmlEnumValue("FlowProperty")
 	FLOW_PROPERTY("FlowProperty"),
+
 	@XmlEnumValue("UnitGroup")
 	UNIT_GROUP("UnitGroup"),
+
 	@XmlEnumValue("Source")
 	SOURCE("Source"),
+
 	@XmlEnumValue("Contact")
 	CONTACT("Contact");
+
 	private final String value;
 
-	DataSetType(String v) {
+	ContentType(String v) {
 		value = v;
 	}
 
@@ -33,8 +43,8 @@ public enum DataSetType {
 		return value;
 	}
 
-	public static DataSetType fromValue(String v) {
-		for (DataSetType c : DataSetType.values()) {
+	public static ContentType fromValue(String v) {
+		for (ContentType c : ContentType.values()) {
 			if (c.value.equals(v)) {
 				return c;
 			}

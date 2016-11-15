@@ -352,11 +352,11 @@ public class SystemExport {
 
 	private IMatrix transpose(IMatrix matrix) {
 		IMatrix result = conf.getMatrixFactory().create(
-				matrix.getColumnDimension(), matrix.getRowDimension());
-		for (int row = 0; row < matrix.getRowDimension(); row++) {
-			for (int column = 0; column < matrix.getColumnDimension(); column++) {
-				double value = matrix.getEntry(row, column);
-				result.setEntry(column, row, value);
+				matrix.columns(), matrix.rows());
+		for (int row = 0; row < matrix.rows(); row++) {
+			for (int column = 0; column < matrix.columns(); column++) {
+				double value = matrix.get(row, column);
+				result.set(column, row, value);
 			}
 		}
 		return result;
