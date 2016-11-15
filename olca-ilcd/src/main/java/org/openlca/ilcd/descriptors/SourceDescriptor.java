@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.PublicationType;
+import org.openlca.ilcd.sources.SourceType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = { "uuid", "permanentUri", "dataSetVersion",
@@ -48,7 +48,7 @@ public class SourceDescriptor implements Serializable {
 	public LangString citation;
 
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Source")
-	public PublicationType publicationType;
+	public SourceType publicationType;
 
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Source")
 	public final List<DataSetReference> file = new ArrayList<>();

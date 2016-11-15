@@ -1,5 +1,5 @@
 
-package org.openlca.ilcd.commons;
+package org.openlca.ilcd.sources;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "PublicationTypeValues")
 @XmlEnum
-public enum PublicationType {
+public enum SourceType {
 
 	/**
 	 * Mixed, unclear or not defined publication type.
@@ -85,7 +85,7 @@ public enum PublicationType {
 	OTHER_UNPUBLISHED_AND_GREY_LITERATURE("Other unpublished and grey literature");
 	private final String value;
 
-	PublicationType(String v) {
+	SourceType(String v) {
 		value = v;
 	}
 
@@ -93,8 +93,8 @@ public enum PublicationType {
 		return value;
 	}
 
-	public static PublicationType fromValue(String v) {
-		for (PublicationType c : PublicationType.values()) {
+	public static SourceType fromValue(String v) {
+		for (SourceType c : SourceType.values()) {
 			if (c.value.equals(v)) {
 				return c;
 			}

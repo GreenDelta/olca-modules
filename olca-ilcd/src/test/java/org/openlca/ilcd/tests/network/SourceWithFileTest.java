@@ -71,7 +71,7 @@ public class SourceWithFileTest {
 	private void addFileLink(Source source, File file) {
 		DigitalFileRef ref = new DigitalFileRef();
 		ref.uri = "../external_docs/" + file.getName();
-		source.sourceInfo.dataSetInfo.referenceToDigitalFile
+		source.sourceInfo.dataSetInfo.digitalFiles
 				.add(ref);
 	}
 }

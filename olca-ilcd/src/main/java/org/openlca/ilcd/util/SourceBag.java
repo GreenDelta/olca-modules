@@ -38,21 +38,21 @@ public class SourceBag implements IBag<Source> {
 	public String getShortName() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFirst(info.shortName, langs);
+			return LangString.getFirst(info.name, langs);
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFirst(info.sourceDescriptionOrComment, langs);
+			return LangString.getFirst(info.description, langs);
 		return null;
 	}
 
 	public String getSourceCitation() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return info.sourceCitation;
+			return info.citation;
 		return null;
 	}
 
@@ -64,7 +64,7 @@ public class SourceBag implements IBag<Source> {
 		DataSetInfo info = getDataSetInformation();
 		if (info == null)
 			return Collections.emptyList();
-		List<DigitalFileRef> refs = info.referenceToDigitalFile;
+		List<DigitalFileRef> refs = info.digitalFiles;
 		List<String> uris = new ArrayList<>();
 		for (DigitalFileRef ref : refs) {
 			if (ref.uri != null)
