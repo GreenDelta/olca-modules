@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
 
-class Upgrade1 implements IUpgrade {
+class Upgrade3 implements IUpgrade {
 
 	private Util util;
 	private IDatabase database;

@@ -14,14 +14,14 @@ import org.openlca.core.model.ModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class Upgrade2Files {
+class Upgrade4Files {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private File root;
 	private FileStore store;
 	private IDatabase db;
 
-	private Upgrade2Files(File root, IDatabase db) {
+	private Upgrade4Files(File root, IDatabase db) {
 		this.root = root;
 		store = new FileStore(root);
 		this.db = db;
@@ -33,7 +33,7 @@ class Upgrade2Files {
 		File root = db.getFileStorageLocation();
 		if (root == null || !root.exists() || !root.isDirectory())
 			return;
-		new Upgrade2Files(root, db).exec();
+		new Upgrade4Files(root, db).exec();
 	}
 
 	private void exec() throws Exception {

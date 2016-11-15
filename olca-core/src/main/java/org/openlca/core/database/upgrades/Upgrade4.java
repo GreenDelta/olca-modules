@@ -13,7 +13,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NativeSql.QueryResultHandler;
 
-public class Upgrade2 implements IUpgrade {
+public class Upgrade4 implements IUpgrade {
 
 	private IDatabase database;
 	private Util util;
@@ -49,7 +49,7 @@ public class Upgrade2 implements IUpgrade {
 		util.createColumn("tbl_exchanges", "description", "description "
 				+ util.getTextType());
 		util.createColumn("tbl_flows", "synonyms", "synonyms VARCHAR(32672)");
-		Upgrade2Files.apply(database);
+		Upgrade4Files.apply(database);
 	}
 
 	/**
