@@ -26,59 +26,74 @@ import com.google.common.base.Strings;
 /**
  * A helper class for writing values of results to Excel files.
  */
-class CellWriter {
+public class CellWriter {
 
 	private final EntityCache cache;
 	private final HashMap<Long, String> flowUnits = new HashMap<>();
 	private final CellStyles styles;
 
-	CellWriter(EntityCache cache, Workbook wb) {
+	public CellWriter(EntityCache cache, Workbook wb) {
 		this.cache = cache;
 		this.styles = new CellStyles(wb);
 	}
 
 	/**
-	 * Writes the process information into the given row, starting with column
-	 * col.
+	 * Writes the process information into the given row, starting in column col
 	 */
-	void process(Sheet sheet, int row, int col, ProcessDescriptor process, boolean bold) {
-		cell(sheet, row, col++, process.getRefId(), bold);
-		cell(sheet, row, col++, process.getName(), bold);
+	public void processCol(Sheet sheet, int row, int col, ProcessDescriptor process) {
+		cell(sheet, row++, col, process.getRefId(), false);
+		cell(sheet, row++, col, process.getName(), false);
 		if (process.getLocation() == null)
 			return;
 		Location loc = cache.get(Location.class, process.getLocation());
 		String code = loc == null ? "" : loc.getCode();
-		cell(sheet, row, col++, code, bold);
+		cell(sheet, row++, col, code, false);
 	}
 
 	/**
-	 * Writes the impact category information into the given row, starting with
-	 * column col.
+	 * Writes the impact category information into the given row, starting in
+	 * column col
 	 */
-	void impact(Sheet sheet, int row, int col, ImpactCategoryDescriptor impact, boolean bold) {
-		cell(sheet, row, col++, impact.getRefId(), bold);
-		cell(sheet, row, col++, impact.getName(), bold);
-		cell(sheet, row, col++, impact.getReferenceUnit(), bold);
+	public void impactRow(Sheet sheet, int row, int col, ImpactCategoryDescriptor impact) {
+		cell(sheet, row, col++, impact.getRefId(), false);
+		cell(sheet, row, col++, impact.getName(), false);
+		cell(sheet, row, col++, impact.getReferenceUnit(), false);
 	}
 
 	/**
-	 * Writes the given flow information into the given row, starting with
-	 * column col.
+	 * Writes the given flow information into the given row, starting in column
+	 * col
 	 */
-	void flow(Sheet sheet, int row, int col, FlowDescriptor flow, boolean bold) {
-		cell(sheet, row, col++, flow.getRefId(), bold);
-		cell(sheet, row, col++, flow.getName(), bold);
+	public void flowRow(Sheet sheet, int row, int col, FlowDescriptor flow) {
+		flow(sheet, row, col, flow, true);
+	}
+
+	/**
+	 * Writes the given flow information into the given col, starting in row row
+	 */
+	public void flowCol(Sheet sheet, int row, int col, FlowDescriptor flow) {
+		flow(sheet, row, col, flow, false);
+	}
+
+	private void flow(Sheet sheet, int row, int col, FlowDescriptor flow, boolean isRow) {
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.getRefId(), false);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.getName(), false);
 		CategoryPair flowCat = CategoryPair.create(flow, cache);
-		cell(sheet, row, col++, flowCat.getCategory(), bold);
-		cell(sheet, row, col++, flowCat.getSubCategory(), bold);
-		cell(sheet, row, col++, flowUnit(flow), bold);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flowCat.getCategory(), false);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flowCat.getSubCategory(), false);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flowUnit(flow), false);
+	}
+
+	public int dataQuality(Sheet sheet, int row, int col, double[] quality, RoundingMode rounding, int scores) {
+		return dataQuality(sheet, row, col, quality, rounding, scores, false);
 	}
 
 	/**
 	 * Writes the given data quality information into the given row, starting
-	 * with column col.
+	 * with column col
 	 */
-	int dataQuality(Sheet sheet, int row, int col, double[] quality, RoundingMode rounding, int scores, boolean bold) {
+	private int dataQuality(Sheet sheet, int row, int col, double[] quality, RoundingMode rounding, int scores,
+			boolean bold) {
 		if (scores == 0 || quality == null)
 			return col;
 		for (int i = 0; i < quality.length; i++) {
@@ -96,7 +111,7 @@ class CellWriter {
 	 * Writes the data quality indicators of the given system into the given
 	 * row, starting with column col.
 	 */
-	int dataQualityHeader(Sheet sheet, int row, int col, DQSystem system) {
+	public int dataQualityHeader(Sheet sheet, int row, int col, DQSystem system) {
 		Collections.sort(system.indicators);
 		for (DQIndicator indicator : system.indicators) {
 			String name = Integer.toString(indicator.position);
@@ -108,29 +123,29 @@ class CellWriter {
 		return col;
 	}
 
-	int headerRow(Sheet sheet, int row, int col, String[] vals) {
-		for (String val : vals) {
+	public int headerRow(Sheet sheet, int row, int col, String... vals) {
+		if (vals == null)
+			return col;
+		for (Object val : vals) {
 			cell(sheet, row, col++, val, true);
 		}
 		return col;
 	}
 
-	int headerCol(Sheet sheet, int row, int col, String[] vals) {
-		for (String val : vals) {
+	public int headerCol(Sheet sheet, int row, int col, String... vals) {
+		if (vals == null)
+			return row;
+		for (Object val : vals) {
 			cell(sheet, row++, col, val, true);
 		}
 		return row;
 	}
 
-	void cell(Sheet sheet, int row, int col, String val) {
+	public void cell(Sheet sheet, int row, int col, Object val) {
 		cell(sheet, row, col, val, false);
 	}
 
-	void cell(Sheet sheet, int row, int col, String val, Color color) {
-		cell(sheet, row, col, val, color, false);
-	}
-
-	void cell(Sheet sheet, int row, int col, String val, boolean bold) {
+	public void cell(Sheet sheet, int row, int col, Object val, boolean bold) {
 		if (bold) {
 			cell(sheet, row, col, val, styles.bold());
 		} else {
@@ -138,15 +153,15 @@ class CellWriter {
 		}
 	}
 
-	void cell(Sheet sheet, int row, int col, String val, Color color, boolean bold) {
+	private void cell(Sheet sheet, int row, int col, Object val, Color color, boolean bold) {
 		if (bold) {
 			cell(sheet, row, col, val, styles.bold(color));
 		} else {
 			cell(sheet, row, col, val, styles.normal(color));
 		}
 	}
-	
-	void wrappedCell(Sheet sheet, int row, int col, String val, Color color, boolean bold) {
+
+	void wrappedCell(Sheet sheet, int row, int col, Object val, Color color, boolean bold) {
 		Cell cell = null;
 		if (bold) {
 			cell = cell(sheet, row, col, val, styles.bold(color));
@@ -156,18 +171,19 @@ class CellWriter {
 		cell.getCellStyle().setWrapText(true);
 	}
 
-	private Cell cell(Sheet sheet, int row, int col, String val, CellStyle style) {
-		Cell cell = Excel.cell(sheet, row, col, val == null ? "" : val.toString());
-		if (style == null)
-			return cell;
+	private Cell cell(Sheet sheet, int row, int col, Object val, CellStyle style) {
+		Cell cell = null;
+		if (val instanceof Number) {
+			cell = Excel.cell(sheet, row, col, ((Number) val).doubleValue());
+		} else if (val instanceof Date) {
+			cell = Excel.cell(sheet, row, col);
+			cell.setCellValue((Date) val);
+			style = styles.date();
+		} else {
+			cell = Excel.cell(sheet, row, col, val == null ? "" : val.toString());
+		}
 		cell.setCellStyle(style);
 		return cell;
-	}
-
-	void cell(Sheet sheet, int row, int col, Date val) {
-		Cell cell = Excel.cell(sheet, row, col);
-		cell.setCellValue(val);
-		cell.setCellStyle(styles.date());
 	}
 
 	private String flowUnit(FlowDescriptor flow) {
