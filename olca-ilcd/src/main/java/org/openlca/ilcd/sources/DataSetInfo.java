@@ -29,7 +29,7 @@ import org.openlca.ilcd.commons.annotations.Label;
 		"citation",
 		"type",
 		"description",
-		"digitalFiles",
+		"files",
 		"contacts",
 		"logo",
 		"other" })
@@ -59,7 +59,7 @@ public class DataSetInfo implements Serializable {
 	public final List<LangString> description = new ArrayList<>();
 
 	@XmlElement(name = "referenceToDigitalFile")
-	public final List<DigitalFileRef> digitalFiles = new ArrayList<>();
+	public final List<FileRef> files = new ArrayList<>();
 
 	@XmlElement(name = "referenceToContact")
 	public final List<Ref> contacts = new ArrayList<>();

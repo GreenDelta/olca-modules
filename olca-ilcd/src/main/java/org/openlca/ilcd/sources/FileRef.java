@@ -15,7 +15,7 @@ import javax.xml.namespace.QName;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ReferenceToDigitalFileType")
-public class DigitalFileRef implements Serializable {
+public class FileRef implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 

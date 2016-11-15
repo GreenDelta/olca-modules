@@ -12,7 +12,7 @@ import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.sources.DataSetInfo;
-import org.openlca.ilcd.sources.DigitalFileRef;
+import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInfo;
 import org.openlca.ilcd.util.Reference;
@@ -101,9 +101,9 @@ public class SourceExport {
 	}
 
 	private void addFileRef(DataSetInfo info, File extFile) {
-		DigitalFileRef fileRef = new DigitalFileRef();
+		FileRef fileRef = new FileRef();
 		fileRef.uri = "../external_docs/" + extFile.getName();
-		info.digitalFiles.add(fileRef);
+		info.files.add(fileRef);
 	}
 
 	private AdminInfo makeAdminInfo() {
