@@ -20,6 +20,6 @@ public class CategoryList implements Serializable {
 	public final List<Category> categories = new ArrayList<>();
 
 	@XmlAttribute(name = "dataType", required = true)
-	public DataSetType dataType;
+	public ContentType type;
 
 }
