@@ -44,9 +44,9 @@ public class SolverTest {
 		log.info("Test simple solve with {}", solver.getClass());
 		IMatrixFactory<?> factory = solver.getMatrixFactory();
 		IMatrix a = factory.create(2, 2);
-		a.setEntry(0, 0, 1);
-		a.setEntry(1, 0, -5);
-		a.setEntry(1, 1, 4);
+		a.set(0, 0, 1);
+		a.set(1, 0, -5);
+		a.set(1, 1, 4);
 		double[] x = solver.solve(a, 0, 1);
 		Assert.assertArrayEquals(new double[] { 1, 1.25 }, x, 1e-14);
 	}
@@ -71,12 +71,12 @@ public class SolverTest {
 		matrix.flowIndex = flowIndex;
 
 		IMatrix techMatrix = factory.create(1, 1);
-		techMatrix.setEntry(0, 0, 1);
+		techMatrix.set(0, 0, 1);
 		matrix.technologyMatrix = techMatrix;
 
 		IMatrix enviMatrix = factory.create(4, 1);
 		for (int r = 0; r < 4; r++)
-			enviMatrix.setEntry(r, 0, 1 * r);
+			enviMatrix.set(r, 0, 1 * r);
 		matrix.interventionMatrix = enviMatrix;
 
 		LcaCalculator calculator = new LcaCalculator(solver, matrix);

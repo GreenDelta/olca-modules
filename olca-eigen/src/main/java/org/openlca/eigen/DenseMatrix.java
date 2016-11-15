@@ -23,22 +23,22 @@ public class DenseMatrix implements IMatrix {
 	}
 
 	@Override
-	public int getRowDimension() {
+	public int rows() {
 		return rows;
 	}
 
 	@Override
-	public int getColumnDimension() {
+	public int columns() {
 		return columns;
 	}
 
 	@Override
-	public void setEntry(int row, int col, double val) {
+	public void set(int row, int col, double val) {
 		data[index(row, col)] = val;
 	}
 
 	@Override
-	public double getEntry(int row, int col) {
+	public double get(int row, int col) {
 		return data[index(row, col)];
 	}
 
@@ -54,7 +54,7 @@ public class DenseMatrix implements IMatrix {
 	public double[] getRow(int i) {
 		double[] row = new double[columns];
 		for (int c = 0; c < columns; c++) {
-			row[c] = getEntry(i, c);
+			row[c] = get(i, c);
 		}
 		return row;
 	}

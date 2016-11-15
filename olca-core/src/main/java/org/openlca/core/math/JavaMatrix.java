@@ -26,22 +26,22 @@ class JavaMatrix implements IMatrix {
 	}
 
 	@Override
-	public int getColumnDimension() {
+	public int columns() {
 		return matrix.getColumnDimension();
 	}
 
 	@Override
-	public int getRowDimension() {
+	public int rows() {
 		return matrix.getRowDimension();
 	}
 
 	@Override
-	public void setEntry(int row, int col, double val) {
+	public void set(int row, int col, double val) {
 		matrix.setEntry(row, col, val);
 	}
 
 	@Override
-	public double getEntry(int row, int col) {
+	public double get(int row, int col) {
 		return matrix.getEntry(row, col);
 	}
 

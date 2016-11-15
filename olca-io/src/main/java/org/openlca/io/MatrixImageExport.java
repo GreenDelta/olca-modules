@@ -42,8 +42,8 @@ public class MatrixImageExport {
 		log.trace("write matrix to image {}", exportFile);
 		int colWidth = colWidth();
 		int rowHeight = rowHeight();
-		int realWidth = matrix.getColumnDimension() * colWidth;
-		int realHeight = matrix.getRowDimension() * rowHeight;
+		int realWidth = matrix.columns() * colWidth;
+		int realHeight = matrix.rows() * rowHeight;
 		BufferedImage image = new BufferedImage(realWidth, realHeight,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = image.createGraphics();
@@ -59,9 +59,9 @@ public class MatrixImageExport {
 	}
 
 	private void drawCells(Graphics2D graphics, int colWidth, int rowHeight) {
-		for (int row = 0; row < matrix.getRowDimension(); row++) {
-			for (int col = 0; col < matrix.getColumnDimension(); col++) {
-				double val = matrix.getEntry(row, col);
+		for (int row = 0; row < matrix.rows(); row++) {
+			for (int col = 0; col < matrix.columns(); col++) {
+				double val = matrix.get(row, col);
 				if (val == 0)
 					continue;
 				if (val < 0)
@@ -75,7 +75,7 @@ public class MatrixImageExport {
 	}
 
 	private int colWidth() {
-		int cols = matrix.getColumnDimension();
+		int cols = matrix.columns();
 		if (width != -1) {
 			int w = width / cols;
 			return w == 0 ? 1 : w;
@@ -89,7 +89,7 @@ public class MatrixImageExport {
 	}
 
 	private int rowHeight() {
-		int rows = matrix.getRowDimension();
+		int rows = matrix.rows();
 		if (height != -1) {
 			int h = height / rows;
 			return h == 0 ? 1 : h;

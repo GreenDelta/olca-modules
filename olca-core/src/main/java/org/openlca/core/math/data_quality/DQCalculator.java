@@ -113,7 +113,7 @@ class DQCalculator {
 	private double getImpactFactor(ContributionResult result, long impactId, long flowId) {
 		int flowIndex = result.flowIndex.getIndex(flowId);
 		int impactIndex = result.impactIndex.getIndex(impactId);
-		return result.impactFactors.getEntry(impactIndex, flowIndex);
+		return result.impactFactors.get(impactIndex, flowIndex);
 	}
 
 }

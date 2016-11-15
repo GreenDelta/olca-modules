@@ -38,13 +38,13 @@ public class MarketFormatWriter {
 		     BufferedWriter buff = new BufferedWriter(w)) {
 			buff.write("%%MatrixMarket matrix array real general");
 			buff.newLine();
-			int rows = matrix.getRowDimension();
-			int cols = matrix.getColumnDimension();
+			int rows = matrix.rows();
+			int cols = matrix.columns();
 			buff.write(rows + " " + cols);
 			buff.newLine();
 			for (int col = 0; col < cols; col++) {
 				for (int row = 0; row < rows; row++) {
-					double val = matrix.getEntry(row, col);
+					double val = matrix.get(row, col);
 					buff.write(Double.toString(val));
 					buff.newLine();
 				}
@@ -68,14 +68,14 @@ public class MarketFormatWriter {
 		     BufferedWriter buff = new BufferedWriter(w)) {
 			buff.write("%%MatrixMarket matrix coordinate real general");
 			buff.newLine();
-			int rows = matrix.getRowDimension();
-			int cols = matrix.getColumnDimension();
+			int rows = matrix.rows();
+			int cols = matrix.columns();
 			int entries = countEntries(matrix);
 			buff.write(rows + " " + cols + " " + entries);
 			buff.newLine();
 			for (int col = 0; col < cols; col++) {
 				for (int row = 0; row < rows; row++) {
-					double val = matrix.getEntry(row, col);
+					double val = matrix.get(row, col);
 					if (val != 0)
 						writeSparseRow(row, col, val, buff);
 				}
@@ -93,9 +93,9 @@ public class MarketFormatWriter {
 
 	private int countEntries(IMatrix matrix) {
 		int count = 0;
-		for (int col = 0; col < matrix.getColumnDimension(); col++) {
-			for (int row = 0; row < matrix.getRowDimension(); row++) {
-				if (matrix.getEntry(row, col) != 0)
+		for (int col = 0; col < matrix.columns(); col++) {
+			for (int row = 0; row < matrix.rows(); row++) {
+				if (matrix.get(row, col) != 0)
 					count++;
 			}
 		}

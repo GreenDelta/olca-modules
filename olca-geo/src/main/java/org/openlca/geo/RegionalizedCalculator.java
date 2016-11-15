@@ -81,8 +81,8 @@ public class RegionalizedCalculator {
 				IMatrix assessedKml = solver.multiply(kmlFactors, m.interventionMatrix);
 				for (LongPair product : kml.processProducts) {
 					int col = r.productIndex.getIndex(product);
-					for (int row = 0; row < assessedEnvi.getRowDimension(); row++) {
-						assessedEnvi.setEntry(row, col, assessedKml.getEntry(row, col));
+					for (int row = 0; row < assessedEnvi.rows(); row++) {
+						assessedEnvi.set(row, col, assessedKml.get(row, col));
 					}
 				}
 			});
@@ -119,7 +119,7 @@ public class RegionalizedCalculator {
 				IMatrix costMatrix = costVector.asMatrix(solver.getMatrixFactory());
 				IMatrix upstreamCosts = solver.multiply(costMatrix, inverse);
 				solver.scaleColumns(upstreamCosts, demands);
-				r.totalCostResult = upstreamCosts.getEntry(0, refIdx);
+				r.totalCostResult = upstreamCosts.get(0, refIdx);
 				r.upstreamCostResults = upstreamCosts;
 			}
 

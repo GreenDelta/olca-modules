@@ -53,9 +53,9 @@ public class MatBinMatrixReader {
 		IMatrix matrix = factory.create(rows, cols);
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {
-				int offset = 5 + row + col * matrix.getRowDimension();
+				int offset = 5 + row + col * matrix.rows();
 				double val = readNumber(offset, bytes);
-				matrix.setEntry(row, col, val);
+				matrix.set(row, col, val);
 			}
 		}
 		return matrix;
@@ -71,7 +71,7 @@ public class MatBinMatrixReader {
 			for (int col = 0; col < cols; col++) {
 				for (int row = 0; row < rows; row++) {
 					double val = readNumber(channel);
-					matrix.setEntry(row, col, val);
+					matrix.set(row, col, val);
 				}
 			}
 			return matrix;

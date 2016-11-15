@@ -73,7 +73,7 @@ public class ExchangeMatrix {
 			return null;
 		M matrix = factory.create(rows, columns);
 		iterate((row, col, cell) -> {
-			matrix.setEntry(row, col, cell.getMatrixValue());
+			matrix.set(row, col, cell.getMatrixValue());
 		});
 		return matrix;
 	}
@@ -86,13 +86,13 @@ public class ExchangeMatrix {
 
 	void apply(IMatrix matrix) {
 		iterate((row, col, cell) -> {
-			matrix.setEntry(row, col, cell.getMatrixValue());
+			matrix.set(row, col, cell.getMatrixValue());
 		});
 	}
 
 	void simulate(IMatrix matrix) {
 		iterate((row, col, cell) -> {
-			matrix.setEntry(row, col, cell.getNextSimulationValue());
+			matrix.set(row, col, cell.getNextSimulationValue());
 		});
 	}
 

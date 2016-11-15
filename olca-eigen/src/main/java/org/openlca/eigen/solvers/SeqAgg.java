@@ -14,17 +14,17 @@ public class SeqAgg {
 		this.a = a.copy();
 		this.b = b.copy();
 		this.refIdx = refIdx;
-		this.scale = demand / a.getEntry(refIdx, refIdx);
+		this.scale = demand / a.get(refIdx, refIdx);
 	}
 
 	public double[] solve() {
-		for (int sourceIdx = 0; sourceIdx < a.getColumnDimension(); sourceIdx++) {
+		for (int sourceIdx = 0; sourceIdx < a.columns(); sourceIdx++) {
 			if (sourceIdx == refIdx)
 				continue;
 			if (refIdx < sourceIdx)
 				add(sourceIdx, refIdx);
 			for (int targetIdx = sourceIdx + 1; targetIdx < a
-					.getColumnDimension(); targetIdx++) {
+					.columns(); targetIdx++) {
 				add(sourceIdx, targetIdx);
 			}
 		}
@@ -36,12 +36,12 @@ public class SeqAgg {
 
 	/** Adds the source column to the target column. */
 	private void add(int sourceIdx, int targetIdx) {
-		double ts = a.getEntry(sourceIdx, targetIdx);
-		double st = a.getEntry(targetIdx, sourceIdx);
+		double ts = a.get(sourceIdx, targetIdx);
+		double st = a.get(targetIdx, sourceIdx);
 		if (Numbers.isZero(ts) && Numbers.isZero(st))
 			return; // independent columns
-		double ss = a.getEntry(sourceIdx, sourceIdx);
-		double tt = a.getEntry(targetIdx, targetIdx);
+		double ss = a.get(sourceIdx, sourceIdx);
+		double tt = a.get(targetIdx, targetIdx);
 		if (Numbers.isZero(ss) || Numbers.isZero(tt))
 			return; // TODO: log warning: no diagonal entry
 		if (Numbers.isZero(st) && !Numbers.isZero(ts)) {
@@ -61,32 +61,32 @@ public class SeqAgg {
 	}
 
 	private void add(int sourceIdx, final int targetIdx, final double factor) {
-		for (int row = 0; row < a.getRowDimension(); row++) {
-			double val = a.getEntry(row, sourceIdx);
+		for (int row = 0; row < a.rows(); row++) {
+			double val = a.get(row, sourceIdx);
 			double addVal = val * factor;
-			double oldEntry = a.getEntry(row, targetIdx);
-			a.setEntry(row, targetIdx, oldEntry + addVal);
+			double oldEntry = a.get(row, targetIdx);
+			a.set(row, targetIdx, oldEntry + addVal);
 		}
-		for (int row = 0; row < b.getRowDimension(); row++) {
-			double val = b.getEntry(row, sourceIdx);
+		for (int row = 0; row < b.rows(); row++) {
+			double val = b.get(row, sourceIdx);
 			double addVal = val * factor;
-			double oldEntry = b.getEntry(row, targetIdx);
-			b.setEntry(row, targetIdx, oldEntry + addVal);
+			double oldEntry = b.get(row, targetIdx);
+			b.set(row, targetIdx, oldEntry + addVal);
 		}
 	}
 
 	private void scaleColumn(final int columnIndex, final double factor) {
-		for (int row = 0; row < a.getRowDimension(); row++) {
-			double val = a.getEntry(row, columnIndex);
+		for (int row = 0; row < a.rows(); row++) {
+			double val = a.get(row, columnIndex);
 			if (Numbers.isZero(val))
 				continue;
-			a.setEntry(row, columnIndex, val * factor);
+			a.set(row, columnIndex, val * factor);
 		}
-		for (int row = 0; row < b.getRowDimension(); row++) {
-			double val = b.getEntry(row, columnIndex);
+		for (int row = 0; row < b.rows(); row++) {
+			double val = b.get(row, columnIndex);
 			if (Numbers.isZero(val))
 				continue;
-			b.setEntry(row, columnIndex, val * factor);
+			b.set(row, columnIndex, val * factor);
 		}
 	}
 

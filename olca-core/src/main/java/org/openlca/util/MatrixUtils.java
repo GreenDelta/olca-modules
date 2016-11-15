@@ -15,7 +15,7 @@ public class MatrixUtils {
 		for (int row = 0; row < rows; row++) {
 			double[] rowVals = data[row];
 			for (int col = 0; col < rowVals.length; col++)
-				m.setEntry(row, col, rowVals[col]);
+				m.set(row, col, rowVals[col]);
 		}
 		return m;
 	}

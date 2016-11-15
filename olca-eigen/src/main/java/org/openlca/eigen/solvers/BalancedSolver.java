@@ -17,13 +17,13 @@ public class BalancedSolver implements IMatrixSolver {
 
 	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
-		if (a.getColumnDimension() == 1)
-			return new double[] { d / a.getEntry(0, 0) }; // see sparseLU doc
+		if (a.columns() == 1)
+			return new double[] { d / a.get(0, 0) }; // see sparseLU doc
 		if (a instanceof DenseMatrix)
 			return denseSolver.solve(a, idx, d);
 		HashMatrix A = MatrixConverter.asHashMatrix(a);
 		SparseMatrixData aData = new SparseMatrixData(A);
-		double[] b = new double[a.getRowDimension()];
+		double[] b = new double[a.rows()];
 		b[idx] = d;
 		double[] x = new double[aData.rows];
 		Eigen.sparseLu(aData.columns, aData.numberOfEntries, aData.rowIndices,
@@ -35,7 +35,7 @@ public class BalancedSolver implements IMatrixSolver {
 	public double[] multiply(IMatrix m, final double[] v) {
 		if (m instanceof DenseMatrix)
 			return denseSolver.multiply(m, v);
-		final double[] x = new double[m.getRowDimension()];
+		final double[] x = new double[m.rows()];
 		HashMatrix a = MatrixConverter.asHashMatrix(m);
 		a.iterate(new MatrixIterator() {
 			@Override
@@ -58,9 +58,9 @@ public class BalancedSolver implements IMatrixSolver {
 
 	@Override
 	public void scaleColumns(IMatrix m, double[] v) {
-		for (int row = 0; row < m.getRowDimension(); row++) {
-			for (int col = 0; col < m.getColumnDimension(); col++) {
-				m.setEntry(row, col, v[col] * m.getEntry(row, col));
+		for (int row = 0; row < m.rows(); row++) {
+			for (int col = 0; col < m.columns(); col++) {
+				m.set(row, col, v[col] * m.get(row, col));
 			}
 		}
 	}
