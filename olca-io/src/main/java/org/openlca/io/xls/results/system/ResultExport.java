@@ -1,4 +1,4 @@
-package org.openlca.io.xls.results;
+package org.openlca.io.xls.results.system;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,15 +13,17 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.io.xls.results.CellWriter;
+import org.openlca.io.xls.results.InfoSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ResultExport implements Runnable {
 
 	private final static Logger log = LoggerFactory.getLogger(ResultExport.class);
-	private static final String[] FLOW_HEADER = { "Flow UUID", "Flow", "Category", "Sub-category", "Unit" };
-	private static final String[] PROCESS_HEADER = { "Process UUID", "Process", "Location" };
-	private static final String[] IMPACT_HEADER = { "Impact category UUID", "Impact category", "Reference unit" };
+	static final String[] FLOW_HEADER = { "Flow UUID", "Flow", "Category", "Sub-category", "Unit" };
+	static final String[] PROCESS_HEADER = { "Process UUID", "Process", "Location" };
+	static final String[] IMPACT_HEADER = { "Impact category UUID", "Impact category", "Reference unit" };
 
 	private final File file;
 	final CalculationSetup setup;
@@ -30,9 +32,9 @@ public class ResultExport implements Runnable {
 	final String type;
 
 	private boolean success;
-	private List<ProcessDescriptor> processes;
-	private List<FlowDescriptor> flows;
-	private List<ImpactCategoryDescriptor> impacts;
+	List<ProcessDescriptor> processes;
+	List<FlowDescriptor> flows;
+	List<ImpactCategoryDescriptor> impacts;
 	Workbook workbook;
 	CellWriter writer;
 
@@ -50,9 +52,13 @@ public class ResultExport implements Runnable {
 			prepare();
 			DQCalculationSetup dqSetup = dqResult != null ? dqResult.setup : null;
 			InfoSheet.write(workbook, writer, setup, dqSetup, type);
-			ResultSheet.write(this, "Inventory", FLOW_HEADER, flows, PROCESS_HEADER, processes);
-			ResultSheet.write(this, "Impact (by process)", IMPACT_HEADER, impacts, PROCESS_HEADER, processes);
-			ResultSheet.write(this, "Impact (by flow)", IMPACT_HEADER, impacts, FLOW_HEADER, flows);
+			InventorySheet.write(this);
+			if (result.hasImpactResults()) {
+				ImpactSheet.write(this);
+			}
+			ProcessFlowContributionSheet.write(this);
+			ProcessImpactContributionSheet.write(this);
+			FlowImpactContributionSheet.write(this);
 			success = true;
 			try (FileOutputStream stream = new FileOutputStream(file)) {
 				workbook.write(stream);

@@ -72,7 +72,7 @@ public class SimulationResultExport {
 		writerImpactHeader(sheet);
 		List<ImpactCategoryDescriptor> impacts = Sort.impacts(result.getImpactDescriptors());
 		for (ImpactCategoryDescriptor impact : impacts) {
-			writer.impact(sheet, row, 1, impact, false);
+			writer.impactRow(sheet, row, 1, impact);
 			List<Double> values = result.getImpactResults(impact);
 			writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
 			row++;
@@ -115,7 +115,7 @@ public class SimulationResultExport {
 		for (FlowDescriptor flow : flows) {
 			if (idx.isInput(flow.getId()) != forInputs)
 				continue;
-			writer.flow(sheet, row, 1, flow, false);
+			writer.flowRow(sheet, row, 1, flow);
 			List<Double> values = result.getFlowResults(flow);
 			writeValues(sheet, row, FLOW_HEADER.length + 1, values);
 			row++;

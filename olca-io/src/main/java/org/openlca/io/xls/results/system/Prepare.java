@@ -1,4 +1,4 @@
-package org.openlca.io.xls.results;
+package org.openlca.io.xls.results.system;
 
 import java.util.Collections;
 import java.util.List;
@@ -8,8 +8,9 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.io.xls.results.Sort;
 
-public class Prepare {
+class Prepare {
 
 	static List<FlowDescriptor> flows(ContributionResultProvider<?> result) {
 		Set<FlowDescriptor> set = result.getFlowDescriptors();

@@ -20,7 +20,7 @@ import org.openlca.io.xls.Excel;
 
 import com.google.common.base.Strings;
 
-class InfoSheet {
+public class InfoSheet {
 
 	private static final String[] GENERAL_HEADERS = {
 			"Product system:",
@@ -40,7 +40,7 @@ class InfoSheet {
 			"n.a. value handling:"
 	};
 
-	static void write(Workbook workbook, CellWriter writer, CalculationSetup setup, DQCalculationSetup dqSetup,
+	public static void write(Workbook workbook, CellWriter writer, CalculationSetup setup, DQCalculationSetup dqSetup,
 			String title) {
 		Sheet sheet = workbook.createSheet("Calculation setup");
 		boolean withDataQuality = dqSetup != null && dqSetup.exchangeDqSystem != null;

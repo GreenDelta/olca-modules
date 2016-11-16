@@ -15,9 +15,9 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.util.Strings;
 
-class Sort {
+public class Sort {
 
-	static List<ImpactCategoryDescriptor> impacts(Collection<ImpactCategoryDescriptor> impacts) {
+	public static List<ImpactCategoryDescriptor> impacts(Collection<ImpactCategoryDescriptor> impacts) {
 		List<ImpactCategoryDescriptor> list = new ArrayList<>(impacts);
 		Collections.sort(list, new Comparator<ImpactCategoryDescriptor>() {
 			@Override
@@ -28,7 +28,7 @@ class Sort {
 		return list;
 	}
 
-	static List<ProjectVariant> variants(Collection<ProjectVariant> variants) {
+	public static List<ProjectVariant> variants(Collection<ProjectVariant> variants) {
 		List<ProjectVariant> list = new ArrayList<>(variants);
 		Collections.sort(list, new Comparator<ProjectVariant>() {
 			@Override
@@ -39,7 +39,7 @@ class Sort {
 		return list;
 	}
 
-	static List<ProcessDescriptor> processes(Collection<ProcessDescriptor> processes, long refProcessId) {
+	public static List<ProcessDescriptor> processes(Collection<ProcessDescriptor> processes, long refProcessId) {
 		List<ProcessDescriptor> list = new ArrayList<>(processes);
 		Collections.sort(list, new Comparator<ProcessDescriptor>() {
 			@Override
@@ -54,7 +54,7 @@ class Sort {
 		return list;
 	}
 
-	static List<FlowDescriptor> flows(Collection<FlowDescriptor> flows, EntityCache cache) {
+	public static List<FlowDescriptor> flows(Collection<FlowDescriptor> flows, EntityCache cache) {
 		if (flows == null)
 			return Collections.emptyList();
 		ArrayList<FlowDescriptor> sorted = new ArrayList<>(flows);
