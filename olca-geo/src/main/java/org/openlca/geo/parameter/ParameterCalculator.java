@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.geotools.data.DataStore;
@@ -19,14 +20,14 @@ public class ParameterCalculator implements Closeable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private Map<String, List<String>> groups;
+	private Map<String, List<String>> parameters;
 	private Map<String, DataStore> stores;
 	private Map<String, Double> defaults;
 	private ParameterCache cache;
 
 	public ParameterCalculator(List<Parameter> parameters, ShapeFileFolder folder) {
-		groups = groupByShapeFile(parameters);
-		stores = openStores(groups.keySet(), folder);
+		this.parameters = groupByShapeFile(parameters);
+		stores = openStores(this.parameters.keySet(), folder);
 		cache = new ParameterCache(folder);
 		defaults = new HashMap<>();
 		for (Parameter p : parameters) {
@@ -43,7 +44,7 @@ public class ParameterCalculator implements Closeable {
 
 	public ParameterSet calculate(List<LocationKml> kmlData) {
 		ParameterSet set = new ParameterSet(defaults);
-		if (groups.isEmpty())
+		if (parameters.isEmpty())
 			return set;
 		for (LocationKml data : kmlData) {
 			KmlFeature feature = data.kmlFeature;
@@ -57,14 +58,13 @@ public class ParameterCalculator implements Closeable {
 
 	public Map<String, Double> calculate(long locationId, KmlFeature feature) {
 		Map<String, Double> parameterMap = new HashMap<String, Double>();
-		for (String shapeFile : groups.keySet()) {
-			Map<String, Double> shares = loadOrCalculateShares(locationId,
-					feature, shapeFile);
+		for (String shapeFile : parameters.keySet()) {
+			Map<String, Double> shares = getShares(locationId, feature, shapeFile);
 			log.debug("Calculating parameters for location {}", locationId);
 			DataStore store = stores.get(shapeFile);
 			FeatureCalculator calculator = new FeatureCalculator(store, defaults);
-			List<String> group = groups.get(shapeFile);
-			Map<String, Double> result = calculator.calculate(feature, group, shares);
+			List<String> params = parameters.get(shapeFile);
+			Map<String, Double> result = calculator.calculate(feature, params, shares);
 			if (result != null) {
 				parameterMap.putAll(result);
 			}
@@ -73,17 +73,28 @@ public class ParameterCalculator implements Closeable {
 		return parameterMap;
 	}
 
-	private Map<String, Double> loadOrCalculateShares(long locationId,
-			KmlFeature feature, String shapeFile) {
-		Map<String, Double> result = cache.load(locationId, shapeFile);
-		if (result != null)
-			return result;
-		DataStore store = stores.get(shapeFile);
-		IntersectionsCalculator calculator = new IntersectionsCalculator(store);
-		log.debug("Calculating shares for location " + locationId);
-		result = calculator.calculate(feature);
-		cache.save(locationId, shapeFile, result);
-		return result != null ? result : new HashMap<String, Double>();
+	/**
+	 * Returns the intersection shares of the geometries in the shapefile for
+	 * the given feature: geometry ID -> share
+	 */
+	private Map<String, Double> getShares(long locationId, KmlFeature feature,
+			String shapeFile) {
+		Map<String, Double> shares = cache.load(locationId, shapeFile);
+		if (shares == null) {
+			DataStore store = stores.get(shapeFile);
+			IntersectionsCalculator calculator = new IntersectionsCalculator(store);
+			log.debug("Calculating shares for location " + locationId);
+			shares = calculator.calculate(feature);
+			cache.save(locationId, shapeFile, shares);
+		}
+		HashMap<String, Double> r = new HashMap<>();
+		for (Entry<String, Double> e : shares.entrySet()) {
+			Double val = e.getValue();
+			if (val == null || Val.isZero(val))
+				continue;
+			r.put(e.getKey(), val);
+		}
+		return r;
 	}
 
 	private void fillZeros(Map<String, Double> results) {

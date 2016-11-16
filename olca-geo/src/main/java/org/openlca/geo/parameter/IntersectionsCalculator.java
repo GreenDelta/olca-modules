@@ -100,7 +100,8 @@ class IntersectionsCalculator {
 				SimpleFeature shape = iterator.next();
 				Geometry shapeGeo = (Geometry) shape.getDefaultGeometry();
 				if (shapeGeo == null) {
-					log.warn("No default geometry found in shape " + shape.getID() + " - Skipping");
+					log.warn("No default geometry found in shape "
+							+ shape.getID() + " - Skipping");
 					continue;
 				}
 				if (fetch.skip(featureGeo, shapeGeo))
