@@ -1,0 +1,178 @@
+package org.openlca.core.matrix.matlib;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.math.IMatrix;
+import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.math.IMatrixSolver;
+import org.openlca.core.matrix.LongIndex;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.cache.FlowTypeTable;
+import org.openlca.core.matrix.cache.ProcessTable;
+
+/**
+ * Exports a matrix into the openLCA matrix-library (=matlib) format.The matlib
+ * format is still experimental so this may change in future.
+ * 
+ * TODO: unit conversion; allocation factors
+ */
+public class MatlibExport implements Runnable {
+
+	private final IDatabase db;
+	private final File dir;
+	private final IMatrixSolver solver;
+
+	private ProcessTable processTable;
+	private TechIndex techIndex;
+	private LongIndex flowIndex;
+	private IMatrix techMatrix;
+	private IMatrix enviMatrix;
+
+	public MatlibExport(IDatabase db, IMatrixSolver solver, File dir) {
+		this.db = db;
+		this.dir = dir;
+		this.solver = solver;
+	}
+
+	@Override
+	public void run() {
+		try {
+			if (!dir.exists())
+				dir.mkdirs();
+			initMatrices();
+			fillMatrices();
+			writeMetaData();
+			writeMatrices();
+		} catch (Exception e) {
+			throw new RuntimeException("MatlibExport failed", e);
+		}
+	}
+
+	private void fillMatrices() throws SQLException {
+		String query = "select f_owner, f_flow, is_input, "
+				+ "resulting_amount_value from tbl_exchanges";
+		NativeSql.on(db).query(query, r -> {
+			long processId = r.getLong(1);
+			long flowId = r.getLong(2);
+			boolean isInput = r.getBoolean(3);
+			double amount = r.getDouble(4);
+			if (flowIndex.contains(flowId))
+				setEnvi(processId, flowId, amount);
+			else
+				setTech(processId, flowId, isInput, amount);
+			return true;
+		});
+	}
+
+	private void setTech(long processId, long flowId, boolean isInput, double amount) {
+		if (!isInput) {
+			LongPair p = LongPair.of(processId, flowId);
+			int idx = techIndex.getIndex(p);
+			if (idx < 0)
+				return;
+			techMatrix.set(idx, idx, amount);
+			return;
+		}
+		long[] providers = processTable.getProductProviders(flowId);
+		for (long provider : providers) {
+			LongPair prov = LongPair.of(provider, flowId);
+			int row = techIndex.getIndex(prov);
+			if (row < 0)
+				continue;
+			for (LongPair recipient : techIndex.getProviders(processId)) {
+				int col = techIndex.getIndex(recipient);
+				if (col < 0)
+					continue;
+				techMatrix.set(row, col, -amount);
+			}
+			break;
+		}
+	}
+
+	private void setEnvi(long processId, long flowId, double amount) {
+		for (LongPair p : techIndex.getProviders(processId)) {
+			int row = flowIndex.getIndex(flowId);
+			int col = techIndex.getIndex(p);
+			if (row < 0 || col < 0)
+				continue;
+			enviMatrix.set(row, col, amount);
+		}
+	}
+
+	private void initMatrices() {
+		FlowTypeTable flowTypes = FlowTypeTable.create(db);
+		processTable = ProcessTable.create(db, flowTypes);
+		List<LongPair> products = processTable.getProcessProducts();
+		techIndex = new TechIndex(products.get(0));
+		flowIndex = new LongIndex();
+		Set<Long> productIds = new HashSet<>();
+		for (int i = 0; i < products.size(); i++) {
+			LongPair product = products.get(i);
+			techIndex.put(products.get(i));
+			productIds.add(product.getSecond());
+		}
+		for (long flowId : flowTypes.getFlowIds()) {
+			if (productIds.contains(flowId))
+				continue;
+			flowIndex.put(flowId);
+		}
+		IMatrixFactory<?> f = solver.getMatrixFactory();
+		int n = techIndex.size();
+		int k = flowIndex.size();
+		techMatrix = f.create(n, n);
+		enviMatrix = f.create(k, n);
+	}
+
+	private void writeMatrices() throws Exception {
+		writeMatrix(techMatrix, new File(dir, "A.bin"));
+		writeMatrix(enviMatrix, new File(dir, "B.bin"));
+		IMatrix invA = solver.invert(techMatrix);
+		writeMatrix(invA, new File(dir, "Ainv.bin"));
+		IMatrix m = solver.multiply(enviMatrix, invA);
+		writeMatrix(m, new File(dir, "M.bin"));
+	}
+
+	private void writeMatrix(IMatrix m, File file) throws Exception {
+		try (FileOutputStream fos = new FileOutputStream(file);
+				BufferedOutputStream buffer = new BufferedOutputStream(fos)) {
+
+			// byte buffers for int and double
+			ByteBuffer i32 = ByteBuffer.allocate(4);
+			ByteBuffer f64 = ByteBuffer.allocate(8);
+			i32.order(ByteOrder.LITTLE_ENDIAN);
+			f64.order(ByteOrder.LITTLE_ENDIAN);
+
+			// rows + columns
+			i32.putInt(m.rows());
+			buffer.write(i32.array());
+			i32.clear();
+			i32.putInt(m.columns());
+			buffer.write(i32.array());
+
+			// values
+			for (int col = 0; col < m.columns(); col++) {
+				for (int row = 0; row < m.rows(); row++) {
+					f64.putDouble(m.get(row, col));
+					buffer.write(f64.array());
+					f64.clear();
+				}
+			}
+		}
+	}
+
+	private void writeMetaData() {
+
+	}
+
+}

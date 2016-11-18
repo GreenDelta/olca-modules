@@ -126,8 +126,8 @@ public class ProcessTable {
 		TLongObjectIterator<TLongArrayList> it = productMap.iterator();
 		while (it.hasNext()) {
 			it.advance();
-			long processId = it.key();
-			for (long productId : it.value().toArray()) {
+			long productId = it.key();
+			for (long processId : it.value().toArray()) {
 				list.add(LongPair.of(processId, productId));
 			}
 		}
