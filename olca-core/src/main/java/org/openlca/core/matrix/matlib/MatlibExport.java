@@ -1,17 +1,26 @@
 package org.openlca.core.matrix.matlib;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.IMatrixSolver;
@@ -20,6 +29,10 @@ import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.FlowTypeTable;
 import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * Exports a matrix into the openLCA matrix-library (=matlib) format.The matlib
@@ -171,8 +184,68 @@ public class MatlibExport implements Runnable {
 		}
 	}
 
-	private void writeMetaData() {
-
+	private void writeMetaData() throws Exception {
+		Map<Long, FlowDescriptor> flows = getDescriptors(new FlowDao(db));
+		writeTechIndex(flows);
+		List<String> indexB = new ArrayList<>(flowIndex.size() + 1);
+		indexB.add("index;flow");
+		for (int i = 0; i < flowIndex.size(); i++) {
+			StringBuilder builder = new StringBuilder();
+			builder.append(i).append(";\"");
+			FlowDescriptor flow = flows.get(flowIndex.getKeyAt(i));
+			if (flow != null)
+				builder.append(flow.getName());
+			builder.append("\"");
+			indexB.add(builder.toString());
+		}
+		writeIndex(indexB, new File(dir, "index_B.csv"));
 	}
 
+	private void writeTechIndex(Map<Long, FlowDescriptor> flows) throws Exception {
+		Map<Long, ProcessDescriptor> procs = getDescriptors(new ProcessDao(db));
+		Map<Long, LocationDescriptor> locs = getDescriptors(new LocationDao(db));
+		List<String> indexA = new ArrayList<>(techIndex.size() + 1);
+		indexA.add("index;process;location;flow");
+		for (int i = 0; i < techIndex.size(); i++) {
+			StringBuilder builder = new StringBuilder();
+			builder.append(i).append(";\"");
+			LongPair product = techIndex.getProviderAt(i);
+			ProcessDescriptor proc = procs.get(product.getFirst());
+			if (proc != null)
+				builder.append(proc.getName());
+			builder.append("\";\"");
+			if (proc != null && proc.getLocation() != null) {
+				LocationDescriptor loc = locs.get(proc.getLocation());
+				if (loc != null)
+					builder.append(loc.getName());
+			}
+			builder.append("\";\"");
+			FlowDescriptor flow = flows.get(product.getSecond());
+			if (flow != null)
+				builder.append(flow.getName());
+			builder.append("\"");
+			indexA.add(builder.toString());
+		}
+		writeIndex(indexA, new File(dir, "index_A.csv"));
+	}
+
+	private void writeIndex(List<String> lines, File file) throws Exception {
+		try (FileOutputStream fos = new FileOutputStream(file);
+				OutputStreamWriter writer = new OutputStreamWriter(fos, "utf-8");
+				BufferedWriter buffer = new BufferedWriter(writer)) {
+			for (String line : lines) {
+				buffer.write(line);
+				buffer.newLine();
+			}
+		}
+	}
+
+	private <T extends BaseDescriptor> Map<Long, T> getDescriptors(
+			RootEntityDao<?, T> dao) {
+		Map<Long, T> map = new HashMap<>();
+		for (T d : dao.getDescriptors()) {
+			map.put(d.getId(), d);
+		}
+		return map;
+	}
 }
