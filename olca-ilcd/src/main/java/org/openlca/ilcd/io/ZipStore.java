@@ -45,7 +45,7 @@ public class ZipStore implements DataStore {
 	private void initEntries() throws IOException {
 		entries = new HashMap<>();
 		for (Path root : zip.getRootDirectories()) {
-			Files.walkFileTree(root, new FileVisitor((f) -> {
+			Files.walkFileTree(root, new FileVisitor(f -> {
 				String dir = f.getParent().getFileName().toString()
 						.toLowerCase();
 				List<Path> list = getEntries(dir);
@@ -54,7 +54,8 @@ public class ZipStore implements DataStore {
 		}
 	}
 
-	List<Path> getEntries(String dir) {
+	/** Get the entries of the given directory. */
+	public List<Path> getEntries(String dir) {
 		List<Path> list = entries.get(dir);
 		if (list == null) {
 			list = new ArrayList<>();
