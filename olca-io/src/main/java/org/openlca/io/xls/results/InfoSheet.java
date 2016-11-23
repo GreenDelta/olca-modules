@@ -15,6 +15,7 @@ import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.io.xls.Excel;
 
@@ -25,6 +26,8 @@ class InfoSheet {
 	private static final String[] GENERAL_HEADERS = {
 			"Product system:",
 			"Product:",
+			"Reference process:",
+			"Reference process location:",
 			"Amount:",
 			"Impact method:",
 			"Normalisation & weighting set:",
@@ -70,6 +73,8 @@ class InfoSheet {
 		ProductSystem system = setup.productSystem;
 		writer.cell(sheet, row++, col, system.getName());
 		writer.cell(sheet, row++, col, product(system));
+		writer.cell(sheet, row++, col, process(system));
+		writer.cell(sheet, row++, col, location(system));
 		writer.cell(sheet, row++, col, amount(system));
 		writer.cell(sheet, row++, col, method(setup));
 		writer.cell(sheet, row++, col, nwSet(setup));
@@ -97,7 +102,8 @@ class InfoSheet {
 		for (DQIndicator indicator : setup.exchangeDqSystem.indicators) {
 			for (DQScore score : indicator.scores) {
 				Color color = DQColors.get(score.position, setup.exchangeDqSystem.getScoreCount());
-				writer.wrappedCell(sheet, row + score.position, col + indicator.position, score.description, color, true);
+				writer.wrappedCell(sheet, row + score.position, col + indicator.position, score.description, color,
+						true);
 			}
 		}
 	}
@@ -107,6 +113,20 @@ class InfoSheet {
 		if (e == null || e.getFlow() == null)
 			return "";
 		return e.getFlow().getName();
+	}
+
+	private static String process(ProductSystem system) {
+		Process p = system.getReferenceProcess();
+		if (p == null)
+			return "";
+		return p.getName();
+	}
+
+	private static String location(ProductSystem system) {
+		Process p = system.getReferenceProcess();
+		if (p == null || p.getLocation() == null)
+			return "";
+		return p.getLocation().getName();
 	}
 
 	private static String amount(ProductSystem system) {
