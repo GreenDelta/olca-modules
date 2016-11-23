@@ -1,6 +1,7 @@
 package org.openlca.io.xls.results;
 
 import java.awt.Color;
+
 import java.math.RoundingMode;
 import java.util.Date;
 
@@ -15,6 +16,7 @@ import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.io.xls.Excel;
 
@@ -24,6 +26,8 @@ public class InfoSheet {
 
 	private static final String[] GENERAL_HEADERS = {
 			"Product system:",
+			"Reference process:",
+			"Reference process location:",
 			"Product:",
 			"Amount:",
 			"Impact method:",
@@ -69,6 +73,8 @@ public class InfoSheet {
 	private static int generalInfo(CellWriter writer, Sheet sheet, int row, int col, CalculationSetup setup) {
 		ProductSystem system = setup.productSystem;
 		writer.cell(sheet, row++, col, system.getName());
+		writer.cell(sheet, row++, col, process(system));
+		writer.cell(sheet, row++, col, location(system));
 		writer.cell(sheet, row++, col, product(system));
 		writer.cell(sheet, row++, col, amount(system));
 		writer.cell(sheet, row++, col, method(setup));
@@ -97,9 +103,24 @@ public class InfoSheet {
 		for (DQIndicator indicator : setup.exchangeDqSystem.indicators) {
 			for (DQScore score : indicator.scores) {
 				Color color = DQColors.get(score.position, setup.exchangeDqSystem.getScoreCount());
-				writer.wrappedCell(sheet, row + score.position, col + indicator.position, score.description, color, true);
+				writer.wrappedCell(sheet, row + score.position, col + indicator.position, score.description, color,
+						true);
 			}
 		}
+	}
+
+	private static String process(ProductSystem system) {
+		Process p = system.getReferenceProcess();
+		if (p == null)
+			return "";
+		return p.getName();
+	}
+
+	private static String location(ProductSystem system) {
+		Process p = system.getReferenceProcess();
+		if (p == null || p.getLocation() == null)
+			return "";
+		return p.getLocation().getName();
 	}
 
 	private static String product(ProductSystem system) {
