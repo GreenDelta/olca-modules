@@ -31,7 +31,7 @@ class Aggregation {
 					factor = Math.pow(factor, 2);
 				}
 				aggregated[i] += value.values[i] * factor;
-				divisors[i] += value.factor;
+				divisors[i] += factor;
 			}
 		}
 		double[] result = new double[aggregated.length];
@@ -39,9 +39,6 @@ class Aggregation {
 			if (aggregated[i] == 0 || divisors[i] == 0)
 				continue;
 			double value = aggregated[i] / divisors[i];
-			if (squared) {
-				value = Math.sqrt(value);
-			}
 			result[i] = value;
 		}
 		return result;
