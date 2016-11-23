@@ -64,4 +64,8 @@ public class FlowTypeTable {
 		return map.get(flowId);
 	}
 
+	/** Get the IDs of all flows in this table. */
+	public long[] getFlowIds() {
+		return map.keys();
+	}
 }

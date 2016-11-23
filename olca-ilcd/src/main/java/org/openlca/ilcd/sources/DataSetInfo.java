@@ -15,18 +15,24 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
-import org.openlca.ilcd.commons.PublicationType;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.annotations.FreeText;
 import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "DataSetInformationType", propOrder = { "uuid", "shortName",
-		"classifications", "sourceCitation", "publicationType",
-		"sourceDescriptionOrComment", "referenceToDigitalFile",
-		"referenceToContact", "referenceToLogo", "other" })
+@XmlType(name = "DataSetInformationType", propOrder = {
+		"uuid",
+		"name",
+		"classifications",
+		"citation",
+		"type",
+		"description",
+		"files",
+		"contacts",
+		"logo",
+		"other" })
 public class DataSetInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
@@ -35,25 +41,31 @@ public class DataSetInfo implements Serializable {
 	public String uuid;
 
 	@Label
-	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
-	public final List<LangString> shortName = new ArrayList<>();
+	@XmlElement(name = "shortName", namespace = "http://lca.jrc.it/ILCD/Common")
+	public final List<LangString> name = new ArrayList<>();
 
 	@XmlElementWrapper(name = "classificationInformation")
 	@XmlElement(name = "classification", namespace = "http://lca.jrc.it/ILCD/Common")
 	public final List<Classification> classifications = new ArrayList<>();
 
-	public String sourceCitation;
+	@XmlElement(name = "sourceCitation")
+	public String citation;
 
-	public PublicationType publicationType;
+	@XmlElement(name = "publicationType")
+	public SourceType type;
 
 	@FreeText
-	public final List<LangString> sourceDescriptionOrComment = new ArrayList<>();
+	@XmlElement(name = "sourceDescriptionOrComment")
+	public final List<LangString> description = new ArrayList<>();
 
-	public final List<DigitalFileRef> referenceToDigitalFile = new ArrayList<>();
+	@XmlElement(name = "referenceToDigitalFile")
+	public final List<FileRef> files = new ArrayList<>();
 
-	public final List<Ref> referenceToContact = new ArrayList<>();
+	@XmlElement(name = "referenceToContact")
+	public final List<Ref> contacts = new ArrayList<>();
 
-	public Ref referenceToLogo;
+	@XmlElement(name = "referenceToLogo")
+	public Ref logo;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

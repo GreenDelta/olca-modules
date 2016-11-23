@@ -16,21 +16,33 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.DataDerivation;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.ExchangeFunction;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
 import org.openlca.ilcd.commons.annotations.Label;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ExchangeType", propOrder = { "flow", "location",
-		"exchangeFunction", "exchangeDirection", "parameterName", "meanAmount",
-		"resultingAmount", "minimumAmount", "maximumAmount",
-		"uncertaintyDistribution", "relativeStandardDeviation95In",
-		"allocation", "dataSourceType", "dataDerivation", "dataSources",
-		"generalComment", "other" })
+@XmlType(name = "ExchangeType", propOrder = {
+		"flow",
+		"location",
+		"exchangeFunction",
+		"exchangeDirection",
+		"parameterName",
+		"meanAmount",
+		"resultingAmount",
+		"minimumAmount",
+		"maximumAmount",
+		"uncertaintyDistribution",
+		"relativeStandardDeviation95In",
+		"allocation",
+		"dataSourceType",
+		"dataDerivation",
+		"dataSources",
+		"generalComment",
+		"other" })
 public class Exchange implements Serializable {
 
 	private final static long serialVersionUID = 1L;
@@ -47,6 +59,7 @@ public class Exchange implements Serializable {
 	@XmlElement(name = "functionType")
 	public ExchangeFunction exchangeFunction;
 
+	@XmlElement(name = "exchangeDirection")
 	public ExchangeDirection exchangeDirection;
 
 	@XmlElement(name = "referenceToVariable")

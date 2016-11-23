@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.io.NetworkClient;
-import org.openlca.ilcd.sources.DigitalFileRef;
+import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
 
 public class SourceWithFileTest {
@@ -69,9 +69,9 @@ public class SourceWithFileTest {
 	}
 
 	private void addFileLink(Source source, File file) {
-		DigitalFileRef ref = new DigitalFileRef();
+		FileRef ref = new FileRef();
 		ref.uri = "../external_docs/" + file.getName();
-		source.sourceInfo.dataSetInfo.referenceToDigitalFile
+		source.sourceInfo.dataSetInfo.files
 				.add(ref);
 	}
 }

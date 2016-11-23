@@ -12,7 +12,7 @@ import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.sources.DataSetInfo;
-import org.openlca.ilcd.sources.DigitalFileRef;
+import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInfo;
 import org.openlca.ilcd.util.Reference;
@@ -76,9 +76,9 @@ public class SourceExport {
 		log.trace("Create data set information.");
 		DataSetInfo info = new DataSetInfo();
 		info.uuid = source.getRefId();
-		LangString.set(info.shortName, source.getName(), config.lang);
+		LangString.set(info.name, source.getName(), config.lang);
 		if (source.getDescription() != null) {
-			LangString.set(info.sourceDescriptionOrComment,
+			LangString.set(info.description,
 					source.getDescription(), config.lang);
 		}
 		addTextReference(info);
@@ -97,13 +97,13 @@ public class SourceExport {
 			return;
 		if (source.getYear() != null)
 			cit += " " + source.getYear();
-		dataSetInfo.sourceCitation = cit;
+		dataSetInfo.citation = cit;
 	}
 
 	private void addFileRef(DataSetInfo info, File extFile) {
-		DigitalFileRef fileRef = new DigitalFileRef();
+		FileRef fileRef = new FileRef();
 		fileRef.uri = "../external_docs/" + extFile.getName();
-		info.referenceToDigitalFile.add(fileRef);
+		info.files.add(fileRef);
 	}
 
 	private AdminInfo makeAdminInfo() {

@@ -26,7 +26,7 @@ public final class SampleSource {
 	private static DataSetInfo makeDataInfo() {
 		String id = UUID.randomUUID().toString();
 		DataSetInfo info = new DataSetInfo();
-		LangString.set(info.shortName, "test source", "en");
+		LangString.set(info.name, "test source", "en");
 		info.uuid = id;
 		return info;
 	}

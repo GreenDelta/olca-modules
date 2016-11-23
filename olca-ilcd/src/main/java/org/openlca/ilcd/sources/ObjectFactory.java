@@ -43,11 +43,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link DigitalFileRef }
+	 * Create an instance of {@link FileRef }
 	 * 
 	 */
-	public DigitalFileRef createDigitalFileReference() {
-		return new DigitalFileRef();
+	public FileRef createDigitalFileReference() {
+		return new FileRef();
 	}
 
 	/**

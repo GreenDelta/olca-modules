@@ -10,4 +10,12 @@ class Val {
 		return value <= -9_999_999_999d;
 	}
 
+	/**
+	 * Used for example to decide if a share of a feature to a parameter value
+	 * is negligible.
+	 */
+	static boolean isZero(double value) {
+		return Math.abs(value) < 1e-14;
+	}
+
 }

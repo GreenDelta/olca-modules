@@ -83,6 +83,6 @@ public class Source implements IDataSet {
 	public List<LangString> getName() {
 		if (sourceInfo == null || sourceInfo.dataSetInfo == null)
 			return Collections.emptyList();
-		return sourceInfo.dataSetInfo.shortName;
+		return sourceInfo.dataSetInfo.name;
 	}
 }

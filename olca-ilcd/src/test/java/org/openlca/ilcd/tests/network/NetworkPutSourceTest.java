@@ -40,7 +40,7 @@ public class NetworkPutSourceTest {
 	private DataSetInfo makeDataInfo(String id) {
 		DataSetInfo info = new DataSetInfo();
 		String name = "xtest Source - " + new Random().nextInt(1000);
-		LangString.set(info.shortName, name, "en");
+		LangString.set(info.name, name, "en");
 		info.uuid = id;
 		return info;
 	}

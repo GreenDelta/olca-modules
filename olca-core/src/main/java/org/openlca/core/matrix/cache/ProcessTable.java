@@ -1,24 +1,27 @@
 package org.openlca.core.matrix.cache;
 
-import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.map.hash.TLongObjectHashMap;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gnu.trove.iterator.TLongObjectIterator;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TLongObjectHashMap;
+
 public class ProcessTable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private IDatabase database;
 
 	private final TLongObjectHashMap<ProcessType> typeMap = new TLongObjectHashMap<>();
 	private final TLongObjectHashMap<AllocationMethod> allocMap = new TLongObjectHashMap<>();
@@ -30,43 +33,29 @@ public class ProcessTable {
 	 */
 	private final TLongObjectHashMap<TLongArrayList> productMap = new TLongObjectHashMap<>();
 
-	public static ProcessTable create(IDatabase database) {
-		ProcessTable table = new ProcessTable(database);
+	public static ProcessTable create(IDatabase db, FlowTypeTable flowTypes) {
+		ProcessTable table = new ProcessTable(db, flowTypes);
 		return table;
 	}
 
-	private ProcessTable(IDatabase database) {
-		this.database = database;
-		init();
-	}
-
-	public void reload() {
-		typeMap.clear();
-		allocMap.clear();
-		productMap.clear();
-	}
-
-	private void init() {
+	private ProcessTable(IDatabase db, FlowTypeTable flowTypes) {
 		log.trace("build process index table");
-		initTypeAndAllocation();
-		initProductMap();
+		initTypeAndAllocation(db);
+		initProductMap(db, flowTypes);
 	}
 
-	private void initProductMap() {
+	private void initProductMap(IDatabase db, FlowTypeTable flowTypes) {
 		log.trace("load product->process map");
-		String query = "select e.f_owner, e.f_flow from tbl_exchanges e "
-				+ "inner join tbl_flows f on e.f_flow = f.id "
-				+ "where  f.flow_type <> 'ELEMENTARY_FLOW' and e.is_input = 0";
-		try (Connection con = database.createConnection()) {
-			Statement statement = con.createStatement();
-			ResultSet results = statement.executeQuery(query);
-			while (results.next()) {
-				long productId = results.getLong("f_flow");
-				long processId = results.getLong("f_owner");
-				indexProvider(productId, processId);
-			}
-			results.close();
-			statement.close();
+		String query = "select f_owner, f_flow from tbl_exchanges"
+				+ " where is_input = 0";
+		try {
+			NativeSql.on(db).query(query, r -> {
+				long processId = r.getLong(1);
+				long flowId = r.getLong(2);
+				if (flowTypes.get(flowId) == FlowType.PRODUCT_FLOW)
+					indexProvider(flowId, processId);
+				return true;
+			});
 			log.trace("{} products mapped", productMap.size());
 		} catch (Exception e) {
 			log.error("failed to load process products", e);
@@ -82,7 +71,7 @@ public class ProcessTable {
 		list.add(processId);
 	}
 
-	private void initTypeAndAllocation() {
+	private void initTypeAndAllocation(IDatabase database) {
 		log.trace("index process and allocation types");
 		try (Connection con = database.createConnection()) {
 			String query = "select id, process_type, default_allocation_method "
@@ -129,5 +118,19 @@ public class ProcessTable {
 		if (list == null)
 			return new long[0];
 		return list.toArray();
+	}
+
+	/** Gets all process products of the database. */
+	public List<LongPair> getProcessProducts() {
+		List<LongPair> list = new ArrayList<>();
+		TLongObjectIterator<TLongArrayList> it = productMap.iterator();
+		while (it.hasNext()) {
+			it.advance();
+			long productId = it.key();
+			for (long processId : it.value().toArray()) {
+				list.add(LongPair.of(processId, productId));
+			}
+		}
+		return list;
 	}
 }

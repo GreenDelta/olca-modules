@@ -12,7 +12,7 @@ import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.sources.DataSetInfo;
-import org.openlca.ilcd.sources.DigitalFileRef;
+import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
 
 public class SourceBag implements IBag<Source> {
@@ -38,21 +38,21 @@ public class SourceBag implements IBag<Source> {
 	public String getShortName() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFirst(info.shortName, langs);
+			return LangString.getFirst(info.name, langs);
 		return null;
 	}
 
 	public String getComment() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return LangString.getFirst(info.sourceDescriptionOrComment, langs);
+			return LangString.getFirst(info.description, langs);
 		return null;
 	}
 
 	public String getSourceCitation() {
 		DataSetInfo info = getDataSetInformation();
 		if (info != null)
-			return info.sourceCitation;
+			return info.citation;
 		return null;
 	}
 
@@ -64,9 +64,9 @@ public class SourceBag implements IBag<Source> {
 		DataSetInfo info = getDataSetInformation();
 		if (info == null)
 			return Collections.emptyList();
-		List<DigitalFileRef> refs = info.referenceToDigitalFile;
+		List<FileRef> refs = info.files;
 		List<String> uris = new ArrayList<>();
-		for (DigitalFileRef ref : refs) {
+		for (FileRef ref : refs) {
 			if (ref.uri != null)
 				uris.add(ref.uri);
 		}

@@ -37,7 +37,7 @@ public final class MatrixCache {
 		if (!lazy) {
 			flowTypeTable = FlowTypeTable.create(database);
 			conversionTable = ConversionTable.create(database);
-			processTable = ProcessTable.create(database);
+			processTable = ProcessTable.create(database, flowTypeTable);
 			exchangeCache = ExchangeCache.create(database, conversionTable,
 					flowTypeTable);
 			allocationCache = AllocationCache.create(database);
@@ -63,7 +63,7 @@ public final class MatrixCache {
 
 	public ProcessTable getProcessTable() {
 		if (processTable == null)
-			processTable = ProcessTable.create(database);
+			processTable = ProcessTable.create(database, getFlowTypeTable());
 		return processTable;
 	}
 
@@ -92,14 +92,13 @@ public final class MatrixCache {
 			flowTypeTable.reload();
 		if (conversionTable != null)
 			conversionTable.reload();
-		if (processTable != null)
-			processTable.reload();
 		if (exchangeCache != null)
 			exchangeCache.invalidateAll();
 		if (allocationCache != null)
 			allocationCache.invalidateAll();
 		if (impactCache != null)
 			impactCache.invalidateAll();
+		processTable = null;
 	}
 
 	public synchronized void evict(ModelType type, long id) {
@@ -148,21 +147,15 @@ public final class MatrixCache {
 			exchangeCache.invalidateAll();
 			impactCache.invalidateAll();
 		}
+		processTable = null;
 	}
 
 	private void evictProcess(long id) {
-		reloadProcessTable();
+		processTable = null;
 		if (exchangeCache != null)
 			exchangeCache.invalidate(id);
 		if (allocationCache != null)
 			allocationCache.invalidate(id);
-	}
-
-	private void reloadProcessTable() {
-		if (lazy)
-			processTable = null;
-		else
-			processTable.reload();
 	}
 
 	public synchronized void registerNew(ModelType type, long id) {
@@ -176,7 +169,7 @@ public final class MatrixCache {
 			baseEviction();
 			break;
 		case PROCESS:
-			reloadProcessTable();
+			processTable = null;
 			break;
 		case UNIT:
 			baseEviction();
