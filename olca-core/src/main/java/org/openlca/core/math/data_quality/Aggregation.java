@@ -1,5 +1,7 @@
 package org.openlca.core.math.data_quality;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.List;
 
 class Aggregation {
@@ -20,26 +22,33 @@ class Aggregation {
 	}
 
 	private static double[] weightedAverageOf(List<AggregationValue> values, boolean squared) {
-		double[] aggregated = new double[values.get(0).values.length];
-		double[] divisors = new double[values.get(0).values.length];
+		BigDecimal[] aggregated = new BigDecimal[values.get(0).values.length];
+		BigDecimal[] divisors = new BigDecimal[values.get(0).values.length];
 		for (AggregationValue value : values) {
 			for (int i = 0; i < value.values.length; i++) {
 				if (value.values[i] == 0)
 					continue;
-				double factor = value.factor;
+				BigDecimal factor = value.factor;
 				if (squared) {
-					factor = Math.pow(factor, 2);
+					factor = factor.pow(2);
 				}
-				aggregated[i] += value.values[i] * factor;
-				divisors[i] += factor;
+				BigDecimal result = new BigDecimal(value.values[i]).multiply(factor);
+				if (aggregated[i] == null) {
+					aggregated[i] = result;
+					divisors[i] = factor;
+				} else {
+					aggregated[i] = aggregated[i].add(result);
+					divisors[i] = divisors[i].add(factor);
+				}
 			}
 		}
 		double[] result = new double[aggregated.length];
 		for (int i = 0; i < aggregated.length; i++) {
-			if (aggregated[i] == 0 || divisors[i] == 0)
+			if (aggregated == null || aggregated[i].equals(BigDecimal.ZERO))
 				continue;
-			double value = aggregated[i] / divisors[i];
-			result[i] = value;
+			if (divisors == null || divisors[i].equals(BigDecimal.ZERO))
+				continue;
+				result[i] = aggregated[i].divide(divisors[i], MathContext.DECIMAL128).doubleValue();
 		}
 		return result;
 	}
@@ -57,9 +66,9 @@ class Aggregation {
 	static class AggregationValue {
 
 		private final double[] values;
-		private final double factor;
+		private final BigDecimal factor;
 
-		AggregationValue(double[] values, double factor) {
+		AggregationValue(double[] values, BigDecimal factor) {
 			this.values = values;
 			this.factor = factor;
 		}

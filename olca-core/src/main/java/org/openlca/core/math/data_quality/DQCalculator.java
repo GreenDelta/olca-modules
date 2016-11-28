@@ -1,5 +1,6 @@
 package org.openlca.core.math.data_quality;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,8 +36,8 @@ class DQCalculator {
 
 	private void addValues(long processId, long flowId) {
 		double[] dqValues = getDqValues(processId, flowId);
-		double flowResult = getFlowResult(processId, flowId);
-		if (dqValues == null || flowResult == 0d)
+		BigDecimal flowResult = new BigDecimal(getFlowResult(processId, flowId));
+		if (dqValues == null || flowResult.equals(BigDecimal.ZERO))
 			return;
 		addValue(flowAggregations, flowId, flowResult, dqValues);
 		if (!result.hasImpactResults())
@@ -44,19 +45,19 @@ class DQCalculator {
 		addImpactValues(processId, flowId, flowResult, dqValues);
 	}
 
-	private void addImpactValues(long processId, long flowId, double flowResult, double[] dqValues) {
+	private void addImpactValues(long processId, long flowId, BigDecimal flowResult, double[] dqValues) {
 		for (long impactId : result.impactIndex.getKeys()) {
 			double impactFactor = getImpactFactor(result, impactId, flowId);
 			if (impactFactor == 0d)
 				continue;
-			double factor = flowResult * impactFactor;
+			BigDecimal factor = flowResult.multiply(new BigDecimal(impactFactor));
 			addValue(impactAggregations, impactId, factor, dqValues);
 			addValue(impactAggregationsPerFlow, new LongPair(flowId, impactId), factor, dqValues);
 			addValue(impactAggregationsPerProcess, new LongPair(processId, impactId), factor, dqValues);
 		}
 	}
 
-	private <T> void addValue(Map<T, List<AggregationValue>> map, T key, double factor, double[] dqValues) {
+	private <T> void addValue(Map<T, List<AggregationValue>> map, T key, BigDecimal factor, double[] dqValues) {
 		List<AggregationValue> list = safeGetList(key, map);
 		int max = setup.exchangeDqSystem.getScoreCount();
 		for (int i = 0; i < dqValues.length; i++) {
