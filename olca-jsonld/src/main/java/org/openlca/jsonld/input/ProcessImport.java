@@ -3,6 +3,7 @@ package org.openlca.jsonld.input;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
@@ -15,6 +16,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.jsonld.input.Exchanges.ExchangeWithId;
+import org.openlca.util.Pedigree;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -55,6 +57,7 @@ class ProcessImport extends BaseImport<Process> {
 		String exchangeDqSystemId = In.getRefId(json, "exchangeDqSystem");
 		if (exchangeDqSystemId != null)
 			p.exchangeDqSystem = DQSystemImport.run(exchangeDqSystemId, conf);
+		checkPedigreeSystem(p);
 		String socialDqSystemId = In.getRefId(json, "socialDqSystem");
 		if (socialDqSystemId != null)
 			p.socialDqSystem = DQSystemImport.run(socialDqSystemId, conf);
@@ -69,6 +72,19 @@ class ProcessImport extends BaseImport<Process> {
 		addSocialAspects(json, p);
 		addAllocationFactors(json, p);
 		return conf.db.put(p);
+	}
+
+	private void checkPedigreeSystem(Process p) {
+		if (p.exchangeDqSystem != null)
+			// set another system, so everything all right
+			return;
+		for (Exchange e : p.getExchanges()) {
+			if (e.getDqEntry() == null)
+				continue;
+			p.exchangeDqSystem = new DQSystemDao(conf.db.getDatabase()).insert(Pedigree.get());
+			return;
+		}
+
 	}
 
 	private boolean hasDefaultProviders(JsonObject json) {

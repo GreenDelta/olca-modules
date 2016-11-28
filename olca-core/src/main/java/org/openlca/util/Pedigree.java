@@ -1,12 +1,10 @@
-package org.openlca.io.ecospold2.input;
+package org.openlca.util;
 
-import org.openlca.core.database.DQSystemDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
 
-class PedigreeDQSystem {
+public class Pedigree {
 
 	private final static String REF_ID = "e7ac7cf6-5457-453e-99f9-d889826fffe8";
 	private final static String[] INDICATORS = {
@@ -58,22 +56,8 @@ class PedigreeDQSystem {
 	};
 
 	
-	private final IDatabase db;
-	private DQSystem system;
-
-	PedigreeDQSystem(IDatabase db) {
-		this.db = db;
-		system = new DQSystemDao(db).getForRefId(REF_ID);
-	}
-
-	DQSystem get() {
-		if (system == null)
-			create();
-		return system;
-	}
-
-	private void create() {		
-		system = new DQSystem();
+	public static DQSystem get() {
+		DQSystem system = new DQSystem();
 		system.setName("Pedigree");
 		system.setRefId(REF_ID);
 		system.hasUncertainties = true;
@@ -89,7 +73,7 @@ class PedigreeDQSystem {
 			}
 			system.indicators.add(indicator);
 		}
-		system = new DQSystemDao(db).insert(system);
+		return system;
 	}
 	
 }

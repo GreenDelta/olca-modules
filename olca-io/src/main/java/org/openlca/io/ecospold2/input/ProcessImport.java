@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
@@ -28,6 +29,7 @@ import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.PedigreeMatrix;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.KeyGen;
+import org.openlca.util.Pedigree;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,7 @@ class ProcessImport {
 	private final ProcessDao dao;
 	private final PriceMapper prices;
 	private final ImportConfig config;
-	private final PedigreeDQSystem pedigree;
+	private DQSystem pedigreeSystem;
 
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private final HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
@@ -53,7 +55,6 @@ class ProcessImport {
 		this.config = config;
 		dao = new ProcessDao(db);
 		prices = new PriceMapper(db);
-		pedigree = new PedigreeDQSystem(db);
 	}
 
 	public void importDataSet(DataSet dataSet) {
@@ -111,7 +112,6 @@ class ProcessImport {
 	private void runImport(DataSet dataSet, String refId) {
 		Activity activity = dataSet.getActivity();
 		Process process = new Process();
-		process.exchangeDqSystem = pedigree.get();
 		process.setRefId(refId);
 		setMetaData(activity, process);
 		setCategory(dataSet, process);
@@ -122,6 +122,10 @@ class ProcessImport {
 			log.warn("could not set a quantitative reference for process {}",
 					refId);
 		createElementaryExchanges(dataSet, process);
+		if (pedigreeSystem != null) {
+			pedigreeSystem = new DQSystemDao(db).insert(pedigreeSystem);
+			process.exchangeDqSystem = pedigreeSystem;
+		}
 		new DocImportMapper(db).map(dataSet, process);
 		db.createDao(Process.class).insert(process);
 		index.putProcessId(refId, process.getId());
@@ -259,9 +263,11 @@ class ProcessImport {
 		PedigreeMatrix pm = es2.uncertainty.pedigreeMatrix;
 		if (pm == null)
 			return null;
-		DQSystem system = pedigree.get();
-		return system.toString(pm.reliability, pm.completeness, pm.temporalCorrelation, pm.geographicalCorrelation,
-				pm.technologyCorrelation);
+		if (pedigreeSystem == null) {
+			pedigreeSystem = Pedigree.get();
+		}
+		return pedigreeSystem.toString(pm.reliability, pm.completeness, pm.temporalCorrelation,
+				pm.geographicalCorrelation, pm.technologyCorrelation);
 	}
 
 	private Unit getFlowUnit(org.openlca.ecospold2.Exchange original,

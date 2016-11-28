@@ -3,11 +3,13 @@ package org.openlca.io.ilcd.input;
 import java.util.Date;
 import java.util.List;
 
+import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
@@ -16,9 +18,9 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ModellingApproach;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Method;
@@ -26,6 +28,7 @@ import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.util.ProcessBag;
+import org.openlca.util.Pedigree;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,6 +119,12 @@ public class ProcessImport {
 				process, config);
 		paramConv.run(ilcdProcess);
 		exchanges.map(ilcdProcess, process);
+		for (Exchange e : process.getExchanges()) {
+			if (e.getDqEntry() == null)
+				continue;
+			process.exchangeDqSystem = new DQSystemDao(config.db).insert(Pedigree.get());
+			break;
+		}
 	}
 
 	private ProcessDocumentation mapDocumentation() throws ImportException {
