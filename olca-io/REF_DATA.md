@@ -172,7 +172,7 @@ Columns:
 
 Normalisation and weighting set factors
 ---------------------------------------
-File:		`new_set_factors.csv`
+File:		`nw_set_factors.csv`
 
 Columns:
 
