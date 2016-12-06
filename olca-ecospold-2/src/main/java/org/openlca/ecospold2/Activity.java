@@ -7,190 +7,44 @@ import org.jdom2.Element;
 
 public class Activity {
 
-	private String id;
-	private String activityNameId;
-	private String activityNameContextId;
-	private int type;
-	private int specialActivityType;
-	private String parentActivityId;
-	private String parentActivityContextId;
-	private Integer inheritanceDepth;
-	private Integer energyValues;
-	private String masterAllocationPropertyId;
-	private String masterAllocationPropertyContextId;
-	private Boolean masterAllocationPropertyIdOverwrittenByChild;
-	private String name;
-	private List<String> synonyms = new ArrayList<String>();
-	private List<String> tags = new ArrayList<String>();
-	private String includedActivitiesStart;
-	private String includedActivitiesEnd;
-	private String generalComment;
-	private String allocationComment;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getIncludedActivitiesStart() {
-		return includedActivitiesStart;
-	}
-
-	public void setIncludedActivitiesStart(String includedActivitiesStart) {
-		this.includedActivitiesStart = includedActivitiesStart;
-	}
-
-	public String getIncludedActivitiesEnd() {
-		return includedActivitiesEnd;
-	}
-
-	public void setIncludedActivitiesEnd(String includedActivitiesEnd) {
-		this.includedActivitiesEnd = includedActivitiesEnd;
-	}
-
-	public String getGeneralComment() {
-		return generalComment;
-	}
-
-	public void setGeneralComment(String generalComment) {
-		this.generalComment = generalComment;
-	}
-
-	public List<String> getSynonyms() {
-		return synonyms;
-	}
-
-	public List<String> getTags() {
-		return tags;
-	}
-
-	public String getAllocationComment() {
-		return allocationComment;
-	}
-
-	public void setAllocationComment(String allocationComment) {
-		this.allocationComment = allocationComment;
-	}
-
-	public String getActivityNameId() {
-		return activityNameId;
-	}
-
-	public void setActivityNameId(String activityNameId) {
-		this.activityNameId = activityNameId;
-	}
-
-	public String getActivityNameContextId() {
-		return activityNameContextId;
-	}
-
-	public void setActivityNameContextId(String activityNameContextId) {
-		this.activityNameContextId = activityNameContextId;
-	}
-
-	public int getType() {
-		return type;
-	}
-
-	public void setType(int type) {
-		this.type = type;
-	}
-
-	public int getSpecialActivityType() {
-		return specialActivityType;
-	}
-
-	public void setSpecialActivityType(int specialActivityType) {
-		this.specialActivityType = specialActivityType;
-	}
-
-	public String getParentActivityId() {
-		return parentActivityId;
-	}
-
-	public void setParentActivityId(String parentActivityId) {
-		this.parentActivityId = parentActivityId;
-	}
-
-	public String getParentActivityContextId() {
-		return parentActivityContextId;
-	}
-
-	public void setParentActivityContextId(String parentActivityContextId) {
-		this.parentActivityContextId = parentActivityContextId;
-	}
-
-	public Integer getInheritanceDepth() {
-		return inheritanceDepth;
-	}
-
-	public void setInheritanceDepth(Integer inheritanceDepth) {
-		this.inheritanceDepth = inheritanceDepth;
-	}
-
-	public Integer getEnergyValues() {
-		return energyValues;
-	}
-
-	public void setEnergyValues(Integer energyValues) {
-		this.energyValues = energyValues;
-	}
-
-	public String getMasterAllocationPropertyId() {
-		return masterAllocationPropertyId;
-	}
-
-	public void setMasterAllocationPropertyId(String masterAllocationPropertyId) {
-		this.masterAllocationPropertyId = masterAllocationPropertyId;
-	}
-
-	public String getMasterAllocationPropertyContextId() {
-		return masterAllocationPropertyContextId;
-	}
-
-	public void setMasterAllocationPropertyContextId(
-			String masterAllocationPropertyContextId) {
-		this.masterAllocationPropertyContextId = masterAllocationPropertyContextId;
-	}
-
-	public Boolean getMasterAllocationPropertyIdOverwrittenByChild() {
-		return masterAllocationPropertyIdOverwrittenByChild;
-	}
-
-	public void setMasterAllocationPropertyIdOverwrittenByChild(
-			Boolean masterAllocationPropertyIdOverwrittenByChild) {
-		this.masterAllocationPropertyIdOverwrittenByChild = masterAllocationPropertyIdOverwrittenByChild;
-	}
+	public String id;
+	public String activityNameId;
+	public String activityNameContextId;
+	public int type;
+	public int specialActivityType;
+	public String parentActivityId;
+	public String parentActivityContextId;
+	public Integer inheritanceDepth;
+	public Integer energyValues;
+	public String masterAllocationPropertyId;
+	public String masterAllocationPropertyContextId;
+	public Boolean masterAllocationPropertyIdOverwrittenByChild;
+	public String name;
+	public final List<String> synonyms = new ArrayList<String>();
+	public final List<String> tags = new ArrayList<String>();
+	public String includedActivitiesStart;
+	public String includedActivitiesEnd;
+	public String generalComment;
+	public String allocationComment;
 
 	static Activity fromXml(Element e) {
 		if (e == null)
 			return null;
 		Activity activity = new Activity();
-		activity.setId(e.getAttributeValue("id"));
-		activity.setName(In.childText(e, "activityName"));
+		activity.id = e.getAttributeValue("id");
+		activity.name = In.childText(e, "activityName");
 		List<Element> elems = In.childs(e, "generalComment", "text");
-		activity.setGeneralComment(In.joinText(elems));
+		activity.generalComment = In.joinText(elems);
 		elems = In.childs(e, "allocationComment", "text");
-		activity.setAllocationComment(In.joinText(elems));
-		activity.setIncludedActivitiesEnd(In.childText(e,
-				"includedActivitiesEnd"));
-		activity.setIncludedActivitiesStart(In.childText(e,
-				"includedActivitiesStart"));
+		activity.allocationComment = In.joinText(elems);
+		activity.includedActivitiesEnd = In.childText(e,
+		"includedActivitiesEnd");
+		activity.includedActivitiesStart = In.childText(e,
+		"includedActivitiesStart");
 		List<String> syns = In.childTexts(e, "synonym");
-		activity.getSynonyms().addAll(syns);
+		activity.synonyms.addAll(syns);
 		List<String> tags = In.childTexts(e, "tag");
-		activity.getTags().addAll(tags);
+		activity.tags.addAll(tags);
 
 		activity.activityNameId = e.getAttributeValue("activityNameId");
 		activity.activityNameContextId = e

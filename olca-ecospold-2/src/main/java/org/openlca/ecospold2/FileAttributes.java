@@ -6,123 +6,19 @@ import org.jdom2.Element;
 
 public class FileAttributes {
 
-	private int majorRelease;
-	private int minorRelease;
-	private int majorRevision;
-	private int minorRevision;
-	private String defaultLanguage;
-	private Date creationTimestamp;
-	private Date lastEditTimestamp;
-	private String internalSchemaVersion;
-	private String fileGenerator;
-	private Date fileTimestamp;
-	private String contextId;
-	private String contextName;
-	private String requiredContext;
-
-	public int getMajorRelease() {
-		return majorRelease;
-	}
-
-	public void setMajorRelease(int majorRelease) {
-		this.majorRelease = majorRelease;
-	}
-
-	public int getMinorRelease() {
-		return minorRelease;
-	}
-
-	public void setMinorRelease(int minorRelease) {
-		this.minorRelease = minorRelease;
-	}
-
-	public int getMajorRevision() {
-		return majorRevision;
-	}
-
-	public void setMajorRevision(int majorRevision) {
-		this.majorRevision = majorRevision;
-	}
-
-	public int getMinorRevision() {
-		return minorRevision;
-	}
-
-	public void setMinorRevision(int minorRevision) {
-		this.minorRevision = minorRevision;
-	}
-
-	public String getDefaultLanguage() {
-		return defaultLanguage;
-	}
-
-	public void setDefaultLanguage(String defaultLanguage) {
-		this.defaultLanguage = defaultLanguage;
-	}
-
-	public Date getCreationTimestamp() {
-		return creationTimestamp;
-	}
-
-	public void setCreationTimestamp(Date creationTimestamp) {
-		this.creationTimestamp = creationTimestamp;
-	}
-
-	public Date getLastEditTimestamp() {
-		return lastEditTimestamp;
-	}
-
-	public void setLastEditTimestamp(Date lastEditTimestamp) {
-		this.lastEditTimestamp = lastEditTimestamp;
-	}
-
-	public String getInternalSchemaVersion() {
-		return internalSchemaVersion;
-	}
-
-	public void setInternalSchemaVersion(String internalSchemaVersion) {
-		this.internalSchemaVersion = internalSchemaVersion;
-	}
-
-	public String getFileGenerator() {
-		return fileGenerator;
-	}
-
-	public void setFileGenerator(String fileGenerator) {
-		this.fileGenerator = fileGenerator;
-	}
-
-	public Date getFileTimestamp() {
-		return fileTimestamp;
-	}
-
-	public void setFileTimestamp(Date fileTimestamp) {
-		this.fileTimestamp = fileTimestamp;
-	}
-
-	public String getContextId() {
-		return contextId;
-	}
-
-	public void setContextId(String contextId) {
-		this.contextId = contextId;
-	}
-
-	public String getContextName() {
-		return contextName;
-	}
-
-	public void setContextName(String contextName) {
-		this.contextName = contextName;
-	}
-
-	public String getRequiredContext() {
-		return requiredContext;
-	}
-
-	public void setRequiredContext(String requiredContext) {
-		this.requiredContext = requiredContext;
-	}
+	public int majorRelease;
+	public int minorRelease;
+	public int majorRevision;
+	public int minorRevision;
+	public String defaultLanguage;
+	public Date creationTimestamp;
+	public Date lastEditTimestamp;
+	public String internalSchemaVersion;
+	public String fileGenerator;
+	public Date fileTimestamp;
+	public String contextId;
+	public String contextName;
+	public String requiredContext;
 
 	static FileAttributes fromXml(Element e) {
 		if (e == null)

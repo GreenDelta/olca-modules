@@ -4,33 +4,9 @@ import org.jdom2.Element;
 
 public class AdministrativeInformation {
 
-	private DataEntryBy dataEntryBy;
-	private DataGenerator dataGenerator;
-	private FileAttributes fileAttributes;
-
-	public void setDataEntryBy(DataEntryBy dataEntryBy) {
-		this.dataEntryBy = dataEntryBy;
-	}
-
-	public DataEntryBy getDataEntryBy() {
-		return dataEntryBy;
-	}
-
-	public DataGenerator getDataGenerator() {
-		return dataGenerator;
-	}
-
-	public void setDataGenerator(DataGenerator dataGenerator) {
-		this.dataGenerator = dataGenerator;
-	}
-
-	public FileAttributes getFileAttributes() {
-		return fileAttributes;
-	}
-
-	public void setFileAttributes(FileAttributes fileAttributes) {
-		this.fileAttributes = fileAttributes;
-	}
+	public DataEntryBy dataEntryBy;
+	public DataGenerator dataGenerator;
+	public FileAttributes fileAttributes;
 
 	static AdministrativeInformation fromXml(Element e) {
 		if (e == null)

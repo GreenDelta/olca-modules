@@ -74,16 +74,16 @@ class ProcessImport {
 			log.warn("invalid data set -> not imported");
 			return;
 		}
-		Activity activity = dataSet.getActivity();
+		Activity activity = dataSet.activity;
 		try {
 			String refId = RefId.forProcess(dataSet);
 			boolean contains = dao.contains(refId);
 			if (contains) {
 				log.trace("process {} is already in the database",
-						activity.getId());
+						activity.id);
 				return;
 			}
-			log.trace("import process {}", activity.getName());
+			log.trace("import process {}", activity.name);
 			runImport(dataSet, refId);
 		} catch (Exception e) {
 			log.error("Failed to import process", e);
@@ -91,12 +91,11 @@ class ProcessImport {
 	}
 
 	private boolean valid(DataSet dataSet) {
-		Activity activity = dataSet.getActivity();
-		if (activity.getId() == null || activity.getName() == null)
+		Activity activity = dataSet.activity;
+		if (activity.id == null || activity.name == null)
 			return false;
 		IntermediateExchange refFlow = null;
-		for (IntermediateExchange techFlow : dataSet
-				.getIntermediateExchanges()) {
+		for (IntermediateExchange techFlow : dataSet.intermediateExchanges) {
 			if (techFlow.outputGroup == null)
 				continue;
 			if (techFlow.outputGroup != 0)
@@ -110,7 +109,7 @@ class ProcessImport {
 	}
 
 	private void runImport(DataSet dataSet, String refId) {
-		Activity activity = dataSet.getActivity();
+		Activity activity = dataSet.activity;
 		Process process = new Process();
 		process.setRefId(refId);
 		setMetaData(activity, process);
@@ -155,17 +154,17 @@ class ProcessImport {
 	}
 
 	private void setMetaData(Activity activity, Process process) {
-		process.setName(activity.getName());
-		ProcessType type = activity.getType() == 2 ? ProcessType.LCI_RESULT
+		process.setName(activity.name);
+		ProcessType type = activity.type == 2 ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS;
 		process.setProcessType(type);
 		String description = Joiner
 				.on(" ")
 				.skipNulls()
-				.join(activity.getGeneralComment(),
-						activity.getIncludedActivitiesStart(),
-						activity.getIncludedActivitiesEnd(),
-						activity.getAllocationComment());
+				.join(activity.generalComment,
+						activity.includedActivitiesStart,
+						activity.includedActivitiesEnd,
+						activity.allocationComment);
 		process.setDescription(description);
 	}
 
@@ -185,7 +184,7 @@ class ProcessImport {
 	}
 
 	private void createElementaryExchanges(DataSet dataSet, Process process) {
-		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+		for (ElementaryExchange e : dataSet.elementaryExchanges) {
 			if (e.amount == 0 && config.skipNullExchanges)
 				continue;
 			String refId = e.elementaryExchangeId;
@@ -199,7 +198,7 @@ class ProcessImport {
 	}
 
 	private void createProductExchanges(DataSet dataSet, Process process) {
-		for (IntermediateExchange ie : dataSet.getIntermediateExchanges()) {
+		for (IntermediateExchange ie : dataSet.intermediateExchanges) {
 			boolean isRefFlow = ie.outputGroup != null
 					&& ie.outputGroup == 0;
 			if (ie.amount == 0 && config.skipNullExchanges)
@@ -314,8 +313,8 @@ class ProcessImport {
 
 	private void setCategory(DataSet dataSet, Process process) {
 		Category category = null;
-		for (Classification clazz : dataSet.getClassifications()) {
-			category = index.getProcessCategory(clazz.getClassificationId());
+		for (Classification clazz : dataSet.classifications) {
+			category = index.getProcessCategory(clazz.classificationId);
 			if (category != null)
 				break;
 		}

@@ -95,12 +95,12 @@ class RefDataImport {
 		try {
 			classification(dataSet);
 			geography(dataSet);
-			for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
+			for (IntermediateExchange e : dataSet.intermediateExchanges) {
 				if (e.amount == 0 && config.skipNullExchanges)
 					continue;
 				productFlow(dataSet, e);
 			}
-			for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+			for (ElementaryExchange e : dataSet.elementaryExchanges) {
 				elementaryFlow(e);
 			}
 		} catch (Exception e) {
@@ -110,18 +110,18 @@ class RefDataImport {
 
 	private void classification(DataSet dataSet) {
 		Classification classification = findClassification(dataSet);
-		if (classification == null || classification.getClassificationId() == null)
+		if (classification == null || classification.classificationId == null)
 			return;
-		String refId = classification.getClassificationId();
+		String refId = classification.classificationId;
 		Category category = index.getProcessCategory(refId);
 		if (category != null)
 			return;
 		category = categoryDao.getForRefId(refId);
 		if (category == null) {
 			category = new Category();
-			category.setDescription(classification.getClassificationSystem());
+			category.setDescription(classification.classificationSystem);
 			category.setModelType(ModelType.PROCESS);
-			category.setName(classification.getClassificationValue());
+			category.setName(classification.classificationValue);
 			category.setRefId(refId);
 			category = categoryDao.insert(category);
 		}
@@ -129,30 +129,30 @@ class RefDataImport {
 	}
 
 	private Classification findClassification(DataSet dataSet) {
-		for (Classification classification : dataSet.getClassifications()) {
-			if (classification.getClassificationSystem() == null)
+		for (Classification classification : dataSet.classifications) {
+			if (classification.classificationSystem == null)
 				continue;
-			if (classification.getClassificationSystem().startsWith("ISIC"))
+			if (classification.classificationSystem.startsWith("ISIC"))
 				return classification;
 		}
 		return null;
 	}
 
 	private void geography(DataSet dataSet) {
-		Geography geography = dataSet.getGeography();
-		if (geography == null || geography.getId() == null
-				|| geography.getShortName() == null)
+		Geography geography = dataSet.geography;
+		if (geography == null || geography.id == null
+				|| geography.shortName == null)
 			return;
-		String refId = geography.getId();
+		String refId = geography.id;
 		Location location = index.getLocation(refId);
 		if (location != null)
 			return;
-		String genKey = KeyGen.get(geography.getShortName());
+		String genKey = KeyGen.get(geography.shortName);
 		location = locationDao.getForRefId(genKey);
 		if (location == null) {
 			location = new Location();
-			location.setCode(geography.getShortName());
-			location.setName(geography.getShortName());
+			location.setCode(geography.shortName);
+			location.setName(geography.shortName);
 			location.setDescription("imported via EcoSpold 02 import");
 			location.setRefId(genKey);
 			location = locationDao.insert(location);
@@ -161,20 +161,20 @@ class RefDataImport {
 	}
 
 	private void compartment(Compartment compartment) {
-		if (compartment == null || compartment.getSubcompartmentId() == null
-				|| compartment.getSubcompartment() == null
-				|| compartment.getCompartment() == null)
+		if (compartment == null || compartment.subcompartmentId == null
+				|| compartment.subcompartment == null
+				|| compartment.compartment == null)
 			return;
-		String refId = compartment.getSubcompartmentId();
+		String refId = compartment.subcompartmentId;
 		Category category = index.getCompartment(refId);
 		if (category != null)
 			return;
 		category = categoryDao.getForRefId(refId);
 		if (category == null) {
 			Category parent = Categories.findOrCreateRoot(database,
-					ModelType.FLOW, compartment.getCompartment());
+					ModelType.FLOW, compartment.compartment);
 			category = Categories.findOrAddChild(database, parent,
-					compartment.getSubcompartment());
+					compartment.subcompartment);
 		}
 		index.putCompartment(refId, category);
 	}
@@ -230,8 +230,7 @@ class RefDataImport {
 		Category category = null;
 		if (exchange.compartment != null) {
 			compartment(exchange.compartment);
-			category = index.getCompartment(exchange.compartment
-					.getSubcompartmentId());
+			category = index.getCompartment(exchange.compartment.subcompartmentId);
 		}
 		flow = new Flow();
 		flow.setRefId(refId);
@@ -290,10 +289,10 @@ class RefDataImport {
 		if (og == null || og != 0)
 			return null;
 		Classification clazz = findClassification(dataSet);
-		if (clazz == null || clazz.getClassificationValue() == null)
+		if (clazz == null || clazz.classificationValue == null)
 			return null;
 		Category cat = Categories.findOrCreateRoot(database, ModelType.FLOW,
-				clazz.getClassificationValue());
+				clazz.classificationValue);
 		return cat;
 	}
 }

@@ -5,51 +5,11 @@ import org.jdom2.Namespace;
 
 public class Company {
 
-	private String id;
-	private String code;
-	private String website;
-	private String name;
-	private String comment;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public String getWebsite() {
-		return website;
-	}
-
-	public void setWebsite(String website) {
-		this.website = website;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+	public String id;
+	public String code;
+	public String website;
+	public String name;
+	public String comment;
 
 	Element toXml(Namespace ns) {
 		Element element = new Element("company", ns);

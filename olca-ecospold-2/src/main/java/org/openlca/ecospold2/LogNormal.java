@@ -4,43 +4,10 @@ import org.jdom2.Element;
 
 public class LogNormal {
 
-	private double meanValue;
-	private double mu;
-	private double variance;
-	private double varianceWithPedigreeUncertainty;
-
-	public double getMeanValue() {
-		return meanValue;
-	}
-
-	public void setMeanValue(double meanValue) {
-		this.meanValue = meanValue;
-	}
-
-	public double getMu() {
-		return mu;
-	}
-
-	public void setMu(double mu) {
-		this.mu = mu;
-	}
-
-	public double getVariance() {
-		return variance;
-	}
-
-	public void setVariance(double variance) {
-		this.variance = variance;
-	}
-
-	public double getVarianceWithPedigreeUncertainty() {
-		return varianceWithPedigreeUncertainty;
-	}
-
-	public void setVarianceWithPedigreeUncertainty(
-			double varianceWithPedigreeUncertainty) {
-		this.varianceWithPedigreeUncertainty = varianceWithPedigreeUncertainty;
-	}
+	public double meanValue;
+	public double mu;
+	public double variance;
+	public double varianceWithPedigreeUncertainty;
 
 	static LogNormal fromXml(Element e) {
 		if (e == null)

@@ -17,10 +17,10 @@ final class RefId {
 	 * order) as UUID.
 	 */
 	public static String forProcess(DataSet dataSet) {
-		if (dataSet.getActivity() == null)
+		if (dataSet.activity == null)
 			return KeyGen.NULL_UUID;
 		String productId = null;
-		for (IntermediateExchange exchange : dataSet.getIntermediateExchanges()) {
+		for (IntermediateExchange exchange : dataSet.intermediateExchanges) {
 			if (exchange.outputGroup == null)
 				continue;
 			if (exchange.outputGroup == 0 && exchange.amount != 0) {
@@ -28,7 +28,7 @@ final class RefId {
 				break;
 			}
 		}
-		return KeyGen.get(dataSet.getActivity().getId(), productId);
+		return KeyGen.get(dataSet.activity.id, productId);
 	}
 
 }

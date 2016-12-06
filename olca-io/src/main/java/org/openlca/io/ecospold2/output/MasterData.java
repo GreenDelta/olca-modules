@@ -35,7 +35,7 @@ final class MasterData {
 	public static void writeElemFlow(ElementaryExchange elemFlow,
 			UserMasterData masterData) {
 		ElementaryExchange masterFlow = new ElementaryExchange();
-		masterData.getElementaryExchanges().add(masterFlow);
+		masterData.elementaryExchanges.add(masterFlow);
 		masterFlow.id = elemFlow.elementaryExchangeId;
 		masterFlow.name = elemFlow.name;
 		masterFlow.unitId = elemFlow.unitId;
@@ -48,7 +48,7 @@ final class MasterData {
 	public static void writeTechFlow(IntermediateExchange techFlow,
 			UserMasterData masterData) {
 		IntermediateExchange masterFlow = new IntermediateExchange();
-		masterData.getIntermediateExchanges().add(masterFlow);
+		masterData.intermediateExchanges.add(masterFlow);
 		masterFlow.id = techFlow.intermediateExchangeId; // !
 		masterFlow.unitId = techFlow.unitId;
 		masterFlow.name = techFlow.name;
@@ -56,24 +56,24 @@ final class MasterData {
 	}
 
 	public static void writeIndexEntry(DataSet dataSet) {
-		if(dataSet == null || dataSet.getMasterData() == null)
+		if(dataSet == null || dataSet.masterData == null)
 			return;
 		ActivityIndexEntry indexEntry = new ActivityIndexEntry();
-		dataSet.getMasterData().getActivityIndexEntries().add(indexEntry);
-		Activity activity = dataSet.getActivity();
+		dataSet.masterData.activityIndexEntries.add(indexEntry);
+		Activity activity = dataSet.activity;
 		if (activity != null) {
-			indexEntry.setActivityNameId(activity.getActivityNameId());
-			indexEntry.setId(activity.getId());
+			indexEntry.activityNameId = activity.activityNameId;
+			indexEntry.id = activity.id;
 		}
-		TimePeriod timePeriod = dataSet.getTimePeriod();
+		TimePeriod timePeriod = dataSet.timePeriod;
 		if (timePeriod != null) {
-			indexEntry.setEndDate(timePeriod.getEndDate());
-			indexEntry.setStartDate(timePeriod.getStartDate());
+			indexEntry.endDate = timePeriod.endDate;
+			indexEntry.startDate = timePeriod.startDate;
 		}
-		Geography geography = dataSet.getGeography();
+		Geography geography = dataSet.geography;
 		if (geography != null)
-			indexEntry.setGeographyId(geography.getId());
-		indexEntry.setSystemModelId("8b738ea0-f89e-4627-8679-433616064e82");
+			indexEntry.geographyId = geography.id;
+		indexEntry.systemModelId = "8b738ea0-f89e-4627-8679-433616064e82";
 	}
 
 }

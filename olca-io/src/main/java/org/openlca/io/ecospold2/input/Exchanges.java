@@ -15,7 +15,7 @@ class Exchanges {
 		if (ds == null)
 			return null;
 		IntermediateExchange candidate = null;
-		for (IntermediateExchange e : ds.getIntermediateExchanges()) {
+		for (IntermediateExchange e : ds.intermediateExchanges) {
 			Integer og = e.outputGroup;
 			if (og == null || og.intValue() != 0)
 				continue;
@@ -52,7 +52,7 @@ class Exchanges {
 		return Objects.equals(candidate.intermediateExchangeId,
 				ref.intermediateExchangeId)
 				&& Objects.equals(candidate.activityLinkId,
-						ds.getActivity().getId());
+						ds.activity.id);
 	}
 
 }

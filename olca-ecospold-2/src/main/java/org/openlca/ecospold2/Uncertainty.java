@@ -4,61 +4,13 @@ import org.jdom2.Element;
 
 public class Uncertainty {
 
-	private LogNormal logNormal;
-	private Normal normal;
-	private Triangular triangular;
-	private UndefinedUncertainty undefined;
-	private Uniform uniform;
+	public LogNormal logNormal;
+	public Normal normal;
+	public Triangular triangular;
+	public UndefinedUncertainty undefined;
+	public Uniform uniform;
 	public PedigreeMatrix pedigreeMatrix;
-	private String comment;
-
-	public LogNormal getLogNormal() {
-		return logNormal;
-	}
-
-	public void setLogNormal(LogNormal logNormal) {
-		this.logNormal = logNormal;
-	}
-
-	public Triangular getTriangular() {
-		return triangular;
-	}
-
-	public void setTriangular(Triangular triangular) {
-		this.triangular = triangular;
-	}
-
-	public Normal getNormal() {
-		return normal;
-	}
-
-	public void setNormal(Normal normal) {
-		this.normal = normal;
-	}
-
-	public Uniform getUniform() {
-		return uniform;
-	}
-
-	public void setUniform(Uniform uniform) {
-		this.uniform = uniform;
-	}
-
-	public UndefinedUncertainty getUndefined() {
-		return undefined;
-	}
-
-	public void setUndefined(UndefinedUncertainty undefined) {
-		this.undefined = undefined;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+	public String comment;
 
 	static Uncertainty fromXml(Element element) {
 		if (element == null)

@@ -28,42 +28,42 @@ public class ReaderTest {
 	@Theory
 	public void testActivity(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Activity activity = dataSet.getActivity();
+		Activity activity = dataSet.activity;
 		Assert.assertNotNull(activity);
-		Assert.assertEquals("Sample", activity.getName());
-		Assert.assertEquals("synonym 1", activity.getSynonyms().get(0));
-		Assert.assertEquals("synonym 2", activity.getSynonyms().get(1));
+		Assert.assertEquals("Sample", activity.name);
+		Assert.assertEquals("synonym 1", activity.synonyms.get(0));
+		Assert.assertEquals("synonym 2", activity.synonyms.get(1));
 	}
 
 	@Theory
 	public void testClassifications(String file) throws Exception {
 		DataSet dataSet = read(file);
-		List<Classification> classifications = dataSet.getClassifications();
+		List<Classification> classifications = dataSet.classifications;
 		Assert.assertEquals(2, classifications.size());
 		Classification classification = classifications.get(0);
 		Assert.assertEquals("ISIC rev.4 ecoinvent",
-				classification.getClassificationSystem());
+				classification.classificationSystem);
 	}
 
 	@Theory
 	public void testGeography(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Geography geo = dataSet.getGeography();
-		Assert.assertEquals("geography comment", geo.getComment());
+		Geography geo = dataSet.geography;
+		Assert.assertEquals("geography comment", geo.comment);
 	}
 
 	@Theory
 	public void testTechnology(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Technology tech = dataSet.getTechnology();
-		Assert.assertEquals(3, tech.getTechnologyLevel().intValue());
+		Technology tech = dataSet.technology;
+		Assert.assertEquals(3, tech.technologyLevel.intValue());
 	}
 
 	public void testElementaryExchanges(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Assert.assertEquals(dataSet.getElementaryExchanges().size(), 3);
+		Assert.assertEquals(dataSet.elementaryExchanges.size(), 3);
 		double sum = 0;
-		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+		for (ElementaryExchange e : dataSet.elementaryExchanges) {
 			sum += e.amount;
 		}
 		Assert.assertEquals(27, sum, 1e-15);
@@ -72,9 +72,9 @@ public class ReaderTest {
 	@Theory
 	public void testIntermediateExchanges(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Assert.assertEquals(2, dataSet.getIntermediateExchanges().size());
+		Assert.assertEquals(2, dataSet.intermediateExchanges.size());
 		boolean found = false;
-		for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
+		for (IntermediateExchange e : dataSet.intermediateExchanges) {
 			if (e.outputGroup == null || e.outputGroup != 0)
 				continue;
 			found = true;

@@ -4,51 +4,11 @@ import org.jdom2.Element;
 
 public class Representativeness {
 
-	private Double percent;
-	private String systemModelId;
-	private String systemModelName;
-	private String samplingProcedure;
-	private String extrapolations;
-
-	public double getPercent() {
-		return percent;
-	}
-
-	public void setPercent(double percent) {
-		this.percent = percent;
-	}
-
-	public String getSystemModelId() {
-		return systemModelId;
-	}
-
-	public void setSystemModelId(String systemModelId) {
-		this.systemModelId = systemModelId;
-	}
-
-	public String getSystemModelName() {
-		return systemModelName;
-	}
-
-	public void setSystemModelName(String systemModelName) {
-		this.systemModelName = systemModelName;
-	}
-
-	public String getSamplingProcedure() {
-		return samplingProcedure;
-	}
-
-	public void setSamplingProcedure(String samplingProcedure) {
-		this.samplingProcedure = samplingProcedure;
-	}
-
-	public String getExtrapolations() {
-		return extrapolations;
-	}
-
-	public void setExtrapolations(String extrapolations) {
-		this.extrapolations = extrapolations;
-	}
+	public Double percent;
+	public String systemModelId;
+	public String systemModelName;
+	public String samplingProcedure;
+	public String extrapolations;
 
 	static Representativeness fromXml(Element e) {
 		if (e == null)

@@ -4,34 +4,9 @@ import org.jdom2.Element;
 
 public class Normal {
 
-	private double meanValue;
-	private double variance;
-	private double varianceWithPedigreeUncertainty;
-
-	public double getMeanValue() {
-		return meanValue;
-	}
-
-	public void setMeanValue(double meanValue) {
-		this.meanValue = meanValue;
-	}
-
-	public double getVariance() {
-		return variance;
-	}
-
-	public void setVariance(double variance) {
-		this.variance = variance;
-	}
-
-	public double getVarianceWithPedigreeUncertainty() {
-		return varianceWithPedigreeUncertainty;
-	}
-
-	public void setVarianceWithPedigreeUncertainty(
-			double varianceWithPedigreeUncertainty) {
-		this.varianceWithPedigreeUncertainty = varianceWithPedigreeUncertainty;
-	}
+	public double meanValue;
+	public double variance;
+	public double varianceWithPedigreeUncertainty;
 
 	static Normal fromXml(Element e) {
 		if (e == null)

@@ -11,11 +11,7 @@ import org.jdom2.Element;
  */
 public class PersonList {
 
-	private List<Person> persons = new ArrayList<>();
-
-	public List<Person> getPersons() {
-		return persons;
-	}
+	public final List<Person> persons = new ArrayList<>();
 
 	static PersonList fromXml(Document doc) {
 		PersonList list = new PersonList();

@@ -8,100 +8,18 @@ import org.jdom2.Element;
 
 public class DataSet {
 
-	private Activity activity;
-	private List<Classification> classifications = new ArrayList<>();
-	private Geography geography;
-	private Technology technology;
-	private TimePeriod timePeriod;
-	private MacroEconomicScenario macroEconomicScenario;
-	private Representativeness representativeness;
-	private AdministrativeInformation administrativeInformation;
-	private List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
-	private List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
-	private List<Parameter> parameters = new ArrayList<>();
-	private UserMasterData masterData;
-
-	public Activity getActivity() {
-		return activity;
-	}
-
-	public void setActivity(Activity activity) {
-		this.activity = activity;
-	}
-
-	public List<Classification> getClassifications() {
-		return classifications;
-	}
-
-	public Geography getGeography() {
-		return geography;
-	}
-
-	public void setGeography(Geography geography) {
-		this.geography = geography;
-	}
-
-	public Technology getTechnology() {
-		return technology;
-	}
-
-	public void setTechnology(Technology technology) {
-		this.technology = technology;
-	}
-
-	public TimePeriod getTimePeriod() {
-		return timePeriod;
-	}
-
-	public void setTimePeriod(TimePeriod timePeriod) {
-		this.timePeriod = timePeriod;
-	}
-
-	public MacroEconomicScenario getMacroEconomicScenario() {
-		return macroEconomicScenario;
-	}
-
-	public void setMacroEconomicScenario(
-			MacroEconomicScenario macroEconomicScenario) {
-		this.macroEconomicScenario = macroEconomicScenario;
-	}
-
-	public List<ElementaryExchange> getElementaryExchanges() {
-		return elementaryExchanges;
-	}
-
-	public List<IntermediateExchange> getIntermediateExchanges() {
-		return intermediateExchanges;
-	}
-
-	public List<Parameter> getParameters() {
-		return parameters;
-	}
-
-	public Representativeness getRepresentativeness() {
-		return representativeness;
-	}
-
-	public void setRepresentativeness(Representativeness representativeness) {
-		this.representativeness = representativeness;
-	}
-
-	public AdministrativeInformation getAdministrativeInformation() {
-		return administrativeInformation;
-	}
-
-	public void setAdministrativeInformation(
-			AdministrativeInformation administrativeInformation) {
-		this.administrativeInformation = administrativeInformation;
-	}
-
-	public void setMasterData(UserMasterData masterData) {
-		this.masterData = masterData;
-	}
-
-	public UserMasterData getMasterData() {
-		return masterData;
-	}
+	public Activity activity;
+	public final List<Classification> classifications = new ArrayList<>();
+	public Geography geography;
+	public Technology technology;
+	public TimePeriod timePeriod;
+	public MacroEconomicScenario macroEconomicScenario;
+	public Representativeness representativeness;
+	public AdministrativeInformation administrativeInformation;
+	public final List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
+	public final List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
+	public final List<Parameter> parameters = new ArrayList<>();
+	public UserMasterData masterData;
 
 	static DataSet fromXml(Document doc) {
 		Element root = getRootElement(doc);
@@ -126,41 +44,41 @@ public class DataSet {
 		for (Element e : elementaryExchanges) {
 			ElementaryExchange exchange = ElementaryExchange.fromXml(e);
 			if (exchange != null)
-				dataSet.getElementaryExchanges().add(exchange);
+				dataSet.elementaryExchanges.add(exchange);
 		}
 		List<Element> intermediateExchanges = In.childs(flowData,
 				"intermediateExchange");
 		for (Element e : intermediateExchanges) {
 			IntermediateExchange exchange = IntermediateExchange.fromXml(e);
 			if (exchange != null)
-				dataSet.getIntermediateExchanges().add(exchange);
+				dataSet.intermediateExchanges.add(exchange);
 		}
 		List<Element> parameters = In.childs(flowData, "parameter");
 		for (Element e : parameters) {
 			Parameter p = Parameter.fromXml(e);
 			if (p != null)
-				dataSet.getParameters().add(p);
+				dataSet.parameters.add(p);
 		}
 	}
 
 	private static void readActivityDescription(Element root, DataSet dataSet) {
 		Element description = In.child(root, "activityDescription");
 		Element activity = In.child(description, "activity");
-		dataSet.setActivity(Activity.fromXml(activity));
+		dataSet.activity = Activity.fromXml(activity);
 		List<Element> classifications = In
 				.childs(description, "classification");
 		for (Element e : classifications) {
 			Classification classification = Classification.fromXml(e);
-			dataSet.getClassifications().add(classification);
+			dataSet.classifications.add(classification);
 		}
-		dataSet.setGeography(Geography.fromXml(In.child(description,
-				"geography")));
-		dataSet.setTechnology(Technology.fromXml(In.child(description,
-				"technology")));
-		dataSet.setTimePeriod(TimePeriod.fromXml(In.child(description,
-				"timePeriod")));
-		dataSet.setMacroEconomicScenario(MacroEconomicScenario.fromXml(In
-				.child(description, "macroEconomicScenario")));
+		dataSet.geography = Geography.fromXml(In.child(description,
+		"geography"));
+		dataSet.technology = Technology.fromXml(In.child(description,
+		"technology"));
+		dataSet.timePeriod = TimePeriod.fromXml(In.child(description,
+		"timePeriod"));
+		dataSet.macroEconomicScenario = MacroEconomicScenario.fromXml(In
+		.child(description, "macroEconomicScenario"));
 	}
 
 	private static Element getRootElement(Document doc) {

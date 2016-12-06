@@ -4,78 +4,14 @@ import org.jdom2.Element;
 
 public class Property {
 
-	private String id;
-	private double amount;
-	private String unitId;
-	private String name;
-	private String unitName;
-	private String variableName;
-	private String mathematicalRelation;
-	private boolean isDefiningValue;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
-
-	public String getUnitId() {
-		return unitId;
-	}
-
-	public void setUnitId(String unitId) {
-		this.unitId = unitId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getUnitName() {
-		return unitName;
-	}
-
-	public void setUnitName(String unitName) {
-		this.unitName = unitName;
-	}
-
-	public String getVariableName() {
-		return variableName;
-	}
-
-	public void setVariableName(String variableName) {
-		this.variableName = variableName;
-	}
-
-	public String getMathematicalRelation() {
-		return mathematicalRelation;
-	}
-
-	public void setMathematicalRelation(String mathematicalRelation) {
-		this.mathematicalRelation = mathematicalRelation;
-	}
-
-	public boolean isDefiningValue() {
-		return isDefiningValue;
-	}
-
-	public void setIsDefiningValue(boolean isDefiningValue) {
-		this.isDefiningValue = isDefiningValue;
-	}
+	public String id;
+	public double amount;
+	public String unitId;
+	public String name;
+	public String unitName;
+	public String variableName;
+	public String mathematicalRelation;
+	public boolean isDefiningValue;
 
 	static Property fromXml(Element e) {
 		if (e == null)

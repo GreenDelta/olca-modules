@@ -34,8 +34,8 @@ public class PersonUpdate implements Runnable {
 			PersonList personList = EcoSpold2.readPersons(personFile);
 			if (personList == null)
 				return;
-			for (Person person : personList.getPersons()) {
-				Actor actor = dao.getForRefId(person.getId());
+			for (Person person : personList.persons) {
+				Actor actor = dao.getForRefId(person.id);
 				if (actor == null)
 					continue;
 				updateActor(actor, person);
@@ -46,13 +46,13 @@ public class PersonUpdate implements Runnable {
 	}
 
 	private void updateActor(Actor actor, Person person) {
-		actor.setName(person.getName());
-		actor.setAddress(person.getAddress());
-		actor.setEmail(person.getEmail());
-		actor.setTelefax(person.getTelefax());
-		actor.setTelephone(person.getTelephone());
-		if(person.getCompanyName() != null)
-			actor.setDescription("company: " + person.getCompanyName());
+		actor.setName(person.name);
+		actor.setAddress(person.address);
+		actor.setEmail(person.email);
+		actor.setTelefax(person.telefax);
+		actor.setTelephone(person.telephone);
+		if(person.companyName != null)
+			actor.setDescription("company: " + person.companyName);
 		dao.update(actor);
 	}
 }

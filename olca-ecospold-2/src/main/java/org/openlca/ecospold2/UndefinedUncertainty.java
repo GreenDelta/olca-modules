@@ -4,33 +4,9 @@ import org.jdom2.Element;
 
 public class UndefinedUncertainty {
 
-	private double minValue;
-	private double maxValue;
-	private double standardDeviation95;
-
-	public double getMinValue() {
-		return minValue;
-	}
-
-	public void setMinValue(double minValue) {
-		this.minValue = minValue;
-	}
-
-	public double getMaxValue() {
-		return maxValue;
-	}
-
-	public void setMaxValue(double maxValue) {
-		this.maxValue = maxValue;
-	}
-
-	public double getStandardDeviation95() {
-		return standardDeviation95;
-	}
-
-	public void setStandardDeviation95(double standardDeviation95) {
-		this.standardDeviation95 = standardDeviation95;
-	}
+	public double minValue;
+	public double maxValue;
+	public double standardDeviation95;
 
 	static UndefinedUncertainty fromXml(Element e) {
 		if (e == null)

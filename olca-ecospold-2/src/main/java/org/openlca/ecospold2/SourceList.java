@@ -11,11 +11,7 @@ import org.jdom2.Element;
  */
 public class SourceList {
 
-	private List<Source> sources = new ArrayList<>();
-
-	public List<Source> getSources() {
-		return sources;
-	}
+	public final List<Source> sources = new ArrayList<>();
 
 	static SourceList fromXml(Document doc) {
 		SourceList list = new SourceList();

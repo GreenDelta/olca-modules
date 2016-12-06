@@ -4,105 +4,17 @@ import org.jdom2.Element;
 
 public class DataGenerator {
 
-	private String personId;
-	private String personName;
-	private String personEmail;
-	private String publishedSourceId;
-	private Integer publishedSourceYear;
-	private String publishedSourceFirstAuthor;
-	private boolean isCopyrightProtected;
-	private String pageNumbers;
-	private Integer accessRestrictedTo;
-	private String companyId;
-	private String companyCode;
-
-	public String getPersonId() {
-		return personId;
-	}
-
-	public void setPersonId(String personId) {
-		this.personId = personId;
-	}
-
-	public String getPersonName() {
-		return personName;
-	}
-
-	public void setPersonName(String personName) {
-		this.personName = personName;
-	}
-
-	public String getPersonEmail() {
-		return personEmail;
-	}
-
-	public void setPersonEmail(String personEmail) {
-		this.personEmail = personEmail;
-	}
-
-	public String getPublishedSourceId() {
-		return publishedSourceId;
-	}
-
-	public void setPublishedSourceId(String publishedSourceId) {
-		this.publishedSourceId = publishedSourceId;
-	}
-
-	public Integer getPublishedSourceYear() {
-		return publishedSourceYear;
-	}
-
-	public void setPublishedSourceYear(Integer publishedSourceYear) {
-		this.publishedSourceYear = publishedSourceYear;
-	}
-
-	public String getPublishedSourceFirstAuthor() {
-		return publishedSourceFirstAuthor;
-	}
-
-	public void setPublishedSourceFirstAuthor(String publishedSourceFirstAuthor) {
-		this.publishedSourceFirstAuthor = publishedSourceFirstAuthor;
-	}
-
-	public boolean isCopyrightProtected() {
-		return isCopyrightProtected;
-	}
-
-	public void setCopyrightProtected(boolean isCopyrightProtected) {
-		this.isCopyrightProtected = isCopyrightProtected;
-	}
-
-	public String getPageNumbers() {
-		return pageNumbers;
-	}
-
-	public void setPageNumbers(String pageNumbers) {
-		this.pageNumbers = pageNumbers;
-	}
-
-	public Integer getAccessRestrictedTo() {
-		return accessRestrictedTo;
-	}
-
-	public void setAccessRestrictedTo(Integer accessRestrictedTo) {
-		this.accessRestrictedTo = accessRestrictedTo;
-	}
-
-	public String getCompanyId() {
-		return companyId;
-	}
-
-	public void setCompanyId(String companyId) {
-		this.companyId = companyId;
-	}
-
-	public String getCompanyCode() {
-		return companyCode;
-	}
-
-	public void setCompanyCode(String companyCode) {
-		this.companyCode = companyCode;
-	}
+	public String personId;
+	public String personName;
+	public String personEmail;
+	public String publishedSourceId;
+	public Integer publishedSourceYear;
+	public String publishedSourceFirstAuthor;
+	public boolean isCopyrightProtected;
+	public String pageNumbers;
+	public Integer accessRestrictedTo;
+	public String companyId;
+	public String companyCode;
 
 	static DataGenerator fromXml(Element e) {
 		if (e == null)

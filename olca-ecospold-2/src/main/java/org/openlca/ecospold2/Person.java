@@ -5,78 +5,14 @@ import org.jdom2.Namespace;
 
 public class Person {
 
-	private String id;
-	private String name;
-	private String address;
-	private String telephone;
-	private String telefax;
-	private String email;
-	private String companyId;
-	private String companyName;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public String getTelephone() {
-		return telephone;
-	}
-
-	public void setTelephone(String telephone) {
-		this.telephone = telephone;
-	}
-
-	public String getTelefax() {
-		return telefax;
-	}
-
-	public void setTelefax(String telefax) {
-		this.telefax = telefax;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getCompanyId() {
-		return companyId;
-	}
-
-	public void setCompanyId(String companyId) {
-		this.companyId = companyId;
-	}
-
-	public String getCompanyName() {
-		return companyName;
-	}
-
-	public void setCompanyName(String companyName) {
-		this.companyName = companyName;
-	}
+	public String id;
+	public String name;
+	public String address;
+	public String telephone;
+	public String telefax;
+	public String email;
+	public String companyId;
+	public String companyName;
 
 	static Person fromXml(Element e) {
 		if (e == null)

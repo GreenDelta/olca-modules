@@ -5,89 +5,17 @@ import org.jdom2.Namespace;
 
 public class Parameter {
 
-	private String id;
-	private String variableName;
-	private double amount;
-	private String name;
-	private String unitName;
-	private String mathematicalRelation;
-	private Boolean isCalculatedAmount;
+	public String id;
+	public String variableName;
+	public double amount;
+	public String name;
+	public String unitName;
+	public String mathematicalRelation;
+	public Boolean isCalculatedAmount;
 
 	// extensions
-	private String scope;
-	private Uncertainty uncertainty;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getVariableName() {
-		return variableName;
-	}
-
-	public void setVariableName(String variableName) {
-		this.variableName = variableName;
-	}
-
-	public double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getUnitName() {
-		return unitName;
-	}
-
-	public void setUnitName(String unitName) {
-		this.unitName = unitName;
-	}
-
-	public String getMathematicalRelation() {
-		return mathematicalRelation;
-	}
-
-	public void setMathematicalRelation(String mathematicalRelation) {
-		this.mathematicalRelation = mathematicalRelation;
-	}
-
-	public void setIsCalculatedAmount(Boolean isCalculatedAmount) {
-		this.isCalculatedAmount = isCalculatedAmount;
-	}
-
-	public Boolean getIsCalculatedAmount() {
-		return isCalculatedAmount;
-	}
-
-	public void setScope(String scope) {
-		this.scope = scope;
-	}
-
-	public String getScope() {
-		return scope;
-	}
-
-	public Uncertainty getUncertainty() {
-		return uncertainty;
-	}
-
-	public void setUncertainty(Uncertainty uncertainty) {
-		this.uncertainty = uncertainty;
-	}
+	public String scope;
+	public Uncertainty uncertainty;
 
 	static Parameter fromXml(Element e) {
 		if (e == null)

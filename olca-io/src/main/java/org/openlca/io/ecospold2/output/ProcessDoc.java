@@ -49,45 +49,45 @@ class ProcessDoc {
 
 	private void mapTime() {
 		TimePeriod timePeriod = new TimePeriod();
-		timePeriod.setComment(doc.getTime());
-		timePeriod.setDataValid(true);
+		timePeriod.comment = doc.getTime();
+		timePeriod.dataValid = true;
 		if (doc.getValidUntil() != null)
-			timePeriod.setEndDate(doc.getValidUntil());
+			timePeriod.endDate = doc.getValidUntil();
 		else
-			timePeriod.setEndDate(new Date());
+			timePeriod.endDate = new Date();
 		if (doc.getValidFrom() != null)
-			timePeriod.setStartDate(doc.getValidFrom());
+			timePeriod.startDate = doc.getValidFrom();
 		else
-			timePeriod.setStartDate(new Date());
-		dataSet.setTimePeriod(timePeriod);
+			timePeriod.startDate = new Date();
+		dataSet.timePeriod = timePeriod;
 	}
 
 	private void mapTechnology() {
 		Technology technology = new Technology();
-		technology.setComment(doc.getTechnology());
-		technology.setTechnologyLevel(0);
-		dataSet.setTechnology(technology);
+		technology.comment = doc.getTechnology();
+		technology.technologyLevel = 0;
+		dataSet.technology = technology;
 	}
 
 	private void addEconomicScenario() {
 		MacroEconomicScenario scenario = new MacroEconomicScenario();
-		scenario.setId("d9f57f0a-a01f-42eb-a57b-8f18d6635801");
-		scenario.setName("Business-as-Usual");
-		dataSet.setMacroEconomicScenario(scenario);
+		scenario.id = "d9f57f0a-a01f-42eb-a57b-8f18d6635801";
+		scenario.name = "Business-as-Usual";
+		dataSet.macroEconomicScenario = scenario;
 	}
 
 	private void mapRepresentativeness() {
 		Representativeness repri = new Representativeness();
-		repri.setSystemModelId("06590a66-662a-4885-8494-ad0cf410f956");
-		repri.setSystemModelName("Allocation, ecoinvent default");
-		repri.setSamplingProcedure(doc.getSampling());
-		repri.setExtrapolations(doc.getDataTreatment());
-		dataSet.setRepresentativeness(repri);
+		repri.systemModelId = "06590a66-662a-4885-8494-ad0cf410f956";
+		repri.systemModelName = "Allocation, ecoinvent default";
+		repri.samplingProcedure = doc.getSampling();
+		repri.extrapolations = doc.getDataTreatment();
+		dataSet.representativeness = repri;
 	}
 
 	private void mapAdminInfo() {
 		AdministrativeInformation adminInfo = new AdministrativeInformation();
-		dataSet.setAdministrativeInformation(adminInfo);
+		dataSet.administrativeInformation = adminInfo;
 		mapDataEntry(adminInfo);
 		mapDataGenerator(adminInfo);
 		mapFileAttributes(adminInfo);
@@ -95,35 +95,35 @@ class ProcessDoc {
 
 	private void mapDataEntry(AdministrativeInformation adminInfo) {
 		DataEntryBy dataEntryBy = new DataEntryBy();
-		adminInfo.setDataEntryBy(dataEntryBy);
+		adminInfo.dataEntryBy = dataEntryBy;
 		Actor dataDocumentor = doc.getDataDocumentor();
 		if (dataDocumentor == null) {
-			dataEntryBy.setIsActiveAuthor(false);
-			dataEntryBy.setPersonEmail("no@email.com");
-			dataEntryBy.setPersonId("788d0176-a69c-4de0-a5d3-259866b6b100");
-			dataEntryBy.setPersonName("[Current User]");
+			dataEntryBy.isActiveAuthor = false;
+			dataEntryBy.personEmail = "no@email.com";
+			dataEntryBy.personId = "788d0176-a69c-4de0-a5d3-259866b6b100";
+			dataEntryBy.personName = "[Current User]";
 		} else {
-			dataEntryBy.setPersonEmail(dataDocumentor.getEmail());
-			dataEntryBy.setPersonId(dataDocumentor.getRefId());
-			dataEntryBy.setPersonName(dataDocumentor.getName());
+			dataEntryBy.personEmail = dataDocumentor.getEmail();
+			dataEntryBy.personId = dataDocumentor.getRefId();
+			dataEntryBy.personName = dataDocumentor.getName();
 		}
 	}
 
 	private void mapDataGenerator(AdministrativeInformation adminInfo) {
 		DataGenerator generator = new DataGenerator();
-		adminInfo.setDataGenerator(generator);
-		generator.setCopyrightProtected(doc.isCopyright());
+		adminInfo.dataGenerator = generator;
+		generator.isCopyrightProtected = doc.isCopyright();
 		mapPublication(generator);
 		Actor actor = doc.getDataGenerator();
 		if (actor == null) {
-			generator.setPersonEmail("no@email.com");
-			generator.setPersonId("788d0176-a69c-4de0-a5d3-259866b6b100");
-			generator.setPersonName("[Current User]");
+			generator.personEmail = "no@email.com";
+			generator.personId = "788d0176-a69c-4de0-a5d3-259866b6b100";
+			generator.personName = "[Current User]";
 		} else {
 			Person person = addPerson(actor);
-			generator.setPersonEmail(person.getEmail());
-			generator.setPersonId(person.getId());
-			generator.setPersonName(person.getEmail());
+			generator.personEmail = person.email;
+			generator.personId = person.id;
+			generator.personName = person.email;
 		}
 	}
 
@@ -131,74 +131,74 @@ class ProcessDoc {
 		if (doc.getPublication() == null)
 			return;
 		Source source = addSource(doc.getPublication());
-		generator.setPublishedSourceId(source.getId());
-		generator.setPublishedSourceFirstAuthor(source.getFirstAuthor());
-		generator.setPublishedSourceYear(source.getYear());
+		generator.publishedSourceId = source.id;
+		generator.publishedSourceFirstAuthor = source.firstAuthor;
+		generator.publishedSourceYear = source.year;
 	}
 
 	private void mapFileAttributes(AdministrativeInformation adminInfo) {
 		FileAttributes atts = new FileAttributes();
-		adminInfo.setFileAttributes(atts);
+		adminInfo.fileAttributes = atts;
 		mapVersion(atts);
-		atts.setDefaultLanguage("en");
+		atts.defaultLanguage = "en";
 		if (doc.getCreationDate() != null)
-			atts.setCreationTimestamp(doc.getCreationDate());
+			atts.creationTimestamp = doc.getCreationDate();
 		else
-			atts.setCreationTimestamp(new Date());
+			atts.creationTimestamp = new Date();
 		if (process.getLastChange() != 0)
-			atts.setLastEditTimestamp(new Date(process.getLastChange()));
+			atts.lastEditTimestamp = new Date(process.getLastChange());
 		else
-			atts.setLastEditTimestamp(new Date());
-		atts.setInternalSchemaVersion("1.0");
-		atts.setFileGenerator("openLCA");
-		atts.setFileTimestamp(new Date());
+			atts.lastEditTimestamp = new Date();
+		atts.internalSchemaVersion = "1.0";
+		atts.fileGenerator = "openLCA";
+		atts.fileTimestamp = new Date();
 	}
 
 	private void mapVersion(FileAttributes atts) {
 		Version version = new Version(process.getVersion());
-		atts.setMajorRelease(version.getMajor());
-		atts.setMajorRevision(version.getMinor());
-		atts.setMinorRelease(version.getUpdate());
-		atts.setMinorRevision(0);
+		atts.majorRelease = version.getMajor();
+		atts.majorRevision = version.getMinor();
+		atts.minorRelease = version.getUpdate();
+		atts.minorRevision = 0;
 	}
 
 	private Source addSource(org.openlca.core.model.Source olcaSource) {
-		for (Source source : dataSet.getMasterData().getSources()) {
-			if (Objects.equals(olcaSource.getRefId(), source.getId()))
+		for (Source source : dataSet.masterData.sources) {
+			if (Objects.equals(olcaSource.getRefId(), source.id))
 				return source;
 		}
 		Source source = new Source();
-		source.setId(olcaSource.getRefId());
-		source.setComment(olcaSource.getDescription());
-		source.setFirstAuthor(olcaSource.getName());
-		source.setSourceType(0);
-		source.setTitle(olcaSource.getTextReference());
+		source.id = olcaSource.getRefId();
+		source.comment = olcaSource.getDescription();
+		source.firstAuthor = olcaSource.getName();
+		source.sourceType = 0;
+		source.title = olcaSource.getTextReference();
 		if (olcaSource.getYear() != null)
-			source.setYear(olcaSource.getYear().intValue());
+			source.year = olcaSource.getYear().intValue();
 		else
-			source.setYear(9999);
-		dataSet.getMasterData().getSources().add(source);
+			source.year = 9999;
+		dataSet.masterData.sources.add(source);
 		return source;
 	}
 
 	private Person addPerson(Actor actor) {
-		for (Person person : dataSet.getMasterData().getPersons()) {
-			if (Objects.equals(actor.getRefId(), person.getId()))
+		for (Person person : dataSet.masterData.persons) {
+			if (Objects.equals(actor.getRefId(), person.id))
 				return person;
 		}
 		Person person = new Person();
-		person.setId(actor.getRefId());
-		person.setName(actor.getName());
-		person.setAddress(getAddress(actor));
+		person.id = actor.getRefId();
+		person.name = actor.getName();
+		person.address = getAddress(actor);
 		String email = actor.getEmail() != null ? actor.getEmail()
 				: "no@mail.net";
-		person.setEmail(email);
-		person.setName(actor.getName());
-		person.setTelefax(actor.getTelefax());
-		person.setTelephone(actor.getTelephone());
-		person.setCompanyId("b35ea934-b41d-4830-b1aa-c7c678270240");
-		person.setCompanyName("UKNWN");
-		dataSet.getMasterData().getPersons().add(person);
+		person.email = email;
+		person.name = actor.getName();
+		person.telefax = actor.getTelefax();
+		person.telephone = actor.getTelephone();
+		person.companyId = "b35ea934-b41d-4830-b1aa-c7c678270240";
+		person.companyName = "UKNWN";
+		dataSet.masterData.persons.add(person);
 		addDefaultCompany();
 		return person;
 	}
@@ -218,16 +218,16 @@ class ProcessDoc {
 
 	private void addDefaultCompany() {
 		String id = "b35ea934-b41d-4830-b1aa-c7c678270240";
-		for (Company company : dataSet.getMasterData().getCompanies()) {
-			if (Objects.equals(id, company.getId()))
+		for (Company company : dataSet.masterData.companies) {
+			if (Objects.equals(id, company.id))
 				return;
 		}
 		Company company = new Company();
-		company.setCode("UKNWN");
-		company.setComment("This is a default entry as we cannot create persons"
-				+ " without company information for the EcoEditor.");
-		company.setId(id);
-		company.setName("Unknown");
-		dataSet.getMasterData().getCompanies().add(company);
+		company.code = "UKNWN";
+		company.comment = "This is a default entry as we cannot create persons"
+		+ " without company information for the EcoEditor.";
+		company.id = id;
+		company.name = "Unknown";
+		dataSet.masterData.companies.add(company);
 	}
 }

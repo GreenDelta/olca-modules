@@ -41,9 +41,9 @@ class LocationMap {
 
 	public void apply(org.openlca.core.model.Process process, DataSet dataSet) {
 		Geography geography = new Geography();
-		dataSet.setGeography(geography);
+		dataSet.geography = geography;
 		if (process.getDocumentation() != null)
-			geography.setComment(process.getDocumentation().getGeography());
+			geography.comment = process.getDocumentation().getGeography();
 		if (process.getLocation() == null)
 			setDefaultLocation(geography);
 		else
@@ -59,15 +59,15 @@ class LocationMap {
 			return;
 		}
 		log.trace("mapped location {} to {}", location, record);
-		geography.setId(record.id);
-		geography.setShortName(record.code);
+		geography.id = record.id;
+		geography.shortName = record.code;
 	}
 
 	private void setDefaultLocation(Geography geography) {
 		if (geography == null)
 			return;
-		geography.setId("34dbbff8-88ce-11de-ad60-0019e336be3a");
-		geography.setShortName("GLO");
+		geography.id = "34dbbff8-88ce-11de-ad60-0019e336be3a";
+		geography.shortName = "GLO";
 	}
 
 	private class ExportRecord {

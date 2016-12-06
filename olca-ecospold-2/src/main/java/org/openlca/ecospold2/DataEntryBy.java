@@ -4,42 +4,10 @@ import org.jdom2.Element;
 
 public class DataEntryBy {
 
-	private String personId;
-	private Boolean isActiveAuthor;
-	private String personName;
-	private String personEmail;
-
-	public String getPersonId() {
-		return personId;
-	}
-
-	public void setPersonId(String personId) {
-		this.personId = personId;
-	}
-
-	public Boolean getIsActiveAuthor() {
-		return isActiveAuthor;
-	}
-
-	public void setIsActiveAuthor(Boolean isActiveAuthor) {
-		this.isActiveAuthor = isActiveAuthor;
-	}
-
-	public String getPersonName() {
-		return personName;
-	}
-
-	public void setPersonName(String personName) {
-		this.personName = personName;
-	}
-
-	public String getPersonEmail() {
-		return personEmail;
-	}
-
-	public void setPersonEmail(String personEmail) {
-		this.personEmail = personEmail;
-	}
+	public String personId;
+	public Boolean isActiveAuthor;
+	public String personName;
+	public String personEmail;
 
 	static DataEntryBy fromXml(Element e) {
 		if (e == null)

@@ -7,60 +7,12 @@ import org.jdom2.Namespace;
 
 public class ActivityIndexEntry {
 
-	private String id;
-	private String activityNameId;
-	private String geographyId;
-	private Date startDate;
-	private Date endDate;
-	private String systemModelId;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getActivityNameId() {
-		return activityNameId;
-	}
-
-	public void setActivityNameId(String activityNameId) {
-		this.activityNameId = activityNameId;
-	}
-
-	public String getGeographyId() {
-		return geographyId;
-	}
-
-	public void setGeographyId(String geographyId) {
-		this.geographyId = geographyId;
-	}
-
-	public Date getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-
-	public Date getEndDate() {
-		return endDate;
-	}
-
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
-
-	public String getSystemModelId() {
-		return systemModelId;
-	}
-
-	public void setSystemModelId(String systemModelId) {
-		this.systemModelId = systemModelId;
-	}
+	public String id;
+	public String activityNameId;
+	public String geographyId;
+	public Date startDate;
+	public Date endDate;
+	public String systemModelId;
 
 	static ActivityIndexEntry fromXml(Element e) {
 		if (e == null)

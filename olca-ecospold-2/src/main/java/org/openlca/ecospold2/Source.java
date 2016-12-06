@@ -7,132 +7,20 @@ import org.jdom2.Namespace;
 
 public class Source {
 
-	private String id;
-	private Integer sourceType;
-	private Integer year;
-	private String volumeNo;
-	private String firstAuthor;
-	private String additionalAuthors;
-	private String title;
-	private String titleOfAnthology;
-	private String placeOfPublications;
-	private String publisher;
-	private String issueNo;
-	private String journal;
-	private String namesOfEditors;
-	private String comment;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public Integer getSourceType() {
-		return sourceType;
-	}
-
-	public void setSourceType(Integer sourceType) {
-		this.sourceType = sourceType;
-	}
-
-	public Integer getYear() {
-		return year;
-	}
-
-	public void setYear(Integer year) {
-		this.year = year;
-	}
-
-	public String getVolumeNo() {
-		return volumeNo;
-	}
-
-	public void setVolumeNo(String volumeNo) {
-		this.volumeNo = volumeNo;
-	}
-
-	public String getFirstAuthor() {
-		return firstAuthor;
-	}
-
-	public void setFirstAuthor(String firstAuthor) {
-		this.firstAuthor = firstAuthor;
-	}
-
-	public String getAdditionalAuthors() {
-		return additionalAuthors;
-	}
-
-	public void setAdditionalAuthors(String additionalAuthors) {
-		this.additionalAuthors = additionalAuthors;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getTitleOfAnthology() {
-		return titleOfAnthology;
-	}
-
-	public void setTitleOfAnthology(String titleOfAnthology) {
-		this.titleOfAnthology = titleOfAnthology;
-	}
-
-	public String getPlaceOfPublications() {
-		return placeOfPublications;
-	}
-
-	public void setPlaceOfPublications(String placeOfPublications) {
-		this.placeOfPublications = placeOfPublications;
-	}
-
-	public String getPublisher() {
-		return publisher;
-	}
-
-	public void setPublisher(String publisher) {
-		this.publisher = publisher;
-	}
-
-	public String getIssueNo() {
-		return issueNo;
-	}
-
-	public void setIssueNo(String issueNo) {
-		this.issueNo = issueNo;
-	}
-
-	public String getJournal() {
-		return journal;
-	}
-
-	public void setJournal(String journal) {
-		this.journal = journal;
-	}
-
-	public String getNamesOfEditors() {
-		return namesOfEditors;
-	}
-
-	public void setNamesOfEditors(String namesOfEditors) {
-		this.namesOfEditors = namesOfEditors;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+	public String id;
+	public Integer sourceType;
+	public Integer year;
+	public String volumeNo;
+	public String firstAuthor;
+	public String additionalAuthors;
+	public String title;
+	public String titleOfAnthology;
+	public String placeOfPublications;
+	public String publisher;
+	public String issueNo;
+	public String journal;
+	public String namesOfEditors;
+	public String comment;
 
 	static Source fromXml(Element e) {
 		if (e == null)

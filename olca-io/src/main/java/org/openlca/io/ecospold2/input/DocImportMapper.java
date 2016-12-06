@@ -49,33 +49,33 @@ class DocImportMapper {
 		this.doc = new ProcessDocumentation();
 		process.setDocumentation(doc);
 		mapTechnology(dataSet);
-		mapGeography(dataSet.getGeography());
-		mapTime(dataSet.getTimePeriod());
-		mapAdminInfo(dataSet.getAdministrativeInformation());
-		mapRepresentativeness(dataSet.getRepresentativeness());
+		mapGeography(dataSet.geography);
+		mapTime(dataSet.timePeriod);
+		mapAdminInfo(dataSet.administrativeInformation);
+		mapRepresentativeness(dataSet.representativeness);
 	}
 
 	private void mapRepresentativeness(Representativeness repri) {
 		if (repri == null)
 			return;
-		doc.setDataTreatment(repri.getExtrapolations());
-		doc.setSampling(repri.getSamplingProcedure());
+		doc.setDataTreatment(repri.extrapolations);
+		doc.setSampling(repri.samplingProcedure);
 	}
 
 	private void mapTechnology(DataSet dataSet) {
-		Activity activity = dataSet.getActivity();
-		Technology technology = dataSet.getTechnology();
+		Activity activity = dataSet.activity;
+		Technology technology = dataSet.technology;
 		if (activity == null || technology == null)
 			return;
-		doc.setTechnology(technology.getComment());
+		doc.setTechnology(technology.comment);
 	}
 
 	private void mapGeography(Geography geography) {
 		if (geography == null)
 			return;
-		process.getDocumentation().setGeography(geography.getComment());
+		process.getDocumentation().setGeography(geography.comment);
 		try {
-			String refId = KeyGen.get(geography.getShortName());
+			String refId = KeyGen.get(geography.shortName);
 			LocationDao dao = new LocationDao(database);
 			Location location = dao.getForRefId(refId);
 			process.setLocation(location);
@@ -87,9 +87,9 @@ class DocImportMapper {
 	private void mapTime(TimePeriod timePeriod) {
 		if (timePeriod == null)
 			return;
-		doc.setValidFrom(timePeriod.getStartDate());
-		doc.setValidUntil(timePeriod.getEndDate());
-		doc.setTime(timePeriod.getComment());
+		doc.setValidFrom(timePeriod.startDate);
+		doc.setValidUntil(timePeriod.endDate);
+		doc.setTime(timePeriod.comment);
 	}
 
 	private void mapAdminInfo(AdministrativeInformation adminInfo) {
@@ -99,61 +99,60 @@ class DocImportMapper {
 		mapDataGenerator(adminInfo);
 		mapPublicationSource(adminInfo);
 		mapFileAttributes(adminInfo);
-		if (adminInfo.getDataGenerator() != null)
-			doc.setCopyright(adminInfo.getDataGenerator()
-					.isCopyrightProtected());
+		if (adminInfo.dataGenerator != null)
+			doc.setCopyright(adminInfo.dataGenerator.isCopyrightProtected);
 	}
 
 	private void mapDataEntryBy(AdministrativeInformation adminInfo) {
-		DataEntryBy dataEntry = adminInfo.getDataEntryBy();
-		if (dataEntry == null || dataEntry.getPersonId() == null)
+		DataEntryBy dataEntry = adminInfo.dataEntryBy;
+		if (dataEntry == null || dataEntry.personId == null)
 			return;
 		ActorDao dao = new ActorDao(database);
-		Actor actor = dao.getForRefId(dataEntry.getPersonId());
+		Actor actor = dao.getForRefId(dataEntry.personId);
 		if (actor == null) {
 			actor = new Actor();
-			actor.setRefId(dataEntry.getPersonId());
-			actor.setEmail(dataEntry.getPersonEmail());
-			actor.setName(dataEntry.getPersonName());
+			actor.setRefId(dataEntry.personId);
+			actor.setEmail(dataEntry.personEmail);
+			actor.setName(dataEntry.personName);
 			actor = dao.insert(actor);
 		}
 		doc.setDataDocumentor(actor);
 	}
 
 	private void mapDataGenerator(AdministrativeInformation adminInfo) {
-		DataGenerator dataGenerator = adminInfo.getDataGenerator();
-		if (dataGenerator == null || dataGenerator.getPersonId() == null)
+		DataGenerator dataGenerator = adminInfo.dataGenerator;
+		if (dataGenerator == null || dataGenerator.personId == null)
 			return;
 		ActorDao dao = new ActorDao(database);
-		Actor actor = dao.getForRefId(dataGenerator.getPersonId());
+		Actor actor = dao.getForRefId(dataGenerator.personId);
 		if (actor == null) {
 			actor = new Actor();
-			actor.setRefId(dataGenerator.getPersonId());
-			actor.setEmail(dataGenerator.getPersonEmail());
-			actor.setName(dataGenerator.getPersonName());
+			actor.setRefId(dataGenerator.personId);
+			actor.setEmail(dataGenerator.personEmail);
+			actor.setName(dataGenerator.personName);
 			actor = dao.insert(actor);
 		}
 		doc.setDataGenerator(actor);
 	}
 
 	private void mapPublicationSource(AdministrativeInformation adminInfo) {
-		DataGenerator gen = adminInfo.getDataGenerator();
-		if (gen == null || gen.getPublishedSourceId() == null)
+		DataGenerator gen = adminInfo.dataGenerator;
+		if (gen == null || gen.publishedSourceId == null)
 			return;
 		SourceDao dao = new SourceDao(database);
-		Source source = dao.getForRefId(gen.getPublishedSourceId());
+		Source source = dao.getForRefId(gen.publishedSourceId);
 		if (source == null) {
 			source = new Source();
-			source.setRefId(gen.getPublishedSourceId());
+			source.setRefId(gen.publishedSourceId);
 			StringBuilder title = new StringBuilder();
 			StringBuilder shortTitle = new StringBuilder();
-			if (gen.getPublishedSourceFirstAuthor() != null) {
-				title.append(gen.getPublishedSourceFirstAuthor());
-				shortTitle.append(gen.getPublishedSourceFirstAuthor());
+			if (gen.publishedSourceFirstAuthor != null) {
+				title.append(gen.publishedSourceFirstAuthor);
+				shortTitle.append(gen.publishedSourceFirstAuthor);
 			}
-			if (gen.getPublishedSourceYear() != null) {
-				title.append(gen.getPublishedSourceYear());
-				shortTitle.append(gen.getPublishedSourceYear());
+			if (gen.publishedSourceYear != null) {
+				title.append(gen.publishedSourceYear);
+				shortTitle.append(gen.publishedSourceYear);
 			}
 			source.setTextReference(title.toString());
 			source.setName(shortTitle.toString());
@@ -163,14 +162,14 @@ class DocImportMapper {
 	}
 
 	private void mapFileAttributes(AdministrativeInformation adminInfo) {
-		if (adminInfo.getFileAttributes() == null)
+		if (adminInfo.fileAttributes == null)
 			return;
-		FileAttributes fileAtts = adminInfo.getFileAttributes();
-		doc.setCreationDate(fileAtts.getCreationTimestamp());
-		if (fileAtts.getLastEditTimestamp() != null)
-			process.setLastChange(fileAtts.getLastEditTimestamp().getTime());
-		Version version = new Version(fileAtts.getMajorRelease(),
-				fileAtts.getMajorRevision(), fileAtts.getMinorRelease());
+		FileAttributes fileAtts = adminInfo.fileAttributes;
+		doc.setCreationDate(fileAtts.creationTimestamp);
+		if (fileAtts.lastEditTimestamp != null)
+			process.setLastChange(fileAtts.lastEditTimestamp.getTime());
+		Version version = new Version(fileAtts.majorRelease,
+				fileAtts.majorRevision, fileAtts.minorRelease);
 		process.setVersion(version.getValue());
 	}
 

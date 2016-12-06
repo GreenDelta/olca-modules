@@ -58,15 +58,15 @@ class UnitMap {
 	}
 
 	private void addMasterEntry(Unit unit, UserMasterData masterData) {
-		for (org.openlca.ecospold2.Unit es2Unit : masterData.getUnits()) {
-			if (Objects.equals(unit.getRefId(), es2Unit.getId()))
+		for (org.openlca.ecospold2.Unit es2Unit : masterData.units) {
+			if (Objects.equals(unit.getRefId(), es2Unit.id))
 				return;
 		}
 		org.openlca.ecospold2.Unit es2Unit = new org.openlca.ecospold2.Unit();
-		es2Unit.setComment(unit.getDescription());
-		es2Unit.setId(unit.getRefId());
-		es2Unit.setName(unit.getName());
-		masterData.getUnits().add(es2Unit);
+		es2Unit.comment = unit.getDescription();
+		es2Unit.id = unit.getRefId();
+		es2Unit.name = unit.getName();
+		masterData.units.add(es2Unit);
 	}
 
 	private class ExportRecord {
