@@ -1,34 +1,38 @@
 package org.openlca.ecospold2;
 
-import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 
 import org.jdom2.Element;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Technology {
 
-	public Integer technologyLevel;
-	public String comment;
+	@XmlAttribute(name = "technologyLevel")
+	public Integer level;
+
+	public RichText comment;
 
 	Element toXml() {
-		Element element = new Element("technology", IO.NS);
-		if (technologyLevel != null)
-			element.setAttribute("technologyLevel", technologyLevel.toString());
+		Element e = new Element("technology", IO.NS);
+		if (level != null)
+			e.setAttribute("technologyLevel", level.toString());
 		if (comment != null) {
-			Element commentElement = Out.addChild(element, "comment");
-			Out.addIndexedText(commentElement, comment);
+			Element commentElement = Out.addChild(e, "comment");
+			Out.fill(commentElement, comment);
 		}
-		return element;
+		return e;
 	}
 
-	static Technology fromXml(Element element) {
-		if (element == null)
+	static Technology fromXml(Element e) {
+		if (e == null)
 			return null;
 		Technology tech = new Technology();
-		String levelStr = element.getAttributeValue("technologyLevel");
+		String levelStr = e.getAttributeValue("technologyLevel");
 		if (levelStr != null)
-			tech.technologyLevel = Integer.parseInt(levelStr);
-		List<Element> comments = In.childs(element, "comment", "text");
-		tech.comment = In.joinText(comments);
+			tech.level = Integer.parseInt(levelStr);
+		tech.comment = In.richText(e, "comment");
 		return tech;
 	}
 }

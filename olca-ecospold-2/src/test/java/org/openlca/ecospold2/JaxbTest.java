@@ -1,11 +1,13 @@
 package org.openlca.ecospold2;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.InputStream;
 import java.io.StringWriter;
 
 import javax.xml.bind.JAXB;
 
-import org.junit.Assert;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -21,27 +23,36 @@ public class JaxbTest {
 	@Theory
 	public void testDataSetNotNull(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Assert.assertNotNull(dataSet);
+		assertNotNull(dataSet);
 	}
 
 	@Theory
 	public void testActivity(String file) throws Exception {
 		DataSet dataSet = read(file);
 		Activity a = dataSet.description.activity;
-		Assert.assertEquals("08a78e38-fdbe-4ea8-869f-7735b41ecf85", a.id);
-		Assert.assertEquals("Sample", a.name);
-		Assert.assertEquals("synonym 1", a.synonyms.get(0));
-		Assert.assertEquals("synonym 2", a.synonyms.get(1));
-		Assert.assertEquals("included activities start",
+		assertEquals("08a78e38-fdbe-4ea8-869f-7735b41ecf85", a.id);
+		assertEquals("Sample", a.name);
+		assertEquals("synonym 1", a.synonyms.get(0));
+		assertEquals("synonym 2", a.synonyms.get(1));
+		assertEquals("included activities start",
 				a.includedActivitiesStart);
-		Assert.assertEquals("included activities end",
+		assertEquals("included activities end",
 				a.includedActivitiesEnd);
-		Assert.assertEquals("tag1", a.tags.get(0));
-		Assert.assertEquals("tag2", a.tags.get(1));
-		Assert.assertEquals("allocation comment",
+		assertEquals("tag1", a.tags.get(0));
+		assertEquals("tag2", a.tags.get(1));
+		assertEquals("allocation comment",
 				RichText.join(a.allocationComment));
-		Assert.assertEquals("sample comment 2",
+		assertEquals("sample comment 2",
 				a.generalComment.texts.get(1).value);
+	}
+
+	@Theory
+	public void testClassification(String file) throws Exception {
+		DataSet dataSet = read(file);
+		Classification c = dataSet.description.classifications.get(1);
+		assertEquals("359b3be8-bc56-4abf-a04b-294115165214", c.id);
+		assertEquals("EcoSpold01Categories", c.system);
+		assertEquals("agricultural means of production/mineral fertiliser", c.value);
 	}
 
 	private DataSet read(String file) throws Exception {

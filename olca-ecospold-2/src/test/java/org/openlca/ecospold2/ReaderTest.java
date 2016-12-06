@@ -42,7 +42,7 @@ public class ReaderTest {
 		Assert.assertEquals(2, classifications.size());
 		Classification classification = classifications.get(0);
 		Assert.assertEquals("ISIC rev.4 ecoinvent",
-				classification.classificationSystem);
+				classification.system);
 	}
 
 	@Theory
@@ -56,7 +56,7 @@ public class ReaderTest {
 	public void testTechnology(String file) throws Exception {
 		DataSet dataSet = read(file);
 		Technology tech = dataSet.description.technology;
-		Assert.assertEquals(3, tech.technologyLevel.intValue());
+		Assert.assertEquals(3, tech.level.intValue());
 	}
 
 	public void testElementaryExchanges(String file) throws Exception {

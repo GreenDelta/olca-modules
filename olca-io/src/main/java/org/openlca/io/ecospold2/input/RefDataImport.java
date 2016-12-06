@@ -110,18 +110,18 @@ class RefDataImport {
 
 	private void classification(DataSet dataSet) {
 		Classification classification = findClassification(dataSet);
-		if (classification == null || classification.classificationId == null)
+		if (classification == null || classification.id == null)
 			return;
-		String refId = classification.classificationId;
+		String refId = classification.id;
 		Category category = index.getProcessCategory(refId);
 		if (category != null)
 			return;
 		category = categoryDao.getForRefId(refId);
 		if (category == null) {
 			category = new Category();
-			category.setDescription(classification.classificationSystem);
+			category.setDescription(classification.system);
 			category.setModelType(ModelType.PROCESS);
-			category.setName(classification.classificationValue);
+			category.setName(classification.value);
 			category.setRefId(refId);
 			category = categoryDao.insert(category);
 		}
@@ -130,9 +130,9 @@ class RefDataImport {
 
 	private Classification findClassification(DataSet ds) {
 		for (Classification c : In.classifications(ds)) {
-			if (c.classificationSystem == null)
+			if (c.system == null)
 				continue;
-			if (c.classificationSystem.startsWith("ISIC"))
+			if (c.system.startsWith("ISIC"))
 				return c;
 		}
 		return null;
@@ -289,10 +289,10 @@ class RefDataImport {
 		if (og == null || og != 0)
 			return null;
 		Classification clazz = findClassification(dataSet);
-		if (clazz == null || clazz.classificationValue == null)
+		if (clazz == null || clazz.value == null)
 			return null;
 		Category cat = Categories.findOrCreateRoot(database, ModelType.FLOW,
-				clazz.classificationValue);
+				clazz.value);
 		return cat;
 	}
 }

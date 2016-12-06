@@ -314,7 +314,7 @@ class ProcessImport {
 	private void setCategory(DataSet ds, Process process) {
 		Category category = null;
 		for (Classification clazz : In.classifications(ds)) {
-			category = index.getProcessCategory(clazz.classificationId);
+			category = index.getProcessCategory(clazz.id);
 			if (category != null)
 				break;
 		}

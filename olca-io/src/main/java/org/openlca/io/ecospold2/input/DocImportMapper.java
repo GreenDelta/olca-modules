@@ -17,6 +17,7 @@ import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.FileAttributes;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.Representativeness;
+import org.openlca.ecospold2.RichText;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.util.KeyGen;
@@ -63,13 +64,13 @@ class DocImportMapper {
 		Technology t = In.technology(ds);
 		if (t == null)
 			return;
-		doc.setTechnology(t.comment);
+		doc.setTechnology(RichText.join(t.comment));
 	}
 
 	private void mapGeography(Geography geography) {
 		if (geography == null)
 			return;
-		process.getDocumentation().setGeography(geography.comment);
+		process.getDocumentation().setGeography(RichText.join(geography.comment));
 		try {
 			String refId = KeyGen.get(geography.shortName);
 			LocationDao dao = new LocationDao(database);

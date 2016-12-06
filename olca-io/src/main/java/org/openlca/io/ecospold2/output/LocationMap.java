@@ -8,6 +8,7 @@ import org.openlca.core.model.Location;
 import org.openlca.ecospold2.ActivityDescription;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.Geography;
+import org.openlca.ecospold2.RichText;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,17 +41,17 @@ class LocationMap {
 		}
 	}
 
-	public void apply(org.openlca.core.model.Process process, DataSet ds) {
+	public void apply(org.openlca.core.model.Process p, DataSet ds) {
 		if (ds.description == null)
 			ds.description = new ActivityDescription();
-		Geography geography = new Geography();
-		ds.description.geography = geography;
-		if (process.getDocumentation() != null)
-			geography.comment = process.getDocumentation().getGeography();
-		if (process.getLocation() == null)
-			setDefaultLocation(geography);
+		Geography geo = new Geography();
+		ds.description.geography = geo;
+		if (p.getDocumentation() != null)
+			geo.comment = RichText.of(p.getDocumentation().getGeography());
+		if (p.getLocation() == null)
+			setDefaultLocation(geo);
 		else
-			tryMapLocation(process.getLocation(), geography);
+			tryMapLocation(p.getLocation(), geo);
 	}
 
 	private void tryMapLocation(Location location, Geography geography) {

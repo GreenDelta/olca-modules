@@ -1,23 +1,30 @@
 package org.openlca.ecospold2;
 
-import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Geography {
 
+	@XmlAttribute(name = "geographyId")
 	public String id;
+
+	@XmlElement(name = "shortname")
 	public String shortName;
-	public String comment;
+
+	public RichText comment;
 
 	static Geography fromXml(Element e) {
 		if (e == null)
 			return null;
 		Geography geography = new Geography();
 		geography.id = e.getAttributeValue("geographyId");
-		List<Element> comments = In.childs(e, "comment", "text");
-		geography.comment = In.joinText(comments);
+		geography.comment = In.richText(e, "comment");
 		geography.shortName = In.childText(e, "shortname");
 		return geography;
 	}
@@ -34,7 +41,7 @@ public class Geography {
 			Out.addChild(element, "shortname", shortName);
 		if (comment != null) {
 			Element commentElement = Out.addChild(element, "comment");
-			Out.addIndexedText(commentElement, comment);
+			Out.fill(commentElement, comment);
 		}
 		return element;
 	}

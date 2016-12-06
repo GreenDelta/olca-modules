@@ -17,6 +17,7 @@ import org.openlca.ecospold2.FileAttributes;
 import org.openlca.ecospold2.MacroEconomicScenario;
 import org.openlca.ecospold2.Person;
 import org.openlca.ecospold2.Representativeness;
+import org.openlca.ecospold2.RichText;
 import org.openlca.ecospold2.Source;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
@@ -66,10 +67,10 @@ class ProcessDoc {
 	}
 
 	private void mapTechnology() {
-		Technology technology = new Technology();
-		technology.comment = doc.getTechnology();
-		technology.technologyLevel = 0;
-		dataSet.description.technology = technology;
+		Technology tech = new Technology();
+		tech.comment = RichText.of(doc.getTechnology());
+		tech.level = 0;
+		dataSet.description.technology = tech;
 	}
 
 	private void addEconomicScenario() {
