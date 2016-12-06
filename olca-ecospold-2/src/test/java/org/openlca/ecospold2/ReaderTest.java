@@ -49,7 +49,7 @@ public class ReaderTest {
 	public void testGeography(String file) throws Exception {
 		DataSet dataSet = read(file);
 		Geography geo = dataSet.description.geography;
-		Assert.assertEquals("geography comment", geo.comment);
+		Assert.assertEquals("geography comment", geo.comment.texts.get(0).value);
 	}
 
 	@Theory

@@ -71,8 +71,8 @@ final class MasterData {
 		}
 		TimePeriod timePeriod = d.timePeriod;
 		if (timePeriod != null) {
-			indexEntry.endDate = timePeriod.endDate;
-			indexEntry.startDate = timePeriod.startDate;
+			indexEntry.endDate = timePeriod.end;
+			indexEntry.startDate = timePeriod.start;
 		}
 		Geography geography = d.geography;
 		if (geography != null)

@@ -53,16 +53,16 @@ class ProcessDoc {
 
 	private void mapTime() {
 		TimePeriod timePeriod = new TimePeriod();
-		timePeriod.comment = doc.getTime();
+		timePeriod.comment = RichText.of(doc.getTime());
 		timePeriod.dataValid = true;
 		if (doc.getValidUntil() != null)
-			timePeriod.endDate = doc.getValidUntil();
+			timePeriod.end = doc.getValidUntil();
 		else
-			timePeriod.endDate = new Date();
+			timePeriod.end = new Date();
 		if (doc.getValidFrom() != null)
-			timePeriod.startDate = doc.getValidFrom();
+			timePeriod.start = doc.getValidFrom();
 		else
-			timePeriod.startDate = new Date();
+			timePeriod.start = new Date();
 		dataSet.description.timePeriod = timePeriod;
 	}
 

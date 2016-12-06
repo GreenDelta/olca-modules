@@ -1,45 +1,54 @@
 package org.openlca.ecospold2;
 
 import java.util.Date;
-import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 
 import org.jdom2.Element;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class TimePeriod {
 
-	public Date startDate;
-	public Date endDate;
+	@XmlAttribute(name = "startDate")
+	public Date start;
+
+	@XmlAttribute(name = "endDate")
+	public Date end;
+
+	@XmlAttribute(name = "isDataValidForEntirePeriod")
 	public boolean dataValid;
-	public String comment;
+
+	public RichText comment;
 
 	static TimePeriod fromXml(Element e) {
 		if (e == null)
 			return null;
 		TimePeriod timePeriod = new TimePeriod();
 		String startString = e.getAttributeValue("startDate");
-		timePeriod.startDate = In.date(startString, IO.XML_DATE);
+		timePeriod.start = In.date(startString, IO.XML_DATE);
 		String endString = e.getAttributeValue("endDate");
-		timePeriod.endDate = In.date(endString, IO.XML_DATE);
+		timePeriod.end = In.date(endString, IO.XML_DATE);
 		timePeriod.dataValid = In.bool(e
 				.getAttributeValue("isDataValidForEntirePeriod"));
-		List<Element> elements = In.childs(e, "comment", "text");
-		timePeriod.comment = In.joinText(elements);
+		timePeriod.comment = In.richText(e, "comment");
 		return timePeriod;
 	}
 
 	Element toXml() {
-		Element element = new Element("timePeriod", IO.NS);
-		if (startDate != null)
-			element.setAttribute("startDate", Out.date(startDate, IO.XML_DATE));
-		if (endDate != null)
-			element.setAttribute("endDate", Out.date(endDate, IO.XML_DATE));
-		element.setAttribute("isDataValidForEntirePeriod",
+		Element e = new Element("timePeriod", IO.NS);
+		if (start != null)
+			e.setAttribute("startDate", Out.date(start, IO.XML_DATE));
+		if (end != null)
+			e.setAttribute("endDate", Out.date(end, IO.XML_DATE));
+		e.setAttribute("isDataValidForEntirePeriod",
 				Boolean.toString(dataValid));
 		if (comment != null) {
-			Element commentElement = Out.addChild(element, "comment");
-			Out.addIndexedText(commentElement, comment);
+			Element commentElement = Out.addChild(e, "comment");
+			Out.fill(commentElement, comment);
 		}
-		return element;
+		return e;
 	}
 
 }

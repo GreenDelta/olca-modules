@@ -81,12 +81,12 @@ class DocImportMapper {
 		}
 	}
 
-	private void mapTime(TimePeriod timePeriod) {
-		if (timePeriod == null)
+	private void mapTime(TimePeriod t) {
+		if (t == null)
 			return;
-		doc.setValidFrom(timePeriod.startDate);
-		doc.setValidUntil(timePeriod.endDate);
-		doc.setTime(timePeriod.comment);
+		doc.setValidFrom(t.start);
+		doc.setValidUntil(t.end);
+		doc.setTime(RichText.join(t.comment));
 	}
 
 	private void mapAdminInfo(AdministrativeInformation adminInfo) {
