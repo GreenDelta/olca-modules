@@ -1,6 +1,7 @@
 package org.openlca.io.ecospold2.output;
 
 import org.openlca.ecospold2.Activity;
+import org.openlca.ecospold2.ActivityDescription;
 import org.openlca.ecospold2.ActivityIndexEntry;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
@@ -17,20 +18,19 @@ import org.openlca.ecospold2.UserMasterData;
  */
 final class MasterData {
 
-
 	private MasterData() {
 	}
 
 	// TODO: handle parameters
-//	private void writeParamters(UserMasterData masterData) {
-//		for (Parameter parameter : dataSet.getParameters()) {
-//			Parameter masterParam = new Parameter();
-//			masterData.getParameters().add(masterParam);
-//			masterParam.setId(parameter.getId());
-//			masterParam.setName(parameter.getName());
-//			masterParam.setUnitName(parameter.getUnitName());
-//		}
-//	}
+	// private void writeParamters(UserMasterData masterData) {
+	// for (Parameter parameter : dataSet.getParameters()) {
+	// Parameter masterParam = new Parameter();
+	// masterData.getParameters().add(masterParam);
+	// masterParam.setId(parameter.getId());
+	// masterParam.setName(parameter.getName());
+	// masterParam.setUnitName(parameter.getUnitName());
+	// }
+	// }
 
 	public static void writeElemFlow(ElementaryExchange elemFlow,
 			UserMasterData masterData) {
@@ -55,25 +55,28 @@ final class MasterData {
 		masterFlow.unitName = techFlow.unitName;
 	}
 
-	public static void writeIndexEntry(DataSet dataSet) {
-		if(dataSet == null || dataSet.masterData == null)
+	public static void writeIndexEntry(DataSet ds) {
+		if (ds == null || ds.masterData == null)
 			return;
 		ActivityIndexEntry indexEntry = new ActivityIndexEntry();
-		dataSet.masterData.activityIndexEntries.add(indexEntry);
-		Activity activity = dataSet.activity;
+		ds.masterData.activityIndexEntries.add(indexEntry);
+		indexEntry.systemModelId = "8b738ea0-f89e-4627-8679-433616064e82";
+		ActivityDescription d = ds.description;
+		if (d == null)
+			return;
+		Activity activity = d.activity;
 		if (activity != null) {
 			indexEntry.activityNameId = activity.activityNameId;
 			indexEntry.id = activity.id;
 		}
-		TimePeriod timePeriod = dataSet.timePeriod;
+		TimePeriod timePeriod = d.timePeriod;
 		if (timePeriod != null) {
 			indexEntry.endDate = timePeriod.endDate;
 			indexEntry.startDate = timePeriod.startDate;
 		}
-		Geography geography = dataSet.geography;
+		Geography geography = d.geography;
 		if (geography != null)
 			indexEntry.geographyId = geography.id;
-		indexEntry.systemModelId = "8b738ea0-f89e-4627-8679-433616064e82";
 	}
 
 }

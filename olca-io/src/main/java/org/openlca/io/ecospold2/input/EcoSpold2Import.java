@@ -96,8 +96,10 @@ public class EcoSpold2Import implements FileImport {
 	}
 
 	private void fireEvent(DataSet dataSet) {
-		if (eventBus == null || dataSet.activity == null)
+		if (eventBus == null
+				|| dataSet.description == null
+				|| dataSet.description.activity == null)
 			return;
-		eventBus.post(new ImportEvent(dataSet.activity.name));
+		eventBus.post(new ImportEvent(dataSet.description.activity.name));
 	}
 }

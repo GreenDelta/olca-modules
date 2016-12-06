@@ -74,7 +74,7 @@ class ProcessImport {
 			log.warn("invalid data set -> not imported");
 			return;
 		}
-		Activity activity = dataSet.activity;
+		Activity activity = In.activity(dataSet);
 		try {
 			String refId = RefId.forProcess(dataSet);
 			boolean contains = dao.contains(refId);
@@ -91,7 +91,7 @@ class ProcessImport {
 	}
 
 	private boolean valid(DataSet dataSet) {
-		Activity activity = dataSet.activity;
+		Activity activity = In.activity(dataSet);
 		if (activity.id == null || activity.name == null)
 			return false;
 		IntermediateExchange refFlow = null;
@@ -109,7 +109,7 @@ class ProcessImport {
 	}
 
 	private void runImport(DataSet dataSet, String refId) {
-		Activity activity = dataSet.activity;
+		Activity activity = In.activity(dataSet);
 		Process process = new Process();
 		process.setRefId(refId);
 		setMetaData(activity, process);
@@ -311,9 +311,9 @@ class ProcessImport {
 		exchanges.add(exchange);
 	}
 
-	private void setCategory(DataSet dataSet, Process process) {
+	private void setCategory(DataSet ds, Process process) {
 		Category category = null;
-		for (Classification clazz : dataSet.classifications) {
+		for (Classification clazz : In.classifications(ds)) {
 			category = index.getProcessCategory(clazz.classificationId);
 			if (category != null)
 				break;

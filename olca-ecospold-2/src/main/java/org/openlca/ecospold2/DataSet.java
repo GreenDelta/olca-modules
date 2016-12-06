@@ -3,17 +3,19 @@ package org.openlca.ecospold2;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
 import org.jdom2.Document;
 import org.jdom2.Element;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DataSet {
 
-	public Activity activity;
-	public final List<Classification> classifications = new ArrayList<>();
-	public Geography geography;
-	public Technology technology;
-	public TimePeriod timePeriod;
-	public MacroEconomicScenario macroEconomicScenario;
+	@XmlElement(name = "activityDescription")
+	public ActivityDescription description;
+
 	public Representativeness representativeness;
 	public AdministrativeInformation administrativeInformation;
 	public final List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
@@ -64,21 +66,23 @@ public class DataSet {
 	private static void readActivityDescription(Element root, DataSet dataSet) {
 		Element description = In.child(root, "activityDescription");
 		Element activity = In.child(description, "activity");
-		dataSet.activity = Activity.fromXml(activity);
+		ActivityDescription d = new ActivityDescription();
+		dataSet.description = d;
+		d.activity = Activity.fromXml(activity);
 		List<Element> classifications = In
 				.childs(description, "classification");
 		for (Element e : classifications) {
 			Classification classification = Classification.fromXml(e);
-			dataSet.classifications.add(classification);
+			d.classifications.add(classification);
 		}
-		dataSet.geography = Geography.fromXml(In.child(description,
-		"geography"));
-		dataSet.technology = Technology.fromXml(In.child(description,
-		"technology"));
-		dataSet.timePeriod = TimePeriod.fromXml(In.child(description,
-		"timePeriod"));
-		dataSet.macroEconomicScenario = MacroEconomicScenario.fromXml(In
-		.child(description, "macroEconomicScenario"));
+		d.geography = Geography.fromXml(In.child(description,
+				"geography"));
+		d.technology = Technology.fromXml(In.child(description,
+				"technology"));
+		d.timePeriod = TimePeriod.fromXml(In.child(description,
+				"timePeriod"));
+		d.macroEconomicScenario = MacroEconomicScenario.fromXml(In
+				.child(description, "macroEconomicScenario"));
 	}
 
 	private static Element getRootElement(Document doc) {
@@ -99,18 +103,7 @@ public class DataSet {
 		Element dataSetElement = Out.addChild(root, "activityDataset");
 		Element descriptionElement = Out.addChild(dataSetElement,
 				"activityDescription");
-		if (activity != null)
-			descriptionElement.addContent(activity.toXml());
-		for (Classification classification : classifications)
-			descriptionElement.addContent(classification.toXml());
-		if (geography != null)
-			descriptionElement.addContent(geography.toXml());
-		if (technology != null)
-			descriptionElement.addContent(technology.toXml());
-		if (timePeriod != null)
-			descriptionElement.addContent(timePeriod.toXml());
-		if (macroEconomicScenario != null)
-			descriptionElement.addContent(macroEconomicScenario.toXml());
+		writeDescription(descriptionElement);
 		Element flowData = Out.addChild(dataSetElement, "flowData");
 		writeFlowData(flowData);
 		Element mav = Out.addChild(dataSetElement, "modellingAndValidation");
@@ -121,6 +114,24 @@ public class DataSet {
 		if (masterData != null)
 			root.addContent(masterData.toXml());
 		return document;
+	}
+
+	private void writeDescription(Element descriptionElement) {
+		if (description == null)
+			return;
+		ActivityDescription d = description;
+		if (d.activity != null)
+			descriptionElement.addContent(d.activity.toXml());
+		for (Classification classification : d.classifications)
+			descriptionElement.addContent(classification.toXml());
+		if (d.geography != null)
+			descriptionElement.addContent(d.geography.toXml());
+		if (d.technology != null)
+			descriptionElement.addContent(d.technology.toXml());
+		if (d.timePeriod != null)
+			descriptionElement.addContent(d.timePeriod.toXml());
+		if (d.macroEconomicScenario != null)
+			descriptionElement.addContent(d.macroEconomicScenario.toXml());
 	}
 
 	private void writeFlowData(Element flowData) {

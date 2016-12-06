@@ -10,7 +10,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
-import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.AdministrativeInformation;
 import org.openlca.ecospold2.DataEntryBy;
 import org.openlca.ecospold2.DataGenerator;
@@ -35,24 +34,22 @@ class DocImportMapper {
 
 	private Process process;
 	private ProcessDocumentation doc;
-	private DataSet dataSet;
 
 	public DocImportMapper(IDatabase database) {
 		this.database = database;
 	}
 
-	public void map(DataSet dataSet, Process process) {
-		if (dataSet == null || process == null)
+	public void map(DataSet ds, Process process) {
+		if (ds == null || process == null)
 			return;
-		this.dataSet = dataSet;
 		this.process = process;
 		this.doc = new ProcessDocumentation();
 		process.setDocumentation(doc);
-		mapTechnology(dataSet);
-		mapGeography(dataSet.geography);
-		mapTime(dataSet.timePeriod);
-		mapAdminInfo(dataSet.administrativeInformation);
-		mapRepresentativeness(dataSet.representativeness);
+		mapTechnology(ds);
+		mapGeography(In.geography(ds));
+		mapTime(In.time(ds));
+		mapAdminInfo(ds.administrativeInformation);
+		mapRepresentativeness(ds.representativeness);
 	}
 
 	private void mapRepresentativeness(Representativeness repri) {
@@ -62,12 +59,11 @@ class DocImportMapper {
 		doc.setSampling(repri.samplingProcedure);
 	}
 
-	private void mapTechnology(DataSet dataSet) {
-		Activity activity = dataSet.activity;
-		Technology technology = dataSet.technology;
-		if (activity == null || technology == null)
+	private void mapTechnology(DataSet ds) {
+		Technology t = In.technology(ds);
+		if (t == null)
 			return;
-		doc.setTechnology(technology.comment);
+		doc.setTechnology(t.comment);
 	}
 
 	private void mapGeography(Geography geography) {

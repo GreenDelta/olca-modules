@@ -6,14 +6,21 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jdom2.Document;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 
+@XmlRootElement(name = "ecoSpold", namespace = "http://www.EcoInvent.org/EcoSpold02")
 public class EcoSpold2 {
 
-	private EcoSpold2() {
-	}
+	@XmlElement(name = "activityDataset")
+	public DataSet dataSet;
+
+	@XmlElement(name = "childActivityDataset")
+	public DataSet childDataSet;
 
 	/** Reads an activity data set from an EcoSpold 02 file. */
 	public static DataSet readDataSet(InputStream is) throws Exception {

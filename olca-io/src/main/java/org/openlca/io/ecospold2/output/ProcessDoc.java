@@ -7,6 +7,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Version;
+import org.openlca.ecospold2.ActivityDescription;
 import org.openlca.ecospold2.AdministrativeInformation;
 import org.openlca.ecospold2.Company;
 import org.openlca.ecospold2.DataEntryBy;
@@ -30,6 +31,8 @@ class ProcessDoc {
 		this.process = process;
 		this.doc = process.getDocumentation();
 		this.dataSet = dataSet;
+		if (dataSet.description == null)
+			dataSet.description = new ActivityDescription();
 	}
 
 	public static void map(Process process, DataSet dataSet) {
@@ -59,21 +62,21 @@ class ProcessDoc {
 			timePeriod.startDate = doc.getValidFrom();
 		else
 			timePeriod.startDate = new Date();
-		dataSet.timePeriod = timePeriod;
+		dataSet.description.timePeriod = timePeriod;
 	}
 
 	private void mapTechnology() {
 		Technology technology = new Technology();
 		technology.comment = doc.getTechnology();
 		technology.technologyLevel = 0;
-		dataSet.technology = technology;
+		dataSet.description.technology = technology;
 	}
 
 	private void addEconomicScenario() {
 		MacroEconomicScenario scenario = new MacroEconomicScenario();
 		scenario.id = "d9f57f0a-a01f-42eb-a57b-8f18d6635801";
 		scenario.name = "Business-as-Usual";
-		dataSet.macroEconomicScenario = scenario;
+		dataSet.description.macroEconomicScenario = scenario;
 	}
 
 	private void mapRepresentativeness() {
@@ -225,7 +228,7 @@ class ProcessDoc {
 		Company company = new Company();
 		company.code = "UKNWN";
 		company.comment = "This is a default entry as we cannot create persons"
-		+ " without company information for the EcoEditor.";
+				+ " without company information for the EcoEditor.";
 		company.id = id;
 		company.name = "Unknown";
 		dataSet.masterData.companies.add(company);

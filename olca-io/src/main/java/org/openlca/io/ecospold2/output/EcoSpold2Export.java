@@ -18,6 +18,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ecospold2.Activity;
+import org.openlca.ecospold2.ActivityDescription;
 import org.openlca.ecospold2.ActivityName;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.EcoSpold2;
@@ -87,6 +88,7 @@ public class EcoSpold2Export implements Runnable {
 	private void exportProcess(File activityDir, Process process)
 			throws Exception {
 		DataSet dataSet = new DataSet();
+		dataSet.description = new ActivityDescription();
 		UserMasterData masterData = new UserMasterData();
 		dataSet.masterData = masterData;
 		mapActivity(process, dataSet);
@@ -103,12 +105,12 @@ public class EcoSpold2Export implements Runnable {
 
 	private void mapActivity(Process process, DataSet dataSet) {
 		Activity activity = new Activity();
-		dataSet.activity = activity;
+		dataSet.description.activity = activity;
 		ActivityName activityName = new ActivityName();
 		dataSet.masterData.activityNames.add(activityName);
 		String nameId = UUID.randomUUID().toString();
 		activity.activityNameId = nameId;
-		activityName.id = dataSet.activity.activityNameId;
+		activityName.id = nameId;
 		String name = Strings.cut(process.getName(), 120);
 		activity.name = name;
 		activityName.name = name;
@@ -201,7 +203,7 @@ public class EcoSpold2Export implements Runnable {
 		e2Exchange.comment = exchange.description;
 		e2Exchange.casNumber = exchange.getFlow().getCasNumber();
 		e2Exchange.uncertainty = UncertaintyConverter.fromOpenLCA(exchange
-		.getUncertainty());
+				.getUncertainty());
 	}
 
 	private void mapParameters(Process process, DataSet dataSet) {
@@ -220,7 +222,7 @@ public class EcoSpold2Export implements Runnable {
 			if (param.getScope() != null)
 				e2Param.scope = param.getScope().name();
 			e2Param.uncertainty = UncertaintyConverter.fromOpenLCA(param
-			.getUncertainty());
+					.getUncertainty());
 			dataSet.parameters.add(e2Param);
 		}
 	}

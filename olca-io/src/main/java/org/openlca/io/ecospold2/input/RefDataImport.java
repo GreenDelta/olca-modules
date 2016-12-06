@@ -128,18 +128,18 @@ class RefDataImport {
 		index.putProcessCategory(refId, category);
 	}
 
-	private Classification findClassification(DataSet dataSet) {
-		for (Classification classification : dataSet.classifications) {
-			if (classification.classificationSystem == null)
+	private Classification findClassification(DataSet ds) {
+		for (Classification c : In.classifications(ds)) {
+			if (c.classificationSystem == null)
 				continue;
-			if (classification.classificationSystem.startsWith("ISIC"))
-				return classification;
+			if (c.classificationSystem.startsWith("ISIC"))
+				return c;
 		}
 		return null;
 	}
 
-	private void geography(DataSet dataSet) {
-		Geography geography = dataSet.geography;
+	private void geography(DataSet ds) {
+		Geography geography = In.geography(ds);
 		if (geography == null || geography.id == null
 				|| geography.shortName == null)
 			return;

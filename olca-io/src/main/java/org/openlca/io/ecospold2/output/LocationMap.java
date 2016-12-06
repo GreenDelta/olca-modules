@@ -1,16 +1,17 @@
 package org.openlca.io.ecospold2.output;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Location;
+import org.openlca.ecospold2.ActivityDescription;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.Geography;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-
-import java.util.HashMap;
-import java.util.List;
 
 class LocationMap {
 
@@ -24,7 +25,7 @@ class LocationMap {
 
 	private void initMap(IDatabase database) {
 		try {
-			CellProcessor[] processors ={ null, null, null, null };
+			CellProcessor[] processors = { null, null, null, null };
 			List<List<Object>> rows = Maps.readAll(Maps.ES2_LOCATION_EXPORT,
 					database, processors);
 			for (List<Object> row : rows) {
@@ -39,9 +40,11 @@ class LocationMap {
 		}
 	}
 
-	public void apply(org.openlca.core.model.Process process, DataSet dataSet) {
+	public void apply(org.openlca.core.model.Process process, DataSet ds) {
+		if (ds.description == null)
+			ds.description = new ActivityDescription();
 		Geography geography = new Geography();
-		dataSet.geography = geography;
+		ds.description.geography = geography;
 		if (process.getDocumentation() != null)
 			geography.comment = process.getDocumentation().getGeography();
 		if (process.getLocation() == null)

@@ -3,23 +3,36 @@ package org.openlca.ecospold2;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAttribute;
+
 import org.jdom2.Element;
 
 public abstract class Exchange {
 
+	@XmlAttribute
 	public String id;
+
+	@XmlAttribute
 	public String unitId;
+
+	@XmlAttribute
+	public String variableName;
+
+	@XmlAttribute
+	public String casNumber;
 
 	/**
 	 * Amount is a reference type because it is optional as exchanges are also
 	 * used in the master data
 	 */
+	@XmlAttribute
 	public Double amount;
+
+	@XmlAttribute
+	public String mathematicalRelation;
+
 	public String name;
 	public String unitName;
-	public String variableName;
-	public String mathematicalRelation;
-	public String casNumber;
 	public String comment;
 	public Uncertainty uncertainty;
 	public Integer outputGroup;

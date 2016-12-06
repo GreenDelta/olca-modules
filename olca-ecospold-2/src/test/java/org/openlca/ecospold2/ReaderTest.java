@@ -28,7 +28,7 @@ public class ReaderTest {
 	@Theory
 	public void testActivity(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Activity activity = dataSet.activity;
+		Activity activity = dataSet.description.activity;
 		Assert.assertNotNull(activity);
 		Assert.assertEquals("Sample", activity.name);
 		Assert.assertEquals("synonym 1", activity.synonyms.get(0));
@@ -38,7 +38,7 @@ public class ReaderTest {
 	@Theory
 	public void testClassifications(String file) throws Exception {
 		DataSet dataSet = read(file);
-		List<Classification> classifications = dataSet.classifications;
+		List<Classification> classifications = dataSet.description.classifications;
 		Assert.assertEquals(2, classifications.size());
 		Classification classification = classifications.get(0);
 		Assert.assertEquals("ISIC rev.4 ecoinvent",
@@ -48,14 +48,14 @@ public class ReaderTest {
 	@Theory
 	public void testGeography(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Geography geo = dataSet.geography;
+		Geography geo = dataSet.description.geography;
 		Assert.assertEquals("geography comment", geo.comment);
 	}
 
 	@Theory
 	public void testTechnology(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Technology tech = dataSet.technology;
+		Technology tech = dataSet.description.technology;
 		Assert.assertEquals(3, tech.technologyLevel.intValue());
 	}
 

@@ -16,11 +16,11 @@ final class RefId {
 	 * Returns the combination of activity-ID and reference product-ID (in this
 	 * order) as UUID.
 	 */
-	public static String forProcess(DataSet dataSet) {
-		if (dataSet.activity == null)
+	public static String forProcess(DataSet ds) {
+		if (In.activity(ds) == null)
 			return KeyGen.NULL_UUID;
 		String productId = null;
-		for (IntermediateExchange exchange : dataSet.intermediateExchanges) {
+		for (IntermediateExchange exchange : ds.intermediateExchanges) {
 			if (exchange.outputGroup == null)
 				continue;
 			if (exchange.outputGroup == 0 && exchange.amount != 0) {
@@ -28,7 +28,7 @@ final class RefId {
 				break;
 			}
 		}
-		return KeyGen.get(dataSet.activity.id, productId);
+		return KeyGen.get(In.activity(ds).id, productId);
 	}
 
 }

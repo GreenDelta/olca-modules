@@ -52,7 +52,7 @@ class Exchanges {
 		return Objects.equals(candidate.intermediateExchangeId,
 				ref.intermediateExchangeId)
 				&& Objects.equals(candidate.activityLinkId,
-						ds.activity.id);
+						In.id(ds));
 	}
 
 }
