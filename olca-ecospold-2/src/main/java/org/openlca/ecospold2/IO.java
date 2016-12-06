@@ -26,6 +26,8 @@ class IO {
 	static final Namespace EXT_NS = Namespace
 			.getNamespace("http://openlca.org/ecospold2-extensions");
 
+	static final Namespace XML_NS = Namespace.XML_NAMESPACE;
+
 	/**
 	 * Namespace for EcoSpold 02 master data in activity data sets.
 	 */

@@ -3,29 +3,65 @@ package org.openlca.ecospold2;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+
 import org.jdom2.Element;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Activity {
 
+	@XmlAttribute
 	public String id;
+
+	@XmlAttribute
 	public String activityNameId;
+
+	@XmlAttribute
 	public String activityNameContextId;
-	public int type;
-	public int specialActivityType;
+
+	@XmlAttribute
 	public String parentActivityId;
+
+	@XmlAttribute
 	public String parentActivityContextId;
+
+	@XmlAttribute
 	public Integer inheritanceDepth;
+
+	@XmlAttribute
+	public int type;
+
+	@XmlAttribute
+	public int specialActivityType;
+
+	@XmlAttribute
 	public Integer energyValues;
+
+	@XmlAttribute
 	public String masterAllocationPropertyId;
+
+	@XmlAttribute
 	public String masterAllocationPropertyContextId;
-	public Boolean masterAllocationPropertyIdOverwrittenByChild;
+
+	@XmlElement(name = "activityName")
 	public String name;
+
+	@XmlElement(name = "synonym")
 	public final List<String> synonyms = new ArrayList<String>();
-	public final List<String> tags = new ArrayList<String>();
+
 	public String includedActivitiesStart;
+
 	public String includedActivitiesEnd;
-	public String generalComment;
-	public String allocationComment;
+
+	public RichText allocationComment;
+
+	public RichText generalComment;
+
+	@XmlElement(name = "tag")
+	public final List<String> tags = new ArrayList<String>();
 
 	static Activity fromXml(Element e) {
 		if (e == null)
@@ -33,14 +69,12 @@ public class Activity {
 		Activity activity = new Activity();
 		activity.id = e.getAttributeValue("id");
 		activity.name = In.childText(e, "activityName");
-		List<Element> elems = In.childs(e, "generalComment", "text");
-		activity.generalComment = In.joinText(elems);
-		elems = In.childs(e, "allocationComment", "text");
-		activity.allocationComment = In.joinText(elems);
+		activity.generalComment = In.richText(e, "generalComment");
+		activity.allocationComment = In.richText(e, "allocationComment");
 		activity.includedActivitiesEnd = In.childText(e,
-		"includedActivitiesEnd");
+				"includedActivitiesEnd");
 		activity.includedActivitiesStart = In.childText(e,
-		"includedActivitiesStart");
+				"includedActivitiesStart");
 		List<String> syns = In.childTexts(e, "synonym");
 		activity.synonyms.addAll(syns);
 		List<String> tags = In.childTexts(e, "tag");
@@ -63,9 +97,6 @@ public class Activity {
 				.getAttributeValue("masterAllocationPropertyId");
 		activity.masterAllocationPropertyContextId = e
 				.getAttributeValue("masterAllocationPropertyContextId");
-		activity.masterAllocationPropertyIdOverwrittenByChild = In
-				.optionalBool(e
-						.getAttributeValue("masterAllocationPropertyIdOverwrittenByChild"));
 		return activity;
 	}
 
@@ -94,9 +125,6 @@ public class Activity {
 		if (masterAllocationPropertyContextId != null)
 			e.setAttribute("masterAllocationPropertyContextId",
 					masterAllocationPropertyContextId);
-		if (masterAllocationPropertyIdOverwrittenByChild != null)
-			e.setAttribute("masterAllocationPropertyIdOverwrittenByChild",
-					masterAllocationPropertyIdOverwrittenByChild.toString());
 
 		Out.addChild(e, "activityName", name);
 		for (String synonym : synonyms)
@@ -107,11 +135,11 @@ public class Activity {
 			Out.addChild(e, "includedActivitiesEnd", includedActivitiesEnd);
 		if (allocationComment != null) {
 			Element allocElement = Out.addChild(e, "allocationComment");
-			Out.addIndexedText(allocElement, allocationComment);
+			Out.fill(allocElement, allocationComment);
 		}
 		if (generalComment != null) {
 			Element commentElement = Out.addChild(e, "generalComment");
-			Out.addIndexedText(commentElement, generalComment);
+			Out.fill(commentElement, generalComment);
 		}
 		for (String tag : tags) {
 			Out.addChild(e, "tag", tag);

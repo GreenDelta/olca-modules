@@ -24,6 +24,7 @@ import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.RichText;
 import org.openlca.ecospold2.UserMasterData;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
@@ -118,7 +119,7 @@ public class EcoSpold2Export implements Runnable {
 		int type = process.getProcessType() == ProcessType.LCI_RESULT ? 2 : 1;
 		activity.type = type;
 		activity.specialActivityType = 0; // default
-		activity.generalComment = process.getDescription();
+		activity.generalComment = RichText.of(process.getDescription());
 	}
 
 	private void mapExchanges(Process process, DataSet dataSet) {

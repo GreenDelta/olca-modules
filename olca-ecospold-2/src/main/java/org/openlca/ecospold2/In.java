@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jdom2.Element;
+import org.openlca.ecospold2.RichText.Text;
+import org.openlca.ecospold2.RichText.Variable;
 
 /** Some helper methods for XML parsing with Jdom */
 class In {
@@ -88,6 +90,28 @@ class In {
 		String text = builder.toString();
 		text = TextVariables.apply(elements.get(0).getParentElement(), text);
 		return text;
+	}
+
+	static RichText richText(Element parent, String name) {
+		Element e = child(parent, name);
+		if (e == null)
+			return null;
+		RichText rt = new RichText();
+		for (Element te : childs(e, "text")) {
+			Text t = new Text();
+			t.index = integer(te.getAttributeValue("index"));
+			t.lang = te.getAttributeValue("lang", IO.XML_NS);
+			t.value = te.getText();
+			rt.texts.add(t);
+		}
+		for (Element ve : childs(e, "variable")) {
+			Variable v = new Variable();
+			v.lang = ve.getAttributeValue("lang", IO.XML_NS);
+			v.name = ve.getAttributeValue("name");
+			v.value = ve.getText();
+			rt.variables.add(v);
+		}
+		return rt;
 	}
 
 	private static List<Element> sort(List<Element> elements) {

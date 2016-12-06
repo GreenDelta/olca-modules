@@ -8,17 +8,14 @@
 				<activityName xml:lang="en">Sample</activityName>
 				<synonym xml:lang="en">synonym 1</synonym>
 				<synonym xml:lang="en">synonym 2</synonym>
-				<includedActivitiesStart xml:lang="en">included
-					activities start</includedActivitiesStart>
-				<includedActivitiesEnd xml:lang="en">included
-					activities end</includedActivitiesEnd>
+				<includedActivitiesStart xml:lang="en">included activities start</includedActivitiesStart>
+				<includedActivitiesEnd xml:lang="en">included activities end</includedActivitiesEnd>
 				<allocationComment>
-					<text xml:lang="en" index="1">allocation comment allocation
-						comment</text>
+					<text xml:lang="en" index="1">allocation comment</text>
 				</allocationComment>
 				<generalComment>
 					<text xml:lang="en" index="1">sample comment 1</text>
-					<text xml:lang="en" index="2">sample commen 2</text>
+					<text xml:lang="en" index="2">sample comment 2</text>
 				</generalComment>
 				<tag>tag1</tag>
 				<tag>tag2</tag>

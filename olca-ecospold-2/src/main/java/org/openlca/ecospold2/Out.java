@@ -5,6 +5,8 @@ import java.util.Date;
 
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.openlca.ecospold2.RichText.Text;
+import org.openlca.ecospold2.RichText.Variable;
 
 class Out {
 
@@ -28,6 +30,25 @@ class Out {
 		child.setAttribute("index", "1");
 		child.setAttribute("lang", "en", Namespace.XML_NAMESPACE);
 		parent.addContent(child);
+	}
+
+	static void fill(Element parent, RichText text) {
+		if (parent == null || text == null)
+			return;
+		for (Text t : text.texts) {
+			Element child = new Element("text", parent.getNamespace());
+			child.setText(t.value);
+			child.setAttribute("index", integer(t.index));
+			child.setAttribute("lang", t.lang, Namespace.XML_NAMESPACE);
+			parent.addContent(child);
+		}
+		for (Variable v : text.variables) {
+			Element child = new Element("variable", parent.getNamespace());
+			child.setText(v.value);
+			child.setAttribute("name", v.name);
+			child.setAttribute("lang", v.lang, Namespace.XML_NAMESPACE);
+			parent.addContent(child);
+		}
 	}
 
 	static String date(Date date, String pattern) {
