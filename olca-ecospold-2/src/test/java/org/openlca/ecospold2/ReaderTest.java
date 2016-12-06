@@ -61,9 +61,9 @@ public class ReaderTest {
 
 	public void testElementaryExchanges(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Assert.assertEquals(dataSet.elementaryExchanges.size(), 3);
+		Assert.assertEquals(dataSet.flowData.elementaryExchanges.size(), 3);
 		double sum = 0;
-		for (ElementaryExchange e : dataSet.elementaryExchanges) {
+		for (ElementaryExchange e : dataSet.flowData.elementaryExchanges) {
 			sum += e.amount;
 		}
 		Assert.assertEquals(27, sum, 1e-15);
@@ -72,9 +72,9 @@ public class ReaderTest {
 	@Theory
 	public void testIntermediateExchanges(String file) throws Exception {
 		DataSet dataSet = read(file);
-		Assert.assertEquals(2, dataSet.intermediateExchanges.size());
+		Assert.assertEquals(2, dataSet.flowData.intermediateExchanges.size());
 		boolean found = false;
-		for (IntermediateExchange e : dataSet.intermediateExchanges) {
+		for (IntermediateExchange e : dataSet.flowData.intermediateExchanges) {
 			if (e.outputGroup == null || e.outputGroup != 0)
 				continue;
 			found = true;

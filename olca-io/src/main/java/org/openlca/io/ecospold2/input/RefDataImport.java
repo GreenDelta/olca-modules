@@ -89,18 +89,18 @@ class RefDataImport {
 		}
 	}
 
-	public void importDataSet(DataSet dataSet) {
-		if (dataSet == null)
+	public void importDataSet(DataSet ds) {
+		if (ds == null)
 			return;
 		try {
-			classification(dataSet);
-			geography(dataSet);
-			for (IntermediateExchange e : dataSet.intermediateExchanges) {
+			classification(ds);
+			geography(ds);
+			for (IntermediateExchange e : In.products(ds)) {
 				if (e.amount == 0 && config.skipNullExchanges)
 					continue;
-				productFlow(dataSet, e);
+				productFlow(ds, e);
 			}
-			for (ElementaryExchange e : dataSet.elementaryExchanges) {
+			for (ElementaryExchange e : In.elemFlows(ds)) {
 				elementaryFlow(e);
 			}
 		} catch (Exception e) {

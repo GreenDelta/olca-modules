@@ -21,17 +21,17 @@ final class Parameters {
 	 * Creates openLCA process parameters from the parameters and formulas in
 	 * the given data set.
 	 */
-	static List<Parameter> fetch(DataSet dataSet, ImportConfig config) {
+	static List<Parameter> fetch(DataSet ds, ImportConfig config) {
 		List<Parameter> params = new ArrayList<>();
-		fetchProcessParameters(dataSet, params, config);
-		fetchFromExchanges(dataSet.elementaryExchanges, params, config);
-		fetchFromExchanges(dataSet.intermediateExchanges, params, config);
+		fetchProcessParameters(ds, params, config);
+		fetchFromExchanges(In.elemFlows(ds), params, config);
+		fetchFromExchanges(In.products(ds), params, config);
 		return params;
 	}
 
-	private static void fetchProcessParameters(DataSet dataSet,
+	private static void fetchProcessParameters(DataSet ds,
 			List<Parameter> parameters, ImportConfig config) {
-		for (org.openlca.ecospold2.Parameter param : dataSet.parameters) {
+		for (org.openlca.ecospold2.Parameter param : In.parameters(ds)) {
 			if (!canCreate(param.variableName, parameters))
 				continue;
 			Parameter olcaParam = new Parameter();

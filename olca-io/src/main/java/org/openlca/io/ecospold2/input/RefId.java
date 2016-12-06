@@ -20,7 +20,7 @@ final class RefId {
 		if (In.activity(ds) == null)
 			return KeyGen.NULL_UUID;
 		String productId = null;
-		for (IntermediateExchange exchange : ds.intermediateExchanges) {
+		for (IntermediateExchange exchange : In.products(ds)) {
 			if (exchange.outputGroup == null)
 				continue;
 			if (exchange.outputGroup == 0 && exchange.amount != 0) {

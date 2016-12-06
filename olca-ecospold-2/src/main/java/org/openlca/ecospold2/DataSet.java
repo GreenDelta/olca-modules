@@ -1,6 +1,5 @@
 package org.openlca.ecospold2;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,11 +15,12 @@ public class DataSet {
 	@XmlElement(name = "activityDescription")
 	public ActivityDescription description;
 
+	@XmlElement(name = "flowData")
+	public FlowData flowData;
+
 	public Representativeness representativeness;
 	public AdministrativeInformation administrativeInformation;
-	public final List<ElementaryExchange> elementaryExchanges = new ArrayList<>();
-	public final List<IntermediateExchange> intermediateExchanges = new ArrayList<>();
-	public final List<Parameter> parameters = new ArrayList<>();
+
 	public UserMasterData masterData;
 
 	static DataSet fromXml(Document doc) {
@@ -38,6 +38,8 @@ public class DataSet {
 	}
 
 	private static void readFlowData(Element root, DataSet dataSet) {
+		FlowData flows = new FlowData();
+		dataSet.flowData = flows;
 		Element flowData = In.child(root, "flowData");
 		if (flowData == null)
 			return;
@@ -46,20 +48,20 @@ public class DataSet {
 		for (Element e : elementaryExchanges) {
 			ElementaryExchange exchange = ElementaryExchange.fromXml(e);
 			if (exchange != null)
-				dataSet.elementaryExchanges.add(exchange);
+				flows.elementaryExchanges.add(exchange);
 		}
 		List<Element> intermediateExchanges = In.childs(flowData,
 				"intermediateExchange");
 		for (Element e : intermediateExchanges) {
 			IntermediateExchange exchange = IntermediateExchange.fromXml(e);
 			if (exchange != null)
-				dataSet.intermediateExchanges.add(exchange);
+				flows.intermediateExchanges.add(exchange);
 		}
 		List<Element> parameters = In.childs(flowData, "parameter");
 		for (Element e : parameters) {
 			Parameter p = Parameter.fromXml(e);
 			if (p != null)
-				dataSet.parameters.add(p);
+				flows.parameters.add(p);
 		}
 	}
 
@@ -134,13 +136,15 @@ public class DataSet {
 			descriptionElement.addContent(d.macroEconomicScenario.toXml());
 	}
 
-	private void writeFlowData(Element flowData) {
-		for (IntermediateExchange exchange : intermediateExchanges)
-			flowData.addContent(exchange.toXml());
-		for (ElementaryExchange exchange : elementaryExchanges)
-			flowData.addContent(exchange.toXml());
-		for (Parameter parameter : parameters)
-			flowData.addContent(parameter.toXml());
+	private void writeFlowData(Element e) {
+		if (flowData == null)
+			return;
+		for (IntermediateExchange exchange : flowData.intermediateExchanges)
+			e.addContent(exchange.toXml());
+		for (ElementaryExchange exchange : flowData.elementaryExchanges)
+			e.addContent(exchange.toXml());
+		for (Parameter parameter : flowData.parameters)
+			e.addContent(parameter.toXml());
 	}
 
 }

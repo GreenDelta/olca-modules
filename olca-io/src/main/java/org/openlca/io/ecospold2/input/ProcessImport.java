@@ -90,12 +90,12 @@ class ProcessImport {
 		}
 	}
 
-	private boolean valid(DataSet dataSet) {
-		Activity activity = In.activity(dataSet);
+	private boolean valid(DataSet ds) {
+		Activity activity = In.activity(ds);
 		if (activity.id == null || activity.name == null)
 			return false;
 		IntermediateExchange refFlow = null;
-		for (IntermediateExchange techFlow : dataSet.intermediateExchanges) {
+		for (IntermediateExchange techFlow : In.products(ds)) {
 			if (techFlow.outputGroup == null)
 				continue;
 			if (techFlow.outputGroup != 0)
@@ -183,8 +183,8 @@ class ProcessImport {
 		}
 	}
 
-	private void createElementaryExchanges(DataSet dataSet, Process process) {
-		for (ElementaryExchange e : dataSet.elementaryExchanges) {
+	private void createElementaryExchanges(DataSet ds, Process process) {
+		for (ElementaryExchange e : In.elemFlows(ds)) {
 			if (e.amount == 0 && config.skipNullExchanges)
 				continue;
 			String refId = e.elementaryExchangeId;
@@ -197,8 +197,8 @@ class ProcessImport {
 		}
 	}
 
-	private void createProductExchanges(DataSet dataSet, Process process) {
-		for (IntermediateExchange ie : dataSet.intermediateExchanges) {
+	private void createProductExchanges(DataSet ds, Process process) {
+		for (IntermediateExchange ie : In.products(ds)) {
 			boolean isRefFlow = ie.outputGroup != null
 					&& ie.outputGroup == 0;
 			if (ie.amount == 0 && config.skipNullExchanges)

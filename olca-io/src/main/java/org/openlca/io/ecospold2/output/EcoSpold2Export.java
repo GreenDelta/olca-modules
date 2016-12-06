@@ -23,6 +23,7 @@ import org.openlca.ecospold2.ActivityName;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
+import org.openlca.ecospold2.FlowData;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.RichText;
 import org.openlca.ecospold2.UserMasterData;
@@ -122,19 +123,21 @@ public class EcoSpold2Export implements Runnable {
 		activity.generalComment = RichText.of(process.getDescription());
 	}
 
-	private void mapExchanges(Process process, DataSet dataSet) {
+	private void mapExchanges(Process process, DataSet ds) {
+		if (ds.flowData == null)
+			ds.flowData = new FlowData();
 		for (Exchange exchange : process.getExchanges()) {
 			if (!isValid(exchange))
 				continue;
 			Flow flow = exchange.getFlow();
-			UserMasterData masterData = dataSet.masterData;
+			UserMasterData masterData = ds.masterData;
 			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
 				ElementaryExchange e = createElemExchange(exchange, masterData);
-				dataSet.elementaryExchanges.add(e);
+				ds.flowData.elementaryExchanges.add(e);
 			} else {
 				IntermediateExchange e = createIntermediateExchange(exchange,
 						process, masterData);
-				dataSet.intermediateExchanges.add(e);
+				ds.flowData.intermediateExchanges.add(e);
 			}
 		}
 	}
@@ -207,7 +210,9 @@ public class EcoSpold2Export implements Runnable {
 				.getUncertainty());
 	}
 
-	private void mapParameters(Process process, DataSet dataSet) {
+	private void mapParameters(Process process, DataSet ds) {
+		if (ds.flowData == null)
+			ds.flowData = new FlowData();
 		List<Parameter> parameters = new ArrayList<>();
 		parameters.addAll(process.getParameters());
 		ParameterDao dao = new ParameterDao(database);
@@ -224,7 +229,7 @@ public class EcoSpold2Export implements Runnable {
 				e2Param.scope = param.getScope().name();
 			e2Param.uncertainty = UncertaintyConverter.fromOpenLCA(param
 					.getUncertainty());
-			dataSet.parameters.add(e2Param);
+			ds.flowData.parameters.add(e2Param);
 		}
 	}
 

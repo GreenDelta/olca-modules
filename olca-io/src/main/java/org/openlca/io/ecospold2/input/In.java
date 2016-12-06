@@ -6,7 +6,10 @@ import java.util.List;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.Classification;
 import org.openlca.ecospold2.DataSet;
+import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.Geography;
+import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.Parameter;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 
@@ -48,6 +51,24 @@ class In {
 		if (ds == null || ds.description == null)
 			return Collections.emptyList();
 		return ds.description.classifications;
+	}
+
+	static List<IntermediateExchange> products(DataSet ds) {
+		if (ds == null || ds.flowData == null)
+			return Collections.emptyList();
+		return ds.flowData.intermediateExchanges;
+	}
+
+	static List<ElementaryExchange> elemFlows(DataSet ds) {
+		if (ds == null || ds.flowData == null)
+			return Collections.emptyList();
+		return ds.flowData.elementaryExchanges;
+	}
+
+	static List<Parameter> parameters(DataSet ds) {
+		if (ds == null || ds.flowData == null)
+			return Collections.emptyList();
+		return ds.flowData.parameters;
 	}
 
 }

@@ -15,7 +15,7 @@ class Exchanges {
 		if (ds == null)
 			return null;
 		IntermediateExchange candidate = null;
-		for (IntermediateExchange e : ds.intermediateExchanges) {
+		for (IntermediateExchange e : In.products(ds)) {
 			Integer og = e.outputGroup;
 			if (og == null || og.intValue() != 0)
 				continue;
