@@ -27,6 +27,7 @@ import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.PedigreeMatrix;
+import org.openlca.ecospold2.RichText;
 import org.openlca.ecospold2.Spold2;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.KeyGen;
@@ -154,19 +155,17 @@ class ProcessImport {
 		}
 	}
 
-	private void setMetaData(Activity activity, Process process) {
-		process.setName(activity.name);
-		ProcessType type = activity.type == 2 ? ProcessType.LCI_RESULT
+	private void setMetaData(Activity a, Process p) {
+		p.setName(a.name);
+		ProcessType type = a.type == 2 ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS;
-		process.setProcessType(type);
-		String description = Joiner
-				.on(" ")
-				.skipNulls()
-				.join(activity.generalComment,
-						activity.includedActivitiesStart,
-						activity.includedActivitiesEnd,
-						activity.allocationComment);
-		process.setDescription(description);
+		p.setProcessType(type);
+		String d = Joiner.on(" ").skipNulls().join(
+				RichText.join(a.generalComment),
+				a.includedActivitiesStart,
+				a.includedActivitiesEnd,
+				RichText.join(a.allocationComment));
+		p.setDescription(d);
 	}
 
 	private void flushLinkQueue(Process process) {
