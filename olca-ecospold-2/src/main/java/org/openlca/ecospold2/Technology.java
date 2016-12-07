@@ -1,10 +1,8 @@
-package org.openlca.ecospold2.master;
+package org.openlca.ecospold2;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-
-import org.openlca.ecospold2.RichText;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Technology {

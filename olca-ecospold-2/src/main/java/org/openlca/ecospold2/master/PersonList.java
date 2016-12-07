@@ -1,38 +1,60 @@
 package org.openlca.ecospold2.master;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a list of persons in a master data file.
- */
+import javax.xml.bind.JAXB;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "validPersons")
 public class PersonList {
 
+	@XmlElement(name = "person")
 	public final List<Person> persons = new ArrayList<>();
 
-	/** Reads a list of persons from a master-data file with persons. */
-	public static PersonList readPersons(InputStream is) throws Exception {
-		return PersonList.fromXml(readDoc(is));
+	public static PersonList read(File file) {
+		try (FileInputStream stream = new FileInputStream(file)) {
+			return read(stream);
+		} catch (Exception e) {
+			String m = "failed to read person master data: " + file;
+			throw new RuntimeException(m, e);
+		}
 	}
 
-	/** Reads a list of persons from a master-data file with persons. */
-	public static PersonList readPersons(File file) throws Exception {
-		return PersonList.fromXml(readDoc(file));
+	public static PersonList read(InputStream is) {
+		try {
+			return JAXB.unmarshal(is, PersonList.class);
+		} catch (Exception e) {
+			String m = "failed to read person master data";
+			throw new RuntimeException(m, e);
+		}
 	}
 
-	/** Writes a person list to an EcoSpold 02 master data file. */
-	public static void writePersons(PersonList list, File file)
-			throws Exception {
-		writeDoc(file, list.toXml());
+	public static void write(PersonList list, File file) {
+		try (FileOutputStream fos = new FileOutputStream(file)) {
+			write(list, fos);
+		} catch (Exception e) {
+			String m = "failed to write person master data:  " + file;
+			throw new RuntimeException(m, e);
+		}
 	}
 
-	/** Writes a person list to an EcoSpold 02 master data file. */
-	public static void writePersons(PersonList list, OutputStream out)
-			throws Exception {
-		writeDoc(out, list.toXml());
+	public static void write(PersonList list, OutputStream out) {
+		try {
+			JAXB.marshal(list, out);
+		} catch (Exception e) {
+			String m = "failed to write person master data";
+			throw new RuntimeException(m, e);
+		}
 	}
 
 }

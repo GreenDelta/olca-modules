@@ -17,11 +17,11 @@ import org.openlca.ecospold2.MacroEconomicScenario;
 import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.RichText;
 import org.openlca.ecospold2.Spold2;
+import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.ecospold2.master.Company;
 import org.openlca.ecospold2.master.Person;
 import org.openlca.ecospold2.master.Source;
-import org.openlca.ecospold2.master.Technology;
 
 class ProcessDoc {
 

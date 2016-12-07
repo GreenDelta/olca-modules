@@ -3,8 +3,6 @@ package org.openlca.ecospold2;
 import java.util.Collections;
 import java.util.List;
 
-import org.openlca.ecospold2.master.Technology;
-
 /**
  * A utility class for working with EcoSpold 2 data sets. Basically, there are
  * two types of methods in this class: (1) the get-methods return the property
