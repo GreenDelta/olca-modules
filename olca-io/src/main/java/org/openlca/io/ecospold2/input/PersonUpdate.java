@@ -4,8 +4,8 @@ import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.ecospold2.EcoSpold2;
-import org.openlca.ecospold2.Person;
-import org.openlca.ecospold2.PersonList;
+import org.openlca.ecospold2.master.Person;
+import org.openlca.ecospold2.master.PersonList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

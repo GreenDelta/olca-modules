@@ -3,8 +3,8 @@ package org.openlca.io.ecospold2.input;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.SourceDao;
 import org.openlca.ecospold2.EcoSpold2;
-import org.openlca.ecospold2.Source;
-import org.openlca.ecospold2.SourceList;
+import org.openlca.ecospold2.master.Source;
+import org.openlca.ecospold2.master.SourceList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

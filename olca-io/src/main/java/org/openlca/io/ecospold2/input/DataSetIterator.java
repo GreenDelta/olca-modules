@@ -82,7 +82,7 @@ class DataSetIterator implements Iterator<DataSet>, Closeable {
 
 	private void nextSpold(File file) {
 		try {
-			next = EcoSpold2.readDataSet(file);
+			next = EcoSpold2.read(file);
 		} catch (Exception e) {
 			log.error("failed to read spold file " + file, e);
 			moveNext();
@@ -122,7 +122,7 @@ class DataSetIterator implements Iterator<DataSet>, Closeable {
 		ZipEntry entry = zipEntries[currentZipEntry];
 		currentZipEntry++;
 		try {
-			next = EcoSpold2.readDataSet(zipFile.getInputStream(entry));
+			next = EcoSpold2.read(zipFile.getInputStream(entry));
 			if (currentZipEntry >= zipEntries.length)
 				closeZip();
 		} catch (Exception e) {

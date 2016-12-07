@@ -2,13 +2,13 @@ package org.openlca.io.ecospold2.output;
 
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.ActivityDescription;
-import org.openlca.ecospold2.ActivityIndexEntry;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.ecospold2.UserMasterData;
+import org.openlca.ecospold2.master.ActivityIndexEntry;
 
 /**
  * Adds master data entries to an EcoSpold 02 activity data set. This is not

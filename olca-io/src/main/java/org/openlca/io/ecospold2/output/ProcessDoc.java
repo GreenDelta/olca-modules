@@ -9,19 +9,19 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Version;
 import org.openlca.ecospold2.ActivityDescription;
 import org.openlca.ecospold2.AdminInfo;
-import org.openlca.ecospold2.Company;
 import org.openlca.ecospold2.DataEntry;
 import org.openlca.ecospold2.DataGenerator;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.FileAttributes;
 import org.openlca.ecospold2.MacroEconomicScenario;
-import org.openlca.ecospold2.Person;
 import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.RichText;
-import org.openlca.ecospold2.Source;
 import org.openlca.ecospold2.Spold2;
-import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
+import org.openlca.ecospold2.master.Company;
+import org.openlca.ecospold2.master.Person;
+import org.openlca.ecospold2.master.Source;
+import org.openlca.ecospold2.master.Technology;
 
 class ProcessDoc {
 

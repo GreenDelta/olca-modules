@@ -19,7 +19,6 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ecospold2.Activity;
 import org.openlca.ecospold2.ActivityDescription;
-import org.openlca.ecospold2.ActivityName;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.EcoSpold2;
 import org.openlca.ecospold2.ElementaryExchange;
@@ -27,6 +26,7 @@ import org.openlca.ecospold2.FlowData;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.RichText;
 import org.openlca.ecospold2.UserMasterData;
+import org.openlca.ecospold2.master.ActivityName;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -102,7 +102,7 @@ public class EcoSpold2Export implements Runnable {
 		String fileName = process.getRefId() == null ? UUID.randomUUID()
 				.toString() : process.getRefId();
 		File file = new File(activityDir, fileName + ".spold");
-		EcoSpold2.writeDataSet(dataSet, file);
+		EcoSpold2.write(dataSet, file);
 	}
 
 	private void mapActivity(Process process, DataSet dataSet) {
