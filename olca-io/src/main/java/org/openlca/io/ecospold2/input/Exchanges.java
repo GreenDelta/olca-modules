@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.Spold2;
 
 class Exchanges {
 
@@ -15,7 +16,7 @@ class Exchanges {
 		if (ds == null)
 			return null;
 		IntermediateExchange candidate = null;
-		for (IntermediateExchange e : In.products(ds)) {
+		for (IntermediateExchange e : Spold2.getProducts(ds)) {
 			Integer og = e.outputGroup;
 			if (og == null || og.intValue() != 0)
 				continue;
@@ -52,7 +53,7 @@ class Exchanges {
 		return Objects.equals(candidate.flowId,
 				ref.flowId)
 				&& Objects.equals(candidate.activityLinkId,
-						In.id(ds));
+						Spold2.getId(ds));
 	}
 
 }

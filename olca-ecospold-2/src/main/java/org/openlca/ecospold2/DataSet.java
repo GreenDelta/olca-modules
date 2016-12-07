@@ -18,7 +18,9 @@ public class DataSet {
 	@XmlElement(name = "flowData")
 	public FlowData flowData;
 
-	public Representativeness representativeness;
+	@XmlElement(name = "modellingAndValidation")
+	public Validation validation;
+
 	public AdministrativeInformation administrativeInformation;
 
 	public UserMasterData masterData;
@@ -27,14 +29,14 @@ public class DataSet {
 		Element root = getRootElement(doc);
 		if (root == null)
 			return null;
-		DataSet dataSet = new DataSet();
-		readActivityDescription(root, dataSet);
-		readFlowData(root, dataSet);
-		dataSet.representativeness = Representativeness.fromXml(In.child(root,
-				"modellingAndValidation", "representativeness"));
-		dataSet.administrativeInformation = AdministrativeInformation
+		DataSet ds = new DataSet();
+		readActivityDescription(root, ds);
+		readFlowData(root, ds);
+		Spold2.validation(ds).representativeness = Representativeness.fromXml(
+				In.child(root, "modellingAndValidation", "representativeness"));
+		ds.administrativeInformation = AdministrativeInformation
 				.fromXml(In.child(root, "administrativeInformation"));
-		return dataSet;
+		return ds;
 	}
 
 	private static void readFlowData(Element root, DataSet dataSet) {
@@ -109,8 +111,8 @@ public class DataSet {
 		Element flowData = Out.addChild(dataSetElement, "flowData");
 		writeFlowData(flowData);
 		Element mav = Out.addChild(dataSetElement, "modellingAndValidation");
-		if (representativeness != null)
-			mav.addContent(representativeness.toXml());
+		if (Spold2.getRepresentativeness(this) != null)
+			mav.addContent(Spold2.getRepresentativeness(this).toXml());
 		if (administrativeInformation != null)
 			dataSetElement.addContent(administrativeInformation.toXml());
 		if (masterData != null)

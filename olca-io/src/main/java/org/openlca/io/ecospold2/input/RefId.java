@@ -2,6 +2,7 @@ package org.openlca.io.ecospold2.input;
 
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.Spold2;
 import org.openlca.util.KeyGen;
 
 /**
@@ -17,10 +18,10 @@ final class RefId {
 	 * order) as UUID.
 	 */
 	public static String forProcess(DataSet ds) {
-		if (In.activity(ds) == null)
+		if (Spold2.getActivity(ds) == null)
 			return KeyGen.NULL_UUID;
 		String productId = null;
-		for (IntermediateExchange exchange : In.products(ds)) {
+		for (IntermediateExchange exchange : Spold2.getProducts(ds)) {
 			if (exchange.outputGroup == null)
 				continue;
 			if (exchange.outputGroup == 0 && exchange.amount != 0) {
@@ -28,7 +29,7 @@ final class RefId {
 				break;
 			}
 		}
-		return KeyGen.get(In.activity(ds).id, productId);
+		return KeyGen.get(Spold2.getActivity(ds).id, productId);
 	}
 
 }

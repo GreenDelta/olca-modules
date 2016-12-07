@@ -18,6 +18,7 @@ import org.openlca.ecospold2.FileAttributes;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.RichText;
+import org.openlca.ecospold2.Spold2;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 import org.openlca.util.KeyGen;
@@ -47,10 +48,10 @@ class DocImportMapper {
 		this.doc = new ProcessDocumentation();
 		process.setDocumentation(doc);
 		mapTechnology(ds);
-		mapGeography(In.geography(ds));
-		mapTime(In.time(ds));
+		mapGeography(Spold2.getGeography(ds));
+		mapTime(Spold2.getTime(ds));
 		mapAdminInfo(ds.administrativeInformation);
-		mapRepresentativeness(ds.representativeness);
+		mapRepresentativeness(Spold2.getRepresentativeness(ds));
 	}
 
 	private void mapRepresentativeness(Representativeness repri) {
@@ -61,7 +62,7 @@ class DocImportMapper {
 	}
 
 	private void mapTechnology(DataSet ds) {
-		Technology t = In.technology(ds);
+		Technology t = Spold2.getTechnology(ds);
 		if (t == null)
 			return;
 		doc.setTechnology(RichText.join(t.comment));

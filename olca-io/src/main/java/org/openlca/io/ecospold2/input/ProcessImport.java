@@ -27,6 +27,7 @@ import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.PedigreeMatrix;
+import org.openlca.ecospold2.Spold2;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Pedigree;
@@ -74,7 +75,7 @@ class ProcessImport {
 			log.warn("invalid data set -> not imported");
 			return;
 		}
-		Activity activity = In.activity(dataSet);
+		Activity activity = Spold2.getActivity(dataSet);
 		try {
 			String refId = RefId.forProcess(dataSet);
 			boolean contains = dao.contains(refId);
@@ -91,11 +92,11 @@ class ProcessImport {
 	}
 
 	private boolean valid(DataSet ds) {
-		Activity activity = In.activity(ds);
+		Activity activity = Spold2.getActivity(ds);
 		if (activity.id == null || activity.name == null)
 			return false;
 		IntermediateExchange refFlow = null;
-		for (IntermediateExchange techFlow : In.products(ds)) {
+		for (IntermediateExchange techFlow : Spold2.getProducts(ds)) {
 			if (techFlow.outputGroup == null)
 				continue;
 			if (techFlow.outputGroup != 0)
@@ -109,7 +110,7 @@ class ProcessImport {
 	}
 
 	private void runImport(DataSet dataSet, String refId) {
-		Activity activity = In.activity(dataSet);
+		Activity activity = Spold2.getActivity(dataSet);
 		Process process = new Process();
 		process.setRefId(refId);
 		setMetaData(activity, process);
@@ -184,7 +185,7 @@ class ProcessImport {
 	}
 
 	private void createElementaryExchanges(DataSet ds, Process process) {
-		for (ElementaryExchange e : In.elemFlows(ds)) {
+		for (ElementaryExchange e : Spold2.getElemFlows(ds)) {
 			if (e.amount == 0 && config.skipNullExchanges)
 				continue;
 			String refId = e.flowId;
@@ -198,7 +199,7 @@ class ProcessImport {
 	}
 
 	private void createProductExchanges(DataSet ds, Process process) {
-		for (IntermediateExchange ie : In.products(ds)) {
+		for (IntermediateExchange ie : Spold2.getProducts(ds)) {
 			boolean isRefFlow = ie.outputGroup != null
 					&& ie.outputGroup == 0;
 			if (ie.amount == 0 && config.skipNullExchanges)
@@ -313,7 +314,7 @@ class ProcessImport {
 
 	private void setCategory(DataSet ds, Process process) {
 		Category category = null;
-		for (Classification clazz : In.classifications(ds)) {
+		for (Classification clazz : Spold2.getClassifications(ds)) {
 			category = index.getProcessCategory(clazz.id);
 			if (category != null)
 				break;

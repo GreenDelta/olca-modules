@@ -9,6 +9,7 @@ import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.Exchange;
 import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.ecospold2.Property;
+import org.openlca.ecospold2.Spold2;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
 
@@ -24,14 +25,14 @@ final class Parameters {
 	static List<Parameter> fetch(DataSet ds, ImportConfig config) {
 		List<Parameter> params = new ArrayList<>();
 		fetchProcessParameters(ds, params, config);
-		fetchFromExchanges(In.elemFlows(ds), params, config);
-		fetchFromExchanges(In.products(ds), params, config);
+		fetchFromExchanges(Spold2.getElemFlows(ds), params, config);
+		fetchFromExchanges(Spold2.getProducts(ds), params, config);
 		return params;
 	}
 
 	private static void fetchProcessParameters(DataSet ds,
 			List<Parameter> parameters, ImportConfig config) {
-		for (org.openlca.ecospold2.Parameter param : In.parameters(ds)) {
+		for (org.openlca.ecospold2.Parameter param : Spold2.getParameters(ds)) {
 			if (!canCreate(param.variableName, parameters))
 				continue;
 			Parameter olcaParam = new Parameter();

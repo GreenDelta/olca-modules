@@ -19,6 +19,7 @@ import org.openlca.ecospold2.Person;
 import org.openlca.ecospold2.Representativeness;
 import org.openlca.ecospold2.RichText;
 import org.openlca.ecospold2.Source;
+import org.openlca.ecospold2.Spold2;
 import org.openlca.ecospold2.Technology;
 import org.openlca.ecospold2.TimePeriod;
 
@@ -81,12 +82,11 @@ class ProcessDoc {
 	}
 
 	private void mapRepresentativeness() {
-		Representativeness repri = new Representativeness();
+		Representativeness repri = Spold2.representativeness(dataSet);
 		repri.systemModelId = "06590a66-662a-4885-8494-ad0cf410f956";
 		repri.systemModelName = "Allocation, ecoinvent default";
 		repri.samplingProcedure = doc.getSampling();
 		repri.extrapolations = doc.getDataTreatment();
-		dataSet.representativeness = repri;
 	}
 
 	private void mapAdminInfo() {

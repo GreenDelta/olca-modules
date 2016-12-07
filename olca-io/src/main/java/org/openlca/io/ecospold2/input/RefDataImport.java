@@ -24,6 +24,7 @@ import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.ecospold2.Exchange;
 import org.openlca.ecospold2.Geography;
 import org.openlca.ecospold2.IntermediateExchange;
+import org.openlca.ecospold2.Spold2;
 import org.openlca.io.Categories;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
@@ -95,12 +96,12 @@ class RefDataImport {
 		try {
 			classification(ds);
 			geography(ds);
-			for (IntermediateExchange e : In.products(ds)) {
+			for (IntermediateExchange e : Spold2.getProducts(ds)) {
 				if (e.amount == 0 && config.skipNullExchanges)
 					continue;
 				productFlow(ds, e);
 			}
-			for (ElementaryExchange e : In.elemFlows(ds)) {
+			for (ElementaryExchange e : Spold2.getElemFlows(ds)) {
 				elementaryFlow(e);
 			}
 		} catch (Exception e) {
@@ -129,7 +130,7 @@ class RefDataImport {
 	}
 
 	private Classification findClassification(DataSet ds) {
-		for (Classification c : In.classifications(ds)) {
+		for (Classification c : Spold2.getClassifications(ds)) {
 			if (c.system == null)
 				continue;
 			if (c.system.startsWith("ISIC"))
@@ -139,7 +140,7 @@ class RefDataImport {
 	}
 
 	private void geography(DataSet ds) {
-		Geography geography = In.geography(ds);
+		Geography geography = Spold2.getGeography(ds);
 		if (geography == null || geography.id == null
 				|| geography.shortName == null)
 			return;
