@@ -80,7 +80,7 @@ final class Parameters {
 		olcaParam.setName(exchange.variableName);
 		olcaParam.setScope(ParameterScope.PROCESS);
 		olcaParam.setValue(exchange.amount);
-		olcaParam.setDescription(exchange.unitName);
+		olcaParam.setDescription(exchange.unit);
 		String formula = exchange.mathematicalRelation;
 		if (config.withParameterFormulas && isValid(formula, config)) {
 			olcaParam.setFormula(formula.trim());
@@ -119,7 +119,7 @@ final class Parameters {
 			olcaParam.setName(property.variableName);
 			olcaParam.setScope(ParameterScope.PROCESS);
 			olcaParam.setValue(property.amount);
-			olcaParam.setDescription(property.unitName);
+			olcaParam.setDescription(property.unit);
 			String formula = property.mathematicalRelation;
 			if (config.withParameterFormulas && isValid(formula, config)) {
 				olcaParam.setFormula(formula.trim());

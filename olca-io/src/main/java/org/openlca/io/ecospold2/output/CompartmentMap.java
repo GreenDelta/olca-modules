@@ -56,9 +56,9 @@ class CompartmentMap {
 
 	private Compartment createCompartment(ExportRecord record) {
 		Compartment compartment = new Compartment();
-		compartment.subcompartmentId = record.subCompartmentId;
+		compartment.id = record.subCompartmentId;
 		compartment.compartment = record.compartment;
-		compartment.subcompartment = record.subCompartment;
+		compartment.subCompartment = record.subCompartment;
 		return compartment;
 	}
 

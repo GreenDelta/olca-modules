@@ -114,10 +114,10 @@ class ElemFlowMap {
 		else
 			exchange.outputGroup = 4;
 		exchange.id = new UUID(olca.getId(), 0L).toString();
-		exchange.elementaryExchangeId = record.id;
+		exchange.flowId = record.id;
 		exchange.name = Strings.cut(record.name, 120);
 		exchange.compartment = createCompartment(record);
-		exchange.unitName = record.unitName;
+		exchange.unit = record.unitName;
 		exchange.unitId = record.unitId;
 		exchange.amount = record.conversionFactor * olca.getAmountValue();
 		if (olca.getAmountFormula() != null) {
@@ -130,9 +130,9 @@ class ElemFlowMap {
 
 	private Compartment createCompartment(ExportRecord record) {
 		Compartment compartment = new Compartment();
-		compartment.subcompartmentId = record.subCompartmentId;
+		compartment.id = record.subCompartmentId;
 		compartment.compartment = record.compartment;
-		compartment.subcompartment = record.subCompartment;
+		compartment.subCompartment = record.subCompartment;
 		return compartment;
 	}
 

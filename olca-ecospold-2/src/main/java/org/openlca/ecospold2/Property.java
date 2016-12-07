@@ -1,17 +1,38 @@
 package org.openlca.ecospold2;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+
 import org.jdom2.Element;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Property {
 
+	@XmlAttribute(name = "propertyId")
 	public String id;
-	public double amount;
-	public String unitId;
-	public String name;
-	public String unitName;
+
+	@XmlAttribute
 	public String variableName;
-	public String mathematicalRelation;
+
+	@XmlAttribute
+	public double amount;
+
+	@XmlAttribute
 	public boolean isDefiningValue;
+
+	@XmlAttribute
+	public String mathematicalRelation;
+
+	@XmlAttribute
+	public String unitId;
+
+	@XmlElement
+	public String name;
+
+	@XmlElement(name = "unitName")
+	public String unit;
 
 	static Property fromXml(Element e) {
 		if (e == null)
@@ -21,7 +42,7 @@ public class Property {
 		p.id = e.getAttributeValue("propertyId");
 		p.name = In.childText(e, "name");
 		p.unitId = e.getAttributeValue("unitId");
-		p.unitName = In.childText(e, "unitName");
+		p.unit = In.childText(e, "unitName");
 		p.mathematicalRelation = e.getAttributeValue("mathematicalRelation");
 		p.variableName = e.getAttributeValue("variableName");
 		Boolean isDefiningValue = In.optionalBool("isDefiningValue");
@@ -43,7 +64,7 @@ public class Property {
 		if (isDefiningValue)
 			e.setAttribute("isDefiningValue", "true");
 		Out.addChild(e, "name", name);
-		Out.addChild(e, "unitName", unitName);
+		Out.addChild(e, "unitName", unit);
 		return e;
 	}
 

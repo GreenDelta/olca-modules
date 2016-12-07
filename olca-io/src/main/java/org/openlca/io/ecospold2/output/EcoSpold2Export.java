@@ -159,7 +159,7 @@ public class EcoSpold2Export implements Runnable {
 		else
 			e2Ex.outputGroup = 4;
 		Flow flow = exchange.getFlow();
-		e2Ex.elementaryExchangeId = flow.getRefId();
+		e2Ex.flowId = flow.getRefId();
 		e2Ex.formula = flow.getFormula();
 		mapExchangeData(exchange, e2Ex);
 		compartmentMap.apply(flow.getCategory(), e2Ex);
@@ -181,7 +181,7 @@ public class EcoSpold2Export implements Runnable {
 			else
 				e2Ex.outputGroup = 2;
 		}
-		e2Ex.intermediateExchangeId = exchange.getFlow().getRefId();
+		e2Ex.flowId = exchange.getFlow().getRefId();
 		ProcessDescriptor provider = getDefaultProvider(exchange);
 		if (provider != null)
 			e2Ex.activityLinkId = provider.getRefId();

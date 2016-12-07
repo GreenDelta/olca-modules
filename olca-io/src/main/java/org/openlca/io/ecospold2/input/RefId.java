@@ -24,7 +24,7 @@ final class RefId {
 			if (exchange.outputGroup == null)
 				continue;
 			if (exchange.outputGroup == 0 && exchange.amount != 0) {
-				productId = exchange.intermediateExchangeId;
+				productId = exchange.flowId;
 				break;
 			}
 		}

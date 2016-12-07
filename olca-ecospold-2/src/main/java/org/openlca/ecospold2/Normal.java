@@ -1,11 +1,21 @@
 package org.openlca.ecospold2;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+
 import org.jdom2.Element;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Normal {
 
+	@XmlAttribute
 	public double meanValue;
+
+	@XmlAttribute
 	public double variance;
+
+	@XmlAttribute
 	public double varianceWithPedigreeUncertainty;
 
 	static Normal fromXml(Element e) {

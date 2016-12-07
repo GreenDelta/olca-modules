@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.jdom2.Element;
 
+@XmlTransient
 public abstract class Exchange {
 
 	@XmlAttribute
@@ -32,12 +35,19 @@ public abstract class Exchange {
 	public String mathematicalRelation;
 
 	public String name;
-	public String unitName;
+
+	@XmlElement(name = "unitName")
+	public String unit;
+
 	public String comment;
+
 	public Uncertainty uncertainty;
+
 	public Integer outputGroup;
+
 	public Integer inputGroup;
 
+	@XmlElement(name = "property")
 	public final List<Property> properties = new ArrayList<>();
 
 	protected void readValues(Element element) {
@@ -47,7 +57,7 @@ public abstract class Exchange {
 				.getAttributeValue("mathematicalRelation");
 		this.variableName = element.getAttributeValue("variableName");
 		this.name = In.childText(element, "name");
-		this.unitName = In.childText(element, "unitName");
+		this.unit = In.childText(element, "unitName");
 		this.comment = In.childText(element, "comment");
 		this.unitId = element.getAttributeValue("unitId");
 		this.uncertainty = Uncertainty
@@ -84,8 +94,8 @@ public abstract class Exchange {
 			element.setAttribute("casNumber", casNumber);
 		if (name != null)
 			Out.addChild(element, "name", name);
-		if (unitName != null)
-			Out.addChild(element, "unitName", unitName);
+		if (unit != null)
+			Out.addChild(element, "unitName", unit);
 		if (comment != null)
 			Out.addChild(element, "comment", comment);
 		if (uncertainty != null)

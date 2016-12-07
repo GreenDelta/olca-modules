@@ -187,11 +187,11 @@ class ProcessImport {
 		for (ElementaryExchange e : In.elemFlows(ds)) {
 			if (e.amount == 0 && config.skipNullExchanges)
 				continue;
-			String refId = e.elementaryExchangeId;
+			String refId = e.flowId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not create flow for {}",
-						e.elementaryExchangeId);
+						e.flowId);
 			}
 			createExchange(e, refId, flow, process);
 		}
@@ -203,7 +203,7 @@ class ProcessImport {
 					&& ie.outputGroup == 0;
 			if (ie.amount == 0 && config.skipNullExchanges)
 				continue;
-			String refId = ie.intermediateExchangeId;
+			String refId = ie.flowId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not get flow for {}", refId);
@@ -296,7 +296,7 @@ class ProcessImport {
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
 		String providerId = e.activityLinkId;
-		String flowId = e.intermediateExchangeId;
+		String flowId = e.flowId;
 		String refId = KeyGen.get(providerId, flowId);
 		Long processId = index.getProcessId(refId);
 		if (processId != null) {

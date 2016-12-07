@@ -161,11 +161,11 @@ class RefDataImport {
 	}
 
 	private void compartment(Compartment compartment) {
-		if (compartment == null || compartment.subcompartmentId == null
-				|| compartment.subcompartment == null
+		if (compartment == null || compartment.id == null
+				|| compartment.subCompartment == null
 				|| compartment.compartment == null)
 			return;
-		String refId = compartment.subcompartmentId;
+		String refId = compartment.id;
 		Category category = index.getCompartment(refId);
 		if (category != null)
 			return;
@@ -174,13 +174,13 @@ class RefDataImport {
 			Category parent = Categories.findOrCreateRoot(database,
 					ModelType.FLOW, compartment.compartment);
 			category = Categories.findOrAddChild(database, parent,
-					compartment.subcompartment);
+					compartment.subCompartment);
 		}
 		index.putCompartment(refId, category);
 	}
 
 	private void productFlow(DataSet dataSet, IntermediateExchange exchange) {
-		String refId = exchange.intermediateExchangeId;
+		String refId = exchange.flowId;
 		Flow flow = index.getFlow(refId);
 		if (flow == null) {
 			flow = flowDao.getForRefId(refId);
@@ -205,7 +205,7 @@ class RefDataImport {
 		flow = new Flow();
 		flow.setRefId(refId);
 		flow.setDescription("EcoSpold 2 intermediate exchange, ID = "
-				+ exchange.intermediateExchangeId);
+				+ exchange.flowId);
 		// in ecoinvent 3 negative values indicate waste flows
 		// see also the exchange handling in the process input
 		// to be on the save side, we declare all intermediate flows as
@@ -218,7 +218,7 @@ class RefDataImport {
 	}
 
 	private void elementaryFlow(ElementaryExchange exchange) {
-		String refId = exchange.elementaryExchangeId;
+		String refId = exchange.flowId;
 		Flow flow = index.getFlow(refId);
 		if (flow != null)
 			return;
@@ -230,13 +230,13 @@ class RefDataImport {
 		Category category = null;
 		if (exchange.compartment != null) {
 			compartment(exchange.compartment);
-			category = index.getCompartment(exchange.compartment.subcompartmentId);
+			category = index.getCompartment(exchange.compartment.id);
 		}
 		flow = new Flow();
 		flow.setRefId(refId);
 		flow.setCategory(category);
 		flow.setDescription("EcoSpold 2 elementary exchange, ID = "
-				+ exchange.elementaryExchangeId);
+				+ exchange.flowId);
 		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 		createFlow(exchange, flow);
 	}
@@ -246,7 +246,7 @@ class RefDataImport {
 	 * mapped flow.
 	 */
 	private Flow loadElemDBFlow(ElementaryExchange exchange) {
-		String extId = exchange.elementaryExchangeId;
+		String extId = exchange.flowId;
 		Flow flow = flowDao.getForRefId(extId);
 		if (flow != null)
 			return flow;

@@ -47,11 +47,11 @@ class UnitMap {
 		}
 		ExportRecord record = map.get(unit.getRefId());
 		if (record != null) {
-			exchange.unitName = record.name;
+			exchange.unit = record.name;
 			exchange.unitId = record.id;
 		} else {
 			log.warn("unit {} is not a known unit in EcoSpold 2", unit);
-			exchange.unitName = unit.getName();
+			exchange.unit = unit.getName();
 			exchange.unitId = unit.getRefId();
 			addMasterEntry(unit, masterData);
 		}

@@ -51,7 +51,7 @@ class PriceMapper {
 	private Property findPrice(IntermediateExchange ie) {
 		for (Property p : ie.properties) {
 			String name = p.name;
-			String unit = p.unitName;
+			String unit = p.unit;
 			if (name == null || unit == null)
 				continue;
 			if ("price".equalsIgnoreCase(name) && unit.startsWith("EUR"))

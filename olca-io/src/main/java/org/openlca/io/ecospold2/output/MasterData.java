@@ -36,10 +36,10 @@ final class MasterData {
 			UserMasterData masterData) {
 		ElementaryExchange masterFlow = new ElementaryExchange();
 		masterData.elementaryExchanges.add(masterFlow);
-		masterFlow.id = elemFlow.elementaryExchangeId;
+		masterFlow.id = elemFlow.flowId;
 		masterFlow.name = elemFlow.name;
 		masterFlow.unitId = elemFlow.unitId;
-		masterFlow.unitName = elemFlow.unitName;
+		masterFlow.unit = elemFlow.unit;
 		masterFlow.compartment = elemFlow.compartment;
 		masterFlow.casNumber = elemFlow.casNumber;
 		masterFlow.formula = elemFlow.formula;
@@ -49,10 +49,10 @@ final class MasterData {
 			UserMasterData masterData) {
 		IntermediateExchange masterFlow = new IntermediateExchange();
 		masterData.intermediateExchanges.add(masterFlow);
-		masterFlow.id = techFlow.intermediateExchangeId; // !
+		masterFlow.id = techFlow.flowId; // !
 		masterFlow.unitId = techFlow.unitId;
 		masterFlow.name = techFlow.name;
-		masterFlow.unitName = techFlow.unitName;
+		masterFlow.unit = techFlow.unit;
 	}
 
 	public static void writeIndexEntry(DataSet ds) {

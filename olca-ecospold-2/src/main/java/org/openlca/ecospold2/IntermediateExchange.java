@@ -3,16 +3,44 @@ package org.openlca.ecospold2;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {
+		"name",
+		"unit",
+		"comment",
+		"uncertainty",
+		"properties",
+		"classifications",
+		"inputGroup",
+		"outputGroup"
+})
 public class IntermediateExchange extends Exchange {
 
-	public String intermediateExchangeId;
+	@XmlAttribute(name = "intermediateExchangeId")
+	public String flowId;
+
+	@XmlAttribute
 	public String activityLinkId;
+
+	@XmlAttribute
 	public Double productionVolumeAmount;
+
+	@XmlAttribute
 	public String productionVolumeVariableName;
+
+	@XmlAttribute
 	public String productionVolumeMathematicalRelation;
+
+	@XmlElement(name = "classification")
 	public final List<Classification> classifications = new ArrayList<>();
 
 	static IntermediateExchange fromXml(Element e) {
@@ -21,7 +49,7 @@ public class IntermediateExchange extends Exchange {
 		IntermediateExchange ie = new IntermediateExchange();
 		ie.readValues(e);
 		ie.activityLinkId = e.getAttributeValue("activityLinkId");
-		ie.intermediateExchangeId = e.getAttributeValue("intermediateExchangeId");
+		ie.flowId = e.getAttributeValue("intermediateExchangeId");
 		ie.productionVolumeAmount = In.optionalDecimal(e.getAttributeValue("productionVolumeAmount"));
 		ie.productionVolumeMathematicalRelation = e.getAttributeValue("productionVolumeMathematicalRelation");
 		ie.productionVolumeVariableName = e.getAttributeValue("productionVolumeVariableName");
@@ -39,8 +67,8 @@ public class IntermediateExchange extends Exchange {
 
 	Element toXml(Namespace ns) {
 		Element e = new Element("intermediateExchange", ns);
-		if (intermediateExchangeId != null)
-			e.setAttribute("intermediateExchangeId", intermediateExchangeId);
+		if (flowId != null)
+			e.setAttribute("intermediateExchangeId", flowId);
 		if (activityLinkId != null)
 			e.setAttribute("activityLinkId", activityLinkId);
 		if (productionVolumeAmount != null)

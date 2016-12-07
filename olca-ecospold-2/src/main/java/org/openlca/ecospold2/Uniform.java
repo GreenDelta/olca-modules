@@ -1,10 +1,18 @@
 package org.openlca.ecospold2;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+
 import org.jdom2.Element;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Uniform {
 
+	@XmlAttribute
 	public double minValue;
+
+	@XmlAttribute
 	public double maxValue;
 
 	static Uniform fromXml(Element e) {
