@@ -1,18 +1,30 @@
 package org.openlca.ecospold2;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+
 import org.jdom2.Element;
 
-public class DataEntryBy {
+@XmlAccessorType(XmlAccessType.FIELD)
+public class DataEntry {
 
+	@XmlAttribute
 	public String personId;
+
+	@XmlAttribute
 	public Boolean isActiveAuthor;
+
+	@XmlAttribute
 	public String personName;
+
+	@XmlAttribute
 	public String personEmail;
 
-	static DataEntryBy fromXml(Element e) {
+	static DataEntry fromXml(Element e) {
 		if (e == null)
 			return null;
-		DataEntryBy entry = new DataEntryBy();
+		DataEntry entry = new DataEntry();
 		entry.personId = e.getAttributeValue("personId");
 		String authStr = e.getAttributeValue("isActiveAuthor");
 		if (authStr != null)

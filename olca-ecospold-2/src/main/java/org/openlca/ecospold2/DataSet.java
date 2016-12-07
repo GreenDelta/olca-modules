@@ -21,8 +21,10 @@ public class DataSet {
 	@XmlElement(name = "modellingAndValidation")
 	public Validation validation;
 
-	public AdministrativeInformation administrativeInformation;
+	@XmlElement(name = "administrativeInformation")
+	public AdminInfo adminInfo;
 
+	@XmlElement(name = "usedUserMasterData", namespace = "http://www.EcoInvent.org/UsedUserMasterData")
 	public UserMasterData masterData;
 
 	static DataSet fromXml(Document doc) {
@@ -34,7 +36,7 @@ public class DataSet {
 		readFlowData(root, ds);
 		Spold2.validation(ds).representativeness = Representativeness.fromXml(
 				In.child(root, "modellingAndValidation", "representativeness"));
-		ds.administrativeInformation = AdministrativeInformation
+		ds.adminInfo = AdminInfo
 				.fromXml(In.child(root, "administrativeInformation"));
 		return ds;
 	}
@@ -113,8 +115,8 @@ public class DataSet {
 		Element mav = Out.addChild(dataSetElement, "modellingAndValidation");
 		if (Spold2.getRepresentativeness(this) != null)
 			mav.addContent(Spold2.getRepresentativeness(this).toXml());
-		if (administrativeInformation != null)
-			dataSetElement.addContent(administrativeInformation.toXml());
+		if (adminInfo != null)
+			dataSetElement.addContent(adminInfo.toXml());
 		if (masterData != null)
 			root.addContent(masterData.toXml());
 		return document;

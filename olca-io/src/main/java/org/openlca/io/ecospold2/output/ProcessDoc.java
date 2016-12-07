@@ -8,9 +8,9 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Version;
 import org.openlca.ecospold2.ActivityDescription;
-import org.openlca.ecospold2.AdministrativeInformation;
+import org.openlca.ecospold2.AdminInfo;
 import org.openlca.ecospold2.Company;
-import org.openlca.ecospold2.DataEntryBy;
+import org.openlca.ecospold2.DataEntry;
 import org.openlca.ecospold2.DataGenerator;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.FileAttributes;
@@ -90,16 +90,16 @@ class ProcessDoc {
 	}
 
 	private void mapAdminInfo() {
-		AdministrativeInformation adminInfo = new AdministrativeInformation();
-		dataSet.administrativeInformation = adminInfo;
+		AdminInfo adminInfo = new AdminInfo();
+		dataSet.adminInfo = adminInfo;
 		mapDataEntry(adminInfo);
 		mapDataGenerator(adminInfo);
 		mapFileAttributes(adminInfo);
 	}
 
-	private void mapDataEntry(AdministrativeInformation adminInfo) {
-		DataEntryBy dataEntryBy = new DataEntryBy();
-		adminInfo.dataEntryBy = dataEntryBy;
+	private void mapDataEntry(AdminInfo adminInfo) {
+		DataEntry dataEntryBy = new DataEntry();
+		adminInfo.dataEntry = dataEntryBy;
 		Actor dataDocumentor = doc.getDataDocumentor();
 		if (dataDocumentor == null) {
 			dataEntryBy.isActiveAuthor = false;
@@ -113,7 +113,7 @@ class ProcessDoc {
 		}
 	}
 
-	private void mapDataGenerator(AdministrativeInformation adminInfo) {
+	private void mapDataGenerator(AdminInfo adminInfo) {
 		DataGenerator generator = new DataGenerator();
 		adminInfo.dataGenerator = generator;
 		generator.isCopyrightProtected = doc.isCopyright();
@@ -140,7 +140,7 @@ class ProcessDoc {
 		generator.publishedSourceYear = source.year;
 	}
 
-	private void mapFileAttributes(AdministrativeInformation adminInfo) {
+	private void mapFileAttributes(AdminInfo adminInfo) {
 		FileAttributes atts = new FileAttributes();
 		adminInfo.fileAttributes = atts;
 		mapVersion(atts);

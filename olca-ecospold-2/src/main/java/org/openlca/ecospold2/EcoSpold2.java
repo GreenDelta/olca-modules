@@ -13,7 +13,7 @@ import org.jdom2.Document;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 
-@XmlRootElement(name = "ecoSpold", namespace = "http://www.EcoInvent.org/EcoSpold02")
+@XmlRootElement(name = "ecoSpold")
 public class EcoSpold2 {
 
 	@XmlElement(name = "activityDataset")

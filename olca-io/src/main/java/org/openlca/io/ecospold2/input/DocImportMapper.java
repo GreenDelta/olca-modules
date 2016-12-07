@@ -10,8 +10,8 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
-import org.openlca.ecospold2.AdministrativeInformation;
-import org.openlca.ecospold2.DataEntryBy;
+import org.openlca.ecospold2.AdminInfo;
+import org.openlca.ecospold2.DataEntry;
 import org.openlca.ecospold2.DataGenerator;
 import org.openlca.ecospold2.DataSet;
 import org.openlca.ecospold2.FileAttributes;
@@ -50,7 +50,7 @@ class DocImportMapper {
 		mapTechnology(ds);
 		mapGeography(Spold2.getGeography(ds));
 		mapTime(Spold2.getTime(ds));
-		mapAdminInfo(ds.administrativeInformation);
+		mapAdminInfo(ds.adminInfo);
 		mapRepresentativeness(Spold2.getRepresentativeness(ds));
 	}
 
@@ -90,7 +90,7 @@ class DocImportMapper {
 		doc.setTime(RichText.join(t.comment));
 	}
 
-	private void mapAdminInfo(AdministrativeInformation adminInfo) {
+	private void mapAdminInfo(AdminInfo adminInfo) {
 		if (adminInfo == null)
 			return;
 		mapDataEntryBy(adminInfo);
@@ -101,8 +101,8 @@ class DocImportMapper {
 			doc.setCopyright(adminInfo.dataGenerator.isCopyrightProtected);
 	}
 
-	private void mapDataEntryBy(AdministrativeInformation adminInfo) {
-		DataEntryBy dataEntry = adminInfo.dataEntryBy;
+	private void mapDataEntryBy(AdminInfo adminInfo) {
+		DataEntry dataEntry = adminInfo.dataEntry;
 		if (dataEntry == null || dataEntry.personId == null)
 			return;
 		ActorDao dao = new ActorDao(database);
@@ -117,7 +117,7 @@ class DocImportMapper {
 		doc.setDataDocumentor(actor);
 	}
 
-	private void mapDataGenerator(AdministrativeInformation adminInfo) {
+	private void mapDataGenerator(AdminInfo adminInfo) {
 		DataGenerator dataGenerator = adminInfo.dataGenerator;
 		if (dataGenerator == null || dataGenerator.personId == null)
 			return;
@@ -133,7 +133,7 @@ class DocImportMapper {
 		doc.setDataGenerator(actor);
 	}
 
-	private void mapPublicationSource(AdministrativeInformation adminInfo) {
+	private void mapPublicationSource(AdminInfo adminInfo) {
 		DataGenerator gen = adminInfo.dataGenerator;
 		if (gen == null || gen.publishedSourceId == null)
 			return;
@@ -159,7 +159,7 @@ class DocImportMapper {
 		doc.setPublication(source);
 	}
 
-	private void mapFileAttributes(AdministrativeInformation adminInfo) {
+	private void mapFileAttributes(AdminInfo adminInfo) {
 		if (adminInfo.fileAttributes == null)
 			return;
 		FileAttributes fileAtts = adminInfo.fileAttributes;
