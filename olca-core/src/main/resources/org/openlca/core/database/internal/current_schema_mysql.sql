@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (4);
+INSERT INTO openlca_version (version) VALUES (5);
 
 
 CREATE TABLE tbl_categories (
@@ -80,7 +80,6 @@ CREATE TABLE tbl_locations (
 	latitude DOUBLE, 
 	code VARCHAR(255),
     kmz MEDIUMBLOB,
-    location_type VARCHAR(255),
 	
 	PRIMARY KEY (id)
 );
@@ -99,7 +98,7 @@ CREATE TABLE tbl_sources (
 
 	source_year SMALLINT,
 	text_reference TEXT, 
-	doi VARCHAR(255),
+	url VARCHAR(255),
 	external_file VARCHAR(255),
 	
 	PRIMARY KEY (id)
@@ -177,6 +176,7 @@ CREATE TABLE tbl_flows (
 	version BIGINT,
 	last_change BIGINT,
 	f_category BIGINT,
+	synonyms VARCHAR(32672),
 	description TEXT,
 
 	flow_type VARCHAR(255), 
@@ -225,6 +225,10 @@ CREATE TABLE tbl_processes (
 	f_location BIGINT, 
 	f_process_doc BIGINT, 
 	f_currency BIGINT,
+	f_dq_system BIGINT,
+	dq_entry VARCHAR(50),
+	f_exchange_dq_system BIGINT,
+	f_social_dq_system BIGINT,
 
 	PRIMARY KEY (id)	
 
@@ -288,10 +292,12 @@ CREATE TABLE tbl_exchanges (
 	resulting_amount_formula VARCHAR(1000), 
 	avoided_product TINYINT default 0,
 	f_default_provider BIGINT,
+	description TEXT,
 	
 	cost_value DOUBLE,
 	cost_formula VARCHAR(1000),
-
+	f_currency BIGINT,
+	
 	distribution_type INTEGER default 0, 
 	parameter1_value DOUBLE, 
 	parameter1_formula VARCHAR(1000), 
@@ -300,7 +306,7 @@ CREATE TABLE tbl_exchanges (
 	parameter3_value DOUBLE, 
 	parameter3_formula VARCHAR(1000), 
 	
-	pedigree_uncertainty VARCHAR(50),
+	dq_entry VARCHAR(50),
 	base_uncertainty DOUBLE,
 	
 	PRIMARY KEY (id)
@@ -334,6 +340,7 @@ CREATE TABLE tbl_product_systems (
 	f_category BIGINT,
 	description TEXT,
 
+	cutoff DOUBLE,
 	target_amount DOUBLE,
 	f_reference_process BIGINT, 
 	f_reference_exchange BIGINT, 
@@ -357,10 +364,11 @@ CREATE TABLE tbl_product_system_processes (
 
 CREATE TABLE tbl_process_links (
 
-	f_product_system BIGINT, 
-	f_provider BIGINT, 
-	f_recipient BIGINT, 
-	f_flow BIGINT 
+	f_product_system  BIGINT, 
+	f_provider        BIGINT, 
+	f_flow            BIGINT, 
+	f_process         BIGINT,
+	f_exchange        BIGINT
 	
 );
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
@@ -607,5 +615,40 @@ CREATE TABLE tbl_social_aspects (
 	f_source BIGINT,
 	quality VARCHAR(255),
 
+	PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_dq_systems (
+
+	id BIGINT NOT NULL,
+	name VARCHAR(255), 
+	ref_id VARCHAR(36),
+	version BIGINT, 
+	last_change BIGINT,
+	f_category BIGINT, 
+	f_source BIGINT, 
+	description TEXT,
+	has_uncertainties TINYINT default 0,
+
+	PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_dq_indicators ( 
+	id BIGINT NOT NULL, 
+	name VARCHAR(255), 
+	position INTEGER NOT NULL, 
+	f_dq_system BIGINT, 
+
+	PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_dq_scores ( 
+	id BIGINT NOT NULL, 
+	position INTEGER NOT NULL, 
+	description TEXT, 
+	label VARCHAR(255), 
+	uncertainty DOUBLE default 0, 
+	f_dq_indicator BIGINT,
+				
 	PRIMARY KEY (id)
 );
