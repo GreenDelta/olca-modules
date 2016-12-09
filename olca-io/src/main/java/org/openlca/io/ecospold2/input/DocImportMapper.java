@@ -24,7 +24,7 @@ import spold2.Representativeness;
 import spold2.RichText;
 import spold2.Spold2;
 import spold2.Technology;
-import spold2.TimePeriod;
+import spold2.Time;
 
 /**
  * Maps the process documentation from an EcoSpold 02 data set to an openLCA
@@ -83,7 +83,7 @@ class DocImportMapper {
 		}
 	}
 
-	private void mapTime(TimePeriod t) {
+	private void mapTime(Time t) {
 		if (t == null)
 			return;
 		doc.setValidFrom(t.start);

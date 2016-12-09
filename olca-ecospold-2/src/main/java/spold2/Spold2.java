@@ -31,7 +31,7 @@ public class Spold2 {
 		return ds.description.geography;
 	}
 
-	public static TimePeriod getTime(DataSet ds) {
+	public static Time getTime(DataSet ds) {
 		if (ds == null || ds.description == null)
 			return null;
 		return ds.description.timePeriod;
@@ -84,6 +84,33 @@ public class Spold2 {
 		if (v.representativeness == null)
 			v.representativeness = new Representativeness();
 		return v.representativeness;
+	}
+
+	public static AdminInfo adminInfo(DataSet ds) {
+		if (ds.adminInfo == null)
+			ds.adminInfo = new AdminInfo();
+		return ds.adminInfo;
+	}
+
+	public static FileAttributes fileAttributes(DataSet ds) {
+		AdminInfo ai = adminInfo(ds);
+		if (ai.fileAttributes == null)
+			ai.fileAttributes = new FileAttributes();
+		return ai.fileAttributes;
+	}
+
+	public static DataEntry dataEntry(DataSet ds) {
+		AdminInfo ai = adminInfo(ds);
+		if (ai.dataEntry == null)
+			ai.dataEntry = new DataEntry();
+		return ai.dataEntry;
+	}
+
+	public static DataGenerator dataGenerator(DataSet ds) {
+		AdminInfo ai = adminInfo(ds);
+		if (ai.dataGenerator == null)
+			ai.dataGenerator = new DataGenerator();
+		return ai.dataGenerator;
 	}
 
 }

@@ -19,7 +19,7 @@ public class ActivityDescription {
 
 	public Technology technology;
 
-	public TimePeriod timePeriod;
+	public Time timePeriod;
 
 	public MacroEconomicScenario macroEconomicScenario;
 

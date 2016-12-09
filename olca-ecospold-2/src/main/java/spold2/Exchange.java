@@ -29,6 +29,9 @@ public abstract class Exchange {
 	@XmlAttribute
 	public Double amount;
 
+	@XmlAttribute(name = "isCalculatedAmount")
+	public Boolean isCalculated;
+
 	@XmlAttribute
 	public String mathematicalRelation;
 

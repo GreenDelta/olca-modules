@@ -22,7 +22,7 @@ import spold2.RichText;
 import spold2.Source;
 import spold2.Spold2;
 import spold2.Technology;
-import spold2.TimePeriod;
+import spold2.Time;
 
 class ProcessDoc {
 
@@ -54,7 +54,7 @@ class ProcessDoc {
 	}
 
 	private void mapTime() {
-		TimePeriod timePeriod = new TimePeriod();
+		Time timePeriod = new Time();
 		timePeriod.comment = RichText.of(doc.getTime());
 		timePeriod.dataValid = true;
 		if (doc.getValidUntil() != null)

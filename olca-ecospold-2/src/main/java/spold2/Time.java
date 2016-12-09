@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class TimePeriod {
+public class Time {
 
 	@XmlAttribute(name = "startDate")
 	public Date start;

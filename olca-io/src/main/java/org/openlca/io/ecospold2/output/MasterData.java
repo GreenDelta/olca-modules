@@ -7,7 +7,7 @@ import spold2.DataSet;
 import spold2.ElementaryExchange;
 import spold2.Geography;
 import spold2.IntermediateExchange;
-import spold2.TimePeriod;
+import spold2.Time;
 import spold2.UserMasterData;
 
 /**
@@ -69,7 +69,7 @@ final class MasterData {
 			indexEntry.activityNameId = activity.activityNameId;
 			indexEntry.id = activity.id;
 		}
-		TimePeriod timePeriod = d.timePeriod;
+		Time timePeriod = d.timePeriod;
 		if (timePeriod != null) {
 			indexEntry.endDate = timePeriod.end;
 			indexEntry.startDate = timePeriod.start;
