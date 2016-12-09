@@ -17,14 +17,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
-import org.openlca.ecospold2.Classification;
-import org.openlca.ecospold2.Compartment;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.ElementaryExchange;
-import org.openlca.ecospold2.Exchange;
-import org.openlca.ecospold2.Geography;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.Spold2;
 import org.openlca.io.Categories;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
@@ -32,6 +24,15 @@ import org.openlca.io.maps.MapType;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spold2.Classification;
+import spold2.Compartment;
+import spold2.DataSet;
+import spold2.ElementaryExchange;
+import spold2.Exchange;
+import spold2.Geography;
+import spold2.IntermediateExchange;
+import spold2.Spold2;
 
 /**
  * Imports the reference data from a set of EcoSpold 02 files. During the import

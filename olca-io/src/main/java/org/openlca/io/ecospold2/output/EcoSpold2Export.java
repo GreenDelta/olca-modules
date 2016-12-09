@@ -17,20 +17,21 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.ecospold2.Activity;
-import org.openlca.ecospold2.ActivityDescription;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.EcoSpold2;
-import org.openlca.ecospold2.ElementaryExchange;
-import org.openlca.ecospold2.FlowData;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.RichText;
-import org.openlca.ecospold2.UserMasterData;
-import org.openlca.ecospold2.master.ActivityName;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spold2.Activity;
+import spold2.ActivityDescription;
+import spold2.ActivityName;
+import spold2.DataSet;
+import spold2.EcoSpold2;
+import spold2.ElementaryExchange;
+import spold2.FlowData;
+import spold2.IntermediateExchange;
+import spold2.RichText;
+import spold2.UserMasterData;
 
 /**
  * Exports a set of processes to the EcoSpold 2 data format to a directory. The
@@ -199,7 +200,7 @@ public class EcoSpold2Export implements Runnable {
 	}
 
 	private void mapExchangeData(Exchange exchange,
-			org.openlca.ecospold2.Exchange e2Exchange) {
+			spold2.Exchange e2Exchange) {
 		e2Exchange.name = Strings.cut(exchange.getFlow().getName(), 120);
 		e2Exchange.id = new UUID(exchange.getId(), 0L).toString();
 		e2Exchange.amount = exchange.getAmountValue();
@@ -218,7 +219,7 @@ public class EcoSpold2Export implements Runnable {
 		ParameterDao dao = new ParameterDao(database);
 		parameters.addAll(dao.getGlobalParameters());
 		for (Parameter param : parameters) {
-			org.openlca.ecospold2.Parameter e2Param = new org.openlca.ecospold2.Parameter();
+			spold2.Parameter e2Param = new spold2.Parameter();
 			e2Param.name = param.getName();
 			e2Param.id = new UUID(param.getId(), 0L).toString();
 			e2Param.amount = param.getValue();

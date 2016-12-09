@@ -7,21 +7,22 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Version;
-import org.openlca.ecospold2.ActivityDescription;
-import org.openlca.ecospold2.AdminInfo;
-import org.openlca.ecospold2.DataEntry;
-import org.openlca.ecospold2.DataGenerator;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.FileAttributes;
-import org.openlca.ecospold2.MacroEconomicScenario;
-import org.openlca.ecospold2.Representativeness;
-import org.openlca.ecospold2.RichText;
-import org.openlca.ecospold2.Spold2;
-import org.openlca.ecospold2.Technology;
-import org.openlca.ecospold2.TimePeriod;
-import org.openlca.ecospold2.master.Company;
-import org.openlca.ecospold2.master.Person;
-import org.openlca.ecospold2.master.Source;
+
+import spold2.ActivityDescription;
+import spold2.AdminInfo;
+import spold2.Company;
+import spold2.DataEntry;
+import spold2.DataGenerator;
+import spold2.DataSet;
+import spold2.FileAttributes;
+import spold2.MacroEconomicScenario;
+import spold2.Person;
+import spold2.Representativeness;
+import spold2.RichText;
+import spold2.Source;
+import spold2.Spold2;
+import spold2.Technology;
+import spold2.TimePeriod;
 
 class ProcessDoc {
 

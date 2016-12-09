@@ -1,14 +1,15 @@
 package org.openlca.io.ecospold2;
 
 import org.openlca.core.model.Uncertainty;
-import org.openlca.ecospold2.LogNormal;
-import org.openlca.ecospold2.Normal;
-import org.openlca.ecospold2.Triangular;
-import org.openlca.ecospold2.Uniform;
+
+import spold2.LogNormal;
+import spold2.Normal;
+import spold2.Triangular;
+import spold2.Uniform;
 
 public class UncertaintyConverter {
 
-	public static Uncertainty toOpenLCA(org.openlca.ecospold2.Uncertainty spold) {
+	public static Uncertainty toOpenLCA(spold2.Uncertainty spold) {
 		if (spold == null)
 			return null;
 		if (spold.logNormal != null)
@@ -23,10 +24,10 @@ public class UncertaintyConverter {
 			return null;
 	}
 
-	public static org.openlca.ecospold2.Uncertainty fromOpenLCA(Uncertainty olca) {
+	public static spold2.Uncertainty fromOpenLCA(Uncertainty olca) {
 		if (olca == null || olca.getDistributionType() == null)
 			return null;
-		org.openlca.ecospold2.Uncertainty uncertainty = new org.openlca.ecospold2.Uncertainty();
+		spold2.Uncertainty uncertainty = new spold2.Uncertainty();
 		switch (olca.getDistributionType()) {
 		case LOG_NORMAL:
 			uncertainty.logNormal = createLogNormal(olca);

@@ -5,14 +5,15 @@ import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Location;
-import org.openlca.ecospold2.ActivityDescription;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.Geography;
-import org.openlca.ecospold2.RichText;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+
+import spold2.ActivityDescription;
+import spold2.DataSet;
+import spold2.Geography;
+import spold2.RichText;
 
 class LocationMap {
 

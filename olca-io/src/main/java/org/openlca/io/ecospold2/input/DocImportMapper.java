@@ -10,20 +10,21 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
-import org.openlca.ecospold2.AdminInfo;
-import org.openlca.ecospold2.DataEntry;
-import org.openlca.ecospold2.DataGenerator;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.FileAttributes;
-import org.openlca.ecospold2.Geography;
-import org.openlca.ecospold2.Representativeness;
-import org.openlca.ecospold2.RichText;
-import org.openlca.ecospold2.Spold2;
-import org.openlca.ecospold2.Technology;
-import org.openlca.ecospold2.TimePeriod;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spold2.AdminInfo;
+import spold2.DataEntry;
+import spold2.DataGenerator;
+import spold2.DataSet;
+import spold2.FileAttributes;
+import spold2.Geography;
+import spold2.Representativeness;
+import spold2.RichText;
+import spold2.Spold2;
+import spold2.Technology;
+import spold2.TimePeriod;
 
 /**
  * Maps the process documentation from an EcoSpold 02 data set to an openLCA

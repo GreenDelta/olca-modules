@@ -4,10 +4,11 @@ import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spold2.IntermediateExchange;
+import spold2.Property;
 
 /**
  * Maps prices of ecoinvent intermediate exchanges to cost information of the

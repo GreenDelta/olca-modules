@@ -5,13 +5,14 @@ import java.util.List;
 
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.Exchange;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.Property;
-import org.openlca.ecospold2.Spold2;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
+
+import spold2.DataSet;
+import spold2.Exchange;
+import spold2.IntermediateExchange;
+import spold2.Property;
+import spold2.Spold2;
 
 final class Parameters {
 
@@ -32,7 +33,7 @@ final class Parameters {
 
 	private static void fetchProcessParameters(DataSet ds,
 			List<Parameter> parameters, ImportConfig config) {
-		for (org.openlca.ecospold2.Parameter param : Spold2.getParameters(ds)) {
+		for (spold2.Parameter param : Spold2.getParameters(ds)) {
 			if (!canCreate(param.variableName, parameters))
 				continue;
 			Parameter olcaParam = new Parameter();
@@ -52,7 +53,7 @@ final class Parameters {
 		}
 	}
 
-	private static void setScope(org.openlca.ecospold2.Parameter param,
+	private static void setScope(spold2.Parameter param,
 			Parameter olcaParam) {
 		String scope = param.scope;
 		String global = ParameterScope.GLOBAL.name();

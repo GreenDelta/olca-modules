@@ -10,10 +10,11 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.EcoSpold2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spold2.DataSet;
+import spold2.EcoSpold2;
 
 class DataSetIterator implements Iterator<DataSet>, Closeable {
 

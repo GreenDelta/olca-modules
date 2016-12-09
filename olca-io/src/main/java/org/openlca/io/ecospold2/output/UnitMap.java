@@ -6,12 +6,13 @@ import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Unit;
-import org.openlca.ecospold2.Exchange;
-import org.openlca.ecospold2.UserMasterData;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+
+import spold2.Exchange;
+import spold2.UserMasterData;
 
 class UnitMap {
 
@@ -58,11 +59,11 @@ class UnitMap {
 	}
 
 	private void addMasterEntry(Unit unit, UserMasterData masterData) {
-		for (org.openlca.ecospold2.master.Unit es2Unit : masterData.units) {
+		for (spold2.Unit es2Unit : masterData.units) {
 			if (Objects.equals(unit.getRefId(), es2Unit.id))
 				return;
 		}
-		org.openlca.ecospold2.master.Unit es2Unit = new org.openlca.ecospold2.master.Unit();
+		spold2.Unit es2Unit = new spold2.Unit();
 		es2Unit.comment = unit.getDescription();
 		es2Unit.id = unit.getRefId();
 		es2Unit.name = unit.getName();

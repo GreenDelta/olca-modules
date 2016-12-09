@@ -21,14 +21,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ecospold2.Activity;
-import org.openlca.ecospold2.Classification;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.ElementaryExchange;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.PedigreeMatrix;
-import org.openlca.ecospold2.RichText;
-import org.openlca.ecospold2.Spold2;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Pedigree;
@@ -37,6 +29,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+
+import spold2.Activity;
+import spold2.Classification;
+import spold2.DataSet;
+import spold2.ElementaryExchange;
+import spold2.IntermediateExchange;
+import spold2.PedigreeMatrix;
+import spold2.RichText;
+import spold2.Spold2;
 
 class ProcessImport {
 
@@ -231,7 +232,7 @@ class ProcessImport {
 		// return isNeg != index.isNegativeFlow(refId) && exchange.isInput();
 	}
 
-	private Exchange createExchange(org.openlca.ecospold2.Exchange es2,
+	private Exchange createExchange(spold2.Exchange es2,
 			String flowRefId, Flow flow, Process process) {
 		if (flow == null || flow.getReferenceFlowProperty() == null)
 			return null;
@@ -256,7 +257,7 @@ class ProcessImport {
 		return e;
 	}
 
-	private String getPedigreeMatrix(org.openlca.ecospold2.Exchange es2) {
+	private String getPedigreeMatrix(spold2.Exchange es2) {
 		if (es2 == null || es2.uncertainty == null)
 			return null;
 		PedigreeMatrix pm = es2.uncertainty.pedigreeMatrix;
@@ -269,7 +270,7 @@ class ProcessImport {
 				pm.geographicalCorrelation, pm.technologyCorrelation);
 	}
 
-	private Unit getFlowUnit(org.openlca.ecospold2.Exchange original,
+	private Unit getFlowUnit(spold2.Exchange original,
 			String flowRefId, Flow flow) {
 		if (!index.isMappedFlow(flowRefId))
 			return index.getUnit(original.unitId);
@@ -282,7 +283,7 @@ class ProcessImport {
 		return ug.getReferenceUnit();
 	}
 
-	private void mapFormula(org.openlca.ecospold2.Exchange original,
+	private void mapFormula(spold2.Exchange original,
 			Process process, Exchange exchange) {
 		String var = original.variableName;
 		if (Strings.notEmpty(var)) {

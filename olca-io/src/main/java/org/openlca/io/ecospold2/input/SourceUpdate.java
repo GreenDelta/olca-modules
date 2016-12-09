@@ -4,10 +4,11 @@ import java.io.File;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.SourceDao;
-import org.openlca.ecospold2.master.Source;
-import org.openlca.ecospold2.master.SourceList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spold2.Source;
+import spold2.SourceList;
 
 /**
  * Updates *existing* source data sets that are created during a process import

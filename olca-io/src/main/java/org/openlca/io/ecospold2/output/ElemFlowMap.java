@@ -2,8 +2,6 @@ package org.openlca.io.ecospold2.output;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
-import org.openlca.ecospold2.Compartment;
-import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.io.maps.Maps;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -11,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+
+import spold2.Compartment;
+import spold2.ElementaryExchange;
 
 import java.util.HashMap;
 import java.util.List;
