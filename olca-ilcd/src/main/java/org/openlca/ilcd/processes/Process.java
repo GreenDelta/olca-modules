@@ -103,4 +103,33 @@ public class Process implements IDataSet {
 			return Collections.emptyList();
 		return name.name;
 	}
+
+	@Override
+	public Process clone() {
+		Process clone = new Process();
+		if (processInfo != null)
+			clone.processInfo = processInfo.clone();
+		if (modelling != null)
+			clone.modelling = modelling.clone();
+		if (adminInfo != null)
+			clone.adminInfo = adminInfo.clone();
+		for (Exchange e : exchanges) {
+			if (e == null)
+				continue;
+			clone.exchanges.add(e.clone());
+		}
+		for (LCIAResult r : lciaResults) {
+			if (r == null)
+				continue;
+			clone.lciaResults.add(r.clone());
+		}
+		if (other != null)
+			clone.other = other.clone();
+		clone.version = version;
+		clone.locations = locations;
+		clone.metaDataOnly = metaDataOnly;
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
+
 }

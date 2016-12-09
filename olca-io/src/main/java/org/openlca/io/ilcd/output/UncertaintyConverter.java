@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.math.BigDecimal;
-
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Uncertainty;
@@ -67,8 +65,7 @@ class UncertaintyConverter {
 		Double param = getUncertaintyParam(2, oExchange);
 		if (param == null)
 			return;
-		BigDecimal decimal = new BigDecimal(param);
-		iExchange.relativeStandardDeviation95In = decimal;
+		iExchange.relativeStandardDeviation95In = param;
 		iExchange.uncertaintyDistribution = UncertaintyDistribution.LOG_NORMAL;
 	}
 
@@ -86,8 +83,7 @@ class UncertaintyConverter {
 		Double param = getUncertaintyParam(2, oExchange);
 		if (param == null)
 			return;
-		BigDecimal decimal = new BigDecimal(param);
-		iExchange.relativeStandardDeviation95In = decimal;
+		iExchange.relativeStandardDeviation95In = param;
 		iExchange.uncertaintyDistribution = UncertaintyDistribution.NORMAL;
 	}
 

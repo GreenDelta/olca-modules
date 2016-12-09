@@ -99,6 +99,18 @@ public class Ref implements Serializable {
 		}
 	}
 
+	public static Ref[] copy(Ref[] refs) {
+		if (refs == null)
+			return null;
+		Ref[] copy = new Ref[refs.length];
+		for (int i = 0; i < refs.length; i++) {
+			if (refs[i] == null)
+				continue;
+			copy[i] = refs[i].clone();
+		}
+		return copy;
+	}
+
 	public Class<?> getDataSetClass() {
 		if (type == null)
 			return null;

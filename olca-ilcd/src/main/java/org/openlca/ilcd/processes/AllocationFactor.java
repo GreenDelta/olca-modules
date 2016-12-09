@@ -15,9 +15,16 @@ public class AllocationFactor implements Serializable {
 	private final static long serialVersionUID = 1L;
 
 	@XmlAttribute(name = "internalReferenceToCoProduct")
-	public int referenceToCoProduct;
+	public int productExchangeId;
 
 	@XmlAttribute(name = "allocatedFraction")
-	public double allocatedFraction;
+	public double fraction;
 
+	@Override
+	public AllocationFactor clone() {
+		AllocationFactor clone = new AllocationFactor();
+		clone.productExchangeId = productExchangeId;
+		clone.fraction = fraction;
+		return clone;
+	}
 }

@@ -6,7 +6,6 @@ import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.ilcd.processes.Allocation;
 import org.openlca.ilcd.processes.Exchange;
 
 class AllocationFactors {
@@ -57,15 +56,10 @@ class AllocationFactors {
 	}
 
 	private void addFactor(Exchange iExchange, double factor, int ref) {
-		Allocation alloc = iExchange.allocation;
-		if (alloc == null) {
-			alloc = new Allocation();
-			iExchange.allocation = alloc;
-		}
 		org.openlca.ilcd.processes.AllocationFactor f = new org.openlca.ilcd.processes.AllocationFactor();
-		f.allocatedFraction = factor * 100;
-		f.referenceToCoProduct = ref;
-		alloc.factors.add(f);
+		f.fraction = factor * 100;
+		f.productExchangeId = ref;
+		iExchange.allocations.add(f);
 	}
 
 	private Exchange findProduct(AllocationFactor factor) {

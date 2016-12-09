@@ -53,7 +53,7 @@ class ExchangeConversion {
 			Exchange oExchange) {
 		org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
 		if (oExchange.description != null)
-			LangString.set(iExchange.generalComment,
+			LangString.set(iExchange.comment,
 					oExchange.description, config.lang);
 		mapFlow(oExchange, iExchange);
 		mapDirection(oExchange, iExchange);
@@ -82,7 +82,7 @@ class ExchangeConversion {
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		ExchangeExtension ext = new ExchangeExtension(iExchange);
 		if (oExchange.isAvoidedProduct()) {
-			iExchange.exchangeDirection = ExchangeDirection.OUTPUT;
+			iExchange.direction = ExchangeDirection.OUTPUT;
 			ext.setAvoidedProduct(true);
 		}
 		setProvider(oExchange, ext);
@@ -119,7 +119,7 @@ class ExchangeConversion {
 	private void mapParameter(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		String paramName = "temp_olca_param" + getParamSize();
-		iExchange.parameterName = paramName;
+		iExchange.variable = paramName;
 		iExchange.meanAmount = 1d;
 		Parameter parameter = new Parameter();
 		parameter.formula = oExchange.getAmountFormula();
@@ -166,9 +166,9 @@ class ExchangeConversion {
 	private void mapDirection(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		if (oExchange.isInput()) {
-			iExchange.exchangeDirection = ExchangeDirection.INPUT;
+			iExchange.direction = ExchangeDirection.INPUT;
 		} else {
-			iExchange.exchangeDirection = ExchangeDirection.OUTPUT;
+			iExchange.direction = ExchangeDirection.OUTPUT;
 		}
 	}
 

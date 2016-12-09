@@ -137,7 +137,7 @@ public class SystemExport {
 		Exchange exchange = new Exchange();
 		process.exchanges.add(exchange);
 		exchange.id = 1;
-		exchange.exchangeDirection = ExchangeDirection.OUTPUT;
+		exchange.direction = ExchangeDirection.OUTPUT;
 		Ref flowRef = ExportDispatch.forwardExportCheck(
 				refExchange.getFlow(), config);
 		exchange.flow = flowRef;

@@ -53,4 +53,18 @@ public class LCIAResult implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public LCIAResult clone() {
+		LCIAResult clone = new LCIAResult();
+		if (method != null)
+			clone.method = method.clone();
+		clone.amount = amount;
+		clone.uncertaintyDistribution = uncertaintyDistribution;
+		clone.relativeStandardDeviation95In = relativeStandardDeviation95In;
+		LangString.copy(comment, clone.comment);
+		if (other != null)
+			clone.other = other.clone();
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

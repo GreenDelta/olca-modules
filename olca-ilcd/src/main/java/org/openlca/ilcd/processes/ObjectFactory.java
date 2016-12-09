@@ -95,14 +95,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link Allocation }
-	 * 
-	 */
-	public Allocation createAllocation() {
-		return new Allocation();
-	}
-
-	/**
 	 * Create an instance of {@link Representativeness }
 	 * 
 	 */
@@ -132,14 +124,6 @@ public class ObjectFactory {
 	 */
 	public QuantitativeReference createQuantitativeReference() {
 		return new QuantitativeReference();
-	}
-
-	/**
-	 * Create an instance of {@link DataSourceReferenceList }
-	 * 
-	 */
-	public DataSourceReferenceList createDataSourceReferenceList() {
-		return new DataSourceReferenceList();
 	}
 
 	/**
