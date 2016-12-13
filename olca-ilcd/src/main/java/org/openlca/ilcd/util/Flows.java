@@ -1,11 +1,17 @@
 package org.openlca.ilcd.util;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
+import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.flows.FlowInfo;
+import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.QuantitativeReference;
 import org.openlca.ilcd.flows.Technology;
@@ -81,6 +87,20 @@ public final class Flows {
 		return fi.dataSetInfo;
 	}
 
+	public static FlowName getFlowName(Flow f) {
+		DataSetInfo dsi = getDataSetInfo(f);
+		if (dsi == null)
+			return null;
+		return dsi.name;
+	}
+
+	public static FlowName flowName(Flow f) {
+		DataSetInfo dsi = dataSetInfo(f);
+		if (dsi.name == null)
+			dsi.name = new FlowName();
+		return dsi.name;
+	}
+
 	public static QuantitativeReference getQuantitativeReference(Flow f) {
 		FlowInfo fi = getFlowInfo(f);
 		if (fi == null)
@@ -121,6 +141,20 @@ public final class Flows {
 		if (fi.technology == null)
 			fi.technology = new Technology();
 		return fi.technology;
+	}
+
+	public static List<Classification> getClassifications(Flow f) {
+		DataSetInfo info = getDataSetInfo(f);
+		if (info == null || info.classificationInformation == null)
+			return Collections.emptyList();
+		return info.classificationInformation.classifications;
+	}
+
+	public static List<Classification> classifications(Flow f) {
+		DataSetInfo info = dataSetInfo(f);
+		if (info.classificationInformation == null)
+			info.classificationInformation = new FlowCategoryInfo();
+		return info.classificationInformation.classifications;
 	}
 
 }

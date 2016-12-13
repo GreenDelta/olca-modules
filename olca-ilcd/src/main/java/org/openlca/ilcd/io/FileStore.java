@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Iterator;
 
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.sources.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class FileStore implements DataStore {
 	public <T> T get(Class<T> type, String id) throws DataStoreException {
 		log.trace("Get {} for id {} from file", type, id);
 		try {
-			File file = findFile(type, id);
+			File file = getFile(type, id);
 			if (file != null) {
 				log.trace("Unmarshal from file {}", file);
 				return binder.fromFile(type, file);
@@ -124,7 +125,7 @@ public class FileStore implements DataStore {
 	public <T> boolean delete(Class<T> type, String id)
 			throws DataStoreException {
 		log.trace("Delete file if exists for class {} with id {}", type, id);
-		File file = findFile(type, id);
+		File file = getFile(type, id);
 		if (file == null)
 			return false;
 		else {
@@ -144,7 +145,7 @@ public class FileStore implements DataStore {
 	public <T> boolean contains(Class<T> type, String id)
 			throws DataStoreException {
 		log.trace("Contains file for class {} with id {}", type, id);
-		File file = findFile(type, id);
+		File file = getFile(type, id);
 		boolean contains = file != null && file.exists();
 		log.trace("Contains={}", contains);
 		return contains;
@@ -158,8 +159,16 @@ public class FileStore implements DataStore {
 		return file;
 	}
 
-	private File findFile(Class<?> clazz, String id) {
+	public File getFile(Ref ref) {
+		if (ref == null || ref.type == null || ref.uuid == null)
+			return null;
+		return getFile(ref.getDataSetClass(), ref.uuid);
+	}
+
+	public File getFile(Class<?> clazz, String id) {
 		log.trace("Find file for class {} with id {}", clazz, id);
+		if (clazz == null || id == null)
+			return null;
 		File dir = getFolder(clazz);
 		File file = null;
 		for (File f : dir.listFiles()) {
