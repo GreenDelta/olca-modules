@@ -7,10 +7,8 @@
 	<contactInformation>
 		<dataSetInformation>
 			<common:UUID>00000000-0000-0000-0000-000000000000</common:UUID>
-			<common:shortName xml:lang="en">shortName0
-			</common:shortName>
-			<common:shortName xml:lang="de">shortName1
-			</common:shortName>
+			<common:shortName xml:lang="en">shortName0</common:shortName>
+			<common:shortName xml:lang="de">shortName1</common:shortName>
 			<common:name xml:lang="en">name0</common:name>
 			<common:name xml:lang="de">name1</common:name>
 			<classificationInformation>

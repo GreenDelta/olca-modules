@@ -13,7 +13,7 @@ import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
 import org.openlca.ilcd.flowproperties.QuantitativeReference;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.util.Reference;
+import org.openlca.ilcd.util.Refs;
 
 public class FlowPropertyExport {
 
@@ -77,7 +77,7 @@ public class FlowPropertyExport {
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(flowProperty);
-		entry.formats.add(Reference.forIlcdFormat());
+		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;
 	}

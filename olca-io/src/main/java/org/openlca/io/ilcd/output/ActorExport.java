@@ -11,7 +11,7 @@ import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.contacts.ContactInfo;
 import org.openlca.ilcd.contacts.DataSetInfo;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.util.Reference;
+import org.openlca.ilcd.util.Refs;
 
 public class ActorExport {
 
@@ -87,8 +87,7 @@ public class ActorExport {
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(actor);
-		entry.formats.add(
-				Reference.forIlcdFormat());
+		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;
 	}

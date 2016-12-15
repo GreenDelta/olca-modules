@@ -11,13 +11,13 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataGenerator;
 import org.openlca.ilcd.processes.Publication;
-import org.openlca.ilcd.util.Reference;
+import org.openlca.ilcd.util.Refs;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +49,7 @@ class ProcessAdminInfo {
 		DataEntry dataEntry = new DataEntry();
 		iAdminInfo.dataEntry = dataEntry;
 		dataEntry.timeStamp = toXmlCalender(new Date());
-		dataEntry.formats.add(
-				Reference.forIlcdFormat());
+		dataEntry.formats.add(Refs.ilcd());
 		if (documentation.getDataDocumentor() != null) {
 			Ref ref = ExportDispatch.forwardExportCheck(
 					documentation.getDataDocumentor(), config);

@@ -487,7 +487,7 @@
 				<common:shortDescription xml:lang="de">shortDescription73
 				</common:shortDescription>
 			</common:referenceToPrecedingDataSetVersion>
-			<common:permanentDataSetURI />
+			<common:permanentDataSetURI>http://www.ilcd-network.org/data/lciamethods/sample_lciamethod.xml</common:permanentDataSetURI>>
 			<common:workflowAndPublicationStatus>Working draft
 			</common:workflowAndPublicationStatus>
 			<common:referenceToUnchangedRepublication
