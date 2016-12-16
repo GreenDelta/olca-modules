@@ -70,14 +70,14 @@ public class NetworkClient implements DataStore {
 		log.trace("Server response: {}", response.getEntity(String.class));
 	}
 
-	public Authentication getAuthentication() throws DataStoreException {
+	public AuthInfo getAuthentication() throws DataStoreException {
 		checkConnection();
 		log.trace("Get authentication information.");
 		ClientResponse response = client.resource(baseUri).path("authenticate")
 				.path("status").get(ClientResponse.class);
 		eval(response);
-		Authentication authentication = response
-				.getEntity(Authentication.class);
+		AuthInfo authentication = response
+				.getEntity(AuthInfo.class);
 		return authentication;
 	}
 

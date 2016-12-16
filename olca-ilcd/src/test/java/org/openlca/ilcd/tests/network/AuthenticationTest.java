@@ -10,32 +10,32 @@ import java.io.InputStream;
 import javax.xml.bind.JAXB;
 
 import org.junit.Test;
-import org.openlca.ilcd.io.Authentication;
+import org.openlca.ilcd.io.AuthInfo;
 
 public class AuthenticationTest {
 
 	@Test
 	public void testIsAuthenticated() {
-		Authentication auth = getAuthentication("auth_info.xml");
-		assertTrue(auth.isAuthenticated());
-		assertTrue(auth.getUserName().equals("openlca"));
+		AuthInfo auth = getAuthentication("auth_info.xml");
+		assertTrue(auth.isAuthenticated);
+		assertTrue(auth.user.equals("openlca"));
 		assertTrue(auth.isReadAllowed());
 		assertTrue(auth.isExportAllowed());
 	}
 
 	@Test
 	public void testIsNotAuthenticated() {
-		Authentication auth = getAuthentication("auth_info_no_auth.xml");
-		assertFalse(auth.isAuthenticated());
-		assertNull(auth.getUserName());
+		AuthInfo auth = getAuthentication("auth_info_no_auth.xml");
+		assertFalse(auth.isAuthenticated);
+		assertNull(auth.user);
 		assertFalse(auth.isReadAllowed());
 		assertFalse(auth.isExportAllowed());
 	}
 
-	private Authentication getAuthentication(String res) {
+	private AuthInfo getAuthentication(String res) {
 		try (InputStream is = this.getClass().getResourceAsStream(res)) {
-			Authentication authentication = JAXB.unmarshal(is,
-					Authentication.class);
+			AuthInfo authentication = JAXB.unmarshal(is,
+					AuthInfo.class);
 			return authentication;
 		} catch (IOException e) {
 			e.printStackTrace();
