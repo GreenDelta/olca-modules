@@ -12,11 +12,11 @@ import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 
 public class NetworkPutFlowPropertyTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {

@@ -3,7 +3,8 @@ package org.openlca.ilcd.tests.network;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
+import org.openlca.ilcd.io.SodaConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +46,12 @@ class Network {
 	}
 
 	/** Creates a new client connection. */
-	public static NetworkClient createClient() throws Exception {
-		NetworkClient client = new NetworkClient(RESOURCE_URL, USER, PASSWORD);
+	public static SodaClient createClient() throws Exception {
+		SodaConnection con = new SodaConnection();
+		con.url = RESOURCE_URL;
+		con.user = USER;
+		con.password = PASSWORD;
+		SodaClient client = new SodaClient(con);
 		client.connect();
 		return client;
 	}

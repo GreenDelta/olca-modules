@@ -16,11 +16,11 @@ import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.Modelling;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 
 public class NetworkPutFlowTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {

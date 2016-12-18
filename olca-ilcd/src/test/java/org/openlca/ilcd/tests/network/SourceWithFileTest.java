@@ -12,13 +12,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
 
 public class SourceWithFileTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {
