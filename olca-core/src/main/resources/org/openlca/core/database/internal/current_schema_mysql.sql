@@ -259,7 +259,7 @@ CREATE TABLE tbl_process_docs (
 	data_selection TEXT, 
 	f_reviewer BIGINT, 
 	
-	project VARCHAR(255), 
+	project TEXT, 
 	creation_date TIMESTAMP, 
 	intended_application TEXT, 
 	restrictions TEXT,
