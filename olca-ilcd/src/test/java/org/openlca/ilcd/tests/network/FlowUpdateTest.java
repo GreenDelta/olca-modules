@@ -34,10 +34,10 @@ public class FlowUpdateTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		Flow flow = makeFlow(id);
-		client.put(flow, id);
+		client.put(flow);
 		Assert.assertTrue(client.contains(Flow.class, id));
 		flow.adminInfo.publication.version = "02.00.000";
-		client.put(flow, id);
+		client.put(flow);
 		flow = client.get(Flow.class, id);
 		Assert.assertEquals("02.00.000", flow.adminInfo.publication.version);
 	}

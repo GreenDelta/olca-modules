@@ -34,7 +34,7 @@ public class NetworkPutSourceTest {
 		source.sourceInfo = info;
 		info.dataSetInfo = makeDataInfo(id);
 		source.adminInfo = makeAdminInfo();
-		client.put(source, id);
+		client.put(source);
 	}
 
 	private DataSetInfo makeDataInfo(String id) {

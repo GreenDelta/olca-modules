@@ -34,7 +34,7 @@ public class NetworkPutContactTest {
 		contact.contactInfo = info;
 		info.dataSetInfo = makeDataInfo(id);
 		contact.adminInfo = makeAdminInfo();
-		client.put(contact, id);
+		client.put(contact);
 	}
 
 	private DataSetInfo makeDataInfo(String id) {

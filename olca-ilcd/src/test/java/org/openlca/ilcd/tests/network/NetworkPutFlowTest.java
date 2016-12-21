@@ -43,7 +43,7 @@ public class NetworkPutFlowTest {
 		LCIMethod method = new LCIMethod();
 		mav.lciMethod = method;
 		method.flowType = FlowType.ELEMENTARY_FLOW;
-		client.put(flow, id);
+		client.put(flow);
 	}
 
 	private DataSetInfo makeDataInfo(String id) {

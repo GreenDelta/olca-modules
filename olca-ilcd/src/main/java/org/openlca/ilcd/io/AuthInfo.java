@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
 		"isAuthenticated",
-		"userName",
+		"user",
 		"roles" })
 @XmlRootElement(name = "authInfo", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 public class AuthInfo {

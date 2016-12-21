@@ -7,6 +7,8 @@ import java.util.Objects;
  */
 public class SodaConnection {
 
+	public String uuid;
+
 	/** The URL of the service end-point. */
 	public String url;
 
@@ -28,7 +30,7 @@ public class SodaConnection {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(toString());
+		return Objects.hashCode(id());
 	}
 
 	@Override
@@ -40,7 +42,14 @@ public class SodaConnection {
 		if (!(obj instanceof SodaConnection))
 			return false;
 		SodaConnection other = (SodaConnection) obj;
-		return Objects.equals(this.toString(), other.toString());
+		return Objects.equals(this.id(), other.id());
+	}
+
+	private String id() {
+		if (uuid != null)
+			return uuid;
+		else
+			return toString();
 	}
 
 }

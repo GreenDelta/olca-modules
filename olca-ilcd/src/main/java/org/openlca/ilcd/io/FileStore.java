@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Iterator;
 
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.sources.Source;
 import org.slf4j.Logger;
@@ -90,11 +91,13 @@ public class FileStore implements DataStore {
 	}
 
 	@Override
-	public void put(Object obj, String id) throws DataStoreException {
-		log.trace("Store {} for id {} in file.", obj, id);
+	public void put(IDataSet ds) throws DataStoreException {
+		if (ds == null)
+			return;
+		log.trace("Store {} in file.", ds);
 		try {
-			File file = newFile(obj.getClass(), id);
-			binder.toFile(obj, file);
+			File file = newFile(ds.getClass(), ds.getUUID());
+			binder.toFile(ds, file);
 		} catch (Exception e) {
 			String message = "Cannot store in file";
 			log.error(message, e);
@@ -102,10 +105,10 @@ public class FileStore implements DataStore {
 		}
 	}
 
-	public void put(Source source, String id, File file)
+	public void put(Source source, File file)
 			throws DataStoreException {
-		log.trace("Store source {} with file {}", id, file);
-		put(source, id);
+		log.trace("Store source {} with file {}", source, file);
+		put(source);
 		if (file == null || !file.exists())
 			return;
 		try {

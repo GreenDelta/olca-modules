@@ -10,6 +10,7 @@ import java.util.Iterator;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
 
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.descriptors.DataStockList;
 import org.openlca.ilcd.descriptors.DescriptorList;
 import org.openlca.ilcd.sources.Source;
@@ -100,13 +101,13 @@ public class SodaClient implements DataStore {
 	}
 
 	@Override
-	public void put(Object obj, String id) throws DataStoreException {
+	public void put(IDataSet ds) throws DataStoreException {
 		checkConnection();
 		WebResource resource = client.resource(con.url).path(
-				Dir.get(obj.getClass()));
-		log.info("Publish resource: {}/{}", resource.getURI(), id);
+				Dir.get(ds.getClass()));
+		log.info("Publish resource: {}/{}", resource.getURI(), ds.getUUID());
 		try {
-			byte[] bytes = binder.toByteArray(obj);
+			byte[] bytes = binder.toByteArray(ds);
 			Builder builder = resource.type(MediaType.APPLICATION_XML);
 			if (con.dataStockId != null) {
 				log.trace("post to data stock {}", con.dataStockId);
@@ -116,18 +117,17 @@ public class SodaClient implements DataStore {
 			eval(response);
 			log.trace("Server response: {}", fetchMessage(response));
 		} catch (Exception e) {
-			throw new DataStoreException("Failed to upload resource " + obj
-					+ " with id " + id, e);
+			throw new DataStoreException("Failed to upload resource " + ds, e);
 		}
 	}
 
 	@Override
-	public void put(Source source, String id, File file)
+	public void put(Source source, File file)
 			throws DataStoreException {
 		checkConnection();
 		WebResource resource = client.resource(con.url).path(
 				"sources/withBinaries");
-		log.info("Publish source with file: {} + {}", id, file);
+		log.info("Publish source with file: {} + {}", source, file);
 		try {
 			FormDataMultiPart multiPart = new FormDataMultiPart();
 			if (con.dataStockId != null) {
@@ -149,8 +149,8 @@ public class SodaClient implements DataStore {
 			eval(resp);
 			log.trace("Server response: {}", fetchMessage(resp));
 		} catch (Exception e) {
-			throw new DataStoreException("Failed to upload source " + id
-					+ " with file " + file, e);
+			throw new DataStoreException("Failed to upload source with file "
+					+ file, e);
 		}
 	}
 

@@ -29,12 +29,12 @@ public class NetworkPutFlowPropertyTest {
 	public void testPutFlowProperty() throws Exception {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
-		FlowProperty flowproperty = new FlowProperty();
+		FlowProperty fp = new FlowProperty();
 		FlowPropertyInfo info = new FlowPropertyInfo();
-		flowproperty.flowPropertyInfo = info;
+		fp.flowPropertyInfo = info;
 		info.dataSetInfo = makeDataInfo(id);
-		flowproperty.adminInfo = makeAdminInfo();
-		client.put(flowproperty, id);
+		fp.adminInfo = makeAdminInfo();
+		client.put(fp);
 	}
 
 	private DataSetInfo makeDataInfo(String id) {

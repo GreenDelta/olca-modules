@@ -35,7 +35,7 @@ public class DescriptorTest {
 		UnitGroupBag bag = new UnitGroupBag(group, "en");
 		if (client.contains(UnitGroup.class, bag.getId()))
 			return;
-		client.put(group, group.unitGroupInfo.dataSetInfo.uuid);
+		client.put(group);
 	}
 
 	@Test

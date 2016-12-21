@@ -29,12 +29,12 @@ public class NetworkPutUnitGroupTest {
 	public void testPutUnitGroup() throws Exception {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
-		UnitGroup unitgroup = new UnitGroup();
+		UnitGroup ug = new UnitGroup();
 		UnitGroupInfo info = new UnitGroupInfo();
-		unitgroup.unitGroupInfo = info;
+		ug.unitGroupInfo = info;
 		info.dataSetInfo = makeDataInfo(id);
-		unitgroup.adminInfo = makeAdminInfo();
-		client.put(unitgroup, id);
+		ug.adminInfo = makeAdminInfo();
+		client.put(ug);
 	}
 
 	private DataSetInfo makeDataInfo(String id) {

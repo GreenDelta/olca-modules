@@ -19,6 +19,7 @@ import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.productmodel.ProductModel;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Source;
+import org.openlca.ilcd.sources.SourceInfo;
 
 public class ZipStoreTest {
 
@@ -43,13 +44,14 @@ public class ZipStoreTest {
 
 	@Test
 	public void testWithSource() throws Exception {
-		DataSetInfo dataSetInfo = new DataSetInfo();
-		String id = "110_abc";
-		dataSetInfo.uuid = id;
+		DataSetInfo info = new DataSetInfo();
+		info.uuid = UUID.randomUUID().toString();
 		Source source = SampleSource.create();
-		store.put(source, id);
-		assertTrue(store.contains(Source.class, id));
-		Source copy = store.get(Source.class, id);
+		source.sourceInfo = new SourceInfo();
+		source.sourceInfo.dataSetInfo = info;
+		store.put(source);
+		assertTrue(store.contains(Source.class, source.getUUID()));
+		Source copy = store.get(Source.class, source.getUUID());
 		assertEquals(source.sourceInfo.dataSetInfo.uuid, copy.sourceInfo.dataSetInfo.uuid);
 		assertNotNull(store.iterator(Source.class).next());
 	}
@@ -63,9 +65,9 @@ public class ZipStoreTest {
 	@Test
 	public void testWithProductModel() throws Exception {
 		Process p = makeProductModel();
-		store.put(p, "abc_123");
-		assertTrue(store.contains(Process.class, "abc_123"));
-		Process copy = store.get(Process.class, "abc_123");
+		store.put(p);
+		assertTrue(store.contains(Process.class, p.getUUID()));
+		Process copy = store.get(Process.class, p.getUUID());
 		ProductModel model = (ProductModel) copy.processInfo.dataSetInfo.other.any.get(0);
 		String name = model.getName();
 		assertEquals("product-model-name", name);
@@ -77,6 +79,7 @@ public class ZipStoreTest {
 		process.processInfo = pi;
 		org.openlca.ilcd.processes.DataSetInfo info = new org.openlca.ilcd.processes.DataSetInfo();
 		pi.dataSetInfo = info;
+		info.uuid = UUID.randomUUID().toString();
 		ProductModel productModel = new ProductModel();
 		productModel.setName("product-model-name");
 		Other other = new Other();

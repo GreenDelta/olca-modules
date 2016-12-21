@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.UUID;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -16,6 +17,7 @@ import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Source;
+import org.openlca.ilcd.sources.SourceInfo;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.UnitGroupBag;
 
@@ -59,10 +61,12 @@ public class FileStoreTest {
 	@Test
 	public void testPut() throws Exception {
 		DataSetInfo dataSetInfo = new DataSetInfo();
-		String id = "110";
+		String id = UUID.randomUUID().toString();
 		dataSetInfo.uuid = id;
 		Source source = SampleSource.create();
-		fileStore.put(source, id);
+		source.sourceInfo = new SourceInfo();
+		source.sourceInfo.dataSetInfo = dataSetInfo;
+		fileStore.put(source);
 		assertTrue(fileStore.contains(Source.class, id));
 	}
 

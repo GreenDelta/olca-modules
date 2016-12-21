@@ -35,35 +35,35 @@ class DataSets {
 		Contact contact = load(Contact.class, "contact.xml");
 		ContactBag bag = new ContactBag(contact, "en");
 		if (!client.contains(Contact.class, bag.getId()))
-			client.put(contact, bag.getId());
+			client.put(contact);
 	}
 
 	private static void putFlowProperty(SodaClient client) throws Exception {
 		FlowProperty flowProperty = load(FlowProperty.class, "flowproperty.xml");
 		FlowPropertyBag bag = new FlowPropertyBag(flowProperty, "en");
 		if (!client.contains(FlowProperty.class, bag.getId()))
-			client.put(flowProperty, bag.getId());
+			client.put(flowProperty);
 	}
 
 	private static void putFlow(SodaClient client) throws Exception {
 		Flow flow = load(Flow.class, "flow.xml");
 		FlowBag bag = new FlowBag(flow, "en");
 		if (!client.contains(Flow.class, bag.getId()))
-			client.put(flow, bag.getId());
+			client.put(flow);
 	}
 
 	private static void putProcess(SodaClient client) throws Exception {
 		Process process = load(Process.class, "process.xml");
 		ProcessBag bag = new ProcessBag(process, "en");
 		if (!client.contains(Process.class, bag.getId()))
-			client.put(process, bag.getId());
+			client.put(process);
 	}
 
 	private static void putSource(SodaClient client) throws Exception {
 		Source source = load(Source.class, "source.xml");
 		SourceBag bag = new SourceBag(source, "en");
 		if (!client.contains(Source.class, bag.getId()))
-			client.put(source, bag.getId());
+			client.put(source);
 	}
 
 	private static void putUnitGroup(SodaClient client) throws Exception,
@@ -71,7 +71,7 @@ class DataSets {
 		UnitGroup group = load(UnitGroup.class, "unit.xml");
 		UnitGroupBag bag = new UnitGroupBag(group, "en");
 		if (!client.contains(UnitGroup.class, bag.getId()))
-			client.put(group, bag.getId());
+			client.put(group);
 	}
 
 	private static <T> T load(Class<T> clazz, String file) throws Exception {
