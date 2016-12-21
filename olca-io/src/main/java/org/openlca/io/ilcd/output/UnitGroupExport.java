@@ -45,7 +45,7 @@ public class UnitGroupExport {
 		info.quantitativeReference = makeQRef();
 		iUnitGroup.adminInfo = makeAdminInfo();
 		iUnitGroup.units = makeUnits();
-		config.store.put(iUnitGroup, unitGroup.getRefId());
+		config.store.put(iUnitGroup);
 		this.unitGroup = null;
 		return iUnitGroup;
 	}

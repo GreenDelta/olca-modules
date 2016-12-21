@@ -52,7 +52,7 @@ public class FlowExport {
 		iFlow.modelling = makeModellingInfo();
 		makeFlowProperties(iFlow.flowProperties);
 		addLocation(iFlow);
-		config.store.put(iFlow, flow.getRefId());
+		config.store.put(iFlow);
 		this.flow = null;
 		return iFlow;
 	}

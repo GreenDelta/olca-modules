@@ -49,10 +49,10 @@ public class SourceExport {
 		info.dataSetInfo = dataSetInfo;
 		File extFile = getExternalFile();
 		if (extFile == null)
-			config.store.put(iSource, source.getRefId());
+			config.store.put(iSource);
 		else {
 			addFileRef(dataSetInfo, extFile);
-			config.store.put(iSource, source.getRefId(), extFile);
+			config.store.put(iSource, extFile);
 		}
 		return iSource;
 	}

@@ -11,8 +11,16 @@ public class Property {
 	@XmlAttribute(name = "propertyId")
 	public String id;
 
+	/** ID field in case the property is from a master data file. */
+	@XmlAttribute(name = "id")
+	public String masterId;
+
 	@XmlAttribute
 	public String variableName;
+
+	/** Only valid for properties in master data files. */
+	@XmlAttribute
+	public String defaultVariableName;
 
 	@XmlAttribute
 	public double amount;

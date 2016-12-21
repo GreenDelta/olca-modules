@@ -7,11 +7,11 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
@@ -48,7 +48,7 @@ public class SystemExport {
 			return null;
 		}
 		Process process = createProcess();
-		config.store.put(process, system.getRefId());
+		config.store.put(process);
 		this.system = null;
 		return process;
 	}

@@ -37,7 +37,7 @@ public class ActorExport {
 		contact.contactInfo = info;
 		info.dataSetInfo = makeDataSetInfo();
 		contact.adminInfo = makeAdminInfo();
-		config.store.put(contact, actor.getRefId());
+		config.store.put(contact);
 		this.actor = null;
 		return contact;
 	}

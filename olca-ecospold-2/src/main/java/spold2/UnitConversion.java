@@ -6,30 +6,21 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Person {
+public class UnitConversion {
 
 	@XmlAttribute
 	public String id;
 
 	@XmlAttribute
-	public String name;
+	public double factor;
 
-	@XmlAttribute
-	public String address;
+	@XmlElement(name = "unitFromName")
+	public String fromUnit;
 
-	@XmlAttribute
-	public String telephone;
+	@XmlElement(name = "unitToName")
+	public String toUnit;
 
-	@XmlAttribute
-	public String telefax;
-
-	@XmlAttribute
-	public String email;
-
-	@XmlAttribute
-	public String companyId;
-
-	@XmlElement(name = "companyName")
-	public String company;
+	@XmlElement(name = "unitType")
+	public String quantity;
 
 }

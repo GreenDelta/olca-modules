@@ -9,10 +9,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "validPersons")
-public class PersonList {
+@XmlRootElement(name = "validTags")
+public class TagList {
 
-	@XmlElement(name = "person")
-	public final List<Person> persons = new ArrayList<>();
-
+	@XmlElement(name = "tag")
+	public final List<Tag> tags = new ArrayList<>();
 }

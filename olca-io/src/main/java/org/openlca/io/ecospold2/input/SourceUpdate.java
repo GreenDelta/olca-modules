@@ -30,7 +30,7 @@ public class SourceUpdate implements Runnable {
 	public void run() {
 		log.trace("update sources from {}", sourceFile);
 		try {
-			SourceList sourceList = SourceList.read(sourceFile);
+			SourceList sourceList = spold2.IO.read(sourceFile, SourceList.class);
 			if (sourceList == null)
 				return;
 			for (Source source : sourceList.sources) {

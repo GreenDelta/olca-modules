@@ -31,7 +31,7 @@ public class PersonUpdate implements Runnable {
 	public void run() {
 		log.trace("update actors from {}", personFile);
 		try {
-			PersonList personList = PersonList.read(personFile);
+			PersonList personList = spold2.IO.read(personFile, PersonList.class);
 			if (personList == null)
 				return;
 			for (Person person : personList.persons) {
@@ -51,8 +51,8 @@ public class PersonUpdate implements Runnable {
 		actor.setEmail(person.email);
 		actor.setTelefax(person.telefax);
 		actor.setTelephone(person.telephone);
-		if (person.companyName != null)
-			actor.setDescription("company: " + person.companyName);
+		if (person.company != null)
+			actor.setDescription("company: " + person.company);
 		dao.update(actor);
 	}
 }

@@ -202,7 +202,7 @@ class ProcessDoc {
 		person.telefax = actor.getTelefax();
 		person.telephone = actor.getTelephone();
 		person.companyId = "b35ea934-b41d-4830-b1aa-c7c678270240";
-		person.companyName = "UKNWN";
+		person.company = "UKNWN";
 		dataSet.masterData.persons.add(person);
 		addDefaultCompany();
 		return person;

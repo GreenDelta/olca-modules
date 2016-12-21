@@ -9,10 +9,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "validPersons")
-public class PersonList {
+@XmlRootElement(name = "validUnitConversions")
+public class UnitConversionList {
 
-	@XmlElement(name = "person")
-	public final List<Person> persons = new ArrayList<>();
+	@XmlElement(name = "unitConversion")
+	public final List<UnitConversion> conversions = new ArrayList<>();
 
 }
