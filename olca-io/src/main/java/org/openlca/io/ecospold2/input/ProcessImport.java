@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
@@ -22,8 +21,8 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.io.ecospold2.UncertaintyConverter;
+import org.openlca.util.DQSystems;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Pedigree;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ class ProcessImport {
 	private final ProcessDao dao;
 	private final PriceMapper prices;
 	private final ImportConfig config;
-	private DQSystem pedigreeSystem;
+	private final DQSystem dqSystem;
 
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private final HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
@@ -58,6 +57,7 @@ class ProcessImport {
 		this.config = config;
 		dao = new ProcessDao(db);
 		prices = new PriceMapper(db);
+		dqSystem = DQSystems.ecoinvent(db);
 	}
 
 	public void importDataSet(DataSet dataSet) {
@@ -124,10 +124,7 @@ class ProcessImport {
 			log.warn("could not set a quantitative reference for process {}",
 					refId);
 		createElementaryExchanges(dataSet, process);
-		if (pedigreeSystem != null) {
-			pedigreeSystem = new DQSystemDao(db).insert(pedigreeSystem);
-			process.exchangeDqSystem = pedigreeSystem;
-		}
+		process.exchangeDqSystem = dqSystem;
 		new DocImportMapper(db).map(dataSet, process);
 		db.createDao(Process.class).insert(process);
 		index.putProcessId(refId, process.getId());
@@ -263,10 +260,7 @@ class ProcessImport {
 		PedigreeMatrix pm = es2.uncertainty.pedigreeMatrix;
 		if (pm == null)
 			return null;
-		if (pedigreeSystem == null) {
-			pedigreeSystem = Pedigree.get();
-		}
-		return pedigreeSystem.toString(pm.reliability, pm.completeness, pm.temporalCorrelation,
+		return dqSystem.toString(pm.reliability, pm.completeness, pm.temporalCorrelation,
 				pm.geographicalCorrelation, pm.technologyCorrelation);
 	}
 

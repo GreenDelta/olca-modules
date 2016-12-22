@@ -16,7 +16,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.jsonld.input.Exchanges.ExchangeWithId;
-import org.openlca.util.Pedigree;
+import org.openlca.util.DQSystems;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -81,7 +81,7 @@ class ProcessImport extends BaseImport<Process> {
 		for (Exchange e : p.getExchanges()) {
 			if (e.getDqEntry() == null)
 				continue;
-			p.exchangeDqSystem = new DQSystemDao(conf.db.getDatabase()).insert(Pedigree.get());
+			p.exchangeDqSystem = new DQSystemDao(conf.db.getDatabase()).insert(DQSystems.ecoinvent());
 			return;
 		}
 
