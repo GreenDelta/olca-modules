@@ -36,8 +36,8 @@ class ProcessExchanges {
 	}
 
 	void map(ProcessBag ilcdProcess, Process process) {
-		for (org.openlca.ilcd.processes.Exchange iExchange : ilcdProcess
-				.getExchanges()) {
+		mappedPairs.clear();
+		for (org.openlca.ilcd.processes.Exchange iExchange : ilcdProcess.getExchanges()) {
 			ExchangeFlow exchangeFlow = new ExchangeFlow(iExchange);
 			exchangeFlow.findOrImport(config);
 			Exchange exchange = createExchange(iExchange, exchangeFlow);
