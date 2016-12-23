@@ -15,14 +15,15 @@ import org.junit.Test;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
+import org.openlca.ilcd.io.SodaConnection;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 
 public class NetworkGetTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {
@@ -35,7 +36,7 @@ public class NetworkGetTest {
 	@Test
 	public void testCreateWithPassword() throws Exception {
 		Assume.assumeTrue(Network.isAppAlive());
-		NetworkClient client = Network.createClient();
+		SodaClient client = Network.createClient();
 		assertNotNull(client);
 	}
 
@@ -43,8 +44,11 @@ public class NetworkGetTest {
 	@Test(expected = Exception.class)
 	public void testCreateWithWrongPassword() throws IOException {
 		Assume.assumeTrue(Network.isAppAlive());
-		NetworkClient client = new NetworkClient(Network.RESOURCE_URL, "user",
-				"invalid");
+		SodaConnection con = new SodaConnection();
+		con.url = Network.RESOURCE_URL;
+		con.user = "user";
+		con.password = "invalid";
+		SodaClient client = new SodaClient(con);
 		client.close();
 	}
 

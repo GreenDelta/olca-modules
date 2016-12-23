@@ -5,15 +5,15 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
 import org.openlca.ilcd.flowproperties.QuantitativeReference;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.util.Reference;
+import org.openlca.ilcd.util.Refs;
 
 public class FlowPropertyExport {
 
@@ -41,7 +41,7 @@ public class FlowPropertyExport {
 		info.dataSetInfo = makeDataSetInfo();
 		info.quantitativeReference = makeUnitGroupRef();
 		iProperty.adminInfo = makeAdminInfo();
-		config.store.put(iProperty, property.getRefId());
+		config.store.put(iProperty);
 		this.flowProperty = null;
 		return iProperty;
 	}
@@ -77,7 +77,7 @@ public class FlowPropertyExport {
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(flowProperty);
-		entry.formats.add(Reference.forIlcdFormat());
+		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;
 	}

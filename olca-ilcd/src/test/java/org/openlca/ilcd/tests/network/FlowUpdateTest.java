@@ -16,11 +16,11 @@ import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.Modelling;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 
 public class FlowUpdateTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {
@@ -34,10 +34,10 @@ public class FlowUpdateTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		Flow flow = makeFlow(id);
-		client.put(flow, id);
+		client.put(flow);
 		Assert.assertTrue(client.contains(Flow.class, id));
 		flow.adminInfo.publication.version = "02.00.000";
-		client.put(flow, id);
+		client.put(flow);
 		flow = client.get(Flow.class, id);
 		Assert.assertEquals("02.00.000", flow.adminInfo.publication.version);
 	}

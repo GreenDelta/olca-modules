@@ -17,17 +17,21 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.ecospold2.Activity;
-import org.openlca.ecospold2.ActivityName;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.EcoSpold2;
-import org.openlca.ecospold2.ElementaryExchange;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.UserMasterData;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spold2.Activity;
+import spold2.ActivityDescription;
+import spold2.ActivityName;
+import spold2.DataSet;
+import spold2.EcoSpold2;
+import spold2.ElementaryExchange;
+import spold2.FlowData;
+import spold2.IntermediateExchange;
+import spold2.RichText;
+import spold2.UserMasterData;
 
 /**
  * Exports a set of processes to the EcoSpold 2 data format to a directory. The
@@ -87,8 +91,9 @@ public class EcoSpold2Export implements Runnable {
 	private void exportProcess(File activityDir, Process process)
 			throws Exception {
 		DataSet dataSet = new DataSet();
+		dataSet.description = new ActivityDescription();
 		UserMasterData masterData = new UserMasterData();
-		dataSet.setMasterData(masterData);
+		dataSet.masterData = masterData;
 		mapActivity(process, dataSet);
 		locationMap.apply(process, dataSet);
 		ProcessDoc.map(process, dataSet);
@@ -98,40 +103,42 @@ public class EcoSpold2Export implements Runnable {
 		String fileName = process.getRefId() == null ? UUID.randomUUID()
 				.toString() : process.getRefId();
 		File file = new File(activityDir, fileName + ".spold");
-		EcoSpold2.writeDataSet(dataSet, file);
+		EcoSpold2.write(dataSet, file);
 	}
 
 	private void mapActivity(Process process, DataSet dataSet) {
 		Activity activity = new Activity();
-		dataSet.setActivity(activity);
+		dataSet.description.activity = activity;
 		ActivityName activityName = new ActivityName();
-		dataSet.getMasterData().getActivityNames().add(activityName);
+		dataSet.masterData.activityNames.add(activityName);
 		String nameId = UUID.randomUUID().toString();
-		activity.setActivityNameId(nameId);
-		activityName.setId(dataSet.getActivity().getActivityNameId());
+		activity.activityNameId = nameId;
+		activityName.id = nameId;
 		String name = Strings.cut(process.getName(), 120);
-		activity.setName(name);
-		activityName.setName(name);
-		activity.setId(process.getRefId());
+		activity.name = name;
+		activityName.name = name;
+		activity.id = process.getRefId();
 		int type = process.getProcessType() == ProcessType.LCI_RESULT ? 2 : 1;
-		activity.setType(type);
-		activity.setSpecialActivityType(0); // default
-		activity.setGeneralComment(process.getDescription());
+		activity.type = type;
+		activity.specialActivityType = 0; // default
+		activity.generalComment = RichText.of(process.getDescription());
 	}
 
-	private void mapExchanges(Process process, DataSet dataSet) {
+	private void mapExchanges(Process process, DataSet ds) {
+		if (ds.flowData == null)
+			ds.flowData = new FlowData();
 		for (Exchange exchange : process.getExchanges()) {
 			if (!isValid(exchange))
 				continue;
 			Flow flow = exchange.getFlow();
-			UserMasterData masterData = dataSet.getMasterData();
+			UserMasterData masterData = ds.masterData;
 			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
 				ElementaryExchange e = createElemExchange(exchange, masterData);
-				dataSet.getElementaryExchanges().add(e);
+				ds.flowData.elementaryExchanges.add(e);
 			} else {
 				IntermediateExchange e = createIntermediateExchange(exchange,
 						process, masterData);
-				dataSet.getIntermediateExchanges().add(e);
+				ds.flowData.intermediateExchanges.add(e);
 			}
 		}
 	}
@@ -153,7 +160,7 @@ public class EcoSpold2Export implements Runnable {
 		else
 			e2Ex.outputGroup = 4;
 		Flow flow = exchange.getFlow();
-		e2Ex.elementaryExchangeId = flow.getRefId();
+		e2Ex.flowId = flow.getRefId();
 		e2Ex.formula = flow.getFormula();
 		mapExchangeData(exchange, e2Ex);
 		compartmentMap.apply(flow.getCategory(), e2Ex);
@@ -175,7 +182,7 @@ public class EcoSpold2Export implements Runnable {
 			else
 				e2Ex.outputGroup = 2;
 		}
-		e2Ex.intermediateExchangeId = exchange.getFlow().getRefId();
+		e2Ex.flowId = exchange.getFlow().getRefId();
 		ProcessDescriptor provider = getDefaultProvider(exchange);
 		if (provider != null)
 			e2Ex.activityLinkId = provider.getRefId();
@@ -193,7 +200,7 @@ public class EcoSpold2Export implements Runnable {
 	}
 
 	private void mapExchangeData(Exchange exchange,
-			org.openlca.ecospold2.Exchange e2Exchange) {
+			spold2.Exchange e2Exchange) {
 		e2Exchange.name = Strings.cut(exchange.getFlow().getName(), 120);
 		e2Exchange.id = new UUID(exchange.getId(), 0L).toString();
 		e2Exchange.amount = exchange.getAmountValue();
@@ -201,27 +208,29 @@ public class EcoSpold2Export implements Runnable {
 		e2Exchange.comment = exchange.description;
 		e2Exchange.casNumber = exchange.getFlow().getCasNumber();
 		e2Exchange.uncertainty = UncertaintyConverter.fromOpenLCA(exchange
-		.getUncertainty());
+				.getUncertainty());
 	}
 
-	private void mapParameters(Process process, DataSet dataSet) {
+	private void mapParameters(Process process, DataSet ds) {
+		if (ds.flowData == null)
+			ds.flowData = new FlowData();
 		List<Parameter> parameters = new ArrayList<>();
 		parameters.addAll(process.getParameters());
 		ParameterDao dao = new ParameterDao(database);
 		parameters.addAll(dao.getGlobalParameters());
 		for (Parameter param : parameters) {
-			org.openlca.ecospold2.Parameter e2Param = new org.openlca.ecospold2.Parameter();
-			e2Param.setName(param.getName());
-			e2Param.setId(new UUID(param.getId(), 0L).toString());
-			e2Param.setAmount(param.getValue());
-			e2Param.setVariableName(param.getName());
-			e2Param.setMathematicalRelation(param.getFormula());
-			e2Param.setIsCalculatedAmount(!param.isInputParameter());
+			spold2.Parameter e2Param = new spold2.Parameter();
+			e2Param.name = param.getName();
+			e2Param.id = new UUID(param.getId(), 0L).toString();
+			e2Param.amount = param.getValue();
+			e2Param.variableName = param.getName();
+			e2Param.mathematicalRelation = param.getFormula();
+			e2Param.isCalculatedAmount = !param.isInputParameter();
 			if (param.getScope() != null)
-				e2Param.setScope(param.getScope().name());
-			e2Param.setUncertainty(UncertaintyConverter.fromOpenLCA(param
-					.getUncertainty()));
-			dataSet.getParameters().add(e2Param);
+				e2Param.scope = param.getScope().name();
+			e2Param.uncertainty = UncertaintyConverter.fromOpenLCA(param
+					.getUncertainty());
+			ds.flowData.parameters.add(e2Param);
 		}
 	}
 

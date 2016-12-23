@@ -42,6 +42,7 @@ public class DataSetInfo implements Serializable {
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public final List<LangString> synonyms = new ArrayList<>();
 
+	@XmlElement(name = "classificationInformation")
 	public FlowCategoryInfo classificationInformation;
 
 	@XmlElement(name = "CASNumber")

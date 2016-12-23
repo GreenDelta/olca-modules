@@ -9,14 +9,14 @@ import org.junit.Test;
 import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 import org.openlca.ilcd.units.DataSetInfo;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
 
 public class NetworkPutUnitGroupTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {
@@ -29,12 +29,12 @@ public class NetworkPutUnitGroupTest {
 	public void testPutUnitGroup() throws Exception {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
-		UnitGroup unitgroup = new UnitGroup();
+		UnitGroup ug = new UnitGroup();
 		UnitGroupInfo info = new UnitGroupInfo();
-		unitgroup.unitGroupInfo = info;
+		ug.unitGroupInfo = info;
 		info.dataSetInfo = makeDataInfo(id);
-		unitgroup.adminInfo = makeAdminInfo();
-		client.put(unitgroup, id);
+		ug.adminInfo = makeAdminInfo();
+		client.put(ug);
 	}
 
 	private DataSetInfo makeDataInfo(String id) {

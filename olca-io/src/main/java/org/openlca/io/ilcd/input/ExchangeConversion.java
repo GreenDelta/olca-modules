@@ -38,9 +38,9 @@ class ExchangeConversion {
 
 	private Exchange initExchange() {
 		Exchange e = new Exchange();
-		boolean input = ilcdExchange.exchangeDirection == ExchangeDirection.INPUT;
+		boolean input = ilcdExchange.direction == ExchangeDirection.INPUT;
 		e.setInput(input);
-		e.description = LangString.getFirst(ilcdExchange.generalComment,
+		e.description = LangString.getFirst(ilcdExchange.comment,
 				config.langs);
 		if (extension != null) {
 			e.setDqEntry(extension.getPedigreeUncertainty());
@@ -55,7 +55,7 @@ class ExchangeConversion {
 	}
 
 	private boolean isParameterized() {
-		return ilcdExchange.parameterName != null
+		return ilcdExchange.variable != null
 				|| (extension != null && extension.getFormula() != null);
 	}
 
@@ -66,7 +66,7 @@ class ExchangeConversion {
 		else {
 			double meanAmount = ilcdExchange.meanAmount;
 			String meanAmountStr = Double.toString(meanAmount);
-			String parameter = ilcdExchange.parameterName;
+			String parameter = ilcdExchange.variable;
 			formula = meanAmount == 1.0 ? parameter : meanAmountStr + " * "
 					+ parameter + "";
 			olcaExchange.setAmountFormula(formula);

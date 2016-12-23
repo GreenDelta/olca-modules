@@ -3,22 +3,17 @@ package org.openlca.io.refdata;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.UUID;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.XMLOutputter;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
@@ -26,6 +21,9 @@ import org.openlca.util.BinUtils;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.google.common.base.Strings;
 
@@ -38,17 +36,19 @@ public class GeoKmzImport {
 
 	private XMLStreamReader reader;
 	private Transformer transformer;
-	private SAXBuilder builder;
 
-	public GeoKmzImport(File file, IDatabase database) {
+	public GeoKmzImport(File file, IDatabase db) {
 		this.file = file;
-		dao = new LocationDao(database);
+		dao = new LocationDao(db);
 	}
 
 	public boolean run() {
 		boolean foundDataInFile = false;
-		try {
-			setUp();
+		try (FileInputStream is = new FileInputStream(file)) {
+			reader = XMLInputFactory.newFactory()
+					.createXMLStreamReader(is);
+			transformer = TransformerFactory.newInstance()
+					.newTransformer();
 			while (reader.hasNext()) {
 				reader.next();
 				if (isStart(reader, "geography")) {
@@ -61,15 +61,6 @@ public class GeoKmzImport {
 			log.error("failed to import KML data for geographies", e);
 			return false;
 		}
-	}
-
-	private void setUp() throws Exception {
-		XMLInputFactory inputFactory = XMLInputFactory.newFactory();
-		reader = inputFactory.createXMLStreamReader(new FileInputStream(file));
-		TransformerFactory transformerFactory = TransformerFactory
-				.newInstance();
-		transformer = transformerFactory.newTransformer();
-		builder = new SAXBuilder();
 	}
 
 	private boolean handleGeography() throws Exception {
@@ -164,27 +155,22 @@ public class GeoKmzImport {
 
 	private byte[] getKmz(XMLStreamReader reader) {
 		try {
-			StringWriter writer = new StringWriter();
-			transformer.transform(new StAXSource(reader), new StreamResult(
-					writer));
-			StringReader source = new StringReader(writer.toString());
-			Document doc = builder.build(source);
-			Namespace ns = Namespace
-					.getNamespace("http://earth.google.com/kml/2.1");
-			switchNamespace(doc.getRootElement(), ns);
+			DOMResult dom = new DOMResult();
+			transformer.transform(new StAXSource(reader), dom);
+			Document doc = (Document) dom.getNode();
+			NodeList list = doc.getElementsByTagName("*");
+			String ns = "http://earth.google.com/kml/2.1";
+			for (int i = 0; i < list.getLength(); i++) {
+				Node n = list.item(i);
+				doc.renameNode(n, ns, n.getLocalName());
+			}
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			new XMLOutputter().output(doc, bout);
-			return BinUtils.zip(bout.toByteArray());
+			transformer.transform(new DOMSource(doc), new StreamResult(bout));
+			byte[] bytes = bout.toByteArray();
+			return BinUtils.zip(bytes);
 		} catch (Exception e) {
 			log.error("failed to parse KML", e);
 			return null;
-		}
-	}
-
-	private void switchNamespace(Element element, Namespace namespace) {
-		element.setNamespace(namespace);
-		for (Element child : element.getChildren()) {
-			switchNamespace(child, namespace);
 		}
 	}
 

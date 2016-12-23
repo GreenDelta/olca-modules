@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.sources.Source;
 
 /** An in memory implementation of the data store interface. */
@@ -27,22 +28,22 @@ public class MemDataStore implements DataStore {
 	}
 
 	@Override
-	public void put(Object obj, String id) throws DataStoreException {
-		if (obj == null)
+	public void put(IDataSet ds) throws DataStoreException {
+		if (ds == null)
 			return;
-		Class<?> clazz = obj.getClass();
+		Class<?> clazz = ds.getClass();
 		HashMap<String, Object> map = content.get(clazz);
 		if (map == null) {
 			map = new HashMap<>();
 			content.put(clazz, map);
 		}
-		map.put(id, obj);
+		map.put(ds.getUUID(), ds);
 	}
 
 	@Override
-	public void put(Source source, String id, File file)
+	public void put(Source source, File file)
 			throws DataStoreException {
-		put(source, id);
+		put(source);
 		HashMap<String, Object> map = content.get(File.class);
 		if (map == null) {
 			map = new HashMap<>();

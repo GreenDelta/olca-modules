@@ -9,14 +9,14 @@ import org.junit.Test;
 import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInfo;
 
 public class NetworkPutSourceTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {
@@ -34,7 +34,7 @@ public class NetworkPutSourceTest {
 		source.sourceInfo = info;
 		info.dataSetInfo = makeDataInfo(id);
 		source.adminInfo = makeAdminInfo();
-		client.put(source, id);
+		client.put(source);
 	}
 
 	private DataSetInfo makeDataInfo(String id) {

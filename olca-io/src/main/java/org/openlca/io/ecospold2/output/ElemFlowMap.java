@@ -2,8 +2,6 @@ package org.openlca.io.ecospold2.output;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
-import org.openlca.ecospold2.Compartment;
-import org.openlca.ecospold2.ElementaryExchange;
 import org.openlca.io.maps.Maps;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -11,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+
+import spold2.Compartment;
+import spold2.ElementaryExchange;
 
 import java.util.HashMap;
 import java.util.List;
@@ -114,10 +115,10 @@ class ElemFlowMap {
 		else
 			exchange.outputGroup = 4;
 		exchange.id = new UUID(olca.getId(), 0L).toString();
-		exchange.elementaryExchangeId = record.id;
+		exchange.flowId = record.id;
 		exchange.name = Strings.cut(record.name, 120);
 		exchange.compartment = createCompartment(record);
-		exchange.unitName = record.unitName;
+		exchange.unit = record.unitName;
 		exchange.unitId = record.unitId;
 		exchange.amount = record.conversionFactor * olca.getAmountValue();
 		if (olca.getAmountFormula() != null) {
@@ -130,9 +131,9 @@ class ElemFlowMap {
 
 	private Compartment createCompartment(ExportRecord record) {
 		Compartment compartment = new Compartment();
-		compartment.setSubcompartmentId(record.subCompartmentId);
-		compartment.setCompartment(record.compartment);
-		compartment.setSubcompartment(record.subCompartment);
+		compartment.id = record.subCompartmentId;
+		compartment.compartment = record.compartment;
+		compartment.subCompartment = record.subCompartment;
 		return compartment;
 	}
 

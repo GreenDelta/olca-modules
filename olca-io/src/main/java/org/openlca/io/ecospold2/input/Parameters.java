@@ -5,12 +5,14 @@ import java.util.List;
 
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.Exchange;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.Property;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.Strings;
+
+import spold2.DataSet;
+import spold2.Exchange;
+import spold2.IntermediateExchange;
+import spold2.Property;
+import spold2.Spold2;
 
 final class Parameters {
 
@@ -21,28 +23,27 @@ final class Parameters {
 	 * Creates openLCA process parameters from the parameters and formulas in
 	 * the given data set.
 	 */
-	static List<Parameter> fetch(DataSet dataSet, ImportConfig config) {
+	static List<Parameter> fetch(DataSet ds, ImportConfig config) {
 		List<Parameter> params = new ArrayList<>();
-		fetchProcessParameters(dataSet, params, config);
-		fetchFromExchanges(dataSet.getElementaryExchanges(), params, config);
-		fetchFromExchanges(dataSet.getIntermediateExchanges(), params, config);
+		fetchProcessParameters(ds, params, config);
+		fetchFromExchanges(Spold2.getElemFlows(ds), params, config);
+		fetchFromExchanges(Spold2.getProducts(ds), params, config);
 		return params;
 	}
 
-	private static void fetchProcessParameters(DataSet dataSet,
+	private static void fetchProcessParameters(DataSet ds,
 			List<Parameter> parameters, ImportConfig config) {
-		for (org.openlca.ecospold2.Parameter param : dataSet.getParameters()) {
-			if (!canCreate(param.getVariableName(), parameters))
+		for (spold2.Parameter param : Spold2.getParameters(ds)) {
+			if (!canCreate(param.variableName, parameters))
 				continue;
 			Parameter olcaParam = new Parameter();
 			parameters.add(olcaParam);
-			olcaParam.setDescription(param.getUnitName());
-			olcaParam.setName(param.getVariableName());
+			olcaParam.setDescription(param.unitName);
+			olcaParam.setName(param.variableName);
 			setScope(param, olcaParam);
-			olcaParam.setValue(param.getAmount());
-			olcaParam.setUncertainty(UncertaintyConverter.toOpenLCA(param
-					.getUncertainty()));
-			String formula = param.getMathematicalRelation();
+			olcaParam.setValue(param.amount);
+			olcaParam.setUncertainty(UncertaintyConverter.toOpenLCA(param.uncertainty));
+			String formula = param.mathematicalRelation;
 			if (config.withParameterFormulas && isValid(formula, config)) {
 				olcaParam.setFormula(formula.trim());
 				olcaParam.setInputParameter(false);
@@ -52,9 +53,9 @@ final class Parameters {
 		}
 	}
 
-	private static void setScope(org.openlca.ecospold2.Parameter param,
+	private static void setScope(spold2.Parameter param,
 			Parameter olcaParam) {
-		String scope = param.getScope();
+		String scope = param.scope;
 		String global = ParameterScope.GLOBAL.name();
 		if (scope != null && global.equalsIgnoreCase(scope))
 			olcaParam.setScope(ParameterScope.GLOBAL);
@@ -81,7 +82,7 @@ final class Parameters {
 		olcaParam.setName(exchange.variableName);
 		olcaParam.setScope(ParameterScope.PROCESS);
 		olcaParam.setValue(exchange.amount);
-		olcaParam.setDescription(exchange.unitName);
+		olcaParam.setDescription(exchange.unit);
 		String formula = exchange.mathematicalRelation;
 		if (config.withParameterFormulas && isValid(formula, config)) {
 			olcaParam.setFormula(formula.trim());
@@ -114,14 +115,14 @@ final class Parameters {
 	private static void fetchFromProperties(List<Property> properties,
 			List<Parameter> parameters, ImportConfig config) {
 		for (Property property : properties) {
-			if (!canCreate(property.getVariableName(), parameters))
+			if (!canCreate(property.variableName, parameters))
 				continue;
 			Parameter olcaParam = new Parameter();
-			olcaParam.setName(property.getVariableName());
+			olcaParam.setName(property.variableName);
 			olcaParam.setScope(ParameterScope.PROCESS);
-			olcaParam.setValue(property.getAmount());
-			olcaParam.setDescription(property.getUnitName());
-			String formula = property.getMathematicalRelation();
+			olcaParam.setValue(property.amount);
+			olcaParam.setDescription(property.unit);
+			String formula = property.mathematicalRelation;
 			if (config.withParameterFormulas && isValid(formula, config)) {
 				olcaParam.setFormula(formula.trim());
 				olcaParam.setInputParameter(false);

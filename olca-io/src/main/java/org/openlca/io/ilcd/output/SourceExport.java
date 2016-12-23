@@ -15,7 +15,7 @@ import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInfo;
-import org.openlca.ilcd.util.Reference;
+import org.openlca.ilcd.util.Refs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +49,10 @@ public class SourceExport {
 		info.dataSetInfo = dataSetInfo;
 		File extFile = getExternalFile();
 		if (extFile == null)
-			config.store.put(iSource, source.getRefId());
+			config.store.put(iSource);
 		else {
 			addFileRef(dataSetInfo, extFile);
-			config.store.put(iSource, source.getRefId(), extFile);
+			config.store.put(iSource, extFile);
 		}
 		return iSource;
 	}
@@ -111,8 +111,7 @@ public class SourceExport {
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(source);
-		entry.formats.add(
-				Reference.forIlcdFormat());
+		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;
 	}

@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ecoSpold xmlns="http://www.EcoInvent.org/EcoSpold02">
+  <activityDataset>
+    <activityDescription>
+      <activity id="08a78e38-fdbe-4ea8-869f-7735b41ecf85" activityNameId="af3ff82e-b5fe-41d0-9937-5b9b83df34b3" inheritanceDepth="0" type="1" specialActivityType="0" energyValues="1">
+        <activityName xml:lang="en">Sample</activityName>
+        <synonym xml:lang="en">synonym 1</synonym>
+        <synonym xml:lang="en">synonym 2</synonym>
+        <includedActivitiesStart xml:lang="en">included activities start</includedActivitiesStart>
+        <includedActivitiesEnd xml:lang="en">included activities end</includedActivitiesEnd>
+        <allocationComment>
+          <text xml:lang="en" index="1">allocation comment</text>
+        </allocationComment>
+        <generalComment>
+          <text xml:lang="en" index="1">sample comment 1</text>
+          <text xml:lang="en" index="2">sample comment 2</text>
+        </generalComment>
+        <tag>tag1</tag>
+        <tag>tag2</tag>
+      </activity>
+      <classification classificationId="a2cfa5cb-7e0a-4b16-88d6-75bececda629">
+        <classificationSystem xml:lang="en">ISIC rev.4 ecoinvent</classificationSystem>
+        <classificationValue xml:lang="en">0112:Growing of rice</classificationValue>
+      </classification>
+      <classification classificationId="359b3be8-bc56-4abf-a04b-294115165214">
+        <classificationSystem xml:lang="en">EcoSpold01Categories</classificationSystem>
+        <classificationValue xml:lang="en">agricultural means of production/mineral fertiliser</classificationValue>
+      </classification>
+      <geography geographyId="1023d322-7d7e-11de-9ae2-0019e336be3a">
+        <shortname xml:lang="en">AX</shortname>
+        <comment>
+          <text xml:lang="en" index="1">geography comment</text>
+        </comment>
+      </geography>
+      <technology technologyLevel="3">
+        <comment>
+          <text xml:lang="en" index="1">technology comment</text>
+        </comment>
+      </technology>
+      <timePeriod startDate="2013-01-01" endDate="2014-12-31" isDataValidForEntirePeriod="true">
+        <comment>
+          <text xml:lang="en" index="1">time comment</text>
+        </comment>
+      </timePeriod>
+      <macroEconomicScenario macroEconomicScenarioId="d9f57f0a-a01f-42eb-a57b-8f18d6635801">
+        <name xml:lang="en">Business-as-Usual</name>
+        <comment xml:lang="en">eco. scen. comment</comment>
+      </macroEconomicScenario>
+    </activityDescription>
+    <flowData>
+      <intermediateExchange id="b2711dd3-2b58-4370-ab4a-808784c472a7" unitId="487df68b-4994-4027-8fdc-a4dc298257b7" variableName="p" casNumber="71-41-0" amount="33" isCalculatedAmount="true" mathematicalRelation="23 + SUM(8;2)" intermediateExchangeId="d3a29af5-314a-4659-a574-6bfd53a6bde0" activityLinkId="487444bd-76ac-4cbe-8d5f-6e2e43b21275">
+        <name xml:lang="en">1-pentanol</name>
+        <unitName xml:lang="en">kg</unitName>
+        <comment xml:lang="en">comment</comment>
+        <uncertainty>
+          <lognormal meanValue="33" mu="3.5" variance="2" varianceWithPedigreeUncertainty="2.21" />
+          <pedigreeMatrix reliability="5" completeness="5" temporalCorrelation="5" geographicalCorrelation="5" furtherTechnologyCorrelation="5" />
+          <comment xml:lang="en"></comment>
+        </uncertainty>
+        <property propertyId="c74c3729-e577-4081-b572-a283d2561a75" amount="0.681818181818182" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="6393c14b-db78-445d-a47b-c0cb866a1b25" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, non-fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="6d9e1462-80e3-4f10-b3f4-71febd6f1168" amount="0" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">water in wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="a9358458-9724-4f03-b622-106eda248916" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">water content</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="3a0af1d6-04c3-41c6-a3da-92c4f61e0eaa" amount="1" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">dry mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="67f102e2-9cb6-4d20-aa16-bf74d8a03326" amount="1" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <outputGroup>0</outputGroup></intermediateExchange>
+      <intermediateExchange id="2d9db7ac-e8f7-4e40-b317-afeba8848c9b" unitId="487df68b-4994-4027-8fdc-a4dc298257b7" casNumber="028729-52-4" amount="25" intermediateExchangeId="41bae23f-237d-4ba6-9b1d-73d5f4baee55">
+        <name xml:lang="en">1,1-dimethylcyclopentane</name>
+        <unitName xml:lang="en">kg</unitName>
+        <uncertainty>
+          <triangular minValue="2" mostLikelyValue="25" maxValue="5" />
+          <pedigreeMatrix reliability="5" completeness="5" temporalCorrelation="5" geographicalCorrelation="5" furtherTechnologyCorrelation="5" />
+          <comment xml:lang="en"></comment>
+        </uncertainty>
+        <property propertyId="6d9e1462-80e3-4f10-b3f4-71febd6f1168" amount="0" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">water in wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="6393c14b-db78-445d-a47b-c0cb866a1b25" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, non-fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="c74c3729-e577-4081-b572-a283d2561a75" amount="0.857142857142857" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="a9358458-9724-4f03-b622-106eda248916" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">water content</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="67f102e2-9cb6-4d20-aa16-bf74d8a03326" amount="1" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="3a0af1d6-04c3-41c6-a3da-92c4f61e0eaa" amount="1" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">dry mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <inputGroup>5</inputGroup></intermediateExchange>
+      <elementaryExchange id="c46dbac6-858a-456e-9640-74d0f2756921" unitId="481b9712-c417-44f1-bfba-38d58088173c" amount="22" elementaryExchangeId="9a9d71c7-79f7-42d0-af47-282d22a7cf07">
+        <name xml:lang="en">Volume occupied, reservoir</name>
+        <unitName xml:lang="en">m3*year</unitName>
+        <uncertainty>
+          <normal meanValue="22" variance="2" varianceWithPedigreeUncertainty="2" />
+          <pedigreeMatrix reliability="5" completeness="5" temporalCorrelation="5" geographicalCorrelation="5" furtherTechnologyCorrelation="5" />
+          <comment xml:lang="en"></comment>
+        </uncertainty>
+        <property propertyId="6393c14b-db78-445d-a47b-c0cb866a1b25" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, non-fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="c74c3729-e577-4081-b572-a283d2561a75" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="a9358458-9724-4f03-b622-106eda248916" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">water content</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="6d9e1462-80e3-4f10-b3f4-71febd6f1168" amount="0" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">water in wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="3a0af1d6-04c3-41c6-a3da-92c4f61e0eaa" amount="0" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">dry mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="67f102e2-9cb6-4d20-aa16-bf74d8a03326" amount="0" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <compartment subcompartmentId="30347aef-a90b-46ba-8746-b53741aa779d">
+          <compartment xml:lang="en">natural resource</compartment>
+          <subcompartment xml:lang="en">in water</subcompartment>
+        </compartment>
+        <inputGroup>4</inputGroup></elementaryExchange>
+      <elementaryExchange id="4434e413-e45c-44ab-bef3-be5b1e1cfcde" unitId="487df68b-4994-4027-8fdc-a4dc298257b7" casNumber="016887-00-6" amount="3" elementaryExchangeId="b1991748-2151-4b51-8cdb-a8b4203677dc">
+        <name xml:lang="en">Chloride</name>
+        <unitName xml:lang="en">kg</unitName>
+        <uncertainty>
+          <uniform minValue="1" maxValue="5" />
+          <pedigreeMatrix reliability="5" completeness="5" temporalCorrelation="5" geographicalCorrelation="5" furtherTechnologyCorrelation="5" />
+          <comment xml:lang="en"></comment>
+        </uncertainty>
+        <property propertyId="6d9e1462-80e3-4f10-b3f4-71febd6f1168" amount="0" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">water in wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="6393c14b-db78-445d-a47b-c0cb866a1b25" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, non-fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="a9358458-9724-4f03-b622-106eda248916" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">water content</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="c74c3729-e577-4081-b572-a283d2561a75" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="3a0af1d6-04c3-41c6-a3da-92c4f61e0eaa" amount="1" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">dry mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="67f102e2-9cb6-4d20-aa16-bf74d8a03326" amount="1" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <compartment subcompartmentId="912f1ae3-734e-4cc6-bbf7-0f36843cd7de">
+          <compartment xml:lang="en">soil</compartment>
+          <subcompartment xml:lang="en">industrial</subcompartment>
+        </compartment>
+        <outputGroup>4</outputGroup></elementaryExchange>
+      <elementaryExchange id="dea9bf25-951f-46d9-97ee-3d7bdfe0f697" unitId="487df68b-4994-4027-8fdc-a4dc298257b7" amount="2" elementaryExchangeId="c5035ce2-5ee5-431f-a287-4b25da42be74">
+        <name xml:lang="en">Peat, in ground</name>
+        <unitName xml:lang="en">kg</unitName>
+        <uncertainty>
+          <undefined minValue="2" maxValue="2" standardDeviation95="2" />
+          <pedigreeMatrix reliability="1" completeness="2" temporalCorrelation="3" geographicalCorrelation="4" furtherTechnologyCorrelation="5" />
+          <comment xml:lang="en"></comment>
+        </uncertainty>
+        <property propertyId="6393c14b-db78-445d-a47b-c0cb866a1b25" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, non-fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="6d9e1462-80e3-4f10-b3f4-71febd6f1168" amount="0" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">water in wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="c74c3729-e577-4081-b572-a283d2561a75" amount="0.59" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">carbon content, fossil</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="a9358458-9724-4f03-b622-106eda248916" amount="0" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+          <name xml:lang="en">water content</name>
+          <unitName xml:lang="en">dimensionless</unitName></property>
+        <property propertyId="3a0af1d6-04c3-41c6-a3da-92c4f61e0eaa" amount="1" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">dry mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <property propertyId="67f102e2-9cb6-4d20-aa16-bf74d8a03326" amount="1" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+          <name xml:lang="en">wet mass</name>
+          <unitName xml:lang="en">kg</unitName></property>
+        <compartment subcompartmentId="2d0acbd3-2083-4011-9a29-20c626b23dc3">
+          <compartment xml:lang="en">natural resource</compartment>
+          <subcompartment xml:lang="en">biotic</subcompartment>
+        </compartment>
+        <inputGroup>4</inputGroup></elementaryExchange>
+      <parameter parameterId="2061882d-efb6-4725-a206-28252bb9911a" variableName="vehicle_life" amount="23">
+        <name xml:lang="en">vehicle life</name>
+        <unitName xml:lang="en">km</unitName></parameter>
+      <parameter parameterId="d18721d5-c187-4c7d-be7a-b1c60e0b98d3" variableName="allard_mine_area_yearly_growth" amount="1">
+        <name xml:lang="en">allard_mine_area_yearly_growth</name>
+        <unitName xml:lang="en">m2/year</unitName></parameter>
+    </flowData>
+    <modellingAndValidation>
+      <representativeness percent="23" systemModelId="8b738ea0-f89e-4627-8679-433616064e82">
+        <systemModelName xml:lang="en">Undefined</systemModelName>
+        <samplingProcedure xml:lang="en">sampling procedure</samplingProcedure>
+        <extrapolations xml:lang="en">extrapolations</extrapolations>
+      </representativeness>
+    </modellingAndValidation>
+    <administrativeInformation>
+      <dataEntryBy personId="788d0176-a69c-4de0-a5d3-259866b6b100" isActiveAuthor="false" personName="[Current User]" personEmail="no@email.com" />
+      <dataGeneratorAndPublication personId="e7eaa5da-0428-4d05-879a-e3fc3966d789" personName="Albert Zimmermann" personEmail="art@ecoinvent.org" publishedSourceId="478aa8b3-4c08-4f16-b2f5-25ab14dfd8d5" publishedSourceYear="1960 " publishedSourceFirstAuthor="Gernes D.C." isCopyrightProtected="true" pageNumbers="23" accessRestrictedTo="1" companyId="cf735038-eb44-4c9c-bd65-3f66a4487641" companyCode="AARHUSU" />
+      <fileAttributes majorRelease="3" minorRelease="0" majorRevision="0" minorRevision="8" internalSchemaVersion="2.0.8" defaultLanguage="en" creationTimestamp="2013-05-03T12:46:27" lastEditTimestamp="2013-05-03T13:54:01" fileGenerator="EcoEditor 3.2.63.9512" fileTimestamp="2013-05-03T13:54:01" contextId="de659012-50c4-4e96-b54a-fc781bf987ab">
+        <contextName xml:lang="en">ecoinvent</contextName>
+      </fileAttributes>
+    </administrativeInformation></activityDataset>
+<usedUserMasterData xmlns="http://www.EcoInvent.org/UsedUserMasterData">
+  <activityName id="af3ff82e-b5fe-41d0-9937-5b9b83df34b3">
+    <name xml:lang="en">Sample</name>
+  </activityName>
+  <activityIndexEntry id="08a78e38-fdbe-4ea8-869f-7735b41ecf85" activityNameId="af3ff82e-b5fe-41d0-9937-5b9b83df34b3" geographyId="1023d322-7d7e-11de-9ae2-0019e336be3a" startDate="2013-01-01" endDate="2014-12-31" specialActivityType="0" systemModelId="8b738ea0-f89e-4627-8679-433616064e82" />
+</usedUserMasterData></ecoSpold>

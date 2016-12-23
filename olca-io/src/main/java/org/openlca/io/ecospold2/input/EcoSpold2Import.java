@@ -3,13 +3,14 @@ package org.openlca.io.ecospold2.input;
 import java.io.File;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.ecospold2.DataSet;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
+
+import spold2.DataSet;
 
 /**
  * The import of data sets in the EcoSpold v2 format. The import expects a set
@@ -96,8 +97,10 @@ public class EcoSpold2Import implements FileImport {
 	}
 
 	private void fireEvent(DataSet dataSet) {
-		if (eventBus == null || dataSet.getActivity() == null)
+		if (eventBus == null
+				|| dataSet.description == null
+				|| dataSet.description.activity == null)
 			return;
-		eventBus.post(new ImportEvent(dataSet.getActivity().getName()));
+		eventBus.post(new ImportEvent(dataSet.description.activity.name));
 	}
 }

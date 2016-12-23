@@ -12,13 +12,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.SampleSource;
 import org.openlca.ilcd.io.DataStoreException;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
 
 public class SourceWithFileTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {
@@ -32,7 +32,7 @@ public class SourceWithFileTest {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
 		Source source = makeSource(id);
-		client.put(source, id);
+		client.put(source);
 		Source fromServer = client.get(Source.class, id);
 		Assert.assertEquals(id, fromServer.sourceInfo.dataSetInfo.uuid);
 	}
@@ -47,7 +47,7 @@ public class SourceWithFileTest {
 		Files.write(tempFile, content);
 		File file = tempFile.toFile();
 		addFileLink(source, file);
-		client.put(source, id, file);
+		client.put(source, file);
 		InputStream is = client.getExternalDocument(id, file.getName());
 		byte[] contentFromServer = new byte[content.length];
 		is.read(contentFromServer);

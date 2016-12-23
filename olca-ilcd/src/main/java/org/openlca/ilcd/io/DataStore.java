@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Iterator;
 
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.sources.Source;
 
 public interface DataStore extends Closeable {
@@ -14,9 +15,9 @@ public interface DataStore extends Closeable {
 	InputStream getExternalDocument(String sourceId, String fileName)
 			throws DataStoreException;
 
-	void put(Object obj, String id) throws DataStoreException;
+	void put(IDataSet ds) throws DataStoreException;
 
-	void put(Source source, String id, File file) throws DataStoreException;
+	void put(Source source, File file) throws DataStoreException;
 
 	<T> boolean delete(Class<T> type, String id) throws DataStoreException;
 

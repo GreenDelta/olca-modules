@@ -129,13 +129,11 @@ class ProcessExchanges {
 
 	private void mapAllocation(Process process) {
 		for (MappedPair p : mappedPairs) {
-			if (p.iExchange.allocation == null)
-				continue;
-			for (AllocationFactor iFactor : p.iExchange.allocation.factors) {
-				Long productId = findMappedFlowId(iFactor.referenceToCoProduct);
+			for (AllocationFactor iFactor : p.iExchange.allocations) {
+				Long productId = findMappedFlowId(iFactor.productExchangeId);
 				if (productId == null)
 					continue;
-				createAllocationFactor(p, productId, iFactor.allocatedFraction,
+				createAllocationFactor(p, productId, iFactor.fraction,
 						process);
 			}
 		}

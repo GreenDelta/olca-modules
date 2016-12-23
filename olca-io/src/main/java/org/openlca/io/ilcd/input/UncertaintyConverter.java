@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.math.BigDecimal;
-
 import org.openlca.core.model.Uncertainty;
 import org.openlca.ilcd.commons.UncertaintyDistribution;
 import org.openlca.ilcd.processes.Exchange;
@@ -62,11 +60,10 @@ class UncertaintyConverter {
 	private void mapLogNormal(Exchange iExchange,
 			org.openlca.core.model.Exchange oExchange) {
 		double mean = getAmount(iExchange);
-		BigDecimal bigDec = iExchange.relativeStandardDeviation95In;
-		if (bigDec == null)
+		Double sd = iExchange.relativeStandardDeviation95In;
+		if (sd == null)
 			return;
-		double s = bigDec.doubleValue();
-		oExchange.setUncertainty(Uncertainty.logNormal(mean, s));
+		oExchange.setUncertainty(Uncertainty.logNormal(mean, sd));
 	}
 
 	private void mapLogNormal(Parameter iParameter,
@@ -81,11 +78,10 @@ class UncertaintyConverter {
 	private void mapNormal(Exchange iExchange,
 			org.openlca.core.model.Exchange oExchange) {
 		double mean = getAmount(iExchange);
-		BigDecimal bigDec = iExchange.relativeStandardDeviation95In;
-		if (bigDec == null)
+		Double sd = iExchange.relativeStandardDeviation95In;
+		if (sd == null)
 			return;
-		double s = bigDec.doubleValue();
-		oExchange.setUncertainty(Uncertainty.normal(mean, s));
+		oExchange.setUncertainty(Uncertainty.normal(mean, sd));
 	}
 
 	private void mapNormal(Parameter iParameter,

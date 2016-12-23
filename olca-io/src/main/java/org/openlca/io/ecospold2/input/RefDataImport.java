@@ -17,13 +17,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
-import org.openlca.ecospold2.Classification;
-import org.openlca.ecospold2.Compartment;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.ElementaryExchange;
-import org.openlca.ecospold2.Exchange;
-import org.openlca.ecospold2.Geography;
-import org.openlca.ecospold2.IntermediateExchange;
 import org.openlca.io.Categories;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
@@ -31,6 +24,15 @@ import org.openlca.io.maps.MapType;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spold2.Classification;
+import spold2.Compartment;
+import spold2.DataSet;
+import spold2.ElementaryExchange;
+import spold2.Exchange;
+import spold2.Geography;
+import spold2.IntermediateExchange;
+import spold2.Spold2;
 
 /**
  * Imports the reference data from a set of EcoSpold 02 files. During the import
@@ -89,18 +91,18 @@ class RefDataImport {
 		}
 	}
 
-	public void importDataSet(DataSet dataSet) {
-		if (dataSet == null)
+	public void importDataSet(DataSet ds) {
+		if (ds == null)
 			return;
 		try {
-			classification(dataSet);
-			geography(dataSet);
-			for (IntermediateExchange e : dataSet.getIntermediateExchanges()) {
+			classification(ds);
+			geography(ds);
+			for (IntermediateExchange e : Spold2.getProducts(ds)) {
 				if (e.amount == 0 && config.skipNullExchanges)
 					continue;
-				productFlow(dataSet, e);
+				productFlow(ds, e);
 			}
-			for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+			for (ElementaryExchange e : Spold2.getElemFlows(ds)) {
 				elementaryFlow(e);
 			}
 		} catch (Exception e) {
@@ -110,49 +112,49 @@ class RefDataImport {
 
 	private void classification(DataSet dataSet) {
 		Classification classification = findClassification(dataSet);
-		if (classification == null || classification.getClassificationId() == null)
+		if (classification == null || classification.id == null)
 			return;
-		String refId = classification.getClassificationId();
+		String refId = classification.id;
 		Category category = index.getProcessCategory(refId);
 		if (category != null)
 			return;
 		category = categoryDao.getForRefId(refId);
 		if (category == null) {
 			category = new Category();
-			category.setDescription(classification.getClassificationSystem());
+			category.setDescription(classification.system);
 			category.setModelType(ModelType.PROCESS);
-			category.setName(classification.getClassificationValue());
+			category.setName(classification.value);
 			category.setRefId(refId);
 			category = categoryDao.insert(category);
 		}
 		index.putProcessCategory(refId, category);
 	}
 
-	private Classification findClassification(DataSet dataSet) {
-		for (Classification classification : dataSet.getClassifications()) {
-			if (classification.getClassificationSystem() == null)
+	private Classification findClassification(DataSet ds) {
+		for (Classification c : Spold2.getClassifications(ds)) {
+			if (c.system == null)
 				continue;
-			if (classification.getClassificationSystem().startsWith("ISIC"))
-				return classification;
+			if (c.system.startsWith("ISIC"))
+				return c;
 		}
 		return null;
 	}
 
-	private void geography(DataSet dataSet) {
-		Geography geography = dataSet.getGeography();
-		if (geography == null || geography.getId() == null
-				|| geography.getShortName() == null)
+	private void geography(DataSet ds) {
+		Geography geography = Spold2.getGeography(ds);
+		if (geography == null || geography.id == null
+				|| geography.shortName == null)
 			return;
-		String refId = geography.getId();
+		String refId = geography.id;
 		Location location = index.getLocation(refId);
 		if (location != null)
 			return;
-		String genKey = KeyGen.get(geography.getShortName());
+		String genKey = KeyGen.get(geography.shortName);
 		location = locationDao.getForRefId(genKey);
 		if (location == null) {
 			location = new Location();
-			location.setCode(geography.getShortName());
-			location.setName(geography.getShortName());
+			location.setCode(geography.shortName);
+			location.setName(geography.shortName);
 			location.setDescription("imported via EcoSpold 02 import");
 			location.setRefId(genKey);
 			location = locationDao.insert(location);
@@ -161,26 +163,26 @@ class RefDataImport {
 	}
 
 	private void compartment(Compartment compartment) {
-		if (compartment == null || compartment.getSubcompartmentId() == null
-				|| compartment.getSubcompartment() == null
-				|| compartment.getCompartment() == null)
+		if (compartment == null || compartment.id == null
+				|| compartment.subCompartment == null
+				|| compartment.compartment == null)
 			return;
-		String refId = compartment.getSubcompartmentId();
+		String refId = compartment.id;
 		Category category = index.getCompartment(refId);
 		if (category != null)
 			return;
 		category = categoryDao.getForRefId(refId);
 		if (category == null) {
 			Category parent = Categories.findOrCreateRoot(database,
-					ModelType.FLOW, compartment.getCompartment());
+					ModelType.FLOW, compartment.compartment);
 			category = Categories.findOrAddChild(database, parent,
-					compartment.getSubcompartment());
+					compartment.subCompartment);
 		}
 		index.putCompartment(refId, category);
 	}
 
 	private void productFlow(DataSet dataSet, IntermediateExchange exchange) {
-		String refId = exchange.intermediateExchangeId;
+		String refId = exchange.flowId;
 		Flow flow = index.getFlow(refId);
 		if (flow == null) {
 			flow = flowDao.getForRefId(refId);
@@ -205,7 +207,7 @@ class RefDataImport {
 		flow = new Flow();
 		flow.setRefId(refId);
 		flow.setDescription("EcoSpold 2 intermediate exchange, ID = "
-				+ exchange.intermediateExchangeId);
+				+ exchange.flowId);
 		// in ecoinvent 3 negative values indicate waste flows
 		// see also the exchange handling in the process input
 		// to be on the save side, we declare all intermediate flows as
@@ -218,7 +220,7 @@ class RefDataImport {
 	}
 
 	private void elementaryFlow(ElementaryExchange exchange) {
-		String refId = exchange.elementaryExchangeId;
+		String refId = exchange.flowId;
 		Flow flow = index.getFlow(refId);
 		if (flow != null)
 			return;
@@ -230,14 +232,13 @@ class RefDataImport {
 		Category category = null;
 		if (exchange.compartment != null) {
 			compartment(exchange.compartment);
-			category = index.getCompartment(exchange.compartment
-					.getSubcompartmentId());
+			category = index.getCompartment(exchange.compartment.id);
 		}
 		flow = new Flow();
 		flow.setRefId(refId);
 		flow.setCategory(category);
 		flow.setDescription("EcoSpold 2 elementary exchange, ID = "
-				+ exchange.elementaryExchangeId);
+				+ exchange.flowId);
 		flow.setFlowType(FlowType.ELEMENTARY_FLOW);
 		createFlow(exchange, flow);
 	}
@@ -247,7 +248,7 @@ class RefDataImport {
 	 * mapped flow.
 	 */
 	private Flow loadElemDBFlow(ElementaryExchange exchange) {
-		String extId = exchange.elementaryExchangeId;
+		String extId = exchange.flowId;
 		Flow flow = flowDao.getForRefId(extId);
 		if (flow != null)
 			return flow;
@@ -290,10 +291,10 @@ class RefDataImport {
 		if (og == null || og != 0)
 			return null;
 		Classification clazz = findClassification(dataSet);
-		if (clazz == null || clazz.getClassificationValue() == null)
+		if (clazz == null || clazz.value == null)
 			return null;
 		Category cat = Categories.findOrCreateRoot(database, ModelType.FLOW,
-				clazz.getClassificationValue());
+				clazz.value);
 		return cat;
 	}
 }

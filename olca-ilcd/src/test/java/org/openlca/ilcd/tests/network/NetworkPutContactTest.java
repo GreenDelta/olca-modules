@@ -12,11 +12,11 @@ import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.contacts.ContactInfo;
 import org.openlca.ilcd.contacts.DataSetInfo;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 
 public class NetworkPutContactTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {
@@ -34,7 +34,7 @@ public class NetworkPutContactTest {
 		contact.contactInfo = info;
 		info.dataSetInfo = makeDataInfo(id);
 		contact.adminInfo = makeAdminInfo();
-		client.put(contact, id);
+		client.put(contact);
 	}
 
 	private DataSetInfo makeDataInfo(String id) {

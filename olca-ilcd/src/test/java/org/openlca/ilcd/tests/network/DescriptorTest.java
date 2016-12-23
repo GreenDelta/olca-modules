@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.descriptors.DescriptorList;
 import org.openlca.ilcd.descriptors.UnitGroupDescriptor;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 import org.openlca.ilcd.io.XmlBinder;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.UnitGroupBag;
@@ -28,14 +28,14 @@ public class DescriptorTest {
 	public void setUp() throws Exception {
 		if (!Network.isAppAlive())
 			return;
-		NetworkClient client = Network.createClient();
+		SodaClient client = Network.createClient();
 		XmlBinder binder = new XmlBinder();
 		UnitGroup group = binder.fromStream(UnitGroup.class, getClass()
 				.getResourceAsStream("unit.xml"));
 		UnitGroupBag bag = new UnitGroupBag(group, "en");
 		if (client.contains(UnitGroup.class, bag.getId()))
 			return;
-		client.put(group, group.unitGroupInfo.dataSetInfo.uuid);
+		client.put(group);
 	}
 
 	@Test

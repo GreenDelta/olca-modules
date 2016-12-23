@@ -11,10 +11,10 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.io.DataStoreException;
 import org.openlca.ilcd.processes.AdminInfo;
@@ -62,7 +62,7 @@ public class ProcessExport {
 				.withReviews(makeReviews()).withTechnology(makeTechnology())
 				.withTime(makeTime()).getProcess();
 		addExchanges(iProcess);
-		config.store.put(iProcess, process.getRefId());
+		config.store.put(iProcess);
 		return iProcess;
 	}
 

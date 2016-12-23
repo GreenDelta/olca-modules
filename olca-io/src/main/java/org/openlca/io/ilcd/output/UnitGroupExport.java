@@ -15,7 +15,7 @@ import org.openlca.ilcd.units.QuantitativeReference;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
 import org.openlca.ilcd.units.UnitList;
-import org.openlca.ilcd.util.Reference;
+import org.openlca.ilcd.util.Refs;
 import org.openlca.ilcd.util.UnitExtension;
 
 public class UnitGroupExport {
@@ -45,7 +45,7 @@ public class UnitGroupExport {
 		info.quantitativeReference = makeQRef();
 		iUnitGroup.adminInfo = makeAdminInfo();
 		iUnitGroup.units = makeUnits();
-		config.store.put(iUnitGroup, unitGroup.getRefId());
+		config.store.put(iUnitGroup);
 		this.unitGroup = null;
 		return iUnitGroup;
 	}
@@ -106,7 +106,7 @@ public class UnitGroupExport {
 		DataEntry entry = new DataEntry();
 		info.dataEntry = entry;
 		entry.timeStamp = Out.getTimestamp(unitGroup);
-		entry.formats.add(Reference.forIlcdFormat());
+		entry.formats.add(Refs.ilcd());
 		addPublication(info);
 		return info;
 	}

@@ -12,11 +12,11 @@ import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 
 public class NetworkPutFlowPropertyTest {
 
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {
@@ -29,12 +29,12 @@ public class NetworkPutFlowPropertyTest {
 	public void testPutFlowProperty() throws Exception {
 		Assume.assumeTrue(Network.isAppAlive());
 		String id = UUID.randomUUID().toString();
-		FlowProperty flowproperty = new FlowProperty();
+		FlowProperty fp = new FlowProperty();
 		FlowPropertyInfo info = new FlowPropertyInfo();
-		flowproperty.flowPropertyInfo = info;
+		fp.flowPropertyInfo = info;
 		info.dataSetInfo = makeDataInfo(id);
-		flowproperty.adminInfo = makeAdminInfo();
-		client.put(flowproperty, id);
+		fp.adminInfo = makeAdminInfo();
+		client.put(fp);
 	}
 
 	private DataSetInfo makeDataInfo(String id) {

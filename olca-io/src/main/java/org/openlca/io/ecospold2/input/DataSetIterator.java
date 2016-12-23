@@ -10,10 +10,11 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.EcoSpold2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import spold2.DataSet;
+import spold2.EcoSpold2;
 
 class DataSetIterator implements Iterator<DataSet>, Closeable {
 
@@ -82,7 +83,7 @@ class DataSetIterator implements Iterator<DataSet>, Closeable {
 
 	private void nextSpold(File file) {
 		try {
-			next = EcoSpold2.readDataSet(file);
+			next = EcoSpold2.read(file);
 		} catch (Exception e) {
 			log.error("failed to read spold file " + file, e);
 			moveNext();
@@ -122,7 +123,7 @@ class DataSetIterator implements Iterator<DataSet>, Closeable {
 		ZipEntry entry = zipEntries[currentZipEntry];
 		currentZipEntry++;
 		try {
-			next = EcoSpold2.readDataSet(zipFile.getInputStream(entry));
+			next = EcoSpold2.read(zipFile.getInputStream(entry));
 			if (currentZipEntry >= zipEntries.length)
 				closeZip();
 		} catch (Exception e) {

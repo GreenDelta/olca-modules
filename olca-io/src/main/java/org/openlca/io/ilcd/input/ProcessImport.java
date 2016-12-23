@@ -28,7 +28,7 @@ import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.util.ProcessBag;
-import org.openlca.util.Pedigree;
+import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +122,7 @@ public class ProcessImport {
 		for (Exchange e : process.getExchanges()) {
 			if (e.getDqEntry() == null)
 				continue;
-			process.exchangeDqSystem = new DQSystemDao(config.db).insert(Pedigree.get());
+			process.exchangeDqSystem = new DQSystemDao(config.db).insert(DQSystems.ecoinvent());
 			break;
 		}
 	}

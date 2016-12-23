@@ -10,6 +10,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openlca.core.model.Actor;
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
@@ -58,11 +59,11 @@ public class ILCDImportExportTest {
 				Process.class);
 	}
 
-	private static <T> void put(String file, String id, Class<T> clazz)
+	private static <T extends IDataSet> void put(String file, String id, Class<T> clazz)
 			throws Exception {
 		InputStream in = ILCDImportExportTest.class.getResourceAsStream(file);
 		T obj = JAXB.unmarshal(in, clazz);
-		importConfig.store.put(obj, id);
+		importConfig.store.put(obj);
 	}
 
 	@Test

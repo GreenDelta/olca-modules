@@ -97,7 +97,7 @@ public class IDataSetTest {
 			assertEquals("00000000-0000-0000-0000-000000000000", ds.getUUID());
 			assertEquals("00.00", ds.getVersion());
 			assertEquals(DataSetType.LCIA_METHOD, ds.getDataSetType());
-			assertEquals("", ds.getURI().trim());
+			assertEquals("http://www.ilcd-network.org/data/lciamethods/sample_lciamethod.xml", ds.getURI().trim());
 			assertEquals(1, ds.getClassifications().size());
 		});
 	}

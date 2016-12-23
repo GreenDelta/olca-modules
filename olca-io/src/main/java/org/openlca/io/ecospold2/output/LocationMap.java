@@ -1,16 +1,19 @@
 package org.openlca.io.ecospold2.output;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Location;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.Geography;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 
-import java.util.HashMap;
-import java.util.List;
+import spold2.ActivityDescription;
+import spold2.DataSet;
+import spold2.Geography;
+import spold2.RichText;
 
 class LocationMap {
 
@@ -24,7 +27,7 @@ class LocationMap {
 
 	private void initMap(IDatabase database) {
 		try {
-			CellProcessor[] processors ={ null, null, null, null };
+			CellProcessor[] processors = { null, null, null, null };
 			List<List<Object>> rows = Maps.readAll(Maps.ES2_LOCATION_EXPORT,
 					database, processors);
 			for (List<Object> row : rows) {
@@ -39,15 +42,17 @@ class LocationMap {
 		}
 	}
 
-	public void apply(org.openlca.core.model.Process process, DataSet dataSet) {
-		Geography geography = new Geography();
-		dataSet.setGeography(geography);
-		if (process.getDocumentation() != null)
-			geography.setComment(process.getDocumentation().getGeography());
-		if (process.getLocation() == null)
-			setDefaultLocation(geography);
+	public void apply(org.openlca.core.model.Process p, DataSet ds) {
+		if (ds.description == null)
+			ds.description = new ActivityDescription();
+		Geography geo = new Geography();
+		ds.description.geography = geo;
+		if (p.getDocumentation() != null)
+			geo.comment = RichText.of(p.getDocumentation().getGeography());
+		if (p.getLocation() == null)
+			setDefaultLocation(geo);
 		else
-			tryMapLocation(process.getLocation(), geography);
+			tryMapLocation(p.getLocation(), geo);
 	}
 
 	private void tryMapLocation(Location location, Geography geography) {
@@ -59,15 +64,15 @@ class LocationMap {
 			return;
 		}
 		log.trace("mapped location {} to {}", location, record);
-		geography.setId(record.id);
-		geography.setShortName(record.code);
+		geography.id = record.id;
+		geography.shortName = record.code;
 	}
 
 	private void setDefaultLocation(Geography geography) {
 		if (geography == null)
 			return;
-		geography.setId("34dbbff8-88ce-11de-ad60-0019e336be3a");
-		geography.setShortName("GLO");
+		geography.id = "34dbbff8-88ce-11de-ad60-0019e336be3a";
+		geography.shortName = "GLO";
 	}
 
 	private class ExportRecord {

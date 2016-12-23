@@ -16,7 +16,7 @@ import org.openlca.ilcd.descriptors.SourceDescriptor;
 import org.openlca.ilcd.descriptors.UnitGroupDescriptor;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.io.NetworkClient;
+import org.openlca.ilcd.io.SodaClient;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class SearchTest {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
-	private NetworkClient client;
+	private SodaClient client;
 
 	@Before
 	public void setUp() throws Exception {

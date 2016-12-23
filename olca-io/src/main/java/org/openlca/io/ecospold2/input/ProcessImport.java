@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
@@ -21,20 +20,23 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ecospold2.Activity;
-import org.openlca.ecospold2.Classification;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.ElementaryExchange;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.PedigreeMatrix;
 import org.openlca.io.ecospold2.UncertaintyConverter;
+import org.openlca.util.DQSystems;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Pedigree;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+
+import spold2.Activity;
+import spold2.Classification;
+import spold2.DataSet;
+import spold2.ElementaryExchange;
+import spold2.IntermediateExchange;
+import spold2.PedigreeMatrix;
+import spold2.RichText;
+import spold2.Spold2;
 
 class ProcessImport {
 
@@ -44,7 +46,7 @@ class ProcessImport {
 	private final ProcessDao dao;
 	private final PriceMapper prices;
 	private final ImportConfig config;
-	private DQSystem pedigreeSystem;
+	private final DQSystem dqSystem;
 
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private final HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
@@ -55,6 +57,7 @@ class ProcessImport {
 		this.config = config;
 		dao = new ProcessDao(db);
 		prices = new PriceMapper(db);
+		dqSystem = DQSystems.ecoinvent(db);
 	}
 
 	public void importDataSet(DataSet dataSet) {
@@ -74,29 +77,28 @@ class ProcessImport {
 			log.warn("invalid data set -> not imported");
 			return;
 		}
-		Activity activity = dataSet.getActivity();
+		Activity activity = Spold2.getActivity(dataSet);
 		try {
 			String refId = RefId.forProcess(dataSet);
 			boolean contains = dao.contains(refId);
 			if (contains) {
 				log.trace("process {} is already in the database",
-						activity.getId());
+						activity.id);
 				return;
 			}
-			log.trace("import process {}", activity.getName());
+			log.trace("import process {}", activity.name);
 			runImport(dataSet, refId);
 		} catch (Exception e) {
 			log.error("Failed to import process", e);
 		}
 	}
 
-	private boolean valid(DataSet dataSet) {
-		Activity activity = dataSet.getActivity();
-		if (activity.getId() == null || activity.getName() == null)
+	private boolean valid(DataSet ds) {
+		Activity activity = Spold2.getActivity(ds);
+		if (activity.id == null || activity.name == null)
 			return false;
 		IntermediateExchange refFlow = null;
-		for (IntermediateExchange techFlow : dataSet
-				.getIntermediateExchanges()) {
+		for (IntermediateExchange techFlow : Spold2.getProducts(ds)) {
 			if (techFlow.outputGroup == null)
 				continue;
 			if (techFlow.outputGroup != 0)
@@ -110,7 +112,7 @@ class ProcessImport {
 	}
 
 	private void runImport(DataSet dataSet, String refId) {
-		Activity activity = dataSet.getActivity();
+		Activity activity = Spold2.getActivity(dataSet);
 		Process process = new Process();
 		process.setRefId(refId);
 		setMetaData(activity, process);
@@ -122,10 +124,7 @@ class ProcessImport {
 			log.warn("could not set a quantitative reference for process {}",
 					refId);
 		createElementaryExchanges(dataSet, process);
-		if (pedigreeSystem != null) {
-			pedigreeSystem = new DQSystemDao(db).insert(pedigreeSystem);
-			process.exchangeDqSystem = pedigreeSystem;
-		}
+		process.exchangeDqSystem = dqSystem;
 		new DocImportMapper(db).map(dataSet, process);
 		db.createDao(Process.class).insert(process);
 		index.putProcessId(refId, process.getId());
@@ -154,19 +153,17 @@ class ProcessImport {
 		}
 	}
 
-	private void setMetaData(Activity activity, Process process) {
-		process.setName(activity.getName());
-		ProcessType type = activity.getType() == 2 ? ProcessType.LCI_RESULT
+	private void setMetaData(Activity a, Process p) {
+		p.setName(a.name);
+		ProcessType type = a.type == 2 ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS;
-		process.setProcessType(type);
-		String description = Joiner
-				.on(" ")
-				.skipNulls()
-				.join(activity.getGeneralComment(),
-						activity.getIncludedActivitiesStart(),
-						activity.getIncludedActivitiesEnd(),
-						activity.getAllocationComment());
-		process.setDescription(description);
+		p.setProcessType(type);
+		String d = Joiner.on(" ").skipNulls().join(
+				RichText.join(a.generalComment),
+				a.includedActivitiesStart,
+				a.includedActivitiesEnd,
+				RichText.join(a.allocationComment));
+		p.setDescription(d);
 	}
 
 	private void flushLinkQueue(Process process) {
@@ -184,27 +181,27 @@ class ProcessImport {
 		}
 	}
 
-	private void createElementaryExchanges(DataSet dataSet, Process process) {
-		for (ElementaryExchange e : dataSet.getElementaryExchanges()) {
+	private void createElementaryExchanges(DataSet ds, Process process) {
+		for (ElementaryExchange e : Spold2.getElemFlows(ds)) {
 			if (e.amount == 0 && config.skipNullExchanges)
 				continue;
-			String refId = e.elementaryExchangeId;
+			String refId = e.flowId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not create flow for {}",
-						e.elementaryExchangeId);
+						e.flowId);
 			}
 			createExchange(e, refId, flow, process);
 		}
 	}
 
-	private void createProductExchanges(DataSet dataSet, Process process) {
-		for (IntermediateExchange ie : dataSet.getIntermediateExchanges()) {
+	private void createProductExchanges(DataSet ds, Process process) {
+		for (IntermediateExchange ie : Spold2.getProducts(ds)) {
 			boolean isRefFlow = ie.outputGroup != null
 					&& ie.outputGroup == 0;
 			if (ie.amount == 0 && config.skipNullExchanges)
 				continue;
-			String refId = ie.intermediateExchangeId;
+			String refId = ie.flowId;
 			Flow flow = index.getFlow(refId);
 			if (flow == null) {
 				log.warn("could not get flow for {}", refId);
@@ -232,7 +229,7 @@ class ProcessImport {
 		// return isNeg != index.isNegativeFlow(refId) && exchange.isInput();
 	}
 
-	private Exchange createExchange(org.openlca.ecospold2.Exchange es2,
+	private Exchange createExchange(spold2.Exchange es2,
 			String flowRefId, Flow flow, Process process) {
 		if (flow == null || flow.getReferenceFlowProperty() == null)
 			return null;
@@ -257,20 +254,17 @@ class ProcessImport {
 		return e;
 	}
 
-	private String getPedigreeMatrix(org.openlca.ecospold2.Exchange es2) {
+	private String getPedigreeMatrix(spold2.Exchange es2) {
 		if (es2 == null || es2.uncertainty == null)
 			return null;
 		PedigreeMatrix pm = es2.uncertainty.pedigreeMatrix;
 		if (pm == null)
 			return null;
-		if (pedigreeSystem == null) {
-			pedigreeSystem = Pedigree.get();
-		}
-		return pedigreeSystem.toString(pm.reliability, pm.completeness, pm.temporalCorrelation,
+		return dqSystem.toString(pm.reliability, pm.completeness, pm.temporalCorrelation,
 				pm.geographicalCorrelation, pm.technologyCorrelation);
 	}
 
-	private Unit getFlowUnit(org.openlca.ecospold2.Exchange original,
+	private Unit getFlowUnit(spold2.Exchange original,
 			String flowRefId, Flow flow) {
 		if (!index.isMappedFlow(flowRefId))
 			return index.getUnit(original.unitId);
@@ -283,7 +277,7 @@ class ProcessImport {
 		return ug.getReferenceUnit();
 	}
 
-	private void mapFormula(org.openlca.ecospold2.Exchange original,
+	private void mapFormula(spold2.Exchange original,
 			Process process, Exchange exchange) {
 		String var = original.variableName;
 		if (Strings.notEmpty(var)) {
@@ -297,7 +291,7 @@ class ProcessImport {
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
 		String providerId = e.activityLinkId;
-		String flowId = e.intermediateExchangeId;
+		String flowId = e.flowId;
 		String refId = KeyGen.get(providerId, flowId);
 		Long processId = index.getProcessId(refId);
 		if (processId != null) {
@@ -312,10 +306,10 @@ class ProcessImport {
 		exchanges.add(exchange);
 	}
 
-	private void setCategory(DataSet dataSet, Process process) {
+	private void setCategory(DataSet ds, Process process) {
 		Category category = null;
-		for (Classification clazz : dataSet.getClassifications()) {
-			category = index.getProcessCategory(clazz.getClassificationId());
+		for (Classification clazz : Spold2.getClassifications(ds)) {
+			category = index.getProcessCategory(clazz.id);
 			if (category != null)
 				break;
 		}

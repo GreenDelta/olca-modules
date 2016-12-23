@@ -6,12 +6,13 @@ import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Unit;
-import org.openlca.ecospold2.Exchange;
-import org.openlca.ecospold2.UserMasterData;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+
+import spold2.Exchange;
+import spold2.UserMasterData;
 
 class UnitMap {
 
@@ -47,26 +48,26 @@ class UnitMap {
 		}
 		ExportRecord record = map.get(unit.getRefId());
 		if (record != null) {
-			exchange.unitName = record.name;
+			exchange.unit = record.name;
 			exchange.unitId = record.id;
 		} else {
 			log.warn("unit {} is not a known unit in EcoSpold 2", unit);
-			exchange.unitName = unit.getName();
+			exchange.unit = unit.getName();
 			exchange.unitId = unit.getRefId();
 			addMasterEntry(unit, masterData);
 		}
 	}
 
 	private void addMasterEntry(Unit unit, UserMasterData masterData) {
-		for (org.openlca.ecospold2.Unit es2Unit : masterData.getUnits()) {
-			if (Objects.equals(unit.getRefId(), es2Unit.getId()))
+		for (spold2.Unit es2Unit : masterData.units) {
+			if (Objects.equals(unit.getRefId(), es2Unit.id))
 				return;
 		}
-		org.openlca.ecospold2.Unit es2Unit = new org.openlca.ecospold2.Unit();
-		es2Unit.setComment(unit.getDescription());
-		es2Unit.setId(unit.getRefId());
-		es2Unit.setName(unit.getName());
-		masterData.getUnits().add(es2Unit);
+		spold2.Unit es2Unit = new spold2.Unit();
+		es2Unit.comment = unit.getDescription();
+		es2Unit.id = unit.getRefId();
+		es2Unit.name = unit.getName();
+		masterData.units.add(es2Unit);
 	}
 
 	private class ExportRecord {

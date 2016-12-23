@@ -1,13 +1,14 @@
 package org.openlca.io.ecospold2.output;
 
-import org.openlca.ecospold2.Activity;
-import org.openlca.ecospold2.ActivityIndexEntry;
-import org.openlca.ecospold2.DataSet;
-import org.openlca.ecospold2.ElementaryExchange;
-import org.openlca.ecospold2.Geography;
-import org.openlca.ecospold2.IntermediateExchange;
-import org.openlca.ecospold2.TimePeriod;
-import org.openlca.ecospold2.UserMasterData;
+import spold2.Activity;
+import spold2.ActivityDescription;
+import spold2.ActivityIndexEntry;
+import spold2.DataSet;
+import spold2.ElementaryExchange;
+import spold2.Geography;
+import spold2.IntermediateExchange;
+import spold2.Time;
+import spold2.UserMasterData;
 
 /**
  * Adds master data entries to an EcoSpold 02 activity data set. This is not
@@ -17,29 +18,28 @@ import org.openlca.ecospold2.UserMasterData;
  */
 final class MasterData {
 
-
 	private MasterData() {
 	}
 
 	// TODO: handle parameters
-//	private void writeParamters(UserMasterData masterData) {
-//		for (Parameter parameter : dataSet.getParameters()) {
-//			Parameter masterParam = new Parameter();
-//			masterData.getParameters().add(masterParam);
-//			masterParam.setId(parameter.getId());
-//			masterParam.setName(parameter.getName());
-//			masterParam.setUnitName(parameter.getUnitName());
-//		}
-//	}
+	// private void writeParamters(UserMasterData masterData) {
+	// for (Parameter parameter : dataSet.getParameters()) {
+	// Parameter masterParam = new Parameter();
+	// masterData.getParameters().add(masterParam);
+	// masterParam.setId(parameter.getId());
+	// masterParam.setName(parameter.getName());
+	// masterParam.setUnitName(parameter.getUnitName());
+	// }
+	// }
 
 	public static void writeElemFlow(ElementaryExchange elemFlow,
 			UserMasterData masterData) {
 		ElementaryExchange masterFlow = new ElementaryExchange();
-		masterData.getElementaryExchanges().add(masterFlow);
-		masterFlow.id = elemFlow.elementaryExchangeId;
+		masterData.elementaryExchanges.add(masterFlow);
+		masterFlow.id = elemFlow.flowId;
 		masterFlow.name = elemFlow.name;
 		masterFlow.unitId = elemFlow.unitId;
-		masterFlow.unitName = elemFlow.unitName;
+		masterFlow.unit = elemFlow.unit;
 		masterFlow.compartment = elemFlow.compartment;
 		masterFlow.casNumber = elemFlow.casNumber;
 		masterFlow.formula = elemFlow.formula;
@@ -48,32 +48,35 @@ final class MasterData {
 	public static void writeTechFlow(IntermediateExchange techFlow,
 			UserMasterData masterData) {
 		IntermediateExchange masterFlow = new IntermediateExchange();
-		masterData.getIntermediateExchanges().add(masterFlow);
-		masterFlow.id = techFlow.intermediateExchangeId; // !
+		masterData.intermediateExchanges.add(masterFlow);
+		masterFlow.id = techFlow.flowId; // !
 		masterFlow.unitId = techFlow.unitId;
 		masterFlow.name = techFlow.name;
-		masterFlow.unitName = techFlow.unitName;
+		masterFlow.unit = techFlow.unit;
 	}
 
-	public static void writeIndexEntry(DataSet dataSet) {
-		if(dataSet == null || dataSet.getMasterData() == null)
+	public static void writeIndexEntry(DataSet ds) {
+		if (ds == null || ds.masterData == null)
 			return;
 		ActivityIndexEntry indexEntry = new ActivityIndexEntry();
-		dataSet.getMasterData().getActivityIndexEntries().add(indexEntry);
-		Activity activity = dataSet.getActivity();
+		ds.masterData.activityIndexEntries.add(indexEntry);
+		indexEntry.systemModelId = "8b738ea0-f89e-4627-8679-433616064e82";
+		ActivityDescription d = ds.description;
+		if (d == null)
+			return;
+		Activity activity = d.activity;
 		if (activity != null) {
-			indexEntry.setActivityNameId(activity.getActivityNameId());
-			indexEntry.setId(activity.getId());
+			indexEntry.activityNameId = activity.activityNameId;
+			indexEntry.id = activity.id;
 		}
-		TimePeriod timePeriod = dataSet.getTimePeriod();
+		Time timePeriod = d.timePeriod;
 		if (timePeriod != null) {
-			indexEntry.setEndDate(timePeriod.getEndDate());
-			indexEntry.setStartDate(timePeriod.getStartDate());
+			indexEntry.endDate = timePeriod.end;
+			indexEntry.startDate = timePeriod.start;
 		}
-		Geography geography = dataSet.getGeography();
+		Geography geography = d.geography;
 		if (geography != null)
-			indexEntry.setGeographyId(geography.getId());
-		indexEntry.setSystemModelId("8b738ea0-f89e-4627-8679-433616064e82");
+			indexEntry.geographyId = geography.id;
 	}
 
 }
