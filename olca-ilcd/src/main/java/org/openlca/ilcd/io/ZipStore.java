@@ -47,8 +47,13 @@ public class ZipStore implements DataStore {
 		entries = new HashMap<>();
 		for (Path root : zip.getRootDirectories()) {
 			Files.walkFileTree(root, new FileVisitor(f -> {
-				String dir = f.getParent().getFileName().toString()
-						.toLowerCase();
+				Path p = f.getParent();
+				if (p == null)
+					return;
+				Path dirPath = p.getFileName();
+				if (dirPath == null)
+					return;
+				String dir = dirPath.toString().toLowerCase();
 				List<Path> list = getEntries(dir);
 				list.add(f);
 			}));
