@@ -16,6 +16,8 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 public class RepositoryClient {
 
 	private final RepositoryConfig config;
+	// Method to call if token is required, if no callback is specified a
+	// TokenRequiredException will be thrown when a token is required
 	private String sessionId;
 
 	public RepositoryClient(RepositoryConfig config) {
@@ -29,8 +31,7 @@ public class RepositoryClient {
 	private void login() throws WebRequestException {
 		LoginInvocation invocation = new LoginInvocation();
 		invocation.baseUrl = config.getBaseUrl();
-		invocation.username = config.getUsername();
-		invocation.password = config.getPassword();
+		invocation.credentials = config.getCredentials();
 		sessionId = invocation.execute();
 	}
 
@@ -121,8 +122,7 @@ public class RepositoryClient {
 		});
 	}
 
-	public Map<Dataset, String> performLibraryCheck(Set<Dataset> datasets)
-			throws WebRequestException {
+	public Map<Dataset, String> performLibraryCheck(Set<Dataset> datasets) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			LibraryCheckInvocation invocation = new LibraryCheckInvocation();
 			invocation.baseUrl = config.getBaseUrl();
@@ -132,8 +132,7 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<FetchRequestData> getReferences(String commitId)
-			throws WebRequestException {
+	public List<FetchRequestData> getReferences(String commitId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			ReferencesInvocation invocation = new ReferencesInvocation();
 			invocation.baseUrl = config.getBaseUrl();
@@ -143,8 +142,8 @@ public class RepositoryClient {
 			return invocation.execute();
 		});
 	}
-	public String getPreviousReference(ModelType type, String refId, String beforeCommitId)
-			throws WebRequestException {
+
+	public String getPreviousReference(ModelType type, String refId, String beforeCommitId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			PreviousCommitInvocation invocation = new PreviousCommitInvocation();
 			invocation.baseUrl = config.getBaseUrl();
@@ -156,6 +155,7 @@ public class RepositoryClient {
 			return invocation.execute();
 		});
 	}
+
 	public List<FetchRequestData> requestFetch() throws WebRequestException {
 		return executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
@@ -187,9 +187,9 @@ public class RepositoryClient {
 			invocation.untilCommitId = commitId;
 			invocation.requestData = requestData;
 			invocation.execute();
-		});	
+		});
 	}
-	
+
 	public void fetch(List<String> fetchData, Map<Dataset, JsonObject> mergedData) throws WebRequestException {
 		executeLoggedIn(() -> {
 			FetchInvocation invocation = new FetchInvocation(config.getDatabase());
@@ -217,13 +217,11 @@ public class RepositoryClient {
 		});
 	}
 
-	public JsonObject getDataset(ModelType type, String refId)
-			throws WebRequestException {
+	public JsonObject getDataset(ModelType type, String refId) throws WebRequestException {
 		return getDataset(type, refId, null);
 	}
 
-	public JsonObject getDataset(ModelType type, String refId, String commitId)
-			throws WebRequestException {
+	public JsonObject getDataset(ModelType type, String refId, String commitId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			DatasetContentInvocation invocation = new DatasetContentInvocation();
 			invocation.baseUrl = config.getBaseUrl();
@@ -236,8 +234,7 @@ public class RepositoryClient {
 		});
 	}
 
-	private void executeLoggedIn(Invocation runnable)
-			throws WebRequestException {
+	private void executeLoggedIn(Invocation runnable) throws WebRequestException {
 		if (sessionId == null)
 			login();
 		try {
@@ -251,8 +248,7 @@ public class RepositoryClient {
 		}
 	}
 
-	private <T> T executeLoggedIn(InvocationWithResult<T> runnable)
-			throws WebRequestException {
+	private <T> T executeLoggedIn(InvocationWithResult<T> runnable) throws WebRequestException {
 		if (sessionId == null)
 			login();
 		try {

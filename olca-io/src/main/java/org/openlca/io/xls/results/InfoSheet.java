@@ -29,6 +29,8 @@ public class InfoSheet {
 			"Reference process:",
 			"Reference process location:",
 			"Product:",
+			"Reference process:",
+			"Reference process location:",
 			"Amount:",
 			"Impact method:",
 			"Normalisation & weighting set:",
@@ -76,6 +78,8 @@ public class InfoSheet {
 		writer.cell(sheet, row++, col, process(system));
 		writer.cell(sheet, row++, col, location(system));
 		writer.cell(sheet, row++, col, product(system));
+		writer.cell(sheet, row++, col, process(system));
+		writer.cell(sheet, row++, col, location(system));
 		writer.cell(sheet, row++, col, amount(system));
 		writer.cell(sheet, row++, col, method(setup));
 		writer.cell(sheet, row++, col, nwSet(setup));
@@ -128,6 +132,20 @@ public class InfoSheet {
 		if (e == null || e.getFlow() == null)
 			return "";
 		return e.getFlow().getName();
+	}
+
+	private static String process(ProductSystem system) {
+		Process p = system.getReferenceProcess();
+		if (p == null)
+			return "";
+		return p.getName();
+	}
+
+	private static String location(ProductSystem system) {
+		Process p = system.getReferenceProcess();
+		if (p == null || p.getLocation() == null)
+			return "";
+		return p.getLocation().getName();
 	}
 
 	private static String amount(ProductSystem system) {
