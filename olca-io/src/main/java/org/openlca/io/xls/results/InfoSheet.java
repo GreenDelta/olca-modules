@@ -134,20 +134,6 @@ public class InfoSheet {
 		return e.getFlow().getName();
 	}
 
-	private static String process(ProductSystem system) {
-		Process p = system.getReferenceProcess();
-		if (p == null)
-			return "";
-		return p.getName();
-	}
-
-	private static String location(ProductSystem system) {
-		Process p = system.getReferenceProcess();
-		if (p == null || p.getLocation() == null)
-			return "";
-		return p.getLocation().getName();
-	}
-
 	private static String amount(ProductSystem system) {
 		if (system.getTargetUnit() == null)
 			return "";
