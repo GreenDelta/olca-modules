@@ -12,8 +12,8 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.util.FlowBag;
 import org.openlca.util.Strings;
@@ -197,7 +197,7 @@ public class FlowImport {
 		}
 		if (internalId == null || propRef == null) {
 			String message = "Invalid flow data set: no ref. flow property, flow "
-					+ flow.getRefId();
+					+ ilcdFlow.getId();
 			throw new ImportException(message);
 		}
 		if (propRef.uri != null) {

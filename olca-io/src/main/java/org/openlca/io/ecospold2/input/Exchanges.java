@@ -11,23 +11,6 @@ class Exchanges {
 	private Exchanges() {
 	}
 
-	/** Find the reference flow (outputGroup=0) from the given data set. */
-	static IntermediateExchange findRef(DataSet ds) {
-		if (ds == null)
-			return null;
-		IntermediateExchange candidate = null;
-		for (IntermediateExchange e : Spold2.getProducts(ds)) {
-			Integer og = e.outputGroup;
-			if (og == null || og.intValue() != 0)
-				continue;
-			Double a = e.amount;
-			if (a != null && a.doubleValue() != 0)
-				return e;
-			candidate = e;
-		}
-		return candidate;
-	}
-
 	/** Returns true if the given exchanges are equal; i.e. have the same ID. */
 	static boolean eq(IntermediateExchange e1, IntermediateExchange e2) {
 		if (e1 == null && e2 == null)

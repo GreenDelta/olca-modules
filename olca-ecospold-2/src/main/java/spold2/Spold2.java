@@ -55,6 +55,26 @@ public class Spold2 {
 		return ds.flowData.intermediateExchanges;
 	}
 
+	/**
+	 * Returns the reference product of the data set (intermediate exchange with
+	 * outputGroup=0).
+	 */
+	public static IntermediateExchange getReferenceProduct(DataSet ds) {
+		if (ds == null)
+			return null;
+		IntermediateExchange candidate = null;
+		for (IntermediateExchange e : getProducts(ds)) {
+			Integer og = e.outputGroup;
+			if (og == null || og.intValue() != 0)
+				continue;
+			Double a = e.amount;
+			if (a != null && a.doubleValue() != 0)
+				return e;
+			candidate = e;
+		}
+		return candidate;
+	}
+
 	public static List<ElementaryExchange> getElemFlows(DataSet ds) {
 		if (ds == null || ds.flowData == null)
 			return Collections.emptyList();
