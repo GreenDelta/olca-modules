@@ -2,9 +2,9 @@ package org.openlca.ilcd;
 
 import java.util.UUID;
 
-import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
+import org.openlca.ilcd.sources.AdminInfo;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.sources.SourceInfo;

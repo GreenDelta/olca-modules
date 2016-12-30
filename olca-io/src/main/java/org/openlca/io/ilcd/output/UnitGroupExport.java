@@ -4,12 +4,12 @@ import java.math.BigInteger;
 
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.AdminInfo;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.io.DataStoreException;
+import org.openlca.ilcd.units.AdminInfo;
 import org.openlca.ilcd.units.DataSetInfo;
 import org.openlca.ilcd.units.QuantitativeReference;
 import org.openlca.ilcd.units.UnitGroup;

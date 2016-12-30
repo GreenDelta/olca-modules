@@ -129,7 +129,10 @@ class ProcessExchanges {
 
 	private void mapAllocation(Process process) {
 		for (MappedPair p : mappedPairs) {
-			for (AllocationFactor iFactor : p.iExchange.allocations) {
+			AllocationFactor[] factors = p.iExchange.allocations;
+			if (factors == null)
+				continue;
+			for (AllocationFactor iFactor : factors) {
 				Long productId = findMappedFlowId(iFactor.productExchangeId);
 				if (productId == null)
 					continue;
