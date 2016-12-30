@@ -59,7 +59,7 @@ class AllocationFactors {
 		org.openlca.ilcd.processes.AllocationFactor f = new org.openlca.ilcd.processes.AllocationFactor();
 		f.fraction = factor * 100;
 		f.productExchangeId = ref;
-		iExchange.allocations.add(f);
+		iExchange.add(f);
 	}
 
 	private Exchange findProduct(AllocationFactor factor) {

@@ -149,8 +149,8 @@ public class ProcessSampleTest {
 	public void testAllocation() throws Exception {
 		with(p -> {
 			Exchange e = p.exchanges.get(0);
-			assertEquals(2, e.allocations.size());
-			AllocationFactor f = e.allocations.get(1);
+			assertEquals(2, e.allocations.length);
+			AllocationFactor f = e.allocations[1];
 			assertEquals(57.98, f.fraction, 1e-10);
 			assertEquals(1, f.productExchangeId);
 		});

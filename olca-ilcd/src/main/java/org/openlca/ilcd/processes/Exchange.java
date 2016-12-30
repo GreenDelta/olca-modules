@@ -82,7 +82,7 @@ public class Exchange implements Serializable {
 
 	@XmlElementWrapper(name = "allocations")
 	@XmlElement(name = "allocation", required = true)
-	public final List<AllocationFactor> allocations = new ArrayList<>();
+	public AllocationFactor[] allocations;
 
 	public String dataSourceType;
 
@@ -118,11 +118,16 @@ public class Exchange implements Serializable {
 		clone.maximumAmount = maximumAmount;
 		clone.uncertaintyDistribution = uncertaintyDistribution;
 		clone.relativeStandardDeviation95In = relativeStandardDeviation95In;
-		for (AllocationFactor f : allocations) {
-			if (f == null)
-				continue;
-			clone.allocations.add(f.clone());
+
+		if (allocations != null) {
+			clone.allocations = new AllocationFactor[allocations.length];
+			for (int i = 0; i < allocations.length; i++) {
+				if (allocations[i] == null)
+					continue;
+				clone.allocations[i] = allocations[i].clone();
+			}
 		}
+
 		clone.dataSourceType = dataSourceType;
 		clone.dataDerivation = dataDerivation;
 		clone.sources = Ref.copy(sources);
@@ -131,5 +136,17 @@ public class Exchange implements Serializable {
 			clone.other = other.clone();
 		clone.otherAttributes.putAll(otherAttributes);
 		return clone;
+	}
+
+	/** Adds the given allocation factor to this exchange. */
+	public void add(AllocationFactor f) {
+		if (allocations == null) {
+			allocations = new AllocationFactor[] { f };
+			return;
+		}
+		AllocationFactor[] next = new AllocationFactor[allocations.length + 1];
+		System.arraycopy(allocations, 0, next, 0, allocations.length);
+		next[allocations.length] = f;
+		allocations = next;
 	}
 }
