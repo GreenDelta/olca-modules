@@ -23,7 +23,7 @@ public class CompartmentList implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(name = "category", required = true)
+	@XmlElement(name = "category", namespace = "http://lca.jrc.it/ILCD/Common", required = true)
 	public final List<Compartment> compartments = new ArrayList<>();
 
 	public Other other;

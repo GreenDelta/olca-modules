@@ -18,10 +18,10 @@ public class FlowCategoryInfo implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(name = "elementaryFlowCategorization")
+	@XmlElement(name = "elementaryFlowCategorization", namespace = "http://lca.jrc.it/ILCD/Common")
 	public final List<CompartmentList> compartmentLists = new ArrayList<>();
 
-	@XmlElement(name = "classification")
+	@XmlElement(name = "classification", namespace = "http://lca.jrc.it/ILCD/Common")
 	public final List<Classification> classifications = new ArrayList<>();
 
 }
