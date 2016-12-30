@@ -44,7 +44,7 @@ public class Process implements IDataSet {
 
 	@XmlElementWrapper(name = "LCIAResults")
 	@XmlElement(name = "LCIAResult")
-	public final List<LCIAResult> lciaResults = new ArrayList<>();
+	public LCIAResult[] lciaResults;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -118,11 +118,7 @@ public class Process implements IDataSet {
 				continue;
 			clone.exchanges.add(e.clone());
 		}
-		for (LCIAResult r : lciaResults) {
-			if (r == null)
-				continue;
-			clone.lciaResults.add(r.clone());
-		}
+		cloneResults(clone);
 		if (other != null)
 			clone.other = other.clone();
 		clone.version = version;
@@ -132,4 +128,27 @@ public class Process implements IDataSet {
 		return clone;
 	}
 
+	private void cloneResults(Process clone) {
+		if (lciaResults == null)
+			return;
+		clone.lciaResults = new LCIAResult[lciaResults.length];
+		for (int i = 0; i < lciaResults.length; i++) {
+			if (lciaResults[i] == null)
+				continue;
+			clone.lciaResults[i] = lciaResults[i].clone();
+		}
+	}
+
+	public void add(LCIAResult r) {
+		if (r == null)
+			return;
+		if (lciaResults == null) {
+			lciaResults = new LCIAResult[] { r };
+			return;
+		}
+		LCIAResult[] next = new LCIAResult[lciaResults.length + 1];
+		System.arraycopy(lciaResults, 0, next, 0, lciaResults.length);
+		next[lciaResults.length] = r;
+		lciaResults = next;
+	}
 }

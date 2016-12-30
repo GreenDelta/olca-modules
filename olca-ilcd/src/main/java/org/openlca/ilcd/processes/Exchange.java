@@ -94,6 +94,7 @@ public class Exchange implements Serializable {
 	public Ref[] sources;
 
 	@Label
+	@XmlElement(name = "generalComment")
 	public final List<LangString> comment = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
@@ -118,28 +119,32 @@ public class Exchange implements Serializable {
 		clone.maximumAmount = maximumAmount;
 		clone.uncertaintyDistribution = uncertaintyDistribution;
 		clone.relativeStandardDeviation95In = relativeStandardDeviation95In;
-
-		if (allocations != null) {
-			clone.allocations = new AllocationFactor[allocations.length];
-			for (int i = 0; i < allocations.length; i++) {
-				if (allocations[i] == null)
-					continue;
-				clone.allocations[i] = allocations[i].clone();
-			}
-		}
-
 		clone.dataSourceType = dataSourceType;
 		clone.dataDerivation = dataDerivation;
 		clone.sources = Ref.copy(sources);
 		LangString.copy(comment, clone.comment);
+		cloneAllocations(clone);
 		if (other != null)
 			clone.other = other.clone();
 		clone.otherAttributes.putAll(otherAttributes);
 		return clone;
 	}
 
+	private void cloneAllocations(Exchange clone) {
+		if (allocations == null)
+			return;
+		clone.allocations = new AllocationFactor[allocations.length];
+		for (int i = 0; i < allocations.length; i++) {
+			if (allocations[i] == null)
+				continue;
+			clone.allocations[i] = allocations[i].clone();
+		}
+	}
+
 	/** Adds the given allocation factor to this exchange. */
 	public void add(AllocationFactor f) {
+		if (f == null)
+			return;
 		if (allocations == null) {
 			allocations = new AllocationFactor[] { f };
 			return;

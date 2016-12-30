@@ -16,7 +16,7 @@ public class WrapperTest {
 				.getResourceAsStream("sdk_sample_process.xml");
 		Process p = JAXB.unmarshal(in, Process.class);
 		Assert.assertEquals(2, p.exchanges.size());
-		Assert.assertEquals(2, p.lciaResults.size());
+		Assert.assertEquals(2, p.lciaResults.length);
 	}
 
 }
