@@ -43,8 +43,7 @@
 					<common:shortDescription xml:lang="de">shortDescription11
 					</common:shortDescription>
 				</common:referenceToComplianceSystem>
-				<common:approvalOfOverallCompliance>Fully compliant
-				</common:approvalOfOverallCompliance>
+				<common:approvalOfOverallCompliance>Fully compliant</common:approvalOfOverallCompliance>
 				<!--<common:other/> -->
 			</compliance>
 			<compliance>
@@ -56,8 +55,7 @@
 					<common:shortDescription xml:lang="de">shortDescription13
 					</common:shortDescription>
 				</common:referenceToComplianceSystem>
-				<common:approvalOfOverallCompliance>Fully compliant
-				</common:approvalOfOverallCompliance>
+				<common:approvalOfOverallCompliance>Fully compliant</common:approvalOfOverallCompliance>
 				<!--<common:other/> -->
 			</compliance>
 			<!--<common:other/> -->

@@ -349,15 +349,11 @@
 					<common:shortDescription xml:lang="de">shortDescription51
 					</common:shortDescription>
 				</common:referenceToComplianceSystem>
-				<common:approvalOfOverallCompliance>Fully compliant
-				</common:approvalOfOverallCompliance>
-				<common:nomenclatureCompliance>Fully compliant
-				</common:nomenclatureCompliance>
-				<common:methodologicalCompliance>Fully compliant
-				</common:methodologicalCompliance>
+				<common:approvalOfOverallCompliance>Fully compliant</common:approvalOfOverallCompliance>
+				<common:nomenclatureCompliance>Fully compliant</common:nomenclatureCompliance>
+				<common:methodologicalCompliance>Fully compliant</common:methodologicalCompliance>
 				<common:reviewCompliance>Fully compliant</common:reviewCompliance>
-				<common:documentationCompliance>Fully compliant
-				</common:documentationCompliance>
+				<common:documentationCompliance>Fully compliant</common:documentationCompliance>
 				<common:qualityCompliance>Fully compliant</common:qualityCompliance>
 			</compliance>
 			<compliance>
@@ -369,15 +365,11 @@
 					<common:shortDescription xml:lang="de">shortDescription53
 					</common:shortDescription>
 				</common:referenceToComplianceSystem>
-				<common:approvalOfOverallCompliance>Fully compliant
-				</common:approvalOfOverallCompliance>
-				<common:nomenclatureCompliance>Fully compliant
-				</common:nomenclatureCompliance>
-				<common:methodologicalCompliance>Fully compliant
-				</common:methodologicalCompliance>
+				<common:approvalOfOverallCompliance>Fully compliant</common:approvalOfOverallCompliance>
+				<common:nomenclatureCompliance>Fully compliant</common:nomenclatureCompliance>
+				<common:methodologicalCompliance>Fully compliant</common:methodologicalCompliance>
 				<common:reviewCompliance>Fully compliant</common:reviewCompliance>
-				<common:documentationCompliance>Fully compliant
-				</common:documentationCompliance>
+				<common:documentationCompliance>Fully compliant</common:documentationCompliance>
 				<common:qualityCompliance>Fully compliant</common:qualityCompliance>
 			</compliance>
 		</complianceDeclarations>
@@ -487,9 +479,8 @@
 				<common:shortDescription xml:lang="de">shortDescription73
 				</common:shortDescription>
 			</common:referenceToPrecedingDataSetVersion>
-			<common:permanentDataSetURI>http://www.ilcd-network.org/data/lciamethods/sample_lciamethod.xml</common:permanentDataSetURI>>
-			<common:workflowAndPublicationStatus>Working draft
-			</common:workflowAndPublicationStatus>
+			<common:permanentDataSetURI>http://www.ilcd-network.org/data/lciamethods/sample_lciamethod.xml</common:permanentDataSetURI>
+			<common:workflowAndPublicationStatus>Working draft</common:workflowAndPublicationStatus>
 			<common:referenceToUnchangedRepublication
 				type="source data set" refObjectId="00000000-0000-0000-0000-000000000000"
 				uri="">
