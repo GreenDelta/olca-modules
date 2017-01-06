@@ -111,7 +111,7 @@ public class Ref implements Serializable {
 		return copy;
 	}
 
-	public Class<?> getDataSetClass() {
+	public Class<? extends IDataSet> getDataSetClass() {
 		if (type == null)
 			return null;
 		switch (type) {
