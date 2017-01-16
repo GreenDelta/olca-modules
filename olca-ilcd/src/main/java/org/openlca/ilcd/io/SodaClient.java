@@ -5,9 +5,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response.Status.Family;
 
 import org.openlca.ilcd.commons.IDataSet;
@@ -22,8 +26,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.client.apache.ApacheHttpClient;
-import com.sun.jersey.client.apache.config.DefaultApacheHttpClientConfig;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
@@ -37,6 +39,7 @@ public class SodaClient implements DataStore {
 	private final SodaConnection con;
 
 	private Client client;
+	private List<Cookie> cookies = new ArrayList<>();
 	private boolean isConnected = false;
 	private XmlBinder binder = new XmlBinder();
 
@@ -46,10 +49,7 @@ public class SodaClient implements DataStore {
 
 	public void connect() throws DataStoreException {
 		log.info("Create ILCD network connection {}", con);
-		DefaultApacheHttpClientConfig config = new DefaultApacheHttpClientConfig();
-		config.getProperties().put(
-				DefaultApacheHttpClientConfig.PROPERTY_HANDLE_COOKIES, true);
-		client = ApacheHttpClient.create(config);
+		client = Client.create();
 		if (con.user != null || con.password != null) {
 			authenticate();
 		}
@@ -63,34 +63,34 @@ public class SodaClient implements DataStore {
 				.queryParam("password", con.password).get(ClientResponse.class);
 		eval(response);
 		log.trace("Server response: {}", response.getEntity(String.class));
+		for (NewCookie c : response.getCookies()) {
+			cookies.add(c.toCookie());
+		}
 	}
 
 	public AuthInfo getAuthentication() throws DataStoreException {
 		checkConnection();
 		log.trace("Get authentication information.");
-		ClientResponse response = client.resource(con.url).path("authenticate")
-				.path("status").get(ClientResponse.class);
+		WebResource r = resource("authenticate", "status");
+		ClientResponse response = cookies(r).get(ClientResponse.class);
 		eval(response);
-		AuthInfo authentication = response
-				.getEntity(AuthInfo.class);
-		return authentication;
+		AuthInfo authInfo = response.getEntity(AuthInfo.class);
+		return authInfo;
 	}
 
 	public DataStockList getDataStockList() throws DataStoreException {
 		checkConnection();
 		log.trace("get data stocks");
-		WebResource resource = client.resource(con.url)
-				.path("datastocks");
-		return resource.get(DataStockList.class);
+		WebResource r = resource("datastocks");
+		return cookies(r).get(DataStockList.class);
 	}
 
 	@Override
 	public <T> T get(Class<T> type, String id) throws DataStoreException {
 		checkConnection();
-		WebResource resource = client.resource(con.url)
-				.path(Dir.get(type)).path(id).queryParam("format", "xml");
-		log.info("Get resource: {}", resource.getURI());
-		ClientResponse response = resource.get(ClientResponse.class);
+		WebResource r = resource(Dir.get(type), id).queryParam("format", "xml");
+		log.info("Get resource: {}", r.getURI());
+		ClientResponse response = cookies(r).get(ClientResponse.class);
 		eval(response);
 		try {
 			return binder.fromStream(type, response.getEntityInputStream());
@@ -103,12 +103,11 @@ public class SodaClient implements DataStore {
 	@Override
 	public void put(IDataSet ds) throws DataStoreException {
 		checkConnection();
-		WebResource resource = client.resource(con.url).path(
-				Dir.get(ds.getClass()));
-		log.info("Publish resource: {}/{}", resource.getURI(), ds.getUUID());
+		WebResource r = resource(Dir.get(ds.getClass()));
+		log.info("Publish resource: {}/{}", r.getURI(), ds.getUUID());
 		try {
 			byte[] bytes = binder.toByteArray(ds);
-			Builder builder = resource.type(MediaType.APPLICATION_XML);
+			Builder builder = cookies(r).type(MediaType.APPLICATION_XML);
 			if (con.dataStockId != null) {
 				log.trace("post to data stock {}", con.dataStockId);
 				builder = builder.header("stock", con.dataStockId);
@@ -125,8 +124,6 @@ public class SodaClient implements DataStore {
 	public void put(Source source, File file)
 			throws DataStoreException {
 		checkConnection();
-		WebResource resource = client.resource(con.url).path(
-				"sources/withBinaries");
 		log.info("Publish source with file: {} + {}", source, file);
 		try {
 			FormDataMultiPart multiPart = new FormDataMultiPart();
@@ -143,7 +140,8 @@ public class SodaClient implements DataStore {
 			FormDataBodyPart filePart = new FormDataBodyPart(file.getName(),
 					fileStream, MediaType.MULTIPART_FORM_DATA_TYPE);
 			multiPart.bodyPart(filePart);
-			ClientResponse resp = resource.type(
+			WebResource r = resource("sources/withBinaries");
+			ClientResponse resp = cookies(r).type(
 					MediaType.MULTIPART_FORM_DATA_TYPE)
 					.post(ClientResponse.class, multiPart);
 			eval(resp);
@@ -157,11 +155,10 @@ public class SodaClient implements DataStore {
 	public InputStream getExternalDocument(String sourceId, String fileName)
 			throws DataStoreException {
 		checkConnection();
-		WebResource resource = client.resource(con.url).path(
-				"sources").path(sourceId).path(fileName);
+		WebResource r = resource("sources", sourceId, fileName);
 		log.info("Get external document {} for source {}", fileName, sourceId);
 		try {
-			return resource.type(MediaType.APPLICATION_OCTET_STREAM).get(
+			return cookies(r).type(MediaType.APPLICATION_OCTET_STREAM).get(
 					InputStream.class);
 		} catch (Exception e) {
 			throw new DataStoreException("Failed to get file " + fileName +
@@ -185,10 +182,10 @@ public class SodaClient implements DataStore {
 	public <T> boolean contains(Class<T> type, String id)
 			throws DataStoreException {
 		checkConnection();
-		WebResource resource = client.resource(con.url)
-				.path(Dir.get(type)).path(id).queryParam("format", "xml");
-		log.trace("Contains resource {} ?", resource.getURI());
-		ClientResponse response = resource.head();
+		WebResource r = resource(Dir.get(type), id)
+				.queryParam("format", "xml");
+		log.trace("Contains resource {} ?", r.getURI());
+		ClientResponse response = cookies(r).head();
 		log.trace("Server response: {}", response);
 		return response.getStatus() == Status.OK.getStatusCode();
 	}
@@ -201,12 +198,27 @@ public class SodaClient implements DataStore {
 			term = "";
 		else
 			term = name.trim();
-		WebResource resource = initSearchRequest(type)
+		WebResource r = initSearchRequest(type)
 				.queryParam("search", "true")
 				.queryParam("name", term);
-		log.trace("Search resources: {}", resource.getURI());
-		DescriptorList list = resource.get(DescriptorList.class);
+		log.trace("Search resources: {}", r.getURI());
+		DescriptorList list = cookies(r).get(DescriptorList.class);
 		return list;
+	}
+
+	private WebResource resource(String... path) {
+		WebResource r = client.resource(con.url);
+		for (String p : path) {
+			r = r.path(p);
+		}
+		return r;
+	}
+
+	private Builder cookies(WebResource r) {
+		Builder b = r.getRequestBuilder();
+		for (Cookie c : cookies)
+			b.cookie(c);
+		return b;
 	}
 
 	private void checkConnection() throws DataStoreException {
@@ -217,10 +229,9 @@ public class SodaClient implements DataStore {
 
 	private WebResource initSearchRequest(Class<?> type) {
 		if (con.dataStockId == null)
-			return client.resource(con.url).path(Dir.get(type));
+			return resource(Dir.get(type));
 		else
-			return client.resource(con.url).path("datastocks")
-					.path(con.dataStockId).path(Dir.get(type));
+			return resource("datastocks", con.dataStockId, Dir.get(type));
 	}
 
 	private void eval(ClientResponse response) throws DataStoreException {
