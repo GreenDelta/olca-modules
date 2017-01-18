@@ -15,6 +15,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response.Status.Family;
 
 import org.openlca.ilcd.commons.IDataSet;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.descriptors.DataStockList;
 import org.openlca.ilcd.descriptors.DescriptorList;
 import org.openlca.ilcd.sources.Source;
@@ -187,6 +188,19 @@ public class SodaClient implements DataStore {
 		log.trace("Contains resource {} ?", r.getURI());
 		ClientResponse response = cookies(r).head();
 		log.trace("Server response: {}", response);
+		return response.getStatus() == Status.OK.getStatusCode();
+	}
+
+	/** Includes also the version in the check. */
+	public boolean contains(Ref ref) throws DataStoreException {
+		if (ref == null || ref.type == null || ref.uuid == null)
+			return false;
+		checkConnection();
+		WebResource r = resource(Dir.get(ref.getDataSetClass()), ref.uuid)
+				.queryParam("format", "xml");
+		if (ref.version != null)
+			r = r.queryParam("version", ref.version);
+		ClientResponse response = cookies(r).head();
 		return response.getStatus() == Status.OK.getStatusCode();
 	}
 
