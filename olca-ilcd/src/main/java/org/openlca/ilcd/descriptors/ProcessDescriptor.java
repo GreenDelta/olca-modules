@@ -1,6 +1,5 @@
 package org.openlca.ilcd.descriptors;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,40 +10,37 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.FlowCompleteness;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ProcessType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = { "uuid", "permanentUri", "dataSetVersion",
-		"name", "classification", "generalComment", "synonyms", "type",
-		"location", "time", "parameterized", "hasResults",
-		"lciMethodInformation", "completenessProductModel",
-		"complianceSystem", "review", "overallQuality", "useAdvice",
-		"technicalPurpose", "accessInformation", "format", "ownership",
+@XmlType(name = "", propOrder = {
+		"uuid",
+		"uri",
+		"version",
+		"name",
+		"classification",
+		"comment",
+		"synonyms",
+		"type",
+		"location",
+		"time",
+		"parameterized",
+		"hasResults",
+		"lciMethodInformation",
+		"completenessProductModel",
+		"complianceSystem",
+		"review",
+		"overallQuality",
+		"useAdvice",
+		"technicalPurpose",
+		"accessInformation",
+		"format",
+		"ownership",
 		"approvedBy" })
-public class ProcessDescriptor implements Serializable {
-
-	private final static long serialVersionUID = 1L;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public String uuid;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	@XmlSchemaType(name = "anyURI")
-	public String permanentUri;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public String dataSetVersion;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public LangString name;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public final List<Classification> classification = new ArrayList<>();
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public LangString generalComment;
+public class ProcessDescriptor extends Descriptor {
 
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public final List<LangString> synonyms = new ArrayList<>();
@@ -91,4 +87,8 @@ public class ProcessDescriptor implements Serializable {
 	@XmlAttribute(name = "accessRestricted", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public Boolean accessRestricted;
 
+	@Override
+	protected DataSetType getType() {
+		return DataSetType.PROCESS;
+	}
 }

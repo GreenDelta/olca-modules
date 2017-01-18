@@ -1,10 +1,6 @@
 
 package org.openlca.ilcd.descriptors;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -12,40 +8,19 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
-import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.DataSetType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
 		"uuid",
-		"permanentUri",
-		"dataSetVersion",
+		"uri",
+		"version",
 		"name",
 		"classification",
-		"generalComment",
+		"comment",
 		"referenceUnit"
 })
-public class UnitGroupDescriptor implements Serializable {
-
-	private final static long serialVersionUID = 1L;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public String uuid;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	@XmlSchemaType(name = "anyURI")
-	public String permanentUri;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public String dataSetVersion;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public LangString name;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public final List<Classification> classification = new ArrayList<>();
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public LangString generalComment;
+public class UnitGroupDescriptor extends Descriptor {
 
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/UnitGroup")
 	public String referenceUnit;
@@ -57,4 +32,8 @@ public class UnitGroupDescriptor implements Serializable {
 	@XmlAttribute(name = "sourceId", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public String sourceId;
 
+	@Override
+	protected DataSetType getType() {
+		return DataSetType.UNIT_GROUP;
+	}
 }

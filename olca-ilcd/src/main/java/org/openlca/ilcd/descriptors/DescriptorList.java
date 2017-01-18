@@ -28,7 +28,7 @@ public class DescriptorList implements Serializable {
 			@XmlElement(name = "unitGroup", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/UnitGroup", type = UnitGroupDescriptor.class),
 			@XmlElement(name = "flowProperty", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/FlowProperty", type = FlowPropertyDescriptor.class)
 	})
-	public final List<Serializable> descriptors = new ArrayList<>();
+	public final List<Descriptor> descriptors = new ArrayList<>();
 
 	@XmlAttribute(name = "sourceId", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public String sourceId;

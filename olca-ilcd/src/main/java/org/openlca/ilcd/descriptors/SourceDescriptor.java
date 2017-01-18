@@ -1,6 +1,5 @@
 package org.openlca.ilcd.descriptors;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,38 +10,27 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.sources.SourceType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = { "uuid", "permanentUri", "dataSetVersion",
-		"name", "shortName", "classification", "generalComment", "citation",
-		"publicationType", "file", "belongsTo" })
-public class SourceDescriptor implements Serializable {
-
-	private final static long serialVersionUID = 1L;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public String uuid;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	@XmlSchemaType(name = "anyURI")
-	public String permanentUri;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public String dataSetVersion;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public LangString name;
+@XmlType(name = "", propOrder = {
+		"uuid",
+		"uri",
+		"version",
+		"name",
+		"shortName",
+		"classification",
+		"comment",
+		"citation",
+		"publicationType",
+		"file",
+		"belongsTo" })
+public class SourceDescriptor extends Descriptor {
 
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public String shortName;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public final List<Classification> classification = new ArrayList<>();
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public LangString generalComment;
 
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI/Source")
 	public LangString citation;
@@ -63,4 +51,8 @@ public class SourceDescriptor implements Serializable {
 	@XmlAttribute(name = "sourceId", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public String sourceId;
 
+	@Override
+	protected DataSetType getType() {
+		return DataSetType.SOURCE;
+	}
 }

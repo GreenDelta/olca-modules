@@ -1,7 +1,6 @@
 
 package org.openlca.ilcd.descriptors;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,41 +11,21 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.LangString;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
 		"uuid",
-		"permanentUri",
-		"dataSetVersion",
+		"uri",
+		"version",
 		"name",
 		"classification",
-		"generalComment",
+		"comment",
 		"synonyms",
 		"unitGroup"
 })
-public class FlowPropertyDescriptor implements Serializable {
-
-	private final static long serialVersionUID = 1L;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public String uuid;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	@XmlSchemaType(name = "anyURI")
-	public String permanentUri;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public String dataSetVersion;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public LangString name;
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public final List<Classification> classification = new ArrayList<>();
-
-	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public LangString generalComment;
+public class FlowPropertyDescriptor extends Descriptor {
 
 	@XmlElement(namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public final List<LangString> synonyms = new ArrayList<>();
@@ -61,4 +40,8 @@ public class FlowPropertyDescriptor implements Serializable {
 	@XmlAttribute(name = "sourceId", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public String sourceId;
 
+	@Override
+	protected DataSetType getType() {
+		return DataSetType.FLOW_PROPERTY;
+	}
 }
