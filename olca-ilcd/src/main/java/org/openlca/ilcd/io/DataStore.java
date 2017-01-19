@@ -17,7 +17,7 @@ public interface DataStore extends Closeable {
 
 	void put(IDataSet ds) throws DataStoreException;
 
-	void put(Source source, File file) throws DataStoreException;
+	void put(Source source, File[] files) throws DataStoreException;
 
 	<T> boolean delete(Class<T> type, String id) throws DataStoreException;
 

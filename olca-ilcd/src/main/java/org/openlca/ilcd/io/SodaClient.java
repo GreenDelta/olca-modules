@@ -122,10 +122,9 @@ public class SodaClient implements DataStore {
 	}
 
 	@Override
-	public void put(Source source, File file)
-			throws DataStoreException {
+	public void put(Source source, File[] files) throws DataStoreException {
 		checkConnection();
-		log.info("Publish source with file: {} + {}", source, file);
+		log.info("Publish source with files {}", source);
 		try {
 			FormDataMultiPart multiPart = new FormDataMultiPart();
 			if (con.dataStockId != null) {
@@ -137,10 +136,7 @@ public class SodaClient implements DataStore {
 			FormDataBodyPart xmlPart = new FormDataBodyPart("file", xmlStream,
 					MediaType.MULTIPART_FORM_DATA_TYPE);
 			multiPart.bodyPart(xmlPart);
-			FileInputStream fileStream = new FileInputStream(file);
-			FormDataBodyPart filePart = new FormDataBodyPart(file.getName(),
-					fileStream, MediaType.MULTIPART_FORM_DATA_TYPE);
-			multiPart.bodyPart(filePart);
+			addFiles(files, multiPart);
 			WebResource r = resource("sources/withBinaries");
 			ClientResponse resp = cookies(r).type(
 					MediaType.MULTIPART_FORM_DATA_TYPE)
@@ -148,8 +144,21 @@ public class SodaClient implements DataStore {
 			eval(resp);
 			log.trace("Server response: {}", fetchMessage(resp));
 		} catch (Exception e) {
-			throw new DataStoreException("Failed to upload source with file "
-					+ file, e);
+			throw new DataStoreException("Failed to upload source with file", e);
+		}
+	}
+
+	private void addFiles(File[] files, FormDataMultiPart multiPart)
+			throws Exception {
+		if (files == null)
+			return;
+		for (File file : files) {
+			if (file == null)
+				continue;
+			FileInputStream is = new FileInputStream(file);
+			FormDataBodyPart part = new FormDataBodyPart(file.getName(),
+					is, MediaType.MULTIPART_FORM_DATA_TYPE);
+			multiPart.bodyPart(part);
 		}
 	}
 

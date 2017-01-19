@@ -101,24 +101,25 @@ public class ZipStore implements DataStore {
 	}
 
 	@Override
-	public void put(Source source, File file)
+	public void put(Source source, File[] files)
 			throws DataStoreException {
-		log.trace("Store source {} with digital file {}", source, file);
+		log.trace("Store source {} with digital files", source);
 		put(source);
-		if (file == null)
+		if (files == null || files.length == 0)
 			return;
-		Path entry = zip.getPath("ILCD/external_docs/" + file.getName());
-		Path parent = entry.getParent();
 		try {
+			Path parent = zip.getPath("ILCD/external_docs");
 			if (parent != null && !Files.exists(parent))
 				Files.createDirectories(parent);
-			Files.copy(file.toPath(), entry,
-					StandardCopyOption.REPLACE_EXISTING);
-			List<Path> list = getEntries("external_docs");
-			list.add(entry);
+			for (File file : files) {
+				Path entry = zip.getPath("ILCD/external_docs/" + file.getName());
+				Files.copy(file.toPath(), entry,
+						StandardCopyOption.REPLACE_EXISTING);
+				List<Path> list = getEntries("external_docs");
+				list.add(entry);
+			}
 		} catch (Exception e) {
-			throw new DataStoreException(
-					"Could not store digital file " + file, e);
+			throw new DataStoreException("Could not store digital files", e);
 		}
 	}
 

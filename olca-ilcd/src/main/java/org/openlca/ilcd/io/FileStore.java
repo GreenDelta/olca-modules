@@ -105,20 +105,22 @@ public class FileStore implements DataStore {
 		}
 	}
 
-	public void put(Source source, File file)
+	public void put(Source source, File[] files)
 			throws DataStoreException {
-		log.trace("Store source {} with file {}", source, file);
+		log.trace("Store source {} with files", source);
 		put(source);
-		if (file == null || !file.exists())
+		if (files == null || files.length == 0)
 			return;
 		try {
 			File folder = new File(rootDir, "external_docs");
 			if (!folder.exists())
 				folder.mkdirs();
-			File newFile = new File(folder, file.getName());
-			Files.copy(file.toPath(), newFile.toPath());
+			for (File file : files) {
+				File newFile = new File(folder, file.getName());
+				Files.copy(file.toPath(), newFile.toPath());
+			}
 		} catch (Exception e) {
-			String message = "Cannot store source file " + file;
+			String message = "Cannot store source files";
 			log.error(message, e);
 			throw new DataStoreException(message);
 		}

@@ -47,7 +47,7 @@ public class SourceWithFileTest {
 		Files.write(tempFile, content);
 		File file = tempFile.toFile();
 		addFileLink(source, file);
-		client.put(source, file);
+		client.put(source, new File[] { file });
 		InputStream is = client.getExternalDocument(id, file.getName());
 		byte[] contentFromServer = new byte[content.length];
 		is.read(contentFromServer);

@@ -52,7 +52,7 @@ public class SourceExport {
 			config.store.put(iSource);
 		else {
 			addFileRef(dataSetInfo, extFile);
-			config.store.put(iSource, extFile);
+			config.store.put(iSource, new File[] { extFile });
 		}
 		return iSource;
 	}

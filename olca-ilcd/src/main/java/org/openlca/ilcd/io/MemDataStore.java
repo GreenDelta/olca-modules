@@ -41,7 +41,7 @@ public class MemDataStore implements DataStore {
 	}
 
 	@Override
-	public void put(Source source, File file)
+	public void put(Source source, File[] files)
 			throws DataStoreException {
 		put(source);
 		HashMap<String, Object> map = content.get(File.class);
@@ -49,7 +49,8 @@ public class MemDataStore implements DataStore {
 			map = new HashMap<>();
 			content.put(File.class, map);
 		}
-		map.put(file.getName(), file);
+		for (File file : files)
+			map.put(file.getName(), file);
 	}
 
 	@Override
