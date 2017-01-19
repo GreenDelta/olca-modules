@@ -117,7 +117,8 @@ public class SodaClient implements DataStore {
 			eval(response);
 			log.trace("Server response: {}", fetchMessage(response));
 		} catch (Exception e) {
-			throw new DataStoreException("Failed to upload resource " + ds, e);
+			throw new DataStoreException("Failed to upload data set + " + ds +
+					":  " + e.getMessage(), e);
 		}
 	}
 
@@ -144,7 +145,8 @@ public class SodaClient implements DataStore {
 			eval(resp);
 			log.trace("Server response: {}", fetchMessage(resp));
 		} catch (Exception e) {
-			throw new DataStoreException("Failed to upload source with file", e);
+			throw new DataStoreException("Failed to upload source with file: "
+					+ e.getMessage(), e);
 		}
 	}
 
@@ -172,7 +174,7 @@ public class SodaClient implements DataStore {
 					InputStream.class);
 		} catch (Exception e) {
 			throw new DataStoreException("Failed to get file " + fileName +
-					"for source " + sourceId, e);
+					"for source " + sourceId + ": " + e.getMessage(), e);
 		}
 	}
 

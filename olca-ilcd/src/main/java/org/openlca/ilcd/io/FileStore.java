@@ -9,7 +9,9 @@ import java.util.Iterator;
 
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Ref;
+import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
+import org.openlca.ilcd.util.Sources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +90,20 @@ public class FileStore implements DataStore {
 		} catch (Exception e) {
 			throw new DataStoreException("failed to open file " + fileName, e);
 		}
+	}
+
+	/**
+	 * Get the file for the given reference. The file may exist or not. Returns
+	 * null if the reference does not contain a valid file location.
+	 */
+	public File getExternalDocument(FileRef ref) {
+		String name = Sources.getFileName(ref);
+		if (name == null)
+			return null;
+		File docDir = new File(rootDir, "external_docs");
+		if (!docDir.exists())
+			docDir.mkdirs();
+		return new File(docDir, name);
 	}
 
 	@Override
