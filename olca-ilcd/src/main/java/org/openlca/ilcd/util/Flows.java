@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.ilcd.commons.Classification;
+import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.DataEntry;
@@ -13,6 +14,8 @@ import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
 import org.openlca.ilcd.flows.Geography;
+import org.openlca.ilcd.flows.LCIMethod;
+import org.openlca.ilcd.flows.Modelling;
 import org.openlca.ilcd.flows.QuantitativeReference;
 import org.openlca.ilcd.flows.Technology;
 
@@ -157,4 +160,17 @@ public final class Flows {
 		return info.classificationInformation.classifications;
 	}
 
+	public static Modelling getModelling(Flow f) {
+		return f == null ? null : f.modelling;
+	}
+
+	public static LCIMethod getLCIMethod(Flow f) {
+		Modelling m = getModelling(f);
+		return m == null ? null : m.lciMethod;
+	}
+
+	public static FlowType getType(Flow f) {
+		LCIMethod m = getLCIMethod(f);
+		return m == null ? null : m.flowType;
+	}
 }
