@@ -22,6 +22,7 @@ public class ClassListTest {
 		assertEquals("Custom", list.get(1).name);
 		assertEquals(2, list.get(1).categories.size());
 		assertEquals("classId7", list.get(1).categories.get(1).classId);
+		assertEquals("class3", list.get(1).categories.get(1).value);
 	}
 
 }

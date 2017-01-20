@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
@@ -41,26 +39,39 @@ public final class ClassList {
 	public static List<Classification> read(InputStream is) {
 		List<Classification> list = new ArrayList<>();
 		try (BufferedInputStream buffer = new BufferedInputStream(is)) {
-			JAXBContext context = JAXBContext.newInstance(Classification.class);
-			Unmarshaller unmarshaller = context.createUnmarshaller();
 			XMLStreamReader reader = XMLInputFactory.newFactory()
 					.createXMLStreamReader(buffer);
+
+			Classification classification = null;
+			Category category = null;
 			while (reader.hasNext()) {
 				int evt = reader.next();
+
+				if (evt == XMLStreamConstants.START_ELEMENT) {
+					if (eq(reader, "classification"))
+						classification = initClassification(reader);
+					if (eq(reader, "class") && classification != null)
+						category = initCategory(reader);
+				}
+
 				if (evt == XMLStreamConstants.END_ELEMENT) {
 					if (reader.getLocalName().equals("classificationInformation"))
 						break;
-					continue;
+					if (eq(reader, "classification") && classification != null) {
+						list.add(classification);
+						classification = null;
+					}
+					if (eq(reader, "class") && category != null && classification != null) {
+						classification.categories.add(category);
+						category = null;
+					}
 				}
-				if (evt != XMLStreamConstants.START_ELEMENT)
-					continue;
-				if (reader.getLocalName().equals("classification")) {
-					Classification c = unmarshaller.unmarshal(reader,
-							Classification.class).getValue();
-					if (c != null)
-						list.add(c);
-				}
+
+				if (evt == XMLStreamConstants.CHARACTERS && category != null)
+					addValue(reader, category);
+
 			}
+
 			reader.close();
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(ClassList.class);
@@ -68,4 +79,46 @@ public final class ClassList {
 		}
 		return list;
 	}
+
+	private static Classification initClassification(XMLStreamReader reader) {
+		Classification classification;
+		classification = new Classification();
+		classification.name = reader.getAttributeValue(null, "name");
+		classification.url = reader.getAttributeValue(null, "classes");
+		return classification;
+	}
+
+	private static Category initCategory(XMLStreamReader reader) {
+		Category category;
+		category = new Category();
+		category.classId = reader.getAttributeValue(null, "classId");
+		String level = reader.getAttributeValue(null, "level");
+		if (level == null)
+			return category;
+		try {
+			category.level = Integer.parseInt(level);
+		} catch (Exception e) {
+			Logger log = LoggerFactory.getLogger(ClassList.class);
+			log.error("No numeric level for class " + category.classId, e);
+		}
+		return category;
+	}
+
+	private static void addValue(XMLStreamReader reader, Category category) {
+		String s = reader.getText();
+		if (s == null)
+			return;
+		s = s.trim();
+		if (s.isEmpty())
+			return;
+		if (category.value == null)
+			category.value = s;
+		else
+			category.value += " " + s;
+	}
+
+	private static boolean eq(XMLStreamReader reader, String tag) {
+		return reader.getLocalName().equals(tag);
+	}
+
 }

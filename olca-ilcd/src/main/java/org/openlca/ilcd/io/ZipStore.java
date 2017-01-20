@@ -70,6 +70,10 @@ public class ZipStore implements DataStore {
 		return list;
 	}
 
+	public List<Path> getEntries(Class<? extends IDataSet> type) {
+		return getEntries(Dir.get(type));
+	}
+
 	@Override
 	public <T> T get(Class<T> type, String id) throws DataStoreException {
 		log.trace("Get {} for id {} from zip", type, id);
