@@ -8,7 +8,7 @@ class Extensions {
 
 	private Extensions() {
 	}
-	
+
 	public static QName getQName(String attribute) {
 		return new QName(NAMESPACE, attribute, "olca");
 	}

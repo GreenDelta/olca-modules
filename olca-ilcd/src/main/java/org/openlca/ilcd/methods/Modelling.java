@@ -19,6 +19,7 @@ import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.annotations.ShortText;
+import org.openlca.ilcd.flowproperties.ComplianceDeclaration;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ModellingAndValidationType", propOrder = {
@@ -49,7 +50,9 @@ public class Modelling implements Serializable {
 
 	public Validation validation;
 
-	public ComplianceDeclarationList complianceDeclarations;
+	@XmlElementWrapper(name = "complianceDeclarations")
+	@XmlElement(name = "compliance")
+	public ComplianceDeclaration[] complianceDeclarations;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

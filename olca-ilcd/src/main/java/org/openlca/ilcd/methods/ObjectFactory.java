@@ -135,14 +135,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link ComplianceDeclarationList }
-	 * 
-	 */
-	public ComplianceDeclarationList createComplianceDeclarationList() {
-		return new ComplianceDeclarationList();
-	}
-
-	/**
 	 * Create an instance of {@link FactorList }
 	 * 
 	 */

@@ -8,7 +8,10 @@ import org.openlca.ilcd.units.QuantitativeReference;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
 
-public class UnitGroups {
+public final class UnitGroups {
+
+	private UnitGroups() {
+	}
 
 	public static UnitGroupInfo getUnitGroupInfo(UnitGroup u) {
 		if (u == null)
