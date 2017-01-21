@@ -2,7 +2,6 @@
 package org.openlca.ilcd.units;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +21,8 @@ import org.openlca.ilcd.commons.Other;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "UnitType", propOrder = {
 		"name",
-		"meanValue",
-		"generalComment",
+		"factor",
+		"comment",
 		"other"
 })
 public class Unit implements Serializable {
@@ -33,15 +32,17 @@ public class Unit implements Serializable {
 	@XmlElement(required = true)
 	public String name;
 
-	public double meanValue;
+	@XmlElement(name = "meanValue")
+	public double factor;
 
-	public final List<LangString> generalComment = new ArrayList<>();
+	@XmlElement(name = "generalComment")
+	public final List<LangString> comment = new ArrayList<>();
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
 
 	@XmlAttribute(name = "dataSetInternalID")
-	public BigInteger dataSetInternalID;
+	public int id;
 
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();

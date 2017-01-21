@@ -1,10 +1,12 @@
 package org.openlca.ilcd.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.math.BigInteger;
 
 import javax.xml.bind.JAXB;
 
@@ -36,8 +38,8 @@ public class UnitExtensionTest {
 
 	private Unit createUnit() {
 		Unit unit = new Unit();
-		unit.dataSetInternalID = new BigInteger("1");
-		unit.meanValue = (double) 42;
+		unit.id = 1;
+		unit.factor = 42d;
 		unit.name = "kg";
 		return unit;
 	}

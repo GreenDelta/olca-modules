@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,14 +15,15 @@ import org.openlca.ilcd.util.UnitGroupBag;
 public class UnitGroupBagTest {
 
 	private UnitGroupBag bag;
+	private UnitGroup ug;
 
 	@Before
 	public void setUp() throws Exception {
 		try (InputStream stream = this.getClass().getResourceAsStream(
 				"unit.xml")) {
 			XmlBinder binder = new XmlBinder();
-			UnitGroup group = binder.fromStream(UnitGroup.class, stream);
-			this.bag = new UnitGroupBag(group, "en");
+			ug = binder.fromStream(UnitGroup.class, stream);
+			this.bag = new UnitGroupBag(ug, "en");
 		}
 	}
 
@@ -34,9 +34,9 @@ public class UnitGroupBagTest {
 
 	@Test
 	public void testGetUnits() {
-		List<Unit> units = bag.getUnits();
-		assertTrue(units.size() == 4);
-		assertEquals("kg*a", units.get(0).name);
+		Unit[] units = ug.units;
+		assertTrue(units.length == 4);
+		assertEquals("kg*a", units[0].name);
 	}
 
 	@Test

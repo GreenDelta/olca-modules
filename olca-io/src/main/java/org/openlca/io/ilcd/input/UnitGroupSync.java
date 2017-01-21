@@ -47,7 +47,7 @@ class UnitGroupSync {
 			if (ilcdRefUnit == null)
 				return;
 			double factor = olcaRefUnit.getConversionFactor()
-					/ ilcdRefUnit.meanValue;
+					/ ilcdRefUnit.factor;
 			boolean changed = syncUnits(factor);
 			if (changed)
 				database.createDao(UnitGroup.class).update(olcaGroup);
@@ -57,9 +57,10 @@ class UnitGroupSync {
 	}
 
 	private org.openlca.ilcd.units.Unit findRefUnit(Unit olcaRefUnit) {
-		if (olcaRefUnit == null)
+		org.openlca.ilcd.units.Unit[] iUnits = ilcdGroup.getValue().units;
+		if (olcaRefUnit == null || iUnits == null)
 			return null;
-		for (org.openlca.ilcd.units.Unit ilcdUnit : ilcdGroup.getUnits()) {
+		for (org.openlca.ilcd.units.Unit ilcdUnit : iUnits) {
 			UnitExtension ext = new UnitExtension(ilcdUnit);
 			String id = ext.getUnitId();
 			if (id != null && id.equals(olcaRefUnit.getRefId()))
@@ -69,8 +70,11 @@ class UnitGroupSync {
 	}
 
 	private boolean syncUnits(double factor) {
+		org.openlca.ilcd.units.Unit[] iUnits = ilcdGroup.getValue().units;
+		if (iUnits == null)
+			return false;
 		boolean changed = false;
-		for (org.openlca.ilcd.units.Unit ilcdUnit : ilcdGroup.getUnits()) {
+		for (org.openlca.ilcd.units.Unit ilcdUnit : iUnits) {
 			UnitExtension ext = new UnitExtension(ilcdUnit);
 			String id = ext.getUnitId();
 			if (id == null || containsUnit(id))
@@ -78,8 +82,8 @@ class UnitGroupSync {
 			Unit unit = new Unit();
 			unit.setRefId(id);
 			unit.setName(ilcdUnit.name);
-			unit.setConversionFactor(factor * ilcdUnit.meanValue);
-			unit.setDescription(LangString.getFirst(ilcdUnit.generalComment,
+			unit.setConversionFactor(factor * ilcdUnit.factor);
+			unit.setDescription(LangString.getFirst(ilcdUnit.comment,
 					config.langs));
 			olcaGroup.getUnits().add(unit);
 			changed = true;

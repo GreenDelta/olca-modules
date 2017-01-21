@@ -93,8 +93,7 @@ public class UnitGroupImport {
 
 	private void validateInput() throws ImportException {
 		if (ilcdUnitGroup.getReferenceUnitId() == null
-				|| ilcdUnitGroup.getName() == null
-				|| ilcdUnitGroup.getUnits().size() == 0) {
+				|| ilcdUnitGroup.getName() == null) {
 			String message = "Invalid input: unit group data set.";
 			throw new ImportException(message);
 		}
@@ -112,15 +111,16 @@ public class UnitGroupImport {
 	}
 
 	private void createUnits() {
+		org.openlca.ilcd.units.Unit[] iUnits = ilcdUnitGroup.getValue().units;
+		if (iUnits == null)
+			return;
 		Integer refUnitId = ilcdUnitGroup.getReferenceUnitId();
-		for (org.openlca.ilcd.units.Unit iUnit : ilcdUnitGroup.getUnits()) {
+		for (org.openlca.ilcd.units.Unit iUnit : iUnits) {
 			Unit oUnit = new Unit();
 			unitGroup.getUnits().add(oUnit);
 			mapUnitAttributes(iUnit, oUnit);
-			if (iUnit.dataSetInternalID != null) {
-				int id = iUnit.dataSetInternalID.intValue();
-				if (id == refUnitId)
-					unitGroup.setReferenceUnit(oUnit);
+			if (refUnitId != null && refUnitId == iUnit.id) {
+				unitGroup.setReferenceUnit(oUnit);
 			}
 		}
 	}
@@ -132,9 +132,9 @@ public class UnitGroupImport {
 		else
 			oUnit.setRefId(UUID.randomUUID().toString());
 		oUnit.setName(iUnit.name);
-		oUnit.setDescription(LangString.getFirst(iUnit.generalComment,
+		oUnit.setDescription(LangString.getFirst(iUnit.comment,
 				config.langs));
-		oUnit.setConversionFactor(iUnit.meanValue);
+		oUnit.setConversionFactor(iUnit.factor);
 	}
 
 	private void saveInDatabase(UnitGroup obj) throws ImportException {

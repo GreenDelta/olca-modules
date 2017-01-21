@@ -32,7 +32,7 @@ public class SchemaValidatorTest {
 			String url = "/org/openlca/ilcd/io/" + dataSets[i];
 			InputStream stream = getClass().getResourceAsStream(url);
 			boolean valid = validator.isValid(stream, types[i]);
-			Assert.assertTrue(valid);
+			Assert.assertTrue("Validation failed: " + url, valid);
 		}
 	}
 

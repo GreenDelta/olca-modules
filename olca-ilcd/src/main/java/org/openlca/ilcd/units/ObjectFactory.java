@@ -42,14 +42,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link UnitList }
-	 * 
-	 */
-	public UnitList createUnitList() {
-		return new UnitList();
-	}
-
-	/**
 	 * Create an instance of {@link QuantitativeReference }
 	 * 
 	 */
