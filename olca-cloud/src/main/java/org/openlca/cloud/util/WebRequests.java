@@ -56,10 +56,8 @@ public class WebRequests {
 			return builder;
 		if (data instanceof InputStream)
 			builder.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE);
-		else {
-			log.info(new Gson().toJson(data));
+		else
 			builder.entity(new Gson().toJson(data), MediaType.APPLICATION_JSON_TYPE);
-		}
 		return builder;
 	}
 
