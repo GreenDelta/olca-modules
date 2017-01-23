@@ -69,12 +69,12 @@ public class ImpactMethodExport {
 		lciaMethod.characterisationFactors = list;
 		for (ImpactFactor olcaFactor : impact.getImpactFactors()) {
 			Factor ilcdFactor = new Factor();
-			list.getFactor().add(ilcdFactor);
+			list.factors.add(ilcdFactor);
 			// TODO: uncertainty values + formulas
-			ilcdFactor.setMeanValue(getRefAmount(olcaFactor));
+			ilcdFactor.meanValue = getRefAmount(olcaFactor);
 			Ref ref = ExportDispatch.forwardExportCheck(
 					olcaFactor.getFlow(), config);
-			ilcdFactor.setReferenceToFlowDataSet(ref);
+			ilcdFactor.flow = ref;
 		}
 	}
 

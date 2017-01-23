@@ -111,14 +111,6 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link DataSourceReferenceList }
-	 * 
-	 */
-	public DataSourceReferenceList createDataSourceReferenceList() {
-		return new DataSourceReferenceList();
-	}
-
-	/**
 	 * Create an instance of {@link Modelling }
 	 * 
 	 */
@@ -204,22 +196,6 @@ public class ObjectFactory {
 	 */
 	public Time createTime() {
 		return new Time();
-	}
-
-	/**
-	 * Create an instance of {@link ILCDLCIAMethodologies }
-	 * 
-	 */
-	public ILCDLCIAMethodologies createILCDLCIAMethodologies() {
-		return new ILCDLCIAMethodologies();
-	}
-
-	/**
-	 * Create an instance of {@link Methodology }
-	 * 
-	 */
-	public Methodology createMethodology() {
-		return new Methodology();
 	}
 
 	/**

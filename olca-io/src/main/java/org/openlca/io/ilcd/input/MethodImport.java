@@ -179,7 +179,7 @@ public class MethodImport {
 		FactorList list = iMethod.characterisationFactors;
 		if (list == null)
 			return;
-		for (Factor factor : list.getFactor()) {
+		for (Factor factor : list.factors) {
 			try {
 				addFactor(category, factor);
 			} catch (Exception e) {
@@ -190,7 +190,7 @@ public class MethodImport {
 
 	private void addFactor(ImpactCategory category, Factor factor)
 			throws Exception {
-		String flowId = factor.getReferenceToFlowDataSet().uuid;
+		String flowId = factor.flow.uuid;
 		Flow flow = getFlow(flowId);
 		if (flow == null) {
 			log.warn("Could not import flow {}", flowId);
@@ -200,7 +200,7 @@ public class MethodImport {
 		oFactor.setFlow(flow);
 		oFactor.setFlowPropertyFactor(flow.getReferenceFactor());
 		oFactor.setUnit(getRefUnit(flow));
-		oFactor.setValue(factor.getMeanValue());
+		oFactor.setValue(factor.meanValue);
 		category.getImpactFactors().add(oFactor);
 	}
 

@@ -53,7 +53,7 @@ public class LCIAMethod implements IDataSet {
 	public String locations;
 
 	@XmlAttribute(name = "LCIAMethodologies")
-	public String lciaMethodologies;
+	public String methodologies;
 
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
