@@ -29,8 +29,6 @@ public class InfoSheet {
 			"Reference process:",
 			"Reference process location:",
 			"Product:",
-			"Reference process:",
-			"Reference process location:",
 			"Amount:",
 			"Impact method:",
 			"Normalisation & weighting set:",
@@ -78,8 +76,6 @@ public class InfoSheet {
 		writer.cell(sheet, row++, col, process(system));
 		writer.cell(sheet, row++, col, location(system));
 		writer.cell(sheet, row++, col, product(system));
-		writer.cell(sheet, row++, col, process(system));
-		writer.cell(sheet, row++, col, location(system));
 		writer.cell(sheet, row++, col, amount(system));
 		writer.cell(sheet, row++, col, method(setup));
 		writer.cell(sheet, row++, col, nwSet(setup));
