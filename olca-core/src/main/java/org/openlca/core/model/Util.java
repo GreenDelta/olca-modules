@@ -15,7 +15,7 @@ class Util {
 			return;
 		to.setRefId((UUID.randomUUID().toString()));
 		to.setName(from.getName());
-		to.setDescription(to.getDescription());
+		to.setDescription(from.getDescription());
 		to.setVersion(from.getVersion());
 		to.setLastChange(from.getLastChange());
 	}
