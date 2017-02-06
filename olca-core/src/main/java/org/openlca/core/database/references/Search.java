@@ -54,7 +54,8 @@ class Search {
 						continue;
 					long id = result.getLong(i + 2);
 					if (id == 0)
-						continue;
+						if (ref.longReference || result.isNull(i + 2))
+							continue;
 					references.add(createReference(ref, id, ownerId, nestedOwnerId));
 				}
 			});

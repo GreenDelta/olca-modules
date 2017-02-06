@@ -10,6 +10,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
@@ -22,7 +23,8 @@ public class ProjectReferenceSearch extends
 	private final static Ref[] references = { 
 		new Ref(Category.class, "category", "f_category", true), 
 		new Ref(Actor.class, "author", "f_author", true),	
-		new Ref(ImpactMethod.class, "impactMethodId", "f_impact_method", true) 			
+		new Ref(ImpactMethod.class, "impactMethodId", "f_impact_method", true, true), 			
+		new Ref(NwSet.class, "nwSetId", "f_nwset", true, true) 			
 	};
 	private final static Ref[] variantReferences = { 
 		new Ref(ProductSystem.class, "productSystem", ProjectVariant.class, "variants", "f_product_system"), 
