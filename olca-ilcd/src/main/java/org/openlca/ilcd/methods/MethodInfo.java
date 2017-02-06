@@ -14,34 +14,6 @@ import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.Other;
 
-/**
- * <p>
- * Java class for LCIAMethodInformationType complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
- * <pre>
- * &lt;complexType name="LCIAMethodInformationType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="dataSetInformation" type="{http://lca.jrc.it/ILCD/LCIAMethod}DataSetInformationType"/>
- *         &lt;element name="quantitativeReference" type="{http://lca.jrc.it/ILCD/LCIAMethod}QuantitativeReferenceType" minOccurs="0"/>
- *         &lt;element name="time" type="{http://lca.jrc.it/ILCD/LCIAMethod}TimeType" minOccurs="0"/>
- *         &lt;element name="geography" type="{http://lca.jrc.it/ILCD/LCIAMethod}GeographyType"/>
- *         &lt;element name="impactModel" type="{http://lca.jrc.it/ILCD/LCIAMethod}ImpactModelType" minOccurs="0"/>
- *         &lt;element ref="{http://lca.jrc.it/ILCD/Common}other" minOccurs="0"/>
- *       &lt;/sequence>
- *       &lt;anyAttribute processContents='lax' namespace='##other'/>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "LCIAMethodInformationType", propOrder = {
 		"dataSetInfo",

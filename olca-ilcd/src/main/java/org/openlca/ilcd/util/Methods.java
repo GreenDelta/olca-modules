@@ -1,8 +1,13 @@
 package org.openlca.ilcd.util;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.openlca.ilcd.methods.AdminInfo;
 import org.openlca.ilcd.methods.DataEntry;
 import org.openlca.ilcd.methods.DataSetInfo;
+import org.openlca.ilcd.methods.Factor;
+import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.MethodInfo;
 import org.openlca.ilcd.methods.Publication;
@@ -76,6 +81,18 @@ public final class Methods {
 		if (ai.publication == null)
 			ai.publication = new Publication();
 		return ai.publication;
+	}
+
+	public static List<Factor> getFactors(LCIAMethod m) {
+		if (m == null || m.characterisationFactors == null)
+			return Collections.emptyList();
+		return m.characterisationFactors.factors;
+	}
+
+	public static List<Factor> factors(LCIAMethod m) {
+		if (m.characterisationFactors == null)
+			m.characterisationFactors = new FactorList();
+		return m.characterisationFactors.factors;
 	}
 
 }
