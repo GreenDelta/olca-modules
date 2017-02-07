@@ -23,6 +23,10 @@ class ProcessCopy {
 		copy.setProcessType(origin.getProcessType());
 		copy.setInfrastructureProcess(origin.isInfrastructureProcess());
 		copy.currency = origin.currency;
+		copy.dqEntry = origin.dqEntry;
+		copy.dqSystem = origin.dqSystem;
+		copy.exchangeDqSystem = origin.exchangeDqSystem;
+		copy.socialDqSystem = origin.socialDqSystem;
 		if (origin.getDocumentation() != null)
 			copy.setDocumentation(origin.getDocumentation().clone());
 	}

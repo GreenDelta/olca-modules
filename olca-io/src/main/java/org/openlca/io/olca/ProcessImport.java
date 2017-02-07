@@ -15,6 +15,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
@@ -74,6 +75,8 @@ class ProcessImport {
 		Set<Long> providerUpdates = switchExchangeRefs(destProcess);
 		switchAllocationProducts(srcProcess, destProcess);
 		switchDocRefs(destProcess);
+		switchSocialAspectRefs(destProcess);
+		switchDqSystems(destProcess);
 		destProcess = destDao.insert(destProcess);
 		seq.put(seq.PROCESS, srcProcess.getRefId(), destProcess.getId());
 		srcDestIdMap.put(srcProcess.getId(), destProcess.getId());
@@ -117,6 +120,13 @@ class ProcessImport {
 			destProcess.getExchanges().removeAll(removals);
 		}
 		return oldProviders;
+	}
+
+	private void switchSocialAspectRefs(Process destProcess) {
+		for (SocialAspect aspect : destProcess.socialAspects) {
+			aspect.indicator = refs.switchRef(aspect.indicator);
+			aspect.source = refs.switchRef(aspect.source);
+		}
 	}
 
 	private void checkSetProvider(Exchange exchange, Set<Long> oldProviders) {
@@ -171,6 +181,12 @@ class ProcessImport {
 			translatedSources.add(refs.switchRef(source));
 		doc.getSources().clear();
 		doc.getSources().addAll(translatedSources);
+	}
+
+	private void switchDqSystems(Process destProcess) {
+		destProcess.dqSystem = refs.switchRef(destProcess.dqSystem);
+		destProcess.exchangeDqSystem = refs.switchRef(destProcess.exchangeDqSystem);
+		destProcess.socialDqSystem = refs.switchRef(destProcess.socialDqSystem);
 	}
 
 	private void switchDefaultProviders() {

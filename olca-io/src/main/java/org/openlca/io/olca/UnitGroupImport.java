@@ -48,7 +48,7 @@ class UnitGroupImport {
 					createUnitGroup(descriptor);
 			}
 		} catch (Exception e) {
-			log.error("failed to import unit groups");
+			log.error("failed to import unit groups", e);
 		}
 	}
 
