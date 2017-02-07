@@ -32,7 +32,7 @@ public class SocialIndicator extends CategorizedEntity {
 	public String evaluationScheme;
 
 	@Override
-	public Object clone() {
+	public SocialIndicator clone() {
 		SocialIndicator clone = new SocialIndicator();
 		Util.cloneRootFields(this, clone);
 		clone.setCategory(getCategory());
