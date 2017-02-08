@@ -42,7 +42,7 @@ public class ProcessReferenceSearch extends
 			new Ref(FlowPropertyFactor.class, "flowPropertyFactor", Exchange.class, "exchanges",
 					"f_flow_property_factor"),
 			new Ref(Unit.class, "unit", Exchange.class, "exchanges", "f_unit"),
-			new Ref(Process.class, "defaultProviderId", Exchange.class, "exchanges", "f_default_provider", true)
+			new Ref(Process.class, "defaultProviderId", Exchange.class, "exchanges", "f_default_provider", true, true)
 	};
 	private final static Ref[] socialAspectReferences = {
 			new Ref(SocialIndicator.class, "indicator", SocialAspect.class, "socialAspects", "f_indicator", false),

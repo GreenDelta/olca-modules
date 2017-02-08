@@ -6,6 +6,7 @@ import java.util.List;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
+import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -16,6 +17,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
@@ -47,12 +49,14 @@ class Sequence {
 	int IMPACT_METHOD = 11;
 	int NW_SET = 12;
 	int PROJECT = 13;
-
+	int DQ_SYSTEM = 14;
+	int SOCIAL_INDICATOR = 15;
+	
 	private final HashMap<String, Long>[] sequences;
 
 	@SuppressWarnings("unchecked")
 	public Sequence(IDatabase database) {
-		sequences = new HashMap[14];
+		sequences = new HashMap[16];
 		for (int i = 0; i < sequences.length; i++)
 			sequences[i] = new HashMap<>();
 		init(database);
@@ -73,6 +77,8 @@ class Sequence {
 		index(IMPACT_METHOD, new ImpactMethodDao(db));
 		index(NW_SET, new NwSetDao(db));
 		index(PROJECT, new ProjectDao(db));
+		index(DQ_SYSTEM, new DQSystemDao(db));
+		index(SOCIAL_INDICATOR, new SocialIndicatorDao(db));
 	}
 
 	private void index(int type, RootEntityDao<?, ?> dao) {

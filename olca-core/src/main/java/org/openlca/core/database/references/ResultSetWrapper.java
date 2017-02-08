@@ -11,6 +11,15 @@ final class ResultSetWrapper {
 		this.set = set;
 	}
 
+	boolean isNull(int column) {
+		try {
+			return set.getObject(column) == null;
+		} catch (SQLException e) {
+			Search.log.error("Error receiving an object from native sql result set", e);
+			return true;
+		}		
+	}
+	
 	long getLong(int column) {
 		try {
 			return set.getLong(column);

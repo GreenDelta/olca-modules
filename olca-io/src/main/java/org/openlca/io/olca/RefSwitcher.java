@@ -4,6 +4,7 @@ import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
+import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -12,11 +13,13 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -24,6 +27,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -81,8 +85,7 @@ class RefSwitcher {
 	}
 
 	FlowProperty switchRef(FlowProperty srcProperty) {
-		return switchRef(seq.FLOW_PROPERTY, new FlowPropertyDao(dest),
-				srcProperty);
+		return switchRef(seq.FLOW_PROPERTY, new FlowPropertyDao(dest), srcProperty);
 	}
 
 	Flow switchRef(Flow srcFlow) {
@@ -117,12 +120,18 @@ class RefSwitcher {
 	}
 
 	ProductSystem switchRef(ProductSystem srcProductSystem) {
-		return switchRef(seq.PRODUCT_SYSTEM, new ProductSystemDao(dest),
-				srcProductSystem);
+		return switchRef(seq.PRODUCT_SYSTEM, new ProductSystemDao(dest), srcProductSystem);
 	}
 
-	private <T extends RootEntity> T switchRef(int type,
-			RootEntityDao<T, ?> dao, T srcEntity) {
+	SocialIndicator switchRef(SocialIndicator srcIndicator) {
+		return switchRef(seq.SOCIAL_INDICATOR, new SocialIndicatorDao(dest), srcIndicator);
+	}
+
+	DQSystem switchRef(DQSystem srcSystem) {
+		return switchRef(seq.DQ_SYSTEM, new DQSystemDao(dest), srcSystem);
+	}
+
+	private <T extends RootEntity> T switchRef(int type, RootEntityDao<T, ?> dao, T srcEntity) {
 		if (srcEntity == null)
 			return null;
 		long id = seq.get(type, srcEntity.getRefId());

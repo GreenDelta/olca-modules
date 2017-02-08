@@ -44,6 +44,7 @@ public class DQSystems {
 				score.description = scores[i][j];
 				score.position = j + 1;
 				score.uncertainty = uncertainties[i][j];
+				indicator.scores.add(score);
 			}
 			system.indicators.add(indicator);
 		}

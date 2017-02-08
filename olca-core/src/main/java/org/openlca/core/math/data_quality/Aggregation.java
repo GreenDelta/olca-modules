@@ -44,13 +44,23 @@ class Aggregation {
 		}
 		double[] result = new double[aggregated.length];
 		for (int i = 0; i < aggregated.length; i++) {
-			if (aggregated == null || aggregated[i].equals(BigDecimal.ZERO))
+			if (aggregated == null || aggregated[i] == null || aggregated[i].doubleValue() == 0d)
 				continue;
-			if (divisors == null || divisors[i].equals(BigDecimal.ZERO))
+			if (divisors == null || divisors[i] == null || divisors[i].doubleValue() == 0d)
 				continue;
-				result[i] = aggregated[i].divide(divisors[i], MathContext.DECIMAL128).doubleValue();
+			System.out.println(aggregated[i]);
+			System.out.println(divisors[i]);
+			result[i] = aggregated[i].divide(divisors[i], MathContext.DECIMAL128).doubleValue();
 		}
 		return result;
+	}
+	
+	public static void main(String[] args) {
+		double dd = 0E-77;
+		System.out.println(dd);
+		BigDecimal d = new BigDecimal(dd);
+		System.out.println(d.equals(BigDecimal.ZERO));
+		System.out.println(d);
 	}
 
 	private static double[] maximumOf(List<AggregationValue> values) {

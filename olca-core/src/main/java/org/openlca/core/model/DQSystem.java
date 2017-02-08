@@ -35,6 +35,7 @@ public class DQSystem extends CategorizedEntity {
 		for (DQIndicator indicator : indicators) {
 			clone.indicators.add(indicator.clone());
 		}
+		clone.source = source;
 		return clone;
 	}
 

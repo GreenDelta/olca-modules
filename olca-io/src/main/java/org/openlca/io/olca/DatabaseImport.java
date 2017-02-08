@@ -40,8 +40,8 @@ public class DatabaseImport implements Runnable {
 	}
 
 	private void importSimple(Sequence seq) {
-		new LocationImport(source, dest, seq).run();
 		new CategoryImport(source, dest, seq).run();
+		new LocationImport(source, dest, seq).run();
 		new ActorImport(source, dest, seq).run();
 		new SourceImport(source, dest, seq).run();
 		new ParameterImport(source, dest).run();
@@ -74,6 +74,8 @@ public class DatabaseImport implements Runnable {
 	private void importStructs(Sequence seq) {
 		new FlowImport(source, dest, seq).run();
 		new CurrencyImport(source, dest, seq).run();
+		new SocialIndicatorImport(source, dest, seq).run();
+		new DQSystemImport(source, dest, seq).run();
 		new ProcessImport(source, dest, seq).run();
 		new ProductSystemImport(source, dest, seq).run();
 		new ImpactMethodImport(source, dest, seq).run();
