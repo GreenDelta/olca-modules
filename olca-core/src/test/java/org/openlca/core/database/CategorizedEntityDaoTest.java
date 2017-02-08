@@ -1,5 +1,8 @@
 package org.openlca.core.database;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -55,6 +58,14 @@ public class CategorizedEntityDaoTest {
 		testFindForNullCategory(dao, instance);
 		Category category = addCategory(clazz, dao, instance);
 		testGetDescriptorsForCategory(dao, instance, category);
+		testGetForRefId(dao, instance);
+	}
+
+	private <T extends CategorizedEntity> void testGetForRefId(
+			CategorizedEntityDao<T, ?> dao, T instance) {
+		T clone = dao.getForRefId(instance.getRefId());
+		assertEquals(instance, clone);
+		assertNull(dao.getForRefId(UUID.randomUUID().toString()));
 	}
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void testFindForNullCategory(
