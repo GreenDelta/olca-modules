@@ -243,12 +243,14 @@ class ProcessImport {
 		e.setUnit(unit);
 		e.setInput(es2.inputGroup != null);
 		double amount = es2.amount;
-		if (index.isMappedFlow(flowRefId))
-			amount = amount * index.getMappedFlowFactor(flowRefId);
-		e.setAmountValue(amount);
+		double f = 1;
+		if (index.isMappedFlow(flowRefId)) {
+			f = index.getMappedFlowFactor(flowRefId);
+		}
+		e.setAmountValue(amount * f);
+		e.setUncertainty(UncertaintyConverter.toOpenLCA(es2.uncertainty, f));
 		if (config.withParameters && config.withParameterFormulas)
-			mapFormula(es2, process, e);
-		e.setUncertainty(UncertaintyConverter.toOpenLCA(es2.uncertainty));
+			mapFormula(es2, process, e, f);
 		e.setDqEntry(getPedigreeMatrix(es2));
 		process.getExchanges().add(e);
 		return e;
@@ -277,16 +279,23 @@ class ProcessImport {
 		return ug.getReferenceUnit();
 	}
 
-	private void mapFormula(spold2.Exchange original,
-			Process process, Exchange exchange) {
+	private void mapFormula(spold2.Exchange original, Process process,
+			Exchange exchange, double factor) {
+		String formula = null;
 		String var = original.variableName;
-		if (Strings.notEmpty(var)) {
-			if (Parameters.contains(var, process.getParameters()))
-				exchange.setAmountFormula(var);
+		if (Strings.notEmpty(var)
+				&& Parameters.contains(var, process.getParameters())) {
+			formula = var;
 		} else if (Parameters.isValid(original.mathematicalRelation, config)) {
-			exchange.setAmountFormula(original.mathematicalRelation.trim());
+			formula = original.mathematicalRelation;
 		}
-
+		if (formula == null)
+			return;
+		formula = formula.trim();
+		if (factor == 1.0)
+			exchange.setAmountFormula(formula);
+		else
+			exchange.setAmountFormula(factor + " * (" + formula + ")");
 	}
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {

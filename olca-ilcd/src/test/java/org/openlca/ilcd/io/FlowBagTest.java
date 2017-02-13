@@ -9,10 +9,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.ilcd.commons.FlowType;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.Compartment;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.util.FlowBag;
+import org.openlca.ilcd.util.Flows;
 
 public class FlowBagTest {
 
@@ -56,6 +58,12 @@ public class FlowBagTest {
 	@Test
 	public void testGetFlowType() {
 		assertEquals(FlowType.ELEMENTARY_FLOW, bag.getFlowType());
+	}
+
+	@Test
+	public void testLocation() {
+		List<LangString> location = Flows.getGeography(bag.getValue()).location;
+		assertEquals("US", location.get(0).value);
 	}
 
 	@Test

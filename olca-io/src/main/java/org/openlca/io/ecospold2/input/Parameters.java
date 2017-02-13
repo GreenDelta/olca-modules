@@ -42,7 +42,7 @@ final class Parameters {
 			olcaParam.setName(param.variableName);
 			setScope(param, olcaParam);
 			olcaParam.setValue(param.amount);
-			olcaParam.setUncertainty(UncertaintyConverter.toOpenLCA(param.uncertainty));
+			olcaParam.setUncertainty(UncertaintyConverter.toOpenLCA(param.uncertainty, 1));
 			String formula = param.mathematicalRelation;
 			if (config.withParameterFormulas && isValid(formula, config)) {
 				olcaParam.setFormula(formula.trim());

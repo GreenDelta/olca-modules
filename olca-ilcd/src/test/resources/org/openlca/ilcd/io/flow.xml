@@ -34,9 +34,11 @@
 				Life Cycle Data System (ILCD).</common:generalComment>
 		</dataSetInformation>
 		<quantitativeReference>
-			<referenceToReferenceFlowProperty>0
-			</referenceToReferenceFlowProperty>
+			<referenceToReferenceFlowProperty>0</referenceToReferenceFlowProperty>
 		</quantitativeReference>
+		<geography>
+			<locationOfSupply xml:lang="en">US</locationOfSupply>
+		</geography>
 	</flowInformation>
 	<modellingAndValidation>
 		<LCIMethod>
