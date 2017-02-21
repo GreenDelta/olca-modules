@@ -34,8 +34,6 @@ public class ObjectFactory {
 			"http://lca.jrc.it/ILCD/Common", "referenceToOwnershipOfDataSet");
 	private final static QName _ReferenceToRegistrationAuthority_QNAME = new QName(
 			"http://lca.jrc.it/ILCD/Common", "referenceToRegistrationAuthority");
-	private final static QName _DataQualityIndicators_QNAME = new QName(
-			"http://lca.jrc.it/ILCD/Common", "dataQualityIndicators");
 	private final static QName _ReferenceToConvertedOriginalDataSetFrom_QNAME = new QName(
 			"http://lca.jrc.it/ILCD/Common",
 			"referenceToConvertedOriginalDataSetFrom");
@@ -83,14 +81,6 @@ public class ObjectFactory {
 	 * 
 	 */
 	public ObjectFactory() {
-	}
-
-	/**
-	 * Create an instance of {@link Wrapper }
-	 * 
-	 */
-	public Wrapper createWrapper() {
-		return new Wrapper();
 	}
 
 	/**
@@ -204,8 +194,7 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link Ref }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToOwnershipOfDataSet")
@@ -216,8 +205,7 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link Ref }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToRegistrationAuthority")
@@ -228,8 +216,7 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link Ref }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToConvertedOriginalDataSetFrom")
@@ -284,8 +271,7 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link Ref }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToRawDataDocumentation")
@@ -306,8 +292,7 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link Ref }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToPersonOrEntityGeneratingTheDataSet")
@@ -316,16 +301,6 @@ public class ObjectFactory {
 		return new JAXBElement<>(
 				_ReferenceToPersonOrEntityGeneratingTheDataSet_QNAME,
 				Ref.class, null, value);
-	}
-
-	/**
-	 * Create an instance of {@link JAXBElement }{@code <}{@link Wrapper
-	 * }{@code >}
-	 * 
-	 */
-	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Wrapper", name = "ILCD")
-	public JAXBElement<Wrapper> createILCD(Wrapper value) {
-		return new JAXBElement<>(_ILCD_QNAME, Wrapper.class, null, value);
 	}
 
 	/**
@@ -429,8 +404,7 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link JAXBElement }{@code <}
-	 * {@link Ref }{@code >}
+	 * Create an instance of {@link JAXBElement }{@code <} {@link Ref }{@code >}
 	 * 
 	 */
 	@XmlElementDecl(namespace = "http://lca.jrc.it/ILCD/Common", name = "referenceToDataSetUseApproval")
