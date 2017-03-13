@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Table;
@@ -188,40 +190,41 @@ public class BaseDao<T> implements IDao<T> {
 	public List<T> getForIds(Set<Long> ids) {
 		if (ids == null || ids.isEmpty())
 			return Collections.emptyList();
-		if (ids.size() <= MAX_LIST_SIZE)
-			return fetchForIds(ids);
-		return fetchForChunkedIds(ids);
-	}
-
-	private List<T> fetchForChunkedIds(Set<Long> ids) {
-		List<Long> rest = new ArrayList<>(ids);
-		List<T> results = new ArrayList<>();
-		while (!rest.isEmpty()) {
-			int toPos = rest.size() > MAX_LIST_SIZE ? MAX_LIST_SIZE : rest
-					.size();
-			List<Long> nextChunk = rest.subList(0, toPos);
-			List<T> chunkResults = fetchForIds(nextChunk);
-			results.addAll(chunkResults);
-			nextChunk.clear(); // clears also the elements in rest
-		}
-		return results;
-	}
-
-	private List<T> fetchForIds(Collection<Long> ids) {
+		if (ids.size() > MAX_LIST_SIZE)
+			return executeChunked(ids, this::getForIds);
 		EntityManager em = createManager();
 		try {
-			String jpql = "SELECT o FROM " + entityType.getSimpleName()
-					+ " o WHERE o.id IN :ids";
+			String jpql = "SELECT o FROM " + entityType.getSimpleName() + " o WHERE o.id IN :ids";
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
 			query.setParameter("ids", ids);
 			return query.getResultList();
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "Error while fetching for ids",
-					e);
+			DatabaseException.logAndThrow(log, "Error while fetching for ids", e);
 			return Collections.emptyList();
 		} finally {
 			em.close();
 		}
+	}
+
+	protected <X, Y> List<Y> executeChunked(Set<X> set, Function<Set<X>, List<Y>> queryMethod) {
+		List<Set<X>> split = split(set);
+		List<Y> all = new ArrayList<>();
+		for (Set<X> s : split) {
+			all.addAll(queryMethod.apply(s));
+		}
+		return all;
+	}
+
+	private <X> List<Set<X>> split(Set<X> all) {
+		List<Set<X>> split = new ArrayList<>();
+		List<X> rest = new ArrayList<>(all);
+		while (!rest.isEmpty()) {
+			int toPos = rest.size() > MAX_LIST_SIZE ? MAX_LIST_SIZE : rest.size();
+			List<X> nextChunk = rest.subList(0, toPos);
+			split.add(new HashSet<X>(nextChunk));
+			nextChunk.clear(); // clears also the elements in rest
+		}
+		return split;
 	}
 
 	@Override
