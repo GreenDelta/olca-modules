@@ -46,6 +46,8 @@ public class MatlibExport implements Runnable {
 	private final File dir;
 	private final IMatrixSolver solver;
 
+	public boolean withResults = false;
+
 	private ProcessTable processTable;
 	private TechIndex techIndex;
 	private LongIndex flowIndex;
@@ -150,10 +152,12 @@ public class MatlibExport implements Runnable {
 	private void writeMatrices() throws Exception {
 		writeMatrix(techMatrix, new File(dir, "A.bin"));
 		writeMatrix(enviMatrix, new File(dir, "B.bin"));
-		IMatrix invA = solver.invert(techMatrix);
-		writeMatrix(invA, new File(dir, "Ainv.bin"));
-		IMatrix m = solver.multiply(enviMatrix, invA);
-		writeMatrix(m, new File(dir, "M.bin"));
+		if (withResults) {
+			IMatrix invA = solver.invert(techMatrix);
+			writeMatrix(invA, new File(dir, "Ainv.bin"));
+			IMatrix m = solver.multiply(enviMatrix, invA);
+			writeMatrix(m, new File(dir, "M.bin"));
+		}
 	}
 
 	private void writeMatrix(IMatrix m, File file) throws Exception {
