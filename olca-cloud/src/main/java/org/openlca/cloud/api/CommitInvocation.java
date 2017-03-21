@@ -2,7 +2,7 @@ package org.openlca.cloud.api;
 
 import java.util.List;
 
-import org.openlca.cloud.api.data.CommitInputStream;
+import org.openlca.cloud.api.data.CommitStream;
 import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
@@ -49,7 +49,7 @@ public class CommitInvocation {
 		if (lastCommitId == null)
 			lastCommitId = "null";
 		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
-		String commitId = WebRequests.call(Type.POST, url, sessionId, new CommitInputStream(database, message, data))
+		String commitId = WebRequests.call(Type.POST, url, sessionId, new CommitStream(database, message, data))
 				.getEntity(
 						String.class);
 		return commitId;

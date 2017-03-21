@@ -26,7 +26,7 @@ public class CommitStreamReader implements Closeable {
 	}
 
 	public String readNextPartAsString() throws IOException {
-		return new String(readNextPart(), CommitInputStream.CHARSET);
+		return new String(readNextPart(), CommitStream.CHARSET);
 	}
 
 	public boolean hasMore() {
@@ -37,7 +37,7 @@ public class CommitStreamReader implements Closeable {
 		byte[] dataset = readNextPart();
 		read++;
 		dataset = BinUtils.gunzip(dataset);
-		String json = new String(dataset, CommitInputStream.CHARSET);
+		String json = new String(dataset, CommitStream.CHARSET);
 		return gson.fromJson(json, Dataset.class);
 	}
 

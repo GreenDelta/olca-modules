@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class CommitInputStream extends InputStream {
+public class CommitStream extends InputStream {
 
-	private static final Logger log = LoggerFactory.getLogger(CommitInputStream.class);
+	private static final Logger log = LoggerFactory.getLogger(CommitStream.class);
 	static final Charset CHARSET = Charset.forName("utf-8");
 	private final IDatabase db;
 	private final Gson gson = new Gson();
@@ -43,7 +43,7 @@ public class CommitInputStream extends InputStream {
 	private int position = 0;
 	private boolean doneAdding = false;
 
-	public CommitInputStream(IDatabase db, String commitMessage, List<Dataset> datasets) {
+	public CommitStream(IDatabase db, String commitMessage, List<Dataset> datasets) {
 		this.db = db;
 		byte[] commitMessageBytes = commitMessage.getBytes(CHARSET);
 		buffer = new byte[4 + 4 + commitMessageBytes.length];
