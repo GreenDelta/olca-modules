@@ -95,17 +95,15 @@ public class RepositoryClient {
 		return result;
 	}
 
-	public CommitInvocation createCommitInvocation() {
-		CommitInvocation invocation = new CommitInvocation(config.getDatabase());
-		invocation.baseUrl = config.getBaseUrl();
-		invocation.sessionId = sessionId;
-		invocation.repositoryId = config.getRepositoryId();
-		invocation.lastCommitId = config.getLastCommitId();
-		return invocation;
-	}
-
-	public void execute(CommitInvocation invocation) throws WebRequestException {
+	public void commit(String message, List<Dataset> data) throws WebRequestException {
 		executeLoggedIn(() -> {
+			CommitInvocation invocation = new CommitInvocation(config.getDatabase());
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.lastCommitId = config.getLastCommitId();
+			invocation.message = message;
+			invocation.data = data;
 			config.setLastCommitId(invocation.execute());
 		});
 	}
