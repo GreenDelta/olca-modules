@@ -33,11 +33,13 @@ abstract class BaseImport<T extends RootEntity> {
 		try {
 			T model = get(refId);
 			JsonObject json = conf.store.get(modelType, refId);
-			if (!doImport(model, json))
+			if (!doImport(model, json)) 
 				return model;
-			conf.visited(modelType, refId);
 			importBinFiles();
-			return map(json, model);
+			conf.visited(modelType, refId);
+			model = map(json, model);
+			conf.imported(model);
+			return model;
 		} catch (Exception e) {
 			log.error("failed to import " + modelType.name() + " " + refId, e);
 			return null;

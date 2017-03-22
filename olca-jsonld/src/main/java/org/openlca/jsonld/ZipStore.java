@@ -88,9 +88,7 @@ public class ZipStore implements EntityStore {
 		String refId = getRefId(object);
 		if (type == null || refId == null)
 			return;
-		String dirName = ModelPath.get(type);
-		String path = dirName + "/" + refId + ".json";
-		put(path, object);
+		put(ModelPath.get(type, refId), object);
 	}
 
 	private void put(String path, JsonObject object) {
@@ -157,7 +155,7 @@ public class ZipStore implements EntityStore {
 	public JsonObject get(ModelType type, String refId) {
 		if (!contains(type, refId))
 			return null;
-		String path = ModelPath.get(type) + "/" + refId + ".json";
+		String path = ModelPath.get(type, refId);
 		byte[] data = get(path);
 		if (data == null)
 			return null;
@@ -194,7 +192,7 @@ public class ZipStore implements EntityStore {
 	public List<String> getBinFiles(ModelType type, String refId) {
 		if (type == null || refId == null)
 			return Collections.emptyList();
-		Path dir = zip.getPath("bin", ModelPath.get(type), refId);
+		Path dir = zip.getPath(ModelPath.getBin(type, refId));
 		if (!Files.exists(dir))
 			return Collections.emptyList();
 		FilePathCollector collector = new FilePathCollector();
