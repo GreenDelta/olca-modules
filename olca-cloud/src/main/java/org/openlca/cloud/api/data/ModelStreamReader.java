@@ -13,14 +13,14 @@ import org.openlca.util.BinUtils;
 
 import com.google.gson.Gson;
 
-public class CommitStreamReader implements Closeable {
+public class ModelStreamReader implements Closeable {
 
 	private final Gson gson = new Gson();
 	private final InputStream stream;
 	private final int total;
 	private int read;
 
-	public CommitStreamReader(InputStream stream) throws IOException {
+	public ModelStreamReader(InputStream stream) throws IOException {
 		this.stream = stream;
 		this.total = readNextInt();
 	}
@@ -31,6 +31,10 @@ public class CommitStreamReader implements Closeable {
 
 	public boolean hasMore() {
 		return read < total;
+	}
+
+	public int getTotal() {
+		return total;
 	}
 
 	public Dataset readNextPartAsDataset() throws IOException {
@@ -46,7 +50,7 @@ public class CommitStreamReader implements Closeable {
 		readBytes(length, out, true);
 	}
 
-	private byte[] readNextPart() throws IOException {
+	public byte[] readNextPart() throws IOException {
 		int length = readNextInt();
 		if (length == 0)
 			return new byte[0];

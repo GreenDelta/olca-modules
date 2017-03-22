@@ -10,4 +10,21 @@ public class FileReference implements Serializable {
 	public String refId;
 	public ModelType type;
 
+	@Override
+	public int hashCode() {
+		return (type.name() + "_" + refId).hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this)
+			return true;
+		if (!(obj instanceof FileReference))
+			return false;
+		FileReference ref = (FileReference) obj;
+		if (ref.type != type)
+			return false;
+		return ref.refId.equals(refId);
+	}
+
 }

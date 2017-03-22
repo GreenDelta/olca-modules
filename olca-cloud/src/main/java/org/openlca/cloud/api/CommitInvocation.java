@@ -1,6 +1,8 @@
 package org.openlca.cloud.api;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import org.openlca.cloud.api.data.CommitStream;
 import org.openlca.cloud.model.data.Dataset;
@@ -9,6 +11,10 @@ import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.NwSetDescriptor;
 
 /**
  * Invokes a web service call to commit data to a repository
@@ -22,7 +28,7 @@ public class CommitInvocation {
 	String repositoryId;
 	String lastCommitId;
 	String message;
-	List<Dataset> data;
+	Set<Dataset> data;
 
 	CommitInvocation(IDatabase database) {
 		this.database = database;
@@ -40,7 +46,7 @@ public class CommitInvocation {
 	 *             not match the latest commit id in the repository, the user is
 	 *             out of sync
 	 */
-	String execute() throws WebRequestException {
+	String execute(Consumer<Dataset> callback) throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
@@ -49,10 +55,19 @@ public class CommitInvocation {
 		if (lastCommitId == null)
 			lastCommitId = "null";
 		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
-		String commitId = WebRequests.call(Type.POST, url, sessionId, new CommitStream(database, message, data))
-				.getEntity(
-						String.class);
+		ImpactMethodDao dao = new ImpactMethodDao(database);
+		for (Dataset ds : new ArrayList<>(data)) {
+			if (ds.type == ModelType.IMPACT_METHOD) {
+				for (ImpactCategoryDescriptor cat : dao.getCategoryDescriptors(ds.refId)) {
+					data.add(Dataset.toDataset(cat));
+				}
+				for (NwSetDescriptor nwSet : dao.getNwSetDescriptors(ds.refId)) {
+					data.add(Dataset.toDataset(nwSet));
+				}
+			}
+		}
+		String commitId = WebRequests.call(Type.POST, url, sessionId, new CommitStream(database, message, data, callback))
+				.getEntity(String.class);
 		return commitId;
 	}
-
 }
