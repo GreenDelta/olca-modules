@@ -112,6 +112,8 @@ public abstract class ModelStream extends InputStream {
 		int index = addTo(buffer, 0, asByteArray(dsJson.length));
 		index = addTo(buffer, index, dsJson);
 		index = addTo(buffer, index, asByteArray(json.length));
+		if (json.length == 0)
+			return buffer;
 		index = addTo(buffer, index, json);
 		index = addTo(buffer, index, asByteArray(binaryData.size()));
 		for (BinaryFile entry : binaryData) {
@@ -125,7 +127,10 @@ public abstract class ModelStream extends InputStream {
 	}
 
 	private int getLength(byte[] dsJson, byte[] json, List<BinaryFile> binaryData) {
-		int length = 4 + dsJson.length + 4 + json.length + 4;
+		int length = 4 + dsJson.length + 4 + json.length;
+		if (json.length == 0)
+			return length;
+		length += 4;
 		for (BinaryFile file : binaryData) {
 			length += 4 + file.path.getBytes(CHARSET).length;
 			length += 4 + file.data.length;

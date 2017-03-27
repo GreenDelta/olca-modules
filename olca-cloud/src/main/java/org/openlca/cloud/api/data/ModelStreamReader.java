@@ -26,7 +26,7 @@ public class ModelStreamReader implements Closeable {
 	}
 
 	public String readNextPartAsString() throws IOException {
-		return new String(readNextPart(), CommitStream.CHARSET);
+		return new String(readNextPart(), ModelStream.CHARSET);
 	}
 
 	public boolean hasMore() {
@@ -41,7 +41,7 @@ public class ModelStreamReader implements Closeable {
 		byte[] dataset = readNextPart();
 		read++;
 		dataset = BinUtils.gunzip(dataset);
-		String json = new String(dataset, CommitStream.CHARSET);
+		String json = new String(dataset, ModelStream.CHARSET);
 		return gson.fromJson(json, Dataset.class);
 	}
 
@@ -69,6 +69,8 @@ public class ModelStreamReader implements Closeable {
 	}
 
 	private void readBytes(int length, OutputStream out, boolean decrypt) throws IOException {
+		if (length == 0)
+			return;
 		InputStream in = new FixedLengthInputStream(length);
 		if (decrypt) {
 			in = new GZIPInputStream(in);

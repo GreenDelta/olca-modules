@@ -71,11 +71,13 @@ class FetchHandler {
 				fetchNotifier.worked();
 			}
 			fetchNotifier.endTask();
-			for (Entry<Dataset, JsonObject> entry : mergedData.entrySet()) {
-				if (entry.getValue() != null)
-					continue;
-				toDelete.add(entry.getKey());
+			if (mergedData != null) {
+				for (Entry<Dataset, JsonObject> entry : mergedData.entrySet()) {
+					if (entry.getValue() != null)
+						continue;
+					toDelete.add(entry.getKey());
 
+				}
 			}
 			fetchNotifier.beginTask(TaskType.PULL, toImport + toDelete.size());
 			JsonImport jsonImport = new JsonImport(store, database);
