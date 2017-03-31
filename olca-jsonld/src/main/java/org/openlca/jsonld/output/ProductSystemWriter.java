@@ -25,6 +25,8 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		if (conf.db != null) {
 			exchangeDao = new BaseDao<>(Exchange.class, conf.db);
 			idMap = RefIdMap.internalToRef(conf.db, Process.class);
+		} else {
+			idMap = new RefIdMap<>();
 		}
 	}
 
@@ -118,6 +120,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		obj.add(key, refObj);
 		Out.put(refObj, "@type", ref.getClass().getSimpleName());
 		Out.put(refObj, "@id", ref.getRefId());
+		Out.put(refObj, "name", ref.getName());
 	}
 
 	@Override
