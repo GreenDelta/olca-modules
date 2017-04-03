@@ -1,6 +1,7 @@
 package org.openlca.ilcd.io;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.openlca.ilcd.processes.ComplianceDeclaration;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
+import org.openlca.ilcd.processes.LCIAResult;
 import org.openlca.ilcd.processes.Location;
 import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Parameter;
@@ -39,7 +41,9 @@ public class ProcessSampleTest {
 			Assert.assertNotNull(pub.lastRevision);
 			assertEquals("00.00", pub.version);
 			assertEquals(2, pub.precedingVersions.size());
-			assertEquals("http://www.ilcd-network.org/data/processes/sample_process.xml", pub.uri.trim());
+			assertEquals(
+					"http://www.ilcd-network.org/data/processes/sample_process.xml",
+					pub.uri.trim());
 			assertEquals(PublicationStatus.WORKING_DRAFT, pub.status);
 			assertEquals(DataSetType.SOURCE, pub.republication.type);
 			assertEquals(DataSetType.CONTACT, pub.registrationAuthority.type);
@@ -153,6 +157,16 @@ public class ProcessSampleTest {
 			AllocationFactor f = e.allocations[1];
 			assertEquals(57.98, f.fraction, 1e-10);
 			assertEquals(1, f.productExchangeId);
+		});
+	}
+
+	@Test
+	public void testLCIAResults() throws Exception {
+		with(p -> {
+			assertEquals(2, p.lciaResults.length);
+			LCIAResult r1 = p.lciaResults[0];
+			assertTrue(r1.method.isValid());
+			assertEquals(DataSetType.LCIA_METHOD, r1.method.type);
 		});
 	}
 
