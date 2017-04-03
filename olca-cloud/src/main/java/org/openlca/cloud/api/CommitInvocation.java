@@ -1,32 +1,37 @@
 package org.openlca.cloud.api;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.Consumer;
 
-import org.openlca.cloud.api.data.CommitWriter;
-import org.openlca.cloud.util.Directories;
+import org.openlca.cloud.api.data.CommitStream;
+import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.database.IDatabase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
+import org.openlca.core.model.descriptors.NwSetDescriptor;
 
 /**
  * Invokes a web service call to commit data to a repository
  */
-public class CommitInvocation extends CommitWriter {
+public class CommitInvocation {
 
 	private static final String PATH = "/commit/";
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private IDatabase database;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
 	String lastCommitId;
+	String message;
+	Set<Dataset> data;
 
 	CommitInvocation(IDatabase database) {
-		super(database);
+		this.database = database;
 	}
 
 	/**
@@ -41,25 +46,28 @@ public class CommitInvocation extends CommitWriter {
 	 *             not match the latest commit id in the repository, the user is
 	 *             out of sync
 	 */
-	String execute() throws WebRequestException {
+	String execute(Consumer<Dataset> callback) throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
+		Valid.checkNotEmpty(message, "message");
+		Valid.checkNotEmpty(data, "data");
 		if (lastCommitId == null)
 			lastCommitId = "null";
 		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
-		try {
-			close();
-			String commitId = WebRequests.call(Type.POST, url, sessionId,
-					new FileInputStream(getFile())).getEntity(String.class);
-			return commitId;
-		} catch (IOException e) {
-			log.error("Error cleaning committing data", e);
-			return null;
-		} finally {
-			if (getFile() != null && getFile().getParentFile().exists())
-				Directories.delete(getFile().getParentFile());
+		ImpactMethodDao dao = new ImpactMethodDao(database);
+		for (Dataset ds : new ArrayList<>(data)) {
+			if (ds.type == ModelType.IMPACT_METHOD) {
+				for (ImpactCategoryDescriptor cat : dao.getCategoryDescriptors(ds.refId)) {
+					data.add(Dataset.toDataset(cat));
+				}
+				for (NwSetDescriptor nwSet : dao.getNwSetDescriptors(ds.refId)) {
+					data.add(Dataset.toDataset(nwSet));
+				}
+			}
 		}
+		String commitId = WebRequests.call(Type.POST, url, sessionId, new CommitStream(database, message, data, callback))
+				.getEntity(String.class);
+		return commitId;
 	}
-
 }

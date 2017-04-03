@@ -5,9 +5,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
-import org.openlca.core.model.ModelType;
-
 import org.openlca.cloud.util.NullSafe;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Version;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 
 public class Dataset extends FileReference implements Serializable {
 
@@ -61,6 +62,23 @@ public class Dataset extends FileReference implements Serializable {
 		if (!NullSafe.equal(lastChange, other.lastChange))
 			return false;
 		return true;
+	}
+
+	public FileReference asFileReference() {
+		FileReference ref = new FileReference();
+		ref.type = type;
+		ref.refId = refId;
+		return ref;
+	}
+
+	public static Dataset toDataset(BaseDescriptor entity) {
+		Dataset dataset = new Dataset();
+		dataset.refId = entity.getRefId();
+		dataset.type = entity.getModelType();
+		dataset.version = Version.asString(entity.getVersion());
+		dataset.lastChange = entity.getLastChange();
+		dataset.name = entity.getName();
+		return dataset;
 	}
 
 }

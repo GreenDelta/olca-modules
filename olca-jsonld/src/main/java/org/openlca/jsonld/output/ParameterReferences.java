@@ -132,7 +132,7 @@ public class ParameterReferences {
 	}
 
 	private static void writeParameters(Set<String> names, ExportConfig conf) {
-		if (names.isEmpty())
+		if (names.isEmpty() || conf.db == null)
 			return;
 		ParameterDao dao = new ParameterDao(conf.db);
 		for (String name : names) {

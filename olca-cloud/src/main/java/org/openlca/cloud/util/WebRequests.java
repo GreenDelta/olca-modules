@@ -17,7 +17,12 @@ import com.sun.jersey.api.client.WebResource.Builder;
 public class WebRequests {
 
 	private static final Logger log = LoggerFactory.getLogger(WebRequests.class);
-	private static final Client client = Client.create();
+	private static final Client client;
+
+	static {
+		client = Client.create();
+		client.setChunkedEncodingSize(1024 * 100); // 100kb
+	}
 
 	public static ClientResponse call(Type type, String url, String sessionId) throws WebRequestException {
 		return call(type, url, sessionId, null);
