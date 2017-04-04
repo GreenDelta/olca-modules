@@ -16,7 +16,7 @@ import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QuantitativeReferenceType", propOrder = {
-		"referenceToReferenceUnit",
+		"referenceUnit",
 		"other"
 })
 public class QuantitativeReference implements Serializable {
