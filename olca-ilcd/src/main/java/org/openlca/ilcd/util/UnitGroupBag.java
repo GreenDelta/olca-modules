@@ -10,9 +10,8 @@ import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.units.AdminInfo;
 import org.openlca.ilcd.units.DataSetInfo;
-import org.openlca.ilcd.units.QuantitativeReference;
+import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
-import org.openlca.ilcd.units.UnitGroupInfo;
 
 public class UnitGroupBag implements IBag<UnitGroup> {
 
@@ -30,13 +29,8 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 	}
 
 	public Integer getReferenceUnitId() {
-		UnitGroupInfo info = unitGroup.unitGroupInfo;
-		if (info != null) {
-			QuantitativeReference qRef = info.quantitativeReference;
-			if (qRef != null && qRef.referenceToReferenceUnit != null)
-				return qRef.referenceToReferenceUnit.intValue();
-		}
-		return null;
+		Unit u = UnitGroups.getReferenceUnit(unitGroup);
+		return u == null ? null : u.id;
 	}
 
 	@Override

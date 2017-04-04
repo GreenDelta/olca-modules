@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.math.BigInteger;
-
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Classification;
@@ -68,7 +66,7 @@ public class UnitGroupExport {
 	private QuantitativeReference makeQRef() {
 		QuantitativeReference qRef = new QuantitativeReference();
 		if (unitGroup.getReferenceUnit() != null)
-			qRef.referenceToReferenceUnit = BigInteger.valueOf(0);
+			qRef.referenceUnit = 0;
 		return qRef;
 	}
 

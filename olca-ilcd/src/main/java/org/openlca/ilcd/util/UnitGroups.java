@@ -5,6 +5,7 @@ import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.units.AdminInfo;
 import org.openlca.ilcd.units.DataSetInfo;
 import org.openlca.ilcd.units.QuantitativeReference;
+import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
 
@@ -92,4 +93,18 @@ public final class UnitGroups {
 			ai.publication = new Publication();
 		return ai.publication;
 	}
+
+	public static Unit getReferenceUnit(UnitGroup u) {
+		QuantitativeReference qRef = getQuantitativeReference(u);
+		if (qRef == null || u.units == null)
+			return null;
+		for (Unit unit : u.units) {
+			if (unit == null)
+				continue;
+			if (unit.id == qRef.referenceUnit)
+				return unit;
+		}
+		return null;
+	}
+
 }
