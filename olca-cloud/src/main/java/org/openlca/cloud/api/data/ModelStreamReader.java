@@ -45,9 +45,9 @@ public class ModelStreamReader implements Closeable {
 		return gson.fromJson(json, Dataset.class);
 	}
 
-	public void readNextPartToStream(OutputStream out) throws IOException {
+	public boolean readNextPartToStream(OutputStream out) throws IOException {
 		int length = readNextInt();
-		readBytes(length, out, true);
+		return readBytes(length, out, true);
 	}
 
 	public byte[] readNextPart() throws IOException {
@@ -68,9 +68,9 @@ public class ModelStreamReader implements Closeable {
 		return out.toByteArray();
 	}
 
-	private void readBytes(int length, OutputStream out, boolean decrypt) throws IOException {
+	private boolean readBytes(int length, OutputStream out, boolean decrypt) throws IOException {
 		if (length == 0)
-			return;
+			return false;
 		InputStream in = new FixedLengthInputStream(length);
 		if (decrypt) {
 			in = new GZIPInputStream(in);
@@ -81,6 +81,7 @@ public class ModelStreamReader implements Closeable {
 			out.write(buffer, 0, count);
 		}
 		in.close();
+		return true;
 	}
 
 	@Override
