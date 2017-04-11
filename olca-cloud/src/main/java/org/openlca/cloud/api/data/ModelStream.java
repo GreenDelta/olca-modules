@@ -54,7 +54,11 @@ public abstract class ModelStream extends InputStream {
 		addTo(buffer, 0, asByteArray(datasets.size()));
 		addTo(buffer, 4, asByteArray(messageBytes.length));
 		addTo(buffer, 8, messageBytes);
-		new Thread(() -> addAll(datasets)).start();
+		if (datasets.isEmpty()) {
+			doneAdding = true;
+		} else {
+			new Thread(() -> addAll(datasets)).start();
+		}
 	}
 
 	@Override
