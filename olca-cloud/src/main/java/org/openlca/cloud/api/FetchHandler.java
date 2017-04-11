@@ -52,10 +52,11 @@ class FetchHandler {
 	}
 
 	String handleResponse(InputStream input) {
+		File file = null;
 		try (ModelStreamReader reader = new ModelStreamReader(input)) {
 			String commitId = reader.readNextPartAsString();
 			List<Dataset> toDelete = new ArrayList<>();
-			File file = Files.createTempFile("olca", ".zip").toFile();
+			file = Files.createTempFile("olca", ".zip").toFile();
 			file.delete();
 			EntityStore store = ZipStore.open(file);
 			putMergedData(store);
@@ -79,11 +80,15 @@ class FetchHandler {
 
 				}
 			}
+			if (toImport == 0 && toDelete.isEmpty())
+				return commitId;
 			fetchNotifier.beginTask(TaskType.PULL, toImport + toDelete.size());
-			JsonImport jsonImport = new JsonImport(store, database);
-			jsonImport.setUpdateMode(UpdateMode.ALWAYS);
-			jsonImport.setCallback((e) -> fetchNotifier.worked());
-			jsonImport.run();
+			if (toImport != 0) {
+				JsonImport jsonImport = new JsonImport(store, database);
+				jsonImport.setUpdateMode(UpdateMode.ALWAYS);
+				jsonImport.setCallback((e) -> fetchNotifier.worked());
+				jsonImport.run();
+			}
 			for (Dataset dataset : toDelete) {
 				delete(Daos.createCategorizedDao(database, dataset.type), dataset.refId);
 				fetchNotifier.worked();
@@ -93,6 +98,8 @@ class FetchHandler {
 		} catch (IOException e) {
 			log.error("Error reading fetch data", e);
 			return null;
+		} finally {
+			file.delete();
 		}
 	}
 
