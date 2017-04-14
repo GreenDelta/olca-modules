@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.List;
+
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Classification;
@@ -14,6 +16,7 @@ import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
 import org.openlca.ilcd.util.Refs;
 import org.openlca.ilcd.util.UnitExtension;
+import org.openlca.ilcd.util.UnitGroups;
 
 public class UnitGroupExport {
 
@@ -72,6 +75,7 @@ public class UnitGroupExport {
 
 	private void makeUnits(UnitGroup iUnitGroup) {
 		Unit refUnit = unitGroup.getReferenceUnit();
+		List<org.openlca.ilcd.units.Unit> units = UnitGroups.units(iUnitGroup);
 		int pos = 1;
 		for (Unit unit : unitGroup.getUnits()) {
 			org.openlca.ilcd.units.Unit iUnit = makeUnit(unit);
@@ -79,7 +83,7 @@ public class UnitGroupExport {
 				iUnit.id = 0;
 			else
 				iUnit.id = pos++;
-			iUnitGroup.add(iUnit);
+			units.add(iUnit);
 		}
 	}
 

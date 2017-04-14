@@ -47,4 +47,16 @@ public class Unit implements Serializable {
 	@XmlAnyAttribute
 	public final Map<QName, String> otherAttributes = new HashMap<>();
 
+	@Override
+	public Unit clone() {
+		Unit clone = new Unit();
+		clone.name = name;
+		clone.factor = factor;
+		LangString.copy(comment, clone.comment);
+		if (other != null)
+			clone.other = other.clone();
+		clone.id = id;
+		clone.otherAttributes.putAll(otherAttributes);
+		return clone;
+	}
 }

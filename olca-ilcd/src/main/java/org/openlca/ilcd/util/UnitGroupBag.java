@@ -33,6 +33,10 @@ public class UnitGroupBag implements IBag<UnitGroup> {
 		return u == null ? null : u.id;
 	}
 
+	public List<Unit> getUnits() {
+		return UnitGroups.getUnits(unitGroup);
+	}
+
 	@Override
 	public String getId() {
 		return unitGroup == null ? null : unitGroup.getUUID();
