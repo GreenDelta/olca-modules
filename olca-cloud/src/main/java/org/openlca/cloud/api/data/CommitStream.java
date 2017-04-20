@@ -38,7 +38,7 @@ public class CommitStream extends ModelStream {
 		if (entity == null)
 			return new byte[0];
 		byte[] data = new byte[0];
-		JsonObject object = JsonExport.toJson(entity);
+		JsonObject object = JsonExport.toJson(entity, db);
 		String json = gson.toJson(object);
 		data = json.getBytes(CHARSET);
 		data = BinUtils.gzip(data);
