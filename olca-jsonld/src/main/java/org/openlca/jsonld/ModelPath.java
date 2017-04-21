@@ -11,6 +11,10 @@ public final class ModelPath {
 		return "bin/" + ModelPath.get(type) + "/" + refId;
 	}
 
+	public static String get(ModelType type, String refId) {
+		return ModelPath.get(type) + "/" + refId + ".json";
+	}
+
 	public static String get(ModelType type) {
 		if (type == null)
 			return "";

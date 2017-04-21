@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.openlca</groupId>
 		<artifactId>olca-modules</artifactId>
-		<version>1.6.0</version>
+		<version>1.6.2</version>
 	</parent>
 	<artifactId>olca-simapro-csv</artifactId>
 	<packaging>jar</packaging>

@@ -1,7 +1,10 @@
 package org.openlca.jsonld.input;
 
+import java.util.function.Consumer;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.Schema;
 import org.openlca.jsonld.Schema.UnsupportedSchemaException;
@@ -13,7 +16,8 @@ public class JsonImport implements Runnable {
 	private IDatabase database;
 	private EntityStore store;
 	private UpdateMode updateMode = UpdateMode.NEVER;
-
+	private Consumer<RootEntity> callback;
+	
 	public JsonImport(EntityStore store, IDatabase db) {
 		this.store = store;
 		this.database = db;
@@ -23,10 +27,14 @@ public class JsonImport implements Runnable {
 		this.updateMode = updateMode;
 	}
 
+	public void setCallback(Consumer<RootEntity> callback) {
+		this.callback = callback;
+	}
+	
 	@Override
 	public void run() {
 		checkSchemaSupported();
-		ImportConfig conf = ImportConfig.create(new Db(database), store, updateMode);
+		ImportConfig conf = ImportConfig.create(new Db(database), store, updateMode, callback);
 		for (String catId : store.getRefIds(ModelType.CATEGORY))
 			CategoryImport.run(catId, conf);
 		for (String sysId : store.getRefIds(ModelType.DQ_SYSTEM))

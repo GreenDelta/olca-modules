@@ -2,13 +2,16 @@ package org.openlca.cloud.api;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.openlca.cloud.model.data.Commit;
 import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.model.data.FetchRequestData;
+import org.openlca.cloud.model.data.FileReference;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.model.ModelType;
 
@@ -95,18 +98,16 @@ public class RepositoryClient {
 		return result;
 	}
 
-	public CommitInvocation createCommitInvocation() {
-		CommitInvocation invocation = new CommitInvocation(config.getDatabase());
-		invocation.baseUrl = config.getBaseUrl();
-		invocation.sessionId = sessionId;
-		invocation.repositoryId = config.getRepositoryId();
-		invocation.lastCommitId = config.getLastCommitId();
-		return invocation;
-	}
-
-	public void execute(CommitInvocation invocation) throws WebRequestException {
+	public void commit(String message, Set<Dataset> data, Consumer<Dataset> callback) throws WebRequestException {
 		executeLoggedIn(() -> {
-			config.setLastCommitId(invocation.execute());
+			CommitInvocation invocation = new CommitInvocation(config.getDatabase());
+			invocation.baseUrl = config.getBaseUrl();
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.getRepositoryId();
+			invocation.lastCommitId = config.getLastCommitId();
+			invocation.message = message;
+			invocation.data = data;
+			config.setLastCommitId(invocation.execute(callback));
 		});
 	}
 
@@ -178,8 +179,8 @@ public class RepositoryClient {
 		});
 	}
 
-	public List<FetchRequestData> requestFetch() throws WebRequestException {
-		List<FetchRequestData> result = executeLoggedIn(() -> {
+	public Set<FetchRequestData> requestFetch() throws WebRequestException {
+		Set<FetchRequestData> result = executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
 			invocation.baseUrl = config.getBaseUrl();
 			invocation.sessionId = sessionId;
@@ -188,12 +189,12 @@ public class RepositoryClient {
 			return invocation.execute();
 		});
 		if (result == null)
-			return new ArrayList<>();
+			return new HashSet<>();
 		return result;
 	}
 
-	public List<FetchRequestData> sync(String untilCommitId) throws WebRequestException {
-		List<FetchRequestData> result = executeLoggedIn(() -> {
+	public Set<FetchRequestData> sync(String untilCommitId) throws WebRequestException {
+		Set<FetchRequestData> result = executeLoggedIn(() -> {
 			SyncInvocation invocation = new SyncInvocation();
 			invocation.baseUrl = config.getBaseUrl();
 			invocation.sessionId = sessionId;
@@ -202,13 +203,14 @@ public class RepositoryClient {
 			return invocation.execute();
 		});
 		if (result == null)
-			return new ArrayList<>();
+			return new HashSet<>();
 		return result;
 	}
 
-	public void download(List<Dataset> requestData, String commitId) throws WebRequestException {
+	public void download(Set<FileReference> requestData, String commitId, FetchNotifier notifier)
+			throws WebRequestException {
 		executeLoggedIn(() -> {
-			DownloadInvocation invocation = new DownloadInvocation(config.getDatabase());
+			DownloadInvocation invocation = new DownloadInvocation(config.getDatabase(), notifier);
 			invocation.baseUrl = config.getBaseUrl();
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.getRepositoryId();
@@ -218,9 +220,10 @@ public class RepositoryClient {
 		});
 	}
 
-	public void fetch(List<String> fetchData, Map<Dataset, JsonObject> mergedData) throws WebRequestException {
+	public void fetch(Set<FileReference> fetchData, Map<Dataset, JsonObject> mergedData, FetchNotifier notifier)
+			throws WebRequestException {
 		executeLoggedIn(() -> {
-			FetchInvocation invocation = new FetchInvocation(config.getDatabase());
+			FetchInvocation invocation = new FetchInvocation(config.getDatabase(), notifier);
 			invocation.baseUrl = config.getBaseUrl();
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.getRepositoryId();
@@ -231,11 +234,11 @@ public class RepositoryClient {
 		});
 	}
 
-	public void checkout(String commitId) throws WebRequestException {
+	public void checkout(String commitId, FetchNotifier notifier) throws WebRequestException {
 		if (commitId == null)
 			return;
 		executeLoggedIn(() -> {
-			CheckoutInvocation invocation = new CheckoutInvocation(config.getDatabase());
+			CheckoutInvocation invocation = new CheckoutInvocation(config.getDatabase(), notifier);
 			invocation.baseUrl = config.getBaseUrl();
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.getRepositoryId();
