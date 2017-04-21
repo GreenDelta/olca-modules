@@ -2,6 +2,8 @@ package org.openlca.core.model;
 
 public enum RiskLevel {
 
+	NO_OPPORTUNITY,
+
 	HIGH_OPPORTUNITY,
 
 	MEDIUM_OPPORTUNITY,
@@ -22,8 +24,6 @@ public enum RiskLevel {
 
 	NO_DATA,
 
-	NOT_APPLICABLE,
-
-	NO_OPPORTUNITY;
+	NOT_APPLICABLE;
 
 }
