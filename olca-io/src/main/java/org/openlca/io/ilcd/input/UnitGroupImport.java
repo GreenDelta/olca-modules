@@ -111,11 +111,10 @@ public class UnitGroupImport {
 	}
 
 	private void createUnits() {
-		org.openlca.ilcd.units.Unit[] iUnits = ilcdUnitGroup.getValue().units;
-		if (iUnits == null)
-			return;
 		Integer refUnitId = ilcdUnitGroup.getReferenceUnitId();
-		for (org.openlca.ilcd.units.Unit iUnit : iUnits) {
+		for (org.openlca.ilcd.units.Unit iUnit : ilcdUnitGroup.getUnits()) {
+			if (iUnit == null)
+				continue;
 			Unit oUnit = new Unit();
 			unitGroup.getUnits().add(oUnit);
 			mapUnitAttributes(iUnit, oUnit);

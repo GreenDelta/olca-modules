@@ -3,11 +3,13 @@ package org.openlca.ilcd.util;
 import java.lang.reflect.Field;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -84,20 +86,23 @@ public class RefTree {
 					addNode(field, (Ref) val, nodes);
 					continue;
 				}
-				if (!(val instanceof Collection)) {
-					collectChilds(field, val, nodes);
+				if (val instanceof Collection) {
+					Collection<?> c = (Collection<?>) val;
+					followCollection(field, c, nodes);
 					continue;
 				}
-				Collection<?> c = (Collection<?>) val;
-				for (Object elem : c) {
-					if (!follow(elem.getClass()))
-						break;
-					if (elem instanceof Ref) {
-						addNode(field, (Ref) elem, nodes);
-						continue;
-					}
-					collectChilds(field, elem, nodes);
+				if (val instanceof Map) {
+					Map<?, ?> m = (Map<?, ?>) val;
+					followCollection(field, m.values(), nodes);
+					continue;
 				}
+				if (Object[].class.isAssignableFrom(val.getClass())) {
+					Object[] array = (Object[]) val;
+					followCollection(field, Arrays.asList(array), nodes);
+					continue;
+				}
+				collectChilds(field, val, nodes);
+
 			}
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(RefTree.class);
@@ -106,13 +111,27 @@ public class RefTree {
 		return nodes;
 	}
 
+	private static void followCollection(Field field, Collection<?> c,
+			List<Node> nodes) {
+		for (Object elem : c) {
+			if (!follow(elem.getClass()))
+				break;
+			if (elem instanceof Ref) {
+				addNode(field, (Ref) elem, nodes);
+				continue;
+			}
+			collectChilds(field, elem, nodes);
+		}
+	}
+
 	private static void addNode(Field field, Ref ref, List<Node> nodes) {
 		Node node = node(field);
 		node.ref = ref;
 		nodes.add(node);
 	}
 
-	private static void collectChilds(Field field, Object val, List<Node> nodes) {
+	private static void collectChilds(Field field, Object val,
+			List<Node> nodes) {
 		List<Node> childs = fetchChilds(val);
 		if (childs.isEmpty())
 			return;

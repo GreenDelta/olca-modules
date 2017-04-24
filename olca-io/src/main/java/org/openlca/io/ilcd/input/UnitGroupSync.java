@@ -57,10 +57,9 @@ class UnitGroupSync {
 	}
 
 	private org.openlca.ilcd.units.Unit findRefUnit(Unit olcaRefUnit) {
-		org.openlca.ilcd.units.Unit[] iUnits = ilcdGroup.getValue().units;
-		if (olcaRefUnit == null || iUnits == null)
+		if (olcaRefUnit == null)
 			return null;
-		for (org.openlca.ilcd.units.Unit ilcdUnit : iUnits) {
+		for (org.openlca.ilcd.units.Unit ilcdUnit : ilcdGroup.getUnits()) {
 			UnitExtension ext = new UnitExtension(ilcdUnit);
 			String id = ext.getUnitId();
 			if (id != null && id.equals(olcaRefUnit.getRefId()))
@@ -70,11 +69,8 @@ class UnitGroupSync {
 	}
 
 	private boolean syncUnits(double factor) {
-		org.openlca.ilcd.units.Unit[] iUnits = ilcdGroup.getValue().units;
-		if (iUnits == null)
-			return false;
 		boolean changed = false;
-		for (org.openlca.ilcd.units.Unit ilcdUnit : iUnits) {
+		for (org.openlca.ilcd.units.Unit ilcdUnit : ilcdGroup.getUnits()) {
 			UnitExtension ext = new UnitExtension(ilcdUnit);
 			String id = ext.getUnitId();
 			if (id == null || containsUnit(id))

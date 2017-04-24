@@ -2,7 +2,6 @@
 package org.openlca.ilcd.units;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,15 +16,15 @@ import org.openlca.ilcd.commons.Other;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QuantitativeReferenceType", propOrder = {
-		"referenceToReferenceUnit",
+		"referenceUnit",
 		"other"
 })
 public class QuantitativeReference implements Serializable {
 
 	private final static long serialVersionUID = 1L;
 
-	@XmlElement(required = true)
-	public BigInteger referenceToReferenceUnit;
+	@XmlElement(required = true, name = "referenceToReferenceUnit")
+	public int referenceUnit;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;

@@ -1,11 +1,14 @@
 package org.openlca.ilcd.util;
 
 import org.openlca.ilcd.commons.DataEntry;
+import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.Publication;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flowproperties.AdminInfo;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flowproperties.FlowPropertyInfo;
+import org.openlca.ilcd.flowproperties.QuantitativeReference;
 
 public final class FlowProperties {
 
@@ -22,6 +25,37 @@ public final class FlowProperties {
 		if (fp.flowPropertyInfo == null)
 			fp.flowPropertyInfo = new FlowPropertyInfo();
 		return fp.flowPropertyInfo;
+	}
+
+	public static QuantitativeReference getQuantitativeReference(
+			FlowProperty fp) {
+		FlowPropertyInfo fpi = getFlowPropertyInfo(fp);
+		if (fpi == null)
+			return null;
+		return fpi.quantitativeReference;
+	}
+
+	public static QuantitativeReference quantitativeReference(FlowProperty fp) {
+		FlowPropertyInfo fpi = flowPropertyInfo(fp);
+		if (fpi.quantitativeReference == null)
+			fpi.quantitativeReference = new QuantitativeReference();
+		return fpi.quantitativeReference;
+	}
+
+	public static Ref getUnitGroupRef(FlowProperty fp) {
+		QuantitativeReference qr = getQuantitativeReference(fp);
+		if (qr == null)
+			return null;
+		return qr.unitGroup;
+	}
+
+	public static Ref unitGroupRef(FlowProperty fp) {
+		QuantitativeReference qr = quantitativeReference(fp);
+		if (qr.unitGroup == null) {
+			qr.unitGroup = new Ref();
+			qr.unitGroup.type = DataSetType.UNIT_GROUP;
+		}
+		return qr.unitGroup;
 	}
 
 	public static DataSetInfo getDataSetInfo(FlowProperty fp) {

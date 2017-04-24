@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.UnitGroupBag;
+import org.openlca.ilcd.util.UnitGroups;
 
 public class UnitGroupBagTest {
 
@@ -34,9 +36,9 @@ public class UnitGroupBagTest {
 
 	@Test
 	public void testGetUnits() {
-		Unit[] units = ug.units;
-		assertTrue(units.length == 4);
-		assertEquals("kg*a", units[0].name);
+		List<Unit> units = UnitGroups.getUnits(ug);
+		assertTrue(units.size() == 4);
+		assertEquals("kg*a", units.get(0).name);
 	}
 
 	@Test

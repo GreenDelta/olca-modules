@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
@@ -26,7 +25,7 @@ import org.openlca.ilcd.commons.Other;
 		"unitGroupInfo",
 		"modelling",
 		"adminInfo",
-		"units",
+		"unitList",
 		"other"
 })
 public class UnitGroup implements IDataSet {
@@ -42,9 +41,8 @@ public class UnitGroup implements IDataSet {
 	@XmlElement(name = "administrativeInformation")
 	public AdminInfo adminInfo;
 
-	@XmlElementWrapper(name = "units")
-	@XmlElement(name = "unit")
-	public Unit[] units;
+	@XmlElement(name = "units")
+	public UnitList unitList;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -95,16 +93,4 @@ public class UnitGroup implements IDataSet {
 		return unitGroupInfo.dataSetInfo.name;
 	}
 
-	public void add(Unit u) {
-		if (u == null)
-			return;
-		if (units == null) {
-			units = new Unit[] { u };
-			return;
-		}
-		Unit[] next = new Unit[units.length + 1];
-		System.arraycopy(units, 0, next, 0, units.length);
-		next[units.length] = u;
-		units = next;
-	}
 }

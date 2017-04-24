@@ -8,6 +8,7 @@ import java.io.InputStream;
 import javax.xml.bind.JAXB;
 
 import org.junit.Test;
+import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.io.ProcessSampleTest;
@@ -45,6 +46,15 @@ public class RefTreeTest {
 		Process p = JAXB.unmarshal(is, Process.class);
 		RefTree tree = RefTree.create(p);
 		assertTrue(tree.getRefs().size() > 2);
+		int lciaResultCount = 0;
+		for (Ref ref : tree.getRefs()) {
+			if (ref.type == DataSetType.LCIA_METHOD) {
+				assertTrue(ref.isValid());
+				lciaResultCount++;
+			}
+		}
+		assertEquals(1, lciaResultCount); // two references but with same uuid
+											// and version
 	}
 
 	@Test

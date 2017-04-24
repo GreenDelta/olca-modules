@@ -1,12 +1,17 @@
 package org.openlca.ilcd.util;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.openlca.ilcd.commons.DataEntry;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.units.AdminInfo;
 import org.openlca.ilcd.units.DataSetInfo;
 import org.openlca.ilcd.units.QuantitativeReference;
+import org.openlca.ilcd.units.Unit;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.units.UnitGroupInfo;
+import org.openlca.ilcd.units.UnitList;
 
 public final class UnitGroups {
 
@@ -91,5 +96,30 @@ public final class UnitGroups {
 		if (ai.publication == null)
 			ai.publication = new Publication();
 		return ai.publication;
+	}
+
+	public static List<Unit> getUnits(UnitGroup u) {
+		if (u == null || u.unitList == null)
+			return Collections.emptyList();
+		return u.unitList.units;
+	}
+
+	public static List<Unit> units(UnitGroup u) {
+		if (u.unitList == null)
+			u.unitList = new UnitList();
+		return u.unitList.units;
+	}
+
+	public static Unit getReferenceUnit(UnitGroup u) {
+		QuantitativeReference qRef = getQuantitativeReference(u);
+		if (qRef == null)
+			return null;
+		for (Unit unit : getUnits(u)) {
+			if (unit == null)
+				continue;
+			if (unit.id == qRef.referenceUnit)
+				return unit;
+		}
+		return null;
 	}
 }
