@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "dataStockList", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 public class DataStockList {
 
-	@XmlElement(name = "dataStock")
+	@XmlElement(name = "dataStock", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public final List<DataStock> dataStocks = new ArrayList<>();
 
 }
