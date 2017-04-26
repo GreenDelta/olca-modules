@@ -16,6 +16,7 @@ import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.util.FlowBag;
+import org.openlca.ilcd.util.Flows;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,7 +134,7 @@ public class FlowImport {
 
 	private void addFlowProperties() {
 		Integer refPropertyId = ilcdFlow.getReferenceFlowPropertyId();
-		List<FlowPropertyRef> refs = ilcdFlow.getFlowPropertyReferences();
+		List<FlowPropertyRef> refs = Flows.getFlowProperties(ilcdFlow.getValue());
 		for (FlowPropertyRef ref : refs) {
 			FlowProperty property = importProperty(ref);
 			if (property == null)
@@ -186,7 +187,7 @@ public class FlowImport {
 	private void validateInput() throws ImportException {
 		Integer internalId = ilcdFlow.getReferenceFlowPropertyId();
 		Ref propRef = null;
-		for (FlowPropertyRef prop : ilcdFlow.getFlowPropertyReferences()) {
+		for (FlowPropertyRef prop : Flows.getFlowProperties(ilcdFlow.getValue())) {
 			Integer propId = prop.dataSetInternalID;
 			if (propId == null || internalId == null)
 				continue;

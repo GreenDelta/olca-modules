@@ -13,6 +13,8 @@ import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
+import org.openlca.ilcd.flows.FlowPropertyList;
+import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.Modelling;
@@ -164,13 +166,39 @@ public final class Flows {
 		return f == null ? null : f.modelling;
 	}
 
-	public static LCIMethod getLCIMethod(Flow f) {
+	public static Modelling modelling(Flow f) {
+		if (f.modelling == null)
+			f.modelling = new Modelling();
+		return f.modelling;
+	}
+
+	public static LCIMethod getInventoryMethod(Flow f) {
 		Modelling m = getModelling(f);
 		return m == null ? null : m.lciMethod;
 	}
 
+	public static LCIMethod inventoryMethod(Flow f) {
+		Modelling m = modelling(f);
+		if (m.lciMethod == null)
+			m.lciMethod = new LCIMethod();
+		return m.lciMethod;
+	}
+
 	public static FlowType getType(Flow f) {
-		LCIMethod m = getLCIMethod(f);
+		LCIMethod m = getInventoryMethod(f);
 		return m == null ? null : m.flowType;
 	}
+
+	public static List<FlowPropertyRef> getFlowProperties(Flow f) {
+		if (f == null || f.flowPropertyList == null)
+			return Collections.emptyList();
+		return f.flowPropertyList.flowProperties;
+	}
+
+	public static List<FlowPropertyRef> flowProperties(Flow f) {
+		if (f.flowPropertyList == null)
+			f.flowPropertyList = new FlowPropertyList();
+		return f.flowPropertyList.flowProperties;
+	}
+
 }

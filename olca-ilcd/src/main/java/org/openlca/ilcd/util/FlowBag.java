@@ -10,14 +10,13 @@ import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.Compartment;
+import org.openlca.ilcd.flows.CompartmentList;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.flows.CompartmentList;
 import org.openlca.ilcd.flows.FlowCategoryInfo;
 import org.openlca.ilcd.flows.FlowInfo;
 import org.openlca.ilcd.flows.FlowName;
-import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.flows.Geography;
 import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.Modelling;
@@ -94,10 +93,6 @@ public class FlowBag implements IBag<Flow> {
 				return method.flowType;
 		}
 		return null;
-	}
-
-	public List<FlowPropertyRef> getFlowPropertyReferences() {
-		return flow.flowProperties;
 	}
 
 	public List<org.openlca.ilcd.commons.Category> getSortedClasses() {

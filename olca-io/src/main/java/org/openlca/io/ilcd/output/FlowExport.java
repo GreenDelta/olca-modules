@@ -24,6 +24,7 @@ import org.openlca.ilcd.flows.LCIMethod;
 import org.openlca.ilcd.flows.Modelling;
 import org.openlca.ilcd.flows.QuantitativeReference;
 import org.openlca.ilcd.io.DataStoreException;
+import org.openlca.ilcd.util.Flows;
 import org.openlca.ilcd.util.Refs;
 
 public class FlowExport {
@@ -50,7 +51,7 @@ public class FlowExport {
 		qRef.referenceFlowProperty = 0;
 		iFlow.adminInfo = makeAdminInfo();
 		iFlow.modelling = makeModellingInfo();
-		makeFlowProperties(iFlow.flowProperties);
+		makeFlowProperties(Flows.flowProperties(iFlow));
 		addLocation(iFlow);
 		config.store.put(iFlow);
 		this.flow = null;
