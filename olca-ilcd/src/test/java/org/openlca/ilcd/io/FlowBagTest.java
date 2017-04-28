@@ -68,10 +68,9 @@ public class FlowBagTest {
 
 	@Test
 	public void testGetFlowPropertyReferences() {
-		List<FlowPropertyRef> flowPropertyReferences = bag
-				.getFlowPropertyReferences();
-		assertTrue(flowPropertyReferences.size() == 1);
-		FlowPropertyRef ref = flowPropertyReferences.get(0);
+		List<FlowPropertyRef> props = Flows.getFlowProperties(bag.getValue());
+		assertTrue(props.size() == 1);
+		FlowPropertyRef ref = props.get(0);
 		assertEquals("93a60a56-a3c8-11da-a746-0800200b9a66", ref.flowProperty.uuid);
 	}
 

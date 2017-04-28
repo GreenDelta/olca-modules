@@ -1,7 +1,6 @@
 
 package org.openlca.ilcd.flows;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +11,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
@@ -27,7 +25,7 @@ import org.openlca.ilcd.commons.Other;
 		"flowInfo",
 		"modelling",
 		"adminInfo",
-		"flowProperties",
+		"flowPropertyList",
 		"other"
 })
 public class Flow implements IDataSet {
@@ -43,9 +41,8 @@ public class Flow implements IDataSet {
 	@XmlElement(name = "administrativeInformation")
 	public AdminInfo adminInfo;
 
-	@XmlElementWrapper(name = "flowProperties")
-	@XmlElement(required = true, name = "flowProperty")
-	public final List<FlowPropertyRef> flowProperties = new ArrayList<>();
+	@XmlElement(name = "flowProperties")
+	public FlowPropertyList flowPropertyList;
 
 	@XmlAttribute(name = "version", required = true)
 	public String version;

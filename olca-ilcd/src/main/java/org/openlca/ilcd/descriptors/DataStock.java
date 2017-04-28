@@ -13,16 +13,16 @@ public class DataStock {
 	@XmlAttribute(name = "root")
 	public boolean root;
 
-	@XmlElement(name = "uuid")
+	@XmlElement(name = "uuid", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public String uuid;
 
-	@XmlElement(name = "shortName")
+	@XmlElement(name = "shortName", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public String shortName;
 
-	@XmlElement(name = "name")
+	@XmlElement(name = "name", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public LangString name;
 
-	@XmlElement(name = "description")
+	@XmlElement(name = "description", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public LangString description;
 
 	@Override
