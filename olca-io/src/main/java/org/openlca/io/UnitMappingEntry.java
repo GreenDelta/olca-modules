@@ -6,55 +6,17 @@ import org.openlca.core.model.UnitGroup;
 
 public class UnitMappingEntry {
 
-	private String unitName;
-	private Unit unit;
-	private UnitGroup unitGroup;
-	private FlowProperty flowProperty;
-	private Double factor;
+	public String unitName;
+	public Unit unit;
+	public UnitGroup unitGroup;
+	public FlowProperty flowProperty;
+	public Double factor;
 
 	public boolean isValid() {
-		return unit != null && unitGroup != null && flowProperty != null
+		return unit != null
+				&& unitGroup != null
+				&& flowProperty != null
 				&& factor != null;
-	}
-
-	public String getUnitName() {
-		return unitName;
-	}
-
-	public void setUnitName(String unitName) {
-		this.unitName = unitName;
-	}
-
-	public Unit getUnit() {
-		return unit;
-	}
-
-	public void setUnit(Unit unit) {
-		this.unit = unit;
-	}
-
-	public UnitGroup getUnitGroup() {
-		return unitGroup;
-	}
-
-	public void setUnitGroup(UnitGroup unitGroup) {
-		this.unitGroup = unitGroup;
-	}
-
-	public FlowProperty getFlowProperty() {
-		return flowProperty;
-	}
-
-	public void setFlowProperty(FlowProperty flowProperty) {
-		this.flowProperty = flowProperty;
-	}
-
-	public Double getFactor() {
-		return factor;
-	}
-
-	public void setFactor(Double factor) {
-		this.factor = factor;
 	}
 
 }

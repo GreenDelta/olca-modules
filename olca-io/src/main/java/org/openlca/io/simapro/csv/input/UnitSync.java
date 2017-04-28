@@ -13,11 +13,11 @@ import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.util.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.simapro.csv.model.refdata.QuantityRow;
 import org.openlca.simapro.csv.model.refdata.UnitRow;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,26 +89,26 @@ class UnitSync {
 		String name = row.getName();
 		UnitMappingEntry refEntry = mapping.getEntry(row.getReferenceUnit());
 		double factor = row.getConversionFactor()
-				* refEntry.getUnit().getConversionFactor();
+				* refEntry.unit.getConversionFactor();
 		Unit unit = new Unit();
 		unit.setConversionFactor(factor);
 		unit.setName(name);
 		unit.setRefId(KeyGen.get(name));
-		UnitGroup group = refEntry.getUnitGroup();
+		UnitGroup group = refEntry.unitGroup;
 		group.getUnits().add(unit);
 		UnitGroupDao groupDao = new UnitGroupDao(database);
 		group = groupDao.update(group);
 		log.info("added new unit {} to group {}", unit, group);
 		FlowPropertyDao propDao = new FlowPropertyDao(database);
 		FlowProperty property = propDao
-				.getForId(refEntry.getFlowProperty().getId());
+				.getForId(refEntry.flowProperty.getId());
 		updateRefs(mapping, group, property);
 		UnitMappingEntry newEntry = new UnitMappingEntry();
-		newEntry.setFactor(factor);
-		newEntry.setFlowProperty(property);
-		newEntry.setUnit(group.getUnit(name));
-		newEntry.setUnitGroup(group);
-		newEntry.setUnitName(name);
+		newEntry.factor = factor;
+		newEntry.flowProperty = property;
+		newEntry.unit = group.getUnit(name);
+		newEntry.unitGroup = group;
+		newEntry.unitName = name;
 		mapping.put(name, newEntry);
 	}
 
@@ -116,9 +116,19 @@ class UnitSync {
 			FlowProperty property) {
 		for (String name : mapping.getUnits()) {
 			UnitMappingEntry entry = mapping.getEntry(name);
-			entry.setFlowProperty(property);
-			entry.setUnitGroup(group);
-			entry.setUnit(group.getUnit(name));
+			if (!entry.isValid())
+				continue;
+			if (!Objects.equals(group, entry.unitGroup)
+					|| !Objects.equals(property, entry.flowProperty))
+				continue;
+			Unit u = group.getUnit(entry.unit.getName());
+			if (u == null) {
+				log.error("Could not find {} in {}", u, group);
+				continue;
+			}
+			entry.flowProperty = property;
+			entry.unitGroup = group;
+			entry.unit = u;
 		}
 	}
 
@@ -130,11 +140,11 @@ class UnitSync {
 		group = insertLinkProperty(group, quantity.getName());
 		for (Unit unit : group.getUnits()) {
 			UnitMappingEntry entry = new UnitMappingEntry();
-			entry.setFlowProperty(group.getDefaultFlowProperty());
-			entry.setUnitName(unit.getName());
-			entry.setUnit(unit);
-			entry.setFactor(unit.getConversionFactor());
-			entry.setUnitGroup(group);
+			entry.flowProperty = group.getDefaultFlowProperty();
+			entry.unitName = unit.getName();
+			entry.unit = unit;
+			entry.factor = unit.getConversionFactor();
+			entry.unitGroup = group;
 			mapping.put(unit.getName(), entry);
 		}
 		return group;
@@ -172,19 +182,13 @@ class UnitSync {
 		group.getUnits().add(unit);
 		group.setReferenceUnit(unit);
 		group = insertLinkProperty(group, "Property for " + unitName);
-		UnitMappingEntry entry = createDefaultEntry(unitName, group);
-		mapping.put(unitName, entry);
-	}
-
-	private UnitMappingEntry createDefaultEntry(String unitName,
-			UnitGroup group) {
-		UnitMappingEntry entry = new UnitMappingEntry();
-		entry.setUnitGroup(group);
-		entry.setUnit(group.getReferenceUnit());
-		entry.setFactor(1d);
-		entry.setFlowProperty(group.getDefaultFlowProperty());
-		entry.setUnitName(unitName);
-		return entry;
+		UnitMappingEntry e = new UnitMappingEntry();
+		e.unitGroup = group;
+		e.unit = group.getReferenceUnit();
+		e.factor = 1d;
+		e.flowProperty = group.getDefaultFlowProperty();
+		e.unitName = unitName;
+		mapping.put(unitName, e);
 	}
 
 	private <T extends RootEntity> T create(Class<T> clazz, String name) {
@@ -194,9 +198,9 @@ class UnitSync {
 			t.setRefId(UUID.randomUUID().toString());
 			return t;
 		} catch (Exception e) {
-			log.error("");
+			log.error("failed to create " + clazz, e);
+			return null;
 		}
-		return null;
 	}
 
 	private QuantityRow getQuantity(String unitName) {

@@ -201,9 +201,9 @@ class FlowImport {
 		UnitMappingEntry entry = unitMapping.getEntry(unit);
 		if (entry == null || !entry.isValid())
 			return null;
-		flow.setReferenceFlowProperty(entry.getFlowProperty());
+		flow.setReferenceFlowProperty(entry.flowProperty);
 		FlowPropertyFactor factor = new FlowPropertyFactor();
-		factor.setFlowProperty(entry.getFlowProperty());
+		factor.setFlowProperty(entry.flowProperty);
 		factor.setConversionFactor(1.0);
 		flow.getFlowPropertyFactors().add(factor);
 		db.put(flow, flowKey);
@@ -215,7 +215,7 @@ class FlowImport {
 		UnitMappingEntry mapEntry = unitMapping.getEntry(unit);
 		if (mapEntry == null || !mapEntry.isValid())
 			return null;
-		FlowPropertyFactor factor = flow.getFactor(mapEntry.getFlowProperty());
+		FlowPropertyFactor factor = flow.getFactor(mapEntry.flowProperty);
 		if (factor == null) {
 			log.error("The unit/property for flow {}/{} "
 					+ "changed in the database", flow, unit);
@@ -225,7 +225,7 @@ class FlowImport {
 		bucket.conversionFactor = 1.0;
 		bucket.flow = flow;
 		bucket.flowProperty = factor;
-		bucket.unit = mapEntry.getUnit();
+		bucket.unit = mapEntry.unit;
 		return bucket;
 	}
 

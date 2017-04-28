@@ -146,9 +146,9 @@ class DBSearch {
 
 	private boolean hasUnit(Flow flow, UnitMappingEntry mapping) {
 		if (flow == null || mapping == null
-				|| mapping.getFlowProperty() == null)
+				|| mapping.flowProperty == null)
 			return false;
-		return flow.getFactor(mapping.getFlowProperty()) != null;
+		return flow.getFactor(mapping.flowProperty) != null;
 	}
 
 	private boolean sameCategory(String categoryName, String subCategoryName,

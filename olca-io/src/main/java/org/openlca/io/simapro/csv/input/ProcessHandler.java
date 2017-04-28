@@ -271,8 +271,8 @@ class ProcessHandler {
 			return;
 		}
 		Flow flow = e.getFlow();
-		e.setUnit(entry.getUnit());
-		FlowPropertyFactor factor = flow.getFactor(entry.getFlowProperty());
+		e.setUnit(entry.unit);
+		FlowPropertyFactor factor = flow.getFactor(entry.flowProperty);
 		e.setFlowPropertyFactor(factor);
 	}
 

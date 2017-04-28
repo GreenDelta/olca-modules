@@ -30,8 +30,8 @@ public class UnitMappingSync {
 	public UnitMapping run(List<UnitMappingEntry> entries) {
 		UnitMapping mapping = new UnitMapping();
 		for (UnitMappingEntry entry : entries) {
-			UnitGroup unitGroup = entry.getUnitGroup();
-			String unitName = entry.getUnitName();
+			UnitGroup unitGroup = entry.unitGroup;
+			String unitName = entry.unitName;
 			if (unitGroup.getUnit(unitName) != null) {
 				mapping.put(unitName, entry);
 				continue;
@@ -48,17 +48,17 @@ public class UnitMappingSync {
 	 */
 	private UnitGroup updateUnitGroup(UnitMappingEntry entry,
 			UnitGroup unitGroup) {
-		log.trace("add new unit {} to group {}", entry.getUnitName(), unitGroup);
+		log.trace("add new unit {} to group {}", entry.unitName, unitGroup);
 		Unit unit = new Unit();
-		unit.setName(entry.getUnitName());
+		unit.setName(entry.unitName);
 		unit.setRefId(UUID.randomUUID().toString());
-		double factor = entry.getFactor() == null ? 1d : entry.getFactor();
+		double factor = entry.factor == null ? 1d : entry.factor;
 		unit.setConversionFactor(factor);
 		unitGroup.getUnits().add(unit);
 		unitGroup = database.createDao(UnitGroup.class).update(unitGroup);
-		entry.setFactor(factor);
-		entry.setUnitGroup(unitGroup);
-		entry.setUnit(unitGroup.getUnit(entry.getUnitName()));
+		entry.factor = factor;
+		entry.unitGroup = unitGroup;
+		entry.unit = unitGroup.getUnit(entry.unitName);
 		return unitGroup;
 	}
 
@@ -70,11 +70,11 @@ public class UnitMappingSync {
 	private void syncEntries(UnitGroup updatedGroup,
 			List<UnitMappingEntry> entries) {
 		for (UnitMappingEntry entry : entries) {
-			if (!Objects.equals(updatedGroup, entry.getUnitGroup()))
+			if (!Objects.equals(updatedGroup, entry.unitGroup))
 				continue;
-			Unit unit = updatedGroup.getUnit(entry.getUnitName());
-			entry.setUnit(unit);
-			entry.setUnitGroup(updatedGroup);
+			Unit unit = updatedGroup.getUnit(entry.unitName);
+			entry.unit = unit;
+			entry.unitGroup = updatedGroup;
 		}
 	}
 

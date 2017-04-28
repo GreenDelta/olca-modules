@@ -139,7 +139,7 @@ class FlowSync {
 		// we take the olca-flow property, because the unit name may changes
 		// in different data sets
 		return KeyGen
-				.get(row.getName(), unitEntry.getFlowProperty().getRefId());
+				.get(row.getName(), unitEntry.flowProperty.getRefId());
 	}
 
 	private Flow createProductFlow(String refId, AbstractExchangeRow row) {
@@ -244,10 +244,10 @@ class FlowSync {
 	}
 
 	private void setFlowProperty(UnitMappingEntry unitEntry, Flow flow) {
-		flow.setReferenceFlowProperty(unitEntry.getFlowProperty());
+		flow.setReferenceFlowProperty(unitEntry.flowProperty);
 		FlowPropertyFactor factor = new FlowPropertyFactor();
 		factor.setConversionFactor(1);
-		factor.setFlowProperty(unitEntry.getFlowProperty());
+		factor.setFlowProperty(unitEntry.flowProperty);
 		flow.getFlowPropertyFactors().add(factor);
 	}
 }
