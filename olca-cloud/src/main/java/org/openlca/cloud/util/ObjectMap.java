@@ -232,8 +232,8 @@ public class ObjectMap extends HashMap<String, Object> {
 			return 0;
 		try {
 			if (value instanceof String[])
-				return Long.parseLong(((String[]) value)[0]);
-			return Long.parseLong(value.toString());
+				return new Double(Double.parseDouble(((String[]) value)[0])).longValue();
+			return new Double(Double.parseDouble(value.toString())).longValue();
 		} catch (NumberFormatException e) {
 			return 0;
 		}
