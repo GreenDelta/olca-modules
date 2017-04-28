@@ -13,7 +13,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.Categories;
-import org.openlca.util.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
@@ -25,6 +24,8 @@ import org.openlca.simapro.csv.model.process.ElementaryExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.RefProductRow;
 import org.openlca.simapro.csv.model.refdata.ElementaryFlowRow;
+import org.openlca.util.KeyGen;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +148,7 @@ class FlowSync {
 		Flow flow;
 		flow = new Flow();
 		flow.setRefId(refId);
-		flow.setName(row.getName());
+		flow.setName(Strings.cut(row.getName(), 250));
 		flow.setDescription(getProductDescription(row));
 		flow.setFlowType(FlowType.PRODUCT_FLOW);
 		flow.setLocation(getProductLocation(row));
