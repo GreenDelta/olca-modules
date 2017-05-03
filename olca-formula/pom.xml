@@ -16,15 +16,6 @@
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>The formula interpreter of the openLCA core modules.</description>
 
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
