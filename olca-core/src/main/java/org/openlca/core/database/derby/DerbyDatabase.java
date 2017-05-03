@@ -24,8 +24,7 @@ import org.openlca.core.model.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jolbox.bonecp.BoneCP;
-import com.jolbox.bonecp.BoneCPConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 public class DerbyDatabase extends Notifiable implements IDatabase {
 
@@ -34,7 +33,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	private String url;
 	private File folder;
 	private boolean closed = false;
-	private BoneCP connectionPool;
+	private HikariDataSource connectionPool;
 
 	public static DerbyDatabase createInMemory() {
 		return new DerbyDatabase();
@@ -133,9 +132,8 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 
 	private void initConnectionPool() {
 		try {
-			BoneCPConfig config = new BoneCPConfig();
-			config.setJdbcUrl(url);
-			connectionPool = new BoneCP(config);
+			connectionPool = new HikariDataSource();
+			connectionPool.setJdbcUrl(url);
 		} catch (Exception e) {
 			log.error("failed to initialize connection pool", e);
 			throw new DatabaseException("Could not create a connection", e);
@@ -150,7 +148,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		if (entityFactory != null && entityFactory.isOpen())
 			entityFactory.close();
 		if (connectionPool != null)
-			connectionPool.shutdown();
+			connectionPool.close();
 		try {
 			DriverManager.getConnection(url + ";shutdown=true");
 			// TODO: single database shutdown throws unexpected
