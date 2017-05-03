@@ -12,6 +12,47 @@
 	<artifactId>olca-modules</artifactId>
 	<version>1.6.2</version>
 	<packaging>pom</packaging>
+	<name>${project.groupId}:${project.artifactId}</name>
+	<url>http://www.openlca.org/</url>
+	
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/GreenDelta/olca-modules/issues</url>
+	</issueManagement>
+	
+	<licenses>
+		<license>
+			<name>Mozilla Public License, Version 2.0</name>
+			<url>https://www.mozilla.org/en-US/MPL/2.0/</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:https://github.com/GreenDelta/olca-modules.git</connection>
+		<developerConnection>scm:git:git@github.com:GreenDelta/olca-modules.git</developerConnection>
+		<url>https://github.com/GreenDelta/olca-modules</url>
+	</scm>
+	
+	<developers>
+		<developer>
+			<id>msrocka</id>
+			<name>Michael Srocka</name>
+			<email>srocka@greendelta.com</email>
+			<organization>GreenDelta</organization>
+			<organizationUrl>http://www.greendelta.com</organizationUrl>
+			<roles>
+				<role>owner</role>
+				<role>developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+	</developers>
+
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/GreenDelta/olca-modules</url>
+	</ciManagement>
 
 	<modules>
 		<module>olca-cloud</module>
