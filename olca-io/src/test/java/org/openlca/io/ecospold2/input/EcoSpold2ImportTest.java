@@ -1,6 +1,8 @@
 package org.openlca.io.ecospold2.input;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,9 +24,6 @@ import org.openlca.io.Tests;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
-
 public class EcoSpold2ImportTest {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -42,9 +41,8 @@ public class EcoSpold2ImportTest {
 		File tempDir = new File(System.getProperty("java.io.tmpdir"));
 		tempFile = new File(tempDir, UUID.randomUUID().toString() + ".spold");
 		log.trace("copy ecospold 2 file to {}", tempFile);
-		ByteStreams.copy(EcoSpold2ImportTest.class
-				.getResourceAsStream("sample_ecospold2.xml"), Files
-				.newOutputStreamSupplier(tempFile));
+		Files.copy(getClass().getResourceAsStream("sample_ecospold2.xml"),
+				tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		EcoSpold2Import eImport = new EcoSpold2Import(Tests.getDb());
 		eImport.setFiles(new File[] { tempFile });
 		eImport.run();
