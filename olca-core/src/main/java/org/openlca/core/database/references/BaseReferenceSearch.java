@@ -107,7 +107,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 		List<Reference> results = toReferences(descriptors, false, undeclared, null);
 		Set<String> found = new HashSet<>();
 		for (ParameterDescriptor d : descriptors)
-			found.add(d.getName());
+			found.add(d.getName().toLowerCase());
 		for (String name : names)
 			if (!found.contains(name))
 				results.addAll(createMissingReferences(name, undeclared));

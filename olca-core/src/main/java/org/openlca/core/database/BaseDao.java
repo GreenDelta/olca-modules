@@ -54,8 +54,10 @@ public class BaseDao<T> implements IDao<T> {
 
 	@Override
 	public Map<Long, Boolean> contains(Set<Long> ids) {
-		if (ids.isEmpty())
+		if (ids == null || ids.isEmpty())
 			return Collections.emptyMap();
+		if (ids.size() > MAX_LIST_SIZE)
+			return executeChunked2(ids, this::contains);
 		Map<Long, Boolean> result = new HashMap<>();
 		for (Long id : ids)
 			result.put(id, false);
@@ -206,11 +208,22 @@ public class BaseDao<T> implements IDao<T> {
 		}
 	}
 
+	// Executes the query method chunked, (for methods with List return value)
 	protected <X, Y> List<Y> executeChunked(Set<X> set, Function<Set<X>, List<Y>> queryMethod) {
 		List<Set<X>> split = split(set);
 		List<Y> all = new ArrayList<>();
 		for (Set<X> s : split) {
 			all.addAll(queryMethod.apply(s));
+		}
+		return all;
+	}
+
+	// Executes the query method chunked, (for methods with Map return value)
+	private <X, Y> Map<X, Y> executeChunked2(Set<X> set, Function<Set<X>, Map<X, Y>> queryMethod) {
+		List<Set<X>> split = split(set);
+		Map<X, Y> all = new HashMap<>();
+		for (Set<X> s : split) {
+			all.putAll(queryMethod.apply(s));
 		}
 		return all;
 	}
