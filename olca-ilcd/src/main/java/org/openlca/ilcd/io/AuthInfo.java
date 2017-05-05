@@ -9,11 +9,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.openlca.ilcd.descriptors.DataStock;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
 		"isAuthenticated",
 		"user",
-		"roles" })
+		"roles",
+		"dataStocks" })
 @XmlRootElement(name = "authInfo", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 public class AuthInfo {
 
@@ -26,12 +29,7 @@ public class AuthInfo {
 	@XmlElement(name = "role", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
 	public final List<String> roles = new ArrayList<>();
 
-	public boolean isReadAllowed() {
-		return this.roles.contains("READ");
-	}
-
-	public boolean isExportAllowed() {
-		return this.roles.contains("EXPORT");
-	}
+	@XmlElement(name = "dataStock", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public final List<DataStock> dataStocks = new ArrayList<>();
 
 }

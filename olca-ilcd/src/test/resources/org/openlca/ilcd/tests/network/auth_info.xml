@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<authInfo
-	xmlns="http://www.ilcd-network.org/ILCD/ServiceAPI">
+<authInfo xmlns="http://www.ilcd-network.org/ILCD/ServiceAPI">
 	<authenticated>true</authenticated>
 	<userName>openlca</userName>
-	<role>READ</role>
-	<role>EXPORT</role>
-	<role>CHECKOUT</role>
-	<role>CHECKIN</role>
-	<role>RELEASE</role>
-	<role>DELETE</role>
-	<role>MANAGE_USER</role>
 	<role>ADMIN</role>
+	<role>SUPER_ADMIN</role>
+	<dataStock root="false">
+		<uuid>54dd6a77-7525-4e8c-9e3b-b285c912cd07</uuid>
+		<shortName>default</shortName>
+		<role>READ</role>
+		<role>EXPORT</role>
+	</dataStock>
 </authInfo>
