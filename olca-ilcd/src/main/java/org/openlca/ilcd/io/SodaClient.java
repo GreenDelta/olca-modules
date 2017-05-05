@@ -51,13 +51,16 @@ public class SodaClient implements DataStore {
 	public void connect() throws DataStoreException {
 		log.info("Create ILCD network connection {}", con);
 		client = Client.create();
-		if (con.user != null || con.password != null) {
-			authenticate();
-		}
+		authenticate();
 		isConnected = true;
 	}
 
 	private void authenticate() throws DataStoreException {
+		if (con.user == null || con.user.trim().isEmpty()
+				|| con.password == null || con.password.trim().isEmpty()) {
+			log.info("no user or password -> anonymous access");
+			return;
+		}
 		log.info("Authenticate user: {}", con.user);
 		ClientResponse response = client.resource(con.url).path("authenticate")
 				.path("login").queryParam("userName", con.user)
