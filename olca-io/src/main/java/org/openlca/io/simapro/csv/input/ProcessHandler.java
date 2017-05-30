@@ -29,6 +29,7 @@ import org.openlca.simapro.csv.model.process.ProductExchangeRow;
 import org.openlca.simapro.csv.model.process.ProductOutputRow;
 import org.openlca.simapro.csv.model.process.RefProductRow;
 import org.openlca.util.KeyGen;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -296,13 +297,18 @@ class ProcessHandler {
 	}
 
 	private void setAmount(Exchange e, String amountText, long scope) {
+		if (Strings.nullOrEmpty(amountText)) {
+			e.setAmountValue(0);
+			return;
+		}
 		try {
 			double val = Double.parseDouble(amountText);
 			e.setAmountValue(val);
 		} catch (Exception ex) {
-			double val = parameterMapper.eval(amountText, scope);
+			String formula = amountText.replace(',', '.');
+			double val = parameterMapper.eval(formula, scope);
 			e.setAmountValue(val);
-			e.setAmountFormula(amountText);
+			e.setAmountFormula(formula);
 		}
 	}
 
