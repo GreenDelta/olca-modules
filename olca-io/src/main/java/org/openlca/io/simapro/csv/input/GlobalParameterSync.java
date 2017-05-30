@@ -2,6 +2,7 @@ package org.openlca.io.simapro.csv.input;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
@@ -61,36 +62,42 @@ class GlobalParameterSync {
 	}
 
 	private Parameter create(InputParameterRow row) {
-		Parameter param = new Parameter();
-		param.setName(row.getName());
-		param.setInputParameter(true);
-		param.setScope(ParameterScope.GLOBAL);
-		param.setValue(row.getValue());
-		param.setDescription(row.getComment());
-		param.setUncertainty(Uncertainties.get(row.getValue(),
+		Parameter p = new Parameter();
+		p.setRefId(UUID.randomUUID().toString());
+		p.setName(row.getName());
+		p.setInputParameter(true);
+		p.setScope(ParameterScope.GLOBAL);
+		p.setValue(row.getValue());
+		p.setDescription(row.getComment());
+		p.setUncertainty(Uncertainties.get(row.getValue(),
 				row.getUncertainty()));
-		dao.insert(param);
-		return param;
+		dao.insert(p);
+		return p;
 	}
 
 	private Parameter create(CalculatedParameterRow row,
 			FormulaInterpreter interpreter) {
-		Parameter param = new Parameter();
-		param.setName(row.getName());
-		param.setInputParameter(true);
-		param.setScope(ParameterScope.GLOBAL);
-		param.setDescription(row.getComment());
+		Parameter p = new Parameter();
+		p.setRefId(UUID.randomUUID().toString());
+		p.setName(row.getName());
+		p.setScope(ParameterScope.GLOBAL);
+		p.setDescription(row.getComment());
+		p.setInputParameter(false);
 		try {
-			double val = interpreter.eval(row.getExpression());
-			param.setValue(val);
+			String expr = row.getExpression();
+			expr = expr.replace(',', '.'); // SimaPro supports commas as decimal
+											// separator
+			double val = interpreter.eval(expr);
+			p.setValue(val);
+			p.setFormula(expr);
 		} catch (Exception e) {
-			log.error(
-					"failed to evaluate formula for global parameter "
-							+ row.getName() + " set value to 1.0", e);
-			param.setValue(1.0);
+			log.error("failed to evaluate formula for global parameter "
+					+ row.getName() + ": set value to 1.0", e);
+			p.setInputParameter(true);
+			p.setValue(1.0);
 		}
-		dao.insert(param);
-		return param;
+		dao.insert(p);
+		return p;
 	}
 
 	private List<Parameter> loadGlobals() {
