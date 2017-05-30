@@ -35,8 +35,8 @@ public class RepositoryClient {
 
 	private boolean login() throws WebRequestException {
 		LoginInvocation invocation = new LoginInvocation();
-		invocation.baseUrl = config.getBaseUrl();
-		invocation.credentials = config.getCredentials();
+		invocation.baseUrl = config.baseUrl;
+		invocation.credentials = config.credentials;
 		sessionId = invocation.execute();
 		return sessionId != null;
 	}
@@ -45,7 +45,7 @@ public class RepositoryClient {
 		if (sessionId == null)
 			return;
 		LogoutInvocation invocation = new LogoutInvocation();
-		invocation.baseUrl = config.getBaseUrl();
+		invocation.baseUrl = config.baseUrl;
 		invocation.sessionId = sessionId;
 		try {
 			invocation.execute();
@@ -60,7 +60,7 @@ public class RepositoryClient {
 	public boolean hasAccess(String repositoryId) throws WebRequestException {
 		Boolean result = executeLoggedIn(() -> {
 			CheckAccessInvocation invocation = new CheckAccessInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = repositoryId;
 			try {
@@ -80,9 +80,9 @@ public class RepositoryClient {
 	public boolean requestCommit() throws WebRequestException {
 		Boolean result = executeLoggedIn(() -> {
 			CommitRequestInvocation invocation = new CommitRequestInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = config.getLastCommitId();
 			try {
 				invocation.execute();
@@ -100,10 +100,10 @@ public class RepositoryClient {
 
 	public void commit(String message, Set<Dataset> data, Consumer<Dataset> callback) throws WebRequestException {
 		executeLoggedIn(() -> {
-			CommitInvocation invocation = new CommitInvocation(config.getDatabase());
-			invocation.baseUrl = config.getBaseUrl();
+			CommitInvocation invocation = new CommitInvocation(config.database);
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = config.getLastCommitId();
 			invocation.message = message;
 			invocation.data = data;
@@ -114,9 +114,9 @@ public class RepositoryClient {
 	public List<Commit> fetchCommitHistory() throws WebRequestException {
 		List<Commit> result = executeLoggedIn(() -> {
 			HistoryInvocation invocation = new HistoryInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			return invocation.execute();
 		});
 		if (result == null)
@@ -127,9 +127,9 @@ public class RepositoryClient {
 	public List<Commit> fetchNewCommitHistory() throws WebRequestException {
 		List<Commit> result = executeLoggedIn(() -> {
 			HistoryInvocation invocation = new HistoryInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = config.getLastCommitId();
 			return invocation.execute();
 		});
@@ -141,7 +141,7 @@ public class RepositoryClient {
 	public Map<Dataset, String> performLibraryCheck(Set<Dataset> datasets) throws WebRequestException {
 		Map<Dataset, String> result = executeLoggedIn(() -> {
 			LibraryCheckInvocation invocation = new LibraryCheckInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.datasets = datasets;
 			return invocation.execute();
@@ -154,9 +154,9 @@ public class RepositoryClient {
 	public List<FetchRequestData> getReferences(String commitId) throws WebRequestException {
 		List<FetchRequestData> result = executeLoggedIn(() -> {
 			ReferencesInvocation invocation = new ReferencesInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.commitId = commitId;
 			return invocation.execute();
 		});
@@ -169,9 +169,9 @@ public class RepositoryClient {
 	public String getPreviousReference(ModelType type, String refId, String beforeCommitId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			PreviousCommitInvocation invocation = new PreviousCommitInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.type = type;
 			invocation.refId = refId;
 			invocation.commitId = beforeCommitId;
@@ -182,9 +182,9 @@ public class RepositoryClient {
 	public Set<FetchRequestData> requestFetch() throws WebRequestException {
 		Set<FetchRequestData> result = executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = config.getLastCommitId();
 			return invocation.execute();
 		});
@@ -196,9 +196,9 @@ public class RepositoryClient {
 	public Set<FetchRequestData> sync(String untilCommitId) throws WebRequestException {
 		Set<FetchRequestData> result = executeLoggedIn(() -> {
 			SyncInvocation invocation = new SyncInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.untilCommitId = untilCommitId;
 			return invocation.execute();
 		});
@@ -210,10 +210,10 @@ public class RepositoryClient {
 	public void download(Set<FileReference> requestData, String commitId, FetchNotifier notifier)
 			throws WebRequestException {
 		executeLoggedIn(() -> {
-			DownloadInvocation invocation = new DownloadInvocation(config.getDatabase(), notifier);
-			invocation.baseUrl = config.getBaseUrl();
+			DownloadInvocation invocation = new DownloadInvocation(config.database, notifier);
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.untilCommitId = commitId;
 			invocation.requestData = requestData;
 			invocation.execute();
@@ -223,10 +223,10 @@ public class RepositoryClient {
 	public void fetch(Set<FileReference> fetchData, Map<Dataset, JsonObject> mergedData, FetchNotifier notifier)
 			throws WebRequestException {
 		executeLoggedIn(() -> {
-			FetchInvocation invocation = new FetchInvocation(config.getDatabase(), notifier);
-			invocation.baseUrl = config.getBaseUrl();
+			FetchInvocation invocation = new FetchInvocation(config.database, notifier);
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = config.getLastCommitId();
 			invocation.fetchData = fetchData;
 			invocation.mergedData = mergedData;
@@ -238,10 +238,10 @@ public class RepositoryClient {
 		if (commitId == null)
 			return;
 		executeLoggedIn(() -> {
-			CheckoutInvocation invocation = new CheckoutInvocation(config.getDatabase(), notifier);
-			invocation.baseUrl = config.getBaseUrl();
+			CheckoutInvocation invocation = new CheckoutInvocation(config.database, notifier);
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.commitId = commitId;
 			invocation.execute();
 			config.setLastCommitId(commitId);
@@ -255,9 +255,9 @@ public class RepositoryClient {
 	public JsonObject getDataset(ModelType type, String refId, String commitId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			DatasetContentInvocation invocation = new DatasetContentInvocation();
-			invocation.baseUrl = config.getBaseUrl();
+			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.getRepositoryId();
+			invocation.repositoryId = config.repositoryId;
 			invocation.type = type;
 			invocation.refId = refId;
 			invocation.commitId = commitId;

@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 public class RepositoryConfig {
 
 	private final static Logger log = LoggerFactory.getLogger(RepositoryConfig.class);
-	private IDatabase database;
-	private String baseUrl;
-	private String repositoryId;
+	public final IDatabase database;
+	public final String baseUrl;
+	public final String repositoryId;
+	public final CredentialSupplier credentials;
 	private String lastCommitId;
-	private CredentialSupplier credentials;
 
 	private RepositoryConfig(IDatabase database, String baseUrl, String repositoryId, CredentialSupplier credentials) {
 		this.database = database;
@@ -83,16 +83,12 @@ public class RepositoryConfig {
 		File configFile = getConfigFile(database);
 		configFile.delete();
 		File fileStorage = database.getFileStorageLocation();
-		Directories.delete(new File(fileStorage, "cloud/" + getRepositoryId()));
+		Directories.delete(new File(fileStorage, "cloud/" + repositoryId));
 	}
 
 	private static File getConfigFile(IDatabase database) {
 		return new File(database.getFileStorageLocation(),
 				"repository.properties");
-	}
-
-	String getBaseUrl() {
-		return baseUrl;
 	}
 
 	public String getServerUrl() {
@@ -104,10 +100,6 @@ public class RepositoryConfig {
 		if (slashIndex == -1)
 			return baseUrl;
 		return baseUrl.substring(0, slashIndex);
-	}
-
-	public String getRepositoryId() {
-		return repositoryId;
 	}
 
 	public String getRepositoryOwner() {
@@ -125,14 +117,6 @@ public class RepositoryConfig {
 
 	public String getLastCommitId() {
 		return lastCommitId;
-	}
-
-	public IDatabase getDatabase() {
-		return database;
-	}
-
-	public CredentialSupplier getCredentials() {
-		return credentials;
 	}
 
 }
