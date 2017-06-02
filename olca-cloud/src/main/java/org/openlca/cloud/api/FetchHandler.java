@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,9 +18,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-import org.openlca.jsonld.Dates;
 import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.ModelPath;
 import org.openlca.jsonld.ZipStore;
@@ -59,9 +56,8 @@ class FetchHandler {
 			file = Files.createTempFile("olca", ".zip").toFile();
 			file.delete();
 			EntityStore store = ZipStore.open(file);
-			putMergedData(store);
+			int toImport = putMergedData(store);
 			fetchNotifier.beginTask(TaskType.FETCH, reader.getTotal());
-			int toImport = 0;
 			while (reader.hasMore()) {
 				Dataset delete = handleNext(reader, store);
 				if (delete != null) {
@@ -77,7 +73,6 @@ class FetchHandler {
 					if (entry.getValue() != null)
 						continue;
 					toDelete.add(entry.getKey());
-
 				}
 			}
 			if (toImport == 0 && toDelete.isEmpty())
@@ -121,27 +116,25 @@ class FetchHandler {
 		return null;
 	}
 
-	private void putMergedData(EntityStore store) {
+	private int putMergedData(EntityStore store) {
 		if (mergedData == null)
-			return;
+			return 0;
+		int toImport = 0;
 		for (Entry<Dataset, JsonObject> entry : mergedData.entrySet()) {
 			JsonObject json = entry.getValue();
 			if (json == null)
 				continue;
-			Version version = Version.fromString(json.get("version").getAsString());
-			version.incUpdate();
-			json.addProperty("version", Version.asString(version.getValue()));
-			json.addProperty("lastChange", Dates.toString(Calendar.getInstance().getTime()));
 			store.put(entry.getKey().type, json);
+			toImport++;
 			if (isImpactMethod(json)) {
 				putReferences(json, "impactCategories", ModelType.IMPACT_CATEGORY, store);
 				putReferences(json, "nwSets", ModelType.NW_SET, store);
 			}
 		}
+		return toImport;
 	}
 
-	private void putReferences(JsonObject json, String field, ModelType type,
-			EntityStore store) {
+	private void putReferences(JsonObject json, String field, ModelType type, EntityStore store) {
 		if (!json.has(field))
 			return;
 		JsonArray array = json.getAsJsonArray(field);
