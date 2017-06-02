@@ -1,5 +1,7 @@
 package org.openlca.core.model;
 
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,24 @@ public class Version {
 
 	public static String asString(long version) {
 		return new Version(version).toString();
+	}
+
+	public static void incMajor(RootEntity entity) {
+		inc(entity, (v) -> v.incMajor());
+	}
+
+	public static void incMinor(RootEntity entity) {
+		inc(entity, (v) -> v.incMinor());
+	}
+
+	public static void incUpdate(RootEntity entity) {
+		inc(entity, (v) -> v.incUpdate());
+	}
+
+	private static void inc(RootEntity entity, Consumer<Version> inc) {
+		Version v = new Version(entity.getVersion());
+		inc.accept(v);
+		entity.setVersion(v.getValue());
 	}
 
 	public int getMajor() {
