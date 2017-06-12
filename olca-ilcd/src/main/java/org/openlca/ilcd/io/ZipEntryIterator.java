@@ -1,6 +1,7 @@
 package org.openlca.ilcd.io;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,9 +17,12 @@ class ZipEntryIterator<T> implements Iterator<T> {
 	public ZipEntryIterator(ZipStore zipStore, Class<T> clazz) {
 		this.zipStore = zipStore;
 		this.clazz = clazz;
-		List<Path> list = zipStore.getEntries(Dir.get(clazz));
-		if (list != null)
-			this.it = list.iterator();
+		List<Path> list = new ArrayList<>();
+		for (Path p : zipStore.getEntries(Dir.get(clazz))) {
+			if (Util.isXml(p))
+				list.add(p);
+		}
+		this.it = list.iterator();
 	}
 
 	@Override
