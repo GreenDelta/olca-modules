@@ -79,18 +79,16 @@ public class ILCDImport implements FileImport {
 		if (canceled)
 			return;
 		try {
-			importContacts();
+			Iterator<Contact> it = config.store.iterator(Contact.class);
+			while (it.hasNext() && !canceled) {
+				Contact contact = it.next();
+				if (contact == null)
+					continue;
+				ContactImport contactImport = new ContactImport(config);
+				contactImport.run(contact);
+			}
 		} catch (Exception e) {
 			log.error("Contact import failed", e);
-		}
-	}
-
-	private void importContacts() throws Exception {
-		Iterator<Contact> it = config.store.iterator(Contact.class);
-		while (it.hasNext() && !canceled) {
-			Contact contact = it.next();
-			ContactImport contactImport = new ContactImport(config);
-			contactImport.run(contact);
 		}
 	}
 
@@ -101,6 +99,8 @@ public class ILCDImport implements FileImport {
 			Iterator<Source> it = config.store.iterator(Source.class);
 			while (it.hasNext() && !canceled) {
 				Source source = it.next();
+				if (source == null)
+					continue;
 				fireEvent(new SourceBag(source, config.langs)
 						.getShortName());
 				SourceImport sourceImport = new SourceImport(config);
@@ -118,6 +118,8 @@ public class ILCDImport implements FileImport {
 			Iterator<UnitGroup> it = config.store.iterator(UnitGroup.class);
 			while (it.hasNext() && !canceled) {
 				UnitGroup group = it.next();
+				if (group == null)
+					continue;
 				fireEvent(new UnitGroupBag(group, config.langs).getName());
 				UnitGroupImport groupImport = new UnitGroupImport(config);
 				groupImport.run(group);
@@ -135,6 +137,8 @@ public class ILCDImport implements FileImport {
 					.iterator(FlowProperty.class);
 			while (it.hasNext() && !canceled) {
 				FlowProperty property = it.next();
+				if (property == null)
+					continue;
 				fireEvent(new FlowPropertyBag(property, config.langs)
 						.getName());
 				FlowPropertyImport propertyImport = new FlowPropertyImport(
@@ -153,6 +157,8 @@ public class ILCDImport implements FileImport {
 			Iterator<Flow> it = config.store.iterator(Flow.class);
 			while (it.hasNext() && !canceled) {
 				Flow flow = it.next();
+				if (flow == null)
+					continue;
 				fireEvent(new FlowBag(flow, config.langs).getName());
 				FlowImport flowImport = new FlowImport(config);
 				flowImport.run(flow);
@@ -177,6 +183,8 @@ public class ILCDImport implements FileImport {
 		ProcessImport processImport = new ProcessImport(config);
 		while (it.hasNext() && !canceled) {
 			Process process = it.next();
+			if (process == null)
+				continue;
 			ProcessBag bag = new ProcessBag(process, config.langs);
 			fireEvent(bag.getName());
 			if (bag.hasProductModel()) {
@@ -195,6 +203,8 @@ public class ILCDImport implements FileImport {
 			Iterator<LCIAMethod> it = config.store.iterator(LCIAMethod.class);
 			while (it.hasNext() && !canceled) {
 				LCIAMethod method = it.next();
+				if (method == null)
+					continue;
 				MethodBag bag = new MethodBag(method);
 				fireEvent(bag.getImpactIndicator());
 				MethodImport methodImport = new MethodImport(config);
