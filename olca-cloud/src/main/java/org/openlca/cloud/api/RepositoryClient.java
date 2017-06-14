@@ -193,6 +193,10 @@ public class RepositoryClient {
 		return result;
 	}
 
+	public Set<FetchRequestData> list() throws WebRequestException {
+		return sync(null);
+	}
+
 	public Set<FetchRequestData> sync(String untilCommitId) throws WebRequestException {
 		Set<FetchRequestData> result = executeLoggedIn(() -> {
 			SyncInvocation invocation = new SyncInvocation();
@@ -233,7 +237,7 @@ public class RepositoryClient {
 			config.setLastCommitId(invocation.execute());
 		});
 	}
-
+	
 	public void checkout(String commitId, FetchNotifier notifier) throws WebRequestException {
 		if (commitId == null)
 			return;
@@ -266,13 +270,13 @@ public class RepositoryClient {
 	}
 
 	private void executeLoggedIn(Invocation runnable) throws WebRequestException {
-		if (sessionId == null)
+		if (sessionId == null && config.credentials != null)
 			if (!login())
 				return;
 		try {
 			runnable.run();
 		} catch (WebRequestException e) {
-			if (e.getErrorCode() == Status.UNAUTHORIZED.getStatusCode()) {
+			if (e.getErrorCode() == Status.UNAUTHORIZED.getStatusCode() && config.credentials != null) {
 				login();
 				runnable.run();
 			} else
@@ -281,13 +285,13 @@ public class RepositoryClient {
 	}
 
 	private <T> T executeLoggedIn(InvocationWithResult<T> runnable) throws WebRequestException {
-		if (sessionId == null)
+		if (sessionId == null && config.credentials != null)
 			if (!login())
 				return null;
 		try {
 			return runnable.run();
 		} catch (WebRequestException e) {
-			if (e.getErrorCode() == Status.UNAUTHORIZED.getStatusCode()) {
+			if (e.getErrorCode() == Status.UNAUTHORIZED.getStatusCode() && config.credentials != null) {
 				login();
 				return runnable.run();
 			} else

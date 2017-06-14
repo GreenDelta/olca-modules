@@ -20,7 +20,11 @@ public class RepositoryConfig {
 	public final CredentialSupplier credentials;
 	private String lastCommitId;
 
-	private RepositoryConfig(IDatabase database, String baseUrl, String repositoryId, CredentialSupplier credentials) {
+	public RepositoryConfig(IDatabase database, String baseUrl, String repositoryId) {
+		this(database, baseUrl, repositoryId, null);
+	}
+
+	public RepositoryConfig(IDatabase database, String baseUrl, String repositoryId, CredentialSupplier credentials) {
 		this.database = database;
 		this.baseUrl = baseUrl;
 		this.repositoryId = repositoryId;

@@ -35,7 +35,6 @@ class ReferencesInvocation {
 	 */
 	List<FetchRequestData> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
-		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		Valid.checkNotEmpty(commitId, "commit id");
 		String url = baseUrl + PATH + repositoryId + "/" + commitId;

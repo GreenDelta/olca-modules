@@ -48,7 +48,6 @@ public class CommitInvocation {
 	 */
 	String execute(Consumer<Dataset> callback) throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
-		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		Valid.checkNotEmpty(message, "message");
 		Valid.checkNotEmpty(data, "data");

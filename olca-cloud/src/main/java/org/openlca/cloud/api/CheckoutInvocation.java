@@ -16,7 +16,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 
 class CheckoutInvocation {
 
-	private static final String PATH = "/checkout/";
+	private static final String PATH = "/public/sync/get/";
 	private final IDatabase database;
 	private final FetchNotifier notifier;
 	String baseUrl;
@@ -31,14 +31,12 @@ class CheckoutInvocation {
 	/**
 	 * Retrieves all data sets until the specified commit
 	 * 
-	 * @return The commit id
 	 * @throws WebRequestException
 	 *             If user is out of sync or has no access to the specified
 	 *             repository
 	 */
 	void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
-		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (commitId == null || commitId.isEmpty())
 			commitId = "null";

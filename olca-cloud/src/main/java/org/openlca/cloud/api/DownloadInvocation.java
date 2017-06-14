@@ -1,5 +1,6 @@
 package org.openlca.cloud.api;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.openlca.cloud.model.data.FileReference;
@@ -18,7 +19,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 class DownloadInvocation {
 
-	private static final String PATH = "/sync/get/";
+	private static final String PATH = "/public/sync/get/";
 	private final IDatabase database;
 	private final FetchNotifier notifier;
 	String baseUrl;
@@ -40,14 +41,13 @@ class DownloadInvocation {
 	 */
 	void execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
-		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (database == null)
 			return;
 		if (untilCommitId == null || untilCommitId.isEmpty())
 			untilCommitId = "null";
-		if (requestData == null || requestData.isEmpty())
-			return;
+		if (requestData == null)
+			requestData = new HashSet<>();
 		String url = baseUrl + PATH + repositoryId + "/" + untilCommitId;
 		ClientResponse response = WebRequests.call(Type.PUT, url, sessionId, requestData);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())

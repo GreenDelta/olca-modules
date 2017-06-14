@@ -21,7 +21,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 class SyncInvocation {
 
-	private static final String PATH = "/sync/";
+	private static final String PATH = "/public/sync/";
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -39,7 +39,6 @@ class SyncInvocation {
 	 */
 	Set<FetchRequestData> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
-		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (untilCommitId == null || untilCommitId.isEmpty())
 			untilCommitId = "null";

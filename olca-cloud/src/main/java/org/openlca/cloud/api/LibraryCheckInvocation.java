@@ -38,7 +38,6 @@ class LibraryCheckInvocation {
 	 */
 	Map<Dataset, String> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
-		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(datasets, "datasets");
 		String url = baseUrl + PATH;
 		List<String> refIds = new ArrayList<>();

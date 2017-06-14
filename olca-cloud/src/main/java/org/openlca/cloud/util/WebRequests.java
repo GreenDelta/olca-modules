@@ -31,10 +31,14 @@ public class WebRequests {
 	public static ClientResponse call(Type type, String url, String sessionId, Object data) throws WebRequestException {
 		log.info(type.name() + " " + url);
 		Builder request = builder(url, sessionId, data);
-		ClientResponse response = call(type, request);
-		if (response.getStatus() >= 400 && response.getStatus() <= 599)
-			throw new WebRequestException(response);
-		return response;
+		try {
+			ClientResponse response = call(type, request);
+			if (response.getStatus() >= 400 && response.getStatus() <= 599)
+				throw new WebRequestException(response);
+			return response;
+		} catch (Exception e) {
+			throw new WebRequestException(e);
+		}
 	}
 
 	private static ClientResponse call(Type type, Builder builder) {
@@ -78,6 +82,11 @@ public class WebRequests {
 		private WebRequestException(ClientResponse response) {
 			super(response.getEntity(String.class));
 			this.errorCode = response.getStatus();
+		}
+
+		private WebRequestException(Exception e) {
+			super(e.getMessage());
+			this.errorCode = 500;
 		}
 
 		public int getErrorCode() {

@@ -32,7 +32,6 @@ class PreviousCommitInvocation {
 	 */
 	String execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
-		Valid.checkNotEmpty(sessionId, "session id");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		Valid.checkNotEmpty(type, "model type");
 		Valid.checkNotEmpty(refId, "ref id");
