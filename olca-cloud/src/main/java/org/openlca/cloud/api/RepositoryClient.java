@@ -1,5 +1,6 @@
 package org.openlca.cloud.api;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -211,6 +212,17 @@ public class RepositoryClient {
 		return result;
 	}
 
+	public File downloadJson(Set<FileReference> requestData) throws WebRequestException {
+		return executeLoggedIn(() -> {
+			DownloadJsonInvocation invocation = new DownloadJsonInvocation();
+			invocation.baseUrl = config.baseUrl;
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.repositoryId;
+			invocation.requestData = requestData;
+			return invocation.execute();
+		});
+	}
+
 	public void download(Set<FileReference> requestData, String commitId, FetchNotifier notifier)
 			throws WebRequestException {
 		executeLoggedIn(() -> {
@@ -237,7 +249,7 @@ public class RepositoryClient {
 			config.setLastCommitId(invocation.execute());
 		});
 	}
-	
+
 	public void checkout(String commitId, FetchNotifier notifier) throws WebRequestException {
 		if (commitId == null)
 			return;

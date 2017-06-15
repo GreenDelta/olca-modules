@@ -58,7 +58,8 @@ public class WebRequests {
 
 	private static Builder builder(String url, String sessionId, Object data) {
 		WebResource resource = client.resource(url);
-		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_PLAIN_TYPE);
+		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE, 
+				MediaType.TEXT_PLAIN_TYPE, MediaType.APPLICATION_OCTET_STREAM_TYPE);
 		if (sessionId != null)
 			builder.cookie(new Cookie("JSESSIONID", sessionId));
 		if (data == null)
