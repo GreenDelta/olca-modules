@@ -16,7 +16,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 
 class CheckoutInvocation {
 
-	private static final String PATH = "/public/sync/get/";
+	private static final String PATH = "/checkout/";
 	private final IDatabase database;
 	private final FetchNotifier notifier;
 	String baseUrl;
