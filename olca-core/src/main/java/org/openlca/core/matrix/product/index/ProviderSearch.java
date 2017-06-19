@@ -1,8 +1,13 @@
 package org.openlca.core.matrix.product.index;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
 
 /**
@@ -55,6 +60,25 @@ class ProviderSearch {
 		if (candidateType == preferredType && newOptionType != preferredType)
 			return false;
 		return candidateType != preferredType && newOptionType == preferredType;
+	}
+
+	/**
+	 * Returns from the given list the product inputs or waste outputs that
+	 * could be linked to a provider.
+	 */
+	List<CalcExchange> getLinkCandidates(List<CalcExchange> list) {
+		if (list == null || list.isEmpty())
+			return Collections.emptyList();
+		List<CalcExchange> candidates = new ArrayList<>();
+		for (CalcExchange e : list) {
+			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)
+				continue;
+			if (e.input && e.flowType == FlowType.PRODUCT_FLOW)
+				candidates.add(e);
+			else if (!e.input && e.flowType == FlowType.WASTE_FLOW)
+				candidates.add(e);
+		}
+		return candidates;
 	}
 
 }

@@ -11,7 +11,6 @@ import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
@@ -56,16 +55,14 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 			Map<Long, List<CalcExchange>> exchanges = fetchExchanges(block);
 			for (LongPair recipient : block) {
 				handled.add(recipient);
-				List<CalcExchange> allExchanges = exchanges.get(recipient
-						.getFirst());
-				List<CalcExchange> productInputs = getProductInputs(
-						allExchanges);
-				for (CalcExchange productInput : productInputs) {
-					LongPair provider = providers.find(productInput);
+				List<CalcExchange> all = exchanges.get(recipient.getFirst());
+				List<CalcExchange> candidates = providers.getLinkCandidates(all);
+				for (CalcExchange linkExchange : candidates) {
+					LongPair provider = providers.find(linkExchange);
 					if (provider == null)
 						continue;
 					LongPair exchange = new LongPair(recipient.getFirst(),
-							productInput.exchangeId);
+							linkExchange.exchangeId);
 					index.putLink(exchange, provider);
 					if (!handled.contains(provider) && !nextBlock.contains(provider))
 						nextBlock.add(provider);
@@ -84,21 +81,6 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 			LongPair exchange = new LongPair(link.processId, link.exchangeId);
 			index.putLink(exchange, provider);
 		}
-	}
-
-	private List<CalcExchange> getProductInputs(
-			List<CalcExchange> processExchanges) {
-		if (processExchanges == null || processExchanges.isEmpty())
-			return Collections.emptyList();
-		List<CalcExchange> productInputs = new ArrayList<>();
-		for (CalcExchange exchange : processExchanges) {
-			if (!exchange.input)
-				continue;
-			if (exchange.flowType == FlowType.ELEMENTARY_FLOW)
-				continue;
-			productInputs.add(exchange);
-		}
-		return productInputs;
 	}
 
 	private Map<Long, List<CalcExchange>> fetchExchanges(List<LongPair> block) {

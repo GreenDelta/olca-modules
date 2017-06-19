@@ -128,20 +128,20 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 
 		private void followInputs(Node node, List<CalcExchange> exchanges,
 				List<Node> nextLayer) {
-			for (CalcExchange input : getInputs(node, exchanges)) {
-				LongPair inputProduct = providers.find(input);
-				if (inputProduct == null)
+			for (CalcExchange linkExchange : providers.getLinkCandidates(exchanges)) {
+				LongPair provider = providers.find(linkExchange);
+				if (provider == null)
 					continue;
-				double inputAmount = amount(input);
+				double inputAmount = amount(linkExchange);
 				double inputDemand = node.scalingFactor * inputAmount;
-				Node provider = nodes.get(inputProduct);
-				if (provider != null)
-					checkSubGraph(inputDemand, provider, nextLayer, false);
+				Node providerNode = nodes.get(provider);
+				if (providerNode != null)
+					checkSubGraph(inputDemand, providerNode, nextLayer, false);
 				else {
-					provider = createNode(inputDemand, inputProduct,
+					providerNode = createNode(inputDemand, provider,
 							nextLayer);
 				}
-				Link link = new Link(provider, input.exchangeId,
+				Link link = new Link(providerNode, linkExchange.exchangeId,
 						inputAmount, inputDemand);
 				node.inputLinks.add(link);
 			}
@@ -206,16 +206,6 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 				return e;
 			}
 			return null;
-		}
-
-		private List<CalcExchange> getInputs(Node node,
-				List<CalcExchange> all) {
-			List<CalcExchange> inputs = new ArrayList<>();
-			for (CalcExchange e : all) {
-				if (e.input && e.flowType == FlowType.PRODUCT_FLOW)
-					inputs.add(e);
-			}
-			return inputs;
 		}
 
 		private double amount(CalcExchange e) {
