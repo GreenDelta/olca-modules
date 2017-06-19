@@ -55,13 +55,12 @@ class InventoryBuilder {
 		try {
 			Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
 					.getAll(techIndex.getProcessIds());
-			for (Long processId : techIndex.getProcessIds()) {
-				List<CalcExchange> exchanges = map.get(processId);
-				List<LongPair> processProducts = techIndex
-						.getProviders(processId);
-				for (LongPair processProduct : processProducts) {
+			for (Long processID : techIndex.getProcessIds()) {
+				List<CalcExchange> exchanges = map.get(processID);
+				List<LongPair> providers = techIndex.getProviders(processID);
+				for (LongPair provider : providers) {
 					for (CalcExchange exchange : exchanges) {
-						putExchangeValue(processProduct, exchange);
+						putExchangeValue(provider, exchange);
 					}
 				}
 			}
@@ -71,30 +70,36 @@ class InventoryBuilder {
 		}
 	}
 
-	private void putExchangeValue(LongPair processProduct, CalcExchange e) {
-		if (!e.input && processProduct.equals(e.processId, e.flowId)) {
-			// the reference product
-			int idx = techIndex.getIndex(processProduct);
-			add(idx, processProduct, technologyMatrix, e);
+	private void putExchangeValue(LongPair provider, CalcExchange e) {
+		if (e.flowType == FlowType.ELEMENTARY_FLOW) {
+			// elementary flows
+			addIntervention(provider, e);
+			return;
+		}
 
-		} else if (e.flowType == FlowType.ELEMENTARY_FLOW) {
-			// elementary exchanges
-			addIntervention(processProduct, e);
-
-		} else if (e.input) {
-
+		if ((e.input && e.flowType == FlowType.PRODUCT_FLOW)
+				|| (!e.input && e.flowType == FlowType.WASTE_FLOW)) {
 			if (techIndex.isLinked(LongPair.of(e.processId, e.exchangeId))) {
-				// linked product inputs
-				addProcessLink(processProduct, e);
+				// linked product input or waste output
+				addProcessLink(provider, e);
 			} else {
-				// an unlinked product input
-				addIntervention(processProduct, e);
+				// unlinked product input or waste output
+				addIntervention(provider, e);
 			}
+			return;
+		}
 
-		} else if (allocationMethod == null
+		if (provider.equals(e.processId, e.flowId)) {
+			// the reference product or waste flow
+			int idx = techIndex.getIndex(provider);
+			add(idx, provider, technologyMatrix, e);
+			return;
+		}
+
+		if (allocationMethod == null
 				|| allocationMethod == AllocationMethod.NONE) {
-			// non allocated output products
-			addIntervention(processProduct, e);
+			// non allocated output products or waste inputs
+			addIntervention(provider, e);
 		}
 	}
 
