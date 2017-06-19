@@ -18,14 +18,14 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProductIndexBuilder implements IProductIndexBuilder {
+public class TechIndexBuilder implements ITechIndexBuilder {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final ProviderSearch providers;
 	private final MatrixCache cache;
 	private final ProductSystem system;
 
-	public ProductIndexBuilder(MatrixCache cache, ProductSystem system) {
+	public TechIndexBuilder(MatrixCache cache, ProductSystem system) {
 		this.cache = cache;
 		this.system = system;
 		this.providers = new ProviderSearch(cache.getProcessTable());

@@ -19,7 +19,7 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
+public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -28,7 +28,7 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 	private final ProductSystem system;
 	private final double cutoff;
 
-	public ProductIndexCutoffBuilder(MatrixCache cache, ProductSystem system, double cutoff) {
+	public TechIndexCutoffBuilder(MatrixCache cache, ProductSystem system, double cutoff) {
 		this.cache = cache;
 		this.cutoff = cutoff;
 		this.system = system;
