@@ -41,14 +41,14 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 	/**
 	 * Returns the processes where the given flow is an output.
 	 */
-	public Set<Long> getProviders(long flowId) {
+	public Set<Long> getWhereOutput(long flowId) {
 		return getProcessIdsWhereUsed(flowId, false);
 	}
 
 	/**
 	 * Returns the processes where the given flow is an input.
 	 */
-	public Set<Long> getRecipients(long flowId) {
+	public Set<Long> getWhereInput(long flowId) {
 		return getProcessIdsWhereUsed(flowId, true);
 	}
 
