@@ -13,14 +13,14 @@ class ProviderSearch {
 	private ProcessTable processTable;
 	private ProcessType preferredType;
 
-	public ProviderSearch(ProcessTable processTable,
-			ProcessType preferredType) {
+	public ProviderSearch(ProcessTable processTable) {
 		this.processTable = processTable;
-		this.preferredType = preferredType;
+		this.preferredType = ProcessType.LCI_RESULT;
 	}
 
-	void setPreferredType(ProcessType preferredType) {
-		this.preferredType = preferredType;
+	void setPreferredType(ProcessType type) {
+		if (type != null)
+			this.preferredType = type;
 	}
 
 	LongPair find(CalcExchange productInput) {

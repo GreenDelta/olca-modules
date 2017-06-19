@@ -11,7 +11,6 @@ import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProcessType;
@@ -21,21 +20,20 @@ import org.slf4j.LoggerFactory;
 
 public class ProductIndexBuilder implements IProductIndexBuilder {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private ProcessType preferredType = ProcessType.LCI_RESULT;
-	private MatrixCache cache;
-	private ProcessTable processTable;
-	private ProductSystem system;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ProviderSearch providers;
+	private final MatrixCache cache;
+	private final ProductSystem system;
 
 	public ProductIndexBuilder(MatrixCache cache, ProductSystem system) {
 		this.cache = cache;
 		this.system = system;
-		this.processTable = cache.getProcessTable();
+		this.providers = new ProviderSearch(cache.getProcessTable());
 	}
 
 	@Override
-	public void setPreferredType(ProcessType preferredType) {
-		this.preferredType = preferredType;
+	public void setPreferredType(ProcessType type) {
+		this.providers.setPreferredType(type);
 	}
 
 	@Override
@@ -63,7 +61,7 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 				List<CalcExchange> productInputs = getProductInputs(
 						allExchanges);
 				for (CalcExchange productInput : productInputs) {
-					LongPair provider = findProvider(productInput);
+					LongPair provider = providers.find(productInput);
 					if (provider == null)
 						continue;
 					LongPair exchange = new LongPair(recipient.getFirst(),
@@ -118,36 +116,4 @@ public class ProductIndexBuilder implements IProductIndexBuilder {
 		}
 	}
 
-	private LongPair findProvider(CalcExchange productInput) {
-		if (productInput == null)
-			return null;
-		long productId = productInput.flowId;
-		long[] processIds = processTable.getProductProviders(productId);
-		if (processIds == null)
-			return null;
-		LongPair candidate = null;
-		for (long processId : processIds) {
-			LongPair newOption = LongPair.of(processId, productId);
-			if (isBetter(productInput, candidate, newOption))
-				candidate = newOption;
-		}
-		return candidate;
-	}
-
-	private boolean isBetter(CalcExchange inputLink, LongPair candidate,
-			LongPair newOption) {
-		if (candidate == null)
-			return true;
-		if (newOption == null)
-			return false;
-		if (candidate.getFirst() == inputLink.defaultProviderId)
-			return false;
-		if (newOption.getFirst() == inputLink.defaultProviderId)
-			return true;
-		ProcessType candidateType = processTable.getType(candidate.getFirst());
-		ProcessType newOptionType = processTable.getType(newOption.getFirst());
-		if (candidateType == preferredType && newOptionType != preferredType)
-			return false;
-		return candidateType != preferredType && newOptionType == preferredType;
-	}
 }

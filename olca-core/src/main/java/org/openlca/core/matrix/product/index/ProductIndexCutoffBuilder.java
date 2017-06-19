@@ -21,24 +21,23 @@ import org.slf4j.LoggerFactory;
 
 public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private MatrixCache cache;
-	private ProviderSearch providerSearch;
-	private ProductSystem system;
-	private double cutoff;
+	private final MatrixCache cache;
+	private final ProviderSearch providers;
+	private final ProductSystem system;
+	private final double cutoff;
 
 	public ProductIndexCutoffBuilder(MatrixCache cache, ProductSystem system, double cutoff) {
 		this.cache = cache;
 		this.cutoff = cutoff;
 		this.system = system;
-		this.providerSearch = new ProviderSearch(cache.getProcessTable(),
-				ProcessType.LCI_RESULT);
+		this.providers = new ProviderSearch(cache.getProcessTable());
 	}
 
 	@Override
 	public void setPreferredType(ProcessType type) {
-		providerSearch.setPreferredType(type);
+		providers.setPreferredType(type);
 	}
 
 	@Override
@@ -130,7 +129,7 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 		private void followInputs(Node node, List<CalcExchange> exchanges,
 				List<Node> nextLayer) {
 			for (CalcExchange input : getInputs(node, exchanges)) {
-				LongPair inputProduct = providerSearch.find(input);
+				LongPair inputProduct = providers.find(input);
 				if (inputProduct == null)
 					continue;
 				double inputAmount = amount(input);
