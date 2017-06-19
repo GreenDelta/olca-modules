@@ -119,30 +119,30 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 					continue;
 				node.outputAmount = amount(output);
 				node.scalingFactor = node.demand / node.outputAmount;
-				followInputs(node, exchanges, nextLayer);
+				followLinks(node, exchanges, nextLayer);
 				node.state = NodeState.FOLLOWED;
 			}
 			next.clear();
 			next.addAll(nextLayer);
 		}
 
-		private void followInputs(Node node, List<CalcExchange> exchanges,
+		private void followLinks(Node node, List<CalcExchange> exchanges,
 				List<Node> nextLayer) {
 			for (CalcExchange linkExchange : providers.getLinkCandidates(exchanges)) {
 				LongPair provider = providers.find(linkExchange);
 				if (provider == null)
 					continue;
-				double inputAmount = amount(linkExchange);
-				double inputDemand = node.scalingFactor * inputAmount;
+				double amount = amount(linkExchange);
+				double demand = node.scalingFactor * amount;
 				Node providerNode = nodes.get(provider);
 				if (providerNode != null)
-					checkSubGraph(inputDemand, providerNode, nextLayer, false);
+					checkSubGraph(demand, providerNode, nextLayer, false);
 				else {
-					providerNode = createNode(inputDemand, provider,
+					providerNode = createNode(demand, provider,
 							nextLayer);
 				}
 				Link link = new Link(providerNode, linkExchange.exchangeId,
-						inputAmount, inputDemand);
+						amount, demand);
 				node.inputLinks.add(link);
 			}
 		}
