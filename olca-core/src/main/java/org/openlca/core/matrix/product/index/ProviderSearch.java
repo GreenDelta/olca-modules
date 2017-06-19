@@ -6,7 +6,8 @@ import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.ProcessType;
 
 /**
- * Searches for the best provider for a given input product in the database.
+ * Searches for the best provider for a given product input or waste output in
+ * the database.
  */
 class ProviderSearch {
 
@@ -27,7 +28,7 @@ class ProviderSearch {
 		if (productInput == null)
 			return null;
 		long productId = productInput.flowId;
-		long[] processIds = processTable.getProductProviders(productId);
+		long[] processIds = processTable.getProviders(productId);
 		if (processIds == null)
 			return null;
 		LongPair candidate = null;
