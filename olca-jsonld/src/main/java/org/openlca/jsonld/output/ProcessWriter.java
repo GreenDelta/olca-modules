@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openlca.core.model.AllocationFactor;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Parameter;
@@ -29,7 +30,7 @@ class ProcessWriter extends Writer<Process> {
 		if (obj == null)
 			return null;
 		this.process = p;
-		Out.put(obj, "processType", p.getProcessType());
+		Out.put(obj, "processType", p.getProcessType(), Out.REQUIRED_FIELD);
 		Out.put(obj, "defaultAllocationMethod", p.getDefaultAllocationMethod());
 		Out.put(obj, "infrastructureProcess", p.isInfrastructureProcess());
 		Out.put(obj, "location", p.getLocation(), conf);
@@ -77,7 +78,7 @@ class ProcessWriter extends Writer<Process> {
 		for (SocialAspect a : process.socialAspects) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", SocialAspect.class.getSimpleName());
-			Out.put(obj, "socialIndicator", a.indicator, conf);
+			Out.put(obj, "socialIndicator", a.indicator, conf, Out.REQUIRED_FIELD);
 			Out.put(obj, "comment", a.comment);
 			Out.put(obj, "quality", a.quality);
 			Out.put(obj, "rawAmount", a.rawAmount);
@@ -94,10 +95,12 @@ class ProcessWriter extends Writer<Process> {
 		for (AllocationFactor f : process.getAllocationFactors()) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", AllocationFactor.class.getSimpleName());
-			Out.put(obj, "exchange", createExchangeRef(f.getExchange()));
-			Out.put(obj, "product", findProduct(f.getProductId()), conf);
+			Out.put(obj, "allocationType", f.getAllocationType(), Out.REQUIRED_FIELD);
+			if (f.getAllocationType() == AllocationMethod.CAUSAL) {
+				Out.put(obj, "exchange", createExchangeRef(f.getExchange()), Out.REQUIRED_FIELD);
+			}
+			Out.put(obj, "product", findProduct(f.getProductId()), conf, Out.REQUIRED_FIELD);
 			Out.put(obj, "value", f.getValue());
-			Out.put(obj, "allocationType", f.getAllocationType());
 			factors.add(obj);
 		}
 		Out.put(json, "allocationFactors", factors);

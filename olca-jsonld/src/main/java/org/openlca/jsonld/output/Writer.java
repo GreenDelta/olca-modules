@@ -40,7 +40,7 @@ class Writer<T extends RootEntity> {
 	static void addBasicAttributes(RootEntity entity, JsonObject obj) {
 		String type = entity.getClass().getSimpleName();
 		Out.put(obj, "@type", type);
-		Out.put(obj, "@id", entity.getRefId());
+		Out.put(obj, "@id", entity.getRefId(), Out.REQUIRED_FIELD);
 		Out.put(obj, "name", entity.getName());
 		Out.put(obj, "description", entity.getDescription());
 		Out.put(obj, "version", Version.asString(entity.getVersion()));

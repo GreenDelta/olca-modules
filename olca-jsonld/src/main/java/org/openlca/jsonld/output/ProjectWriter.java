@@ -24,8 +24,7 @@ class ProjectWriter extends Writer<Project> {
 		Out.put(obj, "goal", p.getGoal());
 		Out.put(obj, "lastModificationDate", p.getLastModificationDate());
 		Out.put(obj, "author", p.getAuthor(), conf);
-		Out.put(obj, "impactMethod",
-				createRef(ModelType.IMPACT_METHOD, p.getImpactMethodId()));
+		Out.put(obj, "impactMethod", createRef(ModelType.IMPACT_METHOD, p.getImpactMethodId()));
 		Out.put(obj, "nwSet", createRef(ModelType.NW_SET, p.getNwSetId()));
 		mapVariants(obj, p);
 		ParameterReferences.writeReferencedParameters(p, conf);
@@ -38,16 +37,15 @@ class ProjectWriter extends Writer<Project> {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", ProjectVariant.class.getSimpleName());
 			Out.put(obj, "name", v.getName());
-			Out.put(obj, "productSystem", v.getProductSystem(), conf);
+			Out.put(obj, "productSystem", v.getProductSystem(), conf, Out.REQUIRED_FIELD);
 			Out.put(obj, "amount", v.getAmount());
-			Out.put(obj, "unit", v.getUnit(), conf);
+			Out.put(obj, "unit", v.getUnit(), conf, Out.REQUIRED_FIELD);
 			Out.put(obj, "allocationMethod", v.getAllocationMethod());
 			FlowProperty prop = null;
 			if (v.getFlowPropertyFactor() != null)
 				prop = v.getFlowPropertyFactor().getFlowProperty();
-			Out.put(obj, "flowProperty", prop, conf);
-			ParameterRedefs.map(obj, v.getParameterRedefs(), conf.db, conf,
-					this::createRef);
+			Out.put(obj, "flowProperty", prop, conf, Out.REQUIRED_FIELD);
+			ParameterRedefs.map(obj, v.getParameterRedefs(), conf.db, conf, this::createRef);
 			array.add(obj);
 		}
 		Out.put(json, "variants", array);

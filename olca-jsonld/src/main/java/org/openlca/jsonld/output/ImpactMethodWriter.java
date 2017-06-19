@@ -17,8 +17,8 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 		JsonObject obj = super.write(m);
 		if (obj == null)
 			return null;
-		Out.put(obj, "impactCategories", m.getImpactCategories(), conf, true);
-		Out.put(obj, "nwSets", m.getNwSets(), conf, true);
+		Out.put(obj, "impactCategories", m.getImpactCategories(), conf, Out.FORCE_EXPORT);
+		Out.put(obj, "nwSets", m.getNwSets(), conf, Out.FORCE_EXPORT);
 		mapParameters(obj, m);
 		ParameterReferences.writeReferencedParameters(m, conf);
 		return obj;

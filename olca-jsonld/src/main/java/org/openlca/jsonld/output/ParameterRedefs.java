@@ -22,7 +22,7 @@ class ParameterRedefs {
 		for (ParameterRedef p : redefs) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", ParameterRedef.class.getSimpleName());
-			Out.put(obj, "name", p.getName());
+			Out.put(obj, "name", p.getName(), Out.REQUIRED_FIELD);
 			Out.put(obj, "value", p.getValue());
 			Out.put(obj, "uncertainty", Uncertainties.map(p.getUncertainty()));
 			Out.put(obj, "context",

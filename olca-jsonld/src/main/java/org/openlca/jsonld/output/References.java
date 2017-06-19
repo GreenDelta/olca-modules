@@ -60,6 +60,8 @@ class References {
 			return false;
 		if (!forceExport && !conf.exportReferences)
 			return false;
+		if (type == ModelType.UNIT)
+			return false;
 		return true;
 	}
 

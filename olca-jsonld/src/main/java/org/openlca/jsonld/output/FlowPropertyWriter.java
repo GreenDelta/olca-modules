@@ -15,8 +15,8 @@ class FlowPropertyWriter extends Writer<FlowProperty> {
 		JsonObject obj = super.write(prop);
 		if (obj == null)
 			return null;
-		Out.put(obj, "flowPropertyType", prop.getFlowPropertyType());
-		Out.put(obj, "unitGroup", prop.getUnitGroup(), conf);
+		Out.put(obj, "flowPropertyType", prop.getFlowPropertyType(), Out.REQUIRED_FIELD);
+		Out.put(obj, "unitGroup", prop.getUnitGroup(), conf, Out.REQUIRED_FIELD);
 		return obj;
 	}
 

@@ -19,7 +19,7 @@ class FlowWriter extends Writer<Flow> {
 		JsonObject obj = super.write(flow);
 		if (obj == null)
 			return null;
-		Out.put(obj, "flowType", flow.getFlowType());
+		Out.put(obj, "flowType", flow.getFlowType(), Out.REQUIRED_FIELD);
 		Out.put(obj, "cas", flow.getCasNumber());
 		Out.put(obj, "formula", flow.getFormula());
 		Out.put(obj, "synonyms", flow.synonyms);
@@ -36,7 +36,7 @@ class FlowWriter extends Writer<Flow> {
 			Out.put(facObj, "@type", FlowPropertyFactor.class.getSimpleName());
 			if (Objects.equals(fac, flow.getReferenceFactor()))
 				Out.put(facObj, "referenceFlowProperty", true);
-			Out.put(facObj, "flowProperty", fac.getFlowProperty(), conf);
+			Out.put(facObj, "flowProperty", fac.getFlowProperty(), conf, Out.REQUIRED_FIELD);
 			Out.put(facObj, "conversionFactor", fac.getConversionFactor());
 			factorArray.add(facObj);
 		}
