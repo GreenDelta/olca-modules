@@ -43,7 +43,12 @@ abstract class ContributionSheet<C extends BaseDescriptor, R extends BaseDescrip
 		for (R rowDesc : rowData) {
 			int col = rowHeaders.length + 2;
 			for (C colDesc : colData) {
-				writer.cell(sheet, row, col, getValue(colDesc, rowDesc));
+				double val = getValue(colDesc, rowDesc);
+				if (val != 0) {
+					// do not write zeros in the sheets -> makes the workbook
+					// much smaller in size (and also the export much faster)
+					writer.cell(sheet, row, col, val);
+				}
 				col++;
 			}
 			row++;

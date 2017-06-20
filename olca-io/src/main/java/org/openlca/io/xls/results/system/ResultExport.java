@@ -57,8 +57,10 @@ public class ResultExport implements Runnable {
 				ImpactSheet.write(this);
 			}
 			ProcessFlowContributionSheet.write(this);
-			ProcessImpactContributionSheet.write(this);
-			FlowImpactContributionSheet.write(this);
+			if (result.hasCostResults()) {
+				ProcessImpactContributionSheet.write(this);
+				FlowImpactContributionSheet.write(this);
+			}
 			success = true;
 			try (FileOutputStream stream = new FileOutputStream(file)) {
 				workbook.write(stream);
