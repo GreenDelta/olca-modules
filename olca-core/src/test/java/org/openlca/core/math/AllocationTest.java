@@ -39,6 +39,32 @@ public class AllocationTest {
 		checkIt(method, p);
 	}
 
+	@Test
+	public void testProductWaste() {
+		AllocationMethod method = AllocationMethod.PHYSICAL;
+		Process p = TestProcess
+				.refProduct("p1", 1, "kg")
+				.wasteIn("w2", 3, "kg")
+				.elemOut("CO2", 2, "kg")
+				.alloc("p1", method, 0.25)
+				.alloc("w2", method, 0.75)
+				.get();
+		checkIt(method, p);
+	}
+
+	@Test
+	public void testWasteProduct() {
+		AllocationMethod method = AllocationMethod.PHYSICAL;
+		Process p = TestProcess
+				.refWaste("w1", 1, "kg")
+				.prodOut("p2", 3, "kg")
+				.elemOut("CO2", 2, "kg")
+				.alloc("w1", method, 0.25)
+				.alloc("p2", method, 0.75)
+				.get();
+		checkIt(method, p);
+	}
+
 	private void checkIt(AllocationMethod method, Process p) {
 		ProductSystem system = TestSystem.of(p).get();
 		CalculationSetup setup = new CalculationSetup(system);
