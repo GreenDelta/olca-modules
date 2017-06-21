@@ -1,5 +1,6 @@
 package org.openlca.core;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import org.openlca.core.database.CurrencyDao;
@@ -9,6 +10,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.model.AllocationFactor;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -30,12 +33,29 @@ public class TestProcess {
 	private TestProcess() {
 	}
 
-	public static TestProcess forOutput(String flow, double amount, String unit) {
+	/**
+	 * Creates a process with the given product output as quantitative
+	 * reference.
+	 */
+	public static TestProcess refProduct(String flow, double amount, String unit) {
 		TestProcess tp = new TestProcess();
 		tp.process = new Process();
 		tp.process.setRefId(UUID.randomUUID().toString());
 		tp.process.setName(flow);
 		tp.prodOut(flow, amount, unit);
+		tp.process.setQuantitativeReference(tp.process.getExchanges().get(0));
+		return tp;
+	}
+
+	/**
+	 * Creates a process with the given waste input as quantitative reference.
+	 */
+	public static TestProcess refWaste(String flow, double amount, String unit) {
+		TestProcess tp = new TestProcess();
+		tp.process = new Process();
+		tp.process.setRefId(UUID.randomUUID().toString());
+		tp.process.setName(flow);
+		tp.wasteIn(flow, amount, unit);
 		tp.process.setQuantitativeReference(tp.process.getExchanges().get(0));
 		return tp;
 	}
@@ -78,6 +98,40 @@ public class TestProcess {
 	public TestProcess elemIn(String flow, double amount, String unit) {
 		Exchange e = prepareExchange(FlowType.ELEMENTARY_FLOW, flow, amount, unit);
 		e.setInput(true);
+		return this;
+	}
+
+	public TestProcess wasteOut(String flow, double amount, String unit) {
+		Exchange e = prepareExchange(FlowType.WASTE_FLOW, flow, amount, unit);
+		e.setInput(false);
+		return this;
+	}
+
+	public TestProcess wasteIn(String flow, double amount, String unit) {
+		Exchange e = prepareExchange(FlowType.WASTE_FLOW, flow, amount, unit);
+		e.setInput(true);
+		return this;
+	}
+
+	/**
+	 * Adds an economic or physical allocation factor for the given flow and
+	 * method to the process. Use this method *after* the exchanges are added.
+	 */
+	public TestProcess alloc(String flow, AllocationMethod method, double factor) {
+		Exchange exchange = null;
+		for (Exchange e : process.getExchanges()) {
+			if (e.getFlow() == null)
+				continue;
+			if (Objects.equals(e.getFlow().getName(), flow)) {
+				exchange = e;
+				break;
+			}
+		}
+		AllocationFactor f = new AllocationFactor();
+		f.setAllocationType(method);
+		f.setProductId(exchange.getFlow().getId());
+		f.setValue(factor);
+		process.getAllocationFactors().add(f);
 		return this;
 	}
 

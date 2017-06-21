@@ -27,7 +27,7 @@ public final class AllocationTable {
 		try {
 			NativeSql.on(db).query(sql, r -> {
 				long processID = r.getLong(2);
-				if (!processIDs.contains(processIDs))
+				if (!processIDs.contains(processID))
 					return true;
 				CalcAllocationFactor f = fetch(processID, r);
 				if (f != null)

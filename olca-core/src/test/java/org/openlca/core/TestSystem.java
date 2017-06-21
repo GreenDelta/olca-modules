@@ -95,6 +95,10 @@ public class TestSystem {
 	public static FullResultProvider calculate(ProductSystem system) {
 		CalculationSetup setup = new CalculationSetup(system);
 		setup.withCosts = true;
+		return calculate(setup);
+	}
+
+	public static FullResultProvider calculate(CalculationSetup setup) {
 		SystemCalculator calc = new SystemCalculator(
 				MatrixCache.createEager(Tests.getDb()),
 				Tests.getDefaultSolver());

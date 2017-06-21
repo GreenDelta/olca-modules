@@ -19,13 +19,13 @@ public class SelfLoopAnalysisTest {
 	@Before
 	public void setUp() {
 		Process p1 = TestProcess
-				.forOutput("p1", 1, "kg")
+				.refProduct("p1", 1, "kg")
 				.prodIn("p2", 1, "kg")
 				.elemIn("f1", 1, "kg")
 				.elemOut("f2", 2, "kg")
 				.get();
 		Process p2 = TestProcess
-				.forOutput("p2", 1, "kg")
+				.refProduct("p2", 1, "kg")
 				.prodIn("p1", 0.5, "kg")
 				.elemIn("f1", 2, "kg")
 				.elemOut("f2", 1, "kg")
