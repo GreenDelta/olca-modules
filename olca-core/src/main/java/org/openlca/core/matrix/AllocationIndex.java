@@ -1,25 +1,21 @@
 package org.openlca.core.matrix;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.openlca.core.matrix.cache.AllocationTable;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongDoubleHashMap;
 
 class AllocationIndex {
 
-	private MatrixCache cache;
-	private TechIndex productIndex;
-	private AllocationMethod method;
+	private final AllocationMethod method;
+	private final ProcessTable processTable;
 
 	/**
 	 * Used for physical and economic allocation: directly stores the the
@@ -34,32 +30,18 @@ class AllocationIndex {
 	private HashMap<LongPair, TLongDoubleHashMap> exchangeFactors;
 
 	public static AllocationIndex create(TechIndex productIndex,
-			AllocationMethod method, MatrixCache cache) {
-		return new AllocationIndex(productIndex, method, cache);
+			AllocationMethod method, MatrixCache mCache) {
+		return new AllocationIndex(productIndex, method, mCache);
 	}
 
-	private AllocationIndex(TechIndex productIndex, AllocationMethod method,
-			MatrixCache cache) {
+	private AllocationIndex(TechIndex index, AllocationMethod method,
+			MatrixCache mCache) {
 		this.method = method;
-		this.productIndex = productIndex;
-		this.cache = cache;
-		List<CalcAllocationFactor> factors = loadFactors();
-		for (CalcAllocationFactor factor : factors)
-			index(factor);
-	}
-
-	private List<CalcAllocationFactor> loadFactors() {
-		try {
-			List<CalcAllocationFactor> factors = new ArrayList<>();
-			Map<Long, List<CalcAllocationFactor>> factorMap = cache
-					.getAllocationCache().getAll(productIndex.getProcessIds());
-			for (List<CalcAllocationFactor> list : factorMap.values())
-				factors.addAll(list);
-			return factors;
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.error("failed to load allocation factors from cache", e);
-			return Collections.emptyList();
+		List<CalcAllocationFactor> factors = AllocationTable.get(
+				mCache.getDatabase(), index.getProcessIds());
+		processTable = mCache.getProcessTable();
+		for (CalcAllocationFactor f : factors) {
+			index(f);
 		}
 	}
 
@@ -67,8 +49,7 @@ class AllocationIndex {
 		LongPair provider = new LongPair(f.processID, f.flowID);
 		AllocationMethod _method = this.method;
 		if (this.method == AllocationMethod.USE_DEFAULT)
-			_method = cache.getProcessTable().getDefaultAllocationMethod(
-					f.processID);
+			_method = processTable.getDefaultAllocationMethod(f.processID);
 		if (_method == null)
 			return;
 		switch (_method) {
@@ -116,49 +97,46 @@ class AllocationIndex {
 		productFactors.put(processProduct, factor.value);
 	}
 
-	public double getFactor(LongPair processProduct,
-			CalcExchange calcExchange) {
-		if (!calcExchange.input
-				&& calcExchange.flowType == FlowType.PRODUCT_FLOW)
-			return 1d; // TODO: this changes when we allow input-modelling
-						// of
-						// waste-flows
+	public double getFactor(LongPair provider, CalcExchange e) {
+		if (!e.input && e.flowType == FlowType.PRODUCT_FLOW)
+			return 1d;
+		if (e.input && e.flowType == FlowType.WASTE_FLOW)
+			return 1d;
 		AllocationMethod _method = this.method;
 		if (this.method == AllocationMethod.USE_DEFAULT)
-			_method = cache.getProcessTable().getDefaultAllocationMethod(
-					processProduct.getFirst());
+			_method = processTable.getDefaultAllocationMethod(
+					provider.getFirst());
 		if (_method == null)
 			return 1d;
 		switch (_method) {
 		case CAUSAL:
-			return fetchCausal(processProduct, calcExchange);
+			return causal(provider, e);
 		case ECONOMIC:
-			return fetchForProduct(processProduct);
+			return forProvider(provider);
 		case PHYSICAL:
-			return fetchForProduct(processProduct);
+			return forProvider(provider);
 		default:
 			return 1d;
 		}
 	}
 
-	private double fetchForProduct(LongPair processProduct) {
+	private double forProvider(LongPair provider) {
 		if (productFactors == null)
 			return 1d;
-		Double factor = productFactors.get(processProduct);
+		Double factor = productFactors.get(provider);
 		if (factor == null)
 			return 1d;
 		else
 			return factor;
 	}
 
-	private double fetchCausal(LongPair processProduct,
-			CalcExchange calcExchange) {
+	private double causal(LongPair provider, CalcExchange e) {
 		if (exchangeFactors == null)
 			return 1d;
-		TLongDoubleHashMap map = exchangeFactors.get(processProduct);
+		TLongDoubleHashMap map = exchangeFactors.get(provider);
 		if (map == null)
 			return 1d;
-		return map.get(calcExchange.exchangeId); // default is 1.0
+		return map.get(e.exchangeId); // default is 1.0
 	}
 
 }

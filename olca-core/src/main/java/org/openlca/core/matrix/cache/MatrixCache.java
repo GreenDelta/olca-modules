@@ -3,7 +3,6 @@ package org.openlca.core.matrix.cache;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.CalcAllocationFactor;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.model.ModelType;
@@ -19,7 +18,6 @@ public final class MatrixCache {
 	private ConversionTable conversionTable;
 	private ProcessTable processTable;
 
-	private LoadingCache<Long, List<CalcAllocationFactor>> allocationCache;
 	private LoadingCache<Long, List<CalcImpactFactor>> impactCache;
 	private LoadingCache<Long, List<CalcExchange>> exchangeCache;
 
@@ -40,7 +38,6 @@ public final class MatrixCache {
 			processTable = ProcessTable.create(database, flowTypeTable);
 			exchangeCache = ExchangeCache.create(database, conversionTable,
 					flowTypeTable);
-			allocationCache = AllocationCache.create(database);
 			impactCache = ImpactFactorCache.create(database, conversionTable);
 		}
 	}
@@ -67,12 +64,6 @@ public final class MatrixCache {
 		return processTable;
 	}
 
-	public LoadingCache<Long, List<CalcAllocationFactor>> getAllocationCache() {
-		if (allocationCache == null)
-			allocationCache = AllocationCache.create(database);
-		return allocationCache;
-	}
-
 	public LoadingCache<Long, List<CalcImpactFactor>> getImpactCache() {
 		if (impactCache == null)
 			impactCache = ImpactFactorCache.create(database,
@@ -94,8 +85,6 @@ public final class MatrixCache {
 			conversionTable.reload();
 		if (exchangeCache != null)
 			exchangeCache.invalidateAll();
-		if (allocationCache != null)
-			allocationCache.invalidateAll();
 		if (impactCache != null)
 			impactCache.invalidateAll();
 		processTable = null;
@@ -154,8 +143,6 @@ public final class MatrixCache {
 		processTable = null;
 		if (exchangeCache != null)
 			exchangeCache.invalidate(id);
-		if (allocationCache != null)
-			allocationCache.invalidate(id);
 	}
 
 	public synchronized void registerNew(ModelType type, long id) {

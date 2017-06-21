@@ -16,7 +16,7 @@ class InventoryBuilder {
 	private final AllocationMethod allocationMethod;
 
 	private FlowIndex flowIndex;
-	private AllocationIndex allocationTable;
+	private AllocationIndex allocationIndex;
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
@@ -29,9 +29,10 @@ class InventoryBuilder {
 
 	Inventory build() {
 		if (allocationMethod != null
-				&& allocationMethod != AllocationMethod.NONE)
-			allocationTable = AllocationIndex.create(techIndex,
+				&& allocationMethod != AllocationMethod.NONE) {
+			allocationIndex = AllocationIndex.create(techIndex,
 					allocationMethod, cache);
+		}
 		flowIndex = FlowIndex.build(cache, techIndex, allocationMethod);
 		technologyMatrix = new ExchangeMatrix(techIndex.size(),
 				techIndex.size());
@@ -126,10 +127,10 @@ class InventoryBuilder {
 			exchange = mergeExchanges(existingCell, exchange);
 		}
 		ExchangeCell cell = new ExchangeCell(exchange);
-		if (allocationTable != null) {
+		if (allocationIndex != null) {
 			// note that the allocation table assures that the factor is 1.0 for
 			// reference products
-			double factor = allocationTable.getFactor(processProduct, exchange);
+			double factor = allocationIndex.getFactor(processProduct, exchange);
 			cell.allocationFactor = factor;
 		}
 		matrix.setEntry(row, col, cell);
