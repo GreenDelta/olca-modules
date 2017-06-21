@@ -78,7 +78,7 @@ class AllocationCache {
 				Map<Long, List<CalcAllocationFactor>> map = new HashMap<>();
 				while (rs.next()) {
 					CalcAllocationFactor factor = fetchFactor(rs);
-					CacheUtil.addListEntry(map, factor, factor.getProcessId());
+					CacheUtil.addListEntry(map, factor, factor.processID);
 				}
 				stmt.close();
 				rs.close();
@@ -93,13 +93,13 @@ class AllocationCache {
 		private CalcAllocationFactor fetchFactor(ResultSet rs) throws Exception {
 			CalcAllocationFactor factor = new CalcAllocationFactor();
 			String typeStr = rs.getString("allocation_type");
-			factor.setMethod(AllocationMethod.valueOf(typeStr));
-			factor.setProcessId(rs.getLong("f_process"));
-			factor.setProductId(rs.getLong("f_product"));
-			factor.setValue(rs.getDouble("value"));
+			factor.method = AllocationMethod.valueOf(typeStr);
+			factor.processID = rs.getLong("f_process");
+			factor.flowID = rs.getLong("f_product");
+			factor.value = rs.getDouble("value");
 			long exchangeId = rs.getLong("f_exchange");
 			if (!rs.wasNull())
-				factor.setExchangeId(exchangeId);
+				factor.exchangeID = exchangeId;
 			return factor;
 		}
 

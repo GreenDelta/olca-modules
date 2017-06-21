@@ -63,24 +63,23 @@ class AllocationIndex {
 		}
 	}
 
-	private void index(CalcAllocationFactor factor) {
-		LongPair processProduct = new LongPair(factor.getProcessId(),
-				factor.getProductId());
+	private void index(CalcAllocationFactor f) {
+		LongPair provider = new LongPair(f.processID, f.flowID);
 		AllocationMethod _method = this.method;
 		if (this.method == AllocationMethod.USE_DEFAULT)
 			_method = cache.getProcessTable().getDefaultAllocationMethod(
-					factor.getProcessId());
+					f.processID);
 		if (_method == null)
 			return;
 		switch (_method) {
 		case CAUSAL:
-			tryIndexCausal(processProduct, factor);
+			tryIndexCausal(provider, f);
 			break;
 		case ECONOMIC:
-			tryIndexForProduct(processProduct, factor, _method);
+			tryIndexForProduct(provider, f, _method);
 			break;
 		case PHYSICAL:
-			tryIndexForProduct(processProduct, factor, _method);
+			tryIndexForProduct(provider, f, _method);
 			break;
 		default:
 			break;
@@ -89,8 +88,8 @@ class AllocationIndex {
 
 	private void tryIndexCausal(LongPair processProduct,
 			CalcAllocationFactor factor) {
-		if (factor.getMethod() != AllocationMethod.CAUSAL
-				|| factor.getExchangeId() == null)
+		if (factor.method != AllocationMethod.CAUSAL
+				|| factor.exchangeID == null)
 			return;
 		if (exchangeFactors == null)
 			exchangeFactors = new HashMap<>();
@@ -102,19 +101,19 @@ class AllocationIndex {
 					Constants.DEFAULT_LONG_NO_ENTRY_VALUE, 1d);
 			exchangeFactors.put(processProduct, map);
 		}
-		map.put(factor.getExchangeId(), factor.getValue());
+		map.put(factor.exchangeID, factor.value);
 	}
 
 	private void tryIndexForProduct(LongPair processProduct,
 			CalcAllocationFactor factor, AllocationMethod method) {
-		if (factor.getMethod() != method)
+		if (factor.method != method)
 			return;
 		if (method != AllocationMethod.ECONOMIC
 				&& method != AllocationMethod.PHYSICAL)
 			return;
 		if (productFactors == null)
 			productFactors = new HashMap<>();
-		productFactors.put(processProduct, factor.getValue());
+		productFactors.put(processProduct, factor.value);
 	}
 
 	public double getFactor(LongPair processProduct,
