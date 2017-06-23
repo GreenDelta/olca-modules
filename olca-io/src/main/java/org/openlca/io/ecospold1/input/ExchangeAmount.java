@@ -24,7 +24,7 @@ class ExchangeAmount {
 	public void map(double factor) {
 		try {
 			double mean = esExchange.getMeanValue() * factor;
-			olcaExchange.setAmountValue(mean);
+			olcaExchange.amountValue = mean;
 			if (esExchange.getUncertaintyType() != null)
 				setUncertaintyValues(mean);
 		} catch (Exception e) {
@@ -53,7 +53,7 @@ class ExchangeAmount {
 	private void mapUniform(Double min, Double max) {
 		if (min == null || max == null)
 			return;
-		olcaExchange.setUncertainty(Uncertainty.uniform(min, max));
+		olcaExchange.uncertainty = Uncertainty.uniform(min, max);
 	}
 
 	private void mapTriangle(double mean, Double min, Double max) {
@@ -62,20 +62,19 @@ class ExchangeAmount {
 		Double mostLikely = esExchange.getMostLikelyValue();
 		if (mostLikely == null)
 			mostLikely = 3 * mean - min - max;
-		olcaExchange.setUncertainty(Uncertainty.triangle(min, mostLikely, max));
+		olcaExchange.uncertainty = Uncertainty.triangle(min, mostLikely, max);
 	}
 
 	private void mapNormal(double mean, Double sd) {
 		if (sd == null)
 			return;
-		olcaExchange.setUncertainty(Uncertainty.normal(mean, sd / 2));
+		olcaExchange.uncertainty = Uncertainty.normal(mean, sd / 2);
 	}
 
 	private void mapLogNormal(double gmean, Double sd) {
 		if (sd == null)
 			return;
-		olcaExchange
-				.setUncertainty(Uncertainty.logNormal(gmean, Math.sqrt(sd)));
+		olcaExchange.uncertainty = Uncertainty.logNormal(gmean, Math.sqrt(sd));
 	}
 
 }

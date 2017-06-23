@@ -69,10 +69,10 @@ class InfoSheet {
 		String qRefName = config.getString(sheet, 9, 1);
 		Exchange qRef = null;
 		for (Exchange exchange : process.getExchanges()) {
-			if (exchange.isInput() || exchange.getFlow() == null) {
+			if (exchange.isInput || exchange.flow == null) {
 				continue;
 			}
-			if (Objects.equals(qRefName, exchange.getFlow().getName())) {
+			if (Objects.equals(qRefName, exchange.flow.getName())) {
 				qRef = exchange;
 				break;
 			}

@@ -73,9 +73,9 @@ class ProviderSearch {
 		for (CalcExchange e : list) {
 			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)
 				continue;
-			if (e.input && e.flowType == FlowType.PRODUCT_FLOW)
+			if (e.isInput && e.flowType == FlowType.PRODUCT_FLOW)
 				candidates.add(e);
-			else if (!e.input && e.flowType == FlowType.WASTE_FLOW)
+			else if (!e.isInput && e.flowType == FlowType.WASTE_FLOW)
 				candidates.add(e);
 		}
 		return candidates;

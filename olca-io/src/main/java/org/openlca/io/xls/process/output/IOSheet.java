@@ -41,7 +41,7 @@ class IOSheet {
 		witeHeader();
 		row++;
 		for (Exchange exchange : getExchanges()) {
-			if (exchange.getFlow() == null)
+			if (exchange.flow == null)
 				continue;
 			write(exchange);
 			row++;
@@ -67,21 +67,21 @@ class IOSheet {
 	}
 
 	private void write(Exchange exchange) {
-		Flow flow = exchange.getFlow();
+		Flow flow = exchange.flow;
 		Excel.cell(sheet, row, 0, flow.getName());
 		Excel.cell(sheet, row, 1, CategoryPath.getFull(flow.getCategory()));
 		Excel.cell(sheet, row, 2, getFlowProperty(exchange));
 		Excel.cell(sheet, row, 3, getUnit(exchange));
-		Excel.cell(sheet, row, 4, exchange.getAmountValue());
-		Excel.cell(sheet, row, 5, exchange.getAmountFormula());
+		Excel.cell(sheet, row, 4, exchange.amountValue);
+		Excel.cell(sheet, row, 5, exchange.amountFormula);
 		Excel.cell(sheet, row, 6, exchange.description);
-		config.uncertainty(sheet, row, 7, exchange.getUncertainty());
+		config.uncertainty(sheet, row, 7, exchange.uncertainty);
 		if (!forInputs)
-			Excel.cell(sheet, row, 12, exchange.isAvoidedProduct() ? "Yes": "");
+			Excel.cell(sheet, row, 12, exchange.avoided ? "Yes": "");
 	}
 
 	private String getFlowProperty(Exchange exchange) {
-		FlowPropertyFactor factor = exchange.getFlowPropertyFactor();
+		FlowPropertyFactor factor = exchange.flowPropertyFactor;
 		if (factor == null)
 			return null;
 		FlowProperty prop = factor.getFlowProperty();
@@ -89,22 +89,22 @@ class IOSheet {
 	}
 
 	private String getUnit(Exchange exchange) {
-		Unit unit = exchange.getUnit();
+		Unit unit = exchange.unit;
 		return unit == null ? null : unit.getName();
 	}
 
 	private List<Exchange> getExchanges() {
 		List<Exchange> exchanges = new ArrayList<>();
 		for (Exchange exchange : config.process.getExchanges()) {
-			if (exchange.isInput() == forInputs)
+			if (exchange.isInput == forInputs)
 				exchanges.add(exchange);
 		}
 		Collections.sort(exchanges, new Comparator<Exchange>() {
 			@Override
 			public int compare(Exchange e1, Exchange e2) {
-				if (e1.getFlow() == null || e2.getFlow() == null)
+				if (e1.flow == null || e2.flow == null)
 					return 0;
-				return Strings.compare(e1.getFlow().getName(), e2.getFlow()
+				return Strings.compare(e1.flow.getName(), e2.flow
 						.getName());
 			}
 		});

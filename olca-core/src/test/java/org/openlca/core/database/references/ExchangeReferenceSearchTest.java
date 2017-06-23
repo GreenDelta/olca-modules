@@ -59,9 +59,11 @@ public class ExchangeReferenceSearchTest extends BaseReferenceSearchTest {
 		factor = flow.getFactor(factor.getFlowProperty());
 		unit = group.getUnit(unit.getName());
 		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
-		exchange.setFlowPropertyFactor(factor);
-		exchange.setUnit(unit);
+		final Flow flow1 = flow;
+		exchange.flow = flow1;
+		exchange.flowPropertyFactor = factor;
+		final Unit unit1 = unit;
+		exchange.unit = unit1;
 		process.getExchanges().add(exchange);
 		process = Tests.insert(process);
 		exchange = process.getExchanges().get(0);

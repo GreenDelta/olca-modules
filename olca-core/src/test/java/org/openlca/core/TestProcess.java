@@ -67,7 +67,7 @@ public class TestProcess {
 
 	public TestProcess addCosts(String flow, double amount, String currency) {
 		for (Exchange e : process.getExchanges()) {
-			Flow f = e.getFlow();
+			Flow f = e.flow;
 			if (f == null || !Strings.nullOrEqual(f.getName(), flow))
 				continue;
 			e.currency = currency(currency);
@@ -79,37 +79,37 @@ public class TestProcess {
 
 	public TestProcess prodOut(String flow, double amount, String unit) {
 		Exchange e = prepareExchange(FlowType.PRODUCT_FLOW, flow, amount, unit);
-		e.setInput(false);
+		e.isInput = false;
 		return this;
 	}
 
 	public TestProcess prodIn(String flow, double amount, String unit) {
 		Exchange e = prepareExchange(FlowType.PRODUCT_FLOW, flow, amount, unit);
-		e.setInput(true);
+		e.isInput = true;
 		return this;
 	}
 
 	public TestProcess elemOut(String flow, double amount, String unit) {
 		Exchange e = prepareExchange(FlowType.ELEMENTARY_FLOW, flow, amount, unit);
-		e.setInput(false);
+		e.isInput = false;
 		return this;
 	}
 
 	public TestProcess elemIn(String flow, double amount, String unit) {
 		Exchange e = prepareExchange(FlowType.ELEMENTARY_FLOW, flow, amount, unit);
-		e.setInput(true);
+		e.isInput = true;
 		return this;
 	}
 
 	public TestProcess wasteOut(String flow, double amount, String unit) {
 		Exchange e = prepareExchange(FlowType.WASTE_FLOW, flow, amount, unit);
-		e.setInput(false);
+		e.isInput = false;
 		return this;
 	}
 
 	public TestProcess wasteIn(String flow, double amount, String unit) {
 		Exchange e = prepareExchange(FlowType.WASTE_FLOW, flow, amount, unit);
-		e.setInput(true);
+		e.isInput = true;
 		return this;
 	}
 
@@ -120,16 +120,16 @@ public class TestProcess {
 	public TestProcess alloc(String flow, AllocationMethod method, double factor) {
 		Exchange exchange = null;
 		for (Exchange e : process.getExchanges()) {
-			if (e.getFlow() == null)
+			if (e.flow == null)
 				continue;
-			if (Objects.equals(e.getFlow().getName(), flow)) {
+			if (Objects.equals(e.flow.getName(), flow)) {
 				exchange = e;
 				break;
 			}
 		}
 		AllocationFactor f = new AllocationFactor();
 		f.setAllocationType(method);
-		f.setProductId(exchange.getFlow().getId());
+		f.setProductId(exchange.flow.getId());
 		f.setValue(factor);
 		process.getAllocationFactors().add(f);
 		return this;
@@ -139,10 +139,11 @@ public class TestProcess {
 			double amount, String unit) {
 		Exchange e = new Exchange();
 		Flow f = flow(flow, unit, flowType);
-		e.setFlow(f);
-		e.setFlowPropertyFactor(f.getReferenceFactor());
-		e.setUnit(unit(unit));
-		e.setAmountValue(amount);
+		final Flow flow1 = f;
+		e.flow = flow1;
+		e.flowPropertyFactor = f.getReferenceFactor();
+		e.unit = unit(unit);
+		e.amountValue = amount;
 		process.getExchanges().add(e);
 		return e;
 	}

@@ -62,7 +62,7 @@ class ExchangeCell {
 			return 0;
 		double amount = exchange.amount * allocationFactor
 				* exchange.conversionFactor;
-		if (exchange.input && !exchange.avoidedProduct)
+		if (exchange.isInput && !exchange.avoided)
 			return -amount;
 		else
 			return amount;
@@ -72,7 +72,7 @@ class ExchangeCell {
 		if (exchange == null)
 			return 0;
 		double val = exchange.costValue * allocationFactor;
-		if (exchange.flowType == FlowType.PRODUCT_FLOW && !exchange.input)
+		if (exchange.flowType == FlowType.PRODUCT_FLOW && !exchange.isInput)
 			return -val;
 		else
 			return val;
@@ -86,7 +86,7 @@ class ExchangeCell {
 			generator = createGenerator(type);
 		double amount = generator.next() * allocationFactor
 				* exchange.conversionFactor;
-		if (exchange.input && !exchange.avoidedProduct)
+		if (exchange.isInput && !exchange.avoided)
 			return -amount;
 		else
 			return amount;

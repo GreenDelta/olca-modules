@@ -112,7 +112,7 @@ public class SystemImport {
 		Exchange refExchange = findRefExchange(refProc, flowId, false);
 		system.setReferenceExchange(refExchange);
 		system.setTargetAmount(iExchange.resultingAmount);
-		Flow flow = refExchange.getFlow();
+		Flow flow = refExchange.flow;
 		system.setTargetFlowPropertyFactor(flow.getReferenceFactor());
 		system.setTargetUnit(getRefUnit(flow.getReferenceFlowProperty()));
 	}
@@ -120,9 +120,9 @@ public class SystemImport {
 	private Exchange findRefExchange(Process refProc, String flowId,
 			boolean input) {
 		for (Exchange exchange : refProc.getExchanges()) {
-			if (exchange.getFlow() == null || exchange.isInput() != input)
+			if (exchange.flow == null || exchange.isInput != input)
 				continue;
-			if (Objects.equals(exchange.getFlow().getRefId(), flowId))
+			if (Objects.equals(exchange.flow.getRefId(), flowId))
 				return exchange;
 		}
 		return null;
@@ -155,7 +155,7 @@ public class SystemImport {
 			Exchange output = findExchange(provider, flowId, false);
 			if (output == null)
 				continue;
-			link.flowId = output.getFlow().getId();
+			link.flowId = output.flow.getId();
 
 			// linked exchange
 			ConsumedBy consumedBy = product.getConsumedBy();
@@ -176,9 +176,9 @@ public class SystemImport {
 		if (p == null || flowRefId == null)
 			return null;
 		for (Exchange e : p.getExchanges()) {
-			if (e.getFlow() == null || e.isInput() != input)
+			if (e.flow == null || e.isInput != input)
 				continue;
-			if (Objects.equals(e.getFlow().getRefId(), flowRefId))
+			if (Objects.equals(e.flow.getRefId(), flowRefId))
 				return e;
 		}
 		return null;

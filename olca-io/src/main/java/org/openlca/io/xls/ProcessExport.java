@@ -65,9 +65,9 @@ public class ProcessExport implements Runnable {
 	private int fillQuanRef(Sheet sheet, int row) {
 		header(sheet, row++, 1, "Quantitative reference");
 		Exchange qRef = process.getQuantitativeReference();
-		if (qRef == null || qRef.getFlow() == null)
+		if (qRef == null || qRef.flow == null)
 			return ++row;
-		cell(sheet, row++, "Quantitative reference", qRef.getFlow().getName());
+		cell(sheet, row++, "Quantitative reference", qRef.flow.getName());
 		return row;
 	}
 

@@ -61,13 +61,13 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
 		process = Tests.insert(process);
 		for (Exchange e : process.getExchanges()) {
-			addExpected("flow", e.getFlow(), "exchanges", Exchange.class,
+			addExpected("flow", e.flow, "exchanges", Exchange.class,
 					e.getId());
-			addExpected("flowPropertyFactor", e.getFlowPropertyFactor(),
+			addExpected("flowPropertyFactor", e.flowPropertyFactor,
 					"exchanges", Exchange.class, e.getId());
-			addExpected("unit", e.getUnit(), "exchanges", Exchange.class,
+			addExpected("unit", e.unit, "exchanges", Exchange.class,
 					e.getId());
-			Process provider = processes.get(e.getDefaultProviderId());
+			Process provider = processes.get(e.defaultProviderId);
 			if (provider != null)
 				addExpected("defaultProviderId", provider, "exchanges",
 						Exchange.class, e.getId());
@@ -97,20 +97,20 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Exchange createExchange(Object value, boolean provider) {
 		Exchange exchange = new Exchange();
-		exchange.setFlow(createFlow());
-		exchange.setFlowPropertyFactor(exchange.getFlow()
-				.getFlowPropertyFactors().get(0));
-		exchange.setUnit(exchange.getFlowPropertyFactor().getFlowProperty()
-				.getUnitGroup().getUnits().get(0));
+		exchange.flow = createFlow();
+		exchange.flowPropertyFactor = exchange.flow
+		.getFlowPropertyFactors().get(0);
+		exchange.unit = exchange.flowPropertyFactor.getFlowProperty()
+		.getUnitGroup().getUnits().get(0);
 		boolean formula = value instanceof String;
 		if (formula)
-			exchange.setAmountFormula(value.toString());
+			exchange.amountFormula = value.toString();
 		else
-			exchange.setAmountValue((double) value);
+			exchange.amountValue = (double) value;
 		if (provider) {
 			Process process = Tests.insert(new Process());
 			processes.put(process.getId(), process);
-			exchange.setDefaultProviderId(process.getId());
+			exchange.defaultProviderId = process.getId();
 		}
 		return exchange;
 	}

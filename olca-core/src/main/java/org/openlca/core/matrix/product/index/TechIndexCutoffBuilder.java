@@ -199,7 +199,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 
 		private CalcExchange getOutput(Node node, List<CalcExchange> all) {
 			for (CalcExchange e : all) {
-				if (e.input
+				if (e.isInput
 						|| e.flowType != FlowType.PRODUCT_FLOW
 						|| e.flowId != node.product.getSecond())
 					continue;

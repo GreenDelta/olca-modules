@@ -120,7 +120,7 @@ public class ProcessImport {
 		paramConv.run(ilcdProcess);
 		exchanges.map(ilcdProcess, process);
 		for (Exchange e : process.getExchanges()) {
-			if (e.getDqEntry() == null)
+			if (e.dqEntry == null)
 				continue;
 			process.exchangeDqSystem = new DQSystemDao(config.db).insert(DQSystems.ecoinvent());
 			break;

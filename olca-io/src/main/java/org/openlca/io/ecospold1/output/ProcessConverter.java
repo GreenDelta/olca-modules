@@ -203,9 +203,9 @@ class ProcessConverter {
 	private boolean isMultiOutput() {
 		int count = 0;
 		for (Exchange e : process.getExchanges()) {
-			if (e.isInput() || e.getFlow() == null)
+			if (e.isInput || e.flow == null)
 				continue;
-			if (e.getFlow().getFlowType() == FlowType.PRODUCT_FLOW)
+			if (e.flow.getFlowType() == FlowType.PRODUCT_FLOW)
 				count++;
 		}
 		return count > 1;
@@ -238,14 +238,14 @@ class ProcessConverter {
 
 	private IReferenceFunction mapQuantitativeReference(Exchange exchange) {
 		IReferenceFunction refFun = factory.createReferenceFunction();
-		Flow flow = exchange.getFlow();
+		Flow flow = exchange.flow;
 		refFun.setCASNumber(flow.getCasNumber());
 		refFun.setFormula(flow.getFormula());
-		refFun.setName(exchange.getFlow().getName());
+		refFun.setName(exchange.flow.getName());
 		refFun.setLocalName(refFun.getName());
-		refFun.setUnit(exchange.getUnit().getName());
+		refFun.setUnit(exchange.unit.getName());
 		refFun.setInfrastructureProcess(flow.isInfrastructureFlow());
-		refFun.setAmount(exchange.getAmountValue());
+		refFun.setAmount(exchange.amountValue);
 		Categories.map(flow, refFun, config);
 		refFun.setLocalCategory(refFun.getCategory());
 		refFun.setLocalSubCategory(refFun.getSubCategory());
@@ -254,21 +254,21 @@ class ProcessConverter {
 
 	private IExchange mapExchange(Exchange inExchange) {
 		IExchange exchange = factory.createExchange();
-		Flow flow = inExchange.getFlow();
+		Flow flow = inExchange.flow;
 		exchange.setNumber((int) flow.getId());
-		exchange.setName(inExchange.getFlow().getName());
-		if (inExchange.isInput()) {
+		exchange.setName(inExchange.flow.getName());
+		if (inExchange.isInput) {
 			exchange.setInputGroup(mapFlowType(flow.getFlowType(), true));
 		} else {
 			exchange.setOutputGroup(mapFlowType(flow.getFlowType(), false));
 		}
 		Categories.map(flow.getCategory(), exchange, config);
-		Util.mapFlowInformation(exchange, inExchange.getFlow());
-		if (inExchange.getUnit() != null) {
-			exchange.setUnit(inExchange.getUnit().getName());
+		Util.mapFlowInformation(exchange, inExchange.flow);
+		if (inExchange.unit != null) {
+			exchange.setUnit(inExchange.unit.getName());
 		}
-		if (inExchange.getUncertainty() == null) {
-			exchange.setMeanValue(inExchange.getAmountValue());
+		if (inExchange.uncertainty == null) {
+			exchange.setMeanValue(inExchange.amountValue);
 		} else {
 			mapUncertainty(inExchange, exchange);
 		}
@@ -278,11 +278,11 @@ class ProcessConverter {
 
 	private void mapComment(Exchange inExchange, IExchange exchange) {
 		if (inExchange.description == null) {
-			exchange.setGeneralComment(inExchange.getDqEntry());
-		} else if (inExchange.getDqEntry() == null) {
+			exchange.setGeneralComment(inExchange.dqEntry);
+		} else if (inExchange.dqEntry == null) {
 			exchange.setGeneralComment(inExchange.description);
 		} else {
-			exchange.setGeneralComment(inExchange.getDqEntry() + "; " + inExchange.description);
+			exchange.setGeneralComment(inExchange.dqEntry + "; " + inExchange.description);
 		}
 	}
 
@@ -298,7 +298,7 @@ class ProcessConverter {
 	}
 
 	private void mapUncertainty(Exchange oExchange, IExchange exchange) {
-		Uncertainty uncertainty = oExchange.getUncertainty();
+		Uncertainty uncertainty = oExchange.uncertainty;
 		if (uncertainty == null || uncertainty.getDistributionType() == null)
 			return;
 		switch (uncertainty.getDistributionType()) {
@@ -317,17 +317,17 @@ class ProcessConverter {
 			exchange.setMinValue(uncertainty.getParameter1Value());
 			exchange.setMostLikelyValue(uncertainty.getParameter2Value());
 			exchange.setMaxValue(uncertainty.getParameter3Value());
-			exchange.setMeanValue(oExchange.getAmountValue());
+			exchange.setMeanValue(oExchange.amountValue);
 			exchange.setUncertaintyType(3);
 			break;
 		case UNIFORM:
 			exchange.setMinValue(uncertainty.getParameter1Value());
 			exchange.setMaxValue(uncertainty.getParameter2Value());
-			exchange.setMeanValue(oExchange.getAmountValue());
+			exchange.setMeanValue(oExchange.amountValue);
 			exchange.setUncertaintyType(4);
 			break;
 		default:
-			exchange.setMeanValue(oExchange.getAmountValue());
+			exchange.setMeanValue(oExchange.amountValue);
 		}
 	}
 

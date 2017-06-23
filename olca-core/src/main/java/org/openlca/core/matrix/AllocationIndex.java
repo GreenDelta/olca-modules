@@ -98,9 +98,9 @@ class AllocationIndex {
 	}
 
 	public double getFactor(LongPair provider, CalcExchange e) {
-		if (!e.input && e.flowType == FlowType.PRODUCT_FLOW)
+		if (!e.isInput && e.flowType == FlowType.PRODUCT_FLOW)
 			return 1d;
-		if (e.input && e.flowType == FlowType.WASTE_FLOW)
+		if (e.isInput && e.flowType == FlowType.WASTE_FLOW)
 			return 1d;
 		AllocationMethod _method = this.method;
 		if (this.method == AllocationMethod.USE_DEFAULT)

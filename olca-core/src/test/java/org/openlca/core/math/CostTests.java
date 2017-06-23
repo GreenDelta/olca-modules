@@ -95,7 +95,7 @@ public class CostTests {
 				.get();
 		long exchangeId = -1;
 		for (Exchange e : p1.getExchanges()) {
-			if (e.getFlow().getName().equals("p1") && e.isInput()) {
+			if (e.flow.getName().equals("p1") && e.isInput) {
 				e.costValue = 0.4d;
 				e.currency = p1.getQuantitativeReference().currency;
 				exchangeId = e.getId();
@@ -107,7 +107,7 @@ public class CostTests {
 		ProductSystem system = TestSystem.of(p1).get();
 		// add a link to the process itself
 		ProcessLink selfLink = new ProcessLink();
-		selfLink.flowId = p1.getQuantitativeReference().getFlow().getId();
+		selfLink.flowId = p1.getQuantitativeReference().flow.getId();
 		selfLink.providerId = p1.getId();
 		selfLink.processId = p1.getId();
 		selfLink.exchangeId = exchangeId;

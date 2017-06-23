@@ -46,8 +46,9 @@ public class FlowUseQueryTest {
 	@Test
 	public void testUsedAsOutput() {
 		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
-		exchange.setInput(false);
+		final Flow flow1 = flow;
+		exchange.flow = flow1;
+		exchange.isInput = false;
 		process.getExchanges().add(exchange);
 		process = processDao.update(process);
 		Set<Long> providerIds = dao.getWhereOutput(flow.getId());
@@ -60,8 +61,9 @@ public class FlowUseQueryTest {
 	@Test
 	public void testUsedAsInput() {
 		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
-		exchange.setInput(true);
+		final Flow flow1 = flow;
+		exchange.flow = flow1;
+		exchange.isInput = true;
 		process.getExchanges().add(exchange);
 		process = processDao.update(process);
 		Set<Long> providerIds = dao.getWhereOutput(flow.getId());

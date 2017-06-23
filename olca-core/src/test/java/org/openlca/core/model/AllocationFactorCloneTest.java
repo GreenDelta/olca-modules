@@ -20,8 +20,8 @@ public class AllocationFactorCloneTest {
 				clone.getExchanges().get(0));
 		Assert.assertNotEquals(clone.getQuantitativeReference(),
 				process.getQuantitativeReference());
-		Assert.assertEquals(clone.getQuantitativeReference().getFlow(),
-				process.getQuantitativeReference().getFlow());
+		Assert.assertEquals(clone.getQuantitativeReference().flow,
+				process.getQuantitativeReference().flow);
 	}
 
 	private void checkAllocationFactor(Process clone) {
@@ -37,8 +37,9 @@ public class AllocationFactorCloneTest {
 		Process process = new Process();
 		Flow flow = new Flow();
 		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
-		exchange.setAmountValue(42d);
+		final Flow flow1 = flow;
+		exchange.flow = flow1;
+		exchange.amountValue = 42d;
 		process.getExchanges().add(exchange);
 		process.setQuantitativeReference(exchange);
 		AllocationFactor factor = new AllocationFactor();

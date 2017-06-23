@@ -312,7 +312,7 @@ public class EcoSpold01Import implements FileImport {
 					continue;
 				}
 				AllocationFactor allocationFactor = new AllocationFactor();
-				allocationFactor.setProductId(product.getFlow().getId());
+				allocationFactor.setProductId(product.flow.getId());
 				allocationFactor.setValue(factor);
 				allocationFactor.setAllocationType(AllocationMethod.CAUSAL);
 				allocationFactor.setExchange(exchange);
@@ -329,10 +329,10 @@ public class EcoSpold01Import implements FileImport {
 				continue;
 			}
 			Exchange outExchange = new Exchange();
-			outExchange.setFlow(flow.flow);
-			outExchange.setUnit(flow.unit);
-			outExchange.setFlowPropertyFactor(flow.flowProperty);
-			outExchange.setInput(inExchange.getInputGroup() != null);
+			outExchange.flow = flow.flow;
+			outExchange.unit = flow.unit;
+			outExchange.flowPropertyFactor = flow.flowProperty;
+			outExchange.isInput = inExchange.getInputGroup() != null;
 			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange,
 					inExchange);
 			outExchange.description = inExchange.getGeneralComment();
@@ -398,13 +398,13 @@ public class EcoSpold01Import implements FileImport {
 			return;
 		}
 		Exchange outExchange = new Exchange();
-		outExchange.setFlow(flow.flow);
-		outExchange.setUnit(flow.unit);
-		outExchange.setFlowPropertyFactor(flow.flowProperty);
-		outExchange.setInput(false);
+		outExchange.flow = flow.flow;
+		outExchange.unit = flow.unit;
+		outExchange.flowPropertyFactor = flow.flowProperty;
+		outExchange.isInput = false;
 		double amount = dataSet.getReferenceFunction().getAmount()
 				* flow.conversionFactor;
-		outExchange.setAmountValue(amount);
+		outExchange.amountValue = amount;
 		ioProcess.getExchanges().add(outExchange);
 		ioProcess.setQuantitativeReference(outExchange);
 	}

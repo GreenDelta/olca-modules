@@ -30,8 +30,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		system.setReferenceProcess(createProcess());
 		system.setReferenceExchange(system.getReferenceProcess().getExchanges()
 				.get(0));
-		system.setTargetFlowPropertyFactor(system.getReferenceExchange()
-				.getFlowPropertyFactor());
+		system.setTargetFlowPropertyFactor(system.getReferenceExchange().flowPropertyFactor);
 		system.setTargetUnit(system.getTargetFlowPropertyFactor()
 				.getFlowProperty().getUnitGroup().getUnits().get(0));
 		system.getProcesses().add(system.getReferenceProcess().getId());
@@ -67,11 +66,11 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Exchange createExchange() {
 		Exchange exchange = new Exchange();
-		exchange.setFlow(createFlow(true));
-		exchange.setFlowPropertyFactor(exchange.getFlow()
-				.getFlowPropertyFactors().get(0));
-		exchange.setUnit(exchange.getFlowPropertyFactor().getFlowProperty()
-				.getUnitGroup().getUnits().get(0));
+		exchange.flow = createFlow(true);
+		exchange.flowPropertyFactor = exchange.flow
+		.getFlowPropertyFactors().get(0);
+		exchange.unit = exchange.flowPropertyFactor.getFlowProperty()
+		.getUnitGroup().getUnits().get(0);
 		return exchange;
 	}
 
@@ -100,10 +99,12 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		ProcessLink link = new ProcessLink();
 		Flow flow = createFlow(false);
 		Exchange e1 = new Exchange();
-		e1.setFlow(flow);
+		final Flow flow1 = flow;
+		e1.flow = flow1;
 		p1.getExchanges().add(e1);
 		Exchange e2 = new Exchange();
-		e2.setFlow(flow);
+		final Flow flow2 = flow;
+		e2.flow = flow2;
 		p2.getExchanges().add(e2);
 		link.processId = p1.getId();
 		link.providerId = p2.getId();

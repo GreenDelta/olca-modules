@@ -99,13 +99,13 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			return null;
 		JsonObject obj = new JsonObject();
 		Out.put(obj, "@type", "Exchange");
-		String providerId = idMap.get(Process.class, e.getDefaultProviderId());
+		String providerId = idMap.get(Process.class, e.defaultProviderId);
 		String id = ExchangeKey.get(processRefId, providerId, e);
 		Out.put(obj, "@id", id);
-		Out.put(obj, "flow", createRef(e.getFlow()), Out.REQUIRED_FIELD);
-		Out.put(obj, "unit", createRef(e.getUnit()), Out.REQUIRED_FIELD);
-		Out.put(obj, "amount", e.getAmountValue());
-		Out.put(obj, "input", e.isInput());
+		Out.put(obj, "flow", createRef(e.flow), Out.REQUIRED_FIELD);
+		Out.put(obj, "unit", createRef(e.unit), Out.REQUIRED_FIELD);
+		Out.put(obj, "amount", e.amountValue);
+		Out.put(obj, "input", e.isInput);
 		if (providerId != null) {
 			JsonObject providerRef = new JsonObject();
 			Out.put(providerRef, "@type", "Process");

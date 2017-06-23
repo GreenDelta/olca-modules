@@ -59,9 +59,9 @@ class ProcessExchanges {
 	}
 
 	private boolean isValid(Exchange exchange) {
-		return exchange.getFlow() != null
-				&& exchange.getFlowPropertyFactor() != null
-				&& exchange.getUnit() != null;
+		return exchange.flow != null
+				&& exchange.flowPropertyFactor != null
+				&& exchange.unit != null;
 	}
 
 	private Exchange createExchange(
@@ -69,7 +69,7 @@ class ProcessExchanges {
 			ExchangeFlow exchangeFlow) {
 		Exchange oExchange = new ExchangeConversion(iExchange, config).map();
 		if (exchangeFlow.getFlow() != null) {
-			oExchange.setFlow(exchangeFlow.getFlow());
+			oExchange.flow = exchangeFlow.getFlow();
 			if (exchangeFlow.isMapped())
 				applyFlowAssignment(oExchange, exchangeFlow.getMapEntry());
 		}
@@ -78,13 +78,13 @@ class ProcessExchanges {
 
 	private void applyFlowAssignment(Exchange oExchange,
 			FlowMapEntry mapEntry) {
-		double amount = oExchange.getAmountValue();
+		double amount = oExchange.amountValue;
 		double newVal = mapEntry.getConversionFactor() * amount;
-		oExchange.setAmountValue(newVal);
-		if (oExchange.getAmountFormula() != null) {
-			String newForm = "(" + oExchange.getAmountFormula() + ") * "
+		oExchange.amountValue = newVal;
+		if (oExchange.amountFormula != null) {
+			String newForm = "(" + oExchange.amountFormula + ") * "
 					+ mapEntry.getConversionFactor();
-			oExchange.setAmountFormula(newForm);
+			oExchange.amountFormula = newForm;
 		}
 	}
 
@@ -94,9 +94,9 @@ class ProcessExchanges {
 			Flow flowInfo = exchangeFlow.getFlow();
 			FlowProperty flowProperty = flowInfo.getReferenceFlowProperty();
 			FlowPropertyFactor factor = flowInfo.getFactor(flowProperty);
-			oExchange.setFlowPropertyFactor(factor);
+			oExchange.flowPropertyFactor = factor;
 			UnitGroup unitGroup = flowProperty.getUnitGroup();
-			oExchange.setUnit(unitGroup.getReferenceUnit());
+			oExchange.unit = unitGroup.getReferenceUnit();
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.error("Cannot get flow property or unit from database", e);
@@ -108,19 +108,20 @@ class ProcessExchanges {
 		// TODO: map default provider
 		// exchange.setDefaultProviderId(extension.getDefaultProvider());
 		if (extension.isAvoidedProduct()) {
-			exchange.setInput(true);
-			exchange.setAvoidedProduct(true);
+			exchange.isInput = true;
+			exchange.avoided = true;
 		}
 		try {
 			BaseEntityDao<Unit> unitDao = new BaseEntityDao<>(Unit.class,
 					config.db);
 			Unit unit = unitDao.getForRefId(extension.getUnitId());
-			exchange.setUnit(unit);
+			final Unit unit1 = unit;
+			exchange.unit = unit1;
 			FlowPropertyDao propDao = new FlowPropertyDao(config.db);
 			FlowProperty property = propDao.getForRefId(extension
 					.getPropertyId());
 			FlowPropertyFactor factor = flowInfo.getFactor(property);
-			exchange.setFlowPropertyFactor(factor);
+			exchange.flowPropertyFactor = factor;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.error("Cannot get flow property or unit from database", e);
@@ -145,12 +146,12 @@ class ProcessExchanges {
 	private void createAllocationFactor(MappedPair p, long productId,
 			double fraction, Process process) {
 		Exchange oExchange = p.oExchange;
-		if (oExchange.getFlow() == null)
+		if (oExchange.flow == null)
 			return;
 		org.openlca.core.model.AllocationFactor f = new org.openlca.core.model.AllocationFactor();
 		f.setProductId(productId);
 		f.setValue(fraction / 100);
-		if (oExchange.getFlow().getId() == productId)
+		if (oExchange.flow.getId() == productId)
 			f.setAllocationType(AllocationMethod.PHYSICAL);
 		else {
 			f.setAllocationType(AllocationMethod.CAUSAL);
@@ -162,8 +163,8 @@ class ProcessExchanges {
 	private Long findMappedFlowId(int iExchangeId) {
 		for (MappedPair p : mappedPairs) {
 			if (iExchangeId == p.iExchange.id) {
-				if (p.oExchange.getFlow() != null)
-					return p.oExchange.getFlow().getId();
+				if (p.oExchange.flow != null)
+					return p.oExchange.flow.getId();
 			}
 		}
 		return null;

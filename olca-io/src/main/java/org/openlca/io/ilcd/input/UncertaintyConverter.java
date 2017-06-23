@@ -63,7 +63,7 @@ class UncertaintyConverter {
 		Double sd = iExchange.relativeStandardDeviation95In;
 		if (sd == null)
 			return;
-		oExchange.setUncertainty(Uncertainty.logNormal(mean, sd));
+		oExchange.uncertainty = Uncertainty.logNormal(mean, sd);
 	}
 
 	private void mapLogNormal(Parameter iParameter,
@@ -81,7 +81,7 @@ class UncertaintyConverter {
 		Double sd = iExchange.relativeStandardDeviation95In;
 		if (sd == null)
 			return;
-		oExchange.setUncertainty(Uncertainty.normal(mean, sd));
+		oExchange.uncertainty = Uncertainty.normal(mean, sd);
 	}
 
 	private void mapNormal(Parameter iParameter,
@@ -100,7 +100,7 @@ class UncertaintyConverter {
 		Double max = iExchange.maximumAmount;
 		if (min == null || mode == null || max == null)
 			return;
-		oExchange.setUncertainty(Uncertainty.triangle(min, mode, max));
+		oExchange.uncertainty = Uncertainty.triangle(min, mode, max);
 	}
 
 	private void mapTriangular(Parameter iParameter,
@@ -119,7 +119,7 @@ class UncertaintyConverter {
 		Double max = iExchange.maximumAmount;
 		if (min == null || max == null)
 			return;
-		oExchange.setUncertainty(Uncertainty.uniform(min, max));
+		oExchange.uncertainty = Uncertainty.uniform(min, max);
 	}
 
 	private void mapUniform(Parameter iParameter,

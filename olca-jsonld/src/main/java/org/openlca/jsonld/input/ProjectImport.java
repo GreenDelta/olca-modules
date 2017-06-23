@@ -95,7 +95,7 @@ class ProjectImport extends BaseImport<Project> {
 			ProductSystem system) {
 		if (system.getReferenceExchange() == null)
 			return null;
-		Flow product = system.getReferenceExchange().getFlow();
+		Flow product = system.getReferenceExchange().flow;
 		for (FlowPropertyFactor factor : product.getFlowPropertyFactors())
 			if (factor.getFlowProperty().getRefId().equals(propRefId))
 				return factor;

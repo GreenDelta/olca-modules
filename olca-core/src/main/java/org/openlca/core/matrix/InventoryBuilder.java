@@ -78,8 +78,8 @@ class InventoryBuilder {
 			return;
 		}
 
-		if ((e.input && e.flowType == FlowType.PRODUCT_FLOW)
-				|| (!e.input && e.flowType == FlowType.WASTE_FLOW)) {
+		if ((e.isInput && e.flowType == FlowType.PRODUCT_FLOW)
+				|| (!e.isInput && e.flowType == FlowType.WASTE_FLOW)) {
 			if (techIndex.isLinked(LongPair.of(e.processId, e.exchangeId))) {
 				// linked product input or waste output
 				addProcessLink(provider, e);
@@ -144,7 +144,7 @@ class InventoryBuilder {
 		double addVal = getMergeValue(addExchange);
 		double val = existingVal + addVal;
 		CalcExchange newExchange = new CalcExchange();
-		newExchange.input = val < 0;
+		newExchange.isInput = val < 0;
 		newExchange.conversionFactor = 1;
 		newExchange.flowId = addExchange.flowId;
 		newExchange.flowType = addExchange.flowType;
@@ -163,7 +163,7 @@ class InventoryBuilder {
 
 	private double getMergeValue(CalcExchange e) {
 		double v = e.amount * e.conversionFactor;
-		if (e.input && !e.avoidedProduct)
+		if (e.isInput && !e.avoided)
 			return -v;
 		else
 			return v;
@@ -177,7 +177,7 @@ class InventoryBuilder {
 			f = "(" + e.amountFormula + ")";
 		if (e.conversionFactor != 1)
 			f += " * " + e.conversionFactor;
-		if (e.input && !e.avoidedProduct)
+		if (e.isInput && !e.avoided)
 			f = "( -1 * (" + f + "))";
 		return f;
 	}
@@ -190,8 +190,8 @@ class InventoryBuilder {
 		// TODO: this would be rarely the case but if the same flow in a single
 		// process is given in different currencies with different conversion
 		// the following would be not correct.
-		double v1 = e1.input ? e1.costValue : -e1.costValue;
-		double v2 = e2.input ? e2.costValue : -e2.costValue;
+		double v1 = e1.isInput ? e1.costValue : -e1.costValue;
+		double v2 = e2.isInput ? e2.costValue : -e2.costValue;
 		// TODO: cost formulas
 		return Math.abs(v1 + v2);
 	}

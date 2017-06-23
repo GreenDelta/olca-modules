@@ -8,7 +8,7 @@ public class CalcExchange {
 	public long processId;
 	public long flowId;
 	public long exchangeId;
-	public boolean input;
+	public boolean isInput;
 	public double conversionFactor;
 	public double amount;
 	public String amountFormula;
@@ -23,7 +23,7 @@ public class CalcExchange {
 
 	/** 0 if the exchange has no default provider. */
 	public long defaultProviderId;
-	public boolean avoidedProduct;
+	public boolean avoided;
 
 	public double costValue;
 	public String costFormula;

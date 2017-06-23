@@ -92,11 +92,11 @@ class AllocationSheet {
 			return null;
 		AllocationFactor[] factors = new AllocationFactor[2];
 		factors[0] = new AllocationFactor();
-		factors[0].setProductId(product.getFlow().getId());
+		factors[0].setProductId(product.flow.getId());
 		factors[0].setValue(config.getDouble(sheet, row, 2));
 		factors[0].setAllocationType(AllocationMethod.PHYSICAL);
 		factors[1] = new AllocationFactor();
-		factors[1].setProductId(product.getFlow().getId());
+		factors[1].setProductId(product.flow.getId());
 		factors[1].setValue(config.getDouble(sheet, row, 3));
 		factors[1].setAllocationType(AllocationMethod.ECONOMIC);
 		return factors;
@@ -144,8 +144,8 @@ class AllocationSheet {
 			return null;
 		boolean input = direction.equalsIgnoreCase("Input");
 		for (Exchange exchange : process.getExchanges()) {
-			if (exchange.isInput() == input
-					&& Objects.equals(exchange.getFlow(), flow))
+			if (exchange.isInput == input
+					&& Objects.equals(exchange.flow, flow))
 				return exchange;
 		}
 		return null;
@@ -172,7 +172,7 @@ class AllocationSheet {
 			Exchange product = getProduct(name, products);
 			if (product == null)
 				break;
-			map.put(col, product.getFlow().getId());
+			map.put(col, product.flow.getId());
 			col++;
 		}
 		return map;
@@ -181,9 +181,9 @@ class AllocationSheet {
 	private List<Exchange> selectProducts() {
 		List<Exchange> products = new ArrayList<>();
 		for (Exchange exchange : config.process.getExchanges()) {
-			if (exchange.isInput() || exchange.getFlow() == null)
+			if (exchange.isInput || exchange.flow == null)
 				continue;
-			if (exchange.getFlow().getFlowType() == FlowType.PRODUCT_FLOW)
+			if (exchange.flow.getFlowType() == FlowType.PRODUCT_FLOW)
 				products.add(exchange);
 		}
 		return products;
@@ -193,7 +193,7 @@ class AllocationSheet {
 		if (name == null)
 			return null;
 		for (Exchange exchange : products) {
-			String flowName = exchange.getFlow().getName();
+			String flowName = exchange.flow.getName();
 			if (flowName == null)
 				continue;
 			if (name.equalsIgnoreCase(flowName))

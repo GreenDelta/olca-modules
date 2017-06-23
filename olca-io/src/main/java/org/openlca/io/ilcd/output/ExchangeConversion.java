@@ -61,7 +61,7 @@ class ExchangeConversion {
 		iExchange.resultingAmount = resultingAmount;
 		mapExtensions(oExchange, iExchange);
 		new UncertaintyConverter().map(oExchange, iExchange);
-		if (oExchange.getAmountFormula() != null)
+		if (oExchange.amountFormula != null)
 			mapParameter(oExchange, iExchange);
 		else
 			iExchange.meanAmount = resultingAmount;
@@ -69,32 +69,31 @@ class ExchangeConversion {
 	}
 
 	private double getRefAmount(Exchange oExchange) {
-		double propFactor = oExchange.getFlowPropertyFactor() != null
-				? oExchange
-						.getFlowPropertyFactor().getConversionFactor()
+		double propFactor = oExchange.flowPropertyFactor != null
+				? oExchange.flowPropertyFactor.getConversionFactor()
 				: 1;
-		double unitFactor = oExchange.getUnit() != null ? oExchange.getUnit()
+		double unitFactor = oExchange.unit != null ? oExchange.unit
 				.getConversionFactor() : 1;
-		return oExchange.getAmountValue() * propFactor * unitFactor;
+		return oExchange.amountValue * propFactor * unitFactor;
 	}
 
 	private void mapExtensions(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		ExchangeExtension ext = new ExchangeExtension(iExchange);
-		if (oExchange.isAvoidedProduct()) {
+		if (oExchange.avoided) {
 			iExchange.direction = ExchangeDirection.OUTPUT;
 			ext.setAvoidedProduct(true);
 		}
 		setProvider(oExchange, ext);
-		ext.setAmount(oExchange.getAmountValue());
-		ext.setBaseUncertainty(oExchange.getBaseUncertainty());
-		ext.setPedigreeUncertainty(oExchange.getDqEntry());
-		if (oExchange.getAmountFormula() != null)
-			ext.setFormula(oExchange.getAmountFormula());
-		if (oExchange.getUnit() != null)
-			ext.setUnitId(oExchange.getUnit().getRefId());
-		if (oExchange.getFlowPropertyFactor() != null) {
-			FlowPropertyFactor propFactor = oExchange.getFlowPropertyFactor();
+		ext.setAmount(oExchange.amountValue);
+		ext.setBaseUncertainty(oExchange.baseUncertainty);
+		ext.setPedigreeUncertainty(oExchange.dqEntry);
+		if (oExchange.amountFormula != null)
+			ext.setFormula(oExchange.amountFormula);
+		if (oExchange.unit != null)
+			ext.setUnitId(oExchange.unit.getRefId());
+		if (oExchange.flowPropertyFactor != null) {
+			FlowPropertyFactor propFactor = oExchange.flowPropertyFactor;
 			FlowProperty prop = propFactor.getFlowProperty();
 			if (prop != null)
 				ext.setPropertyId(prop.getRefId());
@@ -102,7 +101,7 @@ class ExchangeConversion {
 	}
 
 	private void setProvider(Exchange oExchange, ExchangeExtension ext) {
-		long provider = oExchange.getDefaultProviderId();
+		long provider = oExchange.defaultProviderId;
 		if (provider == 0)
 			return;
 		try {
@@ -122,8 +121,8 @@ class ExchangeConversion {
 		iExchange.variable = paramName;
 		iExchange.meanAmount = 1d;
 		Parameter parameter = new Parameter();
-		parameter.formula = oExchange.getAmountFormula();
-		parameter.mean = oExchange.getAmountValue();
+		parameter.formula = oExchange.amountFormula;
+		parameter.mean = oExchange.amountValue;
 		parameter.name = paramName;
 		addParameter(parameter);
 	}
@@ -154,9 +153,9 @@ class ExchangeConversion {
 
 	private void mapFlow(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
-		if (oExchange.getFlow() != null) {
+		if (oExchange.flow != null) {
 			Ref ref = ExportDispatch.forwardExportCheck(
-					oExchange.getFlow(), config);
+					oExchange.flow, config);
 			if (ref != null) {
 				iExchange.flow = ref;
 			}
@@ -165,7 +164,7 @@ class ExchangeConversion {
 
 	private void mapDirection(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
-		if (oExchange.isInput()) {
+		if (oExchange.isInput) {
 			iExchange.direction = ExchangeDirection.INPUT;
 		} else {
 			iExchange.direction = ExchangeDirection.OUTPUT;

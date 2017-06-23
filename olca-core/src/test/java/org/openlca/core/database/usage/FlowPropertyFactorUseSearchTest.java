@@ -92,8 +92,9 @@ public class FlowPropertyFactorUseSearchTest {
 		Process process = new Process();
 		process.setName("process");
 		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
-		exchange.setFlowPropertyFactor(factor);
+		final Flow flow1 = flow;
+		exchange.flow = flow1;
+		exchange.flowPropertyFactor = factor;
 		process.getExchanges().add(exchange);
 		return database.createDao(Process.class).insert(process);
 	}

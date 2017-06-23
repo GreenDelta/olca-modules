@@ -35,9 +35,9 @@ public class TestSystem {
 		system.setReferenceProcess(refProcess);
 		Exchange qRef = refProcess.getQuantitativeReference();
 		system.setReferenceExchange(qRef);
-		system.setTargetAmount(qRef.getAmountValue());
-		system.setTargetFlowPropertyFactor(qRef.getFlowPropertyFactor());
-		system.setTargetUnit(qRef.getUnit());
+		system.setTargetAmount(qRef.amountValue);
+		system.setTargetFlowPropertyFactor(qRef.flowPropertyFactor);
+		system.setTargetUnit(qRef.unit);
 		index(refProcess);
 	}
 
@@ -49,10 +49,10 @@ public class TestSystem {
 		system.getProcesses().add(process.getId());
 		processes.add(process);
 		for (Exchange e : process.getExchanges()) {
-			if (e.isInput() || e.getFlow() == null)
+			if (e.isInput || e.flow == null)
 				continue;
-			if (e.getFlow().getFlowType() == FlowType.PRODUCT_FLOW) {
-				long flowId = e.getFlow().getId();
+			if (e.flow.getFlowType() == FlowType.PRODUCT_FLOW) {
+				long flowId = e.flow.getId();
 				if (processProducts.get(flowId) == null) {
 					processProducts.put(flowId, process);
 				}
@@ -66,11 +66,11 @@ public class TestSystem {
 		index(process);
 		for (Process p : processes) {
 			for (Exchange e : p.getExchanges()) {
-				if (!e.isInput() || e.getFlow() == null)
+				if (!e.isInput || e.flow == null)
 					continue;
-				if (e.getFlow().getFlowType() != FlowType.PRODUCT_FLOW)
+				if (e.flow.getFlowType() != FlowType.PRODUCT_FLOW)
 					continue;
-				long flowId = e.getFlow().getId();
+				long flowId = e.flow.getId();
 				Process provider = processProducts.get(flowId);
 				if (provider == null)
 					continue;

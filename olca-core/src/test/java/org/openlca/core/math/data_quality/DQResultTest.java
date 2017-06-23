@@ -110,7 +110,7 @@ public class DQResultTest {
 		link.flowId = pFlow2.getId();
 		link.providerId = process2.getId();
 		for (Exchange e : process1.getExchanges()) {
-			if (e.getFlow().getId() == pFlow2.getId())
+			if (e.flow.getId() == pFlow2.getId())
 				link.exchangeId = e.getId();
 		}
 		link.processId = process1.getId();
@@ -127,7 +127,7 @@ public class DQResultTest {
 	private Process process(Exchange... exchanges) {
 		Process p = new Process();
 		p.dqSystem = dqSystem;
-		p.dqEntry = exchanges[0].getDqEntry();
+		p.dqEntry = exchanges[0].dqEntry;
 		p.exchangeDqSystem = dqSystem;
 		p.setQuantitativeReference(exchanges[0]);
 		for (Exchange e : exchanges)
@@ -137,12 +137,13 @@ public class DQResultTest {
 
 	private Exchange exchange(double amount, String dqEntry, Flow flow, boolean input) {
 		Exchange e = new Exchange();
-		e.setDqEntry(dqEntry);
-		e.setFlow(flow);
-		e.setInput(input);
-		e.setFlowPropertyFactor(flow.getReferenceFactor());
-		e.setUnit(unitGroup.getReferenceUnit());
-		e.setAmountValue(amount);
+		e.dqEntry = dqEntry;
+		final Flow flow1 = flow;
+		e.flow = flow1;
+		e.isInput = input;
+		e.flowPropertyFactor = flow.getReferenceFactor();
+		e.unit = unitGroup.getReferenceUnit();
+		e.amountValue = amount;
 		return e;
 	}
 

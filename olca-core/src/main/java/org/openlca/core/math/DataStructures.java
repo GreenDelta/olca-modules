@@ -29,7 +29,7 @@ public class DataStructures {
 	public static TechIndex createProductIndex(ProductSystem system) {
 		long providerId = system.getReferenceProcess().getId();
 		Exchange refExchange = system.getReferenceExchange();
-		long flowId = refExchange.getFlow().getId();
+		long flowId = refExchange.flow.getId();
 		LongPair refFlow = new LongPair(providerId, flowId);
 		TechIndex index = new TechIndex(refFlow);
 		index.setDemand(ReferenceAmount.get(system));

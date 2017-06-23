@@ -49,7 +49,7 @@ public class ProductSystemBuilder {
 				|| system.getReferenceProcess() == null)
 			return system;
 		Process refProcess = system.getReferenceProcess();
-		Flow refProduct = system.getReferenceExchange().getFlow();
+		Flow refProduct = system.getReferenceExchange().flow;
 		if (refProduct == null)
 			return system;
 		LongPair ref = new LongPair(refProcess.getId(), refProduct.getId());
