@@ -118,8 +118,18 @@ public class TestProcess {
 	 * method to the process. Use this method *after* the exchanges are added.
 	 */
 	public TestProcess alloc(String flow, AllocationMethod method, double factor) {
+		AllocationFactor f = new AllocationFactor();
+		f.setAllocationType(method);
+		Exchange e = findExchange(process, flow);
+		f.setProductId(e.flow.getId());
+		f.setValue(factor);
+		process.getAllocationFactors().add(f);
+		return this;
+	}
+
+	public static Exchange findExchange(Process p, String flow) {
 		Exchange exchange = null;
-		for (Exchange e : process.getExchanges()) {
+		for (Exchange e : p.getExchanges()) {
 			if (e.flow == null)
 				continue;
 			if (Objects.equals(e.flow.getName(), flow)) {
@@ -127,12 +137,7 @@ public class TestProcess {
 				break;
 			}
 		}
-		AllocationFactor f = new AllocationFactor();
-		f.setAllocationType(method);
-		f.setProductId(exchange.flow.getId());
-		f.setValue(factor);
-		process.getAllocationFactors().add(f);
-		return this;
+		return exchange;
 	}
 
 	private Exchange prepareExchange(FlowType flowType, String flow,

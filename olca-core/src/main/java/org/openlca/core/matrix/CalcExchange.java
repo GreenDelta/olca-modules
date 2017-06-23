@@ -23,7 +23,7 @@ public class CalcExchange {
 
 	/** 0 if the exchange has no default provider. */
 	public long defaultProviderId;
-	public boolean avoided;
+	public boolean isAvoided;
 
 	public double costValue;
 	public String costFormula;

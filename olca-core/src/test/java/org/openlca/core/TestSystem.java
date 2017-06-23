@@ -24,7 +24,7 @@ import org.openlca.core.results.FullResultProvider;
 public class TestSystem {
 
 	private List<Process> processes = new ArrayList<>();
-	private Map<Long, Process> processProducts = new HashMap<>();
+	private Map<Long, Process> providers = new HashMap<>();
 
 	private ProductSystem system;
 
@@ -49,13 +49,11 @@ public class TestSystem {
 		system.getProcesses().add(process.getId());
 		processes.add(process);
 		for (Exchange e : process.getExchanges()) {
-			if (e.isInput || e.flow == null)
+			if (!isProvider(e))
 				continue;
-			if (e.flow.getFlowType() == FlowType.PRODUCT_FLOW) {
-				long flowId = e.flow.getId();
-				if (processProducts.get(flowId) == null) {
-					processProducts.put(flowId, process);
-				}
+			long flowId = e.flow.getId();
+			if (providers.get(flowId) == null) {
+				providers.put(flowId, process);
 			}
 		}
 	}
@@ -66,12 +64,12 @@ public class TestSystem {
 		index(process);
 		for (Process p : processes) {
 			for (Exchange e : p.getExchanges()) {
-				if (!e.isInput || e.flow == null)
+				if (isProvider(e))
 					continue;
-				if (e.flow.getFlowType() != FlowType.PRODUCT_FLOW)
+				if (e.flow == null || e.flow.getFlowType() == FlowType.ELEMENTARY_FLOW)
 					continue;
 				long flowId = e.flow.getId();
-				Process provider = processProducts.get(flowId);
+				Process provider = providers.get(flowId);
 				if (provider == null)
 					continue;
 				ProcessLink link = new ProcessLink();
@@ -85,6 +83,17 @@ public class TestSystem {
 			}
 		}
 		return this;
+	}
+
+	private static boolean isProvider(Exchange e) {
+		if (e == null || e.flow == null)
+			return false;
+		FlowType type = e.flow.getFlowType();
+		if (type == FlowType.PRODUCT_FLOW && !e.isInput)
+			return true;
+		if (type == FlowType.WASTE_FLOW && e.isInput)
+			return true;
+		return false;
 	}
 
 	public ProductSystem get() {

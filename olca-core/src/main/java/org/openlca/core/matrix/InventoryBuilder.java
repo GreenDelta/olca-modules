@@ -163,7 +163,7 @@ class InventoryBuilder {
 
 	private double getMergeValue(CalcExchange e) {
 		double v = e.amount * e.conversionFactor;
-		if (e.isInput && !e.avoided)
+		if (e.isInput && !e.isAvoided)
 			return -v;
 		else
 			return v;
@@ -177,7 +177,7 @@ class InventoryBuilder {
 			f = "(" + e.amountFormula + ")";
 		if (e.conversionFactor != 1)
 			f += " * " + e.conversionFactor;
-		if (e.isInput && !e.avoided)
+		if (e.isInput && !e.isAvoided)
 			f = "( -1 * (" + f + "))";
 		return f;
 	}

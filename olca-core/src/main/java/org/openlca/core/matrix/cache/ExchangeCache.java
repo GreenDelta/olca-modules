@@ -103,7 +103,7 @@ class ExchangeCache {
 			e.flowType = flowTypes.get(e.flowId);
 			e.isInput = r.getBoolean("is_input");
 			e.defaultProviderId = r.getLong("f_default_provider");
-			e.avoided = r.getBoolean("avoided_product");
+			e.isAvoided = r.getBoolean("avoided_product");
 			e.costValue = r.getDouble("cost_value");
 			e.costFormula = r.getString("cost_formula");
 			e.currency = r.getLong("f_currency");

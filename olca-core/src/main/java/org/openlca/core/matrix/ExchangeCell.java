@@ -60,12 +60,7 @@ class ExchangeCell {
 	double getMatrixValue() {
 		if (exchange == null)
 			return 0;
-		double amount = exchange.amount * allocationFactor
-				* exchange.conversionFactor;
-		if (exchange.isInput && !exchange.avoided)
-			return -amount;
-		else
-			return amount;
+		return value(exchange.amount);
 	}
 
 	double getCostValue() {
@@ -84,12 +79,21 @@ class ExchangeCell {
 			return getMatrixValue();
 		if (generator == null)
 			generator = createGenerator(type);
-		double amount = generator.next() * allocationFactor
+		return value(generator.next());
+	}
+
+	private double value(double baseValue) {
+		double amount = baseValue * allocationFactor
 				* exchange.conversionFactor;
-		if (exchange.isInput && !exchange.avoided)
-			return -amount;
-		else
+		if (!exchange.isAvoided)
+			return exchange.isInput ? -amount : amount;
+		// avoided product or waste flows
+		if (exchange.flowType == FlowType.PRODUCT_FLOW)
 			return amount;
+		if (exchange.flowType == FlowType.WASTE_FLOW)
+			return -amount;
+		// invalid -> default:
+		return exchange.isInput ? -amount : amount;
 	}
 
 	private NumberGenerator createGenerator(UncertaintyType type) {
