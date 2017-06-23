@@ -71,7 +71,7 @@ public class TestProcess {
 			if (f == null || !Strings.nullOrEqual(f.getName(), flow))
 				continue;
 			e.currency = currency(currency);
-			e.costValue = amount;
+			e.costs = amount;
 			break;
 		}
 		return this;
@@ -143,7 +143,7 @@ public class TestProcess {
 		e.flow = flow1;
 		e.flowPropertyFactor = f.getReferenceFactor();
 		e.unit = unit(unit);
-		e.amountValue = amount;
+		e.amount = amount;
 		process.getExchanges().add(e);
 		return e;
 	}

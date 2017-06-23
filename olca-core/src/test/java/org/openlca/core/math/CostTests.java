@@ -96,7 +96,7 @@ public class CostTests {
 		long exchangeId = -1;
 		for (Exchange e : p1.getExchanges()) {
 			if (e.flow.getName().equals("p1") && e.isInput) {
-				e.costValue = 0.4d;
+				e.costs = 0.4d;
 				e.currency = p1.getQuantitativeReference().currency;
 				exchangeId = e.getId();
 				break;

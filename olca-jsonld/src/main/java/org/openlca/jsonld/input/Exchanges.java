@@ -24,10 +24,10 @@ class Exchanges {
 	}
 
 	private static void addAttributes(JsonObject json, Exchange e) {
-		e.avoided = In.getBool(json, "avoidedProduct", false);
+		e.isAvoided = In.getBool(json, "avoidedProduct", false);
 		e.isInput = In.getBool(json, "input", false);
 		e.baseUncertainty = In.getOptionalDouble(json, "baseUncertainty");
-		e.amountValue = In.getDouble(json, "amount", 0);
+		e.amount = In.getDouble(json, "amount", 0);
 		e.amountFormula = In.getString(json, "amountFormula");
 		e.dqEntry = In.getString(json, "dqEntry");
 		e.description = In.getString(json, "description");
@@ -50,7 +50,7 @@ class Exchanges {
 	private static void addCostEntries(JsonObject json, Exchange e,
 			ImportConfig conf) {
 		e.costFormula = In.getString(json, "costFormula");
-		e.costValue = In.getOptionalDouble(json, "costValue");
+		e.costs = In.getOptionalDouble(json, "costValue");
 		String currencyId = In.getRefId(json, "currency");
 		if (currencyId != null)
 			e.currency = CurrencyImport.run(currencyId, conf);

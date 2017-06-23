@@ -24,7 +24,7 @@ class ExchangeAmount {
 	public void map(double factor) {
 		try {
 			double mean = esExchange.getMeanValue() * factor;
-			olcaExchange.amountValue = mean;
+			olcaExchange.amount = mean;
 			if (esExchange.getUncertaintyType() != null)
 				setUncertaintyValues(mean);
 		} catch (Exception e) {

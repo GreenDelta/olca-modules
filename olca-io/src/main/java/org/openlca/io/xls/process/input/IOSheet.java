@@ -85,7 +85,7 @@ class IOSheet {
 		}
 		final Unit unit1 = unit;
 		exchange.unit = unit1;
-		exchange.amountValue = config.getDouble(sheet, row, 4);
+		exchange.amount = config.getDouble(sheet, row, 4);
 		String formula = config.getString(sheet, row, 5);
 		if (!Strings.nullOrEmpty(formula)) {
 			exchange.amountFormula = formula;
@@ -96,7 +96,7 @@ class IOSheet {
 		}
 		exchange.uncertainty = config.getUncertainty(sheet, row, 7);
 		if ("Yes".equals(config.getString(sheet, row, 12)))
-			exchange.avoided = true;
+			exchange.isAvoided = true;
 		return exchange;
 	}
 

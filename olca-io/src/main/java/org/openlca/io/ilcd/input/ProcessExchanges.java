@@ -78,9 +78,9 @@ class ProcessExchanges {
 
 	private void applyFlowAssignment(Exchange oExchange,
 			FlowMapEntry mapEntry) {
-		double amount = oExchange.amountValue;
+		double amount = oExchange.amount;
 		double newVal = mapEntry.getConversionFactor() * amount;
-		oExchange.amountValue = newVal;
+		oExchange.amount = newVal;
 		if (oExchange.amountFormula != null) {
 			String newForm = "(" + oExchange.amountFormula + ") * "
 					+ mapEntry.getConversionFactor();
@@ -109,7 +109,7 @@ class ProcessExchanges {
 		// exchange.setDefaultProviderId(extension.getDefaultProvider());
 		if (extension.isAvoidedProduct()) {
 			exchange.isInput = true;
-			exchange.avoided = true;
+			exchange.isAvoided = true;
 		}
 		try {
 			BaseEntityDao<Unit> unitDao = new BaseEntityDao<>(Unit.class,

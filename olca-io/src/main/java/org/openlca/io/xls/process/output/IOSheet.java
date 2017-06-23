@@ -72,12 +72,12 @@ class IOSheet {
 		Excel.cell(sheet, row, 1, CategoryPath.getFull(flow.getCategory()));
 		Excel.cell(sheet, row, 2, getFlowProperty(exchange));
 		Excel.cell(sheet, row, 3, getUnit(exchange));
-		Excel.cell(sheet, row, 4, exchange.amountValue);
+		Excel.cell(sheet, row, 4, exchange.amount);
 		Excel.cell(sheet, row, 5, exchange.amountFormula);
 		Excel.cell(sheet, row, 6, exchange.description);
 		config.uncertainty(sheet, row, 7, exchange.uncertainty);
 		if (!forInputs)
-			Excel.cell(sheet, row, 12, exchange.avoided ? "Yes": "");
+			Excel.cell(sheet, row, 12, exchange.isAvoided ? "Yes": "");
 	}
 
 	private String getFlowProperty(Exchange exchange) {

@@ -38,7 +38,7 @@ public class ExchangeCostTest extends AbstractZipTest {
 		Process importedProc = processDao.getForRefId(originalProc.getRefId());
 		Exchange original = originalProc.getExchanges().get(0);
 		Exchange imported = importedProc.getExchanges().get(0);
-		Assert.assertEquals(original.costValue, imported.costValue);
+		Assert.assertEquals(original.costs, imported.costs);
 
 	}
 
@@ -58,7 +58,7 @@ public class ExchangeCostTest extends AbstractZipTest {
 		process.getExchanges().add(exchange);
 		exchange.currency = currency;
 		exchange.costFormula = "21 + 21";
-		exchange.costValue = 42d;
+		exchange.costs = 42d;
 		process = processDao.insert(process);
 		return process;
 	}

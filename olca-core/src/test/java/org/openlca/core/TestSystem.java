@@ -35,7 +35,7 @@ public class TestSystem {
 		system.setReferenceProcess(refProcess);
 		Exchange qRef = refProcess.getQuantitativeReference();
 		system.setReferenceExchange(qRef);
-		system.setTargetAmount(qRef.amountValue);
+		system.setTargetAmount(qRef.amount);
 		system.setTargetFlowPropertyFactor(qRef.flowPropertyFactor);
 		system.setTargetUnit(qRef.unit);
 		index(refProcess);

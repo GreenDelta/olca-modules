@@ -82,7 +82,7 @@ public class ProcessRefFlowMapper {
 				log.warn("Input found as reference flow in ILCD process {};"
 						+ " changed it to output", ilcdProcess.getId());
 				candidate.isInput = false;
-				if (candidate.amountValue < 0)
+				if (candidate.amount < 0)
 					switchSign(candidate);
 			}
 			olcaProcess.setQuantitativeReference(candidate);
@@ -112,8 +112,8 @@ public class ProcessRefFlowMapper {
 	private void switchSign(Exchange found) {
 		log.info("Set a negative input product as quant. ref., "
 				+ "change sign, in process {}", ilcdProcess.getId());
-		double val = found.amountValue;
-		found.amountValue = Math.abs(val);
+		double val = found.amount;
+		found.amount = Math.abs(val);
 		found.amountFormula = null;
 	}
 
@@ -134,7 +134,7 @@ public class ProcessRefFlowMapper {
 		for (Exchange exchange : olcaProcess.getExchanges()) {
 			if (exchange.isInput
 					&& exchange.flow.getFlowType() == FlowType.PRODUCT_FLOW
-					&& exchange.amountValue < 0)
+					&& exchange.amount < 0)
 				return exchange;
 		}
 		return null;
@@ -155,7 +155,7 @@ public class ProcessRefFlowMapper {
 				&& oldCandidate.flow
 						.getFlowType() != FlowType.ELEMENTARY_FLOW)
 			return true;
-		if (newCandidate.amountValue > oldCandidate.amountValue)
+		if (newCandidate.amount > oldCandidate.amount)
 			return true;
 		return false;
 	}

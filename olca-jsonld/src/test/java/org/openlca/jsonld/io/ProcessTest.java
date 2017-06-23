@@ -145,7 +145,7 @@ public class ProcessTest extends AbstractZipTest {
 
 	private Exchange createExchange(Flow product, Process provider) {
 		Exchange out = new Exchange();
-		out.amountValue = (double) 1;
+		out.amount = (double) 1;
 		final Flow flow = product;
 		out.flow = flow;
 		out.flowPropertyFactor = product.getReferenceFactor();

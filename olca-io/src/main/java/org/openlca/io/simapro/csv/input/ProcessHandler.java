@@ -126,7 +126,7 @@ class ProcessHandler {
 
 	private boolean isOutputProduct(Exchange e) {
 		return e != null && e.flow != null
-				&& !e.isInput && !e.avoided
+				&& !e.isInput && !e.isAvoided
 				&& e.flow.getFlowType() == FlowType.PRODUCT_FLOW;
 	}
 
@@ -194,7 +194,7 @@ class ProcessHandler {
 				if (e == null)
 					continue;
 				e.isInput = true;
-				e.avoided = type == ProductType.AVOIDED_PRODUCTS;
+				e.isAvoided = type == ProductType.AVOIDED_PRODUCTS;
 				setUnit(e, row.getUnit());
 				process.getExchanges().add(e);
 			}
@@ -234,7 +234,7 @@ class ProcessHandler {
 		if (e == null)
 			return null;
 		double f = mappedFlow.getFactor();
-		e.amountValue = f * e.amountValue;
+		e.amount = f * e.amount;
 		if (e.amountFormula != null) {
 			String formula = f + " * ( " + e.amountFormula + " )";
 			e.amountFormula = formula;
@@ -257,7 +257,7 @@ class ProcessHandler {
 		e.flow = flow1;
 		e.description = row.getComment();
 		setAmount(e, row.getAmount(), scopeId);
-		Uncertainty uncertainty = Uncertainties.get(e.amountValue,
+		Uncertainty uncertainty = Uncertainties.get(e.amount,
 				row.getUncertaintyDistribution());
 		e.uncertainty = uncertainty;
 		return e;
@@ -299,16 +299,16 @@ class ProcessHandler {
 
 	private void setAmount(Exchange e, String amountText, long scope) {
 		if (Strings.nullOrEmpty(amountText)) {
-			e.amountValue = (double) 0;
+			e.amount = (double) 0;
 			return;
 		}
 		try {
 			double val = Double.parseDouble(amountText);
-			e.amountValue = val;
+			e.amount = val;
 		} catch (Exception ex) {
 			String formula = amountText.replace(',', '.');
 			double val = parameterMapper.eval(formula, scope);
-			e.amountValue = val;
+			e.amount = val;
 			e.amountFormula = formula;
 		}
 	}

@@ -45,11 +45,11 @@ class ExchangeConversion {
 		if (extension != null) {
 			e.dqEntry = extension.getPedigreeUncertainty();
 			e.baseUncertainty = extension.getBaseUncertainty();
-			e.amountValue = extension.getAmount();
+			e.amount = extension.getAmount();
 		} else {
 			Double amount = ilcdExchange.resultingAmount;
 			if (amount != null)
-				e.amountValue = amount;
+				e.amount = amount;
 		}
 		return e;
 	}

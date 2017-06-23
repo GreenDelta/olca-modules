@@ -245,7 +245,7 @@ class ProcessConverter {
 		refFun.setLocalName(refFun.getName());
 		refFun.setUnit(exchange.unit.getName());
 		refFun.setInfrastructureProcess(flow.isInfrastructureFlow());
-		refFun.setAmount(exchange.amountValue);
+		refFun.setAmount(exchange.amount);
 		Categories.map(flow, refFun, config);
 		refFun.setLocalCategory(refFun.getCategory());
 		refFun.setLocalSubCategory(refFun.getSubCategory());
@@ -268,7 +268,7 @@ class ProcessConverter {
 			exchange.setUnit(inExchange.unit.getName());
 		}
 		if (inExchange.uncertainty == null) {
-			exchange.setMeanValue(inExchange.amountValue);
+			exchange.setMeanValue(inExchange.amount);
 		} else {
 			mapUncertainty(inExchange, exchange);
 		}
@@ -317,17 +317,17 @@ class ProcessConverter {
 			exchange.setMinValue(uncertainty.getParameter1Value());
 			exchange.setMostLikelyValue(uncertainty.getParameter2Value());
 			exchange.setMaxValue(uncertainty.getParameter3Value());
-			exchange.setMeanValue(oExchange.amountValue);
+			exchange.setMeanValue(oExchange.amount);
 			exchange.setUncertaintyType(3);
 			break;
 		case UNIFORM:
 			exchange.setMinValue(uncertainty.getParameter1Value());
 			exchange.setMaxValue(uncertainty.getParameter2Value());
-			exchange.setMeanValue(oExchange.amountValue);
+			exchange.setMeanValue(oExchange.amount);
 			exchange.setUncertaintyType(4);
 			break;
 		default:
-			exchange.setMeanValue(oExchange.amountValue);
+			exchange.setMeanValue(oExchange.amount);
 		}
 	}
 

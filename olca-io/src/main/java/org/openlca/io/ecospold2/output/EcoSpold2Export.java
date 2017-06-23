@@ -203,7 +203,7 @@ public class EcoSpold2Export implements Runnable {
 			spold2.Exchange e2Exchange) {
 		e2Exchange.name = Strings.cut(exchange.flow.getName(), 120);
 		e2Exchange.id = new UUID(exchange.getId(), 0L).toString();
-		e2Exchange.amount = exchange.amountValue;
+		e2Exchange.amount = exchange.amount;
 		e2Exchange.mathematicalRelation = exchange.amountFormula;
 		e2Exchange.comment = exchange.description;
 		e2Exchange.casNumber = exchange.flow.getCasNumber();

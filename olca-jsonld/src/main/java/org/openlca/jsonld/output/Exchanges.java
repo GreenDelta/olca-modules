@@ -15,15 +15,15 @@ class Exchanges {
 		if (e == null || obj == null)
 			return null;
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
-		Out.put(obj, "avoidedProduct", e.avoided);
+		Out.put(obj, "avoidedProduct", e.isAvoided);
 		Out.put(obj, "input", e.isInput);
 		Out.put(obj, "baseUncertainty", e.baseUncertainty);
-		Out.put(obj, "amount", e.amountValue);
+		Out.put(obj, "amount", e.amount);
 		Out.put(obj, "amountFormula", e.amountFormula);
 		Out.put(obj, "dqEntry", e.dqEntry);
 		Out.put(obj, "description", e.description);
 		Out.put(obj, "costFormula", e.costFormula);
-		Out.put(obj, "costValue", e.costValue);
+		Out.put(obj, "costValue", e.costs);
 		Out.put(obj, "currency", e.currency, conf);
 		String providerRefId = mapRefs(e, obj, conf);
 		String internalId = ExchangeKey.get(processRefId, providerRefId, e);

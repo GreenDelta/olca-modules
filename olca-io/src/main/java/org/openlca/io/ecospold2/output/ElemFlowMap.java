@@ -119,7 +119,7 @@ class ElemFlowMap {
 		exchange.compartment = createCompartment(record);
 		exchange.unit = record.unitName;
 		exchange.unitId = record.unitId;
-		exchange.amount = record.conversionFactor * olca.amountValue;
+		exchange.amount = record.conversionFactor * olca.amount;
 		if (olca.amountFormula != null) {
 			exchange.mathematicalRelation = record.conversionFactor + " * ("
 			+ olca.amountFormula + ")";

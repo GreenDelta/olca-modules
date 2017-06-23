@@ -21,7 +21,7 @@ public class Exchange extends AbstractEntity {
 	 * calculation.
 	 */
 	@Column(name = "avoided_product")
-	public boolean avoided;
+	public boolean isAvoided;
 
 	/**
 	 * Indicates whether the exchange is an input (= true) or output (= false).
@@ -65,7 +65,7 @@ public class Exchange extends AbstractEntity {
 	 * The amount of the exchange.
 	 */
 	@Column(name = "resulting_amount_value")
-	public double amountValue;
+	public double amount;
 
 	/**
 	 * An optional formula for the exchange amount. The evaluated value of this
@@ -94,7 +94,7 @@ public class Exchange extends AbstractEntity {
 	public Uncertainty uncertainty;
 
 	@Column(name = "cost_value")
-	public Double costValue;
+	public Double costs;
 
 	@Column(name = "cost_formula")
 	public String costFormula;
@@ -109,15 +109,15 @@ public class Exchange extends AbstractEntity {
 	@Override
 	public String toString() {
 		return "Exchange [flow=" + flow + ", input=" + isInput + ",amount="
-				+ amountValue + ", unit=" + unit + "]";
+				+ amount + ", unit=" + unit + "]";
 	}
 
 	@Override
 	public Exchange clone() {
 		Exchange clone = new Exchange();
 		clone.amountFormula = amountFormula;
-		clone.amountValue = amountValue;
-		clone.avoided = avoided;
+		clone.amount = amount;
+		clone.isAvoided = isAvoided;
 		clone.baseUncertainty = baseUncertainty;
 		clone.defaultProviderId = defaultProviderId;
 		clone.flow = flow;
@@ -127,7 +127,7 @@ public class Exchange extends AbstractEntity {
 		if (uncertainty != null)
 			clone.uncertainty = uncertainty.clone();
 		clone.unit = unit;
-		clone.costValue = costValue;
+		clone.costs = costs;
 		clone.costFormula = costFormula;
 		clone.currency = currency;
 		clone.description = description;

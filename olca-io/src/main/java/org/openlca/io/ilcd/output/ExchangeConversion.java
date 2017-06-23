@@ -74,18 +74,18 @@ class ExchangeConversion {
 				: 1;
 		double unitFactor = oExchange.unit != null ? oExchange.unit
 				.getConversionFactor() : 1;
-		return oExchange.amountValue * propFactor * unitFactor;
+		return oExchange.amount * propFactor * unitFactor;
 	}
 
 	private void mapExtensions(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		ExchangeExtension ext = new ExchangeExtension(iExchange);
-		if (oExchange.avoided) {
+		if (oExchange.isAvoided) {
 			iExchange.direction = ExchangeDirection.OUTPUT;
 			ext.setAvoidedProduct(true);
 		}
 		setProvider(oExchange, ext);
-		ext.setAmount(oExchange.amountValue);
+		ext.setAmount(oExchange.amount);
 		ext.setBaseUncertainty(oExchange.baseUncertainty);
 		ext.setPedigreeUncertainty(oExchange.dqEntry);
 		if (oExchange.amountFormula != null)
@@ -122,7 +122,7 @@ class ExchangeConversion {
 		iExchange.meanAmount = 1d;
 		Parameter parameter = new Parameter();
 		parameter.formula = oExchange.amountFormula;
-		parameter.mean = oExchange.amountValue;
+		parameter.mean = oExchange.amount;
 		parameter.name = paramName;
 		addParameter(parameter);
 	}

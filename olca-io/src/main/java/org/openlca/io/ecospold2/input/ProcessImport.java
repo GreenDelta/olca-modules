@@ -211,7 +211,7 @@ class ProcessImport {
 			if (e == null)
 				continue;
 			if (isAvoidedProduct(refId, e))
-				e.avoided = true;
+				e.isAvoided = true;
 			if (ie.activityLinkId != null)
 				addActivityLink(ie, e);
 			if (isRefFlow)
@@ -249,7 +249,7 @@ class ProcessImport {
 		if (index.isMappedFlow(flowRefId)) {
 			f = index.getMappedFlowFactor(flowRefId);
 		}
-		e.amountValue = amount * f;
+		e.amount = amount * f;
 		e.uncertainty = UncertaintyConverter.toOpenLCA(es2.uncertainty, f);
 		if (config.withParameters && config.withParameterFormulas)
 			mapFormula(es2, process, e, f);

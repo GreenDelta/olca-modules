@@ -17,17 +17,17 @@ public class ExchangeKey {
 		kg.add(processRefId);
 		kg.add(providerRefId);
 		kg.add(toString(e.isInput));
-		kg.add(toString(e.avoided));
+		kg.add(toString(e.isAvoided));
 		kg.add(toString(e.flow));
 		kg.add(toString(e.flowPropertyFactor));
 		kg.add(toString(e.unit));
 		kg.add(e.amountFormula);
 		kg.add(e.dqEntry);
-		kg.add(toString(e.amountValue));
+		kg.add(toString(e.amount));
 		kg.add(toString(e.baseUncertainty));
 		kg.addAll(toString(e.uncertainty));
 		kg.add(e.costFormula);
-		kg.add(toString(e.costValue));
+		kg.add(toString(e.costs));
 		kg.add(toString(e.currency));
 		return KeyGen.get(kg.toArray(new String[kg.size()]));
 	}

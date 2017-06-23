@@ -143,7 +143,7 @@ public class DQResultTest {
 		e.isInput = input;
 		e.flowPropertyFactor = flow.getReferenceFactor();
 		e.unit = unitGroup.getReferenceUnit();
-		e.amountValue = amount;
+		e.amount = amount;
 		return e;
 	}
 

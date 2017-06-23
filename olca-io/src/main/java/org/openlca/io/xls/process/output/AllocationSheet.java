@@ -105,7 +105,7 @@ class AllocationSheet {
 		Excel.cell(sheet, row, 1, CategoryPath.getFull(e.flow.getCategory()));
 		String direction = e.isInput ? "Input" : "Output";
 		Excel.cell(sheet, row, 2, direction);
-		String amount = Double.toString(e.amountValue);
+		String amount = Double.toString(e.amount);
 		if(e.unit != null)
 			amount += " " + e.unit.getName();
 		Excel.cell(sheet, row, 3, amount);
@@ -135,7 +135,7 @@ class AllocationSheet {
 		return exchange != null
 				&& exchange.flow != null
 				&& !exchange.isInput
-				&& !exchange.avoided
+				&& !exchange.isAvoided
 				&& exchange.flow.getFlowType() == FlowType.PRODUCT_FLOW;
 	}
 

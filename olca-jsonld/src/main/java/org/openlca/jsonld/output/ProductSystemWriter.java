@@ -104,7 +104,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "@id", id);
 		Out.put(obj, "flow", createRef(e.flow), Out.REQUIRED_FIELD);
 		Out.put(obj, "unit", createRef(e.unit), Out.REQUIRED_FIELD);
-		Out.put(obj, "amount", e.amountValue);
+		Out.put(obj, "amount", e.amount);
 		Out.put(obj, "input", e.isInput);
 		if (providerId != null) {
 			JsonObject providerRef = new JsonObject();

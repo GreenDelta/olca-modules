@@ -404,7 +404,7 @@ public class EcoSpold01Import implements FileImport {
 		outExchange.isInput = false;
 		double amount = dataSet.getReferenceFunction().getAmount()
 				* flow.conversionFactor;
-		outExchange.amountValue = amount;
+		outExchange.amount = amount;
 		ioProcess.getExchanges().add(outExchange);
 		ioProcess.setQuantitativeReference(outExchange);
 	}

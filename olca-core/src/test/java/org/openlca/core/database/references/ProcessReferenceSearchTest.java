@@ -106,7 +106,7 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		if (formula)
 			exchange.amountFormula = value.toString();
 		else
-			exchange.amountValue = (double) value;
+			exchange.amount = (double) value;
 		if (provider) {
 			Process process = Tests.insert(new Process());
 			processes.put(process.getId(), process);

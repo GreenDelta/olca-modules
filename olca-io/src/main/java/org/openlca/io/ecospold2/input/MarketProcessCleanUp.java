@@ -72,7 +72,7 @@ public class MarketProcessCleanUp implements Runnable {
 		}
 		if (loopInput == null)
 			return marketProcess;
-		qRef.amountValue = qRef.amountValue - loopInput.amountValue;
+		qRef.amount = qRef.amount - loopInput.amount;
 		marketProcess.getExchanges().remove(loopInput);
 		log.trace("fixed self loop in {}", marketProcess);
 		return dao.update(marketProcess);
@@ -122,13 +122,13 @@ public class MarketProcessCleanUp implements Runnable {
 		if (!matches(market, input))
 			return Collections.emptyList();
 		Exchange marketRef = market.getQuantitativeReference();
-		double factor = input.amountValue / marketRef.amountValue;
+		double factor = input.amount / marketRef.amount;
 		List<Exchange> exchanges = new ArrayList<>();
 		for (Exchange exchange : market.getExchanges()) {
 			if (Objects.equals(exchange, marketRef))
 				continue;
 			Exchange clone = exchange.clone();
-			clone.amountValue = exchange.amountValue * factor;
+			clone.amount = exchange.amount * factor;
 			exchanges.add(clone);
 		}
 		return exchanges;
@@ -140,8 +140,8 @@ public class MarketProcessCleanUp implements Runnable {
 			return false;
 		Exchange marketRef = market.getQuantitativeReference();
 		return input.isInput && !marketRef.isInput
-				&& input.amountValue != 0
-				&& marketRef.amountValue != 0
+				&& input.amount != 0
+				&& marketRef.amount != 0
 				&& Objects.equals(marketRef.flow, input.flow)
 				&& Objects.equals(marketRef.unit, input.unit);
 	}
@@ -157,8 +157,8 @@ public class MarketProcessCleanUp implements Runnable {
 				Exchange second = process.getExchanges().get(j);
 				if (!isDuplicate(first, second))
 					continue;
-				second.amountValue = first.amountValue
-				+ second.amountValue;
+				second.amount = first.amount
+				+ second.amount;
 				second.uncertainty = null; // TODO: combine values?
 				duplicates.add(first);
 			}
