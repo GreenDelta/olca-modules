@@ -86,10 +86,10 @@ class ProcessImport {
 	private void putProviderUpdates(Set<Long> providerUpdates,
 			Process destProcess) {
 		for (Exchange exchange : destProcess.getExchanges()) {
-			if (exchange.getDefaultProviderId() >= 0)
+			if (exchange.defaultProviderId >= 0)
 				continue;
 			// old default providers have a negative sign
-			long oldId = Math.abs(exchange.getDefaultProviderId());
+			long oldId = Math.abs(exchange.defaultProviderId);
 			oldProviderMap.put(exchange.getId(), oldId);
 		}
 	}
@@ -107,11 +107,12 @@ class ProcessImport {
 				continue;
 			}
 			checkSetProvider(e, oldProviders);
-			Flow destFlow = refs.switchRef(e.getFlow());
-			e.setFlow(destFlow);
-			e.setFlowPropertyFactor(refs.switchRef(
-					e.getFlowPropertyFactor(), destFlow));
-			e.setUnit(refs.switchRef(e.getUnit()));
+			Flow destFlow = refs.switchRef(e.flow);
+			final Flow flow = destFlow;
+			e.flow = flow;
+			e.flowPropertyFactor = refs.switchRef(
+			e.flowPropertyFactor, destFlow);
+			e.unit = refs.switchRef(e.unit);
 			e.currency = refs.switchRef(e.currency);
 		}
 		if (!removals.isEmpty()) {
@@ -130,24 +131,24 @@ class ProcessImport {
 	}
 
 	private void checkSetProvider(Exchange exchange, Set<Long> oldProviders) {
-		long oldId = exchange.getDefaultProviderId();
+		long oldId = exchange.defaultProviderId;
 		if (oldId <= 0)
 			return; // no default provider
 		long newId = srcDestIdMap.get(oldId);
 		if (newId != 0) {
-			exchange.setDefaultProviderId(newId);
+			exchange.defaultProviderId = newId;
 			return; // default provider already in database
 		}
 		// update required after import indicated by a negative sign
-		exchange.setDefaultProviderId(-oldId);
+		exchange.defaultProviderId = -oldId;
 		oldProviders.add(oldId);
 	}
 
 	private boolean isValid(Exchange exchange) {
-		return exchange.getFlow() != null
-				&& exchange.getFlowPropertyFactor() != null
-				&& exchange.getFlowPropertyFactor().getFlowProperty() != null
-				&& exchange.getUnit() != null;
+		return exchange.flow != null
+				&& exchange.flowPropertyFactor != null
+				&& exchange.flowPropertyFactor.getFlowProperty() != null
+				&& exchange.unit != null;
 	}
 
 	private void switchAllocationProducts(Process srcProcess,
@@ -156,10 +157,10 @@ class ProcessImport {
 			long srcProductId = factor.getProductId();
 			String srcRefId = null;
 			for (Exchange srcExchange : srcProcess.getExchanges()) {
-				if (srcExchange.getFlow() == null)
+				if (srcExchange.flow == null)
 					continue;
-				if (srcExchange.getFlow().getId() == srcProductId) {
-					srcRefId = srcExchange.getFlow().getRefId();
+				if (srcExchange.flow.getId() == srcProductId) {
+					srcRefId = srcExchange.flow.getRefId();
 				}
 			}
 			long destProductId = seq.get(seq.FLOW, srcRefId);

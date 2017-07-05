@@ -45,7 +45,7 @@ class PriceMapper {
 		double val = ie.amount * price.amount;
 		if (val == 0)
 			return;
-		e.costValue = val;
+		e.costs = val;
 		e.currency = currency;
 	}
 

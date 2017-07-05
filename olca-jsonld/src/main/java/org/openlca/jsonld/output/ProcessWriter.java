@@ -108,8 +108,8 @@ class ProcessWriter extends Writer<Process> {
 
 	private Flow findProduct(long id) {
 		for (Exchange e : process.getExchanges())
-			if (e.getFlow().getId() == id)
-				return e.getFlow();
+			if (e.flow.getId() == id)
+				return e.flow;
 		return null;
 	}
 
@@ -119,7 +119,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonObject obj = new JsonObject();
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
 		Out.put(obj, "@id", idToRefId.get(exchange.getId()));
-		Out.put(obj, "flow", exchange.getFlow(), conf);
+		Out.put(obj, "flow", exchange.flow, conf);
 		return obj;
 	}
 

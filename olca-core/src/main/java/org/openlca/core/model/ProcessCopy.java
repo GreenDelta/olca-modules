@@ -62,10 +62,10 @@ class ProcessCopy {
 		if (origin == null)
 			return null;
 		for (Exchange copy : processCopy.getExchanges()) {
-			boolean equal = origin.isInput() == copy.isInput()
-					&& Objects.equals(origin.getFlow(), copy.getFlow())
-					&& origin.getAmountValue() == copy.getAmountValue()
-					&& Objects.equals(origin.getUnit(), copy.getUnit());
+			boolean equal = origin.isInput == copy.isInput
+					&& Objects.equals(origin.flow, copy.flow)
+					&& origin.amount == copy.amount
+					&& Objects.equals(origin.unit, copy.unit);
 			if (equal)
 				return copy;
 		}

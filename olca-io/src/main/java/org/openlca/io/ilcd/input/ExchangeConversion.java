@@ -39,17 +39,17 @@ class ExchangeConversion {
 	private Exchange initExchange() {
 		Exchange e = new Exchange();
 		boolean input = ilcdExchange.direction == ExchangeDirection.INPUT;
-		e.setInput(input);
+		e.isInput = input;
 		e.description = LangString.getFirst(ilcdExchange.comment,
 				config.langs);
 		if (extension != null) {
-			e.setDqEntry(extension.getPedigreeUncertainty());
-			e.setBaseUncertainty(extension.getBaseUncertainty());
-			e.setAmountValue(extension.getAmount());
+			e.dqEntry = extension.getPedigreeUncertainty();
+			e.baseUncertainty = extension.getBaseUncertainty();
+			e.amount = extension.getAmount();
 		} else {
 			Double amount = ilcdExchange.resultingAmount;
 			if (amount != null)
-				e.setAmountValue(amount);
+				e.amount = amount;
 		}
 		return e;
 	}
@@ -62,14 +62,14 @@ class ExchangeConversion {
 	private void mapFormula() {
 		String formula = extension != null ? extension.getFormula() : null;
 		if (formula != null)
-			olcaExchange.setAmountFormula(formula);
+			olcaExchange.amountFormula = formula;
 		else {
 			double meanAmount = ilcdExchange.meanAmount;
 			String meanAmountStr = Double.toString(meanAmount);
 			String parameter = ilcdExchange.variable;
 			formula = meanAmount == 1.0 ? parameter : meanAmountStr + " * "
 					+ parameter + "";
-			olcaExchange.setAmountFormula(formula);
+			olcaExchange.amountFormula = formula;
 		}
 	}
 

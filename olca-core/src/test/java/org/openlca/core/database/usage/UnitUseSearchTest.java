@@ -87,7 +87,8 @@ public class UnitUseSearchTest {
 		Process process = new Process();
 		process.setName("process");
 		Exchange exchange = new Exchange();
-		exchange.setUnit(unit);
+		final Unit unit1 = unit;
+		exchange.unit = unit1;
 		process.getExchanges().add(exchange);
 		return database.createDao(Process.class).insert(process);
 	}

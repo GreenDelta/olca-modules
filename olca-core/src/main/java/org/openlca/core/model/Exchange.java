@@ -14,44 +14,87 @@ import javax.persistence.Table;
 @Table(name = "tbl_exchanges")
 public class Exchange extends AbstractEntity {
 
+	/**
+	 * Indicates whether an exchange is an avoided product or waste flow. An
+	 * exchange with an avoided product flow must be set as an input and an
+	 * avoided waste flow as an output in order to be handled correctly in the
+	 * calculation.
+	 */
 	@Column(name = "avoided_product")
-	private boolean avoidedProduct;
+	public boolean isAvoided;
 
+	/**
+	 * Indicates whether the exchange is an input (= true) or output (= false).
+	 */
+	@Column(name = "is_input")
+	public boolean isInput;
+
+	/**
+	 * The flow of the exchange.
+	 */
 	@OneToOne
 	@JoinColumn(name = "f_flow")
-	private Flow flow;
+	public Flow flow;
 
+	/**
+	 * The flow property (quantity) in which the amount of the exchange is
+	 * given. It is a "flow property factor" because it contains also the
+	 * conversion factor to the reference quantity of the flow.
+	 */
 	@OneToOne
 	@JoinColumn(name = "f_flow_property_factor")
-	private FlowPropertyFactor flowPropertyFactor;
+	public FlowPropertyFactor flowPropertyFactor;
 
-	@Column(name = "is_input")
-	private boolean input;
-
-	@Column(name = "base_uncertainty")
-	private Double baseUncertainty;
-
-	@Column(name = "f_default_provider")
-	private long defaultProviderId;
-
-	@Column(name = "resulting_amount_value")
-	private double amountValue;
-
-	@Column(name = "resulting_amount_formula")
-	private String amountFormula;
-
+	/**
+	 * The unit in which the exchange amount is given.
+	 */
 	@OneToOne
 	@JoinColumn(name = "f_unit")
-	private Unit unit;
+	public Unit unit;
 
+	/**
+	 * If the exchange is an product input or waste output this field can
+	 * contain a process ID which produces the respective product or treats the
+	 * waste flow. This field is used when processes are automatically linked in
+	 * product system graphs. A value of zero means that no link is set.
+	 */
+	@Column(name = "f_default_provider")
+	public long defaultProviderId;
+
+	/**
+	 * The amount of the exchange.
+	 */
+	@Column(name = "resulting_amount_value")
+	public double amount;
+
+	/**
+	 * An optional formula for the exchange amount. The evaluated value of this
+	 * formula should be always stored in the amount field.
+	 */
+	@Column(name = "resulting_amount_formula")
+	public String amountFormula;
+
+	/**
+	 * An optional base uncertainty of the data quality entry (= Pedigree matrix
+	 * entry).
+	 */
+	@Column(name = "base_uncertainty")
+	public Double baseUncertainty;
+
+	/**
+	 * The base uncertainty of the data quality entry (= Pedigree matrix entry).
+	 */
 	@Column(name = "dq_entry")
-	private String dqEntry;
+	public String dqEntry;
 
+	/**
+	 * An optional uncertainty distribution of the exchange amount.
+	 */
 	@Embedded
-	private Uncertainty uncertainty;
+	public Uncertainty uncertainty;
 
 	@Column(name = "cost_value")
-	public Double costValue;
+	public Double costs;
 
 	@Column(name = "cost_formula")
 	public String costFormula;
@@ -63,116 +106,28 @@ public class Exchange extends AbstractEntity {
 	@JoinColumn(name = "f_currency")
 	public Currency currency;
 
-	public double getAmountValue() {
-		return amountValue;
-	}
-
-	public void setAmountValue(double amountValue) {
-		this.amountValue = amountValue;
-	}
-
-	public String getAmountFormula() {
-		return amountFormula;
-	}
-
-	public void setAmountFormula(String amountFormula) {
-		this.amountFormula = amountFormula;
-	}
-
-	public Flow getFlow() {
-		return flow;
-	}
-
-	public FlowPropertyFactor getFlowPropertyFactor() {
-		return flowPropertyFactor;
-	}
-
-	public Unit getUnit() {
-		return unit;
-	}
-
-	public boolean isAvoidedProduct() {
-		return avoidedProduct;
-	}
-
-	public boolean isInput() {
-		return input;
-	}
-
-	public void setAvoidedProduct(boolean avoidedProduct) {
-		this.avoidedProduct = avoidedProduct;
-	}
-
-	public void setFlow(final Flow flow) {
-		this.flow = flow;
-	}
-
-	public void setFlowPropertyFactor(FlowPropertyFactor flowPropertyFactor) {
-		this.flowPropertyFactor = flowPropertyFactor;
-	}
-
-	public void setInput(boolean input) {
-		this.input = input;
-	}
-
-	public void setUnit(final Unit unit) {
-		this.unit = unit;
-	}
-
-	public String getDqEntry() {
-		return dqEntry;
-	}
-
-	public void setDqEntry(String dqEntry) {
-		this.dqEntry = dqEntry;
-	}
-
-	public Double getBaseUncertainty() {
-		return baseUncertainty;
-	}
-
-	public void setBaseUncertainty(Double baseUncertainty) {
-		this.baseUncertainty = baseUncertainty;
-	}
-
-	public long getDefaultProviderId() {
-		return defaultProviderId;
-	}
-
-	public void setDefaultProviderId(long defaultProviderId) {
-		this.defaultProviderId = defaultProviderId;
-	}
-
-	public Uncertainty getUncertainty() {
-		return uncertainty;
-	}
-
-	public void setUncertainty(Uncertainty uncertainty) {
-		this.uncertainty = uncertainty;
-	}
-
 	@Override
 	public String toString() {
-		return "Exchange [flow=" + flow + ", input=" + input + ",amount="
-				+ amountValue + ", unit=" + unit + "]";
+		return "Exchange [flow=" + flow + ", input=" + isInput + ",amount="
+				+ amount + ", unit=" + unit + "]";
 	}
 
 	@Override
 	public Exchange clone() {
 		Exchange clone = new Exchange();
-		clone.setAmountFormula(this.getAmountFormula());
-		clone.setAmountValue(this.getAmountValue());
-		clone.setAvoidedProduct(this.isAvoidedProduct());
-		clone.setBaseUncertainty(this.getBaseUncertainty());
-		clone.setDefaultProviderId(this.getDefaultProviderId());
-		clone.setFlow(this.getFlow());
-		clone.setFlowPropertyFactor(this.getFlowPropertyFactor());
-		clone.setInput(this.isInput());
-		clone.setDqEntry(this.getDqEntry());
-		if (this.getUncertainty() != null)
-			clone.setUncertainty(this.getUncertainty().clone());
-		clone.setUnit(this.getUnit());
-		clone.costValue = costValue;
+		clone.amountFormula = amountFormula;
+		clone.amount = amount;
+		clone.isAvoided = isAvoided;
+		clone.baseUncertainty = baseUncertainty;
+		clone.defaultProviderId = defaultProviderId;
+		clone.flow = flow;
+		clone.flowPropertyFactor = flowPropertyFactor;
+		clone.isInput = isInput;
+		clone.dqEntry = dqEntry;
+		if (uncertainty != null)
+			clone.uncertainty = uncertainty.clone();
+		clone.unit = unit;
+		clone.costs = costs;
 		clone.costFormula = costFormula;
 		clone.currency = currency;
 		clone.description = description;

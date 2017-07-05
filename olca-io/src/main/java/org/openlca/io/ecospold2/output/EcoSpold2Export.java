@@ -130,7 +130,7 @@ public class EcoSpold2Export implements Runnable {
 		for (Exchange exchange : process.getExchanges()) {
 			if (!isValid(exchange))
 				continue;
-			Flow flow = exchange.getFlow();
+			Flow flow = exchange.flow;
 			UserMasterData masterData = ds.masterData;
 			if (flow.getFlowType() == FlowType.ELEMENTARY_FLOW) {
 				ElementaryExchange e = createElemExchange(exchange, masterData);
@@ -144,9 +144,9 @@ public class EcoSpold2Export implements Runnable {
 	}
 
 	private boolean isValid(Exchange exchange) {
-		return exchange.getFlow() != null
-				&& exchange.getFlowPropertyFactor() != null
-				&& exchange.getUnit() != null;
+		return exchange.flow != null
+				&& exchange.flowPropertyFactor != null
+				&& exchange.unit != null;
 	}
 
 	private ElementaryExchange createElemExchange(Exchange exchange,
@@ -155,16 +155,16 @@ public class EcoSpold2Export implements Runnable {
 		if (e2Ex != null)
 			return e2Ex;
 		e2Ex = new ElementaryExchange();
-		if (exchange.isInput())
+		if (exchange.isInput)
 			e2Ex.inputGroup = 4;
 		else
 			e2Ex.outputGroup = 4;
-		Flow flow = exchange.getFlow();
+		Flow flow = exchange.flow;
 		e2Ex.flowId = flow.getRefId();
 		e2Ex.formula = flow.getFormula();
 		mapExchangeData(exchange, e2Ex);
 		compartmentMap.apply(flow.getCategory(), e2Ex);
-		unitMap.apply(exchange.getUnit(), e2Ex, masterData);
+		unitMap.apply(exchange.unit, e2Ex, masterData);
 		MasterData.writeElemFlow(e2Ex, masterData);
 		return e2Ex;
 	}
@@ -172,43 +172,42 @@ public class EcoSpold2Export implements Runnable {
 	private IntermediateExchange createIntermediateExchange(Exchange exchange,
 			Process process, UserMasterData masterData) {
 		IntermediateExchange e2Ex = new IntermediateExchange();
-		if (exchange.isInput())
+		if (exchange.isInput)
 			e2Ex.inputGroup = 5;
 		else {
 			if (Objects.equals(exchange, process.getQuantitativeReference()))
 				e2Ex.outputGroup = 0;
-			else if (exchange.getFlow().getFlowType() == FlowType.WASTE_FLOW)
+			else if (exchange.flow.getFlowType() == FlowType.WASTE_FLOW)
 				e2Ex.outputGroup = 3;
 			else
 				e2Ex.outputGroup = 2;
 		}
-		e2Ex.flowId = exchange.getFlow().getRefId();
+		e2Ex.flowId = exchange.flow.getRefId();
 		ProcessDescriptor provider = getDefaultProvider(exchange);
 		if (provider != null)
 			e2Ex.activityLinkId = provider.getRefId();
 		mapExchangeData(exchange, e2Ex);
-		unitMap.apply(exchange.getUnit(), e2Ex, masterData);
+		unitMap.apply(exchange.unit, e2Ex, masterData);
 		MasterData.writeTechFlow(e2Ex, masterData);
 		return e2Ex;
 	}
 
 	private ProcessDescriptor getDefaultProvider(Exchange exchange) {
-		if (!exchange.isInput() || exchange.getDefaultProviderId() == 0)
+		if (!exchange.isInput || exchange.defaultProviderId == 0)
 			return null;
 		ProcessDao dao = new ProcessDao(database);
-		return dao.getDescriptor(exchange.getDefaultProviderId());
+		return dao.getDescriptor(exchange.defaultProviderId);
 	}
 
 	private void mapExchangeData(Exchange exchange,
 			spold2.Exchange e2Exchange) {
-		e2Exchange.name = Strings.cut(exchange.getFlow().getName(), 120);
+		e2Exchange.name = Strings.cut(exchange.flow.getName(), 120);
 		e2Exchange.id = new UUID(exchange.getId(), 0L).toString();
-		e2Exchange.amount = exchange.getAmountValue();
-		e2Exchange.mathematicalRelation = exchange.getAmountFormula();
+		e2Exchange.amount = exchange.amount;
+		e2Exchange.mathematicalRelation = exchange.amountFormula;
 		e2Exchange.comment = exchange.description;
-		e2Exchange.casNumber = exchange.getFlow().getCasNumber();
-		e2Exchange.uncertainty = UncertaintyConverter.fromOpenLCA(exchange
-				.getUncertainty());
+		e2Exchange.casNumber = exchange.flow.getCasNumber();
+		e2Exchange.uncertainty = UncertaintyConverter.fromOpenLCA(exchange.uncertainty);
 	}
 
 	private void mapParameters(Process process, DataSet ds) {

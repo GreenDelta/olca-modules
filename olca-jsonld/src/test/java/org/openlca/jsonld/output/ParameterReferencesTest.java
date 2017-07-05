@@ -326,8 +326,8 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	private Exchange createExchange(String formula, Uncertainty u) {
 		Exchange e = new Exchange();
-		e.setAmountFormula(formula);
-		e.setUncertainty(u);
+		e.amountFormula = formula;
+		e.uncertainty = u;
 		return e;
 	}
 

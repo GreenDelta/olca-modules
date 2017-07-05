@@ -79,13 +79,13 @@ public class ProcessTest extends AbstractZipTest {
 		}
 		Exchange in = null;
 		for (Exchange e : clones.get(1).getExchanges())
-			if (e.isInput())
+			if (e.isInput)
 				in = e;
-		Assert.assertEquals(clones.get(0).getId(), in.getDefaultProviderId());
+		Assert.assertEquals(clones.get(0).getId(), in.defaultProviderId);
 		for (Exchange e : clones.get(0).getExchanges())
-			if (e.isInput())
+			if (e.isInput)
 				in = e;
-		Assert.assertEquals(clones.get(1).getId(), in.getDefaultProviderId());
+		Assert.assertEquals(clones.get(1).getId(), in.defaultProviderId);
 	}
 
 	private Process[] createCyclicModel(IDatabase db) {
@@ -137,7 +137,7 @@ public class ProcessTest extends AbstractZipTest {
 		p.setName("process");
 		p.setRefId(UUID.randomUUID().toString());
 		Exchange out = createExchange(product, null);
-		out.setInput(false);
+		out.isInput = false;
 		p.getExchanges().add(out);
 		p.setQuantitativeReference(out);
 		return dao.insert(p);
@@ -145,20 +145,20 @@ public class ProcessTest extends AbstractZipTest {
 
 	private Exchange createExchange(Flow product, Process provider) {
 		Exchange out = new Exchange();
-		out.setAmountValue(1);
-		out.setFlow(product);
-		out.setFlowPropertyFactor(product.getReferenceFactor());
-		out.setUnit(product.getReferenceFactor().getFlowProperty()
-				.getUnitGroup().getReferenceUnit());
+		out.amount = (double) 1;
+		final Flow flow = product;
+		out.flow = flow;
+		out.flowPropertyFactor = product.getReferenceFactor();
+		out.unit = product.getReferenceFactor().getFlowProperty()
+		.getUnitGroup().getReferenceUnit();
 		if (provider != null)
-			out.setDefaultProviderId(provider.getId());
+			out.defaultProviderId = provider.getId();
 		return out;
 	}
 
 	private Process addProvider(Process p, Process provider, ProcessDao dao) {
-		Exchange in = createExchange(provider.getQuantitativeReference()
-				.getFlow(), provider);
-		in.setInput(true);
+		Exchange in = createExchange(provider.getQuantitativeReference().flow, provider);
+		in.isInput = true;
 		p.getExchanges().add(in);
 		return dao.update(p);
 	}
@@ -182,12 +182,12 @@ public class ProcessTest extends AbstractZipTest {
 	private void delete(Process p, IDatabase db) {
 		new ProcessDao(db).delete(p);
 		for (Exchange e : p.getExchanges())
-			new FlowDao(db).delete(e.getFlow());
+			new FlowDao(db).delete(e.flow);
 		for (Exchange e : p.getExchanges())
-			new FlowPropertyDao(db).delete(e.getFlowPropertyFactor()
+			new FlowPropertyDao(db).delete(e.flowPropertyFactor
 					.getFlowProperty());
 		for (Exchange e : p.getExchanges())
-			new UnitGroupDao(db).delete(e.getFlowPropertyFactor()
+			new UnitGroupDao(db).delete(e.flowPropertyFactor
 					.getFlowProperty().getUnitGroup());
 	}
 

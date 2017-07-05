@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
@@ -76,7 +78,14 @@ public class CalculationSetup {
 	public double getAmount() {
 		if (amount != null)
 			return amount;
-		else
-			return productSystem.getTargetAmount();
+		double refAmount = productSystem.getTargetAmount();
+		if (productSystem.getReferenceExchange() == null)
+			return refAmount;
+		Flow flow = productSystem.getReferenceExchange().flow;
+		if (flow != null && flow.getFlowType() == FlowType.WASTE_FLOW) {
+			// negative reference amount for waste treatment processes
+			return -refAmount;
+		}
+		return refAmount;
 	}
 }

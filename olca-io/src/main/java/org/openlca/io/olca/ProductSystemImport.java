@@ -79,12 +79,12 @@ class ProductSystemImport {
 	}
 
 	private boolean sameExchange(Exchange srcExchange, Exchange destExchange) {
-		if (srcExchange.isInput() != destExchange.isInput())
+		if (srcExchange.isInput != destExchange.isInput)
 			return false;
-		Unit srcUnit = srcExchange.getUnit();
-		Unit destUnit = destExchange.getUnit();
-		Flow srcFlow = srcExchange.getFlow();
-		Flow destFlow = destExchange.getFlow();
+		Unit srcUnit = srcExchange.unit;
+		Unit destUnit = destExchange.unit;
+		Flow srcFlow = srcExchange.flow;
+		Flow destFlow = destExchange.flow;
 		return srcUnit != null && destUnit != null && srcFlow != null
 				&& destFlow != null
 				&& Strings.nullOrEqual(srcUnit.getRefId(), destUnit.getRefId())
@@ -93,7 +93,7 @@ class ProductSystemImport {
 
 	private void switchRefFlowProp(ProductSystem srcSystem,
 			ProductSystem destSystem) {
-		Flow destFlow = destSystem.getReferenceExchange().getFlow();
+		Flow destFlow = destSystem.getReferenceExchange().flow;
 		if (destFlow == null)
 			return;
 		destSystem.setTargetFlowPropertyFactor(refs.switchRef(

@@ -23,7 +23,7 @@ public class CostTests {
 	@Test
 	public void testSingleProcess() {
 		Process p1 = TestProcess
-				.forOutput("p1", 1, "kg")
+				.refProduct("p1", 1, "kg")
 				.addCosts("p1", 2, "EUR")
 				.elemIn("water", 1, "m3")
 				.addCosts("water", 5, "EUR")
@@ -49,7 +49,7 @@ public class CostTests {
 	@Test
 	public void testSimpleContribution() {
 		Process p1 = TestProcess
-				.forOutput("p1", 1, "kg")
+				.refProduct("p1", 1, "kg")
 				.addCosts("p1", 2, "EUR")
 				.elemIn("water", 1, "m3")
 				.addCosts("water", 5, "EUR")
@@ -62,13 +62,13 @@ public class CostTests {
 	@Test
 	public void testSimpleChain() {
 		Process p1 = TestProcess
-				.forOutput("p1", 1, "kg")
+				.refProduct("p1", 1, "kg")
 				.addCosts("p1", 2, "EUR")
 				.elemIn("water", 1, "m3")
 				.addCosts("water", 5, "EUR")
 				.get();
 		Process p2 = TestProcess
-				.forOutput("p2", 1, "kg")
+				.refProduct("p2", 1, "kg")
 				.addCosts("p2", 5, "EUR")
 				.prodIn("p1", 2, "kg")
 				.addCosts("p1", 4, "EUR")
@@ -88,15 +88,15 @@ public class CostTests {
 	@Test
 	public void testAddCostsForSameProduct() {
 		Process p1 = TestProcess
-				.forOutput("p1", 1, "kg")
+				.refProduct("p1", 1, "kg")
 				.addCosts("p1", 1, "EUR")
 				.prodIn("p1", 0.5, "kg")
 				.elemIn("water", 1, "m3")
 				.get();
 		long exchangeId = -1;
 		for (Exchange e : p1.getExchanges()) {
-			if (e.getFlow().getName().equals("p1") && e.isInput()) {
-				e.costValue = 0.4d;
+			if (e.flow.getName().equals("p1") && e.isInput) {
+				e.costs = 0.4d;
 				e.currency = p1.getQuantitativeReference().currency;
 				exchangeId = e.getId();
 				break;
@@ -107,7 +107,7 @@ public class CostTests {
 		ProductSystem system = TestSystem.of(p1).get();
 		// add a link to the process itself
 		ProcessLink selfLink = new ProcessLink();
-		selfLink.flowId = p1.getQuantitativeReference().getFlow().getId();
+		selfLink.flowId = p1.getQuantitativeReference().flow.getId();
 		selfLink.providerId = p1.getId();
 		selfLink.processId = p1.getId();
 		selfLink.exchangeId = exchangeId;
@@ -122,18 +122,18 @@ public class CostTests {
 	public void test() {
 
 		Process electricity = TestProcess
-				.forOutput("Electricity", 1, "MJ")
+				.refProduct("Electricity", 1, "MJ")
 				.addCosts("Electricity", 5, "EUR")
 				.elemOut("CO2", 3, "kg")
 				.get();
 
 		Process wood = TestProcess
-				.forOutput("Wood", 1, "kg")
+				.refProduct("Wood", 1, "kg")
 				.addCosts("Wood", 1, "EUR")
 				.get();
 
 		Process chair = TestProcess
-				.forOutput("Chair", 1, "piece")
+				.refProduct("Chair", 1, "piece")
 				.addCosts("Chair", 25, "EUR")
 				.prodIn("Electricity", 2, "MJ")
 				.addCosts("Electricity", 10, "EUR")
@@ -142,12 +142,12 @@ public class CostTests {
 				.get();
 
 		Process disposal = TestProcess
-				.forOutput("Disposal of chair", 1, "piece")
+				.refProduct("Disposal of chair", 1, "piece")
 				.addCosts("Disposal of chair", 2, "EUR")
 				.get();
 
 		Process usage = TestProcess
-				.forOutput("Sitting", 10, "years")
+				.refProduct("Sitting", 10, "years")
 				.addCosts("Sitting", 135, "EUR")
 				.prodIn("Chair", 5, "piece")
 				.addCosts("Chair", 125, "EUR")

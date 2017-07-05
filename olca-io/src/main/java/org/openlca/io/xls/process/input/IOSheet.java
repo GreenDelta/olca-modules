@@ -56,7 +56,7 @@ class IOSheet {
 	private Exchange readExchange(int row) {
 		RefData refData = config.refData;
 		Exchange exchange = new Exchange();
-		exchange.setInput(forInputs);
+		exchange.isInput = forInputs;
 		String name = config.getString(sheet, row, 0);
 		if (name == null) {
 			return null;
@@ -66,7 +66,8 @@ class IOSheet {
 		if (flow == null) {
 			return refDataError(row, "flow: " + name + "/" + category);
 		}
-		exchange.setFlow(flow);
+		final Flow flow1 = flow;
+		exchange.flow = flow1;
 		String propName = config.getString(sheet, row, 2);
 		FlowProperty property = refData.getFlowProperty(propName);
 		if (property == null) {
@@ -76,25 +77,26 @@ class IOSheet {
 		if (factor == null) {
 			return refDataError(row, "flow property factor: " + propName);
 		}
-		exchange.setFlowPropertyFactor(factor);
+		exchange.flowPropertyFactor = factor;
 		String unitName = config.getString(sheet, row, 3);
 		Unit unit = refData.getUnit(unitName);
 		if (unit == null) {
 			return refDataError(row, "unit: " + unitName);
 		}
-		exchange.setUnit(unit);
-		exchange.setAmountValue(config.getDouble(sheet, row, 4));
+		final Unit unit1 = unit;
+		exchange.unit = unit1;
+		exchange.amount = config.getDouble(sheet, row, 4);
 		String formula = config.getString(sheet, row, 5);
 		if (!Strings.nullOrEmpty(formula)) {
-			exchange.setAmountFormula(formula);
+			exchange.amountFormula = formula;
 		}
 		String description = config.getString(sheet, row, 6);
 		if (!Strings.nullOrEmpty(description)) {
 			exchange.description = description;
 		}
-		exchange.setUncertainty(config.getUncertainty(sheet, row, 7));
+		exchange.uncertainty = config.getUncertainty(sheet, row, 7);
 		if ("Yes".equals(config.getString(sheet, row, 12)))
-			exchange.setAvoidedProduct(true);
+			exchange.isAvoided = true;
 		return exchange;
 	}
 

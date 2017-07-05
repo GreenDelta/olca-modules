@@ -37,36 +37,38 @@ public class FlowUseQueryTest {
 
 	@Test
 	public void testNotUsed() {
-		Set<Long> providerIds = dao.getProviders(flow.getId());
+		Set<Long> providerIds = dao.getWhereOutput(flow.getId());
 		Assert.assertTrue(providerIds.isEmpty());
-		Set<Long> recipientIds = dao.getRecipients(flow.getId());
+		Set<Long> recipientIds = dao.getWhereInput(flow.getId());
 		Assert.assertTrue(recipientIds.isEmpty());
 	}
 
 	@Test
 	public void testUsedAsOutput() {
 		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
-		exchange.setInput(false);
+		final Flow flow1 = flow;
+		exchange.flow = flow1;
+		exchange.isInput = false;
 		process.getExchanges().add(exchange);
 		process = processDao.update(process);
-		Set<Long> providerIds = dao.getProviders(flow.getId());
+		Set<Long> providerIds = dao.getWhereOutput(flow.getId());
 		Assert.assertEquals(1, providerIds.size());
 		Assert.assertTrue(providerIds.contains(process.getId()));
-		Set<Long> recipientIds = dao.getRecipients(flow.getId());
+		Set<Long> recipientIds = dao.getWhereInput(flow.getId());
 		Assert.assertTrue(recipientIds.isEmpty());
 	}
 
 	@Test
 	public void testUsedAsInput() {
 		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
-		exchange.setInput(true);
+		final Flow flow1 = flow;
+		exchange.flow = flow1;
+		exchange.isInput = true;
 		process.getExchanges().add(exchange);
 		process = processDao.update(process);
-		Set<Long> providerIds = dao.getProviders(flow.getId());
+		Set<Long> providerIds = dao.getWhereOutput(flow.getId());
 		Assert.assertTrue(providerIds.isEmpty());
-		Set<Long> recipientIds = dao.getRecipients(flow.getId());
+		Set<Long> recipientIds = dao.getWhereInput(flow.getId());
 		Assert.assertEquals(1, recipientIds.size());
 		Assert.assertTrue(recipientIds.contains(process.getId()));
 	}

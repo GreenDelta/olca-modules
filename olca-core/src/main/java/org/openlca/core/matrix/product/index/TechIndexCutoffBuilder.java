@@ -19,26 +19,25 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
+public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private MatrixCache cache;
-	private ProviderSearch providerSearch;
-	private ProductSystem system;
-	private double cutoff;
+	private final MatrixCache cache;
+	private final ProviderSearch providers;
+	private final ProductSystem system;
+	private final double cutoff;
 
-	public ProductIndexCutoffBuilder(MatrixCache cache, ProductSystem system, double cutoff) {
+	public TechIndexCutoffBuilder(MatrixCache cache, ProductSystem system, double cutoff) {
 		this.cache = cache;
 		this.cutoff = cutoff;
 		this.system = system;
-		this.providerSearch = new ProviderSearch(cache.getProcessTable(),
-				ProcessType.LCI_RESULT);
+		this.providers = new ProviderSearch(cache.getProcessTable());
 	}
 
 	@Override
 	public void setPreferredType(ProcessType type) {
-		providerSearch.setPreferredType(type);
+		providers.setPreferredType(type);
 	}
 
 	@Override
@@ -120,30 +119,30 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 					continue;
 				node.outputAmount = amount(output);
 				node.scalingFactor = node.demand / node.outputAmount;
-				followInputs(node, exchanges, nextLayer);
+				followLinks(node, exchanges, nextLayer);
 				node.state = NodeState.FOLLOWED;
 			}
 			next.clear();
 			next.addAll(nextLayer);
 		}
 
-		private void followInputs(Node node, List<CalcExchange> exchanges,
+		private void followLinks(Node node, List<CalcExchange> exchanges,
 				List<Node> nextLayer) {
-			for (CalcExchange input : getInputs(node, exchanges)) {
-				LongPair inputProduct = providerSearch.find(input);
-				if (inputProduct == null)
+			for (CalcExchange linkExchange : providers.getLinkCandidates(exchanges)) {
+				LongPair provider = providers.find(linkExchange);
+				if (provider == null)
 					continue;
-				double inputAmount = amount(input);
-				double inputDemand = node.scalingFactor * inputAmount;
-				Node provider = nodes.get(inputProduct);
-				if (provider != null)
-					checkSubGraph(inputDemand, provider, nextLayer, false);
+				double amount = amount(linkExchange);
+				double demand = node.scalingFactor * amount;
+				Node providerNode = nodes.get(provider);
+				if (providerNode != null)
+					checkSubGraph(demand, providerNode, nextLayer, false);
 				else {
-					provider = createNode(inputDemand, inputProduct,
+					providerNode = createNode(demand, provider,
 							nextLayer);
 				}
-				Link link = new Link(provider, input.exchangeId,
-						inputAmount, inputDemand);
+				Link link = new Link(providerNode, linkExchange.exchangeId,
+						amount, demand);
 				node.inputLinks.add(link);
 			}
 		}
@@ -200,23 +199,13 @@ public class ProductIndexCutoffBuilder implements IProductIndexBuilder {
 
 		private CalcExchange getOutput(Node node, List<CalcExchange> all) {
 			for (CalcExchange e : all) {
-				if (e.input
+				if (e.isInput
 						|| e.flowType != FlowType.PRODUCT_FLOW
 						|| e.flowId != node.product.getSecond())
 					continue;
 				return e;
 			}
 			return null;
-		}
-
-		private List<CalcExchange> getInputs(Node node,
-				List<CalcExchange> all) {
-			List<CalcExchange> inputs = new ArrayList<>();
-			for (CalcExchange e : all) {
-				if (e.input && e.flowType == FlowType.PRODUCT_FLOW)
-					inputs.add(e);
-			}
-			return inputs;
 		}
 
 		private double amount(CalcExchange e) {

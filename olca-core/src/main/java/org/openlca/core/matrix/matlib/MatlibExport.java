@@ -99,7 +99,7 @@ public class MatlibExport implements Runnable {
 			techMatrix.set(idx, idx, amount);
 			return;
 		}
-		long[] providers = processTable.getProductProviders(flowId);
+		long[] providers = processTable.getProviders(flowId);
 		for (long provider : providers) {
 			LongPair prov = LongPair.of(provider, flowId);
 			int row = techIndex.getIndex(prov);
@@ -128,7 +128,7 @@ public class MatlibExport implements Runnable {
 	private void initMatrices() {
 		FlowTypeTable flowTypes = FlowTypeTable.create(db);
 		processTable = ProcessTable.create(db, flowTypes);
-		List<LongPair> products = processTable.getProcessProducts();
+		List<LongPair> products = processTable.getProviderFlows();
 		techIndex = new TechIndex(products.get(0));
 		flowIndex = new LongIndex();
 		Set<Long> productIds = new HashSet<>();

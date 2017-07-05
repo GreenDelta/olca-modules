@@ -120,7 +120,7 @@ class ProjectImport {
 			variant.setFlowPropertyFactor(null);
 			return;
 		}
-		Flow destFlow = destSystem.getReferenceExchange().getFlow();
+		Flow destFlow = destSystem.getReferenceExchange().flow;
 		variant.setFlowPropertyFactor(refs.switchRef(
 				variant.getFlowPropertyFactor(), destFlow));
 	}

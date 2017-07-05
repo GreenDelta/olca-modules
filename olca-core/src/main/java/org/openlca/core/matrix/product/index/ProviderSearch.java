@@ -1,33 +1,39 @@
 package org.openlca.core.matrix.product.index;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
 
 /**
- * Searches for the best provider for a given input product in the database.
+ * Searches for the best provider for a given product input or waste output in
+ * the database.
  */
 class ProviderSearch {
 
 	private ProcessTable processTable;
 	private ProcessType preferredType;
 
-	public ProviderSearch(ProcessTable processTable,
-			ProcessType preferredType) {
+	public ProviderSearch(ProcessTable processTable) {
 		this.processTable = processTable;
-		this.preferredType = preferredType;
+		this.preferredType = ProcessType.LCI_RESULT;
 	}
 
-	void setPreferredType(ProcessType preferredType) {
-		this.preferredType = preferredType;
+	void setPreferredType(ProcessType type) {
+		if (type != null)
+			this.preferredType = type;
 	}
 
 	LongPair find(CalcExchange productInput) {
 		if (productInput == null)
 			return null;
 		long productId = productInput.flowId;
-		long[] processIds = processTable.getProductProviders(productId);
+		long[] processIds = processTable.getProviders(productId);
 		if (processIds == null)
 			return null;
 		LongPair candidate = null;
@@ -54,6 +60,25 @@ class ProviderSearch {
 		if (candidateType == preferredType && newOptionType != preferredType)
 			return false;
 		return candidateType != preferredType && newOptionType == preferredType;
+	}
+
+	/**
+	 * Returns from the given list the product inputs or waste outputs that
+	 * could be linked to a provider.
+	 */
+	List<CalcExchange> getLinkCandidates(List<CalcExchange> list) {
+		if (list == null || list.isEmpty())
+			return Collections.emptyList();
+		List<CalcExchange> candidates = new ArrayList<>();
+		for (CalcExchange e : list) {
+			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)
+				continue;
+			if (e.isInput && e.flowType == FlowType.PRODUCT_FLOW)
+				candidates.add(e);
+			else if (!e.isInput && e.flowType == FlowType.WASTE_FLOW)
+				candidates.add(e);
+		}
+		return candidates;
 	}
 
 }

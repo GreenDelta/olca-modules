@@ -14,7 +14,7 @@ class UncertaintyConverter {
 
 	public void map(Exchange oExchange,
 			org.openlca.ilcd.processes.Exchange iExchange) {
-		Uncertainty uncertainty = oExchange.getUncertainty();
+		Uncertainty uncertainty = oExchange.uncertainty;
 		if (uncertainty == null
 				|| uncertainty.getDistributionType() == UncertaintyType.NONE)
 			return;
@@ -146,7 +146,7 @@ class UncertaintyConverter {
 	}
 
 	private Double getUncertaintyParam(int param, Exchange oExchange) {
-		Uncertainty uncertainty = oExchange.getUncertainty();
+		Uncertainty uncertainty = oExchange.uncertainty;
 		switch (param) {
 		case 1:
 			return uncertainty.getParameter1Value();

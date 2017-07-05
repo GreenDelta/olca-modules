@@ -64,13 +64,13 @@ class AllocationFactors {
 
 	private Exchange findProduct(AllocationFactor factor) {
 		for (org.openlca.core.model.Exchange oExchange : exchangeMap.keySet()) {
-			if (oExchange.isInput())
+			if (oExchange.isInput)
 				continue;
-			if (oExchange.getFlow() == null)
+			if (oExchange.flow == null)
 				continue;
-			if (oExchange.getFlow().getFlowType() != FlowType.PRODUCT_FLOW)
+			if (oExchange.flow.getFlowType() != FlowType.PRODUCT_FLOW)
 				continue;
-			if (oExchange.getFlow().getId() == factor.getProductId())
+			if (oExchange.flow.getId() == factor.getProductId())
 				return exchangeMap.get(oExchange);
 		}
 		return null;

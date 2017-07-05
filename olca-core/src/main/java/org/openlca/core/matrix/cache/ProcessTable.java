@@ -27,11 +27,12 @@ public class ProcessTable {
 	private final TLongObjectHashMap<AllocationMethod> allocMap = new TLongObjectHashMap<>();
 
 	/**
-	 * Maps IDs of product flows to process IDs that have this product as
-	 * output: product-id -> provider-process-id. We need this when we build a
-	 * product system automatically.
+	 * Maps IDs of product and waste flows to process IDs that have the
+	 * respective product as output or waste as input: flow-id ->
+	 * provider-process-id. We need this when we build a product system
+	 * automatically.
 	 */
-	private final TLongObjectHashMap<TLongArrayList> productMap = new TLongObjectHashMap<>();
+	private final TLongObjectHashMap<TLongArrayList> providerMap = new TLongObjectHashMap<>();
 
 	public static ProcessTable create(IDatabase db, FlowTypeTable flowTypes) {
 		ProcessTable table = new ProcessTable(db, flowTypes);
@@ -41,32 +42,35 @@ public class ProcessTable {
 	private ProcessTable(IDatabase db, FlowTypeTable flowTypes) {
 		log.trace("build process index table");
 		initTypeAndAllocation(db);
-		initProductMap(db, flowTypes);
+		initProviderMap(db, flowTypes);
 	}
 
-	private void initProductMap(IDatabase db, FlowTypeTable flowTypes) {
-		log.trace("load product->process map");
-		String query = "select f_owner, f_flow from tbl_exchanges"
-				+ " where is_input = 0";
+	private void initProviderMap(IDatabase db, FlowTypeTable flowTypes) {
+		log.trace("load provider map");
+		String query = "select f_owner, f_flow, is_input from tbl_exchanges";
 		try {
 			NativeSql.on(db).query(query, r -> {
 				long processId = r.getLong(1);
 				long flowId = r.getLong(2);
-				if (flowTypes.get(flowId) == FlowType.PRODUCT_FLOW)
+				boolean isInput = r.getBoolean(3);
+				FlowType type = flowTypes.get(flowId);
+				if ((isInput && type == FlowType.WASTE_FLOW)
+						|| (!isInput && type == FlowType.PRODUCT_FLOW)) {
 					indexProvider(flowId, processId);
+				}
 				return true;
 			});
-			log.trace("{} products mapped", productMap.size());
+			log.trace("{} providers mapped", providerMap.size());
 		} catch (Exception e) {
 			log.error("failed to load process products", e);
 		}
 	}
 
 	private void indexProvider(long productId, long processId) {
-		TLongArrayList list = productMap.get(productId);
+		TLongArrayList list = providerMap.get(productId);
 		if (list == null) {
 			list = new TLongArrayList();
-			productMap.put(productId, list);
+			providerMap.put(productId, list);
 		}
 		list.add(processId);
 	}
@@ -110,20 +114,20 @@ public class ProcessTable {
 	}
 
 	/**
-	 * Returns the list of process IDs that have the product flow with the given
-	 * ID as output.
+	 * Returns the list of process IDs that have the flow with the given ID as
+	 * product output or waste input.
 	 */
-	public long[] getProductProviders(long productId) {
-		TLongArrayList list = productMap.get(productId);
+	public long[] getProviders(long flowId) {
+		TLongArrayList list = providerMap.get(flowId);
 		if (list == null)
 			return new long[0];
 		return list.toArray();
 	}
 
-	/** Gets all process products of the database. */
-	public List<LongPair> getProcessProducts() {
+	/** Get all product or waste treatment providers from the database. */
+	public List<LongPair> getProviderFlows() {
 		List<LongPair> list = new ArrayList<>();
-		TLongObjectIterator<TLongArrayList> it = productMap.iterator();
+		TLongObjectIterator<TLongArrayList> it = providerMap.iterator();
 		while (it.hasNext()) {
 			it.advance();
 			long productId = it.key();

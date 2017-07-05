@@ -10,9 +10,9 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NativeSql.BatchInsertHandler;
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.matrix.product.index.IProductIndexBuilder;
-import org.openlca.core.matrix.product.index.ProductIndexBuilder;
-import org.openlca.core.matrix.product.index.ProductIndexCutoffBuilder;
+import org.openlca.core.matrix.product.index.ITechIndexBuilder;
+import org.openlca.core.matrix.product.index.TechIndexBuilder;
+import org.openlca.core.matrix.product.index.TechIndexCutoffBuilder;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
@@ -49,7 +49,7 @@ public class ProductSystemBuilder {
 				|| system.getReferenceProcess() == null)
 			return system;
 		Process refProcess = system.getReferenceProcess();
-		Flow refProduct = system.getReferenceExchange().getFlow();
+		Flow refProduct = system.getReferenceExchange().flow;
 		if (refProduct == null)
 			return system;
 		LongPair ref = new LongPair(refProcess.getId(), refProduct.getId());
@@ -73,7 +73,7 @@ public class ProductSystemBuilder {
 
 	private void run(ProductSystem system, LongPair processProduct) {
 		log.trace("build product index");
-		IProductIndexBuilder builder = getProductIndexBuilder(system);
+		ITechIndexBuilder builder = getProductIndexBuilder(system);
 		builder.setPreferredType(preferSystemProcesses ? ProcessType.LCI_RESULT
 				: ProcessType.UNIT_PROCESS);
 		TechIndex index = builder.build(processProduct);
@@ -81,10 +81,10 @@ public class ProductSystemBuilder {
 		addLinksAndProcesses(system, index);
 	}
 
-	private IProductIndexBuilder getProductIndexBuilder(ProductSystem system) {
+	private ITechIndexBuilder getProductIndexBuilder(ProductSystem system) {
 		if (cutoff == null || cutoff == 0)
-			return new ProductIndexBuilder(matrixCache, system);
-		return new ProductIndexCutoffBuilder(matrixCache, system, cutoff);
+			return new TechIndexBuilder(matrixCache, system);
+		return new TechIndexCutoffBuilder(matrixCache, system, cutoff);
 	}
 
 	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {

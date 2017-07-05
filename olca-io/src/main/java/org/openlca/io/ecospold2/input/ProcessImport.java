@@ -173,7 +173,7 @@ class ProcessImport {
 		try {
 			BaseDao<Exchange> dao = db.createDao(Exchange.class);
 			for (Exchange exchange : exchanges) {
-				exchange.setDefaultProviderId(process.getId());
+				exchange.defaultProviderId = process.getId();
 				dao.update(exchange);
 			}
 		} catch (Exception e) {
@@ -211,7 +211,7 @@ class ProcessImport {
 			if (e == null)
 				continue;
 			if (isAvoidedProduct(refId, e))
-				e.setAvoidedProduct(true);
+				e.isAvoided = true;
 			if (ie.activityLinkId != null)
 				addActivityLink(ie, e);
 			if (isRefFlow)
@@ -234,24 +234,26 @@ class ProcessImport {
 		if (flow == null || flow.getReferenceFlowProperty() == null)
 			return null;
 		Exchange e = new Exchange();
-		e.setFlow(flow);
-		e.setFlowPropertyFactor(flow.getReferenceFactor());
+		final Flow flow1 = flow;
+		e.flow = flow1;
+		e.flowPropertyFactor = flow.getReferenceFactor();
 		e.description = es2.comment;
 		Unit unit = getFlowUnit(es2, flowRefId, flow);
 		if (unit == null)
 			return null;
-		e.setUnit(unit);
-		e.setInput(es2.inputGroup != null);
+		final Unit unit1 = unit;
+		e.unit = unit1;
+		e.isInput = es2.inputGroup != null;
 		double amount = es2.amount;
 		double f = 1;
 		if (index.isMappedFlow(flowRefId)) {
 			f = index.getMappedFlowFactor(flowRefId);
 		}
-		e.setAmountValue(amount * f);
-		e.setUncertainty(UncertaintyConverter.toOpenLCA(es2.uncertainty, f));
+		e.amount = amount * f;
+		e.uncertainty = UncertaintyConverter.toOpenLCA(es2.uncertainty, f);
 		if (config.withParameters && config.withParameterFormulas)
 			mapFormula(es2, process, e, f);
-		e.setDqEntry(getPedigreeMatrix(es2));
+		e.dqEntry = getPedigreeMatrix(es2);
 		process.getExchanges().add(e);
 		return e;
 	}
@@ -293,9 +295,9 @@ class ProcessImport {
 			return;
 		formula = formula.trim();
 		if (factor == 1.0)
-			exchange.setAmountFormula(formula);
+			exchange.amountFormula = formula;
 		else
-			exchange.setAmountFormula(factor + " * (" + formula + ")");
+			exchange.amountFormula = factor + " * (" + formula + ")";
 	}
 
 	private void addActivityLink(IntermediateExchange e, Exchange exchange) {
@@ -304,7 +306,7 @@ class ProcessImport {
 		String refId = KeyGen.get(providerId, flowId);
 		Long processId = index.getProcessId(refId);
 		if (processId != null) {
-			exchange.setDefaultProviderId(processId);
+			exchange.defaultProviderId = processId;
 			return;
 		}
 		List<Exchange> exchanges = linkQueue.get(refId);

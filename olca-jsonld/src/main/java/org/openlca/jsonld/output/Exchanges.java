@@ -15,15 +15,15 @@ class Exchanges {
 		if (e == null || obj == null)
 			return null;
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
-		Out.put(obj, "avoidedProduct", e.isAvoidedProduct());
-		Out.put(obj, "input", e.isInput());
-		Out.put(obj, "baseUncertainty", e.getBaseUncertainty());
-		Out.put(obj, "amount", e.getAmountValue());
-		Out.put(obj, "amountFormula", e.getAmountFormula());
-		Out.put(obj, "dqEntry", e.getDqEntry());
+		Out.put(obj, "avoidedProduct", e.isAvoided);
+		Out.put(obj, "input", e.isInput);
+		Out.put(obj, "baseUncertainty", e.baseUncertainty);
+		Out.put(obj, "amount", e.amount);
+		Out.put(obj, "amountFormula", e.amountFormula);
+		Out.put(obj, "dqEntry", e.dqEntry);
 		Out.put(obj, "description", e.description);
 		Out.put(obj, "costFormula", e.costFormula);
-		Out.put(obj, "costValue", e.costValue);
+		Out.put(obj, "costValue", e.costs);
 		Out.put(obj, "currency", e.currency, conf);
 		String providerRefId = mapRefs(e, obj, conf);
 		String internalId = ExchangeKey.get(processRefId, providerRefId, e);
@@ -32,24 +32,24 @@ class Exchanges {
 	}
 
 	private static String mapRefs(Exchange e, JsonObject obj, ExportConfig conf) {
-		Long pId = e.getDefaultProviderId();
+		Long pId = e.defaultProviderId;
 		JsonObject p = null;
 		if (conf.exportProviders)
 			p = References.create(ModelType.PROCESS, pId, conf, false);
 		else if (conf.db != null)
 			p = References.create(new ProcessDao(conf.db).getDescriptor(pId));
 		Out.put(obj, "defaultProvider", p);
-		Out.put(obj, "flow", e.getFlow(), conf, Out.REQUIRED_FIELD);
-		if (e.getFlow() != null) {
+		Out.put(obj, "flow", e.flow, conf, Out.REQUIRED_FIELD);
+		if (e.flow != null) {
 			JsonObject flow = obj.get("flow").getAsJsonObject();
-			Out.put(flow, "flowType", e.getFlow().getFlowType());
+			Out.put(flow, "flowType", e.flow.getFlowType());
 		}
-		Out.put(obj, "unit", e.getUnit(), conf, Out.REQUIRED_FIELD);
+		Out.put(obj, "unit", e.unit, conf, Out.REQUIRED_FIELD);
 		FlowProperty property = null;
-		if (e.getFlowPropertyFactor() != null)
-			property = e.getFlowPropertyFactor().getFlowProperty();
+		if (e.flowPropertyFactor != null)
+			property = e.flowPropertyFactor.getFlowProperty();
 		Out.put(obj, "flowProperty", property, conf, Out.REQUIRED_FIELD);
-		Out.put(obj, "uncertainty", Uncertainties.map(e.getUncertainty()));
+		Out.put(obj, "uncertainty", Uncertainties.map(e.uncertainty));
 		if (p == null)
 			return null;
 		return p.get("@id").getAsString();

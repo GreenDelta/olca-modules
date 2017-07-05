@@ -63,16 +63,16 @@ public class MarketProcessCleanUp implements Runnable {
 		Exchange qRef = marketProcess.getQuantitativeReference();
 		Exchange loopInput = null;
 		for (Exchange input : marketProcess.getExchanges()) {
-			if (!input.isInput())
+			if (!input.isInput)
 				continue;
-			if (input.getDefaultProviderId() == marketProcess.getId()) {
+			if (input.defaultProviderId == marketProcess.getId()) {
 				loopInput = input;
 				break;
 			}
 		}
 		if (loopInput == null)
 			return marketProcess;
-		qRef.setAmountValue(qRef.getAmountValue() - loopInput.getAmountValue());
+		qRef.amount = qRef.amount - loopInput.amount;
 		marketProcess.getExchanges().remove(loopInput);
 		log.trace("fixed self loop in {}", marketProcess);
 		return dao.update(marketProcess);
@@ -86,7 +86,7 @@ public class MarketProcessCleanUp implements Runnable {
 			log.trace("include market processes in {}", process);
 			Exchange input = null;
 			for (Exchange exchange : process.getExchanges()) {
-				if (exchange.getDefaultProviderId() == marketProcess.getId()) {
+				if (exchange.defaultProviderId == marketProcess.getId()) {
 					input = exchange;
 					break;
 				}
@@ -122,13 +122,13 @@ public class MarketProcessCleanUp implements Runnable {
 		if (!matches(market, input))
 			return Collections.emptyList();
 		Exchange marketRef = market.getQuantitativeReference();
-		double factor = input.getAmountValue() / marketRef.getAmountValue();
+		double factor = input.amount / marketRef.amount;
 		List<Exchange> exchanges = new ArrayList<>();
 		for (Exchange exchange : market.getExchanges()) {
 			if (Objects.equals(exchange, marketRef))
 				continue;
 			Exchange clone = exchange.clone();
-			clone.setAmountValue(exchange.getAmountValue() * factor);
+			clone.amount = exchange.amount * factor;
 			exchanges.add(clone);
 		}
 		return exchanges;
@@ -139,11 +139,11 @@ public class MarketProcessCleanUp implements Runnable {
 				|| market.getQuantitativeReference() == null)
 			return false;
 		Exchange marketRef = market.getQuantitativeReference();
-		return input.isInput() && !marketRef.isInput()
-				&& input.getAmountValue() != 0
-				&& marketRef.getAmountValue() != 0
-				&& Objects.equals(marketRef.getFlow(), input.getFlow())
-				&& Objects.equals(marketRef.getUnit(), input.getUnit());
+		return input.isInput && !marketRef.isInput
+				&& input.amount != 0
+				&& marketRef.amount != 0
+				&& Objects.equals(marketRef.flow, input.flow)
+				&& Objects.equals(marketRef.unit, input.unit);
 	}
 
 	private void mergeDuplicates(Process process) {
@@ -157,9 +157,9 @@ public class MarketProcessCleanUp implements Runnable {
 				Exchange second = process.getExchanges().get(j);
 				if (!isDuplicate(first, second))
 					continue;
-				second.setAmountValue(first.getAmountValue()
-						+ second.getAmountValue());
-				second.setUncertainty(null); // TODO: combine values?
+				second.amount = first.amount
+				+ second.amount;
+				second.uncertainty = null; // TODO: combine values?
 				duplicates.add(first);
 			}
 		}
@@ -167,11 +167,10 @@ public class MarketProcessCleanUp implements Runnable {
 	}
 
 	private boolean isDuplicate(Exchange first, Exchange second) {
-		return first.isInput() == second.isInput()
-				&& Objects.equals(first.getFlow(), second.getFlow())
-				&& Objects.equals(first.getUnit(), second.getUnit())
-				&& first.getDefaultProviderId() == second
-						.getDefaultProviderId();
+		return first.isInput == second.isInput
+				&& Objects.equals(first.flow, second.flow)
+				&& Objects.equals(first.unit, second.unit)
+				&& first.defaultProviderId == second.defaultProviderId;
 	}
 
 }

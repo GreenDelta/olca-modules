@@ -82,16 +82,16 @@ class ElemFlowMap {
 	}
 
 	public ElementaryExchange apply(Exchange olca) {
-		if (olca == null || olca.getFlow() == null) {
+		if (olca == null || olca.flow == null) {
 			log.warn("could not map exchange {}, exchange or flow is null",
 					olca);
 			return null;
 		}
-		ExportRecord record = map.get(olca.getFlow().getRefId());
+		ExportRecord record = map.get(olca.flow.getRefId());
 		if (record == null || !isValid(record, olca)) {
 			log.warn(
 					"elementary flow {} cannot be mapped to an ecoinvent flow",
-					olca.getFlow());
+					olca.flow);
 			return null;
 		}
 		return createExchange(olca, record);
@@ -100,17 +100,16 @@ class ElemFlowMap {
 	private boolean isValid(ExportRecord record, Exchange olca) {
 		return record != null
 				&& olca != null
-				&& olca.getFlowPropertyFactor() != null
-				&& olca.getFlowPropertyFactor().getFlowProperty() != null
-				&& Objects.equals(record.olcaPropertyId, olca
-						.getFlowPropertyFactor().getFlowProperty().getRefId())
-				&& olca.getUnit() != null
-				&& Objects.equals(record.olcaUnitId, olca.getUnit().getRefId());
+				&& olca.flowPropertyFactor != null
+				&& olca.flowPropertyFactor.getFlowProperty() != null
+				&& Objects.equals(record.olcaPropertyId, olca.flowPropertyFactor.getFlowProperty().getRefId())
+				&& olca.unit != null
+				&& Objects.equals(record.olcaUnitId, olca.unit.getRefId());
 	}
 
 	private ElementaryExchange createExchange(Exchange olca, ExportRecord record) {
 		ElementaryExchange exchange = new ElementaryExchange();
-		if (olca.isInput())
+		if (olca.isInput)
 			exchange.inputGroup = 4;
 		else
 			exchange.outputGroup = 4;
@@ -120,10 +119,10 @@ class ElemFlowMap {
 		exchange.compartment = createCompartment(record);
 		exchange.unit = record.unitName;
 		exchange.unitId = record.unitId;
-		exchange.amount = record.conversionFactor * olca.getAmountValue();
-		if (olca.getAmountFormula() != null) {
+		exchange.amount = record.conversionFactor * olca.amount;
+		if (olca.amountFormula != null) {
 			exchange.mathematicalRelation = record.conversionFactor + " * ("
-			+ olca.getAmountFormula() + ")";
+			+ olca.amountFormula + ")";
 		}
 		// TODO: convert uncertainty information
 		return exchange;

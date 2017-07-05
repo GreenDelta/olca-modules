@@ -79,7 +79,7 @@ class ProcessImport extends BaseImport<Process> {
 			// set another system, so everything all right
 			return;
 		for (Exchange e : p.getExchanges()) {
-			if (e.getDqEntry() == null)
+			if (e.dqEntry == null)
 				continue;
 			p.exchangeDqSystem = new DQSystemDao(conf.db.getDatabase()).insert(DQSystems.ecoinvent());
 			return;

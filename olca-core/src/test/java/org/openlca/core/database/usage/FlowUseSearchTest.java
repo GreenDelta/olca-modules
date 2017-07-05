@@ -84,7 +84,8 @@ public class FlowUseSearchTest {
 		Process process = new Process();
 		process.setName("process");
 		Exchange exchange = new Exchange();
-		exchange.setFlow(flow);
+		final Flow flow1 = flow;
+		exchange.flow = flow1;
 		process.getExchanges().add(exchange);
 		return database.createDao(Process.class).insert(process);
 	}

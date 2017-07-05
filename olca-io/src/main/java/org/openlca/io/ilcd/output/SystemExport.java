@@ -139,7 +139,7 @@ public class SystemExport {
 		exchange.id = 1;
 		exchange.direction = ExchangeDirection.OUTPUT;
 		Ref flowRef = ExportDispatch.forwardExportCheck(
-				refExchange.getFlow(), config);
+				refExchange.flow, config);
 		exchange.flow = flowRef;
 		double refAmount = ReferenceAmount.get(system);
 		exchange.meanAmount = refAmount;

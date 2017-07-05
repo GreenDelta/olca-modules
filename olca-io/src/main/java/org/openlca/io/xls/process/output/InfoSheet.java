@@ -59,8 +59,8 @@ class InfoSheet {
 		config.header(sheet, row++, 0, "Quantitative reference");
 		String qRefName = null;
 		Exchange qRef = process.getQuantitativeReference();
-		if (qRef != null && qRef.getFlow() != null)
-			qRefName = qRef.getFlow().getName();
+		if (qRef != null && qRef.flow != null)
+			qRefName = qRef.flow.getName();
 		writePair("Quantitative reference", qRefName);
 	}
 

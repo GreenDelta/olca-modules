@@ -42,7 +42,7 @@ public class ExchangeUseSearch {
 		Set<Long> flowIds = new HashSet<>();
 		for (Exchange exchange : exchanges) {
 			ids.add(exchange.getId());
-			flowIds.add(exchange.getFlow().getId());
+			flowIds.add(exchange.flow.getId());
 		}
 		Set<Long> systemIds = new HashSet<>();
 		systemIds.addAll(Search.on(database).queryForIds(

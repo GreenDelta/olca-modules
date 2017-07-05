@@ -84,7 +84,7 @@ public class EcoSpold2ImportTest {
 	@Test
 	public void testFormulaImported() {
 		Process process = dao.getForRefId(REF_ID);
-		String formula = process.getQuantitativeReference().getAmountFormula();
+		String formula = process.getQuantitativeReference().amountFormula;
 		Assert.assertEquals("p", formula); // a parameter p = 23 + SUM(8;2) is
 											// created
 	}
@@ -116,8 +116,7 @@ public class EcoSpold2ImportTest {
 	@Test
 	public void testUncertaintyImported() {
 		Process process = dao.getForRefId(REF_ID);
-		Uncertainty uncertainty = process.getQuantitativeReference()
-				.getUncertainty();
+		Uncertainty uncertainty = process.getQuantitativeReference().uncertainty;
 		Assert.assertEquals(UncertaintyType.LOG_NORMAL,
 				uncertainty.getDistributionType());
 		Assert.assertEquals(33, uncertainty.getParameter1Value(), 1e-16);

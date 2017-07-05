@@ -42,11 +42,16 @@ class FlowIndexBuilder {
 					continue; // the exchange is an output product
 				if (techIndex.isLinked(LongPair.of(e.processId, e.exchangeId)))
 					continue; // the exchange is a linked exchange
-				if (e.input || e.flowType == FlowType.ELEMENTARY_FLOW)
+				if (e.flowType == FlowType.ELEMENTARY_FLOW)
 					indexFlow(e, index);
+				if (e.flowType == FlowType.PRODUCT_FLOW && e.isInput)
+					indexFlow(e, index); // unlinked product inputs
+				if (e.flowType == FlowType.WASTE_FLOW && !e.isInput)
+					indexFlow(e, index); // unlinked waste outputs
 				else if (allocationMethod == null
 						|| allocationMethod == AllocationMethod.NONE)
-					indexFlow(e, index); // non-allocated co-product -> handle
+					indexFlow(e, index); // non-allocated co-product or waste
+											// treatment -> handle
 											// like elementary flow
 			}
 		}
@@ -65,7 +70,7 @@ class FlowIndexBuilder {
 	}
 
 	private void indexFlow(CalcExchange e, FlowIndex index) {
-		if (e.input)
+		if (e.isInput)
 			index.putInputFlow(e.flowId);
 		else
 			index.putOutputFlow(e.flowId);

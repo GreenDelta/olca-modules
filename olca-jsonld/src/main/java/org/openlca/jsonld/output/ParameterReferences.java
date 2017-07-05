@@ -55,8 +55,8 @@ public class ParameterReferences {
 			return;
 		Set<String> names = new HashSet<>();
 		for (Exchange e : p.getExchanges()) {
-			names.addAll(Formula.getVariables(e.getAmountFormula()));
-			names.addAll(getUncercaintyVariables(e.getUncertainty()));
+			names.addAll(Formula.getVariables(e.amountFormula));
+			names.addAll(getUncercaintyVariables(e.uncertainty));
 		}
 		names.addAll(getParameterVariables(p.getParameters()));
 		filterLocal(names, p.getParameters());

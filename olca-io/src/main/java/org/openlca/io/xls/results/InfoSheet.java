@@ -125,9 +125,9 @@ public class InfoSheet {
 
 	private static String product(ProductSystem system) {
 		Exchange e = system.getReferenceExchange();
-		if (e == null || e.getFlow() == null)
+		if (e == null || e.flow == null)
 			return "";
-		return e.getFlow().getName();
+		return e.flow.getName();
 	}
 
 	private static String amount(ProductSystem system) {

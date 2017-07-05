@@ -16,7 +16,7 @@ class InventoryBuilder {
 	private final AllocationMethod allocationMethod;
 
 	private FlowIndex flowIndex;
-	private AllocationIndex allocationTable;
+	private AllocationIndex allocationIndex;
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
@@ -29,9 +29,10 @@ class InventoryBuilder {
 
 	Inventory build() {
 		if (allocationMethod != null
-				&& allocationMethod != AllocationMethod.NONE)
-			allocationTable = AllocationIndex.create(techIndex,
+				&& allocationMethod != AllocationMethod.NONE) {
+			allocationIndex = AllocationIndex.create(techIndex,
 					allocationMethod, cache);
+		}
 		flowIndex = FlowIndex.build(cache, techIndex, allocationMethod);
 		technologyMatrix = new ExchangeMatrix(techIndex.size(),
 				techIndex.size());
@@ -55,13 +56,12 @@ class InventoryBuilder {
 		try {
 			Map<Long, List<CalcExchange>> map = cache.getExchangeCache()
 					.getAll(techIndex.getProcessIds());
-			for (Long processId : techIndex.getProcessIds()) {
-				List<CalcExchange> exchanges = map.get(processId);
-				List<LongPair> processProducts = techIndex
-						.getProviders(processId);
-				for (LongPair processProduct : processProducts) {
+			for (Long processID : techIndex.getProcessIds()) {
+				List<CalcExchange> exchanges = map.get(processID);
+				List<LongPair> providers = techIndex.getProviders(processID);
+				for (LongPair provider : providers) {
 					for (CalcExchange exchange : exchanges) {
-						putExchangeValue(processProduct, exchange);
+						putExchangeValue(provider, exchange);
 					}
 				}
 			}
@@ -71,30 +71,36 @@ class InventoryBuilder {
 		}
 	}
 
-	private void putExchangeValue(LongPair processProduct, CalcExchange e) {
-		if (!e.input && processProduct.equals(e.processId, e.flowId)) {
-			// the reference product
-			int idx = techIndex.getIndex(processProduct);
-			add(idx, processProduct, technologyMatrix, e);
+	private void putExchangeValue(LongPair provider, CalcExchange e) {
+		if (e.flowType == FlowType.ELEMENTARY_FLOW) {
+			// elementary flows
+			addIntervention(provider, e);
+			return;
+		}
 
-		} else if (e.flowType == FlowType.ELEMENTARY_FLOW) {
-			// elementary exchanges
-			addIntervention(processProduct, e);
-
-		} else if (e.input) {
-
+		if ((e.isInput && e.flowType == FlowType.PRODUCT_FLOW)
+				|| (!e.isInput && e.flowType == FlowType.WASTE_FLOW)) {
 			if (techIndex.isLinked(LongPair.of(e.processId, e.exchangeId))) {
-				// linked product inputs
-				addProcessLink(processProduct, e);
+				// linked product input or waste output
+				addProcessLink(provider, e);
 			} else {
-				// an unlinked product input
-				addIntervention(processProduct, e);
+				// unlinked product input or waste output
+				addIntervention(provider, e);
 			}
+			return;
+		}
 
-		} else if (allocationMethod == null
+		if (provider.equals(e.processId, e.flowId)) {
+			// the reference product or waste flow
+			int idx = techIndex.getIndex(provider);
+			add(idx, provider, technologyMatrix, e);
+			return;
+		}
+
+		if (allocationMethod == null
 				|| allocationMethod == AllocationMethod.NONE) {
-			// non allocated output products
-			addIntervention(processProduct, e);
+			// non allocated output products or waste inputs
+			addIntervention(provider, e);
 		}
 	}
 
@@ -121,10 +127,10 @@ class InventoryBuilder {
 			exchange = mergeExchanges(existingCell, exchange);
 		}
 		ExchangeCell cell = new ExchangeCell(exchange);
-		if (allocationTable != null) {
+		if (allocationIndex != null) {
 			// note that the allocation table assures that the factor is 1.0 for
 			// reference products
-			double factor = allocationTable.getFactor(processProduct, exchange);
+			double factor = allocationIndex.getFactor(processProduct, exchange);
 			cell.allocationFactor = factor;
 		}
 		matrix.setEntry(row, col, cell);
@@ -138,7 +144,7 @@ class InventoryBuilder {
 		double addVal = getMergeValue(addExchange);
 		double val = existingVal + addVal;
 		CalcExchange newExchange = new CalcExchange();
-		newExchange.input = val < 0;
+		newExchange.isInput = val < 0;
 		newExchange.conversionFactor = 1;
 		newExchange.flowId = addExchange.flowId;
 		newExchange.flowType = addExchange.flowType;
@@ -157,7 +163,7 @@ class InventoryBuilder {
 
 	private double getMergeValue(CalcExchange e) {
 		double v = e.amount * e.conversionFactor;
-		if (e.input && !e.avoidedProduct)
+		if (e.isInput && !e.isAvoided)
 			return -v;
 		else
 			return v;
@@ -171,7 +177,7 @@ class InventoryBuilder {
 			f = "(" + e.amountFormula + ")";
 		if (e.conversionFactor != 1)
 			f += " * " + e.conversionFactor;
-		if (e.input && !e.avoidedProduct)
+		if (e.isInput && !e.isAvoided)
 			f = "( -1 * (" + f + "))";
 		return f;
 	}
@@ -184,8 +190,8 @@ class InventoryBuilder {
 		// TODO: this would be rarely the case but if the same flow in a single
 		// process is given in different currencies with different conversion
 		// the following would be not correct.
-		double v1 = e1.input ? e1.costValue : -e1.costValue;
-		double v2 = e2.input ? e2.costValue : -e2.costValue;
+		double v1 = e1.isInput ? e1.costValue : -e1.costValue;
+		double v2 = e2.isInput ? e2.costValue : -e2.costValue;
 		// TODO: cost formulas
 		return Math.abs(v1 + v2);
 	}

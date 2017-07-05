@@ -87,7 +87,7 @@ class ProductSystemExchanges {
 		if (e == null)
 			return null;
 		String propertyRefId = In.getRefId(json, "targetFlowProperty");
-		for (FlowPropertyFactor f : e.getFlow().getFlowPropertyFactors())
+		for (FlowPropertyFactor f : e.flow.getFlowPropertyFactors())
 			if (f.getFlowProperty().getRefId().equals(propertyRefId))
 				return f;
 		return null;

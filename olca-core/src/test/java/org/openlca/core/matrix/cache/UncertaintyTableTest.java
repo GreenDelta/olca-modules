@@ -30,7 +30,7 @@ public class UncertaintyTableTest {
 	public void testForExchange() throws Exception {
 		Exchange exchange = new Exchange();
 		Uncertainty uncertainty = createUncertainty();
-		exchange.setUncertainty(uncertainty);
+		exchange.uncertainty = uncertainty;
 		Process process = new Process();
 		process.getExchanges().add(exchange);
 		ProcessDao dao = new ProcessDao(database);

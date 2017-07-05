@@ -32,7 +32,7 @@ class CategoryWriter implements Closeable {
 		if (process == null)
 			return;
 		for (Exchange exchange : process.getExchanges()) {
-			Flow flow = exchange.getFlow();
+			Flow flow = exchange.flow;
 			int type = getType(flow);
 			if (flow == null || type == -1)
 				continue;

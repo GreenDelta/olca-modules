@@ -56,11 +56,12 @@ public class ExchangeUseSearchTest {
 			flow = database.createDao(Flow.class).insert(flow);
 			modelStack.push(flow);
 			Exchange ep = new Exchange();
-			ep.setFlow(flow);
-			ep.setInput(false);
+			final Flow flow1 = flow;
+			ep.flow = flow1;
+			ep.isInput = false;
 			p.getExchanges().add(ep);
 			Exchange eq = ep.clone();
-			eq.setInput(true);
+			eq.isInput = true;
 			q.getExchanges().add(eq);
 		}
 	}
@@ -70,7 +71,7 @@ public class ExchangeUseSearchTest {
 		system.setName(SYS_NAME);
 		system.setReferenceProcess(p);
 		system.setReferenceExchange(p.getExchanges().get(0));
-		Flow linkFlow = p.getExchanges().get(1).getFlow();
+		Flow linkFlow = p.getExchanges().get(1).flow;
 		ProcessLink link = new ProcessLink();
 		link.providerId = p.getId();
 		link.processId = q.getId();
