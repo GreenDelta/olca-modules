@@ -31,7 +31,8 @@ public class RefDataImport implements Runnable {
 			importFile("unit_groups.csv", new UnitGroupImport());
 			importFile("flow_properties.csv", new FlowPropertyImport());
 			importFile("flows.csv", new FlowImport());
-			importFile("flow_property_factors.csv", new FlowPropertyFactorImport());
+			importFile("flow_property_factors.csv",
+					new FlowPropertyFactorImport());
 			importFile("currencies.csv", new CurrencyImport());
 			importFile("lcia_methods.csv", new ImpactMethodImport());
 			importFile("lcia_categories.csv", new ImpactCategoryImport());
@@ -60,10 +61,16 @@ public class RefDataImport implements Runnable {
 	}
 
 	private void importMappingFiles() throws Exception {
-		// TODO: add other mapping files
-		String[] fileNames = { Maps.SP_FLOW_IMPORT, Maps.ES2_UNIT_EXPORT,
-				Maps.ES2_LOCATION_EXPORT, Maps.ES2_COMPARTMENT_EXPORT,
-				Maps.ES2_FLOW_EXPORT };
+		String[] fileNames = {
+				Maps.ES1_FLOW_IMPORT,
+				Maps.ES2_FLOW_IMPORT,
+				Maps.ILCD_FLOW_IMPORT,
+				Maps.SP_FLOW_IMPORT,
+				Maps.ES2_UNIT_EXPORT,
+				Maps.ES2_LOCATION_EXPORT,
+				Maps.ES2_COMPARTMENT_EXPORT,
+				Maps.ES2_FLOW_EXPORT,
+				Maps.LOCATION_IMPORT };
 		for (String fileName : fileNames) {
 			File file = new File(dir, fileName);
 			if (!file.exists())
