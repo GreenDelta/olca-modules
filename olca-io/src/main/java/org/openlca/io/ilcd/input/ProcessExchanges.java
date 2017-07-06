@@ -37,7 +37,8 @@ class ProcessExchanges {
 
 	void map(ProcessBag ilcdProcess, Process process) {
 		mappedPairs.clear();
-		for (org.openlca.ilcd.processes.Exchange iExchange : ilcdProcess.getExchanges()) {
+		for (org.openlca.ilcd.processes.Exchange iExchange : ilcdProcess
+				.getExchanges()) {
 			ExchangeFlow exchangeFlow = new ExchangeFlow(iExchange);
 			exchangeFlow.findOrImport(config);
 			Exchange exchange = createExchange(iExchange, exchangeFlow);
@@ -174,7 +175,7 @@ class ProcessExchanges {
 		Map<Integer, Exchange> map = new HashMap<>();
 		for (MappedPair pair : mappedPairs)
 			map.put(pair.iExchange.id, pair.oExchange);
-		new ProcessRefFlowMapper(ilcdProcess, process, map).setReferenceFlow();
+		RefFlow.map(ilcdProcess, process, map);
 	}
 
 	private class MappedPair {
