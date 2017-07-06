@@ -1,13 +1,13 @@
 package org.openlca.io.maps;
 
-import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
-import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.supercsv.cellprocessor.ParseDouble;
 
 /**
  * Maps (elementary) flow IDs of a data exchange format to the IDs of the
@@ -23,8 +23,8 @@ public class FlowMap {
 	private HashMap<String, FlowMapEntry> map;
 	private HashMap<String, Flow> cache = new HashMap<>();
 
-	public FlowMap(MapType mapType) {
-		init(mapType);
+	public FlowMap(String map, IDatabase db) {
+		init(map, db);
 	}
 
 	/** Caches a flow for the given id. */
@@ -40,54 +40,23 @@ public class FlowMap {
 		return cache.get(id);
 	}
 
-	private void init(MapType mapType) {
-		log.trace("Initialize flow assignment map {}.", mapType);
-		map = new HashMap<>();
-		try (InputStream is = this.getClass().getResourceAsStream(
-				mapFileName(mapType))) {
-			String[] lines = Strings.readLines(is);
-			parse(lines);
+	private void init(String map, IDatabase db) {
+		log.trace("Initialize flow assignment map {}.", map);
+		try {
+			Maps.readAll(map, db, null, null, new ParseDouble())
+					.forEach(list -> createEntry(list));
 		} catch (Exception e) {
 			log.error("Cannot read mapping file", e);
 		}
 	}
 
-	private String mapFileName(MapType mapType) {
-		switch (mapType) {
-		case ES1_FLOW:
-			return "ecospold_flow_map.csv";
-		case ES2_FLOW:
-			return "ecospold_2_flow_map.csv";
-		case ILCD_FLOW:
-			return "ilcd_flow_map.csv";
-		default:
-			return "ecospold_flow_map.csv";
-		}
-	}
-
-	private void parse(String[] lines) {
-		for (String line : lines) {
-			if (line == null || !line.contains("\""))
-				continue;
-			String[] args = line.split("\"");
-			createEntry(args);
-		}
-	}
-
-	private void createEntry(String[] args) {
-		if (args.length < 4)
-			return;
+	private void createEntry(List<Object> list) {
 		FlowMapEntry entry = new FlowMapEntry();
-		entry.setExternalFlowKey(args[1].toLowerCase());
-		entry.setOpenlcaFlowKey(args[3]);
-		try {
-			double factor = Double.parseDouble(args[4].replace(";", ""));
-			entry.setConversionFactor(factor);
-			map.put(entry.getExternalFlowKey(), entry);
-		} catch (Exception e) {
-			log.error("Invalid number format in mapping " + "file args="
-					+ Arrays.asList(args), e);
-		}
+		entry.setExternalFlowKey(Maps.getString(list, 0));
+		entry.setOpenlcaFlowKey(Maps.getString(list, 1));
+		double factor = Maps.getDouble(list, 2);
+		entry.setConversionFactor(factor);
+		map.put(entry.getExternalFlowKey(), entry);
 	}
 
 	public FlowMapEntry getEntry(String externalKey) {

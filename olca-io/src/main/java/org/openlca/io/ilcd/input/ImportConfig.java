@@ -6,7 +6,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.ZipStore;
 import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.MapType;
+import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,13 +29,13 @@ public class ImportConfig {
 		}
 		this.store = store;
 		this.db = database;
-		this.flowMap = new FlowMap(MapType.ILCD_FLOW);
+		this.flowMap = new FlowMap(Maps.ILCD_FLOW_IMPORT, database);
 	}
 
 	public ImportConfig(DataStore store, IDatabase database) {
 		this.store = store;
 		this.db = database;
-		this.flowMap = new FlowMap(MapType.ILCD_FLOW);
+		this.flowMap = new FlowMap(Maps.ILCD_FLOW_IMPORT, database);
 	}
 
 }

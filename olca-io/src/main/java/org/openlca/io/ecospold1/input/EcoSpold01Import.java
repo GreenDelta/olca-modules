@@ -37,10 +37,10 @@ import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
-import org.openlca.util.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.MapType;
+import org.openlca.io.maps.Maps;
+import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +64,7 @@ public class EcoSpold01Import implements FileImport {
 
 	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping) {
 		this.db = new DB(iDatabase);
-		FlowMap flowMap = new FlowMap(MapType.ES1_FLOW);
+		FlowMap flowMap = new FlowMap(Maps.ES1_FLOW_IMPORT, iDatabase);
 		this.flowImport = new FlowImport(db, unitMapping, flowMap);
 	}
 
@@ -299,9 +299,11 @@ public class EcoSpold01Import implements FileImport {
 					.getPerson()));
 	}
 
-	private void mapAllocations(Process process, List<IAllocation> allocations) {
+	private void mapAllocations(Process process,
+			List<IAllocation> allocations) {
 		for (IAllocation allocation : allocations) {
-			double factor = Math.round(allocation.getFraction() * 10000d) / 1000000d;
+			double factor = Math.round(allocation.getFraction() * 10000d)
+					/ 1000000d;
 			Exchange product = localExchangeCache.get(allocation
 					.getReferenceToCoProduct());
 			for (Integer i : allocation.getReferenceToInputOutput()) {
@@ -348,7 +350,8 @@ public class EcoSpold01Import implements FileImport {
 		}
 	}
 
-	private void mapFactors(List<IExchange> inFactors, ImpactCategory ioCategory) {
+	private void mapFactors(List<IExchange> inFactors,
+			ImpactCategory ioCategory) {
 		for (IExchange inFactor : inFactors) {
 			FlowBucket flow = flowImport.handleImpactFactor(inFactor);
 			if (flow == null || !flow.isValid()) {
@@ -364,7 +367,8 @@ public class EcoSpold01Import implements FileImport {
 		}
 	}
 
-	private ImpactCategory mapReferenceFunction(IReferenceFunction inRefFunction) {
+	private ImpactCategory mapReferenceFunction(
+			IReferenceFunction inRefFunction) {
 		ImpactCategory category = new ImpactCategory();
 		category.setRefId(UUID.randomUUID().toString());
 		String name = inRefFunction.getSubCategory();
@@ -387,7 +391,8 @@ public class EcoSpold01Import implements FileImport {
 		if (processCategory != null)
 			cat = db.getPutCategory(processCategory, topCategory, subCategory);
 		else
-			cat = db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
+			cat = db.getPutCategory(ModelType.PROCESS, topCategory,
+					subCategory);
 		ioProcess.setCategory(cat);
 	}
 

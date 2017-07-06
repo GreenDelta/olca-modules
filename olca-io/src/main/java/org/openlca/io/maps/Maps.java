@@ -28,9 +28,11 @@ import org.supercsv.prefs.CsvPreference;
  */
 public class Maps {
 
-	// TODO: we will add the other file names as constants as defined in the
-	// REF_DATA specification when they are implemented in the respective
-	// imports and exports
+	public static final String ES1_FLOW_IMPORT = "ecospold_flow_map.csv";
+
+	public static final String ES2_FLOW_IMPORT = "ecospold_2_flow_map.csv";
+
+	public static final String ILCD_FLOW_IMPORT = "ilcd_flow_map.csv";
 
 	/**
 	 * Import map for flows from SimaPro CSV.
@@ -72,24 +74,11 @@ public class Maps {
 	 */
 	public static List<List<Object>> readAll(String fileName,
 			IDatabase database, CellProcessor... cellProcessors)
-					throws Exception {
+			throws Exception {
 		try (CsvListReader reader = open(fileName, database)) {
 			List<List<Object>> results = new ArrayList<>();
 			List<Object> nextRow = null;
 			while ((nextRow = reader.read(cellProcessors)) != null) {
-				results.add(nextRow);
-			}
-			return results;
-		}
-	}
-
-	public static List<List<Object>> readAll(String file,
-			CellProcessor... processors) throws Exception {
-		InputStream in = Maps.class.getResourceAsStream(file);
-		try (CsvListReader reader = createReader(in)) {
-			List<List<Object>> results = new ArrayList<>();
-			List<Object> nextRow = null;
-			while ((nextRow = reader.read(processors)) != null) {
 				results.add(nextRow);
 			}
 			return results;
@@ -101,7 +90,7 @@ public class Maps {
 	 * the database. If it does not exist it loads the mapping from the
 	 * jar-internal resource file.
 	 */
-	public static CsvListReader open(String fileName, IDatabase database)
+	private static CsvListReader open(String fileName, IDatabase database)
 			throws Exception {
 		CsvListReader reader = fromDatabase(fileName, database);
 		if (reader != null)

@@ -20,7 +20,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.io.Categories;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
-import org.openlca.io.maps.MapType;
+import org.openlca.io.maps.Maps;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ class RefDataImport {
 		this.categoryDao = new CategoryDao(database);
 		this.locationDao = new BaseEntityDao<>(Location.class, database);
 		this.flowDao = new FlowDao(database);
-		this.flowMap = new FlowMap(MapType.ES2_FLOW);
+		this.flowMap = new FlowMap(Maps.ES2_FLOW_IMPORT, database);
 		try {
 			loadUnitMaps(database);
 		} catch (Exception e) {
@@ -286,7 +286,8 @@ class RefDataImport {
 	 * Returns only a value if the given exchange is the reference product of
 	 * the data set.
 	 */
-	private Category getProductCategory(DataSet dataSet, IntermediateExchange e) {
+	private Category getProductCategory(DataSet dataSet,
+			IntermediateExchange e) {
 		Integer og = e.outputGroup;
 		if (og == null || og != 0)
 			return null;
