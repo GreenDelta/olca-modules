@@ -15,8 +15,6 @@ import org.openlca.simapro.csv.model.process.ProcessBlock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
-
 class ProcessParameterMapper {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -85,8 +83,6 @@ class ProcessParameterMapper {
 		p.setInputParameter(false);
 		p.setScope(ParameterScope.PROCESS);
 		String expr = row.getExpression();
-		if (!Strings.isNullOrEmpty(expr))
-			expr = expr.replace(',', '.');
 		p.setFormula(expr);
 		p.setDescription(row.getComment());
 		process.getParameters().add(p);

@@ -85,8 +85,6 @@ class GlobalParameterSync {
 		p.setInputParameter(false);
 		try {
 			String expr = row.getExpression();
-			expr = expr.replace(',', '.'); // SimaPro supports commas as decimal
-											// separator
 			double val = interpreter.eval(expr);
 			p.setValue(val);
 			p.setFormula(expr);

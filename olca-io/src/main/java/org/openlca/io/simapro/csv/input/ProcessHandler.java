@@ -130,7 +130,8 @@ class ProcessHandler {
 				&& e.flow.getFlowType() == FlowType.PRODUCT_FLOW;
 	}
 
-	private void addFactor(AllocationMethod method, long productId, double value) {
+	private void addFactor(AllocationMethod method, long productId,
+			double value) {
 		AllocationFactor f = new AllocationFactor();
 		f.setAllocationType(method);
 		f.setValue(value);
@@ -297,19 +298,18 @@ class ProcessHandler {
 		e.unit = group.getReferenceUnit();
 	}
 
-	private void setAmount(Exchange e, String amountText, long scope) {
-		if (Strings.nullOrEmpty(amountText)) {
+	private void setAmount(Exchange e, String amount, long scope) {
+		if (Strings.nullOrEmpty(amount)) {
 			e.amount = (double) 0;
 			return;
 		}
 		try {
-			double val = Double.parseDouble(amountText);
+			double val = Double.parseDouble(amount);
 			e.amount = val;
 		} catch (Exception ex) {
-			String formula = amountText.replace(',', '.');
-			double val = parameterMapper.eval(formula, scope);
+			double val = parameterMapper.eval(amount, scope);
 			e.amount = val;
-			e.amountFormula = formula;
+			e.amountFormula = amount;
 		}
 	}
 
