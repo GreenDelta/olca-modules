@@ -1,0 +1,33 @@
+# Builds the jBlas library using a BLAS/LAPACK implementation
+
+# name of the resulting library
+EXEC_NAME=olca_eigen_tests.exe
+
+# the output directory of the resulting library
+OUT_DIR="..\\bin\\"
+
+# C++ - compiler
+CPP=g++
+
+# flags in order to make the library JNI compliant
+JNI_FLAGS=-D_JNI_IMPLEMENTATION_ -Wl,--kill-at
+
+# flags to include gcc and g++ dependencies so that they are not
+# required as shared libraries
+STAT_FLAGS=-static -static-libgcc -static-libstdc++
+
+# paths to JNI headers
+JNI_INC="-IC:\\Program Files\\Java\\jdk1.8.0\\include"
+JNI_INC_OS="-IC:\\Program Files\\Java\\jdk1.8.0\\include\\win32"
+JNI_INCLUDES = $(JNI_INC) $(JNI_INC_OS)
+
+# the required libraries that should be contained in the library folder
+LIBS=-lopenblas -lgfortran
+
+# the library folder
+LIB_DIR="-L..\\lib"
+
+all:
+	g++ -Wall -O3 $(JNI_FLAGS) $(STAT_FLAGS) $(JNI_INCLUDES) $(LIB_DIR) \
+	"-I..\lib" -o $(OUT_DIR)$(EXEC_NAME) tests.cpp $(LIBS)
+	
