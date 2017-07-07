@@ -1,19 +1,22 @@
 package org.openlca.eigen.solvers;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.eigen.DenseMatrix;
 import org.openlca.eigen.Eigen;
 import org.openlca.eigen.HashMatrix;
 import org.openlca.eigen.HashMatrix.MatrixIterator;
-import org.openlca.eigen.HashMatrixFactory;
 import org.openlca.eigen.MatrixConverter;
 import org.openlca.eigen.SparseMatrixData;
 
 public class BalancedSolver implements IMatrixSolver {
 
 	private DenseSolver denseSolver = new DenseSolver();
+
+	@Override
+	public IMatrix matrix(int rows, int columns) {
+		return new HashMatrix(rows, columns);
+	}
 
 	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
@@ -63,11 +66,6 @@ public class BalancedSolver implements IMatrixSolver {
 				m.set(row, col, v[col] * m.get(row, col));
 			}
 		}
-	}
-
-	@Override
-	public IMatrixFactory<?> getMatrixFactory() {
-		return new HashMatrixFactory();
 	}
 
 }

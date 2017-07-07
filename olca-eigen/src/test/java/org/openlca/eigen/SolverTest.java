@@ -6,7 +6,6 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.math.JavaSolver;
 import org.openlca.core.math.LcaCalculator;
@@ -17,7 +16,6 @@ import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.eigen.solvers.BalancedSolver;
 import org.openlca.eigen.solvers.DenseSolver;
-import org.openlca.util.MatrixUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +40,7 @@ public class SolverTest {
 	@Theory
 	public void testSimpleSolve(IMatrixSolver solver) {
 		log.info("Test simple solve with {}", solver.getClass());
-		IMatrixFactory<?> factory = solver.getMatrixFactory();
-		IMatrix a = factory.create(2, 2);
+		IMatrix a = solver.matrix(2, 2);
 		a.set(0, 0, 1);
 		a.set(1, 0, -5);
 		a.set(1, 1, 4);
@@ -54,7 +51,6 @@ public class SolverTest {
 	@Theory
 	public void testSolve1x1System(IMatrixSolver solver) {
 		log.info("Test solve 1x1 matrix with {}", solver.getClass());
-		IMatrixFactory<?> factory = solver.getMatrixFactory();
 
 		InventoryMatrix matrix = new InventoryMatrix();
 
@@ -70,11 +66,11 @@ public class SolverTest {
 		flowIndex.putOutputFlow(4);
 		matrix.flowIndex = flowIndex;
 
-		IMatrix techMatrix = factory.create(1, 1);
+		IMatrix techMatrix = solver.matrix(1, 1);
 		techMatrix.set(0, 0, 1);
 		matrix.technologyMatrix = techMatrix;
 
-		IMatrix enviMatrix = factory.create(4, 1);
+		IMatrix enviMatrix = solver.matrix(4, 1);
 		for (int r = 0; r < 4; r++)
 			enviMatrix.set(r, 0, 1 * r);
 		matrix.interventionMatrix = enviMatrix;
@@ -87,17 +83,23 @@ public class SolverTest {
 
 	@Theory
 	public void testSimpleMult(IMatrixSolver solver) {
-		IMatrixFactory<?> factory = solver.getMatrixFactory();
 		log.info("Test simple multiplication with {}", solver.getClass());
-		double[][] aData = { { 1, 2, 3 }, { 4, 5, 6 } };
-		IMatrix a = MatrixUtils.create(aData, factory);
-		double[][] bData = { { 7, 10 }, { 8, 11 }, { 9, 12 } };
-		IMatrix b = MatrixUtils.create(bData, factory);
+		IMatrix a = solver.matrix(2, 3);
+		a.setValues(new double[][] {
+				{ 1, 2, 3 },
+				{ 4, 5, 6 }
+		});
+		IMatrix b = solver.matrix(3, 2);
+		b.setValues(new double[][] {
+				{ 7, 10 },
+				{ 8, 11 },
+				{ 9, 12 }
+		});
 		IMatrix c = solver.multiply(a, b);
-		Assert.assertArrayEquals(new double[] { 50, 122 }, c.getColumn(0),
-				1e-14);
-		Assert.assertArrayEquals(new double[] { 68, 167 }, c.getColumn(1),
-				1e-14);
+		Assert.assertArrayEquals(new double[] { 50, 122 },
+				c.getColumn(0), 1e-14);
+		Assert.assertArrayEquals(new double[] { 68, 167 },
+				c.getColumn(1), 1e-14);
 	}
 
 }

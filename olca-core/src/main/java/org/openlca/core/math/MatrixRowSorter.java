@@ -1,11 +1,11 @@
 package org.openlca.core.math;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntIntHashMap;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntIntHashMap;
 
 /**
  * Sorts a *quadratic* matrix (the technology matrix in openLCA) so that rows
@@ -13,13 +13,13 @@ import java.util.List;
  */
 public class MatrixRowSorter {
 
-	private IMatrixFactory<?> factory;
+	private IMatrixSolver solver;
 	private IMatrix original;
 	private TIntIntHashMap indexMap;
 
-	public MatrixRowSorter(IMatrix original, IMatrixFactory<?> factory) {
+	public MatrixRowSorter(IMatrix original, IMatrixSolver solver) {
 		this.original = original;
-		this.factory = factory;
+		this.solver = solver;
 	}
 
 	public IMatrix run() {
@@ -55,7 +55,7 @@ public class MatrixRowSorter {
 	}
 
 	private IMatrix createSwappedMatrix() {
-		IMatrix swapped = factory.create(original.rows(),
+		IMatrix swapped = solver.matrix(original.rows(),
 				original.rows());
 		for (int r = 0; r < original.rows(); r++) {
 			for (int c = 0; c < original.columns(); c++) {

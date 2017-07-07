@@ -22,7 +22,6 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.matrix.LongPair;
@@ -142,11 +141,10 @@ public class MatlibExport implements Runnable {
 				continue;
 			flowIndex.put(flowId);
 		}
-		IMatrixFactory<?> f = solver.getMatrixFactory();
 		int n = techIndex.size();
 		int k = flowIndex.size();
-		techMatrix = f.create(n, n);
-		enviMatrix = f.create(k, n);
+		techMatrix = solver.matrix(n, n);
+		enviMatrix = solver.matrix(k, n);
 	}
 
 	private void writeMatrices() throws Exception {

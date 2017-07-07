@@ -1,7 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.expressions.FormulaInterpreter;
 
@@ -26,17 +26,17 @@ public class ImpactTable {
 				|| factorMatrix == null || factorMatrix.isEmpty();
 	}
 
-	public ImpactMatrix createMatrix(IMatrixFactory<?> factory) {
-		return createMatrix(factory, null);
+	public ImpactMatrix createMatrix(IMatrixSolver solver) {
+		return createMatrix(solver, null);
 	}
 
-	public ImpactMatrix createMatrix(IMatrixFactory<?> factory,
+	public ImpactMatrix createMatrix(IMatrixSolver solver,
 			FormulaInterpreter interpreter) {
 		evalFormulas(interpreter);
 		ImpactMatrix matrix = new ImpactMatrix();
 		matrix.categoryIndex = categoryIndex;
 		if (factorMatrix != null)
-			matrix.factorMatrix = (IMatrix) factorMatrix.createRealMatrix(factory);
+			matrix.factorMatrix = (IMatrix) factorMatrix.createRealMatrix(solver);
 		matrix.flowIndex = flowIndex;
 		return matrix;
 	}

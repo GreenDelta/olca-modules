@@ -9,6 +9,11 @@ import org.apache.commons.math3.linear.RealVector;
 public class JavaSolver implements IMatrixSolver {
 
 	@Override
+	public IMatrix matrix(int rows, int columns) {
+		return new JavaMatrix(rows, columns);
+	}
+
+	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
 		RealMatrix A = unwrap(a);
 		RealVector b = new ArrayRealVector(a.rows());
@@ -46,11 +51,6 @@ public class JavaSolver implements IMatrixSolver {
 					+ matrix);
 		JavaMatrix javaMatrix = (JavaMatrix) matrix;
 		return javaMatrix.getRealMatrix();
-	}
-
-	@Override
-	public IMatrixFactory<?> getMatrixFactory() {
-		return new JavaMatrixFactory();
 	}
 
 }

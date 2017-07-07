@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.eigen.solvers.DenseSolver;
 
@@ -27,14 +26,13 @@ public class PrecisionBenchmarkTest {
 		System.out.println("\nRun benchmark for double precision");
 		System.out.println("Matrix size \t Time (ms) \t DiagSum \t Success");
 		for (int i = STEP; i <= MAX_SIZE; i += STEP) {
-			runAndLog(i, new DenseMatrixFactory(), new DenseSolver());
+			runAndLog(i, new DenseSolver());
 		}
 	}
 
-	private void runAndLog(int i, IMatrixFactory<?> factory,
-			IMatrixSolver solver) {
+	private void runAndLog(int i, IMatrixSolver solver) {
 		long start = System.currentTimeMillis();
-		double s = runCalculation(i, factory, solver);
+		double s = runCalculation(i, solver);
 		long end = System.currentTimeMillis();
 		boolean success = Math.abs(s - i) < epsilon;
 		System.out
@@ -43,9 +41,8 @@ public class PrecisionBenchmarkTest {
 			Assert.assertTrue(success);
 	}
 
-	private double runCalculation(int i, IMatrixFactory<?> factory,
-			IMatrixSolver solver) {
-		IMatrix matrix = factory.create(i, i);
+	private double runCalculation(int i, IMatrixSolver solver) {
+		IMatrix matrix = solver.matrix(i, i);
 		for (int row = 0; row < i; row++) {
 			for (int col = 0; col < i; col++) {
 				if (row == col)

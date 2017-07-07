@@ -1,11 +1,11 @@
 package org.openlca.core.matrix;
 
+import org.openlca.core.math.IMatrix;
+import org.openlca.core.math.IMatrixSolver;
+import org.openlca.expressions.FormulaInterpreter;
+
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntObjectHashMap;
-
-import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
-import org.openlca.expressions.FormulaInterpreter;
 
 /**
  * A matrix with impact assessment factors where the flows are mapped to the
@@ -46,8 +46,8 @@ public class ImpactFactorMatrix {
 		return rowMap.get(col);
 	}
 
-	public <M extends IMatrix> M createRealMatrix(IMatrixFactory<M> factory) {
-		final M matrix = factory.create(rows, columns);
+	public IMatrix createRealMatrix(IMatrixSolver solver) {
+		IMatrix matrix = solver.matrix(rows, columns);
 		iterate(new Fn() {
 			@Override
 			public void apply(int row, int col, ImpactFactorCell cell) {

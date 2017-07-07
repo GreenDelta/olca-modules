@@ -1,9 +1,8 @@
 package org.openlca.eigen.solvers;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.IMatrixSolver;
-import org.openlca.eigen.HashMatrixFactory;
+import org.openlca.eigen.HashMatrix;
 
 public class SequentialSolver implements IMatrixSolver {
 
@@ -69,8 +68,8 @@ public class SequentialSolver implements IMatrixSolver {
 	}
 
 	@Override
-	public IMatrixFactory<?> getMatrixFactory() {
-		return new HashMatrixFactory();
+	public IMatrix matrix(int rows, int columns) {
+		return new HashMatrix(rows, columns);
 	}
 
 }

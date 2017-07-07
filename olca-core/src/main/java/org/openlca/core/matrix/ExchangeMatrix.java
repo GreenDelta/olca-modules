@@ -1,7 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.math.IMatrixSolver;
 import org.openlca.expressions.FormulaInterpreter;
 
 import gnu.trove.impl.Constants;
@@ -68,10 +68,10 @@ public class ExchangeMatrix {
 			return cell.getMatrixValue();
 	}
 
-	public <M extends IMatrix> M createRealMatrix(IMatrixFactory<M> factory) {
-		if(rows == 0 || columns == 0)
+	public IMatrix createRealMatrix(IMatrixSolver solver) {
+		if (rows == 0 || columns == 0)
 			return null;
-		M matrix = factory.create(rows, columns);
+		IMatrix matrix = solver.matrix(rows, columns);
 		iterate((row, col, cell) -> {
 			matrix.set(row, col, cell.getMatrixValue());
 		});

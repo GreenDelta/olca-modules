@@ -22,7 +22,6 @@ public class Simulator {
 
 	private ImpactMethodDescriptor impactMethod;
 	private MatrixCache cache;
-	private final IMatrixFactory<?> factory;
 	private final IMatrixSolver matrixSolver;
 
 	private SimulationResult result;
@@ -38,7 +37,6 @@ public class Simulator {
 		this.impactMethod = setup.impactMethod;
 		this.cache = database;
 		this.setup = setup;
-		this.factory = solver.getMatrixFactory();
 		this.matrixSolver = solver;
 	}
 
@@ -84,7 +82,7 @@ public class Simulator {
 		inventory = DataStructures.createInventory(setup, cache);
 		parameterTable = DataStructures.createParameterTable(cache.getDatabase(),
 				setup, inventory);
-		inventoryMatrix = inventory.createMatrix(factory);
+		inventoryMatrix = inventory.createMatrix(matrixSolver);
 		result = new SimulationResult();
 		result.productIndex = inventory.productIndex;
 		result.flowIndex = inventory.flowIndex;
@@ -95,7 +93,7 @@ public class Simulator {
 				return;
 			}
 			this.impactTable = impactTable;
-			this.impactMatrix = impactTable.createMatrix(factory);
+			this.impactMatrix = impactTable.createMatrix(matrixSolver);
 			result.impactIndex = impactTable.categoryIndex;
 		}
 	}

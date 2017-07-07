@@ -32,8 +32,7 @@ public class Benchmark {
 		ProductSystem system = db.createDao(ProductSystem.class).getForId(
 				654886);
 		Inventory inventory = DataStructures.createInventory(system, cache);
-		InventoryMatrix matrix = inventory.createMatrix(solver
-				.getMatrixFactory());
+		InventoryMatrix matrix = inventory.createMatrix(solver);
 		LcaCalculator calculator = new LcaCalculator(solver, matrix);
 
 		System.out.println("Inventory ready. Type enter to start!");

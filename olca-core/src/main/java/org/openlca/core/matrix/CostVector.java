@@ -2,7 +2,7 @@ package org.openlca.core.matrix;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.math.IMatrixSolver;
 
 /**
  * A cost vector contains the unscaled net-costs for a set of process-products.
@@ -24,8 +24,8 @@ public class CostVector {
 		return productIndex == null || productIndex.size() == 0 || values == null;
 	}
 
-	public IMatrix asMatrix(IMatrixFactory<?> factory) {
-		IMatrix m = factory.create(1, values.length);
+	public IMatrix asMatrix(IMatrixSolver solver) {
+		IMatrix m = solver.matrix(1, values.length);
 		for (int col = 0; col < values.length; col++) {
 			m.set(0, col, values[col]);
 		}

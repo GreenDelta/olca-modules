@@ -9,6 +9,11 @@ package org.openlca.core.math;
 public interface IMatrixSolver {
 
 	/**
+	 * Creates a new matrix that can be used with this solver.
+	 */
+	IMatrix matrix(int rows, int columns);
+
+	/**
 	 * Solves the system of linear equations A * s = d. In openLCA this is used
 	 * to calculate the scaling factors of an inventory where the vector d has
 	 * just a single entry.
@@ -38,7 +43,7 @@ public interface IMatrixSolver {
 			return null;
 		if (a.columns() != b.rows())
 			throw new IllegalArgumentException("a.columns != b.rows");
-		IMatrix r = getMatrixFactory().create(a.rows(), b.columns());
+		IMatrix r = matrix(a.rows(), b.columns());
 		for (int row = 0; row < a.rows(); row++) {
 			for (int col = 0; col < b.columns(); col++) {
 				double val = 0;
@@ -80,10 +85,5 @@ public interface IMatrixSolver {
 			}
 		}
 	}
-
-	/**
-	 * Returns the matrix factory of this solver.
-	 */
-	IMatrixFactory<?> getMatrixFactory();
 
 }

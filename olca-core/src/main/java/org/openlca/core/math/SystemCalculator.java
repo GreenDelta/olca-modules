@@ -48,13 +48,13 @@ public class SystemCalculator {
 				setup, inventory);
 		FormulaInterpreter interpreter = parameterTable.createInterpreter();
 		InventoryMatrix inventoryMatrix = inventory.createMatrix(
-				solver.getMatrixFactory(), interpreter);
+				solver, interpreter);
 		LcaCalculator calculator = new LcaCalculator(solver, inventoryMatrix);
 		if (setup.impactMethod != null) {
 			ImpactTable impactTable = ImpactTable.build(matrixCache,
 					setup.impactMethod.getId(), inventory.flowIndex);
 			ImpactMatrix impactMatrix = impactTable.createMatrix(
-					solver.getMatrixFactory(), interpreter);
+					solver, interpreter);
 			calculator.setImpactMatrix(impactMatrix);
 		}
 		if (setup.withCosts) {

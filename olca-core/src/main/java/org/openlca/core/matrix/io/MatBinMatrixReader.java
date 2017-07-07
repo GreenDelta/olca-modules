@@ -8,7 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.math.IMatrixSolver;
 
 /**
  * Reads a binary Matlab file (version?) with a matrix with 64 bit floating
@@ -22,14 +22,14 @@ public class MatBinMatrixReader {
 	private final int SIZE = 8;
 
 	private final File file;
-	private final IMatrixFactory<?> factory;
+	private final IMatrixSolver solver;
 
 	private boolean useStreaming = false;
 	private ByteBuffer buffer;
 
-	public MatBinMatrixReader(File file, IMatrixFactory<?> factory) {
+	public MatBinMatrixReader(File file, IMatrixSolver solver) {
 		this.file = file;
-		this.factory = factory;
+		this.solver = solver;
 		buffer = ByteBuffer.allocate(SIZE);
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 	}
@@ -50,7 +50,7 @@ public class MatBinMatrixReader {
 		checkFormat(bytes);
 		int rows = (int) readNumber(3, bytes);
 		int cols = (int) readNumber(4, bytes);
-		IMatrix matrix = factory.create(rows, cols);
+		IMatrix matrix = solver.matrix(rows, cols);
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {
 				int offset = 5 + row + col * matrix.rows();
@@ -67,7 +67,7 @@ public class MatBinMatrixReader {
 			checkFormat(channel);
 			int rows = (int) readNumber(channel); // pos = 3
 			int cols = (int) readNumber(channel); // pos = 4
-			IMatrix matrix = factory.create(rows, cols);
+			IMatrix matrix = solver.matrix(rows, cols);
 			for (int col = 0; col < cols; col++) {
 				for (int row = 0; row < rows; row++) {
 					double val = readNumber(channel);

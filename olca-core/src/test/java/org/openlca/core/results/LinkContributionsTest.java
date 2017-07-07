@@ -4,11 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.util.MatrixUtils;
 
 public class LinkContributionsTest {
 
@@ -22,13 +20,12 @@ public class LinkContributionsTest {
 	@Test
 	public void testDoubleLink() {
 
-		IMatrixFactory<?> factory = Tests.getDefaultSolver()
-				.getMatrixFactory();
-		// @formatter:off
-		IMatrix techMatrix = MatrixUtils.create(new double[][] {
-				{ 1, 0, 0, 0 }, { -0.5, 1, 0, 0 }, { -0.5, 0, 1, 0 },
-				{ 0, -0.5, -0.5, 1 } }, factory);
-		// @formatter:on
+		IMatrix techMatrix = Tests.getDefaultSolver().matrix(4, 4);
+		techMatrix.setValues(new double[][] {
+				{ 1, 0, 0, 0 },
+				{ -0.5, 1, 0, 0 },
+				{ -0.5, 0, 1, 0 },
+				{ 0, -0.5, -0.5, 1 } });
 
 		TechIndex index = new TechIndex(LongPair.of(1, 1));
 		index.put(LongPair.of(2, 2));
@@ -57,10 +54,8 @@ public class LinkContributionsTest {
 	 */
 	@Test
 	public void testBandMatrix() {
-		IMatrixFactory<?> factory = Tests.getDefaultSolver()
-				.getMatrixFactory();
 		int size = 4000;
-		IMatrix techMatrix = factory.create(size, size);
+		IMatrix techMatrix = Tests.getDefaultSolver().matrix(size, size);
 		TechIndex index = new TechIndex(LongPair.of(1, 1));
 		double[] s = new double[size];
 		for (int i = 0; i < size; i++) {

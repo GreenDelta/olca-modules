@@ -1,7 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
@@ -30,19 +30,19 @@ public class Inventory {
 				|| interventionMatrix == null || interventionMatrix.isEmpty();
 	}
 
-	public InventoryMatrix createMatrix(IMatrixFactory<?> factory) {
-		return createMatrix(factory, null);
+	public InventoryMatrix createMatrix(IMatrixSolver solver) {
+		return createMatrix(solver, null);
 	}
 
-	public InventoryMatrix createMatrix(IMatrixFactory<?> factory,
+	public InventoryMatrix createMatrix(IMatrixSolver solver,
 			FormulaInterpreter interpreter) {
 		evalFormulas(interpreter);
 		InventoryMatrix matrix = new InventoryMatrix();
 		matrix.flowIndex = flowIndex;
 		matrix.productIndex = productIndex;
-		IMatrix enviMatrix = interventionMatrix.createRealMatrix(factory);
+		IMatrix enviMatrix = interventionMatrix.createRealMatrix(solver);
 		matrix.interventionMatrix = enviMatrix;
-		IMatrix techMatrix = technologyMatrix.createRealMatrix(factory);
+		IMatrix techMatrix = technologyMatrix.createRealMatrix(solver);
 		matrix.technologyMatrix = techMatrix;
 		return matrix;
 	}

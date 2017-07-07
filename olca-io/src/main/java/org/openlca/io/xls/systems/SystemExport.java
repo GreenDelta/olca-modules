@@ -265,7 +265,7 @@ public class SystemExport {
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
 		export.setMatrix(inventory.interventionMatrix.createRealMatrix(
-				conf.getMatrixFactory()));
+				conf.getSolver()));
 		export.writeTo(workbook);
 	}
 
@@ -276,7 +276,7 @@ public class SystemExport {
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
 		export.setMatrix(inventory.technologyMatrix.createRealMatrix(
-				conf.getMatrixFactory()));
+				conf.getSolver()));
 		Sheet sheet = export.writeTo(workbook);
 		int columnOffSet = rowHeader.getHeaderSize() + 1;
 		for (int i = 0; i < columnHeader.getHeaderSize(); i++) {
@@ -292,7 +292,7 @@ public class SystemExport {
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);
 		export.setMatrix(transpose(impactTable.factorMatrix
-				.createRealMatrix(conf.getMatrixFactory())));
+				.createRealMatrix(conf.getSolver())));
 		export.writeTo(workbook);
 	}
 
@@ -351,7 +351,7 @@ public class SystemExport {
 	}
 
 	private IMatrix transpose(IMatrix matrix) {
-		IMatrix result = conf.getMatrixFactory().create(
+		IMatrix result = conf.getSolver().matrix(
 				matrix.columns(), matrix.rows());
 		for (int row = 0; row < matrix.rows(); row++) {
 			for (int column = 0; column < matrix.columns(); column++) {

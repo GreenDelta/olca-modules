@@ -12,7 +12,7 @@ public class ISolverTest {
 	@Test
 	public void testScaleColumns() {
 		Solver solver = new Solver();
-		IMatrix m = solver.getMatrixFactory().create(2, 3);
+		IMatrix m = solver.matrix(2, 3);
 		double[][] vals = { { 1, 2, 3 }, { 4, 5, 6 } };
 		m.setValues(vals);
 		solver.scaleColumns(m, new double[] { 2, 1, 0.5 });
@@ -27,7 +27,7 @@ public class ISolverTest {
 	@Test
 	public void testMatrixVectorMultiplication() {
 		Solver solver = new Solver();
-		IMatrix m = solver.getMatrixFactory().create(2, 3);
+		IMatrix m = solver.matrix(2, 3);
 		m.setValues(new double[][] { { 1, 2, 3 }, { 4, 5, 6 } });
 		double[] r = solver.multiply(m, new double[] { 2, 1, 0.5 });
 		assertEquals(2, r.length);
@@ -38,9 +38,9 @@ public class ISolverTest {
 	@Test
 	public void testMatrixMatrixMultiplication() {
 		Solver solver = new Solver();
-		IMatrix a = solver.getMatrixFactory().create(2, 3);
+		IMatrix a = solver.matrix(2, 3);
 		a.setValues(new double[][] { { 1, 2, 3 }, { 4, 5, 6 } });
-		IMatrix b = solver.getMatrixFactory().create(3, 3);
+		IMatrix b = solver.matrix(3, 3);
 		b.setValues(new double[][] { { 2, 0, 0 }, { 0, 1, 0 }, { 0, 0, 0.5 } });
 		IMatrix r = solver.multiply(a, b);
 		assertEquals(2, r.rows());
@@ -56,6 +56,11 @@ public class ISolverTest {
 	private class Solver implements IMatrixSolver {
 
 		@Override
+		public IMatrix matrix(int rows, int columns) {
+			return new JavaMatrix(rows, columns);
+		}
+
+		@Override
 		public double[] solve(IMatrix a, int idx, double d) {
 			return null;
 		}
@@ -65,9 +70,5 @@ public class ISolverTest {
 			return null;
 		}
 
-		@Override
-		public IMatrixFactory<?> getMatrixFactory() {
-			return new JavaMatrixFactory();
-		}
 	}
 }

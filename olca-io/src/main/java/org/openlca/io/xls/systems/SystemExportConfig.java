@@ -2,7 +2,7 @@ package org.openlca.io.xls.systems;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.IMatrixFactory;
+import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
@@ -13,17 +13,17 @@ public class SystemExportConfig {
 	private String olcaVersion = "1.4";
 	private final ProductSystem system;
 	private final IDatabase database;
-	private final IMatrixFactory<?> matrixFactory;
+	private final IMatrixSolver solver;
 	private MatrixCache matrixCache;
 	private EntityCache entityCache;
 	private AllocationMethod allocationMethod;
 	private BaseDescriptor impactMethod;
 
 	public SystemExportConfig(ProductSystem system, IDatabase database,
-			IMatrixFactory<?> matrixFactory) {
+			IMatrixSolver solver) {
 		this.system = system;
 		this.database = database;
-		this.matrixFactory = matrixFactory;
+		this.solver = solver;
 	}
 
 	public void setOlcaVersion(String olcaVersion) {
@@ -78,8 +78,8 @@ public class SystemExportConfig {
 		return database;
 	}
 
-	public IMatrixFactory<?> getMatrixFactory() {
-		return matrixFactory;
+	public IMatrixSolver getSolver() {
+		return solver;
 	}
 
 }

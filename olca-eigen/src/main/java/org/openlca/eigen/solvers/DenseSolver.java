@@ -1,11 +1,9 @@
 package org.openlca.eigen.solvers;
 
 import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixFactory;
 import org.openlca.core.math.IMatrixSolver;
 import org.openlca.eigen.Blas;
 import org.openlca.eigen.DenseMatrix;
-import org.openlca.eigen.DenseMatrixFactory;
 import org.openlca.eigen.Lapack;
 import org.openlca.eigen.MatrixConverter;
 
@@ -13,6 +11,11 @@ import org.openlca.eigen.MatrixConverter;
  * A double precision solver that uses dense matrices and calls the respective
  */
 public class DenseSolver implements IMatrixSolver {
+
+	@Override
+	public IMatrix matrix(int rows, int columns) {
+		return new DenseMatrix(rows, columns);
+	}
 
 	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
@@ -64,11 +67,6 @@ public class DenseSolver implements IMatrixSolver {
 				m.set(row, col, v[col] * m.get(row, col));
 			}
 		}
-	}
-
-	@Override
-	public IMatrixFactory<?> getMatrixFactory() {
-		return new DenseMatrixFactory();
 	}
 
 }

@@ -137,7 +137,7 @@ public class LcaCalculator {
 		if (costVector != null) {
 			result.hasCostResults = true;
 			addDirectCosts(result, scalingVector);
-			IMatrix costValues = costVector.asMatrix(solver.getMatrixFactory());
+			IMatrix costValues = costVector.asMatrix(solver);
 			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
 			solver.scaleColumns(upstreamCosts, demands);
 			result.totalCostResult = upstreamCosts.get(0, refIdx);

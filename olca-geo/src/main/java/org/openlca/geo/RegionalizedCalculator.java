@@ -52,7 +52,7 @@ public class RegionalizedCalculator {
 					.createParameterTable(regioSetup.database, setup, inventory);
 			FormulaInterpreter interpreter = parameterTable.createInterpreter();
 			InventoryMatrix m = inventory.createMatrix(
-					solver.getMatrixFactory(), interpreter);
+					solver, interpreter);
 			ImpactTable impactTable = ImpactTable.build(cache,
 					setup.impactMethod.getId(), inventory.flowIndex);
 
@@ -74,7 +74,7 @@ public class RegionalizedCalculator {
 
 			// assessed intervention matrix
 			IMatrix factors = impactTable.createMatrix(
-					solver.getMatrixFactory(), interpreter).factorMatrix;
+					solver, interpreter).factorMatrix;
 			r.impactFactors = factors;
 			IMatrix assessedEnvi = solver.multiply(factors, m.interventionMatrix);
 			eachKml(regioSetup, impactTable, interpreter, (kml, kmlFactors) -> {
@@ -116,7 +116,7 @@ public class RegionalizedCalculator {
 				r.singleCostResults = directCosts;
 
 				// upstream LCC
-				IMatrix costMatrix = costVector.asMatrix(solver.getMatrixFactory());
+				IMatrix costMatrix = costVector.asMatrix(solver);
 				IMatrix upstreamCosts = solver.multiply(costMatrix, inverse);
 				solver.scaleColumns(upstreamCosts, demands);
 				r.totalCostResult = upstreamCosts.get(0, refIdx);
@@ -143,8 +143,7 @@ public class RegionalizedCalculator {
 					continue;
 				scope.bind(param, val.toString());
 			}
-			IMatrix factors = table.createMatrix(solver.getMatrixFactory(),
-					interpreter).factorMatrix;
+			IMatrix factors = table.createMatrix(solver, interpreter).factorMatrix;
 			fn.accept(kml, factors);
 		}
 	}
