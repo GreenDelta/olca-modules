@@ -8,8 +8,8 @@ import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.derby.DerbyDatabase;
-import org.openlca.core.math.IMatrixSolver;
-import org.openlca.core.math.JavaSolver;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.CategorizedEntity;
 
 public class Tests {

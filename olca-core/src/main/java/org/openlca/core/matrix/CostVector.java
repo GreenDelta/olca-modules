@@ -1,8 +1,8 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixSolver;
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 /**
  * A cost vector contains the unscaled net-costs for a set of process-products.

@@ -4,6 +4,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;

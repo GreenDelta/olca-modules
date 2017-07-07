@@ -1,7 +1,7 @@
 package org.openlca.core.matrix;
 
-import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixSolver;
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.expressions.FormulaInterpreter;
 
 import gnu.trove.impl.Constants;

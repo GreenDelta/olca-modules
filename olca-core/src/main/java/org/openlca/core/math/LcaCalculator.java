@@ -5,6 +5,8 @@ import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.LinkContributions;

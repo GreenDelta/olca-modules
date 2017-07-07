@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
+
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntIntHashMap;
 

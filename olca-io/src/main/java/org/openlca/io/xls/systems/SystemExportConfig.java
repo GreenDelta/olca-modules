@@ -2,8 +2,8 @@ package org.openlca.io.xls.systems;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;

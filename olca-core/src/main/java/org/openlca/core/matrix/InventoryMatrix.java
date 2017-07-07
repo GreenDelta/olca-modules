@@ -1,6 +1,6 @@
 package org.openlca.core.matrix;
 
-import org.openlca.core.math.IMatrix;
+import org.openlca.core.matrix.format.IMatrix;
 
 /**
  * The inventory of a product system where the values are mapped to real

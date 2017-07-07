@@ -2,9 +2,9 @@ package org.openlca.core.results;
 
 import java.util.HashMap;
 
-import org.openlca.core.math.IMatrix;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.ProcessLink;
 
 /**

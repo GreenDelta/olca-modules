@@ -1,7 +1,7 @@
 package org.openlca.core.results;
 
-import org.openlca.core.math.IMatrix;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.format.IMatrix;
 
 /**
  * A contribution result extends a simple result and contains all single

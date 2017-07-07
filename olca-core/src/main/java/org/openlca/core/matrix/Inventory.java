@@ -1,8 +1,8 @@
 package org.openlca.core.matrix;
 
-import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixSolver;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
 

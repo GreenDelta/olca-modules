@@ -3,6 +3,9 @@ package org.openlca.core.math;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 /**
  * Tests the default methods of the ISolver interface.

@@ -32,9 +32,6 @@ Content
   LCA calculation, etc.
 * olca-ecospold-1: an API for reading and writing EcoSpold 01 files.
 * olca-ecospold-2: an API for reading and writing EcoSpold 02 files.
-* olca-eigen: a JNI wrapper for the high performance math libraries 
-  [Eigen](https://bitbucket.org/eigen/eigen/) and 
-  [OpenBLAS](http://xianyi.github.io/OpenBLAS/).
 * olca-formula: the openLCA formula interpreter
 * olca-geo: provides tools for regionalized LCIA calculation based on shapefiles
   and KML definitions

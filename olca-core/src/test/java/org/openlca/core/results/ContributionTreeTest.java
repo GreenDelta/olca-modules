@@ -3,12 +3,12 @@ package org.openlca.core.results;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.math.IMatrix;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class ContributionTreeTest {

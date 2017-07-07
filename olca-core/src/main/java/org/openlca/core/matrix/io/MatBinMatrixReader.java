@@ -7,8 +7,8 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 
-import org.openlca.core.math.IMatrix;
-import org.openlca.core.math.IMatrixSolver;
+import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 
 /**
  * Reads a binary Matlab file (version?) with a matrix with 64 bit floating

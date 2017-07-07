@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.openlca.core.math.IMatrix;
+import org.openlca.core.matrix.format.IMatrix;
 
 /**
  * Provides methods for writing matrices in the Matrix-Market format

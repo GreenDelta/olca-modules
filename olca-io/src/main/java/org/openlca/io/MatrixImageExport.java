@@ -7,7 +7,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import org.openlca.core.math.IMatrix;
+import org.openlca.core.matrix.format.IMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
