@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.geotools.data.DataStore;
+import org.openlca.core.model.ImpactMethod.ParameterMean;
 import org.openlca.core.model.Parameter;
 import org.openlca.geo.kml.FeatureType;
 import org.openlca.geo.kml.KmlFeature;
@@ -20,13 +21,16 @@ public class ParameterCalculator implements Closeable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private Map<String, List<String>> parameters;
-	private Map<String, DataStore> stores;
-	private Map<String, Double> defaults;
-	private ParameterCache cache;
+	private final ParameterMean meanFn;
+	private final Map<String, List<String>> parameters;
+	private final Map<String, DataStore> stores;
+	private final Map<String, Double> defaults;
+	private final ParameterCache cache;
 
-	public ParameterCalculator(List<Parameter> parameters, ShapeFileFolder folder) {
+	public ParameterCalculator(List<Parameter> parameters,
+			ShapeFileFolder folder, ParameterMean meanFn) {
 		this.parameters = groupByShapeFile(parameters);
+		this.meanFn = meanFn;
 		stores = openStores(this.parameters.keySet(), folder);
 		cache = new ParameterCache(folder);
 		defaults = new HashMap<>();
@@ -62,7 +66,7 @@ public class ParameterCalculator implements Closeable {
 			Map<String, Double> shares = getShares(locationId, feature, shapeFile);
 			log.debug("Calculating parameters for location {}", locationId);
 			DataStore store = stores.get(shapeFile);
-			FeatureCalculator calculator = new FeatureCalculator(store, defaults);
+			FeatureCalculator calculator = new FeatureCalculator(store, defaults, meanFn);
 			List<String> params = parameters.get(shapeFile);
 			Map<String, Double> result = calculator.calculate(feature, params, shares);
 			if (result != null) {

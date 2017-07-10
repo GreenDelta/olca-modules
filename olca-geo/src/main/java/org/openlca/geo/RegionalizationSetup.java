@@ -4,11 +4,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.model.ImpactMethod.ParameterMean;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.geo.kml.IKmlLoader;
@@ -25,6 +28,8 @@ public class RegionalizationSetup {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final IKmlLoader kmlLoader;
+	private final ParameterMean parameterMean;
+
 	final IDatabase database;
 	final ImpactMethodDescriptor method;
 
@@ -68,6 +73,7 @@ public class RegionalizationSetup {
 		this.database = database;
 		this.method = method;
 		this.kmlLoader = kmlLoader;
+		this.parameterMean = parameterMean();
 	}
 
 	private void init(TechIndex index) {
@@ -91,7 +97,8 @@ public class RegionalizationSetup {
 			canCalculate = false;
 			return;
 		}
-		try (ParameterCalculator pCalc = new ParameterCalculator(params, folder)) {
+		try (ParameterCalculator pCalc = new ParameterCalculator(
+				params, folder, parameterMean)) {
 			parameterSet = pCalc.calculate(kmlData);
 		}
 	}
@@ -138,6 +145,29 @@ public class RegionalizationSetup {
 			return false;
 		}
 		return true;
+	}
+
+	private ParameterMean parameterMean() {
+		if (method == null || database == null)
+			return null;
+		try {
+			String sql = "select parameter_mean from tbl_impact_methods"
+					+ " where id = " + method.getId();
+			AtomicReference<String> ref = new AtomicReference<String>(null);
+			NativeSql.on(database).query(sql, r -> {
+				String s = r.getString(1);
+				ref.set(s);
+				return false; // only one result
+			});
+			String val = ref.get();
+			return val == null
+					? ParameterMean.WEIGHTED_MEAN
+					: ParameterMean.valueOf(val);
+		} catch (Exception e) {
+			log.error("failed to load ParameterMean function for "
+					+ method, e);
+			return ParameterMean.WEIGHTED_MEAN;
+		}
 	}
 
 }

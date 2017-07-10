@@ -11,6 +11,8 @@ import org.geotools.data.DataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.ImpactMethod.ParameterMean;
 import org.openlca.geo.kml.FeatureType;
 import org.openlca.geo.kml.KmlFeature;
 import org.slf4j.Logger;
@@ -23,12 +25,15 @@ class FeatureCalculator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private DataStore dataStore;
-	private Map<String, Double> defaults;
+	private final DataStore dataStore;
+	private final Map<String, Double> defaults;
+	private final ImpactMethod.ParameterMean meanFn;
 
-	public FeatureCalculator(DataStore dataStore, Map<String, Double> defaults) {
+	public FeatureCalculator(DataStore dataStore,
+			Map<String, Double> defaults, ParameterMean meanFn) {
 		this.dataStore = dataStore;
 		this.defaults = defaults;
+		this.meanFn = meanFn;
 	}
 
 	public Map<String, Double> calculate(KmlFeature feature,
@@ -121,6 +126,25 @@ class FeatureCalculator {
 				Double v = defaults.get(parameter);
 				return v == null ? 0 : v;
 			}
+			if (meanFn == ParameterMean.ARITHMETIC_MEAN)
+				return mean();
+			else
+				return weightedMean(); // is also the default
+		}
+
+		private double mean() {
+			double total = 0;
+			double n = 0;
+			for (Double val : values) {
+				if (val == null)
+					continue;
+				n += 1.0;
+				total += n;
+			}
+			return n == 0 ? 0 : total / n;
+		}
+
+		private double weightedMean() {
 			double shareSum = 0;
 			double total = 0;
 			for (int i = 0; i < values.size(); i++) {
