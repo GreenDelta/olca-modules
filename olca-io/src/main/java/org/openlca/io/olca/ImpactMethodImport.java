@@ -54,26 +54,26 @@ class ImpactMethodImport {
 		switchNwSetRefIds(srcMethod, destMethod);
 		destMethod = destDao.insert(destMethod);
 		seq.put(seq.IMPACT_METHOD, srcMethod.getRefId(), destMethod.getId());
-		for (NwSet nwSet : destMethod.getNwSets())
+		for (NwSet nwSet : destMethod.nwSets)
 			seq.put(seq.NW_SET, nwSet.getRefId(), nwSet.getId());
 	}
 
 	private void switchFactorReferences(ImpactMethod destMethod) {
-		for (ImpactCategory category : destMethod.getImpactCategories()) {
-			for (ImpactFactor factor : category.getImpactFactors()) {
-				factor.setFlow(refs.switchRef(factor.getFlow()));
-				factor.setUnit(refs.switchRef(factor.getUnit()));
-				Flow destFlow = factor.getFlow(); // already switched
-				factor.setFlowPropertyFactor(refs.switchRef(
-						factor.getFlowPropertyFactor(), destFlow));
+		for (ImpactCategory category : destMethod.impactCategories) {
+			for (ImpactFactor factor : category.impactFactors) {
+				factor.flow = refs.switchRef(factor.flow);
+				factor.unit = refs.switchRef(factor.unit);
+				Flow destFlow = factor.flow; // already switched
+				factor.flowPropertyFactor = refs.switchRef(
+				factor.flowPropertyFactor, destFlow);
 			}
 		}
 	}
 
 	private void switchImpactRefIds(ImpactMethod srcMethod,
 			ImpactMethod destMethod) {
-		for (ImpactCategory srcCat : srcMethod.getImpactCategories()) {
-			for (ImpactCategory destCat : destMethod.getImpactCategories()) {
+		for (ImpactCategory srcCat : srcMethod.impactCategories) {
+			for (ImpactCategory destCat : destMethod.impactCategories) {
 				if (areEqual(srcCat, destCat)) {
 					destCat.setRefId(srcCat.getRefId());
 					break;
@@ -84,18 +84,17 @@ class ImpactMethodImport {
 
 	private boolean areEqual(ImpactCategory srcCat, ImpactCategory destCat) {
 		return Strings.nullOrEqual(srcCat.getName(), destCat.getName())
-				&& Strings.nullOrEqual(srcCat.getReferenceUnit(),
-						destCat.getReferenceUnit())
+				&& Strings.nullOrEqual(srcCat.referenceUnit,
+						destCat.referenceUnit)
 				&& Strings.nullOrEqual(srcCat.getDescription(),
 						destCat.getDescription())
-				&& (srcCat.getImpactFactors().size() == destCat
-						.getImpactFactors().size());
+				&& (srcCat.impactFactors.size() == destCat.impactFactors.size());
 	}
 
 	private void switchNwSetRefIds(ImpactMethod srcMethod,
 			ImpactMethod destMethod) {
-		for (NwSet srcNwSet : srcMethod.getNwSets()) {
-			for (NwSet destNwSet : destMethod.getNwSets()) {
+		for (NwSet srcNwSet : srcMethod.nwSets) {
+			for (NwSet destNwSet : destMethod.nwSets) {
 				if (areEqual(srcNwSet, destNwSet)) {
 					destNwSet.setRefId(srcNwSet.getRefId());
 					break;
@@ -108,8 +107,8 @@ class ImpactMethodImport {
 		return Strings.nullOrEqual(srcNwSet.getName(), destNwSet.getName())
 				&& Strings.nullOrEqual(srcNwSet.getDescription(),
 						destNwSet.getName())
-				&& Strings.nullOrEqual(srcNwSet.getWeightedScoreUnit(),
-						destNwSet.getWeightedScoreUnit());
+				&& Strings.nullOrEqual(srcNwSet.weightedScoreUnit,
+						destNwSet.weightedScoreUnit);
 	}
 
 }

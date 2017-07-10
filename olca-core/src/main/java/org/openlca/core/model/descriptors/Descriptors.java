@@ -210,7 +210,7 @@ public class Descriptors {
 			return null;
 		ImpactCategoryDescriptor descriptor = new ImpactCategoryDescriptor();
 		setBaseValues(impactCategory, descriptor);
-		descriptor.setReferenceUnit(impactCategory.getReferenceUnit());
+		descriptor.setReferenceUnit(impactCategory.referenceUnit);
 		return descriptor;
 	}
 
@@ -219,7 +219,7 @@ public class Descriptors {
 			return null;
 		NwSetDescriptor descriptor = new NwSetDescriptor();
 		setBaseValues(nwSet, descriptor);
-		descriptor.setWeightedScoreUnit(nwSet.getWeightedScoreUnit());
+		descriptor.setWeightedScoreUnit(nwSet.weightedScoreUnit);
 		return descriptor;
 	}
 

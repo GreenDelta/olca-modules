@@ -24,7 +24,7 @@ public class NwSetDescriptorTest {
 		nwSet.setName("#test#-name");
 		nwSet.setDescription("#test#-descr");
 		nwSet.setRefId(UUID.randomUUID().toString());
-		nwSet.setWeightedScoreUnit("#test#-unit");
+		nwSet.weightedScoreUnit = "#test#-unit";
 		nwSet = dao.insert(nwSet);
 	}
 
@@ -71,7 +71,7 @@ public class NwSetDescriptorTest {
 		Assert.assertEquals(nwSet.getName(), descriptor.getName());
 		Assert.assertEquals(nwSet.getDescription(), descriptor.getDescription());
 		Assert.assertEquals(nwSet.getRefId(), descriptor.getRefId());
-		Assert.assertEquals(nwSet.getWeightedScoreUnit(),
+		Assert.assertEquals(nwSet.weightedScoreUnit,
 				descriptor.getWeightedScoreUnit());
 	}
 

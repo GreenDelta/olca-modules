@@ -87,7 +87,7 @@ public class ParameterUseSearchTest {
 		Parameter p2 = createParameter("p2", "5*p1",
 				ParameterScope.IMPACT_METHOD);
 		ImpactMethod method = new ImpactMethod();
-		method.getParameters().add(p2);
+		method.parameters.add(p2);
 		Tests.insert(p1);
 		Tests.insert(method);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors
@@ -123,8 +123,8 @@ public class ParameterUseSearchTest {
 		Parameter p2 = createParameter("p2", "5*p1",
 				ParameterScope.IMPACT_METHOD);
 		ImpactMethod method = new ImpactMethod();
-		method.getParameters().add(p1);
-		method.getParameters().add(p2);
+		method.parameters.add(p1);
+		method.parameters.add(p2);
 		Tests.insert(p);
 		Tests.insert(method);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors

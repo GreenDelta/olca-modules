@@ -384,6 +384,8 @@ CREATE TABLE tbl_impact_methods (
 	f_category BIGINT,
 	description CLOB(64 K),
 
+	parameter_mean VARCHAR(255),
+	
 	PRIMARY KEY (id)
 	
 );

@@ -50,7 +50,7 @@ class ProjectImport extends BaseImport<Project> {
 			return;
 		p.setImpactMethodId(method.getId());
 		String nwSetRefId = In.getRefId(json, "nwSet");
-		for (NwSet set : method.getNwSets())
+		for (NwSet set : method.nwSets)
 			if (set.getRefId().equals(nwSetRefId)) {
 				p.setNwSetId(set.getId());
 				break;

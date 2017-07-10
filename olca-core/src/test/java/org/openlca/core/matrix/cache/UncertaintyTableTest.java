@@ -55,9 +55,9 @@ public class UncertaintyTableTest {
 	@Test
 	public void testForImpactFactor() throws Exception {
 		ImpactFactor factor = new ImpactFactor();
-		factor.setUncertainty(createUncertainty());
+		factor.uncertainty = createUncertainty();
 		ImpactCategory category = new ImpactCategory();
-		category.getImpactFactors().add(factor);
+		category.impactFactors.add(factor);
 		ImpactCategoryDao dao = new ImpactCategoryDao(database);
 		dao.insert(category);
 		List<CalcImpactFactor> factors = cache.getImpactCache().get(

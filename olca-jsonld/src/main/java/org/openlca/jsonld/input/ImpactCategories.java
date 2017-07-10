@@ -20,7 +20,7 @@ class ImpactCategories {
 			return null;
 		ImpactCategory cat = new ImpactCategory();
 		In.mapAtts(json, cat, 0);
-		cat.setReferenceUnit(In.getString(json, "referenceUnitName"));
+		cat.referenceUnit = In.getString(json, "referenceUnitName");
 		JsonArray factors = In.getArray(json, "impactFactors");
 		if (factors == null || factors.size() == 0)
 			return cat;
@@ -30,7 +30,7 @@ class ImpactCategories {
 			ImpactFactor factor = mapFactor(e.getAsJsonObject(), conf);
 			if (factor == null)
 				continue;
-			cat.getImpactFactors().add(factor);
+			cat.impactFactors.add(factor);
 		}
 		return cat;
 	}
@@ -39,22 +39,22 @@ class ImpactCategories {
 		if (json == null || conf == null)
 			return null;
 		ImpactFactor factor = new ImpactFactor();
-		factor.setValue(In.getDouble(json, "value", 0));
-		factor.setFormula(In.getString(json, "formula"));
+		factor.value = In.getDouble(json, "value", 0);
+		factor.formula = In.getString(json, "formula");
 		String flowId = In.getRefId(json, "flow");
 		Flow flow = FlowImport.run(flowId, conf);
-		factor.setFlow(flow);
+		factor.flow = flow;
 		Unit unit = conf.db.getUnit(In.getRefId(json, "unit"));
-		factor.setUnit(unit);
+		factor.unit = unit;
 		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
 		if (flow == null || unit == null || propFac == null) {
 			conf.log.warn("invalid flow {}; LCIA factor not imported", flowId);
 			return null;
 		}
-		factor.setFlowPropertyFactor(propFac);
+		factor.flowPropertyFactor = propFac;
 		JsonElement u = json.get("uncertainty");
 		if (u != null && u.isJsonObject())
-			factor.setUncertainty(Uncertainties.read(u.getAsJsonObject()));
+			factor.uncertainty = Uncertainties.read(u.getAsJsonObject());
 		return factor;
 	}
 

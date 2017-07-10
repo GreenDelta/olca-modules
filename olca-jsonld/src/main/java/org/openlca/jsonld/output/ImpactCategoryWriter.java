@@ -18,25 +18,25 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 		JsonObject obj = super.write(category);
 		if (obj == null)
 			return null;
-		Out.put(obj, "referenceUnitName", category.getReferenceUnit());
+		Out.put(obj, "referenceUnitName", category.referenceUnit);
 		mapImpactFactors(category, obj);
 		return obj;
 	}
 
 	private void mapImpactFactors(ImpactCategory category, JsonObject json) {
 		JsonArray array = new JsonArray();
-		for (ImpactFactor f : category.getImpactFactors()) {
+		for (ImpactFactor f : category.impactFactors) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", ImpactFactor.class.getSimpleName());
-			Out.put(obj, "value", f.getValue());
-			Out.put(obj, "formula", f.getFormula());
-			Out.put(obj, "flow", f.getFlow(), conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "unit", f.getUnit(), conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "value", f.value);
+			Out.put(obj, "formula", f.formula);
+			Out.put(obj, "flow", f.flow, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "unit", f.unit, conf, Out.REQUIRED_FIELD);
 			FlowProperty property = null;
-			if (f.getFlowPropertyFactor() != null)
-				property = f.getFlowPropertyFactor().getFlowProperty();
+			if (f.flowPropertyFactor != null)
+				property = f.flowPropertyFactor.getFlowProperty();
 			Out.put(obj, "flowProperty", property, conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "uncertainty", Uncertainties.map(f.getUncertainty()));
+			Out.put(obj, "uncertainty", Uncertainties.map(f.uncertainty));
 			array.add(obj);
 		}
 		Out.put(json, "impactFactors", array);

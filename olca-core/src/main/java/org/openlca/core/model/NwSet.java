@@ -12,7 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
- * Normalisation and weighting set.
+ * Normalization and weighting set.
  */
 @Entity
 @Table(name = "tbl_nw_sets")
@@ -20,18 +20,19 @@ public class NwSet extends RootEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_nw_set")
-	private final List<NwFactor> factors = new ArrayList<>();
+	public final List<NwFactor> factors = new ArrayList<>();
 
 	@Column(name = "weighted_score_unit")
-	private String weightedScoreUnit;
+	public String weightedScoreUnit;
 
 	@Override
 	public NwSet clone() {
 		NwSet clone = new NwSet();
 		Util.cloneRootFields(this, clone);
-		clone.setWeightedScoreUnit(getWeightedScoreUnit());
-		for (NwFactor factor : getFactors())
-			clone.getFactors().add(factor.clone());
+		final String weightedScoreUnit1 = weightedScoreUnit;
+		clone.weightedScoreUnit = weightedScoreUnit1;
+		for (NwFactor factor : factors)
+			clone.factors.add(factor.clone());
 		return clone;
 	}
 
@@ -41,17 +42,5 @@ public class NwSet extends RootEntity {
 				return fac;
 		}
 		return null;
-	}
-
-	public List<NwFactor> getFactors() {
-		return factors;
-	}
-
-	public String getWeightedScoreUnit() {
-		return weightedScoreUnit;
-	}
-
-	public void setWeightedScoreUnit(final String weightedScoreUnit) {
-		this.weightedScoreUnit = weightedScoreUnit;
 	}
 }

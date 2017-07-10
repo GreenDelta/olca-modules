@@ -62,10 +62,10 @@ public class FlowUseSearchTest {
 		ImpactMethod method = new ImpactMethod();
 		method.setName("method");
 		ImpactFactor iFactor = new ImpactFactor();
-		iFactor.setFlow(flow);
+		iFactor.flow = flow;
 		ImpactCategory category = new ImpactCategory();
-		category.getImpactFactors().add(iFactor);
-		method.getImpactCategories().add(category);
+		category.impactFactors.add(iFactor);
+		method.impactCategories.add(category);
 		return database.createDao(ImpactMethod.class).insert(method);
 	}
 

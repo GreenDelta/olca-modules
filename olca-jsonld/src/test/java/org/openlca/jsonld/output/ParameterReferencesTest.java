@@ -345,8 +345,8 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	private ImpactFactor createImpactFactor(String formula, Uncertainty u) {
 		ImpactFactor f = new ImpactFactor();
-		f.setFormula(formula);
-		f.setUncertainty(u);
+		f.formula = formula;
+		f.uncertainty = u;
 		return f;
 	}
 
@@ -356,13 +356,13 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		m.setRefId(UUID.randomUUID().toString());
 		if (parameters != null)
 			for (Parameter p : parameters)
-				m.getParameters().add(p);
+				m.parameters.add(p);
 		if (factors != null) {
 			ImpactCategory c = new ImpactCategory();
 			c.setRefId(UUID.randomUUID().toString());
-			m.getImpactCategories().add(c);
+			m.impactCategories.add(c);
 			for (ImpactFactor f : factors)
-				c.getImpactFactors().add(f);
+				c.impactFactors.add(f);
 		}
 		return m;
 	}

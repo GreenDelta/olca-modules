@@ -16,31 +16,19 @@ public class ImpactCategory extends RootEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_impact_category")
-	private final List<ImpactFactor> impactFactors = new ArrayList<>();
+	public final List<ImpactFactor> impactFactors = new ArrayList<>();
 
 	@Column(name = "reference_unit")
-	private String referenceUnit;
+	public String referenceUnit;
 
 	@Override
 	public ImpactCategory clone() {
 		ImpactCategory clone = new ImpactCategory();
 		Util.cloneRootFields(this, clone);
-		clone.setReferenceUnit(getReferenceUnit());
-		for (ImpactFactor lciaFactor : getImpactFactors())
-			clone.getImpactFactors().add(lciaFactor.clone());
+		clone.referenceUnit = referenceUnit;
+		for (ImpactFactor f : impactFactors)
+			clone.impactFactors.add(f.clone());
 		return clone;
-	}
-
-	public String getReferenceUnit() {
-		return referenceUnit;
-	}
-
-	public void setReferenceUnit(String referenceUnit) {
-		this.referenceUnit = referenceUnit;
-	}
-
-	public List<ImpactFactor> getImpactFactors() {
-		return impactFactors;
 	}
 
 }

@@ -64,7 +64,7 @@ public class ParameterTest extends AbstractZipTest {
 		ImpactMethod method = new ImpactMethod();
 		method.setRefId(UUID.randomUUID().toString());
 		Parameter param = createParam(ParameterScope.IMPACT_METHOD);
-		method.getParameters().add(param);
+		method.parameters.add(param);
 		ImpactMethodDao dao = new ImpactMethodDao(Tests.getDb());
 		dao.insert(method);
 		with(zip -> {
@@ -78,7 +78,7 @@ public class ParameterTest extends AbstractZipTest {
 		});
 		ImpactMethod clone = dao.getForRefId(method.getRefId());
 		Assert.assertEquals(param.getRefId(),
-				clone.getParameters().get(0).getRefId());
+				clone.parameters.get(0).getRefId());
 	}
 
 	private Parameter createParam(ParameterScope scope) {

@@ -17,7 +17,7 @@ class NwSets {
 			return null;
 		NwSet set = new NwSet();
 		In.mapAtts(json, set, 0);
-		set.setWeightedScoreUnit(In.getString(json, "weightedScoreUnit"));
+		set.weightedScoreUnit = In.getString(json, "weightedScoreUnit");
 		JsonArray factors = In.getArray(json, "factors");
 		if (factors == null)
 			return set;
@@ -25,7 +25,7 @@ class NwSets {
 			if (!f.isJsonObject())
 				continue;
 			NwFactor factor = mapFactor(f.getAsJsonObject(), categories);
-			set.getFactors().add(factor);
+			set.factors.add(factor);
 		}
 		return set;
 	}

@@ -44,7 +44,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 					catId);
 			ImpactCategory category = ImpactCategories.map(catJson, conf);
 			if (category != null)
-				m.getImpactCategories().add(category);
+				m.impactCategories.add(category);
 		}
 	}
 
@@ -57,9 +57,9 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 				continue;
 			String nwSetId = In.getString(e.getAsJsonObject(), "@id");
 			JsonObject nwSetJson = conf.store.get(ModelType.NW_SET, nwSetId);
-			NwSet set = NwSets.map(nwSetJson, m.getImpactCategories());
+			NwSet set = NwSets.map(nwSetJson, m.impactCategories);
 			if (set != null)
-				m.getNwSets().add(set);
+				m.nwSets.add(set);
 		}
 	}
 
@@ -75,7 +75,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 			ParameterImport pi = new ParameterImport(refId, conf);
 			Parameter parameter = new Parameter();
 			pi.mapFields(o, parameter);
-			method.getParameters().add(parameter);
+			method.parameters.add(parameter);
 		}
 	}
 }

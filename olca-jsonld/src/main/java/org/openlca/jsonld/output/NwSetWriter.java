@@ -17,14 +17,14 @@ public class NwSetWriter extends Writer<NwSet> {
 		JsonObject obj = super.write(set);
 		if (obj == null)
 			return null;
-		Out.put(obj, "weightedScoreUnit", set.getWeightedScoreUnit());
+		Out.put(obj, "weightedScoreUnit", set.weightedScoreUnit);
 		mapFactors(set, obj);
 		return obj;
 	}
 
 	private void mapFactors(NwSet set, JsonObject json) {
 		JsonArray factors = new JsonArray();
-		for (NwFactor f : set.getFactors()) {
+		for (NwFactor f : set.factors) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", NwFactor.class.getSimpleName());
 			Out.put(obj, "impactCategory", f.getImpactCategory(), conf, Out.REQUIRED_FIELD);

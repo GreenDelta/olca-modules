@@ -91,7 +91,7 @@ public class MethodImport {
 
 	private boolean hasCategory(org.openlca.core.model.ImpactMethod oMethod,
 			String categoryName) {
-		for (ImpactCategory category : oMethod.getImpactCategories()) {
+		for (ImpactCategory category : oMethod.impactCategories) {
 			if (StringUtils.equalsIgnoreCase(category.getName(), categoryName))
 				return true;
 		}
@@ -106,10 +106,10 @@ public class MethodImport {
 		String refId = getUUID(iMethod);
 		category.setRefId(refId != null ? refId : UUID.randomUUID().toString());
 		category.setName(categoryName);
-		category.setReferenceUnit(categoryUnit);
+		category.referenceUnit = categoryUnit;
 		category.setDescription(getCategoryDescription(iMethod));
 		addFactors(iMethod, category);
-		oMethod.getImpactCategories().add(category);
+		oMethod.impactCategories.add(category);
 		dao.update(oMethod);
 	}
 
@@ -197,11 +197,11 @@ public class MethodImport {
 			return;
 		}
 		ImpactFactor oFactor = new ImpactFactor();
-		oFactor.setFlow(flow);
-		oFactor.setFlowPropertyFactor(flow.getReferenceFactor());
-		oFactor.setUnit(getRefUnit(flow));
-		oFactor.setValue(factor.meanValue);
-		category.getImpactFactors().add(oFactor);
+		oFactor.flow = flow;
+		oFactor.flowPropertyFactor = flow.getReferenceFactor();
+		oFactor.unit = getRefUnit(flow);
+		oFactor.value = factor.meanValue;
+		category.impactFactors.add(oFactor);
 	}
 
 	private Flow getFlow(String flowId) throws Exception {

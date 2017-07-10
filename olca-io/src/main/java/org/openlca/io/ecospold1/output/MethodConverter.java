@@ -30,7 +30,7 @@ class MethodConverter {
 
 	private IEcoSpold doIt() {
 		IEcoSpold ecoSpold = factory.createEcoSpold();
-		for (ImpactCategory category : method.getImpactCategories()) {
+		for (ImpactCategory category : method.impactCategories) {
 			IDataSet iDataSet = factory.createDataSet();
 			DataSet dataSet = new DataSet(iDataSet, factory);
 			Util.setDataSetAttributes(dataSet, method);
@@ -55,21 +55,21 @@ class MethodConverter {
 		}
 		refFun.setSubCategory(subCategory);
 		refFun.setName(name);
-		refFun.setUnit(category.getReferenceUnit());
-		for (ImpactFactor factor : category.getImpactFactors()) {
+		refFun.setUnit(category.referenceUnit);
+		for (ImpactFactor factor : category.impactFactors) {
 			dataSet.getExchanges().add(mapLCIAFactor(factor));
 		}
 	}
 
 	private IExchange mapLCIAFactor(ImpactFactor factor) {
 		IExchange exchange = factory.createExchange();
-		Flow flow = factor.getFlow();
+		Flow flow = factor.flow;
 		exchange.setNumber((int) flow.getId());
-		Categories.map(factor.getFlow().getCategory(), exchange, config);
-		Util.mapFlowInformation(exchange, factor.getFlow());
-		exchange.setUnit(factor.getUnit().getName());
-		exchange.setName(factor.getFlow().getName());
-		exchange.setMeanValue(factor.getValue());
+		Categories.map(factor.flow.getCategory(), exchange, config);
+		Util.mapFlowInformation(exchange, factor.flow);
+		exchange.setUnit(factor.unit.getName());
+		exchange.setName(factor.flow.getName());
+		exchange.setMeanValue(factor.value);
 		return exchange;
 	}
 

@@ -177,18 +177,18 @@ public class DQResultTest {
 	private void createImpactMethod() {
 		method = new ImpactMethod();
 		ImpactCategory c = new ImpactCategory();
-		c.getImpactFactors().add(createFactor(2, eFlow1));
-		c.getImpactFactors().add(createFactor(8, eFlow2));
-		method.getImpactCategories().add(c);
+		c.impactFactors.add(createFactor(2, eFlow1));
+		c.impactFactors.add(createFactor(8, eFlow2));
+		method.impactCategories.add(c);
 		method = new ImpactMethodDao(Tests.getDb()).insert(method);
 	}
 
 	private ImpactFactor createFactor(double factor, Flow flow) {
 		ImpactFactor f = new ImpactFactor();
-		f.setValue(factor);
-		f.setFlow(flow);
-		f.setFlowPropertyFactor(flow.getReferenceFactor());
-		f.setUnit(unitGroup.getReferenceUnit());
+		f.value = factor;
+		f.flow = flow;
+		f.flowPropertyFactor = flow.getReferenceFactor();
+		f.unit = unitGroup.getReferenceUnit();
 		return f;
 	}
 
@@ -209,7 +209,7 @@ public class DQResultTest {
 		dqSetup.exchangeDqSystem = dqSystem;
 		dqSetup.processDqSystem = dqSystem;
 		DQResult result = DQResult.calculate(Tests.getDb(), cResult, dqSetup);
-		ImpactCategory impact = method.getImpactCategories().get(0);
+		ImpactCategory impact = method.impactCategories.get(0);
 		checkResults(result, impact);
 	}
 

@@ -31,7 +31,7 @@ public class ImpactMethodExport {
 			return;
 		if (config.store.contains(LCIAMethod.class, method.getRefId()))
 			return;
-		for (ImpactCategory impact : method.getImpactCategories()) {
+		for (ImpactCategory impact : method.impactCategories) {
 			LCIAMethod lciaMethod = new LCIAMethod();
 			putAttribute("olca_method_uuid", method.getRefId(),
 					lciaMethod.otherAttributes);
@@ -50,7 +50,7 @@ public class ImpactMethodExport {
 		dataSetInfo.uuid = impact.getRefId();
 		dataSetInfo.methods.add(method.getName());
 		dataSetInfo.impactCategories.add(impact.getName());
-		putAttribute("olca_category_unit", impact.getReferenceUnit(),
+		putAttribute("olca_category_unit", impact.referenceUnit,
 				dataSetInfo.otherAttributes);
 		if (impact.getDescription() != null)
 			LangString.set(dataSetInfo.comment,
@@ -67,23 +67,23 @@ public class ImpactMethodExport {
 	private void addFactors(ImpactCategory impact, LCIAMethod lciaMethod) {
 		FactorList list = new FactorList();
 		lciaMethod.characterisationFactors = list;
-		for (ImpactFactor olcaFactor : impact.getImpactFactors()) {
+		for (ImpactFactor olcaFactor : impact.impactFactors) {
 			Factor ilcdFactor = new Factor();
 			list.factors.add(ilcdFactor);
 			// TODO: uncertainty values + formulas
 			ilcdFactor.meanValue = getRefAmount(olcaFactor);
 			Ref ref = ExportDispatch.forwardExportCheck(
-					olcaFactor.getFlow(), config);
+					olcaFactor.flow, config);
 			ilcdFactor.flow = ref;
 		}
 	}
 
 	private double getRefAmount(ImpactFactor factor) {
-		double val = factor.getValue();
-		Unit unit = factor.getUnit();
+		double val = factor.value;
+		Unit unit = factor.unit;
 		if (unit != null)
 			val = val / unit.getConversionFactor();
-		FlowPropertyFactor propFactor = factor.getFlowPropertyFactor();
+		FlowPropertyFactor propFactor = factor.flowPropertyFactor;
 		if (propFactor != null)
 			val = val * propFactor.getConversionFactor();
 		return val;

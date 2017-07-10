@@ -88,13 +88,13 @@ public class ParameterReferences {
 		if (!conf.exportReferences)
 			return;
 		Set<String> names = new HashSet<>();
-		for (ImpactCategory c : m.getImpactCategories())
-			for (ImpactFactor f : c.getImpactFactors()) {
-				names.addAll(Formula.getVariables(f.getFormula()));
-				names.addAll(getUncercaintyVariables(f.getUncertainty()));
+		for (ImpactCategory c : m.impactCategories)
+			for (ImpactFactor f : c.impactFactors) {
+				names.addAll(Formula.getVariables(f.formula));
+				names.addAll(getUncercaintyVariables(f.uncertainty));
 			}
-		names.addAll(getParameterVariables(m.getParameters()));
-		filterLocal(names, m.getParameters());
+		names.addAll(getParameterVariables(m.parameters));
+		filterLocal(names, m.parameters);
 		writeParameters(names, conf);
 	}
 

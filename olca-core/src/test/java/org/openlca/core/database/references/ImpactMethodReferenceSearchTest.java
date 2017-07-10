@@ -30,8 +30,8 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		String n3 = generateName();
 		String n4 = generateName();
 		String n5 = generateName();
-		method.getParameters().add(createParameter(n1, 3d, false));
-		method.getParameters().add(createParameter(n2, n1 + "*2*" + n3, false));
+		method.parameters.add(createParameter(n1, 3d, false));
+		method.parameters.add(createParameter(n2, n1 + "*2*" + n3, false));
 		insertAndAddExpected(null, createParameter(n3, "5*5", true));
 		// formula with parameter to see if added as reference (unexpected)
 		insertAndAddExpected(null, createParameter(n4, "3*" + n5, true));
@@ -40,16 +40,16 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		method.getImpactCategories().add(createImpactCategory(n4));
-		method.getImpactCategories().add(createImpactCategory(n4));
+		method.impactCategories.add(createImpactCategory(n4));
+		method.impactCategories.add(createImpactCategory(n4));
 		method = Tests.insert(method);
-		for (ImpactCategory category : method.getImpactCategories())
-			for (ImpactFactor f : category.getImpactFactors()) {
-				addExpected("flow", f.getFlow(), "impactFactors",
+		for (ImpactCategory category : method.impactCategories)
+			for (ImpactFactor f : category.impactFactors) {
+				addExpected("flow", f.flow, "impactFactors",
 						ImpactFactor.class, f.getId());
-				addExpected("flowPropertyFactor", f.getFlowPropertyFactor(),
+				addExpected("flowPropertyFactor", f.flowPropertyFactor,
 						"impactFactors", ImpactFactor.class, f.getId());
-				addExpected("unit", f.getUnit(), "impactFactors",
+				addExpected("unit", f.unit, "impactFactors",
 						ImpactFactor.class, f.getId());
 			}
 		return method;
@@ -57,8 +57,8 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private ImpactCategory createImpactCategory(String p4Name) {
 		ImpactCategory category = new ImpactCategory();
-		category.getImpactFactors().add(createImpactFactor(3d));
-		category.getImpactFactors().add(createImpactFactor("2*" + p4Name));
+		category.impactFactors.add(createImpactFactor(3d));
+		category.impactFactors.add(createImpactFactor("2*" + p4Name));
 		return category;
 	}
 
@@ -67,14 +67,14 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		Flow flow = createFlow();
 		FlowPropertyFactor factor = flow.getFlowPropertyFactors().get(0);
 		Unit unit = factor.getFlowProperty().getUnitGroup().getUnits().get(0);
-		iFactor.setFlow(flow);
-		iFactor.setFlowPropertyFactor(factor);
-		iFactor.setUnit(unit);
+		iFactor.flow = flow;
+		iFactor.flowPropertyFactor = factor;
+		iFactor.unit = unit;
 		boolean formula = value instanceof String;
 		if (formula)
-			iFactor.setFormula(value.toString());
+			iFactor.formula = value.toString();
 		else
-			iFactor.setValue((double) value);
+			iFactor.value = (double) value;
 		return iFactor;
 	}
 

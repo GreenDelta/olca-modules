@@ -13,84 +13,36 @@ public class ImpactFactor extends AbstractEntity implements Cloneable {
 
 	@OneToOne
 	@JoinColumn(name = "f_flow")
-	private Flow flow;
+	public Flow flow;
 
 	@OneToOne
 	@JoinColumn(name = "f_flow_property_factor")
-	private FlowPropertyFactor flowPropertyFactor;
+	public FlowPropertyFactor flowPropertyFactor;
 
 	@OneToOne
 	@JoinColumn(name = "f_unit")
-	private Unit unit;
+	public Unit unit;
 
 	@Column(name = "value")
-	private double value = 1;
+	public double value = 1;
 
 	@Column(name = "formula")
-	private String formula;
+	public String formula;
 
 	@Embedded
-	private Uncertainty uncertainty;
+	public Uncertainty uncertainty;
 
 	@Override
 	public ImpactFactor clone() {
 		ImpactFactor clone = new ImpactFactor();
-		clone.setFlow(getFlow());
-		clone.setFlowPropertyFactor(getFlowPropertyFactor());
-		clone.setUnit(getUnit());
-		clone.setValue(getValue());
-		clone.setFormula(getFormula());
-		if (getUncertainty() != null)
-			clone.setUncertainty(getUncertainty().clone());
+		clone.flow = flow;
+		clone.flowPropertyFactor = flowPropertyFactor;
+		clone.unit = unit;
+		clone.value = value;
+		clone.formula = formula;
+		if (uncertainty != null)
+			clone.uncertainty = uncertainty.clone();
 		return clone;
-	}
-
-	public Flow getFlow() {
-		return flow;
-	}
-
-	public void setFlow(Flow flow) {
-		this.flow = flow;
-	}
-
-	public FlowPropertyFactor getFlowPropertyFactor() {
-		return flowPropertyFactor;
-	}
-
-	public void setFlowPropertyFactor(FlowPropertyFactor flowPropertyFactor) {
-		this.flowPropertyFactor = flowPropertyFactor;
-	}
-
-	public Unit getUnit() {
-		return unit;
-	}
-
-	public void setUnit(Unit unit) {
-		this.unit = unit;
-	}
-
-	public double getValue() {
-		return value;
-	}
-
-	public void setValue(double value) {
-		this.value = value;
-	}
-
-	public String getFormula() {
-		return formula;
-	}
-
-	public void setFormula(String formula) {
-		this.formula = formula;
-	}
-
-	public Uncertainty getUncertainty() {
-		return uncertainty;
-	}
-
-	public void setUncertainty(Uncertainty uncertainty) {
-		this.uncertainty = uncertainty;
 	}
 
 }

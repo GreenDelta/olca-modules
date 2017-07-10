@@ -66,10 +66,10 @@ public class UnitUseSearchTest {
 		ImpactMethod method = new ImpactMethod();
 		method.setName("method");
 		ImpactFactor iFactor = new ImpactFactor();
-		iFactor.setUnit(unit);
+		iFactor.unit = unit;
 		ImpactCategory category = new ImpactCategory();
-		category.getImpactFactors().add(iFactor);
-		method.getImpactCategories().add(category);
+		category.impactFactors.add(iFactor);
+		method.impactCategories.add(category);
 		return database.createDao(ImpactMethod.class).insert(method);
 	}
 

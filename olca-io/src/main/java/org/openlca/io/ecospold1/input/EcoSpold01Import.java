@@ -359,11 +359,11 @@ public class EcoSpold01Import implements FileImport {
 				continue;
 			}
 			ImpactFactor factor = new ImpactFactor();
-			factor.setFlow(flow.flow);
-			factor.setFlowPropertyFactor(flow.flowProperty);
-			factor.setUnit(flow.unit);
-			factor.setValue(flow.conversionFactor * inFactor.getMeanValue());
-			ioCategory.getImpactFactors().add(factor);
+			factor.flow = flow.flow;
+			factor.flowPropertyFactor = flow.flowProperty;
+			factor.unit = flow.unit;
+			factor.value = flow.conversionFactor * inFactor.getMeanValue();
+			ioCategory.impactFactors.add(factor);
 		}
 	}
 
@@ -376,7 +376,7 @@ public class EcoSpold01Import implements FileImport {
 			name = name.concat(" - ").concat(inRefFunction.getName());
 		}
 		category.setName(name);
-		category.setReferenceUnit(inRefFunction.getUnit());
+		category.referenceUnit = inRefFunction.getUnit();
 		return category;
 	}
 
@@ -454,7 +454,7 @@ public class EcoSpold01Import implements FileImport {
 			ImpactCategory lciaCategory = mapReferenceFunction(dataSet
 					.getReferenceFunction());
 			mapFactors(dataSet.getExchanges(), lciaCategory);
-			method.getImpactCategories().add(lciaCategory);
+			method.impactCategories.add(lciaCategory);
 		}
 		db.put(method, methodId);
 	}
