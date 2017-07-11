@@ -139,7 +139,7 @@ class FeatureCalculator {
 				if (val == null)
 					continue;
 				n += 1.0;
-				total += n;
+				total += val;
 			}
 			return n == 0 ? 0 : total / n;
 		}
