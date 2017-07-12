@@ -20,8 +20,8 @@ import org.supercsv.cellprocessor.ParseDouble;
 public class FlowMap {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
-	private HashMap<String, FlowMapEntry> map;
-	private HashMap<String, Flow> cache = new HashMap<>();
+	private final HashMap<String, FlowMapEntry> map = new HashMap<>();
+	private final HashMap<String, Flow> cache = new HashMap<>();
 
 	public FlowMap(String map, IDatabase db) {
 		init(map, db);

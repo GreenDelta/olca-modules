@@ -198,7 +198,7 @@ Default mappings
 ================
 
 
-Default mappins: Unit import
+Default mappings: Unit import
 ----------------------------
 File:		`unit_import_map.csv`
 
@@ -221,17 +221,13 @@ EcoSpold 1
 EcoSpold 1: Flow import mapping
 -------------------------------
 
-0. EcoSpold name of the flow (string)
-1. EcoSpold category of the flow (string)
-2. EcoSpold sub-category of the flow (string)
-3. EcoSpold unit of the flow (string)
-4. openLCA reference ID of the flow (UUID)
-5. openLCA name of the flow (string)
-6. openLCA reference ID of the reference flow property of the flow (UUID)
-7. openLCA name of the reference flow property of the flow (string)
-8. openLCA reference ID of the reference unit of the flow (UUID)
-9. openLCA name of the reference unit of the flow (string)
-10. conversion factor: amount_ecospold * factor = amount_openlca (double)
+File: `ecospold_flow_map.csv`
+
+Columns:
+
+0. UUID from hashed attributes of the EcoSpold flow
+1. UUID of the openLCA flow
+2. conversion factor: amount_ecospold * factor = amount_openlca (double)
 
 
 EcoSpold 2
@@ -254,21 +250,13 @@ Columns:
 
 EcoSpold 2: Flow import mapping
 -------------------------------
-File:		`es2_flow_import_map.csv`
+File:		`ecospold_2_flow_map.csv`
 
 Columns:
 
-0. ecoinvent reference ID of the flow (UUID)
-1. ecoinvent name of the flow (string)
-2. ecoinvent reference ID of the reference unit of the flow (UUID)
-3. ecoinvent name of the reference unit of the flow (string)
-4. openLCA reference ID of the flow (UUID)
-5. openLCA name of the flow (string)
-6. openLCA reference ID of the reference flow property of the flow (UUID)
-7. openLCA name of the reference flow property of the flow (string)
-8. openLCA reference ID of the reference unit of the flow (UUID)
-9. openLCA name of the reference unit of the flow (string)
-10. conversion factor: amount_ecoinvent * factor = amount_openlca (double)
+0. UUID of the EcoSpold flow
+1. UUID of the openLCA flow
+2. conversion factor: amount_ecospold * factor = amount_openlca (double)
 
 
 EcoSpold 2: Location export mapping
@@ -334,19 +322,11 @@ ILCD
 ILCD: Flow import mapping
 -------------------------
 
-0. ILCD reference ID of the flow (UUID)
-1. ILCD name of the flow (string)
-2. ILCD reference ID of the reference flow property of the flow (UUID)
-3. ILCD name of the reference flow property of the flow (string)
-4. ILCD reference ID of the reference unit group of the flow (UUID)
-5. ILCD name of the reference unit of the flow (string)
-6. openLCA reference ID of the flow (UUID)
-7. openLCA name of the flow (string)
-8. openLCA reference ID of the reference flow property of the flow (UUID)
-9. openLCA name of the reference flow property of the flow (string)
-10. openLCA reference ID of the reference unit of the flow (UUID)
-11. openLCA name of the reference unit of the flow (string)
-12. conversion factor: amount_ilcd * factor = amount_openlca (double)
+File: `ilcd_flow_map.csv`
+
+0. UUID of the ILCD flow
+1. UUID of the openLCA flow
+2. conversion factor: amount_ilcd * factor = amount_openlca (double)
 
 
 SimaPro CSV

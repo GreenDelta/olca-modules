@@ -2,6 +2,7 @@ package org.openlca.io.ilcd;
 
 import java.util.Iterator;
 
+import org.openlca.core.database.FlowDao;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
@@ -9,7 +10,6 @@ import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
-import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.FlowPropertyBag;
 import org.openlca.ilcd.util.MethodBag;
 import org.openlca.ilcd.util.ProcessBag;
@@ -26,6 +26,7 @@ import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.SystemImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
+import org.openlca.io.maps.FlowMapEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,15 +158,27 @@ public class ILCDImport implements FileImport {
 			Iterator<Flow> it = config.store.iterator(Flow.class);
 			while (it.hasNext() && !canceled) {
 				Flow flow = it.next();
-				if (flow == null)
+				if (flow == null || isMapped(flow))
 					continue;
-				fireEvent(new FlowBag(flow, config.langs).getName());
 				FlowImport flowImport = new FlowImport(config);
 				flowImport.run(flow);
 			}
 		} catch (Exception e) {
 			log.error("Flow import failed", e);
 		}
+	}
+
+	private boolean isMapped(Flow flow) {
+		if (flow == null)
+			return false;
+		String uuid = flow.getUUID();
+		FlowMapEntry me = config.flowMap.getEntry(uuid);
+		if (me == null)
+			return false;
+		FlowDao dao = new FlowDao(config.db);
+		// TODO: we should cache the flow for later but
+		// we cannot do this currently: see ExchangeFlow
+		return dao.getForRefId(me.openlcaFlowKey) != null;
 	}
 
 	private void tryImportProcesses() {

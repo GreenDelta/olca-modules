@@ -56,7 +56,7 @@ class ExchangeFlow {
 			return cache(uuid, flow);
 		flow = fetchFromFlowMap(uuid);
 		if (flow != null)
-			return flow; // do not cache mapped flows!
+			return flow; // do not cache mapped flows! -> TODO: but we should!
 		flow = fetchFromImport(uuid);
 		return cache(uuid, flow);
 	}
