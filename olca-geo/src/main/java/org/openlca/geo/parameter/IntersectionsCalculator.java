@@ -59,17 +59,24 @@ class IntersectionsCalculator {
 		}
 	}
 
-	private Map<String, Double> calculateMultiPoint(MultiPoint featureGeo) {
+	private Map<String, Double> calculateMultiPoint(MultiPoint points) {
 		Map<String, Double> result = new HashMap<>();
-		int num = featureGeo.getNumGeometries();
-		for (int i = 0; i < num; i++) {
-			Geometry geo = featureGeo.getGeometryN(i);
+		int count = points.getNumGeometries();
+		double total = 0;
+		for (int i = 0; i < count; i++) {
+			Geometry geo = points.getGeometryN(i);
 			String shapeId = findPointShape(geo);
-			if (shapeId != null) {
+			if (shapeId == null)
+				continue;
+			Double val = result.get(shapeId);
+			if (val == null) {
 				result.put(shapeId, 1d);
+			} else {
+				result.put(shapeId, val + 1d);
 			}
+			total += 1d;
 		}
-		return makeRelative(result, result.size());
+		return makeRelative(result, total);
 	}
 
 	private String findPointShape(Geometry feature) {
