@@ -255,10 +255,10 @@ class RefDataImport {
 		FlowMapEntry entry = flowMap.getEntry(extId);
 		if (entry == null)
 			return null;
-		flow = flowDao.getForRefId(entry.getOpenlcaFlowKey());
+		flow = flowDao.getForRefId(entry.openlcaFlowKey);
 		if (flow == null)
 			return null;
-		index.putMappedFlow(extId, entry.getConversionFactor());
+		index.putMappedFlow(extId, entry.conversionFactor);
 		return flow;
 	}
 

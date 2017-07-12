@@ -117,11 +117,11 @@ class FlowImport {
 		FlowMapEntry entry = flowMap.getEntry(genKey);
 		if (entry == null)
 			return null;
-		Flow flow = db.get(Flow.class, entry.getOpenlcaFlowKey());
+		Flow flow = db.get(Flow.class, entry.openlcaFlowKey);
 		if (flow == null)
 			return null;
 		FlowBucket bucket = new FlowBucket();
-		bucket.conversionFactor = entry.getConversionFactor();
+		bucket.conversionFactor = entry.conversionFactor;
 		bucket.flow = flow;
 		bucket.flowProperty = flow.getReferenceFactor();
 		Unit unit = getReferenceUnit(bucket.flowProperty);

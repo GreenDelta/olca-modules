@@ -216,7 +216,7 @@ public class MethodImport {
 		if (entry == null)
 			return null;
 		FlowDao dao = new FlowDao(config.db);
-		return dao.getForRefId(entry.getOpenlcaFlowKey());
+		return dao.getForRefId(entry.openlcaFlowKey);
 	}
 
 	private Unit getRefUnit(Flow flow) {

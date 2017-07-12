@@ -89,7 +89,7 @@ class ExchangeFlow {
 		FlowMapEntry e = config.flowMap.getEntry(flowId);
 		if (e == null)
 			return null;
-		String mappedID = e.getOpenlcaFlowKey();
+		String mappedID = e.openlcaFlowKey;
 		Flow f = fetchFromCache(mappedID);
 		if (f == null) {
 			f = fetchFromDatabase(mappedID);

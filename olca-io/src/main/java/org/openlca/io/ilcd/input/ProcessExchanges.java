@@ -80,11 +80,11 @@ class ProcessExchanges {
 	private void applyFlowAssignment(Exchange oExchange,
 			FlowMapEntry mapEntry) {
 		double amount = oExchange.amount;
-		double newVal = mapEntry.getConversionFactor() * amount;
+		double newVal = mapEntry.conversionFactor * amount;
 		oExchange.amount = newVal;
 		if (oExchange.amountFormula != null) {
 			String newForm = "(" + oExchange.amountFormula + ") * "
-					+ mapEntry.getConversionFactor();
+					+ mapEntry.conversionFactor;
 			oExchange.amountFormula = newForm;
 		}
 	}

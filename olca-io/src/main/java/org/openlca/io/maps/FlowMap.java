@@ -52,11 +52,11 @@ public class FlowMap {
 
 	private void createEntry(List<Object> list) {
 		FlowMapEntry entry = new FlowMapEntry();
-		entry.setExternalFlowKey(Maps.getString(list, 0));
-		entry.setOpenlcaFlowKey(Maps.getString(list, 1));
+		entry.externalFlowKey = Maps.getString(list, 0);
+		entry.openlcaFlowKey = Maps.getString(list, 1);
 		double factor = Maps.getDouble(list, 2);
-		entry.setConversionFactor(factor);
-		map.put(entry.getExternalFlowKey(), entry);
+		entry.conversionFactor = factor;
+		map.put(entry.externalFlowKey, entry);
 	}
 
 	public FlowMapEntry getEntry(String externalKey) {
@@ -70,7 +70,7 @@ public class FlowMap {
 		FlowMapEntry entry = getEntry(externalKey);
 		if (entry == null)
 			return 1.0;
-		return entry.getConversionFactor();
+		return entry.conversionFactor;
 	}
 
 }
