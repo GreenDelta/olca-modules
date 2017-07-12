@@ -22,7 +22,7 @@ CREATE TABLE openlca_version (
 	version SMALLINT	
 	
 );
-INSERT INTO openlca_version (version) VALUES (6);
+INSERT INTO openlca_version (version) VALUES (7);
 
 
 CREATE TABLE tbl_categories (
