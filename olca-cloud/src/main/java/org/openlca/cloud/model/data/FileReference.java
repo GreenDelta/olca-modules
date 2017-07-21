@@ -26,5 +26,10 @@ public class FileReference implements Serializable {
 			return false;
 		return ref.refId.equals(refId);
 	}
+	
+	@Override
+	public String toString() {
+		return getClass().getName() + " - refId: " + refId + ", type: " + type.name();
+	}
 
 }
