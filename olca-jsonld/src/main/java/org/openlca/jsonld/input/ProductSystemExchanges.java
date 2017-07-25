@@ -1,6 +1,9 @@
 package org.openlca.jsonld.input;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -20,8 +23,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import gnu.trove.map.hash.TLongDoubleHashMap;
-
 /**
  * Maps the reference exchange and exchange IDs of the process links of a
  * product system and generates the process links. This function should be
@@ -30,12 +31,32 @@ import gnu.trove.map.hash.TLongDoubleHashMap;
  */
 class ProductSystemExchanges {
 
+	private final Logger log = LoggerFactory.getLogger(ProductSystemExchanges.class);
 	private final IDatabase db;
 	private final RefIdMap<String, Long> refIds;
+	private final Map<Long, Map<Integer, Long>> exchangeIds;
 
 	private ProductSystemExchanges(ImportConfig conf) {
 		db = conf.db.getDatabase();
 		refIds = RefIdMap.refToInternal(db, Process.class, Flow.class, Unit.class);
+		exchangeIds = new HashMap<>();
+		try {
+			NativeSql.on(db).query("SELECT f_owner, id, internal_id FROM tbl_exchanges", this::putExchangeId);
+		} catch (SQLException e) {
+			log.error("Error loading exchange ids", e);
+		}
+	}
+
+	private boolean putExchangeId(ResultSet rs) throws SQLException {
+		long processId = rs.getLong("f_owner");
+		long exchangeId = rs.getLong("id");
+		int internalId = rs.getInt("internal_id");
+		Map<Integer, Long> ofProcess = exchangeIds.get(processId);
+		if (ofProcess == null) {
+			exchangeIds.put(processId, ofProcess = new HashMap<>());
+		}
+		ofProcess.put(internalId, exchangeId);
+		return true;
 	}
 
 	static void map(JsonObject json, ImportConfig conf, ProductSystem system) {
@@ -55,8 +76,9 @@ class ProductSystemExchanges {
 			link.providerId = getId(obj, "provider", Process.class);
 			link.processId = getId(obj, "process", Process.class);
 			link.flowId = getId(obj, "flow", Flow.class);
-			link.exchangeId = findExchangeId(link.processId,
-					In.getObject(obj, "exchange"));
+			JsonObject exchange = In.getObject(obj, "exchange");
+			int internalId = In.getInt(exchange, "internalId", 0);
+			link.exchangeId = findExchangeId(link.processId, internalId);
 			if (valid(link)) {
 				system.getProcessLinks().add(link);
 			}
@@ -73,10 +95,10 @@ class ProductSystemExchanges {
 		if (refProcess == null)
 			return;
 		JsonObject refJson = In.getObject(json, "referenceExchange");
-		long id = findExchangeId(refProcess.getId(), refJson);
-		if (id <= 0)
+		int internalId = In.getInt(refJson, "internalId", 0);
+		if (internalId <= 0)
 			return;
-		Exchange refExchange = db.createDao(Exchange.class).getForId(id);
+		Exchange refExchange = refProcess.getExchange(internalId);
 		system.setReferenceExchange(refExchange);
 		system.setTargetFlowPropertyFactor(findFactor(json, system));
 		system.setTargetUnit(findUnit(json, system));
@@ -105,49 +127,6 @@ class ProductSystemExchanges {
 		return null;
 	}
 
-	/**
-	 * Try to find an exchange of the given process with the matching attributes
-	 * from the database. Returns -1 if nothing were found
-	 */
-	private long findExchangeId(long processId, JsonObject json) {
-		if (processId <= 0 || json == null)
-			return -1;
-		long flowId = getId(json, "flow", Flow.class);
-		long unitId = getId(json, "unit", Unit.class);
-		long providerId = getId(json, "defaultProvider", Process.class);
-		int input = In.getBool(json, "input", true) ? 1 : 0;
-		double amount = In.getDouble(json, "amount", 0);
-		String sql = "select id, resulting_amount_value from tbl_exchanges "
-				+ "where f_owner=" + processId + " and f_flow=" + flowId
-				+ " and f_unit=" + unitId + " and f_default_provider="
-				+ providerId + " and is_input=" + input;
-		try {
-			return queryId(amount, sql);
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.error("failed to search exchange: " + sql, e);
-			return -1;
-		}
-	}
-
-	private long queryId(double amount, String sql) throws SQLException {
-		TLongDoubleHashMap vals = new TLongDoubleHashMap();
-		NativeSql.on(db).query(sql, r -> {
-			vals.put(r.getLong(1), r.getDouble(2));
-			return true;
-		});
-		long exchangeId = -1;
-		double delta = 0;
-		for (long id : vals.keys()) {
-			double dist = Math.abs(amount - vals.get(id));
-			if (exchangeId == -1 || dist < delta) {
-				exchangeId = id;
-				delta = dist;
-			}
-		}
-		return exchangeId;
-	}
-
 	private long getId(JsonObject json, String key, Class<?> type) {
 		JsonObject refObj = In.getObject(json, key);
 		if (refObj == null)
@@ -156,4 +135,14 @@ class ProductSystemExchanges {
 		Long id = refIds.get(type, refId);
 		return id == null ? 0 : id;
 	}
+
+	private long findExchangeId(long processId, int internalId) {
+		Map<Integer, Long> ofProcess = exchangeIds.get(processId);
+		if (ofProcess == null)
+			return 0;
+		if (ofProcess.get(internalId) == null)
+			return 0;
+		return ofProcess.get(internalId);
+	}
+
 }
