@@ -1,7 +1,14 @@
 package org.openlca.ilcd.util;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.AdminInfo;
+import org.openlca.ilcd.processes.ComplianceDeclaration;
+import org.openlca.ilcd.processes.ComplianceList;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataGenerator;
 import org.openlca.ilcd.processes.DataSetInfo;
@@ -246,5 +253,39 @@ public final class Processes {
 		Exchange e = new Exchange();
 		p.exchanges.add(e);
 		return e;
+	}
+
+	public static List<ComplianceDeclaration> getComplianceDeclarations(
+			Process p) {
+		if (p == null || p.modelling == null
+				|| p.modelling.complianceDeclarations == null)
+			return Collections.emptyList();
+		return p.modelling.complianceDeclarations.entries;
+	}
+
+	public static List<ComplianceDeclaration> complianceDeclarations(
+			Process p) {
+		if (p.modelling == null)
+			p.modelling = new Modelling();
+		if (p.modelling.complianceDeclarations == null)
+			p.modelling.complianceDeclarations = new ComplianceList();
+		return p.modelling.complianceDeclarations.entries;
+	}
+
+	public static ComplianceDeclaration complianceDeclaration(Process p) {
+		List<ComplianceDeclaration> list = complianceDeclarations(p);
+		ComplianceDeclaration cd = new ComplianceDeclaration();
+		list.add(cd);
+		return cd;
+	}
+
+	public static ComplianceDeclaration getComplianceDeclaration(Process p,
+			Ref system) {
+		List<ComplianceDeclaration> list = getComplianceDeclarations(p);
+		for (ComplianceDeclaration cd : list) {
+			if (Objects.equals(cd.system, system))
+				return cd;
+		}
+		return null;
 	}
 }

@@ -34,7 +34,7 @@ class SourceRefCollection {
 	private static void complianceSystems(Process p, List<Ref> refs) {
 		if (p.modelling == null)
 			return;
-		ComplianceList list = p.modelling.complianceDeclatations;
+		ComplianceList list = p.modelling.complianceDeclarations;
 		if (list == null)
 			return;
 		for (ComplianceDeclaration decl : list.entries) {

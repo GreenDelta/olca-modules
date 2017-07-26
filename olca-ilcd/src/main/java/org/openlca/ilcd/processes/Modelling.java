@@ -20,7 +20,7 @@ import org.openlca.ilcd.commons.Other;
 		"representativeness",
 		"completeness",
 		"validation",
-		"complianceDeclatations",
+		"complianceDeclarations",
 		"other"
 })
 public class Modelling implements Serializable {
@@ -38,7 +38,7 @@ public class Modelling implements Serializable {
 	public Validation validation;
 
 	@XmlElement(name = "complianceDeclarations")
-	public ComplianceList complianceDeclatations;
+	public ComplianceList complianceDeclarations;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -57,8 +57,8 @@ public class Modelling implements Serializable {
 			clone.completeness = completeness.clone();
 		if (validation != null)
 			clone.validation = validation.clone();
-		if (complianceDeclatations != null) {
-			clone.complianceDeclatations = complianceDeclatations.clone();
+		if (complianceDeclarations != null) {
+			clone.complianceDeclarations = complianceDeclarations.clone();
 		}
 		if (other != null)
 			clone.other = other.clone();
