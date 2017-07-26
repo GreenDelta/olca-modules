@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
@@ -38,9 +37,8 @@ public class Modelling implements Serializable {
 
 	public Validation validation;
 
-	@XmlElementWrapper(name = "complianceDeclarations")
-	@XmlElement(name = "compliance", required = true)
-	public ComplianceDeclaration[] complianceDeclatations;
+	@XmlElement(name = "complianceDeclarations")
+	public ComplianceList complianceDeclatations;
 
 	@XmlElement(namespace = "http://lca.jrc.it/ILCD/Common")
 	public Other other;
@@ -60,13 +58,7 @@ public class Modelling implements Serializable {
 		if (validation != null)
 			clone.validation = validation.clone();
 		if (complianceDeclatations != null) {
-			clone.complianceDeclatations = new ComplianceDeclaration[complianceDeclatations.length];
-			for (int i = 0; i < complianceDeclatations.length; i++) {
-				ComplianceDeclaration d = complianceDeclatations[i];
-				if (d == null)
-					continue;
-				clone.complianceDeclatations[i] = d.clone();
-			}
+			clone.complianceDeclatations = complianceDeclatations.clone();
 		}
 		if (other != null)
 			clone.other = other.clone();

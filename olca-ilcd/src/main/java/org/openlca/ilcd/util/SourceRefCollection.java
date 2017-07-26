@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.ComplianceDeclaration;
+import org.openlca.ilcd.processes.ComplianceList;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Process;
@@ -33,10 +34,10 @@ class SourceRefCollection {
 	private static void complianceSystems(Process p, List<Ref> refs) {
 		if (p.modelling == null)
 			return;
-		ComplianceDeclaration[] decls = p.modelling.complianceDeclatations;
-		if (decls == null)
+		ComplianceList list = p.modelling.complianceDeclatations;
+		if (list == null)
 			return;
-		for (ComplianceDeclaration decl : decls) {
+		for (ComplianceDeclaration decl : list.entries) {
 			Ref ref = decl.system;
 			if (ref == null)
 				continue;

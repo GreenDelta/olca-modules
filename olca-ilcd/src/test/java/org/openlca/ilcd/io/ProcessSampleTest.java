@@ -108,8 +108,9 @@ public class ProcessSampleTest {
 	@Test
 	public void testCompliance() throws Exception {
 		with(p -> {
-			assertEquals(2, p.modelling.complianceDeclatations.length);
-			ComplianceDeclaration c = p.modelling.complianceDeclatations[0];
+			assertEquals(2, p.modelling.complianceDeclatations.entries.size());
+			ComplianceDeclaration c = p.modelling.complianceDeclatations.entries
+					.get(0);
 			Assert.assertNotNull(c.system);
 			Compliance v = Compliance.FULLY_COMPLIANT;
 			assertEquals(v, c.approval);

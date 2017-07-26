@@ -23,9 +23,12 @@ public class SodaConnection {
 
 	@Override
 	public String toString() {
-		if (dataStockName == null)
+		String s = url;
+		if (dataStockName != null && dataStockName.length() > 0)
+			return s += "/" + dataStockName;
+		if (user != null && user.length() > 0)
 			return user + "@" + url;
-		return user + "@" + url + "/" + dataStockName;
+		return s;
 	}
 
 	@Override
