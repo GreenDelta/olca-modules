@@ -16,8 +16,10 @@ import javax.ws.rs.core.Response.Status.Family;
 
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Ref;
+import org.openlca.ilcd.descriptors.CategorySystemList;
 import org.openlca.ilcd.descriptors.DataStockList;
 import org.openlca.ilcd.descriptors.DescriptorList;
+import org.openlca.ilcd.lists.CategorySystem;
 import org.openlca.ilcd.sources.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,9 +86,25 @@ public class SodaClient implements DataStore {
 
 	public DataStockList getDataStockList() throws DataStoreException {
 		checkConnection();
-		log.trace("get data stocks");
+		log.trace("get data stock list: /datastocks");
 		WebResource r = resource("datastocks");
 		return cookies(r).get(DataStockList.class);
+	}
+
+	public CategorySystemList getCategorySystemList()
+			throws DataStoreException {
+		checkConnection();
+		log.trace("get category system list: /categorySystems");
+		WebResource r = resource("categorySystems");
+		return cookies(r).get(CategorySystemList.class);
+	}
+
+	public CategorySystem getCategorySystem(String name)
+			throws DataStoreException {
+		checkConnection();
+		log.trace("get category system list: /categorySystems/{}", name);
+		WebResource r = resource("categorySystems", name);
+		return cookies(r).get(CategorySystem.class);
 	}
 
 	@Override
