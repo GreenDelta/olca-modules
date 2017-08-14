@@ -10,6 +10,7 @@ import org.openlca.jsonld.Schema.UnsupportedSchemaException;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Invokes a webservice call to check access to the specified repository
@@ -17,6 +18,7 @@ import com.sun.jersey.api.client.ClientResponse;
 class CheckAccessInvocation {
 
 	private static final String PATH = "/repository/meta";
+	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -33,7 +35,7 @@ class CheckAccessInvocation {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		String url = baseUrl + PATH + "/" + repositoryId;
 		try {
-			ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
+			ClientResponse response = WebRequests.call(Type.GET, url, sessionId, config);
 			String json = response.getEntity(String.class);
 			MetaInfo meta = new Gson().fromJson(json, MetaInfo.class);
 			if (!Schema.isSupportedSchema(meta.schemaVersion))

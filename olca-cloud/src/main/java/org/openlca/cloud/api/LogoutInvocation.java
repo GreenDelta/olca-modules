@@ -5,12 +5,15 @@ import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 
+import com.sun.jersey.api.client.config.ClientConfig;
+
 /**
  * Invokes a web service call to logout
  */
 class LogoutInvocation {
 
 	private final static String PATH = "/public/logout";
+	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 
@@ -24,6 +27,6 @@ class LogoutInvocation {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(sessionId, "session id");
 		String url = baseUrl + PATH;
-		WebRequests.call(Type.POST, url, sessionId);
+		WebRequests.call(Type.POST, url, sessionId, config);
 	}
 }

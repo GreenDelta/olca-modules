@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Invokes a web service call to request a list of data set descriptors of those
@@ -22,6 +23,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 class SyncInvocation {
 
 	private static final String PATH = "/public/sync/";
+	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -43,7 +45,7 @@ class SyncInvocation {
 		if (untilCommitId == null || untilCommitId.isEmpty())
 			untilCommitId = "null";
 		String url = baseUrl + PATH + repositoryId + "/" + untilCommitId;
-		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId, config);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptySet();
 		return new Gson().fromJson(response.getEntity(String.class), new TypeToken<Set<FetchRequestData>>() {

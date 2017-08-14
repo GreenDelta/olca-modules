@@ -13,24 +13,21 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.api.client.config.ClientConfig;
 
 public class WebRequests {
 
 	private static final Logger log = LoggerFactory.getLogger(WebRequests.class);
-	private static final Client client;
 
-	static {
-		client = Client.create();
-		client.setChunkedEncodingSize(1024 * 100); // 100kb
+	public static ClientResponse call(Type type, String url, String sessionId, ClientConfig config)
+			throws WebRequestException {
+		return call(type, url, sessionId, null, config);
 	}
 
-	public static ClientResponse call(Type type, String url, String sessionId) throws WebRequestException {
-		return call(type, url, sessionId, null);
-	}
-
-	public static ClientResponse call(Type type, String url, String sessionId, Object data) throws WebRequestException {
+	public static ClientResponse call(Type type, String url, String sessionId, Object data, ClientConfig config)
+			throws WebRequestException {
 		log.info(type.name() + " " + url);
-		Builder request = builder(url, sessionId, data);
+		Builder request = builder(config, url, sessionId, data);
 		try {
 			ClientResponse response = call(type, request);
 			if (response.getStatus() >= 400 && response.getStatus() <= 599)
@@ -56,9 +53,11 @@ public class WebRequests {
 		}
 	}
 
-	private static Builder builder(String url, String sessionId, Object data) {
-		WebResource resource = client.resource(url);
-		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE, 
+	private static Builder builder(ClientConfig config, String url, String sessionId, Object data) {
+		Client client = config == null ? Client.create() : Client.create(config);
+		client.setChunkedEncodingSize(1024 * 100); // 100kb
+		WebResource resource = Client.create(config).resource(url);
+		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE,
 				MediaType.TEXT_PLAIN_TYPE, MediaType.APPLICATION_OCTET_STREAM_TYPE);
 		if (sessionId != null)
 			builder.cookie(new Cookie("JSESSIONID", sessionId));

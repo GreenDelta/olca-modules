@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Invokes a web service call to check if the given ref ids are contained in any
@@ -25,6 +26,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 class LibraryCheckInvocation {
 
 	private static final String PATH = "/library/";
+	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	Set<Dataset> datasets;
@@ -43,8 +45,7 @@ class LibraryCheckInvocation {
 		List<String> refIds = new ArrayList<>();
 		for (Dataset dataset : datasets)
 			refIds.add(dataset.refId);
-		ClientResponse response = WebRequests.call(Type.POST, url, sessionId,
-				refIds);
+		ClientResponse response = WebRequests.call(Type.POST, url, sessionId, refIds, config);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyMap();
 		return mapResults(response);

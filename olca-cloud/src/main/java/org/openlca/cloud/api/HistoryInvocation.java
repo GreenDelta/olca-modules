@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Invokes a web service call to retrieve all commit entries after the specified
@@ -21,6 +22,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 class HistoryInvocation {
 
 	private static final String PATH = "/history/";
+	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -41,7 +43,7 @@ class HistoryInvocation {
 		if (lastCommitId == null || lastCommitId.isEmpty())
 			lastCommitId = "null";
 		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
-		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId, config);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptyList();
 		return new Gson().fromJson(response.getEntity(String.class),

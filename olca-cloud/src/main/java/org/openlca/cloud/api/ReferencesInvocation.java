@@ -11,6 +11,7 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Invokes a web service call to retrieve all references contained in the
@@ -19,6 +20,7 @@ import com.sun.jersey.api.client.ClientResponse;
 class ReferencesInvocation {
 
 	private static final String PATH = "/fetch/references/";
+	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -38,7 +40,7 @@ class ReferencesInvocation {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		Valid.checkNotEmpty(commitId, "commit id");
 		String url = baseUrl + PATH + repositoryId + "/" + commitId;
-		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId, config);
 		return new Gson().fromJson(response.getEntity(String.class),
 				new TypeToken<List<FetchRequestData>>() {
 				}.getType());

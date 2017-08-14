@@ -1,6 +1,10 @@
 package org.openlca.cloud.api;
 
 import java.io.File;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,25 +13,37 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+
 import org.openlca.cloud.model.data.Commit;
 import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.model.data.FetchRequestData;
 import org.openlca.cloud.model.data.FileReference;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.model.ModelType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.client.urlconnection.HTTPSProperties;
 
 public class RepositoryClient {
 
+	private final static Logger log = LoggerFactory.getLogger(RepositoryClient.class);
 	private final RepositoryConfig config;
+	private final ClientConfig jerseyConfig;
 	// Method to call if token is required, if no callback is specified a
 	// TokenRequiredException will be thrown when a token is required
 	private String sessionId;
 
 	public RepositoryClient(RepositoryConfig config) {
 		this.config = config;
+		this.jerseyConfig = createJerseyConfig();
 	}
 
 	public RepositoryConfig getConfig() {
@@ -36,6 +52,7 @@ public class RepositoryClient {
 
 	private boolean login() throws WebRequestException {
 		LoginInvocation invocation = new LoginInvocation();
+		invocation.config = jerseyConfig;
 		invocation.baseUrl = config.baseUrl;
 		invocation.credentials = config.credentials;
 		sessionId = invocation.execute();
@@ -46,6 +63,7 @@ public class RepositoryClient {
 		if (sessionId == null)
 			return;
 		LogoutInvocation invocation = new LogoutInvocation();
+		invocation.config = jerseyConfig;
 		invocation.baseUrl = config.baseUrl;
 		invocation.sessionId = sessionId;
 		try {
@@ -61,6 +79,7 @@ public class RepositoryClient {
 	public boolean hasAccess(String repositoryId) throws WebRequestException {
 		Boolean result = executeLoggedIn(() -> {
 			CheckAccessInvocation invocation = new CheckAccessInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = repositoryId;
@@ -81,6 +100,7 @@ public class RepositoryClient {
 	public boolean requestCommit() throws WebRequestException {
 		Boolean result = executeLoggedIn(() -> {
 			CommitRequestInvocation invocation = new CommitRequestInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -102,6 +122,7 @@ public class RepositoryClient {
 	public void commit(String message, Set<Dataset> data, Consumer<Dataset> callback) throws WebRequestException {
 		executeLoggedIn(() -> {
 			CommitInvocation invocation = new CommitInvocation(config.database);
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -115,6 +136,7 @@ public class RepositoryClient {
 	public List<Commit> fetchCommitHistory() throws WebRequestException {
 		List<Commit> result = executeLoggedIn(() -> {
 			HistoryInvocation invocation = new HistoryInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -128,6 +150,7 @@ public class RepositoryClient {
 	public List<Commit> fetchNewCommitHistory() throws WebRequestException {
 		List<Commit> result = executeLoggedIn(() -> {
 			HistoryInvocation invocation = new HistoryInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -142,6 +165,7 @@ public class RepositoryClient {
 	public Map<Dataset, String> performLibraryCheck(Set<Dataset> datasets) throws WebRequestException {
 		Map<Dataset, String> result = executeLoggedIn(() -> {
 			LibraryCheckInvocation invocation = new LibraryCheckInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.datasets = datasets;
@@ -155,6 +179,7 @@ public class RepositoryClient {
 	public List<FetchRequestData> getReferences(String commitId) throws WebRequestException {
 		List<FetchRequestData> result = executeLoggedIn(() -> {
 			ReferencesInvocation invocation = new ReferencesInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -170,6 +195,7 @@ public class RepositoryClient {
 	public String getPreviousReference(ModelType type, String refId, String beforeCommitId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			PreviousCommitInvocation invocation = new PreviousCommitInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -183,6 +209,7 @@ public class RepositoryClient {
 	public Set<FetchRequestData> requestFetch() throws WebRequestException {
 		Set<FetchRequestData> result = executeLoggedIn(() -> {
 			FetchRequestInvocation invocation = new FetchRequestInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -201,6 +228,7 @@ public class RepositoryClient {
 	public Set<FetchRequestData> sync(String untilCommitId) throws WebRequestException {
 		Set<FetchRequestData> result = executeLoggedIn(() -> {
 			SyncInvocation invocation = new SyncInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -215,6 +243,7 @@ public class RepositoryClient {
 	public File downloadJson(Set<FileReference> requestData) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			DownloadJsonInvocation invocation = new DownloadJsonInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -227,6 +256,7 @@ public class RepositoryClient {
 			throws WebRequestException {
 		executeLoggedIn(() -> {
 			DownloadInvocation invocation = new DownloadInvocation(config.database, notifier);
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -240,6 +270,7 @@ public class RepositoryClient {
 			throws WebRequestException {
 		executeLoggedIn(() -> {
 			FetchInvocation invocation = new FetchInvocation(config.database, notifier);
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -255,6 +286,7 @@ public class RepositoryClient {
 			return;
 		executeLoggedIn(() -> {
 			CheckoutInvocation invocation = new CheckoutInvocation(config.database, notifier);
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -271,6 +303,7 @@ public class RepositoryClient {
 	public JsonObject getDataset(ModelType type, String refId, String commitId) throws WebRequestException {
 		return executeLoggedIn(() -> {
 			DatasetContentInvocation invocation = new DatasetContentInvocation();
+			invocation.config = jerseyConfig;
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
@@ -308,6 +341,30 @@ public class RepositoryClient {
 				return runnable.run();
 			} else
 				throw e;
+		}
+	}
+
+	private ClientConfig createJerseyConfig() {
+		ClientConfig config = new DefaultClientConfig();
+		InputStream certificateStream = this.config.getCertificate();
+		if (certificateStream == null)
+			return config;
+		try {
+			CertificateFactory factory = CertificateFactory.getInstance("X.509");
+			X509Certificate certificate = (X509Certificate) factory.generateCertificate(certificateStream);
+			TrustManagerFactory tmFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			keyStore.load(null);
+			keyStore.setCertificateEntry("certificate", certificate);
+			tmFactory.init(keyStore);
+			SSLContext sslContext = SSLContext.getInstance("TLS");
+			sslContext.init(null, tmFactory.getTrustManagers(), null);
+			config.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES,
+					new HTTPSProperties(HttpsURLConnection.getDefaultHostnameVerifier(), sslContext));
+			return config;
+		} catch (Exception e) {
+			log.error("Error creating jersey config", e);
+			return config;
 		}
 	}
 

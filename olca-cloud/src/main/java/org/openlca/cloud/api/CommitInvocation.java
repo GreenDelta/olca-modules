@@ -16,6 +16,8 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
 
+import com.sun.jersey.api.client.config.ClientConfig;
+
 /**
  * Invokes a web service call to commit data to a repository
  */
@@ -23,6 +25,7 @@ public class CommitInvocation {
 
 	private static final String PATH = "/commit/";
 	private IDatabase database;
+	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -65,7 +68,8 @@ public class CommitInvocation {
 				}
 			}
 		}
-		String commitId = WebRequests.call(Type.POST, url, sessionId, new CommitStream(database, message, data, callback))
+		String commitId = WebRequests.call(Type.POST, url, sessionId,
+				new CommitStream(database, message, data, callback), config)
 				.getEntity(String.class);
 		return commitId;
 	}
