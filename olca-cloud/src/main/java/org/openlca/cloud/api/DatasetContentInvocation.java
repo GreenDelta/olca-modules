@@ -10,7 +10,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Invokes a web service call to load a data set matching by type, refId and
@@ -19,7 +18,6 @@ import com.sun.jersey.api.client.config.ClientConfig;
 class DatasetContentInvocation {
 
 	private static final String PATH = "/fetch/data/";
-	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -44,7 +42,7 @@ class DatasetContentInvocation {
 		if (commitId == null)
 			commitId = "null";
 		String url = baseUrl + PATH + repositoryId + "/" + type + "/" + refId + "/" + commitId;
-		ClientResponse response = WebRequests.call(Type.GET, url, sessionId, config);
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		String json = response.getEntity(String.class);
 		JsonElement element = new Gson().fromJson(json, JsonElement.class);
 		return element.getAsJsonObject();

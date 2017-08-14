@@ -17,13 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.config.ClientConfig;
 
 class DownloadJsonInvocation {
 
 	private static final Logger log = LoggerFactory.getLogger(DownloadJsonInvocation.class);
 	private static final String PATH = "/public/download/json/";
-	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -35,12 +33,12 @@ class DownloadJsonInvocation {
 		if (requestData == null)
 			requestData = new HashSet<>();
 		String url = baseUrl + PATH + "prepare/" + repositoryId;
-		ClientResponse response = WebRequests.call(Type.PUT, url, sessionId, requestData, config);
+		ClientResponse response = WebRequests.call(Type.PUT, url, sessionId, requestData);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return null;
 		String dlToken = response.getEntity(String.class);
 		url = baseUrl + PATH + dlToken;
-		response = WebRequests.call(Type.GET, url, sessionId, config);
+		response = WebRequests.call(Type.GET, url, sessionId);
 		try {
 			File tmp = Files.createTempFile("olca", ".zip").toFile();
 			Files.copy(response.getEntityInputStream(), tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);

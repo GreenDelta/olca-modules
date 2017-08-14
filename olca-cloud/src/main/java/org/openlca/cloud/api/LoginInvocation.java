@@ -12,7 +12,6 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Invokes a web service call to login
@@ -20,7 +19,6 @@ import com.sun.jersey.api.client.config.ClientConfig;
 class LoginInvocation {
 
 	private static final String PATH = "/public/login";
-	ClientConfig config;
 	String baseUrl;
 	CredentialSupplier credentials;
 
@@ -58,7 +56,7 @@ class LoginInvocation {
 		data.put("password", credentials.password);
 		if (token != null)
 			data.put("token", token.toString());
-		return WebRequests.call(Type.POST, url, null, data, config);
+		return WebRequests.call(Type.POST, url, null, data);
 	}
 
 }

@@ -9,7 +9,6 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.model.ModelType;
 
 import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Invokes a web service call to retrieve the previous commit id of a specified
@@ -18,7 +17,6 @@ import com.sun.jersey.api.client.config.ClientConfig;
 class PreviousCommitInvocation {
 
 	private static final String PATH = "/history/previousCommitId/";
-	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -39,7 +37,7 @@ class PreviousCommitInvocation {
 		Valid.checkNotEmpty(refId, "ref id");
 		Valid.checkNotEmpty(commitId, "commit id");
 		String url = baseUrl + PATH + repositoryId + "/" + type.name() + "/" + refId + "/" + commitId;
-		ClientResponse response = WebRequests.call(Type.GET, url, sessionId, config);
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		if (response.getStatus() == Status.NOT_FOUND.getStatusCode())
 			return null;
 		return response.getEntity(String.class);

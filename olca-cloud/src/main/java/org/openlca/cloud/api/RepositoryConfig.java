@@ -2,10 +2,8 @@ package org.openlca.cloud.api;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 import org.openlca.cloud.util.Directories;
@@ -20,15 +18,16 @@ public class RepositoryConfig {
 	public final String baseUrl;
 	public final String repositoryId;
 	public final CredentialSupplier credentials;
-	private final String certificatePath;
 	private String lastCommitId;
 
-	public RepositoryConfig(IDatabase database, String baseUrl, String repositoryId, String certificatePath,
-			CredentialSupplier credentials) {
+	public RepositoryConfig(IDatabase database, String baseUrl, String repositoryId) {
+		this(database, baseUrl, repositoryId, null);
+	}
+
+	public RepositoryConfig(IDatabase database, String baseUrl, String repositoryId, CredentialSupplier credentials) {
 		this.database = database;
 		this.baseUrl = baseUrl;
 		this.repositoryId = repositoryId;
-		this.certificatePath = certificatePath;
 		this.credentials = credentials;
 	}
 
@@ -44,12 +43,10 @@ public class RepositoryConfig {
 			String lastCommitId = properties.getProperty("lastCommitId");
 			String username = properties.getProperty("username");
 			String password = properties.getProperty("password");
-			String certificatePath = properties.getProperty("certificatePath");
 			if ("null".equals(lastCommitId))
 				lastCommitId = null;
 			CredentialSupplier credentials = new CredentialSupplier(username, password);
-			RepositoryConfig config = new RepositoryConfig(database, baseUrl, repositoryId, certificatePath,
-					credentials);
+			RepositoryConfig config = new RepositoryConfig(database, baseUrl, repositoryId, credentials);
 			config.setLastCommitId(lastCommitId);
 			return config;
 		} catch (IOException e) {
@@ -73,7 +70,6 @@ public class RepositoryConfig {
 			properties.setProperty("username", credentials.username);
 			// TODO encrypt
 			properties.setProperty("password", credentials.password);
-			properties.setProperty("certificatePath", certificatePath);
 			properties.store(stream, "");
 		} catch (IOException e) {
 			log.error("Error saving repository properties", e);
@@ -81,8 +77,8 @@ public class RepositoryConfig {
 	}
 
 	public static RepositoryConfig connect(IDatabase database, String baseUrl, String repositoryId,
-			String certificatePath, CredentialSupplier credentials) {
-		RepositoryConfig config = new RepositoryConfig(database, baseUrl, repositoryId, certificatePath, credentials);
+			CredentialSupplier credentials) {
+		RepositoryConfig config = new RepositoryConfig(database, baseUrl, repositoryId, credentials);
 		config.save();
 		return config;
 	}
@@ -95,7 +91,8 @@ public class RepositoryConfig {
 	}
 
 	private static File getConfigFile(IDatabase database) {
-		return new File(database.getFileStorageLocation(), "repository.properties");
+		return new File(database.getFileStorageLocation(),
+				"repository.properties");
 	}
 
 	public String getServerUrl() {
@@ -124,19 +121,6 @@ public class RepositoryConfig {
 
 	public String getLastCommitId() {
 		return lastCommitId;
-	}
-
-	InputStream getCertificate() {
-		if (certificatePath == null)
-			return null;
-		File certificateFile = new File(certificatePath);
-		if (!certificateFile.exists() || certificateFile.isDirectory())
-			return null;
-		try {
-			return new FileInputStream(certificateFile);
-		} catch (FileNotFoundException e) {
-			return null;
-		}
 	}
 
 }

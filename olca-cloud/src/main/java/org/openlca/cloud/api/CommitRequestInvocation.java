@@ -5,8 +5,6 @@ import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 
-import com.sun.jersey.api.client.config.ClientConfig;
-
 /**
  * Invokes a web service call to check if the user is in sync with the specified
  * repository. In order to reduce the amount of data sent, this method should be
@@ -16,7 +14,7 @@ import com.sun.jersey.api.client.config.ClientConfig;
 class CommitRequestInvocation {
 
 	private static final String PATH = "/commit/request/";
-	ClientConfig config;
+
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -39,7 +37,7 @@ class CommitRequestInvocation {
 		if (lastCommitId == null || lastCommitId.isEmpty())
 			lastCommitId = "null";
 		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
-		WebRequests.call(Type.GET, url, sessionId, config);
+		WebRequests.call(Type.GET, url, sessionId);
 	}
 
 }

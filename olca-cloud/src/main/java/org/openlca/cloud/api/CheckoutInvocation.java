@@ -13,14 +13,12 @@ import org.openlca.core.database.NativeSql;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.config.ClientConfig;
 
 class CheckoutInvocation {
 
 	private static final String PATH = "/checkout/";
 	private final IDatabase database;
 	private final FetchNotifier notifier;
-	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -43,7 +41,7 @@ class CheckoutInvocation {
 		if (commitId == null || commitId.isEmpty())
 			commitId = "null";
 		String url = baseUrl + PATH + repositoryId + "/" + commitId;
-		ClientResponse response = WebRequests.call(Type.GET, url, sessionId, config);
+		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return;
 		clearDatabase();

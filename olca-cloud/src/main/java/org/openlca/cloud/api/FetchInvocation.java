@@ -15,7 +15,6 @@ import org.openlca.core.database.IDatabase;
 import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.config.ClientConfig;
 
 /**
  * Invokes a web service call to fetch the latest changes after the specified
@@ -26,7 +25,6 @@ class FetchInvocation {
 	private static final String PATH = "/fetch/";
 	private final IDatabase database;
 	private final FetchNotifier notifier;
-	ClientConfig config;
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
@@ -55,7 +53,7 @@ class FetchInvocation {
 		if (fetchData == null) // still call service to receive latest commit id
 			fetchData = new HashSet<>();
 		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
-		ClientResponse response = WebRequests.call(Type.POST, url, sessionId, fetchData, config);
+		ClientResponse response = WebRequests.call(Type.POST, url, sessionId, fetchData);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return null;
 		return new FetchHandler(database, mergedData, notifier).handleResponse(response.getEntityInputStream());
