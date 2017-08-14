@@ -13,14 +13,11 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.Process;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.jsonld.ExchangeKey;
-import org.openlca.util.RefIdMap;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -30,7 +27,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 	private ProcessDao processDao;
 	private FlowDao flowDao;
 	private BaseDao<Exchange> exchangeDao;
-	private RefIdMap<Long, String> idMap;
 	private ProductSystem system;
 
 	ProductSystemWriter(ExportConfig conf) {
@@ -39,9 +35,6 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			processDao = new ProcessDao(conf.db);
 			flowDao = new FlowDao(conf.db);
 			exchangeDao = new BaseDao<>(Exchange.class, conf.db);
-			idMap = RefIdMap.internalToRef(conf.db, Process.class);
-		} else {
-			idMap = new RefIdMap<>();
 		}
 	}
 
@@ -52,10 +45,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			return null;
 		this.system = system;
 		Out.put(obj, "referenceProcess", system.getReferenceProcess(), conf, Out.REQUIRED_FIELD);
-		String processRefId = null;
-		if (system.getReferenceProcess() != null)
-			processRefId = system.getReferenceProcess().getRefId();
-		JsonObject eObj = getExchange(processRefId, system.getReferenceExchange());
+		JsonObject eObj = mapExchange(system.getReferenceExchange());
 		Out.put(obj, "referenceExchange", eObj, Out.REQUIRED_FIELD);
 		FlowProperty property = null;
 		if (system.getTargetFlowPropertyFactor() != null)
@@ -92,11 +82,8 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 				Out.put(obj, "flow", References.create(flowMap.get(link.flowId)), Out.REQUIRED_FIELD);
 				JsonObject process = References.create(processMap.get(link.processId));
 				Out.put(obj, "process", process, Out.REQUIRED_FIELD);
-				JsonObject exchange = null;
-				if (process != null && process.has("@id")) {
-					Exchange e = exchangeMap.get(link.exchangeId);
-					exchange = getExchange(process.get("@id").getAsString(), e);
-				}
+				Exchange e = exchangeMap.get(link.exchangeId);
+				JsonObject exchange = mapExchange(e);
 				Out.put(obj, "exchange", exchange, Out.REQUIRED_FIELD);
 				links.add(obj);
 			}
@@ -137,7 +124,12 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Map<Long, ProcessDescriptor> map = new HashMap<>();
 		for (ProcessDescriptor descriptor : descriptors) {
 			map.put(descriptor.getId(), descriptor);
-			JsonObject ref = References.create(descriptor);
+			JsonObject ref = null;
+			if (conf.exportReferences) {
+				ref = References.create(ModelType.PROCESS, descriptor.getId(), conf, false);				
+			} else {
+				ref = References.create(descriptor);				
+			}
 			if (ref == null)
 				continue;
 			processes.add(ref);
@@ -145,36 +137,17 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(json, "processes", processes);
 		return map;
 	}
-
-	private JsonObject getExchange(String processRefId, Exchange e) {
-		if (e == null || processRefId == null)
+	
+	private JsonObject mapExchange(Exchange e) {
+		if (e == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		Out.put(obj, "@type", "Exchange");
-		String providerId = idMap.get(Process.class, e.defaultProviderId);
-		String id = ExchangeKey.get(processRefId, providerId, e);
-		Out.put(obj, "@id", id);
-		Out.put(obj, "flow", createRef(e.flow), Out.REQUIRED_FIELD);
-		Out.put(obj, "unit", createRef(e.unit), Out.REQUIRED_FIELD);
-		Out.put(obj, "amount", e.amount);
-		Out.put(obj, "input", e.isInput);
-		if (providerId != null) {
-			JsonObject providerRef = new JsonObject();
-			Out.put(providerRef, "@type", "Process");
-			Out.put(providerRef, "@id", providerId);
-			Out.put(obj, "defaultProvider", providerRef);
-		}
+		Out.put(obj, "internalId", e.internalId);
+		if (e.flow == null)
+			return obj;
+		Out.put(obj, "name", e.flow.getName());
 		return obj;
-	}
-
-	private JsonObject createRef(RootEntity ref) {
-		if (ref == null || ref.getRefId() == null)
-			return null;
-		JsonObject refObj = new JsonObject();
-		Out.put(refObj, "@type", ref.getClass().getSimpleName());
-		Out.put(refObj, "@id", ref.getRefId());
-		Out.put(refObj, "name", ref.getName());
-		return refObj;
 	}
 
 	@Override

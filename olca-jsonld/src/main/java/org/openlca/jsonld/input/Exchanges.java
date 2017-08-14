@@ -13,14 +13,13 @@ import com.google.gson.JsonObject;
 
 class Exchanges {
 
-	static ExchangeWithId map(JsonObject json, ImportConfig conf) {
+	static Exchange map(JsonObject json, ImportConfig conf) {
 		Exchange e = new Exchange();
 		addAttributes(json, e);
 		addProvider(json, e, conf);
 		addCostEntries(json, e, conf);
 		addExchangeRefs(json, e, conf);
-		String internalId = In.getString(json, "@id");
-		return new ExchangeWithId(internalId, e);
+		return e;
 	}
 
 	private static void addAttributes(JsonObject json, Exchange e) {
@@ -31,6 +30,7 @@ class Exchanges {
 		e.amountFormula = In.getString(json, "amountFormula");
 		e.dqEntry = In.getString(json, "dqEntry");
 		e.description = In.getString(json, "description");
+		e.internalId = In.getInt(json, "internalId", 0);
 		JsonElement u = json.get("uncertainty");
 		if (u != null && u.isJsonObject()) {
 			e.uncertainty = Uncertainties.read(u.getAsJsonObject());
@@ -75,18 +75,6 @@ class Exchanges {
 				break;
 			}
 		}
-	}
-
-	static class ExchangeWithId {
-
-		final String internalId;
-		final Exchange exchange;
-
-		private ExchangeWithId(String internalId, Exchange exchange) {
-			this.internalId = internalId;
-			this.exchange = exchange;
-		}
-
 	}
 
 }

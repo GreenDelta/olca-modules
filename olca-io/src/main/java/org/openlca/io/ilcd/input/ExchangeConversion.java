@@ -19,8 +19,7 @@ class ExchangeConversion {
 	private ExchangeExtension extension;
 	private Exchange olcaExchange;
 
-	public ExchangeConversion(
-			org.openlca.ilcd.processes.Exchange ilcdExchange, ImportConfig config) {
+	public ExchangeConversion(org.openlca.ilcd.processes.Exchange ilcdExchange, ImportConfig config) {
 		this.ilcdExchange = ilcdExchange;
 		this.config = config;
 		ExchangeExtension ext = new ExchangeExtension(ilcdExchange);

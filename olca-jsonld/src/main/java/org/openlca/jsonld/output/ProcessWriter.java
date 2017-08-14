@@ -1,7 +1,5 @@
 package org.openlca.jsonld.output;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.openlca.core.model.AllocationFactor;
@@ -11,6 +9,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
+import org.openlca.util.AllocationCleanup;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -18,7 +17,6 @@ import com.google.gson.JsonObject;
 class ProcessWriter extends Writer<Process> {
 
 	private Process process;
-	private Map<Long, String> idToRefId = new HashMap<>();
 
 	ProcessWriter(ExportConfig conf) {
 		super(conf);
@@ -30,6 +28,7 @@ class ProcessWriter extends Writer<Process> {
 		if (obj == null)
 			return null;
 		this.process = p;
+		AllocationCleanup.on(p);
 		Out.put(obj, "processType", p.getProcessType(), Out.REQUIRED_FIELD);
 		Out.put(obj, "defaultAllocationMethod", p.getDefaultAllocationMethod());
 		Out.put(obj, "infrastructureProcess", p.isInfrastructureProcess());
@@ -62,10 +61,9 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray exchanges = new JsonArray();
 		for (Exchange e : process.getExchanges()) {
 			JsonObject obj = new JsonObject();
-			String id = Exchanges.map(e, process.getRefId(), obj, conf);
-			if (id == null)
+			boolean mapped = Exchanges.map(e, process.getRefId(), obj, conf);
+			if (!mapped)
 				continue;
-			idToRefId.put(e.getId(), id);
 			if (Objects.equals(process.getQuantitativeReference(), e))
 				Out.put(obj, "quantitativeReference", true);
 			exchanges.add(obj);
@@ -118,7 +116,7 @@ class ProcessWriter extends Writer<Process> {
 			return null;
 		JsonObject obj = new JsonObject();
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
-		Out.put(obj, "@id", idToRefId.get(exchange.getId()));
+		Out.put(obj, "internalId", exchange.internalId);
 		Out.put(obj, "flow", exchange.flow, conf);
 		return obj;
 	}

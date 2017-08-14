@@ -19,6 +19,7 @@ class ImpactMethodWriter extends Writer<ImpactMethod> {
 			return null;
 		Out.put(obj, "impactCategories", m.impactCategories, conf, Out.FORCE_EXPORT);
 		Out.put(obj, "nwSets", m.nwSets, conf, Out.FORCE_EXPORT);
+		Out.put(obj, "parameterMean", m.parameterMean);
 		mapParameters(obj, m);
 		ParameterReferences.writeReferencedParameters(m, conf);
 		return obj;
