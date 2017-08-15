@@ -1,16 +1,9 @@
 package org.openlca.cloud.util;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 
@@ -29,27 +22,8 @@ import com.sun.jersey.client.urlconnection.HTTPSProperties;
 public class WebRequests {
 
 	private static final Logger log = LoggerFactory.getLogger(WebRequests.class);
-	private static final SSLContext sslContext;
 
 	static {
-		SSLContext context = null;
-		try {
-			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			Path ksPath = Paths.get(System.getProperty("java.home"), "lib", "security", "cacerts");
-			keyStore.load(Files.newInputStream(ksPath), "changeit".toCharArray());
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			try (InputStream caInput = WebRequests.class.getResourceAsStream("lets-encrypt-root-cert.cer")) {
-				Certificate crt = cf.generateCertificate(caInput);
-				keyStore.setCertificateEntry("DSTRootCAX3", crt);
-			}
-			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-			tmf.init(keyStore);
-			context = SSLContext.getInstance("TLS");
-			context.init(null, tmf.getTrustManagers(), null);
-		} catch (Exception e) {
-			context = null;
-		}
-		sslContext = context;
 	}
 
 	public static ClientResponse call(Type type, String url, String sessionId) throws WebRequestException {
@@ -102,9 +76,10 @@ public class WebRequests {
 
 	private static Client createClient() {
 		ClientConfig config = new DefaultClientConfig();
-		if (sslContext != null) {
+		SSLContext context = Ssl.createContext();
+		if (context != null) {
 			config.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES,
-					new HTTPSProperties(HttpsURLConnection.getDefaultHostnameVerifier(), sslContext));
+					new HTTPSProperties(HttpsURLConnection.getDefaultHostnameVerifier(), context));
 		}
 		Client client = Client.create(config);
 		client.setChunkedEncodingSize(1024 * 100); // 100kb
@@ -136,7 +111,4 @@ public class WebRequests {
 
 	}
 
-	public static void main(String[] args) throws WebRequestException {
-		System.out.println(WebRequests.call(Type.GET, "https://cloud.greendelta.com", null));
-	}
 }
