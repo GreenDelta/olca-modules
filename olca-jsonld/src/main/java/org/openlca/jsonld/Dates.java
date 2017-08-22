@@ -26,7 +26,7 @@ public class Dates {
 	}
 
 	public static Date fromString(String date) {
-		if (date == null)
+		if (date == null || date.isEmpty())
 			return null;
 		Calendar cal = DatatypeConverter.parseDateTime(date);
 		return cal == null ? null : cal.getTime();
