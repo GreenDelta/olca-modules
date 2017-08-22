@@ -10,7 +10,7 @@ public class DatesTest {
 	@Test
 	public void testToString() {
 		Date now = new Date();
-		String s1 = Dates.toString(now);
+		String s1 = Dates.toDateTime(now);
 		String s2 = Dates.toString(now.getTime());
 		Assert.assertTrue(s1.equals(s2));
 	}
@@ -18,7 +18,7 @@ public class DatesTest {
 	@Test
 	public void testFromString() {
 		Date now = new Date();
-		String s = Dates.toString(now);
+		String s = Dates.toDateTime(now);
 		Date now2 = Dates.fromString(s);
 		Assert.assertTrue(now2.getTime() == now.getTime());
 		long time = Dates.getTime(s);
