@@ -5,10 +5,9 @@ import java.util.List;
 
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.ProcessType;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.Completeness;
@@ -30,7 +29,6 @@ import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.processes.Technology;
 import org.openlca.ilcd.processes.Validation;
-import org.openlca.ilcd.productmodel.ProductModel;
 
 public class ProcessBag implements IBag<Process> {
 
@@ -220,26 +218,8 @@ public class ProcessBag implements IBag<Process> {
 		return null;
 	}
 
-	public ProductModel getProductModel() {
-		if (process.processInfo == null)
-			return null;
-		Other other = process.processInfo.other;
-		if (other == null)
-			return null;
-		for (Object extension : other.any) {
-			if (extension instanceof ProductModel)
-				return (ProductModel) extension;
-		}
-		return null;
-	}
-
 	public List<Ref> getAllSources() {
 		return SourceRefCollection.getAll(process, langs);
-	}
-
-	public boolean hasProductModel() {
-		// TODO: check at least one process as reference
-		return getProductModel() != null;
 	}
 
 }

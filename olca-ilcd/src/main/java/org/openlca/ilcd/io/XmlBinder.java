@@ -23,7 +23,6 @@ import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.processes.ObjectFactory;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.productmodel.ProductModel;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 
@@ -83,12 +82,7 @@ public class XmlBinder {
 	}
 
 	private Marshaller createMarshaller(Object ilcdObject) throws JAXBException {
-		JAXBContext context = null;
-		if (ilcdObject instanceof Process)
-			context = JAXBContext
-					.newInstance(Process.class, ProductModel.class);
-		else
-			context = JAXBContext.newInstance(ilcdObject.getClass());
+		JAXBContext context = JAXBContext.newInstance(ilcdObject.getClass());
 		Marshaller marshaller = context.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 		return marshaller;
@@ -142,12 +136,7 @@ public class XmlBinder {
 
 	private Unmarshaller createUnmarshaller(Class<?> clazz)
 			throws JAXBException {
-		JAXBContext context = null;
-		if (clazz.equals(Process.class))
-			context = JAXBContext
-					.newInstance(Process.class, ProductModel.class);
-		else
-			context = JAXBContext.newInstance(clazz);
+		JAXBContext context = JAXBContext.newInstance(clazz);
 		Unmarshaller unmarshaller = context.createUnmarshaller();
 		return unmarshaller;
 	}
