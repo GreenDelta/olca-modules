@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.output;
 
+import org.apache.commons.math3.stat.descriptive.summary.Product;
+import org.eclipse.persistence.sessions.Connector;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.ReferenceAmount;
@@ -13,17 +15,13 @@ import org.openlca.ilcd.commons.Other;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.io.DataStoreException;
+import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.QuantitativeReference;
-import org.openlca.ilcd.productmodel.Connector;
-import org.openlca.ilcd.productmodel.ConsumedBy;
-import org.openlca.ilcd.productmodel.ProcessNode;
-import org.openlca.ilcd.productmodel.Product;
-import org.openlca.ilcd.productmodel.ProductModel;
 import org.openlca.ilcd.util.ProcessInfoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,19 +36,20 @@ public class SystemExport {
 		this.config = config;
 	}
 
-	public Process run(ProductSystem system) throws DataStoreException {
-		if (config.store.contains(Process.class, system.getRefId()))
-			return config.store.get(Process.class, system.getRefId());
+	public Model run(ProductSystem system) throws DataStoreException {
+		if (config.store.contains(Model.class, system.getRefId()))
+			return config.store.get(Model.class, system.getRefId());
 		this.system = system;
 		log.trace("Run product system export with {}", system);
 		if (!canRun()) {
 			log.error("System {} is not valid and cannot exported", system);
 			return null;
 		}
-		Process process = createProcess();
-		config.store.put(process);
+		Model model = new Model();
+
+		config.store.put(model);
 		this.system = null;
-		return process;
+		return model;
 	}
 
 	private Process createProcess() {

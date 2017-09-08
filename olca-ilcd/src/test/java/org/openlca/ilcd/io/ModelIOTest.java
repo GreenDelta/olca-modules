@@ -3,8 +3,6 @@ package org.openlca.ilcd.io;
 import java.io.StringWriter;
 import java.util.UUID;
 
-import javax.xml.bind.JAXB;
-
 import org.junit.Test;
 import org.openlca.ilcd.commons.Category;
 import org.openlca.ilcd.commons.Classification;
@@ -15,7 +13,7 @@ import org.openlca.ilcd.util.Models;
 public class ModelIOTest {
 
 	@Test
-	public void testSimpleModel() {
+	public void testSimpleModel() throws Exception {
 		Model model = new Model();
 		Models.dataSetInfo(model).uuid = UUID.randomUUID().toString();
 		Models.modelName(model).name.add(LangString.of("Example model", "en"));
@@ -28,7 +26,9 @@ public class ModelIOTest {
 		Models.classifications(model).add(classification);
 
 		StringWriter writer = new StringWriter();
-		JAXB.marshal(model, writer);
+		XmlBinder binder = new XmlBinder();
+		binder.toWriter(model, writer);
+		// JAXB.marshal(model, writer);
 		System.out.println(writer.toString());
 	}
 

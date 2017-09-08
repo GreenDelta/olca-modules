@@ -20,6 +20,7 @@ import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Other;
+import org.openlca.ilcd.util.Processes;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProcessDataSetType", propOrder = { "processInfo",
@@ -75,30 +76,31 @@ public class Process implements IDataSet {
 
 	@Override
 	public String getUUID() {
-		if (processInfo == null || processInfo.dataSetInfo == null)
+		DataSetInfo info = Processes.getDataSetInfo(this);
+		if (info == null)
 			return null;
-		return processInfo.dataSetInfo.uuid;
+		return info.uuid;
 	}
 
 	@Override
 	public String getVersion() {
-		if (adminInfo == null || adminInfo.publication == null)
+		Publication pub = Processes.getPublication(this);
+		if (pub == null)
 			return null;
-		return adminInfo.publication.version;
+		return pub.version;
 	}
 
 	@Override
 	public List<Classification> getClassifications() {
-		if (processInfo == null || processInfo.dataSetInfo == null)
+		DataSetInfo info = Processes.getDataSetInfo(this);
+		if (info == null)
 			return Collections.emptyList();
-		return processInfo.dataSetInfo.classifications;
+		return info.classifications;
 	}
 
 	@Override
 	public List<LangString> getName() {
-		if (processInfo == null || processInfo.dataSetInfo == null)
-			return Collections.emptyList();
-		ProcessName name = processInfo.dataSetInfo.name;
+		ProcessName name = Processes.getProcessName(this);
 		if (name == null)
 			return Collections.emptyList();
 		return name.name;

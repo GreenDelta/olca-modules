@@ -31,7 +31,10 @@ public enum DataSetType {
 	LCIA_METHOD("LCIA method data set"),
 
 	@XmlEnumValue("other external file")
-	EXTERNAL_FILE("other external file");
+	EXTERNAL_FILE("other external file"),
+
+	@XmlEnumValue("life cycle model")
+	MODEL("life cycle model");
 
 	private final String value;
 

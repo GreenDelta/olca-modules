@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 
 import org.openlca.ilcd.contacts.Contact;
@@ -21,6 +22,7 @@ import org.openlca.ilcd.descriptors.DescriptorList;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.methods.LCIAMethod;
+import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.processes.ObjectFactory;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
@@ -170,6 +172,10 @@ public class XmlBinder {
 		} else if (value instanceof DescriptorList) {
 			org.openlca.ilcd.descriptors.ObjectFactory fac = new org.openlca.ilcd.descriptors.ObjectFactory();
 			return fac.createDataSetList((DescriptorList) value);
+		} else if (value instanceof Model) {
+			QName qname = new QName("http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017",
+					"lifeCycleModelDataSet");
+			return new JAXBElement<>(qname, Model.class, null, (Model) value);
 		} else {
 			throw new IllegalArgumentException("Unsupported type " + value);
 		}
