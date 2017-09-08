@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:common="http://lca.jrc.it/ILCD/Common" xmlns="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017"
+   xmlns:lcm="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017">
+   <xs:import namespace="http://lca.jrc.it/ILCD/Common" schemaLocation="ILCD_Common_Groups.xsd"/>
+   <xs:import namespace="http://www.w3.org/XML/1998/namespace"/>
+   <xs:element name="lifeCycleModelDataSet" type="LifeCycleModelDataSetType">
+      <xs:key name="processInstanceInternalID">
+         <xs:selector xpath="lcm:lifeCycleModelInformation/lcm:technology/lcm:processes/lcm:processInstance"/>
+         <xs:field xpath="@dataSetInternalID"/>
+      </xs:key>
+      <xs:keyref name="referenceToReferenceProcess" refer="processInstanceInternalID">
+         <xs:selector xpath="lcm:lifeCycleModelInformation/lcm:quantitativeReference/lcm:referenceToReferenceProcess"/>
+         <xs:field xpath="."/>
+      </xs:keyref>
+      <xs:keyref name="referenceToDownStreamProcess" refer="processInstanceInternalID">
+         <xs:selector
+            xpath="lcm:lifeCycleModelInformation/lcm:technology/lcm:processes/lcm:processInstance/lcm:connections/lcm:outputExchange/lcm:downstreamProcess"/>
+         <xs:field xpath="@id"/>
+      </xs:keyref>
+      <xs:key name="groupID">
+         <xs:selector xpath="lcm:lifeCycleModelInformation/lcm:technology/lcm:groupDeclarations/lcm:group"/>
+         <xs:field xpath="@id"/>
+      </xs:key>
+      <xs:keyref name="referenceToGroup" refer="groupID">
+         <xs:selector xpath="lcm:lifeCycleModelInformation/lcm:technology/lcm:processes/lcm:processInstance/lcm:groups/lcm:memberOf"/>
+         <xs:field xpath="@groupId"/>
+      </xs:keyref>
+   </xs:element>
+   <xs:element name="lifeCycleModelInformation" type="LifeCycleModelInformationType"/>
+   <xs:element name="dataSetInformation" type="DataSetInformationType"/>
+   <xs:element name="modellingAndValidation" type="ModellingAndValidationType"/>
+   <xs:element name="referenceToExternalDocumentation" type="common:GlobalReferenceType">
+      <xs:unique name="referenceToExternalDocumentationShortDescriptionLangUniqueConstraint">
+         <xs:selector xpath="common:shortDescription"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+   </xs:element>
+   <xs:element name="referenceToResultingProcess" type="common:GlobalReferenceType">
+      <xs:unique name="referenceToResultingProcessShortDescriptionLangUniqueConstraint">
+         <xs:selector xpath="common:shortDescription"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+   </xs:element>
+   <xs:element name="classificationInformation" type="common:ClassificationInformationType"/>
+   <xs:element name="quantitativeReference" type="QuantitativeReferenceType"/>
+   <xs:element name="referenceToReferenceProcess" type="xs:integer"/>
+   <xs:element name="technology" type="TechnologyType"/>
+   <xs:element name="groupDeclarations" type="GroupDeclarationsType"/>
+   <xs:element name="group" type="GroupType">
+      <xs:unique name="groupNameLangUniqueConstraint">
+         <xs:selector xpath="lcm:groupName"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+   </xs:element>
+   <xs:element name="groupName" type="common:StringMultiLang"/>
+   <xs:element name="processes" type="ProcessesType"/>
+   <xs:element name="processInstance" type="ProcessInstanceType"/>
+   <xs:element name="referenceToProcess" type="common:GlobalReferenceType">
+      <xs:unique name="referenceToProcessShortDescriptionLangUniqueConstraint">
+         <xs:selector xpath="common:shortDescription"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+   </xs:element>
+   <xs:element name="scalingFactor" type="common:Real"/>
+   <xs:element name="groups" type="GroupsType"/>
+   <xs:element name="memberOf" type="MemberOfType"/>
+   <xs:element name="parameters" type="ParametersType"/>
+   <xs:element name="parameter" type="ParameterType"/>
+   <xs:element name="connections" type="ConnectionsType"/>
+   <xs:element name="outputExchange" type="OutputExchangeType"/>
+   <xs:element name="downstreamProcess" type="DownstreamProcessType"/>
+   <xs:element name="referenceToDiagram" type="common:GlobalReferenceType">
+      <xs:unique name="referenceToDiagramShortDescriptionLangUniqueConstraint">
+         <xs:selector xpath="common:shortDescription"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+   </xs:element>
+   <xs:element name="dataSourcesTreatmentEtc" type="DataSourcesTreatmentEtcType"/>
+   <xs:element name="useAdviceForDataSet" type="common:FTMultiLang"/>
+   <xs:element name="validation" type="ValidationType"/>
+   <xs:element name="review" type="ReviewType"/>
+   <xs:element name="complianceDeclarations" type="ComplianceDeclarationsType"/>
+   <xs:element name="compliance" type="ComplianceType"/>
+   <xs:element name="administrativeInformation" type="AdministrativeInformationType"/>
+   <xs:element name="dataGenerator" type="DataGeneratorType"/>
+   <xs:element name="dataEntryBy" type="DataEntryByType"/>
+   <xs:element name="publicationAndOwnership" type="PublicationAndOwnershipType">
+      <xs:unique name="accessRestrictionsLangUniqueConstraint">
+         <xs:selector xpath="common:accessRestrictions"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+   </xs:element>
+   <xs:element name="name" type="NameType">
+      <xs:unique name="baseNameLangUniqueConstraint">
+         <xs:selector xpath="lcm:baseName"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+      <xs:unique name="treatmentStandardsRoutesLangUniqueConstraint">
+         <xs:selector xpath="lcm:treatmentStandardsRoutes"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+      <xs:unique name="mixAndLocationTypesLangUniqueConstraint">
+         <xs:selector xpath="lcm:mixAndLocationTypes"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+      <xs:unique name="flowPropertiesLangUniqueConstraint">
+         <xs:selector xpath="lcm:flowProperties"/>
+         <xs:field xpath="@xml:lang"/>
+      </xs:unique>
+   </xs:element>
+   <xs:attributeGroup name="dominantGroup">
+      <xs:attribute name="dominant" type="xs:boolean" use="optional"/>
+   </xs:attributeGroup>
+   <xs:complexType name="LifeCycleModelDataSetType">
+      <xs:sequence>
+         <xs:element ref="lifeCycleModelInformation"/>
+         <xs:element ref="modellingAndValidation"/>
+         <xs:element ref="administrativeInformation"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="version" type="common:SchemaVersion" use="required"/>
+      <xs:attribute name="locations" type="common:String" use="required"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="LifeCycleModelInformationType">
+      <xs:sequence>
+         <xs:element ref="dataSetInformation"/>
+         <xs:element ref="quantitativeReference" minOccurs="0"/>
+         <xs:element ref="technology" minOccurs="0"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="DataSetInformationType">
+      <xs:sequence>
+         <xs:element ref="common:UUID"/>
+         <xs:element ref="name" minOccurs="0"/>
+         <xs:element ref="classificationInformation" minOccurs="0"/>
+         <xs:element ref="referenceToResultingProcess" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="common:generalComment" minOccurs="0"/>
+         <xs:element ref="referenceToExternalDocumentation" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="common:other" minOccurs="0"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="ModellingAndValidationType">
+      <xs:sequence>
+         <xs:element ref="dataSourcesTreatmentEtc" minOccurs="0"/>
+         <xs:element ref="validation" minOccurs="0"/>
+         <xs:element ref="complianceDeclarations" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="QuantitativeReferenceType">
+      <xs:sequence>
+         <xs:element ref="referenceToReferenceProcess" minOccurs="0" maxOccurs="1"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="TechnologyType">
+      <xs:sequence>
+         <xs:element ref="groupDeclarations" minOccurs="0"/>
+         <xs:element ref="processes" minOccurs="0"/>
+         <xs:element ref="referenceToDiagram" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="GroupDeclarationsType">
+      <xs:sequence>
+         <xs:element ref="group" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="GroupType">
+      <xs:sequence>
+         <xs:element ref="groupName" minOccurs="0" maxOccurs="100"/>
+      </xs:sequence>
+      <xs:attribute name="id" use="required" type="xs:integer"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="ProcessesType">
+      <xs:sequence>
+         <xs:element ref="processInstance" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="ProcessInstanceType">
+      <xs:sequence>
+         <xs:element ref="referenceToProcess" minOccurs="0"/>
+         <xs:element ref="scalingFactor" minOccurs="0"/>
+         <xs:element ref="groups" minOccurs="0"/>
+         <xs:element ref="parameters" minOccurs="0"/>
+         <xs:element ref="connections" minOccurs="0"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="dataSetInternalID" use="required" type="xs:integer"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="GroupsType">
+      <xs:sequence>
+         <xs:element ref="memberOf" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="MemberOfType">
+      <xs:attribute name="groupId" use="required" type="xs:integer"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="ParametersType">
+      <xs:sequence>
+         <xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="ParameterType">
+      <xs:simpleContent>
+         <xs:extension base="common:Real">
+            <xs:attribute name="name" use="required" type="common:MatV"/>
+            <xs:anyAttribute namespace="##other" processContents="lax"/>
+         </xs:extension>
+      </xs:simpleContent>
+   </xs:complexType>
+   <xs:complexType name="ConnectionsType">
+      <xs:sequence>
+         <xs:element ref="outputExchange" minOccurs="0"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="OutputExchangeType">
+      <xs:sequence>
+         <xs:element ref="downstreamProcess" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="dominantGroup"/>
+      <xs:attribute name="flowUUID" use="required"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="DownstreamProcessType">
+      <xs:attribute name="flowUUID" use="required"/>
+      <xs:attribute name="id" use="required" type="xs:integer"/>
+      <xs:attribute name="location" use="optional" type="xs:string"/>
+      <xs:attributeGroup ref="dominantGroup"/>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="DataSourcesTreatmentEtcType">
+      <xs:sequence>
+         <xs:element ref="useAdviceForDataSet" minOccurs="0"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="ValidationType">
+      <xs:sequence>
+         <xs:element ref="review" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="ReviewType">
+      <xs:sequence>
+         <xs:group ref="common:ValidationGroup3"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="ComplianceDeclarationsType">
+      <xs:sequence>
+         <xs:element ref="compliance" minOccurs="0"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="ComplianceType">
+      <xs:sequence>
+         <xs:group ref="common:ComplianceGroup"/>
+         <xs:element ref="common:nomenclatureCompliance" minOccurs="0" maxOccurs="1"/>
+         <xs:element ref="common:methodologicalCompliance" minOccurs="0" maxOccurs="1"/>
+         <xs:element ref="common:reviewCompliance" minOccurs="0" maxOccurs="1"/>
+         <xs:element ref="common:documentationCompliance" minOccurs="0" maxOccurs="1"/>
+         <xs:element ref="common:qualityCompliance" minOccurs="0" maxOccurs="1"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <xs:complexType name="AdministrativeInformationType">
+      <xs:sequence>
+         <xs:element ref="common:commissionerAndGoal" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="dataGenerator" minOccurs="0"/>
+         <xs:element ref="dataEntryBy" minOccurs="0"/>
+         <xs:element ref="publicationAndOwnership" minOccurs="0"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="DataGeneratorType">
+      <xs:sequence>
+         <xs:element ref="common:referenceToPersonOrEntityGeneratingTheDataSet" minOccurs="0" maxOccurs="unbounded"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="DataEntryByType">
+      <xs:sequence>
+         <xs:group ref="common:DataEntryByGroup1"/>
+         <xs:group ref="common:DataEntryByGroup2" maxOccurs="unbounded"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="PublicationAndOwnershipType">
+      <xs:sequence>
+         <xs:group ref="common:PublicationAndOwnershipGroup1"/>
+         <xs:element ref="common:referenceToOwnershipOfDataSet" minOccurs="0"/>
+         <xs:group ref="common:PublicationAndOwnershipGroup3"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="NameType">
+      <xs:sequence>
+         <xs:element name="baseName" type="common:StringMultiLang" minOccurs="0" maxOccurs="100"/>
+         <xs:element name="treatmentStandardsRoutes" type="common:StringMultiLang" minOccurs="0" maxOccurs="100"/>
+         <xs:element name="mixAndLocationTypes" type="common:StringMultiLang" minOccurs="0" maxOccurs="100"/>
+         <xs:element name="functionalUnitFlowProperties" type="common:StringMultiLang" minOccurs="0" maxOccurs="100"/>
+         <xs:element ref="common:other" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+</xs:schema>
