@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.openlca.ilcd.commons.Ref;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "process", "groupRefs" })
+@XmlType(propOrder = { "process", "groupRefs", "parameters", "connections" })
 public class ProcessInstance {
 
 	@XmlAttribute(name = "dataSetInternalID")
@@ -25,5 +25,13 @@ public class ProcessInstance {
 	@XmlElementWrapper(name = "groups")
 	@XmlElement(name = "memberOf")
 	public List<GroupRef> groupRefs = new ArrayList<>();
+
+	@XmlElementWrapper(name = "parameters")
+	@XmlElement(name = "parameter")
+	public List<Parameter> parameters = new ArrayList<>();
+
+	@XmlElementWrapper(name = "connections")
+	@XmlElement(name = "outputExchange")
+	public List<Connection> connections = new ArrayList<>();
 
 }
