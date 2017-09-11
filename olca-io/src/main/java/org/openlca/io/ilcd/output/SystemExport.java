@@ -1,5 +1,8 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.math3.stat.descriptive.summary.Product;
 import org.eclipse.persistence.sessions.Connector;
 import org.openlca.core.database.FlowDao;
@@ -7,22 +10,24 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.Classification;
+import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.Other;
-import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.io.DataStoreException;
+import org.openlca.ilcd.models.DataSetInfo;
 import org.openlca.ilcd.models.Model;
-import org.openlca.ilcd.processes.DataSetInfo;
+import org.openlca.ilcd.models.ModelName;
+import org.openlca.ilcd.models.ProcessInstance;
+import org.openlca.ilcd.models.QuantitativeReference;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.ProcessInfo;
-import org.openlca.ilcd.processes.ProcessName;
-import org.openlca.ilcd.processes.QuantitativeReference;
-import org.openlca.ilcd.util.ProcessInfoExtension;
+import org.openlca.ilcd.util.Models;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +36,10 @@ public class SystemExport {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final ExportConfig config;
 	private ProductSystem system;
+
+	private Map<Long, Integer> processIDs = new HashMap<>();
+	private Map<Long, ProcessDescriptor> processes = new HashMap<>();
+	private Map<Long, FlowDescriptor> flows = new HashMap<>();
 
 	public SystemExport(ExportConfig config) {
 		this.config = config;
@@ -45,50 +54,77 @@ public class SystemExport {
 			log.error("System {} is not valid and cannot exported", system);
 			return null;
 		}
-		Model model = new Model();
-
+		loadMaps();
+		Model model = initModel();
 		config.store.put(model);
 		this.system = null;
 		return model;
 	}
 
-	private Process createProcess() {
-		Process process = new Process();
-		ProcessInfo info = new ProcessInfo();
-		process.processInfo = info;
-		info.dataSetInfo = makeDataSetInfo();
-		info.quantitativeReference = makeQuantitativeReference();
-		addRefProcessInfo(info);
-		addExchange(process);
-		addProductModel(info);
-		return process;
-	}
-
-	private void addProductModel(ProcessInfo info) {
-		ProductModel model = new ProductModel();
-		model.setName(system.getName());
-		Other other = new Other();
-		other.any.add(model);
-		info.other = other;
-		exportProcesses(model);
-		exportLinks(model);
-		// addParamaters(model);
-	}
-
-	private void exportProcesses(ProductModel model) {
-		ProcessDao processDao = new ProcessDao(config.db);
-		for (Long processId : system.getProcesses()) {
-			org.openlca.core.model.Process proc = processDao
-					.getForId(processId);
-			Ref ref = ExportDispatch.forwardExportCheck(proc,
-					config);
-			ProcessNode node = new ProcessNode();
-			node.setId(proc.getRefId());
-			node.setName(proc.getName());
-			node.setUri(ref.uri);
-			node.setUuid(proc.getRefId());
-			model.getNodes().add(node);
+	private void loadMaps() {
+		ProcessDao pDao = new ProcessDao(config.db);
+		for (ProcessDescriptor pd : pDao.getDescriptors()) {
+			processes.put(pd.getId(), pd);
+			processIDs.put(pd.getId(), processIDs.size());
 		}
+		FlowDao fDao = new FlowDao(config.db);
+		for (FlowDescriptor fd : fDao.getDescriptors()) {
+			flows.put(fd.getId(), fd);
+		}
+	}
+
+	private Model initModel() {
+		Model model = new Model();
+		DataSetInfo info = Models.dataSetInfo(model);
+		info.uuid = system.getRefId();
+		ModelName name = Models.modelName(model);
+		name.name.add(LangString.of(system.getName(), config.lang));
+		if (system.getDescription() != null)
+			info.comment.add(LangString.of(system.getDescription(), config.lang));
+		CategoryConverter conv = new CategoryConverter();
+		Classification c = conv.getClassification(system.getCategory());
+		if (c != null)
+			Models.classifications(model).add(c);
+		if (system.getReferenceProcess() != null) {
+			long refId = system.getReferenceProcess().getId();
+			QuantitativeReference qRef = Models.quantitativeReference(model);
+			qRef.refProcess = processIDs.getOrDefault(refId, -1);
+		}
+		return model;
+	}
+
+	private void mapLinks(Model model) throws DataStoreException {
+		Map<Long, ProcessInstance> instances = new HashMap<>();
+		for (Long id : system.getProcesses()) {
+			ProcessInstance instance = new ProcessInstance();
+			instances.put(id, instance);
+			instance.id = processIDs.getOrDefault(id, -1);
+			ProcessDescriptor d = processes.get(id);
+			checkExport(d);
+			instance.process = toRef(d);
+		}
+
+	}
+
+	private void checkExport(ProcessDescriptor d)
+			throws DataStoreException {
+		if (config.store.contains(Process.class, d.getRefId()))
+			return;
+		ProcessDao dao = new ProcessDao(config.db);
+		ExportDispatch.forwardExportCheck(
+				dao.getForId(d.getId()), config);
+	}
+
+	private Ref toRef(ProcessDescriptor d) {
+		if (d == null)
+			return null;
+		Ref ref = new Ref();
+		ref.type = DataSetType.PROCESS;
+		ref.uuid = d.getRefId();
+		ref.uri = "../processes/" + ref.uuid + ".xml";
+		ref.version = Version.asString(d.getVersion());
+		ref.name.add(LangString.of(d.getName(), config.lang));
+		return ref;
 	}
 
 	private void exportLinks(ProductModel model) {
@@ -150,42 +186,6 @@ public class SystemExport {
 			return false;
 		return system.getReferenceExchange() != null
 				&& system.getReferenceProcess() != null;
-	}
-
-	private DataSetInfo makeDataSetInfo() {
-		DataSetInfo info = new DataSetInfo();
-		info.uuid = system.getRefId();
-		ProcessName processName = new ProcessName();
-		info.name = processName;
-		String name = system.getName() + " (product system)";
-		LangString.set(processName.name, name, config.lang);
-		if (system.getDescription() != null) {
-			LangString.set(info.comment,
-					system.getDescription(), config.lang);
-		}
-		addClassification(info);
-		return info;
-	}
-
-	private void addClassification(DataSetInfo info) {
-		CategoryConverter conv = new CategoryConverter();
-		Classification c = conv.getClassification(system.getCategory());
-		if (c != null)
-			info.classifications.add(c);
-	}
-
-	private QuantitativeReference makeQuantitativeReference() {
-		QuantitativeReference qRef = new QuantitativeReference();
-		qRef.type = QuantitativeReferenceType.REFERENCE_FLOWS;
-		qRef.referenceFlows.add(1);
-		return qRef;
-	}
-
-	private void addRefProcessInfo(ProcessInfo info) {
-		org.openlca.core.model.Process refProcess = system
-				.getReferenceProcess();
-		ProcessInfoExtension ext = new ProcessInfoExtension(info);
-		ext.setModelRefProcess(refProcess.getRefId());
 	}
 
 	// TODO: map system parameters
