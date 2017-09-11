@@ -17,12 +17,17 @@ import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.Models;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ProcessDataSetType", propOrder = { "info" })
+@XmlType(name = "ProcessDataSetType", propOrder = { "info", "adminInfo" })
 @XmlRootElement(name = "lifeCycleModelDataSet", namespace = "http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017")
 public class Model implements IDataSet {
 
+	private static final long serialVersionUID = -5507252231374830139L;
+
 	@XmlElement(name = "lifeCycleModelInformation")
 	public ModelInfo info;
+
+	@XmlElement(name = "administrativeInformation")
+	public AdminInfo adminInfo;
 
 	@XmlAttribute(name = "version")
 	public String version;
@@ -50,7 +55,25 @@ public class Model implements IDataSet {
 
 	@Override
 	public String getURI() {
-		// TODO Auto-generated method stub
-		return null;
+		Publication pub = Models.getPublication(this);
+		if (pub == null)
+			return null;
+		return pub.uri;
+	}
+
+	@Override
+	public String getUUID() {
+		DataSetInfo info = Models.getDataSetInfo(this);
+		if (info == null)
+			return null;
+		return info.uuid;
+	}
+
+	@Override
+	public String getVersion() {
+		Publication pub = Models.getPublication(this);
+		if (pub == null)
+			return null;
+		return pub.version;
 	}
 }

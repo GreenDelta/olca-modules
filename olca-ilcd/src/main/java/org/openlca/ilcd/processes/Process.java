@@ -69,9 +69,10 @@ public class Process implements IDataSet {
 
 	@Override
 	public String getURI() {
-		if (adminInfo == null || adminInfo.publication == null)
+		Publication pub = Processes.getPublication(this);
+		if (pub == null)
 			return null;
-		return adminInfo.publication.uri;
+		return pub.uri;
 	}
 
 	@Override

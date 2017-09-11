@@ -4,11 +4,14 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.ilcd.commons.Classification;
+import org.openlca.ilcd.models.AdminInfo;
 import org.openlca.ilcd.models.ClassificationList;
+import org.openlca.ilcd.models.DataEntry;
 import org.openlca.ilcd.models.DataSetInfo;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.models.ModelInfo;
 import org.openlca.ilcd.models.ModelName;
+import org.openlca.ilcd.models.Publication;
 
 public class Models {
 
@@ -68,6 +71,46 @@ public class Models {
 		if (di == null || di.classifications == null)
 			return Collections.emptyList();
 		return di.classifications.classifications;
+	}
+
+	public static AdminInfo getAdminInfo(Model m) {
+		if (m == null)
+			return null;
+		return m.adminInfo;
+	}
+
+	public static AdminInfo adminInfo(Model m) {
+		if (m.adminInfo == null)
+			m.adminInfo = new AdminInfo();
+		return m.adminInfo;
+	}
+
+	public static DataEntry getDataEntry(Model m) {
+		AdminInfo ai = getAdminInfo(m);
+		if (ai == null)
+			return null;
+		return ai.dataEntry;
+	}
+
+	public static DataEntry dataEntry(Model m) {
+		AdminInfo ai = adminInfo(m);
+		if (ai.dataEntry == null)
+			ai.dataEntry = new DataEntry();
+		return ai.dataEntry;
+	}
+
+	public static Publication getPublication(Model m) {
+		AdminInfo ai = getAdminInfo(m);
+		if (ai == null)
+			return null;
+		return ai.publication;
+	}
+
+	public static Publication publication(Model m) {
+		AdminInfo ai = adminInfo(m);
+		if (ai.publication == null)
+			ai.publication = new Publication();
+		return ai.publication;
 	}
 
 }

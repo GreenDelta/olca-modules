@@ -17,6 +17,7 @@ public class ModelIOTest {
 		Model model = new Model();
 		Models.dataSetInfo(model).uuid = UUID.randomUUID().toString();
 		Models.modelName(model).name.add(LangString.of("Example model", "en"));
+		Models.publication(model).version = "01.00.000";
 
 		Classification classification = new Classification();
 		Category category = new Category();
