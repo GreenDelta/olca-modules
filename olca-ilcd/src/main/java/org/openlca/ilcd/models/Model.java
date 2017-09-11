@@ -17,7 +17,7 @@ import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.Models;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ProcessDataSetType", propOrder = { "info", "adminInfo" })
+@XmlType(propOrder = { "info", "adminInfo" })
 @XmlRootElement(name = "lifeCycleModelDataSet", namespace = "http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017")
 public class Model implements IDataSet {
 

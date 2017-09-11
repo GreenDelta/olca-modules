@@ -12,6 +12,8 @@ import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.models.ModelInfo;
 import org.openlca.ilcd.models.ModelName;
 import org.openlca.ilcd.models.Publication;
+import org.openlca.ilcd.models.QuantitativeReference;
+import org.openlca.ilcd.models.Technology;
 
 public class Models {
 
@@ -71,6 +73,34 @@ public class Models {
 		if (di == null || di.classifications == null)
 			return Collections.emptyList();
 		return di.classifications.classifications;
+	}
+
+	public static QuantitativeReference getQuantitativeReference(Model m) {
+		ModelInfo mi = getModelInfo(m);
+		if (mi == null)
+			return null;
+		return mi.quantitativeReference;
+	}
+
+	public static QuantitativeReference quantitativeReference(Model m) {
+		ModelInfo mi = modelInfo(m);
+		if (mi.quantitativeReference == null)
+			mi.quantitativeReference = new QuantitativeReference();
+		return mi.quantitativeReference;
+	}
+
+	public static Technology getTechnology(Model m) {
+		ModelInfo mi = getModelInfo(m);
+		if (mi == null)
+			return null;
+		return mi.technology;
+	}
+
+	public static Technology technology(Model m) {
+		ModelInfo mi = modelInfo(m);
+		if (mi.technology == null)
+			mi.technology = new Technology();
+		return mi.technology;
 	}
 
 	public static AdminInfo getAdminInfo(Model m) {

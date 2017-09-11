@@ -6,12 +6,16 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {
-		"dataSetInfo",
-})
+@XmlType(propOrder = { "dataSetInfo", "quantitativeReference", "technology" })
 public class ModelInfo {
 
 	@XmlElement(name = "dataSetInformation")
 	public DataSetInfo dataSetInfo;
+
+	@XmlElement(name = "quantitativeReference")
+	public QuantitativeReference quantitativeReference;
+
+	@XmlElement(name = "technology")
+	public Technology technology;
 
 }
