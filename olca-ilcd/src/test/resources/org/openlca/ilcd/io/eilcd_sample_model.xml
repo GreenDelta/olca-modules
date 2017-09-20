@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<lifeCycleModelDataSet xmlns:common="http://lca.jrc.it/ILCD/Common" xmlns="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017"
+   xmlns:acme="http://acme.com/custom" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.1" locations="../ILCDLocations.xml"
+   xsi:schemaLocation="http://eplca.jrc.ec.europa.eu/ILCD/LifeCycleModel/2017 ../../schemas/ILCD_LifeCycleModelDataSet.xsd">
+   <lifeCycleModelInformation>
+      <dataSetInformation>
+         <common:UUID>10062015-184a-41b8-8fa6-49e999cbd101</common:UUID>
+         <name>
+            <baseName xml:lang="en">eILCD example - LDPE injection moulding parts model</baseName>
+            <treatmentStandardsRoutes xml:lang="en"> </treatmentStandardsRoutes>
+            <mixAndLocationTypes xml:lang="en">production mix, at plant</mixAndLocationTypes>
+            <functionalUnitFlowProperties xml:lang="en">5 parts at 0.2 kg/part</functionalUnitFlowProperties>
+         </name>
+         <classificationInformation>
+            <common:classification>
+               <common:class level="0">Systems</common:class>
+               <common:class level="1">Unspecific parts</common:class>
+            </common:classification>
+         </classificationInformation>
+         <referenceToResultingProcess type="process data set" refObjectId="a91683fe-3b0b-471c-a007-f9d8b4e29d5a" version="01.00.000"
+            uri="../processes/a91683fe-3b0b-471c-a007-f9d8b4e29d5a.xml">
+            <common:shortDescription xml:lang="en">eILCD sample - LDPE injection moulded part - sample; ; production mix, at plant; 5 parts at 0.2 kg/part</common:shortDescription>
+         </referenceToResultingProcess>
+         <referenceToResultingProcess type="process data set" refObjectId="669f9694-e447-4e70-9a15-27b871e9042c" version="01.00.000"
+            uri="../processes/669f9694-e447-4e70-9a15-27b871e9042c.xml">
+            <common:shortDescription xml:lang="en">eILCD sample - LDPE injection moulded part - sample; ; production mix, at plant; 2 parts at 0.5 kg/part</common:shortDescription>
+         </referenceToResultingProcess>
+         <common:generalComment xml:lang="en">For further documentation, such as on technology, time, and geography represented and others, please refer to the corresponding, resulting aggregated LCI results process data set of the same name that has been obtained from this model.</common:generalComment>
+         <referenceToExternalDocumentation type="source data set" refObjectId="f17e7a9d-7c7e-42cf-807e-c7282f661eeb"
+            uri="../sources/f17e7a9d-7c7e-42cf-807e-c7282f661eeb.xml">
+            <common:shortDescription xml:lang="en">LDPE injection moulding parts model</common:shortDescription>
+         </referenceToExternalDocumentation>
+      </dataSetInformation>
+      <quantitativeReference>
+         <referenceToReferenceProcess>2</referenceToReferenceProcess>
+      </quantitativeReference>
+      <technology>
+         <groupDeclarations>
+            <group id="0">
+               <groupName xml:lang="en">Material&amp;energy product. stage</groupName>
+            </group>
+            <group id="1">
+               <groupName xml:lang="en">external</groupName>
+            </group>
+            <group id="2">
+               <groupName xml:lang="en">Transport stage</groupName>
+            </group>
+            <group id="3">
+               <groupName xml:lang="en">Manufacturing stage</groupName>
+            </group>
+            <group id="4">
+               <groupName xml:lang="en">internal</groupName>
+               <groupName xml:lang="de">intern</groupName>
+            </group>
+         </groupDeclarations>
+         <processes>
+            <processInstance dataSetInternalID="0">
+               <referenceToProcess type="process data set" refObjectId="8ddfe862-e580-47ab-a248-b62c6f4323d4" version="01.00.000"
+                  uri="../processes/8ddfe862-e580-47ab-a248-b62c6f4323d4.xml">
+                  <common:shortDescription xml:lang="en">DE: Polyethylene Linear Low Density Granulate (LLDPE/PE-LLD) - sample</common:shortDescription>
+               </referenceToProcess>
+               <groups>
+                  <memberOf groupId="0"/>
+                  <memberOf groupId="1"/>
+               </groups>
+               <connections>
+                  <outputExchange flowUUID="76013e3e-e074-4452-b1da-7d47842345a8" dominant="true">
+                     <downstreamProcess id="1" flowUUID="1d0243cc-b9f4-4c91-b3e6-cb69067b9e82" location="GLO"/>
+                     <!-- location is optional and only needed, if the referenced exchange in the downstreamProcess has a location information AND more than two exchanges with the same flowUUID exist in the downstreamProcess' inputs                                
+                            <downstreamProcess id="1" flowUUID="1d0243cc-b9f4-4c91-b3e6-cb69067b9e82" location="LV"/>-->
+                  </outputExchange>
+               </connections>
+            </processInstance>
+            <processInstance dataSetInternalID="1">
+               <referenceToProcess type="process data set" refObjectId="24b22ed7-6187-4bea-b8b1-eccbfc267cb9" version="01.00.000"
+                  uri="../processes/24b22ed7-6187-4bea-b8b1-eccbfc267cb9.xml">
+                  <common:shortDescription xml:lang="en">GLO: Rail transport cargo - Electric - sample</common:shortDescription>
+               </referenceToProcess>
+               <groups>
+                  <memberOf groupId="2"/>
+                  <memberOf groupId="1"/>
+               </groups>
+               <parameters>
+                  <parameter name="distance">200</parameter>
+                  <parameter name="utilisation">0.6</parameter>
+               </parameters>
+               <connections>
+                  <outputExchange flowUUID="885d2a57-b6ca-4188-b6ff-618435ada8e0">
+                     <downstreamProcess id="2" flowUUID="dad7268b-41ef-46e0-9641-48e431bbf937"/>
+                  </outputExchange>
+               </connections>
+            </processInstance>
+            <processInstance dataSetInternalID="2">
+               <referenceToProcess type="process data set" refObjectId="ecf3ceb8-1907-482e-8550-efd5c1f970e9" version="01.00.000"
+                  uri="../processes/ecf3ceb8-1907-482e-8550-efd5c1f970e9.xml">
+                  <common:shortDescription xml:lang="en">DE: Plastic injection moulding part (unspecific) - sample</common:shortDescription>
+               </referenceToProcess>
+               <scalingFactor>5</scalingFactor>
+               <groups>
+                  <memberOf groupId="3"/>
+                  <memberOf groupId="4"/>
+               </groups>
+               <parameters>
+                  <parameter name="weight">0.2</parameter>
+               </parameters>
+               <connections>
+                  <outputExchange flowUUID="9f8f445c-e172-49f6-8881-bcf2a9824588">
+                     <downstreamProcess id="3" flowUUID="8b675989-edc7-4f86-a0e1-ce4a675346df"/>
+                  </outputExchange>
+               </connections>
+            </processInstance>
+            <processInstance dataSetInternalID="3">
+               <referenceToProcess type="process data set" refObjectId="23dd327f-d58e-42da-82ac-351c42df0127" version="01.00.000"
+                  uri="../processes/23dd327f-d58e-42da-82ac-351c42df0127.xml">
+                  <common:shortDescription xml:lang="en">DE: Washing (plastic recycling) - sample</common:shortDescription>
+               </referenceToProcess>
+               <groups>
+                  <memberOf groupId="3"/>
+                  <memberOf groupId="4"/>
+               </groups>
+               <connections>
+                  <outputExchange flowUUID="9f8f445c-e172-49f6-8881-bcf2a9824588">
+                     <downstreamProcess id="2" flowUUID="dad7268b-41ef-46e0-9641-48e431bbf937"/>
+                  </outputExchange>
+               </connections>
+            </processInstance>
+            <processInstance dataSetInternalID="4">
+               <referenceToProcess type="process data set" refObjectId="e38740ed-4e9e-4f4c-ae17-251ca7442c58" version="01.00.000"
+                  uri="../processes/e38740ed-4e9e-4f4c-ae17-251ca7442c58.xml">
+                  <common:shortDescription xml:lang="en">DE: Electricity grid mix - sample</common:shortDescription>
+               </referenceToProcess>
+               <groups>
+                  <memberOf groupId="0"/>
+                  <memberOf groupId="1"/>
+               </groups>
+               <connections>
+                  <outputExchange flowUUID="890a70b7-b677-4e2a-8a1b-7d017e0a10ae">
+                     <downstreamProcess id="1" flowUUID="598e8a3b-c1e5-49d2-8305-176bfd0af3c2" dominant="true"/>
+                  </outputExchange>
+               </connections>
+            </processInstance>
+            <processInstance dataSetInternalID="5">
+               <referenceToProcess type="process data set" refObjectId="e38740ed-4e9e-4f4c-ae17-251ca7442c58" version="01.00.000"
+                  uri="../processes/e38740ed-4e9e-4f4c-ae17-251ca7442c58.xml">
+                  <common:shortDescription xml:lang="en">DE: Electricity grid mix - sample</common:shortDescription>
+               </referenceToProcess>
+               <groups>
+                  <memberOf groupId="3"/>
+                  <memberOf groupId="4"/>
+               </groups>
+               <connections>
+                  <outputExchange flowUUID="890a70b7-b677-4e2a-8a1b-7d017e0a10ae">
+                     <downstreamProcess id="2" flowUUID="890a70b7-b677-4e2a-8a1b-7d017e0a10ae" dominant="true"/>
+                     <downstreamProcess id="3" flowUUID="890a70b7-b677-4e2a-8a1b-7d017e0a10ae"/>
+                  </outputExchange>
+               </connections>
+            </processInstance>
+         </processes>
+         <referenceToDiagram type="source data set" refObjectId="2ac21e95-47e3-5718-b607-3a30cecc38aa" version="01.00.000"
+            uri="../sources/2ac21e95-47e3-5718-b607-3a30cecc38aa.xml">
+            <common:shortDescription xml:lang="en">eILCD - sample life cycle model screenshot - PE-LLD injection moulding part</common:shortDescription>
+         </referenceToDiagram>
+      </technology>
+   </lifeCycleModelInformation>
+   <modellingAndValidation>
+      <dataSourcesTreatmentEtc>
+         <useAdviceForDataSet xml:lang="en">Purely illustrative example Life Cycle Inventory (LCI) model for testing the eILCD format namespace- not to be used for LCA studies.</useAdviceForDataSet>
+      </dataSourcesTreatmentEtc>
+      <validation>
+         <review>
+            <common:referenceToNameOfReviewerAndInstitution type="contact data set" refObjectId="119923fd-f852-41d2-736d-298a8f73456a" version="00.00.000"
+               uri="../contacts/119923fd-f852-41d2-736d-298a8f73456a.xml">
+               <common:shortDescription xml:lang="en">Magic Masterreviewer</common:shortDescription>
+            </common:referenceToNameOfReviewerAndInstitution>
+            <common:referenceToCompleteReviewReport type="source data set" refObjectId="a34e6a13-917a-577d-bd0a-73765ae094aa" version="00.00.000"
+               uri="../sources/a34e6a13-917a-577d-bd0a-73765ae094aa.xml">
+               <common:shortDescription xml:lang="en">Review LDPE parts - sample</common:shortDescription>
+            </common:referenceToCompleteReviewReport>
+         </review>
+      </validation>
+      <complianceDeclarations>
+         <compliance>
+            <common:referenceToComplianceSystem type="source data set" refObjectId="66279383-8dc3-46c1-80d1-99866cc01e6a" version="00.00.000"
+               uri="../sources/66279383-8dc3-46c1-80d1-99866cc01e6a.xml">
+               <common:shortDescription xml:lang="en">PEF/OEF implementation, mandatory data 2016-2020</common:shortDescription>
+            </common:referenceToComplianceSystem>
+            <common:approvalOfOverallCompliance>Not compliant</common:approvalOfOverallCompliance>
+            <common:nomenclatureCompliance>Not compliant</common:nomenclatureCompliance>
+            <common:methodologicalCompliance>Not compliant</common:methodologicalCompliance>
+            <common:reviewCompliance>Not compliant</common:reviewCompliance>
+            <common:documentationCompliance>Not compliant</common:documentationCompliance>
+            <common:qualityCompliance>Not compliant</common:qualityCompliance>
+         </compliance>
+      </complianceDeclarations>
+   </modellingAndValidation>
+   <administrativeInformation>
+      <common:commissionerAndGoal>
+         <common:referenceToCommissioner type="contact data set" refObjectId="e0c82c5f-6b85-4d66-a84c-147d54abb889" version="00.00.000"
+            uri="../contacts/e0c82c5f-6b85-4d66-a84c-147d54abb889.xml">
+            <common:shortDescription xml:lang="en">European Commission, DG ENV A1</common:shortDescription>
+         </common:referenceToCommissioner>
+         <common:project xml:lang="en">Remodelling project. Contract number EN V.B. l/SER/2016/00xxvl</common:project>
+         <common:intendedApplications xml:lang="en">Purely illustrative example Life Cycle Inventory (LCI) model for testing the eILCD format namespace- not to be used for LCA studies.</common:intendedApplications>
+      </common:commissionerAndGoal>
+      <dataGenerator>
+         <common:referenceToPersonOrEntityGeneratingTheDataSet type="contact data set" refObjectId="01a117b0-9a1a-11da-b234-0800200aa162" version="01.00.000"
+            uri="../contacts/01a117b0-9a1a-11da-b234-0800200aa162.xml">
+            <common:shortDescription xml:lang="en">maki</common:shortDescription>
+         </common:referenceToPersonOrEntityGeneratingTheDataSet>
+      </dataGenerator>
+      <dataEntryBy>
+         <common:timeStamp>2017-07-23T00:00:00.000</common:timeStamp>
+         <common:referenceToDataSetFormat type="source data set" refObjectId="a97a0155-0234-4b87-b4ce-a45da52f2a40" version="03.00.000"
+            uri="../sources/a97a0155-0234-4b87-b4ce-a45da52f2a40.xml">
+            <common:shortDescription xml:lang="en">ILCD format 1.1</common:shortDescription>
+         </common:referenceToDataSetFormat>
+         <common:referenceToPersonOrEntityEnteringTheData type="contact data set" refObjectId="01a117b0-9a1a-11da-b234-0800200aa162" version="01.00.000"
+            uri="../contacts/01a117b0-9a1a-11da-b234-0800200aa162.xml">
+            <common:shortDescription xml:lang="en">maki</common:shortDescription>
+         </common:referenceToPersonOrEntityEnteringTheData>
+      </dataEntryBy>
+      <publicationAndOwnership>
+         <common:dataSetVersion>01.00.000</common:dataSetVersion>
+         <common:permanentDataSetURI>http://lcdn.maki-consulting.com/Node/showProcess.xhtml?uuid=10062015cc-184a-41b8-8fa6-49e999cbd101=default</common:permanentDataSetURI>
+         <common:referenceToOwnershipOfDataSet type="contact data set" refObjectId="01a117b0-9a1a-11da-b234-0800200aa162" version="01.00.000"
+            uri="../contacts/01a117b0-9a1a-11da-b234-0800200aa162.xml">
+            <common:shortDescription xml:lang="en">maki life cycle data node</common:shortDescription>
+         </common:referenceToOwnershipOfDataSet>
+         <common:copyright>true</common:copyright>
+         <common:referenceToEntitiesWithExclusiveAccess type="contact data set" refObjectId="8b3e08f0-740a-43b1-aa8d-bec56c5daf6e" version="00.00.000"
+            uri="../contacts/8b3e08f0-740a-43b1-aa8d-bec56c5daf6e.xml">
+            <common:shortDescription xml:lang="en">FINAL USER</common:shortDescription>
+         </common:referenceToEntitiesWithExclusiveAccess>
+         <common:licenseType>Free of charge for some user types or use types</common:licenseType>
+         <common:accessRestrictions xml:lang="en">Non-commercial use for testing of implementation of eILCD import/export interfaces in LCA software</common:accessRestrictions>
+      </publicationAndOwnership>
+   </administrativeInformation>
+</lifeCycleModelDataSet>

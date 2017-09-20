@@ -34,7 +34,7 @@ public class SystemImport {
 			return null;
 		try {
 			ProductSystemDao dao = new ProductSystemDao(config.db);
-			ProductSystem system = dao.getForRefId(model.getUUID());
+			system = dao.getForRefId(model.getUUID());
 			if (system != null)
 				return system;
 			system = new ProductSystem();

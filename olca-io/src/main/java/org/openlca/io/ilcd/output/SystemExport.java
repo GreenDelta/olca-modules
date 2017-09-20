@@ -21,6 +21,7 @@ import org.openlca.ilcd.models.DataSetInfo;
 import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.models.ModelName;
+import org.openlca.ilcd.models.Modelling;
 import org.openlca.ilcd.models.ProcessInstance;
 import org.openlca.ilcd.models.QuantitativeReference;
 import org.openlca.ilcd.models.Technology;
@@ -72,6 +73,8 @@ public class SystemExport {
 
 	private Model initModel() {
 		Model model = new Model();
+		model.version = "1.1";
+		model.locations = "../ILCDLocations.xml";
 		DataSetInfo info = Models.dataSetInfo(model);
 		info.uuid = system.getRefId();
 		ModelName name = Models.modelName(model);
@@ -88,6 +91,9 @@ public class SystemExport {
 			QuantitativeReference qRef = Models.quantitativeReference(model);
 			qRef.refProcess = processIDs.getOrDefault(refId, -1);
 		}
+		Models.publication(model).version = Version
+				.asString(system.getVersion());
+		model.modelling = new Modelling();
 		return model;
 	}
 
