@@ -19,3 +19,15 @@ not all format features are currently supported:
 * `modellingAndValidation`: all the information under this element are currently
   not supported in product systems in openLCA
 * `administrativeInformation`: only timestamp and version are currently supported
+
+### Linking model
+```xml
+<processInstance dataSetInternalID="0">
+  <connections>
+    <outputExchange flowUUID="7601...">
+      <downstreamProcess id="1" flowUUID="1d02..." />
+    </outputExchange>
+    ...
+  </connections>
+</processInstance>
+```
