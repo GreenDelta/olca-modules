@@ -21,7 +21,7 @@ public final class ClassList {
 	private ClassList() {
 	}
 
-	static List<Category> sortedList(IDataSet ds) {
+	public static List<Category> sortedList(IDataSet ds) {
 		if (ds == null)
 			return Collections.emptyList();
 		List<Classification> list = ds.getClassifications();
@@ -55,13 +55,16 @@ public final class ClassList {
 				}
 
 				if (evt == XMLStreamConstants.END_ELEMENT) {
-					if (reader.getLocalName().equals("classificationInformation"))
+					if (reader.getLocalName()
+							.equals("classificationInformation"))
 						break;
-					if (eq(reader, "classification") && classification != null) {
+					if (eq(reader, "classification")
+							&& classification != null) {
 						list.add(classification);
 						classification = null;
 					}
-					if (eq(reader, "class") && category != null && classification != null) {
+					if (eq(reader, "class") && category != null
+							&& classification != null) {
 						classification.categories.add(category);
 						category = null;
 					}

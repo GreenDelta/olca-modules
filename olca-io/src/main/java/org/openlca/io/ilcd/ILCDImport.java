@@ -7,6 +7,7 @@ import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.methods.LCIAMethod;
+import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
@@ -65,6 +66,7 @@ public class ILCDImport implements FileImport {
 			tryImportFlows();
 		tryImportProcesses();
 		tryImportMethods();
+		tryImportModels();
 		tryCloseStore();
 	}
 
@@ -195,17 +197,12 @@ public class ILCDImport implements FileImport {
 		Iterator<Process> it = config.store.iterator(Process.class);
 		ProcessImport processImport = new ProcessImport(config);
 		while (it.hasNext() && !canceled) {
-			Process process = it.next();
-			if (process == null)
+			Process p = it.next();
+			if (p == null)
 				continue;
-			ProcessBag bag = new ProcessBag(process, config.langs);
+			ProcessBag bag = new ProcessBag(p, config.langs);
 			fireEvent(bag.getName());
-			if (bag.hasProductModel()) {
-				SystemImport systemImport = new SystemImport(config);
-				systemImport.run(process);
-			} else {
-				processImport.run(process);
-			}
+			processImport.run(p);
 		}
 	}
 
@@ -225,6 +222,24 @@ public class ILCDImport implements FileImport {
 			}
 		} catch (Exception e) {
 			log.error("Impact category import failed", e);
+		}
+	}
+
+	private void tryImportModels() {
+		if (canceled)
+			return;
+		try {
+			Iterator<Model> it = config.store.iterator(Model.class);
+			while (it.hasNext() && !canceled) {
+				Model m = it.next();
+				if (m == null)
+					continue;
+				fireEvent("Process model " + m.getUUID());
+				SystemImport si = new SystemImport(config);
+				si.run(m);
+			}
+		} catch (Exception e) {
+			log.error("Product model import failed", e);
 		}
 	}
 
