@@ -14,7 +14,7 @@ import org.openlca.core.model.ProcessType;
  * Searches for the best provider for a given product input or waste output in
  * the database.
  */
-class ProviderSearch {
+public class ProviderSearch {
 
 	private ProcessTable processTable;
 	private ProcessType preferredType;
@@ -24,12 +24,12 @@ class ProviderSearch {
 		this.preferredType = ProcessType.LCI_RESULT;
 	}
 
-	void setPreferredType(ProcessType type) {
+	public void setPreferredType(ProcessType type) {
 		if (type != null)
 			this.preferredType = type;
 	}
 
-	LongPair find(CalcExchange productInput) {
+	public LongPair find(CalcExchange productInput) {
 		if (productInput == null)
 			return null;
 		long productId = productInput.flowId;
@@ -66,7 +66,7 @@ class ProviderSearch {
 	 * Returns from the given list the product inputs or waste outputs that
 	 * could be linked to a provider.
 	 */
-	List<CalcExchange> getLinkCandidates(List<CalcExchange> list) {
+	public List<CalcExchange> getLinkCandidates(List<CalcExchange> list) {
 		if (list == null || list.isEmpty())
 			return Collections.emptyList();
 		List<CalcExchange> candidates = new ArrayList<>();

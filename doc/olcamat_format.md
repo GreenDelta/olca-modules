@@ -19,7 +19,7 @@ significant byte first).
 |---------|----------|---------------------------------------------------------|
 |  0 -  3 | int32    | The version of the format (currently `1`)               |
 |  4 -  7 | int32    | The [storage format](#storage-formats)                  |
-|  8 - 11 | int32    | The [data type](#data-type) of the matrix entries.      |
+|  8 - 11 | int32    | The [data type](#data-types) of the matrix entries.      |
 | 12 - 15 | int32    | The length in number of bytes of a single matrix entry. |
 
 The last field is only required if the data type is `custom`.
@@ -34,5 +34,61 @@ The last field is only required if the data type is `custom`.
 |  `3`  | Compressed Column Storage (CCS)   |
 |  `4`  | Compressed Row Storage (CRS)      |
 
+In the dense storage format, the file header is followed by the number of rows
+and columns and then by the values:
+
+| Byte     | Contents  | Description        |
+|----------|-----------|--------------------|
+| 16 - 19  | int32     | Number of rows     |
+| 20 - 23  | int32     | Number of columns  |
+| 24 - `N` | def. type | Values             |
+
+In the column-major order the values are written column after column and in the
+row major order row after row. The size of `N` can be caluated as:
+
+```
+N = 24 + L * rows * columns
+```
+
+Where `L` is the size of the data type.
+
+### Data Types
+
+| Value | Description                   |
+|-------|-------------------------------|
+|  `0`  | 64-bit floating point numbers |
 
 
+## Index files
+
+### index_A.csv
+
+| Column | Field                |
+|--------|----------------------|
+|   0    | index                |
+|   1    | process ID           |
+|   2    | process name         |
+|   3    | process type         |
+|   4    | process location     |
+|   5    | flow ID              |
+|   6    | flow name            |
+|   7    | flow type            |
+|   8    | flow location        |
+|   9    | flow property ID     |
+|  10    | flow property name   |
+|  11    | unit ID              |
+|  12    | unit name            |
+
+### index_B.csv
+
+| Column | Field                |
+|--------|----------------------|
+|  0     | index                |
+|  1     | flow ID              |
+|  2     | flow name            |
+|  3     | flow type            |
+|  4     | flow location        |
+|  5     | flow property ID     |
+|  6     | flow property name   |
+|  7     | unit ID              |
+|  8     | unit name            |
