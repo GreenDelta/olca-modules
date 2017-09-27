@@ -7,6 +7,19 @@ means that the format should support LCA based calculations in an optimal way
 (e.g. getting a column of a precalculate inverse should only take a few disc
 seeks without loading the matrix into memory).
 
+There is currently no user interface for running an olcamat export in openLCA
+but a first version of the API is already available. The following Python
+script exports a database into the olcamat format:
+
+```python
+import java.io.File as File
+import org.openlca.core.matrix.io.olcamat.Export as Export
+
+folder = File('C:/Users/Besitzer/Desktop/rems/olcamat/')
+export = Export(db, folder)
+export.run()
+```
+
 ## File Header
 The `olcamat` format supports different matrix storage types (dense, sparse,
 column or row major order, etc.). The file header format is always the same

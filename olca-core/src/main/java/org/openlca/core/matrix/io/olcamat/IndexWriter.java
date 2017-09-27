@@ -98,6 +98,7 @@ class IndexWriter {
 			String[] row = new String[9];
 			row[0] = Integer.toString(i);
 			writeFlowInfo(enviIndex.getFlowAt(i), row, 1);
+			rows.add(toRow(row));
 		}
 		File f = new File(folder, "index_B.csv");
 		writeFile(rows, f);
