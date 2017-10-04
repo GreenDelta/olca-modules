@@ -88,13 +88,13 @@ public class Export implements Runnable {
 	}
 
 	private void writeMatrices(InventoryMatrix mat, IMatrixSolver solver) throws Exception {
-		Out.denseColumns(mat.technologyMatrix, new File(dir, "A.bin"));
-		Out.denseColumns(mat.interventionMatrix, new File(dir, "B.bin"));
+		Matrices.writeDenseColumn(mat.technologyMatrix, new File(dir, "A.bin"));
+		Matrices.writeDenseColumn(mat.interventionMatrix, new File(dir, "B.bin"));
 		if (withResults) {
 			IMatrix invA = solver.invert(mat.technologyMatrix);
-			Out.denseColumns(invA, new File(dir, "Ainv.bin"));
+			Matrices.writeDenseColumn(invA, new File(dir, "Ainv.bin"));
 			IMatrix m = solver.multiply(mat.interventionMatrix, invA);
-			Out.denseColumns(m, new File(dir, "M.bin"));
+			Matrices.writeDenseColumn(m, new File(dir, "M.bin"));
 		}
 	}
 }
