@@ -14,5 +14,6 @@ public class TestCsv {
 		assertArrayEquals(new String[] { "a", "b", "c" }, Csv.readLine("a,\"b\",c"));
 		assertArrayEquals(new String[] { "", "", "" }, Csv.readLine(",,"));
 		assertArrayEquals(new String[] { "", "", "" }, Csv.readLine("\"\",\"\",\"\""));
+		assertArrayEquals(new String[] { ",", ",", "," }, Csv.readLine("\",\",\",\",\",\""));
 	}
 }

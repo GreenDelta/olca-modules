@@ -31,6 +31,10 @@ class Csv {
 		for (int i = 0; i < chars.length; i++) {
 			char c = chars[i];
 			if (c == ',') {
+				if (inQuotes && word != null) {
+					word.append(c);
+					continue;
+				}
 				if (word == null) {
 					words.add("");
 				} else {
