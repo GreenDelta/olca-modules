@@ -2,6 +2,7 @@ package org.openlca.core.matrix.io.olcamat;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.matrix.format.IMatrix;
@@ -9,6 +10,30 @@ import org.openlca.core.matrix.format.IMatrix;
 public final class IOMat {
 
 	private IOMat() {
+	}
+
+	public static void writeTechIndex(TechIndexEntry[] entries, File file)
+			throws Exception {
+		if (entries == null || file == null)
+			return;
+		List<String> rows = new ArrayList<>(entries.length + 1);
+		rows.add(Csv.techIndexHeader());
+		for (TechIndexEntry e : entries) {
+			rows.add(e.toCsv());
+		}
+		Csv.writeFile(rows, file);
+	}
+
+	public static void writeEnviIndex(EnviIndexEntry[] entries, File file)
+			throws Exception {
+		if (entries == null || file == null)
+			return;
+		List<String> rows = new ArrayList<>(entries.length + 1);
+		rows.add(Csv.enviIndexHeader());
+		for (EnviIndexEntry e : entries) {
+			rows.add(e.toCsv());
+		}
+		Csv.writeFile(rows, file);
 	}
 
 	public static TechIndexEntry[] readTechIndex(File file) throws Exception {

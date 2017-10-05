@@ -31,7 +31,7 @@ class IndexWriter {
 
 	private void writeTechIndex() throws Exception {
 		List<String> rows = new ArrayList<>(techIndex.size() + 1);
-		rows.add(techHeader());
+		rows.add(Csv.techIndexHeader());
 		for (int i = 0; i < techIndex.size(); i++) {
 			LongPair idx = techIndex.getProviderAt(i);
 			TechIndexEntry e = indexer.getTechEntry(idx);
@@ -44,7 +44,7 @@ class IndexWriter {
 
 	private void writeEnviIndex() throws Exception {
 		List<String> rows = new ArrayList<>(techIndex.size() + 1);
-		rows.add(enviHeader());
+		rows.add(Csv.enviIndexHeader());
 		for (int i = 0; i < enviIndex.size(); i++) {
 			EnviIndexEntry e = indexer.getEnviEntry(enviIndex.getFlowAt(i));
 			e.index = i;
@@ -52,44 +52,6 @@ class IndexWriter {
 		}
 		File f = new File(folder, "index_B.csv");
 		Csv.writeFile(rows, f);
-	}
-
-	private String techHeader() {
-		String[] header = {
-				"index",
-				"process ID",
-				"process name",
-				"process type",
-				"process location",
-				"process category",
-				"process sub-category",
-				"flow ID",
-				"flow name",
-				"flow type",
-				"flow location",
-				"flow category",
-				"flow sub-category",
-				"flow property ID",
-				"flow property name",
-				"unit ID",
-				"unit name" };
-		return Csv.toLine(header);
-	}
-
-	private String enviHeader() {
-		String[] header = {
-				"index",
-				"flow ID",
-				"flow name",
-				"flow type",
-				"flow location",
-				"flow category",
-				"flow sub-category",
-				"flow property ID",
-				"flow property name",
-				"unit ID",
-				"unit name" };
-		return Csv.toLine(header);
 	}
 
 }

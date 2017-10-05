@@ -11,6 +11,44 @@ import java.util.List;
 
 class Csv {
 
+	static String techIndexHeader() {
+		String[] header = {
+				"index",
+				"process ID",
+				"process name",
+				"process type",
+				"process location",
+				"process category",
+				"process sub-category",
+				"flow ID",
+				"flow name",
+				"flow type",
+				"flow location",
+				"flow category",
+				"flow sub-category",
+				"flow property ID",
+				"flow property name",
+				"unit ID",
+				"unit name" };
+		return Csv.toLine(header);
+	}
+
+	static String enviIndexHeader() {
+		String[] header = {
+				"index",
+				"flow ID",
+				"flow name",
+				"flow type",
+				"flow location",
+				"flow category",
+				"flow sub-category",
+				"flow property ID",
+				"flow property name",
+				"unit ID",
+				"unit name" };
+		return Csv.toLine(header);
+	}
+
 	static List<String[]> readFile(File file) throws Exception {
 		if (file == null)
 			return Collections.emptyList();
@@ -95,7 +133,8 @@ class Csv {
 
 	static void writeFile(List<String> lines, File file) throws Exception {
 		try (FileOutputStream fos = new FileOutputStream(file);
-				OutputStreamWriter writer = new OutputStreamWriter(fos, "utf-8");
+				OutputStreamWriter writer = new OutputStreamWriter(fos,
+						"utf-8");
 				BufferedWriter buffer = new BufferedWriter(writer)) {
 			for (String line : lines) {
 				buffer.write(line);
