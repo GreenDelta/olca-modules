@@ -21,6 +21,23 @@ public class EnviIndexEntry {
 	public String unitID;
 	public String unitName;
 
+	@Override
+	public EnviIndexEntry clone() {
+		EnviIndexEntry clone = new EnviIndexEntry();
+		clone.index = index;
+		clone.flowID = flowID;
+		clone.flowName = flowName;
+		clone.flowType = flowType;
+		clone.flowLocation = flowLocation;
+		clone.flowCategory = flowCategory;
+		clone.flowSubCategory = flowSubCategory;
+		clone.flowPropertyID = flowPropertyID;
+		clone.flowPropertyName = flowPropertyName;
+		clone.unitID = unitID;
+		clone.unitName = unitName;
+		return clone;
+	}
+
 	String toCsv() {
 		String[] row = new String[11];
 		row[0] = Integer.toString(index);

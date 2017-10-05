@@ -15,6 +15,29 @@ public class TechIndexEntry extends EnviIndexEntry {
 	public String processSubCategory;
 
 	@Override
+	public TechIndexEntry clone() {
+		TechIndexEntry clone = new TechIndexEntry();
+		clone.index = index;
+		clone.processID = processID;
+		clone.processName = processName;
+		clone.processType = processType;
+		clone.processLocation = processLocation;
+		clone.processCategory = processCategory;
+		clone.processSubCategory = processSubCategory;
+		clone.flowID = flowID;
+		clone.flowName = flowName;
+		clone.flowType = flowType;
+		clone.flowLocation = flowLocation;
+		clone.flowCategory = flowCategory;
+		clone.flowSubCategory = flowSubCategory;
+		clone.flowPropertyID = flowPropertyID;
+		clone.flowPropertyName = flowPropertyName;
+		clone.unitID = unitID;
+		clone.unitName = unitName;
+		return clone;
+	}
+
+	@Override
 	String toCsv() {
 		String[] row = new String[17];
 		row[0] = Integer.toString(index);
