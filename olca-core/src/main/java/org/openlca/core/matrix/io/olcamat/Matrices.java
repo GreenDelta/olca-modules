@@ -1,12 +1,11 @@
 package org.openlca.core.matrix.io.olcamat;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.ByteBuffer;
+import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.IMatrix;
@@ -14,101 +13,66 @@ import org.openlca.core.matrix.format.IMatrix;
 class Matrices {
 
 	static void writeDenseColumn(IMatrix m, File file) throws Exception {
-		try (FileOutputStream fos = new FileOutputStream(file);
-				BufferedOutputStream buffer = new BufferedOutputStream(fos)) {
+		if (m == null || file == null)
+			return;
 
-			// byte buffers for int and double
-			ByteBuffer i32 = ByteBuffer.allocate(4);
-			ByteBuffer f64 = ByteBuffer.allocate(8);
-			i32.order(ByteOrder.LITTLE_ENDIAN);
-			f64.order(ByteOrder.LITTLE_ENDIAN);
+		int length = 6 * 4 + m.rows() * m.columns() * 8;
+
+		try (RandomAccessFile raf = new RandomAccessFile(file, "rw");
+				FileChannel channel = raf.getChannel()) {
+
+			MappedByteBuffer buffer = channel.map(MapMode.READ_WRITE, 0, length);
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
 
 			// format version -> 1
-			i32.putInt(1);
-			buffer.write(i32.array());
-			i32.clear();
-
+			buffer.putInt(1);
 			// storage format -> 0 dense array in column major order
-			i32.putInt(0);
-			buffer.write(i32.array());
-			i32.clear();
-
+			buffer.putInt(0);
 			// data type -> 0 64-bit floating point numbers
-			i32.putInt(0);
-			buffer.write(i32.array());
-			i32.clear();
-
+			buffer.putInt(0);
 			// entry size -> 8 bytes
-			i32.putInt(8);
-			buffer.write(i32.array());
-			i32.clear();
+			buffer.putInt(8);
 
 			// rows + columns
-			i32.putInt(m.rows());
-			buffer.write(i32.array());
-			i32.clear();
-			i32.putInt(m.columns());
-			buffer.write(i32.array());
+			buffer.putInt(m.rows());
+			buffer.putInt(m.columns());
 
 			// values
 			for (int col = 0; col < m.columns(); col++) {
 				for (int row = 0; row < m.rows(); row++) {
-					f64.putDouble(m.get(row, col));
-					buffer.write(f64.array());
-					f64.clear();
+					buffer.putDouble(m.get(row, col));
 				}
 			}
 		}
 	}
 
 	static IMatrix readDenseColumn(File file) throws Exception {
+		try (RandomAccessFile raf = new RandomAccessFile(file, "r");
+				FileChannel channel = raf.getChannel()) {
 
-		ByteBuffer intBuffer = ByteBuffer.allocate(4);
-		intBuffer.order(ByteOrder.LITTLE_ENDIAN);
-		ByteBuffer doubleBuffer = ByteBuffer.allocate(8);
-		doubleBuffer.order(ByteOrder.LITTLE_ENDIAN);
-
-		try (FileInputStream fis = new FileInputStream(file);
-				FileChannel channel = fis.getChannel()) {
+			MappedByteBuffer buffer = channel.map(MapMode.READ_ONLY, 0, raf.length());
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
 
 			// version
-			readInt(channel, intBuffer);
+			buffer.getInt();
 			// storage format
-			readInt(channel, intBuffer);
+			buffer.getInt();
 			// data type
-			readInt(channel, intBuffer);
+			buffer.getInt();
 			// entry size
-			readInt(channel, intBuffer);
+			buffer.getInt();
 
-			int rows = readInt(channel, intBuffer);
-			int cols = readInt(channel, intBuffer);
+			int rows = buffer.getInt();
+			int cols = buffer.getInt();
 			DenseMatrix m = new DenseMatrix(rows, cols);
 
 			for (int col = 0; col < m.columns(); col++) {
 				for (int row = 0; row < m.rows(); row++) {
-					double val = readDouble(channel, doubleBuffer);
+					double val = buffer.getDouble();
 					m.set(row, col, val);
 				}
 			}
 			return m;
 		}
-	}
-
-	private static int readInt(FileChannel channel, ByteBuffer buffer)
-			throws Exception {
-		channel.read(buffer);
-		buffer.flip();
-		int i = buffer.getInt();
-		buffer.clear();
-		return i;
-	}
-
-	private static double readDouble(FileChannel channel, ByteBuffer buffer)
-			throws Exception {
-		channel.read(buffer);
-		buffer.flip();
-		double d = buffer.getDouble();
-		buffer.clear();
-		return d;
 	}
 }
