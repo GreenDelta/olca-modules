@@ -1,11 +1,13 @@
 package org.openlca.core.database;
 
+import org.openlca.core.model.descriptors.BaseDescriptor;
+
 public interface IDatabaseListener {
 
-	void modelInserted(Object object);
+	void modelInserted(BaseDescriptor descriptor);
 
-	void modelUpdated(Object object);
+	void modelUpdated(BaseDescriptor descriptor);
 
-	void modelDeleted(Object object);
+	void modelDeleted(BaseDescriptor descriptor);
 
 }

@@ -1,15 +1,17 @@
 package org.openlca.core.database;
 
+import org.openlca.core.model.descriptors.BaseDescriptor;
+
 public interface INotifiable {
 	
 	void addListener(IDatabaseListener listener);
 	
 	void removeListener(IDatabaseListener listener);
 
-	void notifyInsert(Object object);
+	void notifyInsert(BaseDescriptor descriptor);
 
-	void notifyUpdate(Object object);
+	void notifyUpdate(BaseDescriptor descriptor);
 
-	void notifyDelete(Object object);
+	void notifyDelete(BaseDescriptor descriptor);
 	
 }

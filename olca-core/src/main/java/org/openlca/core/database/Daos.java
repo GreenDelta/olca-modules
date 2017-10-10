@@ -6,8 +6,7 @@ import org.openlca.core.model.ModelType;
 public class Daos {
 
 	@SuppressWarnings("unchecked")
-	public static <T extends AbstractEntity> BaseDao<T> createBaseDao(
-			IDatabase database, Class<T> clazz) {
+	public static <T extends AbstractEntity> BaseDao<T> createBaseDao(IDatabase database, Class<T> clazz) {
 		if (database == null)
 			return null;
 		if (clazz == null)

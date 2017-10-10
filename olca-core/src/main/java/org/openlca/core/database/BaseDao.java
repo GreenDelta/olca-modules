@@ -20,6 +20,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +103,9 @@ public class BaseDao<T> implements IDao<T> {
 			em.getTransaction().begin();
 			em.remove(em.merge(entity));
 			em.getTransaction().commit();
-			database.notifyDelete(entity);
+			if (this instanceof RootEntityDao) {
+				database.notifyDelete(Descriptors.toDescriptor((RootEntity) entity));
+			}
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while deleting "
 					+ entityType.getSimpleName(), e);
@@ -122,8 +126,6 @@ public class BaseDao<T> implements IDao<T> {
 				em.remove(em.merge(entity));
 			}
 			em.getTransaction().commit();
-			for (T entity : entities)
-				database.notifyDelete(entity);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while deleting "
 					+ entityType.getSimpleName(), e);
@@ -141,7 +143,9 @@ public class BaseDao<T> implements IDao<T> {
 			em.getTransaction().begin();
 			T retval = em.merge(entity);
 			em.getTransaction().commit();
-			database.notifyUpdate(retval);
+			if (this instanceof RootEntityDao) {
+				database.notifyUpdate(Descriptors.toDescriptor((RootEntity) retval));
+			}
 			return retval;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while updating "
@@ -161,7 +165,6 @@ public class BaseDao<T> implements IDao<T> {
 			em.getTransaction().begin();
 			em.persist(entity);
 			em.getTransaction().commit();
-			database.notifyInsert(entity);
 			return entity;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while inserting "
@@ -196,12 +199,14 @@ public class BaseDao<T> implements IDao<T> {
 			return executeChunked(ids, this::getForIds);
 		EntityManager em = createManager();
 		try {
-			String jpql = "SELECT o FROM " + entityType.getSimpleName() + " o WHERE o.id IN :ids";
+			String jpql = "SELECT o FROM " + entityType.getSimpleName()
+					+ " o WHERE o.id IN :ids";
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
 			query.setParameter("ids", ids);
 			return query.getResultList();
 		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "Error while fetching for ids", e);
+			DatabaseException.logAndThrow(log, "Error while fetching for ids",
+					e);
 			return Collections.emptyList();
 		} finally {
 			em.close();
@@ -209,7 +214,8 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	// Executes the query method chunked, (for methods with List return value)
-	protected <X, Y> List<Y> executeChunked(Set<X> set, Function<Set<X>, List<Y>> queryMethod) {
+	protected <X, Y> List<Y> executeChunked(Set<X> set,
+			Function<Set<X>, List<Y>> queryMethod) {
 		List<Set<X>> split = split(set);
 		List<Y> all = new ArrayList<>();
 		for (Set<X> s : split) {
@@ -219,7 +225,8 @@ public class BaseDao<T> implements IDao<T> {
 	}
 
 	// Executes the query method chunked, (for methods with Map return value)
-	private <X, Y> Map<X, Y> executeChunked2(Set<X> set, Function<Set<X>, Map<X, Y>> queryMethod) {
+	private <X, Y> Map<X, Y> executeChunked2(Set<X> set,
+			Function<Set<X>, Map<X, Y>> queryMethod) {
 		List<Set<X>> split = split(set);
 		Map<X, Y> all = new HashMap<>();
 		for (Set<X> s : split) {
@@ -232,7 +239,8 @@ public class BaseDao<T> implements IDao<T> {
 		List<Set<X>> split = new ArrayList<>();
 		List<X> rest = new ArrayList<>(all);
 		while (!rest.isEmpty()) {
-			int toPos = rest.size() > MAX_LIST_SIZE ? MAX_LIST_SIZE : rest.size();
+			int toPos = rest.size() > MAX_LIST_SIZE ? MAX_LIST_SIZE : rest
+					.size();
 			List<X> nextChunk = rest.subList(0, toPos);
 			split.add(new HashSet<X>(nextChunk));
 			nextChunk.clear(); // clears also the elements in rest

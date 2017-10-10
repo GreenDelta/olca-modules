@@ -1,6 +1,8 @@
 package org.openlca.core.database;
 
+import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -8,9 +10,11 @@ import java.util.Objects;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 
 import com.google.common.base.Optional;
 
@@ -23,23 +27,20 @@ public class CategoryDao extends
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version",
-				"last_change", "f_category", "model_type" };
+		return new String[] { "id", "ref_id", "name", "description", "version", "last_change", "f_category", "model_type" };
 	}
 
 	@Override
 	protected CategoryDescriptor createDescriptor(Object[] queryResult) {
 		CategoryDescriptor descriptor = super.createDescriptor(queryResult);
 		if (queryResult[7] instanceof String)
-			descriptor.setCategoryType(ModelType
-					.valueOf((String) queryResult[7]));
+			descriptor.setCategoryType(ModelType.valueOf((String) queryResult[7]));
 		return descriptor;
 	}
 
 	/** Root categories do not have a parent category. */
 	public List<Category> getRootCategories(ModelType type) {
-		String jpql = "select c from Category c where c.category is null "
-				+ "and c.modelType = :type";
+		String jpql = "select c from Category c where c.category is null and c.modelType = :type";
 		return getAll(jpql, Collections.singletonMap("type", type));
 	}
 
@@ -72,7 +73,7 @@ public class CategoryDao extends
 		Category forRefId = getForRefId(newRefId);
 		boolean isNew = category.getId() == 0l;
 		if (!Objects.equals(refId, newRefId) && !isNew)
-			getDatabase().notifyDelete(category);
+			getDatabase().notifyDelete(Descriptors.toDescriptor(category));
 		if (Objects.equals(refId, newRefId) || forRefId == null) {
 			category.setRefId(newRefId);
 			category = super.update(category);
@@ -110,17 +111,38 @@ public class CategoryDao extends
 
 	@SuppressWarnings("unchecked")
 	private <T extends CategorizedEntity> void updateModels(Category category) {
-		// TODO test performance for "root category changes" or categories with
-		// big amount of models
 		Optional<Category> optional = Optional.fromNullable(category);
 		CategorizedEntityDao<T, ?> dao = (CategorizedEntityDao<T, ?>) Daos.createCategorizedDao(getDatabase(),
 				category.getModelType());
+		Map<ModelType, String> tables = getTables();
 		for (CategorizedDescriptor descriptor : dao.getDescriptors(optional)) {
-			CategorizedEntity entity = dao.getForId(descriptor.getId());
-			Version.incUpdate(entity);
-			entity.setLastChange(System.currentTimeMillis());
-			dao.update((T) entity);
+			Version v = new Version(descriptor.getVersion());
+			v.incUpdate();
+			long version = v.getValue();
+			long lastChange = System.currentTimeMillis();
+			descriptor.setVersion(version);
+			descriptor.setLastChange(lastChange);
+			try {
+				NativeSql.on(database).runUpdate(
+						"UPDATE " + tables.get(descriptor.getModelType()) + " SET version = " + version + ", last_change = " + lastChange
+								+ " WHERE id = " + descriptor.getId());
+			} catch (SQLException e) {
+				log.error("Error updating " + descriptor.getModelType().getModelClass().getSimpleName() + " "
+						+ descriptor.getId(), e);
+			}
+			database.notifyUpdate(descriptor);
 		}
 	}
 
+	private Map<ModelType, String> getTables()  {
+		Map<ModelType, String> tables = new HashMap<>();
+		for (ModelType type : ModelType.values()) {
+			if (type.getModelClass() == null || !RootEntity.class.isAssignableFrom(type.getModelClass()))
+				continue;
+			String table = Daos.createRootDao(database, type).getEntityTable();
+			tables.put(type, table);
+		}
+		return tables;
+	}
+	
 }

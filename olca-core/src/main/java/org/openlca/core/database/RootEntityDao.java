@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.util.Strings;
 
 public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> extends BaseDao<T> {
@@ -26,6 +28,34 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 		this.descriptorType = descriptorType;
 	}
 
+	@Override
+	public T insert(T entity) {
+		entity = super.insert(entity);
+		database.notifyInsert(Descriptors.toDescriptor(entity));
+		return entity;
+	}
+
+	@Override
+	public T update(T entity) {
+		entity = super.update(entity);
+		database.notifyUpdate(Descriptors.toDescriptor(entity));
+		return entity;
+	}
+
+	@Override
+	public void delete(T entity) {
+		super.delete(entity);
+		database.notifyDelete(Descriptors.toDescriptor(entity));
+	}
+
+	@Override
+	public void deleteAll(Collection<T> entities) {
+		for (T entity : entities) {
+			database.notifyDelete(Descriptors.toDescriptor(entity));
+		}
+	}
+	
+	
 	Class<V> getDescriptorType() {
 		return descriptorType;
 	}
@@ -73,7 +103,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 		return "select " + Strings.join(getDescriptorFields(), ',') + " from " + getEntityTable();
 	}
 
-	private String getEntityTable() {
+	String getEntityTable() {
 		if (entityTable == null)
 			entityTable = entityType.getAnnotation(Table.class).name();
 		return entityTable;
