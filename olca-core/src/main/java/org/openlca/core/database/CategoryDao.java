@@ -18,9 +18,10 @@ import org.openlca.core.model.descriptors.Descriptors;
 
 import com.google.common.base.Optional;
 
-public class CategoryDao extends
-		CategorizedEntityDao<Category, CategoryDescriptor> {
+public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescriptor> {
 
+	private static Map<ModelType, String> tables;
+	
 	public CategoryDao(IDatabase database) {
 		super(Category.class, CategoryDescriptor.class, database);
 	}
@@ -109,13 +110,9 @@ public class CategoryDao extends
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	private <T extends CategorizedEntity> void updateModels(Category category) {
 		Optional<Category> optional = Optional.fromNullable(category);
-		CategorizedEntityDao<T, ?> dao = (CategorizedEntityDao<T, ?>) Daos.createCategorizedDao(getDatabase(),
-				category.getModelType());
-		Map<ModelType, String> tables = getTables();
-		for (CategorizedDescriptor descriptor : dao.getDescriptors(optional)) {
+		for (CategorizedDescriptor descriptor : getDescriptors(category.getModelType(), optional)) {
 			Version v = new Version(descriptor.getVersion());
 			v.incUpdate();
 			long version = v.getValue();
@@ -123,9 +120,10 @@ public class CategoryDao extends
 			descriptor.setVersion(version);
 			descriptor.setLastChange(lastChange);
 			try {
-				NativeSql.on(database).runUpdate(
-						"UPDATE " + tables.get(descriptor.getModelType()) + " SET version = " + version + ", last_change = " + lastChange
-								+ " WHERE id = " + descriptor.getId());
+				String update = "UPDATE " + getTable(descriptor.getModelType())
+						+ " SET version = " + version + ", last_change = " + lastChange 
+						+ " WHERE id = " + descriptor.getId();
+				NativeSql.on(database).runUpdate(update);
 			} catch (SQLException e) {
 				log.error("Error updating " + descriptor.getModelType().getModelClass().getSimpleName() + " "
 						+ descriptor.getId(), e);
@@ -134,15 +132,24 @@ public class CategoryDao extends
 		}
 	}
 
-	private Map<ModelType, String> getTables()  {
-		Map<ModelType, String> tables = new HashMap<>();
-		for (ModelType type : ModelType.values()) {
-			if (type.getModelClass() == null || !RootEntity.class.isAssignableFrom(type.getModelClass()))
-				continue;
-			String table = Daos.createRootDao(database, type).getEntityTable();
-			tables.put(type, table);
+	private String getTable(ModelType modelType)  {
+		if (tables == null) {
+			tables = new HashMap<>();
+			for (ModelType type : ModelType.values()) {
+				if (type.getModelClass() == null || !RootEntity.class.isAssignableFrom(type.getModelClass()))
+					continue;
+				String table = Daos.createRootDao(database, type).getEntityTable();
+				tables.put(type, table);
+			}
 		}
-		return tables;
+		return tables.get(modelType);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T extends CategorizedEntity> List<? extends CategorizedDescriptor> getDescriptors(ModelType type,
+			Optional<Category> category) {
+		CategorizedEntityDao<T, ?> dao = (CategorizedEntityDao<T, ?>) Daos.createCategorizedDao(getDatabase(), type);
+		return dao.getDescriptors(category);
 	}
 	
 }
