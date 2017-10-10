@@ -229,6 +229,7 @@ CREATE TABLE tbl_processes (
 	dq_entry VARCHAR(50),
 	f_exchange_dq_system BIGINT,
 	f_social_dq_system BIGINT,
+	last_internal_id INTEGER,
 
 	PRIMARY KEY (id)	
 
@@ -284,6 +285,7 @@ CREATE TABLE tbl_exchanges (
 
 	id BIGINT NOT NULL, 
 	f_owner BIGINT, 
+	internal_id INTEGER,
 	f_flow BIGINT, 
 	f_unit BIGINT, 
 	is_input SMALLINT default 0, 

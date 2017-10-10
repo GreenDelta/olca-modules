@@ -183,6 +183,7 @@ class ProcessHandler {
 			return null;
 		e.isInput = false;
 		setUnit(e, row.getUnit());
+		e.internalId = process.drawNextInternalId();
 		process.getExchanges().add(e);
 		return e;
 	}
@@ -197,6 +198,7 @@ class ProcessHandler {
 				e.isInput = true;
 				e.isAvoided = type == ProductType.AVOIDED_PRODUCTS;
 				setUnit(e, row.getUnit());
+				e.internalId = process.drawNextInternalId();
 				process.getExchanges().add(e);
 			}
 		}
@@ -223,6 +225,7 @@ class ProcessHandler {
 				if (e == null)
 					continue;
 				e.isInput = isInput;
+				e.internalId = process.drawNextInternalId();
 				process.getExchanges().add(e);
 			}
 		}

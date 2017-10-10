@@ -81,4 +81,13 @@ public class Dataset extends FileReference implements Serializable {
 		return dataset;
 	}
 
+	@Override
+	public String toString() {
+		String value = super.toString() + ", version: " + version + ", lastChange: " + lastChange + ", name: " + name
+				+ ", fullPath: " + fullPath;
+		if (categoryRefId != null && categoryType != null) {
+			value += ", categoryRefId: " + categoryRefId + ", categoryType: " + categoryType.name();
+		}
+		return value;
+	}
 }

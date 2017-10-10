@@ -339,6 +339,7 @@ public class EcoSpold01Import implements FileImport {
 					inExchange);
 			outExchange.description = inExchange.getGeneralComment();
 			exchangeAmount.map(flow.conversionFactor);
+			outExchange.internalId = ioProcess.drawNextInternalId();
 			ioProcess.getExchanges().add(outExchange);
 			localExchangeCache.put(inExchange.getNumber(), outExchange);
 			if (ioProcess.getQuantitativeReference() == null
@@ -410,6 +411,7 @@ public class EcoSpold01Import implements FileImport {
 		double amount = dataSet.getReferenceFunction().getAmount()
 				* flow.conversionFactor;
 		outExchange.amount = amount;
+		outExchange.internalId = ioProcess.drawNextInternalId();
 		ioProcess.getExchanges().add(outExchange);
 		ioProcess.setQuantitativeReference(outExchange);
 	}

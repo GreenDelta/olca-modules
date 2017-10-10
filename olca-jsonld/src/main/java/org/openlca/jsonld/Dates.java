@@ -11,14 +11,28 @@ public class Dates {
 	private Dates() {
 	}
 
-	public static String toString(Date date) {
+	public static String toDateTime(Date date) {
+		Calendar c = toCalendar(date);
+		if (c == null)
+			return null;
+		return DatatypeConverter.printDateTime(c);
+	}
+
+	public static String toDate(Date date) {
+		Calendar c = toCalendar(date);
+		if (c == null)
+			return null;
+		return DatatypeConverter.printDate(c);
+	}
+
+	private static Calendar toCalendar(Date date) {
 		if (date == null)
 			return null;
 		Calendar c = GregorianCalendar.getInstance();
 		c.setTime(date);
-		return DatatypeConverter.printDateTime(c);
+		return c;
 	}
-
+	
 	public static String toString(long time) {
 		Calendar c = GregorianCalendar.getInstance();
 		c.setTimeInMillis(time);
@@ -26,7 +40,7 @@ public class Dates {
 	}
 
 	public static Date fromString(String date) {
-		if (date == null)
+		if (date == null || date.isEmpty())
 			return null;
 		Calendar cal = DatatypeConverter.parseDateTime(date);
 		return cal == null ? null : cal.getTime();

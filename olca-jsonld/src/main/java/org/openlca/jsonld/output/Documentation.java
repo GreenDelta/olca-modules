@@ -36,8 +36,8 @@ class Documentation {
 		Out.put(o, "samplingDescription", d.getSampling());
 		Out.put(o, "restrictionsDescription", d.getRestrictions());
 		Out.put(o, "copyright", d.isCopyright());
-		Out.put(o, "validFrom", d.getValidFrom());
-		Out.put(o, "validUntil", d.getValidUntil());
+		Out.put(o, "validFrom", d.getValidFrom(), Out.DATE_ONLY);
+		Out.put(o, "validUntil", d.getValidUntil(), Out.DATE_ONLY);
 		Out.put(o, "creationDate", d.getCreationDate());
 		Out.put(o, "intendedApplication", d.getIntendedApplication());
 		Out.put(o, "projectDescription", d.getProject());

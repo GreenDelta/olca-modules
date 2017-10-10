@@ -52,6 +52,12 @@ public class Process extends CategorizedEntity {
 	@Column(name = "infrastructure_process")
 	private boolean infrastructureProcess;
 
+	/**
+	 * This is used as a sequence for the exchange's internal id
+	 */
+	@Column(name = "last_internal_id")
+	public int lastInternalId;
+
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_process")
 	public final List<SocialAspect> socialAspects = new ArrayList<>();
@@ -74,7 +80,7 @@ public class Process extends CategorizedEntity {
 	@OneToOne
 	@JoinColumn(name = "f_social_dq_system")
 	public DQSystem socialDqSystem;
-
+	
 	public ProcessDocumentation getDocumentation() {
 		return documentation;
 	}
@@ -139,4 +145,16 @@ public class Process extends CategorizedEntity {
 	public List<AllocationFactor> getAllocationFactors() {
 		return allocationFactors;
 	}
+	
+	public int drawNextInternalId() {
+		return ++lastInternalId;
+	}
+	
+	public Exchange getExchange(int internalId) {
+		for (Exchange exchange : exchanges) 
+			if (exchange.internalId == internalId)
+				return exchange;
+		return null;
+	}
+	
 }

@@ -4,16 +4,14 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.ExchangeKey;
 
 import com.google.gson.JsonObject;
 
 class Exchanges {
 
-	static String map(Exchange e, String processRefId, JsonObject obj,
-			ExportConfig conf) {
+	static boolean map(Exchange e, String processRefId, JsonObject obj, ExportConfig conf) {
 		if (e == null || obj == null)
-			return null;
+			return false;
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
 		Out.put(obj, "avoidedProduct", e.isAvoided);
 		Out.put(obj, "input", e.isInput);
@@ -25,13 +23,12 @@ class Exchanges {
 		Out.put(obj, "costFormula", e.costFormula);
 		Out.put(obj, "costValue", e.costs);
 		Out.put(obj, "currency", e.currency, conf);
-		String providerRefId = mapRefs(e, obj, conf);
-		String internalId = ExchangeKey.get(processRefId, providerRefId, e);
-		Out.put(obj, "@id", internalId);
-		return internalId;
+		Out.put(obj, "internalId", e.internalId);
+		mapRefs(e, obj, conf);
+		return true;
 	}
 
-	private static String mapRefs(Exchange e, JsonObject obj, ExportConfig conf) {
+	private static void mapRefs(Exchange e, JsonObject obj, ExportConfig conf) {
 		Long pId = e.defaultProviderId;
 		JsonObject p = null;
 		if (conf.exportProviders)
@@ -50,8 +47,5 @@ class Exchanges {
 			property = e.flowPropertyFactor.getFlowProperty();
 		Out.put(obj, "flowProperty", property, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "uncertainty", Uncertainties.map(e.uncertainty));
-		if (p == null)
-			return null;
-		return p.get("@id").getAsString();
 	}
 }
