@@ -7,6 +7,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -37,6 +38,9 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		Process process = new Process();
 		process.setCategory(insertAndAddExpected("category", new Category()));
 		process.setLocation(insertAndAddExpected("location", new Location()));
+		process.dqSystem = insertAndAddExpected("dqSystem", new DQSystem());
+		process.exchangeDqSystem = insertAndAddExpected("exchangeDqSystem", new DQSystem());
+		process.socialDqSystem = insertAndAddExpected("socialDqSystem", new DQSystem());
 		String n1 = generateName();
 		String n2 = generateName();
 		String n3 = generateName();
@@ -45,8 +49,7 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		process.getExchanges().add(createExchange(3d, true));
 		process.getExchanges().add(createExchange("2*" + n4, false));
 		process.getParameters().add(createParameter(n1, 3d, false));
-		process.getParameters()
-				.add(createParameter(n2, n1 + "*2*" + n3, false));
+		process.getParameters().add(createParameter(n2, n1 + "*2*" + n3, false));
 		process.socialAspects.add(createSocialAspect());
 		process.socialAspects.add(createSocialAspect());
 		process.currency = insertAndAddExpected("currency", new Currency());
@@ -61,47 +64,33 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
 		process = Tests.insert(process);
 		for (Exchange e : process.getExchanges()) {
-			addExpected("flow", e.flow, "exchanges", Exchange.class,
-					e.getId());
-			addExpected("flowPropertyFactor", e.flowPropertyFactor,
-					"exchanges", Exchange.class, e.getId());
-			addExpected("unit", e.unit, "exchanges", Exchange.class,
-					e.getId());
+			addExpected("flow", e.flow, "exchanges", Exchange.class, e.getId());
+			addExpected("flowPropertyFactor", e.flowPropertyFactor, "exchanges", Exchange.class, e.getId());
+			addExpected("unit", e.unit, "exchanges", Exchange.class, e.getId());
 			Process provider = processes.get(e.defaultProviderId);
 			if (provider != null)
-				addExpected("defaultProviderId", provider, "exchanges",
-						Exchange.class, e.getId());
+				addExpected("defaultProviderId", provider, "exchanges", Exchange.class, e.getId());
 		}
 		for (SocialAspect a : process.socialAspects) {
-			addExpected("indicator", a.indicator, "socialAspects",
-					SocialAspect.class, a.getId());
-			addExpected("source", a.source, "socialAspects",
-					SocialAspect.class, a.getId());
+			addExpected("indicator", a.indicator, "socialAspects", SocialAspect.class, a.getId());
+			addExpected("source", a.source, "socialAspects", SocialAspect.class, a.getId());
 		}
 		ProcessDocumentation doc = process.getDocumentation();
-		addExpected("dataDocumentor", doc.getDataDocumentor(), "documentation",
-				ProcessDocumentation.class, doc.getId());
-		addExpected("dataGenerator", doc.getDataGenerator(), "documentation",
-				ProcessDocumentation.class, doc.getId());
-		addExpected("dataSetOwner", doc.getDataSetOwner(), "documentation",
-				ProcessDocumentation.class, doc.getId());
-		addExpected("reviewer", doc.getReviewer(), "documentation",
-				ProcessDocumentation.class, doc.getId());
-		addExpected("publication", doc.getPublication(), "documentation",
-				ProcessDocumentation.class, doc.getId());
+		addExpected("dataDocumentor", doc.getDataDocumentor(), "documentation", ProcessDocumentation.class, doc.getId());
+		addExpected("dataGenerator", doc.getDataGenerator(), "documentation", ProcessDocumentation.class, doc.getId());
+		addExpected("dataSetOwner", doc.getDataSetOwner(), "documentation", ProcessDocumentation.class, doc.getId());
+		addExpected("reviewer", doc.getReviewer(), "documentation", ProcessDocumentation.class, doc.getId());
+		addExpected("publication", doc.getPublication(), "documentation", ProcessDocumentation.class, doc.getId());
 		for (Source s : process.getDocumentation().getSources())
-			addExpected("sources", s, "documentation",
-					ProcessDocumentation.class, doc.getId());
+			addExpected("sources", s, "documentation", ProcessDocumentation.class, doc.getId());
 		return process;
 	}
 
 	private Exchange createExchange(Object value, boolean provider) {
 		Exchange exchange = new Exchange();
 		exchange.flow = createFlow();
-		exchange.flowPropertyFactor = exchange.flow
-		.getFlowPropertyFactors().get(0);
-		exchange.unit = exchange.flowPropertyFactor.getFlowProperty()
-		.getUnitGroup().getUnits().get(0);
+		exchange.flowPropertyFactor = exchange.flow.getFlowPropertyFactors().get(0);
+		exchange.unit = exchange.flowPropertyFactor.getFlowProperty().getUnitGroup().getUnits().get(0);
 		boolean formula = value instanceof String;
 		if (formula)
 			exchange.amountFormula = value.toString();
