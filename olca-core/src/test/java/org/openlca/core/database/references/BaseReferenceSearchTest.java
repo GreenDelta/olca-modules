@@ -38,10 +38,8 @@ public abstract class BaseReferenceSearchTest {
 	@Test
 	public void testNoReferences() throws InstantiationException,
 			IllegalAccessException {
-		AbstractEntity minimalModel = (AbstractEntity) getModelClass()
-				.newInstance();
-		List<Reference> references = findReferences(Collections
-				.singleton(minimalModel.getId()));
+		AbstractEntity minimalModel = (AbstractEntity) getModelClass().newInstance();
+		List<Reference> references = findReferences(Collections.singleton(minimalModel.getId()));
 		Assert.assertNotNull(references);
 		Assert.assertEquals(0, references.size());
 	}
@@ -49,8 +47,7 @@ public abstract class BaseReferenceSearchTest {
 	@Test
 	public void testAllReferencesSingleModel() {
 		AbstractEntity fullModel = createModel();
-		List<Reference> references = findReferences(Collections
-				.singleton(fullModel.getId()));
+		List<Reference> references = findReferences(Collections.singleton(fullModel.getId()));
 		Assert.assertNotNull(references);
 		for (Reference ref : expectedReferences) {
 			Reference reference = find(ref, references, fullModel.getId());
@@ -59,8 +56,9 @@ public abstract class BaseReferenceSearchTest {
 			references.remove(reference);
 		}
 		for (Reference r : references) {
-			String text = "Unexpected: " + r.getType().getName() + " " + r.id;
-			Assert.assertTrue(text, false);
+			if (r.optional && r.id == 0)
+				continue;
+			Assert.fail("Unexpected: " + r.getType().getName() + " " + r.id);
 		}
 	}
 
@@ -84,64 +82,57 @@ public abstract class BaseReferenceSearchTest {
 					refs.add(reference);
 			for (Reference ref : referencesByOwner.get(id)) {
 				Reference reference = find(ref, refs, id);
-				String text = ref.getType().getName() + " " + ref.id
-						+ " not found";
+				String text = ref.getType().getName() + " " + ref.id + " not found";
 				Assert.assertNotNull(text, reference);
 				refs.remove(reference);
 			}
 			for (Reference r : refs) {
-				String text = "Unexpected: " + r.getType().getName() + " "
-						+ r.id;
-				Assert.assertTrue(text, false);
+				if (r.optional && r.id == 0)
+					continue;
+				Assert.fail("Unexpected: " + r.getType().getName() + " " + r.id);
 			}
 		}
 	}
 
 	private Reference find(Reference reference, List<Reference> references,
 			long ownerId) {
-		for (Reference ref : references)
+		for (Reference ref : references) {
 			if (!Strings.nullOrEqual(ref.property, reference.property))
 				continue;
-			else if (ref.getType() != reference.getType())
+			if (ref.getType() != reference.getType())
 				continue;
-			else if (ref.id != reference.id)
+			if (ref.id != reference.id)
 				continue;
-			else if (ref.getOwnerType() != reference.getOwnerType())
+			if (ref.getOwnerType() != reference.getOwnerType())
 				continue;
-			else if (ref.ownerId != (reference.ownerId != 0l ? reference.ownerId
-					: ownerId))
+			if (ref.ownerId != (reference.ownerId != 0l ? reference.ownerId : ownerId))
 				continue;
-			else if (!Strings.nullOrEqual(ref.nestedProperty,
-					reference.nestedProperty))
+			if (!Strings.nullOrEqual(ref.nestedProperty, reference.nestedProperty))
 				continue;
-			else if (ref.getNestedOwnerType() != reference.getNestedOwnerType())
+			if (ref.getNestedOwnerType() != reference.getNestedOwnerType())
 				continue;
-			else if (ref.nestedOwnerId != reference.nestedOwnerId)
+			if (ref.nestedOwnerId != reference.nestedOwnerId)
 				continue;
-			else
-				return ref;
+			return ref;
+		}
 		return null;
 	}
 
 	protected List<Reference> findReferences(Set<Long> ids) {
 		ModelType type = getModelType();
-		IReferenceSearch<?> search = IReferenceSearch.FACTORY.createFor(type,
-				Tests.getDb(), true);
+		IReferenceSearch<?> search = IReferenceSearch.FACTORY.createFor(type, Tests.getDb(), true);
 		return search.findReferences(ids);
 	}
 
-	protected final <T extends CategorizedEntity> T insertAndAddExpected(
-			String property, T entity) {
+	protected final <T extends CategorizedEntity> T insertAndAddExpected(String property, T entity) {
 		return insertAndAddExpected(property, entity, null, null, 0);
 	}
 
-	protected final <T extends CategorizedEntity> T insertAndAddExpected(
-			String property, T entity, String nestedProperty,
-			Class<? extends AbstractEntity> nestedOwnerType, long nestedOwnerId) {
+	protected final <T extends CategorizedEntity> T insertAndAddExpected(String property, T entity,
+			String nestedProperty, Class<? extends AbstractEntity> nestedOwnerType, long nestedOwnerId) {
 		entity = Tests.insert(entity);
-		expectedReferences.add(new Reference(property, entity.getClass(),
-				entity.getId(), getModelClass(), 0, nestedProperty,
-				nestedOwnerType, nestedOwnerId, false));
+		expectedReferences.add(new Reference(property, entity.getClass(), entity.getId(), getModelClass(), 0,
+				nestedProperty, nestedOwnerType, nestedOwnerId, false));
 		return entity;
 	}
 
@@ -153,12 +144,10 @@ public abstract class BaseReferenceSearchTest {
 		expectedReferences.add(reference);
 	}
 
-	protected final void addExpected(String property, AbstractEntity entity,
-			String nestedProperty,
+	protected final void addExpected(String property, AbstractEntity entity, String nestedProperty,
 			Class<? extends AbstractEntity> nestedOwnerType, long nestedOwnerId) {
-		expectedReferences.add(new Reference(property, entity.getClass(),
-				entity.getId(), getModelClass(), 0, nestedProperty,
-				nestedOwnerType, nestedOwnerId, false));
+		expectedReferences.add(new Reference(property, entity.getClass(), entity.getId(), getModelClass(), 0,
+				nestedProperty, nestedOwnerType, nestedOwnerId, false));
 	}
 
 	protected Class<? extends AbstractEntity> getModelClass() {
