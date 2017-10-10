@@ -11,6 +11,7 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.UncertaintyType;
+import org.openlca.core.model.ImpactMethod.ParameterMean;
 
 public class Enums {
 
@@ -23,6 +24,7 @@ public class Enums {
 		putUnmapped(ProcessType.class, ProcessType.values());
 		putUnmapped(FlowType.class, FlowType.values());
 		putUnmapped(RiskLevel.class, RiskLevel.values());
+		putUnmapped(ParameterMean.class, ParameterMean.values());
 		putFlowPropertyTypes();
 		putAllocationMethods();
 		putParameterScopes();

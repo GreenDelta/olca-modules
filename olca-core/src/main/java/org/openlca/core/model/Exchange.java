@@ -35,6 +35,12 @@ public class Exchange extends AbstractEntity {
 	@OneToOne
 	@JoinColumn(name = "f_flow")
 	public Flow flow;
+	
+	/**
+	 * An id that is unique within the process, this id must not be changed after creation
+	 */
+	@Column(name = "internal_id")
+	public int internalId;
 
 	/**
 	 * The flow property (quantity) in which the amount of the exchange is
@@ -111,7 +117,7 @@ public class Exchange extends AbstractEntity {
 		return "Exchange [flow=" + flow + ", input=" + isInput + ",amount="
 				+ amount + ", unit=" + unit + "]";
 	}
-
+	
 	@Override
 	public Exchange clone() {
 		Exchange clone = new Exchange();

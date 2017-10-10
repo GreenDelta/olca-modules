@@ -29,7 +29,6 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		if (processRefId != null)
 			s.setReferenceProcess(ProcessImport.run(processRefId, conf));
 		s.setTargetAmount(In.getDouble(json, "targetAmount", 1d));
-
 		addProcesses(json, s);
 		addParameters(json, s);
 		importLinkRefs(json, s);

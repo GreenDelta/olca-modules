@@ -2,6 +2,8 @@ package org.openlca.cloud.util;
 
 import java.io.InputStream;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 
@@ -13,22 +15,23 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.client.urlconnection.HTTPSProperties;
 
 public class WebRequests {
 
 	private static final Logger log = LoggerFactory.getLogger(WebRequests.class);
-	private static final Client client;
 
 	static {
-		client = Client.create();
-		client.setChunkedEncodingSize(1024 * 100); // 100kb
 	}
 
 	public static ClientResponse call(Type type, String url, String sessionId) throws WebRequestException {
 		return call(type, url, sessionId, null);
 	}
 
-	public static ClientResponse call(Type type, String url, String sessionId, Object data) throws WebRequestException {
+	public static ClientResponse call(Type type, String url, String sessionId, Object data)
+			throws WebRequestException {
 		log.info(type.name() + " " + url);
 		Builder request = builder(url, sessionId, data);
 		try {
@@ -57,8 +60,8 @@ public class WebRequests {
 	}
 
 	private static Builder builder(String url, String sessionId, Object data) {
-		WebResource resource = client.resource(url);
-		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE, 
+		WebResource resource = createClient().resource(url);
+		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE,
 				MediaType.TEXT_PLAIN_TYPE, MediaType.APPLICATION_OCTET_STREAM_TYPE);
 		if (sessionId != null)
 			builder.cookie(new Cookie("JSESSIONID", sessionId));
@@ -69,6 +72,18 @@ public class WebRequests {
 		else
 			builder.entity(new Gson().toJson(data), MediaType.APPLICATION_JSON_TYPE);
 		return builder;
+	}
+
+	private static Client createClient() {
+		ClientConfig config = new DefaultClientConfig();
+		SSLContext context = Ssl.createContext();
+		if (context != null) {
+			config.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES,
+					new HTTPSProperties(HttpsURLConnection.getDefaultHostnameVerifier(), context));
+		}
+		Client client = Client.create(config);
+		client.setChunkedEncodingSize(1024 * 100); // 100kb
+		return client;
 	}
 
 	public static enum Type {

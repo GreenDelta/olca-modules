@@ -48,6 +48,7 @@ class ProcessExchanges {
 			else
 				mapPropertyAndUnit(exchangeFlow, exchange);
 			if (isValid(exchange)) {
+				exchange.internalId = process.drawNextInternalId();
 				process.getExchanges().add(exchange);
 				mappedPairs.add(new MappedPair(exchange, iExchange));
 			} else {

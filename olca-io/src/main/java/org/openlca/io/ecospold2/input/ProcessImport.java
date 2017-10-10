@@ -254,6 +254,7 @@ class ProcessImport {
 		if (config.withParameters && config.withParameterFormulas)
 			mapFormula(es2, process, e, f);
 		e.dqEntry = getPedigreeMatrix(es2);
+		e.internalId = process.drawNextInternalId();
 		process.getExchanges().add(e);
 		return e;
 	}

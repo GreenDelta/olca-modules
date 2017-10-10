@@ -12,8 +12,7 @@ import com.google.gson.JsonObject;
 
 class References {
 
-	static JsonObject create(RootEntity ref, ExportConfig conf,
-			boolean forceExport) {
+	static JsonObject create(RootEntity ref, ExportConfig conf, boolean forceExport) {
 		JsonObject obj = create(ref);
 		if (obj == null)
 			return null;
@@ -23,8 +22,7 @@ class References {
 		return obj;
 	}
 
-	static JsonObject create(ModelType type, Long id, ExportConfig conf,
-			boolean forceExport) {
+	static JsonObject create(ModelType type, Long id, ExportConfig conf, boolean forceExport) {
 		if (id == null || id == 0)
 			return null;
 		if (!doExportReferences(type, id, conf, forceExport) || conf.db == null) {
@@ -52,8 +50,7 @@ class References {
 		return obj;
 	}
 
-	private static boolean doExportReferences(ModelType type, Long id,
-			ExportConfig conf, boolean forceExport) {
+	private static boolean doExportReferences(ModelType type, Long id, ExportConfig conf, boolean forceExport) {
 		if (conf.hasVisited(type, id))
 			return false;
 		if (conf.refFn == null)
@@ -70,8 +67,7 @@ class References {
 		return (RootEntity) database.createDao(clazz).getForId(id);
 	}
 
-	private static BaseDescriptor loadDescriptor(IDatabase database,
-			ModelType type, long id) {
+	private static BaseDescriptor loadDescriptor(IDatabase database, ModelType type, long id) {
 		return Daos.createRootDao(database, type).getDescriptor(id);
 	}
 

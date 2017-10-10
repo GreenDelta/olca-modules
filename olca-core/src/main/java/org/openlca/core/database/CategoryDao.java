@@ -5,9 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Version;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
+
+import com.google.common.base.Optional;
 
 public class CategoryDao extends
 		CategorizedEntityDao<Category, CategoryDescriptor> {
@@ -65,17 +70,25 @@ public class CategoryDao extends
 		String refId = category.getRefId();
 		String newRefId = Category.createRefId(category);
 		Category forRefId = getForRefId(newRefId);
+		boolean isNew = category.getId() == 0l;
+		if (!Objects.equals(refId, newRefId) && !isNew)
+			getDatabase().notifyDelete(category);
 		if (Objects.equals(refId, newRefId) || forRefId == null) {
 			category.setRefId(newRefId);
 			category = super.update(category);
 			for (Category child : category.getChildCategories())
 				update(child);
+			if (!Objects.equals(refId, newRefId) && !isNew) {
+				updateModels(category);
+			}
 			return category;
 		}
 		mergeChildren(forRefId, category);
 		forRefId = super.update(forRefId);
 		for (Category child : forRefId.getChildCategories())
 			update(child);
+		if (!Objects.equals(refId, newRefId) && !isNew)
+			updateModels(category);
 		return forRefId;
 	}
 
@@ -93,6 +106,21 @@ public class CategoryDao extends
 			if (Category.createRefId(child).equals(Category.createRefId(category)))
 				return true;
 		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends CategorizedEntity> void updateModels(Category category) {
+		// TODO test performance for "root category changes" or categories with
+		// big amount of models
+		Optional<Category> optional = Optional.fromNullable(category);
+		CategorizedEntityDao<T, ?> dao = (CategorizedEntityDao<T, ?>) Daos.createCategorizedDao(getDatabase(),
+				category.getModelType());
+		for (CategorizedDescriptor descriptor : dao.getDescriptors(optional)) {
+			CategorizedEntity entity = dao.getForId(descriptor.getId());
+			Version.incUpdate(entity);
+			entity.setLastChange(System.currentTimeMillis());
+			dao.update((T) entity);
+		}
 	}
 
 }

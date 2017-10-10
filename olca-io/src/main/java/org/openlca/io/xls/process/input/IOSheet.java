@@ -45,6 +45,7 @@ class IOSheet {
 				if (exchange == null) {
 					break;
 				}
+				exchange.internalId = config.process.drawNextInternalId();
 				config.process.getExchanges().add(exchange);
 				row++;
 			}

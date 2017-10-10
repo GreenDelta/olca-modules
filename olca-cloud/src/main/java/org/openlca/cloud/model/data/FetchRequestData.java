@@ -37,4 +37,9 @@ public class FetchRequestData extends Dataset {
 		return added;
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + ", added: " + added + ", deleted: " + deleted;
+	}
+
 }
