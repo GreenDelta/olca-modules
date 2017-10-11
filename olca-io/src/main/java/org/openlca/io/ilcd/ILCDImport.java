@@ -3,6 +3,8 @@ package org.openlca.io.ilcd;
 import java.util.Iterator;
 
 import org.openlca.core.database.FlowDao;
+import org.openlca.ilcd.commons.IDataSet;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
@@ -11,11 +13,6 @@ import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
-import org.openlca.ilcd.util.FlowPropertyBag;
-import org.openlca.ilcd.util.MethodBag;
-import org.openlca.ilcd.util.ProcessBag;
-import org.openlca.ilcd.util.SourceBag;
-import org.openlca.ilcd.util.UnitGroupBag;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.openlca.io.ilcd.input.ContactImport;
@@ -104,8 +101,7 @@ public class ILCDImport implements FileImport {
 				Source source = it.next();
 				if (source == null)
 					continue;
-				fireEvent(new SourceBag(source, config.langs)
-						.getShortName());
+				fireEvent(source);
 				SourceImport sourceImport = new SourceImport(config);
 				sourceImport.run(source);
 			}
@@ -123,7 +119,7 @@ public class ILCDImport implements FileImport {
 				UnitGroup group = it.next();
 				if (group == null)
 					continue;
-				fireEvent(new UnitGroupBag(group, config.langs).getName());
+				fireEvent(group);
 				UnitGroupImport groupImport = new UnitGroupImport(config);
 				groupImport.run(group);
 			}
@@ -142,8 +138,7 @@ public class ILCDImport implements FileImport {
 				FlowProperty property = it.next();
 				if (property == null)
 					continue;
-				fireEvent(new FlowPropertyBag(property, config.langs)
-						.getName());
+				fireEvent(property);
 				FlowPropertyImport propertyImport = new FlowPropertyImport(
 						config);
 				propertyImport.run(property);
@@ -183,26 +178,31 @@ public class ILCDImport implements FileImport {
 		return dao.getForRefId(me.openlcaFlowKey) != null;
 	}
 
+	public void importProcess(String id) throws Exception {
+		Process p = config.store.get(Process.class, id);
+		if (p == null)
+			throw new Exception("A process uuid=" + id
+					+ " could not be found");
+		ProcessImport imp = new ProcessImport(config);
+		fireEvent(p);
+		imp.run(p);
+	}
+
 	private void tryImportProcesses() {
 		if (canceled)
 			return;
 		try {
-			importProcesses();
+			Iterator<Process> it = config.store.iterator(Process.class);
+			ProcessImport imp = new ProcessImport(config);
+			while (it.hasNext() && !canceled) {
+				Process p = it.next();
+				if (p == null)
+					continue;
+				fireEvent(p);
+				imp.run(p);
+			}
 		} catch (Exception e) {
 			log.error("Process import failed", e);
-		}
-	}
-
-	private void importProcesses() throws Exception {
-		Iterator<Process> it = config.store.iterator(Process.class);
-		ProcessImport processImport = new ProcessImport(config);
-		while (it.hasNext() && !canceled) {
-			Process p = it.next();
-			if (p == null)
-				continue;
-			ProcessBag bag = new ProcessBag(p, config.langs);
-			fireEvent(bag.getName());
-			processImport.run(p);
 		}
 	}
 
@@ -215,8 +215,7 @@ public class ILCDImport implements FileImport {
 				LCIAMethod method = it.next();
 				if (method == null)
 					continue;
-				MethodBag bag = new MethodBag(method);
-				fireEvent(bag.getImpactIndicator());
+				fireEvent(method);
 				MethodImport methodImport = new MethodImport(config);
 				methodImport.run(method);
 			}
@@ -234,7 +233,7 @@ public class ILCDImport implements FileImport {
 				Model m = it.next();
 				if (m == null)
 					continue;
-				fireEvent("Process model " + m.getUUID());
+				fireEvent(m);
 				SystemImport si = new SystemImport(config);
 				si.run(m);
 			}
@@ -243,11 +242,16 @@ public class ILCDImport implements FileImport {
 		}
 	}
 
-	private void fireEvent(String dataSet) {
-		log.trace("import data set {}", dataSet);
+	private void fireEvent(IDataSet ds) {
+		if (ds == null)
+			return;
+		String name = LangString.getFirst(ds.getName(), config.langs);
+		String info = ds.getDataSetType().toString() + " " + name + " "
+				+ ds.getUUID();
+		log.trace("import {}", info);
 		if (eventBus == null)
 			return;
-		eventBus.post(new ImportEvent(dataSet));
+		eventBus.post(new ImportEvent(info));
 	}
 
 }
