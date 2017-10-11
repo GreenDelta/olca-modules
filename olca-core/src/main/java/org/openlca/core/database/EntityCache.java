@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.Actor;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
@@ -193,7 +192,8 @@ public class EntityCache {
 				if (BaseDescriptor.class.isAssignableFrom(clazz))
 					loadDescriptors(clazz, ids, result);
 				else
-					loadFullEntities((Class<? extends AbstractEntity>) clazz, ids, result);
+					loadFullEntities((Class<? extends AbstractEntity>) clazz,
+							ids, result);
 			}
 			for (Key key : keys) {
 				if (!result.containsKey(key))
@@ -202,8 +202,8 @@ public class EntityCache {
 			return result;
 		}
 
-		private void loadFullEntities(Class<? extends AbstractEntity> clazz, Collection<Long> ids,
-				HashMap<Key, Object> result) {
+		private void loadFullEntities(Class<? extends AbstractEntity> clazz,
+				Collection<Long> ids, HashMap<Key, Object> result) {
 			BaseDao<?> dao = getDao(clazz);
 			List<?> entities = dao.getForIds(new HashSet<>(ids));
 			for (Object obj : entities) {
@@ -262,11 +262,6 @@ public class EntityCache {
 			}
 			return dao;
 		}
-	}
-
-	public static void main(String[] args) {
-		Class<?> clazz = Actor.class;
-		System.out.println(AbstractEntity.class.isAssignableFrom(clazz));
 	}
 
 }
