@@ -1,4 +1,10 @@
 language: java
 
+addons:
+  apt:
+    packages:
+      - gfortran
+      - libgfortran3
+
 jdk:
   - oraclejdk8
