@@ -21,8 +21,6 @@ import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.Descriptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,9 +102,6 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 			em.getTransaction().begin();
 			em.remove(em.merge(entity));
 			em.getTransaction().commit();
-			if (this instanceof RootEntityDao) {
-				database.notifyDelete(Descriptors.toDescriptor((RootEntity) entity));
-			}
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while deleting "
 					+ entityType.getSimpleName(), e);
@@ -144,9 +139,6 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 			em.getTransaction().begin();
 			T retval = em.merge(entity);
 			em.getTransaction().commit();
-			if (this instanceof RootEntityDao) {
-				database.notifyUpdate(Descriptors.toDescriptor((RootEntity) retval));
-			}
 			return retval;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while updating "
