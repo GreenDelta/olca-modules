@@ -1,6 +1,7 @@
 package org.openlca.io.ilcd.input;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.LangString;
@@ -50,7 +51,7 @@ class UnitGroupSync {
 					/ ilcdRefUnit.factor;
 			boolean changed = syncUnits(factor);
 			if (changed)
-				database.createDao(UnitGroup.class).update(olcaGroup);
+				new UnitGroupDao(database).update(olcaGroup);
 		} catch (Exception e) {
 			log.error("Failed to sync. unit groups", e);
 		}

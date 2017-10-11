@@ -138,7 +138,7 @@ public class UnitGroupImport {
 
 	private void saveInDatabase(UnitGroup obj) throws ImportException {
 		try {
-			config.db.createDao(UnitGroup.class).insert(obj);
+			new UnitGroupDao(config.db).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in unit group %s.",

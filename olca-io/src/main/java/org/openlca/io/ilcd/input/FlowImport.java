@@ -212,7 +212,7 @@ public class FlowImport {
 
 	private void saveInDatabase(Flow obj) throws ImportException {
 		try {
-			config.db.createDao(Flow.class).insert(obj);
+			new FlowDao(config.db).insert(obj);
 		} catch (Exception e) {
 			String message = String.format("Save operation failed in flow %s.",
 					flow.getRefId());

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.openlca.core.database.DQSystemDao;
+import org.openlca.core.database.Daos;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
@@ -355,7 +356,7 @@ public class ProcessImport {
 	private <T extends AbstractEntity> void saveInDatabase(T obj) throws ImportException {
 		try {
 			Class<T> clazz = (Class<T>) obj.getClass();
-			config.db.createDao(clazz).insert(obj);
+			Daos.base(config.db, clazz).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in process %s.", process.getRefId());

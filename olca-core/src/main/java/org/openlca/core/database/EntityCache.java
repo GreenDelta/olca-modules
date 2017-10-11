@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.model.AbstractEntity;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
@@ -63,8 +64,7 @@ public class EntityCache {
 				return null;
 			return clazz.cast(obj);
 		} catch (Exception e) {
-			log.error("failed to get from cache " + clazz + " with id " + id,
-					e);
+			log.error("failed to get from cache " + clazz + " with id " + id, e);
 			return null;
 		}
 	}
@@ -177,6 +177,7 @@ public class EntityCache {
 			m.put(CategoryDescriptor.class, new CategoryDao(db));
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Map<Key, Object> loadAll(Iterable<? extends Key> keys)
 				throws Exception {
@@ -192,7 +193,7 @@ public class EntityCache {
 				if (BaseDescriptor.class.isAssignableFrom(clazz))
 					loadDescriptors(clazz, ids, result);
 				else
-					loadFullEntities(clazz, ids, result);
+					loadFullEntities((Class<? extends AbstractEntity>) clazz, ids, result);
 			}
 			for (Key key : keys) {
 				if (!result.containsKey(key))
@@ -201,7 +202,7 @@ public class EntityCache {
 			return result;
 		}
 
-		private void loadFullEntities(Class<?> clazz, Collection<Long> ids,
+		private void loadFullEntities(Class<? extends AbstractEntity> clazz, Collection<Long> ids,
 				HashMap<Key, Object> result) {
 			BaseDao<?> dao = getDao(clazz);
 			List<?> entities = dao.getForIds(new HashSet<>(ids));
@@ -247,19 +248,25 @@ public class EntityCache {
 		}
 
 		private Object loadFull(Key key) {
-			BaseDao<?> dao = getDao(key.clazz);
+			@SuppressWarnings("unchecked")
+			BaseDao<?> dao = getDao((Class<? extends AbstractEntity>) key.clazz);
 			return dao.getForId(key.id);
 		}
 
-		private BaseDao<?> getDao(Class<?> clazz) {
+		private BaseDao<?> getDao(Class<? extends AbstractEntity> clazz) {
 			BaseDao<?> dao = daos.get(clazz);
 			if (dao == null) {
 				log.trace("register class {}", clazz);
-				dao = new BaseDao<>(clazz, database);
+				dao = Daos.base(database, clazz);
 				daos.put(clazz, dao);
 			}
 			return dao;
 		}
+	}
+
+	public static void main(String[] args) {
+		Class<?> clazz = Actor.class;
+		System.out.println(AbstractEntity.class.isAssignableFrom(clazz));
 	}
 
 }

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.FlowPropertyDao;
+import org.openlca.core.database.UnitDao;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -114,8 +114,7 @@ class ProcessExchanges {
 			exchange.isAvoided = true;
 		}
 		try {
-			BaseEntityDao<Unit> unitDao = new BaseEntityDao<>(Unit.class,
-					config.db);
+			UnitDao unitDao = new UnitDao(config.db);
 			Unit unit = unitDao.getForRefId(extension.getUnitId());
 			final Unit unit1 = unit;
 			exchange.unit = unit1;

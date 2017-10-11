@@ -1,5 +1,10 @@
 package org.openlca.io.ecospold2.output;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.io.maps.Maps;
@@ -12,11 +17,6 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 
 import spold2.Compartment;
 import spold2.ElementaryExchange;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 
 class ElemFlowMap {
 

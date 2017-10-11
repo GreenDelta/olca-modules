@@ -1,5 +1,8 @@
 package org.openlca.io.xls.process.output;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
@@ -9,9 +12,6 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Writes the flow and flow property factor sheet at the same time.

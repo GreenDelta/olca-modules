@@ -1,5 +1,8 @@
 package org.openlca.core.matrix;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.set.hash.TLongHashSet;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -9,6 +12,7 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.NativeSql.BatchInsertHandler;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.product.index.ITechIndexBuilder;
 import org.openlca.core.matrix.product.index.TechIndexBuilder;
@@ -20,9 +24,6 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gnu.trove.impl.Constants;
-import gnu.trove.set.hash.TLongHashSet;
 
 public class ProductSystemBuilder {
 
@@ -63,8 +64,7 @@ public class ProductSystemBuilder {
 			run(system, processProduct);
 			log.trace("reload system");
 			database.getEntityFactory().getCache().evict(ProductSystem.class);
-			return database.createDao(ProductSystem.class).getForId(
-					system.getId());
+			return new ProductSystemDao(database).getForId(system.getId());
 		} catch (Exception e) {
 			log.error("Failed to auto complete product system " + system, e);
 			return null;

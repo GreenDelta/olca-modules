@@ -19,6 +19,7 @@ import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
+import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
@@ -37,7 +38,6 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.BaseDescriptor;
 
 class Db {
 
@@ -141,8 +141,7 @@ class Db {
 	}
 
 	public Unit getUnit(String refId) {
-		RootEntityDao<Unit, BaseDescriptor> dao = new RootEntityDao<>(
-				Unit.class, BaseDescriptor.class, db);
+		UnitDao dao = new UnitDao(db);
 		return get(dao, refId, unitIds);
 	}
 

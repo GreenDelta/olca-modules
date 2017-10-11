@@ -1,5 +1,8 @@
 package org.openlca.io.xls.process.input;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openlca.core.database.IDatabase;
@@ -8,9 +11,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
 
 public class ExcelImport implements Runnable {
 

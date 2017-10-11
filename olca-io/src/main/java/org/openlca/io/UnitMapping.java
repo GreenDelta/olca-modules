@@ -6,8 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
@@ -29,7 +30,7 @@ public class UnitMapping {
 		log.trace("create default mappings");
 		UnitMapping mapping = new UnitMapping();
 		try {
-			for (UnitGroup group : database.createDao(UnitGroup.class).getAll()) {
+			for (UnitGroup group : new UnitGroupDao(database).getAll()) {
 				FlowProperty prop = group.getDefaultFlowProperty();
 				if (prop == null)
 					prop = findProperty(database, group);
@@ -62,7 +63,7 @@ public class UnitMapping {
 	}
 
 	private static FlowProperty findProperty(IDatabase database, UnitGroup group) {
-		BaseDao<FlowProperty> dao = database.createDao(FlowProperty.class);
+		FlowPropertyDao dao = new FlowPropertyDao(database);
 		for (FlowProperty prop : dao.getAll()) {
 			if (Objects.equals(group, prop.getUnitGroup()))
 				return prop;

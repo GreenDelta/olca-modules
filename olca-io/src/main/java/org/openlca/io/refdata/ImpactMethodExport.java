@@ -1,13 +1,13 @@
 package org.openlca.io.refdata;
 
+import java.util.List;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.supercsv.io.CsvListWriter;
-
-import java.util.List;
 
 class ImpactMethodExport extends AbstractExport {
 

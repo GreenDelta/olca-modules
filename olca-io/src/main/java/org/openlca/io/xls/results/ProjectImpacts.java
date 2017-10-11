@@ -1,5 +1,7 @@
 package org.openlca.io.xls.results;
 
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.ProjectVariant;
@@ -8,8 +10,6 @@ import org.openlca.core.results.ContributionItem;
 import org.openlca.core.results.ContributionSet;
 import org.openlca.core.results.ProjectResultProvider;
 import org.openlca.io.xls.Excel;
-
-import java.util.List;
 
 class ProjectImpacts {
 

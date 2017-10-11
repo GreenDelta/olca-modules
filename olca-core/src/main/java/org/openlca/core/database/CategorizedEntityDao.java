@@ -16,7 +16,7 @@ import com.google.common.base.Optional;
 public class CategorizedEntityDao<T extends CategorizedEntity, V extends CategorizedDescriptor>
 		extends RootEntityDao<T, V> {
 
-	public CategorizedEntityDao(Class<T> entityType, Class<V> descriptorType,
+	protected CategorizedEntityDao(Class<T> entityType, Class<V> descriptorType,
 			IDatabase database) {
 		super(entityType, descriptorType, database);
 	}

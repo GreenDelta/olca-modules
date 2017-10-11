@@ -1,11 +1,11 @@
 package org.openlca.core.matrix;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.expressions.FormulaInterpreter;
-
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**
  * A matrix with impact assessment factors where the flows are mapped to the

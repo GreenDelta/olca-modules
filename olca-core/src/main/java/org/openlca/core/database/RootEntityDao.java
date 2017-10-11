@@ -23,7 +23,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 	private Class<V> descriptorType;
 	private String entityTable;
 
-	public RootEntityDao(Class<T> entityType, Class<V> descriptorType, IDatabase database) {
+	protected RootEntityDao(Class<T> entityType, Class<V> descriptorType, IDatabase database) {
 		super(entityType, database);
 		this.descriptorType = descriptorType;
 	}

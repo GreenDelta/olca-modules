@@ -1,12 +1,12 @@
 package org.openlca.io.xls.process.output;
 
+import java.util.Date;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
-
-import java.util.Date;
 
 class AdminInfoSheet {
 

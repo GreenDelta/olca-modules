@@ -7,7 +7,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -37,16 +41,16 @@ public class FlowPropertyFactorUseSearchTest {
 		factor = new FlowPropertyFactor();
 		factor.setFlowProperty(property);
 		flow.getFlowPropertyFactors().add(factor);
-		property = database.createDao(FlowProperty.class).insert(property);
-		flow = database.createDao(Flow.class).insert(flow);
+		property = new FlowPropertyDao(database).insert(property);
+		flow = new FlowDao(database).insert(flow);
 		factor = flow.getFactor(property);
 		search = new FlowPropertyFactorUseSearch(flow, database);
 	}
 
 	@After
 	public void tearDown() {
-		database.createDao(Flow.class).delete(flow);
-		database.createDao(FlowProperty.class).delete(property);
+		new FlowDao(database).delete(flow);
+		new FlowPropertyDao(database).delete(property);
 	}
 
 	@Test
@@ -60,7 +64,7 @@ public class FlowPropertyFactorUseSearchTest {
 	public void testFindInImpactMethods() {
 		ImpactMethod method = createMethod();
 		List<CategorizedDescriptor> results = search.findUses(factor);
-		database.createDao(ImpactMethod.class).delete(method);
+		new ImpactMethodDao(database).delete(method);
 		BaseDescriptor expected = Descriptors.toDescriptor(method);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -75,14 +79,14 @@ public class FlowPropertyFactorUseSearchTest {
 		ImpactCategory category = new ImpactCategory();
 		category.impactFactors.add(iFactor);
 		method.impactCategories.add(category);
-		return database.createDao(ImpactMethod.class).insert(method);
+		return new ImpactMethodDao(database).insert(method);
 	}
 
 	@Test
 	public void testFindInProcesses() {
 		Process process = createProcess();
 		List<CategorizedDescriptor> results = search.findUses(factor);
-		database.createDao(Process.class).delete(process);
+		new ProcessDao(database).delete(process);
 		BaseDescriptor expected = Descriptors.toDescriptor(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -96,6 +100,6 @@ public class FlowPropertyFactorUseSearchTest {
 		exchange.flow = flow1;
 		exchange.flowPropertyFactor = factor;
 		process.getExchanges().add(exchange);
-		return database.createDao(Process.class).insert(process);
+		return new ProcessDao(database).insert(process);
 	}
 }

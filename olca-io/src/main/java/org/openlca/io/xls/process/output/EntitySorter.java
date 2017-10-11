@@ -1,9 +1,9 @@
 package org.openlca.io.xls.process.output;
 
+import java.util.Comparator;
+
 import org.openlca.core.model.RootEntity;
 import org.openlca.util.Strings;
-
-import java.util.Comparator;
 
 class EntitySorter implements Comparator<RootEntity> {
 

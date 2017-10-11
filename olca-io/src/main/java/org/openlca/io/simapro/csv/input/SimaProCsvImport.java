@@ -1,13 +1,14 @@
 package org.openlca.io.simapro.csv.input;
 
-import com.google.common.eventbus.EventBus;
+import java.io.File;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.io.FileImport;
 import org.openlca.simapro.csv.SimaProCSV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import com.google.common.eventbus.EventBus;
 
 public class SimaProCsvImport implements FileImport {
 

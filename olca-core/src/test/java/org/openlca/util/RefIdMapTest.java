@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Unit;
@@ -22,12 +23,12 @@ public class RefIdMapTest {
 	public void setUp() {
 		flow = new Flow();
 		flow.setRefId(UUID.randomUUID().toString());
-		flow = db.createDao(Flow.class).insert(flow);
+		flow = new FlowDao(db).insert(flow);
 	}
 
 	@After
 	public void tearDown() {
-		db.createDao(Flow.class).delete(flow);
+		new FlowDao(db).delete(flow);
 	}
 
 	@Test

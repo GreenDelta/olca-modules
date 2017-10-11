@@ -1,5 +1,11 @@
 package org.openlca.io.xls.process.output;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -8,12 +14,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
 
 class AllocationSheet {
 

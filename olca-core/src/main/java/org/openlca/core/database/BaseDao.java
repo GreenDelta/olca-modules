@@ -20,12 +20,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 
+import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BaseDao<T> implements IDao<T> {
+public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	/**
 	 * A database dependent field for the maximum size of lists in JPQL queries.
@@ -36,7 +37,7 @@ public class BaseDao<T> implements IDao<T> {
 	protected Logger log = LoggerFactory.getLogger(this.getClass());
 	protected IDatabase database;
 
-	public BaseDao(Class<T> entityType, IDatabase database) {
+	protected BaseDao(Class<T> entityType, IDatabase database) {
 		this.entityType = entityType;
 		this.database = database;
 	}

@@ -1,5 +1,8 @@
 package org.openlca.core.matrix.cache;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongDoubleHashMap;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -7,9 +10,6 @@ import java.sql.Statement;
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongDoubleHashMap;
 
 /**
  * A table that contains the conversion factors for units and flow property

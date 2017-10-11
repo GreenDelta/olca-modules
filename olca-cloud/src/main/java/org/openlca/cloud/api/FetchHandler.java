@@ -85,7 +85,7 @@ class FetchHandler {
 				jsonImport.run();
 			}
 			for (Dataset dataset : toDelete) {
-				delete(Daos.createCategorizedDao(database, dataset.type), dataset.refId);
+				delete(Daos.categorized(database, dataset.type), dataset.refId);
 				fetchNotifier.worked();
 			}
 			fetchNotifier.endTask();

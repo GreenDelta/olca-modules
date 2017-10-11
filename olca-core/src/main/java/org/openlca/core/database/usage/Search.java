@@ -12,7 +12,6 @@ import java.util.Set;
 
 import javax.persistence.Table;
 
-import org.openlca.core.database.CategorizedEntityDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -64,9 +63,7 @@ class Search {
 	List<CategorizedDescriptor> loadDescriptors(ModelType type, Set<Long> ids) {
 		if (ids.isEmpty())
 			return Collections.emptyList();
-		CategorizedEntityDao<?, ? extends CategorizedDescriptor> dao = Daos
-				.createCategorizedDao(database, type);
-		return new ArrayList<>(dao.getDescriptors(ids));
+		return new ArrayList<>(Daos.categorized(database, type).getDescriptors(ids));
 	}
 
 	Set<Long> queryForIds(ModelType type, Set<Long> toFind, String... inFields) {

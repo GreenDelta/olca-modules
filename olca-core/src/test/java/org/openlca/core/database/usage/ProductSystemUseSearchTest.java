@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -27,14 +29,14 @@ public class ProductSystemUseSearchTest {
 	public void setup() {
 		system = new ProductSystem();
 		system.setName("process");
-		system = database.createDao(ProductSystem.class).insert(system);
+		system = new ProductSystemDao(database).insert(system);
 		search = IUseSearch.FACTORY.createFor(ModelType.PRODUCT_SYSTEM,
 				database);
 	}
 
 	@After
 	public void tearDown() {
-		database.createDao(ProductSystem.class).delete(system);
+		new ProductSystemDao(database).delete(system);
 	}
 
 	@Test
@@ -50,7 +52,7 @@ public class ProductSystemUseSearchTest {
 		Project project = createProject();
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(system));
-		database.createDao(Project.class).delete(project);
+		new ProjectDao(database).delete(project);
 		BaseDescriptor expected = Descriptors.toDescriptor(project);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -62,7 +64,7 @@ public class ProductSystemUseSearchTest {
 		ProjectVariant variant = new ProjectVariant();
 		variant.setProductSystem(system);
 		project.getVariants().add(variant);
-		return database.createDao(Project.class).insert(project);
+		return new ProjectDao(database).insert(project);
 	}
 
 }

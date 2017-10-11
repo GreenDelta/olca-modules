@@ -2,8 +2,6 @@ package org.openlca.core.matrix.format;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.matrix.format.CompressedRowMatrix;
-import org.openlca.core.matrix.format.HashMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

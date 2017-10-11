@@ -1,12 +1,12 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.HashMap;
+
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Source;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.MapFactor;
-
-import java.util.HashMap;
 
 class RefData {
 

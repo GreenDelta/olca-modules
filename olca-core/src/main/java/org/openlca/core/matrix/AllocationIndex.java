@@ -1,5 +1,8 @@
 package org.openlca.core.matrix;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongDoubleHashMap;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -8,9 +11,6 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
-
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongDoubleHashMap;
 
 class AllocationIndex {
 

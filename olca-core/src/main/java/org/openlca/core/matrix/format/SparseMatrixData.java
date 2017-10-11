@@ -1,11 +1,11 @@
 package org.openlca.core.matrix.format;
 
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
+
 import java.io.Serializable;
 
 import org.openlca.core.matrix.format.HashMatrix.MatrixIterator;
-
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
 
 /**
  * A class that holds the data of a sparse matrix. This class is only used for

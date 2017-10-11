@@ -44,9 +44,9 @@ public class EntityCacheTest {
 	public void testSingleEntity() throws Exception {
 		Actor actor = new Actor();
 		actor.setName("test#actor");
-		database.createDao(Actor.class).insert(actor);
+		new ActorDao(database).insert(actor);
 		checkEntity(actor);
-		database.createDao(Actor.class).delete(actor);
+		new ActorDao(database).delete(actor);
 	}
 
 	@Test
@@ -55,12 +55,12 @@ public class EntityCacheTest {
 		for (int i = 0; i < 100; i++) {
 			Actor actor = new Actor();
 			actor.setName("test#actor " + i);
-			database.createDao(Actor.class).insert(actor);
+			new ActorDao(database).insert(actor);
 			actors.add(actor);
 		}
 		for (Actor actor : actors) {
 			checkEntity(actor);
-			database.createDao(Actor.class).delete(actor);
+			new ActorDao(database).delete(actor);
 		}
 	}
 

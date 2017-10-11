@@ -9,7 +9,7 @@ import org.openlca.core.model.Unit;
 public class ProjectVariantIOTest {
 
     private IDatabase db = Tests.getDb();
-    private BaseDao<ProjectVariant> dao = new BaseDao<>(ProjectVariant.class, db);
+    private ProjectVariantDao dao = new ProjectVariantDao(db);
 
     @Test
     public void testInsertDelete() {
@@ -23,7 +23,7 @@ public class ProjectVariantIOTest {
     public void testUpdate() {
         Unit unit = new Unit();
         unit.setName("kg");
-        BaseDao<Unit> unitDao = new BaseDao<>(Unit.class, db);
+        UnitDao unitDao = new UnitDao(db);
         unit = unitDao.insert(unit);
         ProjectVariant variant = new ProjectVariant();
         variant = dao.insert(variant);

@@ -6,7 +6,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
@@ -32,13 +34,13 @@ public class DQSystemUseSearchTest {
 				.toDescriptor(system));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
-		database.createDao(DQSystem.class).delete(system);
+		new DQSystemDao(database).delete(system);
 	}
 
 	private DQSystem createDqSystem() {
 		DQSystem system = new DQSystem();
 		system.setName("system");
-		system = database.createDao(DQSystem.class).insert(system);
+		system = new DQSystemDao(database).insert(system);
 		return system;
 	}
 
@@ -47,11 +49,11 @@ public class DQSystemUseSearchTest {
 		DQSystem system = createDqSystem();
 		Process process = new Process();
 		process.dqSystem = system;
-		database.createDao(Process.class).insert(process);
+		new ProcessDao(database).insert(process);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(system));
-		database.createDao(Process.class).delete(process);
-		database.createDao(DQSystem.class).delete(system);
+		new ProcessDao(database).delete(process);
+		new DQSystemDao(database).delete(system);
 		BaseDescriptor expected = Descriptors.toDescriptor(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -62,11 +64,11 @@ public class DQSystemUseSearchTest {
 		DQSystem system = createDqSystem();
 		Process process = new Process();
 		process.exchangeDqSystem = system;
-		database.createDao(Process.class).insert(process);
+		new ProcessDao(database).insert(process);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(system));
-		database.createDao(Process.class).delete(process);
-		database.createDao(DQSystem.class).delete(system);
+		new ProcessDao(database).delete(process);
+		new DQSystemDao(database).delete(system);
 		BaseDescriptor expected = Descriptors.toDescriptor(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -77,11 +79,11 @@ public class DQSystemUseSearchTest {
 		DQSystem system = createDqSystem();
 		Process process = new Process();
 		process.socialDqSystem = system;
-		database.createDao(Process.class).insert(process);
+		new ProcessDao(database).insert(process);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(system));
-		database.createDao(Process.class).delete(process);
-		database.createDao(DQSystem.class).delete(system);
+		new ProcessDao(database).delete(process);
+		new DQSystemDao(database).delete(system);
 		BaseDescriptor expected = Descriptors.toDescriptor(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));

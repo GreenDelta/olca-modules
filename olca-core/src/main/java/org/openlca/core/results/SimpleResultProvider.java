@@ -2,6 +2,7 @@ package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;

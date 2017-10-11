@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -22,7 +23,7 @@ public class FlowDescriptorTest {
 	@Before
 	public void setUp() throws Exception {
 		property = new FlowProperty();
-		property = database.createDao(FlowProperty.class).insert(property);
+		property = new FlowPropertyDao(database).insert(property);
 		flow = new Flow();
 		flow.setReferenceFlowProperty(property);
 		flow = flowDao.insert(flow);
@@ -31,7 +32,7 @@ public class FlowDescriptorTest {
 	@After
 	public void tearDown() throws Exception {
 		flowDao.delete(flow);
-		database.createDao(FlowProperty.class).delete(property);
+		new FlowPropertyDao(database).delete(property);
 	}
 
 	@Test

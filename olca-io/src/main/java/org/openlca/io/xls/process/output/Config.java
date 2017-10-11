@@ -1,5 +1,7 @@
 package org.openlca.io.xls.process.output;
 
+import java.util.Date;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -9,8 +11,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.io.xls.Excel;
-
-import java.util.Date;
 
 class Config {
 

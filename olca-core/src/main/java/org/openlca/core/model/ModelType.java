@@ -44,13 +44,13 @@ public enum ModelType {
 	
 	DQ_SYSTEM(DQSystem.class);
 
-	final Class<? extends AbstractEntity> modelClass;
+	final Class<? extends RootEntity> modelClass;
 
-	private ModelType(Class<? extends AbstractEntity> clazz) {
+	private ModelType(Class<? extends RootEntity> clazz) {
 		this.modelClass = clazz;
 	}
 
-	public Class<? extends AbstractEntity> getModelClass() {
+	public Class<? extends RootEntity> getModelClass() {
 		return modelClass;
 	}
 

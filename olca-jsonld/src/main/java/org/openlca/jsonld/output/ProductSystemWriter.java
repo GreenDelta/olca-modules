@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.ExchangeDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
@@ -26,7 +26,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 
 	private ProcessDao processDao;
 	private FlowDao flowDao;
-	private BaseDao<Exchange> exchangeDao;
+	private ExchangeDao exchangeDao;
 	private ProductSystem system;
 
 	ProductSystemWriter(ExportConfig conf) {
@@ -34,7 +34,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		if (conf.db != null) {
 			processDao = new ProcessDao(conf.db);
 			flowDao = new FlowDao(conf.db);
-			exchangeDao = new BaseDao<>(Exchange.class, conf.db);
+			exchangeDao = new ExchangeDao(conf.db);
 		}
 	}
 

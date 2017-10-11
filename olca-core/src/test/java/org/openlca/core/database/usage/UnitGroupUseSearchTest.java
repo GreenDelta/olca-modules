@@ -7,7 +7,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
@@ -26,13 +28,13 @@ public class UnitGroupUseSearchTest {
 	public void setup() {
 		group = new UnitGroup();
 		group.setName("group");
-		group = database.createDao(UnitGroup.class).insert(group);
+		group = new UnitGroupDao(database).insert(group);
 		search = IUseSearch.FACTORY.createFor(ModelType.UNIT_GROUP, database);
 	}
 
 	@After
 	public void tearDown() {
-		database.createDao(UnitGroup.class).delete(group);
+		new UnitGroupDao(database).delete(group);
 	}
 
 	@Test
@@ -48,7 +50,7 @@ public class UnitGroupUseSearchTest {
 		FlowProperty property = createFlowProperty();
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(group));
-		database.createDao(FlowProperty.class).delete(property);
+		new FlowPropertyDao(database).delete(property);
 		BaseDescriptor expected = Descriptors.toDescriptor(property);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -58,7 +60,7 @@ public class UnitGroupUseSearchTest {
 		FlowProperty property = new FlowProperty();
 		property.setName("property");
 		property.setUnitGroup(group);
-		return database.createDao(FlowProperty.class).insert(property);
+		return new FlowPropertyDao(database).insert(property);
 	}
 
 }

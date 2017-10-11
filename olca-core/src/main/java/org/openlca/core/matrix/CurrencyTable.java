@@ -1,9 +1,9 @@
 package org.openlca.core.matrix;
 
+import gnu.trove.list.array.TDoubleArrayList;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-
-import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * Contains conversion factors of currencies to the reference currency of a

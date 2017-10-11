@@ -83,8 +83,7 @@ public class CategorizedEntityDaoTest {
 		category.setRefId(UUID.randomUUID().toString());
 		category.setName("test_category");
 		category.setModelType(ModelType.forModelClass(clazz));
-		BaseDao<Category> catDao = Tests.getDb().createDao(
-				Category.class);
+		CategoryDao catDao = new CategoryDao(Tests.getDb());
 		catDao.insert(category);
 		instance.setCategory(category);
 		dao.update(instance);
@@ -98,8 +97,7 @@ public class CategorizedEntityDaoTest {
 		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
-		Tests.getDb().createDao(Category.class)
-				.delete(category);
+		new CategoryDao(Tests.getDb()).delete(category);
 	}
 
 	private <T extends CategorizedEntity> T makeNew(Class<T> clazz)

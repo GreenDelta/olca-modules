@@ -6,8 +6,8 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.io.Categories;
-import org.openlca.util.KeyGen;
 import org.openlca.simapro.csv.model.refdata.LiteratureReferenceBlock;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ class SourceSync {
 		source.setCategory(getCategory(block));
 		source.setDescription(block.getDescription());
 		source.setTextReference(block.getDocumentationLink());
-		database.createDao(Source.class).insert(source);
+		new SourceDao(database).insert(source);
 		return source;
 	}
 

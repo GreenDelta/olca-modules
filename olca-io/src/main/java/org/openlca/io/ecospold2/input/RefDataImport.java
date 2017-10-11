@@ -4,11 +4,12 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.openlca.core.database.BaseEntityDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.UnitDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -46,7 +47,7 @@ class RefDataImport {
 	private IDatabase database;
 	private CategoryDao categoryDao;
 	private FlowDao flowDao;
-	private BaseEntityDao<Location> locationDao;
+	private LocationDao locationDao;
 	private RefDataIndex index;
 	private FlowMap flowMap;
 
@@ -55,7 +56,7 @@ class RefDataImport {
 		this.database = database;
 		this.index = new RefDataIndex();
 		this.categoryDao = new CategoryDao(database);
-		this.locationDao = new BaseEntityDao<>(Location.class, database);
+		this.locationDao = new LocationDao(database);
 		this.flowDao = new FlowDao(database);
 		this.flowMap = new FlowMap(Maps.ES2_FLOW_IMPORT, database);
 		try {
@@ -76,8 +77,7 @@ class RefDataImport {
 		while ((line = reader.readLine()) != null) {
 			String[] args = line.split(",");
 			String eiUnitKey = args[0];
-			BaseEntityDao<Unit> unitDao = new BaseEntityDao<>(Unit.class,
-					database);
+			UnitDao unitDao = new UnitDao(database);
 			Unit unit = unitDao.getForRefId(args[1]);
 			FlowPropertyDao propDao = new FlowPropertyDao(database);
 			FlowProperty prop = propDao.getForRefId(args[2]);

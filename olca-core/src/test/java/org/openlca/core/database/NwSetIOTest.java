@@ -1,5 +1,7 @@
 package org.openlca.core.database;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,8 +13,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
-
-import java.util.List;
 
 public class NwSetIOTest {
 
@@ -44,20 +44,19 @@ public class NwSetIOTest {
 				set.factors.add(factor);
 			}
 		}
-		this.method = db.createDao(ImpactMethod.class).insert(method);
+		this.method = new ImpactMethodDao(db).insert(method);
 		Tests.emptyCache();
 	}
 
 	@After
 	public void tearDown() {
 		if (method != null)
-			db.createDao(ImpactMethod.class).delete(method);
+			new ImpactMethodDao(db).delete(method);
 	}
 
 	@Test
 	public void testModel() {
-		ImpactMethod method = db.createDao(ImpactMethod.class)
-				.getForId(this.method.getId());
+		ImpactMethod method = new ImpactMethodDao(db).getForId(this.method.getId());
 		Assert.assertEquals(CATEGORY_COUNT, method.impactCategories.size());
 		Assert.assertEquals(NWSET_COUNT, method.nwSets.size());
 		for(NwSet nwSet : method.nwSets) {

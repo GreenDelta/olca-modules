@@ -1,5 +1,9 @@
 package org.openlca.io.xls.process.output;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.IDatabase;
@@ -9,10 +13,6 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.List;
 
 /**
  * Exports a set of processes and related reference data to Excel files in a
