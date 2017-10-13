@@ -87,7 +87,7 @@ public class ProcessReferenceSearch extends
 
 	private List<Reference> findSocialAspectReferences(Set<Long> ids) {
 		Map<Long, Long> aspects = toIdMap(findReferences("tbl_social_aspects",
-				"f_process", ids, new Ref[] { new Ref(Exchange.class, "id", "id") }));
+				"f_process", ids, new Ref[] { new Ref(SocialAspect.class, "id", "id") }));
 		return findReferences("tbl_social_aspects", "id", aspects.keySet(),
 				aspects, socialAspectReferences);
 	}
