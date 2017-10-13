@@ -232,6 +232,7 @@ public class RepositoryClient {
 			invocation.repositoryId = config.repositoryId;
 			invocation.untilCommitId = commitId;
 			invocation.requestData = requestData;
+			invocation.clearDatabase = true;
 			invocation.execute();
 		});
 	}
@@ -254,11 +255,12 @@ public class RepositoryClient {
 		if (commitId == null)
 			return;
 		executeLoggedIn(() -> {
-			CheckoutInvocation invocation = new CheckoutInvocation(config.database, notifier);
+			DownloadInvocation invocation = new DownloadInvocation(config.database, notifier);
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
-			invocation.commitId = commitId;
+			invocation.untilCommitId = commitId;
+			invocation.clearDatabase = true;
 			invocation.execute();
 			config.setLastCommitId(commitId);
 		});
