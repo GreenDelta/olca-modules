@@ -10,17 +10,6 @@ public class FetchRequestData extends Dataset {
 
 	}
 
-	public FetchRequestData(Dataset descriptor) {
-		refId = descriptor.refId;
-		type = descriptor.type;
-		version = descriptor.version;
-		lastChange = descriptor.lastChange;
-		name = descriptor.name;
-		categoryRefId = descriptor.categoryRefId;
-		categoryType = descriptor.categoryType;
-		fullPath = descriptor.fullPath;
-	}
-
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
 	}
