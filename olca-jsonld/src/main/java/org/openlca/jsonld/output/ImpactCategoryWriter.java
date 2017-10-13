@@ -31,6 +31,10 @@ class ImpactCategoryWriter extends Writer<ImpactCategory> {
 			Out.put(obj, "value", f.value);
 			Out.put(obj, "formula", f.formula);
 			Out.put(obj, "flow", f.flow, conf, Out.REQUIRED_FIELD);
+			if (f.flow != null) {
+				JsonObject flow = obj.get("flow").getAsJsonObject();
+				Out.put(flow, "flowType", f.flow.getFlowType());
+			}
 			Out.put(obj, "unit", f.unit, conf, Out.REQUIRED_FIELD);
 			FlowProperty property = null;
 			if (f.flowPropertyFactor != null)
