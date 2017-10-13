@@ -200,11 +200,11 @@ public class RepositoryClient {
 
 	public Set<FetchRequestData> sync(String untilCommitId) throws WebRequestException {
 		Set<FetchRequestData> result = executeLoggedIn(() -> {
-			SyncInvocation invocation = new SyncInvocation();
+			FetchRequestInvocation invocation = new FetchRequestInvocation();
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
-			invocation.untilCommitId = untilCommitId;
+			invocation.lastCommitId = untilCommitId;
 			return invocation.execute();
 		});
 		if (result == null)
@@ -226,13 +226,14 @@ public class RepositoryClient {
 	public void download(Set<FileReference> requestData, String commitId, FetchNotifier notifier)
 			throws WebRequestException {
 		executeLoggedIn(() -> {
-			DownloadInvocation invocation = new DownloadInvocation(config.database, notifier);
+			FetchInvocation invocation = new FetchInvocation(config.database, notifier);
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
-			invocation.untilCommitId = commitId;
-			invocation.requestData = requestData;
-			invocation.clearDatabase = true;
+			invocation.lastCommitId = commitId;
+			invocation.requestData = requestData != null ? requestData : new HashSet<>();
+			invocation.download= true;
+			invocation.clearDatabase = false;
 			invocation.execute();
 		});
 	}
@@ -245,8 +246,10 @@ public class RepositoryClient {
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = config.getLastCommitId();
-			invocation.fetchData = fetchData;
+			invocation.requestData = fetchData != null ? fetchData : new HashSet<>();
 			invocation.mergedData = mergedData;
+			invocation.download = false;
+			invocation.clearDatabase = false;
 			config.setLastCommitId(invocation.execute());
 		});
 	}
@@ -255,12 +258,13 @@ public class RepositoryClient {
 		if (commitId == null)
 			return;
 		executeLoggedIn(() -> {
-			DownloadInvocation invocation = new DownloadInvocation(config.database, notifier);
+			FetchInvocation invocation = new FetchInvocation(config.database, notifier);
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
-			invocation.untilCommitId = commitId;
+			invocation.lastCommitId = commitId;
 			invocation.clearDatabase = true;
+			invocation.download= true;
 			invocation.execute();
 			config.setLastCommitId(commitId);
 		});

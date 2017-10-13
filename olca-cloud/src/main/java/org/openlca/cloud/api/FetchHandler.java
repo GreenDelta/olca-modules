@@ -38,10 +38,6 @@ class FetchHandler {
 	private final Map<Dataset, JsonObject> mergedData;
 	private final FetchNotifier fetchNotifier;
 
-	FetchHandler(IDatabase database, FetchNotifier fetchNotifier) {
-		this(database, null, fetchNotifier);
-	}
-
 	FetchHandler(IDatabase database, Map<Dataset, JsonObject> mergedData, FetchNotifier fetchNotifier) {
 		this.database = database;
 		this.mergedData = mergedData;
@@ -152,6 +148,8 @@ class FetchHandler {
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void delete(
 			CategorizedEntityDao<T, V> dao, String refId) {
+		if (!dao.contains(refId))
+			return;
 		dao.delete(dao.getForRefId(refId));
 	}
 
