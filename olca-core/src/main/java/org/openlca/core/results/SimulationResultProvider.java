@@ -1,11 +1,11 @@
 package org.openlca.core.results;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SimulationResultProvider<T extends SimulationResult> extends
 		BaseResultProvider<T> {

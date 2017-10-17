@@ -90,7 +90,7 @@ public class BaseDaoTest {
 			throws Exception {
 		log.trace("run base dao test with {}", clazz);
 		T instance = clazz.newInstance();
-		BaseDao<T> dao = new BaseDao<>(clazz, Tests.getDb());
+		BaseDao<T> dao = Daos.base(Tests.getDb(), clazz);
 		dao.insert(instance);
 		testUsage(instance);
 		dao.update(instance);

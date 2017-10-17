@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -26,13 +28,13 @@ public class ProcessUseSearchTest {
 	public void setup() {
 		process = new Process();
 		process.setName("process");
-		process = database.createDao(Process.class).insert(process);
+		process = new ProcessDao(database).insert(process);
 		search = IUseSearch.FACTORY.createFor(ModelType.PROCESS, database);
 	}
 
 	@After
 	public void tearDown() {
-		database.createDao(Process.class).delete(process);
+		new ProcessDao(database).delete(process);
 	}
 
 	@Test
@@ -48,7 +50,7 @@ public class ProcessUseSearchTest {
 		ProductSystem system = createSystem();
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(process));
-		database.createDao(ProductSystem.class).delete(system);
+		new ProductSystemDao(database).delete(system);
 		BaseDescriptor expected = Descriptors.toDescriptor(system);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -58,7 +60,7 @@ public class ProcessUseSearchTest {
 		ProductSystem system = new ProductSystem();
 		system.setName("system");
 		system.getProcesses().add(process.getId());
-		return database.createDao(ProductSystem.class).insert(system);
+		return new ProductSystemDao(database).insert(system);
 	}
 
 }

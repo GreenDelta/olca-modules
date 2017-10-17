@@ -2,11 +2,11 @@ package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashMatrix;
-import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.HashMatrix.MatrixIterator;
-import org.openlca.eigen.Eigen;
+import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.format.SparseMatrixData;
+import org.openlca.eigen.Eigen;
 
 public class BalancedSolver implements IMatrixSolver {
 

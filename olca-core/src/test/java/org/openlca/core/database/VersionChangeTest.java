@@ -33,7 +33,7 @@ public class VersionChangeTest {
 	@SuppressWarnings("unchecked")
 	private <T extends CategorizedEntity> void testUpdate(T instance)
 			throws Exception {
-		BaseDao<T> dao = (BaseDao<T>) db.createDao(instance.getClass());
+		BaseDao<T> dao = (BaseDao<T>) Daos.base(db, instance.getClass());
 		instance = dao.insert(instance);
 		Assert.assertEquals(0L, instance.getVersion());
 		Assert.assertEquals(0L, instance.getLastChange());

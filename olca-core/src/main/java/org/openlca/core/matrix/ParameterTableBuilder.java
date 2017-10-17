@@ -1,15 +1,15 @@
 package org.openlca.core.matrix;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Set;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.UncertaintyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Set;
 
 class ParameterTableBuilder {
 

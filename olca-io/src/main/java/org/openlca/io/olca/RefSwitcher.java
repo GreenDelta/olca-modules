@@ -1,7 +1,6 @@
 package org.openlca.io.olca;
 
 import org.openlca.core.database.ActorDao;
-import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.DQSystemDao;
@@ -15,6 +14,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
+import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
@@ -76,7 +76,7 @@ class RefSwitcher {
 		long id = seq.get(seq.UNIT, srcUnit.getRefId());
 		if (id == 0)
 			return null;
-		BaseDao<Unit> dao = dest.createDao(Unit.class);
+		UnitDao dao = new UnitDao(dest);
 		return dao.getForId(id);
 	}
 

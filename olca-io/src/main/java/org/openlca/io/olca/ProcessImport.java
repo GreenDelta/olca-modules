@@ -1,5 +1,9 @@
 package org.openlca.io.olca;
 
+import gnu.trove.iterator.TLongLongIterator;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TLongLongHashMap;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,10 +24,6 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gnu.trove.iterator.TLongLongIterator;
-import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.map.hash.TLongLongHashMap;
 
 class ProcessImport {
 

@@ -7,7 +7,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.TreeSet;
+
 import javax.xml.bind.JAXB;
+
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;

@@ -1,5 +1,7 @@
 package org.openlca.core.matrix.cache;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -8,8 +10,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * A simple data structure that holds the flow types of the flows in a database.

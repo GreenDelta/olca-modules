@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
@@ -27,14 +29,14 @@ public class SocialIndicatorUseSearchTest {
 	public void setup() {
 		indicator = new SocialIndicator();
 		indicator.setName("indicator");
-		indicator = database.createDao(SocialIndicator.class).insert(indicator);
+		indicator = new SocialIndicatorDao(database).insert(indicator);
 		search = IUseSearch.FACTORY.createFor(ModelType.SOCIAL_INDICATOR,
 				database);
 	}
 
 	@After
 	public void tearDown() {
-		database.createDao(SocialIndicator.class).delete(indicator);
+		new SocialIndicatorDao(database).delete(indicator);
 	}
 
 	@Test
@@ -50,7 +52,7 @@ public class SocialIndicatorUseSearchTest {
 		Process process = createProcess();
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(indicator));
-		database.createDao(Process.class).delete(process);
+		new ProcessDao(database).delete(process);
 		BaseDescriptor expected = Descriptors.toDescriptor(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -62,6 +64,6 @@ public class SocialIndicatorUseSearchTest {
 		SocialAspect aspect = new SocialAspect();
 		aspect.indicator = indicator;
 		process.socialAspects.add(aspect);
-		return database.createDao(Process.class).insert(process);
+		return new ProcessDao(database).insert(process);
 	}
 }

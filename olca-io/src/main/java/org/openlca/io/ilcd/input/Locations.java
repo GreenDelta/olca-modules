@@ -1,6 +1,6 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.database.BaseEntityDao;
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
@@ -20,8 +20,7 @@ final class Locations {
 			return null;
 		try {
 			String refId = KeyGen.get(code);
-			BaseEntityDao<Location> dao = new BaseEntityDao<>(Location.class,
-					config.db);
+			LocationDao dao = new LocationDao(config.db);
 			return dao.getForRefId(refId);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(Locations.class);
@@ -42,8 +41,7 @@ final class Locations {
 			return location;
 		try {
 			String refId = KeyGen.get(code);
-			BaseEntityDao<Location> dao = new BaseEntityDao<>(Location.class,
-					config.db);
+			LocationDao dao = new LocationDao(config.db);
 			location = new Location();
 			location.setCode(code);
 			location.setRefId(refId);

@@ -13,6 +13,8 @@ import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Version;
+import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
 
@@ -58,10 +60,10 @@ public class CommitInvocation {
 		for (Dataset ds : new ArrayList<>(data)) {
 			if (ds.type == ModelType.IMPACT_METHOD) {
 				for (ImpactCategoryDescriptor cat : dao.getCategoryDescriptors(ds.refId)) {
-					data.add(Dataset.toDataset(cat));
+					data.add(toDataset(cat));
 				}
 				for (NwSetDescriptor nwSet : dao.getNwSetDescriptors(ds.refId)) {
-					data.add(Dataset.toDataset(nwSet));
+					data.add(toDataset(nwSet));
 				}
 			}
 		}
@@ -69,4 +71,16 @@ public class CommitInvocation {
 				.getEntity(String.class);
 		return commitId;
 	}
+	
+	private Dataset toDataset(BaseDescriptor descriptor) {
+		Dataset ds = new Dataset();
+		ds.refId = descriptor.getRefId();
+		ds.type = descriptor.getModelType();
+		ds.version = Version.asString(descriptor.getVersion());
+		ds.lastChange = descriptor.getLastChange();
+		ds.name = descriptor.getName();
+		ds.categoryType = descriptor.getModelType();
+		return ds;
+	}
+	
 }

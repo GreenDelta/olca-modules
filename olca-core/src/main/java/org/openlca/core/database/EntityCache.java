@@ -63,8 +63,7 @@ public class EntityCache {
 				return null;
 			return clazz.cast(obj);
 		} catch (Exception e) {
-			log.error("failed to get from cache " + clazz + " with id " + id,
-					e);
+			log.error("failed to get from cache " + clazz + " with id " + id, e);
 			return null;
 		}
 	}
@@ -177,6 +176,7 @@ public class EntityCache {
 			m.put(CategoryDescriptor.class, new CategoryDao(db));
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Map<Key, Object> loadAll(Iterable<? extends Key> keys)
 				throws Exception {
@@ -192,7 +192,8 @@ public class EntityCache {
 				if (BaseDescriptor.class.isAssignableFrom(clazz))
 					loadDescriptors(clazz, ids, result);
 				else
-					loadFullEntities(clazz, ids, result);
+					loadFullEntities((Class<? extends AbstractEntity>) clazz,
+							ids, result);
 			}
 			for (Key key : keys) {
 				if (!result.containsKey(key))
@@ -201,8 +202,8 @@ public class EntityCache {
 			return result;
 		}
 
-		private void loadFullEntities(Class<?> clazz, Collection<Long> ids,
-				HashMap<Key, Object> result) {
+		private void loadFullEntities(Class<? extends AbstractEntity> clazz,
+				Collection<Long> ids, HashMap<Key, Object> result) {
 			BaseDao<?> dao = getDao(clazz);
 			List<?> entities = dao.getForIds(new HashSet<>(ids));
 			for (Object obj : entities) {
@@ -247,15 +248,16 @@ public class EntityCache {
 		}
 
 		private Object loadFull(Key key) {
-			BaseDao<?> dao = getDao(key.clazz);
+			@SuppressWarnings("unchecked")
+			BaseDao<?> dao = getDao((Class<? extends AbstractEntity>) key.clazz);
 			return dao.getForId(key.id);
 		}
 
-		private BaseDao<?> getDao(Class<?> clazz) {
+		private BaseDao<?> getDao(Class<? extends AbstractEntity> clazz) {
 			BaseDao<?> dao = daos.get(clazz);
 			if (dao == null) {
 				log.trace("register class {}", clazz);
-				dao = new BaseDao<>(clazz, database);
+				dao = Daos.base(database, clazz);
 				daos.put(clazz, dao);
 			}
 			return dao;

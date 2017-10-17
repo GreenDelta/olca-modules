@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
@@ -14,7 +15,6 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.BaseDescriptor;
 
 class RefData {
 
@@ -31,8 +31,7 @@ class RefData {
 	 * method must be called after unit sheets where read.
 	 */
 	void loadUnits(IDatabase database) throws Exception {
-		RootEntityDao<Unit, BaseDescriptor> unitDao = new RootEntityDao<>(
-				Unit.class, BaseDescriptor.class, database);
+		UnitDao unitDao = new UnitDao(database);
 		load(unitDao, units);
 		load(new UnitGroupDao(database), unitGroups);
 		load(new FlowPropertyDao(database), flowProperties);

@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
+import org.openlca.core.model.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +33,9 @@ public class Query {
 	 * have a string field 'name'. If no such type is contained in the database,
 	 * null is returned.
 	 */
-	public <T> T getForName(Class<T> type, String name) {
+	public <T extends AbstractEntity> T getForName(Class<T> type, String name) {
 		log.trace("query {} for name {}", type, name);
-		BaseDao<T> dao = new BaseDao<>(type, database);
+		BaseDao<T> dao = Daos.base(database, type);
 		String jpql = "select t from " + type.getSimpleName()
 				+ " t where t.name = :name";
 		Map<String, String> map = new HashMap<>();

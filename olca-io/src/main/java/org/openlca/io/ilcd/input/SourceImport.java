@@ -132,7 +132,7 @@ public class SourceImport {
 
 	private void saveInDatabase() throws ImportException {
 		try {
-			config.db.createDao(Source.class).insert(source);
+			new SourceDao(config.db).insert(source);
 		} catch (Exception e) {
 			String message = String.format(
 					"Cannot save source %s in database.", source.getRefId());

@@ -38,6 +38,8 @@ class Search {
 
 	List<Reference> findReferences(String table, String idField, Set<Long> ids,
 			Map<Long, Long> idToOwnerId, Ref[] refs, boolean includeOptional) {
+		if (ids.isEmpty())
+			return new ArrayList<>();
 		List<Reference> references = new ArrayList<Reference>();
 		List<String> queries = createQueries(table, idField, ids, refs);
 		for (String query : queries) {

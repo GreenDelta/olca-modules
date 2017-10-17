@@ -10,8 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.Daos;
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -53,7 +56,7 @@ public class ExchangeUseSearchTest {
 		for (int i = 1; i < 4; i++) {
 			Flow flow = new Flow();
 			flow.setName("flow_" + 1);
-			flow = database.createDao(Flow.class).insert(flow);
+			flow = new FlowDao(database).insert(flow);
 			modelStack.push(flow);
 			Exchange ep = new Exchange();
 			final Flow flow1 = flow;
@@ -77,7 +80,7 @@ public class ExchangeUseSearchTest {
 		link.processId = q.getId();
 		link.flowId = linkFlow.getId();
 		system.getProcessLinks().add(link);
-		system = database.createDao(ProductSystem.class).insert(system);
+		system = new ProductSystemDao(database).insert(system);
 		modelStack.push(system);
 	}
 
@@ -86,8 +89,8 @@ public class ExchangeUseSearchTest {
 		while (!modelStack.isEmpty()) {
 			CategorizedEntity entity = modelStack.pop();
 			@SuppressWarnings("unchecked")
-			BaseDao<CategorizedEntity> dao = (BaseDao<CategorizedEntity>) database
-					.createDao(entity.getClass());
+			BaseDao<CategorizedEntity> dao = (BaseDao<CategorizedEntity>) Daos
+					.base(database, entity.getClass());
 			dao.delete(entity);
 		}
 	}

@@ -6,7 +6,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
@@ -33,7 +35,7 @@ public class CurrencyUseSearchTest {
 				.toDescriptor(currency));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
-		database.createDao(Currency.class).delete(currency);
+		new CurrencyDao(database).delete(currency);
 	}
 
 	@Test
@@ -41,11 +43,11 @@ public class CurrencyUseSearchTest {
 		Currency currency = createCurrency();
 		Currency other = createCurrency();
 		other.referenceCurrency = currency;
-		database.createDao(Currency.class).update(other);
+		new CurrencyDao(database).update(other);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(currency));
-		database.createDao(Currency.class).delete(currency);
-		database.createDao(Currency.class).delete(other);
+		new CurrencyDao(database).delete(currency);
+		new CurrencyDao(database).delete(other);
 		BaseDescriptor expected = Descriptors.toDescriptor(other);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -57,8 +59,8 @@ public class CurrencyUseSearchTest {
 		Process process = createProcess(currency, true);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(currency));
-		database.createDao(Process.class).delete(process);
-		database.createDao(Currency.class).delete(currency);
+		new ProcessDao(database).delete(process);
+		new CurrencyDao(database).delete(currency);
 		BaseDescriptor expected = Descriptors.toDescriptor(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -70,8 +72,8 @@ public class CurrencyUseSearchTest {
 		Process process = createProcess(currency, false);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(currency));
-		database.createDao(Process.class).delete(process);
-		database.createDao(Currency.class).delete(currency);
+		new ProcessDao(database).delete(process);
+		new CurrencyDao(database).delete(currency);
 		BaseDescriptor expected = Descriptors.toDescriptor(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -80,7 +82,7 @@ public class CurrencyUseSearchTest {
 	private Currency createCurrency() {
 		Currency currency = new Currency();
 		currency.setName("currency");
-		database.createDao(Currency.class).insert(currency);
+		new CurrencyDao(database).insert(currency);
 		return currency;
 	}
 
@@ -93,7 +95,7 @@ public class CurrencyUseSearchTest {
 			process.getExchanges().add(exchange);
 		} else 
 			process.currency = currency;
-		database.createDao(Process.class).insert(process);
+		new ProcessDao(database).insert(process);
 		return process;
 	}
 }

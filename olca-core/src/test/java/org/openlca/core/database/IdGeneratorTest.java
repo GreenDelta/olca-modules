@@ -20,7 +20,7 @@ public class IdGeneratorTest {
 
 		// when inserting an entity we use persist -> EclipseLink directly
 		// generates an ID for cascade objects
-		database.createDao(Flow.class).insert(flow);
+		new FlowDao(database).insert(flow);
 		Assert.assertTrue(factor1.getId() > 0L); // new ID
 
 		FlowPropertyFactor factor2 = new FlowPropertyFactor();
@@ -29,7 +29,7 @@ public class IdGeneratorTest {
 
 		// when updating an entity we use merge -> EclipseLink does not
 		// manipulates the original object graph
-		Flow managedFlow = database.createDao(Flow.class).update(flow);
+		Flow managedFlow = new FlowDao(database).update(flow);
 		Assert.assertEquals(0L, factor2.getId()); // still no ID set
 
 		// for the managed flow has generated IDs for the cascade objects

@@ -6,6 +6,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
@@ -25,7 +26,7 @@ public class ConversionTableTest {
 
 	@Test
 	public void testUnitFactor() throws Exception {
-		BaseDao<UnitGroup> dao = database.createDao(UnitGroup.class);
+		BaseDao<UnitGroup> dao = new UnitGroupDao(database);
 		UnitGroup group = new UnitGroup();
 		group.setName("test-ug");
 		Unit refUnit = new Unit();

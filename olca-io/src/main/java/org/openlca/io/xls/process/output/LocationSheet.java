@@ -1,12 +1,12 @@
 package org.openlca.io.xls.process.output;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.io.xls.Excel;
-
-import java.util.Collections;
-import java.util.List;
 
 class LocationSheet {
 

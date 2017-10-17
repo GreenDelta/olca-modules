@@ -30,7 +30,7 @@ public final class Categories {
 			parent.getChildCategories().add(child);
 			CategoryDao dao = new CategoryDao(database);
 			dao.insert(child);
-			database.createDao(Category.class).update(parent);
+			new CategoryDao(database).update(parent);
 			return child;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(Categories.class);
@@ -59,7 +59,7 @@ public final class Categories {
 			category.setRefId(UUID.randomUUID().toString());
 			category.setModelType(type);
 			category.setName(name);
-			database.createDao(Category.class).insert(category);
+			new CategoryDao(database).insert(category);
 			return category;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(Categories.class);

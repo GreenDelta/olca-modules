@@ -6,6 +6,7 @@ import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.model.ModelType;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -44,6 +45,8 @@ class DatasetContentInvocation {
 		String url = baseUrl + PATH + repositoryId + "/" + type + "/" + refId + "/" + commitId;
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		String json = response.getEntity(String.class);
+		if (Strings.isNullOrEmpty(json))
+			return null;
 		JsonElement element = new Gson().fromJson(json, JsonElement.class);
 		return element.getAsJsonObject();
 	}

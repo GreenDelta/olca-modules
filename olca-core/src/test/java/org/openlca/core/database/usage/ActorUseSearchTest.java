@@ -6,7 +6,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
@@ -34,7 +37,7 @@ public class ActorUseSearchTest {
 				.toDescriptor(actor));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
-		database.createDao(Actor.class).delete(actor);
+		new ActorDao(database).delete(actor);
 	}
 
 	@Test
@@ -43,11 +46,11 @@ public class ActorUseSearchTest {
 		Project project = new Project();
 		project.setName("project");
 		project.setAuthor(actor);
-		database.createDao(Project.class).insert(project);
+		new ProjectDao(database).insert(project);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(actor));
-		database.createDao(Project.class).delete(project);
-		database.createDao(Actor.class).delete(actor);
+		new ProjectDao(database).delete(project);
+		new ActorDao(database).delete(actor);
 		BaseDescriptor expected = Descriptors.toDescriptor(project);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -56,7 +59,7 @@ public class ActorUseSearchTest {
 	private Actor createActor() {
 		Actor actor = new Actor();
 		actor.setName("actor");
-		database.createDao(Actor.class).insert(actor);
+		new ActorDao(database).insert(actor);
 		return actor;
 	}
 
@@ -66,8 +69,8 @@ public class ActorUseSearchTest {
 		Process process = createProcess(actor);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(actor));
-		database.createDao(Process.class).delete(process);
-		database.createDao(Actor.class).delete(actor);
+		new ProcessDao(database).delete(process);
+		new ActorDao(database).delete(actor);
 		BaseDescriptor expected = Descriptors.toDescriptor(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -82,7 +85,7 @@ public class ActorUseSearchTest {
 		process.getDocumentation().setDataSetOwner(actor);
 		process.getDocumentation().setDataGenerator(actor);
 		process.getDocumentation().setDataDocumentor(actor);
-		database.createDao(Process.class).insert(process);
+		new ProcessDao(database).insert(process);
 		return process;
 	}
 }

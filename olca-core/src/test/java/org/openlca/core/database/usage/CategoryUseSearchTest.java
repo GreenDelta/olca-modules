@@ -6,7 +6,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Project;
@@ -32,7 +34,7 @@ public class CategoryUseSearchTest {
 				.toDescriptor(category));
 		Assert.assertNotNull(models);
 		Assert.assertTrue(models.isEmpty());
-		database.createDao(Category.class).delete(category);
+		new CategoryDao(database).delete(category);
 	}
 
 	@Test
@@ -41,11 +43,11 @@ public class CategoryUseSearchTest {
 		Project project = new Project();
 		project.setName("project");
 		project.setCategory(category);
-		database.createDao(Project.class).insert(project);
+		new ProjectDao(database).insert(project);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(category));
-		database.createDao(Project.class).delete(project);
-		database.createDao(Category.class).delete(category);
+		new ProjectDao(database).delete(project);
+		new CategoryDao(database).delete(category);
 		BaseDescriptor expected = Descriptors.toDescriptor(project);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -55,7 +57,7 @@ public class CategoryUseSearchTest {
 		Category category = new Category();
 		category.setName("category");
 		category.setModelType(ModelType.PROCESS);
-		return database.createDao(Category.class).insert(category);
+		return new CategoryDao(database).insert(category);
 	}
 
 	@Test
@@ -63,11 +65,11 @@ public class CategoryUseSearchTest {
 		Category category = createCategory();
 		Category parent = createCategory();
 		parent.setCategory(category);
-		database.createDao(Category.class).update(parent);
+		new CategoryDao(database).update(parent);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(category));
-		database.createDao(Category.class).delete(category);
-		database.createDao(Category.class).delete(parent);
+		new CategoryDao(database).delete(category);
+		new CategoryDao(database).delete(parent);
 		BaseDescriptor expected = Descriptors.toDescriptor(parent);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));

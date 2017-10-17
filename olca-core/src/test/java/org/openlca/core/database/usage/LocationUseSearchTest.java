@@ -7,7 +7,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
@@ -27,13 +30,13 @@ public class LocationUseSearchTest {
 	public void setup() {
 		location = new Location();
 		location.setName("location");
-		location = database.createDao(Location.class).insert(location);
+		location = new LocationDao(database).insert(location);
 		search = IUseSearch.FACTORY.createFor(ModelType.LOCATION, database);
 	}
 
 	@After
 	public void tearDown() {
-		database.createDao(Location.class).delete(location);
+		new LocationDao(database).delete(location);
 	}
 
 	@Test
@@ -49,7 +52,7 @@ public class LocationUseSearchTest {
 		Flow flow = createFlow();
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(location));
-		database.createDao(Flow.class).delete(flow);
+		new FlowDao(database).delete(flow);
 		BaseDescriptor expected = Descriptors.toDescriptor(flow);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -59,7 +62,7 @@ public class LocationUseSearchTest {
 		Flow flow = new Flow();
 		flow.setName("flow");
 		flow.setLocation(location);
-		return database.createDao(Flow.class).insert(flow);
+		return new FlowDao(database).insert(flow);
 	}
 
 	@Test
@@ -67,7 +70,7 @@ public class LocationUseSearchTest {
 		Process process = createProcess();
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(location));
-		database.createDao(Process.class).delete(process);
+		new ProcessDao(database).delete(process);
 		BaseDescriptor expected = Descriptors.toDescriptor(process);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(expected, results.get(0));
@@ -77,6 +80,6 @@ public class LocationUseSearchTest {
 		Process process = new Process();
 		process.setName("process");
 		process.setLocation(location);
-		return database.createDao(Process.class).insert(process);
+		return new ProcessDao(database).insert(process);
 	}
 }

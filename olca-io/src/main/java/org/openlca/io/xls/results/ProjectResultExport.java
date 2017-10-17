@@ -1,5 +1,13 @@
 package org.openlca.io.xls.results;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -13,14 +21,6 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ProjectResultProvider;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
 
 public class ProjectResultExport {
 

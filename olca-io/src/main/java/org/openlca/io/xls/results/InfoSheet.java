@@ -1,7 +1,6 @@
 package org.openlca.io.xls.results;
 
 import java.awt.Color;
-
 import java.math.RoundingMode;
 import java.util.Date;
 

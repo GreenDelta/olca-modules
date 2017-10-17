@@ -1,11 +1,11 @@
 package org.openlca.io.refdata;
 
+import java.util.List;
+
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.supercsv.io.CsvListWriter;
-
-import java.util.List;
 
 class FlowExport extends AbstractExport {
 

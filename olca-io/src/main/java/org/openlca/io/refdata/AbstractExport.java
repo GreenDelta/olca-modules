@@ -1,15 +1,15 @@
 package org.openlca.io.refdata;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 
 abstract class AbstractExport {
 

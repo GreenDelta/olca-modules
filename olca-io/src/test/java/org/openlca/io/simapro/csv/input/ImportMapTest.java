@@ -3,9 +3,9 @@ package org.openlca.io.simapro.csv.input;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.util.KeyGen;
 import org.openlca.io.maps.MapFactor;
 import org.openlca.io.maps.OlcaFlowMapEntry;
+import org.openlca.util.KeyGen;
 
 public class ImportMapTest {
 

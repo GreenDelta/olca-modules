@@ -8,9 +8,9 @@ import org.openlca.io.ImportEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.EventBus;
-
 import spold2.DataSet;
+
+import com.google.common.eventbus.EventBus;
 
 /**
  * The import of data sets in the EcoSpold v2 format. The import expects a set

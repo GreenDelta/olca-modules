@@ -7,8 +7,6 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.commons.codec.binary.Hex;
 import org.openlca.cloud.util.NullSafe;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.BaseDescriptor;
 
 public class Dataset extends FileReference implements Serializable {
 
@@ -70,23 +68,15 @@ public class Dataset extends FileReference implements Serializable {
 		ref.refId = refId;
 		return ref;
 	}
-
-	public static Dataset toDataset(BaseDescriptor entity) {
-		Dataset dataset = new Dataset();
-		dataset.refId = entity.getRefId();
-		dataset.type = entity.getModelType();
-		dataset.version = Version.asString(entity.getVersion());
-		dataset.lastChange = entity.getLastChange();
-		dataset.name = entity.getName();
-		return dataset;
-	}
-
+	
 	@Override
 	public String toString() {
 		String value = super.toString() + ", version: " + version + ", lastChange: " + lastChange + ", name: " + name
 				+ ", fullPath: " + fullPath;
-		if (categoryRefId != null && categoryType != null) {
-			value += ", categoryRefId: " + categoryRefId + ", categoryType: " + categoryType.name();
+		if (type == ModelType.CATEGORY)
+			value += ", categoryType: " + categoryType.name();
+		if (categoryRefId != null) {
+			value += ", categoryRefId: " + categoryRefId;
 		}
 		return value;
 	}

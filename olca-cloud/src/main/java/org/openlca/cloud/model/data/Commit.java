@@ -10,10 +10,7 @@ public class Commit {
 	@Override
 	public String toString() {
 		String timestamp = Long.toString(this.timestamp);
-		int length = id.length() + message.length() + user.length()
-				+ timestamp.length() + 3; // +
-											// 3
-											// spaces
+		int length = id.length() + message.length() + user.length() + timestamp.length() + 3;
 		StringBuilder string = new StringBuilder(length);
 		string.append(id);
 		string.append(' ');

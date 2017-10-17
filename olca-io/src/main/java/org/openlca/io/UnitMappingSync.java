@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.slf4j.Logger;
@@ -55,7 +56,7 @@ public class UnitMappingSync {
 		double factor = entry.factor == null ? 1d : entry.factor;
 		unit.setConversionFactor(factor);
 		unitGroup.getUnits().add(unit);
-		unitGroup = database.createDao(UnitGroup.class).update(unitGroup);
+		unitGroup = new UnitGroupDao(database).update(unitGroup);
 		entry.factor = factor;
 		entry.unitGroup = unitGroup;
 		entry.unit = unitGroup.getUnit(entry.unitName);

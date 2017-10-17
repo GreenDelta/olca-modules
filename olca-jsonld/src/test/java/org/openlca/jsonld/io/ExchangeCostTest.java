@@ -1,6 +1,7 @@
 package org.openlca.jsonld.io;
 
 import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.database.CurrencyDao;

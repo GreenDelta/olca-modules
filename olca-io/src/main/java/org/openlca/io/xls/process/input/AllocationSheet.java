@@ -1,5 +1,10 @@
 package org.openlca.io.xls.process.input;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -9,11 +14,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
 
 class AllocationSheet {
 

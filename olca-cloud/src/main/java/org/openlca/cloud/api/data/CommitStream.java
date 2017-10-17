@@ -34,7 +34,7 @@ public class CommitStream extends ModelStream {
 
 	@Override
 	protected byte[] getData(Dataset dataset) throws IOException {
-		RootEntity entity = Daos.createRootDao(db, dataset.type).getForRefId(dataset.refId);
+		RootEntity entity = Daos.root(db, dataset.type).getForRefId(dataset.refId);
 		if (entity == null)
 			return new byte[0];
 		byte[] data = new byte[0];

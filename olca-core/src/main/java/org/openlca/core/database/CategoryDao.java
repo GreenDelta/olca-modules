@@ -138,18 +138,16 @@ public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescript
 			for (ModelType type : ModelType.values()) {
 				if (type.getModelClass() == null || !RootEntity.class.isAssignableFrom(type.getModelClass()))
 					continue;
-				String table = Daos.createRootDao(database, type).getEntityTable();
+				String table = Daos.root(database, type).getEntityTable();
 				tables.put(type, table);
 			}
 		}
 		return tables.get(modelType);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private <T extends CategorizedEntity> List<? extends CategorizedDescriptor> getDescriptors(ModelType type,
 			Optional<Category> category) {
-		CategorizedEntityDao<T, ?> dao = (CategorizedEntityDao<T, ?>) Daos.createCategorizedDao(getDatabase(), type);
-		return dao.getDescriptors(category);
+		return Daos.categorized(getDatabase(), type).getDescriptors(category);
 	}
 	
 }

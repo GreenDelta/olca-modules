@@ -1,11 +1,11 @@
 package org.openlca.jsonld.input;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 class ProcessDocReader {
 

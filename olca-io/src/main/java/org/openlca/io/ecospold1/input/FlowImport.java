@@ -13,11 +13,11 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.io.DataSet;
-import org.openlca.util.KeyGen;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

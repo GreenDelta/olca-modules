@@ -1,5 +1,12 @@
 package org.openlca.io.xls.systems;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.Location;
@@ -7,13 +14,6 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
 import org.openlca.util.Strings;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * A class for showing the essential information of a flow to the user.

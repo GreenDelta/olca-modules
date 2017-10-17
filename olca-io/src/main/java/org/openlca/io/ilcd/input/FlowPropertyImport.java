@@ -120,7 +120,7 @@ public class FlowPropertyImport {
 
 	private void saveInDatabase(FlowProperty obj) throws ImportException {
 		try {
-			config.db.createDao(FlowProperty.class).insert(obj);
+			new FlowPropertyDao(config.db).insert(obj);
 		} catch (Exception e) {
 			String message = String.format(
 					"Save operation failed in flow property %s.",

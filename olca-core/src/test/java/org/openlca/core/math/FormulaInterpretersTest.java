@@ -11,6 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ParameterDao;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
@@ -42,7 +44,7 @@ public class FormulaInterpretersTest {
 		globalParam.setInputParameter(true);
 		globalParam.setScope(ParameterScope.GLOBAL);
 		globalParam.setValue(32);
-		database.createDao(Parameter.class).insert(globalParam);
+		new ParameterDao(database).insert(globalParam);
 		process = new Process();
 		Parameter localParam = new Parameter();
 		localParam.setName("fi_tests_local");
@@ -50,7 +52,7 @@ public class FormulaInterpretersTest {
 		localParam.setInputParameter(false);
 		localParam.setScope(ParameterScope.PROCESS);
 		process.getParameters().add(localParam);
-		process = database.createDao(Process.class).insert(process);
+		process = new ProcessDao(database).insert(process);
 		Set<Long> context = Collections.singleton(process.getId());
 		parameterTable = ParameterTable.build(database, context);
 		interpreter = parameterTable.createInterpreter();
@@ -58,8 +60,8 @@ public class FormulaInterpretersTest {
 
 	@After
 	public void tearDown() throws Exception {
-		database.createDao(Parameter.class).delete(globalParam);
-		database.createDao(Process.class).delete(process);
+		new ParameterDao(database).delete(globalParam);
+		new ProcessDao(database).delete(process);
 	}
 
 	@Test

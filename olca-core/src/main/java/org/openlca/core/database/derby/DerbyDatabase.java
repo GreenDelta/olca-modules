@@ -12,15 +12,12 @@ import javax.persistence.EntityManagerFactory;
 
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.eclipse.persistence.jpa.PersistenceProvider;
-import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.Daos;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.DbUtils;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Notifiable;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
-import org.openlca.core.model.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,11 +191,6 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	@Override
 	public EntityManagerFactory getEntityFactory() {
 		return entityFactory;
-	}
-
-	@Override
-	public <T extends AbstractEntity> BaseDao<T> createDao(Class<T> clazz) {
-		return Daos.createBaseDao(this, clazz);
 	}
 
 	@Override

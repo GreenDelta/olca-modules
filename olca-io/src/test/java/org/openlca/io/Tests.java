@@ -25,7 +25,7 @@ public class Tests {
 				ModelType.CURRENCY, ModelType.SOCIAL_INDICATOR,
 				ModelType.PARAMETER };
 		for (ModelType type : types)
-			Daos.createCategorizedDao(getDb(), type).deleteAll();
+			Daos.categorized(getDb(), type).deleteAll();
 		CategoryDao dao = new CategoryDao(getDb());
 		for (Category root : dao.getRootCategories())
 			dao.delete(root);

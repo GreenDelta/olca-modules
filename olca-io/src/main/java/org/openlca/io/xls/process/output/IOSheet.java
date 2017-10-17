@@ -1,5 +1,10 @@
 package org.openlca.io.xls.process.output;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -9,11 +14,6 @@ import org.openlca.core.model.Unit;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 class IOSheet {
 

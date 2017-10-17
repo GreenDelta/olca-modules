@@ -1,6 +1,9 @@
 package org.openlca.cloud.api;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,6 +14,7 @@ import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 
 import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse;
@@ -29,8 +33,12 @@ class FetchInvocation {
 	String sessionId;
 	String repositoryId;
 	String lastCommitId;
-	Set<FileReference> fetchData;
+	Set<FileReference> requestData;
 	Map<Dataset, JsonObject> mergedData;
+	boolean clearDatabase;
+	// false=fetch (all after the specified commit id)
+	// true=download (all until the specified commit id)
+	boolean download; 
 
 	FetchInvocation(IDatabase database, FetchNotifier notifier) {
 		this.database = database;
@@ -50,13 +58,38 @@ class FetchInvocation {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		if (lastCommitId == null || lastCommitId.isEmpty())
 			lastCommitId = "null";
-		if (fetchData == null) // still call service to receive latest commit id
-			fetchData = new HashSet<>();
-		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
-		ClientResponse response = WebRequests.call(Type.POST, url, sessionId, fetchData);
+		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId + "?download=" + download;
+		if (requestData == null) {
+			requestData = new HashSet<>();
+		}
+		ClientResponse response = WebRequests.call(Type.POST, url, sessionId, requestData);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return null;
+		if (clearDatabase) {
+			clearDatabase();
+		}
 		return new FetchHandler(database, mergedData, notifier).handleResponse(response.getEntityInputStream());
 	}
-
+	
+	private void clearDatabase() {
+		try {
+			List<String> tables = new ArrayList<>();
+			NativeSql.on(database).query("SELECT TABLENAME FROM SYS.SYSTABLES WHERE TABLETYPE = 'T'", (rs) -> {
+				tables.add(rs.getString(1));
+				return true;
+			});
+			for (String table : tables) {
+				if (table.toUpperCase().equals("SEQUENCE"))
+					continue;
+				if (table.toUpperCase().equals("OPENLCA_VERSION"))
+					continue;
+				NativeSql.on(database).runUpdate("DELETE FROM " + table);
+			}
+			NativeSql.on(database).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
+			database.getEntityFactory().getCache().evictAll();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 }

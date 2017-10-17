@@ -19,8 +19,8 @@ import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
+import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +67,7 @@ class Sequence {
 		index(LOCATION, new LocationDao(db));
 		index(ACTOR, new ActorDao(db));
 		index(SOURCE, new SourceDao(db));
-		index(UNIT, new RootEntityDao<>(Unit.class, BaseDescriptor.class, db));
+		index(UNIT, new UnitDao(db));
 		index(UNIT_GROUP, new UnitGroupDao(db));
 		index(FLOW_PROPERTY, new FlowPropertyDao(db));
 		index(FLOW, new FlowDao(db));

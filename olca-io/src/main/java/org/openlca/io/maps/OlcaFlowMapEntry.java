@@ -1,12 +1,12 @@
 package org.openlca.io.maps;
 
+import java.util.Objects;
+
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Unit;
-
-import java.util.Objects;
 
 /**
  * Describes an openLCA flow in a mapping list. See the reference data

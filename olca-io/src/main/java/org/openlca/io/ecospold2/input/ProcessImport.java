@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.core.database.BaseDao;
+import org.openlca.core.database.ExchangeDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
@@ -27,8 +27,6 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-
 import spold2.Activity;
 import spold2.Classification;
 import spold2.DataSet;
@@ -37,6 +35,8 @@ import spold2.IntermediateExchange;
 import spold2.PedigreeMatrix;
 import spold2.RichText;
 import spold2.Spold2;
+
+import com.google.common.base.Joiner;
 
 class ProcessImport {
 
@@ -126,7 +126,7 @@ class ProcessImport {
 		createElementaryExchanges(dataSet, process);
 		process.exchangeDqSystem = dqSystem;
 		new DocImportMapper(db).map(dataSet, process);
-		db.createDao(Process.class).insert(process);
+		new ProcessDao(db).insert(process);
 		index.putProcessId(refId, process.getId());
 		flushLinkQueue(process);
 	}
@@ -171,7 +171,7 @@ class ProcessImport {
 		if (exchanges == null || process.getId() == 0)
 			return;
 		try {
-			BaseDao<Exchange> dao = db.createDao(Exchange.class);
+			ExchangeDao dao = new ExchangeDao(db);
 			for (Exchange exchange : exchanges) {
 				exchange.defaultProviderId = process.getId();
 				dao.update(exchange);
