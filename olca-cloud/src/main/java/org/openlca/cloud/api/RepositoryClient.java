@@ -187,6 +187,7 @@ public class RepositoryClient {
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = config.getLastCommitId();
+			invocation.sync = false;
 			return invocation.execute();
 		});
 		if (result == null)
@@ -205,6 +206,7 @@ public class RepositoryClient {
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = untilCommitId;
+			invocation.sync = true;
 			return invocation.execute();
 		});
 		if (result == null)
