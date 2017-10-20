@@ -50,6 +50,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 
 	@Override
 	public void deleteAll(Collection<T> entities) {
+		super.deleteAll(entities);
 		for (T entity : entities) {
 			database.notifyDelete(Descriptors.toDescriptor(entity));
 		}
