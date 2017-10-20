@@ -1,5 +1,6 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +17,7 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
@@ -110,6 +112,8 @@ public class MethodImport {
 		category.setDescription(getCategoryDescription(iMethod));
 		addFactors(iMethod, category);
 		oMethod.impactCategories.add(category);
+		oMethod.setLastChange(Calendar.getInstance().getTimeInMillis());
+		Version.incUpdate(oMethod);
 		dao.update(oMethod);
 	}
 

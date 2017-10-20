@@ -1,9 +1,12 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Calendar;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroupBag;
@@ -50,8 +53,11 @@ class UnitGroupSync {
 			double factor = olcaRefUnit.getConversionFactor()
 					/ ilcdRefUnit.factor;
 			boolean changed = syncUnits(factor);
-			if (changed)
+			if (changed) {
+				olcaGroup.setLastChange(Calendar.getInstance().getTimeInMillis());
+				Version.incUpdate(olcaGroup);
 				new UnitGroupDao(database).update(olcaGroup);
+			}
 		} catch (Exception e) {
 			log.error("Failed to sync. unit groups", e);
 		}

@@ -1,10 +1,12 @@
 package org.openlca.io.ecospold2.input;
 
 import java.io.File;
+import java.util.Calendar;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,8 @@ public class PersonUpdate implements Runnable {
 		actor.setTelephone(person.telephone);
 		if (person.company != null)
 			actor.setDescription("company: " + person.company);
+		actor.setLastChange(Calendar.getInstance().getTimeInMillis());
+		Version.incUpdate(actor);
 		dao.update(actor);
 	}
 }

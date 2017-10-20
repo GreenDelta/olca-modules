@@ -1,6 +1,7 @@
 package org.openlca.io.xls.process.input;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -121,7 +122,12 @@ class UnitSheets {
 			unitGroup.getUnits().add(sheetUnit);
 			updated = true;
 		}
-		return updated ? groupDao.update(unitGroup) : unitGroup;
+		if (updated) {
+			unitGroup.setLastChange(Calendar.getInstance().getTimeInMillis());
+			Version.incUpdate(unitGroup);
+			unitGroup = groupDao.update(unitGroup);
+		}
+		return unitGroup;
 	}
 
 	private void importFlowProperties() {
