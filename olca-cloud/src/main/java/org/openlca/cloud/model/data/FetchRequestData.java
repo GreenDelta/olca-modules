@@ -26,6 +26,19 @@ public class FetchRequestData extends Dataset {
 		return added;
 	}
 
+	public Dataset asDataset() {
+		Dataset ds = new Dataset();
+		ds.type = type;
+		ds.refId = refId;
+		ds.name = name;
+		ds.categoryRefId = categoryRefId;
+		ds.categoryType = categoryType;
+		ds.version = version;
+		ds.lastChange = lastChange;
+		ds.fullPath = fullPath;
+		return ds;
+	}
+	
 	@Override
 	public String toString() {
 		return super.toString() + ", added: " + added + ", deleted: " + deleted;
