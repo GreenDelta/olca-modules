@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.openlca.cloud.model.Comments;
 import org.openlca.cloud.model.data.Commit;
 import org.openlca.cloud.model.data.Dataset;
 import org.openlca.cloud.model.data.FetchRequestData;
@@ -150,6 +151,18 @@ public class RepositoryClient {
 		if (result == null)
 			return new HashMap<>();
 		return result;
+	}
+	
+	public Comments getComments(ModelType type, String refId) throws WebRequestException {
+		return executeLoggedIn(() -> {
+			CommentsInvocation invocation = new CommentsInvocation();
+			invocation.baseUrl = config.baseUrl;
+			invocation.sessionId = sessionId;
+			invocation.repositoryId = config.repositoryId;
+			invocation.type = type;
+			invocation.refId = refId;
+			return invocation.execute();
+		});
 	}
 
 	public List<FetchRequestData> getReferences(String commitId) throws WebRequestException {
