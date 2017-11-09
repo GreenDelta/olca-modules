@@ -11,17 +11,13 @@ import java.util.Set;
 public class Comments {
 
 	private final Map<String, List<CommentDescriptor>> comments = new HashMap<>();
-	public final boolean canComment;
-	public final boolean canApprove;
 
-	public Comments(List<CommentDescriptor> comments, boolean canComment, boolean canApprove) {
-		this.canComment = canComment;
-		this.canApprove = canApprove;
+	public Comments(List<CommentDescriptor> comments) {
 		initialize(comments);
 	}
 
 	public List<CommentDescriptor> get(String path) {
-		List<CommentDescriptor> comments = this.comments.get(path);
+		List<CommentDescriptor> comments = this.comments.get(PathMap.get(path));
 		if (comments == null)
 			return new ArrayList<>();
 		sort(comments);
@@ -29,7 +25,7 @@ public class Comments {
 	}
 
 	public boolean has(String path) {
-		List<CommentDescriptor> comments = this.comments.get(path);
+		List<CommentDescriptor> comments = this.comments.get(PathMap.get(path));
 		return comments != null && !comments.isEmpty();
 	}
 

@@ -42,8 +42,7 @@ class CommentsInvocation {
 		Map<String, Object> data = new Gson().fromJson(response.getEntity(String.class),
 				new TypeToken<Map<String, Object>>() {
 				}.getType());
-		List<CommentDescriptor> comments = parseComments(data.get("comments"));
-		return new Comments(comments, is(data, "canComment"), is(data, "canApprove"));
+		return new Comments(parseComments(data.get("comments")));
 	}
 
 	private List<CommentDescriptor> parseComments(Object value) {
