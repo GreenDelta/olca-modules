@@ -21,28 +21,18 @@ class PathMap {
 		map.put("documentation.modelingConstants", "processDocumentation.modelingConstantsDescription");
 		map.put("documentation.sampling", "processDocumentation.samplingDescription");
 		map.put("documentation.restrictions", "processDocumentation.restrictionsDescription");
-		map.put("documentation.reviewDetails", "processDocumentation.reviewDetails");
 		map.put("documentation.project", "processDocumentation.projectDescription");
 		map.put("documentation.geography", "processDocumentation.geographyDescription");
-		map.put("documentation.copyright", "processDocumentation.copyright");
-		map.put("documentation.validFrom", "processDocumentation.validFrom");
-		map.put("documentation.validUntil", "processDocumentation.validUntil");
-		map.put("documentation.creationDate", "processDocumentation.creationDate");
-		map.put("documentation.intendedApplication", "processDocumentation.intendedApplication");
-		map.put("documentation.reviewer", "processDocumentation.reviewer()");
-		map.put("documentation.dataDocumentor", "processDocumentation.dataDocumentor");
-		map.put("documentation.dataGenerator", "processDocumentation.dataGenerator");
-		map.put("documentation.dataSetOwner", "processDocumentation.dataSetOwner");
-		map.put("documentation.publication", "processDocumentation.publication");
-		map.put("documentation.sources", "processDocumentation.sources");		
 		// Flow
 		map.put("casNumber", "cas");
 	}
 
 	static String get(String path) {
-		if (!map.containsKey(path))
-			return path;
-		return map.get(path);
+		if (map.containsKey(path))
+			return map.get(path);
+		if (path.startsWith("documentation."))
+			path = "processDocumentation." + path.substring(path.indexOf(".") + 1);
+		return path;
 	}
 
 }
