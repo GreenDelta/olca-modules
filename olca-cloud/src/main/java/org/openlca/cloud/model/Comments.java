@@ -29,6 +29,20 @@ public class Comments {
 		return comments != null && !comments.isEmpty();
 	}
 
+	public boolean hasAny(String path) {
+		for (String key : comments.keySet()) {
+			String nKey = key;
+			if (!nKey.contains("["))
+				continue;
+			while (nKey.contains("[")) {
+				nKey = nKey.substring(0, nKey.indexOf("[")) + nKey.substring(nKey.indexOf("]") + 1);
+			}
+			if (nKey.equals(PathMap.get(path)) && !comments.get(key).isEmpty())
+				return true;
+		}
+		return false;
+	}
+
 	private void initialize(List<CommentDescriptor> comments) {
 		for (CommentDescriptor comment : comments) {
 			List<CommentDescriptor> forPath = this.comments.get(comment.path);
