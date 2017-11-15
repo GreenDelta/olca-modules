@@ -1,6 +1,7 @@
 package org.openlca.cloud.api;
 
 import java.io.File;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,12 +17,15 @@ import org.openlca.cloud.model.data.FetchRequestData;
 import org.openlca.cloud.model.data.FileReference;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.model.ModelType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 public class RepositoryClient {
 
+	private static final Logger log = LoggerFactory.getLogger(RepositoryClient.class);
 	private final RepositoryConfig config;
 	// Method to call if token is required, if no callback is specified a
 	// TokenRequiredException will be thrown when a token is required
@@ -114,16 +118,22 @@ public class RepositoryClient {
 	}
 
 	public List<Commit> fetchCommitHistory() throws WebRequestException {
-		List<Commit> result = executeLoggedIn(() -> {
-			HistoryInvocation invocation = new HistoryInvocation();
-			invocation.baseUrl = config.baseUrl;
-			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.repositoryId;
-			return invocation.execute();
-		});
-		if (result == null)
-			return new ArrayList<>();
-		return result;
+		try {
+			List<Commit> result = executeLoggedIn(() -> {
+				HistoryInvocation invocation = new HistoryInvocation();
+				invocation.baseUrl = config.baseUrl;
+				invocation.sessionId = sessionId;
+				invocation.repositoryId = config.repositoryId;
+				return invocation.execute();
+			});
+			if (result == null)
+				return new ArrayList<>();
+			return result;
+		} catch (WebRequestException e) {
+			if (e.isConnectException())
+				return new ArrayList<>();
+			throw e;
+		}
 	}
 
 	public List<Commit> fetchNewCommitHistory() throws WebRequestException {
@@ -152,17 +162,23 @@ public class RepositoryClient {
 			return new HashMap<>();
 		return result;
 	}
-	
+
 	public Comments getComments(ModelType type, String refId) throws WebRequestException {
-		return executeLoggedIn(() -> {
-			CommentsInvocation invocation = new CommentsInvocation();
-			invocation.baseUrl = config.baseUrl;
-			invocation.sessionId = sessionId;
-			invocation.repositoryId = config.repositoryId;
-			invocation.type = type;
-			invocation.refId = refId;
-			return invocation.execute();
-		});
+		try {
+			return executeLoggedIn(() -> {
+				CommentsInvocation invocation = new CommentsInvocation();
+				invocation.baseUrl = config.baseUrl;
+				invocation.sessionId = sessionId;
+				invocation.repositoryId = config.repositoryId;
+				invocation.type = type;
+				invocation.refId = refId;
+				return invocation.execute();
+			});
+		} catch (WebRequestException e) {
+			if (e.isConnectException())
+				return new Comments(new ArrayList<>());
+			throw e;
+		}
 	}
 
 	public List<FetchRequestData> getReferences(String commitId) throws WebRequestException {
@@ -247,7 +263,7 @@ public class RepositoryClient {
 			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = commitId;
 			invocation.requestData = requestData != null ? requestData : new HashSet<>();
-			invocation.download= true;
+			invocation.download = true;
 			invocation.clearDatabase = false;
 			invocation.execute();
 		});
@@ -279,7 +295,7 @@ public class RepositoryClient {
 			invocation.repositoryId = config.repositoryId;
 			invocation.lastCommitId = commitId;
 			invocation.clearDatabase = true;
-			invocation.download= true;
+			invocation.download = true;
 			invocation.execute();
 			config.setLastCommitId(commitId);
 		});
@@ -304,31 +320,53 @@ public class RepositoryClient {
 
 	private void executeLoggedIn(Invocation runnable) throws WebRequestException {
 		if (sessionId == null && config.credentials != null)
-			if (!login())
-				return;
+			try {
+				if (!login())
+					return;
+			} catch (WebRequestException e) {
+				if (e.getCause() instanceof ConnectException) {
+					log.warn("Could not connect to repository server " + config.getServerUrl() + ", " + e.getMessage());
+				}
+				throw e;
+			}
 		try {
 			runnable.run();
 		} catch (WebRequestException e) {
 			if (e.getErrorCode() == Status.UNAUTHORIZED.getStatusCode() && config.credentials != null) {
 				login();
 				runnable.run();
-			} else
+			} else {
+				if (e.getCause() instanceof ConnectException) {
+					log.warn("Could not connect to repository server " + config.getServerUrl() + ", " + e.getMessage());
+				}
 				throw e;
+			}
 		}
 	}
 
 	private <T> T executeLoggedIn(InvocationWithResult<T> runnable) throws WebRequestException {
 		if (sessionId == null && config.credentials != null)
-			if (!login())
-				return null;
+			try {
+				if (!login())
+					return null;
+			} catch (WebRequestException e) {
+				if (e.isConnectException()) {
+					log.warn("Could not connect to repository server " + config.getServerUrl() + ", " + e.getMessage());
+				}
+				throw e;
+			}
 		try {
 			return runnable.run();
 		} catch (WebRequestException e) {
 			if (e.getErrorCode() == Status.UNAUTHORIZED.getStatusCode() && config.credentials != null) {
 				login();
 				return runnable.run();
-			} else
+			} else {
+				if (e.isConnectException()) {
+					log.warn("Could not connect to repository server " + config.getServerUrl() + ", " + e.getMessage());
+				}
 				throw e;
+			}
 		}
 	}
 
