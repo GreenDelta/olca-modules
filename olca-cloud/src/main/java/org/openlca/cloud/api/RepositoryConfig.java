@@ -47,7 +47,7 @@ public class RepositoryConfig {
 				lastCommitId = null;
 			CredentialSupplier credentials = new CredentialSupplier(username, password);
 			RepositoryConfig config = new RepositoryConfig(database, baseUrl, repositoryId, credentials);
-			config.setLastCommitId(lastCommitId);
+			config.lastCommitId = lastCommitId;
 			return config;
 		} catch (IOException e) {
 			log.error("Error loading repository properties", e);
@@ -64,8 +64,7 @@ public class RepositoryConfig {
 			Properties properties = new Properties();
 			properties.setProperty("baseUrl", baseUrl);
 			properties.setProperty("repositoryId", repositoryId);
-			if (lastCommitId == null)
-				lastCommitId = "null";
+			String lastCommitId = this.lastCommitId != null ? this.lastCommitId : "null";
 			properties.setProperty("lastCommitId", lastCommitId);
 			properties.setProperty("username", credentials.username);
 			// TODO encrypt
