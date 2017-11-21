@@ -53,9 +53,10 @@ public class CommitInvocation {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		Valid.checkNotEmpty(message, "message");
 		Valid.checkNotEmpty(data, "data");
-		if (lastCommitId == null)
-			lastCommitId = "null";
-		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
+		String url = baseUrl + PATH + repositoryId;
+		if (lastCommitId != null) {
+			url += "?lastCommitId=" + lastCommitId;
+		}
 		ImpactMethodDao dao = new ImpactMethodDao(database);
 		for (Dataset ds : new ArrayList<>(data)) {
 			if (ds.type == ModelType.IMPACT_METHOD) {
@@ -67,11 +68,12 @@ public class CommitInvocation {
 				}
 			}
 		}
-		String commitId = WebRequests.call(Type.POST, url, sessionId, new CommitStream(database, message, data, callback))
+		String commitId = WebRequests.call(Type.POST, url, sessionId,
+				new CommitStream(database, message, data, callback))
 				.getEntity(String.class);
 		return commitId;
 	}
-	
+
 	private Dataset toDataset(BaseDescriptor descriptor) {
 		Dataset ds = new Dataset();
 		ds.refId = descriptor.getRefId();
@@ -82,5 +84,5 @@ public class CommitInvocation {
 		ds.categoryType = descriptor.getModelType();
 		return ds;
 	}
-	
+
 }

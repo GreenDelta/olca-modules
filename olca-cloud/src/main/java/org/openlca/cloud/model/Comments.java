@@ -10,34 +10,51 @@ import java.util.Set;
 
 public class Comments {
 
-	private final Map<String, List<CommentDescriptor>> comments = new HashMap<>();
+	private final Map<String, List<CommentDescriptor>> byRefId = new HashMap<>();
+	private final Map<String, List<CommentDescriptor>> byPath = new HashMap<>();
 
 	public Comments(List<CommentDescriptor> comments) {
 		initialize(comments);
 	}
 
-	public List<CommentDescriptor> get(String path) {
-		List<CommentDescriptor> comments = this.comments.get(PathMap.get(path));
+	public List<CommentDescriptor> getForRefId(String refId) {
+		return get(byRefId, refId);
+	}
+
+	public List<CommentDescriptor> getForPath(String path) {
+		return get(byPath, PathMap.get(path));
+	}
+
+	private List<CommentDescriptor> get(Map<String, List<CommentDescriptor>> map, String key) {
+		List<CommentDescriptor> comments = map.get(key);
 		if (comments == null)
 			return new ArrayList<>();
 		sort(comments);
 		return comments;
 	}
 
-	public boolean has(String path) {
-		List<CommentDescriptor> comments = this.comments.get(PathMap.get(path));
+	public boolean hasRefId(String refId) {
+		return has(byRefId, refId);
+	}
+
+	public boolean hasPath(String path) {
+		return has(byPath, PathMap.get(path));
+	}
+
+	private boolean has(Map<String, List<CommentDescriptor>> map, String key) {
+		List<CommentDescriptor> comments = map.get(key);
 		return comments != null && !comments.isEmpty();
 	}
 
-	public boolean hasAny(String path) {
-		for (String key : comments.keySet()) {
+	public boolean hasAnyPath(String path) {
+		for (String key : byPath.keySet()) {
 			String nKey = key;
 			if (!nKey.contains("["))
 				continue;
 			while (nKey.contains("[")) {
 				nKey = nKey.substring(0, nKey.indexOf("[")) + nKey.substring(nKey.indexOf("]") + 1);
 			}
-			if (nKey.equals(PathMap.get(path)) && !comments.get(key).isEmpty())
+			if (nKey.equals(PathMap.get(path)) && !byPath.get(key).isEmpty())
 				return true;
 		}
 		return false;
@@ -45,12 +62,17 @@ public class Comments {
 
 	private void initialize(List<CommentDescriptor> comments) {
 		for (CommentDescriptor comment : comments) {
-			List<CommentDescriptor> forPath = this.comments.get(comment.path);
-			if (forPath == null) {
-				this.comments.put(comment.path, forPath = new ArrayList<>());
-			}
-			forPath.add(comment);
+			put(byRefId, comment.refId, comment);
+			put(byPath, comment.path, comment);
 		}
+	}
+
+	private void put(Map<String, List<CommentDescriptor>> map, String key, CommentDescriptor value) {
+		List<CommentDescriptor> list = map.get(key);
+		if (list == null) {
+			map.put(key, list = new ArrayList<>());
+		}
+		list.add(value);
 	}
 
 	private void sort(List<CommentDescriptor> list) {

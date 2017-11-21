@@ -261,7 +261,7 @@ public class RepositoryClient {
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
-			invocation.lastCommitId = commitId;
+			invocation.commitId = commitId;
 			invocation.requestData = requestData != null ? requestData : new HashSet<>();
 			invocation.download = true;
 			invocation.clearDatabase = false;
@@ -276,7 +276,7 @@ public class RepositoryClient {
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
-			invocation.lastCommitId = config.getLastCommitId();
+			invocation.commitId = config.getLastCommitId();
 			invocation.requestData = fetchData != null ? fetchData : new HashSet<>();
 			invocation.mergedData = mergedData;
 			invocation.download = false;
@@ -293,7 +293,7 @@ public class RepositoryClient {
 			invocation.baseUrl = config.baseUrl;
 			invocation.sessionId = sessionId;
 			invocation.repositoryId = config.repositoryId;
-			invocation.lastCommitId = commitId;
+			invocation.commitId = commitId;
 			invocation.clearDatabase = true;
 			invocation.download = true;
 			invocation.execute();

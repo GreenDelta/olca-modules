@@ -14,6 +14,7 @@ public class CommentDescriptor {
 	public String path;
 	public Date date;
 	public boolean released;
+	public boolean approved;
 	public long replyTo;
 	public Role restrictedToRole;
 	

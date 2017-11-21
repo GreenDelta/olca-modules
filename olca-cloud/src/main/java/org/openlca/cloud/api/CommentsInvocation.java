@@ -62,6 +62,7 @@ class CommentsInvocation {
 			comment.text = toString(map, "text");
 			comment.user = toString(toMap(map, "user"), "name");
 			comment.released = is(map, "released");
+			comment.approved = map.get("approvedBy") != null;
 			Map<String, Object> fieldMap = toMap(map, "field");
 			comment.type = toType(fieldMap, "modelType");
 			comment.refId = toString(fieldMap, "refId");

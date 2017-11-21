@@ -40,9 +40,10 @@ class DatasetContentInvocation {
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		Valid.checkNotEmpty(type, "model type");
 		Valid.checkNotEmpty(refId, "reference id");
-		if (commitId == null)
-			commitId = "null";
-		String url = baseUrl + PATH + repositoryId + "/" + type + "/" + refId + "/" + commitId;
+		String url = baseUrl + PATH + repositoryId + "/" + type + "/" + refId;
+		if (commitId != null) {
+			url += "?commitId=" + commitId;
+		}
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		String json = response.getEntity(String.class);
 		if (Strings.isNullOrEmpty(json))
