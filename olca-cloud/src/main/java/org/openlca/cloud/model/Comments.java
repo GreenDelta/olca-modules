@@ -75,7 +75,7 @@ public class Comments {
 		list.add(value);
 	}
 
-	private void sort(List<CommentDescriptor> list) {
+	public static void sort(List<CommentDescriptor> list) {
 		List<CommentDescriptor> sorted = new ArrayList<>();
 		Set<Long> added = new HashSet<>();
 		Collections.sort(list, (a, b) -> b.date.compareTo(a.date));

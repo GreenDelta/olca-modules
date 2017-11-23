@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.cloud.model.CommentDescriptor;
-import org.openlca.cloud.model.Comments;
 import org.openlca.cloud.model.Role;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
@@ -33,16 +32,22 @@ class CommentsInvocation {
 	ModelType type;
 	String refId;
 
-	Comments execute() throws WebRequestException {
+	List<CommentDescriptor> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		Valid.checkNotEmpty(refId, "ref id");
-		String url = baseUrl + PATH + repositoryId + "/" + type.name() + "/" + refId;
+		String url = baseUrl + PATH + repositoryId;
+		boolean forDataset = type != null && refId != null;
+		if (forDataset) {
+			url += "/" + type.name() + "/" + refId;
+		} else {
+			url += "?includeReplies=true";
+		}
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		Map<String, Object> data = new Gson().fromJson(response.getEntity(String.class),
 				new TypeToken<Map<String, Object>>() {
 				}.getType());
-		return new Comments(parseComments(data.get("comments")));
+		String field = forDataset ? "comments" : "data";
+		return parseComments(data.get(field));
 	}
 
 	private List<CommentDescriptor> parseComments(Object value) {
@@ -62,7 +67,7 @@ class CommentsInvocation {
 			comment.text = toString(map, "text");
 			comment.user = toString(toMap(map, "user"), "name");
 			comment.released = is(map, "released");
-			comment.approved = map.get("approvedBy") != null;
+			comment.approved = is(map, "approved");
 			Map<String, Object> fieldMap = toMap(map, "field");
 			comment.type = toType(fieldMap, "modelType");
 			comment.refId = toString(fieldMap, "refId");

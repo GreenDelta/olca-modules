@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.openlca.cloud.model.CommentDescriptor;
 import org.openlca.cloud.model.Comments;
 import org.openlca.cloud.model.data.Commit;
 import org.openlca.cloud.model.data.Dataset;
@@ -163,6 +164,22 @@ public class RepositoryClient {
 		return result;
 	}
 
+	public List<CommentDescriptor> getAllComments() throws WebRequestException {
+		try {
+			return executeLoggedIn(() -> {
+				CommentsInvocation invocation = new CommentsInvocation();
+				invocation.baseUrl = config.baseUrl;
+				invocation.sessionId = sessionId;
+				invocation.repositoryId = config.repositoryId;
+				return invocation.execute();
+			});
+		} catch (WebRequestException e) {
+			if (e.isConnectException())
+				return new ArrayList<>();
+			throw e;
+		}
+	}
+
 	public Comments getComments(ModelType type, String refId) throws WebRequestException {
 		try {
 			return executeLoggedIn(() -> {
@@ -172,7 +189,7 @@ public class RepositoryClient {
 				invocation.repositoryId = config.repositoryId;
 				invocation.type = type;
 				invocation.refId = refId;
-				return invocation.execute();
+				return new Comments(invocation.execute());
 			});
 		} catch (WebRequestException e) {
 			if (e.isConnectException())
