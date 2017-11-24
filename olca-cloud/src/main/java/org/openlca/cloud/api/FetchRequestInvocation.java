@@ -25,6 +25,7 @@ class FetchRequestInvocation {
 	String sessionId;
 	String repositoryId;
 	String lastCommitId;
+	boolean sync;
 
 	/**
 	 * Retrieves all changed data sets (only the descriptors)
@@ -37,9 +38,10 @@ class FetchRequestInvocation {
 	Set<FetchRequestData> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		if (lastCommitId == null || lastCommitId.isEmpty())
-			lastCommitId = "null";
-		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId;
+		String url = baseUrl + PATH + repositoryId + "/" + "?sync=" + sync;
+		if (lastCommitId != null) {
+			url += "&lastCommitId=" + lastCommitId;
+		}
 		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
 		if (response.getStatus() == Status.NO_CONTENT.getStatusCode())
 			return Collections.emptySet();

@@ -1,11 +1,13 @@
 package org.openlca.io.olca;
 
+import java.util.Calendar;
 import java.util.HashMap;
 
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +69,8 @@ public class DatabaseImport implements Runnable {
 			UnitGroup unitGroup = requireUpdate.get(refId);
 			long propId = seq.get(seq.FLOW_PROPERTY, refId);
 			unitGroup.setDefaultFlowProperty(propertyDao.getForId(propId));
+			unitGroup.setLastChange(Calendar.getInstance().getTimeInMillis());
+			Version.incUpdate(unitGroup);
 			unitGroupDao.update(unitGroup);
 		}
 	}

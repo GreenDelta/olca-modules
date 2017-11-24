@@ -1,6 +1,7 @@
 package org.openlca.cloud.util;
 
 import java.io.InputStream;
+import java.net.ConnectException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
@@ -101,12 +103,22 @@ public class WebRequests {
 		}
 
 		private WebRequestException(Exception e) {
-			super(e.getMessage());
+			super(e);
 			this.errorCode = 500;
 		}
 
 		public int getErrorCode() {
 			return errorCode;
+		}
+
+		public boolean isConnectException() {
+			if (getCause() instanceof ConnectException)
+				return true;
+			if (!(getCause() instanceof ClientHandlerException))
+				return false;
+			if (getCause().getCause() instanceof ConnectException)
+				return true;
+			return false;
 		}
 
 	}

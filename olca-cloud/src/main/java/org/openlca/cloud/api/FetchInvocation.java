@@ -32,13 +32,13 @@ class FetchInvocation {
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
-	String lastCommitId;
+	String commitId;
 	Set<FileReference> requestData;
 	Map<Dataset, JsonObject> mergedData;
 	boolean clearDatabase;
 	// false=fetch (all after the specified commit id)
 	// true=download (all until the specified commit id)
-	boolean download; 
+	boolean download;
 
 	FetchInvocation(IDatabase database, FetchNotifier notifier) {
 		this.database = database;
@@ -56,9 +56,10 @@ class FetchInvocation {
 	String execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(repositoryId, "repository id");
-		if (lastCommitId == null || lastCommitId.isEmpty())
-			lastCommitId = "null";
-		String url = baseUrl + PATH + repositoryId + "/" + lastCommitId + "?download=" + download;
+		String url = baseUrl + PATH + repositoryId + "?download=" + download;
+		if (commitId != null) {
+			url += "&commitId=" + commitId;
+		}
 		if (requestData == null) {
 			requestData = new HashSet<>();
 		}
@@ -70,7 +71,7 @@ class FetchInvocation {
 		}
 		return new FetchHandler(database, mergedData, notifier).handleResponse(response.getEntityInputStream());
 	}
-	
+
 	private void clearDatabase() {
 		try {
 			List<String> tables = new ArrayList<>();
@@ -91,5 +92,5 @@ class FetchInvocation {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

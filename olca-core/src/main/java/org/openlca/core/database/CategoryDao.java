@@ -1,6 +1,7 @@
 package org.openlca.core.database;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -147,6 +148,8 @@ public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescript
 	
 	private <T extends CategorizedEntity> List<? extends CategorizedDescriptor> getDescriptors(ModelType type,
 			Optional<Category> category) {
+		if (type == null || !type.isCategorized())
+			return new ArrayList<>();
 		return Daos.categorized(getDatabase(), type).getDescriptors(category);
 	}
 	

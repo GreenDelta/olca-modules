@@ -3,6 +3,7 @@ package org.openlca.io.refdata;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Calendar;
 import java.util.UUID;
 
 import javax.xml.stream.XMLInputFactory;
@@ -17,6 +18,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.Version;
 import org.openlca.util.BinUtils;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
@@ -149,6 +151,8 @@ public class GeoKmzImport {
 
 	private void update(Location location, byte[] kmz) {
 		location.setKmz(kmz);
+		location.setLastChange(Calendar.getInstance().getTimeInMillis());
+		Version.incUpdate(location);
 		dao.update(location);
 		log.trace("KML in location {} updated", location.getName());
 	}

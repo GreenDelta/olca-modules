@@ -1,5 +1,6 @@
 package org.openlca.io.olca;
 
+import java.util.Calendar;
 import java.util.HashMap;
 
 import org.openlca.core.database.IDatabase;
@@ -7,6 +8,7 @@ import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +71,8 @@ class UnitGroupImport {
 			}
 		}
 		if (updated) {
+			destGroup.setLastChange(Calendar.getInstance().getTimeInMillis());
+			Version.incUpdate(destGroup);
 			destGroup = destDao.update(destGroup);
 			indexUnits(srcGroup, destGroup);
 			log.info("updated unit group {}", destGroup);

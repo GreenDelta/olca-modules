@@ -1,6 +1,7 @@
 package org.openlca.io.xls.process.input;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +110,8 @@ class FlowSheets {
 		}
 		boolean updated = addFactors(flow, factors);
 		if (updated) {
+			flow.setLastChange(Calendar.getInstance().getTimeInMillis());
+			Version.incUpdate(flow);
 			flow = dao.update(flow);
 		}
 		config.refData.putFlow(name, category, flow);

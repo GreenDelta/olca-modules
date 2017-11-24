@@ -1,6 +1,7 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.simapro.csv.model.refdata.QuantityRow;
@@ -97,6 +99,8 @@ class UnitSync {
 		UnitGroup group = refEntry.unitGroup;
 		group.getUnits().add(unit);
 		UnitGroupDao groupDao = new UnitGroupDao(database);
+		group.setLastChange(Calendar.getInstance().getTimeInMillis());
+		Version.incUpdate(group);
 		group = groupDao.update(group);
 		log.info("added new unit {} to group {}", unit, group);
 		FlowPropertyDao propDao = new FlowPropertyDao(database);
