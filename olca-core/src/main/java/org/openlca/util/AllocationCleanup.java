@@ -32,6 +32,8 @@ public class AllocationCleanup {
 	}
 
 	private boolean isProduct(Exchange exchange) {
+		if (exchange.flow == null)
+			return false;
 		if (exchange.isInput && exchange.flow.getFlowType() == FlowType.WASTE_FLOW)
 			return true;
 		if (!exchange.isInput && exchange.flow.getFlowType() == FlowType.PRODUCT_FLOW)
@@ -100,11 +102,15 @@ public class AllocationCleanup {
 	}
 
 	private boolean hasExchangeWithFlow(long id) {
-		for (Exchange exchange : process.getExchanges())
+		for (Exchange exchange : process.getExchanges()) {
+			if (exchange.flow == null)
+				continue;
 			if (exchange.flow.getId() == id)
 				return true;
+		}
 		return false;
 	}
+
 	private void checkFactor(Exchange product, AllocationMethod type, double defaultValue) {
 		checkFactor(product, null, type, defaultValue);
 	}
@@ -131,7 +137,7 @@ public class AllocationCleanup {
 		for (AllocationFactor factor : process.getAllocationFactors()) {
 			if (factor.getAllocationType() != type)
 				continue;
-			if (factor.getProductId() != product.flow.getId())
+			if (product.flow == null || factor.getProductId() != product.flow.getId())
 				continue;
 			if (exchange != null && !factor.getExchange().equals(exchange))
 				continue;

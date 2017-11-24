@@ -55,8 +55,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 			database.notifyDelete(Descriptors.toDescriptor(entity));
 		}
 	}
-	
-	
+
 	Class<V> getDescriptorType() {
 		return descriptorType;
 	}
@@ -75,6 +74,12 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 		String sql = getDescriptorQuery() + " where id in (" + Strings.join(ids, ',') + ")";
 		List<Object[]> results = selectAll(sql, getDescriptorFields(), Collections.emptyList());
 		return createDescriptors(results);
+	}
+
+	public V getDescriptorForRefId(String refId) {
+		String sql = getDescriptorQuery() + " where ref_id = '" + refId + "'";
+		Object[] o = selectFirst(sql, getDescriptorFields(), Collections.emptyList());
+		return createDescriptor(o);
 	}
 
 	public List<V> getDescriptorsForRefIds(Set<String> refIds) {
