@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.openlca.cloud.model.CommentDescriptor;
+import org.openlca.cloud.model.Comment;
 import org.openlca.cloud.model.Comments;
 import org.openlca.cloud.model.data.Commit;
 import org.openlca.cloud.model.data.Dataset;
@@ -164,7 +164,7 @@ public class RepositoryClient {
 		return result;
 	}
 
-	public List<CommentDescriptor> getAllComments() throws WebRequestException {
+	public List<Comment> getAllComments() throws WebRequestException {
 		try {
 			return executeLoggedIn(() -> {
 				CommentsInvocation invocation = new CommentsInvocation();

@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.openlca.cloud.model.CommentDescriptor;
+import org.openlca.cloud.model.Comment;
 import org.openlca.cloud.model.Role;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
@@ -32,7 +32,7 @@ class CommentsInvocation {
 	ModelType type;
 	String refId;
 
-	List<CommentDescriptor> execute() throws WebRequestException {
+	List<Comment> execute() throws WebRequestException {
 		Valid.checkNotEmpty(baseUrl, "base url");
 		Valid.checkNotEmpty(repositoryId, "repository id");
 		String url = baseUrl + PATH + repositoryId;
@@ -50,16 +50,16 @@ class CommentsInvocation {
 		return parseComments(data.get(field));
 	}
 
-	private List<CommentDescriptor> parseComments(Object value) {
+	private List<Comment> parseComments(Object value) {
 		if (value == null)
 			return new ArrayList<>();
 		if (!(value instanceof Collection))
 			return new ArrayList<>();
-		List<CommentDescriptor> comments = new ArrayList<>();
+		List<Comment> comments = new ArrayList<>();
 		for (Object o : (Collection<?>) value) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> map = (Map<String, Object>) o;
-			CommentDescriptor comment = new CommentDescriptor();
+			Comment comment = new Comment();
 			comment.id = toLong(map, "id");
 			comment.date = toDate(map, "date");
 			comment.restrictedToRole = toRole(map, "restrictedToRole");

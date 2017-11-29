@@ -10,23 +10,23 @@ import java.util.Set;
 
 public class Comments {
 
-	private final Map<String, List<CommentDescriptor>> byRefId = new HashMap<>();
-	private final Map<String, List<CommentDescriptor>> byPath = new HashMap<>();
+	private final Map<String, List<Comment>> byRefId = new HashMap<>();
+	private final Map<String, List<Comment>> byPath = new HashMap<>();
 
-	public Comments(List<CommentDescriptor> comments) {
+	public Comments(List<Comment> comments) {
 		initialize(comments);
 	}
 
-	public List<CommentDescriptor> getForRefId(String refId) {
+	public List<Comment> getForRefId(String refId) {
 		return get(byRefId, refId);
 	}
 
-	public List<CommentDescriptor> getForPath(String path) {
+	public List<Comment> getForPath(String path) {
 		return get(byPath, PathMap.get(path));
 	}
 
-	private List<CommentDescriptor> get(Map<String, List<CommentDescriptor>> map, String key) {
-		List<CommentDescriptor> comments = map.get(key);
+	private List<Comment> get(Map<String, List<Comment>> map, String key) {
+		List<Comment> comments = map.get(key);
 		if (comments == null)
 			return new ArrayList<>();
 		sort(comments);
@@ -41,8 +41,8 @@ public class Comments {
 		return has(byPath, PathMap.get(path));
 	}
 
-	private boolean has(Map<String, List<CommentDescriptor>> map, String key) {
-		List<CommentDescriptor> comments = map.get(key);
+	private boolean has(Map<String, List<Comment>> map, String key) {
+		List<Comment> comments = map.get(key);
 		return comments != null && !comments.isEmpty();
 	}
 
@@ -60,34 +60,34 @@ public class Comments {
 		return false;
 	}
 
-	private void initialize(List<CommentDescriptor> comments) {
-		for (CommentDescriptor comment : comments) {
+	private void initialize(List<Comment> comments) {
+		for (Comment comment : comments) {
 			put(byRefId, comment.refId, comment);
 			put(byPath, comment.path, comment);
 		}
 	}
 
-	private void put(Map<String, List<CommentDescriptor>> map, String key, CommentDescriptor value) {
-		List<CommentDescriptor> list = map.get(key);
+	private void put(Map<String, List<Comment>> map, String key, Comment value) {
+		List<Comment> list = map.get(key);
 		if (list == null) {
 			map.put(key, list = new ArrayList<>());
 		}
 		list.add(value);
 	}
 
-	public static void sort(List<CommentDescriptor> list) {
-		List<CommentDescriptor> sorted = new ArrayList<>();
+	public static void sort(List<Comment> list) {
+		List<Comment> sorted = new ArrayList<>();
 		Set<Long> added = new HashSet<>();
 		Collections.sort(list, (a, b) -> b.date.compareTo(a.date));
-		for (CommentDescriptor comment : list) {
+		for (Comment comment : list) {
 			if (added.contains(comment.id))
 				continue;
 			if (comment.replyTo != 0)
 				continue;
 			sorted.add(comment);
 			added.add(comment.id);
-			List<CommentDescriptor> replies = new ArrayList<>();
-			for (CommentDescriptor c : list) {
+			List<Comment> replies = new ArrayList<>();
+			for (Comment c : list) {
 				if (c.replyTo != comment.id)
 					continue;
 				replies.add(c);

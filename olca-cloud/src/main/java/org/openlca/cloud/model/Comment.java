@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.openlca.core.model.ModelType;
 
-public class CommentDescriptor {
+public class Comment {
 	
 	public long id;
 	public String user;
