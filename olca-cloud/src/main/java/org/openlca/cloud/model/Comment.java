@@ -16,6 +16,5 @@ public class Comment {
 	public boolean released;
 	public boolean approved;
 	public long replyTo;
-	public String restrictedToRole;
 	
 }
