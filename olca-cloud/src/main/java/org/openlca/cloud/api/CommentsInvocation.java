@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.cloud.model.Comment;
-import org.openlca.cloud.model.Role;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
 import org.openlca.cloud.util.WebRequests.Type;
@@ -62,7 +61,6 @@ class CommentsInvocation {
 			Comment comment = new Comment();
 			comment.id = toLong(map, "id");
 			comment.date = toDate(map, "date");
-			comment.restrictedToRole = toRole(map, "restrictedToRole");
 			comment.replyTo = toLong(map, "replyTo");
 			comment.text = toString(map, "text");
 			comment.user = toString(toMap(map, "user"), "name");
@@ -103,13 +101,6 @@ class CommentsInvocation {
 		if (type == null)
 			return null;
 		return ModelType.valueOf(type);
-	}
-
-	private Role toRole(Map<String, Object> data, String property) {
-		String type = toString(data, property);
-		if (type == null)
-			return null;
-		return Role.valueOf(type);
 	}
 
 	private long toLong(Map<String, Object> data, String property) {
