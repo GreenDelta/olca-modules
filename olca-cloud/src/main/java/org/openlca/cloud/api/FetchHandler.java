@@ -24,6 +24,7 @@ import org.openlca.jsonld.ModelPath;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
+import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +98,7 @@ class FetchHandler {
 	private Dataset handleNext(ModelStreamReader reader, EntityStore store) throws IOException {
 		Dataset dataset = reader.readNextPartAsDataset();
 		byte[] data = reader.readNextPart();
+		data = BinUtils.gunzip(data);
 		if (data.length == 0)
 			return dataset;
 		store.put(ModelPath.get(dataset.type, dataset.refId), data);

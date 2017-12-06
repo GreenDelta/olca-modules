@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.zip.GZIPInputStream;
 
 import org.openlca.cloud.model.data.Dataset;
 import org.openlca.util.BinUtils;
@@ -45,9 +44,9 @@ public class ModelStreamReader implements Closeable {
 		return gson.fromJson(json, Dataset.class);
 	}
 
-	public boolean readNextPartToStream(OutputStream out) throws IOException {
+	public int readNextPartToStream(OutputStream out) throws IOException {
 		int length = readNextInt();
-		return readBytes(length, out, true);
+		return readBytes(length, out);
 	}
 
 	public byte[] readNextPart() throws IOException {
@@ -64,24 +63,23 @@ public class ModelStreamReader implements Closeable {
 
 	private byte[] readBytes(int length) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		readBytes(length, out, false);
+		readBytes(length, out);
 		return out.toByteArray();
 	}
 
-	private boolean readBytes(int length, OutputStream out, boolean decrypt) throws IOException {
+	private int readBytes(int length, OutputStream out) throws IOException {
 		if (length == 0)
-			return false;
+			return 0;
 		InputStream in = new FixedLengthInputStream(length);
-		if (decrypt) {
-			in = new GZIPInputStream(in);
-		}
 		byte[] buffer = new byte[1024];
 		int count = -1;
+		int total = 0;
 		while ((count = in.read(buffer)) >= 0) {
 			out.write(buffer, 0, count);
+			total += count;
 		}
 		in.close();
-		return true;
+		return total;
 	}
 
 	@Override
