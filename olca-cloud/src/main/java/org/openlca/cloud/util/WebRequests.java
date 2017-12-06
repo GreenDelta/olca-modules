@@ -42,6 +42,8 @@ public class WebRequests {
 				throw new WebRequestException(response);
 			return response;
 		} catch (Exception e) {
+			if (e instanceof WebRequestException)
+				throw e;
 			throw new WebRequestException(e);
 		}
 	}
