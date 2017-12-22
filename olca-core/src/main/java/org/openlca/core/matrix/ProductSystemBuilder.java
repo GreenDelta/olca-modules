@@ -32,13 +32,20 @@ public class ProductSystemBuilder {
 	private MatrixCache matrixCache;
 	private IDatabase database;
 	private boolean preferSystemProcesses;
+	private boolean linkProvidedOnly;
 	private Double cutoff;
 
-	public ProductSystemBuilder(MatrixCache matrixCache,
-			boolean preferSystemProcesses) {
+	public ProductSystemBuilder(MatrixCache matrixCache) {
 		this.matrixCache = matrixCache;
 		this.database = matrixCache.getDatabase();
+	}
+
+	public void setPreferSystemProcesses(boolean preferSystemProcesses) {
 		this.preferSystemProcesses = preferSystemProcesses;
+	}
+
+	public void setLinkProvidedOnly(boolean linkProvidedOnly) {
+		this.linkProvidedOnly = linkProvidedOnly;
 	}
 
 	public void setCutoff(Double cutoff) {
@@ -74,8 +81,9 @@ public class ProductSystemBuilder {
 	private void run(ProductSystem system, LongPair processProduct) {
 		log.trace("build product index");
 		ITechIndexBuilder builder = getProductIndexBuilder(system);
-		builder.setPreferredType(preferSystemProcesses ? ProcessType.LCI_RESULT
-				: ProcessType.UNIT_PROCESS);
+		builder.setPreferredType(preferSystemProcesses ? 
+				ProcessType.LCI_RESULT : ProcessType.UNIT_PROCESS);
+		builder.setLinkProvidedOnly(linkProvidedOnly);
 		TechIndex index = builder.build(processProduct);
 		log.trace("create new process links");
 		addLinksAndProcesses(system, index);

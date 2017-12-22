@@ -8,6 +8,8 @@ public interface ITechIndexBuilder {
 
 	void setPreferredType(ProcessType preferredType);
 
+	void setLinkProvidedOnly(boolean value);
+
 	TechIndex build(LongPair refProduct);
 
 	TechIndex build(LongPair refProduct, double demand);

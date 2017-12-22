@@ -18,7 +18,8 @@ public class ProviderSearch {
 
 	private ProcessTable processTable;
 	private ProcessType preferredType;
-
+	private boolean linkProvidedOnly;
+	
 	public ProviderSearch(ProcessTable processTable) {
 		this.processTable = processTable;
 		this.preferredType = ProcessType.LCI_RESULT;
@@ -27,6 +28,10 @@ public class ProviderSearch {
 	public void setPreferredType(ProcessType type) {
 		if (type != null)
 			this.preferredType = type;
+	}
+
+	public void setLinkProvidedOnly(boolean linkProvidedOnly) {
+		this.linkProvidedOnly = linkProvidedOnly;
 	}
 
 	public LongPair find(CalcExchange productInput) {
@@ -71,6 +76,8 @@ public class ProviderSearch {
 			return Collections.emptyList();
 		List<CalcExchange> candidates = new ArrayList<>();
 		for (CalcExchange e : list) {
+			if (linkProvidedOnly && e.defaultProviderId == 0l)
+				continue;
 			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)
 				continue;
 			if (e.isInput && e.flowType == FlowType.PRODUCT_FLOW)

@@ -36,6 +36,11 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
+	public void setLinkProvidedOnly(boolean linkProvidedOnly) {
+		this.providers.setLinkProvidedOnly(linkProvidedOnly);
+	}
+
+	@Override
 	public TechIndex build(LongPair refProduct) {
 		return build(refProduct, 1.0);
 	}
