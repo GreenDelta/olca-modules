@@ -45,14 +45,14 @@ public final class Dirs {
 			Files.newDirectoryStream(dir).forEach(p -> {
 				if (Files.isDirectory(p))
 					delete(p);
-				else {
-					try {
-						Files.delete(p);
-					} catch (IOException e) {
-						throw new RuntimeException("failed to delete " + p, e);
+					else {
+						try {
+							Files.delete(p);
+						} catch (IOException e) {
+							throw new RuntimeException("failed to delete " + p, e);
+						}
 					}
-				}
-			});
+				});
 		} catch (IOException e) {
 			throw new RuntimeException("failed to clean " + dir, e);
 		}
@@ -97,6 +97,42 @@ public final class Dirs {
 	public static void move(Path from, Path to) {
 		copy(from, to);
 		delete(from);
+	}
+	
+	/**
+	 * Determines the size of the content of a directory recursively.
+	 */
+	public static long size(Path dir) {
+		if (dir == null || !Files.exists(dir))
+			return 0;
+		try {
+			Size size = new Size();
+			Files.walkFileTree(dir, size);
+			return size.size;
+		} catch (IOException e) {
+			throw new RuntimeException("failed to determine size of directory " + dir, e);
+		}
+	}
+
+	private static class Size extends SimpleFileVisitor<Path> {
+
+		private long size;
+		
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+			size += attrs.size();
+			return FileVisitResult.CONTINUE;
+		}
+
+		@Override
+		public FileVisitResult visitFileFailed(Path file, IOException exc) {
+			return FileVisitResult.CONTINUE;
+		}
+
+		@Override
+		public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+			return FileVisitResult.CONTINUE;
+		}
+
 	}
 
 	private static class Copy extends SimpleFileVisitor<Path> {
