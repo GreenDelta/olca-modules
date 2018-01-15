@@ -124,6 +124,7 @@ class ProcessImport extends BaseImport<Process> {
 		JsonArray exchanges = In.getArray(json, "exchanges");
 		if (exchanges == null || exchanges.size() == 0)
 			return;
+		int lastId = 0;
 		for (JsonElement e : exchanges) {
 			if (!e.isJsonObject())
 				continue;
@@ -132,12 +133,14 @@ class ProcessImport extends BaseImport<Process> {
 			if (ex.internalId == 0) {
 				ex.internalId = p.drawNextInternalId();
 			}
+			lastId = Math.max(lastId, ex.internalId);
 			exchangeMap.put(ex.internalId, ex);
 			p.getExchanges().add(ex);
 			boolean isRef = In.getBool(o, "quantitativeReference", false);
 			if (isRef)
 				p.setQuantitativeReference(ex);
 		}
+		p.lastInternalId = lastId + 1;
 	}
 
 	private void addSocialAspects(JsonObject json, Process p) {
