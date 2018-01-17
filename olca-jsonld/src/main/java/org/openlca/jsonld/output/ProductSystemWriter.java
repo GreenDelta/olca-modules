@@ -53,6 +53,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(obj, "targetFlowProperty", property, conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetUnit", system.getTargetUnit(), conf, Out.REQUIRED_FIELD);
 		Out.put(obj, "targetAmount", system.getTargetAmount());
+		putInventory(obj, system.inventory);
 		if (conf.db == null)
 			return obj;
 		Map<Long, ProcessDescriptor> processMap = mapProcesses(obj);
@@ -126,9 +127,9 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			map.put(descriptor.getId(), descriptor);
 			JsonObject ref = null;
 			if (conf.exportReferences) {
-				ref = References.create(ModelType.PROCESS, descriptor.getId(), conf, false);				
+				ref = References.create(ModelType.PROCESS, descriptor.getId(), conf, false);
 			} else {
-				ref = References.create(descriptor);				
+				ref = References.create(descriptor);
 			}
 			if (ref == null)
 				continue;
@@ -137,7 +138,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Out.put(json, "processes", processes);
 		return map;
 	}
-	
+
 	private JsonObject mapExchange(Exchange e) {
 		if (e == null)
 			return null;
@@ -148,6 +149,20 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			return obj;
 		Out.put(obj, "name", e.flow.getName());
 		return obj;
+	}
+
+	private void putInventory(JsonObject obj, List<Exchange> inventory) {
+		if (inventory.isEmpty())
+			return;
+		JsonArray inv = new JsonArray();
+		for (Exchange exchange : inventory) {
+			JsonObject eObj = new JsonObject();
+			boolean mapped = Exchanges.map(exchange, eObj, conf);
+			if (!mapped)
+				continue;
+			inv.add(eObj);
+		}
+		Out.put(obj, "inventory", inv);
 	}
 
 	@Override

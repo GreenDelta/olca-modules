@@ -61,7 +61,7 @@ class ProcessWriter extends Writer<Process> {
 		JsonArray exchanges = new JsonArray();
 		for (Exchange e : process.getExchanges()) {
 			JsonObject obj = new JsonObject();
-			boolean mapped = Exchanges.map(e, process.getRefId(), obj, conf);
+			boolean mapped = Exchanges.map(e, obj, conf);
 			if (!mapped)
 				continue;
 			if (Objects.equals(process.getQuantitativeReference(), e))

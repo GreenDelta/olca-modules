@@ -1,5 +1,6 @@
 package org.openlca.jsonld.input;
 
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
@@ -31,6 +32,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		s.setTargetAmount(In.getDouble(json, "targetAmount", 1d));
 		addProcesses(json, s);
 		addParameters(json, s);
+		addInventory(json, s);
 		importLinkRefs(json, s);
 		ProductSystemExchanges.map(json, conf, s);
 		return conf.db.put(s);
@@ -93,4 +95,16 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		}
 	}
 
+	private void addInventory(JsonObject json, ProductSystem s) {
+		s.inventory.clear();
+		JsonArray array = In.getArray(json, "inventory");
+		if (array == null || array.size() == 0)
+			return;
+		for (JsonElement element : array) {
+			JsonObject ref = element.getAsJsonObject();
+			Exchange e = Exchanges.map(ref, conf);
+			s.inventory.add(e);
+		}
+	}
+	
 }

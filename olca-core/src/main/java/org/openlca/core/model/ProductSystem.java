@@ -55,6 +55,10 @@ public class ProductSystem extends CategorizedEntity {
 	@Column
 	public Double cutoff;
 
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_owner")
+	public List<Exchange> inventory = new ArrayList<>();
+	
 	@Override
 	public ProductSystem clone() {
 		ProductSystem clone = new ProductSystem();
@@ -68,6 +72,8 @@ public class ProductSystem extends CategorizedEntity {
 			clone.getProcessLinks().add(processLink.clone());
 		for (ParameterRedef redef : getParameterRedefs())
 			clone.getParameterRedefs().add(redef.clone());
+		for (Exchange exchange : inventory)
+			clone.inventory.add(exchange.clone());
 		clone.setTargetFlowPropertyFactor(getTargetFlowPropertyFactor());
 		clone.setTargetUnit(getTargetUnit());
 		return clone;

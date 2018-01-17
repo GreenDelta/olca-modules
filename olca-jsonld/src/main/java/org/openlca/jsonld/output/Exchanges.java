@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 
 class Exchanges {
 
-	static boolean map(Exchange e, String processRefId, JsonObject obj, ExportConfig conf) {
+	static boolean map(Exchange e, JsonObject obj, ExportConfig conf) {
 		if (e == null || obj == null)
 			return false;
 		Out.put(obj, "@type", Exchange.class.getSimpleName());
