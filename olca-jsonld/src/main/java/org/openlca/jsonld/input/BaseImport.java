@@ -33,7 +33,7 @@ abstract class BaseImport<T extends RootEntity> {
 		try {
 			T model = get(refId);
 			JsonObject json = conf.store.get(modelType, refId);
-			if (!doImport(model, json)) 
+			if (!doImport(model, json))
 				return model;
 			importBinFiles();
 			conf.visited(modelType, refId);
@@ -49,7 +49,7 @@ abstract class BaseImport<T extends RootEntity> {
 	private boolean doImport(T model, JsonObject json) {
 		if (model == null)
 			return true;
-		if (json == null)
+		if (json == null || conf.updateMode == UpdateMode.NEVER)
 			return false;
 		if (conf.updateMode == UpdateMode.ALWAYS)
 			return !conf.hasVisited(modelType, refId);
