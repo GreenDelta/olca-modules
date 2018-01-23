@@ -124,6 +124,10 @@ public class FlowDao extends CategorizedEntityDao<Flow, FlowDescriptor> {
 	}
 
 	public Map<Long, Boolean> hasReferenceFactor(Set<Long> ids) {
+		if (ids == null || ids.isEmpty())
+			return new HashMap<>();
+		if (ids.size() > MAX_LIST_SIZE)
+			return executeChunked2(ids, this::hasReferenceFactor);
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT id, f_reference_flow_property FROM tbl_flows ");
 		query.append("WHERE id IN " + asSqlList(ids));

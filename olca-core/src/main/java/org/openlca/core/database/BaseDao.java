@@ -218,7 +218,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	}
 
 	// Executes the query method chunked, (for methods with Map return value)
-	private <X, Y> Map<X, Y> executeChunked2(Set<X> set,
+	protected <X, Y> Map<X, Y> executeChunked2(Set<X> set,
 			Function<Set<X>, Map<X, Y>> queryMethod) {
 		List<Set<X>> split = split(set);
 		Map<X, Y> all = new HashMap<>();
