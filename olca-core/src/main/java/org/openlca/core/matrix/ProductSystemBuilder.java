@@ -15,6 +15,7 @@ import org.openlca.core.database.NativeSql.BatchInsertHandler;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.product.index.ITechIndexBuilder;
+import org.openlca.core.matrix.product.index.LinkingMethod;
 import org.openlca.core.matrix.product.index.TechIndexBuilder;
 import org.openlca.core.matrix.product.index.TechIndexCutoffBuilder;
 import org.openlca.core.model.Flow;
@@ -31,8 +32,8 @@ public class ProductSystemBuilder {
 
 	private MatrixCache matrixCache;
 	private IDatabase database;
-	private boolean preferSystemProcesses;
-	private boolean linkProvidedOnly;
+	private ProcessType preferredType;
+	private LinkingMethod linkingMethod;
 	private Double cutoff;
 
 	public ProductSystemBuilder(MatrixCache matrixCache) {
@@ -40,12 +41,12 @@ public class ProductSystemBuilder {
 		this.database = matrixCache.getDatabase();
 	}
 
-	public void setPreferSystemProcesses(boolean preferSystemProcesses) {
-		this.preferSystemProcesses = preferSystemProcesses;
+	public void setPreferredType(ProcessType preferredType) {
+		this.preferredType = preferredType;
 	}
 
-	public void setLinkProvidedOnly(boolean linkProvidedOnly) {
-		this.linkProvidedOnly = linkProvidedOnly;
+	public void setLinkingMethod(LinkingMethod linkingMethod) {
+		this.linkingMethod = linkingMethod;
 	}
 
 	public void setCutoff(Double cutoff) {
@@ -81,9 +82,8 @@ public class ProductSystemBuilder {
 	private void run(ProductSystem system, LongPair processProduct) {
 		log.trace("build product index");
 		ITechIndexBuilder builder = getProductIndexBuilder(system);
-		builder.setPreferredType(preferSystemProcesses ? 
-				ProcessType.LCI_RESULT : ProcessType.UNIT_PROCESS);
-		builder.setLinkProvidedOnly(linkProvidedOnly);
+		builder.setPreferredType(preferredType);
+		builder.setLinkingMethod(linkingMethod);
 		TechIndex index = builder.build(processProduct);
 		log.trace("create new process links");
 		addLinksAndProcesses(system, index);

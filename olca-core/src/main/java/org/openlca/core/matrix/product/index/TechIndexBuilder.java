@@ -36,8 +36,8 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
-	public void setLinkProvidedOnly(boolean linkProvidedOnly) {
-		this.providers.setLinkProvidedOnly(linkProvidedOnly);
+	public void setLinkingMethod(LinkingMethod linkingMethod) {
+		this.providers.setLinkingMethod(linkingMethod);
 	}
 
 	@Override

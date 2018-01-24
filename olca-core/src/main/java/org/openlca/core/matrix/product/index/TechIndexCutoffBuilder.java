@@ -40,12 +40,11 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		providers.setPreferredType(type);
 	}
 
-
 	@Override
-	public void setLinkProvidedOnly(boolean value) {
-		providers.setLinkProvidedOnly(value);
-	}	
-	
+	public void setLinkingMethod(LinkingMethod linkingMethod) {
+		this.providers.setLinkingMethod(linkingMethod);
+	}
+
 	@Override
 	public TechIndex build(LongPair refProduct) {
 		return build(refProduct, 1.0);

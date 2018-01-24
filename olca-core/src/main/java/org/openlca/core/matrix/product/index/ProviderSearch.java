@@ -18,20 +18,24 @@ public class ProviderSearch {
 
 	private ProcessTable processTable;
 	private ProcessType preferredType;
-	private boolean linkProvidedOnly;
-	
+	private LinkingMethod linkingMethod;
+
 	public ProviderSearch(ProcessTable processTable) {
 		this.processTable = processTable;
 		this.preferredType = ProcessType.LCI_RESULT;
+		this.linkingMethod = LinkingMethod.ONLY_LINK_PROVIDERS;
 	}
 
-	public void setPreferredType(ProcessType type) {
-		if (type != null)
-			this.preferredType = type;
+	public void setPreferredType(ProcessType preferredType) {
+		if (preferredType == null)
+			return;
+		this.preferredType = preferredType;
 	}
 
-	public void setLinkProvidedOnly(boolean linkProvidedOnly) {
-		this.linkProvidedOnly = linkProvidedOnly;
+	public void setLinkingMethod(LinkingMethod linkingMethod) {
+		if (linkingMethod == null)
+			return;
+		this.linkingMethod = linkingMethod;
 	}
 
 	public LongPair find(CalcExchange productInput) {
@@ -56,10 +60,12 @@ public class ProviderSearch {
 			return true;
 		if (newOption == null)
 			return false;
-		if (candidate.getFirst() == inputLink.defaultProviderId)
-			return false;
-		if (newOption.getFirst() == inputLink.defaultProviderId)
-			return true;
+		if (linkingMethod != LinkingMethod.IGNORE_PROVIDERS) {
+			if (candidate.getFirst() == inputLink.defaultProviderId)
+				return false;
+			if (newOption.getFirst() == inputLink.defaultProviderId)
+				return true;
+		}
 		ProcessType candidateType = processTable.getType(candidate.getFirst());
 		ProcessType newOptionType = processTable.getType(newOption.getFirst());
 		if (candidateType == preferredType && newOptionType != preferredType)
@@ -76,7 +82,7 @@ public class ProviderSearch {
 			return Collections.emptyList();
 		List<CalcExchange> candidates = new ArrayList<>();
 		for (CalcExchange e : list) {
-			if (linkProvidedOnly && e.defaultProviderId == 0l)
+			if (linkingMethod == LinkingMethod.ONLY_LINK_PROVIDERS && e.defaultProviderId == 0l)
 				continue;
 			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)
 				continue;
