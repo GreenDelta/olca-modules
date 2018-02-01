@@ -37,6 +37,8 @@ class AllocationSheet {
 		if (sheet == null || process == null)
 			return;
 		try {
+			AllocationMethod m = getMethod(config.getString(sheet, 0, 1));
+			process.setDefaultAllocationMethod(m);
 			List<Exchange> products = selectProducts();
 			if (products.size() <= 1) {
 				log.trace("process is not a multi-output process "
@@ -44,18 +46,11 @@ class AllocationSheet {
 				return;
 			}
 			log.trace("read allocation factors");
-			readDefaultMethod();
 			readFactors(products);
 			readCausalFactors(products);
 		} catch (Exception e) {
 			log.error("failed to read allocation factors", e);
 		}
-	}
-
-	private void readDefaultMethod() {
-		String methodString = config.getString(sheet, 1, 1);
-		AllocationMethod method = getMethod(methodString);
-		process.setDefaultAllocationMethod(method);
 	}
 
 	private AllocationMethod getMethod(String string) {
@@ -106,8 +101,7 @@ class AllocationSheet {
 		int causalStartRow = findCausalStartRow();
 		if (causalStartRow == -1)
 			return;
-		HashMap<Integer, Long> map = getProductColumnMap(causalStartRow,
-				products);
+		HashMap<Integer, Long> map = getProductColumnMap(causalStartRow, products);
 		int row = causalStartRow + 2;
 		while (true) {
 			Exchange exchange = getFactorExchange(row);
@@ -144,8 +138,7 @@ class AllocationSheet {
 			return null;
 		boolean input = direction.equalsIgnoreCase("Input");
 		for (Exchange exchange : process.getExchanges()) {
-			if (exchange.isInput == input
-					&& Objects.equals(exchange.flow, flow))
+			if (exchange.isInput == input && Objects.equals(exchange.flow, flow))
 				return exchange;
 		}
 		return null;
