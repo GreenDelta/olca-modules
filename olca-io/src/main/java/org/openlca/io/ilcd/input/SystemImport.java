@@ -152,28 +152,13 @@ public class SystemImport {
 		if (pi == null || process == null)
 			return;
 		system.setReferenceProcess(process);
-		Exchange e = findRefExchange(pi, process);
-		if (e == null)
+		Exchange qRef = process.getQuantitativeReference();
+		if (qRef == null)
 			return;
-		system.setReferenceExchange(e);
-		system.setTargetAmount(e.amount);
-		system.setTargetFlowPropertyFactor(e.flowPropertyFactor);
-		system.setTargetUnit(e.unit);
-	}
-
-	private Exchange findRefExchange(ProcessInstance pi, Process process) {
-		for (Connection con : pi.connections) {
-			String flowID = con.outputFlow;
-			if (flowID == null)
-				continue;
-			for (Exchange e : process.getExchanges()) {
-				if (e.flow == null)
-					continue;
-				if (Objects.equals(flowID, e.flow.getRefId()))
-					return e;
-			}
-		}
-		return null;
+		system.setReferenceExchange(qRef);
+		system.setTargetAmount(qRef.amount);
+		system.setTargetFlowPropertyFactor(qRef.flowPropertyFactor);
+		system.setTargetUnit(qRef.unit);
 	}
 
 	/**
