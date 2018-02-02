@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Version;
@@ -23,6 +24,7 @@ import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.models.ModelName;
 import org.openlca.ilcd.models.Modelling;
+import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
 import org.openlca.ilcd.models.QuantitativeReference;
 import org.openlca.ilcd.models.Technology;
@@ -102,6 +104,8 @@ public class SystemExport {
 		Technology tech = Models.technology(model);
 		Map<Long, ProcessInstance> instances = new HashMap<>();
 		for (Long id : system.getProcesses()) {
+			if (id == null)
+				continue;
 			ProcessInstance pi = initProcessInstance(id);
 			instances.put(id, pi);
 			tech.processes.add(pi);
@@ -120,18 +124,27 @@ public class SystemExport {
 		}
 	}
 
-	private ProcessInstance initProcessInstance(Long id)
+	private ProcessInstance initProcessInstance(long id)
 			throws DataStoreException {
-		ProcessInstance instance = new ProcessInstance();
-		instance.id = processIDs.getOrDefault(id, -1);
+		ProcessInstance pi = new ProcessInstance();
+		pi.id = processIDs.getOrDefault(id, -1);
 		ProcessDescriptor d = processes.get(id);
 		if (!config.store.contains(Process.class, d.getRefId())) {
 			ProcessDao dao = new ProcessDao(config.db);
 			ExportDispatch.forwardExportCheck(
 					dao.getForId(d.getId()), config);
 		}
-		instance.process = toRef(d);
-		return instance;
+		pi.process = toRef(d);
+		for (ParameterRedef redef : system.getParameterRedefs()) {
+			Long context = redef.getContextId();
+			if (redef.getContextId() == null || context != id)
+				continue;
+			Parameter param = new Parameter();
+			param.name = redef.getName();
+			param.value = redef.getValue();
+			pi.parameters.add(param);
+		}
+		return pi;
 	}
 
 	private void addLink(ProcessInstance pi, ProcessLink link,

@@ -17,6 +17,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -28,6 +29,7 @@ import org.openlca.ilcd.models.Connection;
 import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.models.ModelName;
+import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
 import org.openlca.ilcd.models.Publication;
 import org.openlca.ilcd.models.QuantitativeReference;
@@ -142,10 +144,24 @@ public class SystemImport {
 			if (refProcess == pi.id) {
 				mapRefProcess(pi, p);
 			}
+			addParameterRedefs(pi, p);
 			system.getProcesses().add(p.getId());
 			map.put(pi.id, p);
 		}
 		return map;
+	}
+
+	private void addParameterRedefs(ProcessInstance pi, Process p) {
+		for (Parameter param : pi.parameters) {
+			if (param.name == null || param.value == null)
+				continue;
+			ParameterRedef redef = new ParameterRedef();
+			redef.setContextId(p.getId());
+			redef.setContextType(ModelType.PROCESS);
+			redef.setName(param.name);
+			redef.setValue(param.value);
+			system.getParameterRedefs().add(redef);
+		}
 	}
 
 	private void mapRefProcess(ProcessInstance pi, Process process) {
