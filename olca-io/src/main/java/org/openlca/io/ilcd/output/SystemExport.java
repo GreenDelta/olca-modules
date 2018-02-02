@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Version;
@@ -79,9 +80,9 @@ public class SystemExport {
 		info.uuid = system.getRefId();
 		ModelName name = Models.modelName(model);
 		name.name.add(LangString.of(system.getName(), config.lang));
-		if (system.getDescription() != null)
-			info.comment
-					.add(LangString.of(system.getDescription(), config.lang));
+		if (system.getDescription() != null) {
+			info.comment.add(LangString.of(system.getDescription(), config.lang));
+		}
 		CategoryConverter conv = new CategoryConverter();
 		Classification c = conv.getClassification(system.getCategory());
 		if (c != null)
@@ -106,8 +107,16 @@ public class SystemExport {
 			tech.processes.add(pi);
 		}
 		for (ProcessLink link : system.getProcessLinks()) {
-			ProcessInstance pi = instances.get(link.providerId);
-			addLink(pi, link);
+			FlowDescriptor flow = flows.get(link.flowId);
+			if (flow == null)
+				continue;
+			if (flow.getFlowType() == FlowType.PRODUCT_FLOW) {
+				ProcessInstance pi = instances.get(link.providerId);
+				addLink(pi, link, flow);
+			} else if (flow.getFlowType() == FlowType.WASTE_FLOW) {
+				ProcessInstance pi = instances.get(link.processId);
+				addLink(pi, link, flow);
+			}
 		}
 	}
 
@@ -125,27 +134,31 @@ public class SystemExport {
 		return instance;
 	}
 
-	private void addLink(ProcessInstance pi, ProcessLink link) {
-		if (pi == null || link == null)
-			return;
-		FlowDescriptor f = flows.get(link.flowId);
-		if (f == null)
+	private void addLink(ProcessInstance pi, ProcessLink link,
+			FlowDescriptor flow) {
+		if (pi == null || link == null || flow == null)
 			return;
 		Connection con = null;
 		for (Connection c : pi.connections) {
-			if (Objects.equals(c.outputFlow, f.getRefId())) {
+			if (Objects.equals(c.outputFlow, flow.getRefId())) {
 				con = c;
 				break;
 			}
 		}
 		if (con == null) {
 			con = new Connection();
-			con.outputFlow = f.getRefId();
+			con.outputFlow = flow.getRefId();
 			pi.connections.add(con);
 		}
 		DownstreamLink dl = new DownstreamLink();
-		dl.inputFlow = f.getRefId();
-		dl.process = processIDs.getOrDefault(link.processId, -1);
+		dl.inputFlow = flow.getRefId();
+		long linkProcess = 0L;
+		if (flow.getFlowType() == FlowType.PRODUCT_FLOW) {
+			linkProcess = link.processId;
+		} else if (flow.getFlowType() == FlowType.WASTE_FLOW) {
+			linkProcess = link.providerId;
+		}
+		dl.process = processIDs.getOrDefault(linkProcess, -1);
 		if (dl.process != -1) {
 			con.downstreamLinks.add(dl);
 		}
