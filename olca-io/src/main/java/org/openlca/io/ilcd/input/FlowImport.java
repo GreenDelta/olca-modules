@@ -179,7 +179,7 @@ public class FlowImport {
 			flow.setFlowType(FlowType.WASTE_FLOW);
 			break;
 		default:
-			flow.setFlowType(FlowType.ELEMENTARY_FLOW);
+			flow.setFlowType(FlowType.PRODUCT_FLOW);
 			break;
 		}
 	}
