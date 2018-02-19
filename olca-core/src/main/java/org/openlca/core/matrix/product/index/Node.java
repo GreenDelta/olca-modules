@@ -7,6 +7,10 @@ import org.openlca.core.matrix.LongPair;
 
 import com.google.common.primitives.Doubles;
 
+/**
+ * When building a product system graph, a node represents a product output or
+ * waste input of a process.
+ */
 class Node implements Comparable<Node> {
 
 	/**
@@ -15,10 +19,11 @@ class Node implements Comparable<Node> {
 	NodeState state;
 
 	/**
-	 * The product that is represented by this node (processId, flowId). There
-	 * must be only one node for each product.
+	 * The product output or waste input that is represented by this node
+	 * (processId, flowId). There must be only one node for each product output
+	 * or waste input in a graph.
 	 */
-	LongPair product;
+	LongPair flow;
 
 	/**
 	 * The maximum demanded amount of product in the product system.
@@ -26,26 +31,28 @@ class Node implements Comparable<Node> {
 	double demand;
 
 	/**
-	 * The output amount of the product provided by the respective process.
+	 * The amount of the respective product output or waste input.
 	 */
-	double outputAmount;
+	double amount;
 
 	/**
 	 * The scaling factor of the process. The scaling factor is calculated via:
 	 * 
-	 * scalingFactor = demand / outputAmount.
+	 * scalingFactor = demand / amount.
 	 * 
-	 * It is used to calculate the demands of the input products to this node.
+	 * It is used to calculate the demands of input products and waste outputs
+	 * of this node.
 	 */
 	double scalingFactor;
 
 	/**
-	 * The product inputs of this Node.
+	 * The product inputs or waste outputs that are linked to the provider flow
+	 * (product output or waste input) of this node.
 	 */
-	List<Link> inputLinks = new ArrayList<>();
+	List<Link> links = new ArrayList<>();
 
-	Node(LongPair product, double demand) {
-		this.product = product;
+	Node(LongPair flow, double demand) {
+		this.flow = flow;
 		this.demand = demand;
 		state = NodeState.WAITING;
 	}
@@ -58,6 +65,7 @@ class Node implements Comparable<Node> {
 	public int compareTo(Node other) {
 		if (other == null)
 			return 0;
-		return -Doubles.compare(this.demand, other.demand);
+		return -Doubles.compare(Math.abs(this.demand),
+				Math.abs(other.demand));
 	}
 }

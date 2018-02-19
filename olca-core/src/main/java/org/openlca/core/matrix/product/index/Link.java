@@ -1,30 +1,32 @@
 package org.openlca.core.matrix.product.index;
 
 /**
- * Describes a product input.
+ * Describes a link of a product input or waste output to a provider flow.
  */
 class Link {
 
 	/**
-	 * The input amount of the product in the receiving process (given in the
-	 * reference unit and flow property).
+	 * The amount of the linked product input or waste output in the process.
 	 */
-	final double inputAmount;
+	final double amount;
 
 	/**
-	 * The node that describes the provider of the input product.
+	 * The node that describes the provider of the product or waste treatment.
 	 */
 	final Node provider;
 
+	/**
+	 * The scaled amount that needs to be provided by the linked process.
+	 */
 	double demand;
 
-	/** The ID of the product-input exchange. */
+	/** The ID of the respective exchange. */
 	long exchangeId;
 
-	Link(Node provider, long exchangeId, double inputAmount, double demand) {
+	Link(Node provider, long exchangeId, double amount, double demand) {
 		this.provider = provider;
 		this.exchangeId = exchangeId;
-		this.inputAmount = inputAmount;
+		this.amount = amount;
 		this.demand = demand;
 	}
 }
