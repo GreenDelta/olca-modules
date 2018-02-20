@@ -86,7 +86,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 		if (refIds == null || refIds.isEmpty())
 			return Collections.emptyList();
 		if (refIds.size() > MAX_LIST_SIZE)
-			return executeChunked(refIds, this::getDescriptorsForRefIds);
+			return executeChunked(refIds, (set) -> getDescriptorsForRefIds(set));
 		Set<String> quotedIds = new HashSet<>();
 		for (String refId : refIds) {
 			quotedIds.add('\'' + refId + '\'');
@@ -180,7 +180,7 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 		if (refIds == null || refIds.isEmpty())
 			return Collections.emptyList();
 		if (refIds.size() > MAX_LIST_SIZE)
-			return executeChunked(refIds, this::getForRefIds);
+			return executeChunked(refIds, (set) -> getForRefIds(set));
 		String jpql = "select e from " + entityType.getSimpleName() + " e where e.refId in :refIds";
 		try {
 			return Query.on(getDatabase()).getAll(entityType, jpql, Collections.singletonMap("refIds", refIds));

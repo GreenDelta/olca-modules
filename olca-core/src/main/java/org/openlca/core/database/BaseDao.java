@@ -189,7 +189,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 		if (ids == null || ids.isEmpty())
 			return Collections.emptyList();
 		if (ids.size() > MAX_LIST_SIZE)
-			return executeChunked(ids, this::getForIds);
+			return executeChunked(ids, (set) -> getForIds(set));
 		EntityManager em = createManager();
 		try {
 			String jpql = "SELECT o FROM " + entityType.getSimpleName()
