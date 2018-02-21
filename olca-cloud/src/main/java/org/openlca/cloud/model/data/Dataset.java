@@ -3,6 +3,7 @@ package org.openlca.cloud.model.data;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Hex;
 import org.openlca.cloud.util.NullSafe;
@@ -14,7 +15,7 @@ public class Dataset extends FileReference implements Serializable {
 	public String version;
 	public long lastChange;
 	public String name;
-	public String fullPath;
+	public List<String> categories;
 	public String categoryRefId;
 	// used for categories
 	public ModelType categoryType;
@@ -22,8 +23,7 @@ public class Dataset extends FileReference implements Serializable {
 	public String getHashId() {
 		String fullId = getFullId();
 		try {
-			byte[] digest = MessageDigest.getInstance("MD5").digest(
-					fullId.getBytes());
+			byte[] digest = MessageDigest.getInstance("MD5").digest(fullId.getBytes());
 			char[] md5Chars = Hex.encodeHex(digest);
 			return new String(md5Chars);
 		} catch (NoSuchAlgorithmException e) {
@@ -34,8 +34,7 @@ public class Dataset extends FileReference implements Serializable {
 
 	private String getFullId() {
 		String lastChange = Long.toString(this.lastChange);
-		int length = type.name().length() + refId.length() + version.length()
-				+ lastChange.length();
+		int length = type.name().length() + refId.length() + version.length() + lastChange.length();
 		StringBuilder fullId = new StringBuilder(length);
 		fullId.append(type.name());
 		fullId.append(refId);
@@ -68,11 +67,14 @@ public class Dataset extends FileReference implements Serializable {
 		ref.refId = refId;
 		return ref;
 	}
-	
+
 	@Override
 	public String toString() {
 		String value = super.toString() + ", version: " + version + ", lastChange: " + lastChange + ", name: " + name
-				+ ", fullPath: " + fullPath;
+				+ ", categories: ";
+		if (categories != null && categories.size() > 0)
+			for (String category : categories)
+				value += "/" + category;
 		if (type == ModelType.CATEGORY)
 			value += ", categoryType: " + categoryType.name();
 		if (categoryRefId != null) {

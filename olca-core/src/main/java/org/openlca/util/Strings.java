@@ -120,4 +120,29 @@ public class Strings {
 		}
 		return b.toString();
 	}
+
+	public static String[] append(String[] array, String value) {
+		return put(array, value, array == null ? 0 : array.length);
+	}
+
+	public static String[] prepend(String[] array, String value) {
+		return put(array, value, 0);
+	}
+
+	private static String[] put(String[] array, String value, int index) {
+		if (array == null || array.length == 0)
+			return new String[] { value };
+		String[] copy = new String[array.length + 1];
+		for (int i = 0; i < copy.length; i++) {
+			if (i == index) {
+				copy[i] = value;
+			} else if (i < index) {
+				copy[i] = array[i];
+			} else {
+				copy[i] = array[i - 1];
+			}
+		}
+		return copy;
+	}
+
 }
