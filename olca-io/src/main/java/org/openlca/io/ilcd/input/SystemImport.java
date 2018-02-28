@@ -178,8 +178,8 @@ public class SystemImport {
 	}
 
 	/**
-	 * Collect the flows that are used in the process links. This function must
-	 * be called after all processes are imported.
+	 * Collect the flows that are used in the process links. This function must be
+	 * called after all processes are imported.
 	 */
 	private Map<String, Flow> collectFlows(Technology tech) {
 		Set<String> usedFlows = new HashSet<>();
@@ -219,20 +219,29 @@ public class SystemImport {
 		system.getProcessLinks().add(link);
 	}
 
+	/**
+	 * Creates a connector process for the given input flow and output flow. In
+	 * openLCA we can only link processes via the same flow. Therefore, if the
+	 * linked exchanges in an eILCD model have different flows, we need to create
+	 * such a process. Note that the input flow is the output and the output flow
+	 * the input in the connector process.
+	 */
 	private Process connector(Flow inFlow, Flow outFlow) {
 		Process p = new Process();
 		connectorCount++;
 		p.setName("Connector " + connectorCount);
 		p.setRefId(UUID.randomUUID().toString());
-		Exchange input = exchange(inFlow, p, true);
-		Exchange output = exchange(outFlow, p, false);
-		if (inFlow.getFlowType() == FlowType.WASTE_FLOW) {
+		Exchange input = exchange(outFlow, p, true);
+		Exchange output = exchange(inFlow, p, false);
+		if (outFlow.getFlowType() == FlowType.WASTE_FLOW) {
 			p.setQuantitativeReference(input);
 		} else {
 			p.setQuantitativeReference(output);
 		}
 		ProcessDao dao = new ProcessDao(config.db);
-		return dao.insert(p);
+		p = dao.insert(p);
+		system.getProcesses().add(p.getId());
+		return p;
 	}
 
 	private Exchange exchange(Flow flow, Process p, boolean isInput) {
