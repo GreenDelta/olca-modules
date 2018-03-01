@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
  * @see https://developers.google.com/kml/documentation/kmlreference
  * @see http://geojson.org/geojson-spec.html
  */
-class GeoJson2Kml {
+public class GeoJson2Kml {
 
 	private XMLStreamWriter kml;
 
@@ -32,7 +32,7 @@ class GeoJson2Kml {
 		this.kml = kml;
 	}
 
-	static String convert(JsonObject geoJson) {
+	public static String convert(JsonObject geoJson) {
 		if (geoJson == null)
 			return null;
 		XMLOutputFactory fac = XMLOutputFactory.newInstance();

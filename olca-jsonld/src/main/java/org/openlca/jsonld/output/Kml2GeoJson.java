@@ -24,12 +24,12 @@ import com.google.gson.JsonPrimitive;
  * @see https://developers.google.com/kml/documentation/kmlreference
  * @see http://geojson.org/geojson-spec.html
  */
-class Kml2GeoJson {
+public class Kml2GeoJson {
 
 	private Kml2GeoJson() {
 	}
 
-	static JsonObject convert(String kml) {
+	public static JsonObject convert(String kml) {
 		if (kml == null)
 			return null;
 		try {
