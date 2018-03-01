@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.Response.Status;
+
 import org.openlca.cloud.model.Comment;
 import org.openlca.cloud.util.Valid;
 import org.openlca.cloud.util.WebRequests;
@@ -41,12 +43,19 @@ class CommentsInvocation {
 		} else {
 			url += "?includeReplies=true";
 		}
-		ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
-		Map<String, Object> data = new Gson().fromJson(response.getEntity(String.class),
-				new TypeToken<Map<String, Object>>() {
-				}.getType());
-		String field = forDataset ? "comments" : "data";
-		return parseComments(data.get(field));
+		try {
+			ClientResponse response = WebRequests.call(Type.GET, url, sessionId);
+			Map<String, Object> data = new Gson().fromJson(
+					response.getEntity(String.class),
+					new TypeToken<Map<String, Object>>() {
+					}.getType());
+			String field = forDataset ? "comments" : "data";
+			return parseComments(data.get(field));
+		} catch (WebRequestException e) {
+			if (e.getErrorCode() == Status.SERVICE_UNAVAILABLE.getStatusCode()) 
+				return new ArrayList<>();
+			throw e;
+		}
 	}
 
 	private List<Comment> parseComments(Object value) {
