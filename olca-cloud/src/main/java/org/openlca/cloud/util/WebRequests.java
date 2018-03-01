@@ -2,6 +2,7 @@ package org.openlca.cloud.util;
 
 import java.io.InputStream;
 import java.net.ConnectException;
+import java.net.SocketException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -112,9 +113,18 @@ public class WebRequests {
 		public int getErrorCode() {
 			return errorCode;
 		}
+		
+		@Override
+		public String getMessage() {
+			if (isConnectException()) 
+				return "Server unavailable";
+			return super.getMessage();
+		}
 
 		public boolean isConnectException() {
 			if (getCause() instanceof ConnectException)
+				return true;
+			if (getCause() instanceof SocketException && getCause().getCause() instanceof ClientHandlerException)
 				return true;
 			if (!(getCause() instanceof ClientHandlerException))
 				return false;
