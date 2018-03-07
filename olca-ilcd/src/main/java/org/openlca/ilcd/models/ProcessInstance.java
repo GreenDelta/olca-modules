@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.openlca.ilcd.commons.Ref;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = { "process", "groupRefs", "parameters", "connections" })
+@XmlType(propOrder = { "process", "scalingFactor", "groupRefs", "parameters", "connections" })
 public class ProcessInstance {
 
 	@XmlAttribute(name = "dataSetInternalID")
@@ -21,6 +21,9 @@ public class ProcessInstance {
 
 	@XmlElement(name = "referenceToProcess")
 	public Ref process;
+
+	@XmlElement(name = "scalingFactor")
+	public Double scalingFactor;
 
 	@XmlElementWrapper(name = "groups")
 	@XmlElement(name = "memberOf")
