@@ -17,6 +17,7 @@ class ProcessCopy {
 	}
 
 	private void copyFields(Process origin, Process copy) {
+		copy.lastInternalId = origin.lastInternalId;
 		copy.setDefaultAllocationMethod(origin.getDefaultAllocationMethod());
 		copy.setCategory(origin.getCategory());
 		copy.setLocation(origin.getLocation());

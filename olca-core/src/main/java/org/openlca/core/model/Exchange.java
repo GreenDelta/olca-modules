@@ -16,9 +16,8 @@ public class Exchange extends AbstractEntity {
 
 	/**
 	 * Indicates whether an exchange is an avoided product or waste flow. An
-	 * exchange with an avoided product flow must be set as an input and an
-	 * avoided waste flow as an output in order to be handled correctly in the
-	 * calculation.
+	 * exchange with an avoided product flow must be set as an input and an avoided
+	 * waste flow as an output in order to be handled correctly in the calculation.
 	 */
 	@Column(name = "avoided_product")
 	public boolean isAvoided;
@@ -35,17 +34,18 @@ public class Exchange extends AbstractEntity {
 	@OneToOne
 	@JoinColumn(name = "f_flow")
 	public Flow flow;
-	
+
 	/**
-	 * An id that is unique within the process, this id must not be changed after creation
+	 * An id that is unique within the process, this id must not be changed after
+	 * creation
 	 */
 	@Column(name = "internal_id")
 	public int internalId;
 
 	/**
-	 * The flow property (quantity) in which the amount of the exchange is
-	 * given. It is a "flow property factor" because it contains also the
-	 * conversion factor to the reference quantity of the flow.
+	 * The flow property (quantity) in which the amount of the exchange is given. It
+	 * is a "flow property factor" because it contains also the conversion factor to
+	 * the reference quantity of the flow.
 	 */
 	@OneToOne
 	@JoinColumn(name = "f_flow_property_factor")
@@ -59,10 +59,10 @@ public class Exchange extends AbstractEntity {
 	public Unit unit;
 
 	/**
-	 * If the exchange is an product input or waste output this field can
-	 * contain a process ID which produces the respective product or treats the
-	 * waste flow. This field is used when processes are automatically linked in
-	 * product system graphs. A value of zero means that no link is set.
+	 * If the exchange is an product input or waste output this field can contain a
+	 * process ID which produces the respective product or treats the waste flow.
+	 * This field is used when processes are automatically linked in product system
+	 * graphs. A value of zero means that no link is set.
 	 */
 	@Column(name = "f_default_provider")
 	public long defaultProviderId;
@@ -117,10 +117,11 @@ public class Exchange extends AbstractEntity {
 		return "Exchange [flow=" + flow + ", input=" + isInput + ",amount="
 				+ amount + ", unit=" + unit + "]";
 	}
-	
+
 	@Override
 	public Exchange clone() {
 		Exchange clone = new Exchange();
+		clone.internalId = internalId;
 		clone.amountFormula = amountFormula;
 		clone.amount = amount;
 		clone.isAvoided = isAvoided;
