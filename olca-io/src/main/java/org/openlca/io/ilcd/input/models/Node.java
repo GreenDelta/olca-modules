@@ -2,11 +2,9 @@ package org.openlca.io.ilcd.input.models;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.eclipse.persistence.internal.jpa.rs.metadata.model.Link;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.models.Parameter;
@@ -20,9 +18,7 @@ class Node {
 	int modelID;
 	Process process;
 	Double scalingFactor;
-
 	final Map<String, Double> params = new HashMap<>();
-	final List<Link> links = new ArrayList<>();
 
 	static Node init(ProcessInstance pi, Process process) {
 		Node n = new Node();
@@ -59,12 +55,35 @@ class Node {
 		Logger log = LoggerFactory.getLogger(getClass());
 		if (matches.size() > 1) {
 			log.warn("There are multiple exchanges with flowID={} isInput={} "
-					+ "in process={}; -> we take the first for linking",
-					flowID, isInput, process.getRefId());
+					+ "in process={}; -> we take the first for linking", flowID, isInput, process.getRefId());
 			return matches.get(0);
 		}
-		log.warn("Could not find exchange with flowID={} isInput={} "
-				+ "in process={}", flowID, isInput, process.getRefId());
+		log.warn("Could not find exchange with flowID={} isInput={} " + "in process={}", flowID, isInput,
+				process.getRefId());
 		return null;
+	}
+
+	@Override
+	protected Node clone() {
+		Node clone = new Node();
+		clone.modelID = modelID;
+		if (process != null) {
+			clone.process = process.clone();
+		}
+		clone.scalingFactor = scalingFactor;
+		clone.params.putAll(params);
+		return clone;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (obj == this)
+			return true;
+		if (!(obj instanceof Node))
+			return false;
+		Node other = (Node) obj;
+		return other.modelID == this.modelID;
 	}
 }

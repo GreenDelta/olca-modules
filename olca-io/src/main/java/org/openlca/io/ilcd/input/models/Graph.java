@@ -31,9 +31,14 @@ class Graph {
 	private final Map<Integer, List<Integer>> inLinks = new HashMap<>();
 	private final Map<Integer, List<Integer>> outLinks = new HashMap<>();
 
-	private Graph() {
+	/** Creates an empty graph. */
+	Graph() {
 	}
 
+	/**
+	 * Creates a graph that synchronizes the given eILCD model with the given
+	 * database.
+	 */
 	static Graph build(Model model, IDatabase db) {
 		Graph g = new Graph();
 		Logger log = LoggerFactory.getLogger(Graph.class);
