@@ -55,11 +55,12 @@ class Node {
 		Logger log = LoggerFactory.getLogger(getClass());
 		if (matches.size() > 1) {
 			log.warn("There are multiple exchanges with flowID={} isInput={} "
-					+ "in process={}; -> we take the first for linking", flowID, isInput, process.getRefId());
+					+ "in process={}; -> we take the first for linking",
+					flowID, isInput, process.getRefId());
 			return matches.get(0);
 		}
-		log.warn("Could not find exchange with flowID={} isInput={} " + "in process={}", flowID, isInput,
-				process.getRefId());
+		log.warn("Could not find exchange with flowID={} isInput={} "
+				+ "in process={}", flowID, isInput, process.getRefId());
 		return null;
 	}
 

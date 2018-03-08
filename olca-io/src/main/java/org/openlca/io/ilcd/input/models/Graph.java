@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 class Graph {
 
-	private Node root;
+	Node root;
 
 	private final List<Node> nodes = new ArrayList<>();
 	private final Map<Integer, Integer> nodeIndex = new HashMap<>();
@@ -126,13 +126,6 @@ class Graph {
 			outLinks.put(providerID, outList);
 		}
 		outList.add(link.id);
-	}
-
-	/**
-	 * Get the node that represents the reference process of the eILCD model.
-	 */
-	Node getRoot() {
-		return root;
 	}
 
 	/**

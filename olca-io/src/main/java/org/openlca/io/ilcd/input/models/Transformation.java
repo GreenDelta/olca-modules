@@ -37,14 +37,26 @@ class Transformation {
 	}
 
 	private void doIt() {
-		if (source == null || source.getRoot() == null) {
-			log.error("Cannot transform graph: no reference node");
-			return;
-		}
-		next.add(forTarget(source.getRoot()));
+		target.root = forTarget(source.root);
+		next.add(target.root);
 		while (!next.isEmpty()) {
 			visit(next.poll());
 		}
+		Exchange ref = source.root.process.getQuantitativeReference();
+		if (ref == null || ref.flow == null) {
+			log.warn("Ref. process of source graph has no reference flow.");
+			return;
+		}
+		ref = ref.clone();
+		Flow flow = ref.flow.clone();
+		if (ref.isInput) {
+			flow.setFlowType(FlowType.WASTE_FLOW);
+		} else {
+			flow.setFlowType(FlowType.PRODUCT_FLOW);
+		}
+		setFlow(flow, ref);
+		target.root.process.getExchanges().add(ref);
+		target.root.process.setQuantitativeReference(ref);
 	}
 
 	/** Visits the given node which is already a node from the target graph. */
@@ -70,7 +82,8 @@ class Transformation {
 		Node provider = forTarget(inLink.provider);
 		Flow product = inLink.output.flow.clone();
 		product.setFlowType(FlowType.PRODUCT_FLOW);
-		link(provider, recipient, product, inLink);
+		Link link = link(provider, recipient, product, inLink);
+		provider.process.setQuantitativeReference(link.output);
 		next.add(provider);
 	}
 
@@ -78,11 +91,12 @@ class Transformation {
 		Node recipient = forTarget(outLink.recipient);
 		Flow waste = outLink.input.flow.clone();
 		waste.setFlowType(FlowType.WASTE_FLOW);
-		link(provider, recipient, waste, outLink);
+		Link link = link(provider, recipient, waste, outLink);
+		recipient.process.setQuantitativeReference(link.input);
 		next.add(recipient);
 	}
 
-	private void link(Node provider, Node recipient, Flow flow, Link sourceLink) {
+	private Link link(Node provider, Node recipient, Flow flow, Link sourceLink) {
 		Exchange output = sourceLink.output.clone();
 		Exchange input = sourceLink.input.clone();
 		setFlow(flow, output);
@@ -95,6 +109,7 @@ class Transformation {
 		link.provider = provider;
 		link.recipient = recipient;
 		target.putLink(link);
+		return link;
 	}
 
 	private void setFlow(Flow flow, Exchange e) {
