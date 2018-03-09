@@ -1,7 +1,7 @@
 package org.openlca.io.ilcd.input.models;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import java.util.UUID;
 
 import org.openlca.core.database.FlowDao;
@@ -44,11 +44,11 @@ class GraphSync {
 		// first, create and link the reference flow
 		Process refProc = g.root.process;
 		Exchange qRef = refProc.getQuantitativeReference();
-		if (qRef != null) {
+		if (qRef != null && qRef.flow != null) {
 			Flow flow = qRef.flow;
 			flow.setRefId(UUID.randomUUID().toString());
 			category(flow);
-			flow = new FlowDao(db).insert(flow);
+			qRef.flow = new FlowDao(db).insert(flow);
 			FlowPropertyFactor factor = flow.getReferenceFactor();
 			qRef.flowPropertyFactor = factor;
 		}
@@ -89,21 +89,21 @@ class GraphSync {
 	}
 
 	/**
-	 * Creates a copy of the category of the given entity under the `eILCD models`
-	 * tree.
+	 * Creates a copy of the category of the given entity under the `eILCD
+	 * models` tree.
 	 */
 	private void category(CategorizedEntity e) {
 		if (e == null || e.getCategory() == null)
 			return;
 		Category c = e.getCategory();
 		ModelType type = c.getModelType();
-		Stack<String> stack = new Stack<>();
+		ArrayList<String> names = new ArrayList<>();
 		while (c != null) {
-			stack.push(c.getName());
+			names.add(0, c.getName());
 			c = c.getCategory();
 		}
-		stack.push("eILCD models");
-		String[] path = stack.toArray(new String[stack.size()]);
+		names.add(0, "eILCD models");
+		String[] path = names.toArray(new String[names.size()]);
 		c = Categories.findOrAdd(db, type, path);
 		e.setCategory(c);
 	}

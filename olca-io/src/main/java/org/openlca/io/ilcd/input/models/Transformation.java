@@ -42,21 +42,7 @@ class Transformation {
 		while (!next.isEmpty()) {
 			visit(next.poll());
 		}
-		Exchange ref = source.root.process.getQuantitativeReference();
-		if (ref == null || ref.flow == null) {
-			log.warn("Ref. process of source graph has no reference flow.");
-			return;
-		}
-		ref = ref.clone();
-		Flow flow = ref.flow.clone();
-		if (ref.isInput) {
-			flow.setFlowType(FlowType.WASTE_FLOW);
-		} else {
-			flow.setFlowType(FlowType.PRODUCT_FLOW);
-		}
-		setFlow(flow, ref);
-		target.root.process.getExchanges().add(ref);
-		target.root.process.setQuantitativeReference(ref);
+		mapRefFlow();
 	}
 
 	/** Visits the given node which is already a node from the target graph. */
@@ -133,9 +119,9 @@ class Transformation {
 
 	/**
 	 * Initialize a node for the target graph from the given node in the source
-	 * graph. This creates a copy of the process with all product and waste flows
-	 * removed. If the target graph already contains this node (identified via the
-	 * model ID) this node will be returned.
+	 * graph. This creates a copy of the process with all product and waste
+	 * flows removed. If the target graph already contains this node (identified
+	 * via the model ID) this node will be returned.
 	 */
 	private Node forTarget(Node sourceNode) {
 		Node n = target.getNode(sourceNode.modelID);
@@ -153,5 +139,23 @@ class Transformation {
 		n.process.getExchanges().addAll(elemFlows);
 		target.putNode(n);
 		return n;
+	}
+
+	private void mapRefFlow() {
+		Exchange ref = source.root.process.getQuantitativeReference();
+		if (ref == null || ref.flow == null) {
+			log.warn("Ref. process of source graph has no reference flow.");
+			return;
+		}
+		ref = ref.clone();
+		Flow flow = ref.flow.clone();
+		if (ref.isInput) {
+			flow.setFlowType(FlowType.WASTE_FLOW);
+		} else {
+			flow.setFlowType(FlowType.PRODUCT_FLOW);
+		}
+		setFlow(flow, ref);
+		target.root.process.getExchanges().add(ref);
+		target.root.process.setQuantitativeReference(ref);
 	}
 }
