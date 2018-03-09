@@ -17,6 +17,8 @@ import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.Location;
 import org.openlca.ilcd.processes.Method;
 import org.openlca.ilcd.processes.Modelling;
+import org.openlca.ilcd.processes.Parameter;
+import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessInfo;
 import org.openlca.ilcd.processes.ProcessName;
@@ -139,6 +141,21 @@ public final class Processes {
 		if (pi.time == null)
 			pi.time = new Time();
 		return pi.time;
+	}
+
+	public static List<Parameter> getParameters(Process p) {
+		ProcessInfo info = getProcessInfo(p);
+		if (info == null || info.parameters == null)
+			return Collections.emptyList();
+		return info.parameters.parameters;
+	}
+
+	public static List<Parameter> parameters(Process p) {
+		ProcessInfo info = processInfo(p);
+		if (info.parameters == null) {
+			info.parameters = new ParameterSection();
+		}
+		return info.parameters.parameters;
 	}
 
 	public static Modelling getModelling(Process p) {
