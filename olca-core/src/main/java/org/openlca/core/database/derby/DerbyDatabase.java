@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -27,19 +28,23 @@ import com.zaxxer.hikari.HikariDataSource;
 
 public class DerbyDatabase extends Notifiable implements IDatabase {
 
+	private static final AtomicInteger memInstances = new AtomicInteger(0);
+
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private EntityManagerFactory entityFactory;
-	private String url;
+
+	private final String name;
 	private File folder;
+	private String url;
+
 	private boolean closed = false;
 	private HikariDataSource connectionPool;
 
 	public static DerbyDatabase createInMemory() {
-		DerbyDatabase db = new DerbyDatabase();
+		int i = memInstances.incrementAndGet();
+		DerbyDatabase db = new DerbyDatabase("olca_mem_db" + i);
 		db.registerDriver();
-		String name = "olcaInMemDB"
-				+ Integer.toHexString((int) (Math.random() * 1000));
-		db.url = "jdbc:derby:memory:" + name + ";create=true";
+		db.url = "jdbc:derby:memory:" + db.name + ";create=true";
 		db.createNew(db.url);
 		db.connect();
 		return db;
@@ -50,11 +55,10 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	 * {@link #dump(String)}).
 	 */
 	public static DerbyDatabase restoreInMemory(String path) {
-		DerbyDatabase db = new DerbyDatabase();
+		int i = memInstances.incrementAndGet();
+		DerbyDatabase db = new DerbyDatabase("olca_mem_db" + i);
 		db.registerDriver();
-		String name = "olcaInMemDB"
-				+ Integer.toHexString((int) (Math.random() * 1000));
-		String url = "jdbc:derby:memory:" + name + ";restoreFrom="
+		String url = "jdbc:derby:memory:" + db.name + ";restoreFrom="
 				+ path.replace('\\', '/');
 		try {
 			Connection con = DriverManager.getConnection(url);
@@ -62,17 +66,19 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		db.url = "jdbc:derby:memory:" + name;
+		db.url = "jdbc:derby:memory:" + db.name;
 		db.connect();
 		return db;
 	}
 
-	private DerbyDatabase() {
+	private DerbyDatabase(String name) {
+		this.name = name;
 	}
 
 	public DerbyDatabase(File folder) {
 		registerDriver();
 		this.folder = folder;
+		this.name = folder.getName();
 		boolean create = shouldCreateNew(folder);
 		log.info("initialize database folder {}, create={}", folder, create);
 		url = "jdbc:derby:" + folder.getAbsolutePath().replace('\\', '/');
@@ -219,10 +225,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 
 	@Override
 	public String getName() {
-		if (folder != null)
-			return folder.getName();
-		else
-			return "in-memory";
+		return name;
 	}
 
 	@Override
@@ -240,8 +243,8 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	}
 
 	/**
-	 * Creates a backup of the database in the given folder. This is specifically
-	 * useful for creating a dump of an in-memory database. See
+	 * Creates a backup of the database in the given folder. This is
+	 * specifically useful for creating a dump of an in-memory database. See
 	 * https://db.apache.org/derby/docs/10.0/manuals/admin/hubprnt43.html
 	 */
 	public void dump(String path) {

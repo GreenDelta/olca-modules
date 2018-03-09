@@ -1,38 +1,33 @@
 package org.openlca.core.database.derby;
 
-import java.io.File;
-import java.util.UUID;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.Assert;
-import org.junit.Ignore;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.junit.Test;
 import org.openlca.core.database.ActorDao;
+import org.openlca.core.model.Actor;
+import org.openlca.util.Dirs;
 
 public class DerbyDatabaseTest {
 
-	private static DerbyDatabase database;
-
-	// @BeforeClass
-	public static void setUp() {
-		String tmpDirPath = System.getProperty("java.io.tmpdir");
-		String dbName = "test_db_"
-				+ UUID.randomUUID().toString().substring(0, 5);
-		File tmpDir = new File(tmpDirPath);
-		File folder = new File(tmpDir, dbName);
-		database = new DerbyDatabase(folder);
-	}
-
-	// @AfterClass
-	public static void tearDown() throws Exception {
-		database.close();
-		database.delete();
-	}
-
 	@Test
-	@Ignore
-	public void testEmptyDao() {
-		ActorDao dao = new ActorDao(database);
-		Assert.assertTrue(dao.getAll().isEmpty());
+	public void testDumpMemoryDB() throws Exception {
+		DerbyDatabase db = DerbyDatabase.createInMemory();
+		String name = db.getName();
+		Actor a = new Actor();
+		a.setName("The Donald");
+		a = new ActorDao(db).insert(a);
+		long id = a.getId();
+		Path path = Files.createTempDirectory("_olca_test_");
+		db.dump(path.toString());
+		db.close();
+		db = DerbyDatabase.restoreInMemory(
+				path.resolve("./" + name).toString());
+		a = new ActorDao(db).getForId(id);
+		assertEquals("The Donald", a.getName());
+		db.close();
+		Dirs.delete(path);
 	}
-
 }
