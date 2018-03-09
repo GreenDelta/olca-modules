@@ -15,7 +15,6 @@ public class DerbyDatabaseTest {
 	@Test
 	public void testDumpMemoryDB() throws Exception {
 		DerbyDatabase db = DerbyDatabase.createInMemory();
-		String name = db.getName();
 		Actor a = new Actor();
 		a.setName("The Donald");
 		a = new ActorDao(db).insert(a);
@@ -23,8 +22,7 @@ public class DerbyDatabaseTest {
 		Path path = Files.createTempDirectory("_olca_test_");
 		db.dump(path.toString());
 		db.close();
-		db = DerbyDatabase.restoreInMemory(
-				path.resolve("./" + name).toString());
+		db = DerbyDatabase.restoreInMemory(path.toString());
 		a = new ActorDao(db).getForId(id);
 		assertEquals("The Donald", a.getName());
 		db.close();

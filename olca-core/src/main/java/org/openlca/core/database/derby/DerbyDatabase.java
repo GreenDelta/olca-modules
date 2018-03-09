@@ -54,12 +54,19 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	 * Restores an in-memory database from a backup folder (see
 	 * {@link #dump(String)}).
 	 */
-	public static DerbyDatabase restoreInMemory(String path) {
+	public static DerbyDatabase restoreInMemory(String folder) {
+		String path = Derby.searchDump(folder);
+		if (path == null) {
+			Logger log = LoggerFactory.getLogger(DerbyDatabase.class);
+			log.error("Could not find a database dump under {};"
+					+ " will create an empty DB");
+			return createInMemory();
+		}
 		int i = memInstances.incrementAndGet();
 		DerbyDatabase db = new DerbyDatabase("olca_mem_db" + i);
 		db.registerDriver();
-		String url = "jdbc:derby:memory:" + db.name + ";restoreFrom="
-				+ path.replace('\\', '/');
+		String url = "jdbc:derby:memory:" + db.name
+				+ ";restoreFrom=" + path;
 		try {
 			Connection con = DriverManager.getConnection(url);
 			con.close();
@@ -79,27 +86,16 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		registerDriver();
 		this.folder = folder;
 		this.name = folder.getName();
-		boolean create = shouldCreateNew(folder);
+		boolean create = !Derby.isDerbyFolder(folder);
+		if (create) {
+			Dirs.delete(folder.toPath());
+		}
 		log.info("initialize database folder {}, create={}", folder, create);
 		url = "jdbc:derby:" + folder.getAbsolutePath().replace('\\', '/');
 		log.trace("database url: {}", url);
 		if (create)
 			createNew(url + ";create=true");
 		connect();
-	}
-
-	private boolean shouldCreateNew(File folder) {
-		// see the Derby folder specification:
-		// http://db.apache.org/derby/docs/10.0/manuals/develop/develop13.html
-		if (!folder.exists())
-			return true;
-		File log = new File(folder, "log");
-		if (!log.exists())
-			return true;
-		File seg0 = new File(folder, "seg0");
-		if (!seg0.exists())
-			return true;
-		return false;
 	}
 
 	private void registerDriver() {
@@ -177,14 +173,10 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 			connectionPool.close();
 		try {
 			DriverManager.getConnection(url + ";shutdown=true");
-			// TODO: single database shutdown throws unexpected
-			// error in eclipse APP - close all connections here
-			// DriverManager.getConnection("jdbc:derby:;shutdown=true");
 		} catch (SQLException e) {
 			// a normal shutdown of derby throws an SQL exception
 			// with error code 50000 (for single database shutdown
 			// 45000), otherwise an error occurred
-			log.info("exception: {}", e.getErrorCode());
 			if (e.getErrorCode() != 45000 && e.getErrorCode() != 50000)
 				log.error(e.getMessage(), e);
 			else {
@@ -194,7 +186,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		} finally {
-			// unload embedded driver
+			// unload embedded drivers etc.
 			// http://db.apache.org/derby/docs/10.4/devguide/rdevcsecure26537.html
 			System.gc();
 		}
@@ -246,6 +238,9 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	 * Creates a backup of the database in the given folder. This is
 	 * specifically useful for creating a dump of an in-memory database. See
 	 * https://db.apache.org/derby/docs/10.0/manuals/admin/hubprnt43.html
+	 * 
+	 * Note that the content of the folder will be overwritten if it already
+	 * exists.
 	 */
 	public void dump(String path) {
 		try {
@@ -253,6 +248,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 			if (dir.exists()) {
 				Dirs.delete(dir.toPath());
 			}
+			dir.mkdirs();
 			String command = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
 			try (Connection con = createConnection();
 					CallableStatement cs = con.prepareCall(command)) {
