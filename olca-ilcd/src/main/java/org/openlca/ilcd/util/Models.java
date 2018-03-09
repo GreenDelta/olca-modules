@@ -17,6 +17,18 @@ import org.openlca.ilcd.models.Technology;
 
 public class Models {
 
+	public static String getOrigin(Model model) {
+		if (model == null)
+			return null;
+		return Extensions.getString(model.otherAttributes, "origin");
+	}
+
+	public static void setOrigin(Model model, String value) {
+		if (model == null)
+			return;
+		Extensions.setString(model.otherAttributes, "origin", value);
+	}
+
 	public static ModelInfo modelInfo(Model model) {
 		if (model.info == null) {
 			model.info = new ModelInfo();

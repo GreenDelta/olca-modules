@@ -1,7 +1,12 @@
 package org.openlca.ilcd.io;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.UUID;
+
+import javax.xml.bind.JAXB;
 
 import org.junit.Test;
 import org.openlca.ilcd.commons.Category;
@@ -63,8 +68,22 @@ public class ModelIOTest {
 		StringWriter writer = new StringWriter();
 		XmlBinder binder = new XmlBinder();
 		binder.toWriter(model, writer);
-		// JAXB.marshal(model, writer);
-		System.out.println(writer.toString());
+		StringReader reader = new StringReader(writer.toString());
+		model = JAXB.unmarshal(reader, Model.class);
+
+		assertEquals(1, model.info.technology.processes.size());
+	}
+
+	@Test
+	public void testOrigin() {
+		Model m = new Model();
+		assertEquals(null, Models.getOrigin(m));
+		Models.setOrigin(m, "openLCA");
+		StringWriter writer = new StringWriter();
+		JAXB.marshal(m, writer);
+		StringReader reader = new StringReader(writer.toString());
+		m = JAXB.unmarshal(reader, Model.class);
+		assertEquals("openLCA", Models.getOrigin(m));
 	}
 
 }

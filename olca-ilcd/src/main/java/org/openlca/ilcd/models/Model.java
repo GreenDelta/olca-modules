@@ -1,14 +1,18 @@
 package org.openlca.ilcd.models;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetType;
@@ -37,6 +41,9 @@ public class Model implements IDataSet {
 
 	@XmlAttribute(name = "locations")
 	public String locations;
+
+	@XmlAnyAttribute
+	public final Map<QName, String> otherAttributes = new HashMap<>();
 
 	@Override
 	public List<Classification> getClassifications() {
