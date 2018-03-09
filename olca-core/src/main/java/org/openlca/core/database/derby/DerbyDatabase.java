@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.apache.derby.jdbc.EmbeddedDriver;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.core.database.DatabaseException;
 import org.openlca.core.database.DbUtils;
@@ -43,7 +42,6 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	public static DerbyDatabase createInMemory() {
 		int i = memInstances.incrementAndGet();
 		DerbyDatabase db = new DerbyDatabase("olca_mem_db" + i);
-		db.registerDriver();
 		db.url = "jdbc:derby:memory:" + db.name + ";create=true";
 		db.createNew(db.url);
 		db.connect();
@@ -64,7 +62,6 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		}
 		int i = memInstances.incrementAndGet();
 		DerbyDatabase db = new DerbyDatabase("olca_mem_db" + i);
-		db.registerDriver();
 		String url = "jdbc:derby:memory:" + db.name
 				+ ";restoreFrom=" + path;
 		try {
@@ -83,7 +80,6 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	}
 
 	public DerbyDatabase(File folder) {
-		registerDriver();
 		this.folder = folder;
 		this.name = folder.getName();
 		boolean create = !Derby.isDerbyFolder(folder);
@@ -96,14 +92,6 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		if (create)
 			createNew(url + ";create=true");
 		connect();
-	}
-
-	private void registerDriver() {
-		try {
-			DriverManager.registerDriver(new EmbeddedDriver());
-		} catch (Exception e) {
-			throw new RuntimeException("Could not register driver", e);
-		}
 	}
 
 	private void createNew(String url) {
