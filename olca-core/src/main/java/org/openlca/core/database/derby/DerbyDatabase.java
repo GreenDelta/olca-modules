@@ -2,6 +2,7 @@ package org.openlca.core.database.derby;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -18,6 +19,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Notifiable;
 import org.openlca.core.database.internal.Resource;
 import org.openlca.core.database.internal.ScriptRunner;
+import org.openlca.util.Dirs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,18 +35,39 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	private HikariDataSource connectionPool;
 
 	public static DerbyDatabase createInMemory() {
-		return new DerbyDatabase();
-	}
-
-	/** Creates an in-memory database. */
-	private DerbyDatabase() {
-		registerDriver();
+		DerbyDatabase db = new DerbyDatabase();
+		db.registerDriver();
 		String name = "olcaInMemDB"
 				+ Integer.toHexString((int) (Math.random() * 1000));
-		log.trace("create in memory database");
-		url = "jdbc:derby:memory:" + name + ";create=true";
-		createNew(url);
-		connect();
+		db.url = "jdbc:derby:memory:" + name + ";create=true";
+		db.createNew(db.url);
+		db.connect();
+		return db;
+	}
+
+	/**
+	 * Restores an in-memory database from a backup folder (see
+	 * {@link #dump(String)}).
+	 */
+	public static DerbyDatabase restoreInMemory(String path) {
+		DerbyDatabase db = new DerbyDatabase();
+		db.registerDriver();
+		String name = "olcaInMemDB"
+				+ Integer.toHexString((int) (Math.random() * 1000));
+		String url = "jdbc:derby:memory:" + name + ";restoreFrom="
+				+ path.replace('\\', '/');
+		try {
+			Connection con = DriverManager.getConnection(url);
+			con.close();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		db.url = "jdbc:derby:memory:" + name;
+		db.connect();
+		return db;
+	}
+
+	private DerbyDatabase() {
 	}
 
 	public DerbyDatabase(File folder) {
@@ -151,9 +174,6 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 			// TODO: single database shutdown throws unexpected
 			// error in eclipse APP - close all connections here
 			// DriverManager.getConnection("jdbc:derby:;shutdown=true");
-			System.gc(); // unload embedded driver for possible restarts
-			// see also
-			// http://db.apache.org/derby/docs/10.4/devguide/rdevcsecure26537.html
 		} catch (SQLException e) {
 			// a normal shutdown of derby throws an SQL exception
 			// with error code 50000 (for single database shutdown
@@ -167,6 +187,10 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
+		} finally {
+			// unload embedded driver
+			// http://db.apache.org/derby/docs/10.4/devguide/rdevcsecure26537.html
+			System.gc();
 		}
 	}
 
@@ -210,19 +234,31 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	public void delete() throws Exception {
 		if (!closed)
 			close();
-		if (folder != null)
-			delete(folder);
+		if (folder != null) {
+			Dirs.delete(folder.toPath());
+		}
 	}
 
-	private void delete(File folder) {
-		log.trace("delete folder {}", folder);
-		for (File f : folder.listFiles()) {
-			if (f.isDirectory())
-				delete(f);
-			f.delete();
+	/**
+	 * Creates a backup of the database in the given folder. This is specifically
+	 * useful for creating a dump of an in-memory database. See
+	 * https://db.apache.org/derby/docs/10.0/manuals/admin/hubprnt43.html
+	 */
+	public void dump(String path) {
+		try {
+			File dir = new File(path);
+			if (dir.exists()) {
+				Dirs.delete(dir.toPath());
+			}
+			String command = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
+			try (Connection con = createConnection();
+					CallableStatement cs = con.prepareCall(command)) {
+				cs.setString(1, path.replace('\\', '/'));
+				cs.execute();
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		boolean b = folder.delete();
-		log.trace("folder {} deleted? -> {}", folder, b);
 	}
 
 }
