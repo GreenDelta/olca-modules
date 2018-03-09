@@ -1,141 +1,96 @@
 package org.openlca.ilcd.util;
 
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import org.openlca.ilcd.processes.Exchange;
 
 public class ExchangeExtension {
 
-	private Exchange exchange;
-	private final String FORMULA = "formula";
-	private final String UNIT_ID = "unitId";
-	private final String PROPERTY_ID = "propertyId";
-	private final String AMOUNT = "amount";
-	private final String PEDIGREE_UNCERTAINTY = "pedigreeUncertainty";
-	private final String BASE_UNCERTAINTY = "baseUncertainty";
-	private final String MOST_LIKELY_VALUE = "mostLikelyValue";
-	private final String AVOIDED_PRODUCT = "avoidedProduct";
-	private final String DEFAULT_PROVIDER = "defaultProvider";
+	private final Map<QName, String> atts;
 
 	public ExchangeExtension(Exchange exchange) {
-		this.exchange = exchange;
+		this.atts = exchange.otherAttributes;
 	}
 
 	public boolean isValid() {
-		return exchange != null && getUnitId() != null
+		return atts != null && getUnitId() != null
 				&& getPropertyId() != null && getAmount() != null;
 	}
 
 	public void setFormula(String formula) {
-		setStringValue(FORMULA, formula);
+		Extensions.setString(atts, "formula", formula);
 	}
 
 	public String getFormula() {
-		return getStringValue(FORMULA);
+		return Extensions.getString(atts, "formula");
 	}
 
 	public void setUnitId(String unitId) {
-		setStringValue(UNIT_ID, unitId);
+		Extensions.setString(atts, "unitId", unitId);
 	}
 
 	public String getUnitId() {
-		return getStringValue(UNIT_ID);
+		return Extensions.getString(atts, "unitId");
 	}
 
 	public void setPropertyId(String propertyId) {
-		setStringValue(PROPERTY_ID, propertyId);
+		Extensions.setString(atts, "propertyId", propertyId);
 	}
 
 	public String getPropertyId() {
-		return getStringValue(PROPERTY_ID);
+		return Extensions.getString(atts, "propertyId");
 	}
 
 	public void setAmount(double amount) {
-		setDoubleValue(AMOUNT, amount);
+		Extensions.setDouble(atts, "amount", amount);
 	}
 
 	public Double getAmount() {
-		return getDoubleValue(AMOUNT);
+		return Extensions.getDouble(atts, "amount");
 	}
 
 	public void setPedigreeUncertainty(String val) {
-		setStringValue(PEDIGREE_UNCERTAINTY, val);
+		Extensions.setString(atts, "pedigreeUncertainty", val);
 	}
 
 	public String getPedigreeUncertainty() {
-		return getStringValue(PEDIGREE_UNCERTAINTY);
+		return Extensions.getString(atts, "pedigreeUncertainty");
 	}
 
 	public void setBaseUncertainty(Double val) {
 		if (val == null)
 			return;
-		setDoubleValue(BASE_UNCERTAINTY, val);
+		Extensions.setDouble(atts, "baseUncertainty", val);
 	}
 
 	public Double getBaseUncertainty() {
-		return getDoubleValue(BASE_UNCERTAINTY);
+		return Extensions.getDouble(atts, "baseUncertainty");
 	}
 
 	public void setMostLikelyValue(double val) {
-		setDoubleValue(MOST_LIKELY_VALUE, val);
+		Extensions.setDouble(atts, "mostLikelyValue", val);
 	}
 
 	public Double getMostLikelyValue() {
-		return getDoubleValue(MOST_LIKELY_VALUE);
+		return Extensions.getDouble(atts, "mostLikelyValue");
 	}
 
 	public String getDefaultProvider() {
-		return getStringValue(DEFAULT_PROVIDER);
+		return Extensions.getString(atts, "defaultProvider");
 	}
 
 	public void setDefaultProvider(String providerId) {
-		setStringValue(DEFAULT_PROVIDER, providerId);
+		Extensions.setString(atts, "defaultProvider", providerId);
 	}
 
 	public boolean isAvoidedProduct() {
-		return getBooleanValue(AVOIDED_PRODUCT);
+		return Extensions.getBoolean(atts, "avoidedProduct");
 	}
 
 	public void setAvoidedProduct(boolean b) {
-		setBooleanValue(AVOIDED_PRODUCT, b);
-	}
-
-	private void setDoubleValue(String attribute, double value) {
-		String str = Double.toString(value);
-		setStringValue(attribute, str);
-	}
-
-	private Double getDoubleValue(String attribute) {
-		String str = getStringValue(attribute);
-		if (str == null)
-			return null;
-		return Double.valueOf(str);
-	}
-
-	private void setStringValue(String attribute, String value) {
-		if (exchange == null || value == null)
-			return;
-		QName qName = Extensions.getQName(attribute);
-		exchange.otherAttributes.put(qName, value);
-	}
-
-	private String getStringValue(String attribute) {
-		if (exchange == null)
-			return null;
-		QName qName = Extensions.getQName(attribute);
-		return exchange.otherAttributes.get(qName);
-	}
-
-	private void setBooleanValue(String attribute, boolean value) {
-		String str = Boolean.toString(value);
-		setStringValue(attribute, str);
-	}
-
-	private boolean getBooleanValue(String attribute) {
-		String str = getStringValue(attribute);
-		if (str == null)
-			return false;
-		return Boolean.parseBoolean(str);
+		Extensions.setBoolean(atts, "avoidedProduct", b);
 	}
 
 }
