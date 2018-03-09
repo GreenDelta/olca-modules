@@ -56,7 +56,7 @@ class Transformation {
 			visitedLinks.add(inLink.id);
 			linkProduct(n, inLink);
 		}
-		for (Link outLink : target.getOutputLinks(n.modelID)) {
+		for (Link outLink : source.getOutputLinks(n.modelID)) {
 			if (visitedLinks.contains(outLink.id))
 				continue;
 			visitedLinks.add(outLink.id);
