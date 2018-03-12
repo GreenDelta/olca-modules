@@ -22,8 +22,8 @@ import org.openlca.io.ilcd.input.ImportConfig;
 import org.openlca.io.ilcd.input.MethodImport;
 import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.io.ilcd.input.SourceImport;
-import org.openlca.io.ilcd.input.SystemImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
+import org.openlca.io.ilcd.input.models.ModelImport;
 import org.openlca.io.maps.FlowMapEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -234,7 +234,7 @@ public class ILCDImport implements FileImport {
 				if (m == null)
 					continue;
 				fireEvent(m);
-				SystemImport si = new SystemImport(config);
+				ModelImport si = new ModelImport(config);
 				si.run(m);
 			}
 		} catch (Exception e) {

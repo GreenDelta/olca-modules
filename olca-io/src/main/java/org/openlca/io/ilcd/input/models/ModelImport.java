@@ -1,4 +1,4 @@
-package org.openlca.io.ilcd.input;
+package org.openlca.io.ilcd.input.models;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,15 +36,19 @@ import org.openlca.ilcd.models.QuantitativeReference;
 import org.openlca.ilcd.models.Technology;
 import org.openlca.ilcd.util.ClassList;
 import org.openlca.ilcd.util.Models;
+import org.openlca.io.ilcd.input.CategoryImport;
+import org.openlca.io.ilcd.input.ImportConfig;
+import org.openlca.io.ilcd.input.ImportException;
+import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.util.Strings;
 
-public class SystemImport {
+public class ModelImport {
 
 	private final ImportConfig config;
 	private ProductSystem system;
 	private int connectorCount = 0;
 
-	public SystemImport(ImportConfig config) {
+	public ModelImport(ImportConfig config) {
 		this.config = config;
 	}
 

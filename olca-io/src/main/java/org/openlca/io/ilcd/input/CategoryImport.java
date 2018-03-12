@@ -5,7 +5,7 @@ import org.openlca.core.model.ModelType;
 /**
  * The import for ILCD categories (classifications) into the openLCA database.
  */
-class CategoryImport extends AbstractCategoryImport<org.openlca.ilcd.commons.Category> {
+public class CategoryImport extends AbstractCategoryImport<org.openlca.ilcd.commons.Category> {
 
 	public CategoryImport(ImportConfig config, ModelType modelType) {
 		super(config, modelType);
