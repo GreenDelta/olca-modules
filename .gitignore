@@ -4,6 +4,7 @@
 **/.settings/
 .classpath
 .project
+**/.vscode/
 
 # generated files
 **/apidocs/

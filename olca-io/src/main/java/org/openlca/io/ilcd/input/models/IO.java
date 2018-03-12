@@ -36,10 +36,10 @@ class IO {
 		if (mn == null)
 			return "";
 		List<?>[] parts = new List<?>[] {
-			mn.name,
-			mn.technicalDetails,
-			mn.mixAndLocation,
-			mn.flowProperties
+				mn.name,
+				mn.technicalDetails,
+				mn.mixAndLocation,
+				mn.flowProperties
 		};
 		String name = "";
 		for (List<?> part : parts) {

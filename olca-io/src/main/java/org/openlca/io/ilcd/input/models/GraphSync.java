@@ -14,6 +14,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -55,6 +56,7 @@ class GraphSync {
 		system.setCategory(c);
 		mapGraph(g, system);
 		mapQRef(g, system);
+		mapParams(g, system);
 		ProductSystemDao dao = new ProductSystemDao(db);
 		return dao.insert(system);
 	}
@@ -65,7 +67,7 @@ class GraphSync {
 			Process p = node.process;
 			p.setRefId(UUID.randomUUID().toString());
 			category(p);
-			dao.insert(p);
+			node.process = dao.insert(p);
 		});
 	}
 
@@ -137,5 +139,21 @@ class GraphSync {
 			}
 			system.setTargetAmount(amount);
 		}
+	}
+
+	private void mapParams(Graph g, ProductSystem system) {
+		g.eachNode(node -> {
+			node.params.forEach((name, value) -> {
+				if (name == null || value == null) {
+					return;
+				}
+				ParameterRedef redef = new ParameterRedef();
+				redef.setName(name);
+				redef.setValue(value);
+				redef.setContextId(node.process.getId());
+				redef.setContextType(ModelType.PROCESS);
+				system.getParameterRedefs().add(redef);
+			});
+		});
 	}
 }
