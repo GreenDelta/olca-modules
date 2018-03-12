@@ -1,7 +1,6 @@
 package org.openlca.io.ilcd.input.models;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.openlca.core.database.FlowDao;
@@ -18,14 +17,8 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.models.Model;
-import org.openlca.ilcd.models.ModelName;
-import org.openlca.ilcd.models.Publication;
-import org.openlca.ilcd.util.Models;
 import org.openlca.io.Categories;
-import org.openlca.util.Strings;
 
 /**
  * Synchronizes a transformed graph with a database. It assumes that all
@@ -56,8 +49,10 @@ class GraphSync {
 		g.eachLink(this::syncFlows);
 		syncProcesses(g);
 		ProductSystem system = new ProductSystem();
-		system.setRefId(model.getUUID());
-		mapMetaData(system, model);
+		IO.mapMetaData(model, system);
+		Category c = Categories.createRoot(db,
+				ModelType.PRODUCT_SYSTEM, "eILCD models");
+		system.setCategory(c);
 		mapGraph(g, system);
 		mapQRef(g, system);
 		ProductSystemDao dao = new ProductSystemDao(db);
@@ -106,36 +101,6 @@ class GraphSync {
 		String[] path = names.toArray(new String[names.size()]);
 		c = Categories.findOrAdd(db, type, path);
 		e.setCategory(c);
-	}
-
-	private void mapMetaData(ProductSystem system, Model model) {
-		system.setName(getName(model));
-		Category c = Categories.createRoot(db,
-				ModelType.PRODUCT_SYSTEM, "eILCD models");
-		system.setCategory(c);
-		Publication pub = Models.getPublication(model);
-		if (pub != null && pub.version != null) {
-			system.setVersion(Version.fromString(pub.version).getValue());
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private String getName(Model m) {
-		ModelName mn = Models.getModelName(m);
-		if (mn == null)
-			return "";
-		List<?>[] parts = new List<?>[] { mn.name, mn.technicalDetails,
-				mn.mixAndLocation, mn.flowProperties };
-		String name = "";
-		for (List<?> part : parts) {
-			String s = LangString.getFirst((List<LangString>) part, "en");
-			if (Strings.nullOrEmpty(s))
-				continue;
-			if (name.length() > 0)
-				name += "; ";
-			name += s.trim();
-		}
-		return name;
 	}
 
 	private void mapGraph(Graph g, ProductSystem system) {

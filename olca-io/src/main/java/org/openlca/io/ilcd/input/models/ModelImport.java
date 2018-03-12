@@ -2,7 +2,6 @@ package org.openlca.io.ilcd.input.models;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -23,15 +22,11 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.models.Connection;
 import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Model;
-import org.openlca.ilcd.models.ModelName;
 import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
-import org.openlca.ilcd.models.Publication;
 import org.openlca.ilcd.models.QuantitativeReference;
 import org.openlca.ilcd.models.Technology;
 import org.openlca.ilcd.util.ClassList;
@@ -42,6 +37,9 @@ import org.openlca.io.ilcd.input.ImportException;
 import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.util.Strings;
 
+/**
+ * Imports an eILCD model as product system into an openLCA database.
+ */
 public class ModelImport {
 
 	private final ImportConfig config;
@@ -60,46 +58,28 @@ public class ModelImport {
 			system = dao.getForRefId(model.getUUID());
 			if (system != null)
 				return system;
-			system = new ProductSystem();
-			system.setRefId(model.getUUID());
-			mapMetaData(model);
-			mapModel(model);
-			return dao.insert(system);
+			String origin = Models.getOrigin(model);
+			if (Strings.nullOrEqual("openLCA", origin)) {
+				system = new ProductSystem();
+				IO.mapMetaData(model, system);
+				mapCategory(model);
+				mapModel(model);
+			} else {
+				Graph g = Graph.build(model, config.db);
+				g = Transformation.on(g);
+				system = new GraphSync(config.db).sync(model, g);
+			}
+			return system;
 		} catch (Exception e) {
 			throw new ImportException("Failed to get/create product system", e);
 		}
 	}
 
-	private void mapMetaData(Model model) throws ImportException {
-		system.setName(getName(model));
+	private void mapCategory(Model model) throws ImportException {
 		CategoryImport categoryImport = new CategoryImport(config,
 				ModelType.PRODUCT_SYSTEM);
 		Category category = categoryImport.run(ClassList.sortedList(model));
 		system.setCategory(category);
-		Publication pub = Models.getPublication(model);
-		if (pub != null && pub.version != null) {
-			system.setVersion(Version.fromString(pub.version).getValue());
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private String getName(Model m) {
-		ModelName mn = Models.getModelName(m);
-		if (mn == null)
-			return "";
-		List<?>[] parts = new List<?>[] { mn.name, mn.technicalDetails,
-				mn.mixAndLocation, mn.flowProperties };
-		String name = "";
-		for (List<?> part : parts) {
-			String s = LangString.getFirst((List<LangString>) part,
-					config.langs);
-			if (Strings.nullOrEmpty(s))
-				continue;
-			if (name.length() > 0)
-				name += "; ";
-			name += s.trim();
-		}
-		return name;
 	}
 
 	private void mapModel(Model m) throws ImportException {

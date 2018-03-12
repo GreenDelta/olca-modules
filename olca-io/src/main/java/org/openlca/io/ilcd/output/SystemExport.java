@@ -76,6 +76,7 @@ public class SystemExport {
 
 	private Model initModel() {
 		Model model = new Model();
+		Models.setOrigin(model, "openLCA");
 		model.version = "1.1";
 		model.locations = "../ILCDLocations.xml";
 		DataSetInfo info = Models.dataSetInfo(model);
