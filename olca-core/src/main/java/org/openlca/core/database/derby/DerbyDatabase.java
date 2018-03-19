@@ -34,6 +34,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 
 	private final String name;
 	private File folder;
+	private File fileStorageLocation;
 	private String url;
 
 	private boolean closed = false;
@@ -120,11 +121,25 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	 * Returns the folder '_olca_' within the database directory. If this folder
 	 * does not exist is created when this method is called.
 	 */
+	@Override
 	public File getFileStorageLocation() {
-		File dir = new File(folder, "_olca_");
-		if (!dir.exists())
-			dir.mkdirs();
-		return dir;
+		if (fileStorageLocation != null)
+			return fileStorageLocation;
+		fileStorageLocation = new File(folder, "_olca_");
+		if (!fileStorageLocation.exists())
+			fileStorageLocation.mkdirs();
+		return fileStorageLocation;
+	}
+
+	/**
+	 * Set the location where files of data that are not stored directly in the
+	 * database should be saved (e.g. external files of sources).
+	 * 
+	 * Typically, this is only set by in-memory databases as for file based
+	 * databases it defaults to the `_olca_` folder within the database directory.
+	 */
+	public void setFileStorageLocation(File fileStorageLocation) {
+		this.fileStorageLocation = fileStorageLocation;
 	}
 
 	private void connect() {
@@ -223,12 +238,11 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	}
 
 	/**
-	 * Creates a backup of the database in the given folder. This is
-	 * specifically useful for creating a dump of an in-memory database. See
+	 * Creates a backup of the database in the given folder. This is specifically
+	 * useful for creating a dump of an in-memory database. See
 	 * https://db.apache.org/derby/docs/10.0/manuals/admin/hubprnt43.html
 	 * 
-	 * Note that the content of the folder will be overwritten if it already
-	 * exists.
+	 * Note that the content of the folder will be overwritten if it already exists.
 	 */
 	public void dump(String path) {
 		try {
