@@ -1,10 +1,12 @@
 package org.openlca.core.database.derby;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.model.Actor;
@@ -27,5 +29,21 @@ public class DerbyDatabaseTest {
 		assertEquals("The Donald", a.getName());
 		db.close();
 		Dirs.delete(path);
+	}
+
+	@Test
+	@Ignore
+	public void testNoMemLeak() throws Exception {
+		Runtime rt = Runtime.getRuntime();
+		long initialUsed = rt.totalMemory() - rt.freeMemory();
+		for (int i = 0; i < 1000; i++) {
+			DerbyDatabase db = DerbyDatabase.createInMemory();
+			db.close();
+			long usedMem = rt.totalMemory() - rt.freeMemory();
+			if (initialUsed * 10 < usedMem) {
+				fail("There is probably a memory leak");
+			}
+			System.out.println("" + i + "\t" + (usedMem / (1024 * 1024)));
+		}
 	}
 }

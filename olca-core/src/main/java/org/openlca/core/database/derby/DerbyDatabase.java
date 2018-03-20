@@ -43,8 +43,8 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	public static DerbyDatabase createInMemory() {
 		int i = memInstances.incrementAndGet();
 		DerbyDatabase db = new DerbyDatabase("olca_mem_db" + i);
-		db.url = "jdbc:derby:memory:" + db.name + ";create=true";
-		db.createNew(db.url);
+		db.url = "jdbc:derby:memory:" + db.name;
+		db.createNew(db.url + ";create=true");
 		db.connect();
 		return db;
 	}
@@ -175,7 +175,12 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		if (connectionPool != null)
 			connectionPool.close();
 		try {
-			DriverManager.getConnection(url + ";shutdown=true");
+			boolean isMemDB = folder == null;
+			if (isMemDB) {
+				DriverManager.getConnection(url + ";drop=true");
+			} else {
+				DriverManager.getConnection(url + ";shutdown=true");
+			}
 		} catch (SQLException e) {
 			// a normal shutdown of derby throws an SQL exception
 			// with error code 50000 (for single database shutdown
