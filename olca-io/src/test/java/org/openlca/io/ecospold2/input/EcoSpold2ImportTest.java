@@ -43,7 +43,8 @@ public class EcoSpold2ImportTest {
 		log.trace("copy ecospold 2 file to {}", tempFile);
 		Files.copy(getClass().getResourceAsStream("sample_ecospold2.xml"),
 				tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		EcoSpold2Import eImport = new EcoSpold2Import(Tests.getDb());
+		ImportConfig config = new ImportConfig(Tests.getDb());
+		EcoSpold2Import eImport = new EcoSpold2Import(config);
 		eImport.setFiles(new File[] { tempFile });
 		eImport.run();
 	}

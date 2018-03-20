@@ -19,9 +19,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.io.Categories;
-import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
-import org.openlca.io.maps.Maps;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,23 +42,19 @@ class RefDataImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final ImportConfig config;
-	private IDatabase database;
 	private CategoryDao categoryDao;
 	private FlowDao flowDao;
 	private LocationDao locationDao;
 	private RefDataIndex index;
-	private FlowMap flowMap;
 
-	public RefDataImport(IDatabase database, ImportConfig config) {
+	public RefDataImport(ImportConfig config) {
 		this.config = config;
-		this.database = database;
 		this.index = new RefDataIndex();
-		this.categoryDao = new CategoryDao(database);
-		this.locationDao = new LocationDao(database);
-		this.flowDao = new FlowDao(database);
-		this.flowMap = new FlowMap(Maps.ES2_FLOW_IMPORT, database);
+		this.categoryDao = new CategoryDao(config.db);
+		this.locationDao = new LocationDao(config.db);
+		this.flowDao = new FlowDao(config.db);
 		try {
-			loadUnitMaps(database);
+			loadUnitMaps(config.db);
 		} catch (Exception e) {
 			log.error("failed to load unit map", e);
 		}
@@ -173,9 +167,9 @@ class RefDataImport {
 			return;
 		category = categoryDao.getForRefId(refId);
 		if (category == null) {
-			Category parent = Categories.findOrCreateRoot(database,
+			Category parent = Categories.findOrCreateRoot(config.db,
 					ModelType.FLOW, compartment.compartment);
-			category = Categories.findOrAddChild(database, parent,
+			category = Categories.findOrAddChild(config.db, parent,
 					compartment.subCompartment);
 		}
 		index.putCompartment(refId, category);
@@ -252,7 +246,7 @@ class RefDataImport {
 		Flow flow = flowDao.getForRefId(extId);
 		if (flow != null)
 			return flow;
-		FlowMapEntry entry = flowMap.getEntry(extId);
+		FlowMapEntry entry = config.getFlowMap().getEntry(extId);
 		if (entry == null)
 			return null;
 		flow = flowDao.getForRefId(entry.referenceFlowID);
@@ -283,8 +277,8 @@ class RefDataImport {
 	}
 
 	/**
-	 * Returns only a value if the given exchange is the reference product of
-	 * the data set.
+	 * Returns only a value if the given exchange is the reference product of the
+	 * data set.
 	 */
 	private Category getProductCategory(DataSet dataSet,
 			IntermediateExchange e) {
@@ -294,7 +288,7 @@ class RefDataImport {
 		Classification clazz = findClassification(dataSet);
 		if (clazz == null || clazz.value == null)
 			return null;
-		Category cat = Categories.findOrCreateRoot(database, ModelType.FLOW,
+		Category cat = Categories.findOrCreateRoot(config.db, ModelType.FLOW,
 				clazz.value);
 		return cat;
 	}

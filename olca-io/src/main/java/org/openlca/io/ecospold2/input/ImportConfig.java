@@ -1,59 +1,54 @@
 package org.openlca.io.ecospold2.input;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.io.maps.FlowMap;
+import org.openlca.io.maps.Maps;
+
 /**
  * Import configuration for EcoSpold 02 data sets.
  */
 public class ImportConfig {
 
-	boolean skipNullExchanges = false;
-	boolean withParameters = true;
-	boolean withParameterFormulas = true;
-	boolean checkFormulas = false;
-
-	/**
-	 * Creates a default configuration for the import which has no restrictions
-	 * but may lead to systems that cannot be calculated using ecoinvent 3.
-	 */
-	public static ImportConfig createDefault() {
-		return new ImportConfig();
-	}
-
 	/**
 	 * If true, exchanges with a value of 0 will not be imported (in ecoinvent 3
 	 * there are a lot of such exchanges).
 	 */
-	public void setSkipNullExchanges(boolean skipNullExchanges) {
-		this.skipNullExchanges = skipNullExchanges;
-	}
+	public boolean skipNullExchanges = false;
 
 	/**
 	 * If true, imports parameters from EcoSpold 02 data sets.
 	 */
-	public void setWithParameters(boolean withParameters) {
-		this.withParameters = withParameters;
-	}
+	public boolean withParameters = true;
 
 	/**
-	 * If true, parameter formulas are imported ((in ecoinvent 3 there are a lot
-	 * of parameters that cannot be evaluated in openLCA).
+	 * If true, parameter formulas are imported ((in ecoinvent 3 there are a lot of
+	 * parameters that cannot be evaluated in openLCA).
 	 */
-	public void setWithParameterFormulas(boolean withParameterFormulas) {
-		this.withParameterFormulas = withParameterFormulas;
-	}
+	public boolean withParameterFormulas = true;
 
 	/**
-	 * If true, formulas that contain functions that are not available in
-	 * openLCA are filtered.
+	 * If true, formulas that contain functions that are not available in openLCA
+	 * are filtered.
 	 */
-	public void setCheckFormulas(boolean checkFormulas) {
-		this.checkFormulas = checkFormulas;
+	public boolean checkFormulas = false;
+
+	public final IDatabase db;
+
+	private FlowMap flowMap;
+
+	public ImportConfig(IDatabase db) {
+		this.db = db;
 	}
 
-	@Override
-	public String toString() {
-		return "ImportConfig [skipNullExchanges=" + skipNullExchanges
-				+ ", withParameters=" + withParameters
-				+ ", withParameterFormulas=" + withParameterFormulas
-				+ ", checkFormulas=" + checkFormulas + "]";
+	public FlowMap getFlowMap() {
+		if (flowMap == null) {
+			flowMap = new FlowMap(Maps.ES2_FLOW_IMPORT, db);
+		}
+		return flowMap;
 	}
+
+	public void setFlowMap(FlowMap flowMap) {
+		this.flowMap = flowMap;
+	}
+
 }

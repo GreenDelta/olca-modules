@@ -2,15 +2,14 @@ package org.openlca.io.ecospold2.input;
 
 import java.io.File;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import spold2.DataSet;
-
 import com.google.common.eventbus.EventBus;
+
+import spold2.DataSet;
 
 /**
  * The import of data sets in the EcoSpold v2 format. The import expects a set
@@ -20,23 +19,18 @@ import com.google.common.eventbus.EventBus;
 public class EcoSpold2Import implements FileImport {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
 	private EventBus eventBus;
 	private boolean canceled = false;
 	private File[] files;
-	private ImportConfig config;
+	private final ImportConfig config;
 
-	public EcoSpold2Import(IDatabase database) {
-		this.database = database;
-	}
-
-	public EcoSpold2Import(IDatabase database, File[] files) {
-		this.database = database;
-		this.files = files;
-	}
-
-	public void setConfig(ImportConfig config) {
+	public EcoSpold2Import(ImportConfig config) {
 		this.config = config;
+	}
+
+	public EcoSpold2Import(ImportConfig config, File[] files) {
+		this(config);
+		this.files = files;
 	}
 
 	public void setFiles(File[] files) {
@@ -59,8 +53,6 @@ public class EcoSpold2Import implements FileImport {
 			log.trace("files is null, nothing to do");
 			return;
 		}
-		if (config == null)
-			config = ImportConfig.createDefault();
 		log.trace("run import with: {}", config);
 		RefDataIndex index = importRefData(files);
 		importProcesses(files, index);
@@ -68,7 +60,7 @@ public class EcoSpold2Import implements FileImport {
 
 	private RefDataIndex importRefData(File[] files) {
 		log.trace("import reference data");
-		RefDataImport refDataImport = new RefDataImport(database, config);
+		RefDataImport refDataImport = new RefDataImport(config);
 		if (eventBus != null)
 			eventBus.post(new ImportEvent("reference data"));
 		try (DataSetIterator iterator = new DataSetIterator(files)) {
@@ -84,7 +76,7 @@ public class EcoSpold2Import implements FileImport {
 
 	private void importProcesses(File[] files, RefDataIndex index) {
 		log.trace("import processes");
-		ProcessImport processImport = new ProcessImport(database, index, config);
+		ProcessImport processImport = new ProcessImport(index, config);
 		try (DataSetIterator iterator = new DataSetIterator(files)) {
 			while (!canceled && iterator.hasNext()) {
 				DataSet dataSet = iterator.next();

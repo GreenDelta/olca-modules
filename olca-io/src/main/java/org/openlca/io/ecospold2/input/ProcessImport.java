@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.ExchangeDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
@@ -27,6 +26,8 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
+
 import spold2.Activity;
 import spold2.Classification;
 import spold2.DataSet;
@@ -36,12 +37,9 @@ import spold2.PedigreeMatrix;
 import spold2.RichText;
 import spold2.Spold2;
 
-import com.google.common.base.Joiner;
-
 class ProcessImport {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final IDatabase db;
 	private final RefDataIndex index;
 	private final ProcessDao dao;
 	private final PriceMapper prices;
@@ -51,13 +49,12 @@ class ProcessImport {
 	/** Exchanges that wait for a default provider: provider-id -> exchanges. */
 	private final HashMap<String, List<Exchange>> linkQueue = new HashMap<>();
 
-	public ProcessImport(IDatabase db, RefDataIndex index, ImportConfig config) {
-		this.db = db;
+	public ProcessImport(RefDataIndex index, ImportConfig config) {
 		this.index = index;
 		this.config = config;
-		dao = new ProcessDao(db);
-		prices = new PriceMapper(db);
-		dqSystem = DQSystems.ecoinvent(db);
+		dao = new ProcessDao(config.db);
+		prices = new PriceMapper(config.db);
+		dqSystem = DQSystems.ecoinvent(config.db);
 	}
 
 	public void importDataSet(DataSet dataSet) {
@@ -125,8 +122,8 @@ class ProcessImport {
 					refId);
 		createElementaryExchanges(dataSet, process);
 		process.exchangeDqSystem = dqSystem;
-		new DocImportMapper(db).map(dataSet, process);
-		new ProcessDao(db).insert(process);
+		new DocImportMapper(config.db).map(dataSet, process);
+		new ProcessDao(config.db).insert(process);
 		index.putProcessId(refId, process.getId());
 		flushLinkQueue(process);
 	}
@@ -140,7 +137,7 @@ class ProcessImport {
 			else if (p.getScope() == ParameterScope.GLOBAL)
 				newGlobals.add(p);
 		}
-		ParameterDao dao = new ParameterDao(db);
+		ParameterDao dao = new ParameterDao(config.db);
 		Map<String, Boolean> map = new HashMap<>();
 		for (Parameter p : dao.getGlobalParameters())
 			map.put(p.getName(), Boolean.TRUE);
@@ -171,7 +168,7 @@ class ProcessImport {
 		if (exchanges == null || process.getId() == 0)
 			return;
 		try {
-			ExchangeDao dao = new ExchangeDao(db);
+			ExchangeDao dao = new ExchangeDao(config.db);
 			for (Exchange exchange : exchanges) {
 				exchange.defaultProviderId = process.getId();
 				dao.update(exchange);
