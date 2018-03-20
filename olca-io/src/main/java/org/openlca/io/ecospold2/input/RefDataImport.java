@@ -255,7 +255,7 @@ class RefDataImport {
 		FlowMapEntry entry = flowMap.getEntry(extId);
 		if (entry == null)
 			return null;
-		flow = flowDao.getForRefId(entry.openlcaFlowKey);
+		flow = flowDao.getForRefId(entry.referenceFlowID);
 		if (flow == null)
 			return null;
 		index.putMappedFlow(extId, entry.conversionFactor);

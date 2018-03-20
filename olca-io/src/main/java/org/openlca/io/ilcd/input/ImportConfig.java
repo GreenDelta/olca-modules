@@ -16,9 +16,10 @@ public class ImportConfig {
 			.getLogger(ImportConfig.class);
 	public final DataStore store;
 	public final IDatabase db;
-	public final FlowMap flowMap;
 	public boolean importFlows;
 	public String[] langs = { "en" };
+
+	private FlowMap flowMap;
 
 	public ImportConfig(File zip, IDatabase database) {
 		DataStore store = null;
@@ -29,13 +30,21 @@ public class ImportConfig {
 		}
 		this.store = store;
 		this.db = database;
-		this.flowMap = new FlowMap(Maps.ILCD_FLOW_IMPORT, database);
 	}
 
 	public ImportConfig(DataStore store, IDatabase database) {
 		this.store = store;
 		this.db = database;
-		this.flowMap = new FlowMap(Maps.ILCD_FLOW_IMPORT, database);
 	}
 
+	public FlowMap getFlowMap() {
+		if (flowMap == null) {
+			flowMap = new FlowMap(Maps.ILCD_FLOW_IMPORT, db);
+		}
+		return flowMap;
+	}
+
+	public void setFlowMap(FlowMap flowMap) {
+		this.flowMap = flowMap;
+	}
 }

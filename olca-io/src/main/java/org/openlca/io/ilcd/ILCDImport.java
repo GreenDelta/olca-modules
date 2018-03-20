@@ -169,13 +169,13 @@ public class ILCDImport implements FileImport {
 		if (flow == null)
 			return false;
 		String uuid = flow.getUUID();
-		FlowMapEntry me = config.flowMap.getEntry(uuid);
+		FlowMapEntry me = config.getFlowMap().getEntry(uuid);
 		if (me == null)
 			return false;
 		FlowDao dao = new FlowDao(config.db);
 		// TODO: we should cache the flow for later but
 		// we cannot do this currently: see ExchangeFlow
-		return dao.getForRefId(me.openlcaFlowKey) != null;
+		return dao.getForRefId(me.referenceFlowID) != null;
 	}
 
 	public void importProcess(String id) throws Exception {

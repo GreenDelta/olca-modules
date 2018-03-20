@@ -4,6 +4,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Exchange;
+import org.openlca.io.maps.FlowMap;
 import org.openlca.io.maps.FlowMapEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,15 +63,14 @@ class ExchangeFlow {
 	}
 
 	private Flow cache(String id, Flow flow) {
-		if (config.flowMap != null)
-			config.flowMap.cache(id, flow);
+		FlowMap flowMap = config.getFlowMap();
+		flowMap.cache(id, flow);
 		return flow;
 	}
 
 	private Flow fetchFromCache(String uuid) {
-		if (config.flowMap != null)
-			return config.flowMap.getCached(uuid);
-		return null;
+		FlowMap flowMap = config.getFlowMap();
+		return flowMap.getCached(uuid);
 	}
 
 	private Flow fetchFromDatabase(String flowId) {
@@ -84,12 +84,11 @@ class ExchangeFlow {
 	}
 
 	private Flow fetchFromFlowMap(String flowId) {
-		if (config.flowMap == null)
-			return null;
-		FlowMapEntry e = config.flowMap.getEntry(flowId);
+		FlowMap flowMap = config.getFlowMap();
+		FlowMapEntry e = flowMap.getEntry(flowId);
 		if (e == null)
 			return null;
-		String mappedID = e.openlcaFlowKey;
+		String mappedID = e.referenceFlowID;
 		Flow f = fetchFromCache(mappedID);
 		if (f == null) {
 			f = fetchFromDatabase(mappedID);

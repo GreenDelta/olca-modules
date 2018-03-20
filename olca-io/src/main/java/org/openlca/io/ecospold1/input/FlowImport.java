@@ -117,7 +117,7 @@ class FlowImport {
 		FlowMapEntry entry = flowMap.getEntry(genKey);
 		if (entry == null)
 			return null;
-		Flow flow = db.get(Flow.class, entry.openlcaFlowKey);
+		Flow flow = db.get(Flow.class, entry.referenceFlowID);
 		if (flow == null)
 			return null;
 		FlowBucket bucket = new FlowBucket();

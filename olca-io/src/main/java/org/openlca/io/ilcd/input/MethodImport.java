@@ -216,11 +216,11 @@ public class MethodImport {
 	}
 
 	private Flow getMappedFlow(String flowId) {
-		FlowMapEntry entry = config.flowMap.getEntry(flowId);
+		FlowMapEntry entry = config.getFlowMap().getEntry(flowId);
 		if (entry == null)
 			return null;
 		FlowDao dao = new FlowDao(config.db);
-		return dao.getForRefId(entry.openlcaFlowKey);
+		return dao.getForRefId(entry.referenceFlowID);
 	}
 
 	private Unit getRefUnit(Flow flow) {
