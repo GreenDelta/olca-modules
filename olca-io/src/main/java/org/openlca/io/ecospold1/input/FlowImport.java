@@ -35,10 +35,10 @@ class FlowImport {
 	private FlowMap flowMap;
 	private Map<String, FlowBucket> cache = new HashMap<>();
 
-	public FlowImport(DB db, UnitMapping unitMapping, FlowMap flowMap) {
+	public FlowImport(DB db, ImportConfig config) {
 		this.db = db;
-		this.unitMapping = unitMapping;
-		this.flowMap = flowMap;
+		this.unitMapping = config.getUnitMapping();
+		this.flowMap = config.getFlowMap();
 	}
 
 	/** Import a flow from a process import or export. */

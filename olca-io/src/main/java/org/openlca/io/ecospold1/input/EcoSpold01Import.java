@@ -13,7 +13,6 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -41,9 +40,6 @@ import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.io.FileImport;
 import org.openlca.io.ImportEvent;
 import org.openlca.io.ImportInfo;
-import org.openlca.io.UnitMapping;
-import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.Maps;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -68,20 +64,13 @@ public class EcoSpold01Import implements FileImport {
 
 	private final ImportInfo.Collector infos = new ImportInfo.Collector();
 
-	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping) {
-		this.db = new DB(iDatabase);
-		FlowMap flowMap = new FlowMap(Maps.ES1_FLOW_IMPORT, iDatabase);
-		this.flowImport = new FlowImport(db, unitMapping, flowMap);
+	public EcoSpold01Import(ImportConfig config) {
+		this.db = new DB(config.db);
+		this.flowImport = new FlowImport(db, config);
 	}
 
 	public List<ImportInfo> getInfos() {
 		return infos.get();
-	}
-
-	public EcoSpold01Import(IDatabase iDatabase, UnitMapping unitMapping,
-			File[] files) {
-		this(iDatabase, unitMapping);
-		this.files = files;
 	}
 
 	public void setFiles(File[] files) {
@@ -104,8 +93,8 @@ public class EcoSpold01Import implements FileImport {
 	}
 
 	/**
-	 * Runs the import with a set of files (use the respective constructor of
-	 * the setter method for the files).
+	 * Runs the import with a set of files (use the respective constructor of the
+	 * setter method for the files).
 	 */
 	public void run() {
 		if (files == null || files.length == 0)

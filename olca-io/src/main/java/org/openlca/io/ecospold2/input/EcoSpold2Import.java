@@ -28,11 +28,6 @@ public class EcoSpold2Import implements FileImport {
 		this.config = config;
 	}
 
-	public EcoSpold2Import(ImportConfig config, File[] files) {
-		this(config);
-		this.files = files;
-	}
-
 	public void setFiles(File[] files) {
 		this.files = files;
 	}

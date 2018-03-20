@@ -12,8 +12,8 @@ import org.openlca.core.model.Process;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpoldIO;
 import org.openlca.io.Tests;
-import org.openlca.io.UnitMapping;
 import org.openlca.io.ecospold1.input.EcoSpold01Import;
+import org.openlca.io.ecospold1.input.ImportConfig;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
 import org.openlca.io.ecospold1.output.ExportConfig;
 
@@ -25,8 +25,8 @@ public class TestEcoSpold1IO {
 	public void testIO() throws Exception {
 		InputStream in = openXml();
 		DataSetType type = EcoSpoldIO.getEcoSpoldType(in);
-		EcoSpold01Import es1Import = new EcoSpold01Import(database,
-				UnitMapping.createDefault(database));
+		ImportConfig config = new ImportConfig(database);
+		EcoSpold01Import es1Import = new EcoSpold01Import(config);
 		es1Import.run(openXml(), type);
 		ProcessDao dao = new ProcessDao(database);
 		List<Process> processes = dao.getForName("Bauxite, at mine");
