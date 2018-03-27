@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openlca</groupId>
 	<artifactId>olca-modules</artifactId>
-	<version>1.7.0</version>
+	<version>1.7.1</version>
 	<packaging>pom</packaging>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<url>http://www.openlca.org/</url>
@@ -43,6 +43,17 @@
 			<organizationUrl>http://www.greendelta.com</organizationUrl>
 			<roles>
 				<role>owner</role>
+				<role>developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+		<developer>
+			<id>sgreve</id>
+			<name>Sebastian Greve</name>
+			<email>greve@greendelta.com</email>
+			<organization>GreenDelta</organization>
+			<organizationUrl>http://www.greendelta.com</organizationUrl>
+			<roles>
 				<role>developer</role>
 			</roles>
 			<timezone>+1</timezone>
