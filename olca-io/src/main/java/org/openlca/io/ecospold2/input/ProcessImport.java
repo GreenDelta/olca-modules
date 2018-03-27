@@ -233,12 +233,9 @@ class ProcessImport {
 			String flowRefId, Flow flow, Process process) {
 		if (flow == null || flow.getReferenceFlowProperty() == null)
 			return null;
-		Exchange e = new Exchange();
-		final Flow flow1 = flow;
-		e.flow = flow1;
-		e.flowPropertyFactor = flow.getReferenceFactor();
-		e.description = es2.comment;
 		Unit unit = getFlowUnit(es2, flowRefId, flow);
+		Exchange e = process.exchange(flow, flow.getReferenceFlowProperty(), unit);
+		e.description = es2.comment;
 		if (unit == null)
 			return null;
 		final Unit unit1 = unit;
@@ -254,8 +251,6 @@ class ProcessImport {
 		if (config.withParameters && config.withParameterFormulas)
 			mapFormula(es2, process, e, f);
 		e.dqEntry = getPedigreeMatrix(es2);
-		e.internalId = process.drawNextInternalId();
-		process.getExchanges().add(e);
 		return e;
 	}
 

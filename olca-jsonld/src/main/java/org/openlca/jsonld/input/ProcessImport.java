@@ -131,7 +131,7 @@ class ProcessImport extends BaseImport<Process> {
 			JsonObject o = e.getAsJsonObject();
 			Exchange ex = Exchanges.map(o, conf);
 			if (ex.internalId == 0) {
-				ex.internalId = p.drawNextInternalId();
+				ex.internalId = ++p.lastInternalId;
 			}
 			lastId = Math.max(lastId, ex.internalId);
 			exchangeMap.put(ex.internalId, ex);

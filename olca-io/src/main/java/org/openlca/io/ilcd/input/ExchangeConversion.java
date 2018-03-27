@@ -27,16 +27,21 @@ class ExchangeConversion {
 			extension = ext;
 	}
 
-	public Exchange map() {
-		olcaExchange = initExchange();
+	public Exchange map(ExchangeFlow exchangeFlow) {
+		olcaExchange = initExchange(exchangeFlow);
 		new UncertaintyConverter().map(ilcdExchange, olcaExchange);
 		if (isParameterized())
 			mapFormula();
 		return olcaExchange;
 	}
 
-	private Exchange initExchange() {
-		Exchange e = new Exchange();
+	private Exchange initExchange(ExchangeFlow iEx) {
+		Exchange e = null;
+		if (iEx.flowProperty != null && iEx.unit != null) {
+			e = iEx.process.exchange(iEx.flow, iEx.flowProperty, iEx.unit);
+		} else {
+			e = iEx.process.exchange(iEx.flow);
+		}
 		boolean input = ilcdExchange.direction == ExchangeDirection.INPUT;
 		e.isInput = input;
 		e.description = LangString.getFirst(ilcdExchange.comment,

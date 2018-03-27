@@ -65,11 +65,11 @@ public class Process extends CategorizedEntity {
 	@OneToOne
 	@JoinColumn(name = "f_currency")
 	public Currency currency;
-	
+
 	@OneToOne
 	@JoinColumn(name = "f_dq_system")
 	public DQSystem dqSystem;
-	
+
 	@Column(name = "dq_entry")
 	public String dqEntry;
 
@@ -80,7 +80,7 @@ public class Process extends CategorizedEntity {
 	@OneToOne
 	@JoinColumn(name = "f_social_dq_system")
 	public DQSystem socialDqSystem;
-	
+
 	public ProcessDocumentation getDocumentation() {
 		return documentation;
 	}
@@ -145,16 +145,26 @@ public class Process extends CategorizedEntity {
 	public List<AllocationFactor> getAllocationFactors() {
 		return allocationFactors;
 	}
-	
-	public int drawNextInternalId() {
-		return ++lastInternalId;
+
+	public Exchange exchange(Flow flow) {
+		return add(Exchange.from(flow));
 	}
-	
+
+	public Exchange exchange(Flow flow, FlowProperty property, Unit unit) {
+		return add(Exchange.from(flow, property, unit));
+	}
+
+	private Exchange add(Exchange exchange) {
+		exchange.internalId = ++lastInternalId;
+		exchanges.add(exchange);
+		return exchange;
+	}
+
 	public Exchange getExchange(int internalId) {
-		for (Exchange exchange : exchanges) 
+		for (Exchange exchange : exchanges)
 			if (exchange.internalId == internalId)
 				return exchange;
 		return null;
 	}
-	
+
 }

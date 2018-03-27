@@ -59,8 +59,7 @@ class Exchanges {
 	private static void addExchangeRefs(JsonObject json, Exchange e,
 			ImportConfig conf) {
 		Flow flow = FlowImport.run(In.getRefId(json, "flow"), conf);
-		final Flow flow1 = flow;
-		e.flow = flow1;
+		e.flow = flow;
 		String unitId = In.getRefId(json, "unit");
 		e.unit = conf.db.getUnit(unitId);
 		if (flow == null)

@@ -90,8 +90,7 @@ public class UnitUseSearchTest {
 		Process process = new Process();
 		process.setName("process");
 		Exchange exchange = new Exchange();
-		final Unit unit1 = unit;
-		exchange.unit = unit1;
+		exchange.unit = unit;
 		process.getExchanges().add(exchange);
 		return new ProcessDao(database).insert(process);
 	}

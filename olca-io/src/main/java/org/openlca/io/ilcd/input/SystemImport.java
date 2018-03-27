@@ -14,15 +14,12 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Unit;
-import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.models.Connection;
@@ -178,8 +175,8 @@ public class SystemImport {
 	}
 
 	/**
-	 * Collect the flows that are used in the process links. This function must be
-	 * called after all processes are imported.
+	 * Collect the flows that are used in the process links. This function must
+	 * be called after all processes are imported.
 	 */
 	private Map<String, Flow> collectFlows(Technology tech) {
 		Set<String> usedFlows = new HashSet<>();
@@ -222,9 +219,9 @@ public class SystemImport {
 	/**
 	 * Creates a connector process for the given input flow and output flow. In
 	 * openLCA we can only link processes via the same flow. Therefore, if the
-	 * linked exchanges in an eILCD model have different flows, we need to create
-	 * such a process. Note that the input flow is the output and the output flow
-	 * the input in the connector process.
+	 * linked exchanges in an eILCD model have different flows, we need to
+	 * create such a process. Note that the input flow is the output and the
+	 * output flow the input in the connector process.
 	 */
 	private Process connector(Flow inFlow, Flow outFlow) {
 		Process p = new Process();
@@ -245,26 +242,9 @@ public class SystemImport {
 	}
 
 	private Exchange exchange(Flow flow, Process p, boolean isInput) {
-		Exchange e = new Exchange();
+		Exchange e = p.exchange(flow);
 		e.isInput = isInput;
-		e.amount = 1.0;
-		e.flow = flow;
-		e.flowPropertyFactor = flow.getReferenceFactor();
-		e.unit = getRefUnit(flow);
-		p.getExchanges().add(e);
 		return e;
-	}
-
-	private Unit getRefUnit(Flow flow) {
-		if (flow == null)
-			return null;
-		FlowPropertyFactor fpf = flow.getReferenceFactor();
-		if (fpf == null || fpf.getFlowProperty() == null)
-			return null;
-		UnitGroup ug = fpf.getFlowProperty().getUnitGroup();
-		if (ug == null)
-			return null;
-		return ug.getReferenceUnit();
 	}
 
 }

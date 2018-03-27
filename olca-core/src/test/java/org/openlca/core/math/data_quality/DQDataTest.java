@@ -66,8 +66,7 @@ public class DQDataTest {
 		process.exchangeDqSystem = dqSystem;
 		Exchange exchange = new Exchange();
 		exchange.dqEntry = dqEntry2;
-		final Flow flow1 = flow;
-		exchange.flow = flow1;
+		exchange.flow = flow;
 		process.getExchanges().add(exchange);
 		return process;
 	}

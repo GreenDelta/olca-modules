@@ -1,7 +1,7 @@
 package org.openlca.io.ecospold1.input;
 
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Unit;
 
 /**
@@ -13,7 +13,7 @@ class FlowBucket {
 
 	Flow flow;
 	double conversionFactor;
-	FlowPropertyFactor flowProperty;
+	FlowProperty flowProperty;
 	Unit unit;
 
 	boolean isValid() {

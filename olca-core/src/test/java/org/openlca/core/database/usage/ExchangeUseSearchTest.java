@@ -59,8 +59,7 @@ public class ExchangeUseSearchTest {
 			flow = new FlowDao(database).insert(flow);
 			modelStack.push(flow);
 			Exchange ep = new Exchange();
-			final Flow flow1 = flow;
-			ep.flow = flow1;
+			ep.flow = flow;
 			ep.isInput = false;
 			p.getExchanges().add(ep);
 			Exchange eq = ep.clone();

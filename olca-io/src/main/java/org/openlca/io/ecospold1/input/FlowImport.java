@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
@@ -123,7 +124,7 @@ class FlowImport {
 		FlowBucket bucket = new FlowBucket();
 		bucket.conversionFactor = entry.conversionFactor;
 		bucket.flow = flow;
-		bucket.flowProperty = flow.getReferenceFactor();
+		bucket.flowProperty = flow.getReferenceFlowProperty();
 		Unit unit = getReferenceUnit(bucket.flowProperty);
 		bucket.unit = unit;
 		if (!bucket.isValid()) {
@@ -133,10 +134,10 @@ class FlowImport {
 		return bucket;
 	}
 
-	private Unit getReferenceUnit(FlowPropertyFactor flowProperty) {
-		if (flowProperty == null || flowProperty.getFlowProperty() == null)
+	private Unit getReferenceUnit(FlowProperty flowProperty) {
+		if (flowProperty == null)
 			return null;
-		UnitGroup group = flowProperty.getFlowProperty().getUnitGroup();
+		UnitGroup group = flowProperty.getUnitGroup();
 		if (group == null)
 			return null;
 		return group.getReferenceUnit();
@@ -215,8 +216,7 @@ class FlowImport {
 		UnitMappingEntry mapEntry = unitMapping.getEntry(unit);
 		if (mapEntry == null || !mapEntry.isValid())
 			return null;
-		FlowPropertyFactor factor = flow.getFactor(mapEntry.flowProperty);
-		if (factor == null) {
+		if (flow.getFactor(mapEntry.flowProperty) != null) {
 			log.error("The unit/property for flow {}/{} "
 					+ "changed in the database", flow, unit);
 			return null;
@@ -224,7 +224,7 @@ class FlowImport {
 		FlowBucket bucket = new FlowBucket();
 		bucket.conversionFactor = 1.0;
 		bucket.flow = flow;
-		bucket.flowProperty = factor;
+		bucket.flowProperty = mapEntry.flowProperty;
 		bucket.unit = mapEntry.unit;
 		return bucket;
 	}

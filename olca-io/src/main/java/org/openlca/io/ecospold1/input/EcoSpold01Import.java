@@ -357,22 +357,14 @@ public class EcoSpold01Import implements FileImport {
 				log.error("Could not import flow {}", inExchange);
 				continue;
 			}
-			Exchange outExchange = new Exchange();
-			outExchange.flow = flow.flow;
-			outExchange.unit = flow.unit;
-			outExchange.flowPropertyFactor = flow.flowProperty;
+			Exchange outExchange = ioProcess.exchange(flow.flow, flow.flowProperty, flow.unit);
 			outExchange.isInput = inExchange.getInputGroup() != null;
-			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange,
-					inExchange);
+			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange, inExchange);
 			outExchange.description = inExchange.getGeneralComment();
 			exchangeAmount.map(flow.conversionFactor);
-			outExchange.internalId = ioProcess.drawNextInternalId();
-			ioProcess.getExchanges().add(outExchange);
 			localExchangeCache.put(inExchange.getNumber(), outExchange);
-			if (ioProcess.getQuantitativeReference() == null
-					&& inExchange.getOutputGroup() != null
-					&& (inExchange.getOutputGroup() == 0 || inExchange
-							.getOutputGroup() == 2)) {
+			if (ioProcess.getQuantitativeReference() == null && inExchange.getOutputGroup() != null
+					&& (inExchange.getOutputGroup() == 0 || inExchange.getOutputGroup() == 2)) {
 				ioProcess.setQuantitativeReference(outExchange);
 			}
 		}
@@ -388,7 +380,7 @@ public class EcoSpold01Import implements FileImport {
 			}
 			ImpactFactor factor = new ImpactFactor();
 			factor.flow = flow.flow;
-			factor.flowPropertyFactor = flow.flowProperty;
+			factor.flowPropertyFactor = flow.flow.getFactor(flow.flowProperty);
 			factor.unit = flow.unit;
 			factor.value = flow.conversionFactor * inFactor.getMeanValue();
 			ioCategory.impactFactors.add(factor);
@@ -430,16 +422,11 @@ public class EcoSpold01Import implements FileImport {
 			log.warn("Could not create reference flow {}", dataSet);
 			return;
 		}
-		Exchange outExchange = new Exchange();
-		outExchange.flow = flow.flow;
-		outExchange.unit = flow.unit;
-		outExchange.flowPropertyFactor = flow.flowProperty;
+		Exchange outExchange = ioProcess.exchange(flow.flow, flow.flowProperty, flow.unit);
 		outExchange.isInput = false;
 		double amount = dataSet.getReferenceFunction().getAmount()
 				* flow.conversionFactor;
 		outExchange.amount = amount;
-		outExchange.internalId = ioProcess.drawNextInternalId();
-		ioProcess.getExchanges().add(outExchange);
 		ioProcess.setQuantitativeReference(outExchange);
 	}
 

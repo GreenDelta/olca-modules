@@ -59,15 +59,22 @@ public class DQResultTest {
 		eFlow1 = createFlow(FlowType.ELEMENTARY_FLOW);
 		eFlow2 = createFlow(FlowType.ELEMENTARY_FLOW);
 		createDQSystem();
-		process1 = process(
-				exchange(1, "(1;2;3;4;5)", pFlow1, false),
-				exchange(2, null, pFlow2, true),
-				exchange(3, "(1;2;3;4;5)", eFlow1, true),
-				exchange(4, "(5;4;3;2;1)", eFlow2, true));
-		process2 = process(
-				exchange(1, "(5;4;3;2;1)", pFlow2, false),
-				exchange(5, "(5;4;3;2;1)", eFlow1, true),
-				exchange(6, "(1;2;3;4;5)", eFlow2, true));
+		ProcessDao dao = new ProcessDao(Tests.getDb());
+		process1 = process();
+		Exchange ref1 = exchange(process1, 1, "(1;2;3;4;5)", pFlow1, false);
+		exchange(process1, 2, null, pFlow2, true);
+		exchange(process1, 3, "(1;2;3;4;5)", eFlow1, true);
+		exchange(process1, 4, "(5;4;3;2;1)", eFlow2, true);
+		process1.dqEntry = ref1.dqEntry;
+		process1.setQuantitativeReference(ref1);
+		process1 = dao.insert(process1);
+		process2 = process();
+		Exchange ref2 = exchange(process2, 1, "(5;4;3;2;1)", pFlow2, false);
+		exchange(process2, 5, "(5;4;3;2;1)", eFlow1, true);
+		exchange(process2, 6, "(1;2;3;4;5)", eFlow2, true);
+		process2.dqEntry = ref2.dqEntry;
+		process2.setQuantitativeReference(ref2);
+		process2 = dao.insert(process2);
 		createProductSystem();
 		createImpactMethod();
 	}
@@ -124,25 +131,17 @@ public class DQResultTest {
 	}
 
 	/** The first exchange is the reference product. */
-	private Process process(Exchange... exchanges) {
+	private Process process() {
 		Process p = new Process();
 		p.dqSystem = dqSystem;
-		p.dqEntry = exchanges[0].dqEntry;
 		p.exchangeDqSystem = dqSystem;
-		p.setQuantitativeReference(exchanges[0]);
-		for (Exchange e : exchanges)
-			p.getExchanges().add(e);
-		return new ProcessDao(Tests.getDb()).insert(p);
+		return p;
 	}
 
-	private Exchange exchange(double amount, String dqEntry, Flow flow, boolean input) {
-		Exchange e = new Exchange();
+	private Exchange exchange(Process p, double amount, String dqEntry, Flow flow, boolean input) {
+		Exchange e = p.exchange(flow);
 		e.dqEntry = dqEntry;
-		final Flow flow1 = flow;
-		e.flow = flow1;
 		e.isInput = input;
-		e.flowPropertyFactor = flow.getReferenceFactor();
-		e.unit = unitGroup.getReferenceUnit();
 		e.amount = amount;
 		return e;
 	}

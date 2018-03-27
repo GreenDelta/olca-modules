@@ -46,8 +46,7 @@ public class FlowUseQueryTest {
 	@Test
 	public void testUsedAsOutput() {
 		Exchange exchange = new Exchange();
-		final Flow flow1 = flow;
-		exchange.flow = flow1;
+		exchange.flow = flow;
 		exchange.isInput = false;
 		process.getExchanges().add(exchange);
 		process = processDao.update(process);
@@ -61,8 +60,7 @@ public class FlowUseQueryTest {
 	@Test
 	public void testUsedAsInput() {
 		Exchange exchange = new Exchange();
-		final Flow flow1 = flow;
-		exchange.flow = flow1;
+		exchange.flow = flow;
 		exchange.isInput = true;
 		process.getExchanges().add(exchange);
 		process = processDao.update(process);

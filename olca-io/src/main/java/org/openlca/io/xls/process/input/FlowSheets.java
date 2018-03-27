@@ -222,12 +222,10 @@ class FlowSheets {
 	private class Factor {
 		double factor;
 		String property;
-		String refUnit;
 
 		Factor(int row) {
 			property = config.getString(factorSheet, row, 2);
 			factor = config.getDouble(factorSheet, row, 3);
-			refUnit = config.getString(factorSheet, row, 4);
 		}
 	}
 }

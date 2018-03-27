@@ -9,12 +9,8 @@ import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.UnitDao;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.Unit;
-import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.processes.AllocationFactor;
 import org.openlca.ilcd.util.ExchangeExtension;
 import org.openlca.ilcd.util.ProcessBag;
@@ -40,40 +36,37 @@ class ProcessExchanges {
 		for (org.openlca.ilcd.processes.Exchange iExchange : ilcdProcess
 				.getExchanges()) {
 			ExchangeFlow exchangeFlow = new ExchangeFlow(iExchange);
-			exchangeFlow.findOrImport(config);
-			Exchange exchange = createExchange(iExchange, exchangeFlow);
 			ExchangeExtension extension = new ExchangeExtension(iExchange);
-			if (extension.isValid())
-				mapExtension(extension, exchange, exchangeFlow.getFlow());
-			else
-				mapPropertyAndUnit(exchangeFlow, exchange);
-			if (isValid(exchange)) {
-				exchange.internalId = process.drawNextInternalId();
-				process.getExchanges().add(exchange);
-				mappedPairs.add(new MappedPair(exchange, iExchange));
-			} else {
-				log.warn("invalid exchange {} - not added to process {}",
-						exchange, process);
+			exchangeFlow.process = process;
+			exchangeFlow.findOrImport(config);
+			if (extension.isValid()) {
+				mapExtension(extension, exchangeFlow);
 			}
+			if (!exchangeFlow.isValid()) {
+				log.warn("invalid exchange {} - not added to process {}", exchangeFlow, process);
+				continue;
+			}
+			Exchange exchange = createExchange(iExchange, exchangeFlow);
+			// TODO: map default provider if extension is valid
+			// exchange.setDefaultProviderId(extension.getDefaultProvider());
+			if (extension.isValid() && extension.isAvoidedProduct()) {
+				exchange.isInput = true;
+				exchange.isAvoided = true;
+			}
+			mappedPairs.add(new MappedPair(exchange, iExchange));
 		}
 		mapAllocation(process);
 		mapReferenceFlow(ilcdProcess, process);
 	}
 
-	private boolean isValid(Exchange exchange) {
-		return exchange.flow != null
-				&& exchange.flowPropertyFactor != null
-				&& exchange.unit != null;
-	}
-
 	private Exchange createExchange(
 			org.openlca.ilcd.processes.Exchange iExchange,
 			ExchangeFlow exchangeFlow) {
-		Exchange oExchange = new ExchangeConversion(iExchange, config).map();
-		if (exchangeFlow.getFlow() != null) {
-			oExchange.flow = exchangeFlow.getFlow();
-			if (exchangeFlow.isMapped())
-				applyFlowAssignment(oExchange, exchangeFlow.getMapEntry());
+		Exchange oExchange = new ExchangeConversion(iExchange, config).map(exchangeFlow);
+		if (oExchange.flow != null) {
+			if (exchangeFlow.isMapped()) {
+				applyFlowAssignment(oExchange, exchangeFlow.mapEntry);
+			}
 		}
 		return oExchange;
 	}
@@ -90,39 +83,13 @@ class ProcessExchanges {
 		}
 	}
 
-	private void mapPropertyAndUnit(ExchangeFlow exchangeFlow,
-			Exchange oExchange) {
-		try {
-			Flow flowInfo = exchangeFlow.getFlow();
-			FlowProperty flowProperty = flowInfo.getReferenceFlowProperty();
-			FlowPropertyFactor factor = flowInfo.getFactor(flowProperty);
-			oExchange.flowPropertyFactor = factor;
-			UnitGroup unitGroup = flowProperty.getUnitGroup();
-			oExchange.unit = unitGroup.getReferenceUnit();
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(this.getClass());
-			log.error("Cannot get flow property or unit from database", e);
-		}
-	}
-
-	private void mapExtension(ExchangeExtension extension, Exchange exchange,
-			Flow flowInfo) {
-		// TODO: map default provider
-		// exchange.setDefaultProviderId(extension.getDefaultProvider());
-		if (extension.isAvoidedProduct()) {
-			exchange.isInput = true;
-			exchange.isAvoided = true;
-		}
+	private void mapExtension(ExchangeExtension extension, ExchangeFlow exchangeFlow) {
 		try {
 			UnitDao unitDao = new UnitDao(config.db);
-			Unit unit = unitDao.getForRefId(extension.getUnitId());
-			final Unit unit1 = unit;
-			exchange.unit = unit1;
+			exchangeFlow.unit = unitDao.getForRefId(extension.getUnitId());
 			FlowPropertyDao propDao = new FlowPropertyDao(config.db);
-			FlowProperty property = propDao.getForRefId(extension
-					.getPropertyId());
-			FlowPropertyFactor factor = flowInfo.getFactor(property);
-			exchange.flowPropertyFactor = factor;
+			FlowProperty property = propDao.getForRefId(extension.getPropertyId());
+			exchangeFlow.flowProperty = property;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.error("Cannot get flow property or unit from database", e);

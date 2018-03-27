@@ -58,20 +58,17 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Process createProcess() {
 		Process process = new Process();
-		process.getExchanges().add(createExchange());
+		Exchange exchange = createExchange(process);
 		process = insertAndAddExpected("processes", process);
-		addExpected("referenceExchange", process.getExchanges().get(0));
+		addExpected("referenceExchange", exchange);
 		return process;
 	}
 
-	private Exchange createExchange() {
-		Exchange exchange = new Exchange();
-		exchange.flow = createFlow(true);
-		exchange.flowPropertyFactor = exchange.flow
-		.getFlowPropertyFactors().get(0);
-		exchange.unit = exchange.flowPropertyFactor.getFlowProperty()
-		.getUnitGroup().getUnits().get(0);
-		return exchange;
+	private Exchange createExchange(Process process) {
+		Flow flow = createFlow(true);
+		FlowProperty property = flow.getFlowPropertyFactors().get(0).getFlowProperty();
+		Unit unit = property.getUnitGroup().getUnits().get(0);
+		return process.exchange(flow, property, unit);
 	}
 
 	private Flow createFlow(boolean reference) {
@@ -99,12 +96,10 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		ProcessLink link = new ProcessLink();
 		Flow flow = createFlow(false);
 		Exchange e1 = new Exchange();
-		final Flow flow1 = flow;
-		e1.flow = flow1;
+		e1.flow = flow;
 		p1.getExchanges().add(e1);
 		Exchange e2 = new Exchange();
-		final Flow flow2 = flow;
-		e2.flow = flow2;
+		e2.flow = flow;
 		p2.getExchanges().add(e2);
 		link.processId = p1.getId();
 		link.providerId = p2.getId();
