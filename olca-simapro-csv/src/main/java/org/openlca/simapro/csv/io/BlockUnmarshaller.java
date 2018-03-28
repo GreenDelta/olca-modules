@@ -208,7 +208,7 @@ public class BlockUnmarshaller {
 
 	private void setBooleanValue(Field field, String val) throws Exception {
 		String lowerVal = val.toLowerCase();
-		if (lowerVal.equals("yes") || lowerVal.equals(true)
+		if (lowerVal.equals("yes") || lowerVal.equals("true")
 				|| lowerVal.equals("1"))
 			field.set(model, Boolean.TRUE);
 		else
