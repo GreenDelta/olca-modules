@@ -2,6 +2,10 @@ package org.openlca.io.ilcd.input;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.Unit;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.io.maps.FlowMap;
@@ -15,19 +19,14 @@ class ExchangeFlow {
 	private ImportConfig config;
 	private Exchange ilcdExchange;
 
-	private Flow flow;
-	private FlowMapEntry mapEntry;
+	Process process;
+	Flow flow;
+	FlowMapEntry mapEntry;
+	FlowProperty flowProperty;
+	Unit unit;
 
 	public ExchangeFlow(Exchange ilcdExchange) {
 		this.ilcdExchange = ilcdExchange;
-	}
-
-	public Flow getFlow() {
-		return flow;
-	}
-
-	public FlowMapEntry getMapEntry() {
-		return mapEntry;
 	}
 
 	public boolean isMapped() {
@@ -107,6 +106,28 @@ class ExchangeFlow {
 			log.error("Cannot get flow", e);
 			return null;
 		}
+	}
+
+	boolean isValid() {
+		if (flow == null)
+			return false;
+		FlowProperty property = flowProperty;
+		if (property == null) {
+			property = flow.getReferenceFlowProperty();
+		}
+		if (property == null || flow.getFactor(property) == null)
+			return false;
+		UnitGroup group = property.getUnitGroup();
+		if (group == null)
+			return false;
+		if ((unit == null || group.getUnit(unit.getName()) == null) && group.getReferenceUnit() == null)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Exchange [flow=" + flow + ", flowProperty=" + flowProperty + ", unit=" + unit + "]";
 	}
 
 }

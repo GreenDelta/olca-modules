@@ -46,8 +46,8 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		String n3 = generateName();
 		String n4 = generateName();
 		String n5 = generateName();
-		process.getExchanges().add(createExchange(3d, true));
-		process.getExchanges().add(createExchange("2*" + n4, false));
+		createExchange(process, 3d, true);
+		createExchange(process, "2*" + n4, false);
 		process.getParameters().add(createParameter(n1, 3d, false));
 		process.getParameters().add(createParameter(n2, n1 + "*2*" + n3, false));
 		process.socialAspects.add(createSocialAspect());
@@ -86,20 +86,20 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		return process;
 	}
 
-	private Exchange createExchange(Object value, boolean provider) {
-		Exchange exchange = new Exchange();
-		exchange.flow = createFlow();
-		exchange.flowPropertyFactor = exchange.flow.getFlowPropertyFactors().get(0);
-		exchange.unit = exchange.flowPropertyFactor.getFlowProperty().getUnitGroup().getUnits().get(0);
+	private Exchange createExchange(Process process, Object value, boolean provider) {
+		Flow flow = createFlow();
+		FlowProperty property = flow.getFlowPropertyFactors().get(0).getFlowProperty();
+		Unit unit = property.getUnitGroup().getUnits().get(0);
+		Exchange exchange = process.exchange(flow, property, unit);
 		boolean formula = value instanceof String;
 		if (formula)
 			exchange.amountFormula = value.toString();
 		else
 			exchange.amount = (double) value;
 		if (provider) {
-			Process process = Tests.insert(new Process());
-			processes.put(process.getId(), process);
-			exchange.defaultProviderId = process.getId();
+			Process pProcess = Tests.insert(new Process());
+			processes.put(pProcess.getId(), pProcess);
+			exchange.defaultProviderId = pProcess.getId();
 		}
 		return exchange;
 	}

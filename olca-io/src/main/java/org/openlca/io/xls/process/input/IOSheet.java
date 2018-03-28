@@ -4,7 +4,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -45,8 +44,6 @@ class IOSheet {
 				if (exchange == null) {
 					break;
 				}
-				exchange.internalId = config.process.drawNextInternalId();
-				config.process.getExchanges().add(exchange);
 				row++;
 			}
 		} catch (Exception e) {
@@ -56,8 +53,6 @@ class IOSheet {
 
 	private Exchange readExchange(int row) {
 		RefData refData = config.refData;
-		Exchange exchange = new Exchange();
-		exchange.isInput = forInputs;
 		String name = config.getString(sheet, row, 0);
 		if (name == null) {
 			return null;
@@ -67,25 +62,21 @@ class IOSheet {
 		if (flow == null) {
 			return refDataError(row, "flow: " + name + "/" + category);
 		}
-		final Flow flow1 = flow;
-		exchange.flow = flow1;
 		String propName = config.getString(sheet, row, 2);
 		FlowProperty property = refData.getFlowProperty(propName);
 		if (property == null) {
 			return refDataError(row, "flow property: " + propName);
 		}
-		FlowPropertyFactor factor = flow.getFactor(property);
-		if (factor == null) {
+		if (flow.getFactor(property) == null) {
 			return refDataError(row, "flow property factor: " + propName);
 		}
-		exchange.flowPropertyFactor = factor;
 		String unitName = config.getString(sheet, row, 3);
 		Unit unit = refData.getUnit(unitName);
 		if (unit == null) {
 			return refDataError(row, "unit: " + unitName);
 		}
-		final Unit unit1 = unit;
-		exchange.unit = unit1;
+		Exchange exchange = config.process.exchange(flow, property, unit);
+		exchange.isInput = forInputs;
 		exchange.amount = config.getDouble(sheet, row, 4);
 		String formula = config.getString(sheet, row, 5);
 		if (!Strings.nullOrEmpty(formula)) {

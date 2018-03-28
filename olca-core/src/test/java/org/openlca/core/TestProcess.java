@@ -34,7 +34,8 @@ public class TestProcess {
 	}
 
 	/**
-	 * Creates a process with the given product output as quantitative reference.
+	 * Creates a process with the given product output as quantitative
+	 * reference.
 	 */
 	public static TestProcess refProduct(String flow, double amount, String unit) {
 		TestProcess tp = new TestProcess();
@@ -113,8 +114,8 @@ public class TestProcess {
 	}
 
 	/**
-	 * Adds an economic or physical allocation factor for the given flow and method
-	 * to the process. Use this method *after* the exchanges are added.
+	 * Adds an economic or physical allocation factor for the given flow and
+	 * method to the process. Use this method *after* the exchanges are added.
 	 */
 	public TestProcess alloc(String flow, AllocationMethod method, double factor) {
 		AllocationFactor f = new AllocationFactor();
@@ -141,15 +142,9 @@ public class TestProcess {
 
 	private Exchange prepareExchange(FlowType flowType, String flow,
 			double amount, String unit) {
-		Exchange e = new Exchange();
-		e.internalId = ++process.lastInternalId;
 		Flow f = flow(flow, unit, flowType);
-		final Flow flow1 = f;
-		e.flow = flow1;
-		e.flowPropertyFactor = f.getReferenceFactor();
-		e.unit = unit(unit);
+		Exchange e = process.exchange(f, f.getReferenceFlowProperty(), unit(unit));
 		e.amount = amount;
-		process.getExchanges().add(e);
 		return e;
 	}
 

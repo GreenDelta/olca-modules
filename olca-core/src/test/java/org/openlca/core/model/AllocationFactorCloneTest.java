@@ -37,8 +37,7 @@ public class AllocationFactorCloneTest {
 		Process process = new Process();
 		Flow flow = new Flow();
 		Exchange exchange = new Exchange();
-		final Flow flow1 = flow;
-		exchange.flow = flow1;
+		exchange.flow = flow;
 		exchange.amount = 42d;
 		process.getExchanges().add(exchange);
 		process.setQuantitativeReference(exchange);

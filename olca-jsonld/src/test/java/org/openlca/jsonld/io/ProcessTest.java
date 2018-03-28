@@ -136,28 +136,22 @@ public class ProcessTest extends AbstractZipTest {
 		Process p = new Process();
 		p.setName("process");
 		p.setRefId(UUID.randomUUID().toString());
-		Exchange out = createExchange(product, null);
+		Exchange out = createExchange(p, product, null);
 		out.isInput = false;
 		p.getExchanges().add(out);
 		p.setQuantitativeReference(out);
 		return dao.insert(p);
 	}
 
-	private Exchange createExchange(Flow product, Process provider) {
-		Exchange out = new Exchange();
-		out.amount = (double) 1;
-		final Flow flow = product;
-		out.flow = flow;
-		out.flowPropertyFactor = product.getReferenceFactor();
-		out.unit = product.getReferenceFactor().getFlowProperty()
-		.getUnitGroup().getReferenceUnit();
+	private Exchange createExchange(Process process, Flow product, Process provider) {
+		Exchange out = process.exchange(product);
 		if (provider != null)
 			out.defaultProviderId = provider.getId();
 		return out;
 	}
 
 	private Process addProvider(Process p, Process provider, ProcessDao dao) {
-		Exchange in = createExchange(provider.getQuantitativeReference().flow, provider);
+		Exchange in = createExchange(p, provider.getQuantitativeReference().flow, provider);
 		in.isInput = true;
 		p.getExchanges().add(in);
 		return dao.update(p);
