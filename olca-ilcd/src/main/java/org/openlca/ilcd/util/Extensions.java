@@ -25,7 +25,7 @@ class Extensions {
 
 	public static void setString(Map<QName, String> atts,
 			String attribute, String value) {
-		if (atts == null || attribute == null)
+		if (atts == null || attribute == null || value == null)
 			return;
 		QName qName = getQName(attribute);
 		atts.put(qName, value);
