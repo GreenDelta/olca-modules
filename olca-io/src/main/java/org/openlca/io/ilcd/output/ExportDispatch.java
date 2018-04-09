@@ -41,7 +41,7 @@ class ExportDispatch {
 			return checkRunProcessExport((Process) model, config);
 		if (model instanceof UnitGroup)
 			return checkRunUnitGroupExport((UnitGroup) model, config);
-		log.warn("Cannot export {}", model);
+		log.error("Cannot export {}", model);
 		return null;
 	}
 
@@ -55,7 +55,7 @@ class ExportDispatch {
 			}
 			return DataSetRef.makeRef(source, config);
 		} catch (Exception e) {
-			log.warn("Export of source {} failed.", source);
+			log.error("Export of source failed: " + source, e);
 			return null;
 		}
 	}
@@ -69,7 +69,7 @@ class ExportDispatch {
 			}
 			return DataSetRef.makeRef(actor, config);
 		} catch (Exception e) {
-			log.warn("Export of actor {} failed.", actor);
+			log.error("Export of actor failed: " + actor, e);
 			return null;
 		}
 	}
@@ -84,7 +84,7 @@ class ExportDispatch {
 			}
 			return DataSetRef.makeRef(flow, config);
 		} catch (Exception e) {
-			log.warn("Export of flow {} failed.", flow);
+			log.error("Export of flow failed: " + flow, e);
 			return null;
 		}
 	}
@@ -101,7 +101,7 @@ class ExportDispatch {
 			}
 			return DataSetRef.makeRef(flowProperty, config);
 		} catch (Exception e) {
-			log.warn("Export of flow property {} failed.", flowProperty);
+			log.error("Export of flow property failed: " + flowProperty, e);
 			return null;
 		}
 	}
@@ -116,7 +116,7 @@ class ExportDispatch {
 			}
 			return DataSetRef.makeRef(unitGroup, config);
 		} catch (Exception e) {
-			log.warn("Export of unit group {} failed.", unitGroup);
+			log.error("Export of unit group failed: " + unitGroup, e);
 			return null;
 		}
 	}
@@ -132,7 +132,7 @@ class ExportDispatch {
 			}
 			return DataSetRef.makeRef(process, config);
 		} catch (Exception e) {
-			log.warn("Export of process {} failed.", process);
+			log.error("Export of process failed: " + process, e);
 			return null;
 		}
 	}
