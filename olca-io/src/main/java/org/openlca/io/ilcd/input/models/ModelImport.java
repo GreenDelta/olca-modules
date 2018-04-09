@@ -64,12 +64,12 @@ public class ModelImport {
 				IO.mapMetaData(model, system);
 				mapCategory(model);
 				mapModel(model);
+				return dao.insert(system);
 			} else {
 				Graph g = Graph.build(model, config.db);
 				g = Transformation.on(g);
-				system = new GraphSync(config.db).sync(model, g);
+				return new GraphSync(config.db).sync(model, g);
 			}
-			return system;
 		} catch (Exception e) {
 			throw new ImportException("Failed to get/create product system", e);
 		}
@@ -162,8 +162,8 @@ public class ModelImport {
 	}
 
 	/**
-	 * Collect the flows that are used in the process links. This function must
-	 * be called after all processes are imported.
+	 * Collect the flows that are used in the process links. This function must be
+	 * called after all processes are imported.
 	 */
 	private Map<String, Flow> collectFlows(Technology tech) {
 		Set<String> usedFlows = new HashSet<>();
@@ -206,9 +206,9 @@ public class ModelImport {
 	/**
 	 * Creates a connector process for the given input flow and output flow. In
 	 * openLCA we can only link processes via the same flow. Therefore, if the
-	 * linked exchanges in an eILCD model have different flows, we need to
-	 * create such a process. Note that the input flow is the output and the
-	 * output flow the input in the connector process.
+	 * linked exchanges in an eILCD model have different flows, we need to create
+	 * such a process. Note that the input flow is the output and the output flow
+	 * the input in the connector process.
 	 */
 	private Process connector(Flow inFlow, Flow outFlow) {
 		Process p = new Process();
