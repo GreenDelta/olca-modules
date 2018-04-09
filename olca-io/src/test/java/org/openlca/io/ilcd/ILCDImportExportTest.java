@@ -1,9 +1,12 @@
 package org.openlca.io.ilcd;
 
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 import javax.xml.bind.JAXB;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -15,6 +18,7 @@ import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.io.MemDataStore;
+import org.openlca.ilcd.io.ZipStore;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
@@ -43,11 +47,15 @@ public class ILCDImportExportTest {
 
 	private static ImportConfig importConfig;
 	private static ExportConfig exportConfig;
+	private static File zip;
 
 	@BeforeClass
 	public static void setUp() throws Exception {
+		zip = Files.createTempFile("_olca_ilcd_export_test", ".zip").toFile();
+		zip.delete();
+		ZipStore store = new ZipStore(zip);
 		importConfig = new ImportConfig(new MemDataStore(), Tests.getDb());
-		exportConfig = new ExportConfig(Tests.getDb(), new MemDataStore());
+		exportConfig = new ExportConfig(Tests.getDb(), store);
 		put("contact.xml", "177ca340-ffa2-11da-92e3-0800200c9a66",
 				Contact.class);
 		put("source.xml", "2c699413-f88b-4cb5-a56d-98cb4068472f", Source.class);
@@ -57,6 +65,12 @@ public class ILCDImportExportTest {
 		put("flow.xml", "0d7a3ad1-6556-11dd-ad8b-0800200c9a66", Flow.class);
 		put("process.xml", "76d6aaa4-37e2-40b2-994c-03292b600074",
 				Process.class);
+	}
+
+	@AfterClass
+	public static void tearDown() throws Exception {
+		exportConfig.store.close();
+		zip.delete();
 	}
 
 	private static <T extends IDataSet> void put(String file, String id, Class<T> clazz)
