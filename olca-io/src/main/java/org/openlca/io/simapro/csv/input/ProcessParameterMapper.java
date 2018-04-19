@@ -1,7 +1,5 @@
 package org.openlca.io.simapro.csv.input;
 
-import java.util.UUID;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
@@ -40,53 +38,27 @@ class ProcessParameterMapper {
 	}
 
 	/**
-	 * Maps the parameter of the SimaPro process to the given openLCA process
-	 * and creates an interpreter scope for this process. The parameters of the
-	 * process are bound to this scope and can be used in evaluations later.
+	 * Maps the parameter of the SimaPro process to the given openLCA process and
+	 * creates an interpreter scope for this process. The parameters of the process
+	 * are bound to this scope and can be used in evaluations later.
 	 */
 	public long map(ProcessBlock block, Process process) {
 		this.process = process;
 		long scopeId = ++nextScope;
 		Scope scope = interpreter.createScope(scopeId);
 		for (InputParameterRow row : block.getInputParameters()) {
-			Parameter parameter = create(row);
-			String val = Double.toString(parameter.getValue());
-			scope.bind(parameter.getName(), val);
+			Parameter p = Parameters.create(row, ParameterScope.PROCESS);
+			process.getParameters().add(p);
+			scope.bind(p.getName(), Double.toString(p.getValue()));
 		}
 		for (CalculatedParameterRow row : block.getCalculatedParameters()) {
-			Parameter parameter = create(row);
-			scope.bind(parameter.getName(), parameter.getFormula());
+			Parameter p = Parameters.create(row, ParameterScope.PROCESS);
+			process.getParameters().add(p);
+			scope.bind(p.getName(), p.getFormula());
 		}
 		evalProcessParameters(scopeId);
 		this.process = null;
 		return scopeId;
-	}
-
-	private Parameter create(InputParameterRow row) {
-		Parameter p = new Parameter();
-		p.setRefId(UUID.randomUUID().toString());
-		p.setName(row.getName());
-		p.setInputParameter(true);
-		p.setScope(ParameterScope.PROCESS);
-		p.setValue(row.getValue());
-		p.setUncertainty(Uncertainties.get(row.getValue(),
-				row.getUncertainty()));
-		p.setDescription(row.getComment());
-		process.getParameters().add(p);
-		return p;
-	}
-
-	private Parameter create(CalculatedParameterRow row) {
-		Parameter p = new Parameter();
-		p.setRefId(UUID.randomUUID().toString());
-		p.setName(row.getName());
-		p.setInputParameter(false);
-		p.setScope(ParameterScope.PROCESS);
-		String expr = row.getExpression();
-		p.setFormula(expr);
-		p.setDescription(row.getComment());
-		process.getParameters().add(p);
-		return p;
 	}
 
 	private void evalProcessParameters(long scopeId) {

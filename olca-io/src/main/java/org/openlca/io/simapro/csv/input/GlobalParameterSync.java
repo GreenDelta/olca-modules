@@ -3,7 +3,6 @@ package org.openlca.io.simapro.csv.input;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
@@ -39,14 +38,14 @@ class GlobalParameterSync {
 		for (InputParameterRow row : index.getInputParameters()) {
 			if (contains(row.getName(), globals))
 				continue;
-			Parameter param = inputParam(row);
+			Parameter param = Parameters.create(row, ParameterScope.GLOBAL);
 			added.add(param.getName());
 			globals.add(param);
 		}
 		for (CalculatedParameterRow row : index.getCalculatedParameters()) {
 			if (contains(row.getName(), globals))
 				continue;
-			Parameter param = calculatedParam(row);
+			Parameter param = Parameters.create(row, ParameterScope.GLOBAL);
 			globals.add(param);
 			added.add(param.getName());
 		}
@@ -78,39 +77,6 @@ class GlobalParameterSync {
 			p.setInputParameter(true);
 			p.setValue(1.0);
 		}
-	}
-
-	private Parameter inputParam(InputParameterRow row) {
-		Parameter p = new Parameter();
-		p.setRefId(UUID.randomUUID().toString());
-		p.setName(row.getName());
-		p.setInputParameter(true);
-		p.setScope(ParameterScope.GLOBAL);
-		p.setValue(row.getValue());
-		p.setFormula(Double.toString(row.getValue()));
-		p.setDescription(row.getComment());
-		p.setUncertainty(Uncertainties.get(row.getValue(),
-				row.getUncertainty()));
-		return p;
-	}
-
-	private Parameter calculatedParam(CalculatedParameterRow row) {
-		Parameter p = new Parameter();
-		p.setRefId(UUID.randomUUID().toString());
-		p.setName(row.getName());
-		p.setScope(ParameterScope.GLOBAL);
-		p.setDescription(row.getComment());
-		p.setInputParameter(false);
-		String expr = row.getExpression();
-		if (expr.contains("(") && expr.contains(",")) {
-			// openLCA uses semicolons as parameter separators in functions
-			// but SimaPro uses commas here
-			log.warn("Replaced ',' with ';' for global "
-					+ "parameter formula of {}", p.getName());
-			expr = expr.replaceAll(",", ";");
-		}
-		p.setFormula(expr);
-		return p;
 	}
 
 	private List<Parameter> loadGlobals() {
