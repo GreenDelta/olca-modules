@@ -128,42 +128,4 @@ class Search {
 		return idLists;
 	}
 
-	static List<Reference> applyOwnerMaps(
-			List<Reference> references,
-			Map<Long, Class<? extends AbstractEntity>> ownerTypes,
-			Map<Long, Long> ownerIds,
-			Map<Class<? extends AbstractEntity>, Map<Class<? extends AbstractEntity>, String>> nestedProperties) {
-		List<Reference> results = new ArrayList<>();
-		for (Reference r : references) {
-			if (!ownerTypes.containsKey(r.ownerId)
-					|| !ownerIds.containsKey(r.ownerId)) {
-				results.add(r);
-				continue;
-			}
-			Class<? extends AbstractEntity> ownerType = ownerTypes
-					.get(r.ownerId);
-			long ownerId = ownerIds.get(r.ownerId);
-			String nestedProperty = getNestedProperty(r.getType(), ownerType,
-					nestedProperties);
-			results.add(new Reference(r.property, r.getType(), r.id, ownerType,
-					ownerId, nestedProperty, r.getOwnerType(), r.ownerId,
-					r.optional));
-		}
-		return results;
-	}
-
-	private static String getNestedProperty(
-			Class<? extends AbstractEntity> type,
-			Class<? extends AbstractEntity> ownerType,
-			Map<Class<? extends AbstractEntity>, Map<Class<? extends AbstractEntity>, String>> nestedProperties) {
-		String defaultValue = "unknown";
-		Map<Class<? extends AbstractEntity>, String> map = nestedProperties
-				.get(ownerType);
-		if (map == null)
-			return defaultValue;
-		String value = map.get(type);
-		if (value == null)
-			return defaultValue;
-		return value;
-	}
 }

@@ -8,6 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.util.Strings;
 
 /** Search of used entities within an entity. */
 public interface IReferenceSearch<T extends CategorizedDescriptor> {
@@ -69,15 +70,15 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 		private static final long serialVersionUID = -3036634720068312246L;
 
 		public final String property;
-		private final String type;
+		public final String type;
 		public final long id;
-		private final String ownerType;
+		public final String ownerType;
 		public final long ownerId;
 		public final String nestedProperty;
-		private final String nestedOwnerType;
+		public final String nestedOwnerType;
 		public final long nestedOwnerId;
 		public final boolean optional;
-		
+
 		public Reference(String property, Class<? extends AbstractEntity> type, long id,
 				Class<? extends AbstractEntity> ownerType, long ownerId) {
 			this(property, type, id, ownerType, ownerId, null, null, 0l, false);
@@ -99,8 +100,7 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 			this.ownerType = ownerType.getCanonicalName();
 			this.ownerId = ownerId;
 			this.nestedProperty = nestedProperty;
-			this.nestedOwnerType = nestedOwnerType != null ? nestedOwnerType
-					.getCanonicalName() : null;
+			this.nestedOwnerType = nestedOwnerType != null ? nestedOwnerType.getCanonicalName() : null;
 			this.nestedOwnerId = nestedOwnerId;
 			this.optional = optional;
 		}
@@ -117,8 +117,7 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 		@SuppressWarnings("unchecked")
 		public Class<? extends AbstractEntity> getOwnerType() {
 			try {
-				return (Class<? extends AbstractEntity>) Class
-						.forName(ownerType);
+				return (Class<? extends AbstractEntity>) Class.forName(ownerType);
 			} catch (ClassNotFoundException e) {
 				return null;
 			}
@@ -129,11 +128,39 @@ public interface IReferenceSearch<T extends CategorizedDescriptor> {
 			if (nestedOwnerType == null)
 				return null;
 			try {
-				return (Class<? extends AbstractEntity>) Class
-						.forName(nestedOwnerType);
+				return (Class<? extends AbstractEntity>) Class.forName(nestedOwnerType);
 			} catch (ClassNotFoundException e) {
 				return null;
 			}
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == this)
+				return true;
+			if (!(obj instanceof Reference))
+				return false;
+			Reference other = (Reference) obj;
+			if (other.id != id)
+				return false;
+			if (other.ownerId != ownerId)
+				return false;
+			if (other.nestedOwnerId != nestedOwnerId)
+				return false;
+			if (!Strings.nullOrEqual(other.property, property))
+				return false;
+			if (other.getType() != getType())
+				return false;
+			if (other.getOwnerType() != getOwnerType())
+				return false;
+			if (other.getNestedOwnerType() != getNestedOwnerType())
+				return false;
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			return (property + id + ownerId + nestedOwnerId + type + ownerType + nestedOwnerType).hashCode();
 		}
 
 	}

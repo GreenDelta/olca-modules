@@ -10,6 +10,7 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -32,6 +33,9 @@ public class ImpactMethodReferenceSearch extends
 					"f_flow_property_factor"),
 			new Ref(Unit.class, "unit", ImpactFactor.class, "impactFactors", "f_unit")
 	};
+	private final static Ref[] propertyFactorReferences = {
+		new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor", "f_flow_property") 
+};
 
 	public ImpactMethodReferenceSearch(IDatabase database, boolean includeOptional) {
 		super(database, ImpactMethod.class, includeOptional);
@@ -60,6 +64,15 @@ public class ImpactMethodReferenceSearch extends
 			map.put(factor, categories.get(factors.get(factor)));
 		results.addAll(findReferences("tbl_impact_factors", "id", map.keySet(),
 				map, factorReferences));
+		List<Reference> propertyFactors = new ArrayList<>();
+		for (Reference ref : results) {
+			if (ref.getType() != FlowPropertyFactor.class)
+				continue;
+			propertyFactors.add(ref);
+		}
+		Map<Long, Long> factorIds = toIdMap(propertyFactors);
+		results.addAll(findReferences("tbl_flow_property_factors", "id", factorIds.keySet(), factorIds,
+				propertyFactorReferences));
 		return results;
 	}
 

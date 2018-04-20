@@ -15,6 +15,7 @@ import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
@@ -43,6 +44,9 @@ public class ProcessReferenceSearch extends
 					"f_flow_property_factor"),
 			new Ref(Unit.class, "unit", Exchange.class, "exchanges", "f_unit"),
 			new Ref(Process.class, "defaultProviderId", Exchange.class, "exchanges", "f_default_provider", true, true)
+	};
+	private final static Ref[] factorReferences = {
+			new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor", "f_flow_property") 
 	};
 	private final static Ref[] socialAspectReferences = {
 			new Ref(SocialIndicator.class, "indicator", SocialAspect.class, "socialAspects", "f_indicator", false),
@@ -81,8 +85,18 @@ public class ProcessReferenceSearch extends
 	private List<Reference> findExchangeReferences(Set<Long> ids) {
 		Map<Long, Long> exchanges = toIdMap(findReferences("tbl_exchanges",
 				"f_owner", ids, new Ref[] { new Ref(Exchange.class, "id", "id") }));
-		return findReferences("tbl_exchanges", "id", exchanges.keySet(),
+		List<Reference> references = findReferences("tbl_exchanges", "id", exchanges.keySet(),
 				exchanges, exchangeReferences);
+		List<Reference> factors = new ArrayList<>();
+		for (Reference ref : references) {
+			if (ref.getType() != FlowPropertyFactor.class) 
+				continue;
+			factors.add(ref);
+		}
+		Map<Long, Long> factorIds = toIdMap(factors);
+		references.addAll(findReferences("tbl_flow_property_factors", "id", factorIds.keySet(), factorIds,
+				factorReferences));
+		return references;
 	}
 
 	private List<Reference> findSocialAspectReferences(Set<Long> ids) {
