@@ -7,7 +7,7 @@ public class Test {
 
 	public static void main(String[] args) {
 		IDatabase db = DerbyDatabase.createInMemory();
-		Server server = new Server(8080, db);
-
+		Server server = new Server(8080, db); // Take 0 to select a random port
+		System.out.println("Started server @" + server.getListeningPort());
 	}
 }
