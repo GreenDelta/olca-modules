@@ -1,14 +1,23 @@
 package org.openlca.ipc;
 
+import com.google.gson.JsonPrimitive;
+
 class Responses {
 
-	static RpcResponse serverError(Exception e) {
+	static RpcResponse ok(RpcRequest req) {
+		RpcResponse response = new RpcResponse();
+		if (req != null) {
+			response.id = req.id;
+		}
+		response.result = new JsonPrimitive("ok");
+		return response;
+	}
+
+	static RpcResponse serverError(Exception e, RpcRequest req) {
 		RpcError error = new RpcError();
 		error.code = -32000;
-		error.message = "An internal server error occurred: " + e.getMessage();
-		RpcResponse response = new RpcResponse();
-		response.error = error;
-		return response;
+		error.message = "Unhandled server error: " + e.getMessage();
+		return response(error, req);
 	}
 
 	static RpcResponse requestError(String message) {
@@ -24,11 +33,25 @@ class Responses {
 	static RpcResponse unknownMethod(RpcRequest req) {
 		RpcError error = new RpcError();
 		error.code = -32601;
-		String method = req.method == null ? "?" : req.method;
+		String method = req == null ? "?" : req.method;
 		error.message = "Does not understand: " + method;
+		return response(error, req);
+	}
+
+	static RpcResponse invalidParams(String message, RpcRequest req) {
+		RpcError error = new RpcError();
+		error.code = -32602;
+		error.message = "Invalid params: " + message;
+		return response(error, req);
+	}
+
+	private static RpcResponse response(RpcError error, RpcRequest req) {
 		RpcResponse response = new RpcResponse();
 		response.error = error;
-		response.id = req.id;
+		if (req != null) {
+			response.id = req.id;
+		}
 		return response;
 	}
+
 }
