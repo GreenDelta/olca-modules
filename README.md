@@ -54,3 +54,31 @@ will respond with:
   }
 }
 ```
+
+The server will respond with the requested data set as result:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result":{
+    "@id": "4a40cb39-e306-3649-b6da-ca061e384e23",
+    "@type": "Flow",
+    "name": "electricity, high voltage, at grid",
+    "description": "..." 
+  }
+}
+```
+
+If there is no such model in the database an error will returned:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error":{
+    "code": 404,
+    "message": "Not found"
+  }
+}
+```

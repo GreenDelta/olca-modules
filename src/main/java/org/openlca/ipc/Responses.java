@@ -1,5 +1,6 @@
 package org.openlca.ipc;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 class Responses {
@@ -11,6 +12,22 @@ class Responses {
 		}
 		response.result = new JsonPrimitive("ok");
 		return response;
+	}
+
+	static RpcResponse ok(JsonElement result, RpcRequest req) {
+		RpcResponse response = new RpcResponse();
+		if (req != null) {
+			response.id = req.id;
+		}
+		response.result = result;
+		return response;
+	}
+
+	static RpcResponse error(int code, String message, RpcRequest req) {
+		RpcError error = new RpcError();
+		error.code = code;
+		error.message = message;
+		return response(error, req);
 	}
 
 	static RpcResponse serverError(Exception e, RpcRequest req) {

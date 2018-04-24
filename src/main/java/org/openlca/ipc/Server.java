@@ -3,10 +3,13 @@ package org.openlca.ipc;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import fi.iki.elonen.NanoHTTPD;
+import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
+import org.openlca.jsonld.output.JsonExport;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +53,8 @@ public class Server extends NanoHTTPD {
 		switch (method) {
 			case INSERT_MODEL:
 				return insertModel(req);
+			case GET_MODEL:
+				return getModel(req);
 			default:
 				return Responses.unknownMethod(req);
 		}
@@ -62,13 +67,11 @@ public class Server extends NanoHTTPD {
 	}
 
 	private RpcResponse insertModel(RpcRequest req) {
-		if (req.params == null || !req.params.isJsonObject())
-			return Responses.invalidParams("params must be an object", req);
-		JsonObject obj = req.params.getAsJsonObject();
-		BaseDescriptor d = Models.getDescriptor(obj);
+		BaseDescriptor d = getDescriptor(req);
 		if (d == null)
 			return Responses.invalidParams("params must be an object with" +
 					" valid @id and @type", req);
+		JsonObject obj = req.params.getAsJsonObject();
 		try {
 			MemStore store = new MemStore();
 			store.put(d.getModelType(), obj);
@@ -79,6 +82,35 @@ public class Server extends NanoHTTPD {
 		} catch (Exception e) {
 			return Responses.serverError(e, req);
 		}
+	}
+
+	private RpcResponse getModel(RpcRequest req) {
+		BaseDescriptor d = getDescriptor(req);
+		if (d == null)
+			return Responses.invalidParams("params must be an object with" +
+					" valid @id and @type", req);
+		try {
+			RootEntity e = Daos.root(db, d.getModelType()).getForRefId(d.getRefId());
+			if (e == null)
+				return Responses.error(404, "Not found", req);
+			MemStore store = new MemStore();
+			JsonExport exp = new JsonExport(db, store);
+			exp.setExportReferences(false);
+			exp.write(e);
+			JsonObject obj = store.get(d.getModelType(), d.getRefId());
+			if (obj == null)
+				return Responses.error(500, "Conversion to JSON failed", req);
+			return Responses.ok(obj, req);
+		} catch (Exception e) {
+			return Responses.serverError(e, req);
+		}
+	}
+
+	private BaseDescriptor getDescriptor(RpcRequest req) {
+		if (req.params == null || !req.params.isJsonObject())
+			return null;
+		JsonObject obj = req.params.getAsJsonObject();
+		return Models.getDescriptor(obj);
 	}
 
 
