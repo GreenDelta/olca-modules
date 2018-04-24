@@ -1,12 +1,10 @@
 package org.openlca.ipc;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import fi.iki.elonen.NanoHTTPD;
 import org.openlca.core.database.IDatabase;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Server extends NanoHTTPD {
@@ -27,11 +25,14 @@ public class Server extends NanoHTTPD {
 
 	@Override
 	public Response serve(IHTTPSession session) {
-		JsonObject obj = new JsonObject();
-		obj.addProperty("jsonrpc", "2.0");
-		byte[] data = new Gson().toJson(obj).getBytes("utf-8");
-		InputStream stream = new ByteArrayInputStream(data);
-		return newFixedLengthResponse(Response.Status.OK, "application/json",
-				stream, data.length);
+		RcpResponse r = new RcpResponse();
+		r.result = new JsonPrimitive("ok!");
+		return serve(r);
+	}
+
+	private Response serve(RcpResponse r) {
+		String json = new Gson().toJson(r);
+		return newFixedLengthResponse(Response.Status.OK,
+				"application/json", json);
 	}
 }
