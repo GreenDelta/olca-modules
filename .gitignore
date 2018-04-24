@@ -1,0 +1,6 @@
+# Maven output
+target/
+
+# IDE files
+.idea/
+*.iml
