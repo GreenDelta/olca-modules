@@ -56,6 +56,11 @@ class MemStore implements EntityStore {
 		return null;
 	}
 
+	List<JsonObject> getAll(ModelType type) {
+		List<JsonObject> models = data.get(type);
+		return models == null ? Collections.emptyList() : models;
+	}
+
 	@Override
 	public void putBin(ModelType type, String s, String s1, byte[] bytes) {
 	}

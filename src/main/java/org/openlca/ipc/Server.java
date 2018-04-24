@@ -1,11 +1,13 @@
 package org.openlca.ipc;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import fi.iki.elonen.NanoHTTPD;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.jsonld.input.JsonImport;
@@ -58,6 +60,8 @@ public class Server extends NanoHTTPD {
 				return saveModel(req, UpdateMode.ALWAYS);
 			case GET_MODEL:
 				return getModel(req);
+			case GET_MODELS:
+				return getModels(req);
 			case DELETE_MODEL:
 				return deleteModel(req);
 			default:
@@ -125,6 +129,27 @@ public class Server extends NanoHTTPD {
 				return Responses.error(404, "Not found", req);
 			dao.delete(e);
 			return Responses.ok(req);
+		} catch (Exception e) {
+			return Responses.serverError(e, req);
+		}
+	}
+
+	private RpcResponse getModels(RpcRequest req) {
+		if (req.params == null || !req.params.isJsonObject())
+			return Responses.invalidParams("params must be an object with" +
+				" valid @type attribute", req);
+		ModelType type = Models.getType(req.params.getAsJsonObject());
+		if (type == null)
+			return Responses.invalidParams("params must be an object with" +
+					" valid @type attribute", req);
+		try {
+			MemStore store = new MemStore();
+			JsonExport exp = new JsonExport(db, store);
+			exp.setExportReferences(false);
+			Daos.root(db, type).getAll().forEach(exp::write);
+			JsonArray array = new JsonArray();
+			store.getAll(type).forEach(obj -> array.add(obj));
+			return Responses.ok(array, req);
 		} catch (Exception e) {
 			return Responses.serverError(e, req);
 		}

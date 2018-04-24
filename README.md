@@ -83,6 +83,17 @@ If there is no such model in the database an error will returned:
 }
 ```
 
+### Get all models/data sets of a type
+
+```json
+{
+  "method": "get/models",
+  "params": {
+    "@type": "Flow"
+  }
+}
+```
+
 ### Update a model / a data set
 The request for updating a model and also the corresponding response is the same
 as for inserting a model, just the method name is `update/model` in this case:
