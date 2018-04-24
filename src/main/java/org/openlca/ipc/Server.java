@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import fi.iki.elonen.NanoHTTPD;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.jsonld.input.JsonImport;
@@ -52,9 +53,13 @@ public class Server extends NanoHTTPD {
 			return Responses.unknownMethod(req);
 		switch (method) {
 			case INSERT_MODEL:
-				return insertModel(req);
+				return saveModel(req, UpdateMode.NEVER);
+			case UPDATE_MODEL:
+				return saveModel(req, UpdateMode.ALWAYS);
 			case GET_MODEL:
 				return getModel(req);
+			case DELETE_MODEL:
+				return deleteModel(req);
 			default:
 				return Responses.unknownMethod(req);
 		}
@@ -66,7 +71,7 @@ public class Server extends NanoHTTPD {
 				"application/json", json);
 	}
 
-	private RpcResponse insertModel(RpcRequest req) {
+	private RpcResponse saveModel(RpcRequest req, UpdateMode mode) {
 		BaseDescriptor d = getDescriptor(req);
 		if (d == null)
 			return Responses.invalidParams("params must be an object with" +
@@ -76,7 +81,7 @@ public class Server extends NanoHTTPD {
 			MemStore store = new MemStore();
 			store.put(d.getModelType(), obj);
 			JsonImport imp = new JsonImport(store, db);
-			imp.setUpdateMode(UpdateMode.NEVER);
+			imp.setUpdateMode(mode);
 			imp.run(d.getModelType(), d.getRefId());
 			return Responses.ok(req);
 		} catch (Exception e) {
@@ -106,12 +111,29 @@ public class Server extends NanoHTTPD {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private <T extends RootEntity> RpcResponse deleteModel(RpcRequest req) {
+		BaseDescriptor d = getDescriptor(req);
+		if (d == null)
+			return Responses.invalidParams("params must be an object with" +
+					" valid @id and @type", req);
+		try {
+			RootEntityDao<T, ?> dao = (RootEntityDao<T, ?>) Daos.root(
+					db, d.getModelType());
+			T e = dao.getForRefId(d.getRefId());
+			if (e == null)
+				return Responses.error(404, "Not found", req);
+			dao.delete(e);
+			return Responses.ok(req);
+		} catch (Exception e) {
+			return Responses.serverError(e, req);
+		}
+	}
+
 	private BaseDescriptor getDescriptor(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
 			return null;
 		JsonObject obj = req.params.getAsJsonObject();
 		return Models.getDescriptor(obj);
 	}
-
-
 }

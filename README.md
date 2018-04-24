@@ -82,3 +82,35 @@ If there is no such model in the database an error will returned:
   }
 }
 ```
+
+### Update a model / a data set
+The request for updating a model and also the corresponding response is the same
+as for inserting a model, just the method name is `update/model` in this case:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "update/model",
+  "params": {
+    "@id": "4a40cb39-e306-3649-b6da-ca061e384e23",
+    "@type": "Flow",
+    "name": "electricity, high voltage, at grid",
+    "description": "..." 
+  }
+}
+```
+
+### Delete a model / a data set
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "delete/model",
+  "params": {
+    "@id": "4a40cb39-e306-3649-b6da-ca061e384e23",
+    "@type": "Flow"
+  }
+}
+```
