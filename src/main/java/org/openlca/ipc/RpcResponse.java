@@ -8,7 +8,7 @@ import com.google.gson.JsonPrimitive;
  * the case of Notifications. The Response is expressed as a single JSON Object.
  * see: http://www.jsonrpc.org/specification
  */
-public class RcpResponse {
+public class RpcResponse {
 
 	/**
 	 * A String specifying the version of the JSON-RPC protocol.
@@ -29,7 +29,7 @@ public class RcpResponse {
 	 * This member MUST NOT exist if there was no error triggered during invocation.
 	 * The value for this member MUST be an Object as defined in section 5.1.
 	 */
-	public RcpError error;
+	public RpcError error;
 
 	/**
 	 * This member is REQUIRED.

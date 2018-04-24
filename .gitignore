@@ -4,3 +4,5 @@ target/
 # IDE files
 .idea/
 *.iml
+
+derby.log

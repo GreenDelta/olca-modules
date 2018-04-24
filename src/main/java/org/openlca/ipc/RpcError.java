@@ -8,7 +8,7 @@ import com.google.gson.JsonElement;
  *
  * see: http://www.jsonrpc.org/specification
  */
-public class RcpError {
+public class RpcError {
 
 	/**
 	 * A Number that indicates the error type that occurred.
