@@ -5,6 +5,26 @@ is currently under development and will be moved into the
 [openLCA core modules](https://github.com/GreenDelta/olca-modules) when it is
 stable.
 
+## Usage
+If you use Maven, add the following dependency to you project:
+
+```xml
+<dependency>
+    <groupId>org.openlca</groupId>    
+    <artifactId>olca-ipc</artifactId>
+    <version>0.0.1</version>
+</dependency>
+```
+
+A server can be created as shown below:
+
+```java
+IDatabase db = ...;
+// You can pass 0 to select a random port
+Server server = new Server(8080, db);
+System.out.println("Started server @" + server.getListeningPort());
+```
+
 ## Principles
 * the protocol always communicates with a single database (when starting the
   IPC server in openLCA it is the currently active database)

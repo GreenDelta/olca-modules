@@ -62,6 +62,8 @@ public class Server extends NanoHTTPD {
 				return getModel(req);
 			case GET_MODELS:
 				return getModels(req);
+			case GET_DESCRIPTORS:
+				return getDescriptors(req);
 			case DELETE_MODEL:
 				return deleteModel(req);
 			default:
@@ -76,7 +78,7 @@ public class Server extends NanoHTTPD {
 	}
 
 	private RpcResponse saveModel(RpcRequest req, UpdateMode mode) {
-		BaseDescriptor d = getDescriptor(req);
+		BaseDescriptor d = readDescriptor(req);
 		if (d == null)
 			return Responses.invalidParams("params must be an object with" +
 					" valid @id and @type", req);
@@ -94,7 +96,7 @@ public class Server extends NanoHTTPD {
 	}
 
 	private RpcResponse getModel(RpcRequest req) {
-		BaseDescriptor d = getDescriptor(req);
+		BaseDescriptor d = readDescriptor(req);
 		if (d == null)
 			return Responses.invalidParams("params must be an object with" +
 					" valid @id and @type", req);
@@ -117,7 +119,7 @@ public class Server extends NanoHTTPD {
 
 	@SuppressWarnings("unchecked")
 	private <T extends RootEntity> RpcResponse deleteModel(RpcRequest req) {
-		BaseDescriptor d = getDescriptor(req);
+		BaseDescriptor d = readDescriptor(req);
 		if (d == null)
 			return Responses.invalidParams("params must be an object with" +
 					" valid @id and @type", req);
@@ -148,14 +150,34 @@ public class Server extends NanoHTTPD {
 			exp.setExportReferences(false);
 			Daos.root(db, type).getAll().forEach(exp::write);
 			JsonArray array = new JsonArray();
-			store.getAll(type).forEach(obj -> array.add(obj));
+			store.getAll(type).forEach(array::add);
 			return Responses.ok(array, req);
 		} catch (Exception e) {
 			return Responses.serverError(e, req);
 		}
 	}
 
-	private BaseDescriptor getDescriptor(RpcRequest req) {
+	private RpcResponse getDescriptors(RpcRequest req) {
+		if (req.params == null || !req.params.isJsonObject())
+			return Responses.invalidParams("params must be an object with" +
+					" valid @type attribute", req);
+		ModelType type = Models.getType(req.params.getAsJsonObject());
+		if (type == null)
+			return Responses.invalidParams("params must be an object with" +
+					" valid @type attribute", req);
+		try {
+			JsonArray array = new JsonArray();
+			Daos.root(db, type).getDescriptors().forEach(d -> {
+				JsonObject obj = Json.toJson(d);
+				array.add(obj);
+			});
+			return Responses.ok(array, req);
+		} catch (Exception e) {
+			return Responses.serverError(e, req);
+		}
+	}
+
+	private BaseDescriptor readDescriptor(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
 			return null;
 		JsonObject obj = req.params.getAsJsonObject();

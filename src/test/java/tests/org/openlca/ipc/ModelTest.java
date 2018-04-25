@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
@@ -15,6 +16,7 @@ public class ModelTest {
 	private static AtomicInteger nextID = new AtomicInteger(0);
 
 	@Test
+	@Ignore
 	public void testCRUD() {
 
 		Gson gson = new Gson();
