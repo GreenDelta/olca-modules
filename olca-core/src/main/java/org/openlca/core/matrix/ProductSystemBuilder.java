@@ -1,8 +1,5 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.set.hash.TLongHashSet;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,14 +23,17 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.set.hash.TLongHashSet;
+
 public class ProductSystemBuilder {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private MatrixCache matrixCache;
 	private IDatabase database;
-	private ProcessType preferredType;
-	private LinkingMethod linkingMethod;
+	private ProcessType preferredType = ProcessType.LCI_RESULT;
+	private LinkingMethod linkingMethod = LinkingMethod.PREFER_PROVIDERS;
 	private Double cutoff;
 
 	public ProductSystemBuilder(MatrixCache matrixCache) {
