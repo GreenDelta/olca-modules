@@ -99,7 +99,7 @@ public class SystemExport {
 		currentRow = writeSoftwareInformation(sheet, currentRow++);
 
 		String name = conf.getSystem().getName();
-		int processes = conf.getSystem().getProcesses().size();
+		int processes = conf.getSystem().processes.size();
 		int products = inventory.productIndex.size();
 		int flows = inventory.flowIndex.size();
 		String dimensions = flows + "x" + products;
@@ -146,7 +146,7 @@ public class SystemExport {
 		currentRow = writeSoftwareInformation(sheet, currentRow++);
 
 		String name = conf.getSystem().getName();
-		int processes = conf.getSystem().getProcesses().size();
+		int processes = conf.getSystem().processes.size();
 		int products = inventory.productIndex.size();
 		String dimensions = products + "x" + products;
 

@@ -139,7 +139,7 @@ public class ParameterUseSearchTest {
 		Parameter parameter = createParameter("p1", 5d, ParameterScope.GLOBAL);
 		Tests.insert(parameter);
 		ProductSystem system = new ProductSystem();
-		system.getParameterRedefs().add(createParameterRedef("p1"));
+		system.parameterRedefs.add(createParameterRedef("p1"));
 		Tests.insert(system);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors
 				.toDescriptor(parameter));

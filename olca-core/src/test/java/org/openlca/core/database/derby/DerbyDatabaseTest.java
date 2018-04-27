@@ -1,8 +1,10 @@
 package org.openlca.core.database.derby;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -45,5 +47,16 @@ public class DerbyDatabaseTest {
 			}
 			System.out.println("" + i + "\t" + (usedMem / (1024 * 1024)));
 		}
+	}
+
+	@Test
+	@Ignore
+	public void testFromFolder() throws Exception {
+		File dir = Files.createTempDirectory("olca_test_db").toFile();
+		assertTrue(dir.delete());
+		try (DerbyDatabase db = new DerbyDatabase(dir)) {
+			assertEquals(dir.getName(), db.getName());
+		}
+		Dirs.delete(dir.getAbsolutePath());
 	}
 }

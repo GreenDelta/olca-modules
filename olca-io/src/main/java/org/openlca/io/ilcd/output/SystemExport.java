@@ -90,8 +90,8 @@ public class SystemExport {
 		Classification c = conv.getClassification(system.getCategory());
 		if (c != null)
 			Models.classifications(model).add(c);
-		if (system.getReferenceProcess() != null) {
-			long refId = system.getReferenceProcess().getId();
+		if (system.referenceProcess != null) {
+			long refId = system.referenceProcess.getId();
 			QuantitativeReference qRef = Models.quantitativeReference(model);
 			qRef.refProcess = processIDs.getOrDefault(refId, -1);
 		}
@@ -104,14 +104,14 @@ public class SystemExport {
 	private void mapLinks(Model model) throws DataStoreException {
 		Technology tech = Models.technology(model);
 		Map<Long, ProcessInstance> instances = new HashMap<>();
-		for (Long id : system.getProcesses()) {
+		for (Long id : system.processes) {
 			if (id == null)
 				continue;
 			ProcessInstance pi = initProcessInstance(id);
 			instances.put(id, pi);
 			tech.processes.add(pi);
 		}
-		for (ProcessLink link : system.getProcessLinks()) {
+		for (ProcessLink link : system.processLinks) {
 			FlowDescriptor flow = flows.get(link.flowId);
 			if (flow == null)
 				continue;
@@ -136,7 +136,7 @@ public class SystemExport {
 					dao.getForId(d.getId()), config);
 		}
 		pi.process = toRef(d);
-		for (ParameterRedef redef : system.getParameterRedefs()) {
+		for (ParameterRedef redef : system.parameterRedefs) {
 			Long context = redef.getContextId();
 			if (redef.getContextId() == null || context != id)
 				continue;

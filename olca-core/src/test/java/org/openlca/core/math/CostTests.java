@@ -111,7 +111,7 @@ public class CostTests {
 		selfLink.providerId = p1.getId();
 		selfLink.processId = p1.getId();
 		selfLink.exchangeId = exchangeId;
-		system.getProcessLinks().add(selfLink);
+		system.processLinks.add(selfLink);
 		system = Tests.update(system);
 
 		FullResultProvider r = TestSystem.calculate(system);

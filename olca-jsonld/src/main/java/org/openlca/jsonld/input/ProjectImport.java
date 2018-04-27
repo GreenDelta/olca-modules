@@ -93,9 +93,9 @@ class ProjectImport extends BaseImport<Project> {
 
 	private FlowPropertyFactor findFlowPropertyFactor(String propRefId,
 			ProductSystem system) {
-		if (system.getReferenceExchange() == null)
+		if (system.referenceExchange == null)
 			return null;
-		Flow product = system.getReferenceExchange().flow;
+		Flow product = system.referenceExchange.flow;
 		for (FlowPropertyFactor factor : product.getFlowPropertyFactors())
 			if (factor.getFlowProperty().getRefId().equals(propRefId))
 				return factor;

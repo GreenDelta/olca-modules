@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -21,36 +22,36 @@ public class ProductSystem extends CategorizedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
-	private final List<ParameterRedef> parameterRedefs = new ArrayList<>();
+	public final List<ParameterRedef> parameterRedefs = new ArrayList<>();
 
 	@ElementCollection
 	@CollectionTable(name = "tbl_process_links", joinColumns = @JoinColumn(name = "f_product_system"))
-	private final List<ProcessLink> processLinks = new ArrayList<>();
+	public final List<ProcessLink> processLinks = new ArrayList<>();
 
 	@OneToOne
 	@JoinColumn(name = "f_reference_exchange")
-	private Exchange referenceExchange;
+	public Exchange referenceExchange;
 
 	@OneToOne
 	@JoinColumn(name = "f_reference_process")
-	private Process referenceProcess;
+	public Process referenceProcess;
 
 	@Column(name = "target_amount")
-	private double targetAmount;
+	public double targetAmount;
 
 	@OneToOne
 	@JoinColumn(name = "f_target_flow_property_factor")
-	private FlowPropertyFactor targetFlowPropertyFactor;
+	public FlowPropertyFactor targetFlowPropertyFactor;
 
 	@OneToOne
 	@JoinColumn(name = "f_target_unit")
-	private Unit targetUnit;
+	public Unit targetUnit;
 
 	@ElementCollection
 	@Column(name = "f_process")
 	@CollectionTable(name = "tbl_product_system_processes", joinColumns = {
 			@JoinColumn(name = "f_product_system") })
-	private final Set<Long> processes = new HashSet<>();
+	public final Set<Long> processes = new HashSet<>();
 
 	@Column
 	public Double cutoff;
@@ -58,78 +59,49 @@ public class ProductSystem extends CategorizedEntity {
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
 	public List<Exchange> inventory = new ArrayList<>();
-	
+
+	/**
+	 * Initializes a product system from the given process. Note that this
+	 * function does not create a linked system; it just sets the data for the
+	 * quantitative reference of the system from the quantitative reference of
+	 * the given process.
+	 */
+	public static ProductSystem from(Process p) {
+		ProductSystem system = new ProductSystem();
+		system.setRefId(UUID.randomUUID().toString());
+		if (p == null)
+			return system;
+		system.setName(p.getName());
+		system.processes.add(p.getId());
+		system.referenceProcess = p;
+		Exchange qRef = p.getQuantitativeReference();
+		system.referenceExchange = qRef;
+		if (qRef == null)
+			return system;
+		system.targetAmount = qRef.amount;
+		system.targetUnit = qRef.unit;
+		system.targetFlowPropertyFactor = qRef.flowPropertyFactor;
+		return system;
+	}
+
 	@Override
 	public ProductSystem clone() {
 		ProductSystem clone = new ProductSystem();
 		Util.cloneRootFields(this, clone);
 		clone.setCategory(getCategory());
-		clone.setReferenceExchange(getReferenceExchange());
-		clone.setReferenceProcess(getReferenceProcess());
-		clone.setTargetAmount(getTargetAmount());
-		clone.getProcesses().addAll(getProcesses());
-		for (ProcessLink processLink : getProcessLinks())
-			clone.getProcessLinks().add(processLink.clone());
-		for (ParameterRedef redef : getParameterRedefs())
-			clone.getParameterRedefs().add(redef.clone());
+		clone.referenceExchange = referenceExchange;
+		clone.referenceProcess = referenceProcess;
+		clone.targetAmount = targetAmount;
+		clone.processes.addAll(processes);
+		for (ProcessLink processLink : processLinks)
+			clone.processLinks.add(processLink.clone());
+		for (ParameterRedef redef : parameterRedefs)
+			clone.parameterRedefs.add(redef.clone());
 		for (Exchange exchange : inventory)
 			clone.inventory.add(exchange.clone());
-		clone.setTargetFlowPropertyFactor(getTargetFlowPropertyFactor());
-		clone.setTargetUnit(getTargetUnit());
+		clone.targetFlowPropertyFactor = targetFlowPropertyFactor;
+		clone.targetUnit = targetUnit;
 		return clone;
-	}
-
-	public Exchange getReferenceExchange() {
-		return referenceExchange;
-	}
-
-	public Process getReferenceProcess() {
-		return referenceProcess;
-	}
-
-	public double getTargetAmount() {
-		return targetAmount;
-	}
-
-	public FlowPropertyFactor getTargetFlowPropertyFactor() {
-		return targetFlowPropertyFactor;
-	}
-
-	public Unit getTargetUnit() {
-		return targetUnit;
-	}
-
-	public List<ParameterRedef> getParameterRedefs() {
-		return parameterRedefs;
-	}
-
-	public Set<Long> getProcesses() {
-		return processes;
-	}
-
-	public List<ProcessLink> getProcessLinks() {
-		return processLinks;
-	}
-
-	public void setReferenceExchange(Exchange referenceExchange) {
-		this.referenceExchange = referenceExchange;
-	}
-
-	public void setReferenceProcess(Process referenceProcess) {
-		this.referenceProcess = referenceProcess;
-	}
-
-	public void setTargetAmount(double targetAmount) {
-		this.targetAmount = targetAmount;
-	}
-
-	public void setTargetFlowPropertyFactor(
-			FlowPropertyFactor targetFlowPropertyFactor) {
-		this.targetFlowPropertyFactor = targetFlowPropertyFactor;
-	}
-
-	public void setTargetUnit(Unit targetUnit) {
-		this.targetUnit = targetUnit;
 	}
 
 }

@@ -107,8 +107,8 @@ class GraphSync {
 
 	private void mapGraph(Graph g, ProductSystem system) {
 		g.eachLink(link -> {
-			system.getProcesses().add(link.provider.process.getId());
-			system.getProcesses().add(link.recipient.process.getId());
+			system.processes.add(link.provider.process.getId());
+			system.processes.add(link.recipient.process.getId());
 			ProcessLink pLink = new ProcessLink();
 			Flow flow = link.input.flow;
 			pLink.flowId = flow.getId();
@@ -121,23 +121,23 @@ class GraphSync {
 				pLink.processId = link.provider.process.getId();
 				pLink.exchangeId = link.output.getId();
 			}
-			system.getProcessLinks().add(pLink);
+			system.processLinks.add(pLink);
 		});
 	}
 
 	private void mapQRef(Graph g, ProductSystem system) {
 		Process refProc = g.root.process;
-		system.setReferenceProcess(refProc);
+		system.referenceProcess = refProc;
 		Exchange qRef = refProc.getQuantitativeReference();
-		system.setReferenceExchange(qRef);
+		system.referenceExchange = qRef;
 		if (qRef != null) {
-			system.setTargetFlowPropertyFactor(qRef.flowPropertyFactor);
-			system.setTargetUnit(qRef.unit);
+			system.targetFlowPropertyFactor = qRef.flowPropertyFactor;
+			system.targetUnit = qRef.unit;
 			double amount = qRef.amount;
 			if (g.root.scalingFactor != null) {
 				amount *= g.root.scalingFactor;
 			}
-			system.setTargetAmount(amount);
+			system.targetAmount = amount;
 		}
 	}
 
@@ -152,7 +152,7 @@ class GraphSync {
 				redef.setValue(value);
 				redef.setContextId(node.process.getId());
 				redef.setContextType(ModelType.PROCESS);
-				system.getParameterRedefs().add(redef);
+				system.parameterRedefs.add(redef);
 			});
 		});
 	}

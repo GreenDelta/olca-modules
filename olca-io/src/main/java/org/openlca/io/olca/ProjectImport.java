@@ -116,11 +116,11 @@ class ProjectImport {
 		if (variant.getFlowPropertyFactor() == null)
 			return;
 		ProductSystem destSystem = variant.getProductSystem();
-		if (destSystem == null || destSystem.getReferenceExchange() == null) {
+		if (destSystem == null || destSystem.referenceExchange == null) {
 			variant.setFlowPropertyFactor(null);
 			return;
 		}
-		Flow destFlow = destSystem.getReferenceExchange().flow;
+		Flow destFlow = destSystem.referenceExchange.flow;
 		variant.setFlowPropertyFactor(refs.switchRef(
 				variant.getFlowPropertyFactor(), destFlow));
 	}

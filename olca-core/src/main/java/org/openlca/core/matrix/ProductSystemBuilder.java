@@ -54,11 +54,11 @@ public class ProductSystemBuilder {
 	}
 
 	public ProductSystem autoComplete(ProductSystem system) {
-		if (system == null || system.getReferenceExchange() == null
-				|| system.getReferenceProcess() == null)
+		if (system == null || system.referenceExchange == null
+				|| system.referenceProcess == null)
 			return system;
-		Process refProcess = system.getReferenceProcess();
-		Flow refProduct = system.getReferenceExchange().flow;
+		Process refProcess = system.referenceProcess;
+		Flow refProduct = system.referenceExchange.flow;
 		if (refProduct == null)
 			return system;
 		LongPair ref = new LongPair(refProcess.getId(), refProduct.getId());
@@ -103,12 +103,12 @@ public class ProductSystemBuilder {
 				Constants.DEFAULT_LOAD_FACTOR, -1);
 
 		// links and processes from system
-		for (ProcessLink link : system.getProcessLinks()) {
+		for (ProcessLink link : system.processLinks) {
 			if (linkIds.add(link.exchangeId)) {
 				links.add(link);
 			}
 		}
-		processes.addAll(system.getProcesses());
+		processes.addAll(system.processes);
 
 		// links and processes from tech-index
 		for (LongPair exchange : index.getLinkedExchanges()) {

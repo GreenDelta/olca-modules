@@ -77,7 +77,6 @@ public class JsonExport {
 			if (cb != null)
 				cb.apply(Message.info("data set exported"), entity);
 		} catch (Exception e) {
-			e.printStackTrace();
 			if (cb != null)
 				cb.apply(Message.error("failed to export data set", e), entity);
 		}

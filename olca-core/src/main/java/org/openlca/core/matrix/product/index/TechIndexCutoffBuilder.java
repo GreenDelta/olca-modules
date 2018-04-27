@@ -68,7 +68,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 	private void addSystemLinks(TechIndex index) {
 		if (system == null)
 			return;
-		for (ProcessLink link : system.getProcessLinks()) {
+		for (ProcessLink link : system.processLinks) {
 			LongPair provider = new LongPair(link.providerId, link.flowId);
 			LongPair exchange = new LongPair(link.processId, link.exchangeId);
 			index.putLink(exchange, provider);

@@ -61,7 +61,7 @@ class ProductSystemLinks {
 
 	private void map() {
 		mapProcessIds();
-		for (ProcessLink link : system.getProcessLinks()) {
+		for (ProcessLink link : system.processLinks) {
 			link.providerId = destId(Process.class, link.providerId);
 			link.processId = destId(Process.class, link.processId);
 			link.flowId = destId(Flow.class, link.flowId);
@@ -72,11 +72,11 @@ class ProductSystemLinks {
 
 	private void mapProcessIds() {
 		List<Long> destProcessIds = new ArrayList<>();
-		for (Long id : system.getProcesses()) {
+		for (Long id : system.processes) {
 			destProcessIds.add(destId(Process.class, id));
 		}
-		system.getProcesses().clear();
-		system.getProcesses().addAll(destProcessIds);
+		system.processes.clear();
+		system.processes.addAll(destProcessIds);
 	}
 
 	private class Ex {

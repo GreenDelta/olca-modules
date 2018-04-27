@@ -80,7 +80,7 @@ class ProductSystemExchanges {
 			int internalId = In.getInt(exchange, "internalId", 0);
 			link.exchangeId = findExchangeId(link.processId, internalId);
 			if (valid(link)) {
-				system.getProcessLinks().add(link);
+				system.processLinks.add(link);
 			}
 		}
 	}
@@ -91,7 +91,7 @@ class ProductSystemExchanges {
 	}
 
 	private void setReferenceExchange(JsonObject json, ProductSystem system) {
-		Process refProcess = system.getReferenceProcess();
+		Process refProcess = system.referenceProcess;
 		if (refProcess == null)
 			return;
 		JsonObject refJson = In.getObject(json, "referenceExchange");
@@ -99,13 +99,13 @@ class ProductSystemExchanges {
 		if (internalId <= 0)
 			return;
 		Exchange refExchange = refProcess.getExchange(internalId);
-		system.setReferenceExchange(refExchange);
-		system.setTargetFlowPropertyFactor(findFactor(json, system));
-		system.setTargetUnit(findUnit(json, system));
+		system.referenceExchange = refExchange;
+		system.targetFlowPropertyFactor = findFactor(json, system);
+		system.targetUnit = findUnit(json, system);
 	}
 
 	private FlowPropertyFactor findFactor(JsonObject json, ProductSystem s) {
-		Exchange e = s.getReferenceExchange();
+		Exchange e = s.referenceExchange;
 		if (e == null)
 			return null;
 		String propertyRefId = In.getRefId(json, "targetFlowProperty");
@@ -116,7 +116,7 @@ class ProductSystemExchanges {
 	}
 
 	private Unit findUnit(JsonObject json, ProductSystem s) {
-		FlowPropertyFactor f = s.getTargetFlowPropertyFactor();
+		FlowPropertyFactor f = s.targetFlowPropertyFactor;
 		if (f == null)
 			return null;
 		String unitRefId = In.getRefId(json, "targetUnit");
