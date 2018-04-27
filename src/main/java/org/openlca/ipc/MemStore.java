@@ -87,7 +87,7 @@ class MemStore implements EntityStore {
 
 	@Override
 	public List<String> getBinFiles(ModelType type, String id) {
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override
