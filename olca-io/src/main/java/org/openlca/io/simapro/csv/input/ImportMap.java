@@ -48,7 +48,7 @@ class ImportMap {
 		CellProcessor optional = new Optional();
 		CellProcessor number = new ParseDouble();
 		return new CellProcessor[] { notNull, // 0: sp name
-				notNull, // 1: sp compartment
+				optional, // 1: sp compartment
 				optional, // 2: sp sub-compartment
 				notNull, // 3: sp unit
 				notNull, // 4: olca flow id
