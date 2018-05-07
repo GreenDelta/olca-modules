@@ -66,6 +66,8 @@ public class ProcessReferenceSearchTest extends BaseReferenceSearchTest {
 		for (Exchange e : process.getExchanges()) {
 			addExpected("flow", e.flow, "exchanges", Exchange.class, e.getId());
 			addExpected("flowPropertyFactor", e.flowPropertyFactor, "exchanges", Exchange.class, e.getId());
+			addExpected("flowProperty", e.flowPropertyFactor.getFlowProperty(), "flowPropertyFactor",
+					FlowPropertyFactor.class, e.flowPropertyFactor.getId());
 			addExpected("unit", e.unit, "exchanges", Exchange.class, e.getId());
 			Process provider = processes.get(e.defaultProviderId);
 			if (provider != null)

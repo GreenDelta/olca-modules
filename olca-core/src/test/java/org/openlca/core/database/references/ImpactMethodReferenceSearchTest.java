@@ -49,6 +49,8 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 						ImpactFactor.class, f.getId());
 				addExpected("flowPropertyFactor", f.flowPropertyFactor,
 						"impactFactors", ImpactFactor.class, f.getId());
+				addExpected("flowProperty", f.flowPropertyFactor.getFlowProperty(), "flowPropertyFactor",
+						FlowPropertyFactor.class, f.flowPropertyFactor.getId());
 				addExpected("unit", f.unit, "impactFactors",
 						ImpactFactor.class, f.getId());
 			}
