@@ -111,8 +111,8 @@ public class DQResultTest {
 
 	private void createProductSystem() {
 		system = new ProductSystem();
-		system.getProcesses().add(process1.getId());
-		system.getProcesses().add(process2.getId());
+		system.processes.add(process1.getId());
+		system.processes.add(process2.getId());
 		ProcessLink link = new ProcessLink();
 		link.flowId = pFlow2.getId();
 		link.providerId = process2.getId();
@@ -121,12 +121,12 @@ public class DQResultTest {
 				link.exchangeId = e.getId();
 		}
 		link.processId = process1.getId();
-		system.getProcessLinks().add(link);
-		system.setReferenceProcess(process1);
-		system.setReferenceExchange(process1.getQuantitativeReference());
-		system.setTargetAmount(1);
-		system.setTargetFlowPropertyFactor(pFlow1.getReferenceFactor());
-		system.setTargetUnit(unitGroup.getReferenceUnit());
+		system.processLinks.add(link);
+		system.referenceProcess = process1;
+		system.referenceExchange = process1.getQuantitativeReference();
+		system.targetAmount = (double) 1;
+		system.targetFlowPropertyFactor = pFlow1.getReferenceFactor();
+		system.targetUnit = unitGroup.getReferenceUnit();
 		system = new ProductSystemDao(Tests.getDb()).insert(system);
 	}
 

@@ -31,7 +31,7 @@ public class SelfLoopAnalysisTest {
 				.elemOut("f2", 1, "kg")
 				.get();
 		ProductSystem system = TestSystem.of(p1).link(p2).get();
-		system.setTargetAmount(2);
+		system.targetAmount = (double) 2;
 		system = Tests.update(system);
 		result = TestSystem.calculate(system);
 	}

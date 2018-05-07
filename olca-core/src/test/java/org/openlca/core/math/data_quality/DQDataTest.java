@@ -54,8 +54,8 @@ public class DQDataTest {
 		process1 = new ProcessDao(Tests.getDb()).insert(createProcess("(1;2;3;4;5)", "(2;1;4;3;5)"));
 		process2 = new ProcessDao(Tests.getDb()).insert(createProcess("(5;4;3;2;1)", "(4;5;2;3;1)"));
 		pSystem = new ProductSystem();
-		pSystem.getProcesses().add(process1.getId());
-		pSystem.getProcesses().add(process2.getId());
+		pSystem.processes.add(process1.getId());
+		pSystem.processes.add(process2.getId());
 		pSystem = new ProductSystemDao(Tests.getDb()).insert(pSystem);
 	}
 

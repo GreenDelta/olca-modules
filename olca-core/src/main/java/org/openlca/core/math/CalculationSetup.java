@@ -49,7 +49,7 @@ public class CalculationSetup {
 		if (unit != null)
 			return unit;
 		else
-			return productSystem.getTargetUnit();
+			return productSystem.targetUnit;
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class CalculationSetup {
 		if (flowPropertyFactor != null)
 			return flowPropertyFactor;
 		else
-			return productSystem.getTargetFlowPropertyFactor();
+			return productSystem.targetFlowPropertyFactor;
 	}
 
 	/**
@@ -78,10 +78,10 @@ public class CalculationSetup {
 	public double getAmount() {
 		if (amount != null)
 			return amount;
-		double refAmount = productSystem.getTargetAmount();
-		if (productSystem.getReferenceExchange() == null)
+		double refAmount = productSystem.targetAmount;
+		if (productSystem.referenceExchange == null)
 			return refAmount;
-		Flow flow = productSystem.getReferenceExchange().flow;
+		Flow flow = productSystem.referenceExchange.flow;
 		if (flow != null && flow.getFlowType() == FlowType.WASTE_FLOW) {
 			// negative reference amount for waste treatment processes
 			return -refAmount;

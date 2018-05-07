@@ -1,8 +1,5 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.set.hash.TLongHashSet;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,14 +23,17 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.set.hash.TLongHashSet;
+
 public class ProductSystemBuilder {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private MatrixCache matrixCache;
 	private IDatabase database;
-	private ProcessType preferredType;
-	private LinkingMethod linkingMethod;
+	private ProcessType preferredType = ProcessType.LCI_RESULT;
+	private LinkingMethod linkingMethod = LinkingMethod.PREFER_PROVIDERS;
 	private Double cutoff;
 
 	public ProductSystemBuilder(MatrixCache matrixCache) {
@@ -54,11 +54,11 @@ public class ProductSystemBuilder {
 	}
 
 	public ProductSystem autoComplete(ProductSystem system) {
-		if (system == null || system.getReferenceExchange() == null
-				|| system.getReferenceProcess() == null)
+		if (system == null || system.referenceExchange == null
+				|| system.referenceProcess == null)
 			return system;
-		Process refProcess = system.getReferenceProcess();
-		Flow refProduct = system.getReferenceExchange().flow;
+		Process refProcess = system.referenceProcess;
+		Flow refProduct = system.referenceExchange.flow;
 		if (refProduct == null)
 			return system;
 		LongPair ref = new LongPair(refProcess.getId(), refProduct.getId());
@@ -103,12 +103,12 @@ public class ProductSystemBuilder {
 				Constants.DEFAULT_LOAD_FACTOR, -1);
 
 		// links and processes from system
-		for (ProcessLink link : system.getProcessLinks()) {
+		for (ProcessLink link : system.processLinks) {
 			if (linkIds.add(link.exchangeId)) {
 				links.add(link);
 			}
 		}
-		processes.addAll(system.getProcesses());
+		processes.addAll(system.processes);
 
 		// links and processes from tech-index
 		for (LongPair exchange : index.getLinkedExchanges()) {

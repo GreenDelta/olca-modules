@@ -15,9 +15,9 @@ public final class ReferenceAmount {
     public static double get(ProductSystem productSystem) {
         if (productSystem == null)
             return 0;
-       return get(productSystem.getTargetAmount(),
-               productSystem.getTargetUnit(),
-               productSystem.getTargetFlowPropertyFactor());
+       return get(productSystem.targetAmount,
+               productSystem.targetUnit,
+               productSystem.targetFlowPropertyFactor);
     }
 
     public static double get(CalculationSetup calculationSetup) {

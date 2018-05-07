@@ -28,8 +28,8 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		In.mapAtts(json, s, id, conf);
 		String processRefId = In.getRefId(json, "referenceProcess");
 		if (processRefId != null)
-			s.setReferenceProcess(ProcessImport.run(processRefId, conf));
-		s.setTargetAmount(In.getDouble(json, "targetAmount", 1d));
+			s.referenceProcess = ProcessImport.run(processRefId, conf);
+		s.targetAmount = In.getDouble(json, "targetAmount", 1d);
 		addProcesses(json, s);
 		addParameters(json, s);
 		addInventory(json, s);
@@ -47,7 +47,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			String refId = In.getString(ref, "@id");
 			Process p = ProcessImport.run(refId, conf);
 			if (p != null)
-				s.getProcesses().add(p.getId());
+				s.processes.add(p.getId());
 		}
 	}
 
@@ -79,7 +79,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 					.getObject(ref, "uncertainty")));
 			JsonObject context = In.getObject(ref, "context");
 			if (context == null) {
-				s.getParameterRedefs().add(p);
+				s.parameterRedefs.add(p);
 				continue;
 			}
 			String type = In.getString(context, "@type");
@@ -91,7 +91,7 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 				continue;
 			p.setContextType(ModelType.PROCESS);
 			p.setContextId(model.getId());
-			s.getParameterRedefs().add(p);
+			s.parameterRedefs.add(p);
 		}
 	}
 

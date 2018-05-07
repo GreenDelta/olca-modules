@@ -27,13 +27,13 @@ public class DataStructures {
 	 * Creates a product index from the given product system.
 	 */
 	public static TechIndex createProductIndex(ProductSystem system) {
-		long providerId = system.getReferenceProcess().getId();
-		Exchange refExchange = system.getReferenceExchange();
+		long providerId = system.referenceProcess.getId();
+		Exchange refExchange = system.referenceExchange;
 		long flowId = refExchange.flow.getId();
 		LongPair refFlow = new LongPair(providerId, flowId);
 		TechIndex index = new TechIndex(refFlow);
 		index.setDemand(ReferenceAmount.get(system));
-		for (ProcessLink link : system.getProcessLinks()) {
+		for (ProcessLink link : system.processLinks) {
 			LongPair provider = new LongPair(link.providerId, link.flowId);
 			index.put(provider);
 			LongPair exchange = new LongPair(link.processId, link.exchangeId);

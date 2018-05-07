@@ -44,21 +44,21 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		if (obj == null)
 			return null;
 		this.system = system;
-		Out.put(obj, "referenceProcess", system.getReferenceProcess(), conf, Out.REQUIRED_FIELD);
-		JsonObject eObj = mapExchange(system.getReferenceExchange());
+		Out.put(obj, "referenceProcess", system.referenceProcess, conf, Out.REQUIRED_FIELD);
+		JsonObject eObj = mapExchange(system.referenceExchange);
 		Out.put(obj, "referenceExchange", eObj, Out.REQUIRED_FIELD);
 		FlowProperty property = null;
-		if (system.getTargetFlowPropertyFactor() != null)
-			property = system.getTargetFlowPropertyFactor().getFlowProperty();
+		if (system.targetFlowPropertyFactor != null)
+			property = system.targetFlowPropertyFactor.getFlowProperty();
 		Out.put(obj, "targetFlowProperty", property, conf, Out.REQUIRED_FIELD);
-		Out.put(obj, "targetUnit", system.getTargetUnit(), conf, Out.REQUIRED_FIELD);
-		Out.put(obj, "targetAmount", system.getTargetAmount());
+		Out.put(obj, "targetUnit", system.targetUnit, conf, Out.REQUIRED_FIELD);
+		Out.put(obj, "targetAmount", system.targetAmount);
 		putInventory(obj, system.inventory);
 		if (conf.db == null)
 			return obj;
 		Map<Long, ProcessDescriptor> processMap = mapProcesses(obj);
 		mapLinks(obj, processMap);
-		ParameterRedefs.map(obj, system.getParameterRedefs(), conf.db, conf,
+		ParameterRedefs.map(obj, system.parameterRedefs, conf.db, conf,
 				(type, id) -> References.create(processMap.get(id)));
 		ParameterReferences.writeReferencedParameters(system, conf);
 		return obj;
@@ -68,7 +68,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		JsonArray links = new JsonArray();
 		Map<Long, FlowDescriptor> flowMap = getFlows();
 		Stack<ProcessLink> remaining = new Stack<>();
-		remaining.addAll(system.getProcessLinks());
+		remaining.addAll(system.processLinks);
 		while (!remaining.isEmpty()) {
 			List<ProcessLink> next = new ArrayList<>();
 			while (!remaining.isEmpty() && next.size() < 1000) {
@@ -107,7 +107,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 
 	private Map<Long, FlowDescriptor> getFlows() {
 		Set<Long> flowIds = new HashSet<>();
-		for (ProcessLink link : system.getProcessLinks()) {
+		for (ProcessLink link : system.processLinks) {
 			flowIds.add(link.flowId);
 		}
 		List<FlowDescriptor> flows = flowDao.getDescriptors(flowIds);
@@ -120,7 +120,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 
 	private Map<Long, ProcessDescriptor> mapProcesses(JsonObject json) {
 		JsonArray processes = new JsonArray();
-		Set<Long> pIds = new HashSet<>(system.getProcesses());
+		Set<Long> pIds = new HashSet<>(system.processes);
 		List<ProcessDescriptor> descriptors = processDao.getDescriptors(pIds);
 		Map<Long, ProcessDescriptor> map = new HashMap<>();
 		for (ProcessDescriptor descriptor : descriptors) {

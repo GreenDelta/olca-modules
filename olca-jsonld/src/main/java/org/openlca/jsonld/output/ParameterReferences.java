@@ -38,7 +38,7 @@ public class ParameterReferences {
 			ExportConfig conf) {
 		if (!conf.exportReferences)
 			return;
-		Set<String> names = getRedefVariables(s.getParameterRedefs());
+		Set<String> names = getRedefVariables(s.parameterRedefs);
 		writeParameters(names, conf);
 	}
 

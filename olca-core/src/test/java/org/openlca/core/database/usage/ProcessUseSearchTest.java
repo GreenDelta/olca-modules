@@ -59,7 +59,7 @@ public class ProcessUseSearchTest {
 	private ProductSystem createSystem() {
 		ProductSystem system = new ProductSystem();
 		system.setName("system");
-		system.getProcesses().add(process.getId());
+		system.processes.add(process.getId());
 		return new ProductSystemDao(database).insert(system);
 	}
 

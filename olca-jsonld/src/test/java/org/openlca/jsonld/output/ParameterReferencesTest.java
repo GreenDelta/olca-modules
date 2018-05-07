@@ -385,7 +385,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		ProductSystem s = new ProductSystem();
 		s.setRefId(UUID.randomUUID().toString());
 		for (ParameterRedef redef : redefs)
-			s.getParameterRedefs().add(redef);
+			s.parameterRedefs.add(redef);
 		return s;
 	}
 

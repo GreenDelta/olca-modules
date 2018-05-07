@@ -129,7 +129,7 @@ public class ModelImport {
 				mapRefProcess(pi, p);
 			}
 			addParameterRedefs(pi, p);
-			system.getProcesses().add(p.getId());
+			system.processes.add(p.getId());
 			map.put(pi.id, p);
 		}
 		return map;
@@ -144,21 +144,21 @@ public class ModelImport {
 			redef.setContextType(ModelType.PROCESS);
 			redef.setName(param.name);
 			redef.setValue(param.value);
-			system.getParameterRedefs().add(redef);
+			system.parameterRedefs.add(redef);
 		}
 	}
 
 	private void mapRefProcess(ProcessInstance pi, Process process) {
 		if (pi == null || process == null)
 			return;
-		system.setReferenceProcess(process);
+		system.referenceProcess = process;
 		Exchange qRef = process.getQuantitativeReference();
 		if (qRef == null)
 			return;
-		system.setReferenceExchange(qRef);
-		system.setTargetAmount(qRef.amount);
-		system.setTargetFlowPropertyFactor(qRef.flowPropertyFactor);
-		system.setTargetUnit(qRef.unit);
+		system.referenceExchange = qRef;
+		system.targetAmount = qRef.amount;
+		system.targetFlowPropertyFactor = qRef.flowPropertyFactor;
+		system.targetUnit = qRef.unit;
 	}
 
 	/**
@@ -200,7 +200,7 @@ public class ModelImport {
 		if (exchange == null)
 			return;
 		link.exchangeId = exchange.getId();
-		system.getProcessLinks().add(link);
+		system.processLinks.add(link);
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class ModelImport {
 		}
 		ProcessDao dao = new ProcessDao(config.db);
 		p = dao.insert(p);
-		system.getProcesses().add(p.getId());
+		system.processes.add(p.getId());
 		return p;
 	}
 

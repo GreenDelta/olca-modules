@@ -32,12 +32,12 @@ public class TestSystem {
 		system = new ProductSystem();
 		system.setRefId(UUID.randomUUID().toString());
 		system.setName(refProcess.getName());
-		system.setReferenceProcess(refProcess);
+		system.referenceProcess = refProcess;
 		Exchange qRef = refProcess.getQuantitativeReference();
-		system.setReferenceExchange(qRef);
-		system.setTargetAmount(qRef.amount);
-		system.setTargetFlowPropertyFactor(qRef.flowPropertyFactor);
-		system.setTargetUnit(qRef.unit);
+		system.referenceExchange = qRef;
+		system.targetAmount = qRef.amount;
+		system.targetFlowPropertyFactor = qRef.flowPropertyFactor;
+		system.targetUnit = qRef.unit;
 		index(refProcess);
 	}
 
@@ -46,7 +46,7 @@ public class TestSystem {
 	}
 
 	private void index(Process process) {
-		system.getProcesses().add(process.getId());
+		system.processes.add(process.getId());
 		processes.add(process);
 		for (Exchange e : process.getExchanges()) {
 			if (!isProvider(e))
@@ -77,8 +77,8 @@ public class TestSystem {
 				link.flowId = flowId;
 				link.processId = p.getId();
 				link.exchangeId = e.getId();
-				if (!system.getProcessLinks().contains(link)) {
-					system.getProcessLinks().add(link);
+				if (!system.processLinks.contains(link)) {
+					system.processLinks.add(link);
 				}
 			}
 		}

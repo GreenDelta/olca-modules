@@ -15,16 +15,12 @@ public class SimaProCsvImport implements FileImport {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private boolean canceled = false;
 	private final IDatabase database;
-	private final File file;
+	private final File[] files;
 	private EventBus eventBus;
 
-	public SimaProCsvImport(IDatabase database, File file) {
+	public SimaProCsvImport(IDatabase database, File[] files) {
 		this.database = database;
-		this.file = file;
-	}
-
-	public IDatabase getDatabase() {
-		return database;
+		this.files = files;
 	}
 
 	public EventBus getEventBus() {
@@ -47,19 +43,23 @@ public class SimaProCsvImport implements FileImport {
 
 	@Override
 	public void run() {
-		log.trace("import SimaPro CSV file {}", file);
+		if (files == null || files.length == 0)
+			return;
 		try {
-			log.trace("extract reference data");
-			SpRefIndexHandler refDataHandler = new SpRefIndexHandler();
-			SimaProCSV.parse(file, refDataHandler);
-			SpRefDataIndex index = refDataHandler.getIndex();
-			log.trace("sync. reference data");
-			RefDataSync sync = new RefDataSync(index, database);
-			RefData refData = sync.run();
-			log.trace("import processes");
-			ProcessHandler processHandler = new ProcessHandler(database,
-					refData);
-			SimaProCSV.parse(file, processHandler);
+			for (File file : files) {
+				log.trace("import SimaPro CSV file {}", file);
+				log.trace("extract reference data");
+				SpRefIndexHandler refDataHandler = new SpRefIndexHandler();
+				SimaProCSV.parse(file, refDataHandler);
+				SpRefDataIndex index = refDataHandler.getIndex();
+				log.trace("sync. reference data");
+				RefDataSync sync = new RefDataSync(index, database);
+				RefData refData = sync.run();
+				log.trace("import processes");
+				ProcessHandler processHandler = new ProcessHandler(database,
+						refData);
+				SimaProCSV.parse(file, processHandler);
+			}
 		} catch (Exception e) {
 			log.error("SimaPro CSV import failed");
 		}

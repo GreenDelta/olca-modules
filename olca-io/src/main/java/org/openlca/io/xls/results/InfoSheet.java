@@ -109,30 +109,30 @@ public class InfoSheet {
 	}
 
 	private static String process(ProductSystem system) {
-		Process p = system.getReferenceProcess();
+		Process p = system.referenceProcess;
 		if (p == null)
 			return "";
 		return p.getName();
 	}
 
 	private static String location(ProductSystem system) {
-		Process p = system.getReferenceProcess();
+		Process p = system.referenceProcess;
 		if (p == null || p.getLocation() == null)
 			return "";
 		return p.getLocation().getName();
 	}
 
 	private static String product(ProductSystem system) {
-		Exchange e = system.getReferenceExchange();
+		Exchange e = system.referenceExchange;
 		if (e == null || e.flow == null)
 			return "";
 		return e.flow.getName();
 	}
 
 	private static String amount(ProductSystem system) {
-		if (system.getTargetUnit() == null)
+		if (system.targetUnit == null)
 			return "";
-		return system.getTargetAmount() + " " + system.getTargetUnit().getName();
+		return system.targetAmount + " " + system.targetUnit.getName();
 	}
 
 	private static String method(CalculationSetup setup) {

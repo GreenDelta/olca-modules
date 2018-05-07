@@ -27,27 +27,27 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 	protected ProductSystem createModel() {
 		ProductSystem system = new ProductSystem();
 		system.setCategory(insertAndAddExpected("category", new Category()));
-		system.setReferenceProcess(createProcess());
-		system.setReferenceExchange(system.getReferenceProcess().getExchanges()
-				.get(0));
-		system.setTargetFlowPropertyFactor(system.getReferenceExchange().flowPropertyFactor);
-		system.setTargetUnit(system.getTargetFlowPropertyFactor()
-				.getFlowProperty().getUnitGroup().getUnits().get(0));
-		system.getProcesses().add(system.getReferenceProcess().getId());
+		system.referenceProcess = createProcess();
+		system.referenceExchange = system.referenceProcess.getExchanges()
+		.get(0);
+		system.targetFlowPropertyFactor = system.referenceExchange.flowPropertyFactor;
+		system.targetUnit = system.targetFlowPropertyFactor
+		.getFlowProperty().getUnitGroup().getUnits().get(0);
+		system.processes.add(system.referenceProcess.getId());
 		Process p1 = insertAndAddExpected("processes", new Process());
 		Process p2 = insertAndAddExpected("processes", new Process());
 		Process p3 = insertAndAddExpected("processes", new Process());
-		system.getProcesses().add(p1.getId());
-		system.getProcesses().add(p2.getId());
-		system.getProcesses().add(p3.getId());
-		system.getProcessLinks().add(createLink(p1, p2));
-		system.getProcessLinks().add(createLink(p2, p3));
+		system.processes.add(p1.getId());
+		system.processes.add(p2.getId());
+		system.processes.add(p3.getId());
+		system.processLinks.add(createLink(p1, p2));
+		system.processLinks.add(createLink(p2, p3));
 		String n1 = generateName();
 		String n2 = generateName();
 		String n3 = generateName();
-		system.getParameterRedefs().add(createParameterRedef(n1, p1.getId()));
+		system.parameterRedefs.add(createParameterRedef(n1, p1.getId()));
 		// formula with parameter to see if added as reference (unexpected)
-		system.getParameterRedefs().add(createParameterRedef(n2, n3 + "*5"));
+		system.parameterRedefs.add(createParameterRedef(n2, n3 + "*5"));
 		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
 		Parameter globalUnreferenced2 = createParameter(n3, "3*3", true);
 		// must be inserted manually

@@ -71,14 +71,14 @@ public class ExchangeUseSearchTest {
 	private void createSystem() {
 		ProductSystem system = new ProductSystem();
 		system.setName(SYS_NAME);
-		system.setReferenceProcess(p);
-		system.setReferenceExchange(p.getExchanges().get(0));
+		system.referenceProcess = p;
+		system.referenceExchange = p.getExchanges().get(0);
 		Flow linkFlow = p.getExchanges().get(1).flow;
 		ProcessLink link = new ProcessLink();
 		link.providerId = p.getId();
 		link.processId = q.getId();
 		link.flowId = linkFlow.getId();
-		system.getProcessLinks().add(link);
+		system.processLinks.add(link);
 		system = new ProductSystemDao(database).insert(system);
 		modelStack.push(system);
 	}

@@ -50,10 +50,9 @@ class ProductSystemImport {
 		ProductSystem destSystem = srcSystem.clone();
 		destSystem.setRefId(srcSystem.getRefId());
 		destSystem.setCategory(refs.switchRef(srcSystem.getCategory()));
-		destSystem.setReferenceProcess(refs.switchRef(srcSystem
-				.getReferenceProcess()));
+		destSystem.referenceProcess = refs.switchRef(srcSystem.referenceProcess);
 		switchRefExchange(srcSystem, destSystem);
-		destSystem.setTargetUnit(refs.switchRef(srcSystem.getTargetUnit()));
+		destSystem.targetUnit = refs.switchRef(srcSystem.targetUnit);
 		switchRefFlowProp(srcSystem, destSystem);
 		switchParameterRedefs(destSystem);
 		ProductSystemDao destDao = new ProductSystemDao(dest);
@@ -64,8 +63,8 @@ class ProductSystemImport {
 
 	private void switchRefExchange(ProductSystem srcSystem,
 			ProductSystem destSystem) {
-		Exchange srcExchange = srcSystem.getReferenceExchange();
-		Process destProcess = destSystem.getReferenceProcess();
+		Exchange srcExchange = srcSystem.referenceExchange;
+		Process destProcess = destSystem.referenceProcess;
 		if (srcExchange == null || destProcess == null)
 			return;
 		Exchange destRefExchange = null;
@@ -75,7 +74,7 @@ class ProductSystemImport {
 				break;
 			}
 		}
-		destSystem.setReferenceExchange(destRefExchange);
+		destSystem.referenceExchange = destRefExchange;
 	}
 
 	private boolean sameExchange(Exchange srcExchange, Exchange destExchange) {
@@ -93,15 +92,15 @@ class ProductSystemImport {
 
 	private void switchRefFlowProp(ProductSystem srcSystem,
 			ProductSystem destSystem) {
-		Flow destFlow = destSystem.getReferenceExchange().flow;
+		Flow destFlow = destSystem.referenceExchange.flow;
 		if (destFlow == null)
 			return;
-		destSystem.setTargetFlowPropertyFactor(refs.switchRef(
-				srcSystem.getTargetFlowPropertyFactor(), destFlow));
+		destSystem.targetFlowPropertyFactor = refs.switchRef(
+		srcSystem.targetFlowPropertyFactor, destFlow);
 	}
 
 	private void switchParameterRedefs(ProductSystem destSystem) {
-		for (ParameterRedef redef : destSystem.getParameterRedefs()) {
+		for (ParameterRedef redef : destSystem.parameterRedefs) {
 			Long contextId = redef.getContextId();
 			if (contextId == null)
 				continue;
