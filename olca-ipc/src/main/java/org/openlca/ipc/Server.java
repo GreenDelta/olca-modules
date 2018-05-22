@@ -1,9 +1,8 @@
 package org.openlca.ipc;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import fi.iki.elonen.NanoHTTPD;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
@@ -13,12 +12,18 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.jsonld.output.JsonExport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import fi.iki.elonen.NanoHTTPD;
 
 public class Server extends NanoHTTPD {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
 
 	public Server(int port, IDatabase db) {
@@ -26,6 +31,7 @@ public class Server extends NanoHTTPD {
 		this.db = db;
 		try {
 			start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+			log.info("Started IPC server @{}", port);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -41,6 +47,7 @@ public class Server extends NanoHTTPD {
 			session.parseBody(content);
 			Gson gson = new Gson();
 			RpcRequest req = gson.fromJson(content.get("postData"), RpcRequest.class);
+			log.trace("handle request {}/{}", req.id, req.method);
 			RpcResponse resp = getResponse(req);
 			return serve(resp);
 		} catch (Exception e) {
