@@ -74,6 +74,7 @@
 		<module>olca-geo</module>
 		<module>olca-ilcd</module>
 		<module>olca-io</module>
+		<module>olca-ipc</module>
 		<module>olca-jsonld</module>
 		<module>olca-simapro-csv</module>
 	</modules>
@@ -120,7 +121,7 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<!-- TODO enables this (maybe via a specific task) when we finally publish to Maven central 
+			<!-- TODO enables this (maybe via a specific task) when we finally publish to Maven central
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -133,7 +134,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>			 
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
