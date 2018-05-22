@@ -73,8 +73,13 @@ public class Server extends NanoHTTPD {
 
 	private Response serve(RpcResponse r) {
 		String json = new Gson().toJson(r);
-		return newFixedLengthResponse(Response.Status.OK,
+		Response resp =  newFixedLengthResponse(Response.Status.OK,
 				"application/json", json);
+		resp.addHeader("Access-Control-Allow-Origin", "*");
+		resp.addHeader("Access-Control-Allow-Methods", "POST, GET");
+		resp.addHeader("Access-Control-Allow-Headers",
+				"Content-Type, Access-Control-Allow-Headers");
+		return resp;
 	}
 
 	private RpcResponse saveModel(RpcRequest req, UpdateMode mode) {
