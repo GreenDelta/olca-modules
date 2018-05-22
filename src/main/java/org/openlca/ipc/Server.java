@@ -40,8 +40,7 @@ public class Server extends NanoHTTPD {
 			Map<String, String> content = new HashMap<>();
 			session.parseBody(content);
 			Gson gson = new Gson();
-			RpcRequest req = gson.fromJson(content.get("postData"),
-					RpcRequest.class);
+			RpcRequest req = gson.fromJson(content.get("postData"), RpcRequest.class);
 			RpcResponse resp = getResponse(req);
 			return serve(resp);
 		} catch (Exception e) {
@@ -54,39 +53,37 @@ public class Server extends NanoHTTPD {
 		if (method == null)
 			return Responses.unknownMethod(req);
 		switch (method) {
-			case INSERT_MODEL:
-				return saveModel(req, UpdateMode.NEVER);
-			case UPDATE_MODEL:
-				return saveModel(req, UpdateMode.ALWAYS);
-			case GET_MODEL:
-				return getModel(req);
-			case GET_MODELS:
-				return getModels(req);
-			case GET_DESCRIPTORS:
-				return getDescriptors(req);
-			case DELETE_MODEL:
-				return deleteModel(req);
-			default:
-				return Responses.unknownMethod(req);
+		case INSERT_MODEL:
+			return saveModel(req, UpdateMode.NEVER);
+		case UPDATE_MODEL:
+			return saveModel(req, UpdateMode.ALWAYS);
+		case GET_MODEL:
+			return getModel(req);
+		case GET_MODELS:
+			return getModels(req);
+		case GET_DESCRIPTORS:
+			return getDescriptors(req);
+		case DELETE_MODEL:
+			return deleteModel(req);
+		default:
+			return Responses.unknownMethod(req);
 		}
 	}
 
 	private Response serve(RpcResponse r) {
 		String json = new Gson().toJson(r);
-		Response resp =  newFixedLengthResponse(Response.Status.OK,
-				"application/json", json);
+		Response resp = newFixedLengthResponse(Response.Status.OK, "application/json", json);
 		resp.addHeader("Access-Control-Allow-Origin", "*");
-		resp.addHeader("Access-Control-Allow-Methods", "POST, GET");
+		resp.addHeader("Access-Control-Allow-Methods", "POST");
 		resp.addHeader("Access-Control-Allow-Headers",
-				"Content-Type, Access-Control-Allow-Headers");
+				"Content-Type, Allow-Control-Allow-Headers");
 		return resp;
 	}
 
 	private RpcResponse saveModel(RpcRequest req, UpdateMode mode) {
 		BaseDescriptor d = readDescriptor(req);
 		if (d == null)
-			return Responses.invalidParams("params must be an object with" +
-					" valid @id and @type", req);
+			return Responses.invalidParams("params must be an object with" + " valid @id and @type", req);
 		JsonObject obj = req.params.getAsJsonObject();
 		try {
 			MemStore store = new MemStore();
@@ -103,8 +100,7 @@ public class Server extends NanoHTTPD {
 	private RpcResponse getModel(RpcRequest req) {
 		BaseDescriptor d = readDescriptor(req);
 		if (d == null)
-			return Responses.invalidParams("params must be an object with" +
-					" valid @id and @type", req);
+			return Responses.invalidParams("params must be an object with" + " valid @id and @type", req);
 		try {
 			RootEntity e = Daos.root(db, d.getModelType()).getForRefId(d.getRefId());
 			if (e == null)
@@ -126,11 +122,9 @@ public class Server extends NanoHTTPD {
 	private <T extends RootEntity> RpcResponse deleteModel(RpcRequest req) {
 		BaseDescriptor d = readDescriptor(req);
 		if (d == null)
-			return Responses.invalidParams("params must be an object with" +
-					" valid @id and @type", req);
+			return Responses.invalidParams("params must be an object with" + " valid @id and @type", req);
 		try {
-			RootEntityDao<T, ?> dao = (RootEntityDao<T, ?>) Daos.root(
-					db, d.getModelType());
+			RootEntityDao<T, ?> dao = (RootEntityDao<T, ?>) Daos.root(db, d.getModelType());
 			T e = dao.getForRefId(d.getRefId());
 			if (e == null)
 				return Responses.error(404, "Not found", req);
@@ -143,12 +137,10 @@ public class Server extends NanoHTTPD {
 
 	private RpcResponse getModels(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
-			return Responses.invalidParams("params must be an object with" +
-				" valid @type attribute", req);
+			return Responses.invalidParams("params must be an object with" + " valid @type attribute", req);
 		ModelType type = Models.getType(req.params.getAsJsonObject());
 		if (type == null)
-			return Responses.invalidParams("params must be an object with" +
-					" valid @type attribute", req);
+			return Responses.invalidParams("params must be an object with" + " valid @type attribute", req);
 		try {
 			MemStore store = new MemStore();
 			JsonExport exp = new JsonExport(db, store);
@@ -164,12 +156,10 @@ public class Server extends NanoHTTPD {
 
 	private RpcResponse getDescriptors(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
-			return Responses.invalidParams("params must be an object with" +
-					" valid @type attribute", req);
+			return Responses.invalidParams("params must be an object with" + " valid @type attribute", req);
 		ModelType type = Models.getType(req.params.getAsJsonObject());
 		if (type == null)
-			return Responses.invalidParams("params must be an object with" +
-					" valid @type attribute", req);
+			return Responses.invalidParams("params must be an object with" + " valid @type attribute", req);
 		try {
 			JsonArray array = new JsonArray();
 			Daos.root(db, type).getDescriptors().forEach(d -> {
