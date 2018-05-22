@@ -1,0 +1,16 @@
+# Maven output
+target/
+
+# IDE files
+.idea/
+*.iml
+
+# Eclipse files
+.settings/
+.project
+.classpath
+
+# VSCode files
+.vscode
+
+derby.log
