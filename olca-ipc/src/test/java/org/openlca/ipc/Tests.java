@@ -1,7 +1,4 @@
-package tests.org.openlca.ipc;
-
-import org.openlca.core.database.derby.DerbyDatabase;
-import org.openlca.ipc.Server;
+package org.openlca.ipc;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -10,13 +7,16 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.openlca.core.database.derby.DerbyDatabase;
+import org.openlca.core.matrix.solvers.JavaSolver;
+
 class Tests {
 
 	private static Server server;
 
 	private static Server getServer() {
 		if (server == null) {
-			server = new Server(0, DerbyDatabase.createInMemory());
+			server = new Server(0, DerbyDatabase.createInMemory(), new JavaSolver());
 		}
 		return server;
 	}
@@ -45,7 +45,7 @@ class Tests {
 			try (Reader in = new BufferedReader(
 					new InputStreamReader(con.getInputStream(), "utf-8"))) {
 				StringBuilder sb = new StringBuilder();
-				for (int c; (c = in.read()) >= 0; )
+				for (int c; (c = in.read()) >= 0;)
 					sb.append((char) c);
 				return sb.toString();
 			}

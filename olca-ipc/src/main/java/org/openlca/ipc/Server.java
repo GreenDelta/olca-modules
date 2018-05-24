@@ -6,6 +6,7 @@ import java.util.Map;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -25,12 +26,15 @@ import fi.iki.elonen.NanoHTTPD;
 public class Server extends NanoHTTPD {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	final IDatabase db;
 	final HashMap<String, Object> memory = new HashMap<>();
+	final IMatrixSolver solver;
 
-	public Server(int port, IDatabase db) {
+	public Server(int port, IDatabase db, IMatrixSolver solver) {
 		super(port);
 		this.db = db;
+		this.solver = solver;
 		try {
 			start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
 			log.info("Started IPC server @{}", port);

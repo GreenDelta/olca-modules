@@ -1,4 +1,4 @@
-package tests.org.openlca.ipc;
+package org.openlca.ipc;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
