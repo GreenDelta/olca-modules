@@ -7,6 +7,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.Json;
 
 import com.google.common.base.Joiner;
 import com.google.gson.JsonArray;
@@ -37,7 +38,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 	}
 
 	private UnitGroup setDefaultProperty(JsonObject json, UnitGroup g) {
-		String propId = In.getRefId(json, "defaultFlowProperty");
+		String propId = Json.getRefId(json, "defaultFlowProperty");
 		if (propId == null)
 			return g;
 		FlowProperty prop = FlowPropertyImport.run(propId, conf);
@@ -46,7 +47,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 	}
 
 	private void addUnits(UnitGroup g, JsonObject json) {
-		JsonArray array = In.getArray(json, "units");
+		JsonArray array = Json.getArray(json, "units");
 		if (array == null || array.size() == 0)
 			return;
 		for (JsonElement e : array) {
@@ -54,7 +55,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 				continue;
 			JsonObject obj = e.getAsJsonObject();
 			Unit unit = mapUnit(obj);
-			boolean refUnit = In.getBool(obj, "referenceUnit", false);
+			boolean refUnit = Json.getBool(obj, "referenceUnit", false);
 			if (refUnit)
 				g.setReferenceUnit(unit);
 			g.getUnits().add(unit);
@@ -64,13 +65,13 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 	private Unit mapUnit(JsonObject json) {
 		Unit unit = new Unit();
 		In.mapAtts(json, unit, 0);
-		unit.setConversionFactor(In.getDouble(json, "conversionFactor", 1.0));
+		unit.setConversionFactor(Json.getDouble(json, "conversionFactor", 1.0));
 		addSynonyms(unit, json);
 		return unit;
 	}
 
 	private void addSynonyms(Unit unit, JsonObject json) {
-		JsonArray array = In.getArray(json, "synonyms");
+		JsonArray array = Json.getArray(json, "synonyms");
 		if (array == null || array.size() == 0)
 			return;
 		List<String> synonyms = new ArrayList<>();

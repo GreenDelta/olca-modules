@@ -15,6 +15,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.Json;
 import org.openlca.util.RefIdMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ class ProductSystemExchanges {
 		if (json == null || system == null)
 			return;
 		setReferenceExchange(json, system);
-		JsonArray array = In.getArray(json, "processLinks");
+		JsonArray array = Json.getArray(json, "processLinks");
 		if (array == null || array.size() == 0)
 			return;
 		for (JsonElement element : array) {
@@ -76,8 +77,8 @@ class ProductSystemExchanges {
 			link.providerId = getId(obj, "provider", Process.class);
 			link.processId = getId(obj, "process", Process.class);
 			link.flowId = getId(obj, "flow", Flow.class);
-			JsonObject exchange = In.getObject(obj, "exchange");
-			int internalId = In.getInt(exchange, "internalId", 0);
+			JsonObject exchange = Json.getObject(obj, "exchange");
+			int internalId = Json.getInt(exchange, "internalId", 0);
 			link.exchangeId = findExchangeId(link.processId, internalId);
 			if (valid(link)) {
 				system.processLinks.add(link);
@@ -94,8 +95,8 @@ class ProductSystemExchanges {
 		Process refProcess = system.referenceProcess;
 		if (refProcess == null)
 			return;
-		JsonObject refJson = In.getObject(json, "referenceExchange");
-		int internalId = In.getInt(refJson, "internalId", 0);
+		JsonObject refJson = Json.getObject(json, "referenceExchange");
+		int internalId = Json.getInt(refJson, "internalId", 0);
 		if (internalId <= 0)
 			return;
 		Exchange refExchange = refProcess.getExchange(internalId);
@@ -108,7 +109,7 @@ class ProductSystemExchanges {
 		Exchange e = s.referenceExchange;
 		if (e == null)
 			return null;
-		String propertyRefId = In.getRefId(json, "targetFlowProperty");
+		String propertyRefId = Json.getRefId(json, "targetFlowProperty");
 		for (FlowPropertyFactor f : e.flow.getFlowPropertyFactors())
 			if (f.getFlowProperty().getRefId().equals(propertyRefId))
 				return f;
@@ -119,7 +120,7 @@ class ProductSystemExchanges {
 		FlowPropertyFactor f = s.targetFlowPropertyFactor;
 		if (f == null)
 			return null;
-		String unitRefId = In.getRefId(json, "targetUnit");
+		String unitRefId = Json.getRefId(json, "targetUnit");
 		UnitGroup ug = f.getFlowProperty().getUnitGroup();
 		for (Unit u : ug.getUnits())
 			if (u.getRefId().equals(unitRefId))
@@ -128,10 +129,10 @@ class ProductSystemExchanges {
 	}
 
 	private long getId(JsonObject json, String key, Class<?> type) {
-		JsonObject refObj = In.getObject(json, key);
+		JsonObject refObj = Json.getObject(json, key);
 		if (refObj == null)
 			return 0;
-		String refId = In.getString(refObj, "@id");
+		String refId = Json.getString(refObj, "@id");
 		Long id = refIds.get(type, refId);
 		return id == null ? 0 : id;
 	}

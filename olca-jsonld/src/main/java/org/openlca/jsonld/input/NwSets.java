@@ -5,6 +5,7 @@ import java.util.List;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -17,8 +18,8 @@ class NwSets {
 			return null;
 		NwSet set = new NwSet();
 		In.mapAtts(json, set, 0);
-		set.weightedScoreUnit = In.getString(json, "weightedScoreUnit");
-		JsonArray factors = In.getArray(json, "factors");
+		set.weightedScoreUnit = Json.getString(json, "weightedScoreUnit");
+		JsonArray factors = Json.getArray(json, "factors");
 		if (factors == null)
 			return set;
 		for (JsonElement f : factors) {
@@ -33,10 +34,10 @@ class NwSets {
 	private static NwFactor mapFactor(JsonObject json,
 			List<ImpactCategory> categories) {
 		NwFactor f = new NwFactor();
-		String categoryId = In.getRefId(json, "impactCategory");
+		String categoryId = Json.getRefId(json, "impactCategory");
 		f.setImpactCategory(getImpactCategory(categoryId, categories));
-		f.setNormalisationFactor(In.getOptionalDouble(json, "normalisationFactor"));
-		f.setWeightingFactor(In.getOptionalDouble(json, "weightingFactor"));
+		f.setNormalisationFactor(Json.getOptionalDouble(json, "normalisationFactor"));
+		f.setWeightingFactor(Json.getOptionalDouble(json, "weightingFactor"));
 		return f;
 	}
 

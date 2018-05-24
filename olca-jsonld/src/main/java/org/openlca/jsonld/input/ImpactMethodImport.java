@@ -6,6 +6,7 @@ import org.openlca.core.model.ImpactMethod.ParameterMean;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -30,18 +31,18 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 		mapCategories(json, m);
 		mapNwSets(json, m);
 		mapParameters(json, m);
-		m.parameterMean = In.getEnum(json, "parameterMean", ParameterMean.class);
+		m.parameterMean = Json.getEnum(json, "parameterMean", ParameterMean.class);
 		return conf.db.put(m);
 	}
 
 	private void mapCategories(JsonObject json, ImpactMethod m) {
-		JsonArray array = In.getArray(json, "impactCategories");
+		JsonArray array = Json.getArray(json, "impactCategories");
 		if (array == null || array.size() == 0)
 			return;
 		for (JsonElement e : array) {
 			if (!e.isJsonObject())
 				continue;
-			String catId = In.getString(e.getAsJsonObject(), "@id");
+			String catId = Json.getString(e.getAsJsonObject(), "@id");
 			JsonObject catJson = conf.store.get(ModelType.IMPACT_CATEGORY, catId);
 			ImpactCategory category = ImpactCategories.map(catJson, conf);
 			if (category != null)
@@ -50,13 +51,13 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 	}
 
 	private void mapNwSets(JsonObject json, ImpactMethod m) {
-		JsonArray array = In.getArray(json, "nwSets");
+		JsonArray array = Json.getArray(json, "nwSets");
 		if (array == null)
 			return;
 		for (JsonElement e : array) {
 			if (!e.isJsonObject())
 				continue;
-			String nwSetId = In.getString(e.getAsJsonObject(), "@id");
+			String nwSetId = Json.getString(e.getAsJsonObject(), "@id");
 			JsonObject nwSetJson = conf.store.get(ModelType.NW_SET, nwSetId);
 			NwSet set = NwSets.map(nwSetJson, m.impactCategories);
 			if (set != null)
@@ -65,14 +66,14 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 	}
 
 	private void mapParameters(JsonObject json, ImpactMethod method) {
-		JsonArray parameters = In.getArray(json, "parameters");
+		JsonArray parameters = Json.getArray(json, "parameters");
 		if (parameters == null || parameters.size() == 0)
 			return;
 		for (JsonElement e : parameters) {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject o = e.getAsJsonObject();
-			String refId = In.getString(o, "@id");
+			String refId = Json.getString(o, "@id");
 			ParameterImport pi = new ParameterImport(refId, conf);
 			Parameter parameter = new Parameter();
 			pi.mapFields(o, parameter);

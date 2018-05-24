@@ -2,6 +2,7 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
@@ -26,13 +27,13 @@ class ActorImport extends BaseImport<Actor> {
 	}
 
 	private void mapAtts(JsonObject json, Actor a) {
-		a.setAddress(In.getString(json, "address"));
-		a.setCity(In.getString(json, "city"));
-		a.setCountry(In.getString(json, "country"));
-		a.setEmail(In.getString(json, "email"));
-		a.setTelefax(In.getString(json, "telefax"));
-		a.setTelephone(In.getString(json, "telephone"));
-		a.setWebsite(In.getString(json, "website"));
-		a.setZipCode(In.getString(json, "zipCode"));
+		a.setAddress(Json.getString(json, "address"));
+		a.setCity(Json.getString(json, "city"));
+		a.setCountry(Json.getString(json, "country"));
+		a.setEmail(Json.getString(json, "email"));
+		a.setTelefax(Json.getString(json, "telefax"));
+		a.setTelephone(Json.getString(json, "telephone"));
+		a.setWebsite(Json.getString(json, "website"));
+		a.setZipCode(Json.getString(json, "zipCode"));
 	}
 }

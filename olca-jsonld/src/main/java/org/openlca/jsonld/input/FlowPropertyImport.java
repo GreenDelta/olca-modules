@@ -3,6 +3,7 @@ package org.openlca.jsonld.input;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
@@ -22,9 +23,9 @@ class FlowPropertyImport extends BaseImport<FlowProperty> {
 			return null;
 		FlowProperty p = new FlowProperty();
 		In.mapAtts(json, p, id, conf);
-		p.setFlowPropertyType(In.getEnum(json, "flowPropertyType",
+		p.setFlowPropertyType(Json.getEnum(json, "flowPropertyType",
 				FlowPropertyType.class));
-		String unitGroupId = In.getRefId(json, "unitGroup");
+		String unitGroupId = Json.getRefId(json, "unitGroup");
 		p.setUnitGroup(UnitGroupImport.run(unitGroupId, conf));
 		return conf.db.put(p);
 	}

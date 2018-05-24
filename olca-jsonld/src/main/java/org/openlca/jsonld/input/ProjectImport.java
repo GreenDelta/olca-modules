@@ -11,6 +11,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -38,18 +39,18 @@ class ProjectImport extends BaseImport<Project> {
 	}
 
 	private void mapAtts(JsonObject json, Project p) {
-		String authorRefId = In.getRefId(json, "author");
+		String authorRefId = Json.getRefId(json, "author");
 		p.setAuthor(ActorImport.run(authorRefId, conf));
-		p.setCreationDate(In.getDate(json, "creationDate"));
-		p.setFunctionalUnit(In.getString(json, "functionalUnit"));
-		p.setGoal(In.getString(json, "goal"));
-		p.setLastModificationDate(In.getDate(json, "lastModificationDate"));
-		String methodRefId = In.getRefId(json, "impactMethod");
+		p.setCreationDate(Json.getDate(json, "creationDate"));
+		p.setFunctionalUnit(Json.getString(json, "functionalUnit"));
+		p.setGoal(Json.getString(json, "goal"));
+		p.setLastModificationDate(Json.getDate(json, "lastModificationDate"));
+		String methodRefId = Json.getRefId(json, "impactMethod");
 		ImpactMethod method = ImpactMethodImport.run(methodRefId, conf);
 		if (method == null)
 			return;
 		p.setImpactMethodId(method.getId());
-		String nwSetRefId = In.getRefId(json, "nwSet");
+		String nwSetRefId = Json.getRefId(json, "nwSet");
 		for (NwSet set : method.nwSets)
 			if (set.getRefId().equals(nwSetRefId)) {
 				p.setNwSetId(set.getId());
@@ -58,7 +59,7 @@ class ProjectImport extends BaseImport<Project> {
 	}
 
 	private void mapVariants(JsonObject json, Project p) {
-		JsonArray array = In.getArray(json, "variants");
+		JsonArray array = Json.getArray(json, "variants");
 		if (array == null || array.size() == 0)
 			return;
 		for (JsonElement element : array) {
@@ -66,25 +67,25 @@ class ProjectImport extends BaseImport<Project> {
 				continue;
 			JsonObject obj = element.getAsJsonObject();
 			ProjectVariant v = new ProjectVariant();
-			String systemRefId = In.getRefId(obj, "productSystem");
+			String systemRefId = Json.getRefId(obj, "productSystem");
 			ProductSystem system = ProductSystemImport.run(systemRefId, conf);
 			if (system == null)
 				continue;
 			v.setProductSystem(system);
-			String propRefId = In.getRefId(obj, "flowProperty");
+			String propRefId = Json.getRefId(obj, "flowProperty");
 			FlowPropertyFactor factor = findFlowPropertyFactor(propRefId,
 					system);
 			if (factor == null)
 				continue;
 			v.setFlowPropertyFactor(factor);
-			String unitRefId = In.getRefId(obj, "unit");
+			String unitRefId = Json.getRefId(obj, "unit");
 			Unit unit = findUnit(unitRefId, factor);
 			if (unit == null)
 				continue;
 			v.setUnit(unit);
-			v.setName(In.getString(obj, "name"));
-			v.setAmount(In.getDouble(obj, "amount", 0));
-			v.setAllocationMethod(In.getEnum(obj, "allocationMethod",
+			v.setName(Json.getString(obj, "name"));
+			v.setAmount(Json.getDouble(obj, "amount", 0));
+			v.setAllocationMethod(Json.getEnum(obj, "allocationMethod",
 					AllocationMethod.class));
 			ParameterRedefs.addParameters(obj, v.getParameterRedefs(), conf);
 			p.getVariants().add(v);

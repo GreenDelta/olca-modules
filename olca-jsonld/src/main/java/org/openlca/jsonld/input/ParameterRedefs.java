@@ -7,6 +7,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -16,17 +17,17 @@ class ParameterRedefs {
 
 	static void addParameters(JsonObject json, List<ParameterRedef> list,
 			ImportConfig conf) {
-		JsonArray array = In.getArray(json, "parameterRedefs");
+		JsonArray array = Json.getArray(json, "parameterRedefs");
 		if (array == null || array.size() == 0)
 			return;
 		for (JsonElement element : array) {
 			JsonObject ref = element.getAsJsonObject();
 			ParameterRedef p = new ParameterRedef();
-			p.setName(In.getString(ref, "name"));
-			p.setValue(In.getDouble(ref, "value", 0));
-			p.setUncertainty(Uncertainties.read(In
+			p.setName(Json.getString(ref, "name"));
+			p.setValue(Json.getDouble(ref, "value", 0));
+			p.setUncertainty(Uncertainties.read(Json
 					.getObject(ref, "uncertainty")));
-			JsonObject context = In.getObject(ref, "context");
+			JsonObject context = Json.getObject(ref, "context");
 			boolean valid = setContext(context, p, conf);
 			if (valid)
 				list.add(p);
@@ -37,8 +38,8 @@ class ParameterRedefs {
 			ImportConfig conf) {
 		if (context == null)
 			return true;
-		String type = In.getString(context, "@type");
-		String refId = In.getString(context, "@id");
+		String type = Json.getString(context, "@type");
+		String refId = Json.getString(context, "@id");
 		RootEntity model = null;
 		if (Process.class.getSimpleName().equals(type)) {
 			model = ProcessImport.run(refId, conf);

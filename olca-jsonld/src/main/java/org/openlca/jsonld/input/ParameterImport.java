@@ -3,6 +3,7 @@ package org.openlca.jsonld.input;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
@@ -29,13 +30,13 @@ class ParameterImport extends BaseImport<Parameter> {
 	/** Field mappings for processes and LCIA methods. */
 	void mapFields(JsonObject json, Parameter p) {
 		In.mapAtts(json, p, p.getId());
-		p.setScope(In.getEnum(json, "parameterScope", ParameterScope.class));
-		p.setInputParameter(In.getBool(json, "inputParameter", true));
-		p.setValue(In.getDouble(json, "value", 0));
-		p.setFormula(In.getString(json, "formula"));
-		p.setExternalSource(In.getString(json, "externalSource"));
-		p.setSourceType(In.getString(json, "sourceType"));
-		p.setUncertainty(Uncertainties.read(In.getObject(json, "uncertainty")));
+		p.setScope(Json.getEnum(json, "parameterScope", ParameterScope.class));
+		p.setInputParameter(Json.getBool(json, "inputParameter", true));
+		p.setValue(Json.getDouble(json, "value", 0));
+		p.setFormula(Json.getString(json, "formula"));
+		p.setExternalSource(Json.getString(json, "externalSource"));
+		p.setSourceType(Json.getString(json, "sourceType"));
+		p.setUncertainty(Uncertainties.read(Json.getObject(json, "uncertainty")));
 	}
 
 }

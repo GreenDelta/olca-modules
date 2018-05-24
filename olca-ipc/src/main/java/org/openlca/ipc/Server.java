@@ -9,6 +9,7 @@ import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.jsonld.Json;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.jsonld.output.JsonExport;
@@ -24,7 +25,8 @@ import fi.iki.elonen.NanoHTTPD;
 public class Server extends NanoHTTPD {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final IDatabase db;
+	final IDatabase db;
+	final HashMap<String, Object> memory = new HashMap<>();
 
 	public Server(int port, IDatabase db) {
 		super(port);

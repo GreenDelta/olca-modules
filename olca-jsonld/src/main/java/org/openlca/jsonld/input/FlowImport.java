@@ -5,6 +5,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -31,14 +32,14 @@ class FlowImport extends BaseImport<Flow> {
 	}
 
 	private void mapFlowAtts(JsonObject json, Flow flow) {
-		String catId = In.getRefId(json, "category");
+		String catId = Json.getRefId(json, "category");
 		flow.setCategory(CategoryImport.run(catId, conf));
-		flow.setFlowType(In.getEnum(json, "flowType", FlowType.class));
-		flow.setCasNumber(In.getString(json, "cas"));
-		flow.synonyms = In.getString(json, "synonyms");
-		flow.setFormula(In.getString(json, "formula"));
-		flow.setInfrastructureFlow(In.getBool(json, "infrastructureFlow", false));
-		String locId = In.getRefId(json, "location");
+		flow.setFlowType(Json.getEnum(json, "flowType", FlowType.class));
+		flow.setCasNumber(Json.getString(json, "cas"));
+		flow.synonyms = Json.getString(json, "synonyms");
+		flow.setFormula(Json.getString(json, "formula"));
+		flow.setInfrastructureFlow(Json.getBool(json, "infrastructureFlow", false));
+		String locId = Json.getRefId(json, "location");
 		if (locId != null)
 			flow.setLocation(LocationImport.run(locId, conf));
 	}
@@ -53,13 +54,13 @@ class FlowImport extends BaseImport<Flow> {
 			JsonObject facObj = e.getAsJsonObject();
 			FlowPropertyFactor fac = new FlowPropertyFactor();
 			flow.getFlowPropertyFactors().add(fac);
-			String propId = In.getRefId(facObj, "flowProperty");
+			String propId = Json.getRefId(facObj, "flowProperty");
 			FlowProperty property = FlowPropertyImport.run(propId, conf);
 			fac.setFlowProperty(property);
-			boolean isRef = In.getBool(facObj, "referenceFlowProperty", false);
+			boolean isRef = Json.getBool(facObj, "referenceFlowProperty", false);
 			if (isRef)
 				flow.setReferenceFlowProperty(property);
-			fac.setConversionFactor(In.getDouble(facObj, "conversionFactor",
+			fac.setConversionFactor(Json.getDouble(facObj, "conversionFactor",
 					1.0));
 		}
 	}

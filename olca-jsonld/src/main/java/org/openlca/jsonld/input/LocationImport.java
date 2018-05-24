@@ -2,6 +2,7 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.Json;
 import org.openlca.util.BinUtils;
 import org.openlca.util.Geometries;
 import org.slf4j.Logger;
@@ -25,9 +26,9 @@ class LocationImport extends BaseImport<Location> {
 			return null;
 		Location loc = new Location();
 		In.mapAtts(json, loc, id, conf);
-		loc.setCode(In.getString(json, "code"));
-		double latitude = In.getDouble(json, "latitude", 0);
-		double longitude = In.getDouble(json, "longitude", 0);
+		loc.setCode(Json.getString(json, "code"));
+		double latitude = Json.getDouble(json, "latitude", 0);
+		double longitude = Json.getDouble(json, "longitude", 0);
 		loc.setLatitude(latitude);
 		loc.setLongitude(longitude);
 		if (!addGeometry(json, loc)) {
@@ -42,7 +43,7 @@ class LocationImport extends BaseImport<Location> {
 
 	private boolean addGeometry(JsonObject json, Location loc) {
 		try {
-			JsonObject geoJson = In.getObject(json, "geometry");
+			JsonObject geoJson = Json.getObject(json, "geometry");
 			if (geoJson == null)
 				return false;
 			String kml = GeoJson2Kml.convert(geoJson);

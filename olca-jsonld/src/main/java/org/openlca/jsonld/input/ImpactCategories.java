@@ -8,6 +8,7 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Unit;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -20,8 +21,8 @@ class ImpactCategories {
 			return null;
 		ImpactCategory cat = new ImpactCategory();
 		In.mapAtts(json, cat, 0);
-		cat.referenceUnit = In.getString(json, "referenceUnitName");
-		JsonArray factors = In.getArray(json, "impactFactors");
+		cat.referenceUnit = Json.getString(json, "referenceUnitName");
+		JsonArray factors = Json.getArray(json, "impactFactors");
 		if (factors == null || factors.size() == 0)
 			return cat;
 		for (JsonElement e : factors) {
@@ -39,12 +40,12 @@ class ImpactCategories {
 		if (json == null || conf == null)
 			return null;
 		ImpactFactor factor = new ImpactFactor();
-		factor.value = In.getDouble(json, "value", 0);
-		factor.formula = In.getString(json, "formula");
-		String flowId = In.getRefId(json, "flow");
+		factor.value = Json.getDouble(json, "value", 0);
+		factor.formula = Json.getString(json, "formula");
+		String flowId = Json.getRefId(json, "flow");
 		Flow flow = FlowImport.run(flowId, conf);
 		factor.flow = flow;
-		Unit unit = conf.db.getUnit(In.getRefId(json, "unit"));
+		Unit unit = conf.db.getUnit(Json.getRefId(json, "unit"));
 		factor.unit = unit;
 		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
 		if (flow == null || unit == null || propFac == null) {
@@ -62,7 +63,7 @@ class ImpactCategories {
 			Flow flow) {
 		if (json == null || flow == null)
 			return null;
-		String propId = In.getRefId(json, "flowProperty");
+		String propId = Json.getRefId(json, "flowProperty");
 		for (FlowPropertyFactor fac : flow.getFlowPropertyFactors()) {
 			FlowProperty prop = fac.getFlowProperty();
 			if (prop == null)

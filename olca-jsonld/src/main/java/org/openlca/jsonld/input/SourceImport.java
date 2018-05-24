@@ -2,6 +2,7 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,9 +28,9 @@ class SourceImport extends BaseImport<Source> {
 	}
 
 	private void mapAtts(JsonObject json, Source s) {
-		s.setUrl(In.getString(json, "url"));
-		s.setExternalFile(In.getString(json, "externalFile"));
-		s.setTextReference(In.getString(json, "textReference"));
+		s.setUrl(Json.getString(json, "url"));
+		s.setExternalFile(Json.getString(json, "externalFile"));
+		s.setTextReference(Json.getString(json, "textReference"));
 		JsonElement year = json.get("year");
 		if (year != null && year.isJsonPrimitive())
 			s.setYear(year.getAsShort());

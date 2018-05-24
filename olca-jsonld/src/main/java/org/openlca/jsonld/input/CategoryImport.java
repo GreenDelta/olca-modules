@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
@@ -23,13 +24,13 @@ class CategoryImport extends BaseImport<Category> {
 		if (json == null)
 			return null;
 		boolean isNew = false;
-		String refId = In.getString(json, "@id");
+		String refId = Json.getString(json, "@id");
 		if (model == null) {
 			model = new Category();
 			isNew = true;
 		}
 		In.mapAtts(json, model, model.getId(), conf);
-		model.setModelType(In.getEnum(json, "modelType", ModelType.class));
+		model.setModelType(Json.getEnum(json, "modelType", ModelType.class));
 		if (!isNew || model.getCategory() == null)
 			model = conf.db.put(model);
 		else

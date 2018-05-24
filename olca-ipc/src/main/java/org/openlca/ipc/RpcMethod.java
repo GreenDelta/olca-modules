@@ -2,16 +2,18 @@ package org.openlca.ipc;
 
 public enum RpcMethod {
 
+	CALCULATE("calculate"),
+	
 	GET_DESCRIPTOR("get/descriptor"),
 	GET_DESCRIPTORS("get/descriptors"),
 
 	GET_MODEL("get/model"),
 	GET_MODELS("get/models"),
-	INSERT_MODEL("insert/model"),
+	INSERT_MODEL("insert/model"), 
 	UPDATE_MODEL("update/model"),
 	DELETE_MODEL("delete/model");
 
-	private final String value;
+	private final String value; 
 
 	RpcMethod(String value) {
 		this.value = value;

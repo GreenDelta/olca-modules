@@ -2,6 +2,7 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.SocialIndicator;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
@@ -21,14 +22,14 @@ class SocialIndicatorImport extends BaseImport<SocialIndicator> {
 			return null;
 		SocialIndicator i = new SocialIndicator();
 		In.mapAtts(json, i, id, conf);
-		i.activityVariable = In.getString(json, "activityVariable");
-		i.evaluationScheme = In.getString(json, "evaluationScheme");
-		i.unitOfMeasurement = In.getString(json, "unitOfMeasurement");
+		i.activityVariable = Json.getString(json, "activityVariable");
+		i.evaluationScheme = Json.getString(json, "evaluationScheme");
+		i.unitOfMeasurement = Json.getString(json, "unitOfMeasurement");
 		// import the quantity before setting the unit to assure that the
 		// unit is already in the database
-		String quanId = In.getRefId(json, "activityQuantity");
+		String quanId = Json.getRefId(json, "activityQuantity");
 		i.activityQuantity = FlowPropertyImport.run(quanId, conf);
-		String unitId = In.getRefId(json, "activityUnit");
+		String unitId = Json.getRefId(json, "activityUnit");
 		i.activityUnit = conf.db.getUnit(unitId);
 		return conf.db.put(i);
 	}

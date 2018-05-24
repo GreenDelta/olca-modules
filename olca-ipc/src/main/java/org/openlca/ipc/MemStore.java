@@ -1,14 +1,16 @@
 package org.openlca.ipc;
 
-import com.google.gson.JsonObject;
-import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.EntityStore;
+import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 class MemStore implements EntityStore {
 

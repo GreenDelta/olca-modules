@@ -1,15 +1,17 @@
 package org.openlca.ipc;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 class Models {
 
 	/**
-	 * Returns a descriptor with the model type and (reference ID) from the
-	 * given Json object. It returns only a descriptor when both parameters
-	 * (ID and type)  can be set. Otherwise it returns null.
+	 * Returns a descriptor with the model type and (reference ID) from the given
+	 * Json object. It returns only a descriptor when both parameters (ID and type)
+	 * can be set. Otherwise it returns null.
 	 */
 	static BaseDescriptor getDescriptor(JsonObject obj) {
 		if (obj == null)
