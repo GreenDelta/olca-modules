@@ -66,6 +66,8 @@ class Transformation {
 
 	private void linkProduct(Node recipient, Link inLink) {
 		Node provider = forTarget(inLink.provider);
+		if (provider == null)
+			return;
 		Flow product = inLink.output.flow.clone();
 		product.setFlowType(FlowType.PRODUCT_FLOW);
 		Link link = link(provider, recipient, product, inLink);
@@ -75,6 +77,8 @@ class Transformation {
 
 	private void linkWaste(Node provider, Link outLink) {
 		Node recipient = forTarget(outLink.recipient);
+		if (recipient == null)
+			return;
 		Flow waste = outLink.input.flow.clone();
 		waste.setFlowType(FlowType.WASTE_FLOW);
 		Link link = link(provider, recipient, waste, outLink);
@@ -119,11 +123,13 @@ class Transformation {
 
 	/**
 	 * Initialize a node for the target graph from the given node in the source
-	 * graph. This creates a copy of the process with all product and waste
-	 * flows removed. If the target graph already contains this node (identified
-	 * via the model ID) this node will be returned.
+	 * graph. This creates a copy of the process with all product and waste flows
+	 * removed. If the target graph already contains this node (identified via the
+	 * model ID) this node will be returned.
 	 */
 	private Node forTarget(Node sourceNode) {
+		if (sourceNode == null)
+			return null;
 		Node n = target.getNode(sourceNode.modelID);
 		if (n != null)
 			return n;
