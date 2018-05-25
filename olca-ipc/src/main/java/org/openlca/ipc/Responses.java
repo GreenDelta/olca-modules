@@ -14,6 +14,13 @@ class Responses {
 		return response;
 	}
 
+	static RpcResponse ok(String message, RpcRequest req) {
+		String m = message;
+		if (m == null)
+			m = "";
+		return ok(new JsonPrimitive(m), req);
+	}
+
 	static RpcResponse ok(JsonElement result, RpcRequest req) {
 		RpcResponse response = new RpcResponse();
 		if (req != null) {

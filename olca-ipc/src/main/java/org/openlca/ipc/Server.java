@@ -66,6 +66,10 @@ public class Server extends NanoHTTPD {
 		if (method == null)
 			return Responses.unknownMethod(req);
 		switch (method) {
+		case CALCULATE:
+			return Calculator.doIt(this, req);
+		case DISPOSE:
+			return dispose(req);
 		case INSERT_MODEL:
 			return saveModel(req, UpdateMode.NEVER);
 		case UPDATE_MODEL:
@@ -199,5 +203,19 @@ public class Server extends NanoHTTPD {
 			return null;
 		JsonObject obj = req.params.getAsJsonObject();
 		return Models.getDescriptor(obj);
+	}
+
+	private RpcResponse dispose(RpcRequest req) {
+		if (req.params == null || !req.params.isJsonObject())
+			return Responses.error(400, "No object with '@id' provided", req);
+		JsonObject param = req.params.getAsJsonObject();
+		String id = Json.getString(param, "@id");
+		if (id == null)
+			return Responses.error(400, "No '@id' provided", req);
+		boolean removed = memory.remove(id) != null;
+		if (removed)
+			return Responses.ok(req);
+		return Responses.ok("Did not find something with @id="
+				+ id + "in memory; did nothing", req);
 	}
 }
