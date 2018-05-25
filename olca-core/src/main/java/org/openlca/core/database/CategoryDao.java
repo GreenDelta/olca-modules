@@ -16,6 +16,7 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.util.Categories;
 
 import com.google.common.base.Optional;
 
@@ -56,7 +57,7 @@ public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescript
 	@Override
 	// see update(category)
 	public Category insert(Category category) {
-		category.setRefId(Category.createRefId(category));
+		category.setRefId(Categories.createRefId(category));
 		Category existing = getForRefId(category.getRefId());
 		if (existing != null) {
 			mergeChildren(existing, category);
@@ -71,7 +72,7 @@ public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescript
 	// category model as a normal entity and still compare categories by path
 	public Category update(Category category) {
 		String refId = category.getRefId();
-		String newRefId = Category.createRefId(category);
+		String newRefId = Categories.createRefId(category);
 		Category forRefId = getForRefId(newRefId);
 		boolean isNew = category.getId() == 0l;
 		if (!Objects.equals(refId, newRefId) && !isNew)
@@ -106,7 +107,7 @@ public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescript
 
 	private boolean contains(List<Category> categories, Category category) {
 		for (Category child : categories)
-			if (Category.createRefId(child).equals(Category.createRefId(category)))
+			if (Categories.createRefId(child).equals(Categories.createRefId(category)))
 				return true;
 		return false;
 	}

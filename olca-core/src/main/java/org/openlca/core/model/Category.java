@@ -12,8 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.openlca.util.KeyGen;
-
 @Entity
 @Table(name = "tbl_categories")
 public class Category extends CategorizedEntity {
@@ -56,19 +54,6 @@ public class Category extends CategorizedEntity {
 	public String toString() {
 		return String.format("Category {modelType=%s, refId=%s, name=%s}",
 				getModelType(), getRefId(), getName());
-	}
-
-	public static String createRefId(Category category) {
-		List<String> path = new ArrayList<>();
-		Category c = category;
-		while (c != null) {
-			path.add(0, c.getName());
-			c = c.getCategory();
-		}
-		ModelType type = category.getModelType();
-		if (type != null)
-			path.add(0, type.name());
-		return KeyGen.get(path.toArray(new String[path.size()]));
 	}
 
 }

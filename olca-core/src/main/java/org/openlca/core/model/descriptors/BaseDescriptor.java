@@ -9,7 +9,7 @@ import com.google.common.primitives.Longs;
 
 /**
  * Descriptors are lightweight models containing only descriptive information of
- * the corresponding model.The intention of descriptors is to get these
+ * a corresponding entity.The intention of descriptors is to get these
  * information fast from the database without loading the complete model.
  * Therefore, the respective DAO classes should provide these.
  */
@@ -68,19 +68,19 @@ public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable 
 	public long getVersion() {
 		return version;
 	}
-	
+
 	public void setVersion(long version) {
 		this.version = version;
 	}
-	
+
 	public long getLastChange() {
 		return lastChange;
 	}
-	
+
 	public void setLastChange(long lastChange) {
 		this.lastChange = lastChange;
 	}
-	
+
 	public void setType(ModelType type) {
 		this.type = type;
 	}

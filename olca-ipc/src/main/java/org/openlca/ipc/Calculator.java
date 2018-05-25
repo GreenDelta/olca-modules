@@ -2,7 +2,6 @@ package org.openlca.ipc;
 
 import java.util.UUID;
 
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProcessDao;
@@ -13,9 +12,7 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
-import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.core.results.SimpleResultProvider;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -126,19 +123,7 @@ class Calculator {
 			return Responses.error(404, "No result calculated", req);
 		String id = UUID.randomUUID().toString();
 		server.memory.put(id, r);
-		SimpleResultProvider<SimpleResult> provider = new SimpleResultProvider<>(r,
-				EntityCache.create(server.db));
-		JsonObject obj = new JsonObject();
-		obj.addProperty("@type", "SimpleResult");
-		obj.addProperty("@id", id);
-		JsonArray flowResults = new JsonArray();
-		obj.add("flowResults", flowResults);
-		for (FlowResult flowResult : provider.getTotalFlowResults()) {
-			// TODO: fill flow results
-		}
-		JsonArray impactResults = new JsonArray();
-		obj.add("impactResults", impactResults);
-		// TODO: fill impact results
-		return Responses.ok(obj, req);
+		JsonObject result = JsonRpc.encode(r, id, server.db);
+		return Responses.ok(result, req);
 	}
 }
