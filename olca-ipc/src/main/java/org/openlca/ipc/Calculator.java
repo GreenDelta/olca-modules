@@ -14,6 +14,8 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.jsonld.Json;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -21,6 +23,7 @@ import com.google.gson.JsonObject;
 
 class Calculator {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Server server;
 	private final RpcRequest req;
 
@@ -43,6 +46,7 @@ class Calculator {
 		ProductSystem system = new ProductSystemDao(server.db).getForRefId(systemID);
 		if (system == null)
 			Responses.invalidParams("No product system found for @id=" + systemID, req);
+		log.info("Calculate product system {}", systemID);
 		CalculationSetup setup = new CalculationSetup(system);
 		method(json, setup);
 		nwSet(json, setup);
@@ -55,6 +59,7 @@ class Calculator {
 			SimpleResult r = calc.calculateSimple(setup);
 			return encode(r, req);
 		} catch (Exception e) {
+			log.error("Calculation failed", e);
 			return Responses.serverError(e, req);
 		}
 	}
@@ -122,6 +127,7 @@ class Calculator {
 		if (r == null)
 			return Responses.error(404, "No result calculated", req);
 		String id = UUID.randomUUID().toString();
+		log.info("encode and cache result {}", id);
 		server.memory.put(id, r);
 		JsonObject result = JsonRpc.encode(r, id, server.db);
 		return Responses.ok(result, req);

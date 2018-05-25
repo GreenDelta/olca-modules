@@ -63,7 +63,7 @@ class JsonRpc {
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ImpactResult");
-		obj.add("flow", Json.asRef(r.impactCategory, db));
+		obj.add("impactCategory", Json.asRef(r.impactCategory, db));
 		obj.addProperty("value", r.value);
 		return obj;
 	}

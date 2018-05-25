@@ -213,8 +213,10 @@ public class Server extends NanoHTTPD {
 		if (id == null)
 			return Responses.error(400, "No '@id' provided", req);
 		boolean removed = memory.remove(id) != null;
-		if (removed)
+		if (removed) {
+			log.info("Removed {} from memory", id);
 			return Responses.ok(req);
+		}
 		return Responses.ok("Did not find something with @id="
 				+ id + "in memory; did nothing", req);
 	}
