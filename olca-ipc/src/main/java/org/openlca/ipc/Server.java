@@ -10,6 +10,7 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
+import org.openlca.ipc.handlers.Calculator;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;

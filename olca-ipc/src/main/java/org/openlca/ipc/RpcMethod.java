@@ -2,17 +2,7 @@ package org.openlca.ipc;
 
 public enum RpcMethod {
 
-	CALCULATE("calculate"),
-	DISPOSE("dispose"),
-
-	GET_DESCRIPTOR("get/descriptor"),
-	GET_DESCRIPTORS("get/descriptors"),
-
-	GET_MODEL("get/model"),
-	GET_MODELS("get/models"),
-	INSERT_MODEL("insert/model"),
-	UPDATE_MODEL("update/model"),
-	DELETE_MODEL("delete/model");
+	CALCULATE("calculate"), DISPOSE("dispose"),
 
 	private final String value;
 

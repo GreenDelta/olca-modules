@@ -1,4 +1,4 @@
-package org.openlca.ipc;
+package org.openlca.ipc.handlers;
 
 import java.util.UUID;
 
@@ -13,6 +13,10 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.ipc.Responses;
+import org.openlca.ipc.RpcRequest;
+import org.openlca.ipc.RpcResponse;
+import org.openlca.ipc.Server;
 import org.openlca.jsonld.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +25,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-class Calculator {
+public class Calculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Server server;

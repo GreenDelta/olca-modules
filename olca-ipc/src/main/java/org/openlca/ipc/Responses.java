@@ -3,9 +3,15 @@ package org.openlca.ipc;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-class Responses {
+/**
+ * Utility methods for creating RPC responses.
+ */
+public class Responses {
 
-	static RpcResponse ok(RpcRequest req) {
+	private Responses() {
+	}
+
+	public static RpcResponse ok(RpcRequest req) {
 		RpcResponse response = new RpcResponse();
 		if (req != null) {
 			response.id = req.id;
@@ -14,14 +20,14 @@ class Responses {
 		return response;
 	}
 
-	static RpcResponse ok(String message, RpcRequest req) {
+	public static RpcResponse ok(String message, RpcRequest req) {
 		String m = message;
 		if (m == null)
 			m = "";
 		return ok(new JsonPrimitive(m), req);
 	}
 
-	static RpcResponse ok(JsonElement result, RpcRequest req) {
+	public static RpcResponse ok(JsonElement result, RpcRequest req) {
 		RpcResponse response = new RpcResponse();
 		if (req != null) {
 			response.id = req.id;
@@ -30,21 +36,21 @@ class Responses {
 		return response;
 	}
 
-	static RpcResponse error(int code, String message, RpcRequest req) {
+	public static RpcResponse error(int code, String message, RpcRequest req) {
 		RpcError error = new RpcError();
 		error.code = code;
 		error.message = message;
 		return response(error, req);
 	}
 
-	static RpcResponse serverError(Exception e, RpcRequest req) {
+	public static RpcResponse serverError(Exception e, RpcRequest req) {
 		RpcError error = new RpcError();
 		error.code = -32000;
 		error.message = "Unhandled server error: " + e.getMessage();
 		return response(error, req);
 	}
 
-	static RpcResponse requestError(String message) {
+	public static RpcResponse requestError(String message) {
 		RpcError error = new RpcError();
 		error.code = -32600;
 		error.message = "The JSON sent is not a valid Request object: "
@@ -54,7 +60,7 @@ class Responses {
 		return response;
 	}
 
-	static RpcResponse unknownMethod(RpcRequest req) {
+	public static RpcResponse unknownMethod(RpcRequest req) {
 		RpcError error = new RpcError();
 		error.code = -32601;
 		String method = req == null ? "?" : req.method;
@@ -62,7 +68,7 @@ class Responses {
 		return response(error, req);
 	}
 
-	static RpcResponse invalidParams(String message, RpcRequest req) {
+	public static RpcResponse invalidParams(String message, RpcRequest req) {
 		RpcError error = new RpcError();
 		error.code = -32602;
 		error.message = "Invalid params: " + message;

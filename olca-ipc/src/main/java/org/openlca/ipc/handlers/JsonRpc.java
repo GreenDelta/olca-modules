@@ -1,4 +1,4 @@
-package org.openlca.ipc;
+package org.openlca.ipc.handlers;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
