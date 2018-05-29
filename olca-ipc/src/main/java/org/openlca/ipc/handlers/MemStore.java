@@ -1,4 +1,4 @@
-package org.openlca.ipc;
+package org.openlca.ipc.handlers;
 
 import java.util.ArrayList;
 import java.util.Collections;

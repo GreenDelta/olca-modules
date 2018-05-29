@@ -14,6 +14,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.ipc.Responses;
+import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.ipc.Server;
@@ -29,18 +30,13 @@ public class Calculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Server server;
-	private final RpcRequest req;
 
-	private Calculator(Server server, RpcRequest req) {
+	public Calculator(Server server) {
 		this.server = server;
-		this.req = req;
 	}
 
-	static RpcResponse doIt(Server server, RpcRequest req) {
-		return new Calculator(server, req).run();
-	}
-
-	private RpcResponse run() {
+	@Rpc("calculate")
+	public RpcResponse calculate(RpcRequest req) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("No calculation setup given", req);
 		JsonObject json = req.params.getAsJsonObject();
