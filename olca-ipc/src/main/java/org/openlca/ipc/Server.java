@@ -75,7 +75,7 @@ public class Server extends NanoHTTPD {
 					log.error(errorTemplate, method);
 					continue;
 				}
-				handlers.put(method, Handler.of(handler, m));
+				handlers.put(method, new Handler(handler, m));
 				log.info("Registered method {}", method);
 			}
 		} catch (Exception e) {
@@ -107,6 +107,7 @@ public class Server extends NanoHTTPD {
 		Handler handler = handlers.get(req.method);
 		if (handler == null)
 			return Responses.unknownMethod(req);
+		log.trace("Call method {}", req.method);
 		return handler.invoke(req);
 	}
 
@@ -121,16 +122,14 @@ public class Server extends NanoHTTPD {
 		return resp;
 	}
 
-	private static class Handler {
+	private class Handler {
 
 		Object instance;
 		java.lang.reflect.Method method;
 
-		static Handler of(Object instance, java.lang.reflect.Method m) {
-			Handler h = new Handler();
-			h.instance = instance;
-			h.method = m;
-			return h;
+		Handler(Object instance, java.lang.reflect.Method m) {
+			this.instance = instance;
+			this.method = m;
 		}
 
 		RpcResponse invoke(RpcRequest req) {
@@ -141,6 +140,7 @@ public class Server extends NanoHTTPD {
 							+ " is not an RpcResponse", req);
 				return (RpcResponse) result;
 			} catch (Exception e) {
+				log.error("Failed to call method " + method, e);
 				return Responses.error(500, "Failed to call method "
 						+ method + ": " + e.getMessage(), req);
 			}
