@@ -6,13 +6,11 @@ import java.util.Map;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.ipc.handlers.Calculator;
-import org.openlca.jsonld.Json;
 import org.openlca.jsonld.input.UpdateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import fi.iki.elonen.NanoHTTPD;
 
@@ -91,19 +89,4 @@ public class Server extends NanoHTTPD {
 		return resp;
 	}
 
-	private RpcResponse dispose(RpcRequest req) {
-		if (req.params == null || !req.params.isJsonObject())
-			return Responses.error(400, "No object with '@id' provided", req);
-		JsonObject param = req.params.getAsJsonObject();
-		String id = Json.getString(param, "@id");
-		if (id == null)
-			return Responses.error(400, "No '@id' provided", req);
-		boolean removed = memory.remove(id) != null;
-		if (removed) {
-			log.info("Removed {} from memory", id);
-			return Responses.ok(req);
-		}
-		return Responses.ok("Did not find something with @id="
-				+ id + "in memory; did nothing", req);
-	}
 }
