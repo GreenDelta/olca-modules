@@ -2,11 +2,14 @@ package org.openlca.ipc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.Calculator;
-import org.openlca.jsonld.input.UpdateMode;
+import org.openlca.ipc.handlers.ModelHandler;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,20 +20,66 @@ import fi.iki.elonen.NanoHTTPD;
 public class Server extends NanoHTTPD {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final HashMap<String, Handler> handlers = new HashMap<>();
 
-	public final IDatabase db;
-	public final IMatrixSolver solver;
-	public final HashMap<String, Object> memory = new HashMap<>();
-
-	public Server(int port, IDatabase db, IMatrixSolver solver) {
+	public Server(int port) {
 		super(port);
-		this.db = db;
-		this.solver = solver;
+	}
+
+	public Server withDefaultHandlers(IDatabase db, IMatrixSolver solver) {
+		log.info("Register default handlers");
+		Cache cache = new Cache();
+		register(new ModelHandler(db));
+		register(new Calculator(solver, db, cache));
+		register(new CacheHandler(cache));
+		return this;
+	}
+
+	@Override
+	public void start() {
 		try {
 			start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-			log.info("Started IPC server @{}", port);
+			log.info("Started IPC server @{}", getListeningPort());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Registers the `Rpc` annotated methods of the given handler as request
+	 * handlers.
+	 */
+	public void register(Object handler) {
+		if (handler == null)
+			return;
+		log.info("Register @Rpc methods from instance of {}", handler.getClass());
+		try {
+			String errorTemplate = "Cannot register method for {}: it must take an"
+					+ "RpcRequest parameter and return an RpcResponse";
+			for (java.lang.reflect.Method m : handler.getClass().getMethods()) {
+				if (!m.isAnnotationPresent(Rpc.class))
+					continue;
+				String method = m.getAnnotation(Rpc.class).value();
+				if (handlers.containsKey(method)) {
+					log.error("A handler for method '{}' is already registered",
+							method);
+					continue;
+				}
+				Class<?>[] paramTypes = m.getParameterTypes();
+				if (paramTypes.length != 1 ||
+						!Objects.equals(paramTypes[0], RpcRequest.class)) {
+					log.error(errorTemplate, method);
+					continue;
+				}
+				if (!Objects.equals(m.getReturnType(), RpcResponse.class)) {
+					log.error(errorTemplate, method);
+					continue;
+				}
+				handlers.put(method, Handler.of(handler, m));
+				log.info("Registered method {}", method);
+			}
+		} catch (Exception e) {
+			log.error("Failed to register handlers", e);
 		}
 	}
 
@@ -53,29 +102,12 @@ public class Server extends NanoHTTPD {
 	}
 
 	private RpcResponse getResponse(RpcRequest req) {
-		RpcMethod method = RpcMethod.of(req);
-		if (method == null)
+		if (Strings.nullOrEmpty(req.method))
 			return Responses.unknownMethod(req);
-		switch (method) {
-		case CALCULATE:
-			return Calculator.doIt(this, req);
-		case DISPOSE:
-			return dispose(req);
-		case INSERT_MODEL:
-			return saveModel(req, UpdateMode.NEVER);
-		case UPDATE_MODEL:
-			return saveModel(req, UpdateMode.ALWAYS);
-		case GET_MODEL:
-			return getModel(req);
-		case GET_MODELS:
-			return getModels(req);
-		case GET_DESCRIPTORS:
-			return getDescriptors(req);
-		case DELETE_MODEL:
-			return deleteModel(req);
-		default:
+		Handler handler = handlers.get(req.method);
+		if (handler == null)
 			return Responses.unknownMethod(req);
-		}
+		return handler.invoke(req);
 	}
 
 	private Response serve(RpcResponse r) {
@@ -87,6 +119,32 @@ public class Server extends NanoHTTPD {
 		resp.addHeader("Access-Control-Allow-Headers",
 				"Content-Type, Allow-Control-Allow-Headers");
 		return resp;
+	}
+
+	private static class Handler {
+
+		Object instance;
+		java.lang.reflect.Method method;
+
+		static Handler of(Object instance, java.lang.reflect.Method m) {
+			Handler h = new Handler();
+			h.instance = instance;
+			h.method = m;
+			return h;
+		}
+
+		RpcResponse invoke(RpcRequest req) {
+			try {
+				Object result = method.invoke(instance, req);
+				if (!(result instanceof RpcResponse))
+					return Responses.error(500, result
+							+ " is not an RpcResponse", req);
+				return (RpcResponse) result;
+			} catch (Exception e) {
+				return Responses.error(500, "Failed to call method "
+						+ method + ": " + e.getMessage(), req);
+			}
+		}
 	}
 
 }

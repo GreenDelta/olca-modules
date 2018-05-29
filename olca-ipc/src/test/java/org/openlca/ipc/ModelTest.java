@@ -1,15 +1,14 @@
 package org.openlca.ipc;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openlca.ipc.RpcRequest;
-import org.openlca.ipc.RpcResponse;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 public class ModelTest {
 

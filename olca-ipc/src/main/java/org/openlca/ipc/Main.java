@@ -19,9 +19,10 @@ public class Main {
 		if (args.length > 1) {
 			port = Integer.parseInt(args[1]);
 		}
-		IDatabase database = new DerbyDatabase(dir);
-		Server server = new Server(port, database, new JavaSolver()); // TODO: native config
-		System.out.println("Started openLCA IPC Server at localhost:" + server.getListeningPort());
+		IDatabase db = new DerbyDatabase(dir);
+		new Server(port)
+				.withDefaultHandlers(db, new JavaSolver())
+				.start(); // TODO: native config
 	}
 
 }

@@ -2,6 +2,7 @@ package org.openlca.ipc.handlers;
 
 import java.util.UUID;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProcessDao;
@@ -9,15 +10,16 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.results.SimpleResult;
+import org.openlca.ipc.Cache;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
-import org.openlca.ipc.Server;
 import org.openlca.jsonld.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +31,15 @@ import com.google.gson.JsonObject;
 public class Calculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final Server server;
 
-	public Calculator(Server server) {
-		this.server = server;
+	private final Cache cache;
+	private final IMatrixSolver solver;
+	private final IDatabase db;
+
+	public Calculator(IMatrixSolver solver, IDatabase db, Cache cache) {
+		this.cache = cache;
+		this.solver = solver;
+		this.db = db;
 	}
 
 	@Rpc("calculate")
@@ -43,7 +50,7 @@ public class Calculator {
 		String systemID = Json.getRefId(json, "productSystem");
 		if (systemID == null)
 			Responses.invalidParams("No product system ID", req);
-		ProductSystem system = new ProductSystemDao(server.db).getForRefId(systemID);
+		ProductSystem system = new ProductSystemDao(db).getForRefId(systemID);
 		if (system == null)
 			Responses.invalidParams("No product system found for @id=" + systemID, req);
 		log.info("Calculate product system {}", systemID);
@@ -55,7 +62,7 @@ public class Calculator {
 		parameters(json, setup);
 		try {
 			SystemCalculator calc = new SystemCalculator(
-					MatrixCache.createEager(server.db), server.solver);
+					MatrixCache.createEager(db), solver);
 			SimpleResult r = calc.calculateSimple(setup);
 			return encode(r, req);
 		} catch (Exception e) {
@@ -68,7 +75,7 @@ public class Calculator {
 		String id = Json.getRefId(json, "impactMethod");
 		if (id == null)
 			return;
-		setup.impactMethod = new ImpactMethodDao(server.db)
+		setup.impactMethod = new ImpactMethodDao(db)
 				.getDescriptorForRefId(id);
 	}
 
@@ -76,7 +83,7 @@ public class Calculator {
 		String id = Json.getRefId(json, "nwSet");
 		if (id == null)
 			return;
-		setup.nwSet = new NwSetDao(server.db)
+		setup.nwSet = new NwSetDao(db)
 				.getDescriptorForRefId(id);
 	}
 
@@ -116,9 +123,9 @@ public class Calculator {
 		String type = Json.getString(context, "@type");
 		String refId = Json.getString(context, "@id");
 		if ("Process".equals(type)) {
-			return new ProcessDao(server.db).getDescriptorForRefId(refId);
+			return new ProcessDao(db).getDescriptorForRefId(refId);
 		} else if ("ImpactMethod".equals(type)) {
-			return new ImpactMethodDao(server.db).getDescriptorForRefId(refId);
+			return new ImpactMethodDao(db).getDescriptorForRefId(refId);
 		}
 		return null;
 	}
@@ -128,8 +135,8 @@ public class Calculator {
 			return Responses.error(404, "No result calculated", req);
 		String id = UUID.randomUUID().toString();
 		log.info("encode and cache result {}", id);
-		server.memory.put(id, r);
-		JsonObject result = JsonRpc.encode(r, id, server.db);
+		cache.put(id, r);
+		JsonObject result = JsonRpc.encode(r, id, db);
 		return Responses.ok(result, req);
 	}
 }

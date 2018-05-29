@@ -16,7 +16,10 @@ class Tests {
 
 	private static Server getServer() {
 		if (server == null) {
-			server = new Server(0, DerbyDatabase.createInMemory(), new JavaSolver());
+			server = new Server(0);
+			server.withDefaultHandlers(
+					DerbyDatabase.createInMemory(), new JavaSolver());
+			server.start();
 		}
 		return server;
 	}
