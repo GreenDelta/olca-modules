@@ -8,7 +8,7 @@ public class UmfFactorizedMatrix {
     }
 
     public void dispose() {
-        Umfpack.dispose(pointer);
+        Julia.umfDispose(pointer);
     }
 
 }

@@ -25,7 +25,7 @@ public class UmfpackTest {
 	@Test
 	public void testSolveNative() {
 		double[] x = new double[5];
-		Umfpack.solve(5,
+		Julia.umfSolve(5,
 				new int[] { 0, 2, 5, 9, 10, 12 },
 				new int[] { 0, 1, 0, 2, 4, 1, 2, 3, 4, 2, 1, 4 },
 				new double[] { 2., 3., 3., -1., 4., 4., -3., 1., 2., 2., 6.,

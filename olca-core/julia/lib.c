@@ -53,8 +53,8 @@ extern void umfpack_di_free_symbolic(void **Symbolic);
 
 extern void umfpack_di_free_numeric(void **Numeric);
 
-// solveUmfpack
-JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_solveUmfpack(
+// umfSolve
+JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolve(
     JNIEnv *env, jclass jclazz,
     jint n,
     jintArray columnPointers,
@@ -100,7 +100,7 @@ struct UmfFactorizedMatrix
     void *Numeric;
 };
 
-JNIEXPORT jlong JNICALL Java_org_openlca_umfpack_Umfpack_factorize(
+JNIEXPORT jlong JNICALL Java_org_openlca_julia_Julia_umfFactorize(
     JNIEnv *env, jclass jclazz,
     jint n,
     jintArray columnPointers,
@@ -145,7 +145,7 @@ JNIEXPORT jlong JNICALL Java_org_openlca_umfpack_Umfpack_factorize(
     return (jlong)fm;
 }
 
-JNIEXPORT void JNICALL Java_org_openlca_umfpack_Umfpack_solveFactorized(
+JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolveFactorized(
     JNIEnv *env, jclass jclazz, jlong pointer,
     jdoubleArray demand, jdoubleArray result)
 {
@@ -171,7 +171,7 @@ JNIEXPORT void JNICALL Java_org_openlca_umfpack_Umfpack_solveFactorized(
     (*env)->ReleaseDoubleArrayElements(env, result, resultPtr, 0);
 }
 
-JNIEXPORT void JNICALL Java_org_openlca_umfpack_Umfpack_dispose(
+JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfDispose(
     JNIEnv *env, jclass jclazz, jlong pointer)
 {
     struct UmfFactorizedMatrix *fm = (void*)pointer;

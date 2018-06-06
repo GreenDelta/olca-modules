@@ -77,4 +77,22 @@ public final class Julia {
 		return false;
 	}
 
+	public static native void umfSolve(
+			int n,
+			int[] columnPointers,
+			int[] rowIndices,
+			double[] values,
+			double[] demand,
+			double[] result);
+
+	public static native long umfFactorize(
+			int n,
+			int[] columnPointers,
+			int[] rowIndices,
+			double[] values);
+
+	public static native void umfDispose(long pointer);
+
+	public static native long umfSolveFactorized(
+			long pointer, double[] demand, double[] result);
 }
