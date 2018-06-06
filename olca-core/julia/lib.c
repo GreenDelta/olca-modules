@@ -17,7 +17,7 @@ void dgemm64_(jchar *TRANSA, jchar *TRANSB, jint *M, jint *N, jint *K,
               jdouble *ALPHA, jdouble *A, jint *LDA, jdouble *B, jint *LDB,
               jdouble *BETA, jdouble *C, jint *LDC);
 
-JNIEXPORT void JNICALL Java_org_openlca_Julia_dgemm(
+JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_dgemm(
     JNIEnv *env, jclass jclazz, jint rowsA, jint colsB, jint k,
     jdoubleArray a, jdoubleArray b, jdoubleArray c)
 {
@@ -37,7 +37,7 @@ JNIEXPORT void JNICALL Java_org_openlca_Julia_dgemm(
     (*env)->ReleaseDoubleArrayElements(env, c, cPtr, 0);
 }
 
-JNIEXPORT void JNICALL Java_org_openlca_Julia_dgemv(
+JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_dgemv(
     JNIEnv *env, jclass jclazz, jint rowsA, jint colsA, jdoubleArray a,
     jdoubleArray x, jdoubleArray y)
 {

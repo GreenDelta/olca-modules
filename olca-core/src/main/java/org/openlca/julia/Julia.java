@@ -77,6 +77,35 @@ public final class Julia {
 		return false;
 	}
 
+	// BLAS
+
+	/**
+	 * Matrix-matrix multiplication: C := A * B
+	 *
+	 * @param rowsA [in] number of rows of matrix A
+	 * @param colsB [in] number of columns of matrix B
+	 * @param k     [in] number of columns of matrix A and number of rows of
+	 *              matrix B
+	 * @param a     [in] matrix A (size = rowsA*k)
+	 * @param b     [in] matrix B (size = k * colsB)
+	 * @param c     [out] matrix C (size = rowsA * colsB)
+	 */
+	public static native void dgemm(int rowsA, int colsB, int k,
+			double[] a, double[] b, double[] c);
+
+	/**
+	 * Matrix-vector multiplication: y:= A * x
+	 *
+	 * @param rowsA [in] rows of matrix A
+	 * @param colsA [in] columns of matrix A
+	 * @param a     [in] the matrix A
+	 * @param x     [in] the vector x
+	 * @param y     [out] the resulting vector y
+	 */
+	public static native void dgemv(int rowsA, int colsA,
+			double[] a, double[] x, double[] y);
+
+	// UMFPACK
 	public static native void umfSolve(
 			int n,
 			int[] columnPointers,
