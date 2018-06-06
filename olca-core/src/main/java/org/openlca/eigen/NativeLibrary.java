@@ -94,21 +94,4 @@ public class NativeLibrary {
 		else
 			return os;
 	}
-
-	// private static void checkLib() {
-	// log.trace("check loaded library");
-	// DoubleMatrix A = new DoubleMatrix(
-	// new double[][] { { 1, -2 }, { 0, 1 } });
-	// DoubleMatrix B = new DoubleMatrix(new double[][] { { 0 }, { 1 } });
-	// DoubleMatrix x = Solve.solve(A, B);
-	// fail("not one column", x.columns != 1);
-	// fail("not two rows", x.rows != 2);
-	// fail("wrong result, expected [2 ; 1] but was " + x, x.get(0, 0) != 2);
-	// fail("wrong result, expected [2 ; 1] but was " + x, x.get(1, 0) != 1);
-	// }
-
-	private static void fail(String message, boolean condition) {
-		if (condition)
-			throw new AssertionError(message);
-	}
 }
