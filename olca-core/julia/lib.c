@@ -8,14 +8,55 @@
 // BLAS
 
 // general matrix-vector multiplication
-void dgemv_(jchar *TRANS, jint *M, jint *N, jdouble *ALPHA, jdouble *A,
-            jint *LDA, jdouble *X, jint *INCX, jdouble *BETA, jdouble *Y,
-            jint *INCY);
+void dgemv64_(jchar *TRANS, jint *M, jint *N, jdouble *ALPHA, jdouble *A,
+              jint *LDA, jdouble *X, jint *INCX, jdouble *BETA, jdouble *Y,
+              jint *INCY);
 
 // general matrix-matrix multiplication
-void dgemm_(jchar *TRANSA, jchar *TRANSB, jint *M, jint *N, jint *K,
-            jdouble *ALPHA, jdouble *A, jint *LDA, jdouble *B, jint *LDB,
-            jdouble *BETA, jdouble *C, jint *LDC);
+void dgemm64_(jchar *TRANSA, jchar *TRANSB, jint *M, jint *N, jint *K,
+              jdouble *ALPHA, jdouble *A, jint *LDA, jdouble *B, jint *LDB,
+              jdouble *BETA, jdouble *C, jint *LDC);
+
+JNIEXPORT void JNICALL Java_org_openlca_Julia_dgemm(
+    JNIEnv *env, jclass jclazz, jint rowsA, jint colsB, jint k,
+    jdoubleArray a, jdoubleArray b, jdoubleArray c)
+{
+
+    jdouble *aPtr = (*env)->GetDoubleArrayElements(env, a, NULL);
+    jdouble *bPtr = (*env)->GetDoubleArrayElements(env, b, NULL);
+    jdouble *cPtr = (*env)->GetDoubleArrayElements(env, c, NULL);
+
+    jchar trans = 'N';
+    jdouble alpha = 1;
+    jdouble beta = 0;
+    dgemm64_(&trans, &trans, &rowsA, &colsB, &k, &alpha, aPtr, &rowsA, bPtr, &k,
+             &beta, cPtr, &rowsA);
+
+    (*env)->ReleaseDoubleArrayElements(env, a, aPtr, 0);
+    (*env)->ReleaseDoubleArrayElements(env, b, bPtr, 0);
+    (*env)->ReleaseDoubleArrayElements(env, c, cPtr, 0);
+}
+
+JNIEXPORT void JNICALL Java_org_openlca_Julia_dgemv(
+    JNIEnv *env, jclass jclazz, jint rowsA, jint colsA, jdoubleArray a,
+    jdoubleArray x, jdoubleArray y)
+{
+    jdouble *aPtr = (*env)->GetDoubleArrayElements(env, a, NULL);
+    jdouble *xPtr = (*env)->GetDoubleArrayElements(env, x, NULL);
+    jdouble *yPtr = (*env)->GetDoubleArrayElements(env, y, NULL);
+
+    jchar trans = 'N';
+    jdouble alpha = 1;
+    jint incx = 1;
+    jdouble beta = 0;
+    jint incy = 1;
+    dgemv64_(&trans, &rowsA, &colsA, &alpha, aPtr, &rowsA, xPtr, &incx, &beta,
+             yPtr, &incy);
+
+    (*env)->ReleaseDoubleArrayElements(env, a, aPtr, 0);
+    (*env)->ReleaseDoubleArrayElements(env, x, xPtr, 0);
+    (*env)->ReleaseDoubleArrayElements(env, y, yPtr, 0);
+}
 
 // UMFPACK
 
@@ -153,7 +194,7 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolveFactorized(
     jdouble *demandPtr = (*env)->GetDoubleArrayElements(env, demand, NULL);
     jdouble *resultPtr = (*env)->GetDoubleArrayElements(env, result, NULL);
 
-    struct UmfFactorizedMatrix *fm = (void*)pointer;
+    struct UmfFactorizedMatrix *fm = (void *)pointer;
     printf("solve factorized: %p\n", fm);
 
     double *null = (double *)NULL;
@@ -174,7 +215,7 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolveFactorized(
 JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfDispose(
     JNIEnv *env, jclass jclazz, jlong pointer)
 {
-    struct UmfFactorizedMatrix *fm = (void*)pointer;
+    struct UmfFactorizedMatrix *fm = (void *)pointer;
     printf("dispose factorized: %p\n", fm);
     (*env)->ReleaseIntArrayElements(env, *(fm->columnPointers), fm->columnPointersPtr, 0);
     (*env)->ReleaseIntArrayElements(env, *(fm->rowIndices), fm->rowIndicesPtr, 0);
