@@ -10,6 +10,6 @@ if exist %BUILD_LIB% (
 )
 
 echo compile new version of %BUILD_LIB%
-g++ %JNI_FLAGS% -O3 -DNDEBUG %JNI% -L.\libs -shared -o %BUILD_LIB% lib.c -lopenblas64_ -lumfpack
+gcc %JNI_FLAGS% -O3 -DNDEBUG %JNI% -L.\libs -shared -o %BUILD_LIB% lib.c -lopenblas64_ -lumfpack
 
 echo all done
