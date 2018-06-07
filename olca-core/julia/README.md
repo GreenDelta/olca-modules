@@ -8,3 +8,16 @@ libraries from [Julia](https://julialang.org/) with openLCA.
 echo %OLCA_JULIA%
 mvn -Dtest="org.openlca.julia.*Test" test
 ```
+
+## Library dependencies
+
+### Windows
+* using [dependency walker](http://www.dependencywalker.com/)
+
+```
+-> libopenblas64_.dll
+    -> libgfortran-3.dll
+        -> libquadmath-0.dll
+        -> libgcc_s_seh-1.dll
+        -> libwinpthread-1.dll
+```
