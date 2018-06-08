@@ -18,14 +18,32 @@ mvn -Dtest="org.openlca.julia.*Test" test
 -> libopenblas64_.dll
     -> libgfortran-3.dll
         -> libquadmath-0.dll
+            -> libgcc_s_seh-1.dll
+                -> libwinpthread-1.dll
         -> libgcc_s_seh-1.dll
+            -> libwinpthread-1.dll
         -> libwinpthread-1.dll
 -> libumfpack.dll
     -> libopenblas64_.dll
     -> libsuitesparseconfig.dll
     -> libamd.dll
+        -> libsuitesparseconfig.dll
     -> libcholmod.dll
+        -> libopenblas64_.dll
+            -> libgfortran-3.dll
+                -> libquadmath-0.dll
+                    -> libgcc_s_seh-1.dll
+                        -> libwinpthread-1.dll
+                -> libgcc_s_seh-1.dll
+                    -> libwinpthread-1.dll
+                -> libwinpthread-1.dll
+        -> libsuitesparseconfig.dll
         -> libccolamd.dll
+            -> libsuitesparseconfig.dll
+        -> libamd.dll
+            -> libsuitesparseconfig.dll
         -> libcamd.dll
+            -> libsuitesparseconfig.dll
         -> libcolamd.dll
+            -> libsuitesparseconfig.dll
 ```

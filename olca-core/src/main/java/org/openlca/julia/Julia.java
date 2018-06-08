@@ -3,6 +3,7 @@ package org.openlca.julia;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.openlca.util.OS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,33 +50,37 @@ public final class Julia {
 			log.info("Julia libs already loaded; do nothing");
 			return true;
 		}
-		if (!containsBindings(dir)) {
-			log.warn("{} does not contain the openLCA bindings libjolca", dir);
+		if (dir == null || !dir.exists() || !dir.isDirectory()) {
+			log.warn("{} does not contain the Julia libraries", dir);
 			return false;
 		}
 		try {
-			for (File file : dir.listFiles()) {
+			for (String lib : getLibs()) {
+				File file = new File(dir, lib);
+				if (!file.exists()) {
+					log.warn("Library {} is missing; " +
+							"Julia bindings no loaded", file);
+					return false;
+				}
 				log.info("load library {}", file);
 				System.load(file.getAbsolutePath());
 			}
 			_loaded.set(true);
+			log.info("Julia bindings loaded");
 			return true;
-		} catch (Exception e) {
+		} catch (Error e) {
 			log.error("Failed to load Julia libs from " + dir, e);
 			return false;
 		}
 	}
 
-	private static boolean containsBindings(File dir) {
-		if (dir == null || !dir.exists())
-			return false;
-		for (File lib : dir.listFiles()) {
-			if (!lib.isFile())
-				continue;
-			if (lib.getName().contains("libjolca"))
-				return true;
+	// TODO: we need to configure umfpack as a plugin
+	private static String[] getLibs() {
+		if (OS.getCurrent() == OS.Windows) {
+			return new String[] { "libjolca.dll" };
 		}
-		return false;
+		// TODO: add library files for other OSs
+		return new String[] { "libjolca.so" };
 	}
 
 	// BLAS
