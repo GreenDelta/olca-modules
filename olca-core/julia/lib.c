@@ -132,6 +132,72 @@ JNIEXPORT jint JNICALL Java_org_openlca_julia_Julia_solve(
     return (jint)info;
 }
 
+// DGETRF computes an LU factorization of a general matrix
+// see http://www.netlib.org/lapack/explore-html/dd/d9a/group__double_g_ecomputational_ga0019443faea08275ca60a734d0593e60.html#ga0019443faea08275ca60a734d0593e60
+void dgetrf64_(
+    /* 0 */ int64_t *M,
+    /* 1 */ int64_t *N,
+    /* 2 */ jdouble *A,
+    /* 3 */ int64_t *LDA,
+    /* 4 */ int64_t *IPIV,
+    /* 5 */ int64_t *INFO);
+
+// invert
+// DGETRI computes the inverse of a matrix using the LU factorization computed by DGETRF
+// see http://www.netlib.org/lapack/explore-html/dd/d9a/group__double_g_ecomputational_ga56d9c860ce4ce42ded7f914fdb0683ff.html#ga56d9c860ce4ce42ded7f914fdb0683ff
+void dgetri64_(
+    /* 0 */ int64_t *N,
+    /* 1 */ jdouble *A,
+    /* 2 */ int64_t *LDA,
+    /* 3 */ int64_t *IPIV,
+    /* 4 */ jdouble *WORK,
+    /* 5 */ int64_t *LWORK,
+    /* 6 */ int64_t *INFO);
+
+JNIEXPORT jint JNICALL Java_org_openlca_julia_Julia_invert(
+    JNIEnv *env, jclass jobj, jint n32, jdoubleArray a)
+{
+    int64_t n = (int64_t)n32;
+    jdouble *A = (*env)->GetDoubleArrayElements(env, a, NULL);
+    int64_t *ipiv = malloc(sizeof(int64_t) * n32);
+    int64_t lwork = 64 * 2 * n;
+    jdouble *work = malloc(sizeof(jdouble) * lwork);
+    int64_t info;
+
+    // calculate the factorization
+    dgetrf64_(
+        /* 0 */ &n,
+        /* 1 */ &n,
+        /* 2 */ A,
+        /* 3 */ &n,
+        /* 4 */ ipiv,
+        /* 5 */ &info);
+
+    if (info != 0)
+    {
+        // factorization error
+        free(ipiv);
+        free(work);
+        (*env)->ReleaseDoubleArrayElements(env, a, A, 0);
+        return (jint)info;
+    }
+
+    // invert it
+    dgetri64_(
+        /* 0 */ &n,
+        /* 1 */ A,
+        /* 2 */ &n,
+        /* 3 */ ipiv,
+        /* 4 */ work,
+        /* 5 */ &lwork,
+        /* 6 */ &info);
+
+    free(ipiv);
+    free(work);
+    (*env)->ReleaseDoubleArrayElements(env, a, A, 0);
+    return (jint)info;
+}
+
 // UMFPACK
 
 extern int umfpack_di_symbolic(

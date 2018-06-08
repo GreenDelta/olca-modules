@@ -39,4 +39,18 @@ public class LapackTest {
 		assertTrue(info > 0); // info > 0 indicates that A was singular
 	}
 
+	@Test
+	public void testInvert() {
+		double[] a = { 1, -4, 0, 2 };
+		Julia.invert(2, a);
+		assertArrayEquals(new double[] { 1, 2, 0, 0.5 }, a, 1e-16);
+	}
+
+	@Test
+	public void testInvertSingularMatrix() {
+		double[] a = { 1, -1, 0, 0 };
+		int info = Julia.invert(2, a);
+		assertTrue(info > 0); // info > 0 indicates that A was singular
+	}
+
 }

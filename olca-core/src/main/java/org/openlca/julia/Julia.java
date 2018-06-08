@@ -122,6 +122,16 @@ public final class Julia {
 	 */
 	public static native int solve(int n, int nrhs, double[] a, double[] b);
 
+	/**
+	 * Inverts the given matrix.
+	 *
+	 * @param n [in] the dimension of the matrix (n = rows = columns)
+	 * @param a [io] on entry: the matrix to be inverted, on exit: the inverse
+	 *          (size = n * n)
+	 * @return the LAPACK return code
+	 */
+	public static native int invert(int n, double[] a);
+
 	// UMFPACK
 	public static native void umfSolve(
 			int n,
