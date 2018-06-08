@@ -31,4 +31,12 @@ public class LapackTest {
 		assertArrayEquals(new double[] { 1, 2, 0, 0.5 }, b, 1e-16);
 	}
 
+	@Test
+	public void testSolveSingularMatrix() {
+		double[] a = { 1, -1, 0, 0 };
+		double[] b = { 1, 0 };
+		int info = Julia.solve(2, 1, a, b);
+		assertTrue(info > 0); // info > 0 indicates that A was singular
+	}
+
 }

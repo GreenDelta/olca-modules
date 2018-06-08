@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <jni.h>
-#include <stdio.h> // currently just for testing
 
 // from https://github.com/PetterS/SuiteSparse/blob/master/UMFPACK/Include/umfpack.h
 #define UMFPACK_A (0) /* Ax=b    */
@@ -224,8 +223,9 @@ JNIEXPORT jlong JNICALL Java_org_openlca_julia_Julia_umfFactorize(
     jdoubleArray values)
 {
 
+    // TODO: create a copy of matrix data and release the original data to the
+    // JVM (see the dispose function below)
     struct UmfFactorizedMatrix *fm = malloc(sizeof(struct UmfFactorizedMatrix));
-    printf("factorized: %p\n", fm);
     fm->columnPointers = &columnPointers;
     fm->columnPointersPtr = (*env)->GetIntArrayElements(env, columnPointers, NULL);
 
@@ -270,7 +270,6 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolveFactorized(
     jdouble *resultPtr = (*env)->GetDoubleArrayElements(env, result, NULL);
 
     struct UmfFactorizedMatrix *fm = (void *)pointer;
-    printf("solve factorized: %p\n", fm);
 
     double *null = (double *)NULL;
     umfpack_di_solve(
@@ -287,11 +286,12 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolveFactorized(
     (*env)->ReleaseDoubleArrayElements(env, result, resultPtr, 0);
 }
 
+// TODO: releasing the values vector leads to a crash because it contains the
+// factorized matrix which does not match the original array anymore
 JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfDispose(
     JNIEnv *env, jclass jclazz, jlong pointer)
 {
     struct UmfFactorizedMatrix *fm = (void *)pointer;
-    printf("dispose factorized: %p\n", fm);
     (*env)->ReleaseIntArrayElements(env, *(fm->columnPointers), fm->columnPointersPtr, 0);
     (*env)->ReleaseIntArrayElements(env, *(fm->rowIndices), fm->rowIndicesPtr, 0);
     (*env)->ReleaseDoubleArrayElements(env, *(fm->values), fm->valuesPtr, 0);
