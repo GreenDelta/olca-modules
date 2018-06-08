@@ -20,4 +20,12 @@ mvn -Dtest="org.openlca.julia.*Test" test
         -> libquadmath-0.dll
         -> libgcc_s_seh-1.dll
         -> libwinpthread-1.dll
+-> libumfpack.dll
+    -> libopenblas64_.dll
+    -> libsuitesparseconfig.dll
+    -> libamd.dll
+    -> libcholmod.dll
+        -> libccolamd.dll
+        -> libcamd.dll
+        -> libcolamd.dll
 ```

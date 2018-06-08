@@ -55,6 +55,7 @@ public final class Julia {
 		}
 		try {
 			for (File file : dir.listFiles()) {
+				log.info("load library {}", file);
 				System.load(file.getAbsolutePath());
 			}
 			_loaded.set(true);

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdint.h>
 #include <jni.h>
 #include <stdio.h> // currently just for testing
 
@@ -8,14 +9,14 @@
 // BLAS
 
 // general matrix-vector multiplication
-void dgemv64_(jchar *TRANS, jint *M, jint *N, jdouble *ALPHA, jdouble *A,
-              jint *LDA, jdouble *X, jint *INCX, jdouble *BETA, jdouble *Y,
-              jint *INCY);
+void dgemv64_(jchar *TRANS, int64_t *M, int64_t *N, jdouble *ALPHA, jdouble *A,
+              int64_t *LDA, jdouble *X, int64_t *INCX, jdouble *BETA, jdouble *Y,
+              int64_t *INCY);
 
 // general matrix-matrix multiplication
-void dgemm64_(jchar *TRANSA, jchar *TRANSB, jint *M, jint *N, jint *K,
-              jdouble *ALPHA, jdouble *A, jint *LDA, jdouble *B, jint *LDB,
-              jdouble *BETA, jdouble *C, jint *LDC);
+void dgemm64_(jchar *TRANSA, jchar *TRANSB, int64_t *M, int64_t *N, int64_t *K,
+              jdouble *ALPHA, jdouble *A, int64_t *LDA, jdouble *B, int64_t *LDB,
+              jdouble *BETA, jdouble *C, int64_t *LDC);
 
 JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_dgemm(
     JNIEnv *env, jclass jclazz, jint rowsA, jint colsB, jint k,
@@ -29,8 +30,11 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_dgemm(
     jchar trans = 'N';
     jdouble alpha = 1;
     jdouble beta = 0;
-    dgemm64_(&trans, &trans, &rowsA, &colsB, &k, &alpha, aPtr, &rowsA, bPtr, &k,
-             &beta, cPtr, &rowsA);
+    int64_t rowsA_64 = (int64_t)rowsA;
+    int64_t colsB_64 = (int64_t)colsB;
+    int64_t k_64 = (int64_t)k;
+    dgemm64_(&trans, &trans, &rowsA_64, &colsB_64, &k_64, &alpha, aPtr,
+             &rowsA_64, bPtr, &k_64, &beta, cPtr, &rowsA_64);
 
     (*env)->ReleaseDoubleArrayElements(env, a, aPtr, 0);
     (*env)->ReleaseDoubleArrayElements(env, b, bPtr, 0);
@@ -47,11 +51,12 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_dgemv(
 
     jchar trans = 'N';
     jdouble alpha = 1;
-    jint incx = 1;
     jdouble beta = 0;
-    jint incy = 1;
-    dgemv64_(&trans, &rowsA, &colsA, &alpha, aPtr, &rowsA, xPtr, &incx, &beta,
-             yPtr, &incy);
+    int64_t inc = 1;
+    int64_t rowsA_64 = (int64_t)rowsA;
+    int64_t colsA_64 = (int64_t)colsA;
+    dgemv64_(&trans, &rowsA_64, &colsA_64, &alpha, aPtr, &rowsA_64, xPtr, &inc,
+             &beta, yPtr, &inc);
 
     (*env)->ReleaseDoubleArrayElements(env, a, aPtr, 0);
     (*env)->ReleaseDoubleArrayElements(env, x, xPtr, 0);
