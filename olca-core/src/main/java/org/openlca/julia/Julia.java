@@ -91,7 +91,7 @@ public final class Julia {
 	 * @param b     [in] matrix B (size = k * colsB)
 	 * @param c     [out] matrix C (size = rowsA * colsB)
 	 */
-	public static native void dgemm(int rowsA, int colsB, int k,
+	public static native void mmult(int rowsA, int colsB, int k,
 			double[] a, double[] b, double[] c);
 
 	/**
@@ -103,8 +103,24 @@ public final class Julia {
 	 * @param x     [in] the vector x
 	 * @param y     [out] the resulting vector y
 	 */
-	public static native void dgemv(int rowsA, int colsA,
+	public static native void mvmult(int rowsA, int colsA,
 			double[] a, double[] x, double[] y);
+
+	// LAPACK
+
+	/**
+	 * Solves a system of linear equations A * X = B for general matrices. It
+	 * calls the LAPACK DGESV routine.
+	 *
+	 * @param n    [in] the dimension of the matrix A (n = rows = columns of A)
+	 * @param nrhs [in] the number of columns of the matrix B
+	 * @param a    [io] on entry the matrix A, on exit the LU factorization of A
+	 *             (size = n * n)
+	 * @param b    [io] on entry the matrix B, on exit the solution of the
+	 *             equation (size = n * bColums)
+	 * @return the LAPACK return code
+	 */
+	public static native int solve(int n, int nrhs, double[] a, double[] b);
 
 	// UMFPACK
 	public static native void umfSolve(

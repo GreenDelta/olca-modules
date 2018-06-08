@@ -8,17 +8,61 @@
 
 // BLAS
 
+// mvmult -> dgemv64_
 // general matrix-vector multiplication
-void dgemv64_(jchar *TRANS, int64_t *M, int64_t *N, jdouble *ALPHA, jdouble *A,
-              int64_t *LDA, jdouble *X, int64_t *INCX, jdouble *BETA, jdouble *Y,
-              int64_t *INCY);
+void dgemv64_(
+    jchar *TRANS,
+    int64_t *M,
+    int64_t *N,
+    jdouble *ALPHA,
+    jdouble *A,
+    int64_t *LDA,
+    jdouble *X,
+    int64_t *INCX,
+    jdouble *BETA,
+    jdouble *Y,
+    int64_t *INCY);
 
+JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_mvmult(
+    JNIEnv *env, jclass jclazz, jint rowsA, jint colsA, jdoubleArray a,
+    jdoubleArray x, jdoubleArray y)
+{
+    jdouble *aPtr = (*env)->GetDoubleArrayElements(env, a, NULL);
+    jdouble *xPtr = (*env)->GetDoubleArrayElements(env, x, NULL);
+    jdouble *yPtr = (*env)->GetDoubleArrayElements(env, y, NULL);
+
+    jchar trans = 'N';
+    jdouble alpha = 1;
+    jdouble beta = 0;
+    int64_t inc = 1;
+    int64_t rowsA_64 = (int64_t)rowsA;
+    int64_t colsA_64 = (int64_t)colsA;
+    dgemv64_(&trans, &rowsA_64, &colsA_64, &alpha, aPtr, &rowsA_64, xPtr, &inc,
+             &beta, yPtr, &inc);
+
+    (*env)->ReleaseDoubleArrayElements(env, a, aPtr, 0);
+    (*env)->ReleaseDoubleArrayElements(env, x, xPtr, 0);
+    (*env)->ReleaseDoubleArrayElements(env, y, yPtr, 0);
+}
+
+// mmult -> dgemm64_
 // general matrix-matrix multiplication
-void dgemm64_(jchar *TRANSA, jchar *TRANSB, int64_t *M, int64_t *N, int64_t *K,
-              jdouble *ALPHA, jdouble *A, int64_t *LDA, jdouble *B, int64_t *LDB,
-              jdouble *BETA, jdouble *C, int64_t *LDC);
+void dgemm64_(
+    jchar *TRANSA,
+    jchar *TRANSB,
+    int64_t *M,
+    int64_t *N,
+    int64_t *K,
+    jdouble *ALPHA,
+    jdouble *A,
+    int64_t *LDA,
+    jdouble *B,
+    int64_t *LDB,
+    jdouble *BETA,
+    jdouble *C,
+    int64_t *LDC);
 
-JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_dgemm(
+JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_mmult(
     JNIEnv *env, jclass jclazz, jint rowsA, jint colsB, jint k,
     jdoubleArray a, jdoubleArray b, jdoubleArray c)
 {
@@ -41,26 +85,52 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_dgemm(
     (*env)->ReleaseDoubleArrayElements(env, c, cPtr, 0);
 }
 
-JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_dgemv(
-    JNIEnv *env, jclass jclazz, jint rowsA, jint colsA, jdoubleArray a,
-    jdoubleArray x, jdoubleArray y)
+// LAPACK
+
+// solve -> dgesv64_
+// DGESV computes the solution to a system of linear equations A * X = B
+// see http://www.netlib.org/lapack/explore-html/d7/d3b/group__double_g_esolve_ga5ee879032a8365897c3ba91e3dc8d512.html#ga5ee879032a8365897c3ba91e3dc8d512
+void dgesv64_(
+    /* 0 */ int64_t *n,
+    /* 1 */ int64_t *nrhs,
+    /* 2 */ jdouble *A,
+    /* 3 */ int64_t *lda,
+    /* 4 */ int64_t *ipiv,
+    /* 5 */ jdouble *B,
+    /* 6 */ int64_t *ldb,
+    /* 7 */ int64_t *info);
+
+JNIEXPORT jint JNICALL Java_org_openlca_julia_Julia_solve(
+    JNIEnv *env,
+    jclass jclazz,
+    jint n32,
+    jint nrhs32,
+    jdoubleArray a,
+    jdoubleArray b)
 {
-    jdouble *aPtr = (*env)->GetDoubleArrayElements(env, a, NULL);
-    jdouble *xPtr = (*env)->GetDoubleArrayElements(env, x, NULL);
-    jdouble *yPtr = (*env)->GetDoubleArrayElements(env, y, NULL);
 
-    jchar trans = 'N';
-    jdouble alpha = 1;
-    jdouble beta = 0;
-    int64_t inc = 1;
-    int64_t rowsA_64 = (int64_t)rowsA;
-    int64_t colsA_64 = (int64_t)colsA;
-    dgemv64_(&trans, &rowsA_64, &colsA_64, &alpha, aPtr, &rowsA_64, xPtr, &inc,
-             &beta, yPtr, &inc);
+    jdouble *A = (*env)->GetDoubleArrayElements(env, a, NULL);
+    jdouble *B = (*env)->GetDoubleArrayElements(env, b, NULL);
+    int64_t n = (int64_t)n32;
+    int64_t nrhs = (int64_t)nrhs32;
+    int64_t *ipiv = malloc(sizeof(int64_t) * n32);
+    int64_t info;
 
-    (*env)->ReleaseDoubleArrayElements(env, a, aPtr, 0);
-    (*env)->ReleaseDoubleArrayElements(env, x, xPtr, 0);
-    (*env)->ReleaseDoubleArrayElements(env, y, yPtr, 0);
+    dgesv64_(
+        /* 0 */ &n,
+        /* 1 */ &nrhs,
+        /* 2 */ A,
+        /* 3 */ &n,
+        /* 4 */ ipiv,
+        /* 5 */ B,
+        /* 6 */ &n,
+        /* 7 */ &info);
+
+    free(ipiv);
+    (*env)->ReleaseDoubleArrayElements(env, a, A, 0);
+    (*env)->ReleaseDoubleArrayElements(env, b, B, 0);
+
+    return (jint)info;
 }
 
 // UMFPACK
