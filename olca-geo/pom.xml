@@ -10,6 +10,10 @@
 	<artifactId>olca-geo</artifactId>
 	<packaging>jar</packaging>
 
+	<properties>
+		<geotools.version>19.1</geotools.version>
+	</properties>
+
 	<repositories>
 		<repository>
 			<id>osgeo</id>
@@ -41,32 +45,32 @@
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-shapefile</artifactId>
-			<version>10.3</version>
+			<version>${geotools.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-opengis</artifactId>
-			<version>10.3</version>
+			<version>${geotools.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-api</artifactId>
-			<version>10.3</version>
+			<version>${geotools.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-main</artifactId>
-			<version>10.3</version>
+			<version>${geotools.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools.xsd</groupId>
 			<artifactId>gt-xsd-kml</artifactId>
-			<version>10.3</version>
+			<version>${geotools.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools.xsd</groupId>
 			<artifactId>gt-xsd-core</artifactId>
-			<version>10.3</version>
+			<version>${geotools.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
