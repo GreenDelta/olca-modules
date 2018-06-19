@@ -42,13 +42,40 @@ public class KmlFeature {
 			return empty();
 		List<Geometry> geometries = new ArrayList<Geometry>();
 		for (Object obj : featureList) {
+			if (!(obj instanceof SimpleFeature))
+				continue;
 			SimpleFeature feature = (SimpleFeature) obj;
-			Geometry geometry = (Geometry) feature.getAttribute("Geometry");
-			geometries.add(geometry);
+			Geometry geometry = findGeometry(feature);
+			if (geometry != null) {
+				geometries.add(geometry);
+			}
 		}
 		Geometry geometry = merge(geometries);
 		FeatureType type = getType(geometry);
 		return new KmlFeature(kml, geometry, type);
+	}
+
+	private static Geometry findGeometry(SimpleFeature feature) {
+		Object geo = feature.getAttribute("Geometry");
+		if (geo instanceof Geometry)
+			return (Geometry) geo;
+		for (Object attr : feature.getAttributes()) {
+			if (attr instanceof SimpleFeature) {
+				Geometry g = findGeometry((SimpleFeature) attr);
+				if (g != null)
+					return g;
+			}
+			if (attr instanceof List) {
+				for (Object item : (List<?>) attr) {
+					if (item instanceof SimpleFeature) {
+						Geometry g = findGeometry((SimpleFeature) item);
+						if (g != null)
+							return g;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	private static Geometry merge(List<Geometry> geometries) {

@@ -89,6 +89,7 @@ public class ParameterCalculator implements Closeable {
 			IntersectionsCalculator calculator = new IntersectionsCalculator(store);
 			log.debug("Calculating shares for location " + locationId);
 			shares = calculator.calculate(feature);
+			log.debug("Calculated {} intersections", shares.size());
 			cache.save(locationId, shapeFile, shares);
 		}
 		HashMap<String, Double> r = new HashMap<>();
