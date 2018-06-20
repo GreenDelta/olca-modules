@@ -61,19 +61,27 @@ class Exchanges {
 			ImportConfig conf) {
 		Flow flow = FlowImport.run(Json.getRefId(json, "flow"), conf);
 		e.flow = flow;
-		String unitId = Json.getRefId(json, "unit");
-		e.unit = conf.db.getUnit(unitId);
 		if (flow == null)
 			return;
 		String propId = Json.getRefId(json, "flowProperty");
-		for (FlowPropertyFactor f : flow.getFlowPropertyFactors()) {
-			FlowProperty prop = f.getFlowProperty();
-			if (prop == null)
-				continue;
-			if (Objects.equals(propId, prop.getRefId())) {
-				e.flowPropertyFactor = f;
-				break;
+		if (propId != null) {
+			for (FlowPropertyFactor f : flow.getFlowPropertyFactors()) {
+				FlowProperty prop = f.getFlowProperty();
+				if (prop == null)
+					continue;
+				if (Objects.equals(propId, prop.getRefId())) {
+					e.flowPropertyFactor = f;
+					break;
+				}
 			}
+		} else {
+			e.flowPropertyFactor = e.flow.getReferenceFactor();
+		}
+		String unitId = Json.getRefId(json, "unit");
+		if (unitId != null) {
+			e.unit = conf.db.getUnit(unitId);
+		} else if (e.flowPropertyFactor != null) {
+			e.unit = e.flowPropertyFactor.getFlowProperty().getUnitGroup().getReferenceUnit();
 		}
 	}
 
