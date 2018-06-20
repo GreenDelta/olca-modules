@@ -73,6 +73,7 @@ public final class Julia {
 				}
 				log.info("load module {} with library {}", module, file);
 				System.load(file.getAbsolutePath());
+				loadedModules.add(module);
 			}
 			_loaded.set(true);
 			log.info("Julia bindings loaded");
