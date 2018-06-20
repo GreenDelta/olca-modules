@@ -1,9 +1,11 @@
 package org.openlca.julia;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.openlca.util.OS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +16,17 @@ import org.slf4j.LoggerFactory;
 public final class Julia {
 
 	private static AtomicBoolean _loaded = new AtomicBoolean(false);
+	private static Set<JuliaModule> loadedModules = Collections
+			.synchronizedSet(new HashSet<JuliaModule>());
 
 	/** Returns true if the Julia libraries with openLCA bindings are loaded. */
-	public static boolean loaded() {
+	public static boolean isLoaded() {
 		return _loaded.get();
+	}
+
+	/** Returns true if the given julia module is loaded and can be used. */
+	public static boolean isLoaded(JuliaModule module) {
+		return loadedModules.contains(module);
 	}
 
 	/**
@@ -25,7 +34,7 @@ public final class Julia {
 	 * environment variable.
 	 */
 	public static boolean load() {
-		if (loaded())
+		if (isLoaded())
 			return true;
 		Logger log = LoggerFactory.getLogger(Julia.class);
 		String path = System.getenv("OLCA_JULIA");
@@ -35,7 +44,7 @@ public final class Julia {
 			return false;
 		}
 		File dir = new File(path);
-		return load(dir);
+		return loadFromDir(dir);
 	}
 
 	/**
@@ -43,10 +52,10 @@ public final class Julia {
 	 * Returns true if the libraries could be loaded (at least there should be a
 	 * `libjolca` library in the folder that could be loaded).
 	 */
-	public static boolean load(File dir) {
+	public static boolean loadFromDir(File dir) {
 		Logger log = LoggerFactory.getLogger(Julia.class);
 		log.info("Try to load Julia libs and bindings from {}", dir);
-		if (loaded()) {
+		if (isLoaded()) {
 			log.info("Julia libs already loaded; do nothing");
 			return true;
 		}
@@ -55,12 +64,12 @@ public final class Julia {
 			return false;
 		}
 		try {
-			for (String lib : getLibs()) {
-				File file = new File(dir, lib);
+			for (JuliaModule module : JuliaModule.values()) {
+				File file = new File(dir, module.libName());
 				if (!file.exists()) {
-					log.warn("Library {} is missing; " +
-							"Julia bindings no loaded", file);
-					return false;
+					log.info("Library {} is missing; " +
+							"Julia bindings for {} no loaded", file, module);
+					continue;
 				}
 				log.info("load library {}", file);
 				System.load(file.getAbsolutePath());
@@ -72,15 +81,6 @@ public final class Julia {
 			log.error("Failed to load Julia libs from " + dir, e);
 			return false;
 		}
-	}
-
-	// TODO: we need to configure umfpack as a plugin
-	private static String[] getLibs() {
-		if (OS.getCurrent() == OS.Windows) {
-			return new String[] { "libjolca.dll" };
-		}
-		// TODO: add library files for other OSs
-		return new String[] { "libjolca.so" };
 	}
 
 	// BLAS

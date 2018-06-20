@@ -18,7 +18,7 @@ public class BlasTest {
 	public void assumeLibsLoaded() {
 		// run the tests in this class only if the Julia libraries could be
 		// loaded
-		assumeTrue(Julia.loaded());
+		assumeTrue(Julia.isLoaded(JuliaModule.OPEN_BLAS));
 	}
 
 	@Test

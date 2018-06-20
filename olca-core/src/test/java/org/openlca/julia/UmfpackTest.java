@@ -19,7 +19,7 @@ public class UmfpackTest {
 	public void assumeLibsLoaded() {
 		// run the tests in this class only if the Julia libraries could be
 		// loaded
-		assumeTrue(Julia.loaded());
+		assumeTrue(Julia.isLoaded(JuliaModule.UMFPACK));
 	}
 
 	@Test
