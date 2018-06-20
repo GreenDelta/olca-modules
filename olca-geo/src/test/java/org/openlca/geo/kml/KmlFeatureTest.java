@@ -55,4 +55,13 @@ public class KmlFeatureTest {
 		Assert.assertEquals(14, feature.geometry.getCoordinates().length);
 	}
 
+	@Test
+	public void testDocumentTag() throws Exception {
+		String kml = Tests.getKml("document-tag.kml");
+		KmlFeature feature = KmlFeature.parse(kml);
+		Assert.assertEquals(FeatureType.LINE, feature.type);
+		Assert.assertTrue(feature.geometry.getLength() > 0);
+		Assert.assertEquals(4, feature.geometry.getCoordinates().length);
+	}
+
 }
