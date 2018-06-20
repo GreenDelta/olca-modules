@@ -39,6 +39,7 @@ class ProcessWriter extends Writer<Process> {
 		Out.put(obj, "dqEntry", p.dqEntry);
 		Out.put(obj, "exchangeDqSystem", p.exchangeDqSystem, conf);
 		Out.put(obj, "socialDqSystem", p.socialDqSystem, conf);
+		Out.put(obj, "lastInternalId", p.lastInternalId);
 		mapParameters(obj);
 		mapExchanges(obj);
 		mapSocialAspects(obj);

@@ -14,6 +14,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -160,6 +161,9 @@ public class Json {
 		if (d instanceof CategorizedDescriptor) {
 			putCategoryPath(obj, (CategorizedDescriptor) d, db);
 		}
+		if (d instanceof CategoryDescriptor) {
+			putCategoryMetaData(obj, (CategoryDescriptor) d, db);
+		}
 		if (d instanceof FlowDescriptor) {
 			putFlowMetaData(obj, (FlowDescriptor) d, db);
 		}
@@ -188,7 +192,15 @@ public class Json {
 		}
 		ref.add("categoryPath", array);
 	}
-
+	private static void putCategoryMetaData(JsonObject ref,
+			CategoryDescriptor d, IDatabase db) {
+		if (ref == null || d == null)
+			return;
+		if (d.getCategoryType() != null) {
+			String type = d.getCategoryType().getModelClass().getSimpleName();
+			ref.addProperty("categoryType", type);
+		}
+	}
 	private static void putFlowMetaData(JsonObject ref,
 			FlowDescriptor d, IDatabase db) {
 		if (ref == null || d == null)
@@ -197,14 +209,12 @@ public class Json {
 			ref.addProperty("flowType", d.getFlowType().name());
 		}
 		if (d.getLocation() != null) {
-			Location loc = new LocationDao(db)
-					.getForId(d.getLocation());
+			Location loc = new LocationDao(db).getForId(d.getLocation());
 			if (loc != null) {
 				ref.addProperty("location", loc.getCode());
 			}
 		}
-		FlowProperty prop = new FlowPropertyDao(db)
-				.getForId(d.getRefFlowPropertyId());
+		FlowProperty prop = new FlowPropertyDao(db).getForId(d.getRefFlowPropertyId());
 		if (prop != null && prop.getUnitGroup() != null) {
 			Unit unit = prop.getUnitGroup().getReferenceUnit();
 			if (unit != null) {
@@ -218,12 +228,10 @@ public class Json {
 		if (ref == null || d == null)
 			return;
 		if (d.getProcessType() != null) {
-			ref.addProperty("processType",
-					d.getProcessType().name());
+			ref.addProperty("processType", d.getProcessType().name());
 		}
 		if (d.getLocation() != null) {
-			Location loc = new LocationDao(db)
-					.getForId(d.getLocation());
+			Location loc = new LocationDao(db).getForId(d.getLocation());
 			if (loc != null) {
 				ref.addProperty("location", loc.getCode());
 			}
