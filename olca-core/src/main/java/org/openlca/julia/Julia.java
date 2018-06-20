@@ -68,7 +68,7 @@ public final class Julia {
 				File file = new File(dir, module.libName());
 				if (!file.exists()) {
 					log.info("Library {} is missing; " +
-							"Julia bindings for {} no loaded", file, module);
+							"Julia bindings for {} not loaded", file, module);
 					continue;
 				}
 				log.info("load module {} with library {}", module, file);
