@@ -89,7 +89,7 @@ public class BaseDaoTest {
 	private <T extends AbstractEntity> void testCrud(Class<T> clazz)
 			throws Exception {
 		log.trace("run base dao test with {}", clazz);
-		T instance = clazz.newInstance();
+		T instance = clazz.getConstructor().newInstance();
 		BaseDao<T> dao = Daos.base(Tests.getDb(), clazz);
 		dao.insert(instance);
 		testUsage(instance);

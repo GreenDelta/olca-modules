@@ -71,7 +71,7 @@ public final class Julia {
 							"Julia bindings for {} no loaded", file, module);
 					continue;
 				}
-				log.info("load library {}", file);
+				log.info("load module {} with library {}", module, file);
 				System.load(file.getAbsolutePath());
 			}
 			_loaded.set(true);
