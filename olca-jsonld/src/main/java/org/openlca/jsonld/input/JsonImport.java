@@ -1,18 +1,29 @@
 package org.openlca.jsonld.input;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.jsonld.EntityStore;
 import org.openlca.jsonld.Schema;
 import org.openlca.jsonld.Schema.UnsupportedSchemaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
 public class JsonImport implements Runnable {
-
+	
+	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 	private EntityStore store;
 	private UpdateMode updateMode = UpdateMode.NEVER;
@@ -76,6 +87,11 @@ public class JsonImport implements Runnable {
 			break;
 		case PROCESS:
 			ProcessImport.run(id, conf);
+			try {
+				setProviders(conf);
+			} catch (SQLException e) {
+				log.error("Error setting providers", e);
+			}
 			break;
 		case PRODUCT_SYSTEM:
 			ProductSystemImport.run(id, conf);
@@ -122,7 +138,49 @@ public class JsonImport implements Runnable {
 			ProductSystemImport.run(systemId, conf);
 		for (String projectId : store.getRefIds(ModelType.PROJECT))
 			ProjectImport.run(projectId, conf);
+		try {
+			setProviders(conf);
+		} catch (SQLException e) {
+			log.error("Error setting providers", e);
+		}
 	}
+
+	private void setProviders(ImportConfig conf) throws SQLException {
+		Map<String, Long> refIdToId = new HashMap<>();
+		Map<Long, String> idToRefId = new HashMap<>();
+		for (ProcessDescriptor p : new ProcessDao(database).getDescriptors()) {
+			refIdToId.put(p.getRefId(), p.getId());
+			idToRefId.put(p.getId(), p.getRefId());
+		}
+		Connection con = database.createConnection();
+		Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+		ResultSet rs = stmt.executeQuery("SELECT * FROM tbl_exchanges");
+		while (rs.next()) {
+			long ownerId = rs.getLong("f_owner");
+			String ownerRefId = idToRefId.get(ownerId);
+			int internalId = rs.getInt("internal_id");
+			Map<Integer, String> info = conf.providerInfo.get(ownerRefId);
+			if (info == null) {
+				continue;
+			}
+			String providerRefId = info.get(internalId);
+			if (providerRefId == null) {
+				continue;
+			}
+			Long providerId = refIdToId.get(providerRefId);
+			if (providerId == null) {
+				log.warn("No process found for provider ref id " + providerRefId);
+				continue;
+			}
+			rs.updateLong("f_default_provider", providerId);
+			rs.updateRow();
+		}
+		rs.close();
+		stmt.close();
+		con.commit();
+		con.close();
+	}
+	
 
 	private void checkSchemaSupported() {
 		JsonObject context = store.getContext();

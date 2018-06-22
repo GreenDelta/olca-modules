@@ -6,7 +6,6 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.Process;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonElement;
@@ -17,7 +16,6 @@ class Exchanges {
 	static Exchange map(JsonObject json, ImportConfig conf) {
 		Exchange e = new Exchange();
 		addAttributes(json, e);
-		addProvider(json, e, conf);
 		addCostEntries(json, e, conf);
 		addExchangeRefs(json, e, conf);
 		return e;
@@ -36,16 +34,6 @@ class Exchanges {
 		if (u != null && u.isJsonObject()) {
 			e.uncertainty = Uncertainties.read(u.getAsJsonObject());
 		}
-	}
-
-	private static void addProvider(JsonObject json, Exchange e, ImportConfig conf) {
-		String providerId = Json.getRefId(json, "defaultProvider");
-		if (providerId == null)
-			return;
-		Process provider = ProcessImport.run(providerId, conf);
-		if (provider == null)
-			return;
-		e.defaultProviderId = provider.getId();
 	}
 
 	private static void addCostEntries(JsonObject json, Exchange e,
