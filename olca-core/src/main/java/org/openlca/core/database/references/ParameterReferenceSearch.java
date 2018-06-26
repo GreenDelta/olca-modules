@@ -65,7 +65,7 @@ public class ParameterReferenceSearch extends BaseReferenceSearch<ParameterDescr
 			Map<Long, Set<String>> ownerToNames) {
 		for (long ownerId : ownerToNames.keySet())
 			if (ownerToNames.get(ownerId).contains(name))
-				return new Reference("", Parameter.class, 0, Parameter.class, ownerId);
+				return new Reference(name, Parameter.class, 0, Parameter.class, ownerId);
 		return null;
 	}
 
