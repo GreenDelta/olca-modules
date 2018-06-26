@@ -26,7 +26,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 class FetchInvocation {
 
-	private static final String PATH = "/fetch/";
+	private static final String PATH = "/public/fetch/";
 	private final IDatabase database;
 	private final FetchNotifier notifier;
 	String baseUrl;
