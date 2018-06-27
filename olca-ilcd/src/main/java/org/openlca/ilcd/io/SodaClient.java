@@ -239,13 +239,11 @@ public class SodaClient implements DataStore {
 	public DescriptorList search(Class<?> type, String name)
 			throws DataStoreException {
 		checkConnection();
-		String term = null;
-		if (name == null)
-			term = "";
-		else
-			term = name.trim();
-		WebResource r = initSearchRequest(type)
-				.queryParam("search", "true")
+		String term = name == null ? "" : name.trim();
+		WebResource r = con.dataStockId == null
+				? resource(Dir.get(type))
+				: resource("datastocks", con.dataStockId, Dir.get(type));
+		r = r.queryParam("search", "true")
 				.queryParam("name", term);
 		log.trace("Search resources: {}", r.getURI());
 		DescriptorList list = cookies(r).get(DescriptorList.class);
@@ -271,13 +269,6 @@ public class SodaClient implements DataStore {
 		if (!isConnected) {
 			connect();
 		}
-	}
-
-	private WebResource initSearchRequest(Class<?> type) {
-		if (con.dataStockId == null)
-			return resource(Dir.get(type));
-		else
-			return resource("datastocks", con.dataStockId, Dir.get(type));
 	}
 
 	private void eval(ClientResponse response) throws DataStoreException {
