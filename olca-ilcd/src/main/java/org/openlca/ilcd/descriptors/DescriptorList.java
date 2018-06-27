@@ -30,7 +30,13 @@ public class DescriptorList implements Serializable {
 	})
 	public final List<Descriptor> descriptors = new ArrayList<>();
 
-	@XmlAttribute(name = "sourceId", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
-	public String sourceId;
+	@XmlAttribute(name = "totalSize", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public int totalSize;
+
+	@XmlAttribute(name = "startIndex", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public int startIndex;
+
+	@XmlAttribute(name = "pageSize", namespace = "http://www.ilcd-network.org/ILCD/ServiceAPI")
+	public int pageSize;
 
 }
