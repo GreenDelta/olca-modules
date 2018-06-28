@@ -34,7 +34,7 @@ class Exchanges {
 		if (conf.exportProviders)
 			p = References.create(ModelType.PROCESS, pId, conf, false);
 		else if (conf.db != null)
-			p = References.create(new ProcessDao(conf.db).getDescriptor(pId));
+			p = References.create(new ProcessDao(conf.db).getDescriptor(pId), conf);
 		Out.put(obj, "defaultProvider", p);
 		Out.put(obj, "flow", e.flow, conf, Out.REQUIRED_FIELD);
 		if (e.flow != null) {

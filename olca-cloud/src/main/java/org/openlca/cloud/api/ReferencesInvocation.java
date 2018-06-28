@@ -18,7 +18,7 @@ import com.sun.jersey.api.client.ClientResponse;
  */
 class ReferencesInvocation {
 
-	private static final String PATH = "/fetch/references/";
+	private static final String PATH = "/public/fetch/references/";
 	String baseUrl;
 	String sessionId;
 	String repositoryId;
