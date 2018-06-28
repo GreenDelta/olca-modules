@@ -18,6 +18,7 @@ import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.descriptors.CategorySystemList;
 import org.openlca.ilcd.descriptors.DataStockList;
+import org.openlca.ilcd.descriptors.Descriptor;
 import org.openlca.ilcd.descriptors.DescriptorList;
 import org.openlca.ilcd.lists.CategorySystem;
 import org.openlca.ilcd.sources.Source;
@@ -236,20 +237,49 @@ public class SodaClient implements DataStore {
 		return response.getStatus() == Status.OK.getStatusCode();
 	}
 
-	public DescriptorList search(Class<?> type, String name)
-			throws DataStoreException {
-		checkConnection();
-		String term = null;
-		if (name == null)
-			term = "";
-		else
-			term = name.trim();
-		WebResource r = initSearchRequest(type)
-				.queryParam("search", "true")
-				.queryParam("name", term);
-		log.trace("Search resources: {}", r.getURI());
-		DescriptorList list = cookies(r).get(DescriptorList.class);
-		return list;
+	public DescriptorList search(Class<?> type, String name) {
+		try {
+			checkConnection();
+			String term = name == null ? "" : name.trim();
+			WebResource r = con.dataStockId == null
+					? resource(Dir.get(type))
+					: resource("datastocks", con.dataStockId, Dir.get(type));
+			r = r.queryParam("search", "true")
+					.queryParam("name", term);
+			log.trace("Search resources: {}", r.getURI());
+			DescriptorList list = cookies(r).get(DescriptorList.class);
+			return list;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public List<Descriptor> getDescriptors(Class<?> type) {
+		log.debug("get descriptors for {}", type);
+		try {
+			checkConnection();
+			WebResource r = con.dataStockId == null
+					? resource(Dir.get(type))
+					: resource("datastocks", con.dataStockId, Dir.get(type));
+			r = r.queryParam("pageSize", "1000");
+			List<Descriptor> list = new ArrayList<>();
+			int total = 0;
+			int idx = 0;
+			do {
+				log.debug("get descriptors for {} @startIndex={}", type, idx);
+				r = r.queryParam("startIndex", Integer.toString(idx));
+				DescriptorList data = cookies(r).get(DescriptorList.class);
+				total = data.totalSize;
+				int fetched = data.descriptors.size();
+				if (fetched == 0)
+					break;
+				list.addAll(data.descriptors);
+				idx += fetched;
+			} while (list.size() < total);
+			return list;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private WebResource resource(String... path) {
@@ -271,13 +301,6 @@ public class SodaClient implements DataStore {
 		if (!isConnected) {
 			connect();
 		}
-	}
-
-	private WebResource initSearchRequest(Class<?> type) {
-		if (con.dataStockId == null)
-			return resource(Dir.get(type));
-		else
-			return resource("datastocks", con.dataStockId, Dir.get(type));
 	}
 
 	private void eval(ClientResponse response) throws DataStoreException {
