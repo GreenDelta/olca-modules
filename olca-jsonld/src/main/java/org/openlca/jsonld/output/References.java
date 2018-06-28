@@ -6,13 +6,14 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
 class References {
 
 	static JsonObject create(RootEntity ref, ExportConfig conf, boolean forceExport) {
-		JsonObject obj = create(ref);
+		JsonObject obj = create(ref, conf);
 		if (obj == null)
 			return null;
 		ModelType type = ModelType.forModelClass(ref.getClass());
@@ -25,28 +26,21 @@ class References {
 		if (id == null || id == 0)
 			return null;
 		if (!doExportReferences(type, id, conf, forceExport) || conf.db == null) {
-			JsonObject obj = create(loadDescriptor(conf.db, type, id));
+			JsonObject obj = Json.asRef(loadDescriptor(conf.db, type, id), conf.db);
 			return obj;
 		}
 		RootEntity ref = load(conf.db, type, id);
-		JsonObject obj = create(ref);
+		JsonObject obj = create(ref, conf);
 		conf.refFn.accept(ref);
 		return obj;
 	}
 
-	private static JsonObject create(RootEntity ref) {
-		return create(Descriptors.toDescriptor(ref));
+	static JsonObject create(RootEntity ref, ExportConfig conf) {
+		return create(Descriptors.toDescriptor(ref), conf);
 	}
-
-	static JsonObject create(BaseDescriptor ref) {
-		if (ref == null)
-			return null;
-		JsonObject obj = new JsonObject();
-		String type = ref.getModelType().getModelClass().getSimpleName();
-		Out.put(obj, "@type", type);
-		Out.put(obj, "@id", ref.getRefId());
-		Out.put(obj, "name", ref.getName());
-		return obj;
+	
+	static JsonObject create(BaseDescriptor descriptor, ExportConfig conf) {
+		return Json.asRef(descriptor, conf.db);
 	}
 
 	private static boolean doExportReferences(ModelType type, Long id, ExportConfig conf, boolean forceExport) {

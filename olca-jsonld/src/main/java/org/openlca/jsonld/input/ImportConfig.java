@@ -18,9 +18,11 @@ class ImportConfig {
 	final EntityStore store;
 	final UpdateMode updateMode;
 	final Logger log = LoggerFactory.getLogger(getClass());
+	// processRefId => exchangeIinternalId => providerRefId
+	final Map<String, Map<Integer, String>> providerInfo = new HashMap<>();
 	private final Map<ModelType, Set<String>> visited = new HashMap<>();
 	private final Consumer<RootEntity> callback;
-
+	
 	private ImportConfig(Db db, EntityStore store, UpdateMode updateMode, Consumer<RootEntity> callback) {
 		this.db = db;
 		this.store = store;
@@ -39,6 +41,14 @@ class ImportConfig {
 		set.add(refId);
 	}
 	
+	void putProviderInfo(String processRefId, int exchangeInternalId, String providerRefId) {
+		Map<Integer, String > info = providerInfo.get(processRefId);
+		if (info == null) {
+			providerInfo.put(processRefId, info = new HashMap<>());
+		}
+		info.put(exchangeInternalId, providerRefId);
+	}
+	
 	void imported(RootEntity entity) {
 		if (callback == null)
 			return;
@@ -51,5 +61,6 @@ class ImportConfig {
 			return false;
 		return set.contains(refId);
 	}
+
 
 }

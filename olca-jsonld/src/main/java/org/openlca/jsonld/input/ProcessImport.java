@@ -135,6 +135,10 @@ class ProcessImport extends BaseImport<Process> {
 				ex.internalId = ++p.lastInternalId;
 			}
 			exchangeMap.put(ex.internalId, ex);
+			String providerRefId = Json.getRefId(o, "defaultProvider");
+			if (providerRefId != null) {
+				conf.putProviderInfo(p.getRefId(), ex.internalId, providerRefId);
+			}
 			p.getExchanges().add(ex);
 			boolean isRef = Json.getBool(o, "quantitativeReference", false);
 			if (isRef)

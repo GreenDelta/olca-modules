@@ -59,7 +59,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		Map<Long, ProcessDescriptor> processMap = mapProcesses(obj);
 		mapLinks(obj, processMap);
 		ParameterRedefs.map(obj, system.parameterRedefs, conf.db, conf,
-				(type, id) -> References.create(processMap.get(id)));
+				(type, id) -> References.create(processMap.get(id), conf));
 		ParameterReferences.writeReferencedParameters(system, conf);
 		return obj;
 	}
@@ -78,10 +78,10 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			for (ProcessLink link : next) {
 				JsonObject obj = new JsonObject();
 				Out.put(obj, "@type", "ProcessLink");
-				JsonObject provider = References.create(processMap.get(link.providerId));
+				JsonObject provider = References.create(processMap.get(link.providerId), conf);
 				Out.put(obj, "provider", provider, Out.REQUIRED_FIELD);
-				Out.put(obj, "flow", References.create(flowMap.get(link.flowId)), Out.REQUIRED_FIELD);
-				JsonObject process = References.create(processMap.get(link.processId));
+				Out.put(obj, "flow", References.create(flowMap.get(link.flowId), conf), Out.REQUIRED_FIELD);
+				JsonObject process = References.create(processMap.get(link.processId), conf);
 				Out.put(obj, "process", process, Out.REQUIRED_FIELD);
 				Exchange e = exchangeMap.get(link.exchangeId);
 				JsonObject exchange = mapExchange(e);
@@ -129,7 +129,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 			if (conf.exportReferences) {
 				ref = References.create(ModelType.PROCESS, descriptor.getId(), conf, false);
 			} else {
-				ref = References.create(descriptor);
+				ref = References.create(descriptor, conf);
 			}
 			if (ref == null)
 				continue;

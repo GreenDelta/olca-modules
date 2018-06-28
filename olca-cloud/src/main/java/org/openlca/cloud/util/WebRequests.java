@@ -8,6 +8,8 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response.Status.Family;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -41,6 +44,8 @@ public class WebRequests {
 			ClientResponse response = call(type, request);
 			if (response.getStatus() >= 400 && response.getStatus() <= 599)
 				throw new WebRequestException(response);
+			if (response.getStatusInfo().getFamily() == Family.REDIRECTION)
+				return call(type, response.getLocation().toString(), sessionId, data);
 			return response;
 		} catch (Exception e) {
 			if (e instanceof WebRequestException)
@@ -86,6 +91,7 @@ public class WebRequests {
 			config.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES,
 					new HTTPSProperties(HttpsURLConnection.getDefaultHostnameVerifier(), context));
 		}
+		config.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
 		Client client = Client.create(config);
 		client.setChunkedEncodingSize(1024 * 100); // 100kb
 		return client;
@@ -101,7 +107,7 @@ public class WebRequests {
 		private int errorCode;
 
 		private WebRequestException(ClientResponse response) {
-			super(response.getEntity(String.class));
+			super(toMessage(response));
 			this.errorCode = response.getStatus();
 		}
 
@@ -113,14 +119,16 @@ public class WebRequests {
 		public int getErrorCode() {
 			return errorCode;
 		}
-		
+
 		@Override
 		public String getMessage() {
-			if (isConnectException()) 
+			if (isConnectException())
 				return "Server unavailable";
+			if (isUnauthorized()) 
+				return "Invalid credentials";
 			return super.getMessage();
 		}
-
+		
 		public boolean isConnectException() {
 			if (getCause() instanceof ConnectException)
 				return true;
@@ -133,6 +141,22 @@ public class WebRequests {
 			return false;
 		}
 
+		private static String toMessage(ClientResponse response) {
+			String message = "";
+			message += "statusCode: " + response.getStatus() + "\n";
+			message += "headers: " + "" + "\n";
+			MultivaluedMap<String, String> headers = response.getHeaders();
+			for (String key : headers.keySet()) {
+				message += "\t" + key + ": " + headers.getFirst(key) + "\n";
+			}
+			message += "body: \n" + response.getEntity(String.class);
+			return message;
+		}
+
+		public boolean isUnauthorized() {
+			return errorCode == Status.UNAUTHORIZED.getStatusCode();
+		}
+		
 	}
 
 }
