@@ -140,6 +140,7 @@ public class JsonImport implements Runnable {
 			ProjectImport.run(projectId, conf);
 		try {
 			setProviders(conf);
+			database.getEntityFactory().getCache().evictAll();
 		} catch (SQLException e) {
 			log.error("Error setting providers", e);
 		}
