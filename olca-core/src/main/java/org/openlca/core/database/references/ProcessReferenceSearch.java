@@ -117,7 +117,7 @@ public class ProcessReferenceSearch extends
 
 	private Map<Long, Set<String>> getExchangeFormulas(Set<Long> ids) {
 		List<String> queries = Search.createQueries(
-				"SELECT f_owner, lower(resulting_amount_formula) FROM tbl_exchanges"
+				"SELECT f_owner, lower(resulting_amount_formula), lower(cost_formula) FROM tbl_exchanges"
 				, "WHERE f_owner IN", ids);
 		Map<Long, Set<String>> formulas = new HashMap<>();
 		for (String query : queries) {
@@ -126,7 +126,14 @@ public class ProcessReferenceSearch extends
 				Set<String> set = formulas.get(methodId);
 				if (set == null)
 					formulas.put(methodId, set = new HashSet<>());
-				set.add(result.getString(2));
+				String amountFormula = result.getString(2);
+				if (amountFormula != null && !amountFormula.isEmpty()) {
+					set.add(amountFormula);
+				}
+				String costFormula = result.getString(3);
+				if (costFormula != null && !costFormula.isEmpty()) {
+					set.add(costFormula);
+				}				
 			});
 		}
 		return formulas;

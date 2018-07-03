@@ -131,20 +131,15 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 	}
 
 	private List<ParameterRef> findInExchanges(Set<String> names) {
-		String query = "SELECT lower(resulting_amount_formula), f_owner FROM tbl_exchanges";
+		String query = "SELECT lower(resulting_amount_formula), lower(cost_formula), f_owner FROM tbl_exchanges";
 		List<ParameterRef> refs = new ArrayList<>();
 		try {
 			NativeSql.on(database).query(query, (result) -> {
-				String formula = result.getString(1);
-				long ownerId = result.getLong(2);
-				try {
-					Set<String> variables = Formula.getVariables(formula);
-					for (String name : names)
-						if (variables.contains(name))
-							refs.add(new ParameterRef(0, ownerId, name, ParameterScope.PROCESS));
-				} catch (Throwable e) {
-					log.warn("Failed parsing formula " + formula + " of parameter in model " + ownerId, e);
-				}
+				String amountFormula = result.getString(1);
+				String costFormula = result.getString(2);
+				long ownerId = result.getLong(3);
+				refs.addAll(findInFormula(names, ownerId, amountFormula));
+				refs.addAll(findInFormula(names, ownerId, costFormula));
 				return true;
 			});
 		} catch (SQLException e) {
@@ -153,6 +148,22 @@ public class ParameterUseSearch extends BaseUseSearch<ParameterDescriptor> {
 		return refs;
 	}
 
+	private List<ParameterRef> findInFormula(Set<String> names, long ownerId, String formula) {
+		if (formula == null || formula.isEmpty()) {
+			return new ArrayList<>();
+		}
+		List<ParameterRef> refs = new ArrayList<>();
+		try {
+			Set<String> variables = Formula.getVariables(formula);
+			for (String name : names)
+				if (variables.contains(name))
+					refs.add(new ParameterRef(0, ownerId, name, ParameterScope.PROCESS));
+		} catch (Throwable e) {
+			log.warn("Failed parsing formula " + formula + " of parameter in model " + ownerId, e);
+		}
+		return refs;
+	}
+	
 	private Set<String> getParameterNames(Set<Long> ids) {
 		if (ids.isEmpty())
 			return new HashSet<>();
