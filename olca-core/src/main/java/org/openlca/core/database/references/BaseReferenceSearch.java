@@ -104,7 +104,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 			names.addAll(n);
 		List<ParameterDescriptor> descriptors = new ParameterDao(database)
 				.getDescriptors(names.toArray(new String[names.size()]), ParameterScope.GLOBAL);
-		List<Reference> results = toReferences(descriptors, false, undeclared, null);
+		List<Reference> results = toReferences(descriptors, false, undeclared, "name");
 		Set<String> found = new HashSet<>();
 		for (ParameterDescriptor d : descriptors)
 			found.add(d.getName().toLowerCase());
