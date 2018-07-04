@@ -90,8 +90,10 @@ public class Main {
 
 	private void shutdown(Server server, IDatabase db) {
 		try {
+			log.info("Shutdown server");
 			server.stop();
 			db.close();
+			log.info("all done");
 		} catch (Exception e) {
 			log.error("Failed to shutdown server gracefully", e);
 		}

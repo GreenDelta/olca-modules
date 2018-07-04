@@ -6,6 +6,11 @@ of the Java Runtime in which openLCA is executed. A reference implementation of
 this protocol for standard Python is provided with
 [olca-ipc.py](https://github.com/GreenDelta/olca-ipc.py).
 
+## Building the server app
+
+```bash
+mvn package -P server-app
+```
 
 ## Principles
 On the openLCA side, an IPC server is started which accepts function calls
@@ -67,7 +72,7 @@ public class MyHandler {
 ```
 
 ## Protocol
-The protocol below is provided by the default handlers of the server. 
+The protocol below is provided by the default handlers of the server.
 
 ### `get/model`
 Get a full data set for a given `@type` and `@id`. The `@type` is the same as
@@ -98,7 +103,7 @@ If the data set can be found, the result will contain the data set in the
     "@id": "4a40cb39-e306-3649-b6da-ca061e384e23",
     "@type": "Flow",
     "name": "electricity, high voltage, at grid",
-    "description": "..." 
+    "description": "..."
   }
 }
 ```
@@ -144,7 +149,7 @@ is useful to browse that database content. This will return a list of
 
 
 ### `insert/model`
-Insert a new data set which is provided as parameter: 
+Insert a new data set which is provided as parameter:
 
 ```json
 {
@@ -155,7 +160,7 @@ Insert a new data set which is provided as parameter:
     "@id": "4a40cb39-e306-3649-b6da-ca061e384e23",
     "@type": "Flow",
     "name": "electricity, high voltage, at grid",
-    "description": "..." 
+    "description": "..."
   }
 }
 ```
@@ -182,7 +187,7 @@ database:
     "@id": "4a40cb39-e306-3649-b6da-ca061e384e23",
     "@type": "Flow",
     "name": "electricity, high voltage, at grid",
-    "description": "..." 
+    "description": "..."
   }
 }
 ```
