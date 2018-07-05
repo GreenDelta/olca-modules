@@ -47,3 +47,18 @@ mvn -Dtest="org.openlca.julia.*Test" test
         -> libcolamd.dll
             -> libsuitesparseconfig.dll
 ```
+
+```
+libamd.dll
+libcamd.dll
+libccolamd.dll
+libcholmod.dll
+libcolamd.dll
+libgcc_s_seh-1.dll
+libgfortran-3.dll
+libopenblas64_.dll
+libquadmath-0.dll
+libsuitesparseconfig.dll
+libumfpack.dll
+libwinpthread-1.dll
+```

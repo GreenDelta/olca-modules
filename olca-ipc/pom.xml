@@ -118,9 +118,14 @@
 										<echo file="${project.build.directory}/dist/run.bat">
 <![CDATA[
 @echo off
-java -classpath ".\*;lib\*" org.openlca.ipc.Main -Dorg.slf4j.simpleLogger.defaultLogLevel=debug
+java -classpath ".\*;lib\*" -Dorg.slf4j.simpleLogger.defaultLogLevel=debug org.openlca.ipc.Main
 ]]>
 										</echo>
+										<copy todir="${project.build.directory}/dist">
+											<fileset dir="${env.OLCA_JULIA}"
+													 erroronmissingdir="false"
+													 includes="*.dll"/>
+										</copy>
 										<get src="https://www.gnu.org/licenses/gpl.txt"
 											 dest="${project.build.directory}/dist/LICENSE.txt"
 											 skipexisting="true"/>
