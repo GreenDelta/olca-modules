@@ -87,6 +87,23 @@
 						</executions>
 					</plugin>
 					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>license-maven-plugin</artifactId>
+						<version>1.16</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>add-third-party</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/dist</outputDirectory>
+									<excludedScopes>test</excludedScopes>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-antrun-plugin</artifactId>
 						<version>1.8</version>
@@ -104,6 +121,9 @@
 java -classpath ".\*;lib\*" org.openlca.ipc.Main -Dorg.slf4j.simpleLogger.defaultLogLevel=debug
 ]]>
 										</echo>
+										<get src="https://www.gnu.org/licenses/gpl.txt"
+											 dest="${project.build.directory}/dist/LICENSE.txt"
+											 skipexisting="true"/>
 									</target>
 								</configuration>
 							</execution>
