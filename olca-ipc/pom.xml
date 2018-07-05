@@ -118,7 +118,19 @@
 										<echo file="${project.build.directory}/dist/run.bat">
 <![CDATA[
 @echo off
-java -classpath ".\*;lib\*" -Dorg.slf4j.simpleLogger.defaultLogLevel=debug org.openlca.ipc.Main
+
+rem : set the port and database folder
+set port=8080
+set database=db
+
+
+set java_args=-Xmx3584M -classpath ".\*;lib\*" -Dorg.slf4j.simpleLogger.defaultLogLevel=debug
+set command=java
+if exist jre (
+    set command=jre\bin\java.exe
+)
+echo %command% %java_args% org.openlca.ipc.Main -port %port% -db %database%
+%command% %java_args% org.openlca.ipc.Main -port %port% -db %database%
 ]]>
 										</echo>
 										<copy todir="${project.build.directory}/dist">
