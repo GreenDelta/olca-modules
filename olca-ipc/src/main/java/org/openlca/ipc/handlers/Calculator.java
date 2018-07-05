@@ -52,39 +52,35 @@ public class Calculator {
 			Responses.invalidParams("No product system ID", req);
 		ProductSystem system = new ProductSystemDao(db).getForRefId(systemID);
 		if (system == null)
-			Responses.invalidParams("No product system found for @id=" + systemID, req);
+			Responses.invalidParams(
+					"No product system found for @id=" + systemID, req);
 		log.info("Calculate product system {}", systemID);
+		CalculationSetup setup = buildSetup(json, system);
+		CalculationType type = Json.getEnum(json, "calculationType",
+				CalculationType.class);
+		if (type == null) {
+			type = CalculationType.CONTRIBUTION_ANALYSIS;
+			log.info("No calculation type defined; " +
+					"calculate contributions as default");
+		}
+		return calculate(req, setup, type);
+	}
+
+	private CalculationSetup buildSetup(JsonObject json, ProductSystem system) {
 		CalculationSetup setup = new CalculationSetup(system);
-		method(json, setup);
-		nwSet(json, setup);
+		String methodID = Json.getRefId(json, "impactMethod");
+		if (methodID != null) {
+			setup.impactMethod = new ImpactMethodDao(db)
+					.getDescriptorForRefId(methodID);
+		}
+		String nwSetID = Json.getRefId(json, "nwSet");
+		if (nwSetID != null) {
+			setup.nwSet = new NwSetDao(db).getDescriptorForRefId(nwSetID);
+		}
 		setup.withCosts = Json.getBool(json, "withCosts", false);
 		setup.setAmount(Json.getDouble(json, "amount", system.targetAmount));
 		parameters(json, setup);
-		try {
-			SystemCalculator calc = new SystemCalculator(
-					MatrixCache.createEager(db), solver);
-			SimpleResult r = calc.calculateSimple(setup);
-			return encode(r, req);
-		} catch (Exception e) {
-			log.error("Calculation failed", e);
-			return Responses.serverError(e, req);
-		}
-	}
-
-	private void method(JsonObject json, CalculationSetup setup) {
-		String id = Json.getRefId(json, "impactMethod");
-		if (id == null)
-			return;
-		setup.impactMethod = new ImpactMethodDao(db)
-				.getDescriptorForRefId(id);
-	}
-
-	private void nwSet(JsonObject json, CalculationSetup setup) {
-		String id = Json.getRefId(json, "nwSet");
-		if (id == null)
-			return;
-		setup.nwSet = new NwSetDao(db)
-				.getDescriptorForRefId(id);
+		return setup;
 	}
 
 	private void parameters(JsonObject json, CalculationSetup setup) {
@@ -130,13 +126,37 @@ public class Calculator {
 		return null;
 	}
 
-	private RpcResponse encode(SimpleResult r, RpcRequest req) {
-		if (r == null)
-			return Responses.error(404, "No result calculated", req);
-		String id = UUID.randomUUID().toString();
-		log.info("encode and cache result {}", id);
-		cache.put(id, r);
-		JsonObject result = JsonRpc.encode(r, id, db);
-		return Responses.ok(result, req);
+	private RpcResponse calculate(RpcRequest req, CalculationSetup setup,
+			CalculationType type) {
+		try {
+			SystemCalculator calc = new SystemCalculator(
+					MatrixCache.createEager(db), solver);
+			SimpleResult r = null;
+			switch (type) {
+			case CONTRIBUTION_ANALYSIS:
+				r = calc.calculateContributions(setup);
+				break;
+			case SIMPLE_CALCULATION:
+				r = calc.calculateSimple(setup);
+				break;
+			case UPSTREAM_ANALYSIS:
+				r = calc.calculateFull(setup);
+				break;
+			default:
+				break;
+			}
+			if (r == null) {
+				return Responses.error(501, "Calculation method " + type
+						+ "is not yet implemented", req);
+			}
+			String id = UUID.randomUUID().toString();
+			log.info("encode and cache result {}", id);
+			cache.put(id, r);
+			JsonObject result = JsonRpc.encode(r, id, db);
+			return Responses.ok(result, req);
+		} catch (Exception e) {
+			log.error("Calculation failed", e);
+			return Responses.serverError(e, req);
+		}
 	}
 }
