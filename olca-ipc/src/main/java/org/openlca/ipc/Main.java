@@ -119,8 +119,10 @@ public class Main {
 
 	private void shutdown(Server server, IDatabase db) {
 		try {
-			log.info("Shutdown server");
-			server.stop();
+			if (server.isAlive()) {
+				log.info("Shutdown server");
+				server.stop();
+			}
 			db.close();
 			log.info("all done");
 		} catch (Exception e) {

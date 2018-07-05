@@ -9,6 +9,7 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.Calculator;
 import org.openlca.ipc.handlers.ModelHandler;
+import org.openlca.ipc.handlers.RuntimeHandler;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ public class Server extends NanoHTTPD {
 		register(new ModelHandler(db));
 		register(new Calculator(solver, db, cache));
 		register(new CacheHandler(cache));
+		register(new RuntimeHandler(db, this));
 		return this;
 	}
 
