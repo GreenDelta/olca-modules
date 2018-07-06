@@ -20,11 +20,11 @@ class JsonRpc {
 	}
 
 	static JsonObject encode(SimpleResult r, String id, IDatabase db) {
-		if (r == null)
-			return null;
 		JsonObject obj = new JsonObject();
-		obj.addProperty("@type", "SimpleResult");
 		obj.addProperty("@id", id);
+		if (r == null)
+			return obj;
+		obj.addProperty("@type", r.getClass().getSimpleName());
 		SimpleResultProvider<SimpleResult> provider = new SimpleResultProvider<>(
 				r, EntityCache.create(db));
 		JsonArray flowResults = new JsonArray();
@@ -67,5 +67,4 @@ class JsonRpc {
 		obj.addProperty("value", r.value);
 		return obj;
 	}
-
 }

@@ -2,15 +2,11 @@ package org.openlca.jsonld;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowPropertyType;
-import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ImpactMethod.ParameterMean;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.UncertaintyType;
 
 public class Enums {
@@ -20,11 +16,6 @@ public class Enums {
 	private static Map<Class<? extends Enum<?>>, Enum<?>> defaultValues = new HashMap<>();
 
 	static {
-		putUnmapped(ModelType.class, ModelType.values());
-		putUnmapped(ProcessType.class, ProcessType.values());
-		putUnmapped(FlowType.class, FlowType.values());
-		putUnmapped(RiskLevel.class, RiskLevel.values());
-		putUnmapped(ParameterMean.class, ParameterMean.values());
 		putFlowPropertyTypes();
 		putAllocationMethods();
 		putParameterScopes();
@@ -70,29 +61,16 @@ public class Enums {
 		labelToValue.get(clazz).put(label, value);
 	}
 
-	private static <T extends Enum<T>> void putUnmapped(Class<T> clazz,
-			Enum<?>[] values) {
-		if (values == null || values.length == 0)
-			return;
-		Map<String, Enum<?>> labelToValue = new HashMap<>();
-		for (Enum<?> value : values) {
-			valueToLabel.put(value, value.name());
-			labelToValue.put(value.name(), value);
-		}
-		Enums.labelToValue.put(clazz, labelToValue);
-	}
-
 	public static <T extends Enum<T>> String getLabel(Enum<T> value) {
+		if (value == null)
+			return null;
 		if (valueToLabel.containsKey(value))
 			return valueToLabel.get(value);
-		if (value != null)
-			return value.name();
-		return null;
+		return value.name();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Enum<T>> T getValue(String label,
-			Class<T> enumClass) {
+	public static <T extends Enum<T>> T getValue(String label, Class<T> enumClass) {
 		if (label == null)
 			return null;
 		if (enumClass == null)
@@ -105,7 +83,16 @@ public class Enums {
 					return (T) value;
 			}
 		}
-		return (T) defaultValues.get(enumClass);
+		Object defaultVal = defaultValues.get(enumClass);
+		if (defaultVal != null) {
+			return (T) defaultVal;
+		}
+		for (T t : enumClass.getEnumConstants()) {
+			if (Objects.equals(t.name(), label)) {
+				return t;
+			}
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
