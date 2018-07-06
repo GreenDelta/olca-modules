@@ -22,8 +22,8 @@ public class ModelHandler {
 
 	private final IDatabase db;
 
-	public ModelHandler(IDatabase db) {
-		this.db = db;
+	public ModelHandler(HandlerContext context) {
+		this.db = context.db;
 	}
 
 	@Rpc("get/model")

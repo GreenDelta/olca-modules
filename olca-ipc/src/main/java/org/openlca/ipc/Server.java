@@ -8,6 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.Calculator;
+import org.openlca.ipc.handlers.HandlerContext;
 import org.openlca.ipc.handlers.ModelHandler;
 import org.openlca.ipc.handlers.RuntimeHandler;
 import org.openlca.util.Strings;
@@ -30,10 +31,11 @@ public class Server extends NanoHTTPD {
 	public Server withDefaultHandlers(IDatabase db, IMatrixSolver solver) {
 		log.info("Register default handlers");
 		Cache cache = new Cache();
-		register(new ModelHandler(db));
-		register(new Calculator(solver, db, cache));
+		HandlerContext context = new HandlerContext(this, db, solver, cache);
+		register(new ModelHandler(context));
+		register(new Calculator(context));
 		register(new CacheHandler(cache));
-		register(new RuntimeHandler(db, this));
+		register(new RuntimeHandler(context));
 		return this;
 	}
 

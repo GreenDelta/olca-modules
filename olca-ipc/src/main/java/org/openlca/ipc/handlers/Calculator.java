@@ -10,12 +10,10 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.ipc.Cache;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -31,15 +29,12 @@ import com.google.gson.JsonObject;
 public class Calculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-
-	private final Cache cache;
-	private final IMatrixSolver solver;
+	private final HandlerContext context;
 	private final IDatabase db;
 
-	public Calculator(IMatrixSolver solver, IDatabase db, Cache cache) {
-		this.cache = cache;
-		this.solver = solver;
-		this.db = db;
+	public Calculator(HandlerContext context) {
+		this.context = context;
+		this.db = context.db;
 	}
 
 	@Rpc("calculate")
@@ -130,7 +125,7 @@ public class Calculator {
 			CalculationType type) {
 		try {
 			SystemCalculator calc = new SystemCalculator(
-					MatrixCache.createEager(db), solver);
+					MatrixCache.createEager(db), context.solver);
 			SimpleResult r = null;
 			switch (type) {
 			case CONTRIBUTION_ANALYSIS:
@@ -151,7 +146,7 @@ public class Calculator {
 			}
 			String id = UUID.randomUUID().toString();
 			log.info("encode and cache result {}", id);
-			cache.put(id, r);
+			context.cache.put(id, r);
 			JsonObject result = JsonRpc.encode(r, id, db);
 			return Responses.ok(result, req);
 		} catch (Exception e) {

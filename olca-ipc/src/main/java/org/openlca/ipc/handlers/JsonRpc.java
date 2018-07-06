@@ -67,5 +67,4 @@ class JsonRpc {
 		obj.addProperty("value", r.value);
 		return obj;
 	}
-
 }
