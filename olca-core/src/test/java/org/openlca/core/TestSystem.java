@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.Exchange;
@@ -66,7 +67,8 @@ public class TestSystem {
 			for (Exchange e : p.getExchanges()) {
 				if (isProvider(e))
 					continue;
-				if (e.flow == null || e.flow.getFlowType() == FlowType.ELEMENTARY_FLOW)
+				if (e.flow == null
+						|| e.flow.getFlowType() == FlowType.ELEMENTARY_FLOW)
 					continue;
 				long flowId = e.flow.getId();
 				Process provider = providers.get(flowId);
@@ -102,7 +104,8 @@ public class TestSystem {
 	}
 
 	public static FullResultProvider calculate(ProductSystem system) {
-		CalculationSetup setup = new CalculationSetup(system);
+		CalculationSetup setup = new CalculationSetup(
+				CalculationType.UPSTREAM_ANALYSIS, system);
 		setup.withCosts = true;
 		return calculate(setup);
 	}
@@ -117,13 +120,15 @@ public class TestSystem {
 
 	public static ContributionResultProvider<ContributionResult> contributions(
 			ProductSystem system) {
-		CalculationSetup setup = new CalculationSetup(system);
+		CalculationSetup setup = new CalculationSetup(
+				CalculationType.CONTRIBUTION_ANALYSIS, system);
 		setup.withCosts = true;
 		SystemCalculator calc = new SystemCalculator(
 				MatrixCache.createEager(Tests.getDb()),
 				Tests.getDefaultSolver());
 		ContributionResult cr = calc.calculateContributions(setup);
-		return new ContributionResultProvider<>(cr, EntityCache.create(Tests.getDb()));
+		return new ContributionResultProvider<>(cr,
+				EntityCache.create(Tests.getDb()));
 	}
 
 }

@@ -15,6 +15,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.math.CalculationSetup;
+import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.DQIndicator;
@@ -138,7 +139,8 @@ public class DQResultTest {
 		return p;
 	}
 
-	private Exchange exchange(Process p, double amount, String dqEntry, Flow flow, boolean input) {
+	private Exchange exchange(Process p, double amount, String dqEntry,
+			Flow flow, boolean input) {
 		Exchange e = p.exchange(flow);
 		e.dqEntry = dqEntry;
 		e.isInput = input;
@@ -196,7 +198,8 @@ public class DQResultTest {
 		SystemCalculator calculator = new SystemCalculator(
 				MatrixCache.createEager(Tests.getDb()),
 				Tests.getDefaultSolver());
-		CalculationSetup setup = new CalculationSetup(system);
+		CalculationSetup setup = new CalculationSetup(
+				CalculationType.CONTRIBUTION_ANALYSIS, system);
 		setup.setAmount(1);
 		setup.impactMethod = Descriptors.toDescriptor(method);
 		ContributionResult cResult = calculator.calculateContributions(setup);
@@ -213,17 +216,28 @@ public class DQResultTest {
 	}
 
 	private void checkResults(DQResult result, ImpactCategory impact) {
-		Assert.assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, eFlow1), 0.5);
-		Assert.assertArrayEquals(a(2, 3, 3, 4, 4), getResult(result, eFlow2), 0.5);
-		Assert.assertArrayEquals(a(2, 3, 3, 3, 4), getResult(result, impact), 0.5);
-		Assert.assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process1, eFlow1), 0.5);
-		Assert.assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process2, eFlow1), 0.5);
-		Assert.assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process1, eFlow2), 0.5);
-		Assert.assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process2, eFlow2), 0.5);
-		Assert.assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, process1, impact), 0.5);
-		Assert.assertArrayEquals(a(2, 2, 3, 4, 4), getResult(result, process2, impact), 0.5);
-		Assert.assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process1), 0.5);
-		Assert.assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process2), 0.5);
+		Assert.assertArrayEquals(a(4, 4, 3, 2, 2), getResult(result, eFlow1),
+				0.5);
+		Assert.assertArrayEquals(a(2, 3, 3, 4, 4), getResult(result, eFlow2),
+				0.5);
+		Assert.assertArrayEquals(a(2, 3, 3, 3, 4), getResult(result, impact),
+				0.5);
+		Assert.assertArrayEquals(a(1, 2, 3, 4, 5),
+				getResult(result, process1, eFlow1), 0.5);
+		Assert.assertArrayEquals(a(5, 4, 3, 2, 1),
+				getResult(result, process2, eFlow1), 0.5);
+		Assert.assertArrayEquals(a(5, 4, 3, 2, 1),
+				getResult(result, process1, eFlow2), 0.5);
+		Assert.assertArrayEquals(a(1, 2, 3, 4, 5),
+				getResult(result, process2, eFlow2), 0.5);
+		Assert.assertArrayEquals(a(4, 4, 3, 2, 2),
+				getResult(result, process1, impact), 0.5);
+		Assert.assertArrayEquals(a(2, 2, 3, 4, 4),
+				getResult(result, process2, impact), 0.5);
+		Assert.assertArrayEquals(a(1, 2, 3, 4, 5), getResult(result, process1),
+				0.5);
+		Assert.assertArrayEquals(a(5, 4, 3, 2, 1), getResult(result, process2),
+				0.5);
 	}
 
 	private double[] a(double... vals) {
@@ -243,11 +257,14 @@ public class DQResultTest {
 	}
 
 	private double[] getResult(DQResult result, Process process, Flow flow) {
-		return result.get(Descriptors.toDescriptor(process), Descriptors.toDescriptor(flow));
+		return result.get(Descriptors.toDescriptor(process),
+				Descriptors.toDescriptor(flow));
 	}
 
-	private double[] getResult(DQResult result, Process process, ImpactCategory impact) {
-		return result.get(Descriptors.toDescriptor(process), Descriptors.toDescriptor(impact));
+	private double[] getResult(DQResult result, Process process,
+			ImpactCategory impact) {
+		return result.get(Descriptors.toDescriptor(process),
+				Descriptors.toDescriptor(impact));
 	}
 
 }

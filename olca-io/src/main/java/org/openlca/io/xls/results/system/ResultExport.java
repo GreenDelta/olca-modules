@@ -20,16 +20,19 @@ import org.slf4j.LoggerFactory;
 
 public class ResultExport implements Runnable {
 
-	private final static Logger log = LoggerFactory.getLogger(ResultExport.class);
-	static final String[] FLOW_HEADER = { "Flow UUID", "Flow", "Category", "Sub-category", "Unit" };
-	static final String[] PROCESS_HEADER = { "Process UUID", "Process", "Location" };
-	static final String[] IMPACT_HEADER = { "Impact category UUID", "Impact category", "Reference unit" };
+	private final static Logger log = LoggerFactory
+			.getLogger(ResultExport.class);
+	static final String[] FLOW_HEADER = { "Flow UUID", "Flow", "Category",
+			"Sub-category", "Unit" };
+	static final String[] PROCESS_HEADER = { "Process UUID", "Process",
+			"Location" };
+	static final String[] IMPACT_HEADER = { "Impact category UUID",
+			"Impact category", "Reference unit" };
 
 	private final File file;
 	final CalculationSetup setup;
 	final ContributionResultProvider<?> result;
 	final DQResult dqResult;
-	final String type;
 
 	private boolean success;
 	List<ProcessDescriptor> processes;
@@ -38,20 +41,22 @@ public class ResultExport implements Runnable {
 	Workbook workbook;
 	CellWriter writer;
 
-	public ResultExport(CalculationSetup setup, ContributionResultProvider<?> result, DQResult dqResult, String type,
-			File file) {
+	public ResultExport(CalculationSetup setup,
+			ContributionResultProvider<?> result,
+			DQResult dqResult, File file) {
 		this.setup = setup;
 		this.result = result;
 		this.dqResult = dqResult;
-		this.type = type;
 		this.file = file;
 	}
 
 	public void run() {
 		try {
 			prepare();
-			DQCalculationSetup dqSetup = dqResult != null ? dqResult.setup : null;
-			InfoSheet.write(workbook, writer, setup, dqSetup, type);
+			DQCalculationSetup dqSetup = dqResult != null
+					? dqResult.setup
+					: null;
+			InfoSheet.write(workbook, writer, setup, dqSetup, getType());
 			InventorySheet.write(this);
 			if (result.hasImpactResults()) {
 				ImpactSheet.write(this);
@@ -82,6 +87,10 @@ public class ResultExport implements Runnable {
 
 	public boolean doneWithSuccess() {
 		return success;
+	}
+
+	private String getType() {
+		return "?";
 	}
 
 }

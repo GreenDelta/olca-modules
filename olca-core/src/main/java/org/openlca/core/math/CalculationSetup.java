@@ -19,6 +19,8 @@ import org.openlca.core.model.descriptors.NwSetDescriptor;
 public class CalculationSetup {
 
 	public final ProductSystem productSystem;
+	public final CalculationType type;
+
 	public ImpactMethodDescriptor impactMethod;
 	public boolean withCosts = false;
 	public NwSetDescriptor nwSet;
@@ -33,7 +35,8 @@ public class CalculationSetup {
 	private FlowPropertyFactor flowPropertyFactor;
 	private Double amount;
 
-	public CalculationSetup(ProductSystem productSystem) {
+	public CalculationSetup(CalculationType type, ProductSystem productSystem) {
+		this.type = type;
 		this.productSystem = productSystem;
 	}
 

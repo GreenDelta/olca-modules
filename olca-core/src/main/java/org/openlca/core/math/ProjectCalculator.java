@@ -28,7 +28,9 @@ public class ProjectCalculator {
 		ImpactMethodDescriptor method = getImpactMethod(project);
 		NwSetDescriptor nwSet = getNwSet(project);
 		for (ProjectVariant v : project.getVariants()) {
-			CalculationSetup setup = new CalculationSetup(v.getProductSystem());
+			CalculationSetup setup = new CalculationSetup(
+					CalculationType.CONTRIBUTION_ANALYSIS,
+					v.getProductSystem());
 			setup.setUnit(v.getUnit());
 			setup.setFlowPropertyFactor(v.getFlowPropertyFactor());
 			setup.setAmount(v.getAmount());

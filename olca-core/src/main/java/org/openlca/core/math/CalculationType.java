@@ -1,11 +1,10 @@
-package org.openlca.ipc.handlers;
+package org.openlca.core.math;
 
 /**
  * The type of a calculation.
  *
- * TODO: we should move and use this in the core module.
  */
-enum CalculationType {
+public enum CalculationType {
 	/**
 	 * Calculates the total results for elementary flows, LCIA indicators,
 	 * costs, etc. of a product system.
