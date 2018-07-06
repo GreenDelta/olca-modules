@@ -13,6 +13,7 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.core.results.SimpleResultProvider;
 import org.openlca.io.xls.results.CellWriter;
 import org.openlca.io.xls.results.InfoSheet;
 import org.slf4j.Logger;
@@ -31,8 +32,8 @@ public class ResultExport implements Runnable {
 
 	private final File file;
 	final CalculationSetup setup;
-	final ContributionResultProvider<?> result;
-	final DQResult dqResult;
+	final SimpleResultProvider<?> result;
+	DQResult dqResult;
 
 	private boolean success;
 	List<ProcessDescriptor> processes;
@@ -41,13 +42,15 @@ public class ResultExport implements Runnable {
 	Workbook workbook;
 	CellWriter writer;
 
-	public ResultExport(CalculationSetup setup,
-			ContributionResultProvider<?> result,
+	public ResultExport(CalculationSetup setup, SimpleResultProvider<?> result,
 			DQResult dqResult, File file) {
 		this.setup = setup;
 		this.result = result;
-		this.dqResult = dqResult;
 		this.file = file;
+	}
+
+	public void setDQResult(DQResult dqResult) {
+		this.dqResult = dqResult;
 	}
 
 	public void run() {
@@ -61,11 +64,7 @@ public class ResultExport implements Runnable {
 			if (result.hasImpactResults()) {
 				ImpactSheet.write(this);
 			}
-			ProcessFlowContributionSheet.write(this);
-			if (result.hasCostResults()) {
-				ProcessImpactContributionSheet.write(this);
-				FlowImpactContributionSheet.write(this);
-			}
+			writeContributionSheets();
 			success = true;
 			try (FileOutputStream stream = new FileOutputStream(file)) {
 				workbook.write(stream);
@@ -76,10 +75,21 @@ public class ResultExport implements Runnable {
 		}
 	}
 
+	private void writeContributionSheets() {
+		if (!(result instanceof ContributionResultProvider))
+			return;
+		ContributionResultProvider<?> cons = (ContributionResultProvider<?>) result;
+		ProcessFlowContributionSheet.write(this, cons);
+		if (cons.hasImpactResults()) {
+			ProcessImpactContributionSheet.write(this, cons);
+			FlowImpactContributionSheet.write(this, cons);
+		}
+	}
+
 	private void prepare() {
-		processes = Prepare.processes(result);
-		flows = Prepare.flows(result);
-		impacts = Prepare.impacts(result);
+		processes = Util.processes(result);
+		flows = Util.flows(result);
+		impacts = Util.impacts(result);
 		// no default flushing (see Excel.cell)!
 		workbook = new SXSSFWorkbook(-1);
 		writer = new CellWriter(result.cache, workbook);
@@ -90,7 +100,20 @@ public class ResultExport implements Runnable {
 	}
 
 	private String getType() {
-		return "?";
+		if (setup.type == null)
+			return "?";
+		switch (setup.type) {
+		case CONTRIBUTION_ANALYSIS:
+			return "Contribution analysis";
+		case MONTE_CARLO_SIMULATION:
+			return "Monte Carlo simulation";
+		case REGIONALIZED_CALCULATION:
+			return "Regionalized LCIA calculation";
+		case SIMPLE_CALCULATION:
+			return "Simple calculation";
+		default:
+			return "?";
+		}
 	}
 
 }

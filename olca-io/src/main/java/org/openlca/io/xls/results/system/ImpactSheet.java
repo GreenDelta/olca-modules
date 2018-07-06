@@ -7,14 +7,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.core.results.SimpleResultProvider;
 import org.openlca.io.xls.results.CellWriter;
 
 class ImpactSheet {
 
 	private final CellWriter writer;
 	private final Workbook workbook;
-	private final ContributionResultProvider<?> result;
+	private final SimpleResultProvider<?> result;
 	private final DQResult dqResult;
 	private final List<ImpactCategoryDescriptor> impacts;
 	private Sheet sheet;
@@ -43,7 +43,8 @@ class ImpactSheet {
 		writer.cell(sheet, row, col++, "Result", true);
 		if (dqResult == null || dqResult.setup.exchangeDqSystem == null)
 			return;
-		writer.dataQualityHeader(sheet, row, col, dqResult.setup.exchangeDqSystem);
+		writer.dataQualityHeader(sheet, row, col,
+				dqResult.setup.exchangeDqSystem);
 	}
 
 	private void data() {
@@ -60,7 +61,8 @@ class ImpactSheet {
 			RoundingMode rounding = dqResult.setup.roundingMode;
 			int scores = dqResult.setup.exchangeDqSystem.getScoreCount();
 			double[] quality = dqResult.get(impact);
-			writer.dataQuality(sheet, row++, resultStartCol + 1, quality, rounding, scores);
+			writer.dataQuality(sheet, row++, resultStartCol + 1, quality,
+					rounding, scores);
 		}
 	}
 

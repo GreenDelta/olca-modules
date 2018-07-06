@@ -9,22 +9,28 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ContributionResultProvider;
 import org.openlca.io.xls.results.CellWriter;
 
-class ProcessFlowContributionSheet extends ContributionSheet<ProcessDescriptor, FlowDescriptor> {
+class ProcessFlowContributionSheet
+		extends ContributionSheet<ProcessDescriptor, FlowDescriptor> {
 
 	private final CellWriter writer;
 	private final ContributionResultProvider<?> result;
 
-	static void write(ResultExport export) {
-		new ProcessFlowContributionSheet(export).write(export.workbook, export.processes, export.flows);
+	static void write(ResultExport export,
+			ContributionResultProvider<?> result) {
+		new ProcessFlowContributionSheet(export, result)
+				.write(export.workbook, export.processes, export.flows);
 	}
 
-	private ProcessFlowContributionSheet(ResultExport export) {
-		super(export.writer, ResultExport.PROCESS_HEADER, ResultExport.FLOW_HEADER);
+	private ProcessFlowContributionSheet(ResultExport export,
+			ContributionResultProvider<?> result) {
+		super(export.writer, ResultExport.PROCESS_HEADER,
+				ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
-		this.result = export.result;
+		this.result = result;
 	}
 
-	private void write(Workbook workbook, List<ProcessDescriptor> processes, List<FlowDescriptor> flows) {
+	private void write(Workbook workbook, List<ProcessDescriptor> processes,
+			List<FlowDescriptor> flows) {
 		Sheet sheet = workbook.createSheet("Process flow contributions");
 		header(sheet);
 		subHeaders(sheet, processes, flows);
@@ -37,7 +43,8 @@ class ProcessFlowContributionSheet extends ContributionSheet<ProcessDescriptor, 
 	}
 
 	@Override
-	protected void subHeaderCol(ProcessDescriptor process, Sheet sheet, int col) {
+	protected void subHeaderCol(ProcessDescriptor process, Sheet sheet,
+			int col) {
 		writer.processCol(sheet, 1, col, process);
 	}
 

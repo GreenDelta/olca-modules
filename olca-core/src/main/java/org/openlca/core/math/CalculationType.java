@@ -2,7 +2,6 @@ package org.openlca.core.math;
 
 /**
  * The type of a calculation.
- *
  */
 public enum CalculationType {
 	/**

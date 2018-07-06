@@ -8,14 +8,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.core.results.SimpleResultProvider;
 import org.openlca.io.xls.results.CellWriter;
 
 class InventorySheet {
 
 	private final CellWriter writer;
 	private final Workbook workbook;
-	private final ContributionResultProvider<?> result;
+	private final SimpleResultProvider<?> result;
 	private final DQResult dqResult;
 	private final List<FlowDescriptor> flows;
 	private Sheet sheet;
@@ -57,7 +57,8 @@ class InventorySheet {
 		writer.cell(sheet, row, col++, "Result", true);
 		if (dqResult == null || dqResult.setup.exchangeDqSystem == null)
 			return col + 1;
-		col = writer.dataQualityHeader(sheet, row, col, dqResult.setup.exchangeDqSystem);
+		col = writer.dataQualityHeader(sheet, row, col,
+				dqResult.setup.exchangeDqSystem);
 		return col + 1;
 	}
 
@@ -75,7 +76,8 @@ class InventorySheet {
 			RoundingMode rounding = dqResult.setup.roundingMode;
 			int scores = dqResult.setup.exchangeDqSystem.getScoreCount();
 			double[] quality = dqResult.get(flow);
-			writer.dataQuality(sheet, row++, resultStartCol + col + 1, quality, rounding, scores);
+			writer.dataQuality(sheet, row++, resultStartCol + col + 1, quality,
+					rounding, scores);
 		}
 	}
 

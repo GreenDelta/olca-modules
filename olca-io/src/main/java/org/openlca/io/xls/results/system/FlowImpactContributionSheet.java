@@ -9,22 +9,28 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionResultProvider;
 import org.openlca.io.xls.results.CellWriter;
 
-class FlowImpactContributionSheet extends ContributionSheet<FlowDescriptor, ImpactCategoryDescriptor> {
+class FlowImpactContributionSheet
+		extends ContributionSheet<FlowDescriptor, ImpactCategoryDescriptor> {
 
 	private final CellWriter writer;
 	private final ContributionResultProvider<?> result;
 
-	static void write(ResultExport export) {
-		new FlowImpactContributionSheet(export).write(export.workbook, export.flows, export.impacts);
+	static void write(ResultExport export,
+			ContributionResultProvider<?> result) {
+		new FlowImpactContributionSheet(export, result)
+				.write(export.workbook, export.flows, export.impacts);
 	}
 
-	private FlowImpactContributionSheet(ResultExport export) {
-		super(export.writer, ResultExport.FLOW_HEADER, ResultExport.IMPACT_HEADER);
+	private FlowImpactContributionSheet(ResultExport export,
+			ContributionResultProvider<?> result) {
+		super(export.writer, ResultExport.FLOW_HEADER,
+				ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
-		this.result = export.result;
+		this.result = result;
 	}
 
-	private void write(Workbook workbook, List<FlowDescriptor> flows, List<ImpactCategoryDescriptor> impacts) {
+	private void write(Workbook workbook, List<FlowDescriptor> flows,
+			List<ImpactCategoryDescriptor> impacts) {
 		Sheet sheet = workbook.createSheet("Flow impact contributions");
 		header(sheet);
 		subHeaders(sheet, flows, impacts);
@@ -32,7 +38,8 @@ class FlowImpactContributionSheet extends ContributionSheet<FlowDescriptor, Impa
 	}
 
 	@Override
-	protected double getValue(FlowDescriptor flow, ImpactCategoryDescriptor impact) {
+	protected double getValue(FlowDescriptor flow,
+			ImpactCategoryDescriptor impact) {
 		return result.getFlowContributions(impact).getContribution(flow).amount;
 	}
 
@@ -42,7 +49,8 @@ class FlowImpactContributionSheet extends ContributionSheet<FlowDescriptor, Impa
 	}
 
 	@Override
-	protected void subHeaderRow(ImpactCategoryDescriptor impact, Sheet sheet, int row) {
+	protected void subHeaderRow(ImpactCategoryDescriptor impact, Sheet sheet,
+			int row) {
 		writer.impactRow(sheet, row, 1, impact);
 	}
 
