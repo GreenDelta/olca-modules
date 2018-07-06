@@ -8,6 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.Calculator;
+import org.openlca.ipc.handlers.ExportHandler;
 import org.openlca.ipc.handlers.HandlerContext;
 import org.openlca.ipc.handlers.ModelHandler;
 import org.openlca.ipc.handlers.RuntimeHandler;
@@ -36,6 +37,7 @@ public class Server extends NanoHTTPD {
 		register(new Calculator(context));
 		register(new CacheHandler(cache));
 		register(new RuntimeHandler(context));
+		register(new ExportHandler(context));
 		return this;
 	}
 
@@ -56,7 +58,8 @@ public class Server extends NanoHTTPD {
 	public void register(Object handler) {
 		if (handler == null)
 			return;
-		log.info("Register @Rpc methods from instance of {}", handler.getClass());
+		log.info("Register @Rpc methods from instance of {}",
+				handler.getClass());
 		try {
 			String errorTemplate = "Cannot register method for {}: it must take an"
 					+ "RpcRequest parameter and return an RpcResponse";
@@ -96,7 +99,8 @@ public class Server extends NanoHTTPD {
 			Map<String, String> content = new HashMap<>();
 			session.parseBody(content);
 			Gson gson = new Gson();
-			RpcRequest req = gson.fromJson(content.get("postData"), RpcRequest.class);
+			RpcRequest req = gson.fromJson(content.get("postData"),
+					RpcRequest.class);
 			log.trace("handle request {}/{}", req.id, req.method);
 			RpcResponse resp = getResponse(req);
 			return serve(resp);
