@@ -146,7 +146,7 @@ public class Calculator {
 			}
 			String id = UUID.randomUUID().toString();
 			log.info("encode and cache result {}", id);
-			context.cache.put(id, r);
+			context.cache.put(id, CachedResult.of(setup, r));
 			JsonObject result = JsonRpc.encode(r, id, db);
 			return Responses.ok(result, req);
 		} catch (Exception e) {

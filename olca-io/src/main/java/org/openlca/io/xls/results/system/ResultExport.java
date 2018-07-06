@@ -21,8 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class ResultExport implements Runnable {
 
-	private final static Logger log = LoggerFactory
-			.getLogger(ResultExport.class);
+	private final Logger log = LoggerFactory.getLogger(ResultExport.class);
 	static final String[] FLOW_HEADER = { "Flow UUID", "Flow", "Category",
 			"Sub-category", "Unit" };
 	static final String[] PROCESS_HEADER = { "Process UUID", "Process",
@@ -43,7 +42,7 @@ public class ResultExport implements Runnable {
 	CellWriter writer;
 
 	public ResultExport(CalculationSetup setup, SimpleResultProvider<?> result,
-			DQResult dqResult, File file) {
+			File file) {
 		this.setup = setup;
 		this.result = result;
 		this.file = file;

@@ -36,12 +36,17 @@ public class Responses {
 		return response;
 	}
 
-	public static RpcResponse badRequest(String message,  RpcRequest req) {
+	public static RpcResponse badRequest(String message, RpcRequest req) {
 		return error(400, message, req);
 	}
 
 	public static RpcResponse notFound(String message, RpcRequest req) {
 		return error(404, message, req);
+	}
+
+	public static RpcResponse internalServerError(String message,
+			RpcRequest req) {
+		return error(500, message, req);
 	}
 
 	public static RpcResponse notImplemented(String message, RpcRequest req) {
