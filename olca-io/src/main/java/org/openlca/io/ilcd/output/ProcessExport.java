@@ -156,7 +156,8 @@ public class ProcessExport {
 
 	private List<Parameter> makeParameters() {
 		log.trace("Create process parameters.");
-		ProcessParameterConversion conv = new ProcessParameterConversion(config);
+		ProcessParameterConversion conv = new ProcessParameterConversion(
+				config);
 		return conv.run(process);
 	}
 
@@ -239,22 +240,20 @@ public class ProcessExport {
 	private List<Review> makeReviews() {
 		log.trace("Create process reviews.");
 		List<Review> reviews = new ArrayList<>();
-		if (doc != null && doc.getReviewer() != null
-				|| doc.getReviewDetails() != null) {
-
-			Review review = new Review();
-			reviews.add(review);
-			review.type = ReviewType.NOT_REVIEWED;
-
-			if (doc.getReviewer() != null) {
-				Ref ref = ExportDispatch.forwardExportCheck(
-						doc.getReviewer(), config);
-				if (ref != null)
-					review.reviewers.add(ref);
-			}
-
-			s(review.details, doc.getReviewDetails());
+		if (doc == null)
+			return reviews;
+		if (doc.getReviewer() == null && doc.getReviewDetails() == null)
+			return reviews;
+		Review review = new Review();
+		reviews.add(review);
+		review.type = ReviewType.NOT_REVIEWED;
+		if (doc.getReviewer() != null) {
+			Ref ref = ExportDispatch.forwardExportCheck(
+					doc.getReviewer(), config);
+			if (ref != null)
+				review.reviewers.add(ref);
 		}
+		s(review.details, doc.getReviewDetails());
 		return reviews;
 	}
 
@@ -277,7 +276,6 @@ public class ProcessExport {
 		if (Strings.nullOrEmpty(val))
 			return;
 		LangString.set(list, val, config.lang);
-
 	}
 
 }
