@@ -13,6 +13,7 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.core.results.FullResultProvider;
 import org.openlca.core.results.SimpleResultProvider;
 import org.openlca.io.xls.results.CellWriter;
 import org.openlca.io.xls.results.InfoSheet;
@@ -64,6 +65,7 @@ public class ResultExport implements Runnable {
 				ImpactSheet.write(this);
 			}
 			writeContributionSheets();
+			writeUpstreamSheets();
 			success = true;
 			try (FileOutputStream stream = new FileOutputStream(file)) {
 				workbook.write(stream);
@@ -82,6 +84,16 @@ public class ResultExport implements Runnable {
 		if (cons.hasImpactResults()) {
 			ProcessImpactContributionSheet.write(this, cons);
 			FlowImpactContributionSheet.write(this, cons);
+		}
+	}
+
+	private void writeUpstreamSheets() {
+		if (!(result instanceof FullResultProvider))
+			return;
+		FullResultProvider r = (FullResultProvider) result;
+		ProcessFlowUpstreamSheet.write(this, r);
+		if (r.hasImpactResults()) {
+			ProcessImpactUpstreamSheet.write(this, r);
 		}
 	}
 
