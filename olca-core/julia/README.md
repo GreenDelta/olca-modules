@@ -62,3 +62,25 @@ libsuitesparseconfig.dll
 libumfpack.dll
 libwinpthread-1.dll
 ```
+
+### Linux
+Use `ldd`
+
+```
+-> libopenblas64_.so
+   -> libgfortran.so.4 
+   -> libquadmath.so.0
+   -> libgcc_s.so.1
+-> libumfpack.so
+   -> libcholmod.so
+   -> libcolamd.so
+   -> libamd.so
+   -> libsuitesparseconfig.so
+   -> libopenblas64_.so.0
+   -> libstdc++.so.6
+   -> libgcc_s.so.1
+   -> libcamd.so
+   -> libccolamd.so
+   -> libgfortran.so.4
+   -> libquadmath.so.0
+```
