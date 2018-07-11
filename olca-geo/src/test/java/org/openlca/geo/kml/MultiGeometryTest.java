@@ -54,4 +54,14 @@ public class MultiGeometryTest {
 		Assert.assertNotEquals(0d, area, 0d);
 	}
 
+	@Test
+	public void intersectBothPolygonsV22() throws Exception {
+		String kml = Tests.getKml("multipolygon_v2.2.kml");
+		KmlFeature feature = KmlFeature.parse(kml);
+		Geometry multi = feature.geometry;
+		Geometry both = Tests.createPolygon(COORDS_OVERLAP_BOTH_POLYGONS);
+		double area = multi.intersection(both).getArea();
+		Assert.assertNotEquals(0d, area, 0d);
+	}
+
 }

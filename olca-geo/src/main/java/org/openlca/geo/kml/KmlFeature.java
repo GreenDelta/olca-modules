@@ -4,7 +4,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.geotools.kml.KMLConfiguration;
+import org.geotools.kml.v22.KMLConfiguration;
 import org.geotools.xml.Parser;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
