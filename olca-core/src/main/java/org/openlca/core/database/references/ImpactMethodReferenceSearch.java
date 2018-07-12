@@ -2,7 +2,6 @@ package org.openlca.core.database.references;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,8 +17,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
-public class ImpactMethodReferenceSearch extends
-		BaseReferenceSearch<ImpactMethodDescriptor> {
+public class ImpactMethodReferenceSearch extends BaseParametrizedReferenceSearch<ImpactMethodDescriptor> {
 
 	private final static Ref[] references = {
 			new Ref(Category.class, "category", "f_category", true),
@@ -34,8 +32,9 @@ public class ImpactMethodReferenceSearch extends
 			new Ref(Unit.class, "unit", ImpactFactor.class, "impactFactors", "f_unit")
 	};
 	private final static Ref[] propertyFactorReferences = {
-		new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor", "f_flow_property") 
-};
+			new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor",
+					"f_flow_property")
+	};
 
 	public ImpactMethodReferenceSearch(IDatabase database, boolean includeOptional) {
 		super(database, ImpactMethod.class, includeOptional);
@@ -47,7 +46,7 @@ public class ImpactMethodReferenceSearch extends
 		results.addAll(findReferences("tbl_impact_methods", "id", ids,
 				references));
 		results.addAll(findFactorReferences(ids));
-		results.addAll(findGlobalParameters(ids, getFactorFormulas(ids)));
+		results.addAll(findParameters(ids, getFactorFormulas(ids)));
 		return results;
 	}
 
@@ -85,10 +84,10 @@ public class ImpactMethodReferenceSearch extends
 		for (String query : queries) {
 			Search.on(database, null).query(query.toString(), (result) -> {
 				long methodId = result.getLong(1);
-				Set<String> set = formulas.get(methodId);
-				if (set == null)
-					formulas.put(methodId, set = new HashSet<>());
-				set.add(result.getString(2));
+				String formula = result.getString(2);
+				if (formula != null && !formula.trim().isEmpty()) {
+					put(methodId, formula, formulas);
+				}
 			});
 		}
 		return formulas;

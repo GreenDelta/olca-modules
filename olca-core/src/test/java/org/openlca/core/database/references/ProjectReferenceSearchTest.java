@@ -1,5 +1,8 @@
 package org.openlca.core.database.references;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
@@ -18,6 +21,8 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
 public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
+
+	private Map<String, Parameter> parameters = new HashMap<>();
 
 	@Override
 	protected ModelType getModelType() {
@@ -40,32 +45,31 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
 		project.getVariants().add(
-				createProjectVariant(n1, n2, n3, project.getImpactMethodId(),
-						true));
+				createProjectVariant(n1, n2, n3, project.getImpactMethodId()));
 		project.getVariants().add(
-				createProjectVariant(n1, n2, n3, project.getImpactMethodId(),
-						false));
+				createProjectVariant(n1, n2, n3, project.getImpactMethodId()));
 		project = Tests.insert(project);
-		for (ProjectVariant variant : project.getVariants()) {
-			addExpected("productSystem", variant.getProductSystem(),
-					"variants", ProjectVariant.class, variant.getId());
-			addExpected("unit", variant.getUnit(), "variants",
-					ProjectVariant.class, variant.getId());
-			addExpected("flowPropertyFactor", variant.getFlowPropertyFactor(),
-					"variants", ProjectVariant.class, variant.getId());
+		for (ProjectVariant v : project.getVariants()) {
+			addExpected("productSystem", v.getProductSystem(), "variants", ProjectVariant.class, v.getId());
+			addExpected("unit", v.getUnit(), "variants", ProjectVariant.class, v.getId());
+			addExpected("flowPropertyFactor", v.getFlowPropertyFactor(), "variants", ProjectVariant.class, v.getId());
+			for (ParameterRedef p : v.getParameterRedefs()) {
+				if (p.getContextType() == null) {
+					addExpected(p.getName(), parameters.get(p.getName()), "variants", ProjectVariant.class, v.getId());
+				}
+			}
 		}
 		return project;
 	}
 
 	private ProjectVariant createProjectVariant(String p1Name, String p2Name,
-			String p3Name, long methodId, boolean createParameters) {
+			String p3Name, long methodId) {
 		ProjectVariant variant = new ProjectVariant();
 		variant.setProductSystem(Tests.insert(new ProductSystem()));
 		variant.getParameterRedefs().add(
-				createParameterRedef(p1Name, methodId, createParameters));
-		// formula with parameter to see if added as reference (unexpected)
+				createParameterRedef(p1Name, methodId));
 		variant.getParameterRedefs().add(
-				createParameterRedef(p2Name, p3Name + "*5", createParameters));
+				createParameterRedef(p2Name, p3Name + "*5"));
 		FlowPropertyFactor factor = new FlowPropertyFactor();
 		factor.setFlowProperty(Tests.insert(new FlowProperty()));
 		variant.setFlowPropertyFactor(factor);
@@ -83,17 +87,19 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 		return variant;
 	}
 
-	private ParameterRedef createParameterRedef(String name,
-			Object contextOrValue, boolean createParameter) {
+	private ParameterRedef createParameterRedef(String name, Object contextOrValue) {
 		ParameterRedef redef = new ParameterRedef();
 		redef.setName(name);
 		redef.setValue(1d);
 		if (contextOrValue instanceof Long) {
 			redef.setContextType(ModelType.IMPACT_METHOD);
 			redef.setContextId((long) contextOrValue);
-		} else if (contextOrValue instanceof String && createParameter)
-			insertAndAddExpected("parameterRedefs",
-					createParameter(name, contextOrValue.toString(), true));
+		} else {
+			if (!parameters.containsKey(name)) {
+				Parameter parameter = createParameter(name, contextOrValue.toString(), true);
+				parameters.put(name, Tests.insert(parameter));
+			}
+		}
 		return redef;
 	}
 
