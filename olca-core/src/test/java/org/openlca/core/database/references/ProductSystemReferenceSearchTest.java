@@ -29,10 +29,10 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		system.setCategory(insertAndAddExpected("category", new Category()));
 		system.referenceProcess = createProcess();
 		system.referenceExchange = system.referenceProcess.getExchanges()
-		.get(0);
+				.get(0);
 		system.targetFlowPropertyFactor = system.referenceExchange.flowPropertyFactor;
 		system.targetUnit = system.targetFlowPropertyFactor
-		.getFlowProperty().getUnitGroup().getUnits().get(0);
+				.getFlowProperty().getUnitGroup().getUnits().get(0);
 		system.processes.add(system.referenceProcess.getId());
 		Process p1 = insertAndAddExpected("processes", new Process());
 		Process p2 = insertAndAddExpected("processes", new Process());
@@ -107,8 +107,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		return link;
 	}
 
-	private ParameterRedef createParameterRedef(String name,
-			Object contextOrValue) {
+	private ParameterRedef createParameterRedef(String name, Object contextOrValue) {
 		ParameterRedef redef = new ParameterRedef();
 		redef.setName(name);
 		redef.setValue(1d);
@@ -116,8 +115,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 			redef.setContextType(ModelType.PROCESS);
 			redef.setContextId((long) contextOrValue);
 		} else if (contextOrValue instanceof String) {
-			insertAndAddExpected("parameterRedefs",
-					createParameter(name, contextOrValue.toString(), true));
+			insertAndAddExpected(name, createParameter(name, contextOrValue.toString(), true));
 		}
 		return redef;
 	}

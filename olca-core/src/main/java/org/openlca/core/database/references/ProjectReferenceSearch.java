@@ -17,8 +17,7 @@ import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProjectDescriptor;
 
-public class ProjectReferenceSearch extends
-		BaseReferenceSearch<ProjectDescriptor> {
+public class ProjectReferenceSearch extends BaseParametrizedReferenceSearch<ProjectDescriptor> {
 
 	private final static Ref[] references = { 
 		new Ref(Category.class, "category", "f_category", true), 
@@ -51,7 +50,7 @@ public class ProjectReferenceSearch extends
 						ProjectVariant.class, "id", "id") }));
 		results.addAll(findReferences("tbl_project_variants", "id",
 				variants.keySet(), variants, variantReferences));
-		results.addAll(findGlobalParameterRedefs(variants.keySet(), variants));
+		results.addAll(findParameterRedefs(variants.keySet(), variants, ProjectVariant.class, "variants"));
 		return results;
 	}
 

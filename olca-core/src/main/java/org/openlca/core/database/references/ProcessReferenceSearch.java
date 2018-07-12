@@ -2,7 +2,6 @@ package org.openlca.core.database.references;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,8 +25,7 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class ProcessReferenceSearch extends
-		BaseReferenceSearch<ProcessDescriptor> {
+public class ProcessReferenceSearch extends BaseParametrizedReferenceSearch<ProcessDescriptor> {
 
 	private final static Ref[] references = {
 			new Ref(Category.class, "category", "f_category", true),
@@ -46,7 +44,8 @@ public class ProcessReferenceSearch extends
 			new Ref(Process.class, "defaultProviderId", Exchange.class, "exchanges", "f_default_provider", true, true)
 	};
 	private final static Ref[] factorReferences = {
-			new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor", "f_flow_property") 
+			new Ref(FlowProperty.class, "flowProperty", FlowPropertyFactor.class, "flowPropertyFactor",
+					"f_flow_property")
 	};
 	private final static Ref[] socialAspectReferences = {
 			new Ref(SocialIndicator.class, "indicator", SocialAspect.class, "socialAspects", "f_indicator", false),
@@ -78,7 +77,7 @@ public class ProcessReferenceSearch extends
 		results.addAll(findExchangeReferences(ids));
 		results.addAll(findSocialAspectReferences(ids));
 		results.addAll(findDocumentationReferences(docIds));
-		results.addAll(findGlobalParameters(ids, getExchangeFormulas(ids)));
+		results.addAll(findParameters(ids, getExchangeFormulas(ids)));
 		return results;
 	}
 
@@ -89,7 +88,7 @@ public class ProcessReferenceSearch extends
 				exchanges, exchangeReferences);
 		List<Reference> factors = new ArrayList<>();
 		for (Reference ref : references) {
-			if (ref.getType() != FlowPropertyFactor.class) 
+			if (ref.getType() != FlowPropertyFactor.class)
 				continue;
 			factors.add(ref);
 		}
@@ -123,17 +122,14 @@ public class ProcessReferenceSearch extends
 		for (String query : queries) {
 			Search.on(database, null).query(query.toString(), (result) -> {
 				long methodId = result.getLong(1);
-				Set<String> set = formulas.get(methodId);
-				if (set == null)
-					formulas.put(methodId, set = new HashSet<>());
 				String amountFormula = result.getString(2);
-				if (amountFormula != null && !amountFormula.isEmpty()) {
-					set.add(amountFormula);
+				if (amountFormula != null && !amountFormula.trim().isEmpty()) {
+					put(methodId, amountFormula, formulas);
 				}
 				String costFormula = result.getString(3);
-				if (costFormula != null && !costFormula.isEmpty()) {
-					set.add(costFormula);
-				}				
+				if (costFormula != null && !costFormula.trim().isEmpty()) {
+					put(methodId, costFormula, formulas);
+				}
 			});
 		}
 		return formulas;

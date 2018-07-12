@@ -17,7 +17,7 @@ import org.openlca.util.Formula;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ParameterReferenceSearch extends BaseReferenceSearch<ParameterDescriptor> {
+public class ParameterReferenceSearch extends BaseParametrizedReferenceSearch<ParameterDescriptor> {
 
 	private final static Logger log = LoggerFactory.getLogger(ParameterReferenceSearch.class);
 
@@ -42,31 +42,31 @@ public class ParameterReferenceSearch extends BaseReferenceSearch<ParameterDescr
 				, "WHERE id IN", ids);
 		Map<Long, Set<String>> variables = getVariablesUsedInFormulas(formulaQueries);
 		Set<String> names = new HashSet<>();
-		for (Set<String> n : variables.values())
-			names.addAll(n);
+		for (Long key : variables.keySet())
+			names.addAll(variables.get(key));
 		List<Reference> results = new ArrayList<>();
 		List<ParameterDescriptor> descriptors = new ParameterDao(database)
 				.getDescriptors(names.toArray(new String[names.size()]),
 						ParameterScope.GLOBAL);
-		results.addAll(toReferences(descriptors, false, variables, null));
+		results.addAll(toReferences(descriptors, false, variables));
 		Set<String> found = new HashSet<>();
 		for (ParameterDescriptor d : descriptors)
 			found.add(d.getName());
 		for (String name : names)
 			if (!found.contains(name)) {
-				Reference ref = createMissingReference(name, variables);
-				if (ref != null)
-					results.add(ref);
+				List<Reference> refs = createMissingReferences(name, variables);
+				results.addAll(refs);
 			}
 		return results;
 	}
 
-	private Reference createMissingReference(String name,
+	private List<Reference> createMissingReferences(String name,
 			Map<Long, Set<String>> ownerToNames) {
+		List<Reference> refs = new ArrayList<>();
 		for (long ownerId : ownerToNames.keySet())
 			if (ownerToNames.get(ownerId).contains(name))
-				return new Reference(name, Parameter.class, 0, Parameter.class, ownerId);
-		return null;
+				refs.add(new Reference(name, Parameter.class, 0, Parameter.class, ownerId));
+		return refs;
 	}
 
 	protected Map<Long, Set<String>> getVariablesUsedInFormulas(List<String> formulaQueries) {

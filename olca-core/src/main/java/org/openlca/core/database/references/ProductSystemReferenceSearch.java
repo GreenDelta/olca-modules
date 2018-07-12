@@ -14,8 +14,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
-public class ProductSystemReferenceSearch extends
-		BaseReferenceSearch<ProductSystemDescriptor> {
+public class ProductSystemReferenceSearch extends BaseParametrizedReferenceSearch<ProductSystemDescriptor> {
 
 	private final static Ref[] references = { 
 		// don't include reference process, because it is also included in 
@@ -44,7 +43,7 @@ public class ProductSystemReferenceSearch extends
 				references));
 		results.addAll(findProcesses(ids));
 		results.addAll(findFlows(ids));
-		results.addAll(findGlobalParameterRedefs(ids));
+		results.addAll(findParameterRedefs(ids));
 		return results;
 	}
 	

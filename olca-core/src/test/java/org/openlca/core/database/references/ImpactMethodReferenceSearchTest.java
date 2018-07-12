@@ -32,9 +32,9 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		String n5 = generateName();
 		method.parameters.add(createParameter(n1, 3d, false));
 		method.parameters.add(createParameter(n2, n1 + "*2*" + n3, false));
-		insertAndAddExpected(null, createParameter(n3, "5*5", true));
+		insertAndAddExpected(n3, createParameter(n3, "5*5", true));
 		// formula with parameter to see if added as reference (unexpected)
-		insertAndAddExpected(null, createParameter(n4, "3*" + n5, true));
+		insertAndAddExpected(n4, createParameter(n4, "3*" + n5, true));
 		Parameter globalUnreferenced = createParameter(n1, "3*3", true);
 		Parameter globalUnreferenced2 = createParameter(n5, "3*3", true);
 		// must be inserted manually
