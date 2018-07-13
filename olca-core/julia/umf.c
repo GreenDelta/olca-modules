@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <jni.h>
 
 // from https://github.com/PetterS/SuiteSparse/blob/master/UMFPACK/Include/umfpack.h
@@ -73,21 +74,15 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolve(
     (*env)->ReleaseDoubleArrayElements(env, result, resultPtr, 0);
 }
 
-struct UmfFactorizedMatrix
+typedef struct
 {
-
-    jintArray *columnPointers;
-    jint *columnPointersPtr;
-
-    jintArray *rowIndices;
-    jint *rowIndicesPtr;
-
-    jdoubleArray *values;
-    jdouble *valuesPtr;
-
+    jint *columnPointers;
+    jint *rowIndices;
+    jdouble *values;
     void *Numeric;
-};
+} UmfFactorizedMatrix;
 
+// umfFactorize
 JNIEXPORT jlong JNICALL Java_org_openlca_julia_Julia_umfFactorize(
     JNIEnv *env, jclass jclazz,
     jint n,
@@ -96,17 +91,34 @@ JNIEXPORT jlong JNICALL Java_org_openlca_julia_Julia_umfFactorize(
     jdoubleArray values)
 {
 
-    // TODO: create a copy of matrix data and release the original data to the
-    // JVM (see the dispose function below)
-    struct UmfFactorizedMatrix *fm = malloc(sizeof(struct UmfFactorizedMatrix));
-    fm->columnPointers = &columnPointers;
-    fm->columnPointersPtr = (*env)->GetIntArrayElements(env, columnPointers, NULL);
+    UmfFactorizedMatrix *fm = malloc(sizeof(UmfFactorizedMatrix));
 
-    fm->rowIndices = &rowIndices;
-    fm->rowIndicesPtr = (*env)->GetIntArrayElements(env, rowIndices, NULL);
+    jsize numElems = 0;
+    size_t numBytes = 0;
 
-    fm->values = &values;
-    fm->valuesPtr = (*env)->GetDoubleArrayElements(env, values, NULL);
+    // copy column pointers
+    numElems = (*env)->GetArrayLength(env, columnPointers);
+    numBytes = numElems * sizeof(jint);
+    jint *rawColPointers = (*env)->GetIntArrayElements(env, columnPointers, NULL);
+    fm->columnPointers = malloc(numBytes);
+    memcpy(fm->columnPointers, rawColPointers, numBytes);
+    (*env)->ReleaseIntArrayElements(env, columnPointers, rawColPointers, 0);
+
+    // copy row indices
+    numElems = (*env)->GetArrayLength(env, rowIndices);
+    numBytes = numElems * sizeof(jint);
+    jint *rawRowIndices = (*env)->GetIntArrayElements(env, rowIndices, NULL);
+    fm->rowIndices = malloc(numBytes);
+    memcpy(fm->rowIndices, rawRowIndices, numBytes);
+    (*env)->ReleaseIntArrayElements(env, rowIndices, rawRowIndices, 0);
+
+    // copy values
+    numElems = (*env)->GetArrayLength(env, values);
+    numBytes = numElems * sizeof(jdouble);
+    jdouble *rawValues = (*env)->GetDoubleArrayElements(env, values, NULL);
+    fm->values = malloc(numBytes);
+    memcpy(fm->values, rawValues, numBytes);
+    (*env)->ReleaseDoubleArrayElements(env, values, rawValues, 0);
 
     double *null = (double *)NULL;
     void *Symbolic, *Numeric;
@@ -114,16 +126,16 @@ JNIEXPORT jlong JNICALL Java_org_openlca_julia_Julia_umfFactorize(
     umfpack_di_symbolic(
         n,
         n,
-        fm->columnPointersPtr,
-        fm->rowIndicesPtr,
-        fm->valuesPtr,
+        fm->columnPointers,
+        fm->rowIndices,
+        fm->values,
         &Symbolic,
         null, null);
 
     umfpack_di_numeric(
-        fm->columnPointersPtr,
-        fm->rowIndicesPtr,
-        fm->valuesPtr,
+        fm->columnPointers,
+        fm->rowIndices,
+        fm->values,
         Symbolic,
         &Numeric,
         null, null);
@@ -134,6 +146,7 @@ JNIEXPORT jlong JNICALL Java_org_openlca_julia_Julia_umfFactorize(
     return (jlong)fm;
 }
 
+// umfSolveFactorized
 JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolveFactorized(
     JNIEnv *env, jclass jclazz, jlong pointer,
     jdoubleArray demand, jdoubleArray result)
@@ -142,14 +155,14 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolveFactorized(
     jdouble *demandPtr = (*env)->GetDoubleArrayElements(env, demand, NULL);
     jdouble *resultPtr = (*env)->GetDoubleArrayElements(env, result, NULL);
 
-    struct UmfFactorizedMatrix *fm = (void *)pointer;
+    UmfFactorizedMatrix *fm = (void *)pointer;
 
     double *null = (double *)NULL;
     umfpack_di_solve(
         UMFPACK_A,
-        fm->columnPointersPtr,
-        fm->rowIndicesPtr,
-        fm->valuesPtr,
+        fm->columnPointers,
+        fm->rowIndices,
+        fm->values,
         resultPtr,
         demandPtr,
         fm->Numeric,
@@ -159,15 +172,14 @@ JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfSolveFactorized(
     (*env)->ReleaseDoubleArrayElements(env, result, resultPtr, 0);
 }
 
-// TODO: releasing the values vector leads to a crash because it contains the
-// factorized matrix which does not match the original array anymore
+// umfDispose
 JNIEXPORT void JNICALL Java_org_openlca_julia_Julia_umfDispose(
     JNIEnv *env, jclass jclazz, jlong pointer)
 {
-    struct UmfFactorizedMatrix *fm = (void *)pointer;
-    (*env)->ReleaseIntArrayElements(env, *(fm->columnPointers), fm->columnPointersPtr, 0);
-    (*env)->ReleaseIntArrayElements(env, *(fm->rowIndices), fm->rowIndicesPtr, 0);
-    (*env)->ReleaseDoubleArrayElements(env, *(fm->values), fm->valuesPtr, 0);
+    UmfFactorizedMatrix *fm = (void *)pointer;
+    free(fm->columnPointers);
+    free(fm->rowIndices);
+    free(fm->values);
     umfpack_di_free_numeric(&(fm->Numeric));
     free(fm);
 }
