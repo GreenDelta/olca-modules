@@ -5,7 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import java.util.function.Consumer;
 
 import org.openlca.core.database.IDatabase;
@@ -22,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 public class JsonImport implements Runnable {
-	
+
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private IDatabase database;
 	private EntityStore store;
@@ -147,15 +150,36 @@ public class JsonImport implements Runnable {
 	}
 
 	private void setProviders(ImportConfig conf) throws SQLException {
+		log.debug("Preparing to set providers");
+		if (conf.providerInfo.isEmpty())
+			return;
 		Map<String, Long> refIdToId = new HashMap<>();
 		Map<Long, String> idToRefId = new HashMap<>();
 		for (ProcessDescriptor p : new ProcessDao(database).getDescriptors()) {
 			refIdToId.put(p.getRefId(), p.getId());
 			idToRefId.put(p.getId(), p.getRefId());
 		}
+		Stack<Long> owners = new Stack<>();
+		for (String refId : conf.providerInfo.keySet()) {
+			if (conf.providerInfo.get(refId).isEmpty())
+				continue;
+			owners.add(refIdToId.get(refId));
+		}
+		Set<Long> next = new HashSet<>();
+		while (!owners.isEmpty()) {
+			next.add(owners.pop());
+			if (next.size() == 1000 || owners.isEmpty()) {
+				setProviders(conf, next, refIdToId, idToRefId);
+			}
+		}
+	}
+
+	private void setProviders(ImportConfig conf, Set<Long> ids, Map<String, Long> refIdToId, Map<Long, String> idToRefId)
+			throws SQLException {
+		log.debug("Setting next " + ids.size() + " providers");
 		Connection con = database.createConnection();
 		Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-		ResultSet rs = stmt.executeQuery("SELECT * FROM tbl_exchanges");
+		ResultSet rs = stmt.executeQuery(createProvidersQuery(ids));
 		while (rs.next()) {
 			long ownerId = rs.getLong("f_owner");
 			String ownerRefId = idToRefId.get(ownerId);
@@ -181,7 +205,17 @@ public class JsonImport implements Runnable {
 		con.commit();
 		con.close();
 	}
-	
+
+	private String createProvidersQuery(Set<Long> ids) {
+		String query = "SELECT f_owner, internal_id, f_default_provider FROM tbl_exchanges WHERE f_owner IN (";
+		for (long id : ids) {
+			if (!query.endsWith("(")) {
+				query += ",";
+			}
+			query += id;
+		}
+		return query += ")";
+	}
 
 	private void checkSchemaSupported() {
 		JsonObject context = store.getContext();
