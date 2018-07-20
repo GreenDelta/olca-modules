@@ -225,7 +225,7 @@
    </xs:complexType>
    <xs:complexType name="ConnectionsType">
       <xs:sequence>
-         <xs:element ref="outputExchange" minOccurs="0"/>
+         <xs:element ref="outputExchange" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:anyAttribute namespace="##other" processContents="lax"/>
    </xs:complexType>
