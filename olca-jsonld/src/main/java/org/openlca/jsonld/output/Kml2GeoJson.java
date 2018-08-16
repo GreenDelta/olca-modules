@@ -136,6 +136,8 @@ public class Kml2GeoJson {
 					innerBoundary = readLineString(events);
 				boundaryType = 0;
 			}
+			if (isEndElement(event, "Polygon")) 
+				break;
 		}
 		JsonArray coordinates = new JsonArray();
 		polygon.add("coordinates", coordinates);
@@ -152,11 +154,11 @@ public class Kml2GeoJson {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", "GeometryCollection");
 		JsonArray geometries = new JsonArray();
-		obj.add("geometries", geometries);
 		JsonObject geo;
 		while ((geo = readGeometry(events)) != null) {
 			geometries.add(geo);
 		}
+		obj.add("geometries", geometries);
 		return obj;
 	}
 
