@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import com.google.common.base.Strings;
+import org.openlca.util.Strings;
 
 /**
  * Represents the uncertainty distributions supported by openLCA. Three fields
@@ -257,7 +257,7 @@ public class Uncertainty {
 	}
 
 	public static Uncertainty fromString(String s) {
-		if (Strings.isNullOrEmpty(s)) {
+		if (Strings.nullOrEmpty(s)) {
 			Uncertainty u = new Uncertainty();
 			u.distributionType = UncertaintyType.NONE;
 			return u;
@@ -298,7 +298,7 @@ public class Uncertainty {
 	}
 
 	private static Double d(String s) {
-		if (Strings.isNullOrEmpty(s))
+		if (Strings.nullOrEmpty(s))
 			return null;
 		try {
 			return Double.parseDouble(s);

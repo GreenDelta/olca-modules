@@ -2,6 +2,7 @@ package org.openlca.core.database;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -10,8 +11,6 @@ import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
-
-import com.google.common.base.Optional;
 
 public class CategorizedEntityDao<T extends CategorizedEntity, V extends CategorizedDescriptor>
 		extends RootEntityDao<T, V> {
@@ -50,7 +49,8 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 				"last_change", "f_category" };
 	}
 
-	public CategorizedDescriptor updateCategory(CategorizedDescriptor model, Optional<Category> category) {
+	public CategorizedDescriptor updateCategory(CategorizedDescriptor model,
+			Optional<Category> category) {
 		Version v = new Version(model.getVersion());
 		v.incUpdate();
 		long version = v.getValue();
@@ -62,7 +62,8 @@ public class CategorizedEntityDao<T extends CategorizedEntity, V extends Categor
 		EntityManager em = createManager();
 		TypedQuery<?> query = em.createQuery(jpql, entityType);
 		query.setParameter("id", model.getId());
-		query.setParameter("category", category.isPresent() ? category.get() : null);
+		query.setParameter("category",
+				category.isPresent() ? category.get() : null);
 		query.setParameter("version", version);
 		query.setParameter("lastChange", lastChange);
 		try {

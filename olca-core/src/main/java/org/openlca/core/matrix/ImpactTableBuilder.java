@@ -10,8 +10,6 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.primitives.Longs;
-
 class ImpactTableBuilder {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -61,7 +59,8 @@ class ImpactTableBuilder {
 	}
 
 	private void fill(ImpactFactorMatrix matrix, LongIndex categoryIndex) {
-		Map<Long, List<CalcImpactFactor>> factorMap = loadFactors(categoryIndex);
+		Map<Long, List<CalcImpactFactor>> factorMap = loadFactors(
+				categoryIndex);
 		for (int row = 0; row < categoryIndex.size(); row++) {
 			long categoryId = categoryIndex.getKeyAt(row);
 			List<CalcImpactFactor> factors = factorMap.get(categoryId);

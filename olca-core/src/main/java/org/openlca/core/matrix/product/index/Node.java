@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.openlca.core.matrix.LongPair;
 
-import com.google.common.primitives.Doubles;
-
 /**
  * When building a product system graph, a node represents a product output or
  * waste input of a process.
@@ -65,7 +63,7 @@ class Node implements Comparable<Node> {
 	public int compareTo(Node other) {
 		if (other == null)
 			return 0;
-		return -Doubles.compare(Math.abs(this.demand),
+		return -Double.compare(Math.abs(this.demand),
 				Math.abs(other.demand));
 	}
 }

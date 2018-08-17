@@ -7,8 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 
-import com.google.common.primitives.Longs;
-
 /**
  * This is an abstract class for everything that is identified by an ID and can
  * be stored in a database via JPA. Generally, the generation of the ID should
@@ -50,7 +48,7 @@ public abstract class AbstractEntity {
 
 	@Override
 	public int hashCode() {
-		return Longs.hashCode(getId());
+		return Long.hashCode(getId());
 	}
 
 	@Override

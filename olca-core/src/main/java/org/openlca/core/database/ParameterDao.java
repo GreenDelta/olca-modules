@@ -5,14 +5,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
 import org.openlca.util.Strings;
-
-import com.google.common.base.Optional;
 
 public class ParameterDao extends
 		CategorizedEntityDao<Parameter, ParameterDescriptor> {
@@ -39,7 +38,8 @@ public class ParameterDao extends
 	}
 
 	@Override
-	public List<ParameterDescriptor> getDescriptors(Optional<Category> category) {
+	public List<ParameterDescriptor> getDescriptors(
+			Optional<Category> category) {
 		String sql = getDescriptorQuery();
 		List<Object> parameters = new ArrayList<>();
 		if (category.isPresent()) {

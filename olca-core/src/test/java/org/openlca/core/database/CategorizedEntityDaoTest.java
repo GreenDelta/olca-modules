@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -27,8 +28,6 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
 
 public class CategorizedEntityDaoTest {
 
@@ -71,7 +70,7 @@ public class CategorizedEntityDaoTest {
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void testFindForNullCategory(
 			CategorizedEntityDao<T, V> dao, T instance) {
 		Category cat = null;
-		List<V> descriptors = dao.getDescriptors(Optional.fromNullable(cat));
+		List<V> descriptors = dao.getDescriptors(Optional.ofNullable(cat));
 		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);
@@ -92,8 +91,7 @@ public class CategorizedEntityDaoTest {
 
 	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void testGetDescriptorsForCategory(
 			CategorizedEntityDao<T, V> dao, T instance, Category category) {
-		List<V> descriptors = dao.getDescriptors(Optional
-				.fromNullable(category));
+		List<V> descriptors = dao.getDescriptors(Optional.ofNullable(category));
 		BaseDescriptor descriptor = ListUtils.findDescriptor(instance.getId(),
 				descriptors);
 		Assert.assertNotNull(descriptor);

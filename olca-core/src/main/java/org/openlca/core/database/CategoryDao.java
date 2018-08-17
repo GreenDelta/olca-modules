@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openlca.core.model.CategorizedEntity;
 import org.openlca.core.model.Category;
@@ -18,26 +19,27 @@ import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.util.Categories;
 
-import com.google.common.base.Optional;
-
-public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescriptor> {
+public class CategoryDao
+		extends CategorizedEntityDao<Category, CategoryDescriptor> {
 
 	private static Map<ModelType, String> tables;
-	
+
 	public CategoryDao(IDatabase database) {
 		super(Category.class, CategoryDescriptor.class, database);
 	}
 
 	@Override
 	protected String[] getDescriptorFields() {
-		return new String[] { "id", "ref_id", "name", "description", "version", "last_change", "f_category", "model_type" };
+		return new String[] { "id", "ref_id", "name", "description", "version",
+				"last_change", "f_category", "model_type" };
 	}
 
 	@Override
 	protected CategoryDescriptor createDescriptor(Object[] queryResult) {
 		CategoryDescriptor descriptor = super.createDescriptor(queryResult);
 		if (queryResult[7] instanceof String)
-			descriptor.setCategoryType(ModelType.valueOf((String) queryResult[7]));
+			descriptor.setCategoryType(
+					ModelType.valueOf((String) queryResult[7]));
 		return descriptor;
 	}
 
@@ -107,14 +109,16 @@ public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescript
 
 	private boolean contains(List<Category> categories, Category category) {
 		for (Category child : categories)
-			if (Categories.createRefId(child).equals(Categories.createRefId(category)))
+			if (Categories.createRefId(child)
+					.equals(Categories.createRefId(category)))
 				return true;
 		return false;
 	}
 
 	private <T extends CategorizedEntity> void updateModels(Category category) {
-		Optional<Category> optional = Optional.fromNullable(category);
-		for (CategorizedDescriptor descriptor : getDescriptors(category.getModelType(), optional)) {
+		Optional<Category> optional = Optional.ofNullable(category);
+		for (CategorizedDescriptor descriptor : getDescriptors(
+				category.getModelType(), optional)) {
 			Version v = new Version(descriptor.getVersion());
 			v.incUpdate();
 			long version = v.getValue();
@@ -123,22 +127,27 @@ public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescript
 			descriptor.setLastChange(lastChange);
 			try {
 				String update = "UPDATE " + getTable(descriptor.getModelType())
-						+ " SET version = " + version + ", last_change = " + lastChange 
+						+ " SET version = " + version + ", last_change = "
+						+ lastChange
 						+ " WHERE id = " + descriptor.getId();
 				NativeSql.on(database).runUpdate(update);
 			} catch (SQLException e) {
-				log.error("Error updating " + descriptor.getModelType().getModelClass().getSimpleName() + " "
+				log.error("Error updating "
+						+ descriptor.getModelType().getModelClass()
+								.getSimpleName()
+						+ " "
 						+ descriptor.getId(), e);
 			}
 			database.notifyUpdate(descriptor);
 		}
 	}
 
-	private String getTable(ModelType modelType)  {
+	private String getTable(ModelType modelType) {
 		if (tables == null) {
 			tables = new HashMap<>();
 			for (ModelType type : ModelType.values()) {
-				if (type.getModelClass() == null || !RootEntity.class.isAssignableFrom(type.getModelClass()))
+				if (type.getModelClass() == null || !RootEntity.class
+						.isAssignableFrom(type.getModelClass()))
 					continue;
 				String table = Daos.root(database, type).getEntityTable();
 				tables.put(type, table);
@@ -146,12 +155,13 @@ public class CategoryDao extends CategorizedEntityDao<Category, CategoryDescript
 		}
 		return tables.get(modelType);
 	}
-	
-	private <T extends CategorizedEntity> List<? extends CategorizedDescriptor> getDescriptors(ModelType type,
+
+	private <T extends CategorizedEntity> List<? extends CategorizedDescriptor> getDescriptors(
+			ModelType type,
 			Optional<Category> category) {
 		if (type == null || !type.isCategorized())
 			return new ArrayList<>();
 		return Daos.categorized(getDatabase(), type).getDescriptors(category);
 	}
-	
+
 }
