@@ -1,5 +1,8 @@
 package org.openlca.core.model;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -85,10 +88,8 @@ public class Uncertainty {
 	/**
 	 * Creates a normal distribution.
 	 *
-	 * @param mean
-	 *            the arithmetic mean.
-	 * @param sd
-	 *            the arithmetic standard deviation.
+	 * @param mean the arithmetic mean.
+	 * @param sd   the arithmetic standard deviation.
 	 */
 	public static Uncertainty normal(double mean, double sd) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -101,10 +102,8 @@ public class Uncertainty {
 	/**
 	 * Creates a log-normal distribution.
 	 *
-	 * @param gmean
-	 *            the geometric mean.
-	 * @param gsd
-	 *            the geometric standard deviation
+	 * @param gmean the geometric mean.
+	 * @param gsd   the geometric standard deviation
 	 */
 	public static Uncertainty logNormal(double gmean, double gsd) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -117,10 +116,8 @@ public class Uncertainty {
 	/**
 	 * Creates a uniform distribution.
 	 *
-	 * @param min
-	 *            the minimum.
-	 * @param max
-	 *            the maximum.
+	 * @param min the minimum.
+	 * @param max the maximum.
 	 */
 	public static Uncertainty uniform(double min, double max) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -133,12 +130,9 @@ public class Uncertainty {
 	/**
 	 * Creates a triangle distribution.
 	 *
-	 * @param min
-	 *            The minimum value.
-	 * @param mode
-	 *            The most likely value (the mode).
-	 * @param max
-	 *            The maximum value.
+	 * @param min  The minimum value.
+	 * @param mode The most likely value (the mode).
+	 * @param max  The maximum value.
 	 */
 	public static Uncertainty triangle(double min, double mode, double max) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -209,5 +203,40 @@ public class Uncertainty {
 				&& Objects.equals(this.formula1, other.formula1)
 				&& Objects.equals(this.formula2, other.formula2)
 				&& Objects.equals(this.formula3, other.formula3);
+	}
+
+	@Override
+	public String toString() {
+		if (distributionType == null)
+			return "none";
+		String template = null;
+		switch (distributionType) {
+		case NONE:
+			return "none";
+		case LOG_NORMAL:
+			template = "lognormal: gmean=%s gsigma=%s";
+			return String.format(template, str(parameter1), str(parameter2));
+		case NORMAL:
+			template = "normal: mean=%s sigma=%s";
+			return String.format(template, str(parameter1), str(parameter2));
+		case UNIFORM:
+			template = "uniform: min=%s max=%s";
+			return String.format(template, str(parameter1), str(parameter2));
+		case TRIANGLE:
+			template = "triangular: min=%s mode=%s max=%s";
+			return String.format(template, str(parameter1), str(parameter2),
+					str(parameter3));
+		default:
+			return "none";
+		}
+	}
+
+	private String str(Double number) {
+		if (number == null)
+			return "0";
+		DecimalFormat df = (DecimalFormat) NumberFormat
+				.getInstance(Locale.ENGLISH);
+		df.applyPattern("0.000E0");
+		return df.format(number);
 	}
 }
