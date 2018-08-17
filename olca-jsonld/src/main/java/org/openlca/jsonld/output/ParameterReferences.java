@@ -113,10 +113,10 @@ public class ParameterReferences {
 			return names;
 		if (u.distributionType == UncertaintyType.NONE)
 			return names;
-		names.addAll(Formula.getVariables(u.parameter1Formula));
-		names.addAll(Formula.getVariables(u.parameter2Formula));
+		names.addAll(Formula.getVariables(u.formula1));
+		names.addAll(Formula.getVariables(u.formula2));
 		if (u.distributionType == UncertaintyType.TRIANGLE)
-			names.addAll(Formula.getVariables(u.parameter3Formula));
+			names.addAll(Formula.getVariables(u.formula3));
 		return names;
 	}
 

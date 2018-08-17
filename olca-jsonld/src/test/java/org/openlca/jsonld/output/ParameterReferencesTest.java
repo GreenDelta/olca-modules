@@ -313,14 +313,14 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	private Uncertainty createUncertainty(String f1, String f2, String f3) {
 		if (f3 == null) {
 			Uncertainty u = Uncertainty.logNormal(1, 1);
-			u.parameter1Formula = f1;
-			u.parameter2Formula = f2;
+			u.formula1 = f1;
+			u.formula2 = f2;
 			return u;
 		}
 		Uncertainty u = Uncertainty.triangle(1, 1, 1);
-		u.parameter1Formula = f1;
-		u.parameter2Formula = f2;
-		u.parameter3Formula = f3;
+		u.formula1 = f1;
+		u.formula2 = f2;
+		u.formula3 = f3;
 		return u;
 	}
 

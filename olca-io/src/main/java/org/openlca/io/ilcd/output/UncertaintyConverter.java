@@ -71,7 +71,7 @@ class UncertaintyConverter {
 
 	private void mapLogNormal(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double std = oParameter.getUncertainty().parameter2Value;
+		Double std = oParameter.getUncertainty().parameter2;
 		if (std == null)
 			return;
 		iParameter.dispersion = std;
@@ -89,7 +89,7 @@ class UncertaintyConverter {
 
 	private void mapNormal(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double std = oParameter.getUncertainty().parameter2Value;
+		Double std = oParameter.getUncertainty().parameter2;
 		if (std == null)
 			return;
 		iParameter.dispersion = std;
@@ -111,11 +111,11 @@ class UncertaintyConverter {
 
 	private void mapTriangle(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double min = oParameter.getUncertainty().parameter1Value;
+		Double min = oParameter.getUncertainty().parameter1;
 		// Double mode = oParameter.getUncertainty().getParameter2Value();
 		// TODO: ILCD do not provide a field for the mode, we have to add
 		// an extension to the format
-		Double max = oParameter.getUncertainty().parameter3Value;
+		Double max = oParameter.getUncertainty().parameter3;
 		if (min == null || max == null)
 			return;
 		iParameter.min = min;
@@ -136,8 +136,8 @@ class UncertaintyConverter {
 
 	private void mapUniform(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double min = oParameter.getUncertainty().parameter1Value;
-		Double max = oParameter.getUncertainty().parameter2Value;
+		Double min = oParameter.getUncertainty().parameter1;
+		Double max = oParameter.getUncertainty().parameter2;
 		if (min == null || max == null)
 			return;
 		iParameter.min = min;
@@ -149,11 +149,11 @@ class UncertaintyConverter {
 		Uncertainty uncertainty = oExchange.uncertainty;
 		switch (param) {
 		case 1:
-			return uncertainty.parameter1Value;
+			return uncertainty.parameter1;
 		case 2:
-			return uncertainty.parameter2Value;
+			return uncertainty.parameter2;
 		case 3:
-			return uncertainty.parameter3Value;
+			return uncertainty.parameter3;
 		default:
 			return null;
 		}

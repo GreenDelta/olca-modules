@@ -36,32 +36,32 @@ class Uncertainties {
 	}
 
 	private static void mapUniform(Uncertainty uncertainty, JsonObject obj) {
-		Out.put(obj, "minimum", uncertainty.parameter1Value);
-		Out.put(obj, "minimumFormula", uncertainty.parameter1Formula);
-		Out.put(obj, "maximum", uncertainty.parameter2Value);
-		Out.put(obj, "maximumFormula", uncertainty.parameter2Formula);
+		Out.put(obj, "minimum", uncertainty.parameter1);
+		Out.put(obj, "minimumFormula", uncertainty.formula1);
+		Out.put(obj, "maximum", uncertainty.parameter2);
+		Out.put(obj, "maximumFormula", uncertainty.formula2);
 	}
 
 	private static void mapTriangle(Uncertainty uncertainty, JsonObject obj) {
-		Out.put(obj, "minimum", uncertainty.parameter1Value);
-		Out.put(obj, "minimumFormula", uncertainty.parameter1Formula);
-		Out.put(obj, "mode", uncertainty.parameter2Value);
-		Out.put(obj, "modeFormula", uncertainty.parameter2Formula);
-		Out.put(obj, "maximum", uncertainty.parameter3Value);
-		Out.put(obj, "maximumFormula", uncertainty.parameter3Formula);
+		Out.put(obj, "minimum", uncertainty.parameter1);
+		Out.put(obj, "minimumFormula", uncertainty.formula1);
+		Out.put(obj, "mode", uncertainty.parameter2);
+		Out.put(obj, "modeFormula", uncertainty.formula2);
+		Out.put(obj, "maximum", uncertainty.parameter3);
+		Out.put(obj, "maximumFormula", uncertainty.formula3);
 	}
 
 	private static void mapNormal(Uncertainty uncertainty, JsonObject obj) {
-		Out.put(obj, "mean", uncertainty.parameter1Value);
-		Out.put(obj, "meanFormula", uncertainty.parameter1Formula);
-		Out.put(obj, "sd", uncertainty.parameter2Value);
-		Out.put(obj, "sdFormula", uncertainty.parameter2Formula);
+		Out.put(obj, "mean", uncertainty.parameter1);
+		Out.put(obj, "meanFormula", uncertainty.formula1);
+		Out.put(obj, "sd", uncertainty.parameter2);
+		Out.put(obj, "sdFormula", uncertainty.formula2);
 	}
 
 	private static void mapLogNormal(Uncertainty uncertainty, JsonObject obj) {
-		Out.put(obj, "geomMean", uncertainty.parameter1Value);
-		Out.put(obj, "geomMeanFormula", uncertainty.parameter1Formula);
-		Out.put(obj, "geomSd", uncertainty.parameter2Value);
-		Out.put(obj, "geomSdFormula", uncertainty.parameter2Formula);
+		Out.put(obj, "geomMean", uncertainty.parameter1);
+		Out.put(obj, "geomMeanFormula", uncertainty.formula1);
+		Out.put(obj, "geomSd", uncertainty.parameter2);
+		Out.put(obj, "geomSdFormula", uncertainty.formula2);
 	}
 }

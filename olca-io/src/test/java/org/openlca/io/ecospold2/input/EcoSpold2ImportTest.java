@@ -120,7 +120,7 @@ public class EcoSpold2ImportTest {
 		Uncertainty uncertainty = process.getQuantitativeReference().uncertainty;
 		Assert.assertEquals(UncertaintyType.LOG_NORMAL,
 				uncertainty.distributionType);
-		Assert.assertEquals(33, uncertainty.parameter1Value, 1e-16);
+		Assert.assertEquals(33, uncertainty.parameter1, 1e-16);
 	}
 
 }

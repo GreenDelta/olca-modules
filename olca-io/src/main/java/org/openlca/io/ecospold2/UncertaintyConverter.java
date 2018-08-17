@@ -92,13 +92,13 @@ public class UncertaintyConverter {
 		if (uncertainty == null)
 			return null;
 		LogNormal logNormal = new LogNormal();
-		if (uncertainty.parameter1Value != null) {
-			double gmean = uncertainty.parameter1Value;
+		if (uncertainty.parameter1 != null) {
+			double gmean = uncertainty.parameter1;
 			logNormal.meanValue = gmean;
 			logNormal.mu = Math.log(gmean);
 		}
-		if (uncertainty.parameter2Value != null) {
-			double gsd = uncertainty.parameter2Value;
+		if (uncertainty.parameter2 != null) {
+			double gsd = uncertainty.parameter2;
 			double sigma = Math.log(gsd);
 			double var = Math.pow(sigma, 2);
 			logNormal.variance = var;
@@ -121,10 +121,10 @@ public class UncertaintyConverter {
 		if (uncertainty == null)
 			return null;
 		Normal normal = new Normal();
-		if (uncertainty.parameter1Value != null)
-			normal.meanValue = uncertainty.parameter1Value;
-		if (uncertainty.parameter2Value != null) {
-			double sd = uncertainty.parameter2Value;
+		if (uncertainty.parameter1 != null)
+			normal.meanValue = uncertainty.parameter1;
+		if (uncertainty.parameter2 != null) {
+			double sd = uncertainty.parameter2;
 			double var = Math.pow(sd, 2);
 			normal.variance = var;
 		}
@@ -144,12 +144,12 @@ public class UncertaintyConverter {
 		if (uncertainty == null)
 			return null;
 		Triangular triangular = new Triangular();
-		if (uncertainty.parameter1Value != null)
-			triangular.minValue = uncertainty.parameter1Value;
-		if (uncertainty.parameter2Value != null)
-			triangular.mostLikelyValue = uncertainty.parameter2Value;
-		if (uncertainty.parameter3Value != null)
-			triangular.maxValue = uncertainty.parameter3Value;
+		if (uncertainty.parameter1 != null)
+			triangular.minValue = uncertainty.parameter1;
+		if (uncertainty.parameter2 != null)
+			triangular.mostLikelyValue = uncertainty.parameter2;
+		if (uncertainty.parameter3 != null)
+			triangular.maxValue = uncertainty.parameter3;
 		return triangular;
 	}
 
@@ -165,10 +165,10 @@ public class UncertaintyConverter {
 		if (uncertainty == null)
 			return null;
 		Uniform uniform = new Uniform();
-		if (uncertainty.parameter1Value != null)
-			uniform.minValue = uncertainty.parameter1Value;
-		if (uncertainty.parameter2Value != null)
-			uniform.maxValue = uncertainty.parameter2Value;
+		if (uncertainty.parameter1 != null)
+			uniform.minValue = uncertainty.parameter1;
+		if (uncertainty.parameter2 != null)
+			uniform.maxValue = uncertainty.parameter2;
 		return uniform;
 	}
 }

@@ -95,20 +95,20 @@ class Config {
 	}
 
 	private void param1(Uncertainty uncertainty, Sheet sheet, int row, int col) {
-		String formula = uncertainty.parameter1Formula;
-		Double value = uncertainty.parameter1Value;
+		String formula = uncertainty.formula1;
+		Double value = uncertainty.parameter1;
 		param(formula, value, sheet, row, col);
 	}
 
 	private void param2(Uncertainty uncertainty, Sheet sheet, int row, int col) {
-		String formula = uncertainty.parameter2Formula;
-		Double value = uncertainty.parameter2Value;
+		String formula = uncertainty.formula2;
+		Double value = uncertainty.parameter2;
 		param(formula, value, sheet, row, col);
 	}
 
 	private void param3(Uncertainty uncertainty, Sheet sheet, int row, int col) {
-		String formula = uncertainty.parameter3Formula;
-		Double value = uncertainty.parameter3Value;
+		String formula = uncertainty.formula3;
+		Double value = uncertainty.parameter3;
 		param(formula, value, sheet, row, col);
 	}
 

@@ -303,26 +303,26 @@ class ProcessConverter {
 			return;
 		switch (uncertainty.distributionType) {
 		case NORMAL:
-			exchange.setMeanValue(uncertainty.parameter1Value);
-			exchange.setStandardDeviation95(uncertainty.parameter2Value * 2);
+			exchange.setMeanValue(uncertainty.parameter1);
+			exchange.setStandardDeviation95(uncertainty.parameter2 * 2);
 			exchange.setUncertaintyType(2);
 			break;
 		case LOG_NORMAL:
-			exchange.setMeanValue(uncertainty.parameter1Value);
-			double sd = uncertainty.parameter2Value;
+			exchange.setMeanValue(uncertainty.parameter1);
+			double sd = uncertainty.parameter2;
 			exchange.setStandardDeviation95(Math.pow(sd, 2));
 			exchange.setUncertaintyType(1);
 			break;
 		case TRIANGLE:
-			exchange.setMinValue(uncertainty.parameter1Value);
-			exchange.setMostLikelyValue(uncertainty.parameter2Value);
-			exchange.setMaxValue(uncertainty.parameter3Value);
+			exchange.setMinValue(uncertainty.parameter1);
+			exchange.setMostLikelyValue(uncertainty.parameter2);
+			exchange.setMaxValue(uncertainty.parameter3);
 			exchange.setMeanValue(oExchange.amount);
 			exchange.setUncertaintyType(3);
 			break;
 		case UNIFORM:
-			exchange.setMinValue(uncertainty.parameter1Value);
-			exchange.setMaxValue(uncertainty.parameter2Value);
+			exchange.setMinValue(uncertainty.parameter1);
+			exchange.setMaxValue(uncertainty.parameter2);
 			exchange.setMeanValue(oExchange.amount);
 			exchange.setUncertaintyType(4);
 			break;
