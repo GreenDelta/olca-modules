@@ -1,12 +1,14 @@
 package org.openlca.core.model;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+
+import com.google.common.base.Strings;
 
 /**
  * Represents the uncertainty distributions supported by openLCA. Three fields
@@ -88,8 +90,10 @@ public class Uncertainty {
 	/**
 	 * Creates a normal distribution.
 	 *
-	 * @param mean the arithmetic mean.
-	 * @param sd   the arithmetic standard deviation.
+	 * @param mean
+	 *            the arithmetic mean.
+	 * @param sd
+	 *            the arithmetic standard deviation.
 	 */
 	public static Uncertainty normal(double mean, double sd) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -102,8 +106,10 @@ public class Uncertainty {
 	/**
 	 * Creates a log-normal distribution.
 	 *
-	 * @param gmean the geometric mean.
-	 * @param gsd   the geometric standard deviation
+	 * @param gmean
+	 *            the geometric mean.
+	 * @param gsd
+	 *            the geometric standard deviation
 	 */
 	public static Uncertainty logNormal(double gmean, double gsd) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -116,8 +122,10 @@ public class Uncertainty {
 	/**
 	 * Creates a uniform distribution.
 	 *
-	 * @param min the minimum.
-	 * @param max the maximum.
+	 * @param min
+	 *            the minimum.
+	 * @param max
+	 *            the maximum.
 	 */
 	public static Uncertainty uniform(double min, double max) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -130,9 +138,12 @@ public class Uncertainty {
 	/**
 	 * Creates a triangle distribution.
 	 *
-	 * @param min  The minimum value.
-	 * @param mode The most likely value (the mode).
-	 * @param max  The maximum value.
+	 * @param min
+	 *            The minimum value.
+	 * @param mode
+	 *            The most likely value (the mode).
+	 * @param max
+	 *            The maximum value.
 	 */
 	public static Uncertainty triangle(double min, double mode, double max) {
 		Uncertainty uncertainty = new Uncertainty();
@@ -231,12 +242,68 @@ public class Uncertainty {
 		}
 	}
 
+	/**
+	 * A null-save method for getting the string representation of an
+	 * uncertainty distribution.
+	 */
+	public static String string(Uncertainty u) {
+		return u == null ? "none" : u.toString();
+	}
+
 	private String str(Double number) {
 		if (number == null)
 			return "0";
-		DecimalFormat df = (DecimalFormat) NumberFormat
-				.getInstance(Locale.ENGLISH);
-		df.applyPattern("0.000E0");
-		return df.format(number);
+		return String.format(Locale.ENGLISH, "%.6G", number.doubleValue());
+	}
+
+	public static Uncertainty fromString(String s) {
+		if (Strings.isNullOrEmpty(s)) {
+			Uncertainty u = new Uncertainty();
+			u.distributionType = UncertaintyType.NONE;
+			return u;
+		}
+		UncertaintyType[] types = {
+				UncertaintyType.LOG_NORMAL,
+				UncertaintyType.NORMAL,
+				UncertaintyType.UNIFORM,
+				UncertaintyType.TRIANGLE
+		};
+		String num = "([0-9,\\.,\\-,\\+,E,e]+)";
+		String[] patterns = {
+				"\\s*lognormal:\\s+gmean=" + num + "\\s+gsigma=" + num + "\\s*",
+				"\\s*normal:\\s+mean=" + num + "\\s+sigma=" + num + "\\s*",
+				"\\s*uniform:\\s+min=" + num + "\\s+max=" + num + "\\s*",
+				"\\s*triangular:\\s+min=" + num + "\\s+mode=" + num + "\\s+max="
+						+ num + "\\s*"
+		};
+		for (int i = 0; i < patterns.length; i++) {
+			Pattern p = Pattern.compile(patterns[i]);
+			Matcher m = p.matcher(s);
+			if (!m.find())
+				continue;
+			switch (types[i]) {
+			case LOG_NORMAL:
+				return logNormal(d(m.group(1)), d(m.group(2)));
+			case NORMAL:
+				return normal(d(m.group(1)), d(m.group(2)));
+			case UNIFORM:
+				return uniform(d(m.group(1)), d(m.group(2)));
+			case TRIANGLE:
+				return triangle(d(m.group(1)), d(m.group(2)), d(m.group(3)));
+			default:
+				continue;
+			}
+		}
+		return null;
+	}
+
+	private static Double d(String s) {
+		if (Strings.isNullOrEmpty(s))
+			return null;
+		try {
+			return Double.parseDouble(s);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
