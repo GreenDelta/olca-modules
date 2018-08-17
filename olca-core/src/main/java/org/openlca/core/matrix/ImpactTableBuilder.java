@@ -5,6 +5,9 @@ import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.slf4j.Logger;
@@ -82,8 +85,10 @@ class ImpactTableBuilder {
 	private Map<Long, List<CalcImpactFactor>> loadFactors(
 			LongIndex categoryIndex) {
 		try {
-			return cache.getImpactCache().getAll(
-					Longs.asList(categoryIndex.getKeys()));
+			Set<Long> keys = LongStream.of(categoryIndex.getKeys())
+					.boxed()
+					.collect(Collectors.toSet());
+			return cache.getImpactCache().getAll(keys);
 		} catch (Exception e) {
 			log.error("failed to load impact factors");
 			return Collections.emptyMap();
