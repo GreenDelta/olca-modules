@@ -63,11 +63,11 @@ class Config {
 
 	void uncertainty(Sheet sheet, int row, int col, Uncertainty uncertainty) {
 		if (uncertainty == null
-				|| uncertainty.getDistributionType() == UncertaintyType.NONE) {
+				|| uncertainty.distributionType == UncertaintyType.NONE) {
 			Excel.cell(sheet, row, col, "undefined");
 			return;
 		}
-		switch (uncertainty.getDistributionType()) {
+		switch (uncertainty.distributionType) {
 			case LOG_NORMAL:
 				Excel.cell(sheet, row, col, "log-normal");
 				param1(uncertainty, sheet, row, col + 1);
@@ -95,20 +95,20 @@ class Config {
 	}
 
 	private void param1(Uncertainty uncertainty, Sheet sheet, int row, int col) {
-		String formula = uncertainty.getParameter1Formula();
-		Double value = uncertainty.getParameter1Value();
+		String formula = uncertainty.parameter1Formula;
+		Double value = uncertainty.parameter1Value;
 		param(formula, value, sheet, row, col);
 	}
 
 	private void param2(Uncertainty uncertainty, Sheet sheet, int row, int col) {
-		String formula = uncertainty.getParameter2Formula();
-		Double value = uncertainty.getParameter2Value();
+		String formula = uncertainty.parameter2Formula;
+		Double value = uncertainty.parameter2Value;
 		param(formula, value, sheet, row, col);
 	}
 
 	private void param3(Uncertainty uncertainty, Sheet sheet, int row, int col) {
-		String formula = uncertainty.getParameter3Formula();
-		Double value = uncertainty.getParameter3Value();
+		String formula = uncertainty.parameter3Formula;
+		Double value = uncertainty.parameter3Value;
 		param(formula, value, sheet, row, col);
 	}
 

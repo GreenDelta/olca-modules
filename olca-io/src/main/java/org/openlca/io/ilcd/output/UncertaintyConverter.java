@@ -16,9 +16,9 @@ class UncertaintyConverter {
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		Uncertainty uncertainty = oExchange.uncertainty;
 		if (uncertainty == null
-				|| uncertainty.getDistributionType() == UncertaintyType.NONE)
+				|| uncertainty.distributionType == UncertaintyType.NONE)
 			return;
-		switch (uncertainty.getDistributionType()) {
+		switch (uncertainty.distributionType) {
 		case LOG_NORMAL:
 			mapLogNormal(oExchange, iExchange);
 			break;
@@ -40,9 +40,9 @@ class UncertaintyConverter {
 			org.openlca.ilcd.processes.Parameter iParameter) {
 		Uncertainty uncertainty = oParameter.getUncertainty();
 		if (uncertainty == null
-				|| uncertainty.getDistributionType() == UncertaintyType.NONE)
+				|| uncertainty.distributionType == UncertaintyType.NONE)
 			return;
-		switch (uncertainty.getDistributionType()) {
+		switch (uncertainty.distributionType) {
 		case LOG_NORMAL:
 			mapLogNormal(oParameter, iParameter);
 			break;
@@ -71,7 +71,7 @@ class UncertaintyConverter {
 
 	private void mapLogNormal(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double std = oParameter.getUncertainty().getParameter2Value();
+		Double std = oParameter.getUncertainty().parameter2Value;
 		if (std == null)
 			return;
 		iParameter.dispersion = std;
@@ -89,7 +89,7 @@ class UncertaintyConverter {
 
 	private void mapNormal(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double std = oParameter.getUncertainty().getParameter2Value();
+		Double std = oParameter.getUncertainty().parameter2Value;
 		if (std == null)
 			return;
 		iParameter.dispersion = std;
@@ -111,11 +111,11 @@ class UncertaintyConverter {
 
 	private void mapTriangle(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double min = oParameter.getUncertainty().getParameter1Value();
+		Double min = oParameter.getUncertainty().parameter1Value;
 		// Double mode = oParameter.getUncertainty().getParameter2Value();
 		// TODO: ILCD do not provide a field for the mode, we have to add
 		// an extension to the format
-		Double max = oParameter.getUncertainty().getParameter3Value();
+		Double max = oParameter.getUncertainty().parameter3Value;
 		if (min == null || max == null)
 			return;
 		iParameter.min = min;
@@ -136,8 +136,8 @@ class UncertaintyConverter {
 
 	private void mapUniform(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double min = oParameter.getUncertainty().getParameter1Value();
-		Double max = oParameter.getUncertainty().getParameter2Value();
+		Double min = oParameter.getUncertainty().parameter1Value;
+		Double max = oParameter.getUncertainty().parameter2Value;
 		if (min == null || max == null)
 			return;
 		iParameter.min = min;
@@ -149,11 +149,11 @@ class UncertaintyConverter {
 		Uncertainty uncertainty = oExchange.uncertainty;
 		switch (param) {
 		case 1:
-			return uncertainty.getParameter1Value();
+			return uncertainty.parameter1Value;
 		case 2:
-			return uncertainty.getParameter2Value();
+			return uncertainty.parameter2Value;
 		case 3:
-			return uncertainty.getParameter3Value();
+			return uncertainty.parameter3Value;
 		default:
 			return null;
 		}

@@ -299,30 +299,30 @@ class ProcessConverter {
 
 	private void mapUncertainty(Exchange oExchange, IExchange exchange) {
 		Uncertainty uncertainty = oExchange.uncertainty;
-		if (uncertainty == null || uncertainty.getDistributionType() == null)
+		if (uncertainty == null || uncertainty.distributionType == null)
 			return;
-		switch (uncertainty.getDistributionType()) {
+		switch (uncertainty.distributionType) {
 		case NORMAL:
-			exchange.setMeanValue(uncertainty.getParameter1Value());
-			exchange.setStandardDeviation95(uncertainty.getParameter2Value() * 2);
+			exchange.setMeanValue(uncertainty.parameter1Value);
+			exchange.setStandardDeviation95(uncertainty.parameter2Value * 2);
 			exchange.setUncertaintyType(2);
 			break;
 		case LOG_NORMAL:
-			exchange.setMeanValue(uncertainty.getParameter1Value());
-			double sd = uncertainty.getParameter2Value();
+			exchange.setMeanValue(uncertainty.parameter1Value);
+			double sd = uncertainty.parameter2Value;
 			exchange.setStandardDeviation95(Math.pow(sd, 2));
 			exchange.setUncertaintyType(1);
 			break;
 		case TRIANGLE:
-			exchange.setMinValue(uncertainty.getParameter1Value());
-			exchange.setMostLikelyValue(uncertainty.getParameter2Value());
-			exchange.setMaxValue(uncertainty.getParameter3Value());
+			exchange.setMinValue(uncertainty.parameter1Value);
+			exchange.setMostLikelyValue(uncertainty.parameter2Value);
+			exchange.setMaxValue(uncertainty.parameter3Value);
 			exchange.setMeanValue(oExchange.amount);
 			exchange.setUncertaintyType(3);
 			break;
 		case UNIFORM:
-			exchange.setMinValue(uncertainty.getParameter1Value());
-			exchange.setMaxValue(uncertainty.getParameter2Value());
+			exchange.setMinValue(uncertainty.parameter1Value);
+			exchange.setMaxValue(uncertainty.parameter2Value);
 			exchange.setMeanValue(oExchange.amount);
 			exchange.setUncertaintyType(4);
 			break;

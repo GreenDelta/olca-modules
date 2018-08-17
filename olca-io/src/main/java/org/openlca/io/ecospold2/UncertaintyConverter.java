@@ -25,10 +25,10 @@ public class UncertaintyConverter {
 	}
 
 	public static spold2.Uncertainty fromOpenLCA(Uncertainty olca) {
-		if (olca == null || olca.getDistributionType() == null)
+		if (olca == null || olca.distributionType == null)
 			return null;
 		spold2.Uncertainty uncertainty = new spold2.Uncertainty();
-		switch (olca.getDistributionType()) {
+		switch (olca.distributionType) {
 		case LOG_NORMAL:
 			uncertainty.logNormal = createLogNormal(olca);
 			break;
@@ -92,13 +92,13 @@ public class UncertaintyConverter {
 		if (uncertainty == null)
 			return null;
 		LogNormal logNormal = new LogNormal();
-		if (uncertainty.getParameter1Value() != null) {
-			double gmean = uncertainty.getParameter1Value();
+		if (uncertainty.parameter1Value != null) {
+			double gmean = uncertainty.parameter1Value;
 			logNormal.meanValue = gmean;
 			logNormal.mu = Math.log(gmean);
 		}
-		if (uncertainty.getParameter2Value() != null) {
-			double gsd = uncertainty.getParameter2Value();
+		if (uncertainty.parameter2Value != null) {
+			double gsd = uncertainty.parameter2Value;
 			double sigma = Math.log(gsd);
 			double var = Math.pow(sigma, 2);
 			logNormal.variance = var;
@@ -121,10 +121,10 @@ public class UncertaintyConverter {
 		if (uncertainty == null)
 			return null;
 		Normal normal = new Normal();
-		if (uncertainty.getParameter1Value() != null)
-			normal.meanValue = uncertainty.getParameter1Value();
-		if (uncertainty.getParameter2Value() != null) {
-			double sd = uncertainty.getParameter2Value();
+		if (uncertainty.parameter1Value != null)
+			normal.meanValue = uncertainty.parameter1Value;
+		if (uncertainty.parameter2Value != null) {
+			double sd = uncertainty.parameter2Value;
 			double var = Math.pow(sd, 2);
 			normal.variance = var;
 		}
@@ -144,12 +144,12 @@ public class UncertaintyConverter {
 		if (uncertainty == null)
 			return null;
 		Triangular triangular = new Triangular();
-		if (uncertainty.getParameter1Value() != null)
-			triangular.minValue = uncertainty.getParameter1Value();
-		if (uncertainty.getParameter2Value() != null)
-			triangular.mostLikelyValue = uncertainty.getParameter2Value();
-		if (uncertainty.getParameter3Value() != null)
-			triangular.maxValue = uncertainty.getParameter3Value();
+		if (uncertainty.parameter1Value != null)
+			triangular.minValue = uncertainty.parameter1Value;
+		if (uncertainty.parameter2Value != null)
+			triangular.mostLikelyValue = uncertainty.parameter2Value;
+		if (uncertainty.parameter3Value != null)
+			triangular.maxValue = uncertainty.parameter3Value;
 		return triangular;
 	}
 
@@ -165,10 +165,10 @@ public class UncertaintyConverter {
 		if (uncertainty == null)
 			return null;
 		Uniform uniform = new Uniform();
-		if (uncertainty.getParameter1Value() != null)
-			uniform.minValue = uncertainty.getParameter1Value();
-		if (uncertainty.getParameter2Value() != null)
-			uniform.maxValue = uncertainty.getParameter2Value();
+		if (uncertainty.parameter1Value != null)
+			uniform.minValue = uncertainty.parameter1Value;
+		if (uncertainty.parameter2Value != null)
+			uniform.maxValue = uncertainty.parameter2Value;
 		return uniform;
 	}
 }
