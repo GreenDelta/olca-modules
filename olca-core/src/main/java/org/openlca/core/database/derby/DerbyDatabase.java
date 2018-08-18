@@ -149,6 +149,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		log.trace("Init connection pool");
 		connectionPool = new HikariDataSource();
 		connectionPool.setJdbcUrl(url);
+		connectionPool.setAutoCommit(true);
 		Map<Object, Object> map = new HashMap<>();
 		map.put("transaction-type", "JTA");
 		map.put("javax.persistence.jtaDataSource", connectionPool);
@@ -200,7 +201,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		try {
 			if (connectionPool != null) {
 				Connection con = connectionPool.getConnection();
-				con.setAutoCommit(false);
+				// con.setAutoCommit(false);
 				return con;
 			} else {
 				log.warn("no connection pool set up for {}", url);
