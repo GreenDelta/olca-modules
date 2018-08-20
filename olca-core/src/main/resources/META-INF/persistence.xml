@@ -40,7 +40,6 @@
 		<class>org.openlca.core.model.MappingFile</class>
 
 		<properties>
-			<property name="eclipselink.logging.logger" value="org.eclipse.persistence.logging.slf4j.SLF4JLogger"/>
 			<property name="eclipselink.logging.level" value="WARNING" />
 			<!-- enable SQL logging etc.
 			<property name="eclipselink.logging.level" value="ALL"/>
