@@ -146,18 +146,19 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 
 	private void connect() {
 		log.trace("connect to database: {}", url);
-		log.trace("Init connection pool");
-		connectionPool = new HikariDataSource();
-		connectionPool.setJdbcUrl(url);
-		connectionPool.setAutoCommit(true);
 		Map<Object, Object> map = new HashMap<>();
-		map.put("transaction-type", "JTA");
-		map.put("javax.persistence.jtaDataSource", connectionPool);
+		map.put("javax.persistence.jdbc.url", url);
+		map.put("javax.persistence.jdbc.driver",
+				"org.apache.derby.jdbc.EmbeddedDriver");
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "Derby");
 		log.trace("Create entity factory");
 		entityFactory = new PersistenceProvider().createEntityManagerFactory(
 				"openLCA", map);
+		log.trace("Init connection pool");
+		connectionPool = new HikariDataSource();
+		connectionPool.setJdbcUrl(url);
+		connectionPool.setAutoCommit(false);
 	}
 
 	@Override
@@ -201,7 +202,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		try {
 			if (connectionPool != null) {
 				Connection con = connectionPool.getConnection();
-				// con.setAutoCommit(false);
+				con.setAutoCommit(false);
 				return con;
 			} else {
 				log.warn("no connection pool set up for {}", url);
