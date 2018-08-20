@@ -90,8 +90,9 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		log.info("initialize database folder {}, create={}", folder, create);
 		url = "jdbc:derby:" + folder.getAbsolutePath().replace('\\', '/');
 		log.trace("database url: {}", url);
-		if (create)
+		if (create) {
 			createNew(url + ";create=true");
+		}
 		connect();
 	}
 
@@ -136,7 +137,8 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	 * database should be saved (e.g. external files of sources).
 	 * 
 	 * Typically, this is only set by in-memory databases as for file based
-	 * databases it defaults to the `_olca_` folder within the database directory.
+	 * databases it defaults to the `_olca_` folder within the database
+	 * directory.
 	 */
 	public void setFileStorageLocation(File fileStorageLocation) {
 		this.fileStorageLocation = fileStorageLocation;
@@ -144,25 +146,18 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 
 	private void connect() {
 		log.trace("connect to database: {}", url);
+		log.trace("Init connection pool");
+		connectionPool = new HikariDataSource();
+		connectionPool.setJdbcUrl(url);
+		connectionPool.setAutoCommit(true);
 		Map<Object, Object> map = new HashMap<>();
-		map.put("javax.persistence.jdbc.url", url);
-		map.put("javax.persistence.jdbc.driver",
-				"org.apache.derby.jdbc.EmbeddedDriver");
+		map.put("transaction-type", "JTA");
+		map.put("javax.persistence.jtaDataSource", connectionPool);
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "Derby");
+		log.trace("Create entity factory");
 		entityFactory = new PersistenceProvider().createEntityManagerFactory(
 				"openLCA", map);
-		initConnectionPool();
-	}
-
-	private void initConnectionPool() {
-		try {
-			connectionPool = new HikariDataSource();
-			connectionPool.setJdbcUrl(url);
-		} catch (Exception e) {
-			log.error("failed to initialize connection pool", e);
-			throw new DatabaseException("Could not create a connection", e);
-		}
 	}
 
 	@Override
@@ -206,7 +201,7 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 		try {
 			if (connectionPool != null) {
 				Connection con = connectionPool.getConnection();
-				con.setAutoCommit(false);
+				// con.setAutoCommit(false);
 				return con;
 			} else {
 				log.warn("no connection pool set up for {}", url);
@@ -243,11 +238,12 @@ public class DerbyDatabase extends Notifiable implements IDatabase {
 	}
 
 	/**
-	 * Creates a backup of the database in the given folder. This is specifically
-	 * useful for creating a dump of an in-memory database. See
+	 * Creates a backup of the database in the given folder. This is
+	 * specifically useful for creating a dump of an in-memory database. See
 	 * https://db.apache.org/derby/docs/10.0/manuals/admin/hubprnt43.html
 	 * 
-	 * Note that the content of the folder will be overwritten if it already exists.
+	 * Note that the content of the folder will be overwritten if it already
+	 * exists.
 	 */
 	public void dump(String path) {
 		try {

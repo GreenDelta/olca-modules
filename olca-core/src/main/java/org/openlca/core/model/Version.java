@@ -1,11 +1,10 @@
 package org.openlca.core.model;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Objects;
 
 /**
  * A helper class for handling versions of root entities in openLCA. We support
@@ -146,7 +145,8 @@ public class Version {
 		}
 	}
 
-	private static void setPartFromString(int i, String[] parts, Version version) {
+	private static void setPartFromString(int i, String[] parts,
+			Version version) {
 		short p = Short.parseShort(parts[i]);
 		switch (i) {
 		case 0:

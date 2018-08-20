@@ -109,14 +109,14 @@ public class ParameterReferences {
 		Set<String> names = new HashSet<>();
 		if (u == null)
 			return names;
-		if (u.getDistributionType() == null)
+		if (u.distributionType == null)
 			return names;
-		if (u.getDistributionType() == UncertaintyType.NONE)
+		if (u.distributionType == UncertaintyType.NONE)
 			return names;
-		names.addAll(Formula.getVariables(u.getParameter1Formula()));
-		names.addAll(Formula.getVariables(u.getParameter2Formula()));
-		if (u.getDistributionType() == UncertaintyType.TRIANGLE)
-			names.addAll(Formula.getVariables(u.getParameter3Formula()));
+		names.addAll(Formula.getVariables(u.formula1));
+		names.addAll(Formula.getVariables(u.formula2));
+		if (u.distributionType == UncertaintyType.TRIANGLE)
+			names.addAll(Formula.getVariables(u.formula3));
 		return names;
 	}
 

@@ -1,63 +1,80 @@
 package org.openlca.core.model;
 
+import java.util.Locale;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import org.openlca.util.Strings;
+
 /**
  * Represents the uncertainty distributions supported by openLCA. Three fields
- * are reserved for distribution parameters: <br>
- * <br>
- * 
- * parameter 1:
- * <ul>
- * <li>Normal distribution: arithmetic mean value
- * <li>Lognormal distribution: geometric mean value
- * <li>Triangle distribution: min value
- * <li>Uniform distribution: min value
- * <li>None: mean / resulting amount
- * </ul>
- * 
- * parameter 2:
- * <ul>
- * <li>Normal distribution: arithmetic standard deviation
- * <li>Lognormal distribution: geometric standard deviation
- * <li>Triangle distribution: most likely value (mode)
- * <li>Uniform distribution: max value
- * </ul>
- * 
- * parameter 3:
- * <ul>
- * <li>Triangle distribution: max value
- * </ul>
- * 
- * Each distribution parameter can take a value and additionally a formula.
- * 
+ * are reserved for distribution parameters. See the documentation of the
+ * respective fields to see which distribution parameters are stored in which
+ * fields for the respective distribution types. Each distribution parameter can
+ * take a value and additionally a formula.
+ *
  */
 @Embeddable
 public class Uncertainty {
 
 	@Column(name = "distribution_type")
-	private UncertaintyType distributionType = UncertaintyType.NONE;
+	public UncertaintyType distributionType = UncertaintyType.NONE;
 
+	/**
+	 * The first parameter of the uncertainty distribution:
+	 * <ul>
+	 * <li>Normal distribution: arithmetic mean value
+	 * <li>Lognormal distribution: geometric mean value
+	 * <li>Triangle distribution: min value
+	 * <li>Uniform distribution: min value
+	 * <li>None: mean / resulting amount
+	 * </ul>
+	 */
 	@Column(name = "parameter1_value")
-	private Double parameter1Value;
+	public Double parameter1;
 
+	/**
+	 * A formula for the first distribution parameter {@link #parameter1}.
+	 */
 	@Column(name = "parameter1_formula")
-	private String parameter1Formula;
+	public String formula1;
 
+	/**
+	 * The second parameter of the uncertainty distribution:
+	 * <ul>
+	 * <li>Normal distribution: arithmetic standard deviation
+	 * <li>Lognormal distribution: geometric standard deviation
+	 * <li>Triangle distribution: most likely value (mode)
+	 * <li>Uniform distribution: max value
+	 * </ul>
+	 */
 	@Column(name = "parameter2_value")
-	private Double parameter2Value;
+	public Double parameter2;
 
+	/**
+	 * A formula for the second distribution parameter {@link #parameter2}.
+	 */
 	@Column(name = "parameter2_formula")
-	private String parameter2Formula;
+	public String formula2;
 
+	/**
+	 * The third parameter of the uncertainty distribution:
+	 * <ul>
+	 * <li>Triangle distribution: max value
+	 * </ul>
+	 */
 	@Column(name = "parameter3_value")
-	private Double parameter3Value;
+	public Double parameter3;
 
+	/**
+	 * A formula for the third distribution parameter {@link #parameter3}.
+	 */
 	@Column(name = "parameter3_formula")
-	private String parameter3Formula;
+	public String formula3;
 
 	/**
 	 * Creates default distribution with type set to NONE and the first
@@ -65,14 +82,14 @@ public class Uncertainty {
 	 */
 	public static Uncertainty none(double mean) {
 		Uncertainty uncertainty = new Uncertainty();
-		uncertainty.setDistributionType(UncertaintyType.NONE);
-		uncertainty.setParameter1Value(mean);
+		uncertainty.distributionType = UncertaintyType.NONE;
+		uncertainty.parameter1 = mean;
 		return uncertainty;
 	}
 
 	/**
 	 * Creates a normal distribution.
-	 * 
+	 *
 	 * @param mean
 	 *            the arithmetic mean.
 	 * @param sd
@@ -80,15 +97,15 @@ public class Uncertainty {
 	 */
 	public static Uncertainty normal(double mean, double sd) {
 		Uncertainty uncertainty = new Uncertainty();
-		uncertainty.setDistributionType(UncertaintyType.NORMAL);
-		uncertainty.setParameter1Value(mean);
-		uncertainty.setParameter2Value(sd);
+		uncertainty.distributionType = UncertaintyType.NORMAL;
+		uncertainty.parameter1 = mean;
+		uncertainty.parameter2 = sd;
 		return uncertainty;
 	}
 
 	/**
 	 * Creates a log-normal distribution.
-	 * 
+	 *
 	 * @param gmean
 	 *            the geometric mean.
 	 * @param gsd
@@ -96,15 +113,15 @@ public class Uncertainty {
 	 */
 	public static Uncertainty logNormal(double gmean, double gsd) {
 		Uncertainty uncertainty = new Uncertainty();
-		uncertainty.setDistributionType(UncertaintyType.LOG_NORMAL);
-		uncertainty.setParameter1Value(gmean);
-		uncertainty.setParameter2Value(gsd);
+		uncertainty.distributionType = UncertaintyType.LOG_NORMAL;
+		uncertainty.parameter1 = gmean;
+		uncertainty.parameter2 = gsd;
 		return uncertainty;
 	}
 
 	/**
 	 * Creates a uniform distribution.
-	 * 
+	 *
 	 * @param min
 	 *            the minimum.
 	 * @param max
@@ -112,15 +129,15 @@ public class Uncertainty {
 	 */
 	public static Uncertainty uniform(double min, double max) {
 		Uncertainty uncertainty = new Uncertainty();
-		uncertainty.setDistributionType(UncertaintyType.UNIFORM);
-		uncertainty.setParameter1Value(min);
-		uncertainty.setParameter2Value(max);
+		uncertainty.distributionType = UncertaintyType.UNIFORM;
+		uncertainty.parameter1 = min;
+		uncertainty.parameter2 = max;
 		return uncertainty;
 	}
 
 	/**
 	 * Creates a triangle distribution.
-	 * 
+	 *
 	 * @param min
 	 *            The minimum value.
 	 * @param mode
@@ -130,80 +147,24 @@ public class Uncertainty {
 	 */
 	public static Uncertainty triangle(double min, double mode, double max) {
 		Uncertainty uncertainty = new Uncertainty();
-		uncertainty.setDistributionType(UncertaintyType.TRIANGLE);
-		uncertainty.setParameter1Value(min);
-		uncertainty.setParameter2Value(mode);
-		uncertainty.setParameter3Value(max);
+		uncertainty.distributionType = UncertaintyType.TRIANGLE;
+		uncertainty.parameter1 = min;
+		uncertainty.parameter2 = mode;
+		uncertainty.parameter3 = max;
 		return uncertainty;
 	}
 
 	@Override
 	public Uncertainty clone() {
 		Uncertainty clone = new Uncertainty();
-		clone.setDistributionType(getDistributionType());
-		clone.setParameter1Formula(getParameter1Formula());
-		clone.setParameter2Formula(getParameter2Formula());
-		clone.setParameter3Formula(getParameter3Formula());
-		clone.setParameter1Value(getParameter1Value());
-		clone.setParameter2Value(getParameter2Value());
-		clone.setParameter3Value(getParameter3Value());
+		clone.distributionType = distributionType;
+		clone.formula1 = formula1;
+		clone.formula2 = formula2;
+		clone.formula3 = formula3;
+		clone.parameter1 = parameter1;
+		clone.parameter2 = parameter2;
+		clone.parameter3 = parameter3;
 		return clone;
-	}
-
-	public UncertaintyType getDistributionType() {
-		return distributionType;
-	}
-
-	public void setDistributionType(UncertaintyType distributionType) {
-		this.distributionType = distributionType;
-	}
-
-	public Double getParameter1Value() {
-		return parameter1Value;
-	}
-
-	public void setParameter1Value(Double parameter1Value) {
-		this.parameter1Value = parameter1Value;
-	}
-
-	public String getParameter1Formula() {
-		return parameter1Formula;
-	}
-
-	public void setParameter1Formula(String parameter1Formula) {
-		this.parameter1Formula = parameter1Formula;
-	}
-
-	public Double getParameter2Value() {
-		return parameter2Value;
-	}
-
-	public void setParameter2Value(Double parameter2Value) {
-		this.parameter2Value = parameter2Value;
-	}
-
-	public String getParameter2Formula() {
-		return parameter2Formula;
-	}
-
-	public void setParameter2Formula(String parameter2Formula) {
-		this.parameter2Formula = parameter2Formula;
-	}
-
-	public Double getParameter3Value() {
-		return parameter3Value;
-	}
-
-	public void setParameter3Value(Double parameter3Value) {
-		this.parameter3Value = parameter3Value;
-	}
-
-	public String getParameter3Formula() {
-		return parameter3Formula;
-	}
-
-	public void setParameter3Formula(String parameter3Formula) {
-		this.parameter3Formula = parameter3Formula;
 	}
 
 	/**
@@ -213,27 +174,27 @@ public class Uncertainty {
 	 * parameter is scale independent.
 	 */
 	public void scale(double factor) {
-		if (parameter1Value != null)
-			parameter1Value = factor * parameter1Value;
-		if (parameter1Formula != null)
-			parameter1Formula = factor + " * (" + parameter1Formula + ")";
+		if (parameter1 != null)
+			parameter1 = factor * parameter1;
+		if (formula1 != null)
+			formula1 = factor + " * (" + formula1 + ")";
 		if (distributionType != UncertaintyType.LOG_NORMAL) {
-			if (parameter2Value != null)
-				parameter2Value = factor * parameter2Value;
-			if (parameter2Formula != null)
-				parameter2Formula = factor + " * (" + parameter2Formula + ")";
+			if (parameter2 != null)
+				parameter2 = factor * parameter2;
+			if (formula2 != null)
+				formula2 = factor + " * (" + formula2 + ")";
 		}
-		if (parameter3Value != null)
-			parameter3Value = factor * parameter3Value;
-		if (parameter3Formula != null)
-			parameter3Formula = factor + " * (" + parameter3Formula + ")";
+		if (parameter3 != null)
+			parameter3 = factor * parameter3;
+		if (formula3 != null)
+			formula3 = factor + " * (" + formula3 + ")";
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(distributionType, parameter1Formula,
-				parameter1Value, parameter2Formula, parameter2Value,
-				parameter3Formula, parameter3Value);
+		return Objects.hash(distributionType, formula1,
+				parameter1, formula2, parameter2,
+				formula3, parameter3);
 	}
 
 	@Override
@@ -247,13 +208,102 @@ public class Uncertainty {
 		Uncertainty other = (Uncertainty) obj;
 		if (this.distributionType != other.distributionType)
 			return false;
-		//@formatter:off
-		return     Objects.equals(this.parameter1Value, other.parameter1Value)
-				&& Objects.equals(this.parameter2Value, other.parameter2Value)
-				&& Objects.equals(this.parameter3Value, other.parameter3Value)
-				&& Objects.equals(this.parameter1Formula, other.parameter1Formula)
-				&& Objects.equals(this.parameter2Formula, other.parameter2Formula)
-				&& Objects.equals(this.parameter3Formula, other.parameter3Formula);
-		//@formatter:on
+		return Objects.equals(this.parameter1, other.parameter1)
+				&& Objects.equals(this.parameter2, other.parameter2)
+				&& Objects.equals(this.parameter3, other.parameter3)
+				&& Objects.equals(this.formula1, other.formula1)
+				&& Objects.equals(this.formula2, other.formula2)
+				&& Objects.equals(this.formula3, other.formula3);
+	}
+
+	@Override
+	public String toString() {
+		if (distributionType == null)
+			return "none";
+		String template = null;
+		switch (distributionType) {
+		case NONE:
+			return "none";
+		case LOG_NORMAL:
+			template = "lognormal: gmean=%s gsigma=%s";
+			return String.format(template, str(parameter1), str(parameter2));
+		case NORMAL:
+			template = "normal: mean=%s sigma=%s";
+			return String.format(template, str(parameter1), str(parameter2));
+		case UNIFORM:
+			template = "uniform: min=%s max=%s";
+			return String.format(template, str(parameter1), str(parameter2));
+		case TRIANGLE:
+			template = "triangular: min=%s mode=%s max=%s";
+			return String.format(template, str(parameter1), str(parameter2),
+					str(parameter3));
+		default:
+			return "none";
+		}
+	}
+
+	/**
+	 * A null-save method for getting the string representation of an
+	 * uncertainty distribution.
+	 */
+	public static String string(Uncertainty u) {
+		return u == null ? "none" : u.toString();
+	}
+
+	private String str(Double number) {
+		if (number == null)
+			return "0";
+		return String.format(Locale.ENGLISH, "%.6G", number.doubleValue());
+	}
+
+	public static Uncertainty fromString(String s) {
+		if (Strings.nullOrEmpty(s)) {
+			Uncertainty u = new Uncertainty();
+			u.distributionType = UncertaintyType.NONE;
+			return u;
+		}
+		UncertaintyType[] types = {
+				UncertaintyType.LOG_NORMAL,
+				UncertaintyType.NORMAL,
+				UncertaintyType.UNIFORM,
+				UncertaintyType.TRIANGLE
+		};
+		String num = "([0-9,\\.,\\-,\\+,E,e]+)";
+		String[] patterns = {
+				"\\s*lognormal:\\s+gmean=" + num + "\\s+gsigma=" + num + "\\s*",
+				"\\s*normal:\\s+mean=" + num + "\\s+sigma=" + num + "\\s*",
+				"\\s*uniform:\\s+min=" + num + "\\s+max=" + num + "\\s*",
+				"\\s*triangular:\\s+min=" + num + "\\s+mode=" + num + "\\s+max="
+						+ num + "\\s*"
+		};
+		for (int i = 0; i < patterns.length; i++) {
+			Pattern p = Pattern.compile(patterns[i]);
+			Matcher m = p.matcher(s);
+			if (!m.find())
+				continue;
+			switch (types[i]) {
+			case LOG_NORMAL:
+				return logNormal(d(m.group(1)), d(m.group(2)));
+			case NORMAL:
+				return normal(d(m.group(1)), d(m.group(2)));
+			case UNIFORM:
+				return uniform(d(m.group(1)), d(m.group(2)));
+			case TRIANGLE:
+				return triangle(d(m.group(1)), d(m.group(2)), d(m.group(3)));
+			default:
+				continue;
+			}
+		}
+		return null;
+	}
+
+	private static Double d(String s) {
+		if (Strings.nullOrEmpty(s))
+			return null;
+		try {
+			return Double.parseDouble(s);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

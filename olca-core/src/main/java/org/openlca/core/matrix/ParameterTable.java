@@ -116,13 +116,13 @@ public class ParameterTable {
 			param.setParameter3Formula(null);
 		} else {
 			Uncertainty uncertainty = redef.getUncertainty();
-			param.setUncertaintyType(uncertainty.getDistributionType());
-			param.setParameter1(val(uncertainty.getParameter1Value()));
-			param.setParameter2(val(uncertainty.getParameter2Value()));
-			param.setParameter3(val(uncertainty.getParameter3Value()));
-			param.setParameter1Formula(uncertainty.getParameter1Formula());
-			param.setParameter2Formula(uncertainty.getParameter2Formula());
-			param.setParameter3Formula(uncertainty.getParameter3Formula());
+			param.setUncertaintyType(uncertainty.distributionType);
+			param.setParameter1(val(uncertainty.parameter1));
+			param.setParameter2(val(uncertainty.parameter2));
+			param.setParameter3(val(uncertainty.parameter3));
+			param.setParameter1Formula(uncertainty.formula1);
+			param.setParameter2Formula(uncertainty.formula2);
+			param.setParameter3Formula(uncertainty.formula3);
 		}
 	}
 

@@ -119,8 +119,8 @@ public class EcoSpold2ImportTest {
 		Process process = dao.getForRefId(REF_ID);
 		Uncertainty uncertainty = process.getQuantitativeReference().uncertainty;
 		Assert.assertEquals(UncertaintyType.LOG_NORMAL,
-				uncertainty.getDistributionType());
-		Assert.assertEquals(33, uncertainty.getParameter1Value(), 1e-16);
+				uncertainty.distributionType);
+		Assert.assertEquals(33, uncertainty.parameter1, 1e-16);
 	}
 
 }

@@ -74,9 +74,9 @@ public class UncertaintyTableTest {
 
 	private Uncertainty createUncertainty() {
 		Uncertainty uncertainty = Uncertainty.triangle(1, 2, 3);
-		uncertainty.setParameter1Formula("0.5 * 2");
-		uncertainty.setParameter2Formula("4 / 2");
-		uncertainty.setParameter3Formula("4 / 2");
+		uncertainty.formula1 = "0.5 * 2";
+		uncertainty.formula2 = "4 / 2";
+		uncertainty.formula3 = "4 / 2";
 		return uncertainty;
 	}
 
