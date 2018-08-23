@@ -3,10 +3,7 @@ package org.openlca.jsonld;
 import java.util.Date;
 import java.util.List;
 
-import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.FlowPropertyDao;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
@@ -123,10 +120,10 @@ public class Json {
 	}
 
 	/**
-	 * Returns the value of the `@id` field of the entity reference with the
-	 * given name. For example, the given object could be an exchange and the
-	 * given reference name could be `flow`, then, this method would return the
-	 * reference ID of the flow.
+	 * Returns the value of the `@id` field of the entity reference with the given
+	 * name. For example, the given object could be an exchange and the given
+	 * reference name could be `flow`, then, this method would return the reference
+	 * ID of the flow.
 	 */
 	public static String getRefId(JsonObject obj, String refName) {
 		JsonObject ref = getObject(obj, refName);
@@ -142,11 +139,11 @@ public class Json {
 	}
 
 	/**
-	 * Generates a `Ref` type as defined in olca-schema. For some types (e.g.
-	 * flows or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
+	 * Generates a `Ref` type as defined in olca-schema. For some types (e.g. flows
+	 * or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
 	 * `ProcessRef`) that contains additional meta-data.
 	 */
-	public static JsonObject asRef(BaseDescriptor d, IDatabase db) {
+	public static JsonObject asRef(BaseDescriptor d, EntityCache cache) {
 		if (d == null)
 			return null;
 		JsonObject obj = new JsonObject();
@@ -157,16 +154,16 @@ public class Json {
 		put(obj, "@id", d.getRefId());
 		put(obj, "name", d.getName());
 		if (d instanceof CategorizedDescriptor) {
-			putCategoryPath(obj, (CategorizedDescriptor) d, db);
+			putCategoryPath(obj, (CategorizedDescriptor) d, cache);
 		}
 		if (d instanceof CategoryDescriptor) {
-			putCategoryMetaData(obj, (CategoryDescriptor) d, db);
+			putCategoryMetaData(obj, (CategoryDescriptor) d);
 		}
 		if (d instanceof FlowDescriptor) {
-			putFlowMetaData(obj, (FlowDescriptor) d, db);
+			putFlowMetaData(obj, (FlowDescriptor) d, cache);
 		}
 		if (d instanceof ProcessDescriptor) {
-			putProcessMetaData(obj, (ProcessDescriptor) d, db);
+			putProcessMetaData(obj, (ProcessDescriptor) d, cache);
 		}
 		if (d instanceof ImpactCategoryDescriptor) {
 			ImpactCategoryDescriptor icd = (ImpactCategoryDescriptor) d;
@@ -176,14 +173,14 @@ public class Json {
 	}
 
 	/**
-	 * Generates a `Ref` type as defined in olca-schema. For some types (e.g.
-	 * flows or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
+	 * Generates a `Ref` type as defined in olca-schema. For some types (e.g. flows
+	 * or processes) a more specific `Ref` type is used (e.g. `FlowRef` or
 	 * `ProcessRef`) that contains additional meta-data.
 	 */
-	public static JsonObject asDescriptor(BaseDescriptor d, IDatabase db) {
+	public static JsonObject asDescriptor(BaseDescriptor d, EntityCache cache) {
 		if (d == null)
 			return null;
-		JsonObject obj = asRef(d, db);
+		JsonObject obj = asRef(d, cache);
 		if (obj == null)
 			return obj;
 		put(obj, "description", d.getDescription());
@@ -192,11 +189,11 @@ public class Json {
 	}
 
 	private static void putCategoryPath(JsonObject ref,
-			CategorizedDescriptor d, IDatabase db) {
-		if (ref == null || d == null || d.getCategory() == null)
+			CategorizedDescriptor d, EntityCache cache) {
+		if (ref == null || d == null || cache == null
+				|| d.getCategory() == null)
 			return;
-		CategoryDao dao = new CategoryDao(db);
-		Category cat = dao.getForId(d.getCategory());
+		Category cat = cache.get(Category.class, d.getCategory());
 		if (cat == null)
 			return;
 		List<String> path = Categories.path(cat);
@@ -206,8 +203,9 @@ public class Json {
 		}
 		ref.add("categoryPath", array);
 	}
+
 	private static void putCategoryMetaData(JsonObject ref,
-			CategoryDescriptor d, IDatabase db) {
+			CategoryDescriptor d) {
 		if (ref == null || d == null)
 			return;
 		if (d.getCategoryType() != null) {
@@ -215,20 +213,23 @@ public class Json {
 			ref.addProperty("categoryType", type);
 		}
 	}
+
 	private static void putFlowMetaData(JsonObject ref,
-			FlowDescriptor d, IDatabase db) {
+			FlowDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.getFlowType() != null) {
 			ref.addProperty("flowType", d.getFlowType().name());
 		}
+		if (cache == null)
+			return;
 		if (d.getLocation() != null) {
-			Location loc = new LocationDao(db).getForId(d.getLocation());
+			Location loc = cache.get(Location.class, d.getLocation());
 			if (loc != null) {
 				ref.addProperty("location", loc.getCode());
 			}
 		}
-		FlowProperty prop = new FlowPropertyDao(db).getForId(d.getRefFlowPropertyId());
+		FlowProperty prop = cache.get(FlowProperty.class, d.getRefFlowPropertyId());
 		if (prop != null && prop.getUnitGroup() != null) {
 			Unit unit = prop.getUnitGroup().getReferenceUnit();
 			if (unit != null) {
@@ -238,14 +239,14 @@ public class Json {
 	}
 
 	private static void putProcessMetaData(JsonObject ref,
-			ProcessDescriptor d, IDatabase db) {
+			ProcessDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
 		if (d.getProcessType() != null) {
 			ref.addProperty("processType", d.getProcessType().name());
 		}
-		if (d.getLocation() != null) {
-			Location loc = new LocationDao(db).getForId(d.getLocation());
+		if (cache != null && d.getLocation() != null) {
+			Location loc = cache.get(Location.class, d.getLocation());
 			if (loc != null) {
 				ref.addProperty("location", loc.getCode());
 			}

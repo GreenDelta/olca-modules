@@ -2,6 +2,7 @@ package org.openlca.ipc.handlers;
 
 import java.util.UUID;
 
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NwSetDao;
@@ -147,7 +148,7 @@ public class Calculator {
 			String id = UUID.randomUUID().toString();
 			log.info("encode and cache result {}", id);
 			context.cache.put(id, CachedResult.of(setup, r));
-			JsonObject result = JsonRpc.encode(r, id, db);
+			JsonObject result = JsonRpc.encode(r, id, EntityCache.create(db));
 			return Responses.ok(result, req);
 		} catch (Exception e) {
 			log.error("Calculation failed", e);

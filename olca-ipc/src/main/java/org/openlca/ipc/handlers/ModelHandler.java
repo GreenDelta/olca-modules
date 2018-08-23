@@ -1,6 +1,7 @@
 package org.openlca.ipc.handlers;
 
 import org.openlca.core.database.Daos;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.ModelType;
@@ -33,7 +34,8 @@ public class ModelHandler {
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @id and @type", req);
 		try {
-			RootEntity e = Daos.root(db, d.getModelType()).getForRefId(d.getRefId());
+			RootEntity e = Daos.root(db, d.getModelType())
+					.getForRefId(d.getRefId());
 			if (e == null)
 				return Responses.error(404, "Not found", req);
 			MemStore store = new MemStore();
@@ -82,8 +84,9 @@ public class ModelHandler {
 					+ " valid @type attribute", req);
 		try {
 			JsonArray array = new JsonArray();
+			EntityCache cache = EntityCache.create(db);
 			Daos.root(db, type).getDescriptors().forEach(d -> {
-				JsonObject obj = Json.asRef(d, db);
+				JsonObject obj = Json.asRef(d, cache);
 				array.add(obj);
 			});
 			return Responses.ok(array, req);

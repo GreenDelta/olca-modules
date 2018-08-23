@@ -26,7 +26,7 @@ class References {
 		if (id == null || id == 0)
 			return null;
 		if (!doExportReferences(type, id, conf, forceExport) || conf.db == null) {
-			JsonObject obj = Json.asRef(loadDescriptor(conf.db, type, id), conf.db);
+			JsonObject obj = Json.asRef(loadDescriptor(conf.db, type, id), conf.cache);
 			return obj;
 		}
 		RootEntity ref = load(conf.db, type, id);
@@ -38,12 +38,13 @@ class References {
 	static JsonObject create(RootEntity ref, ExportConfig conf) {
 		return create(Descriptors.toDescriptor(ref), conf);
 	}
-	
+
 	static JsonObject create(BaseDescriptor descriptor, ExportConfig conf) {
-		return Json.asRef(descriptor, conf.db);
+		return Json.asRef(descriptor, conf.cache);
 	}
 
-	private static boolean doExportReferences(ModelType type, Long id, ExportConfig conf, boolean forceExport) {
+	private static boolean doExportReferences(ModelType type, Long id,
+			ExportConfig conf, boolean forceExport) {
 		if (conf.hasVisited(type, id))
 			return false;
 		if (conf.refFn == null)
@@ -55,10 +56,14 @@ class References {
 		return true;
 	}
 
+	// FIXME: single line function that are only used in one other function (ms
+	// 8/23/2018)
 	private static RootEntity load(IDatabase database, ModelType type, long id) {
 		return Daos.root(database, type).getForId(id);
 	}
 
+	// FIXME: single line function that are only used in one other function (ms
+	// 8/23/2018)
 	private static BaseDescriptor loadDescriptor(IDatabase database, ModelType type, long id) {
 		return Daos.root(database, type).getDescriptor(id);
 	}

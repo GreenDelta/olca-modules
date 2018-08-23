@@ -1,7 +1,6 @@
 package org.openlca.ipc.handlers;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.ImpactResult;
 import org.openlca.core.results.SimpleResult;
@@ -19,18 +18,18 @@ class JsonRpc {
 	private JsonRpc() {
 	}
 
-	static JsonObject encode(SimpleResult r, String id, IDatabase db) {
+	static JsonObject encode(SimpleResult r, String id, EntityCache cache) {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@id", id);
 		if (r == null)
 			return obj;
 		obj.addProperty("@type", r.getClass().getSimpleName());
 		SimpleResultProvider<SimpleResult> provider = new SimpleResultProvider<>(
-				r, EntityCache.create(db));
+				r, cache);
 		JsonArray flowResults = new JsonArray();
 		obj.add("flowResults", flowResults);
 		for (FlowResult flowResult : provider.getTotalFlowResults()) {
-			JsonObject item = JsonRpc.encode(flowResult, db);
+			JsonObject item = JsonRpc.encode(flowResult, cache);
 			if (item != null) {
 				flowResults.add(item);
 			}
@@ -40,30 +39,30 @@ class JsonRpc {
 		JsonArray impactResults = new JsonArray();
 		obj.add("impactResults", impactResults);
 		for (ImpactResult impact : provider.getTotalImpactResults()) {
-			JsonObject item = JsonRpc.encode(impact, db);
+			JsonObject item = JsonRpc.encode(impact, cache);
 			if (item != null)
 				impactResults.add(item);
 		}
 		return obj;
 	}
 
-	static JsonObject encode(FlowResult r, IDatabase db) {
+	static JsonObject encode(FlowResult r, EntityCache cache) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "FlowResult");
-		obj.add("flow", Json.asRef(r.flow, db));
+		obj.add("flow", Json.asRef(r.flow, cache));
 		obj.addProperty("input", r.input);
 		obj.addProperty("value", r.value);
 		return obj;
 	}
 
-	static JsonObject encode(ImpactResult r, IDatabase db) {
+	static JsonObject encode(ImpactResult r, EntityCache cache) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "ImpactResult");
-		obj.add("impactCategory", Json.asRef(r.impactCategory, db));
+		obj.add("impactCategory", Json.asRef(r.impactCategory, cache));
 		obj.addProperty("value", r.value);
 		return obj;
 	}
