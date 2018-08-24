@@ -1,0 +1,48 @@
+package org.openlca.util;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.util.function.Supplier;
+
+import org.junit.Test;
+import org.openlca.core.Tests;
+import org.openlca.core.database.Daos;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
+
+public class ProcessesTest {
+
+	@Test
+	public void testFindForLabel() {
+		IDatabase db = Tests.getDb();
+		Supplier<ProcessDescriptor> query = () -> Processes.findForLabel(db,
+				"cow milking - CH");
+		assertNull(query.get());
+
+		ProcessDao dao = new ProcessDao(db);
+		Process p1 = new Process();
+		p1.setName("cow milking");
+		dao.insert(p1);
+		assertEquals(p1.getId(), query.get().getId());
+
+		Location loc = new Location();
+		loc.setCode("CH");
+		Daos.base(db, Location.class).insert(loc);
+		Process p2 = new Process();
+		p2.setName("cow milking");
+		p2.setLocation(loc);
+		dao.insert(p2);
+		assertEquals(p2.getId(), query.get().getId());
+
+		Daos.base(db, Location.class).delete(loc);
+		for (Process p : dao.getForName("cow milking")) {
+			dao.delete(p);
+		}
+		assertNull(query.get());
+	}
+
+}
