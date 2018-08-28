@@ -38,18 +38,23 @@ public class ProviderSearch {
 		this.linkingMethod = linkingMethod;
 	}
 
-	public LongPair find(CalcExchange productInput) {
-		if (productInput == null)
+	/**
+	 * Find the best provider for the given product input or waste output
+	 * according to the search settings.
+	 */
+	public LongPair find(CalcExchange linkExchange) {
+		if (linkExchange == null)
 			return null;
-		long productId = productInput.flowId;
+		long productId = linkExchange.flowId;
 		long[] processIds = processTable.getProviders(productId);
 		if (processIds == null)
 			return null;
 		LongPair candidate = null;
 		for (long processId : processIds) {
 			LongPair newOption = LongPair.of(processId, productId);
-			if (isBetter(productInput, candidate, newOption))
+			if (isBetter(linkExchange, candidate, newOption)) {
 				candidate = newOption;
+			}
 		}
 		return candidate;
 	}
@@ -82,14 +87,16 @@ public class ProviderSearch {
 			return Collections.emptyList();
 		List<CalcExchange> candidates = new ArrayList<>();
 		for (CalcExchange e : list) {
-			if (linkingMethod == LinkingMethod.ONLY_LINK_PROVIDERS && e.defaultProviderId == 0l)
+			if (linkingMethod == LinkingMethod.ONLY_LINK_PROVIDERS
+					&& e.defaultProviderId == 0l)
 				continue;
 			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)
 				continue;
-			if (e.isInput && e.flowType == FlowType.PRODUCT_FLOW)
+			if (e.isInput && e.flowType == FlowType.PRODUCT_FLOW) {
 				candidates.add(e);
-			else if (!e.isInput && e.flowType == FlowType.WASTE_FLOW)
+			} else if (!e.isInput && e.flowType == FlowType.WASTE_FLOW) {
 				candidates.add(e);
+			}
 		}
 		return candidates;
 	}
