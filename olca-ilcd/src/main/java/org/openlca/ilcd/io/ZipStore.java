@@ -163,9 +163,17 @@ public class ZipStore implements DataStore {
 		if (list == null)
 			return null;
 		for (Path entry : list) {
-			String name = entry.getFileName().toString();
-			if (name.contains(id))
-				return entry;
+			try {
+				String name = entry.getFileName().toString();
+				if (name.contains(id))
+					return entry;
+			} catch (Exception e) {
+				// an exception can occur when getting the string
+				// representation of an entry in older JDK
+				// versions:https://bugs.openjdk.java.net/browse/JDK-8061777
+				// log.warn("Could not read zip entry {}", entry);
+				continue;
+			}
 		}
 		return null;
 	}

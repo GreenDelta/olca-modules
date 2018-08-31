@@ -15,6 +15,8 @@ import org.openlca.cloud.util.WebRequests.Type;
 import org.openlca.cloud.util.WebRequests.WebRequestException;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.sun.jersey.api.client.ClientResponse;
@@ -89,7 +91,8 @@ class FetchInvocation {
 			NativeSql.on(database).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
 			database.getEntityFactory().getCache().evictAll();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger log = LoggerFactory.getLogger(getClass());
+			log.error("calling `clearDatabase` failed", e);
 		}
 	}
 
