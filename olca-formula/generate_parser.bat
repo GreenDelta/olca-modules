@@ -14,7 +14,7 @@ cd %JAVACC_PATH%
 set OUT_DIR=.\..\..\..\src\main\java\org\openlca\expressions
 set GRAMMAR=%OUT_DIR%\FormulaParser.jj
 
-call javacc.bat -OUTPUT_DIRECTORY:".\..\..\classes" -GRAMMAR_ENCODING:"UTF-8" -JDK_VERSION:"1.8" %GRAMMAR%
+call javacc.bat -OUTPUT_DIRECTORY:%OUT_DIR% -GRAMMAR_ENCODING:"UTF-8" -JDK_VERSION:"1.8" %GRAMMAR%
 
 cd .\..\..\..
 :end
