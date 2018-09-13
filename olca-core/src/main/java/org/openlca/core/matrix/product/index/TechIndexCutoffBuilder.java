@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,21 +28,12 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 	private final ProductSystem system;
 	private final double cutoff;
 
-	public TechIndexCutoffBuilder(MatrixCache cache, ProductSystem system, double cutoff) {
+	public TechIndexCutoffBuilder(MatrixCache cache, ProductSystem system,
+			LinkingConfig config) {
 		this.cache = cache;
-		this.cutoff = cutoff;
+		this.cutoff = config.cutoff == null ? 0 : config.cutoff;
 		this.system = system;
-		this.providers = new ProviderSearch(cache.getProcessTable());
-	}
-
-	@Override
-	public void setPreferredType(ProcessType type) {
-		providers.setPreferredType(type);
-	}
-
-	@Override
-	public void setLinkingMethod(LinkingMethod linkingMethod) {
-		this.providers.setLinkingMethod(linkingMethod);
+		this.providers = new ProviderSearch(cache.getProcessTable(), config);
 	}
 
 	@Override
@@ -133,7 +124,8 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 
 		private void followLinks(Node node, List<CalcExchange> exchanges,
 				List<Node> nextLayer) {
-			for (CalcExchange linkExchange : providers.getLinkCandidates(exchanges)) {
+			for (CalcExchange linkExchange : providers
+					.getLinkCandidates(exchanges)) {
 				LongPair provider = providers.find(linkExchange);
 				if (provider == null)
 					continue;
@@ -205,7 +197,8 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		 * Get the provider flow that matches the given node from the given
 		 * exchange list.
 		 */
-		private CalcExchange getProviderFlow(Node node, List<CalcExchange> all) {
+		private CalcExchange getProviderFlow(Node node,
+				List<CalcExchange> all) {
 			for (CalcExchange e : all) {
 				if (node.flow.getSecond() != e.flowId)
 					continue;

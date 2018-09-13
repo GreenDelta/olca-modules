@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
@@ -16,26 +17,22 @@ import org.openlca.core.model.ProcessType;
  */
 public class ProviderSearch {
 
-	private ProcessTable processTable;
-	private ProcessType preferredType;
-	private LinkingMethod linkingMethod;
+	private final ProcessTable processTable;
+	private final ProcessType preferredType;
+	private final LinkingMethod linkingMethod;
 
-	public ProviderSearch(ProcessTable processTable) {
+	public ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 		this.processTable = processTable;
-		this.preferredType = ProcessType.LCI_RESULT;
-		this.linkingMethod = LinkingMethod.ONLY_LINK_PROVIDERS;
-	}
-
-	public void setPreferredType(ProcessType preferredType) {
-		if (preferredType == null)
-			return;
-		this.preferredType = preferredType;
-	}
-
-	public void setLinkingMethod(LinkingMethod linkingMethod) {
-		if (linkingMethod == null)
-			return;
-		this.linkingMethod = linkingMethod;
+		if (config.preferredType == null) {
+			this.preferredType = ProcessType.LCI_RESULT;
+		} else {
+			this.preferredType = config.preferredType;
+		}
+		if (config.providerLinking == null) {
+			this.linkingMethod = LinkingMethod.PREFER_PROVIDERS;
+		} else {
+			this.linkingMethod = config.providerLinking;
+		}
 	}
 
 	/**

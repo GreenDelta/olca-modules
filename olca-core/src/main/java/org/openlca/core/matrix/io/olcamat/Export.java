@@ -8,6 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -66,12 +67,13 @@ public class Export implements Runnable {
 	}
 
 	private void addLinks(TechIndex idx) throws Exception {
-		ProviderSearch search = new ProviderSearch(cache.getProcessTable());
+		LinkingConfig config = new LinkingConfig();
+		config.preferredType = ProcessType.UNIT_PROCESS;
+		ProviderSearch search = new ProviderSearch(
+				cache.getProcessTable(), config);
 		Map<Long, List<CalcExchange>> exchanges = cache
 				.getExchangeCache()
 				.getAll(idx.getProcessIds());
-
-		search.setPreferredType(ProcessType.UNIT_PROCESS);
 		for (int i = 0; i < idx.size(); i++) {
 			LongPair recipient = idx.getProviderAt(i);
 			List<CalcExchange> candidates = search.getLinkCandidates(
@@ -87,9 +89,11 @@ public class Export implements Runnable {
 		}
 	}
 
-	private void writeMatrices(InventoryMatrix mat, IMatrixSolver solver) throws Exception {
+	private void writeMatrices(InventoryMatrix mat, IMatrixSolver solver)
+			throws Exception {
 		Matrices.writeDenseColumn(mat.technologyMatrix, new File(dir, "A.bin"));
-		Matrices.writeDenseColumn(mat.interventionMatrix, new File(dir, "B.bin"));
+		Matrices.writeDenseColumn(mat.interventionMatrix,
+				new File(dir, "B.bin"));
 		if (withResults) {
 			IMatrix invA = solver.invert(mat.technologyMatrix);
 			Matrices.writeDenseColumn(invA, new File(dir, "Ainv.bin"));

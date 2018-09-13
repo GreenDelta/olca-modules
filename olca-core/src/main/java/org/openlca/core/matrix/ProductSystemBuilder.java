@@ -12,13 +12,11 @@ import org.openlca.core.database.NativeSql.BatchInsertHandler;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.product.index.ITechIndexBuilder;
-import org.openlca.core.matrix.product.index.LinkingMethod;
 import org.openlca.core.matrix.product.index.TechIndexBuilder;
 import org.openlca.core.matrix.product.index.TechIndexCutoffBuilder;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,27 +28,14 @@ public class ProductSystemBuilder {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private MatrixCache matrixCache;
-	private IDatabase database;
-	private ProcessType preferredType = ProcessType.LCI_RESULT;
-	private LinkingMethod linkingMethod = LinkingMethod.PREFER_PROVIDERS;
-	private Double cutoff;
+	private final MatrixCache matrixCache;
+	private final IDatabase database;
+	private final LinkingConfig config;
 
-	public ProductSystemBuilder(MatrixCache matrixCache) {
+	public ProductSystemBuilder(MatrixCache matrixCache, LinkingConfig config) {
 		this.matrixCache = matrixCache;
 		this.database = matrixCache.getDatabase();
-	}
-
-	public void setPreferredType(ProcessType preferredType) {
-		this.preferredType = preferredType;
-	}
-
-	public void setLinkingMethod(LinkingMethod linkingMethod) {
-		this.linkingMethod = linkingMethod;
-	}
-
-	public void setCutoff(Double cutoff) {
-		this.cutoff = cutoff;
+		this.config = config;
 	}
 
 	public ProductSystem autoComplete(ProductSystem system) {
@@ -82,17 +67,15 @@ public class ProductSystemBuilder {
 	private void run(ProductSystem system, LongPair processProduct) {
 		log.trace("build product index");
 		ITechIndexBuilder builder = getProductIndexBuilder(system);
-		builder.setPreferredType(preferredType);
-		builder.setLinkingMethod(linkingMethod);
 		TechIndex index = builder.build(processProduct);
 		log.trace("create new process links");
 		addLinksAndProcesses(system, index);
 	}
 
 	private ITechIndexBuilder getProductIndexBuilder(ProductSystem system) {
-		if (cutoff == null || cutoff == 0)
-			return new TechIndexBuilder(matrixCache, system);
-		return new TechIndexCutoffBuilder(matrixCache, system, cutoff);
+		if (config.cutoff == null || config.cutoff == 0)
+			return new TechIndexBuilder(matrixCache, system, config);
+		return new TechIndexCutoffBuilder(matrixCache, system, config);
 	}
 
 	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {
