@@ -2,23 +2,18 @@ package org.openlca.core.matrix;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.NativeSql.BatchInsertHandler;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.product.index.ITechIndexBuilder;
-import org.openlca.core.matrix.product.index.LinkingMethod;
 import org.openlca.core.matrix.product.index.TechIndexBuilder;
 import org.openlca.core.matrix.product.index.TechIndexCutoffBuilder;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,93 +25,87 @@ public class ProductSystemBuilder {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private MatrixCache matrixCache;
-	private IDatabase database;
-	private ProcessType preferredType = ProcessType.LCI_RESULT;
-	private LinkingMethod linkingMethod = LinkingMethod.PREFER_PROVIDERS;
-	private Double cutoff;
+	private final MatrixCache matrixCache;
+	private final IDatabase database;
+	private final LinkingConfig config;
 
-	public ProductSystemBuilder(MatrixCache matrixCache) {
+	public ProductSystemBuilder(MatrixCache matrixCache, LinkingConfig config) {
 		this.matrixCache = matrixCache;
 		this.database = matrixCache.getDatabase();
+		this.config = config;
 	}
 
-	public void setPreferredType(ProcessType preferredType) {
-		this.preferredType = preferredType;
+	/**
+	 * Creates a new product system for the given process and runs the
+	 * auto-complete functions with the linking configuration of this build. The
+	 * returned system is not saved to the database.
+	 */
+	public ProductSystem build(Process process) {
+		if (process == null)
+			return null;
+		ProductSystem system = ProductSystem.from(process);
+		autoComplete(system);
+		return system;
 	}
 
-	public void setLinkingMethod(LinkingMethod linkingMethod) {
-		this.linkingMethod = linkingMethod;
-	}
-
-	public void setCutoff(Double cutoff) {
-		this.cutoff = cutoff;
-	}
-
-	public ProductSystem autoComplete(ProductSystem system) {
-		if (system == null || system.referenceExchange == null
+	/**
+	 * Auto-completes the given product system starting with the reference
+	 * process of the system and following all product inputs and waste outputs
+	 * recursively to link them to a provider process. After this function the
+	 * product system will contain an updated set of process IDs and process
+	 * links. The meta-data of the product system are not changed. When you then
+	 * want to save these updated process IDs and process links in the database
+	 * you can call the {@link #saveLinks(ProductSystem)} function.
+	 */
+	public void autoComplete(ProductSystem system) {
+		if (system == null
+				|| system.referenceExchange == null
 				|| system.referenceProcess == null)
-			return system;
+			return;
 		Process refProcess = system.referenceProcess;
 		Flow refProduct = system.referenceExchange.flow;
 		if (refProduct == null)
-			return system;
+			return;
 		LongPair ref = new LongPair(refProcess.getId(), refProduct.getId());
-		return autoComplete(system, ref);
+		autoComplete(system, ref);
 	}
 
-	public ProductSystem autoComplete(ProductSystem system,
-			LongPair processProduct) {
+	/**
+	 * Does the same as {@link #autoComplete(ProductSystem)} but starts the
+	 * linking at the given process product which can be arbitrary product in
+	 * the supply chain of the given system.
+	 */
+	public void autoComplete(ProductSystem system, LongPair product) {
 		try (Connection con = database.createConnection()) {
 			log.trace("auto complete product system {}", system);
-			run(system, processProduct);
-			log.trace("reload system");
-			database.getEntityFactory().getCache().evict(ProductSystem.class);
-			return new ProductSystemDao(database).getForId(system.getId());
+			log.trace("build product index");
+			ITechIndexBuilder builder;
+			if (config.cutoff == null || config.cutoff == 0) {
+				builder = new TechIndexBuilder(matrixCache, system, config);
+			} else {
+				builder = new TechIndexCutoffBuilder(
+						matrixCache, system, config);
+			}
+			TechIndex index = builder.build(product);
+			log.trace("create new process links");
+			addLinksAndProcesses(system, index);
 		} catch (Exception e) {
 			log.error("Failed to auto complete product system " + system, e);
-			return null;
 		}
-	}
-
-	private void run(ProductSystem system, LongPair processProduct) {
-		log.trace("build product index");
-		ITechIndexBuilder builder = getProductIndexBuilder(system);
-		builder.setPreferredType(preferredType);
-		builder.setLinkingMethod(linkingMethod);
-		TechIndex index = builder.build(processProduct);
-		log.trace("create new process links");
-		addLinksAndProcesses(system, index);
-	}
-
-	private ITechIndexBuilder getProductIndexBuilder(ProductSystem system) {
-		if (cutoff == null || cutoff == 0)
-			return new TechIndexBuilder(matrixCache, system);
-		return new TechIndexCutoffBuilder(matrixCache, system, cutoff);
 	}
 
 	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {
-		List<ProcessLink> links = new ArrayList<>();
 		TLongHashSet linkIds = new TLongHashSet(Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR, -1);
-		TLongHashSet processes = new TLongHashSet(Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR, -1);
-
-		// links and processes from system
 		for (ProcessLink link : system.processLinks) {
-			if (linkIds.add(link.exchangeId)) {
-				links.add(link);
-			}
+			linkIds.add(link.exchangeId);
 		}
-		processes.addAll(system.processes);
-
-		// links and processes from tech-index
 		for (LongPair exchange : index.getLinkedExchanges()) {
 			LongPair provider = index.getLinkedProvider(exchange);
 			if (provider == null)
 				continue;
-			processes.add(provider.getFirst());
-			processes.add(exchange.getFirst());
+			system.processes.add(provider.getFirst());
+			system.processes.add(exchange.getFirst());
 			long exchangeId = exchange.getSecond();
 			if (linkIds.add(exchangeId)) {
 				ProcessLink link = new ProcessLink();
@@ -124,21 +113,37 @@ public class ProductSystemBuilder {
 				link.flowId = provider.getSecond();
 				link.processId = exchange.getFirst();
 				link.providerId = provider.getFirst();
-				links.add(link);
+				system.processLinks.add(link);
 			}
 		}
-		updateDatabase(system, links, processes);
 	}
 
-	private void updateDatabase(ProductSystem system, List<ProcessLink> links,
-			TLongHashSet processes) {
+	/**
+	 * Saves the updated process links and IDs of the given product system in
+	 * the databases. Note that if the product system is already contained in
+	 * the database (i.e. has an ID > 0) this function will not update the other
+	 * meta-data of the system as it is intended to call this function after an
+	 * {@link #autoComplete(ProductSystem)} call in this case.
+	 */
+	public ProductSystem saveUpdates(ProductSystem system) {
+		if (system == null)
+			return null;
 		try {
+			ProductSystemDao dao = new ProductSystemDao(database);
+			if (system.getId() == 0L) {
+				log.trace("ID == 0 -> save as new product system");
+				return dao.insert(system);
+			}
 			log.trace("update product system tables");
 			cleanTables(system.getId());
-			insertLinks(system.getId(), links);
-			insertProcesses(system.getId(), processes);
+			insertLinks(system);
+			insertProcesses(system);
+			log.trace("reload system");
+			database.getEntityFactory().getCache().evict(ProductSystem.class);
+			return dao.getForId(system.getId());
 		} catch (Exception e) {
-			log.error("faile to update database in process builder", e);
+			log.error("failed to update database", e);
+			return null;
 		}
 	}
 
@@ -152,8 +157,8 @@ public class ProductSystemBuilder {
 		NativeSql.on(database).runUpdate(sql);
 	}
 
-	private void insertLinks(long systemId, List<ProcessLink> links)
-			throws Exception {
+	private void insertLinks(ProductSystem system) throws Exception {
+		List<ProcessLink> links = system.processLinks;
 		log.trace("insert {} process links", links.size());
 		String stmt = "insert into tbl_process_links(f_product_system, "
 				+ "f_provider, f_process, f_flow, f_exchange) "
@@ -161,7 +166,7 @@ public class ProductSystemBuilder {
 		NativeSql.on(database).batchInsert(stmt, links.size(),
 				(int i, PreparedStatement ps) -> {
 					ProcessLink link = links.get(i);
-					ps.setLong(1, systemId);
+					ps.setLong(1, system.getId());
 					ps.setLong(2, link.providerId);
 					ps.setLong(3, link.processId);
 					ps.setLong(4, link.flowId);
@@ -170,21 +175,17 @@ public class ProductSystemBuilder {
 				});
 	}
 
-	private void insertProcesses(final long systemId, TLongHashSet processes)
-			throws Exception {
-		log.trace("insert {} system processes", processes.size());
-		final long[] processIds = processes.toArray();
+	private void insertProcesses(ProductSystem system) throws Exception {
+		long[] ids = system.processes.stream()
+				.mapToLong(Long::longValue).toArray();
+		log.trace("insert {} system processes", ids.length);
 		String stmt = "insert into tbl_product_system_processes("
 				+ "f_product_system, f_process) values (?, ?)";
-		NativeSql.on(database).batchInsert(stmt, processIds.length,
-				new BatchInsertHandler() {
-					@Override
-					public boolean addBatch(int i, PreparedStatement ps)
-							throws SQLException {
-						ps.setLong(1, systemId);
-						ps.setLong(2, processIds[i]);
-						return true;
-					}
+		NativeSql.on(database).batchInsert(stmt, ids.length,
+				(int i, PreparedStatement ps) -> {
+					ps.setLong(1, system.getId());
+					ps.setLong(2, ids[i]);
+					return true;
 				});
 	}
 }

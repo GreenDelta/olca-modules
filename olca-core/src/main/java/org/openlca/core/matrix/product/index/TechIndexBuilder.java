@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,20 +24,11 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 	private final MatrixCache cache;
 	private final ProductSystem system;
 
-	public TechIndexBuilder(MatrixCache cache, ProductSystem system) {
+	public TechIndexBuilder(MatrixCache cache, ProductSystem system,
+			LinkingConfig config) {
 		this.cache = cache;
 		this.system = system;
-		this.providers = new ProviderSearch(cache.getProcessTable());
-	}
-
-	@Override
-	public void setPreferredType(ProcessType type) {
-		this.providers.setPreferredType(type);
-	}
-
-	@Override
-	public void setLinkingMethod(LinkingMethod linkingMethod) {
-		this.providers.setLinkingMethod(linkingMethod);
+		this.providers = new ProviderSearch(cache.getProcessTable(), config);
 	}
 
 	@Override
@@ -61,7 +52,8 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 			for (LongPair recipient : block) {
 				handled.add(recipient);
 				List<CalcExchange> all = exchanges.get(recipient.getFirst());
-				List<CalcExchange> candidates = providers.getLinkCandidates(all);
+				List<CalcExchange> candidates = providers
+						.getLinkCandidates(all);
 				for (CalcExchange linkExchange : candidates) {
 					LongPair provider = providers.find(linkExchange);
 					if (provider == null)
@@ -69,7 +61,8 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 					LongPair exchange = new LongPair(recipient.getFirst(),
 							linkExchange.exchangeId);
 					index.putLink(exchange, provider);
-					if (!handled.contains(provider) && !nextBlock.contains(provider))
+					if (!handled.contains(provider)
+							&& !nextBlock.contains(provider))
 						nextBlock.add(provider);
 				}
 			}

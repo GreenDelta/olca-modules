@@ -1,5 +1,11 @@
 package org.openlca.core.matrix;
 
+/**
+ * A LongPair saves just a pair of longs. We use this typically to efficiently
+ * store the IDs of a process and a product or waste flow as pair that we then
+ * use in indices to build matrix structures for the calculation. In this case,
+ * the first value should be always the process ID and the second the flow ID.
+ */
 public class LongPair implements Comparable<LongPair> {
 
 	private long first;

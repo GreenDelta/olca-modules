@@ -42,13 +42,13 @@ public class Lapack {
 	 *            equation (size = n * bColums)
 	 * @return the LAPACK return code
 	 */
-	public static native int dSolve(int n, int nrhs, double[] a, double[] b);
+	public static native int dSolve(int n, int bColums, double[] a, double[] b);
 
 	/**
 	 * Solves a system of linear equations A * X = B for general matrices. It
 	 * calls the LAPACK DGESV routine. (single precision)
 	 * 
-	 * @param n
+	 * @param rows
 	 *            [in] the dimension of the matrix A (n = rows = columns of A)
 	 * @param bColums
 	 *            [in] the number of columns of the matrix B
@@ -60,13 +60,12 @@ public class Lapack {
 	 *            equation (size = n * bColums)
 	 * @return the LAPACK return code
 	 */
-	public static native int sSolve(int rows, int bColums, float[] a, float[] b);
+	public static native int sSolve(int rows, int bColums, float[] a,
+			float[] b);
 
 	/**
 	 * Solves the system of linear equations A * X = B for general matrices in
 	 * single precision with iterative refinement.
-	 * 
-	 * @TODO: add parameter doc
 	 */
 	public static native int dsSolve(int n, int nrhs, double[] a, double[] b,
 			double[] x);
