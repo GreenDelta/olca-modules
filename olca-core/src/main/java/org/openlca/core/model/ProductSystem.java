@@ -64,7 +64,7 @@ public class ProductSystem extends CategorizedEntity {
 	 * Initializes a product system from the given process. Note that this
 	 * function does not create a linked system; it just sets the data for the
 	 * quantitative reference of the system from the quantitative reference of
-	 * the given process.
+	 * the given process which needs to be a product output or waste input.
 	 */
 	public static ProductSystem from(Process p) {
 		ProductSystem system = new ProductSystem();
@@ -76,7 +76,12 @@ public class ProductSystem extends CategorizedEntity {
 		system.referenceProcess = p;
 		Exchange qRef = p.getQuantitativeReference();
 		system.referenceExchange = qRef;
-		if (qRef == null)
+		if (qRef == null || qRef.flow == null)
+			return system;
+		FlowType type = qRef.flow.getFlowType();
+		if (qRef.isInput && type != FlowType.WASTE_FLOW)
+			return system;
+		if (!qRef.isInput && type != FlowType.PRODUCT_FLOW)
 			return system;
 		system.targetAmount = qRef.amount;
 		system.targetUnit = qRef.unit;
