@@ -29,6 +29,7 @@ import com.google.gson.JsonObject;
 
 public class ZipStore implements EntityStore {
 
+	private final static String META_INFO_PATH = "meta.info";
 	private final static String CONTEXT_PATH = "context.json";
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private FileSystem zip;
@@ -49,18 +50,14 @@ public class ZipStore implements EntityStore {
 
 	@Override
 	public void putContext() {
-		JsonObject context = Context.write(Schema.URI);
-		if (context == null)
-			return;
-		try {
-			String json = new Gson().toJson(context);
-			byte[] data = json.getBytes("utf-8");
-			put(CONTEXT_PATH, data);
-		} catch (Exception e) {
-			log.error("failed to put " + CONTEXT_PATH, e);
-		}
+		put(CONTEXT_PATH, Context.write(Schema.URI));
 	}
-
+	
+	@Override
+	public void putMetaInfo(JsonObject info) {
+		put(META_INFO_PATH, info);
+	}
+	
 	@Override
 	public void putBin(ModelType type, String refId, String filename,
 			byte[] data) {
@@ -92,6 +89,8 @@ public class ZipStore implements EntityStore {
 	}
 
 	private void put(String path, JsonObject object) {
+		if (object == null) 
+			return;
 		try {
 			String json = new Gson().toJson(object);
 			byte[] data = json.getBytes("utf-8");

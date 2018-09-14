@@ -81,6 +81,10 @@ class MemStore implements EntityStore {
 	}
 
 	@Override
+	public void putMetaInfo(JsonObject info) {
+	}
+	
+	@Override
 	public JsonObject getContext() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@vocab", "http://openlca.org/schema/v1.1/");

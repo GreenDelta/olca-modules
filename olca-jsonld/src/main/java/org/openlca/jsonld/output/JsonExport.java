@@ -172,6 +172,12 @@ public class JsonExport {
 		conf.exportReferences = value;
 	}
 
+	public void setClientInfo(String value) {
+		conf.clientInfo = value;
+		JsonObject obj = new MetaInfoWriter(conf).write();
+		conf.store.putMetaInfo(obj);
+	}
+
 	private class Copy extends SimpleFileVisitor<Path> {
 
 		private String refId;

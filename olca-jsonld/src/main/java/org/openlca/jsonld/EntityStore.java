@@ -28,6 +28,8 @@ public interface EntityStore extends Closeable {
 	
 	void putContext();
 
+	void putMetaInfo(JsonObject info);
+
 	JsonObject getContext();
 
 	/**
