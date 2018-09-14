@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 public class RepositoryConfig {
 
+	public static final String INDEX_DIR = "cloud";
+	public static final String PROPERTIES_FILE = "repository.properties";
 	private final static Logger log = LoggerFactory.getLogger(RepositoryConfig.class);
 	public final IDatabase database;
 	public final String baseUrl;
@@ -86,12 +88,11 @@ public class RepositoryConfig {
 		File configFile = getConfigFile(database);
 		configFile.delete();
 		File fileStorage = database.getFileStorageLocation();
-		Directories.delete(new File(fileStorage, "cloud/" + repositoryId));
+		Directories.delete(new File(fileStorage, INDEX_DIR + "/" + repositoryId));
 	}
 
 	private static File getConfigFile(IDatabase database) {
-		return new File(database.getFileStorageLocation(),
-				"repository.properties");
+		return new File(database.getFileStorageLocation(), PROPERTIES_FILE);
 	}
 
 	public String getServerUrl() {

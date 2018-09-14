@@ -22,8 +22,12 @@ import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.util.Formula;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParameterReferences {
+
+	private final static Logger log = LoggerFactory.getLogger(ParameterReferences.class);
 
 	public static void writeReferencedParameters(Project p, ExportConfig conf) {
 		if (!conf.exportReferences)
@@ -55,7 +59,7 @@ public class ParameterReferences {
 			return;
 		Set<String> names = new HashSet<>();
 		for (Exchange e : p.getExchanges()) {
-			names.addAll(Formula.getVariables(e.amountFormula));
+			names.addAll(getVariables(e.amountFormula));
 			names.addAll(getUncercaintyVariables(e.uncertainty));
 		}
 		names.addAll(getParameterVariables(p.getParameters()));
@@ -69,7 +73,7 @@ public class ParameterReferences {
 			// no formulas in input parameters
 			if (param.isInputParameter())
 				continue;
-			names.addAll(Formula.getVariables(param.getFormula()));
+			names.addAll(getVariables(param.getFormula()));
 			names.addAll(getUncercaintyVariables(param.getUncertainty()));
 		}
 		return names;
@@ -90,7 +94,7 @@ public class ParameterReferences {
 		Set<String> names = new HashSet<>();
 		for (ImpactCategory c : m.impactCategories)
 			for (ImpactFactor f : c.impactFactors) {
-				names.addAll(Formula.getVariables(f.formula));
+				names.addAll(getVariables(f.formula));
 				names.addAll(getUncercaintyVariables(f.uncertainty));
 			}
 		names.addAll(getParameterVariables(m.parameters));
@@ -113,10 +117,10 @@ public class ParameterReferences {
 			return names;
 		if (u.distributionType == UncertaintyType.NONE)
 			return names;
-		names.addAll(Formula.getVariables(u.formula1));
-		names.addAll(Formula.getVariables(u.formula2));
+		names.addAll(getVariables(u.formula1));
+		names.addAll(getVariables(u.formula2));
 		if (u.distributionType == UncertaintyType.TRIANGLE)
-			names.addAll(Formula.getVariables(u.formula3));
+			names.addAll(getVariables(u.formula3));
 		return names;
 	}
 
@@ -126,7 +130,7 @@ public class ParameterReferences {
 		Set<String> names = new HashSet<>();
 		if (p.isInputParameter())
 			return;
-		names.addAll(Formula.getVariables(p.getFormula()));
+		names.addAll(getVariables(p.getFormula()));
 		names.addAll(getUncercaintyVariables(p.getUncertainty()));
 		writeParameters(names, conf);
 	}
@@ -152,6 +156,15 @@ public class ParameterReferences {
 		parameters.put("name", name);
 		parameters.put("scope", ParameterScope.GLOBAL);
 		return dao.getFirst(jpql, parameters);
+	}
+	
+	private static Set<String> getVariables(String formula) {
+		try {
+			return Formula.getVariables(formula);
+		} catch (Throwable t) {
+			log.warn("Failed parsing formula " + formula, t);
+			return new HashSet<>();
+		}
 	}
 
 }
