@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LinkingConfig;
+import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
@@ -19,7 +20,7 @@ public class ProviderSearch {
 
 	private final ProcessTable processTable;
 	private final ProcessType preferredType;
-	private final LinkingMethod linkingMethod;
+	private final DefaultProviders defaultProviders;
 
 	public ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 		this.processTable = processTable;
@@ -29,9 +30,9 @@ public class ProviderSearch {
 			this.preferredType = config.preferredType;
 		}
 		if (config.providerLinking == null) {
-			this.linkingMethod = LinkingMethod.PREFER_PROVIDERS;
+			this.defaultProviders = DefaultProviders.PREFER;
 		} else {
-			this.linkingMethod = config.providerLinking;
+			this.defaultProviders = config.providerLinking;
 		}
 	}
 
@@ -62,7 +63,7 @@ public class ProviderSearch {
 			return true;
 		if (newOption == null)
 			return false;
-		if (linkingMethod != LinkingMethod.IGNORE_PROVIDERS) {
+		if (defaultProviders != DefaultProviders.IGNORE) {
 			if (candidate.getFirst() == inputLink.defaultProviderId)
 				return false;
 			if (newOption.getFirst() == inputLink.defaultProviderId)
@@ -84,7 +85,7 @@ public class ProviderSearch {
 			return Collections.emptyList();
 		List<CalcExchange> candidates = new ArrayList<>();
 		for (CalcExchange e : list) {
-			if (linkingMethod == LinkingMethod.ONLY_LINK_PROVIDERS
+			if (defaultProviders == DefaultProviders.ONLY
 					&& e.defaultProviderId == 0l)
 				continue;
 			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)
