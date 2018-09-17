@@ -31,7 +31,7 @@ public class ProviderSearch {
 	 * according to the search settings.
 	 */
 	public LongPair find(CalcExchange linkExchange) {
-		if (linkExchange == null)
+		if (linkExchange == null || cancel())
 			return null;
 		long productId = linkExchange.flowId;
 		long[] processIds = processTable.getProviders(productId);
@@ -78,9 +78,7 @@ public class ProviderSearch {
 	 * could be linked to a provider.
 	 */
 	public List<CalcExchange> getLinkCandidates(List<CalcExchange> list) {
-		if (list == null || list.isEmpty())
-			return Collections.emptyList();
-		if (config.callback != null && config.callback.cancel())
+		if (list == null || list.isEmpty() || cancel())
 			return Collections.emptyList();
 		List<CalcExchange> candidates = new ArrayList<>();
 		for (CalcExchange e : list) {
@@ -96,6 +94,11 @@ public class ProviderSearch {
 			}
 		}
 		return candidates;
+	}
+
+	private boolean cancel() {
+		return config.callback != null
+				&& config.callback.cancel();
 	}
 
 }
