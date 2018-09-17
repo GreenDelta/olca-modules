@@ -19,21 +19,11 @@ import org.openlca.core.model.ProcessType;
 public class ProviderSearch {
 
 	private final ProcessTable processTable;
-	private final ProcessType preferredType;
-	private final DefaultProviders defaultProviders;
+	private final LinkingConfig config;
 
 	public ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 		this.processTable = processTable;
-		if (config.preferredType == null) {
-			this.preferredType = ProcessType.LCI_RESULT;
-		} else {
-			this.preferredType = config.preferredType;
-		}
-		if (config.providerLinking == null) {
-			this.defaultProviders = DefaultProviders.PREFER;
-		} else {
-			this.defaultProviders = config.providerLinking;
-		}
+		this.config = config;
 	}
 
 	/**
@@ -45,8 +35,13 @@ public class ProviderSearch {
 			return null;
 		long productId = linkExchange.flowId;
 		long[] processIds = processTable.getProviders(productId);
-		if (processIds == null)
+		if (processIds == null || processIds.length == 0)
 			return null;
+		if (config.callback != null) {
+			processIds = config.callback.select(linkExchange, processIds);
+		}
+		if (processIds.length == 1)
+			return LongPair.of(processIds[0], productId);
 		LongPair candidate = null;
 		for (long processId : processIds) {
 			LongPair newOption = LongPair.of(processId, productId);
@@ -63,7 +58,7 @@ public class ProviderSearch {
 			return true;
 		if (newOption == null)
 			return false;
-		if (defaultProviders != DefaultProviders.IGNORE) {
+		if (config.providerLinking != DefaultProviders.IGNORE) {
 			if (candidate.getFirst() == inputLink.defaultProviderId)
 				return false;
 			if (newOption.getFirst() == inputLink.defaultProviderId)
@@ -71,9 +66,11 @@ public class ProviderSearch {
 		}
 		ProcessType candidateType = processTable.getType(candidate.getFirst());
 		ProcessType newOptionType = processTable.getType(newOption.getFirst());
-		if (candidateType == preferredType && newOptionType != preferredType)
+		if (candidateType == config.preferredType
+				&& newOptionType != config.preferredType)
 			return false;
-		return candidateType != preferredType && newOptionType == preferredType;
+		return candidateType != config.preferredType
+				&& newOptionType == config.preferredType;
 	}
 
 	/**
@@ -83,10 +80,12 @@ public class ProviderSearch {
 	public List<CalcExchange> getLinkCandidates(List<CalcExchange> list) {
 		if (list == null || list.isEmpty())
 			return Collections.emptyList();
+		if (config.callback != null && config.callback.cancel())
+			return Collections.emptyList();
 		List<CalcExchange> candidates = new ArrayList<>();
 		for (CalcExchange e : list) {
-			if (defaultProviders == DefaultProviders.ONLY
-					&& e.defaultProviderId == 0l)
+			if (config.providerLinking == DefaultProviders.ONLY
+					&& e.defaultProviderId == 0L)
 				continue;
 			if (e.flowType == null || e.flowType == FlowType.ELEMENTARY_FLOW)
 				continue;
