@@ -37,6 +37,13 @@ public class ProviderSearch {
 		long[] processIds = processTable.getProviders(productId);
 		if (processIds == null || processIds.length == 0)
 			return null;
+		if (config.providerLinking == DefaultProviders.ONLY) {
+			for (long processId : processIds) {
+				if (processId == linkExchange.defaultProviderId)
+					return LongPair.of(processId, productId);
+			}
+			return null;
+		}
 		if (config.callback != null) {
 			processIds = config.callback.select(linkExchange, processIds);
 		}
