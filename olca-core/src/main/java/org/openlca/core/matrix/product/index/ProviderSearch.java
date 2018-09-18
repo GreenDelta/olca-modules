@@ -30,54 +30,66 @@ public class ProviderSearch {
 	 * Find the best provider for the given product input or waste output
 	 * according to the search settings.
 	 */
-	public LongPair find(CalcExchange linkExchange) {
-		if (linkExchange == null || cancel())
+	public LongPair find(CalcExchange e) {
+		if (e == null || cancel())
 			return null;
-		long productId = linkExchange.flowId;
+		long productId = e.flowId;
 		long[] processIds = processTable.getProviders(productId);
 		if (processIds == null || processIds.length == 0)
 			return null;
-		if (config.providerLinking == DefaultProviders.ONLY) {
+
+		// select a default provider if present
+		// this needs to be done before asking a potential callback
+		// for options as the callback should be only called when
+		// there are multiple options.
+		if (config.providerLinking != DefaultProviders.IGNORE) {
 			for (long processId : processIds) {
-				if (processId == linkExchange.defaultProviderId)
+				if (processId == e.defaultProviderId)
 					return LongPair.of(processId, productId);
 			}
-			return null;
+			if (config.providerLinking == DefaultProviders.ONLY)
+				return null;
 		}
-		if (config.callback != null) {
-			processIds = config.callback.select(linkExchange, processIds);
-		}
+
+		// check form single options and callback
 		if (processIds.length == 1)
 			return LongPair.of(processIds[0], productId);
+		if (config.callback != null) {
+			processIds = config.callback.select(e, processIds);
+			if (processIds == null || processIds.length == 0)
+				return null;
+			if (processIds.length == 1)
+				return LongPair.of(processIds[0], productId);
+		}
+
 		LongPair candidate = null;
 		for (long processId : processIds) {
 			LongPair newOption = LongPair.of(processId, productId);
-			if (isBetter(linkExchange, candidate, newOption)) {
+			if (isBetter(e, candidate, newOption)) {
 				candidate = newOption;
 			}
 		}
 		return candidate;
 	}
 
-	private boolean isBetter(CalcExchange inputLink, LongPair candidate,
-			LongPair newOption) {
-		if (candidate == null)
+	private boolean isBetter(CalcExchange e, LongPair old, LongPair newOption) {
+		if (old == null)
 			return true;
 		if (newOption == null)
 			return false;
 		if (config.providerLinking != DefaultProviders.IGNORE) {
-			if (candidate.getFirst() == inputLink.defaultProviderId)
+			if (old.getFirst() == e.defaultProviderId)
 				return false;
-			if (newOption.getFirst() == inputLink.defaultProviderId)
+			if (newOption.getFirst() == e.defaultProviderId)
 				return true;
 		}
-		ProcessType candidateType = processTable.getType(candidate.getFirst());
-		ProcessType newOptionType = processTable.getType(newOption.getFirst());
-		if (candidateType == config.preferredType
-				&& newOptionType != config.preferredType)
+		ProcessType oldType = processTable.getType(old.getFirst());
+		ProcessType newType = processTable.getType(newOption.getFirst());
+		if (oldType == config.preferredType
+				&& newType != config.preferredType)
 			return false;
-		return candidateType != config.preferredType
-				&& newOptionType == config.preferredType;
+		return oldType != config.preferredType
+				&& newType == config.preferredType;
 	}
 
 	/**
