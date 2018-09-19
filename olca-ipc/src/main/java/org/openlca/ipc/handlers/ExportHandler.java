@@ -3,12 +3,16 @@ package org.openlca.ipc.handlers;
 import java.io.File;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.math.Simulator;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.ContributionResultProvider;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.FullResultProvider;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimpleResultProvider;
+import org.openlca.core.results.SimulationResult;
+import org.openlca.core.results.SimulationResultProvider;
+import org.openlca.io.xls.results.SimulationResultExport;
 import org.openlca.io.xls.results.system.ResultExport;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
@@ -41,8 +45,19 @@ public class ExportHandler {
 		if (!(val instanceof CachedResult))
 			return Responses.notImplemented("The Excel export is currently"
 					+ " only implemented for calculation results", req);
-		CachedResult r = (CachedResult) val;
-		ResultExport export = new ResultExport(r.setup, getProvider(r.result),
+		CachedResult<?> r = (CachedResult<?>) val;
+		if (r.result instanceof SimpleResult)
+			return exportSimpleResult(req, path, r);
+		if (r.result instanceof Simulator)
+			return exportSimulationResult(req, path, r);
+		return Responses.notImplemented("The Excel export is currently"
+				+ " only implemented for calculation results", req);
+	}
+
+	private RpcResponse exportSimpleResult(RpcRequest req, String path,
+			CachedResult<?> r) {
+		ResultExport export = new ResultExport(r.setup,
+				getProvider((SimpleResult) r.result),
 				new File(path));
 		export.run();
 		if (export.doneWithSuccess())
@@ -60,6 +75,22 @@ public class ExportHandler {
 			return new ContributionResultProvider<>(
 					(ContributionResult) r, cache);
 		return new SimpleResultProvider<>(r, cache);
+	}
+
+	private RpcResponse exportSimulationResult(RpcRequest req, String path,
+			CachedResult<?> r) {
+		Simulator simulator = (Simulator) r.result;
+		SimulationResult result = simulator.getResult();
+		SimulationResultProvider<SimulationResult> provider = new SimulationResultProvider<>(
+				result, EntityCache.create(context.db));
+		SimulationResultExport export = new SimulationResultExport(
+				r.setup, provider);
+		try {
+			export.run(new File(path));
+			return Responses.ok("Exported to " + path, req);
+		} catch (Exception e) {
+			return Responses.serverError(e, req);
+		}
 	}
 
 }

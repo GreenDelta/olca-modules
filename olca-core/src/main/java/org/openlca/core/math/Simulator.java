@@ -33,10 +33,10 @@ public class Simulator {
 	private ImpactMatrix impactMatrix;
 	private CalculationSetup setup;
 
-	public Simulator(CalculationSetup setup, MatrixCache database,
+	public Simulator(CalculationSetup setup, MatrixCache cache,
 			IMatrixSolver solver) {
 		this.impactMethod = setup.impactMethod;
-		this.cache = database;
+		this.cache = cache;
 		this.setup = setup;
 		this.matrixSolver = solver;
 	}
@@ -46,11 +46,14 @@ public class Simulator {
 	}
 
 	/**
-	 * Generates random numbers and calculates the product system. Returns true
-	 * if the calculation was successfully done, otherwise false (this is the
-	 * case when the resulting matrix is singular).
+	 * Generates random numbers and calculates the product system. Returns the
+	 * simulation result if the calculation in this run finished without errors,
+	 * otherwise <code>null</code> is returned (e.g. the resulting matrix was
+	 * singular). The returned result is appended to the result of the simulator
+	 * (which you get via {@link #getResult()}, so it does not need to (and
+	 * should not) be cached.
 	 */
-	public boolean nextRun() {
+	public SimpleResult nextRun() {
 		if (inventory == null || inventoryMatrix == null)
 			setUp();
 		try {
@@ -65,10 +68,10 @@ public class Simulator {
 			}
 			SimpleResult result = solver.calculateSimple();
 			appendResults(result);
-			return true;
+			return result;
 		} catch (Throwable e) {
 			log.trace("simulation run failed", e);
-			return false;
+			return null;
 		}
 	}
 
@@ -81,7 +84,8 @@ public class Simulator {
 	private void setUp() {
 		log.trace("set up inventory");
 		inventory = DataStructures.createInventory(setup, cache);
-		parameterTable = DataStructures.createParameterTable(cache.getDatabase(),
+		parameterTable = DataStructures.createParameterTable(
+				cache.getDatabase(),
 				setup, inventory);
 		inventoryMatrix = inventory.createMatrix(matrixSolver);
 		result = new SimulationResult();

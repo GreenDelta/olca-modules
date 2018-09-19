@@ -1,18 +1,16 @@
 package org.openlca.ipc.handlers;
 
 import org.openlca.core.math.CalculationSetup;
-import org.openlca.core.results.SimpleResult;
 
-class CachedResult {
+class CachedResult<T> {
 
 	CalculationSetup setup;
-	SimpleResult result;
+	T result;
 
-	public static CachedResult of(CalculationSetup setup, SimpleResult result) {
-		CachedResult r = new CachedResult();
+	public static <T> CachedResult<T> of(CalculationSetup setup, T result) {
+		CachedResult<T> r = new CachedResult<T>();
 		r.setup = setup;
 		r.result = result;
 		return r;
 	}
-
 }

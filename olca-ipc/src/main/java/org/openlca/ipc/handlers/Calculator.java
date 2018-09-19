@@ -10,6 +10,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
+import org.openlca.core.math.Simulator;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ParameterRedef;
@@ -39,6 +40,63 @@ public class Calculator {
 		this.db = context.db;
 	}
 
+	/**
+	 * Creates a Monte-Carlo simulator for a calculation setup.
+	 */
+	@Rpc("simulator")
+	public RpcResponse simulator(RpcRequest req) {
+		if (req == null || req.params == null || !req.params.isJsonObject())
+			return Responses.invalidParams("No calculation setup given", req);
+		JsonObject json = req.params.getAsJsonObject();
+		String systemID = Json.getRefId(json, "productSystem");
+		if (systemID == null)
+			return Responses.invalidParams("No product system ID", req);
+		ProductSystem system = new ProductSystemDao(db).getForRefId(systemID);
+		if (system == null)
+			return Responses.invalidParams(
+					"No product system found for @id=" + systemID, req);
+		CalculationSetup setup = buildSetup(json, system);
+		log.info("Calculate product system {}", systemID);
+		Simulator simulator = new Simulator(setup,
+				MatrixCache.createEager(db), context.solver);
+		String id = UUID.randomUUID().toString();
+		JsonObject obj = new JsonObject();
+		obj.addProperty("@id", id);
+		obj.addProperty("@type", "Simulator");
+		context.cache.put(id, CachedResult.of(setup, simulator));
+		return Responses.ok(obj, req);
+	}
+
+	/**
+	 * Runs a next Monte-Carlo-Simulation on a cached simulator. Returns the
+	 * simulation result but does not cache it (as it is cached in the result of
+	 * the simulator).
+	 */
+	@Rpc("next/simulation")
+	public RpcResponse nextSimulation(RpcRequest req) {
+		if (req == null || req.params == null || !req.params.isJsonObject())
+			return Responses.invalidParams("No simulator given", req);
+		String id = Json.getString(req.params.getAsJsonObject(), "@id");
+		if (id == null)
+			return Responses.invalidParams(
+					"No simulator with '@id' given", req);
+		Object obj = context.cache.get(id);
+		if (!(obj instanceof CachedResult))
+			return Responses.invalidParams(
+					"No cached simulator with @id=" + id, req);
+		obj = ((CachedResult<?>) obj).result;
+		if (!(obj instanceof Simulator))
+			return Responses.invalidParams(
+					"No cached simulator with @id=" + id, req);
+		Simulator simulator = (Simulator) obj;
+		SimpleResult r = simulator.nextRun();
+		if (r == null)
+			return Responses.internalServerError(
+					"Simulation failed", req);
+		JsonObject result = JsonRpc.encode(r, id, EntityCache.create(db));
+		return Responses.ok(result, req);
+	}
+
 	@Rpc("calculate")
 	public RpcResponse calculate(RpcRequest req) {
 		if (req == null || req.params == null || !req.params.isJsonObject())
@@ -46,13 +104,13 @@ public class Calculator {
 		JsonObject json = req.params.getAsJsonObject();
 		String systemID = Json.getRefId(json, "productSystem");
 		if (systemID == null)
-			Responses.invalidParams("No product system ID", req);
+			return Responses.invalidParams("No product system ID", req);
 		ProductSystem system = new ProductSystemDao(db).getForRefId(systemID);
 		if (system == null)
-			Responses.invalidParams(
+			return Responses.invalidParams(
 					"No product system found for @id=" + systemID, req);
-		log.info("Calculate product system {}", systemID);
 		CalculationSetup setup = buildSetup(json, system);
+		log.info("Calculate product system {}", systemID);
 		return calculate(req, setup);
 	}
 
