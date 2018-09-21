@@ -56,7 +56,7 @@ public class Calculator {
 			return Responses.invalidParams(
 					"No product system found for @id=" + systemID, req);
 		CalculationSetup setup = buildSetup(json, system);
-		log.info("Calculate product system {}", systemID);
+		log.info("Create simulator for system {}", systemID);
 		Simulator simulator = new Simulator(setup,
 				MatrixCache.createEager(db), context.solver);
 		String id = UUID.randomUUID().toString();
