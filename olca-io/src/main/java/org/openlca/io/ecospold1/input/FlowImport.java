@@ -216,7 +216,7 @@ class FlowImport {
 		UnitMappingEntry mapEntry = unitMapping.getEntry(unit);
 		if (mapEntry == null || !mapEntry.isValid())
 			return null;
-		if (flow.getFactor(mapEntry.flowProperty) != null) {
+		if (flow.getFactor(mapEntry.flowProperty) == null) {
 			log.error("The unit/property for flow {}/{} "
 					+ "changed in the database", flow, unit);
 			return null;
