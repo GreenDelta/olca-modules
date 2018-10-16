@@ -30,7 +30,7 @@ class SocialIndicatorImport extends BaseImport<SocialIndicator> {
 		String quanId = Json.getRefId(json, "activityQuantity");
 		i.activityQuantity = FlowPropertyImport.run(quanId, conf);
 		String unitId = Json.getRefId(json, "activityUnit");
-		i.activityUnit = conf.db.getUnit(unitId);
+		i.activityUnit = conf.db.get(ModelType.UNIT, unitId);
 		return conf.db.put(i);
 	}
 

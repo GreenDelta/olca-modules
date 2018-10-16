@@ -7,6 +7,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Json;
 
@@ -45,7 +46,7 @@ class ImpactCategories {
 		String flowId = Json.getRefId(json, "flow");
 		Flow flow = FlowImport.run(flowId, conf);
 		factor.flow = flow;
-		Unit unit = conf.db.getUnit(Json.getRefId(json, "unit"));
+		Unit unit = conf.db.get(ModelType.UNIT, Json.getRefId(json, "unit"));
 		factor.unit = unit;
 		FlowPropertyFactor propFac = getPropertyFactor(json, flow);
 		if (flow == null || unit == null || propFac == null) {

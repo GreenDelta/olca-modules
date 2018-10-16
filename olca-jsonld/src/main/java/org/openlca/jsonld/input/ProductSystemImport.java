@@ -103,8 +103,9 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			return;
 		for (JsonElement element : array) {
 			JsonObject ref = element.getAsJsonObject();
-			Exchange e = Exchanges.map(ref, conf);
-			s.inventory.add(e);
+			Exchange ex = ExchangeImport.run(ModelType.PRODUCT_SYSTEM, s.getRefId(), ref, conf,
+					(ProductSystem system) -> system.inventory);
+			s.inventory.add(ex);
 		}
 	}
 	

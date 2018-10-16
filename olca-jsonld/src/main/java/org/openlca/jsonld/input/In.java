@@ -52,5 +52,15 @@ final class In {
 		String catId = Json.getRefId(obj, "category");
 		entity.setCategory(CategoryImport.run(catId, conf));
 	}
+	
+	static boolean isNewer(JsonObject json, RootEntity model) {
+		long jsonVersion = getVersion(json);
+		long jsonDate = getLastChange(json);
+		if (jsonVersion < model.getVersion())
+			return false;
+		if (jsonVersion == model.getVersion() && jsonDate <= model.getLastChange())
+			return false;
+		return true;
+	}
 
 }

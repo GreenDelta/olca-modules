@@ -10,8 +10,10 @@ import org.openlca.core.database.DQSystemDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -29,6 +31,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -49,6 +52,8 @@ class Db {
 	private Map<String, Long> locationIds = new HashMap<>();
 	private Map<String, Long> dqSystemIds = new HashMap<>();
 	private Map<String, Long> methodIds = new HashMap<>();
+	private Map<String, Long> impactCategoryIds = new HashMap<>();
+	private Map<String, Long> nwSetIds = new HashMap<>();
 	private Map<String, Long> actorIds = new HashMap<>();
 	private Map<String, Long> sourceIds = new HashMap<>();
 	private Map<String, Long> parameterIds = new HashMap<>();
@@ -58,7 +63,7 @@ class Db {
 	private Map<String, Long> systemIds = new HashMap<>();
 	private Map<String, Long> projectIds = new HashMap<>();
 	public Map<String, String> categoryRefIdMapping = new HashMap<String, String>();
-	
+
 	private IDatabase db;
 
 	public Db(IDatabase db) {
@@ -69,28 +74,100 @@ class Db {
 		return db;
 	}
 
-	public Location getLocation(String refId) {
-		return get(new LocationDao(db), refId, locationIds);
+	@SuppressWarnings("unchecked")
+	<T extends RootEntity> T get(ModelType modelType, String refId) {
+		switch (modelType) {
+		case PROJECT:
+			return (T) get(new ProjectDao(db), refId, projectIds);
+		case PRODUCT_SYSTEM:
+			return (T) get(new ProductSystemDao(db), refId, systemIds);
+		case PROCESS:
+			return (T) get(new ProcessDao(db), refId, processIds);
+		case FLOW:
+			return (T) get(new FlowDao(db), refId, flowIds);
+		case IMPACT_METHOD:
+			return (T) get(new ImpactMethodDao(db), refId, methodIds);
+		case IMPACT_CATEGORY:
+			return (T) get(new ImpactCategoryDao(db), refId, impactCategoryIds);
+		case NW_SET:
+			return (T) get(new NwSetDao(db), refId, nwSetIds);
+		case SOCIAL_INDICATOR:
+			return (T) get(new SocialIndicatorDao(db), refId, indicatorIds);
+		case PARAMETER:
+			return (T) get(new ParameterDao(db), refId, parameterIds);
+		case DQ_SYSTEM:
+			return (T) get(new DQSystemDao(db), refId, dqSystemIds);
+		case FLOW_PROPERTY:
+			return (T) get(new FlowPropertyDao(db), refId, flowPropertyIds);
+		case UNIT_GROUP:
+			return (T) get(new UnitGroupDao(db), refId, unitGroupIds);
+		case UNIT:
+			return (T) get(new UnitDao(db), refId, unitIds);
+		case CURRENCY:
+			return (T) get(new CurrencyDao(db), refId, currencyIds);
+		case ACTOR:
+			return (T) get(new ActorDao(db), refId, actorIds);
+		case SOURCE:
+			return (T) get(new SourceDao(db), refId, sourceIds);
+		case LOCATION:
+			return (T) get(new LocationDao(db), refId, locationIds);
+		case CATEGORY:
+			return (T) get(new CategoryDao(db), refId, categoryIds);
+		default:
+			throw new RuntimeException(modelType.name() + " not supported");
+		}
 	}
 
-	public Location put(Location loc) {
-		return put(new LocationDao(db), loc, locationIds);
+	@SuppressWarnings("unchecked")
+	<T extends RootEntity> T put(T entity) {
+		if (entity == null)
+			return null;
+		ModelType modelType = ModelType.forModelClass(entity.getClass());
+		if (modelType == null)
+			throw new RuntimeException(entity.getClass().getCanonicalName() + " not supported");
+		switch (modelType) {
+		case PROJECT:
+			return (T) put(new ProjectDao(db), (Project) entity, projectIds);
+		case PRODUCT_SYSTEM:
+			return (T) put(new ProductSystemDao(db), (ProductSystem) entity, systemIds);
+		case PROCESS:
+			return (T) put(new ProcessDao(db), (Process) entity, processIds);
+		case FLOW:
+			return (T) put(new FlowDao(db), (Flow) entity, flowIds);
+		case IMPACT_METHOD:
+			return (T) put(new ImpactMethodDao(db), (ImpactMethod) entity, methodIds);
+		case SOCIAL_INDICATOR:
+			return (T) put(new SocialIndicatorDao(db), (SocialIndicator) entity, indicatorIds);
+		case PARAMETER:
+			return (T) put(new ParameterDao(db), (Parameter) entity, parameterIds);
+		case DQ_SYSTEM:
+			return (T) put(new DQSystemDao(db), (DQSystem) entity, dqSystemIds);
+		case FLOW_PROPERTY:
+			return (T) put(new FlowPropertyDao(db), (FlowProperty) entity, flowPropertyIds);
+		case UNIT_GROUP:
+			return (T) put((UnitGroup) entity);
+		case CURRENCY:
+			return (T) put(new CurrencyDao(db), (Currency) entity, currencyIds);
+		case ACTOR:
+			return (T) put(new ActorDao(db), (Actor) entity, actorIds);
+		case SOURCE:
+			return (T) put(new SourceDao(db), (Source) entity, sourceIds);
+		case LOCATION:
+			return (T) put(new LocationDao(db), (Location) entity, locationIds);
+		case CATEGORY:
+			return (T) put(new CategoryDao(db), (Category) entity, categoryIds);
+		default:
+			throw new RuntimeException(modelType.name() + " not supported");
+		}
 	}
 
-	public DQSystem getDqSystem(String refId) {
-		return get(new DQSystemDao(db), refId, dqSystemIds);
-	}
-
-	public DQSystem put(DQSystem sys) {
-		return put(new DQSystemDao(db), sys, dqSystemIds);
-	}
-
-	public Category getCategory(String refId) {
-		return get(new CategoryDao(db), refId, categoryIds);
-	}
-
-	public Category put(Category category) {
-		return put(new CategoryDao(db), category, categoryIds);
+	private UnitGroup put(UnitGroup unitGroup) {
+		UnitGroup g = put(new UnitGroupDao(db), unitGroup, unitGroupIds);
+		if (g == null)
+			return null;
+		for (Unit unit : g.getUnits())
+			unitIds.put(unit.getRefId(), unit.getId());
+		return g;
 	}
 
 	public Category updateChilds(Category category) {
@@ -107,118 +184,11 @@ class Db {
 		return cat;
 	}
 
-	public Actor getActor(String refId) {
-		return get(new ActorDao(db), refId, actorIds);
-	}
-
-	public Actor put(Actor actor) {
-		return put(new ActorDao(db), actor, actorIds);
-	}
-
-	public Source getSource(String refId) {
-		return get(new SourceDao(db), refId, sourceIds);
-	}
-
-	public Source put(Source source) {
-		return put(new SourceDao(db), source, sourceIds);
-	}
-
-	public UnitGroup getUnitGroup(String refId) {
-		return get(new UnitGroupDao(db), refId, unitGroupIds);
-	}
-
-	public UnitGroup put(UnitGroup unitGroup) {
-		UnitGroup g = put(new UnitGroupDao(db), unitGroup, unitGroupIds);
-		if (g == null)
-			return null;
-		for (Unit unit : g.getUnits())
-			unitIds.put(unit.getRefId(), unit.getId());
-		return g;
-	}
-
 	public UnitGroup update(UnitGroup group) {
 		return new UnitGroupDao(db).update(group);
 	}
 
-	public Unit getUnit(String refId) {
-		UnitDao dao = new UnitDao(db);
-		return get(dao, refId, unitIds);
-	}
-
-	public FlowProperty getFlowProperty(String refId) {
-		return get(new FlowPropertyDao(db), refId, flowPropertyIds);
-	}
-
-	public FlowProperty put(FlowProperty property) {
-		return put(new FlowPropertyDao(db), property, flowPropertyIds);
-	}
-
-	public Flow getFlow(String refId) {
-		return get(new FlowDao(db), refId, flowIds);
-	}
-
-	public Flow put(Flow flow) {
-		return put(new FlowDao(db), flow, flowIds);
-	}
-
-	public ImpactMethod getMethod(String refId) {
-		return get(new ImpactMethodDao(db), refId, methodIds);
-	}
-
-	public ImpactMethod put(ImpactMethod method) {
-		return put(new ImpactMethodDao(db), method, methodIds);
-	}
-
-	public Process getProcess(String refId) {
-		return get(new ProcessDao(db), refId, processIds);
-	}
-
-	public Process put(Process process) {
-		return put(new ProcessDao(db), process, processIds);
-	}
-
-	public SocialIndicator getSocialIndicator(String refId) {
-		return get(new SocialIndicatorDao(db), refId, indicatorIds);
-	}
-
-	public SocialIndicator put(SocialIndicator indicator) {
-		return put(new SocialIndicatorDao(db), indicator, indicatorIds);
-	}
-
-	public Currency getCurrency(String refId) {
-		return get(new CurrencyDao(db), refId, currencyIds);
-	}
-
-	public Currency put(Currency currency) {
-		return put(new CurrencyDao(db), currency, currencyIds);
-	}
-
-	public Parameter getParameter(String refId) {
-		return get(new ParameterDao(db), refId, parameterIds);
-	}
-
-	public Parameter put(Parameter parameter) {
-		return put(new ParameterDao(db), parameter, parameterIds);
-	}
-
-	public ProductSystem getSystem(String refId) {
-		return get(new ProductSystemDao(db), refId, systemIds);
-	}
-
-	public ProductSystem put(ProductSystem system) {
-		return put(new ProductSystemDao(db), system, systemIds);
-	}
-
-	public Project getProject(String refId) {
-		return get(new ProjectDao(db), refId, projectIds);
-	}
-
-	public Project put(Project project) {
-		return put(new ProjectDao(db), project, projectIds);
-	}
-
-	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId,
-			Map<String, Long> idCache) {
+	private <T extends RootEntity> T get(RootEntityDao<T, ?> dao, String refId, Map<String, Long> idCache) {
 		Long id = idCache.get(refId);
 		if (id != null)
 			return dao.getForId(id);
@@ -229,8 +199,7 @@ class Db {
 		return entity;
 	}
 
-	private <T extends RootEntity> T put(RootEntityDao<T, ?> dao, T entity,
-			Map<String, Long> idCache) {
+	private <T extends RootEntity> T put(RootEntityDao<T, ?> dao, T entity, Map<String, Long> idCache) {
 		if (entity == null)
 			return null;
 		if (entity.getId() == 0L)

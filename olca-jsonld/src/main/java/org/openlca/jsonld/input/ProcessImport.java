@@ -130,7 +130,8 @@ class ProcessImport extends BaseImport<Process> {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject o = e.getAsJsonObject();
-			Exchange ex = Exchanges.map(o, conf);
+			Exchange ex = ExchangeImport.run(ModelType.PROCESS, p.getRefId(), o, conf,
+					(Process process) -> process.getExchanges());
 			if (ex.internalId == 0) {
 				ex.internalId = ++p.lastInternalId;
 			}
