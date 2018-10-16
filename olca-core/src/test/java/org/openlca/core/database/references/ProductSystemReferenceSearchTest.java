@@ -73,7 +73,7 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private Flow createFlow(boolean reference) {
 		if (!reference)
-			return insertAndAddExpected("flow", new Flow());
+			return insertAndAddExpected("flowId", new Flow());
 		Flow flow = new Flow();
 		FlowProperty property = new FlowProperty();
 		FlowPropertyFactor factor = new FlowPropertyFactor();
@@ -104,6 +104,9 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 		link.processId = p1.getId();
 		link.providerId = p2.getId();
 		link.flowId = flow.getId();
+		addExpected("processId", p1);
+		addExpected("providerId", p2);
+		addExpected("exchangeId", e1);
 		return link;
 	}
 

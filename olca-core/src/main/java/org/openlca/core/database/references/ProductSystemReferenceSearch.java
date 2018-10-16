@@ -27,8 +27,11 @@ public class ProductSystemReferenceSearch extends BaseParametrizedReferenceSearc
 	private final static Ref[] processReferences = {
 		new Ref(Process.class, "processes", "f_process")
 	};
-	private final static Ref[] flowReferences = {
-		new Ref(Flow.class, "flow", "f_flow")
+	private final static Ref[] linkReferences = {
+		new Ref(Process.class, "processId", "f_process"),
+		new Ref(Exchange.class, "exchangeId", "f_exchange"),
+		new Ref(Process.class, "providerId", "f_provider"),
+		new Ref(Flow.class, "flowId", "f_flow")
 	};
 
 
@@ -39,23 +42,20 @@ public class ProductSystemReferenceSearch extends BaseParametrizedReferenceSearc
 	@Override
 	public List<Reference> findReferences(Set<Long> ids) {
 		List<Reference> results = new ArrayList<>();
-		results.addAll(findReferences("tbl_product_systems", "id", ids,
-				references));
+		results.addAll(findReferences("tbl_product_systems", "id", ids, references));
 		results.addAll(findProcesses(ids));
-		results.addAll(findFlows(ids));
+		results.addAll(findLinkReferences(ids));
 		results.addAll(findParameterRedefs(ids));
 		return results;
 	}
 	
 	
 	private List<Reference> findProcesses(Set<Long> ids) {
-		return findReferences("tbl_product_system_processes",
-				"f_product_system", ids, processReferences);
+		return findReferences("tbl_product_system_processes", "f_product_system", ids, processReferences);
 	}
 	
-	private List<Reference> findFlows(Set<Long> ids) {
-		return findReferences("tbl_process_links", "f_product_system", ids,
-				flowReferences);
+	private List<Reference> findLinkReferences(Set<Long> ids) { 
+		return findReferences("tbl_process_links", "f_product_system", ids, linkReferences);
 	}
 	
 }
