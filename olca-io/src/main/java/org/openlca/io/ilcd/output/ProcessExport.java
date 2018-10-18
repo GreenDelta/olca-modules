@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
@@ -53,15 +54,22 @@ public class ProcessExport {
 		log.trace("Run process export with {}", process);
 		this.process = process;
 		this.doc = process.getDocumentation();
-		Process iProcess = ProcessBuilder.makeProcess().with(makeLciMethod())
+		ProcessBuilder builder = ProcessBuilder.makeProcess()
+				.with(makeLciMethod())
 				.withAdminInfo(makeAdminInformation())
 				.withDataSetInfo(makeDataSetInfo())
 				.withGeography(makeGeography())
-				.withParameters(makeParameters()).withReferenceFlowId(0)
+				.withParameters(makeParameters())
 				.withRepresentativeness(makeRepresentativeness())
-				.withReviews(makeReviews()).withTechnology(makeTechnology())
-				.withTime(makeTime()).getProcess();
-		addExchanges(iProcess);
+				.withReviews(makeReviews())
+				.withTechnology(makeTechnology())
+				.withTime(makeTime());
+		Exchange qRef = process.getQuantitativeReference();
+		if (qRef != null) {
+			builder.withReferenceFlowId(qRef.internalId);
+		}
+		Process iProcess = builder.getProcess();
+		new ExchangeConversion(process, config).run(iProcess);
 		config.store.put(iProcess);
 		return iProcess;
 	}
@@ -209,18 +217,12 @@ public class ProcessExport {
 			return null;
 		Representativeness iRepri = new Representativeness();
 
-		// completeness
 		s(iRepri.completeness, doc.getCompleteness());
 		s(iRepri.completenessComment, "None.");
-
-		// data selection
 		s(iRepri.dataSelection, doc.getDataSelection());
 		s(iRepri.dataSelectionComment, "None.");
-
-		// data treatment
 		s(iRepri.dataTreatment, doc.getDataTreatment());
 
-		// data sources
 		for (Source source : doc.getSources()) {
 			Ref ref = ExportDispatch.forwardExportCheck(
 					source, config);
@@ -228,10 +230,7 @@ public class ProcessExport {
 				iRepri.sources.add(ref);
 		}
 
-		// sampling procedure
 		s(iRepri.samplingProcedure, doc.getSampling());
-
-		// data collection period
 		s(iRepri.dataCollectionPeriod, doc.getDataCollectionPeriod());
 
 		return iRepri;
@@ -264,12 +263,6 @@ public class ProcessExport {
 		ProcessAdminInfo processAdminInfo = new ProcessAdminInfo(config);
 		AdminInfo iAdminInfo = processAdminInfo.create(process);
 		return iAdminInfo;
-	}
-
-	private void addExchanges(org.openlca.ilcd.processes.Process ilcdProcess) {
-		log.trace("Create process exchanges.");
-		ExchangeConversion conversion = new ExchangeConversion(process, config);
-		conversion.run(ilcdProcess);
 	}
 
 	private void s(List<LangString> list, String val) {

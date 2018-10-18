@@ -3,8 +3,11 @@ package org.openlca.io.ilcd.output;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ParameterRedef;
@@ -40,6 +43,7 @@ public class SystemExport {
 	private ProductSystem system;
 
 	private Map<Long, Integer> processIDs = new HashMap<>();
+	private Map<Long, Integer> exchangeIDs = new HashMap<>();
 	private Map<Long, ProcessDescriptor> processes = new HashMap<>();
 	private Map<Long, FlowDescriptor> flows = new HashMap<>();
 
@@ -72,6 +76,21 @@ public class SystemExport {
 		for (FlowDescriptor fd : fDao.getDescriptors()) {
 			flows.put(fd.getId(), fd);
 		}
+		Set<Long> exchanges = system.processLinks.stream()
+				.map(link -> link.exchangeId)
+				.collect(Collectors.toSet());
+		String query = "SELECT id, internal_id FROM tbl_exchanges";
+		try {
+			NativeSql.on(config.db).query(query, r -> {
+				long id = r.getLong(1);
+				if (exchanges.contains(id)) {
+					exchangeIDs.put(id, r.getInt(2));
+				}
+				return true;
+			});
+		} catch (Exception e) {
+			log.error("Failed to get internal exchange IDs", e);
+		}
 	}
 
 	private Model initModel() {
@@ -84,7 +103,8 @@ public class SystemExport {
 		ModelName name = Models.modelName(model);
 		name.name.add(LangString.of(system.getName(), config.lang));
 		if (system.getDescription() != null) {
-			info.comment.add(LangString.of(system.getDescription(), config.lang));
+			info.comment
+					.add(LangString.of(system.getDescription(), config.lang));
 		}
 		CategoryConverter conv = new CategoryConverter();
 		Classification c = conv.getClassification(system.getCategory());
@@ -166,6 +186,7 @@ public class SystemExport {
 		}
 		DownstreamLink dl = new DownstreamLink();
 		dl.inputFlow = flow.getRefId();
+		dl.linkedExchange = exchangeIDs.get(link.exchangeId);
 		long linkProcess = 0L;
 		if (flow.getFlowType() == FlowType.PRODUCT_FLOW) {
 			linkProcess = link.processId;

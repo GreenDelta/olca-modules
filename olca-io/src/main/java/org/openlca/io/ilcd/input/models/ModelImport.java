@@ -103,11 +103,11 @@ public class ModelImport {
 					if (inFlow == null || in == null)
 						continue;
 					if (Objects.equals(inFlow, outFlow)) {
-						addLink(out, in, inFlow);
+						addLink(out, in, inFlow, link.linkedExchange);
 					} else {
 						Process connector = connector(inFlow, outFlow);
-						addLink(out, connector, outFlow);
-						addLink(connector, in, inFlow);
+						addLink(out, connector, outFlow, null);
+						addLink(connector, in, inFlow, null);
 					}
 				}
 			}
@@ -186,7 +186,8 @@ public class ModelImport {
 		return m;
 	}
 
-	private void addLink(Process out, Process in, Flow flow) {
+	private void addLink(Process out, Process in, Flow flow,
+			Integer exchangeId) {
 		boolean isWaste = flow.getFlowType() == FlowType.WASTE_FLOW;
 		ProcessLink link = new ProcessLink();
 		link.flowId = flow.getId();
@@ -198,7 +199,9 @@ public class ModelImport {
 			if (e.isInput == isWaste || !Objects.equals(flow, e.flow))
 				continue;
 			exchange = e;
-			break;
+			if (exchangeId == null || exchangeId == e.internalId) {
+				break;
+			}
 		}
 		if (exchange == null)
 			return;

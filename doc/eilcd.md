@@ -1,11 +1,11 @@
 # Implementation of the eILCD format in openLCA
-The eILCD format is an extension to the ILCD format to exchange life cycle
-models. It was developed in the PEF remodelling project to enable data exchange
-of such models between different LCA tools. In principle, such a life cycle
-model data set is the same as a product system model in openLCA: it stores the
-life cycle model of a product (the reference product) as a set of connected
-process data sets where the process data set that produces this reference
-product is the reference process of the model.
+The eILCD format is an extension of the ILCD format to exchange life cycle
+models (aka product systems). It was developed in the PEF remodeling project to
+enable data exchange of such models between different LCA tools. In principle,
+such a life cycle model data set is exactly the same as a product system model
+in openLCA: it stores the life cycle model of a product (the reference product)
+as a set of connected process data sets where the process data set that produces
+this reference product is the reference process of the model.
 
 However, there are concepts in the eILCD format that are very different to the
 concepts of product systems in openLCA. How these concepts of eILCD models are
@@ -31,7 +31,7 @@ A process instance describes the occurrence of a process in the life cycle model
 It is identified by a data set internal ID and contains a reference to the
 respective process data set, references to groups (life cycle stages) to which
 this process instance belongs (see below), and connections to other process
-instances in the life cycle model. For each process in the life cycle model
+instances in the life cycle model. For each process in the life cycle model,
 there is at least one process instance. However, it is also possible to have
 multiple process instances of the same process in the system, e.g. to model the
 occurrence of the same process in different life cycle stages (e.g. for
@@ -91,7 +91,7 @@ a process instance element:
 ```
 
 An output of the process, identified by the UUID of the flow of the respective
-exchange, can be linked to an input of a downstream process (instance) also 
+exchange, can be linked to an input of a downstream process (instance) also
 identified by the respective flow UUID. This linking model of the eILCD format
 has quite some differences compared to the process links stored in openLCA
 product systems which are described in more detail in the following sections.
@@ -153,6 +153,6 @@ are currently not supported in openLCA product systems:
 * External chart links `referenceToDiagram` (openLCA dynamically creates charts
   for product systems)
 * Most of the information under the `modellingAndValidation` and
-  `administrativeInformation` elements (`useAdviceForDataSet`, 
+  `administrativeInformation` elements (`useAdviceForDataSet`,
   `complianceDeclarations`, `commissionerAndGoal`,  `review`, `dataGenerator`,
   `dataEntryBy`, `publicationAndOwnership` etc.)

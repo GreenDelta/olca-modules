@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 class ExchangeConversion {
 
 	private final ExportConfig config;
-	private org.openlca.ilcd.processes.Process ilcdProcess;
+	private org.openlca.ilcd.processes.Process iProcess;
 	private Process process;
 
 	public ExchangeConversion(Process process, ExportConfig config) {
@@ -30,31 +30,26 @@ class ExchangeConversion {
 		this.config = config;
 	}
 
-	public void run(org.openlca.ilcd.processes.Process ilcdProcess) {
-		this.ilcdProcess = ilcdProcess;
-		Map<Exchange, org.openlca.ilcd.processes.Exchange> exchangeMap = new HashMap<>();
-		int id = 1;
+	public void run(org.openlca.ilcd.processes.Process iProcess) {
+		this.iProcess = iProcess;
+		Map<Exchange, org.openlca.ilcd.processes.Exchange> map = new HashMap<>();
 		for (Exchange oExchange : process.getExchanges()) {
 			org.openlca.ilcd.processes.Exchange iExchange = mapExchange(
 					oExchange);
-			if (oExchange.equals(process.getQuantitativeReference()))
-				iExchange.id = 0;
-			else {
-				iExchange.id = id;
-				id++;
-			}
-			exchangeMap.put(oExchange, iExchange);
+			map.put(oExchange, iExchange);
 		}
-		ilcdProcess.exchanges.addAll(exchangeMap.values());
-		AllocationFactors.map(process, exchangeMap);
+		iProcess.exchanges.addAll(map.values());
+		AllocationFactors.map(process, map);
 	}
 
 	private org.openlca.ilcd.processes.Exchange mapExchange(
 			Exchange oExchange) {
 		org.openlca.ilcd.processes.Exchange iExchange = new org.openlca.ilcd.processes.Exchange();
-		if (oExchange.description != null)
+		iExchange.id = oExchange.internalId;
+		if (oExchange.description != null) {
 			LangString.set(iExchange.comment,
 					oExchange.description, config.lang);
+		}
 		mapFlow(oExchange, iExchange);
 		mapDirection(oExchange, iExchange);
 		double resultingAmount = getRefAmount(oExchange);
@@ -128,7 +123,7 @@ class ExchangeConversion {
 	}
 
 	private int getParamSize() {
-		ProcessInfo info = ilcdProcess.processInfo;
+		ProcessInfo info = iProcess.processInfo;
 		if (info == null)
 			return 0;
 		ParameterSection list = info.parameters;
@@ -138,10 +133,10 @@ class ExchangeConversion {
 	}
 
 	private void addParameter(Parameter parameter) {
-		ProcessInfo info = ilcdProcess.processInfo;
+		ProcessInfo info = iProcess.processInfo;
 		if (info == null) {
 			info = new ProcessInfo();
-			ilcdProcess.processInfo = info;
+			iProcess.processInfo = info;
 		}
 		ParameterSection list = info.parameters;
 		if (list == null) {
