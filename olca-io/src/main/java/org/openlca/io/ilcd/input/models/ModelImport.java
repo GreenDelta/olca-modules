@@ -35,6 +35,7 @@ import org.openlca.io.ilcd.input.CategoryImport;
 import org.openlca.io.ilcd.input.ImportConfig;
 import org.openlca.io.ilcd.input.ImportException;
 import org.openlca.io.ilcd.input.ProcessImport;
+import org.openlca.io.ilcd.input.ProviderLinker;
 import org.openlca.util.Strings;
 
 /**
@@ -120,10 +121,11 @@ public class ModelImport {
 		if (qRef != null && qRef.refProcess != null)
 			refProcess = qRef.refProcess.intValue();
 		Map<Integer, Process> map = new HashMap<>();
+		ProviderLinker linker = new ProviderLinker();
 		for (ProcessInstance pi : tech.processes) {
 			if (pi.process == null)
 				continue;
-			ProcessImport pImport = new ProcessImport(config);
+			ProcessImport pImport = new ProcessImport(config, linker);
 			Process p = pImport.run(pi.process.uuid);
 			if (refProcess == pi.id) {
 				mapRefProcess(pi, p);
@@ -132,6 +134,7 @@ public class ModelImport {
 			system.processes.add(p.getId());
 			map.put(pi.id, p);
 		}
+		linker.createLinks(config.db);
 		return map;
 	}
 
@@ -162,8 +165,8 @@ public class ModelImport {
 	}
 
 	/**
-	 * Collect the flows that are used in the process links. This function must be
-	 * called after all processes are imported.
+	 * Collect the flows that are used in the process links. This function must
+	 * be called after all processes are imported.
 	 */
 	private Map<String, Flow> collectFlows(Technology tech) {
 		Set<String> usedFlows = new HashSet<>();
@@ -206,9 +209,9 @@ public class ModelImport {
 	/**
 	 * Creates a connector process for the given input flow and output flow. In
 	 * openLCA we can only link processes via the same flow. Therefore, if the
-	 * linked exchanges in an eILCD model have different flows, we need to create
-	 * such a process. Note that the input flow is the output and the output flow
-	 * the input in the connector process.
+	 * linked exchanges in an eILCD model have different flows, we need to
+	 * create such a process. Note that the input flow is the output and the
+	 * output flow the input in the connector process.
 	 */
 	private Process connector(Flow inFlow, Flow outFlow) {
 		Process p = new Process();

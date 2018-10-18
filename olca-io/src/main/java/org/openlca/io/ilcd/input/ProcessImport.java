@@ -42,9 +42,9 @@ public class ProcessImport {
 	private ProcessBag ilcdProcess;
 	private Process process;
 
-	public ProcessImport(ImportConfig config) {
+	public ProcessImport(ImportConfig config, ProviderLinker linker) {
 		this.config = config;
-		this.exchanges = new ProcessExchanges(config);
+		this.exchanges = new ProcessExchanges(config, linker);
 	}
 
 	public Process run(org.openlca.ilcd.processes.Process process)
@@ -123,7 +123,8 @@ public class ProcessImport {
 		for (Exchange e : process.getExchanges()) {
 			if (e.dqEntry == null)
 				continue;
-			process.exchangeDqSystem = new DQSystemDao(config.db).insert(DQSystems.ecoinvent());
+			process.exchangeDqSystem = new DQSystemDao(config.db)
+					.insert(DQSystems.ecoinvent());
 			break;
 		}
 	}
@@ -353,7 +354,8 @@ public class ProcessImport {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends AbstractEntity> void saveInDatabase(T obj) throws ImportException {
+	private <T extends AbstractEntity> void saveInDatabase(T obj)
+			throws ImportException {
 		try {
 			Class<T> clazz = (Class<T>) obj.getClass();
 			Daos.base(config.db, clazz).insert(obj);

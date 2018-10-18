@@ -126,7 +126,8 @@ class ExchangeFlow {
 
 	@Override
 	public String toString() {
-		return "Exchange [flow=" + flow + ", flowProperty=" + flowProperty
+		return "Exchange [flow=" + flow
+				+ ", flowProperty=" + flowProperty
 				+ ", unit=" + unit + "]";
 	}
 

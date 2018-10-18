@@ -21,6 +21,7 @@ import org.openlca.io.ilcd.input.FlowPropertyImport;
 import org.openlca.io.ilcd.input.ImportConfig;
 import org.openlca.io.ilcd.input.MethodImport;
 import org.openlca.io.ilcd.input.ProcessImport;
+import org.openlca.io.ilcd.input.ProviderLinker;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.input.models.ModelImport;
@@ -178,22 +179,24 @@ public class ILCDImport implements FileImport {
 		return dao.getForRefId(me.referenceFlowID) != null;
 	}
 
-	public void importProcess(String id) throws Exception {
-		Process p = config.store.get(Process.class, id);
-		if (p == null)
-			throw new Exception("A process uuid=" + id
-					+ " could not be found");
-		ProcessImport imp = new ProcessImport(config);
-		fireEvent(p);
-		imp.run(p);
-	}
+	// TODO: remove unused code
+	// public void importProcess(String id) throws Exception {
+	// Process p = config.store.get(Process.class, id);
+	// if (p == null)
+	// throw new Exception("A process uuid=" + id
+	// + " could not be found");
+	// ProcessImport imp = new ProcessImport(config);
+	// fireEvent(p);
+	// imp.run(p);
+	// }
 
 	private void tryImportProcesses() {
 		if (canceled)
 			return;
 		try {
 			Iterator<Process> it = config.store.iterator(Process.class);
-			ProcessImport imp = new ProcessImport(config);
+			ProviderLinker linker = new ProviderLinker();
+			ProcessImport imp = new ProcessImport(config, linker);
 			while (it.hasNext() && !canceled) {
 				Process p = it.next();
 				if (p == null)
@@ -201,6 +204,7 @@ public class ILCDImport implements FileImport {
 				fireEvent(p);
 				imp.run(p);
 			}
+			linker.createLinks(config.db);
 		} catch (Exception e) {
 			log.error("Process import failed", e);
 		}

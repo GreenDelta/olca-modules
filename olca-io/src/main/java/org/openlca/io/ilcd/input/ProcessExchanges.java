@@ -30,8 +30,11 @@ class ProcessExchanges {
 	private ImportConfig config;
 	private List<MappedPair> mappedPairs = new ArrayList<>();
 
-	ProcessExchanges(ImportConfig config) {
+	private ProviderLinker providerLinker = new ProviderLinker();
+
+	ProcessExchanges(ImportConfig config, ProviderLinker providerLinker) {
 		this.config = config;
+		this.providerLinker = providerLinker;
 	}
 
 	void map(ProcessBag iProcess, Process process) {
@@ -44,9 +47,8 @@ class ProcessExchanges {
 
 			flow.findOrImport(config);
 
-			if (ext.isValid()) {
-				mapUnit(ext, flow);
-			}
+			// map and check flow and unit
+			mapUnit(ext, flow);
 			if (!flow.isValid()) {
 				log.warn("invalid exchange {} - not added to process {}",
 						flow, process);
@@ -66,15 +68,17 @@ class ProcessExchanges {
 					e.isInput = !e.isInput;
 					e.isAvoided = true;
 				}
+				String provider = ext.getDefaultProvider();
+				if (provider != null) {
+					providerLinker.addLink(
+							process.getRefId(), e.internalId, provider);
+				}
 			}
 			new UncertaintyConverter().map(iExchange, e);
 			mapFormula(iExchange, ext, e);
 			if (flow.isMapped()) {
 				applyConversionFactor(e, flow.mapEntry);
 			}
-
-			// TODO: map default provider if extension is valid
-			// exchange.setDefaultProviderId(extension.getDefaultProvider());
 
 			mappedPairs.add(new MappedPair(e, iExchange));
 		}
@@ -116,10 +120,10 @@ class ProcessExchanges {
 		}
 		if (Strings.isNullOrEmpty(iExchange.variable))
 			return;
-		double meanAmount = iExchange.meanAmount;
-		String meanAmountStr = Double.toString(meanAmount);
+		double amount = iExchange.meanAmount;
+		String meanAmountStr = Double.toString(amount);
 		String parameter = iExchange.variable;
-		formula = meanAmount == 1.0 ? parameter
+		formula = amount == 1.0 ? parameter
 				: meanAmountStr + " * " + parameter + "";
 		oExchange.amountFormula = formula;
 	}
@@ -135,6 +139,8 @@ class ProcessExchanges {
 	}
 
 	private void mapUnit(ExchangeExtension ext, ExchangeFlow flow) {
+		if (!ext.isValid())
+			return;
 		try {
 			UnitDao unitDao = new UnitDao(config.db);
 			flow.unit = unitDao.getForRefId(ext.getUnitId());

@@ -28,6 +28,7 @@ import org.openlca.io.ilcd.input.FlowImport;
 import org.openlca.io.ilcd.input.FlowPropertyImport;
 import org.openlca.io.ilcd.input.ImportConfig;
 import org.openlca.io.ilcd.input.ProcessImport;
+import org.openlca.io.ilcd.input.ProviderLinker;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.output.ActorExport;
@@ -59,7 +60,8 @@ public class ILCDImportExportTest {
 		put("contact.xml", "177ca340-ffa2-11da-92e3-0800200c9a66",
 				Contact.class);
 		put("source.xml", "2c699413-f88b-4cb5-a56d-98cb4068472f", Source.class);
-		put("unit.xml", "93a60a57-a4c8-11da-a746-0800200c9a66", UnitGroup.class);
+		put("unit.xml", "93a60a57-a4c8-11da-a746-0800200c9a66",
+				UnitGroup.class);
 		put("flowproperty.xml", "93a60a56-a3c8-11da-a746-0800200b9a66",
 				FlowProperty.class);
 		put("flow.xml", "0d7a3ad1-6556-11dd-ad8b-0800200c9a66", Flow.class);
@@ -73,7 +75,8 @@ public class ILCDImportExportTest {
 		zip.delete();
 	}
 
-	private static <T extends IDataSet> void put(String file, String id, Class<T> clazz)
+	private static <T extends IDataSet> void put(String file, String id,
+			Class<T> clazz)
 			throws Exception {
 		InputStream in = ILCDImportExportTest.class.getResourceAsStream(file);
 		T obj = JAXB.unmarshal(in, clazz);
@@ -143,7 +146,8 @@ public class ILCDImportExportTest {
 	@Test
 	public void testF_Process() throws Exception {
 		String id = "76d6aaa4-37e2-40b2-994c-03292b600074";
-		ProcessImport processImport = new ProcessImport(importConfig);
+		ProcessImport processImport = new ProcessImport(importConfig,
+				new ProviderLinker());
 		org.openlca.core.model.Process process = processImport
 				.run(importConfig.store.get(Process.class, id));
 		Assert.assertEquals(id, process.getRefId());
