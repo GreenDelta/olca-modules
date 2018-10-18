@@ -9,14 +9,20 @@ import org.openlca.ilcd.processes.Exchange;
 public class ExchangeExtension {
 
 	private final Map<QName, String> atts;
+	private Boolean valid; // just for faster validation checks
 
 	public ExchangeExtension(Exchange exchange) {
 		this.atts = exchange.otherAttributes;
 	}
 
 	public boolean isValid() {
-		return atts != null && getUnitId() != null
-				&& getPropertyId() != null && getAmount() != null;
+		if (valid != null)
+			return valid;
+		valid = atts != null
+				&& getUnitId() != null
+				&& getPropertyId() != null
+				&& getAmount() != null;
+		return valid;
 	}
 
 	public void setFormula(String formula) {

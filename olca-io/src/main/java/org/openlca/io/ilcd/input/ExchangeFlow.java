@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.input;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.Ref;
@@ -19,7 +18,6 @@ class ExchangeFlow {
 	private ImportConfig config;
 	private Exchange ilcdExchange;
 
-	Process process;
 	Flow flow;
 	FlowMapEntry mapEntry;
 	FlowProperty flowProperty;
@@ -120,14 +118,16 @@ class ExchangeFlow {
 		UnitGroup group = property.getUnitGroup();
 		if (group == null)
 			return false;
-		if ((unit == null || group.getUnit(unit.getName()) == null) && group.getReferenceUnit() == null)
+		if ((unit == null || group.getUnit(unit.getName()) == null)
+				&& group.getReferenceUnit() == null)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Exchange [flow=" + flow + ", flowProperty=" + flowProperty + ", unit=" + unit + "]";
+		return "Exchange [flow=" + flow + ", flowProperty=" + flowProperty
+				+ ", unit=" + unit + "]";
 	}
 
 }

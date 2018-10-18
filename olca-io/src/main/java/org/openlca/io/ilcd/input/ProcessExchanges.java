@@ -1,9 +1,8 @@
 package org.openlca.io.ilcd.input;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.UnitDao;
@@ -11,12 +10,16 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
+import org.openlca.ilcd.commons.ExchangeDirection;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.AllocationFactor;
 import org.openlca.ilcd.util.ExchangeExtension;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.io.maps.FlowMapEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 /**
  * Maps the inputs and outputs of an ILCD process to an openLCA process.
@@ -31,65 +34,114 @@ class ProcessExchanges {
 		this.config = config;
 	}
 
-	void map(ProcessBag ilcdProcess, Process process) {
+	void map(ProcessBag iProcess, Process process) {
 		mappedPairs.clear();
-		for (org.openlca.ilcd.processes.Exchange iExchange : ilcdProcess
+		int maxID = 0;
+		for (org.openlca.ilcd.processes.Exchange iExchange : iProcess
 				.getExchanges()) {
-			ExchangeFlow exchangeFlow = new ExchangeFlow(iExchange);
-			ExchangeExtension extension = new ExchangeExtension(iExchange);
-			exchangeFlow.process = process;
-			exchangeFlow.findOrImport(config);
-			if (extension.isValid()) {
-				mapExtension(extension, exchangeFlow);
+			ExchangeFlow flow = new ExchangeFlow(iExchange);
+			ExchangeExtension ext = new ExchangeExtension(iExchange);
+
+			flow.findOrImport(config);
+
+			if (ext.isValid()) {
+				mapUnit(ext, flow);
 			}
-			if (!exchangeFlow.isValid()) {
-				log.warn("invalid exchange {} - not added to process {}", exchangeFlow, process);
+			if (!flow.isValid()) {
+				log.warn("invalid exchange {} - not added to process {}",
+						flow, process);
 				continue;
 			}
-			Exchange exchange = createExchange(iExchange, exchangeFlow);
+
+			Exchange e = init(iExchange, flow, process);
+			// we take the internal IDs from ILCD
+			e.internalId = iExchange.id;
+			maxID = Math.max(maxID, e.internalId);
+
+			if (ext.isValid()) {
+				e.dqEntry = ext.getPedigreeUncertainty();
+				e.baseUncertainty = ext.getBaseUncertainty();
+				e.amount = ext.getAmount();
+				if (ext.isAvoidedProduct()) {
+					e.isInput = !e.isInput;
+					e.isAvoided = true;
+				}
+			}
+			new UncertaintyConverter().map(iExchange, e);
+			mapFormula(iExchange, ext, e);
+			if (flow.isMapped()) {
+				applyConversionFactor(e, flow.mapEntry);
+			}
+
 			// TODO: map default provider if extension is valid
 			// exchange.setDefaultProviderId(extension.getDefaultProvider());
-			if (extension.isValid() && extension.isAvoidedProduct()) {
-				exchange.isInput = true;
-				exchange.isAvoided = true;
-			}
-			mappedPairs.add(new MappedPair(exchange, iExchange));
+
+			mappedPairs.add(new MappedPair(e, iExchange));
 		}
+		process.lastInternalId = maxID;
 		mapAllocation(process);
-		mapReferenceFlow(ilcdProcess, process);
+		RefFlow.map(iProcess, process, mappedPairs.stream().collect(
+				Collectors.toMap(
+						pair -> pair.iExchange.id,
+						pair -> pair.oExchange)));
 	}
 
-	private Exchange createExchange(
+	private Exchange init(org.openlca.ilcd.processes.Exchange iExchange,
+			ExchangeFlow flow, Process process) {
+		Exchange e = null;
+		if (flow.flowProperty != null && flow.unit != null) {
+			e = process.exchange(flow.flow, flow.flowProperty, flow.unit);
+		} else {
+			e = process.exchange(flow.flow);
+		}
+		boolean input = iExchange.direction == ExchangeDirection.INPUT;
+		e.isInput = input;
+		e.description = LangString.getFirst(iExchange.comment, config.langs);
+		// set the default value for the exchange which may is overwritten
+		// later by applying flow mappings, formulas, etc.
+		e.amount = iExchange.resultingAmount != null
+				? iExchange.resultingAmount
+				: iExchange.meanAmount;
+		return e;
+	}
+
+	private void mapFormula(
 			org.openlca.ilcd.processes.Exchange iExchange,
-			ExchangeFlow exchangeFlow) {
-		Exchange oExchange = new ExchangeConversion(iExchange, config).map(exchangeFlow);
-		if (oExchange.flow != null) {
-			if (exchangeFlow.isMapped()) {
-				applyFlowAssignment(oExchange, exchangeFlow.mapEntry);
-			}
+			ExchangeExtension ext,
+			Exchange oExchange) {
+		String formula = ext != null ? ext.getFormula() : null;
+		if (formula != null) {
+			oExchange.amountFormula = formula;
+			return;
 		}
-		return oExchange;
+		if (Strings.isNullOrEmpty(iExchange.variable))
+			return;
+		double meanAmount = iExchange.meanAmount;
+		String meanAmountStr = Double.toString(meanAmount);
+		String parameter = iExchange.variable;
+		formula = meanAmount == 1.0 ? parameter
+				: meanAmountStr + " * " + parameter + "";
+		oExchange.amountFormula = formula;
 	}
 
-	private void applyFlowAssignment(Exchange oExchange,
-			FlowMapEntry mapEntry) {
-		double amount = oExchange.amount;
-		double newVal = mapEntry.conversionFactor * amount;
-		oExchange.amount = newVal;
-		if (oExchange.amountFormula != null) {
-			String newForm = "(" + oExchange.amountFormula + ") * "
+	private void applyConversionFactor(Exchange e, FlowMapEntry mapEntry) {
+		if (mapEntry == null || mapEntry.conversionFactor == 1.0)
+			return;
+		e.amount *= mapEntry.conversionFactor;
+		if (e.amountFormula != null) {
+			e.amountFormula = "(" + e.amountFormula + ") * "
 					+ mapEntry.conversionFactor;
-			oExchange.amountFormula = newForm;
 		}
 	}
 
-	private void mapExtension(ExchangeExtension extension, ExchangeFlow exchangeFlow) {
+	private void mapUnit(ExchangeExtension ext, ExchangeFlow flow) {
 		try {
 			UnitDao unitDao = new UnitDao(config.db);
-			exchangeFlow.unit = unitDao.getForRefId(extension.getUnitId());
+			flow.unit = unitDao.getForRefId(ext.getUnitId());
 			FlowPropertyDao propDao = new FlowPropertyDao(config.db);
-			FlowProperty property = propDao.getForRefId(extension.getPropertyId());
-			exchangeFlow.flowProperty = property;
+			FlowProperty property = propDao
+					.getForRefId(ext.getPropertyId());
+			flow.flowProperty = property;
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.error("Cannot get flow property or unit from database", e);
@@ -136,13 +188,6 @@ class ProcessExchanges {
 			}
 		}
 		return null;
-	}
-
-	private void mapReferenceFlow(ProcessBag ilcdProcess, Process process) {
-		Map<Integer, Exchange> map = new HashMap<>();
-		for (MappedPair pair : mappedPairs)
-			map.put(pair.iExchange.id, pair.oExchange);
-		RefFlow.map(ilcdProcess, process, map);
 	}
 
 	private class MappedPair {
