@@ -1,7 +1,6 @@
 package org.openlca.jsonld.input;
 
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
@@ -51,17 +50,12 @@ class FlowImport extends BaseImport<Flow> {
 		for (JsonElement e : elem.getAsJsonArray()) {
 			if (!e.isJsonObject())
 				continue;
-			JsonObject facObj = e.getAsJsonObject();
-			FlowPropertyFactor fac = new FlowPropertyFactor();
-			flow.getFlowPropertyFactors().add(fac);
-			String propId = Json.getRefId(facObj, "flowProperty");
-			FlowProperty property = FlowPropertyImport.run(propId, conf);
-			fac.setFlowProperty(property);
-			boolean isRef = Json.getBool(facObj, "referenceFlowProperty", false);
+			JsonObject fObj = e.getAsJsonObject();
+			FlowPropertyFactor f = FlowPropertyFactorImport.run(flow.getRefId(), fObj, conf);
+			flow.getFlowPropertyFactors().add(f);
+			boolean isRef = Json.getBool(fObj, "referenceFlowProperty", false);
 			if (isRef)
-				flow.setReferenceFlowProperty(property);
-			fac.setConversionFactor(Json.getDouble(facObj, "conversionFactor",
-					1.0));
+				flow.setReferenceFlowProperty(f.getFlowProperty());
 		}
 	}
 }

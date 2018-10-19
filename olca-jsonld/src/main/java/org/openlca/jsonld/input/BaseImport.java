@@ -63,42 +63,8 @@ abstract class BaseImport<T extends RootEntity> {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	protected T get(String refId) {
-		switch (modelType) {
-		case ACTOR:
-			return (T) conf.db.getActor(refId);
-		case CATEGORY:
-			return (T) conf.db.getCategory(refId);
-		case CURRENCY:
-			return (T) conf.db.getCurrency(refId);
-		case FLOW:
-			return (T) conf.db.getFlow(refId);
-		case FLOW_PROPERTY:
-			return (T) conf.db.getFlowProperty(refId);
-		case IMPACT_METHOD:
-			return (T) conf.db.getMethod(refId);
-		case LOCATION:
-			return (T) conf.db.getLocation(refId);
-		case PARAMETER:
-			return (T) conf.db.getParameter(refId);
-		case PROCESS:
-			return (T) conf.db.getProcess(refId);
-		case SOCIAL_INDICATOR:
-			return (T) conf.db.getSocialIndicator(refId);
-		case SOURCE:
-			return (T) conf.db.getSource(refId);
-		case UNIT_GROUP:
-			return (T) conf.db.getUnitGroup(refId);
-		case PRODUCT_SYSTEM:
-			return (T) conf.db.getSystem(refId);
-		case PROJECT:
-			return (T) conf.db.getProject(refId);
-		case DQ_SYSTEM:
-			return (T) conf.db.getDqSystem(refId);
-		default:
-			throw new RuntimeException(modelType.name() + " not supported");
-		}
+		return conf.db.get(modelType, refId);
 	}
 
 	private void importBinFiles() {
