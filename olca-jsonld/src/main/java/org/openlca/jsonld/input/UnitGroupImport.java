@@ -1,15 +1,11 @@
 package org.openlca.jsonld.input;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 
-import com.google.common.base.Joiner;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -54,7 +50,7 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 			if (!e.isJsonObject())
 				continue;
 			JsonObject obj = e.getAsJsonObject();
-			Unit unit = mapUnit(obj);
+			Unit unit = UnitImport.run(g.getRefId(), obj, conf);
 			boolean refUnit = Json.getBool(obj, "referenceUnit", false);
 			if (refUnit)
 				g.setReferenceUnit(unit);
@@ -62,25 +58,4 @@ class UnitGroupImport extends BaseImport<UnitGroup> {
 		}
 	}
 
-	private Unit mapUnit(JsonObject json) {
-		Unit unit = new Unit();
-		In.mapAtts(json, unit, 0);
-		unit.setConversionFactor(Json.getDouble(json, "conversionFactor", 1.0));
-		addSynonyms(unit, json);
-		return unit;
-	}
-
-	private void addSynonyms(Unit unit, JsonObject json) {
-		JsonArray array = Json.getArray(json, "synonyms");
-		if (array == null || array.size() == 0)
-			return;
-		List<String> synonyms = new ArrayList<>();
-		for (JsonElement e : array) {
-			if (!e.isJsonPrimitive())
-				continue;
-			synonyms.add(e.getAsString());
-		}
-		String synStr = Joiner.on(';').join(synonyms);
-		unit.setSynonyms(synStr);
-	}
 }

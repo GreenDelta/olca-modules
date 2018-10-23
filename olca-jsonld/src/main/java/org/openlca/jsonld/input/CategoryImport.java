@@ -45,7 +45,7 @@ class CategoryImport extends BaseImport<Category> {
 	protected Category get(String refId) {
 		if (conf.db.categoryRefIdMapping.containsKey(refId))
 			refId = conf.db.categoryRefIdMapping.get(refId);
-		return super.get(refId);
+		return conf.db.get(ModelType.CATEGORY, refId);
 	}
 
 	@Override

@@ -28,6 +28,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 			return null;
 		ImpactMethod m = new ImpactMethod();
 		In.mapAtts(json, m, id, conf);
+		// first map categories, nw sets will reference them
 		mapCategories(json, m);
 		mapNwSets(json, m);
 		mapParameters(json, m);
@@ -59,7 +60,7 @@ class ImpactMethodImport extends BaseImport<ImpactMethod> {
 				continue;
 			String nwSetId = Json.getString(e.getAsJsonObject(), "@id");
 			JsonObject nwSetJson = conf.store.get(ModelType.NW_SET, nwSetId);
-			NwSet set = NwSets.map(nwSetJson, m.impactCategories);
+			NwSet set = NwSetImport.run(m.getRefId(), m.impactCategories, nwSetJson, conf);
 			if (set != null)
 				m.nwSets.add(set);
 		}
