@@ -14,7 +14,6 @@ public class EnviIndexEntry {
 	public FlowType flowType;
 	public String flowLocation;
 	public String flowCategory;
-	public String flowSubCategory;
 
 	public String flowPropertyID;
 	public String flowPropertyName;
@@ -30,7 +29,6 @@ public class EnviIndexEntry {
 		clone.flowType = flowType;
 		clone.flowLocation = flowLocation;
 		clone.flowCategory = flowCategory;
-		clone.flowSubCategory = flowSubCategory;
 		clone.flowPropertyID = flowPropertyID;
 		clone.flowPropertyName = flowPropertyName;
 		clone.unitID = unitID;
@@ -39,7 +37,7 @@ public class EnviIndexEntry {
 	}
 
 	String toCsv() {
-		String[] row = new String[11];
+		String[] row = new String[10];
 		row[0] = Integer.toString(index);
 		writeFlowInfo(row, 1);
 		return Csv.toLine(row);
@@ -51,11 +49,10 @@ public class EnviIndexEntry {
 		row[offset + 2] = flowType != null ? flowType.name() : null;
 		row[offset + 3] = flowLocation;
 		row[offset + 4] = flowCategory;
-		row[offset + 5] = flowSubCategory;
-		row[offset + 6] = flowPropertyID;
-		row[offset + 7] = flowPropertyName;
-		row[offset + 8] = unitID;
-		row[offset + 9] = unitName;
+		row[offset + 5] = flowPropertyID;
+		row[offset + 6] = flowPropertyName;
+		row[offset + 7] = unitID;
+		row[offset + 8] = unitName;
 	}
 
 	static EnviIndexEntry fromCsv(String line) throws Exception {
@@ -75,10 +72,9 @@ public class EnviIndexEntry {
 		e.flowType = type != null ? FlowType.valueOf(type) : null;
 		e.flowLocation = row[offset + 3];
 		e.flowCategory = row[offset + 4];
-		e.flowSubCategory = row[offset + 5];
-		e.flowPropertyID = row[offset + 6];
-		e.flowPropertyName = row[offset + 7];
-		e.unitID = row[offset + 8];
-		e.unitName = row[offset + 9];
+		e.flowPropertyID = row[offset + 5];
+		e.flowPropertyName = row[offset + 6];
+		e.unitID = row[offset + 7];
+		e.unitName = row[offset + 8];
 	}
 }

@@ -83,14 +83,17 @@ Where `L` is the size of the data type.
 |   2    | process name         |
 |   3    | process type         |
 |   4    | process location     |
-|   5    | flow ID              |
-|   6    | flow name            |
-|   7    | flow type            |
-|   8    | flow location        |
-|   9    | flow property ID     |
-|  10    | flow property name   |
-|  11    | unit ID              |
-|  12    | unit name            |
+|   5    | process category     |
+|   6    | flow ID              |
+|   7    | flow name            |
+|   8    | flow type            |
+|   9    | flow location        |
+|  10    | flow category        |
+|  11    | flow property ID     |
+|  12    | flow property name   |
+|  13    | unit ID              |
+|  14    | unit name            |
+
 
 ### index_B.csv
 
@@ -101,7 +104,8 @@ Where `L` is the size of the data type.
 |  2     | flow name            |
 |  3     | flow type            |
 |  4     | flow location        |
-|  5     | flow property ID     |
-|  6     | flow property name   |
-|  7     | unit ID              |
-|  8     | unit name            |
+|  5     | flow category        |
+|  6     | flow property ID     |
+|  7     | flow property name   |
+|  8     | unit ID              |
+|  9     | unit name            |

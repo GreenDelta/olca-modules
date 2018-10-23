@@ -12,7 +12,6 @@ public class TechIndexEntry extends EnviIndexEntry {
 	public ProcessType processType;
 	public String processLocation;
 	public String processCategory;
-	public String processSubCategory;
 
 	@Override
 	public TechIndexEntry clone() {
@@ -23,13 +22,11 @@ public class TechIndexEntry extends EnviIndexEntry {
 		clone.processType = processType;
 		clone.processLocation = processLocation;
 		clone.processCategory = processCategory;
-		clone.processSubCategory = processSubCategory;
 		clone.flowID = flowID;
 		clone.flowName = flowName;
 		clone.flowType = flowType;
 		clone.flowLocation = flowLocation;
 		clone.flowCategory = flowCategory;
-		clone.flowSubCategory = flowSubCategory;
 		clone.flowPropertyID = flowPropertyID;
 		clone.flowPropertyName = flowPropertyName;
 		clone.unitID = unitID;
@@ -39,15 +36,14 @@ public class TechIndexEntry extends EnviIndexEntry {
 
 	@Override
 	String toCsv() {
-		String[] row = new String[17];
+		String[] row = new String[16];
 		row[0] = Integer.toString(index);
 		row[1] = processID;
 		row[2] = processName;
 		row[3] = processType != null ? processType.name() : null;
 		row[4] = processLocation;
 		row[5] = processCategory;
-		row[6] = processSubCategory;
-		writeFlowInfo(row, 7);
+		writeFlowInfo(row, 6);
 		return Csv.toLine(row);
 	}
 
@@ -62,8 +58,7 @@ public class TechIndexEntry extends EnviIndexEntry {
 		e.processType = row[3] != null ? ProcessType.valueOf(row[3]) : null;
 		e.processLocation = row[4];
 		e.processCategory = row[5];
-		e.processSubCategory = row[6];
-		readFlowInfo(e, row, 7);
+		readFlowInfo(e, row, 6);
 		return e;
 	}
 }

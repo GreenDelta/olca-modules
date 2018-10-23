@@ -20,6 +20,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.BaseDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.util.Categories;
 
 class Indexer {
 
@@ -37,7 +38,8 @@ class Indexer {
 		categories = all(new CategoryDao(db));
 	}
 
-	private <T extends BaseDescriptor> Map<Long, T> descriptors(RootEntityDao<?, T> dao) {
+	private <T extends BaseDescriptor> Map<Long, T> descriptors(
+			RootEntityDao<?, T> dao) {
 		Map<Long, T> map = new HashMap<>();
 		for (T d : dao.getDescriptors()) {
 			map.put(d.getId(), d);
@@ -70,9 +72,7 @@ class Indexer {
 		if (location != null) {
 			e.flowLocation = location.getCode();
 		}
-		String[] cat = category(f.getCategory());
-		e.flowCategory = cat[0];
-		e.flowSubCategory = cat[1];
+		e.flowCategory = category(f.getCategory());
 		FlowProperty fp = flowProperties.get(f.getRefFlowPropertyId());
 		if (fp == null)
 			return;
@@ -100,26 +100,17 @@ class Indexer {
 		if (l != null) {
 			e.processLocation = l.getCode();
 		}
-		String[] cat = category(p.getCategory());
-		e.processCategory = cat[0];
-		e.processSubCategory = cat[1];
+		e.processCategory = category(p.getCategory());
 		fillFlowInfo(e, product.getSecond());
 		return e;
 	}
 
-	private String[] category(Long id) {
-		String[] c = new String[2];
+	private String category(Long id) {
 		if (id == null)
-			return c;
+			return "";
 		Category cat = categories.get(id);
-		if (cat == null)
-			return c;
-		if (cat.getCategory() != null) {
-			c[0] = cat.getCategory().getName();
-			c[1] = cat.getName();
-		} else {
-			c[0] = cat.getName();
-		}
-		return c;
+		return Categories.path(cat).stream()
+				.reduce((c1, c2) -> c1 + "/" + c2)
+				.orElse("");
 	}
 }
