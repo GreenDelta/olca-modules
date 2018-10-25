@@ -15,9 +15,11 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.openlca.ilcd.commons.IDataSet;
@@ -30,6 +32,14 @@ public class ZipStore implements DataStore {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private FileSystem zip;
 	private HashMap<String, List<Path>> entries;
+
+	/**
+	 * Contains the IDs that where added to this zip store. This is used to make
+	 * the contains check faster because in the export we usually first call
+	 * contains and then do the export if necessary.
+	 */
+	private HashMap<Class<?>, Set<String>> addedContent = new HashMap<>();
+
 	private XmlBinder binder = new XmlBinder();
 
 	public ZipStore(File zipFile) throws IOException {
@@ -99,6 +109,12 @@ public class ZipStore implements DataStore {
 			binder.toStream(ds, os);
 			List<Path> list = getEntries(dir);
 			list.add(entry);
+			Set<String> ids = addedContent.get(ds.getClass());
+			if (ids == null) {
+				ids = new HashSet<>();
+				addedContent.put(ds.getClass(), ids);
+			}
+			ids.add(ds.getUUID());
 		} catch (Exception e) {
 			throw new DataStoreException("Could not add file  " + entryName, e);
 		}
@@ -187,7 +203,18 @@ public class ZipStore implements DataStore {
 	@Override
 	public <T> boolean contains(Class<T> type, String id)
 			throws DataStoreException {
-		return findEntry(Dir.get(type), id) != null;
+		Set<String> ids = addedContent.get(type);
+		if (ids != null && ids.contains(id))
+			return true;
+		Path entry = findEntry(Dir.get(type), id);
+		if (entry == null)
+			return false;
+		if (ids == null) {
+			ids = new HashSet<>();
+			addedContent.put(type, ids);
+		}
+		ids.add(id);
+		return true;
 	}
 
 	@Override

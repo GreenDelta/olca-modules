@@ -2,10 +2,10 @@ package org.openlca.io.ilcd.output;
 
 import java.util.GregorianCalendar;
 
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.core.model.CategorizedEntity;
+import org.openlca.io.Xml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ final class Out {
 		try {
 			GregorianCalendar gCal = new GregorianCalendar();
 			gCal.setTimeInMillis(time);
-			XMLGregorianCalendar xml = DatatypeFactory.newInstance()
+			XMLGregorianCalendar xml = Xml.datatypeFactory
 					.newXMLGregorianCalendar(gCal);
 			return xml;
 		} catch (Exception ex) {

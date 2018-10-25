@@ -1,10 +1,6 @@
 package org.openlca.io.ilcd.output;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
-
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
@@ -18,13 +14,11 @@ import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.DataGenerator;
 import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.util.Refs;
+import org.openlca.io.Xml;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ProcessAdminInfo {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final ExportConfig config;
 	private Process process;
 	private ProcessDocumentation documentation;
@@ -48,10 +42,10 @@ class ProcessAdminInfo {
 	private void createDataEntry() {
 		DataEntry dataEntry = new DataEntry();
 		iAdminInfo.dataEntry = dataEntry;
-		dataEntry.timeStamp = toXmlCalender(new Date());
+		dataEntry.timeStamp = Xml.calendar(new Date());
 		dataEntry.formats.add(Refs.ilcd());
 		if (documentation.getDataDocumentor() != null) {
-			Ref ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExport(
 					documentation.getDataDocumentor(), config);
 			if (ref != null) {
 				dataEntry.documentor = ref;
@@ -63,24 +57,10 @@ class ProcessAdminInfo {
 		if (documentation.getDataGenerator() != null) {
 			DataGenerator generator = new DataGenerator();
 			iAdminInfo.dataGenerator = generator;
-			Ref ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExport(
 					documentation.getDataGenerator(), config);
 			if (ref != null)
 				generator.contacts.add(ref);
-		}
-	}
-
-	private XMLGregorianCalendar toXmlCalender(Date date) {
-		Date _date = date == null ? new Date() : date;
-		GregorianCalendar gCal = new GregorianCalendar();
-		gCal.setTime(_date);
-		try {
-			XMLGregorianCalendar cal = DatatypeFactory.newInstance()
-					.newXMLGregorianCalendar(gCal);
-			return cal;
-		} catch (Exception e) {
-			log.warn("Cannot create XML Gregorian Calender", e);
-			return null;
 		}
 	}
 
@@ -88,8 +68,7 @@ class ProcessAdminInfo {
 		Publication publication = new Publication();
 		iAdminInfo.publication = publication;
 		if (process.getLastChange() != 0)
-			publication.lastRevision = toXmlCalender(new Date(process
-					.getLastChange()));
+			publication.lastRevision = Xml.calendar(process.getLastChange());
 		String version = Version.asString(process.getVersion());
 		publication.version = version;
 		publication.copyright = documentation.isCopyright();
@@ -104,7 +83,7 @@ class ProcessAdminInfo {
 
 	private void mapDataSetOwner(Publication publication) {
 		if (documentation.getDataSetOwner() != null) {
-			Ref ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExport(
 					documentation.getDataSetOwner(), config);
 			if (ref != null) {
 				publication.owner = ref;
@@ -117,7 +96,7 @@ class ProcessAdminInfo {
 		if (source == null)
 			return;
 		Ref ref = ExportDispatch
-				.forwardExportCheck(source, config);
+				.forwardExport(source, config);
 		if (ref != null)
 			publication.republication = ref;
 	}

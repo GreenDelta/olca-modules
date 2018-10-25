@@ -152,7 +152,7 @@ public class SystemExport {
 		ProcessDescriptor d = processes.get(id);
 		if (!config.store.contains(Process.class, d.getRefId())) {
 			ProcessDao dao = new ProcessDao(config.db);
-			ExportDispatch.forwardExportCheck(
+			ExportDispatch.forwardExport(
 					dao.getForId(d.getId()), config);
 		}
 		pi.process = toRef(d);

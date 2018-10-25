@@ -103,7 +103,7 @@ public class FlowExport {
 			FlowPropertyRef propRef = new FlowPropertyRef();
 			refs.add(propRef);
 			FlowProperty property = factor.getFlowProperty();
-			Ref ref = ExportDispatch.forwardExportCheck(property,
+			Ref ref = ExportDispatch.forwardExport(property,
 					config);
 			propRef.flowProperty = ref;
 			if (property.equals(referenceProperty))

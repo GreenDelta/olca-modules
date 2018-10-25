@@ -66,7 +66,7 @@ public class FlowPropertyExport {
 	private QuantitativeReference makeUnitGroupRef() {
 		QuantitativeReference qRef = new QuantitativeReference();
 		UnitGroup unitGroup = flowProperty.getUnitGroup();
-		Ref ref = ExportDispatch.forwardExportCheck(unitGroup,
+		Ref ref = ExportDispatch.forwardExport(unitGroup,
 				config);
 		qRef.unitGroup = ref;
 		return qRef;

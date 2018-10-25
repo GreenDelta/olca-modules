@@ -27,6 +27,7 @@ import org.openlca.ecospold.ITimePeriod;
 import org.openlca.ecospold.IValidation;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
+import org.openlca.io.Xml;
 
 class ProcessConverter {
 
@@ -70,7 +71,8 @@ class ProcessConverter {
 		mapAdminInfo(doc, dataSet);
 	}
 
-	private void mapDataSetInformation(ProcessDocumentation doc, DataSet dataSet) {
+	private void mapDataSetInformation(ProcessDocumentation doc,
+			DataSet dataSet) {
 		IDataSetInformation info = factory.createDataSetInformation();
 		dataSet.setDataSetInformation(info);
 		info.setEnergyValues(0);
@@ -78,11 +80,11 @@ class ProcessConverter {
 		info.setLanguageCode(factory.getLanguageCode("en"));
 		info.setLocalLanguageCode(factory.getLanguageCode("en"));
 		if (process.getLastChange() != 0)
-			info.setTimestamp(Util.toXml(process.getLastChange()));
+			info.setTimestamp(Xml.calendar(process.getLastChange()));
 		else if (doc.getCreationDate() != null)
-			info.setTimestamp(Util.toXml(doc.getCreationDate()));
+			info.setTimestamp(Xml.calendar(doc.getCreationDate()));
 		else
-			info.setTimestamp(Util.toXml(new Date()));
+			info.setTimestamp(Xml.calendar(new Date()));
 		info.setType(getProcessType());
 		Version version = new Version(process.getVersion());
 		info.setVersion(version.getMajor());
@@ -187,17 +189,17 @@ class ProcessConverter {
 		ITimePeriod time = factory.createTimePeriod();
 		time.setDataValidForEntirePeriod(true);
 		if (doc.getValidFrom() != null)
-			time.setStartDate(Util.toXml(doc.getValidFrom()));
+			time.setStartDate(Xml.calendar(doc.getValidFrom()));
 		if (doc.getValidUntil() != null)
-			time.setEndDate(Util.toXml(doc.getValidUntil()));
+			time.setEndDate(Xml.calendar(doc.getValidUntil()));
 		time.setText(doc.getTime());
 		dataset.setTimePeriod(time);
 		if (!config.isCreateDefaults())
 			return;
 		if (time.getStartDate() == null)
-			time.setStartDate(Util.toXml(new Date(253370761200000L)));
+			time.setStartDate(Xml.calendar(new Date(253370761200000L)));
 		if (time.getEndDate() == null)
-			time.setEndDate(Util.toXml(new Date(253402210800000L)));
+			time.setEndDate(Xml.calendar(new Date(253402210800000L)));
 	}
 
 	private boolean isMultiOutput() {
@@ -282,7 +284,8 @@ class ProcessConverter {
 		} else if (inExchange.dqEntry == null) {
 			exchange.setGeneralComment(inExchange.description);
 		} else {
-			exchange.setGeneralComment(inExchange.dqEntry + "; " + inExchange.description);
+			exchange.setGeneralComment(
+					inExchange.dqEntry + "; " + inExchange.description);
 		}
 	}
 

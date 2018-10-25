@@ -72,7 +72,7 @@ public class ImpactMethodExport {
 			list.factors.add(ilcdFactor);
 			// TODO: uncertainty values + formulas
 			ilcdFactor.meanValue = getRefAmount(olcaFactor);
-			Ref ref = ExportDispatch.forwardExportCheck(
+			Ref ref = ExportDispatch.forwardExport(
 					olcaFactor.flow, config);
 			ilcdFactor.flow = ref;
 		}
