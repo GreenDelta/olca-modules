@@ -51,15 +51,18 @@ class ExchangeConversion {
 					oExchange.description, config.lang);
 		}
 		mapFlow(oExchange, iExchange);
-		mapDirection(oExchange, iExchange);
+		iExchange.direction = oExchange.isInput
+				? ExchangeDirection.INPUT
+				: ExchangeDirection.OUTPUT;
 		double resultingAmount = getRefAmount(oExchange);
 		iExchange.resultingAmount = resultingAmount;
 		mapExtensions(oExchange, iExchange);
 		new UncertaintyConverter().map(oExchange, iExchange);
-		if (oExchange.amountFormula != null)
+		if (oExchange.amountFormula != null) {
 			mapParameter(oExchange, iExchange);
-		else
+		} else {
 			iExchange.meanAmount = resultingAmount;
+		}
 		return iExchange;
 	}
 
@@ -76,22 +79,28 @@ class ExchangeConversion {
 			org.openlca.ilcd.processes.Exchange iExchange) {
 		ExchangeExtension ext = new ExchangeExtension(iExchange);
 		if (oExchange.isAvoided) {
-			iExchange.direction = ExchangeDirection.OUTPUT;
+			// swap the direction
+			iExchange.direction = oExchange.isInput
+					? ExchangeDirection.OUTPUT
+					: ExchangeDirection.INPUT;
 			ext.setAvoidedProduct(true);
 		}
 		setProvider(oExchange, ext);
 		ext.setAmount(oExchange.amount);
 		ext.setBaseUncertainty(oExchange.baseUncertainty);
 		ext.setPedigreeUncertainty(oExchange.dqEntry);
-		if (oExchange.amountFormula != null)
+		if (oExchange.amountFormula != null) {
 			ext.setFormula(oExchange.amountFormula);
-		if (oExchange.unit != null)
+		}
+		if (oExchange.unit != null) {
 			ext.setUnitId(oExchange.unit.getRefId());
+		}
 		if (oExchange.flowPropertyFactor != null) {
 			FlowPropertyFactor propFactor = oExchange.flowPropertyFactor;
 			FlowProperty prop = propFactor.getFlowProperty();
-			if (prop != null)
+			if (prop != null) {
 				ext.setPropertyId(prop.getRefId());
+			}
 		}
 	}
 
@@ -102,8 +111,9 @@ class ExchangeConversion {
 		try {
 			ProcessDao dao = new ProcessDao(config.db);
 			ProcessDescriptor d = dao.getDescriptor(provider);
-			if (d != null)
+			if (d != null) {
 				ext.setDefaultProvider(d.getRefId());
+			}
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.warn("could not load default provider " + provider, e);
@@ -154,15 +164,6 @@ class ExchangeConversion {
 			if (ref != null) {
 				iExchange.flow = ref;
 			}
-		}
-	}
-
-	private void mapDirection(Exchange oExchange,
-			org.openlca.ilcd.processes.Exchange iExchange) {
-		if (oExchange.isInput) {
-			iExchange.direction = ExchangeDirection.INPUT;
-		} else {
-			iExchange.direction = ExchangeDirection.OUTPUT;
 		}
 	}
 

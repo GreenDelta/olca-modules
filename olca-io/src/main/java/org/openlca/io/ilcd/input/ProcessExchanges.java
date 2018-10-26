@@ -98,8 +98,7 @@ class ProcessExchanges {
 		} else {
 			e = process.exchange(flow.flow);
 		}
-		boolean input = iExchange.direction == ExchangeDirection.INPUT;
-		e.isInput = input;
+		e.isInput = iExchange.direction == ExchangeDirection.INPUT;
 		e.description = LangString.getFirst(iExchange.comment, config.langs);
 		// set the default value for the exchange which may is overwritten
 		// later by applying flow mappings, formulas, etc.
