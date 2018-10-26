@@ -60,8 +60,9 @@ public class ILCDImport implements FileImport {
 		tryImportSources();
 		tryImportUnits();
 		tryImportFlowProperties();
-		if (config.importFlows)
+		if (config.importFlows) {
 			tryImportFlows();
+		}
 		tryImportProcesses();
 		tryImportMethods();
 		tryImportModels();
@@ -178,17 +179,6 @@ public class ILCDImport implements FileImport {
 		// we cannot do this currently: see ExchangeFlow
 		return dao.getForRefId(me.referenceFlowID) != null;
 	}
-
-	// TODO: remove unused code
-	// public void importProcess(String id) throws Exception {
-	// Process p = config.store.get(Process.class, id);
-	// if (p == null)
-	// throw new Exception("A process uuid=" + id
-	// + " could not be found");
-	// ProcessImport imp = new ProcessImport(config);
-	// fireEvent(p);
-	// imp.run(p);
-	// }
 
 	private void tryImportProcesses() {
 		if (canceled)

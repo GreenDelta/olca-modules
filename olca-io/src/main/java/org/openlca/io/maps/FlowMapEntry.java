@@ -6,7 +6,14 @@ package org.openlca.io.maps;
  */
 public class FlowMapEntry {
 
+	/**
+	 * The (UU)ID of the reference flow in the openLCA database.
+	 */
 	public String referenceFlowID;
+
+	/**
+	 * The (UU)ID of the flow in the external data source.
+	 */
 	public String externalFlowID;
 	public double conversionFactor = 1d;
 
