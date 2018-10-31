@@ -155,7 +155,7 @@ public abstract class BaseReferenceSearchTest {
 	}
 
 	protected String generateName() {
-		return "p" + UUID.randomUUID().toString().replace("-", "");
+		return "P" + UUID.randomUUID().toString().replace("-", "");
 	}
 
 	protected boolean isNestedSearchTest() {

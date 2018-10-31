@@ -59,7 +59,7 @@ abstract class BaseParametrizedReferenceSearch<T extends CategorizedDescriptor> 
 				try {
 					for (String var : Formula.getVariables(formula)) {
 						Set<String> set = names.get(id);
-						if (set != null && set.contains(var))
+						if (set != null && set.contains(var.toLowerCase()))
 							continue;
 						put(id, var, undeclared);
 					}
@@ -108,7 +108,7 @@ abstract class BaseParametrizedReferenceSearch<T extends CategorizedDescriptor> 
 		for (long ownerId : names.keySet()) {
 			namesLoop: for (String name : names.get(ownerId)) {
 				for (ParameterDescriptor d : descriptors) {
-					if (d.getName().equals(name)) {
+					if (d.getName().toLowerCase().equals(name)) {
 						continue namesLoop;
 					}
 				}

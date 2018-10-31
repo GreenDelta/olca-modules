@@ -51,7 +51,7 @@ public class ParameterReferenceSearch extends BaseParametrizedReferenceSearch<Pa
 		results.addAll(toReferences(descriptors, false, variables));
 		Set<String> found = new HashSet<>();
 		for (ParameterDescriptor d : descriptors)
-			found.add(d.getName());
+			found.add(d.getName().toLowerCase());
 		for (String name : names)
 			if (!found.contains(name)) {
 				List<Reference> refs = createMissingReferences(name, variables);
