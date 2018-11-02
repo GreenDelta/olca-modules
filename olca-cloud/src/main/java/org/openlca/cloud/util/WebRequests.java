@@ -8,7 +8,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status.Family;
 
 import org.slf4j.Logger;
@@ -36,8 +35,7 @@ public class WebRequests {
 		return call(type, url, sessionId, null);
 	}
 
-	public static ClientResponse call(Type type, String url, String sessionId, Object data)
-			throws WebRequestException {
+	public static ClientResponse call(Type type, String url, String sessionId, Object data) throws WebRequestException {
 		log.info(type.name() + " " + url);
 		Builder request = builder(url, sessionId, data);
 		try {
@@ -71,8 +69,8 @@ public class WebRequests {
 
 	private static Builder builder(String url, String sessionId, Object data) {
 		WebResource resource = createClient().resource(url);
-		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE,
-				MediaType.TEXT_PLAIN_TYPE, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_PLAIN_TYPE,
+				MediaType.APPLICATION_OCTET_STREAM_TYPE);
 		if (sessionId != null)
 			builder.cookie(new Cookie("JSESSIONID", sessionId));
 		if (data == null)
@@ -124,11 +122,11 @@ public class WebRequests {
 		public String getMessage() {
 			if (isConnectException())
 				return "Server unavailable";
-			if (isUnauthorized()) 
+			if (isUnauthorized())
 				return "Invalid credentials";
 			return super.getMessage();
 		}
-		
+
 		public boolean isConnectException() {
 			if (getCause() instanceof ConnectException)
 				return true;
@@ -142,21 +140,13 @@ public class WebRequests {
 		}
 
 		private static String toMessage(ClientResponse response) {
-			String message = "";
-			message += "statusCode: " + response.getStatus() + "\n";
-			message += "headers: " + "" + "\n";
-			MultivaluedMap<String, String> headers = response.getHeaders();
-			for (String key : headers.keySet()) {
-				message += "\t" + key + ": " + headers.getFirst(key) + "\n";
-			}
-			message += "body: \n" + response.getEntity(String.class);
-			return message;
+			return response.getEntity(String.class) + " (" + response.getStatus() + ")";
 		}
 
 		public boolean isUnauthorized() {
 			return errorCode == Status.UNAUTHORIZED.getStatusCode();
 		}
-		
+
 	}
 
 }
