@@ -2,10 +2,9 @@ package org.openlca.core.math;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.CostVector;
-import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -44,25 +43,21 @@ public class SystemCalculator {
 
 	private LcaCalculator calculator(CalculationSetup setup) {
 		IDatabase db = matrixCache.getDatabase();
-		Inventory inventory = DataStructures.createInventory(setup, matrixCache);
-		ParameterTable parameterTable = DataStructures.createParameterTable(db,
-				setup, inventory);
-		FormulaInterpreter interpreter = parameterTable.createInterpreter();
-		InventoryMatrix inventoryMatrix = inventory.createMatrix(
-				solver, interpreter);
-		LcaCalculator calculator = new LcaCalculator(solver, inventoryMatrix);
+		Inventory inventory = DataStructures.createInventory(setup,
+				matrixCache);
+		ParameterTable parameters = DataStructures.createParameterTable(
+				db, setup, inventory);
+		FormulaInterpreter interpreter = parameters.createInterpreter();
+		MatrixData data = inventory.createMatrix(solver, interpreter);
 		if (setup.impactMethod != null) {
-			ImpactTable impactTable = ImpactTable.build(matrixCache,
+			ImpactTable impacts = ImpactTable.build(matrixCache,
 					setup.impactMethod.getId(), inventory.flowIndex);
-			ImpactMatrix impactMatrix = impactTable.createMatrix(
-					solver, interpreter);
-			calculator.setImpactMatrix(impactMatrix);
+			data.impactMatrix = impacts.createMatrix(solver, interpreter);
+			data.impactIndex = impacts.categoryIndex;
 		}
 		if (setup.withCosts) {
-			CostVector costVector = CostVector.build(inventory, db);
-			if (!costVector.isEmpty())
-				calculator.setCostVector(costVector);
+			data.costVector = CostVector.build(inventory, db);
 		}
-		return calculator;
+		return new LcaCalculator(solver, data);
 	}
 }

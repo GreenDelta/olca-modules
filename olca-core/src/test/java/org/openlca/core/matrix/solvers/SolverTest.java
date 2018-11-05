@@ -7,8 +7,8 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.results.SimpleResult;
@@ -48,30 +48,30 @@ public class SolverTest {
 	public void testSolve1x1System(IMatrixSolver solver) {
 		log.info("Test solve 1x1 matrix with {}", solver.getClass());
 
-		InventoryMatrix matrix = new InventoryMatrix();
+		MatrixData data = new MatrixData();
 
-		TechIndex productIndex = new TechIndex(LongPair.of(1, 1));
-		productIndex.put(LongPair.of(1, 1));
-		productIndex.setDemand(1d);
-		matrix.productIndex = productIndex;
+		TechIndex techIndex = new TechIndex(LongPair.of(1, 1));
+		techIndex.put(LongPair.of(1, 1));
+		techIndex.setDemand(1d);
+		data.techIndex = techIndex;
 
-		FlowIndex flowIndex = new FlowIndex();
-		flowIndex.putInputFlow(1);
-		flowIndex.putInputFlow(2);
-		flowIndex.putOutputFlow(3);
-		flowIndex.putOutputFlow(4);
-		matrix.flowIndex = flowIndex;
+		FlowIndex enviIndex = new FlowIndex();
+		enviIndex.putInputFlow(1);
+		enviIndex.putInputFlow(2);
+		enviIndex.putOutputFlow(3);
+		enviIndex.putOutputFlow(4);
+		data.enviIndex = enviIndex;
 
 		IMatrix techMatrix = solver.matrix(1, 1);
 		techMatrix.set(0, 0, 1);
-		matrix.technologyMatrix = techMatrix;
+		data.techMatrix = techMatrix;
 
 		IMatrix enviMatrix = solver.matrix(4, 1);
 		for (int r = 0; r < 4; r++)
 			enviMatrix.set(r, 0, 1 * r);
-		matrix.interventionMatrix = enviMatrix;
+		data.enviMatrix = enviMatrix;
 
-		LcaCalculator calculator = new LcaCalculator(solver, matrix);
+		LcaCalculator calculator = new LcaCalculator(solver, data);
 		SimpleResult result = calculator.calculateSimple();
 		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },
 				result.totalFlowResults, 1e-14);

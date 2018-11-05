@@ -1,9 +1,8 @@
 package org.openlca.core.math;
 
-import org.openlca.core.matrix.ImpactMatrix;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -23,14 +22,13 @@ public class Simulator {
 
 	private ImpactMethodDescriptor impactMethod;
 	private MatrixCache cache;
-	private final IMatrixSolver matrixSolver;
+	private final IMatrixSolver solver;
 
 	private SimulationResult result;
 	private Inventory inventory;
 	private ParameterTable parameterTable;
-	private InventoryMatrix inventoryMatrix;
 	private ImpactTable impactTable;
-	private ImpactMatrix impactMatrix;
+	private MatrixData data;
 	private CalculationSetup setup;
 
 	public Simulator(CalculationSetup setup, MatrixCache cache,
@@ -38,7 +36,7 @@ public class Simulator {
 		this.impactMethod = setup.impactMethod;
 		this.cache = cache;
 		this.setup = setup;
-		this.matrixSolver = solver;
+		this.solver = solver;
 	}
 
 	public SimulationResult getResult() {
@@ -54,19 +52,17 @@ public class Simulator {
 	 * should not) be cached.
 	 */
 	public SimpleResult nextRun() {
-		if (inventory == null || inventoryMatrix == null)
+		if (inventory == null || data == null)
 			setUp();
 		try {
 			log.trace("next simulation run");
 			FormulaInterpreter interpreter = parameterTable.simulate();
-			inventory.simulate(inventoryMatrix, interpreter);
-			LcaCalculator solver = new LcaCalculator(matrixSolver,
-					inventoryMatrix);
-			if (impactMatrix != null) {
-				impactTable.simulate(impactMatrix, interpreter);
-				solver.setImpactMatrix(impactMatrix);
+			inventory.simulate(data, interpreter);
+			if (impactTable != null) {
+				impactTable.simulate(data.impactMatrix, interpreter);
 			}
-			SimpleResult result = solver.calculateSimple();
+			LcaCalculator calc = new LcaCalculator(solver, data);
+			SimpleResult result = calc.calculateSimple();
 			appendResults(result);
 			return result;
 		} catch (Throwable e) {
@@ -87,7 +83,7 @@ public class Simulator {
 		parameterTable = DataStructures.createParameterTable(
 				cache.getDatabase(),
 				setup, inventory);
-		inventoryMatrix = inventory.createMatrix(matrixSolver);
+		data = inventory.createMatrix(solver);
 		result = new SimulationResult();
 		result.productIndex = inventory.productIndex;
 		result.flowIndex = inventory.flowIndex;
@@ -98,7 +94,8 @@ public class Simulator {
 				return;
 			}
 			this.impactTable = impactTable;
-			this.impactMatrix = impactTable.createMatrix(matrixSolver);
+			data.impactMatrix = impactTable.createMatrix(solver);
+			data.impactIndex = impactTable.categoryIndex;
 			result.impactIndex = impactTable.categoryIndex;
 		}
 	}

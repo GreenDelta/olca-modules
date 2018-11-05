@@ -10,21 +10,12 @@ import org.openlca.core.matrix.solvers.IMatrixSolver;
  * amount in the respective process. The vector is then scaled with the
  * respective scaling factors in the result calculation.
  */
-public class CostVector {
+public final class CostVector {
 
-	public final TechIndex productIndex;
-	public final double[] values;
-
-	CostVector(TechIndex products, double[] values) {
-		this.productIndex = products;
-		this.values = values;
+	private CostVector() {
 	}
 
-	public boolean isEmpty() {
-		return productIndex == null || productIndex.size() == 0 || values == null;
-	}
-
-	public IMatrix asMatrix(IMatrixSolver solver) {
+	public static IMatrix asMatrix(IMatrixSolver solver, double[] values) {
 		IMatrix m = solver.matrix(1, values.length);
 		for (int col = 0; col < values.length; col++) {
 			m.set(0, col, values[col]);
@@ -32,7 +23,7 @@ public class CostVector {
 		return m;
 	}
 
-	public static CostVector build(Inventory inventory, IDatabase db) {
+	public static double[] build(Inventory inventory, IDatabase db) {
 		return new Builder(inventory, db).build();
 	}
 
@@ -48,13 +39,13 @@ public class CostVector {
 			this.currencyTable = CurrencyTable.create(db);
 		}
 
-		private CostVector build() {
+		private double[] build() {
 			if (inventory == null || inventory.productIndex == null)
-				return new CostVector(null, null);
+				return new double[0];
 			values = new double[inventory.productIndex.size()];
 			scan(inventory.technologyMatrix);
 			scan(inventory.interventionMatrix);
-			return new CostVector(inventory.productIndex, values);
+			return values;
 		}
 
 		private void scan(ExchangeMatrix matrix) {

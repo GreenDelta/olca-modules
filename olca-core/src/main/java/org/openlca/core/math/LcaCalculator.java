@@ -1,9 +1,8 @@
 package org.openlca.core.math;
 
 import org.openlca.core.matrix.CostVector;
-import org.openlca.core.matrix.ImpactMatrix;
-import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -15,45 +14,34 @@ import org.openlca.core.results.SimpleResult;
 public class LcaCalculator {
 
 	private final IMatrixSolver solver;
-	private final InventoryMatrix inventory;
+	private final MatrixData data;
 
-	private ImpactMatrix impactMatrix;
-	private CostVector costVector;
-
-	public LcaCalculator(IMatrixSolver solver, InventoryMatrix inventory) {
+	public LcaCalculator(IMatrixSolver solver, MatrixData data) {
 		this.solver = solver;
-		this.inventory = inventory;
-	}
-
-	public void setImpactMatrix(ImpactMatrix impactMatrix) {
-		this.impactMatrix = impactMatrix;
-	}
-
-	public void setCostVector(CostVector costVector) {
-		this.costVector = costVector;
+		this.data = data;
 	}
 
 	public SimpleResult calculateSimple() {
 
 		SimpleResult result = new SimpleResult();
-		result.flowIndex = inventory.flowIndex;
-		result.productIndex = inventory.productIndex;
+		result.flowIndex = data.enviIndex;
+		result.productIndex = data.techIndex;
 
-		IMatrix techMatrix = inventory.technologyMatrix;
-		TechIndex productIndex = inventory.productIndex;
+		IMatrix techMatrix = data.techMatrix;
+		TechIndex productIndex = data.techIndex;
 		int idx = productIndex.getIndex(productIndex.getRefFlow());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 		result.scalingFactors = s;
 		result.totalRequirements = getTotalRequirements(techMatrix, s);
-		IMatrix enviMatrix = inventory.interventionMatrix;
+		IMatrix enviMatrix = data.enviMatrix;
 
 		result.totalFlowResults = solver.multiply(enviMatrix, s);
 
-		if (impactMatrix != null) {
+		if (data.impactMatrix != null) {
 			addTotalImpacts(result);
 		}
 
-		if (costVector != null) {
+		if (data.costVector != null) {
 			result.hasCostResults = true;
 			addTotalCosts(result, s);
 		}
@@ -64,17 +52,17 @@ public class LcaCalculator {
 	public ContributionResult calculateContributions() {
 
 		ContributionResult result = new ContributionResult();
-		result.flowIndex = inventory.flowIndex;
-		result.productIndex = inventory.productIndex;
+		result.flowIndex = data.enviIndex;
+		result.productIndex = data.techIndex;
 
-		IMatrix techMatrix = inventory.technologyMatrix;
-		TechIndex productIndex = inventory.productIndex;
+		IMatrix techMatrix = data.techMatrix;
+		TechIndex productIndex = data.techIndex;
 		int idx = productIndex.getIndex(productIndex.getRefFlow());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
 		result.scalingFactors = s;
 		result.totalRequirements = getTotalRequirements(techMatrix, s);
 
-		IMatrix enviMatrix = inventory.interventionMatrix;
+		IMatrix enviMatrix = data.enviMatrix;
 		IMatrix singleResult = enviMatrix.copy();
 		solver.scaleColumns(singleResult, s);
 		result.singleFlowResults = singleResult;
@@ -82,12 +70,12 @@ public class LcaCalculator {
 		result.linkContributions = LinkContributions.calculate(
 				techMatrix, productIndex, s);
 
-		if (impactMatrix != null) {
+		if (data.impactMatrix != null) {
 			addTotalImpacts(result);
 			addDirectImpacts(result);
 		}
 
-		if (costVector != null) {
+		if (data.costVector != null) {
 			result.hasCostResults = true;
 			addTotalCosts(result, s);
 			addDirectCosts(result, s);
@@ -98,12 +86,12 @@ public class LcaCalculator {
 	public FullResult calculateFull() {
 
 		FullResult result = new FullResult();
-		result.flowIndex = inventory.flowIndex;
-		result.productIndex = inventory.productIndex;
+		result.flowIndex = data.enviIndex;
+		result.productIndex = data.techIndex;
 
-		TechIndex productIdx = inventory.productIndex;
-		IMatrix techMatrix = inventory.technologyMatrix;
-		IMatrix enviMatrix = inventory.interventionMatrix;
+		TechIndex productIdx = data.techIndex;
+		IMatrix techMatrix = data.techMatrix;
+		IMatrix enviMatrix = data.enviMatrix;
 		IMatrix inverse = solver.invert(techMatrix);
 		double[] scalingVector = getScalingVector(inverse, productIdx);
 		result.scalingFactors = scalingVector;
@@ -112,13 +100,15 @@ public class LcaCalculator {
 		IMatrix singleResult = enviMatrix.copy();
 		solver.scaleColumns(singleResult, scalingVector);
 		result.singleFlowResults = singleResult;
-		result.totalRequirements = getTotalRequirements(techMatrix, scalingVector);
+		result.totalRequirements = getTotalRequirements(techMatrix,
+				scalingVector);
 
 		// upstream results
 		double[] demands = getRealDemands(result.totalRequirements, productIdx);
 		IMatrix totalResult = solver.multiply(enviMatrix, inverse);
-		if (costVector == null)
+		if (data.costVector == null) {
 			inverse = null; // allow GC
+		}
 		solver.scaleColumns(totalResult, demands);
 		result.upstreamFlowResults = totalResult;
 		int refIdx = productIdx.getIndex(productIdx.getRefFlow());
@@ -126,20 +116,20 @@ public class LcaCalculator {
 		result.linkContributions = LinkContributions.calculate(
 				techMatrix, productIdx, scalingVector);
 
-		if (impactMatrix != null) {
+		if (data.impactMatrix != null) {
 			addDirectImpacts(result);
-			IMatrix factors = impactMatrix.factorMatrix;
+			IMatrix factors = data.impactMatrix;
 			IMatrix totalImpactResult = solver.multiply(factors, totalResult);
 			result.upstreamImpactResults = totalImpactResult;
 			// total impacts = upstream result of reference product
-			result.impactIndex = impactMatrix.categoryIndex;
+			result.impactIndex = data.impactIndex;
 			result.totalImpactResults = totalImpactResult.getColumn(refIdx);
 		}
 
-		if (costVector != null) {
+		if (data.costVector != null) {
 			result.hasCostResults = true;
 			addDirectCosts(result, scalingVector);
-			IMatrix costValues = costVector.asMatrix(solver);
+			IMatrix costValues = CostVector.asMatrix(solver, data.costVector);
 			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
 			solver.scaleColumns(upstreamCosts, demands);
 			result.totalCostResult = upstreamCosts.get(0, refIdx);
@@ -208,16 +198,17 @@ public class LcaCalculator {
 	}
 
 	private void addTotalImpacts(SimpleResult result) {
-		result.impactIndex = impactMatrix.categoryIndex;
-		IMatrix factors = impactMatrix.factorMatrix;
+		result.impactIndex = data.impactIndex;
+		IMatrix factors = data.impactMatrix;
 		double[] totals = solver.multiply(factors, result.totalFlowResults);
 		result.totalImpactResults = totals;
 	}
 
 	private void addDirectImpacts(ContributionResult result) {
-		IMatrix factors = impactMatrix.factorMatrix;
+		IMatrix factors = data.impactMatrix;
 		result.impactFactors = factors;
-		IMatrix directResults = solver.multiply(factors, result.singleFlowResults);
+		IMatrix directResults = solver.multiply(factors,
+				result.singleFlowResults);
 		result.singleImpactResults = directResults;
 		IMatrix singleFlowImpacts = factors.copy();
 		solver.scaleColumns(singleFlowImpacts, result.totalFlowResults);
@@ -225,7 +216,7 @@ public class LcaCalculator {
 	}
 
 	private void addTotalCosts(SimpleResult result, double[] scalingVector) {
-		double[] costValues = costVector.values;
+		double[] costValues = data.costVector;
 		double total = 0;
 		for (int i = 0; i < scalingVector.length; i++) {
 			total += scalingVector[i] * costValues[i];
@@ -233,8 +224,9 @@ public class LcaCalculator {
 		result.totalCostResult = total;
 	}
 
-	private void addDirectCosts(ContributionResult result, double[] scalingVector) {
-		double[] costValues = costVector.values;
+	private void addDirectCosts(ContributionResult result,
+			double[] scalingVector) {
+		double[] costValues = data.costVector;
 		double[] directCosts = new double[costValues.length];
 		for (int i = 0; i < scalingVector.length; i++) {
 			directCosts[i] = costValues[i] * scalingVector[i];

@@ -9,7 +9,7 @@ import org.openlca.core.database.mysql.MySQLDatabase;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.InventoryMatrix;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
@@ -25,12 +25,13 @@ public class Benchmark {
 		// IDatabase db = new
 		// MySQLDatabase("jdbc:mysql://localhost:3306/openlca",
 		// "root", "");
-		IDatabase db = new MySQLDatabase("jdbc:mysql://localhost:3306/openlca_ei3_pre", "root", "");
+		IDatabase db = new MySQLDatabase(
+				"jdbc:mysql://localhost:3306/openlca_ei3_pre", "root", "");
 		MatrixCache cache = MatrixCache.createEager(db);
 		ProductSystem system = new ProductSystemDao(db).getForId(654886);
 		Inventory inventory = DataStructures.createInventory(system, cache);
-		InventoryMatrix matrix = inventory.createMatrix(solver);
-		LcaCalculator calculator = new LcaCalculator(solver, matrix);
+		MatrixData data = inventory.createMatrix(solver);
+		LcaCalculator calculator = new LcaCalculator(solver, data);
 
 		System.out.println("Inventory ready. Type enter to start!");
 		try {
