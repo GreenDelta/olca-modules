@@ -67,8 +67,6 @@ public class LcaCalculator {
 		solver.scaleColumns(singleResult, s);
 		result.singleFlowResults = singleResult;
 		result.totalFlowResults = solver.multiply(enviMatrix, s);
-		result.linkContributions = LinkContributions.calculate(
-				techMatrix, productIndex, s);
 
 		if (data.impactMatrix != null) {
 			addTotalImpacts(result);

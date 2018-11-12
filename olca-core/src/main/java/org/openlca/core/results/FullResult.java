@@ -30,6 +30,11 @@ public class FullResult extends ContributionResult {
 	public IMatrix upstreamCostResults;
 
 	/**
+	 * The contributions of the product-links in the scaled product system.
+	 */
+	public LinkContributions linkContributions;
+
+	/**
 	 * Get the upstream flow result of the flow with the given ID for the given
 	 * process-product. Inputs have negative values here.
 	 */
@@ -53,7 +58,8 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream LCIA category result of the LCIA category with the given
 	 * ID for the given process-product.
 	 */
-	public double getUpstreamImpactResult(LongPair processProduct, long impactId) {
+	public double getUpstreamImpactResult(LongPair processProduct,
+			long impactId) {
 		if (!hasImpactResults())
 			return 0;
 		int row = impactIndex.getIndex(impactId);
