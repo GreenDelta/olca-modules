@@ -20,14 +20,12 @@ import com.google.common.collect.Multimap;
 class UpstreamTreeCalculator {
 
 	private FullResult result;
-	private LinkContributions linkContributions;
 	private Multimap<LongPair, LongPair> links;
 	private boolean skipNegatives = false;
 	private boolean skipNulls = false;
 
 	public UpstreamTreeCalculator(FullResult result) {
 		this.result = result;
-		this.linkContributions = result.linkContributions;
 		this.links = makeLinks(result.productIndex);
 	}
 
@@ -108,8 +106,10 @@ class UpstreamTreeCalculator {
 		List<UpstreamTreeNode> childNodes = new ArrayList<>();
 		LongPair recipient = parent.getProcessProduct();
 		for (LongPair provider : links.get(recipient)) {
-			double share = linkContributions.getShare(provider, recipient)
-					* parent.getShare();
+			// double share = linkContributions.getShare(provider, recipient)
+			// * parent.getShare();
+			// TODO:
+			double share = 0.0;
 			double amount = share * fn.getTotalAmount(provider);
 			if (amount == 0 && skipNulls)
 				continue;

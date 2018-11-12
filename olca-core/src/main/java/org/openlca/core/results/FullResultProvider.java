@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -12,12 +14,10 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 public class FullResultProvider extends ContributionResultProvider<FullResult> {
 
-	private final LinkContributions linkContributions;
 	private final UpstreamTreeCalculator treeCalculator;
 
 	public FullResultProvider(FullResult result, EntityCache cache) {
 		super(result, cache);
-		this.linkContributions = result.linkContributions;
 		this.treeCalculator = new UpstreamTreeCalculator(result);
 	}
 
@@ -52,7 +52,8 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 		return r;
 	}
 
-	public List<ImpactResult> getUpstreamImpactResults(ProcessDescriptor process) {
+	public List<ImpactResult> getUpstreamImpactResults(
+			ProcessDescriptor process) {
 		List<ImpactResult> results = new ArrayList<>();
 		for (ImpactCategoryDescriptor impact : getImpactDescriptors())
 			results.add(getUpstreamImpactResult(process, impact));
@@ -79,7 +80,22 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	 * product system. The returned share is a value between 0 and 1.
 	 */
 	public double getLinkShare(ProcessLink link) {
-		return linkContributions.getShare(link);
+		TechIndex idx = result.productIndex;
+		LongPair provider = LongPair.of(link.providerId, link.flowId);
+		int providerIdx = idx.getIndex(provider);
+		if (providerIdx < 0)
+			return 0;
+		double amount = 0.0;
+		for (LongPair process : idx.getProviders(link.processId)) {
+			int processIdx = idx.getIndex(process);
+			amount += result.techMatrix.get(providerIdx, processIdx);
+		}
+		if (amount == 0)
+			return 0;
+		double total = result.techMatrix.get(providerIdx, providerIdx);
+		if (total == 0)
+			return 0;
+		return -amount / total;
 	}
 
 	public UpstreamTree getTree(FlowDescriptor flow) {

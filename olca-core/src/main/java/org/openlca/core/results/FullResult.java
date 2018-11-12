@@ -11,6 +11,11 @@ import org.openlca.core.matrix.format.IMatrix;
 public class FullResult extends ContributionResult {
 
 	/**
+	 * The *scaled* technology matrix of the product system: A * diagm(0 => s).
+	 */
+	public IMatrix techMatrix;
+
+	/**
 	 * The upstream flow results in a matrix where the flows are mapped to the
 	 * rows and the process-products to the columns. Inputs have negative values
 	 * here.
@@ -28,11 +33,6 @@ public class FullResult extends ContributionResult {
 	 * contains the upstream costs for the product at the given index.
 	 */
 	public IMatrix upstreamCostResults;
-
-	/**
-	 * The contributions of the product-links in the scaled product system.
-	 */
-	public LinkContributions linkContributions;
 
 	/**
 	 * Get the upstream flow result of the flow with the given ID for the given

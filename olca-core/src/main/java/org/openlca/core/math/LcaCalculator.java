@@ -8,7 +8,6 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
-import org.openlca.core.results.LinkContributions;
 import org.openlca.core.results.SimpleResult;
 
 public class LcaCalculator {
@@ -95,9 +94,10 @@ public class LcaCalculator {
 		result.scalingFactors = scalingVector;
 
 		// direct results
-		IMatrix singleResult = enviMatrix.copy();
-		solver.scaleColumns(singleResult, scalingVector);
-		result.singleFlowResults = singleResult;
+		result.techMatrix = techMatrix.copy();
+		solver.scaleColumns(result.techMatrix, scalingVector);
+		result.singleFlowResults = enviMatrix.copy();
+		solver.scaleColumns(result.singleFlowResults, scalingVector);
 		result.totalRequirements = getTotalRequirements(techMatrix,
 				scalingVector);
 
@@ -111,8 +111,6 @@ public class LcaCalculator {
 		result.upstreamFlowResults = totalResult;
 		int refIdx = productIdx.getIndex(productIdx.getRefFlow());
 		result.totalFlowResults = totalResult.getColumn(refIdx);
-		result.linkContributions = LinkContributions.calculate(
-				techMatrix, productIdx, scalingVector);
 
 		if (data.impactMatrix != null) {
 			addDirectImpacts(result);

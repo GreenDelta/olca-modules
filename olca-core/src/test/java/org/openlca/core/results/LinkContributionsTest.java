@@ -3,6 +3,7 @@ package org.openlca.core.results;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
@@ -26,6 +27,8 @@ public class LinkContributionsTest {
 				{ -0.5, 1, 0, 0 },
 				{ -0.5, 0, 1, 0 },
 				{ 0, -0.5, -0.5, 1 } });
+		double[] s = { 1, 0.5, 0.5, 0.5 };
+		Tests.getDefaultSolver().scaleColumns(techMatrix, s);
 
 		TechIndex index = new TechIndex(LongPair.of(1, 1));
 		index.put(LongPair.of(2, 2));
@@ -35,15 +38,18 @@ public class LinkContributionsTest {
 		index.putLink(LongPair.of(1, 3), LongPair.of(3, 3));
 		index.putLink(LongPair.of(2, 4), LongPair.of(4, 4));
 		index.putLink(LongPair.of(3, 4), LongPair.of(4, 4));
-		double[] s = { 1, 0.5, 0.5, 0.5 };
 
-		LinkContributions cons = LinkContributions.calculate(techMatrix, index,
-				s);
-		Assert.assertEquals(0, cons.getShare(link(4, 4, 1)), 1e-16);
-		Assert.assertEquals(1, cons.getShare(link(2, 2, 1)), 1e-16);
-		Assert.assertEquals(1, cons.getShare(link(3, 3, 1)), 1e-16);
-		Assert.assertEquals(0.5, cons.getShare(link(4, 4, 2)), 1e-16);
-		Assert.assertEquals(0.5, cons.getShare(link(4, 4, 3)), 1e-16);
+		FullResult r = new FullResult();
+		r.techMatrix = techMatrix;
+		r.productIndex = index;
+		FullResultProvider p = new FullResultProvider(r,
+				EntityCache.create(Tests.getDb()));
+
+		Assert.assertEquals(0, p.getLinkShare(link(4, 4, 1)), 1e-16);
+		Assert.assertEquals(1, p.getLinkShare(link(2, 2, 1)), 1e-16);
+		Assert.assertEquals(1, p.getLinkShare(link(3, 3, 1)), 1e-16);
+		Assert.assertEquals(0.5, p.getLinkShare(link(4, 4, 2)), 1e-16);
+		Assert.assertEquals(0.5, p.getLinkShare(link(4, 4, 3)), 1e-16);
 	}
 
 	/**
@@ -69,14 +75,18 @@ public class LinkContributionsTest {
 			}
 		}
 		Assert.assertEquals(size - 1, index.getLinkedExchanges().size());
-		LinkContributions cons = LinkContributions.calculate(techMatrix, index,
-				s);
+		FullResult r = new FullResult();
+		r.techMatrix = techMatrix;
+		r.productIndex = index;
+		FullResultProvider p = new FullResultProvider(r,
+				EntityCache.create(Tests.getDb()));
+
 		for (int i = 0; i < size; i++) {
 			if (i < (size - 1)) {
 				Assert.assertEquals(1,
-						cons.getShare(link(i + 2, i + 2, i + 1)), 1e-16);
+						p.getLinkShare(link(i + 2, i + 2, i + 1)), 1e-16);
 				Assert.assertEquals(0,
-						cons.getShare(link(i + 3, i + 3, i + 1)), 1e-16);
+						p.getLinkShare(link(i + 3, i + 3, i + 1)), 1e-16);
 			}
 		}
 	}
