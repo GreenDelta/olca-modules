@@ -27,6 +27,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 public class RepositoryClient {
 
 	private static final Logger log = LoggerFactory.getLogger(RepositoryClient.class);
+	public static final String API_VERSION = "1.1.0";
 	private final RepositoryConfig config;
 	// Method to call if token is required, if no callback is specified a
 	// TokenRequiredException will be thrown when a token is required

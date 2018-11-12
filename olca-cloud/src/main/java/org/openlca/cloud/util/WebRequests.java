@@ -10,6 +10,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
 
+import org.openlca.cloud.api.RepositoryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +72,7 @@ public class WebRequests {
 		WebResource resource = createClient().resource(url);
 		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_PLAIN_TYPE,
 				MediaType.APPLICATION_OCTET_STREAM_TYPE);
+		builder.header("lca-cs-client-api-version", RepositoryClient.API_VERSION);
 		if (sessionId != null)
 			builder.cookie(new Cookie("JSESSIONID", sessionId));
 		if (data == null)
@@ -124,6 +126,12 @@ public class WebRequests {
 				return "Server unavailable";
 			if (isUnauthorized())
 				return "Invalid credentials";
+			if (isApiVersionIncompatible()) 
+				return "Client version is incompatible with server API";
+			return super.getMessage();
+		}
+		
+		public String getOriginalMessage() {
 			return super.getMessage();
 		}
 
@@ -145,6 +153,10 @@ public class WebRequests {
 
 		public boolean isUnauthorized() {
 			return errorCode == Status.UNAUTHORIZED.getStatusCode();
+		}
+		
+		public boolean isApiVersionIncompatible() {
+			return errorCode == Status.NOT_ACCEPTABLE.getStatusCode();
 		}
 
 	}
