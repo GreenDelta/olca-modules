@@ -44,14 +44,11 @@ public class ContributionTreeTest {
 		Assert.assertEquals(1.0, result.getTotalFlowResult(flow.getId()),
 				1e-16);
 
-		UpstreamTreeCalculator treeCalculator = new UpstreamTreeCalculator(
-				result);
-		UpstreamTree tree = treeCalculator.calculate(flow);
-		Assert.assertEquals(2, tree.getRoot().getChildren().size());
-		Assert.assertEquals(1.0, tree.getRoot().getAmount(), 1e-16);
-		Assert.assertEquals(0.5, tree.getRoot().getChildren().get(0)
-				.getAmount(), 1e-16);
-		Assert.assertEquals(0.5, tree.getRoot().getChildren().get(1)
-				.getAmount(), 1e-16);
+		UpstreamTree tree = new UpstreamTree(result,
+				result.upstreamFlowResults.getRow(0));
+		Assert.assertEquals(2, tree.childs(tree.root).size());
+		Assert.assertEquals(1.0, tree.root.result, 1e-16);
+		Assert.assertEquals(0.5, tree.childs(tree.root).get(0).result, 1e-16);
+		Assert.assertEquals(0.5, tree.childs(tree.root).get(1).result, 1e-16);
 	}
 }

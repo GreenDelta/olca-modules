@@ -15,8 +15,8 @@ import org.openlca.core.results.ContributionItem;
 import org.openlca.core.results.ContributionResultProvider;
 import org.openlca.core.results.ContributionSet;
 import org.openlca.core.results.FullResultProvider;
+import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
-import org.openlca.core.results.UpstreamTreeNode;
 
 public class CostTests {
 
@@ -36,10 +36,11 @@ public class CostTests {
 		Assert.assertEquals(3, r.getUpstreamCostResult(d1), 1e-10);
 		Assert.assertEquals(3, r.getSingleCostResult(d1), 1e-10);
 		UpstreamTree tree = r.getCostTree();
-		UpstreamTreeNode root = tree.getRoot();
-		Assert.assertTrue(root.getChildren().isEmpty());
-		Assert.assertEquals(3, root.getAmount(), 1e-10);
-		ContributionSet<ProcessDescriptor> set = r.getProcessCostContributions();
+		UpstreamNode root = tree.root;
+		Assert.assertTrue(tree.childs(root).isEmpty());
+		Assert.assertEquals(3, root.result, 1e-10);
+		ContributionSet<ProcessDescriptor> set = r
+				.getProcessCostContributions();
 		Assert.assertTrue(set.contributions.size() == 1);
 		ContributionItem<ProcessDescriptor> item = set.contributions.get(0);
 		Assert.assertEquals(3, item.amount, 1e-10);

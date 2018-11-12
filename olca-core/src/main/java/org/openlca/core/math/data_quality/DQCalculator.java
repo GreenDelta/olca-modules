@@ -27,7 +27,7 @@ class DQCalculator {
 	}
 
 	void calculate() {
-		for (long processId : result.productIndex.getProcessIds()) {
+		for (long processId : result.techIndex.getProcessIds()) {
 			for (long flowId : result.flowIndex.getFlowIds()) {
 				addValues(processId, flowId);
 			}

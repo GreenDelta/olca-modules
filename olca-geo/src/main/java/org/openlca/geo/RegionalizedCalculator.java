@@ -17,7 +17,6 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.results.FullResult;
-import org.openlca.core.results.LinkContributions;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.Scope;
 import org.openlca.geo.kml.LocationKml;
@@ -57,19 +56,19 @@ public class RegionalizedCalculator {
 
 			FullResult r = new FullResult();
 			r.flowIndex = inventory.flowIndex;
-			r.productIndex = inventory.productIndex;
+			r.techIndex = inventory.productIndex;
 			r.impactIndex = impactTable.categoryIndex;
 
 			// direct LCI results
 			LcaCalculator baseCalc = new LcaCalculator(solver, m);
 			IMatrix inverse = solver.invert(m.techMatrix);
-			r.scalingFactors = baseCalc.getScalingVector(inverse, r.productIndex);
+			r.scalingFactors = baseCalc.getScalingVector(inverse, r.techIndex);
 			r.singleFlowResults = m.enviMatrix.copy();
 			solver.scaleColumns(r.singleFlowResults, r.scalingFactors);
 			r.totalRequirements = baseCalc.getTotalRequirements(
 					m.techMatrix, r.scalingFactors);
-			r.linkContributions = LinkContributions.calculate(m.techMatrix,
-					m.techIndex, r.scalingFactors);
+			r.techMatrix = m.techMatrix.copy();
+			solver.scaleColumns(r.techMatrix, r.scalingFactors);
 
 			// assessed intervention matrix
 			IMatrix factors = impactTable.createMatrix(solver, interpreter);
@@ -78,7 +77,7 @@ public class RegionalizedCalculator {
 			eachKml(regioSetup, impactTable, interpreter, (kml, kmlFactors) -> {
 				IMatrix assessedKml = solver.multiply(kmlFactors, m.enviMatrix);
 				for (LongPair product : kml.processProducts) {
-					int col = r.productIndex.getIndex(product);
+					int col = r.techIndex.getIndex(product);
 					for (int row = 0; row < assessedEnvi.rows(); row++) {
 						assessedEnvi.set(row, col, assessedKml.get(row, col));
 					}
@@ -90,13 +89,15 @@ public class RegionalizedCalculator {
 			solver.scaleColumns(r.singleImpactResults, r.scalingFactors);
 
 			// upstream & total results
-			double[] demands = baseCalc.getRealDemands(r.totalRequirements,
-					r.productIndex);
+			r.loopFactor = baseCalc.getLoopFactor(
+					m.techMatrix, r.scalingFactors, r.techIndex);
+			double[] demands = baseCalc.getRealDemands(
+					r.totalRequirements, r.loopFactor);
 			r.upstreamFlowResults = solver.multiply(m.enviMatrix, inverse);
 			solver.scaleColumns(r.upstreamFlowResults, demands);
 			r.upstreamImpactResults = solver.multiply(assessedEnvi, inverse);
 			solver.scaleColumns(r.upstreamImpactResults, demands);
-			int refIdx = r.productIndex.getIndex(r.productIndex.getRefFlow());
+			int refIdx = r.techIndex.getIndex(r.techIndex.getRefFlow());
 			r.totalFlowResults = r.upstreamFlowResults.getColumn(refIdx);
 			r.totalImpactResults = r.upstreamImpactResults.getColumn(refIdx);
 

@@ -14,11 +14,8 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 public class FullResultProvider extends ContributionResultProvider<FullResult> {
 
-	private final UpstreamTreeCalculator treeCalculator;
-
 	public FullResultProvider(FullResult result, EntityCache cache) {
 		super(result, cache);
-		this.treeCalculator = new UpstreamTreeCalculator(result);
 	}
 
 	public List<FlowResult> getUpstreamFlowResults(ProcessDescriptor process) {
@@ -80,7 +77,7 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	 * product system. The returned share is a value between 0 and 1.
 	 */
 	public double getLinkShare(ProcessLink link) {
-		TechIndex idx = result.productIndex;
+		TechIndex idx = result.techIndex;
 		LongPair provider = LongPair.of(link.providerId, link.flowId);
 		int providerIdx = idx.getIndex(provider);
 		if (providerIdx < 0)
@@ -99,15 +96,19 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	}
 
 	public UpstreamTree getTree(FlowDescriptor flow) {
-		return treeCalculator.calculate(flow);
+		int i = result.flowIndex.getIndex(flow.getId());
+		double[] u = result.upstreamFlowResults.getRow(i);
+		return new UpstreamTree(result, u);
 	}
 
 	public UpstreamTree getTree(ImpactCategoryDescriptor impact) {
-		return treeCalculator.calculate(impact);
+		int i = result.impactIndex.getIndex(impact.getId());
+		double[] u = result.upstreamImpactResults.getRow(i);
+		return new UpstreamTree(result, u);
 	}
 
 	public UpstreamTree getCostTree() {
-		return treeCalculator.calculateCosts();
+		return new UpstreamTree(result, result.upstreamCostResults.getRow(0));
 	}
 
 }

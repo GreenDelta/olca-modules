@@ -1,6 +1,7 @@
 package org.openlca.core.results;
 
-import org.openlca.core.model.descriptors.BaseDescriptor;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Maps the upstream results of the product system graph to a tree where the
@@ -8,23 +9,52 @@ import org.openlca.core.model.descriptors.BaseDescriptor;
  */
 public class UpstreamTree {
 
-	private UpstreamTreeNode root;
-	private BaseDescriptor reference;
+	public final UpstreamNode root;
+	private final double[] intensityRow;
+	private final FullResult r;
 
-	public UpstreamTreeNode getRoot() {
-		return root;
+	public UpstreamTree(FullResult r, double[] u) {
+		this.r = r;
+		root = new UpstreamNode();
+		root.scaling = 1.0;
+		root.provider = r.techIndex.getRefFlow();
+		root.index = r.techIndex.getIndex(root.provider);
+		root.result = u[root.index];
+		intensityRow = new double[u.length];
+		if (r.loopFactor == 1) {
+			for (int i = 0; i < intensityRow.length; i++) {
+				intensityRow[i] = u[i] / r.totalRequirements[i];
+			}
+		} else {
+			for (int i = 0; i < intensityRow.length; i++) {
+				intensityRow[i] = u[i]
+						/ (r.totalRequirements[i] * r.loopFactor);
+			}
+		}
 	}
 
-	public void setRoot(UpstreamTreeNode root) {
-		this.root = root;
-	}
-
-	public BaseDescriptor getReference() {
-		return reference;
-	}
-
-	public void setReference(BaseDescriptor reference) {
-		this.reference = reference;
+	public List<UpstreamNode> childs(UpstreamNode parent) {
+		if (parent.childs != null)
+			return parent.childs;
+		parent.childs = new ArrayList<>();
+		if (parent.scaling == 0)
+			return parent.childs;
+		for (int row = 0; row < r.techMatrix.rows(); row++) {
+			if (row == parent.index)
+				continue;
+			double val = r.techMatrix.get(row, parent.index);
+			if (val == 0)
+				continue;
+			val *= parent.scaling;
+			UpstreamNode child = new UpstreamNode();
+			double refVal = r.techMatrix.get(row, row);
+			child.scaling = -val / refVal;
+			child.index = row;
+			child.provider = r.techIndex.getProviderAt(row);
+			child.result = intensityRow[row] * refVal * child.scaling;
+			parent.childs.add(child);
+		}
+		return parent.childs;
 	}
 
 }

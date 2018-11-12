@@ -16,6 +16,11 @@ public class FullResult extends ContributionResult {
 	public IMatrix techMatrix;
 
 	/**
+	 * TODO: add doc ...
+	 */
+	public double loopFactor;
+
+	/**
 	 * The upstream flow results in a matrix where the flows are mapped to the
 	 * rows and the process-products to the columns. Inputs have negative values
 	 * here.
@@ -40,7 +45,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getUpstreamFlowResult(LongPair processProduct, long flowId) {
 		int row = flowIndex.getIndex(flowId);
-		int col = productIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(processProduct);
 		return getValue(upstreamFlowResults, row, col);
 	}
 
@@ -63,7 +68,7 @@ public class FullResult extends ContributionResult {
 		if (!hasImpactResults())
 			return 0;
 		int row = impactIndex.getIndex(impactId);
-		int col = productIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(processProduct);
 		return getValue(upstreamImpactResults, row, col);
 	}
 
@@ -84,7 +89,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamCostResult(LongPair processProduct) {
 		if (!hasCostResults)
 			return 0;
-		int col = productIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(processProduct);
 		return getValue(upstreamCostResults, 0, col);
 	}
 

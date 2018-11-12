@@ -7,11 +7,11 @@ import org.openlca.core.matrix.TechIndex;
 public abstract class BaseResult {
 
 	/**
-	 * The product index maps the process-product-IDs from the technosphere to
-	 * column and row indices of the matrices and vectors of the mathematical
-	 * model.
+	 * The index of the technology matrix that maps the process-flow pairs
+	 * (products and waste flows) of the technosphere to the respective matrix
+	 * indices.
 	 */
-	public TechIndex productIndex;
+	public TechIndex techIndex;
 
 	/**
 	 * The flow index which maps the flow-IDs from the interventions to column
@@ -24,7 +24,6 @@ public abstract class BaseResult {
 	 * indices of the matrices and vectors of the mathematical model.
 	 */
 	public LongIndex impactIndex;
-
 
 	/**
 	 * Indicates whether the result contains cost results or not.

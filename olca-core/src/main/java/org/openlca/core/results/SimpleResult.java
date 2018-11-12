@@ -47,7 +47,7 @@ public class SimpleResult extends BaseResult {
 	 * Get the scaling factor of the given process-product.
 	 */
 	public double getScalingFactor(LongPair processProduct) {
-		int idx = productIndex.getIndex(processProduct);
+		int idx = techIndex.getIndex(processProduct);
 		if (idx < 0 || idx > scalingFactors.length)
 			return 0;
 		return scalingFactors[idx];
@@ -59,9 +59,9 @@ public class SimpleResult extends BaseResult {
 	 */
 	public double getScalingFactor(long processId) {
 		double factor = 0;
-		List<LongPair> productIds = productIndex.getProviders(processId);
+		List<LongPair> productIds = techIndex.getProviders(processId);
 		for (LongPair product : productIds) {
-			int idx = productIndex.getIndex(product);
+			int idx = techIndex.getIndex(product);
 			if (idx < 0 || idx > scalingFactors.length)
 				continue;
 			factor += scalingFactors[idx];

@@ -20,7 +20,7 @@ class Util {
 	static List<ProcessDescriptor> processes(
 			SimpleResultProvider<?> result) {
 		Set<ProcessDescriptor> procs = result.getProcessDescriptors();
-		long refProcessId = result.result.productIndex.getRefFlow().getFirst();
+		long refProcessId = result.result.techIndex.getRefFlow().getFirst();
 		return Sort.processes(procs, refProcessId);
 	}
 

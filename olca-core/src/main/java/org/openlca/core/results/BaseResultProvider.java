@@ -37,7 +37,7 @@ public class BaseResultProvider<T extends BaseResult> implements IResultProvider
 
 	@Override
 	public Set<ProcessDescriptor> getProcessDescriptors() {
-		TechIndex index = result.productIndex;
+		TechIndex index = result.techIndex;
 		if (index == null)
 			return Collections.emptySet();
 		Map<Long, ProcessDescriptor> values = cache.getAll(

@@ -41,7 +41,7 @@ public class LinkContributionsTest {
 
 		FullResult r = new FullResult();
 		r.techMatrix = techMatrix;
-		r.productIndex = index;
+		r.techIndex = index;
 		FullResultProvider p = new FullResultProvider(r,
 				EntityCache.create(Tests.getDb()));
 
@@ -77,7 +77,7 @@ public class LinkContributionsTest {
 		Assert.assertEquals(size - 1, index.getLinkedExchanges().size());
 		FullResult r = new FullResult();
 		r.techMatrix = techMatrix;
-		r.productIndex = index;
+		r.techIndex = index;
 		FullResultProvider p = new FullResultProvider(r,
 				EntityCache.create(Tests.getDb()));
 

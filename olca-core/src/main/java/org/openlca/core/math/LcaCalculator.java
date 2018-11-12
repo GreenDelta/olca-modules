@@ -24,7 +24,7 @@ public class LcaCalculator {
 
 		SimpleResult result = new SimpleResult();
 		result.flowIndex = data.enviIndex;
-		result.productIndex = data.techIndex;
+		result.techIndex = data.techIndex;
 
 		IMatrix techMatrix = data.techMatrix;
 		TechIndex productIndex = data.techIndex;
@@ -52,7 +52,7 @@ public class LcaCalculator {
 
 		ContributionResult result = new ContributionResult();
 		result.flowIndex = data.enviIndex;
-		result.productIndex = data.techIndex;
+		result.techIndex = data.techIndex;
 
 		IMatrix techMatrix = data.techMatrix;
 		TechIndex productIndex = data.techIndex;
@@ -84,7 +84,7 @@ public class LcaCalculator {
 
 		FullResult result = new FullResult();
 		result.flowIndex = data.enviIndex;
-		result.productIndex = data.techIndex;
+		result.techIndex = data.techIndex;
 
 		TechIndex productIdx = data.techIndex;
 		IMatrix techMatrix = data.techMatrix;
@@ -102,7 +102,10 @@ public class LcaCalculator {
 				scalingVector);
 
 		// upstream results
-		double[] demands = getRealDemands(result.totalRequirements, productIdx);
+		result.loopFactor = getLoopFactor(
+				techMatrix, scalingVector, productIdx);
+		double[] demands = getRealDemands(
+				result.totalRequirements, result.loopFactor);
 		IMatrix totalResult = solver.multiply(enviMatrix, inverse);
 		if (data.costVector == null) {
 			inverse = null; // allow GC
@@ -173,19 +176,24 @@ public class LcaCalculator {
 		return tr;
 	}
 
+	public double getLoopFactor(IMatrix A, double[] s, TechIndex techIndex) {
+		int i = techIndex.getIndex(techIndex.getRefFlow());
+		double t = A.get(i, i) * s[i];
+		double f = techIndex.getDemand();
+		if (Math.abs(t - f) < 1e-12)
+			return 1;
+		return f / t;
+	}
+
 	/**
 	 * Calculate the real demand vector for the analysis.
 	 */
 	public double[] getRealDemands(double[] totalRequirements,
-			TechIndex productIdx) {
-		double refDemand = productIdx.getDemand();
-		int i = productIdx.getIndex(productIdx.getRefFlow());
+			double loopFactor) {
 		double[] rd = new double[totalRequirements.length];
-		if (Math.abs(totalRequirements[i] - refDemand) > 1e-9) {
-			// 'self-loop' correction for total result scale
-			double f = refDemand / totalRequirements[i];
+		if (loopFactor != 1) {
 			for (int k = 0; k < totalRequirements.length; k++)
-				rd[k] = f * totalRequirements[k];
+				rd[k] = loopFactor * totalRequirements[k];
 		} else {
 			int length = totalRequirements.length;
 			System.arraycopy(totalRequirements, 0, rd, 0, length);

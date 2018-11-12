@@ -85,7 +85,7 @@ public class Simulator {
 				setup, inventory);
 		data = inventory.createMatrix(solver);
 		result = new SimulationResult();
-		result.productIndex = inventory.productIndex;
+		result.techIndex = inventory.productIndex;
 		result.flowIndex = inventory.flowIndex;
 		if (impactMethod != null) {
 			ImpactTable impactTable = ImpactTable.build(cache,
