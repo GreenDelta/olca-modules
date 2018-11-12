@@ -1,4 +1,4 @@
-package org.openlca.ipc.handlers;
+package org.openlca.jsonld;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,12 +7,15 @@ import java.util.List;
 import java.util.Objects;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.EntityStore;
-import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
-class MemStore implements EntityStore {
+/**
+ * A simple implementation of the {@link EntityStore} interface that stores the
+ * JSON objects in memory. Not all features of a real file based entity store
+ * are supported.
+ */
+public class MemStore implements EntityStore {
 
 	private HashMap<ModelType, List<JsonObject>> data = new HashMap<>();
 
@@ -58,7 +61,7 @@ class MemStore implements EntityStore {
 		return null;
 	}
 
-	List<JsonObject> getAll(ModelType type) {
+	public List<JsonObject> getAll(ModelType type) {
 		List<JsonObject> models = data.get(type);
 		return models == null ? Collections.emptyList() : models;
 	}
@@ -83,7 +86,7 @@ class MemStore implements EntityStore {
 	@Override
 	public void putMetaInfo(JsonObject info) {
 	}
-	
+
 	@Override
 	public JsonObject getContext() {
 		JsonObject obj = new JsonObject();

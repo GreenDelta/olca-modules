@@ -10,6 +10,7 @@ import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
@@ -318,13 +319,20 @@ public class ProcessImport {
 	private void mapReviews(ProcessDocumentation doc) {
 		if (ilcdProcess.getReviews().isEmpty())
 			return;
-		Review iReview = ilcdProcess.getReviews().get(0);
-		if (!iReview.reviewers.isEmpty()) {
-			Ref ref = iReview.reviewers.get(0);
+		Review review = ilcdProcess.getReviews().get(0);
+		if (!review.reviewers.isEmpty()) {
+			Ref ref = review.reviewers.get(0);
 			doc.setReviewer(fetchActor(ref));
 		}
-		doc.setReviewDetails(LangString.getFirst(iReview.details,
-				config.langs));
+		doc.setReviewDetails(LangString.getFirst(review.details, config.langs));
+		String dq = DQEntry.get(review);
+		if (dq != null) {
+			DQSystem dqs = DQSystems.ilcd(config.db);
+			if (dqs != null) {
+				process.dqSystem = dqs;
+				process.dqEntry = dq;
+			}
+		}
 	}
 
 	private Actor fetchActor(Ref reference) {

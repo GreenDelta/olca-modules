@@ -9,6 +9,17 @@ import org.openlca.core.model.DQSystem;
 public class DQSystems {
 
 	private static final String EI_DQS = "e7ac7cf6-5457-453e-99f9-d889826fffe8";
+	private static final String ILCD_DQS = "506e2c14-4d09-49fd-9460-97e8085b2b55";
+
+	/**
+	 * Returns the ILCD data quality system from the database if it is
+	 * available. It returns <code>null</code> if this is not the case.
+	 */
+	public static DQSystem ilcd(IDatabase db) {
+		if (db == null)
+			return null;
+		return new DQSystemDao(db).getForRefId(ILCD_DQS);
+	}
 
 	/**
 	 * Returns the ecoinvent data quality system from the database. It creates a
@@ -68,25 +79,29 @@ public class DQSystems {
 						"Non-verified data partly based on qualified estimates",
 						"Qualified estimate (e.g. by industrial expert)",
 						"Non-qualified estimates"
-				}, {
+				},
+				{
 						"Representative data from all sites relevant for the market considered, over and adequate period to even out normal fluctuations",
 						"Representative data from > 50% of the sites relevant for the market considered, over an adequate period to even out normal fluctuations",
 						"Representative data from only some sites (<< 50%) relevant for the market considered or > 50% of sites but from shorter periods",
 						"Representative data from only one site relevant for the market considered or some sites but from shorter periods",
 						"Representativeness unknown or data from a small number of sites and from shorter periods"
-				}, {
+				},
+				{
 						"Less than 3 years of difference to the time period of the data set",
 						"Less than 6 years of difference to the time period of the data set",
 						"Less than 10 years of difference to the time period of the data set",
 						"Less than 15 years of difference to the time period of the data set",
 						"Age of data unknown or more than 15 years of difference to the time period of the data set"
-				}, {
+				},
+				{
 						"Data from area under study",
 						"Average data from larger area in which the area under study is included",
 						"Data from area with similar production conditions",
 						"Data from area with slightly similar production conditions",
 						"Data from unknown or distinctly different area (North America instead of Middle East, OECD-Europe instead of Russia)"
-				}, {
+				},
+				{
 						"Data from enterprises, processes and materials under study",
 						"Data from processes and materials under study (i.e. identical technology) but from different enterprises",
 						"Data from processes and materials under study but from different technology",
