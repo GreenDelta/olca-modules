@@ -9,9 +9,9 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -55,22 +55,21 @@ public class Export implements Runnable {
 			if (!dir.exists()) {
 				dir.mkdirs();
 			}
-			InventoryMatrix imat;
+			MatrixData data;
 			if (setup == null) {
-				imat = dbInventory();
+				data = dbInventory();
 			} else {
-				imat = setupInventory();
+				data = setupInventory();
 			}
-			writeMatrices(imat);
-			IndexWriter iw = new IndexWriter(
-					imat.productIndex, imat.flowIndex);
+			writeMatrices(data);
+			IndexWriter iw = new IndexWriter(data);
 			iw.write(db, dir);
 		} catch (Exception e) {
 			throw new RuntimeException("Export failed", e);
 		}
 	}
 
-	private InventoryMatrix dbInventory() throws Exception {
+	private MatrixData dbInventory() throws Exception {
 		List<LongPair> products = cache.getProcessTable().getProviderFlows();
 		TechIndex techIndex = new TechIndex(products.get(0));
 		for (int i = 1; i < products.size(); i++) {
@@ -82,7 +81,7 @@ public class Export implements Runnable {
 		return inv.createMatrix(solver);
 	}
 
-	private InventoryMatrix setupInventory() {
+	private MatrixData setupInventory() {
 		Inventory inventory = DataStructures.createInventory(setup, cache);
 		ParameterTable params = DataStructures.createParameterTable(
 				db, setup, inventory);
@@ -113,15 +112,14 @@ public class Export implements Runnable {
 		}
 	}
 
-	private void writeMatrices(InventoryMatrix mat)
+	private void writeMatrices(MatrixData mat)
 			throws Exception {
-		Matrices.writeDenseColumn(mat.technologyMatrix, new File(dir, "A.bin"));
-		Matrices.writeDenseColumn(mat.interventionMatrix,
-				new File(dir, "B.bin"));
+		Matrices.writeDenseColumn(mat.techMatrix, new File(dir, "A.bin"));
+		Matrices.writeDenseColumn(mat.enviMatrix, new File(dir, "B.bin"));
 		if (withResults) {
-			IMatrix invA = solver.invert(mat.technologyMatrix);
+			IMatrix invA = solver.invert(mat.techMatrix);
 			Matrices.writeDenseColumn(invA, new File(dir, "Ainv.bin"));
-			IMatrix m = solver.multiply(mat.interventionMatrix, invA);
+			IMatrix m = solver.multiply(mat.enviMatrix, invA);
 			Matrices.writeDenseColumn(m, new File(dir, "M.bin"));
 		}
 	}

@@ -1,7 +1,6 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.expressions.FormulaInterpreter;
@@ -30,21 +29,19 @@ public class Inventory {
 				|| interventionMatrix == null || interventionMatrix.isEmpty();
 	}
 
-	public InventoryMatrix createMatrix(IMatrixSolver solver) {
+	public MatrixData createMatrix(IMatrixSolver solver) {
 		return createMatrix(solver, null);
 	}
 
-	public InventoryMatrix createMatrix(IMatrixSolver solver,
+	public MatrixData createMatrix(IMatrixSolver solver,
 			FormulaInterpreter interpreter) {
 		evalFormulas(interpreter);
-		InventoryMatrix matrix = new InventoryMatrix();
-		matrix.flowIndex = flowIndex;
-		matrix.productIndex = productIndex;
-		IMatrix enviMatrix = interventionMatrix.createRealMatrix(solver);
-		matrix.interventionMatrix = enviMatrix;
-		IMatrix techMatrix = technologyMatrix.createRealMatrix(solver);
-		matrix.technologyMatrix = techMatrix;
-		return matrix;
+		MatrixData data = new MatrixData();
+		data.enviIndex = flowIndex;
+		data.techIndex = productIndex;
+		data.enviMatrix = interventionMatrix.createRealMatrix(solver);
+		data.techMatrix = technologyMatrix.createRealMatrix(solver);
+		return data;
 	}
 
 	/**
@@ -54,21 +51,24 @@ public class Inventory {
 	 * matrix. The given matrix and this inventory have to match exactly in size
 	 * (so normally you first call createMatrix and than simulate).
 	 */
-	public void simulate(InventoryMatrix matrix, FormulaInterpreter interpreter) {
+	public void simulate(MatrixData data, FormulaInterpreter interpreter) {
 		evalFormulas(interpreter);
-		if (technologyMatrix != null)
-			technologyMatrix.simulate(matrix.technologyMatrix);
-		if (interventionMatrix != null)
-			interventionMatrix.simulate(matrix.interventionMatrix);
+		if (technologyMatrix != null) {
+			technologyMatrix.simulate(data.techMatrix);
+		}
+		if (interventionMatrix != null) {
+			interventionMatrix.simulate(data.enviMatrix);
+		}
 	}
 
 	private void evalFormulas(FormulaInterpreter interpreter) {
 		if (interpreter == null)
 			return;
-		if (technologyMatrix != null)
+		if (technologyMatrix != null) {
 			technologyMatrix.eval(interpreter);
-		if (interventionMatrix != null)
+		}
+		if (interventionMatrix != null) {
 			interventionMatrix.eval(interpreter);
+		}
 	}
-
 }

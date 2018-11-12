@@ -10,8 +10,8 @@ import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.InventoryMatrix;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.IMatrix;
@@ -51,8 +51,7 @@ public class RegionalizedCalculator {
 			ParameterTable parameterTable = DataStructures
 					.createParameterTable(regioSetup.database, setup, inventory);
 			FormulaInterpreter interpreter = parameterTable.createInterpreter();
-			InventoryMatrix m = inventory.createMatrix(
-					solver, interpreter);
+			MatrixData m = inventory.createMatrix(solver, interpreter);
 			ImpactTable impactTable = ImpactTable.build(cache,
 					setup.impactMethod.getId(), inventory.flowIndex);
 
@@ -63,22 +62,21 @@ public class RegionalizedCalculator {
 
 			// direct LCI results
 			LcaCalculator baseCalc = new LcaCalculator(solver, m);
-			IMatrix inverse = solver.invert(m.technologyMatrix);
+			IMatrix inverse = solver.invert(m.techMatrix);
 			r.scalingFactors = baseCalc.getScalingVector(inverse, r.productIndex);
-			r.singleFlowResults = m.interventionMatrix.copy();
+			r.singleFlowResults = m.enviMatrix.copy();
 			solver.scaleColumns(r.singleFlowResults, r.scalingFactors);
 			r.totalRequirements = baseCalc.getTotalRequirements(
-					m.technologyMatrix, r.scalingFactors);
-			r.linkContributions = LinkContributions.calculate(m.technologyMatrix,
-					m.productIndex, r.scalingFactors);
+					m.techMatrix, r.scalingFactors);
+			r.linkContributions = LinkContributions.calculate(m.techMatrix,
+					m.techIndex, r.scalingFactors);
 
 			// assessed intervention matrix
-			IMatrix factors = impactTable.createMatrix(
-					solver, interpreter).factorMatrix;
+			IMatrix factors = impactTable.createMatrix(solver, interpreter);
 			r.impactFactors = factors;
-			IMatrix assessedEnvi = solver.multiply(factors, m.interventionMatrix);
+			IMatrix assessedEnvi = solver.multiply(factors, m.enviMatrix);
 			eachKml(regioSetup, impactTable, interpreter, (kml, kmlFactors) -> {
-				IMatrix assessedKml = solver.multiply(kmlFactors, m.interventionMatrix);
+				IMatrix assessedKml = solver.multiply(kmlFactors, m.enviMatrix);
 				for (LongPair product : kml.processProducts) {
 					int col = r.productIndex.getIndex(product);
 					for (int row = 0; row < assessedEnvi.rows(); row++) {
@@ -94,7 +92,7 @@ public class RegionalizedCalculator {
 			// upstream & total results
 			double[] demands = baseCalc.getRealDemands(r.totalRequirements,
 					r.productIndex);
-			r.upstreamFlowResults = solver.multiply(m.interventionMatrix, inverse);
+			r.upstreamFlowResults = solver.multiply(m.enviMatrix, inverse);
 			solver.scaleColumns(r.upstreamFlowResults, demands);
 			r.upstreamImpactResults = solver.multiply(assessedEnvi, inverse);
 			solver.scaleColumns(r.upstreamImpactResults, demands);
@@ -105,10 +103,9 @@ public class RegionalizedCalculator {
 			// add LCC results
 			if (setup.withCosts) {
 				r.hasCostResults = true;
-				CostVector costVector = CostVector.build(inventory, db);
 
 				// direct LCC
-				double[] costValues = costVector.values;
+				double[] costValues = CostVector.build(inventory, db);
 				double[] directCosts = new double[costValues.length];
 				for (int i = 0; i < r.scalingFactors.length; i++) {
 					directCosts[i] = costValues[i] * r.scalingFactors[i];
@@ -116,7 +113,7 @@ public class RegionalizedCalculator {
 				r.singleCostResults = directCosts;
 
 				// upstream LCC
-				IMatrix costMatrix = costVector.asMatrix(solver);
+				IMatrix costMatrix = CostVector.asMatrix(solver, costValues);
 				IMatrix upstreamCosts = solver.multiply(costMatrix, inverse);
 				solver.scaleColumns(upstreamCosts, demands);
 				r.totalCostResult = upstreamCosts.get(0, refIdx);
@@ -143,7 +140,7 @@ public class RegionalizedCalculator {
 					continue;
 				scope.bind(param, val.toString());
 			}
-			IMatrix factors = table.createMatrix(solver, interpreter).factorMatrix;
+			IMatrix factors = table.createMatrix(solver, interpreter);
 			fn.accept(kml, factors);
 		}
 	}

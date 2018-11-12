@@ -26,19 +26,16 @@ public class ImpactTable {
 				|| factorMatrix == null || factorMatrix.isEmpty();
 	}
 
-	public ImpactMatrix createMatrix(IMatrixSolver solver) {
+	public IMatrix createMatrix(IMatrixSolver solver) {
 		return createMatrix(solver, null);
 	}
 
-	public ImpactMatrix createMatrix(IMatrixSolver solver,
+	public IMatrix createMatrix(IMatrixSolver solver,
 			FormulaInterpreter interpreter) {
+		if (factorMatrix == null)
+			return null;
 		evalFormulas(interpreter);
-		ImpactMatrix matrix = new ImpactMatrix();
-		matrix.categoryIndex = categoryIndex;
-		if (factorMatrix != null)
-			matrix.factorMatrix = (IMatrix) factorMatrix.createRealMatrix(solver);
-		matrix.flowIndex = flowIndex;
-		return matrix;
+		return (IMatrix) factorMatrix.createRealMatrix(solver);
 	}
 
 	/**
@@ -49,17 +46,19 @@ public class ImpactTable {
 	 * exactly in size (so normally you first call createMatrix and than
 	 * simulate).
 	 */
-	public void simulate(ImpactMatrix matrix, FormulaInterpreter interpreter) {
+	public void simulate(IMatrix matrix, FormulaInterpreter interpreter) {
+		if (matrix == null)
+			return;
 		evalFormulas(interpreter);
-		if (factorMatrix != null)
-			factorMatrix.simulate(matrix.factorMatrix);
+		if (factorMatrix != null) {
+			factorMatrix.simulate(matrix);
+		}
 	}
 
 	private void evalFormulas(FormulaInterpreter interpreter) {
-		if (interpreter == null)
+		if (interpreter == null || factorMatrix == null)
 			return;
-		if (factorMatrix != null)
-			factorMatrix.eval(interpreter);
+		factorMatrix.eval(interpreter);
 	}
 
 }

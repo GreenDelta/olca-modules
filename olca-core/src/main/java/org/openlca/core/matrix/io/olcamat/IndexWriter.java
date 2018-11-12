@@ -7,19 +7,18 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.TechIndex;
 
 class IndexWriter {
 
-	private final TechIndex techIndex;
-	private final FlowIndex enviIndex;
+	private final MatrixData data;
 
 	private File folder;
 	private Indexer indexer;
 
-	IndexWriter(TechIndex techIndex, FlowIndex enviIndex) {
-		this.techIndex = techIndex;
-		this.enviIndex = enviIndex;
+	IndexWriter(MatrixData data) {
+		this.data = data;
 	}
 
 	void write(IDatabase db, File folder) throws Exception {
@@ -30,6 +29,7 @@ class IndexWriter {
 	}
 
 	private void writeTechIndex() throws Exception {
+		TechIndex techIndex = data.techIndex;
 		List<String> rows = new ArrayList<>(techIndex.size() + 1);
 		rows.add(Csv.techIndexHeader());
 		for (int i = 0; i < techIndex.size(); i++) {
@@ -43,7 +43,8 @@ class IndexWriter {
 	}
 
 	private void writeEnviIndex() throws Exception {
-		List<String> rows = new ArrayList<>(techIndex.size() + 1);
+		FlowIndex enviIndex = data.enviIndex;
+		List<String> rows = new ArrayList<>(enviIndex.size() + 1);
 		rows.add(Csv.enviIndexHeader());
 		for (int i = 0; i < enviIndex.size(); i++) {
 			EnviIndexEntry e = indexer.getEnviEntry(enviIndex.getFlowAt(i));
