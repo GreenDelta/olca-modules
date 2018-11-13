@@ -98,17 +98,25 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	public UpstreamTree getTree(FlowDescriptor flow) {
 		int i = result.flowIndex.getIndex(flow.getId());
 		double[] u = result.upstreamFlowResults.getRow(i);
-		return new UpstreamTree(result, u);
+		return new UpstreamTree(flow, result, u);
 	}
 
 	public UpstreamTree getTree(ImpactCategoryDescriptor impact) {
 		int i = result.impactIndex.getIndex(impact.getId());
 		double[] u = result.upstreamImpactResults.getRow(i);
-		return new UpstreamTree(result, u);
+		return new UpstreamTree(impact, result, u);
 	}
 
 	public UpstreamTree getCostTree() {
 		return new UpstreamTree(result, result.upstreamCostResults.getRow(0));
+	}
+
+	public UpstreamTree getAddedValueTree() {
+		double[] u = result.upstreamCostResults.getRow(0);
+		for (int i = 0; i < u.length; i++) {
+			u[i] = -u[i];
+		}
+		return new UpstreamTree(result, u);
 	}
 
 }

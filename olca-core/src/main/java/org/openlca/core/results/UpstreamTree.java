@@ -1,7 +1,10 @@
 package org.openlca.core.results;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import org.openlca.core.model.descriptors.BaseDescriptor;
 
 /**
  * Maps the upstream results of the product system graph to a tree where the
@@ -10,10 +13,22 @@ import java.util.List;
 public class UpstreamTree {
 
 	public final UpstreamNode root;
+
+	/**
+	 * An optional reference to a model (e.g. flow or LCIA category) to which
+	 * the upstream tree is related.
+	 */
+	public final BaseDescriptor ref;
+
 	private final double[] intensityRow;
 	private final FullResult r;
 
 	public UpstreamTree(FullResult r, double[] u) {
+		this(null, r, u);
+	}
+
+	public UpstreamTree(BaseDescriptor ref, FullResult r, double[] u) {
+		this.ref = ref;
 		this.r = r;
 		root = new UpstreamNode();
 		root.scaling = 1.0;
@@ -54,6 +69,8 @@ public class UpstreamTree {
 			child.result = intensityRow[row] * refVal * child.scaling;
 			parent.childs.add(child);
 		}
+		Collections.sort(parent.childs,
+				(n1, n2) -> Double.compare(n2.result, n1.result));
 		return parent.childs;
 	}
 
