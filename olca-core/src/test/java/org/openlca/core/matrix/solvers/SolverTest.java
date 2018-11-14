@@ -28,9 +28,6 @@ public class SolverTest {
 	public static IMatrixSolver denseSolver = new DenseSolver();
 
 	@DataPoint
-	public static IMatrixSolver balancedSolver = new BalancedSolver();
-
-	@DataPoint
 	public static IMatrixSolver javaSolver = new JavaSolver();
 
 	@Theory

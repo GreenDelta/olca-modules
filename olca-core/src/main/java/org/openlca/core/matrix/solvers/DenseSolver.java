@@ -18,7 +18,7 @@ public class DenseSolver implements IMatrixSolver {
 
 	@Override
 	public double[] solve(IMatrix a, int idx, double d) {
-		DenseMatrix A = MatrixConverter.asDenseMatrix(a);
+		DenseMatrix A = MatrixConverter.dense(a);
 		DenseMatrix lu = A.copy();
 		double[] b = new double[a.rows()];
 		b[idx] = d;
@@ -28,7 +28,7 @@ public class DenseSolver implements IMatrixSolver {
 
 	@Override
 	public double[] multiply(IMatrix m, double[] x) {
-		DenseMatrix a = MatrixConverter.asDenseMatrix(m);
+		DenseMatrix a = MatrixConverter.dense(m);
 		double[] y = new double[m.rows()];
 		Blas.dMVmult(m.rows(), m.columns(), a.getData(),
 				x, y);
@@ -37,7 +37,7 @@ public class DenseSolver implements IMatrixSolver {
 
 	@Override
 	public DenseMatrix invert(IMatrix a) {
-		DenseMatrix _a = MatrixConverter.asDenseMatrix(a);
+		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix i = _a.copy();
 		Lapack.dInvert(_a.columns(), i.getData());
 		return i;
@@ -45,8 +45,8 @@ public class DenseSolver implements IMatrixSolver {
 
 	@Override
 	public DenseMatrix multiply(IMatrix a, IMatrix b) {
-		DenseMatrix _a = MatrixConverter.asDenseMatrix(a);
-		DenseMatrix _b = MatrixConverter.asDenseMatrix(b);
+		DenseMatrix _a = MatrixConverter.dense(a);
+		DenseMatrix _b = MatrixConverter.dense(b);
 		int rowsA = _a.rows();
 		int colsB = _b.columns();
 		int k = _a.columns();

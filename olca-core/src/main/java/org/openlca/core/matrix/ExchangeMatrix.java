@@ -1,12 +1,12 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.iterator.TIntObjectIterator;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.expressions.FormulaInterpreter;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.iterator.TIntObjectIterator;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ExchangeMatrix {
 
@@ -26,10 +26,11 @@ public class ExchangeMatrix {
 	}
 
 	/**
-	 * Returns <number of elements>/(rows * cols) which is an indicator for the
-	 * occupation of the matrix.
+	 * Calculates the density of the matrix which is the number of
+	 * non-<code>null</code> elements divided by the total number of elements
+	 * (rows * cols) of the matrix.
 	 */
-	public double getLoadFactor() {
+	public double density() {
 		TIntObjectIterator<TIntObjectHashMap<ExchangeCell>> it = cells
 				.iterator();
 		double size = 0;
@@ -71,7 +72,7 @@ public class ExchangeMatrix {
 	public IMatrix createRealMatrix(IMatrixSolver solver) {
 		if (rows == 0 || columns == 0)
 			return null;
-		IMatrix matrix = solver.matrix(rows, columns);
+		IMatrix matrix = solver.matrix(rows, columns, density());
 		iterate((row, col, cell) -> {
 			matrix.set(row, col, cell.getMatrixValue());
 		});
