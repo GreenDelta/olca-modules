@@ -1,7 +1,6 @@
 package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.IMatrix;
-import org.openlca.core.matrix.format.Numbers;
 
 public class SeqAgg {
 
@@ -38,17 +37,17 @@ public class SeqAgg {
 	private void add(int sourceIdx, int targetIdx) {
 		double ts = a.get(sourceIdx, targetIdx);
 		double st = a.get(targetIdx, sourceIdx);
-		if (Numbers.isZero(ts) && Numbers.isZero(st))
+		if (ts == 0 && st == 0)
 			return; // independent columns
 		double ss = a.get(sourceIdx, sourceIdx);
 		double tt = a.get(targetIdx, targetIdx);
-		if (Numbers.isZero(ss) || Numbers.isZero(tt))
+		if (ss == 0 || tt == 0)
 			return; // TODO: log warning: no diagonal entry
-		if (Numbers.isZero(st) && !Numbers.isZero(ts)) {
+		if (st == 0 && ts != 0) {
 			// linear adding
 			double factor = -ts / ss;
 			add(sourceIdx, targetIdx, factor);
-		} else if (!Numbers.isZero(st) && !Numbers.isZero(ts)) {
+		} else if (st != 0 && ts != 0) {
 			// loop adding
 			double q = (ts / ss) * (st / tt);
 			// if (q >= 1 || q < 0)
@@ -78,13 +77,13 @@ public class SeqAgg {
 	private void scaleColumn(final int columnIndex, final double factor) {
 		for (int row = 0; row < a.rows(); row++) {
 			double val = a.get(row, columnIndex);
-			if (Numbers.isZero(val))
+			if (val == 0)
 				continue;
 			a.set(row, columnIndex, val * factor);
 		}
 		for (int row = 0; row < b.rows(); row++) {
 			double val = b.get(row, columnIndex);
-			if (Numbers.isZero(val))
+			if (val == 0)
 				continue;
 			b.set(row, columnIndex, val * factor);
 		}

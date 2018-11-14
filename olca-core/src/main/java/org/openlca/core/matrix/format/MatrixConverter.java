@@ -1,7 +1,5 @@
 package org.openlca.core.matrix.format;
 
-import org.openlca.core.matrix.format.HashMatrix.MatrixIterator;
-
 public final class MatrixConverter {
 
 	private MatrixConverter() {
@@ -20,15 +18,9 @@ public final class MatrixConverter {
 		}
 	}
 
-	public static DenseMatrix asDenseMatrix(HashMatrix sparseMatrix) {
-		final DenseMatrix m = new DenseMatrix(sparseMatrix.rows(),
-				sparseMatrix.columns());
-		sparseMatrix.iterate(new MatrixIterator() {
-			@Override
-			public void next(int row, int col, double val) {
-				m.set(row, col, val);
-			}
-		});
+	public static DenseMatrix asDenseMatrix(HashMatrix s) {
+		DenseMatrix m = new DenseMatrix(s.rows(), s.columns());
+		s.iterate((row, col, val) -> m.set(row, col, val));
 		return m;
 	}
 
@@ -73,13 +65,9 @@ public final class MatrixConverter {
 		final DenseFloatMatrix m = new DenseFloatMatrix(
 				sparseMatrix.rows(),
 				sparseMatrix.columns());
-		sparseMatrix.iterate(new MatrixIterator() {
-			@Override
-			public void next(int row, int col, double val) {
-				m.set(row, col, val);
-			}
-		});
+		sparseMatrix.iterate((row, col, val) -> m.set(row, col, val));
 		return m;
+
 	}
 
 	public static HashMatrix asHashMatrix(IMatrix matrix) {
@@ -91,8 +79,6 @@ public final class MatrixConverter {
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {
 				double val = matrix.get(row, col);
-				if (Numbers.isZero(val))
-					continue;
 				sparse.set(row, col, val);
 			}
 		}

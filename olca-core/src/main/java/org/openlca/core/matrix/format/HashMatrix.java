@@ -2,6 +2,7 @@ package org.openlca.core.matrix.format;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.iterator.TIntDoubleIterator;
+import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
@@ -51,7 +52,8 @@ public class HashMatrix implements IMatrix {
 
 	@Override
 	public void set(int row, int col, double val) {
-		if (Numbers.isZero(val) && !hasEntry(row, col))
+		// do nothing if val = 0 *and* when there is no value to overwrite
+		if (val == 0 && !hasEntry(row, col))
 			return;
 		TIntDoubleHashMap rowMap = data.get(row);
 		if (rowMap == null) {
@@ -62,7 +64,7 @@ public class HashMatrix implements IMatrix {
 		rowMap.put(col, val);
 	}
 
-	public boolean hasEntry(int row, int col) {
+	private boolean hasEntry(int row, int col) {
 		TIntDoubleHashMap rowMap = data.get(row);
 		if (rowMap == null)
 			return false;
@@ -97,37 +99,53 @@ public class HashMatrix implements IMatrix {
 
 	@Override
 	public HashMatrix copy() {
-		final HashMatrix copy = new HashMatrix(rows, cols);
-		iterate(new MatrixIterator() {
-			@Override
-			public void next(int row, int col, double val) {
-				copy.set(row, col, val);
-			}
-		});
+		HashMatrix copy = new HashMatrix(rows, cols);
+		iterate((row, col, val) -> copy.set(row, col, val));
 		return copy;
 	}
 
 	/**
 	 * Iterates over the non-zero values in this matrix.
 	 */
-	public void iterate(MatrixIterator it) {
-		for (int row : data.keys()) {
-			TIntDoubleHashMap rowMap = data.get(row);
-			if (rowMap == null)
-				continue;
-			for (int col : rowMap.keys()) {
-				double val = rowMap.get(col);
-				if (Numbers.isZero(val))
-					continue;
-				it.next(row, col, val);
+	public void iterate(EntryFunction fn) {
+		TIntObjectIterator<TIntDoubleHashMap> rows = data.iterator();
+		while (rows.hasNext()) {
+			rows.advance();
+			int row = rows.key();
+			TIntDoubleIterator cols = rows.value().iterator();
+			while (cols.hasNext()) {
+				cols.advance();
+				fn.value(row, cols.key(), cols.value());
 			}
 		}
 	}
 
-	public interface MatrixIterator {
+	/**
+	 * Performs a matrix-vector multiplication with the given vector v.
+	 */
+	public double[] multiply(double[] v) {
+		double[] x = new double[rows()];
+		iterate((row, col, val) -> {
+			x[row] += val * v[col];
+		});
+		return x;
+	}
 
-		void next(int row, int col, double val);
-
+	/**
+	 * Scales each column j of the matrix with the value v[j] of the given
+	 * vector: M * diagm(v). The matrix is modified in-place.
+	 */
+	public void scaleColumns(double[] v) {
+		TIntObjectIterator<TIntDoubleHashMap> rows = data.iterator();
+		while (rows.hasNext()) {
+			rows.advance();
+			TIntDoubleIterator cols = rows.value().iterator();
+			while (cols.hasNext()) {
+				cols.advance();
+				int col = cols.key();
+				cols.setValue(cols.value() * v[col]);
+			}
+		}
 	}
 
 	public CompressedRowMatrix compress() {

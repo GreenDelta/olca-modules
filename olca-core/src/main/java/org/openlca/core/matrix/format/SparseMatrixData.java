@@ -1,11 +1,9 @@
 package org.openlca.core.matrix.format;
 
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
-
 import java.io.Serializable;
 
-import org.openlca.core.matrix.format.HashMatrix.MatrixIterator;
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
 
 /**
  * A class that holds the data of a sparse matrix. This class is only used for
@@ -32,13 +30,10 @@ public class SparseMatrixData implements Serializable {
 		final TIntArrayList rowList = new TIntArrayList();
 		final TIntArrayList colList = new TIntArrayList();
 		final TDoubleArrayList valList = new TDoubleArrayList();
-		matrix.iterate(new MatrixIterator() {
-			@Override
-			public void next(int row, int col, double val) {
-				rowList.add(row);
-				colList.add(col);
-				valList.add(val);
-			}
+		matrix.iterate((row, col, val) -> {
+			rowList.add(row);
+			colList.add(col);
+			valList.add(val);
 		});
 		this.numberOfEntries = rowList.size();
 		this.rows = matrix.rows();

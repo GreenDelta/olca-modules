@@ -2,7 +2,6 @@ package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashMatrix;
-import org.openlca.core.matrix.format.HashMatrix.MatrixIterator;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.format.SparseMatrixData;
@@ -37,15 +36,13 @@ public class BalancedSolver implements IMatrixSolver {
 	public double[] multiply(IMatrix m, final double[] v) {
 		if (m instanceof DenseMatrix)
 			return denseSolver.multiply(m, v);
-		final double[] x = new double[m.rows()];
+		double[] x = new double[m.rows()];
 		HashMatrix a = MatrixConverter.asHashMatrix(m);
-		a.iterate(new MatrixIterator() {
-			@Override
-			public void next(int row, int col, double val) {
-				x[row] += val * v[col];
-			}
+		a.iterate((row, col, val) -> {
+			x[row] += val * v[col];
 		});
 		return x;
+
 	}
 
 	@Override
