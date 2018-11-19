@@ -108,7 +108,7 @@ class FetchHandler {
 		int count = 0;
 		while (count++ < noOfFiles) {
 			String path = reader.readNextPartAsString();
-			data = reader.readNextPart();
+			data = BinUtils.gunzip(reader.readNextPart());
 			store.putBin(dataset.type, dataset.refId, path, data);
 		}
 		return null;
