@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.openlca.cloud.model.Announcement;
 import org.openlca.cloud.model.Comment;
 import org.openlca.cloud.model.Comments;
 import org.openlca.cloud.model.data.Commit;
@@ -330,6 +331,15 @@ public class RepositoryClient {
 			invocation.type = type;
 			invocation.refId = refId;
 			invocation.commitId = commitId;
+			return invocation.execute();
+		});
+	}
+	
+	public Announcement getAnnouncement() throws WebRequestException {
+		return executeLoggedIn(() -> {
+			AnnouncementInvocation invocation = new AnnouncementInvocation();
+			invocation.baseUrl = config.baseUrl;
+			invocation.sessionId = sessionId;
 			return invocation.execute();
 		});
 	}
