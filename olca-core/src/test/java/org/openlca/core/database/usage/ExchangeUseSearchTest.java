@@ -41,6 +41,7 @@ public class ExchangeUseSearchTest {
 
 	@Before
 	public void setUp() {
+		Tests.clearDb();
 		p = new Process();
 		q = new Process();
 		addExchanges();

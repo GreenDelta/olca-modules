@@ -10,9 +10,11 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status.Family;
 
+import org.openlca.cloud.api.RepositoryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -71,13 +73,12 @@ public class WebRequests {
 		WebResource resource = createClient().resource(url);
 		Builder builder = resource.accept(MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_PLAIN_TYPE,
 				MediaType.APPLICATION_OCTET_STREAM_TYPE);
+		builder.header("lca-cs-client-api-version", RepositoryClient.API_VERSION);
 		if (sessionId != null)
 			builder.cookie(new Cookie("JSESSIONID", sessionId));
-		if (data == null)
-			return builder;
 		if (data instanceof InputStream)
 			builder.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE);
-		else
+		else if (data != null)
 			builder.entity(new Gson().toJson(data), MediaType.APPLICATION_JSON_TYPE);
 		return builder;
 	}
@@ -122,8 +123,12 @@ public class WebRequests {
 		public String getMessage() {
 			if (isConnectException())
 				return "Server unavailable";
-			if (isUnauthorized())
+			if (isUnauthorized() && Strings.isNullOrEmpty(super.getMessage()))
 				return "Invalid credentials";
+			return super.getMessage();
+		}
+
+		public String getOriginalMessage() {
 			return super.getMessage();
 		}
 
@@ -140,13 +145,13 @@ public class WebRequests {
 		}
 
 		private static String toMessage(ClientResponse response) {
-			return response.getEntity(String.class) + " (" + response.getStatus() + ")";
+			return response.getEntity(String.class);
 		}
 
 		public boolean isUnauthorized() {
 			return errorCode == Status.UNAUTHORIZED.getStatusCode();
 		}
-
+		
 	}
 
 }

@@ -153,6 +153,8 @@ public abstract class ModelStream extends InputStream {
 		return ByteBuffer.allocate(4).putInt(i).array();
 	}
 
+	protected abstract byte[] getBinaryData(Path file) throws IOException;
+
 	private class Read extends SimpleFileVisitor<Path> {
 
 		private final Path dir;
@@ -163,11 +165,9 @@ public abstract class ModelStream extends InputStream {
 		}
 
 		@Override
-		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-				throws IOException {
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 			String path = dir.relativize(file).toString().replace('\\', '/');
-			byte[] data = Files.readAllBytes(file);
-			data = BinUtils.gzip(data);
+			byte[] data = getBinaryData(file);
 			result.add(new BinaryFile(path, data));
 			return FileVisitResult.CONTINUE;
 		}

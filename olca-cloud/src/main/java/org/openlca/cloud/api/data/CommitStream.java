@@ -2,6 +2,8 @@ package org.openlca.cloud.api.data;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -43,6 +45,12 @@ public class CommitStream extends ModelStream {
 		data = json.getBytes(CHARSET);
 		data = BinUtils.gzip(data);
 		return data;
+	}
+	
+	@Override
+	protected byte[] getBinaryData(Path file) throws IOException {
+		byte[] data = Files.readAllBytes(file);
+		return BinUtils.gzip(data);
 	}
 
 }
