@@ -10,6 +10,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -20,6 +21,14 @@ import org.openlca.ilcd.commons.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A RefTree contains the references of a data set to other data sets in a tree
+ * where the data set references (as `Ref` objects) are the leafs and the parent
+ * XML elements the inner nodes. Thus, a reference to a data set can occur
+ * multiple times in the tree. Also, the `Ref` objects are directly the
+ * (mutable) `Ref` objects of the corresponding data set and changing the fields
+ * of these `Ref` objects will also change the data set.
+ */
 public class RefTree {
 
 	public final Node root;
@@ -34,21 +43,37 @@ public class RefTree {
 		root = new Node();
 	}
 
+	/**
+	 * Returns all references of the tree but without duplicates. A duplicate is
+	 * a reference which has exactly the same data set type, ID, and version as
+	 * another reference.
+	 */
 	public List<Ref> getRefs() {
-		Deque<Node> next = new ArrayDeque<>();
-		next.add(root);
 		HashSet<String> handled = new HashSet<>();
 		List<Ref> list = new ArrayList<>();
+		eachRef(ref -> {
+			boolean added = handled.add(key(ref));
+			if (added) {
+				list.add(ref);
+			}
+		});
+		return list;
+	}
+
+	/**
+	 * Iterates over all references of the tree (including possible duplicates)
+	 * and calls the given function.
+	 */
+	public void eachRef(Consumer<Ref> fn) {
+		Deque<Node> next = new ArrayDeque<>();
+		next.add(root);
 		while (!next.isEmpty()) {
 			Node node = next.poll();
 			if (node.ref != null) {
-				boolean add = handled.add(key(node.ref));
-				if (add)
-					list.add(node.ref);
+				fn.accept(node.ref);
 			}
 			next.addAll(node.childs);
 		}
-		return list;
 	}
 
 	// we use this key function and not the equals-function of Ref because
