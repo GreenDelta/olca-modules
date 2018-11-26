@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
@@ -13,6 +14,8 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.models.Connection;
 import org.openlca.ilcd.models.DownstreamLink;
+import org.openlca.ilcd.models.Group;
+import org.openlca.ilcd.models.GroupRef;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.models.ProcessInstance;
 import org.openlca.ilcd.models.QuantitativeReference;
@@ -51,6 +54,12 @@ class Graph {
 			log.warn("No processes in model; return empty index");
 			return g;
 		}
+
+		Map<Integer, Group> groups = tech.groups.stream()
+				.collect(Collectors.toMap(
+						group -> group.id,
+						group -> group));
+
 		ProcessDao dao = new ProcessDao(db);
 		for (ProcessInstance pi : tech.processes) {
 			if (pi.process == null || pi.process.uuid == null) {
@@ -60,10 +69,15 @@ class Graph {
 			String refID = pi.process.uuid;
 			Process process = dao.getForRefId(refID);
 			if (process == null) {
-				log.warn("Could not find process {}; skip node {}", refID, pi.id);
+				log.warn("Could not find process {}; skip node {}", refID,
+						pi.id);
 				continue;
 			}
 			Node n = Node.init(pi, process);
+			if (!pi.groupRefs.isEmpty()) {
+				GroupRef gr = pi.groupRefs.get(0);
+				n.group = groups.get(gr.groupID);
+			}
 			g.putNode(n);
 		}
 		buildLinks(g, model);
@@ -175,4 +189,5 @@ class Graph {
 		}
 		return list;
 	}
+
 }
