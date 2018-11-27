@@ -54,7 +54,9 @@ class FetchHandler {
 			file.delete();
 			EntityStore store = ZipStore.open(file);
 			int toImport = putMergedData(store);
-			fetchNotifier.beginTask(TaskType.FETCH, reader.getTotal());
+			if (fetchNotifier != null) {
+				fetchNotifier.beginTask(TaskType.FETCH, reader.getTotal());
+			}
 			while (reader.hasMore()) {
 				Dataset delete = handleNext(reader, store);
 				if (delete != null) {
@@ -62,9 +64,13 @@ class FetchHandler {
 				} else {
 					toImport++;
 				}
-				fetchNotifier.worked();
+				if (fetchNotifier != null) {
+					fetchNotifier.worked();
+				}
 			}
-			fetchNotifier.endTask();
+			if (fetchNotifier != null) {
+				fetchNotifier.endTask();
+			}
 			if (mergedData != null) {
 				for (Entry<Dataset, JsonObject> entry : mergedData.entrySet()) {
 					if (entry.getValue() != null)
@@ -74,7 +80,9 @@ class FetchHandler {
 			}
 			if (toImport == 0 && toDelete.isEmpty())
 				return commitId;
-			fetchNotifier.beginTask(TaskType.PULL, toImport + toDelete.size());
+			if (fetchNotifier != null) {
+				fetchNotifier.beginTask(TaskType.PULL, toImport + toDelete.size());
+			}
 			if (toImport != 0) {
 				JsonImport jsonImport = new JsonImport(store, database);
 				jsonImport.setUpdateMode(UpdateMode.ALWAYS);
@@ -83,9 +91,13 @@ class FetchHandler {
 			}
 			for (Dataset dataset : toDelete) {
 				delete(Daos.categorized(database, dataset.type), dataset.refId);
-				fetchNotifier.worked();
+				if (fetchNotifier != null) {
+					fetchNotifier.worked();
+				}
 			}
-			fetchNotifier.endTask();
+			if (fetchNotifier != null) {
+				fetchNotifier.endTask();
+			}
 			return commitId;
 		} catch (IOException e) {
 			log.error("Error reading fetch data", e);
@@ -148,8 +160,8 @@ class FetchHandler {
 		return ImpactMethod.class.getSimpleName().equals(type);
 	}
 
-	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void delete(
-			CategorizedEntityDao<T, V> dao, String refId) {
+	private <T extends CategorizedEntity, V extends CategorizedDescriptor> void delete(CategorizedEntityDao<T, V> dao,
+			String refId) {
 		if (!dao.contains(refId))
 			return;
 		dao.delete(dao.getForRefId(refId));
