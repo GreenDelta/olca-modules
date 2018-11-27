@@ -86,7 +86,9 @@ class FetchHandler {
 			if (toImport != 0) {
 				JsonImport jsonImport = new JsonImport(store, database);
 				jsonImport.setUpdateMode(UpdateMode.ALWAYS);
-				jsonImport.setCallback((e) -> fetchNotifier.worked());
+				if (fetchNotifier != null) {
+					jsonImport.setCallback((e) -> fetchNotifier.worked());
+				}
 				jsonImport.run();
 			}
 			for (Dataset dataset : toDelete) {
