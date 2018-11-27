@@ -113,7 +113,7 @@ public class ProcessImport {
 
 	private void createAndMapContent() throws ImportException {
 		process.setRefId(ilcdProcess.getId());
-		process.setName(Strings.cut(ilcdProcess.getName(), 254));
+		process.setName(Strings.cut(ilcdProcess.getName(), 2024));
 		process.setDescription(ilcdProcess.getComment());
 		ProcessDocumentation doc = mapDocumentation();
 		process.setDocumentation(doc);
