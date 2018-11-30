@@ -135,16 +135,20 @@ public class ProcessExport {
 		if (process.getLocation() == null && doc.getGeography() == null)
 			return null;
 		Geography geography = new Geography();
-		org.openlca.ilcd.processes.Location iLocation = new org.openlca.ilcd.processes.Location();
-		geography.location = iLocation;
+		org.openlca.ilcd.processes.Location iLoc = new org.openlca.ilcd.processes.Location();
+		geography.location = iLoc;
 		if (process.getLocation() != null) {
-			Location oLocation = process.getLocation();
-			iLocation.code = oLocation.getCode();
-			String pos = "" + oLocation.getLatitude() + ","
-					+ oLocation.getLongitude();
-			iLocation.latitudeAndLongitude = pos;
+			Location oLoc = process.getLocation();
+			iLoc.code = oLoc.getCode();
+			// do not write (0.0, 0.0) locations; these are the default
+			// location coordinates in openLCA but probably never a valid
+			// process location, right?
+			if (!(oLoc.getLatitude() == 0.0 && oLoc.getLongitude() == 0.0)) {
+				String pos = oLoc.getLatitude() + ";" + oLoc.getLongitude();
+				iLoc.latitudeAndLongitude = pos;
+			}
 		}
-		s(iLocation.description, doc.getGeography());
+		s(iLoc.description, doc.getGeography());
 		return geography;
 	}
 

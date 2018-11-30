@@ -51,7 +51,7 @@ class GraphSync {
 		syncProcesses(g);
 		ProductSystem system = new ProductSystem();
 		IO.mapMetaData(model, system);
-		Category c = Categories.createRoot(db,
+		Category c = Categories.findOrCreateRoot(db,
 				ModelType.PRODUCT_SYSTEM, "eILCD models");
 		system.setCategory(c);
 		mapGraph(g, system);

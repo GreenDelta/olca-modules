@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
+import org.openlca.ilcd.models.Group;
 import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
 import org.slf4j.Logger;
@@ -16,9 +17,26 @@ class Node {
 
 	/** This is the same ID as in the eILCD data set. */
 	int modelID;
+
+	/** The corresponding openLCA process. */
 	Process process;
+
+	/**
+	 * An optional scaling factor (for the reference amount of the product
+	 * system.)
+	 */
 	Double scalingFactor;
+
+	/**
+	 * The parameter redefinitions of the process instances in the model.
+	 */
 	final Map<String, Double> params = new HashMap<>();
+
+	/**
+	 * The eILCD life cycle group (stage) of the corresponding process instance
+	 * in the life cycle model.
+	 */
+	Group group;
 
 	static Node init(ProcessInstance pi, Process process) {
 		Node n = new Node();
@@ -73,6 +91,7 @@ class Node {
 		}
 		clone.scalingFactor = scalingFactor;
 		clone.params.putAll(params);
+		clone.group = group;
 		return clone;
 	}
 
