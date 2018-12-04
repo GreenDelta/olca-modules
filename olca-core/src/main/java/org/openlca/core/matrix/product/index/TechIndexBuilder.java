@@ -10,6 +10,7 @@ import java.util.Set;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProcessLink;
@@ -32,12 +33,12 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
-	public TechIndex build(LongPair refProduct) {
+	public TechIndex build(Provider refProduct) {
 		return build(refProduct, 1.0);
 	}
 
 	@Override
-	public TechIndex build(LongPair refFlow, double demand) {
+	public TechIndex build(Provider refFlow, double demand) {
 		log.trace("build product index for {}", refFlow);
 		TechIndex index = new TechIndex(refFlow);
 		index.setDemand(demand);

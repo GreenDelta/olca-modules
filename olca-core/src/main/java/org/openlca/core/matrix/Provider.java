@@ -38,6 +38,10 @@ public class Provider {
 				&& Objects.equals(this.flow, other.flow);
 	}
 
+	boolean equals(long id, long flowId) {
+		return id == id() && flowId == flowId();
+	}
+
 	public long flowId() {
 		return flow == null ? 0L : flow.getId();
 	}

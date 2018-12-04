@@ -11,6 +11,7 @@ import java.util.Set;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.FlowType;
@@ -42,7 +43,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
-	public TechIndex build(LongPair refProduct, double demand) {
+	public TechIndex build(Provider refProduct, double demand) {
 		log.trace("build product index for {} with cutoff=", refProduct,
 				cutoff);
 		TechIndex index = new TechIndex(refProduct);
