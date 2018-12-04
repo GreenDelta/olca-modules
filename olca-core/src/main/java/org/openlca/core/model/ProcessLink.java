@@ -37,6 +37,12 @@ public class ProcessLink implements Cloneable {
 	@Column(name = "f_exchange")
 	public long exchangeId;
 
+	/**
+	 * When true, the provider of this link is a product system.
+	 */
+	@Column(name = "is_system_link")
+	public boolean isSystemLink;
+
 	@Override
 	public ProcessLink clone() {
 		ProcessLink clone = new ProcessLink();
@@ -44,6 +50,7 @@ public class ProcessLink implements Cloneable {
 		clone.providerId = providerId;
 		clone.processId = processId;
 		clone.exchangeId = exchangeId;
+		clone.isSystemLink = isSystemLink;
 		return clone;
 	}
 
