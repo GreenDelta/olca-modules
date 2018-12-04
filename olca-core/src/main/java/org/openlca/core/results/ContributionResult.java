@@ -1,6 +1,6 @@
 package org.openlca.core.results;
 
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.format.IMatrix;
 
 /**
@@ -47,9 +47,9 @@ public class ContributionResult extends SimpleResult {
 	 * Get the single flow result of the flow with the given ID for the given
 	 * process-product. Inputs have negative values here.
 	 */
-	public double getSingleFlowResult(LongPair processProduct, long flowId) {
+	public double getSingleFlowResult(Provider provider, long flowId) {
 		int row = flowIndex.getIndex(flowId);
-		int col = techIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(provider);
 		return getValue(singleFlowResults, row, col);
 	}
 
@@ -67,12 +67,12 @@ public class ContributionResult extends SimpleResult {
 	 * Get the single LCIA category result of the LCIA category with the given
 	 * ID for the given process-product.
 	 */
-	public double getSingleImpactResult(LongPair processProduct,
+	public double getSingleImpactResult(Provider provider,
 			long impactId) {
 		if (!hasImpactResults())
 			return 0;
 		int row = impactIndex.getIndex(impactId);
-		int col = techIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(provider);
 		return getValue(singleImpactResults, row, col);
 	}
 
@@ -87,10 +87,10 @@ public class ContributionResult extends SimpleResult {
 		return getProcessValue(singleImpactResults, row, processId);
 	}
 
-	public double getSingleCostResult(LongPair processProduct) {
+	public double getSingleCostResult(Provider provider) {
 		if (!hasCostResults)
 			return 0;
-		int col = techIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(provider);
 		if (col >= singleCostResults.length)
 			return 0;
 		return singleCostResults[col];
@@ -100,8 +100,8 @@ public class ContributionResult extends SimpleResult {
 		if (!hasCostResults)
 			return 0;
 		double sum = 0;
-		for (LongPair product : techIndex.getProviders(processId)) {
-			sum += getSingleCostResult(product);
+		for (Provider provider : techIndex.getProviders(processId)) {
+			sum += getSingleCostResult(provider);
 		}
 		return sum;
 	}
@@ -122,8 +122,8 @@ public class ContributionResult extends SimpleResult {
 		if (matrix == null)
 			return 0;
 		double colSum = 0;
-		for (LongPair product : techIndex.getProviders(processId)) {
-			int col = techIndex.getIndex(product);
+		for (Provider provider : techIndex.getProviders(processId)) {
+			int col = techIndex.getIndex(provider);
 			colSum += getValue(matrix, row, col);
 		}
 		return colSum;

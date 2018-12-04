@@ -109,14 +109,18 @@ public class TechIndex {
 	}
 
 	public boolean contains(long id, long flowId) {
+		return getProvider(id, flowId) != null;
+	}
+
+	public Provider getProvider(long id, long flowId) {
 		List<Provider> list = processProviders.get(id);
 		if (list == null)
-			return false;
+			return null;
 		for (Provider p : list) {
 			if (p.flowId() == flowId)
-				return true;
+				return p;
 		}
-		return false;
+		return null;
 	}
 
 	/**

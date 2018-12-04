@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -78,12 +78,12 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	 */
 	public double getLinkShare(ProcessLink link) {
 		TechIndex idx = result.techIndex;
-		LongPair provider = LongPair.of(link.providerId, link.flowId);
+		Provider provider = idx.getProvider(link.providerId, link.flowId);
 		int providerIdx = idx.getIndex(provider);
 		if (providerIdx < 0)
 			return 0;
 		double amount = 0.0;
-		for (LongPair process : idx.getProviders(link.processId)) {
+		for (Provider process : idx.getProviders(link.processId)) {
 			int processIdx = idx.getIndex(process);
 			amount += result.techMatrix.get(providerIdx, processIdx);
 		}

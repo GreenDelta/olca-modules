@@ -1,6 +1,6 @@
 package org.openlca.core.results;
 
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.format.IMatrix;
 
 /**
@@ -43,9 +43,9 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream flow result of the flow with the given ID for the given
 	 * process-product. Inputs have negative values here.
 	 */
-	public double getUpstreamFlowResult(LongPair processProduct, long flowId) {
+	public double getUpstreamFlowResult(Provider provider, long flowId) {
 		int row = flowIndex.getIndex(flowId);
-		int col = techIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(provider);
 		return getValue(upstreamFlowResults, row, col);
 	}
 
@@ -63,12 +63,11 @@ public class FullResult extends ContributionResult {
 	 * Get the upstream LCIA category result of the LCIA category with the given
 	 * ID for the given process-product.
 	 */
-	public double getUpstreamImpactResult(LongPair processProduct,
-			long impactId) {
+	public double getUpstreamImpactResult(Provider provider, long impactId) {
 		if (!hasImpactResults())
 			return 0;
 		int row = impactIndex.getIndex(impactId);
-		int col = techIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(provider);
 		return getValue(upstreamImpactResults, row, col);
 	}
 
@@ -86,10 +85,10 @@ public class FullResult extends ContributionResult {
 	/**
 	 * Get the upstream cost result of the given process-product.
 	 */
-	public double getUpstreamCostResult(LongPair processProduct) {
+	public double getUpstreamCostResult(Provider provider) {
 		if (!hasCostResults)
 			return 0;
-		int col = techIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(provider);
 		return getValue(upstreamCostResults, 0, col);
 	}
 
