@@ -38,7 +38,7 @@ class FlowIndexBuilder {
 			for (CalcExchange e : exchanges) {
 				if (index.contains(e.flowId))
 					continue; // already indexed as flow
-				if (techIndex.contains(LongPair.of(e.processId, e.flowId)))
+				if (techIndex.contains(e.processId, e.flowId))
 					continue; // the exchange is an output product
 				if (techIndex.isLinked(LongPair.of(e.processId, e.exchangeId)))
 					continue; // the exchange is a linked exchange

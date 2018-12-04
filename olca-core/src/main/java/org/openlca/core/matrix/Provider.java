@@ -37,4 +37,20 @@ public class Provider {
 		return Objects.equals(this.entity, other.entity)
 				&& Objects.equals(this.flow, other.flow);
 	}
+
+	public long flowId() {
+		return flow == null ? 0L : flow.getId();
+	}
+
+	/**
+	 * Returns the ID of the underlying process or product system of this
+	 * provider.
+	 */
+	public long id() {
+		return entity == null ? 0L : entity.getId();
+	}
+
+	public LongPair pair() {
+		return LongPair.of(id(), flowId());
+	}
 }

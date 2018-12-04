@@ -101,18 +101,18 @@ public class ProductSystemBuilder {
 			linkIds.add(link.exchangeId);
 		}
 		for (LongPair exchange : index.getLinkedExchanges()) {
-			LongPair provider = index.getLinkedProvider(exchange);
+			Provider provider = index.getLinkedProvider(exchange);
 			if (provider == null)
 				continue;
-			system.processes.add(provider.getFirst());
+			system.processes.add(provider.id());
 			system.processes.add(exchange.getFirst());
 			long exchangeId = exchange.getSecond();
 			if (linkIds.add(exchangeId)) {
 				ProcessLink link = new ProcessLink();
 				link.exchangeId = exchangeId;
-				link.flowId = provider.getSecond();
+				link.flowId = provider.flowId();
 				link.processId = exchange.getFirst();
-				link.providerId = provider.getFirst();
+				link.providerId = provider.id();
 				system.processLinks.add(link);
 			}
 		}

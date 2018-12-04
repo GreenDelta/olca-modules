@@ -2,7 +2,7 @@ package org.openlca.core.results;
 
 import java.util.List;
 
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 
 /**
  * The simplest kind of result of a calculated product system. It contains the
@@ -46,22 +46,22 @@ public class SimpleResult extends BaseResult {
 	/**
 	 * Get the scaling factor of the given process-product.
 	 */
-	public double getScalingFactor(LongPair processProduct) {
-		int idx = techIndex.getIndex(processProduct);
+	public double getScalingFactor(Provider provider) {
+		int idx = techIndex.getIndex(provider);
 		if (idx < 0 || idx > scalingFactors.length)
 			return 0;
 		return scalingFactors[idx];
 	}
 
 	/**
-	 * Get the sum of all scaling factors for the products of the process with
-	 * the given ID.
+	 * Get the sum of all scaling factors for the products of the process or
+	 * product system with the given ID.
 	 */
-	public double getScalingFactor(long processId) {
+	public double getScalingFactor(long id) {
 		double factor = 0;
-		List<LongPair> productIds = techIndex.getProviders(processId);
-		for (LongPair product : productIds) {
-			int idx = techIndex.getIndex(product);
+		List<Provider> providers = techIndex.getProviders(id);
+		for (Provider provider : providers) {
+			int idx = techIndex.getIndex(provider);
 			if (idx < 0 || idx > scalingFactors.length)
 				continue;
 			factor += scalingFactors[idx];

@@ -1,8 +1,5 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongDoubleHashMap;
-
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,6 +8,9 @@ import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongDoubleHashMap;
 
 class AllocationIndex {
 
@@ -97,24 +97,23 @@ class AllocationIndex {
 		productFactors.put(processProduct, factor.value);
 	}
 
-	public double getFactor(LongPair provider, CalcExchange e) {
+	public double getFactor(Provider provider, CalcExchange e) {
 		if (!e.isInput && e.flowType == FlowType.PRODUCT_FLOW)
 			return 1d;
 		if (e.isInput && e.flowType == FlowType.WASTE_FLOW)
 			return 1d;
 		AllocationMethod _method = this.method;
 		if (this.method == AllocationMethod.USE_DEFAULT)
-			_method = processTable.getDefaultAllocationMethod(
-					provider.getFirst());
+			_method = processTable.getDefaultAllocationMethod(provider.id());
 		if (_method == null)
 			return 1d;
 		switch (_method) {
 		case CAUSAL:
-			return causal(provider, e);
+			return causal(provider.pair(), e);
 		case ECONOMIC:
-			return forProvider(provider);
+			return forProvider(provider.pair());
 		case PHYSICAL:
-			return forProvider(provider);
+			return forProvider(provider.pair());
 		default:
 			return 1d;
 		}

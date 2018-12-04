@@ -58,8 +58,8 @@ class InventoryBuilder {
 					.getAll(techIndex.getProcessIds());
 			for (Long processID : techIndex.getProcessIds()) {
 				List<CalcExchange> exchanges = map.get(processID);
-				List<LongPair> providers = techIndex.getProviders(processID);
-				for (LongPair provider : providers) {
+				List<Provider> providers = techIndex.getProviders(processID);
+				for (Provider provider : providers) {
 					for (CalcExchange exchange : exchanges) {
 						putExchangeValue(provider, exchange);
 					}
@@ -71,7 +71,7 @@ class InventoryBuilder {
 		}
 	}
 
-	private void putExchangeValue(LongPair provider, CalcExchange e) {
+	private void putExchangeValue(Provider provider, CalcExchange e) {
 		if (e.flowType == FlowType.ELEMENTARY_FLOW) {
 			// elementary flows
 			addIntervention(provider, e);
@@ -104,21 +104,21 @@ class InventoryBuilder {
 		}
 	}
 
-	private void addProcessLink(LongPair processProduct, CalcExchange e) {
+	private void addProcessLink(Provider processProduct, CalcExchange e) {
 		LongPair exchange = LongPair.of(e.processId, e.exchangeId);
-		LongPair provider = techIndex.getLinkedProvider(exchange);
+		Provider provider = techIndex.getLinkedProvider(exchange);
 		int row = techIndex.getIndex(provider);
 		add(row, processProduct, technologyMatrix, e);
 	}
 
-	private void addIntervention(LongPair processProduct, CalcExchange e) {
+	private void addIntervention(Provider provider, CalcExchange e) {
 		int row = flowIndex.getIndex(e.flowId);
-		add(row, processProduct, interventionMatrix, e);
+		add(row, provider, interventionMatrix, e);
 	}
 
-	private void add(int row, LongPair processProduct, ExchangeMatrix matrix,
+	private void add(int row, Provider provider, ExchangeMatrix matrix,
 			CalcExchange exchange) {
-		int col = techIndex.getIndex(processProduct);
+		int col = techIndex.getIndex(provider);
 		if (row < 0 || col < 0)
 			return;
 		ExchangeCell existingCell = matrix.getEntry(row, col);
@@ -130,7 +130,7 @@ class InventoryBuilder {
 		if (allocationIndex != null) {
 			// note that the allocation table assures that the factor is 1.0 for
 			// reference products
-			double factor = allocationIndex.getFactor(processProduct, exchange);
+			double factor = allocationIndex.getFactor(provider, exchange);
 			cell.allocationFactor = factor;
 		}
 		matrix.setEntry(row, col, cell);
