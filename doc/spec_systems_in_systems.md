@@ -55,3 +55,19 @@ Currently the processes of a product system are also stored in the field
 `processes` of the `ProductSystem` type. We have to think about whether we
 replace or remove this field (the content is anyhow redundant as this
 information is already contained in the process links).
+
+## Providers
+We add a new `Provider` type that will replace the LongPair type in the
+`TechIndex`:
+
+```java
+/**
+ * A provider describes a process or product system which provides a link to one
+ * or more processes in a product system. Thus, it describes the provider part
+ * of a process link and is mapped to the index of the technology matrix.
+ */
+public class Provider {
+	public CategorizedDescriptor entity;
+	public FlowDescriptor flow;
+}
+```
