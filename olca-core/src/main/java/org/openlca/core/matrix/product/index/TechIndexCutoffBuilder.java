@@ -38,7 +38,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
-	public TechIndex build(LongPair refProduct) {
+	public TechIndex build(Provider refProduct) {
 		return build(refProduct, 1.0);
 	}
 
@@ -61,7 +61,10 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		if (system == null)
 			return;
 		for (ProcessLink link : system.processLinks) {
-			LongPair provider = new LongPair(link.providerId, link.flowId);
+			Provider provider = providers.getProvider(
+					link.providerId, link.flowId);
+			if (provider == null)
+				continue;
 			LongPair exchange = new LongPair(link.processId, link.exchangeId);
 			index.putLink(exchange, provider);
 		}
@@ -75,8 +78,8 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 				if (Math.abs(link.demand) < cutoff)
 					continue;
 				Node provider = link.provider;
-				LongPair exchange = LongPair.of(node.flow.getFirst(),
-						link.exchangeId);
+				LongPair exchange = LongPair.of(
+						node.flow.id(), link.exchangeId);
 				index.putLink(exchange, provider.flow);
 			}
 		}
@@ -87,9 +90,9 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		Node root;
 
 		List<Node> next = new ArrayList<>();
-		HashMap<LongPair, Node> nodes = new HashMap<>();
+		HashMap<Provider, Node> nodes = new HashMap<>();
 
-		Graph(LongPair refProduct, double demand) {
+		Graph(Provider refProduct, double demand) {
 			this.root = new Node(refProduct, demand);
 			root.flow = refProduct;
 			root.state = NodeState.WAITING;
@@ -110,7 +113,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 			for (Node n : next) {
 				n.state = NodeState.PROGRESS;
 				List<CalcExchange> exchanges = nextExchanges.get(
-						n.flow.getFirst());
+						n.flow.id());
 				CalcExchange provider = getProviderFlow(n, exchanges);
 				if (provider == null)
 					continue;
@@ -127,7 +130,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 				List<Node> nextLayer) {
 			for (CalcExchange linkExchange : providers
 					.getLinkCandidates(exchanges)) {
-				LongPair provider = providers.find(linkExchange);
+				Provider provider = providers.find(linkExchange);
 				if (provider == null)
 					continue;
 				double amount = amount(linkExchange);
@@ -144,7 +147,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 			}
 		}
 
-		private Node createNode(double demand, LongPair product,
+		private Node createNode(double demand, Provider product,
 				List<Node> nextLayer) {
 			Node node = new Node(product, demand);
 			nodes.put(product, node);
@@ -201,7 +204,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		private CalcExchange getProviderFlow(Node node,
 				List<CalcExchange> all) {
 			for (CalcExchange e : all) {
-				if (node.flow.getSecond() != e.flowId)
+				if (node.flow.flowId() != e.flowId)
 					continue;
 				if (e.flowType == FlowType.PRODUCT_FLOW && !e.isInput)
 					return e;
@@ -222,7 +225,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 				return Collections.emptyMap();
 			Set<Long> processIds = new HashSet<>();
 			for (Node node : next)
-				processIds.add(node.flow.getFirst());
+				processIds.add(node.flow.id());
 			try {
 				return cache.getExchangeCache().getAll(processIds);
 			} catch (Exception e) {

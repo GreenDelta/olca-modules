@@ -76,7 +76,10 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 		if (system == null)
 			return;
 		for (ProcessLink link : system.processLinks) {
-			LongPair provider = new LongPair(link.providerId, link.flowId);
+			Provider provider = providers.getProvider(
+					link.providerId, link.flowId);
+			if (provider == null)
+				continue;
 			LongPair exchange = new LongPair(link.processId, link.exchangeId);
 			index.putLink(exchange, provider);
 		}

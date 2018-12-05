@@ -3,7 +3,7 @@ package org.openlca.core.matrix.product.index;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 
 /**
  * When building a product system graph, a node represents a product output or
@@ -20,8 +20,10 @@ class Node implements Comparable<Node> {
 	 * The product output or waste input that is represented by this node
 	 * (processId, flowId). There must be only one node for each product output
 	 * or waste input in a graph.
+	 * 
+	 * TODO: update doc
 	 */
-	LongPair flow;
+	Provider flow;
 
 	/**
 	 * The maximum demanded amount of product in the product system.
@@ -49,7 +51,7 @@ class Node implements Comparable<Node> {
 	 */
 	List<Link> links = new ArrayList<>();
 
-	Node(LongPair flow, double demand) {
+	Node(Provider flow, double demand) {
 		this.flow = flow;
 		this.demand = demand;
 		state = NodeState.WAITING;

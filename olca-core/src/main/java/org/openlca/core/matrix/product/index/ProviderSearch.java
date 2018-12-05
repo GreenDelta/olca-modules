@@ -7,7 +7,6 @@ import java.util.List;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
@@ -34,9 +33,8 @@ public class ProviderSearch {
 	public Provider find(CalcExchange e) {
 		if (e == null || cancel())
 			return null;
-		long productId = e.flowId;
-		long[] processIds = processTable.getProviders(productId);
-		if (processIds == null || processIds.length == 0)
+		List<Provider> providers = processTable.getProviders(e.flowId);
+		if (providers.isEmpty())
 			return null;
 
 		// select a default provider if present
@@ -44,48 +42,47 @@ public class ProviderSearch {
 		// for options as the callback should be only called when
 		// there are multiple options.
 		if (config.providerLinking != DefaultProviders.IGNORE) {
-			for (long processId : processIds) {
-				if (processId == e.defaultProviderId)
-					return LongPair.of(processId, productId);
+			for (Provider provider : providers) {
+				if (provider.id() == e.defaultProviderId)
+					return provider;
 			}
 			if (config.providerLinking == DefaultProviders.ONLY)
 				return null;
 		}
 
 		// check form single options and callback
-		if (processIds.length == 1)
-			return LongPair.of(processIds[0], productId);
+		if (providers.size() == 1)
+			return providers.get(0);
 		if (config.callback != null) {
-			processIds = config.callback.select(e, processIds);
-			if (processIds == null || processIds.length == 0)
+			providers = config.callback.select(e, providers);
+			if (providers == null || providers.size() == 0)
 				return null;
-			if (processIds.length == 1)
-				return LongPair.of(processIds[0], productId);
+			if (providers.size() == 1)
+				return providers.get(0);
 		}
 
-		LongPair candidate = null;
-		for (long processId : processIds) {
-			LongPair newOption = LongPair.of(processId, productId);
-			if (isBetter(e, candidate, newOption)) {
-				candidate = newOption;
+		Provider candidate = null;
+		for (Provider next : providers) {
+			if (isBetter(e, candidate, next)) {
+				candidate = next;
 			}
 		}
 		return candidate;
 	}
 
-	private boolean isBetter(CalcExchange e, LongPair old, LongPair newOption) {
+	private boolean isBetter(CalcExchange e, Provider old, Provider newOption) {
 		if (old == null)
 			return true;
 		if (newOption == null)
 			return false;
 		if (config.providerLinking != DefaultProviders.IGNORE) {
-			if (old.getFirst() == e.defaultProviderId)
+			if (old.id() == e.defaultProviderId)
 				return false;
-			if (newOption.getFirst() == e.defaultProviderId)
+			if (newOption.id() == e.defaultProviderId)
 				return true;
 		}
-		ProcessType oldType = processTable.getType(old.getFirst());
-		ProcessType newType = processTable.getType(newOption.getFirst());
+		ProcessType oldType = processTable.getType(old.id());
+		ProcessType newType = processTable.getType(newOption.id());
 		if (oldType == config.preferredType
 				&& newType != config.preferredType)
 			return false;
@@ -119,6 +116,10 @@ public class ProviderSearch {
 	private boolean cancel() {
 		return config.callback != null
 				&& config.callback.cancel();
+	}
+
+	Provider getProvider(long id, long flowId) {
+		return processTable.getProvider(id, flowId);
 	}
 
 }

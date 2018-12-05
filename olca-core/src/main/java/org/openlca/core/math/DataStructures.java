@@ -7,6 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ParameterTable;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
@@ -30,7 +31,8 @@ public class DataStructures {
 		long providerId = system.referenceProcess.getId();
 		Exchange refExchange = system.referenceExchange;
 		long flowId = refExchange.flow.getId();
-		LongPair refFlow = new LongPair(providerId, flowId);
+		Provider refFlow = Provider.of(
+				system.referenceProcess, refExchange.flow);
 		TechIndex index = new TechIndex(refFlow);
 		index.setDemand(ReferenceAmount.get(system));
 		for (ProcessLink link : system.processLinks) {

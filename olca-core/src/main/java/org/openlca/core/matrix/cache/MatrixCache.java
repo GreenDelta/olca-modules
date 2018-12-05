@@ -35,7 +35,7 @@ public final class MatrixCache {
 		if (!lazy) {
 			flowTypeTable = FlowTable.create(database);
 			conversionTable = ConversionTable.create(database);
-			processTable = ProcessTable.create(database, flowTypeTable);
+			processTable = ProcessTable.create(database);
 			exchangeCache = ExchangeCache.create(database, conversionTable,
 					flowTypeTable);
 			impactCache = ImpactFactorCache.create(database, conversionTable);
@@ -60,7 +60,7 @@ public final class MatrixCache {
 
 	public ProcessTable getProcessTable() {
 		if (processTable == null)
-			processTable = ProcessTable.create(database, getFlowTypeTable());
+			processTable = ProcessTable.create(database);
 		return processTable;
 	}
 

@@ -1,8 +1,8 @@
 package org.openlca.core.math;
 
 import org.openlca.core.matrix.CostVector;
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -148,11 +148,11 @@ public class LcaCalculator {
 	 * where d is the demand vector and.
 	 * 
 	 */
-	public double[] getScalingVector(IMatrix inverse, TechIndex productIdx) {
-		LongPair refProduct = productIdx.getRefFlow();
-		int idx = productIdx.getIndex(refProduct);
+	public double[] getScalingVector(IMatrix inverse, TechIndex techIndex) {
+		Provider refProduct = techIndex.getRefFlow();
+		int idx = techIndex.getIndex(refProduct);
 		double[] s = inverse.getColumn(idx);
-		double demand = productIdx.getDemand();
+		double demand = techIndex.getDemand();
 		for (int i = 0; i < s.length; i++)
 			s[i] *= demand;
 		return s;
