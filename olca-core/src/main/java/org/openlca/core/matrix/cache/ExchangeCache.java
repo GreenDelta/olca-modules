@@ -23,7 +23,7 @@ class ExchangeCache {
 
 	public static LoadingCache<Long, List<CalcExchange>> create(
 			IDatabase database, ConversionTable conversionTable,
-			FlowTypeTable flowTypes) {
+			FlowTable flowTypes) {
 		return CacheBuilder.newBuilder().build(
 				new ExchangeLoader(database, conversionTable, flowTypes));
 	}
@@ -34,10 +34,10 @@ class ExchangeCache {
 		private Logger log = LoggerFactory.getLogger(getClass());
 		private IDatabase database;
 		private ConversionTable conversionTable;
-		private FlowTypeTable flowTypes;
+		private FlowTable flowTypes;
 
 		public ExchangeLoader(IDatabase database,
-				ConversionTable conversionTable, FlowTypeTable flowTypes) {
+				ConversionTable conversionTable, FlowTable flowTypes) {
 			this.database = database;
 			this.conversionTable = conversionTable;
 			this.flowTypes = flowTypes;
@@ -100,7 +100,7 @@ class ExchangeCache {
 			e.conversionFactor = factor;
 			e.exchangeId = r.getLong("id");
 			e.flowId = r.getLong("f_flow");
-			e.flowType = flowTypes.get(e.flowId);
+			e.flowType = flowTypes.type(e.flowId);
 			e.isInput = r.getBoolean("is_input");
 			e.defaultProviderId = r.getLong("f_default_provider");
 			e.isAvoided = r.getBoolean("avoided_product");
@@ -122,7 +122,8 @@ class ExchangeCache {
 
 		private double getConversionFactor(ResultSet record) throws Exception {
 			long propertyFactorId = record.getLong("f_flow_property_factor");
-			double propertyFactor = conversionTable.getPropertyFactor(propertyFactorId);
+			double propertyFactor = conversionTable
+					.getPropertyFactor(propertyFactorId);
 			long unitId = record.getLong("f_unit");
 			double unitFactor = conversionTable.getUnitFactor(unitId);
 			if (propertyFactor == 0)

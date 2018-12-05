@@ -8,6 +8,7 @@ import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
@@ -30,7 +31,7 @@ public class ProviderSearch {
 	 * Find the best provider for the given product input or waste output
 	 * according to the search settings.
 	 */
-	public LongPair find(CalcExchange e) {
+	public Provider find(CalcExchange e) {
 		if (e == null || cancel())
 			return null;
 		long productId = e.flowId;

@@ -14,7 +14,7 @@ public final class MatrixCache {
 	private final boolean lazy;
 	private final IDatabase database;
 
-	private FlowTypeTable flowTypeTable;
+	private FlowTable flowTypeTable;
 	private ConversionTable conversionTable;
 	private ProcessTable processTable;
 
@@ -33,7 +33,7 @@ public final class MatrixCache {
 		this.database = database;
 		this.lazy = lazy;
 		if (!lazy) {
-			flowTypeTable = FlowTypeTable.create(database);
+			flowTypeTable = FlowTable.create(database);
 			conversionTable = ConversionTable.create(database);
 			processTable = ProcessTable.create(database, flowTypeTable);
 			exchangeCache = ExchangeCache.create(database, conversionTable,
@@ -46,9 +46,9 @@ public final class MatrixCache {
 		return database;
 	}
 
-	private FlowTypeTable getFlowTypeTable() {
+	private FlowTable getFlowTypeTable() {
 		if (flowTypeTable == null)
-			flowTypeTable = FlowTypeTable.create(database);
+			flowTypeTable = FlowTable.create(database);
 		return flowTypeTable;
 	}
 
@@ -80,7 +80,7 @@ public final class MatrixCache {
 
 	public synchronized void evictAll() {
 		if (flowTypeTable != null)
-			flowTypeTable.reload();
+			flowTypeTable.reload(database);
 		if (conversionTable != null)
 			conversionTable.reload();
 		if (exchangeCache != null)
@@ -132,7 +132,7 @@ public final class MatrixCache {
 			impactCache = null;
 		} else {
 			conversionTable.reload();
-			flowTypeTable.reload();
+			flowTypeTable.reload(database);
 			exchangeCache.invalidateAll();
 			impactCache.invalidateAll();
 		}

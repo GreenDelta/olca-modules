@@ -1,9 +1,5 @@
 package org.openlca.core.matrix.cache;
 
-import gnu.trove.iterator.TLongObjectIterator;
-import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.map.hash.TLongObjectHashMap;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -19,11 +15,20 @@ import org.openlca.core.model.ProcessType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gnu.trove.iterator.TLongObjectIterator;
+import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.map.hash.TLongObjectHashMap;
+
 public class ProcessTable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private final TLongObjectHashMap<ProcessType> typeMap = new TLongObjectHashMap<>();
+
+	/**
+	 * Stores the default allocation methods of the processes: processID =>
+	 * AllocationMethod.
+	 */
 	private final TLongObjectHashMap<AllocationMethod> allocMap = new TLongObjectHashMap<>();
 
 	/**
@@ -34,18 +39,18 @@ public class ProcessTable {
 	 */
 	private final TLongObjectHashMap<TLongArrayList> providerMap = new TLongObjectHashMap<>();
 
-	public static ProcessTable create(IDatabase db, FlowTypeTable flowTypes) {
+	public static ProcessTable create(IDatabase db, FlowTable flowTypes) {
 		ProcessTable table = new ProcessTable(db, flowTypes);
 		return table;
 	}
 
-	private ProcessTable(IDatabase db, FlowTypeTable flowTypes) {
+	private ProcessTable(IDatabase db, FlowTable flowTypes) {
 		log.trace("build process index table");
 		initTypeAndAllocation(db);
 		initProviderMap(db, flowTypes);
 	}
 
-	private void initProviderMap(IDatabase db, FlowTypeTable flowTypes) {
+	private void initProviderMap(IDatabase db, FlowTable flowTypes) {
 		log.trace("load provider map");
 		String query = "select f_owner, f_flow, is_input from tbl_exchanges";
 		try {
@@ -77,14 +82,15 @@ public class ProcessTable {
 
 	private void initTypeAndAllocation(IDatabase database) {
 		log.trace("index process and allocation types");
+		String query = "select id, process_type, default_allocation_method "
+				+ "from tbl_processes";
 		try (Connection con = database.createConnection()) {
-			String query = "select id, process_type, default_allocation_method "
-					+ "from tbl_processes";
 			ResultSet result = con.createStatement().executeQuery(query);
 			while (result.next())
 				fetchValues(result);
 			result.close();
 			log.trace("{} processes indexed", typeMap.size());
+
 		} catch (Exception e) {
 			log.error("failed to build process type index", e);
 		}

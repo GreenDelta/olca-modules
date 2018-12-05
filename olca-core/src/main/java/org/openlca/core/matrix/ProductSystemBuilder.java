@@ -66,7 +66,7 @@ public class ProductSystemBuilder {
 		Flow refProduct = system.referenceExchange.flow;
 		if (refProduct == null)
 			return;
-		LongPair ref = new LongPair(refProcess.getId(), refProduct.getId());
+		Provider ref = Provider.of(refProcess, refProduct);
 		autoComplete(system, ref);
 	}
 
@@ -75,7 +75,7 @@ public class ProductSystemBuilder {
 	 * linking at the given process product which can be arbitrary product in
 	 * the supply chain of the given system.
 	 */
-	public void autoComplete(ProductSystem system, LongPair product) {
+	public void autoComplete(ProductSystem system, Provider product) {
 		try (Connection con = database.createConnection()) {
 			log.trace("auto complete product system {}", system);
 			log.trace("build product index");

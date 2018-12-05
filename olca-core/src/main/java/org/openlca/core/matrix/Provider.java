@@ -2,7 +2,10 @@ package org.openlca.core.matrix;
 
 import java.util.Objects;
 
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
 /**
@@ -22,6 +25,13 @@ public class Provider {
 		p.entity = entity;
 		p.flow = flow;
 		return p;
+	}
+
+	public static Provider of(
+			Process process,
+			Flow flow) {
+		return of(Descriptors.toDescriptor(process),
+				Descriptors.toDescriptor(flow));
 	}
 
 	@Override
@@ -57,4 +67,5 @@ public class Provider {
 	public LongPair pair() {
 		return LongPair.of(id(), flowId());
 	}
+
 }

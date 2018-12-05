@@ -40,6 +40,7 @@ public class ProcessDescriptor extends CategorizedDescriptor {
 		this.location = location;
 	}
 
+	// TODO: is this really used somewhere?
 	public Long getQuantitativeReference() {
 		return quantitativeReference;
 	}

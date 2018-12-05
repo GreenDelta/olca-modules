@@ -43,23 +43,23 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 		TechIndex index = new TechIndex(refFlow);
 		index.setDemand(demand);
 		addSystemLinks(index);
-		List<LongPair> block = new ArrayList<>();
+		List<Provider> block = new ArrayList<>();
 		block.add(refFlow);
-		HashSet<LongPair> handled = new HashSet<>();
+		HashSet<Provider> handled = new HashSet<>();
 		while (!block.isEmpty()) {
-			List<LongPair> nextBlock = new ArrayList<>();
+			List<Provider> nextBlock = new ArrayList<>();
 			log.trace("fetch next block with {} entries", block.size());
 			Map<Long, List<CalcExchange>> exchanges = fetchExchanges(block);
-			for (LongPair recipient : block) {
+			for (Provider recipient : block) {
 				handled.add(recipient);
-				List<CalcExchange> all = exchanges.get(recipient.getFirst());
+				List<CalcExchange> all = exchanges.get(recipient.id());
 				List<CalcExchange> candidates = providers
 						.getLinkCandidates(all);
 				for (CalcExchange linkExchange : candidates) {
-					LongPair provider = providers.find(linkExchange);
+					Provider provider = providers.find(linkExchange);
 					if (provider == null)
 						continue;
-					LongPair exchange = new LongPair(recipient.getFirst(),
+					LongPair exchange = new LongPair(recipient.id(),
 							linkExchange.exchangeId);
 					index.putLink(exchange, provider);
 					if (!handled.contains(provider)
@@ -82,12 +82,13 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 		}
 	}
 
-	private Map<Long, List<CalcExchange>> fetchExchanges(List<LongPair> block) {
+	private Map<Long, List<CalcExchange>> fetchExchanges(List<Provider> block) {
 		if (block.isEmpty())
 			return Collections.emptyMap();
 		Set<Long> processIds = new HashSet<>();
-		for (LongPair pair : block)
-			processIds.add(pair.getFirst());
+		for (Provider provider : block) {
+			processIds.add(provider.id());
+		}
 		try {
 			return cache.getExchangeCache().getAll(processIds);
 		} catch (Exception e) {
