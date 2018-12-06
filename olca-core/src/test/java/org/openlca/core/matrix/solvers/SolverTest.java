@@ -7,10 +7,12 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.SimpleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +49,14 @@ public class SolverTest {
 
 		MatrixData data = new MatrixData();
 
-		TechIndex techIndex = new TechIndex(LongPair.of(1, 1));
-		techIndex.put(LongPair.of(1, 1));
+		FlowDescriptor flow = new FlowDescriptor();
+		flow.setId(1);
+		ProcessDescriptor process = new ProcessDescriptor();
+		process.setId(1);
+		Provider provider = Provider.of(process, flow);
+
+		TechIndex techIndex = new TechIndex(provider);
+		techIndex.put(provider);
 		techIndex.setDemand(1d);
 		data.techIndex = techIndex;
 

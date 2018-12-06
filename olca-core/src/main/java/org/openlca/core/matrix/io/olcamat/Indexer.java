@@ -10,7 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.RootEntityDao;
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
@@ -86,11 +86,12 @@ class Indexer {
 		e.unitName = u.getName();
 	}
 
-	TechIndexEntry getTechEntry(LongPair product) {
+	TechIndexEntry getTechEntry(Provider product) {
 		TechIndexEntry e = new TechIndexEntry();
 		if (product == null)
 			return e;
-		ProcessDescriptor p = processes.get(product.getFirst());
+		// TODO: we could have product systems here
+		ProcessDescriptor p = processes.get(product.id());
 		if (p == null)
 			return e;
 		e.processID = p.getRefId();
@@ -101,7 +102,9 @@ class Indexer {
 			e.processLocation = l.getCode();
 		}
 		e.processCategory = category(p.getCategory());
-		fillFlowInfo(e, product.getSecond());
+
+		// TODO: we could directly take the flow descriptor here
+		fillFlowInfo(e, product.flowId());
 		return e;
 	}
 

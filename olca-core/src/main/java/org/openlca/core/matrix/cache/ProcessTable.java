@@ -8,7 +8,6 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.Provider;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
@@ -164,14 +163,17 @@ public class ProcessTable {
 	}
 
 	/** Get all product or waste treatment providers from the database. */
-	public List<LongPair> getProviderFlows() {
-		List<LongPair> list = new ArrayList<>();
+	public List<Provider> getProviders() {
+		List<Provider> list = new ArrayList<>();
 		TLongObjectIterator<TLongArrayList> it = flowProviders.iterator();
 		while (it.hasNext()) {
 			it.advance();
-			long productId = it.key();
-			for (long processId : it.value().toArray()) {
-				list.add(LongPair.of(processId, productId));
+			long flowId = it.key();
+			for (long providerId : it.value().toArray()) {
+				Provider p = getProvider(providerId, flowId);
+				if (p != null) {
+					list.add(p);
+				}
 			}
 		}
 		return list;
