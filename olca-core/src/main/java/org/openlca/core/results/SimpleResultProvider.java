@@ -19,16 +19,16 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	 * Returns the flow results of the inventory results.
 	 */
 	public List<FlowResult> getTotalFlowResults() {
-		FlowIndex index = result.flowIndex;
 		List<FlowResult> results = new ArrayList<>();
-		for (FlowDescriptor d : getFlowDescriptors()) {
+		FlowIndex index = result.flowIndex;
+		index.each(d -> {
 			double val = result.getTotalFlowResult(d.getId());
 			FlowResult r = new FlowResult();
 			r.flow = d;
 			r.input = index.isInput(d.getId());
 			r.value = adoptFlowResult(val, d.getId());
 			results.add(r);
-		}
+		});
 		return results;
 	}
 

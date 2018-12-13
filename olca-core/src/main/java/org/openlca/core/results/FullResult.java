@@ -44,7 +44,7 @@ public class FullResult extends ContributionResult {
 	 * process-product. Inputs have negative values here.
 	 */
 	public double getUpstreamFlowResult(Provider provider, long flowId) {
-		int row = flowIndex.getIndex(flowId);
+		int row = flowIndex.of(flowId);
 		int col = techIndex.getIndex(provider);
 		return getValue(upstreamFlowResults, row, col);
 	}
@@ -55,7 +55,7 @@ public class FullResult extends ContributionResult {
 	 * values here.
 	 */
 	public double getUpstreamFlowResult(long processId, long flowId) {
-		int row = flowIndex.getIndex(flowId);
+		int row = flowIndex.of(flowId);
 		return getProcessValue(upstreamFlowResults, row, processId);
 	}
 

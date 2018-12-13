@@ -71,8 +71,8 @@ public class AllocationTest {
 				CalculationType.UPSTREAM_ANALYSIS, system);
 		setup.allocationMethod = method;
 		FullResultProvider r = TestSystem.calculate(setup);
-		assertEquals(1, r.getFlowDescriptors().size());
-		FlowDescriptor co2 = r.getFlowDescriptors().iterator().next();
+		assertEquals(1, r.result.flowIndex.size());
+		FlowDescriptor co2 = r.result.flowIndex.at(0);
 		assertEquals(0.5, r.getTotalFlowResult(co2).value, 1e-16);
 	}
 

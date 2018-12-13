@@ -100,20 +100,13 @@ public class ProjectResultProvider implements IResultProvider {
 	}
 
 	@Override
-	public Set<FlowDescriptor> getFlowDescriptors() {
-		Set<FlowDescriptor> flows = new HashSet<>();
-		for (ContributionResultProvider<?> result : results.values())
-			flows.addAll(result.getFlowDescriptors());
-		return flows;
-	}
-
-	@Override
 	public boolean isInput(FlowDescriptor flow) {
 		if (flow == null)
 			return false;
+
 		for (ContributionResultProvider<?> r : results.values()) {
-			if (r.getFlowDescriptors().contains(flow))
-				return r.isInput(flow);
+			if (r.result.flowIndex.contains(flow))
+				return r.result.flowIndex.isInput(flow);
 		}
 		return false;
 	}

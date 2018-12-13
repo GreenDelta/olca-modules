@@ -26,7 +26,9 @@ public class ContributionTreeTest {
 		data.techIndex = techIndex;
 
 		FlowIndex enviIndex = new FlowIndex();
-		enviIndex.putOutputFlow(4);
+		FlowDescriptor outFlow = new FlowDescriptor();
+		outFlow.setId(4);
+		enviIndex.putOutput(outFlow);
 		data.enviIndex = enviIndex;
 
 		data.techMatrix = Tests.getDefaultSolver().matrix(3, 3);

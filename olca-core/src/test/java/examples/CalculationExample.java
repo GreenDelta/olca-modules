@@ -2,7 +2,6 @@ package examples;
 
 import java.io.File;
 
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -38,11 +37,10 @@ public class CalculationExample {
 		SystemCalculator calc = new SystemCalculator(
 				MatrixCache.createEager(db), new DenseSolver());
 		FullResult r = calc.calculateFull(setup);
-		long flowID = r.flowIndex.getFlowAt(0);
-		FlowDescriptor flow = new FlowDao(db).getDescriptor(flowID);
+		FlowDescriptor flow = r.flowIndex.at(0);
 		System.out.println(
 				flow.getName() + "  -> " +
-						r.getTotalFlowResult(flowID));
+						r.getTotalFlowResult(flow.getId()));
 
 		ImpactCategoryDescriptor impact = r.impactIndex.at(0);
 		System.out.println(

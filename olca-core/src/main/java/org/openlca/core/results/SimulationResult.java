@@ -57,7 +57,7 @@ public class SimulationResult extends BaseResult {
 	}
 
 	public List<Double> getFlowResults(long flowId) {
-		int idx = flowIndex.getIndex(flowId);
+		int idx = flowIndex.of(flowId);
 		if (idx < 0)
 			return Collections.emptyList();
 		return flowResults[idx];

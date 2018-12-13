@@ -77,7 +77,7 @@ public class SelfLoopAnalysisTest {
 	}
 
 	private FlowDescriptor flow(String name) {
-		for (FlowDescriptor f : result.getFlowDescriptors()) {
+		for (FlowDescriptor f : result.result.flowIndex.content()) {
 			if (name.equals(f.getName()))
 				return f;
 		}

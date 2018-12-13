@@ -23,7 +23,7 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 	public List<FlowResult> getSingleFlowResults(ProcessDescriptor process) {
 		FlowIndex index = result.flowIndex;
 		List<FlowResult> results = new ArrayList<>();
-		for (FlowDescriptor flow : getFlowDescriptors()) {
+		index.each(flow -> {
 			double val = result.getSingleFlowResult(process.getId(),
 					flow.getId());
 			val = adoptFlowResult(val, flow.getId());
@@ -32,7 +32,7 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 			r.input = index.isInput(flow.getId());
 			r.value = val;
 			results.add(r);
-		}
+		});
 		return results;
 	}
 
@@ -104,10 +104,10 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 	public List<FlowResult> getSingleFlowImpacts(
 			ImpactCategoryDescriptor impact) {
 		List<FlowResult> results = new ArrayList<>();
-		for (FlowDescriptor flow : getFlowDescriptors()) {
+		result.flowIndex.each(flow -> {
 			FlowResult r = getSingleFlowImpact(flow, impact);
 			results.add(r);
-		}
+		});
 		return results;
 	}
 
@@ -129,7 +129,9 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 	public ContributionSet<FlowDescriptor> getFlowContributions(
 			final ImpactCategoryDescriptor impact) {
 		double total = result.getTotalImpactResult(impact.getId());
-		return Contributions.calculate(getFlowDescriptors(), total,
+		return Contributions.calculate(
+				result.flowIndex.content(),
+				total,
 				flow -> result.getSingleFlowImpact(flow.getId(),
 						impact.getId()));
 	}

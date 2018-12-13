@@ -34,24 +34,30 @@ public class DQResult {
 	}
 
 	public double[] get(ProcessDescriptor process, FlowDescriptor flow) {
-		return flowValuesPerProcess.get(new LongPair(process.getId(), flow.getId()));
+		return flowValuesPerProcess
+				.get(new LongPair(process.getId(), flow.getId()));
 	}
 
-	public double[] get(ProcessDescriptor process, ImpactCategoryDescriptor impact) {
-		return impactValuesPerProcess.get(new LongPair(process.getId(), impact.getId()));
+	public double[] get(ProcessDescriptor process,
+			ImpactCategoryDescriptor impact) {
+		return impactValuesPerProcess
+				.get(new LongPair(process.getId(), impact.getId()));
 	}
 
 	public double[] get(FlowDescriptor flow, ImpactCategoryDescriptor impact) {
-		return impactValuesPerFlow.get(new LongPair(flow.getId(), impact.getId()));
+		return impactValuesPerFlow
+				.get(new LongPair(flow.getId(), impact.getId()));
 	}
 
-	public static DQResult calculate(IDatabase db, ContributionResult result, DQCalculationSetup setup) {
+	public static DQResult calculate(IDatabase db, ContributionResult result,
+			DQCalculationSetup setup) {
 		if (db == null || result == null || setup == null)
 			return null;
-		if (setup.processDqSystem == null && setup.exchangeDqSystem == null || setup.aggregationType == null
+		if (setup.processDqSystem == null && setup.exchangeDqSystem == null
+				|| setup.aggregationType == null
 				|| setup.productSystemId == 0l)
 			return null;
-		DQData data = DQData.load(db, setup, result.flowIndex.getFlowIds());
+		DQData data = DQData.load(db, setup, result.flowIndex.ids());
 		DQResult dqResult = new DQResult(setup, data.statistics);
 		if (setup.processDqSystem != null) {
 			dqResult.processValues = data.processData;
@@ -66,7 +72,8 @@ public class DQResult {
 		dqResult.flowValues = calculator.getFlowValues();
 		dqResult.impactValuesPerFlow = calculator.getImpactPerFlowValues();
 		dqResult.impactValues = calculator.getImpactValues();
-		dqResult.impactValuesPerProcess = calculator.getImpactPerProcessValues();
+		dqResult.impactValuesPerProcess = calculator
+				.getImpactPerProcessValues();
 		return dqResult;
 	}
 

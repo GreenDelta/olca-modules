@@ -25,11 +25,6 @@ public interface IResultProvider {
 	 */
 	Set<ProcessDescriptor> getProcessDescriptors();
 
-	/**
-	 * Get the descriptors of all flows in the result.
-	 */
-	Set<FlowDescriptor> getFlowDescriptors();
-
 	/** Returns true if the given flow is an input flow. */
 	boolean isInput(FlowDescriptor flow);
 

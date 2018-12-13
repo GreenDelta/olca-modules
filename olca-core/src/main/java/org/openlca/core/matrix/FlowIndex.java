@@ -4,66 +4,57 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gnu.trove.map.hash.TLongByteHashMap;
 
 /**
- * A flow index represents the flows in the intervention matrix. Thus, this
- * index maps each flow to a row in the intervention matrix.
+ * A flow index maps the flows that are not linked in the technology matrix to
+ * the rows of the intervention matrix.
  */
-public class FlowIndex {
+public class FlowIndex extends DIndex<FlowDescriptor> {
 
-	private LongIndex flowIndex = new LongIndex();
-	private TLongByteHashMap inputMap = new TLongByteHashMap();
+	private TLongByteHashMap inputs = new TLongByteHashMap();
 
-	public static FlowIndex build(MatrixCache cache, TechIndex productIndex,
+	// TODO: when we use blockm, we can build the flow index together
+	// with the inventory matrices in a single table scan -> no matrix
+	// cache is needed then anymore
+	public static FlowIndex build(
+			MatrixCache cache,
+			TechIndex productIndex,
 			AllocationMethod allocationMethod) {
-		return new FlowIndexBuilder(cache, productIndex, allocationMethod)
-				.build();
+		return new Builder(cache, productIndex, allocationMethod).build();
 	}
 
-	public void putInputFlow(long flowId) {
-		flowIndex.put(flowId);
-		inputMap.put(flowId, (byte) 1);
+	public int putInput(FlowDescriptor flow) {
+		if (flow == null)
+			return -1;
+		inputs.put(flow.getId(), (byte) 1);
+		return put(flow);
 	}
 
-	public void putOutputFlow(long flowId) {
-		flowIndex.put(flowId);
-		inputMap.put(flowId, (byte) 0);
+	public int putOutput(FlowDescriptor flow) {
+		if (flow == null)
+			return -1;
+		inputs.put(flow.getId(), (byte) 0);
+		return put(flow);
 	}
 
-	public int getIndex(long flowId) {
-		return flowIndex.getIndex(flowId);
-	}
-
-	public long getFlowAt(int idx) {
-		return flowIndex.getKeyAt(idx);
-	}
-
-	public boolean contains(long flowId) {
-		return flowIndex.contains(flowId);
+	public boolean isInput(FlowDescriptor flow) {
+		if (flow == null)
+			return false;
+		return isInput(flow.getId());
 	}
 
 	public boolean isInput(long flowId) {
-		byte input = inputMap.get(flowId);
+		byte input = inputs.get(flowId);
 		return input == 1;
-	}
-
-	public boolean isEmpty() {
-		return flowIndex.isEmpty();
-	}
-
-	public long[] getFlowIds() {
-		return flowIndex.getKeys();
-	}
-
-	public int size() {
-		return flowIndex.size();
 	}
 
 	/**
@@ -71,19 +62,22 @@ public class FlowIndex {
 	 * that are not contained in the product index will be added to the flow
 	 * index (except if they are allocated co-products).
 	 */
-	private static class FlowIndexBuilder {
+	private static class Builder {
 
 		private Logger log = LoggerFactory.getLogger(getClass());
 
 		private final MatrixCache cache;
 		private final TechIndex techIndex;
 		private final AllocationMethod allocationMethod;
+		private final FlowTable flows;
 
-		FlowIndexBuilder(MatrixCache cache, TechIndex techIndex,
+		Builder(MatrixCache cache,
+				TechIndex techIndex,
 				AllocationMethod allocationMethod) {
 			this.allocationMethod = allocationMethod;
 			this.cache = cache;
 			this.techIndex = techIndex;
+			flows = FlowTable.create(cache.getDatabase());
 		}
 
 		FlowIndex build() {
@@ -128,10 +122,13 @@ public class FlowIndex {
 		}
 
 		private void indexFlow(CalcExchange e, FlowIndex index) {
-			if (e.isInput)
-				index.putInputFlow(e.flowId);
-			else
-				index.putOutputFlow(e.flowId);
+			if (index.contains(e.flowId))
+				return;
+			if (e.isInput) {
+				index.putInput(flows.get(e.flowId));
+			} else {
+				index.putOutput(flows.get(e.flowId));
+			}
 		}
 
 	}

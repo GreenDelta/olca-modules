@@ -47,7 +47,7 @@ class IndexWriter {
 		List<String> rows = new ArrayList<>(enviIndex.size() + 1);
 		rows.add(Csv.enviIndexHeader());
 		for (int i = 0; i < enviIndex.size(); i++) {
-			EnviIndexEntry e = indexer.getEnviEntry(enviIndex.getFlowAt(i));
+			EnviIndexEntry e = indexer.getEnviEntry(enviIndex.idAt(i));
 			e.index = i;
 			rows.add(e.toCsv());
 		}

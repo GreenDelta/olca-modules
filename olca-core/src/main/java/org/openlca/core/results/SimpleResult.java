@@ -74,7 +74,7 @@ public class SimpleResult extends BaseResult {
 	 * that inputs have a negative value.
 	 */
 	public double getTotalFlowResult(long flowId) {
-		int idx = flowIndex.getIndex(flowId);
+		int idx = flowIndex.of(flowId);
 		if (idx < 0 || idx >= totalFlowResults.length)
 			return 0;
 		return totalFlowResults[idx];

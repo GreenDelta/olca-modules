@@ -29,7 +29,7 @@ class DQCalculator {
 
 	void calculate() {
 		for (long processId : result.techIndex.getProcessIds()) {
-			for (long flowId : result.flowIndex.getFlowIds()) {
+			for (long flowId : result.flowIndex.ids()) {
 				addValues(processId, flowId);
 			}
 		}
@@ -122,7 +122,7 @@ class DQCalculator {
 
 	private double getImpactFactor(ContributionResult result, long impactId,
 			long flowId) {
-		int flowIndex = result.flowIndex.getIndex(flowId);
+		int flowIndex = result.flowIndex.of(flowId);
 		int impactIndex = result.impactIndex.of(impactId);
 		return result.impactFactors.get(impactIndex, flowIndex);
 	}

@@ -48,7 +48,7 @@ public class ContributionResult extends SimpleResult {
 	 * process-product. Inputs have negative values here.
 	 */
 	public double getSingleFlowResult(Provider provider, long flowId) {
-		int row = flowIndex.getIndex(flowId);
+		int row = flowIndex.of(flowId);
 		int col = techIndex.getIndex(provider);
 		return getValue(singleFlowResults, row, col);
 	}
@@ -59,7 +59,7 @@ public class ContributionResult extends SimpleResult {
 	 * values here.
 	 */
 	public double getSingleFlowResult(long processId, long flowId) {
-		int row = flowIndex.getIndex(flowId);
+		int row = flowIndex.of(flowId);
 		return getProcessValue(singleFlowResults, row, processId);
 	}
 
@@ -114,7 +114,7 @@ public class ContributionResult extends SimpleResult {
 		if (!hasImpactResults())
 			return 0;
 		int row = impactIndex.of(impactId);
-		int col = flowIndex.getIndex(flowId);
+		int col = flowIndex.of(flowId);
 		return getValue(singleFlowImpacts, row, col);
 	}
 

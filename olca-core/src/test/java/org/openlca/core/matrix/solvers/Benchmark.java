@@ -64,7 +64,7 @@ public class Benchmark {
 		System.out.println("done");
 		System.out.println("\nResults:\n");
 		System.out.println("flowId \t result");
-		for (long flowId : result.flowIndex.getFlowIds()) {
+		for (long flowId : result.flowIndex.ids()) {
 			System.out.printf("%d \t %.10f \n", flowId,
 					result.getTotalFlowResult(flowId));
 		}

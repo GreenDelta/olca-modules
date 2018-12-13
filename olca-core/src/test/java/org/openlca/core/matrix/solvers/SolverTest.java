@@ -61,10 +61,10 @@ public class SolverTest {
 		data.techIndex = techIndex;
 
 		FlowIndex enviIndex = new FlowIndex();
-		enviIndex.putInputFlow(1);
-		enviIndex.putInputFlow(2);
-		enviIndex.putOutputFlow(3);
-		enviIndex.putOutputFlow(4);
+		enviIndex.putInput(flow(1));
+		enviIndex.putInput(flow(2));
+		enviIndex.putOutput(flow(3));
+		enviIndex.putOutput(flow(4));
 		data.enviIndex = enviIndex;
 
 		IMatrix techMatrix = solver.matrix(1, 1);
@@ -101,6 +101,12 @@ public class SolverTest {
 				c.getColumn(0), 1e-14);
 		Assert.assertArrayEquals(new double[] { 68, 167 },
 				c.getColumn(1), 1e-14);
+	}
+
+	private FlowDescriptor flow(int id) {
+		FlowDescriptor flow = new FlowDescriptor();
+		flow.setId(id);
+		return flow;
 	}
 
 }

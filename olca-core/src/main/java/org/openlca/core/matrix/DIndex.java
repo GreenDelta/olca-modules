@@ -1,6 +1,8 @@
 package org.openlca.core.matrix;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.openlca.core.model.descriptors.BaseDescriptor;
@@ -132,5 +134,14 @@ public class DIndex<D extends BaseDescriptor> {
 		for (D d : content) {
 			fn.accept(d);
 		}
+	}
+
+	/**
+	 * Returns the content of this index.
+	 */
+	public Set<D> content() {
+		HashSet<D> set = new HashSet<>();
+		set.addAll(content);
+		return set;
 	}
 }

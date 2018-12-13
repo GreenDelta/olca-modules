@@ -112,7 +112,7 @@ class InventoryBuilder {
 	}
 
 	private void addIntervention(Provider provider, CalcExchange e) {
-		int row = flowIndex.getIndex(e.flowId);
+		int row = flowIndex.of(e.flowId);
 		add(row, provider, interventionMatrix, e);
 	}
 

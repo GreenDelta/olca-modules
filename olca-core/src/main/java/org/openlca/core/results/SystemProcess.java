@@ -12,16 +12,17 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.SocialAspect;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class SystemProcess {
 
-	public static Process create(IDatabase database, CalculationSetup setup, SimpleResultProvider<?> result,
+	public static Process create(IDatabase database, CalculationSetup setup,
+			SimpleResultProvider<?> result,
 			String name) {
 		return new SystemProcess(database, setup, result, name).create(false);
 	}
 
-	public static Process createWithMetaData(IDatabase database, CalculationSetup setup,
+	public static Process createWithMetaData(IDatabase database,
+			CalculationSetup setup,
 			SimpleResultProvider<?> result, String name) {
 		return new SystemProcess(database, setup, result, name).create(true);
 	}
@@ -31,7 +32,8 @@ public class SystemProcess {
 	private final SimpleResultProvider<?> result;
 	private final String name;
 
-	private SystemProcess(IDatabase database, CalculationSetup setup, SimpleResultProvider<?> result, String name) {
+	private SystemProcess(IDatabase database, CalculationSetup setup,
+			SimpleResultProvider<?> result, String name) {
 		this.flowDao = new FlowDao(database);
 		this.setup = setup;
 		this.result = result;
@@ -66,17 +68,17 @@ public class SystemProcess {
 	}
 
 	private void addElemFlows(Process p) {
-		for (FlowDescriptor d : result.getFlowDescriptors()) {
+		result.result.flowIndex.each(d -> {
 			FlowResult flowResult = result.getTotalFlowResult(d);
 			if (flowResult == null || flowResult.value == 0)
-				continue;
+				return;
 			Flow flow = flowDao.getForId(d.getId());
 			if (flow == null)
-				continue;
+				return;
 			Exchange e = p.exchange(flow);
 			e.isInput = flowResult.input;
 			e.amount = flowResult.value;
-		}
+		});
 	}
 
 	private void copyMetaData(Process p) {

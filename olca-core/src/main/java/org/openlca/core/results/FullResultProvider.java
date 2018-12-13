@@ -21,18 +21,18 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	public List<FlowResult> getUpstreamFlowResults(ProcessDescriptor process) {
 		FlowIndex index = result.flowIndex;
 		List<FlowResult> results = new ArrayList<>();
-		for (FlowDescriptor flow : getFlowDescriptors()) {
+		index.each(flow -> {
 			double val = result.getUpstreamFlowResult(process.getId(),
 					flow.getId());
 			if (val == 0)
-				continue;
+				return;
 			val = adoptFlowResult(val, flow.getId());
 			FlowResult r = new FlowResult();
 			r.flow = flow;
 			r.input = index.isInput(flow.getId());
 			r.value = val;
 			results.add(r);
-		}
+		});
 		return results;
 	}
 
@@ -98,7 +98,7 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	}
 
 	public UpstreamTree getTree(FlowDescriptor flow) {
-		int i = result.flowIndex.getIndex(flow.getId());
+		int i = result.flowIndex.of(flow);
 		double[] u = result.upstreamFlowResults.getRow(i);
 		return new UpstreamTree(flow, result, u);
 	}
