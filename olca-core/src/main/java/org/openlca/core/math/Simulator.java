@@ -95,8 +95,8 @@ public class Simulator {
 			}
 			this.impactTable = impactTable;
 			data.impactMatrix = impactTable.createMatrix(solver);
-			data.impactIndex = impactTable.categoryIndex;
-			result.impactIndex = impactTable.categoryIndex;
+			data.impactIndex = impactTable.impactIndex;
+			result.impactIndex = impactTable.impactIndex;
 		}
 	}
 }

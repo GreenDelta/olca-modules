@@ -66,7 +66,7 @@ public class SimulationResult extends BaseResult {
 	public List<Double> getImpactResults(long impactCategoryId) {
 		if (impactIndex == null)
 			return Collections.emptyList();
-		int idx = impactIndex.getIndex(impactCategoryId);
+		int idx = impactIndex.of(impactCategoryId);
 		if (idx < 0)
 			return Collections.emptyList();
 		return impactResults[idx];

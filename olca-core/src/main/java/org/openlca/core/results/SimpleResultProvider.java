@@ -65,10 +65,12 @@ public class SimpleResultProvider<T extends SimpleResult> extends
 	 */
 	public List<ImpactResult> getTotalImpactResults() {
 		List<ImpactResult> results = new ArrayList<>();
-		for (ImpactCategoryDescriptor d : getImpactDescriptors()) {
+		if (!hasImpactResults())
+			return results;
+		result.impactIndex.each(d -> {
 			ImpactResult r = getTotalImpactResult(d);
 			results.add(r);
-		}
+		});
 		return results;
 	}
 

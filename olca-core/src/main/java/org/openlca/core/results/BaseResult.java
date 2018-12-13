@@ -1,8 +1,9 @@
 package org.openlca.core.results;
 
+import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.matrix.TechIndex;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 public abstract class BaseResult {
 
@@ -20,10 +21,11 @@ public abstract class BaseResult {
 	public FlowIndex flowIndex;
 
 	/**
-	 * The impact category index maps IDs of impact categories to column and row
-	 * indices of the matrices and vectors of the mathematical model.
+	 * The impact category index maps impact categories (their descriptors) to
+	 * column and row indices of the matrices and vectors of the mathematical
+	 * model.
 	 */
-	public LongIndex impactIndex;
+	public DIndex<ImpactCategoryDescriptor> impactIndex;
 
 	/**
 	 * Indicates whether the result contains cost results or not.

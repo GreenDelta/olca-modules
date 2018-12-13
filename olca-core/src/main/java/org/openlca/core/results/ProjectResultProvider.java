@@ -54,7 +54,8 @@ public class ProjectResultProvider implements IResultProvider {
 		return result.getTotalFlowResults();
 	}
 
-	public ContributionSet<ProjectVariant> getContributions(FlowDescriptor flow) {
+	public ContributionSet<ProjectVariant> getContributions(
+			FlowDescriptor flow) {
 		return Contributions.calculate(getVariants(),
 				variant -> getTotalFlowResult(variant, flow).value);
 	}
@@ -104,14 +105,6 @@ public class ProjectResultProvider implements IResultProvider {
 		for (ContributionResultProvider<?> result : results.values())
 			flows.addAll(result.getFlowDescriptors());
 		return flows;
-	}
-
-	@Override
-	public Set<ImpactCategoryDescriptor> getImpactDescriptors() {
-		Set<ImpactCategoryDescriptor> impacts = new HashSet<>();
-		for (ContributionResultProvider<?> result : results.values())
-			impacts.addAll(result.getImpactDescriptors());
-		return impacts;
 	}
 
 	@Override

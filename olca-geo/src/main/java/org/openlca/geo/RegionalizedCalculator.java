@@ -57,7 +57,7 @@ public class RegionalizedCalculator {
 			FullResult r = new FullResult();
 			r.flowIndex = inventory.flowIndex;
 			r.techIndex = inventory.productIndex;
-			r.impactIndex = impactTable.categoryIndex;
+			r.impactIndex = impactTable.impactIndex;
 
 			// direct LCI results
 			LcaCalculator baseCalc = new LcaCalculator(solver, m);

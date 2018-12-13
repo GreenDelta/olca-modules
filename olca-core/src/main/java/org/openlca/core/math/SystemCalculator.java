@@ -53,7 +53,7 @@ public class SystemCalculator {
 			ImpactTable impacts = ImpactTable.build(matrixCache,
 					setup.impactMethod.getId(), inventory.flowIndex);
 			data.impactMatrix = impacts.createMatrix(solver, interpreter);
-			data.impactIndex = impacts.categoryIndex;
+			data.impactIndex = impacts.impactIndex;
 		}
 		if (setup.withCosts) {
 			data.costVector = CostVector.build(inventory, db);

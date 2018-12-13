@@ -6,7 +6,8 @@ import java.util.List;
 
 class Aggregation {
 
-	public static double[] applyTo(List<AggregationValue> values, AggregationType type) {
+	public static double[] applyTo(List<AggregationValue> values,
+			AggregationType type) {
 		if (values.isEmpty())
 			return null;
 		switch (type) {
@@ -21,7 +22,8 @@ class Aggregation {
 		}
 	}
 
-	private static double[] weightedAverageOf(List<AggregationValue> values, boolean squared) {
+	private static double[] weightedAverageOf(List<AggregationValue> values,
+			boolean squared) {
 		BigDecimal[] aggregated = new BigDecimal[values.get(0).values.length];
 		BigDecimal[] divisors = new BigDecimal[values.get(0).values.length];
 		for (AggregationValue value : values) {
@@ -32,7 +34,8 @@ class Aggregation {
 				if (squared) {
 					factor = factor.pow(2);
 				}
-				BigDecimal result = new BigDecimal(value.values[i]).multiply(factor);
+				BigDecimal result = new BigDecimal(value.values[i])
+						.multiply(factor);
 				if (aggregated[i] == null) {
 					aggregated[i] = result;
 					divisors[i] = factor;
@@ -44,23 +47,16 @@ class Aggregation {
 		}
 		double[] result = new double[aggregated.length];
 		for (int i = 0; i < aggregated.length; i++) {
-			if (aggregated == null || aggregated[i] == null || aggregated[i].doubleValue() == 0d)
+			if (aggregated == null || aggregated[i] == null
+					|| aggregated[i].doubleValue() == 0d)
 				continue;
-			if (divisors == null || divisors[i] == null || divisors[i].doubleValue() == 0d)
+			if (divisors == null || divisors[i] == null
+					|| divisors[i].doubleValue() == 0d)
 				continue;
-			System.out.println(aggregated[i]);
-			System.out.println(divisors[i]);
-			result[i] = aggregated[i].divide(divisors[i], MathContext.DECIMAL128).doubleValue();
+			result[i] = aggregated[i]
+					.divide(divisors[i], MathContext.DECIMAL128).doubleValue();
 		}
 		return result;
-	}
-	
-	public static void main(String[] args) {
-		double dd = 0E-77;
-		System.out.println(dd);
-		BigDecimal d = new BigDecimal(dd);
-		System.out.println(d.equals(BigDecimal.ZERO));
-		System.out.println(d);
 	}
 
 	private static double[] maximumOf(List<AggregationValue> values) {

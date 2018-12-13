@@ -172,7 +172,7 @@ public class SystemExport {
 
 		String name = conf.getSystem().getName();
 		String method = conf.getImpactMethod().getName();
-		int categories = impactTable.categoryIndex.size();
+		int categories = impactTable.impactIndex.size();
 		int factors = impactTable.flowIndex.size();
 		String dimensions = factors + "x" + categories;
 
@@ -286,7 +286,7 @@ public class SystemExport {
 
 	private void createImpactMethodSheet(Workbook workbook) {
 		ExcelHeader columnHeader = createImpactCategoryHeader(
-				impactTable.categoryIndex);
+				impactTable.impactIndex);
 		ExcelHeader rowHeader = createFlowHeader(impactTable.flowIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);

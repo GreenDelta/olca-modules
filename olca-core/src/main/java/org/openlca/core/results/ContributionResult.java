@@ -71,7 +71,7 @@ public class ContributionResult extends SimpleResult {
 			long impactId) {
 		if (!hasImpactResults())
 			return 0;
-		int row = impactIndex.getIndex(impactId);
+		int row = impactIndex.of(impactId);
 		int col = techIndex.getIndex(provider);
 		return getValue(singleImpactResults, row, col);
 	}
@@ -83,7 +83,7 @@ public class ContributionResult extends SimpleResult {
 	public double getSingleImpactResult(long processId, long impactId) {
 		if (!hasImpactResults())
 			return 0;
-		int row = impactIndex.getIndex(impactId);
+		int row = impactIndex.of(impactId);
 		return getProcessValue(singleImpactResults, row, processId);
 	}
 
@@ -113,7 +113,7 @@ public class ContributionResult extends SimpleResult {
 	public double getSingleFlowImpact(long flowId, long impactId) {
 		if (!hasImpactResults())
 			return 0;
-		int row = impactIndex.getIndex(impactId);
+		int row = impactIndex.of(impactId);
 		int col = flowIndex.getIndex(flowId);
 		return getValue(singleFlowImpacts, row, col);
 	}

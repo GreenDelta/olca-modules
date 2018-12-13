@@ -1,5 +1,6 @@
 package org.openlca.core.matrix;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -11,11 +12,14 @@ public class DIndexTest {
 	@Test
 	public void testIndex() {
 		DIndex<ImpactCategoryDescriptor> index = new DIndex<>();
+		assertArrayEquals(new long[] {}, index.ids());
 		for (int i = 1; i < 11; i++) {
 			ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
 			d.setId(i);
 			index.put(d);
 		}
+		long[] ids = index.ids();
+		assertEquals(10, ids.length);
 
 		assertEquals(10, index.size());
 		for (int i = 1; i < 11; i++) {
@@ -26,6 +30,7 @@ public class DIndexTest {
 			assertTrue(index.contains(d));
 			assertEquals((long) i, d.getId());
 		}
+
 	}
 
 }

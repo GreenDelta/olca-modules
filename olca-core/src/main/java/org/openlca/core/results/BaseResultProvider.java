@@ -9,13 +9,12 @@ import java.util.Set;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-public class BaseResultProvider<T extends BaseResult> implements IResultProvider {
+public class BaseResultProvider<T extends BaseResult>
+		implements IResultProvider {
 
 	public final T result;
 	public final EntityCache cache;
@@ -58,21 +57,6 @@ public class BaseResultProvider<T extends BaseResult> implements IResultProvider
 		Map<Long, FlowDescriptor> values = cache.getAll(FlowDescriptor.class,
 				ids);
 		HashSet<FlowDescriptor> descriptors = new HashSet<>();
-		descriptors.addAll(values.values());
-		return descriptors;
-	}
-
-	@Override
-	public Set<ImpactCategoryDescriptor> getImpactDescriptors() {
-		LongIndex index = result.impactIndex;
-		if (index == null)
-			return Collections.emptySet();
-		List<Long> ids = new ArrayList<>(index.size());
-		for (long id : index.getKeys())
-			ids.add(id);
-		Map<Long, ImpactCategoryDescriptor> values = cache.getAll(
-				ImpactCategoryDescriptor.class, ids);
-		HashSet<ImpactCategoryDescriptor> descriptors = new HashSet<>();
 		descriptors.addAll(values.values());
 		return descriptors;
 	}

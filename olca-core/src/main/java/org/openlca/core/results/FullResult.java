@@ -66,7 +66,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamImpactResult(Provider provider, long impactId) {
 		if (!hasImpactResults())
 			return 0;
-		int row = impactIndex.getIndex(impactId);
+		int row = impactIndex.of(impactId);
 		int col = techIndex.getIndex(provider);
 		return getValue(upstreamImpactResults, row, col);
 	}
@@ -78,7 +78,7 @@ public class FullResult extends ContributionResult {
 	public double getUpstreamImpactResult(long processId, long impactId) {
 		if (!hasImpactResults())
 			return 0;
-		int row = impactIndex.getIndex(impactId);
+		int row = impactIndex.of(impactId);
 		return getProcessValue(upstreamImpactResults, row, processId);
 	}
 

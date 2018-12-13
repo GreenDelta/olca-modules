@@ -86,7 +86,7 @@ public class SimpleResult extends BaseResult {
 	public double getTotalImpactResult(long impactId) {
 		if (!hasImpactResults())
 			return 0;
-		int idx = impactIndex.getIndex(impactId);
+		int idx = impactIndex.of(impactId);
 		if (idx < 0 || idx >= totalImpactResults.length)
 			return 0;
 		return totalImpactResults[idx];

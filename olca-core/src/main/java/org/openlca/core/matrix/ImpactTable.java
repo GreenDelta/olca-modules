@@ -1,7 +1,5 @@
 package org.openlca.core.matrix;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +7,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ImpactTable {
 
-	public LongIndex categoryIndex;
+	public DIndex<ImpactCategoryDescriptor> impactIndex;
 	public FlowIndex flowIndex;
 	public ImpactFactorMatrix factorMatrix;
 
@@ -32,7 +32,7 @@ public class ImpactTable {
 	}
 
 	public boolean isEmpty() {
-		return categoryIndex == null || categoryIndex.isEmpty()
+		return impactIndex == null || impactIndex.isEmpty()
 				|| flowIndex == null || flowIndex.isEmpty()
 				|| factorMatrix == null || factorMatrix.isEmpty();
 	}
@@ -89,43 +89,29 @@ public class ImpactTable {
 
 		ImpactTable build() {
 			log.trace("Build impact factor matrix for method {}", methodId);
-			LongIndex categoryIndex = buildCategoryIndex();
-			if (categoryIndex.isEmpty() || flowIndex.isEmpty())
+			DIndex<ImpactCategoryDescriptor> impacts = new DIndex<>();
+			ImpactCategoryDao dao = new ImpactCategoryDao(cache.getDatabase());
+			impacts.putAll(dao.getMethodImpacts(methodId));
+			if (impacts.isEmpty() || flowIndex.isEmpty())
 				return null;
 			ImpactTable table = new ImpactTable();
-			table.categoryIndex = categoryIndex;
+			table.impactIndex = impacts;
 			table.flowIndex = flowIndex;
 			ImpactFactorMatrix matrix = new ImpactFactorMatrix(
-					categoryIndex.size(), flowIndex.size());
+					impacts.size(), flowIndex.size());
 			table.factorMatrix = matrix;
-			fill(matrix, categoryIndex);
+			fill(matrix, impacts);
 			log.trace("Impact factor matrix ready");
 			return table;
 		}
 
-		private LongIndex buildCategoryIndex() {
-			LongIndex index = new LongIndex();
-			try (Connection con = cache.getDatabase().createConnection()) {
-				String query = "select id from tbl_impact_categories where f_impact_method = "
-						+ methodId;
-				ResultSet result = con.createStatement().executeQuery(query);
-				while (result.next()) {
-					long id = result.getLong("id");
-					index.put(id);
-				}
-				result.close();
-			} catch (Exception e) {
-				log.error("failed to build impact category index", e);
-			}
-			return index;
-		}
-
-		private void fill(ImpactFactorMatrix matrix, LongIndex categoryIndex) {
-			Map<Long, List<CalcImpactFactor>> factorMap = loadFactors(
-					categoryIndex);
-			for (int row = 0; row < categoryIndex.size(); row++) {
-				long categoryId = categoryIndex.getKeyAt(row);
-				List<CalcImpactFactor> factors = factorMap.get(categoryId);
+		private void fill(
+				ImpactFactorMatrix matrix,
+				DIndex<ImpactCategoryDescriptor> impacts) {
+			Map<Long, List<CalcImpactFactor>> factorMap = loadFactors(impacts);
+			for (int row = 0; row < impacts.size(); row++) {
+				long impactID = impacts.idAt(row);
+				List<CalcImpactFactor> factors = factorMap.get(impactID);
 				if (factors == null)
 					continue;
 				for (CalcImpactFactor factor : factors) {
@@ -143,9 +129,9 @@ public class ImpactTable {
 		}
 
 		private Map<Long, List<CalcImpactFactor>> loadFactors(
-				LongIndex categoryIndex) {
+				DIndex<ImpactCategoryDescriptor> impacts) {
 			try {
-				Set<Long> keys = LongStream.of(categoryIndex.getKeys())
+				Set<Long> keys = LongStream.of(impacts.ids())
 						.boxed()
 						.collect(Collectors.toSet());
 				return cache.getImpactCache().getAll(keys);

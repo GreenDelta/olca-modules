@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.descriptors.BaseDescriptor;
 
@@ -35,6 +36,11 @@ public class DIndex<D extends BaseDescriptor> {
 		return content.size();
 	}
 
+	/** Returns true if there is no content in this index. */
+	public boolean isEmpty() {
+		return content.size() == 0;
+	}
+
 	/**
 	 * Get the descriptor at the given position or null when there is no
 	 * descriptor at the given position.
@@ -43,6 +49,14 @@ public class DIndex<D extends BaseDescriptor> {
 		if (i < 0 || i >= content.size())
 			return null;
 		return content.get(i);
+	}
+
+	/**
+	 * Get the ID of the descriptor at the given position.
+	 */
+	public long idAt(int i) {
+		D d = at(i);
+		return d == null ? 0L : d.getId();
 	}
 
 	/**
@@ -91,5 +105,32 @@ public class DIndex<D extends BaseDescriptor> {
 		content.add(d);
 		index.put(d.getId(), idx);
 		return idx;
+	}
+
+	/**
+	 * Adds all descriptors from the given collection to this index.
+	 */
+	public void putAll(Iterable<D> it) {
+		if (it == null)
+			return;
+		for (D d : it) {
+			put(d);
+		}
+	}
+
+	/**
+	 * Get the IDs of all descriptors that are in this index.
+	 */
+	public long[] ids() {
+		return index.keys();
+	}
+
+	/**
+	 * Calls the given function for each descriptor in this index.
+	 */
+	public void each(Consumer<D> fn) {
+		for (D d : content) {
+			fn.accept(d);
+		}
 	}
 }

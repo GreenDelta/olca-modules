@@ -52,8 +52,10 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	public List<ImpactResult> getUpstreamImpactResults(
 			ProcessDescriptor process) {
 		List<ImpactResult> results = new ArrayList<>();
-		for (ImpactCategoryDescriptor impact : getImpactDescriptors())
-			results.add(getUpstreamImpactResult(process, impact));
+		if (!hasImpactResults())
+			return results;
+		result.impactIndex.each(impact -> results
+				.add(getUpstreamImpactResult(process, impact)));
 		return results;
 	}
 
@@ -102,7 +104,7 @@ public class FullResultProvider extends ContributionResultProvider<FullResult> {
 	}
 
 	public UpstreamTree getTree(ImpactCategoryDescriptor impact) {
-		int i = result.impactIndex.getIndex(impact.getId());
+		int i = result.impactIndex.of(impact.getId());
 		double[] u = result.upstreamImpactResults.getRow(i);
 		return new UpstreamTree(impact, result, u);
 	}

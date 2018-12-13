@@ -20,7 +20,8 @@ class DQCalculator {
 	private final DQData data;
 	private final DQCalculationSetup setup;
 
-	public DQCalculator(ContributionResult result, DQData data, DQCalculationSetup setup) {
+	public DQCalculator(ContributionResult result, DQData data,
+			DQCalculationSetup setup) {
 		this.result = result;
 		this.data = data;
 		this.setup = setup;
@@ -36,7 +37,8 @@ class DQCalculator {
 
 	private void addValues(long processId, long flowId) {
 		double[] dqValues = getDqValues(processId, flowId);
-		BigDecimal flowResult = new BigDecimal(getFlowResult(processId, flowId));
+		BigDecimal flowResult = new BigDecimal(
+				getFlowResult(processId, flowId));
 		if (dqValues == null || flowResult.equals(BigDecimal.ZERO))
 			return;
 		addValue(flowAggregations, flowId, flowResult, dqValues);
@@ -45,19 +47,24 @@ class DQCalculator {
 		addImpactValues(processId, flowId, flowResult, dqValues);
 	}
 
-	private void addImpactValues(long processId, long flowId, BigDecimal flowResult, double[] dqValues) {
-		for (long impactId : result.impactIndex.getKeys()) {
+	private void addImpactValues(long processId, long flowId,
+			BigDecimal flowResult, double[] dqValues) {
+		for (long impactId : result.impactIndex.ids()) {
 			double impactFactor = getImpactFactor(result, impactId, flowId);
 			if (impactFactor == 0d)
 				continue;
-			BigDecimal factor = flowResult.multiply(new BigDecimal(impactFactor));
+			BigDecimal factor = flowResult
+					.multiply(new BigDecimal(impactFactor));
 			addValue(impactAggregations, impactId, factor, dqValues);
-			addValue(impactAggregationsPerFlow, new LongPair(flowId, impactId), factor, dqValues);
-			addValue(impactAggregationsPerProcess, new LongPair(processId, impactId), factor, dqValues);
+			addValue(impactAggregationsPerFlow, new LongPair(flowId, impactId),
+					factor, dqValues);
+			addValue(impactAggregationsPerProcess,
+					new LongPair(processId, impactId), factor, dqValues);
 		}
 	}
 
-	private <T> void addValue(Map<T, List<AggregationValue>> map, T key, BigDecimal factor, double[] dqValues) {
+	private <T> void addValue(Map<T, List<AggregationValue>> map, T key,
+			BigDecimal factor, double[] dqValues) {
 		List<AggregationValue> list = safeGetList(key, map);
 		int max = setup.exchangeDqSystem.getScoreCount();
 		for (int i = 0; i < dqValues.length; i++) {
@@ -97,13 +104,15 @@ class DQCalculator {
 		Map<T, double[]> values = new HashMap<>();
 		for (T key : map.keySet()) {
 			List<AggregationValue> toAggregate = map.get(key);
-			double[] result = Aggregation.applyTo(toAggregate, setup.aggregationType);
+			double[] result = Aggregation.applyTo(toAggregate,
+					setup.aggregationType);
 			values.put(key, result);
 		}
 		return values;
 	}
 
-	private <T> List<AggregationValue> safeGetList(T key, Map<T, List<AggregationValue>> map) {
+	private <T> List<AggregationValue> safeGetList(T key,
+			Map<T, List<AggregationValue>> map) {
 		List<AggregationValue> list = map.get(key);
 		if (list != null)
 			return list;
@@ -111,9 +120,10 @@ class DQCalculator {
 		return list;
 	}
 
-	private double getImpactFactor(ContributionResult result, long impactId, long flowId) {
+	private double getImpactFactor(ContributionResult result, long impactId,
+			long flowId) {
 		int flowIndex = result.flowIndex.getIndex(flowId);
-		int impactIndex = result.impactIndex.getIndex(impactId);
+		int impactIndex = result.impactIndex.of(impactId);
 		return result.impactFactors.get(impactIndex, flowIndex);
 	}
 

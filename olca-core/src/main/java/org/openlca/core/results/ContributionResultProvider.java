@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -67,11 +68,15 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 	/**
 	 * Get the single impact results for the process with the given ID.
 	 */
-	public List<ImpactResult> getSingleImpactResults(ProcessDescriptor process) {
-		List<ImpactResult> results = new ArrayList<>();
-		for (ImpactCategoryDescriptor impact : getImpactDescriptors())
-			results.add(getSingleImpactResult(process, impact));
-		return results;
+	public List<ImpactResult> getSingleImpactResults(
+			ProcessDescriptor process) {
+		List<ImpactResult> list = new ArrayList<>();
+		DIndex<ImpactCategoryDescriptor> impacts = result.impactIndex;
+		if (impacts == null || impacts.isEmpty())
+			return list;
+		impacts.each(
+				impact -> list.add(getSingleImpactResult(process, impact)));
+		return list;
 	}
 
 	public ImpactResult getSingleImpactResult(ProcessDescriptor process,
@@ -92,10 +97,12 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 			ImpactCategoryDescriptor impact) {
 		double total = result.getTotalImpactResult(impact.getId());
 		return Contributions.calculate(getProcessDescriptors(), total,
-				process -> result.getSingleImpactResult(process.getId(), impact.getId()));
+				process -> result.getSingleImpactResult(process.getId(),
+						impact.getId()));
 	}
 
-	public List<FlowResult> getSingleFlowImpacts(ImpactCategoryDescriptor impact) {
+	public List<FlowResult> getSingleFlowImpacts(
+			ImpactCategoryDescriptor impact) {
 		List<FlowResult> results = new ArrayList<>();
 		for (FlowDescriptor flow : getFlowDescriptors()) {
 			FlowResult r = getSingleFlowImpact(flow, impact);
@@ -123,7 +130,8 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 			final ImpactCategoryDescriptor impact) {
 		double total = result.getTotalImpactResult(impact.getId());
 		return Contributions.calculate(getFlowDescriptors(), total,
-				flow -> result.getSingleFlowImpact(flow.getId(), impact.getId()));
+				flow -> result.getSingleFlowImpact(flow.getId(),
+						impact.getId()));
 	}
 
 	public double getSingleCostResult(ProcessDescriptor process) {

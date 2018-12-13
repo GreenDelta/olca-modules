@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import org.openlca.core.matrix.format.IMatrix;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
  * Contains the matrices of that are input of a calculation.
@@ -24,7 +25,7 @@ public class MatrixData {
 	 * The matrix index of the LCIA categories (i.e. the row index of the impact
 	 * matrix).
 	 */
-	public LongIndex impactIndex;
+	public DIndex<ImpactCategoryDescriptor> impactIndex;
 
 	/**
 	 * The technology matrix.
