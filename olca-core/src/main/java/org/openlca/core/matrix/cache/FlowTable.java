@@ -42,6 +42,10 @@ public class FlowTable {
 		}
 	}
 
+	public FlowDescriptor get(long flowID) {
+		return map.get(flowID);
+	}
+
 	public FlowType type(long flowId) {
 		FlowDescriptor d = map.get(flowId);
 		return d == null ? null : d.getFlowType();
