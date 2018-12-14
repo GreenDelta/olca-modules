@@ -11,7 +11,7 @@ import java.util.Set;
  * The TechIndex maps the linked product-outputs and waste-inputs (provider-flow
  * pairs) of a product system to a matrix index that is used in the calculation
  * and results. It also contains the process links of that product system.
- * 
+ *
  * TODO: update doc and check the usage of each method
  */
 public class TechIndex {
@@ -48,7 +48,7 @@ public class TechIndex {
 
 	/**
 	 * Creates a new technosphere index of a product system.
-	 * 
+	 *
 	 * @param refFlow
 	 *            the reference product-output or waste-input as (processId,
 	 *            flowId) pair.
@@ -161,7 +161,7 @@ public class TechIndex {
 
 	/**
 	 * Adds a process link to this index.
-	 * 
+	 *
 	 * @param exchange
 	 *            The linked product-input or waste-output as (processId,
 	 *            exchangeId) pair.
@@ -177,7 +177,7 @@ public class TechIndex {
 	}
 
 	/**
-	 * 
+	 *
 	 * Returns true if the given product-input or waste-output is linked to a
 	 * provider of this index.
 	 */
@@ -203,14 +203,22 @@ public class TechIndex {
 
 	/**
 	 * Returns the IDs of all processes in this index.
-	 * 
+	 *
 	 * TODO: this can be now a set of process AND product system IDs.
 	 */
+	@Deprecated
 	public Set<Long> getProcessIds() {
 		HashSet<Long> set = new HashSet<>();
 		for (Provider p : providers) {
 			set.add(p.id());
 		}
 		return set;
+	}
+
+	/**
+	 * Returns all providers of this index.
+	 */
+	public Set<Provider> content() {
+		return new HashSet<>(providers);
 	}
 }
