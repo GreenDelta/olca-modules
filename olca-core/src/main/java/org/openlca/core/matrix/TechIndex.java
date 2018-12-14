@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
+
 /**
  * The TechIndex maps the linked product-outputs and waste-inputs (provider-flow
  * pairs) of a product system to a matrix index that is used in the calculation
@@ -49,9 +51,8 @@ public class TechIndex {
 	/**
 	 * Creates a new technosphere index of a product system.
 	 *
-	 * @param refFlow
-	 *            the reference product-output or waste-input as (processId,
-	 *            flowId) pair.
+	 * @param refFlow the reference product-output or waste-input as (processId,
+	 *                flowId) pair.
 	 */
 	public TechIndex(Provider refFlow) {
 		put(refFlow);
@@ -149,8 +150,23 @@ public class TechIndex {
 	}
 
 	/**
+	 * Get all providers with the given descriptor of a process or product
+	 * system as entity.
+	 */
+	public List<Provider> getProviders(CategorizedDescriptor d) {
+		if (d == null)
+			return Collections.emptyList();
+		List<Provider> providers = processProviders.get(d.getId());
+		if (providers == null)
+			return Collections.emptyList();
+		return new ArrayList<>(providers);
+	}
+
+	/**
 	 * Returns the providers (product-outputs and waste-inputs) for the process
 	 * with the given ID.
+	 *
+	 * TODO: do we need this anymore?
 	 */
 	public List<Provider> getProviders(long processId) {
 		List<Provider> providers = processProviders.get(processId);
@@ -162,12 +178,10 @@ public class TechIndex {
 	/**
 	 * Adds a process link to this index.
 	 *
-	 * @param exchange
-	 *            The linked product-input or waste-output as (processId,
-	 *            exchangeId) pair.
-	 * @param provider
-	 *            The product-output or waste-input (provider) as (processId,
-	 *            flowId) pair.
+	 * @param exchange The linked product-input or waste-output as (processId,
+	 *                 exchangeId) pair.
+	 * @param provider The product-output or waste-input (provider) as
+	 *                 (processId, flowId) pair.
 	 */
 	public void putLink(LongPair exchange, Provider provider) {
 		if (links.containsKey(exchange))

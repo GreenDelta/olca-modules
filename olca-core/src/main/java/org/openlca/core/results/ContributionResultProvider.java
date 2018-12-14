@@ -17,89 +17,10 @@ public class ContributionResultProvider<T extends ContributionResult> extends
 		super(result, cache);
 	}
 
-	/**
-	 * Get the single flow results for the process with the given ID.
-	 */
-	public List<FlowResult> getSingleFlowResults(ProcessDescriptor process) {
-		FlowIndex index = result.flowIndex;
-		List<FlowResult> results = new ArrayList<>();
-		index.each(flow -> {
-			double val = result.getSingleFlowResult(process.getId(),
-					flow.getId());
-			val = adoptFlowResult(val, flow.getId());
-			FlowResult r = new FlowResult();
-			r.flow = flow;
-			r.input = index.isInput(flow.getId());
-			r.value = val;
-			results.add(r);
-		});
-		return results;
-	}
 
-	public FlowResult getSingleFlowResult(ProcessDescriptor process,
-			FlowDescriptor flow) {
-		double val = result.getSingleFlowResult(process.getId(), flow.getId());
-		val = adoptFlowResult(val, flow.getId());
-		FlowResult r = new FlowResult();
-		r.flow = flow;
-		FlowIndex index = result.flowIndex;
-		r.input = index.isInput(flow.getId());
-		r.value = val;
-		return r;
-	}
 
-	/**
-	 * Get the single contributions of the processes to the total result of the
-	 * given flow.
-	 */
-	public ContributionSet<ProcessDescriptor> getProcessContributions(
-			FlowDescriptor flow) {
-		final long flowId = flow.getId();
-		double total = adoptFlowResult(result.getTotalFlowResult(flowId),
-				flowId);
-		return Contributions.calculate(getProcessDescriptors(), total,
-				process -> {
-					double val = result.getSingleFlowResult(
-							process.getId(), flowId);
-					return adoptFlowResult(val, flowId);
-				});
-	}
 
-	/**
-	 * Get the single impact results for the process with the given ID.
-	 */
-	public List<ImpactResult> getSingleImpactResults(
-			ProcessDescriptor process) {
-		List<ImpactResult> list = new ArrayList<>();
-		DIndex<ImpactCategoryDescriptor> impacts = result.impactIndex;
-		if (impacts == null || impacts.isEmpty())
-			return list;
-		impacts.each(
-				impact -> list.add(getSingleImpactResult(process, impact)));
-		return list;
-	}
 
-	public ImpactResult getSingleImpactResult(ProcessDescriptor process,
-			ImpactCategoryDescriptor impact) {
-		double val = result.getSingleImpactResult(process.getId(),
-				impact.getId());
-		ImpactResult r = new ImpactResult();
-		r.impactCategory = impact;
-		r.value = val;
-		return r;
-	}
-
-	/**
-	 * Get the single contributions of the processes to the total result of the
-	 * given LCIA category.
-	 */
-	public ContributionSet<ProcessDescriptor> getProcessContributions(
-			ImpactCategoryDescriptor impact) {
-		double total = result.getTotalImpactResult(impact.getId());
-		return Contributions.calculate(getProcessDescriptors(), total,
-				process -> result.getSingleImpactResult(process.getId(),
-						impact.getId()));
-	}
 
 	public List<FlowResult> getSingleFlowImpacts(
 			ImpactCategoryDescriptor impact) {
