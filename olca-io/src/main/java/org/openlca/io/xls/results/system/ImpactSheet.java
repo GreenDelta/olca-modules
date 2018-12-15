@@ -7,14 +7,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.SimpleResultProvider;
+import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class ImpactSheet {
 
 	private final CellWriter writer;
 	private final Workbook workbook;
-	private final SimpleResultProvider<?> result;
+	private final SimpleResult result;
 	private final DQResult dqResult;
 	private final List<ImpactCategoryDescriptor> impacts;
 	private Sheet sheet;
@@ -51,7 +51,7 @@ class ImpactSheet {
 		int row = 2;
 		int resultStartCol = ResultExport.IMPACT_HEADER.length + 1;
 		for (ImpactCategoryDescriptor impact : impacts) {
-			double value = result.getTotalImpactResult(impact).value;
+			double value = result.getTotalImpactResult(impact);
 			writer.impactRow(sheet, row, 1, impact);
 			writer.cell(sheet, row, resultStartCol, value);
 			if (dqResult == null) {

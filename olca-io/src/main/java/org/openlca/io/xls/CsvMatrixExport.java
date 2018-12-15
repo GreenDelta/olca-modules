@@ -11,7 +11,7 @@ import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.ExchangeMatrix;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
@@ -70,8 +70,8 @@ public class CsvMatrixExport implements Runnable {
 		TechIndex techIndex = inventory.productIndex;
 		int size = techIndex.size();
 		for (int row = 0; row < size; row++) {
-			LongPair product = techIndex.getProviderAt(row);
-			FlowDescriptor flow = getFlow(product.getSecond());
+			Provider product = techIndex.getProviderAt(row);
+			FlowDescriptor flow = product.flow;
 			writeName(flow, buffer);
 			sep(buffer);
 			writeCategory(flow, buffer);
@@ -103,7 +103,7 @@ public class CsvMatrixExport implements Runnable {
 		writeEnviMatrixHeader(buffer, techIndex);
 		ExchangeMatrix matrix = inventory.interventionMatrix;
 		for (int row = 0; row < rows; row++) {
-			FlowDescriptor flow = getFlow(flowIndex.getFlowAt(row));
+			FlowDescriptor flow = flowIndex.at(row);
 			writeName(flow, buffer);
 			sep(buffer);
 			writeCategory(flow, buffer);
@@ -124,8 +124,8 @@ public class CsvMatrixExport implements Runnable {
 		sep(buffer);
 		int columns = techIndex.size();
 		for (int col = 0; col < columns; col++) {
-			LongPair product = techIndex.getProviderAt(col);
-			FlowDescriptor flow = getFlow(product.getSecond());
+			Provider product = techIndex.getProviderAt(col);
+			FlowDescriptor flow = product.flow;
 			writeName(flow, buffer);
 			sep(buffer, col, columns);
 		}
@@ -133,19 +133,16 @@ public class CsvMatrixExport implements Runnable {
 		sep(buffer);
 		sep(buffer);
 		for (int col = 0; col < columns; col++) {
-			LongPair product = techIndex.getProviderAt(col);
-			FlowDescriptor flow = getFlow(product.getSecond());
+			Provider product = techIndex.getProviderAt(col);
+			FlowDescriptor flow = product.flow;
 			writeCategory(flow, buffer);
 			sep(buffer, col, columns);
 		}
 		buffer.newLine();
 	}
 
-	private FlowDescriptor getFlow(long id) {
-		return cache.get(FlowDescriptor.class, id);
-	}
-
-	private void writeName(FlowDescriptor flow, Writer buffer) throws Exception {
+	private void writeName(FlowDescriptor flow, Writer buffer)
+			throws Exception {
 		if (flow == null)
 			return;
 		String name = flow.getName();

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
  * The results of a Monte-Carlo-Simulation. The single result values of the
@@ -68,10 +69,10 @@ public class SimulationResult extends BaseResult {
 				.collect(Collectors.toList());
 	}
 
-	public List<Double> getImpactResults(long impactCategoryId) {
+	public List<Double> getImpactResults(ImpactCategoryDescriptor impact) {
 		if (impactIndex == null)
 			return Collections.emptyList();
-		int idx = impactIndex.of(impactCategoryId);
+		int idx = impactIndex.of(impact);
 		if (idx < 0)
 			return Collections.emptyList();
 		return impactResults[idx];

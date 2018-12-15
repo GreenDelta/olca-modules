@@ -6,23 +6,23 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.core.results.ContributionResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class FlowImpactContributionSheet
 		extends ContributionSheet<FlowDescriptor, ImpactCategoryDescriptor> {
 
 	private final CellWriter writer;
-	private final ContributionResultProvider<?> result;
+	private final ContributionResult result;
 
 	static void write(ResultExport export,
-			ContributionResultProvider<?> result) {
+			ContributionResult result) {
 		new FlowImpactContributionSheet(export, result)
 				.write(export.workbook, export.flows, export.impacts);
 	}
 
 	private FlowImpactContributionSheet(ResultExport export,
-			ContributionResultProvider<?> result) {
+			ContributionResult result) {
 		super(export.writer, ResultExport.FLOW_HEADER,
 				ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
@@ -40,7 +40,7 @@ class FlowImpactContributionSheet
 	@Override
 	protected double getValue(FlowDescriptor flow,
 			ImpactCategoryDescriptor impact) {
-		return result.getFlowContributions(impact).getContribution(flow).amount;
+		return result.getDirectFlowImpact(flow, impact);
 	}
 
 	@Override

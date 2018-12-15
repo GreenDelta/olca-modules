@@ -7,6 +7,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * A provider describes a process or product system which provides a link to one
@@ -66,6 +67,12 @@ public class Provider {
 
 	public LongPair pair() {
 		return LongPair.of(id(), flowId());
+	}
+
+	public Long locationId() {
+		if (entity instanceof ProcessDescriptor)
+			return ((ProcessDescriptor) entity).getLocation();
+		return null;
 	}
 
 }

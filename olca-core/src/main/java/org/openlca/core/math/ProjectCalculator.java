@@ -10,7 +10,7 @@ import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.NwSetDescriptor;
 import org.openlca.core.results.ContributionResult;
-import org.openlca.core.results.ProjectResultProvider;
+import org.openlca.core.results.ProjectResult;
 
 public class ProjectCalculator {
 
@@ -22,8 +22,8 @@ public class ProjectCalculator {
 		this.solver = solver;
 	}
 
-	public ProjectResultProvider solve(Project project, EntityCache cache) {
-		ProjectResultProvider result = new ProjectResultProvider(cache);
+	public ProjectResult solve(Project project, EntityCache cache) {
+		ProjectResult result = new ProjectResult(cache);
 		SystemCalculator calculator = new SystemCalculator(matrixCache, solver);
 		ImpactMethodDescriptor method = getImpactMethod(project);
 		NwSetDescriptor nwSet = getNwSet(project);

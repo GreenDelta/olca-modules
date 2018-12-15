@@ -4,32 +4,32 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.core.results.ContributionResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessImpactContributionSheet
-		extends ContributionSheet<ProcessDescriptor, ImpactCategoryDescriptor> {
+		extends
+		ContributionSheet<CategorizedDescriptor, ImpactCategoryDescriptor> {
 
 	private final CellWriter writer;
-	private final ContributionResultProvider<?> result;
+	private final ContributionResult result;
 
-	static void write(ResultExport export,
-			ContributionResultProvider<?> result) {
+	static void write(ResultExport export, ContributionResult result) {
 		new ProcessImpactContributionSheet(export, result)
 				.write(export.workbook, export.processes, export.impacts);
 	}
 
 	private ProcessImpactContributionSheet(ResultExport export,
-			ContributionResultProvider<?> result) {
+			ContributionResult result) {
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
 		this.result = result;
 	}
 
-	private void write(Workbook workbook, List<ProcessDescriptor> processes,
+	private void write(Workbook workbook, List<CategorizedDescriptor> processes,
 			List<ImpactCategoryDescriptor> impacts) {
 		Sheet sheet = workbook.createSheet("Process impact contributions");
 		header(sheet);
@@ -38,13 +38,13 @@ class ProcessImpactContributionSheet
 	}
 
 	@Override
-	protected double getValue(ProcessDescriptor process,
+	protected double getValue(CategorizedDescriptor process,
 			ImpactCategoryDescriptor impact) {
-		return result.getSingleImpactResult(process, impact).value;
+		return result.getDirectImpactResult(process, impact);
 	}
 
 	@Override
-	protected void subHeaderCol(ProcessDescriptor process, Sheet sheet,
+	protected void subHeaderCol(CategorizedDescriptor process, Sheet sheet,
 			int col) {
 		writer.processCol(sheet, 1, col, process);
 	}

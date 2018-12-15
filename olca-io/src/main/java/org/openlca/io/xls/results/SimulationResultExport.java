@@ -10,11 +10,12 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.results.SimulationResultProvider;
+import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.SimulationStatistics;
 import org.openlca.io.xls.Excel;
 import org.slf4j.Logger;
@@ -23,22 +24,24 @@ import org.slf4j.LoggerFactory;
 /** Exports a simulation result to Excel. */
 public class SimulationResultExport {
 
-	private static final String[] FLOW_HEADER = { "Flow UUID", "Flow", "Category", "Sub-category", "Unit" };
-	private static final String[] IMPACT_HEADER = { "Impact category UUID", "Impact category", "Reference unit" };
+	private static final String[] FLOW_HEADER = { "Flow UUID", "Flow",
+			"Category", "Sub-category", "Unit" };
+	private static final String[] IMPACT_HEADER = { "Impact category UUID",
+			"Impact category", "Reference unit" };
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	private CalculationSetup setup;
-	private SimulationResultProvider<?> result;
+	private SimulationResult result;
 	private EntityCache cache;
 	private int row = 0;
 	private CellWriter writer;
 	private boolean useStreaming = false;
 
 	public SimulationResultExport(CalculationSetup setup,
-			SimulationResultProvider<?> result) {
+			SimulationResult result, IDatabase db) {
 		this.setup = setup;
 		this.result = result;
-		this.cache = result.cache;
+		this.cache = EntityCache.create(db);
 	}
 
 	/**
@@ -70,7 +73,8 @@ public class SimulationResultExport {
 		Sheet sheet = workbook.createSheet("Impact Assessment");
 		row = 0;
 		writerImpactHeader(sheet);
-		List<ImpactCategoryDescriptor> impacts = Sort.impacts(result.getImpactDescriptors());
+		List<ImpactCategoryDescriptor> impacts = Sort
+				.impacts(result.getImpacts());
 		for (ImpactCategoryDescriptor impact : impacts) {
 			writer.impactRow(sheet, row, 1, impact);
 			List<Double> values = result.getImpactResults(impact);
@@ -84,7 +88,7 @@ public class SimulationResultExport {
 	private void writeInventorySheet(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Inventory");
 		row = 0;
-		List<FlowDescriptor> flows = Sort.flows(result.getFlowDescriptors(), cache);
+		List<FlowDescriptor> flows = Sort.flows(result.getFlows(), cache);
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
 		if (!useStreaming) {
@@ -111,7 +115,7 @@ public class SimulationResultExport {
 	private void writeInventorySection(List<FlowDescriptor> flows,
 			boolean forInputs, Sheet sheet) {
 		writeInventoryHeader(sheet, forInputs);
-		FlowIndex idx = result.result.flowIndex;
+		FlowIndex idx = result.flowIndex;
 		for (FlowDescriptor flow : flows) {
 			if (idx.isInput(flow.getId()) != forInputs)
 				continue;

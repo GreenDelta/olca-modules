@@ -18,7 +18,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.ProjectResultProvider;
+import org.openlca.core.results.ProjectResult;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 
@@ -42,12 +42,12 @@ public class ProjectResultExport {
 				});
 	}
 
-	public void run(ProjectResultProvider result) throws Exception {
+	public void run(ProjectResult result) throws Exception {
 		Workbook workbook = new XSSFWorkbook();
 		headerStyle = Excel.headerStyle(workbook);
 		writeInfoSheet(workbook);
 		Sheet inventorySheet = workbook.createSheet("LCI Results");
-		ProjectInventories.write(result, inventorySheet, headerStyle);
+		ProjectInventories.write(result, inventorySheet, headerStyle, cache);
 		if (result.hasImpactResults()) {
 			Sheet impactSheet = workbook.createSheet("LCIA Results");
 			ProjectImpacts.write(result, impactSheet, headerStyle);
@@ -161,7 +161,7 @@ public class ProjectResultExport {
 	}
 
 	private ParameterRedef findRedef(ParameterRedef redef,
-	                                 List<ParameterRedef> redefs) {
+			List<ParameterRedef> redefs) {
 		for (ParameterRedef contained : redefs)
 			if (eq(redef, contained))
 				return contained;

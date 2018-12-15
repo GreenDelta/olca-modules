@@ -6,15 +6,16 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
 import org.openlca.core.math.data_quality.DQResult;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.ContributionResultProvider;
-import org.openlca.core.results.FullResultProvider;
-import org.openlca.core.results.SimpleResultProvider;
+import org.openlca.core.results.ContributionResult;
+import org.openlca.core.results.FullResult;
+import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 import org.openlca.io.xls.results.InfoSheet;
 import org.slf4j.Logger;
@@ -32,21 +33,23 @@ public class ResultExport implements Runnable {
 
 	private final File file;
 	final CalculationSetup setup;
-	final SimpleResultProvider<?> result;
+	final SimpleResult result;
+	final EntityCache cache;
 	DQResult dqResult;
 
 	private boolean success;
-	List<ProcessDescriptor> processes;
+	List<CategorizedDescriptor> processes;
 	List<FlowDescriptor> flows;
 	List<ImpactCategoryDescriptor> impacts;
 	Workbook workbook;
 	CellWriter writer;
 
-	public ResultExport(CalculationSetup setup, SimpleResultProvider<?> result,
-			File file) {
+	public ResultExport(CalculationSetup setup,
+			SimpleResult result, File file, EntityCache cache) {
 		this.setup = setup;
 		this.result = result;
 		this.file = file;
+		this.cache = cache;
 	}
 
 	public void setDQResult(DQResult dqResult) {
@@ -77,9 +80,9 @@ public class ResultExport implements Runnable {
 	}
 
 	private void writeContributionSheets() {
-		if (!(result instanceof ContributionResultProvider))
+		if (!(result instanceof ContributionResult))
 			return;
-		ContributionResultProvider<?> cons = (ContributionResultProvider<?>) result;
+		ContributionResult cons = (ContributionResult) result;
 		ProcessFlowContributionSheet.write(this, cons);
 		if (cons.hasImpactResults()) {
 			ProcessImpactContributionSheet.write(this, cons);
@@ -88,9 +91,9 @@ public class ResultExport implements Runnable {
 	}
 
 	private void writeUpstreamSheets() {
-		if (!(result instanceof FullResultProvider))
+		if (!(result instanceof FullResult))
 			return;
-		FullResultProvider r = (FullResultProvider) result;
+		FullResult r = (FullResult) result;
 		ProcessFlowUpstreamSheet.write(this, r);
 		if (r.hasImpactResults()) {
 			ProcessImpactUpstreamSheet.write(this, r);
@@ -99,11 +102,11 @@ public class ResultExport implements Runnable {
 
 	private void prepare() {
 		processes = Util.processes(result);
-		flows = Util.flows(result);
+		flows = Util.flows(result, cache);
 		impacts = Util.impacts(result);
 		// no default flushing (see Excel.cell)!
 		workbook = new SXSSFWorkbook(-1);
-		writer = new CellWriter(result.cache, workbook);
+		writer = new CellWriter(cache, workbook);
 	}
 
 	public boolean doneWithSuccess() {

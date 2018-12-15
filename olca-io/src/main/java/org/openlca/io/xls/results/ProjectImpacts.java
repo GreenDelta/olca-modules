@@ -8,16 +8,16 @@ import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.results.ContributionItem;
 import org.openlca.core.results.ContributionSet;
-import org.openlca.core.results.ProjectResultProvider;
+import org.openlca.core.results.ProjectResult;
 import org.openlca.io.xls.Excel;
 
 class ProjectImpacts {
 
-	private ProjectResultProvider result;
+	private ProjectResult result;
 	private Sheet sheet;
 	private CellStyle headerStyle;
 
-	public static void write(ProjectResultProvider result, Sheet sheet,
+	public static void write(ProjectResult result, Sheet sheet,
 			CellStyle headerStyle) {
 		ProjectImpacts writer = new ProjectImpacts();
 		writer.result = result;
@@ -31,7 +31,8 @@ class ProjectImpacts {
 
 	private void run() {
 		List<ProjectVariant> variants = Sort.variants(result.getVariants());
-		List<ImpactCategoryDescriptor> impacts = Sort.impacts(result.getImpactDescriptors());
+		List<ImpactCategoryDescriptor> impacts = Sort
+				.impacts(result.getImpacts());
 		int row = 1;
 		header(sheet, row++, 1, "LCIA Results");
 		writeRows(row, variants, impacts);

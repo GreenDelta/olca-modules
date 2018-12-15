@@ -4,28 +4,31 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.ContributionItem;
 import org.openlca.core.results.ContributionSet;
-import org.openlca.core.results.ProjectResultProvider;
+import org.openlca.core.results.ProjectResult;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
 import org.openlca.io.xls.Excel;
 
 class ProjectInventories {
 
-	private ProjectResultProvider result;
+	private ProjectResult result;
 	private Sheet sheet;
 	private CellStyle headerStyle;
+	private EntityCache cache;
 
-	public static void write(ProjectResultProvider result, Sheet sheet,
-	                         CellStyle headerStyle) {
+	public static void write(ProjectResult result, Sheet sheet,
+			CellStyle headerStyle, EntityCache cache) {
 		ProjectInventories writer = new ProjectInventories();
 		writer.result = result;
 		writer.sheet = sheet;
 		writer.headerStyle = headerStyle;
+		writer.cache = cache;
 		writer.run();
 	}
 
@@ -34,7 +37,7 @@ class ProjectInventories {
 
 	private void run() {
 		List<ProjectVariant> variants = Sort.variants(result.getVariants());
-		List<FlowDescriptor> flows = Sort.flows(result.getFlowDescriptors(), result.cache);
+		List<FlowDescriptor> flows = Sort.flows(result.getFlows(), cache);
 		if (variants.isEmpty() || flows.isEmpty())
 			return;
 		int row = 1;
@@ -46,7 +49,7 @@ class ProjectInventories {
 	}
 
 	private int writeRows(int row, List<ProjectVariant> variants,
-	                      List<FlowDescriptor> flows, boolean inputs) {
+			List<FlowDescriptor> flows, boolean inputs) {
 		header(sheet, row, 1, inputs ? "Inputs" : "Outputs");
 		for (int i = 0; i < variants.size(); i++) {
 			int col = i + 6;
@@ -54,7 +57,7 @@ class ProjectInventories {
 		}
 		row++;
 		writeHeader(row++);
-		FlowIndex index = result.getResult(variants.get(0)).result.flowIndex;
+		FlowIndex index = result.getResult(variants.get(0)).flowIndex;
 		for (FlowDescriptor flow : flows) {
 			if (inputs != index.isInput(flow.getId()))
 				continue;
@@ -81,7 +84,8 @@ class ProjectInventories {
 		CategoryPair flowCat = CategoryPair.create(flow, result.cache);
 		Excel.cell(sheet, row, col++, flowCat.getCategory());
 		Excel.cell(sheet, row, col++, flowCat.getSubCategory());
-		Excel.cell(sheet, row, col++, DisplayValues.referenceUnit(flow, result.cache));
+		Excel.cell(sheet, row, col++,
+				DisplayValues.referenceUnit(flow, result.cache));
 	}
 
 	private void writeHeader(int row) {

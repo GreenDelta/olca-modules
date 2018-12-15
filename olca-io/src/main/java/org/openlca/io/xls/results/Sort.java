@@ -9,26 +9,29 @@ import java.util.List;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.ProjectVariant;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.util.Strings;
 
 public class Sort {
 
-	public static List<ImpactCategoryDescriptor> impacts(Collection<ImpactCategoryDescriptor> impacts) {
+	public static List<ImpactCategoryDescriptor> impacts(
+			Collection<ImpactCategoryDescriptor> impacts) {
 		List<ImpactCategoryDescriptor> list = new ArrayList<>(impacts);
 		Collections.sort(list, new Comparator<ImpactCategoryDescriptor>() {
 			@Override
-			public int compare(ImpactCategoryDescriptor o1, ImpactCategoryDescriptor o2) {
+			public int compare(ImpactCategoryDescriptor o1,
+					ImpactCategoryDescriptor o2) {
 				return Strings.compare(o1.getName(), o2.getName());
 			}
 		});
 		return list;
 	}
 
-	public static List<ProjectVariant> variants(Collection<ProjectVariant> variants) {
+	public static List<ProjectVariant> variants(
+			Collection<ProjectVariant> variants) {
 		List<ProjectVariant> list = new ArrayList<>(variants);
 		Collections.sort(list, new Comparator<ProjectVariant>() {
 			@Override
@@ -39,11 +42,13 @@ public class Sort {
 		return list;
 	}
 
-	public static List<ProcessDescriptor> processes(Collection<ProcessDescriptor> processes, long refProcessId) {
-		List<ProcessDescriptor> list = new ArrayList<>(processes);
-		Collections.sort(list, new Comparator<ProcessDescriptor>() {
+	public static List<CategorizedDescriptor> processes(
+			Collection<CategorizedDescriptor> processes, long refProcessId) {
+		List<CategorizedDescriptor> list = new ArrayList<>(processes);
+		Collections.sort(list, new Comparator<CategorizedDescriptor>() {
 			@Override
-			public int compare(ProcessDescriptor o1, ProcessDescriptor o2) {
+			public int compare(CategorizedDescriptor o1,
+					CategorizedDescriptor o2) {
 				if (o1.getId() == refProcessId)
 					return -1;
 				if (o2.getId() == refProcessId)
@@ -54,7 +59,8 @@ public class Sort {
 		return list;
 	}
 
-	public static List<FlowDescriptor> flows(Collection<FlowDescriptor> flows, EntityCache cache) {
+	public static List<FlowDescriptor> flows(Collection<FlowDescriptor> flows,
+			EntityCache cache) {
 		if (flows == null)
 			return Collections.emptyList();
 		ArrayList<FlowDescriptor> sorted = new ArrayList<>(flows);

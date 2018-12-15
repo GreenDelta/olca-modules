@@ -28,7 +28,8 @@ class FlowInfo implements Comparable<FlowInfo> {
 	private String subCategory;
 	private String location;
 
-	public static List<FlowInfo> getAll(SystemExportConfig conf, FlowIndex index) {
+	public static List<FlowInfo> getAll(SystemExportConfig conf,
+			FlowIndex index) {
 		EntityCache cache = conf.getEntityCache();
 		Set<FlowDescriptor> flows = getFlowDescriptors(cache, index);
 		List<FlowInfo> infos = new ArrayList<>();
@@ -54,13 +55,14 @@ class FlowInfo implements Comparable<FlowInfo> {
 	}
 
 	private static Set<FlowDescriptor> getFlowDescriptors(EntityCache cache,
-	                                                      FlowIndex index) {
+			FlowIndex index) {
 		if (index == null)
 			return Collections.emptySet();
 		List<Long> ids = new ArrayList<>(index.size());
-		for (long id : index.getFlowIds())
+		for (long id : index.ids())
 			ids.add(id);
-		Map<Long, FlowDescriptor> values = cache.getAll(FlowDescriptor.class, ids);
+		Map<Long, FlowDescriptor> values = cache.getAll(FlowDescriptor.class,
+				ids);
 		HashSet<FlowDescriptor> descriptors = new HashSet<>();
 		descriptors.addAll(values.values());
 		return descriptors;

@@ -7,20 +7,17 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.DataStructures;
+import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.LongIndex;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.AllocationMethod;
@@ -68,7 +65,8 @@ public class SystemExport {
 		createElementaryCoverSheet(elementaryWorkbook,
 				conf.getAllocationMethod());
 		createElementarySheet(elementaryWorkbook);
-		writeToFile(elementaryWorkbook, new File(subDir, FILE_NAMES.ELEMENTARY));
+		writeToFile(elementaryWorkbook,
+				new File(subDir, FILE_NAMES.ELEMENTARY));
 	}
 
 	private void createProductWorkbook(File subDir) throws IOException {
@@ -225,7 +223,8 @@ public class SystemExport {
 		for (FlowInfo info : sortedFlows) {
 			entries.add(new FlowHeaderEntry(info));
 		}
-		header.setEntries(entries.toArray(new IExcelHeaderEntry[entries.size()]));
+		header.setEntries(
+				entries.toArray(new IExcelHeaderEntry[entries.size()]));
 		return header;
 	}
 
@@ -243,7 +242,8 @@ public class SystemExport {
 		return header;
 	}
 
-	private ExcelHeader createImpactCategoryHeader(LongIndex impactIndex) {
+	private ExcelHeader createImpactCategoryHeader(
+			DIndex<ImpactCategoryDescriptor> impactIndex) {
 		ExcelHeader header = new ExcelHeader();
 		header.setHeaders(HEADERS.IMPACT_CATEGORY.VALUES);
 		List<IExcelHeaderEntry> headerEntries = new ArrayList<>();
@@ -302,52 +302,36 @@ public class SystemExport {
 		Collections.sort(sortedFlows);
 		int counter = 0;
 		for (FlowInfo flow : sortedFlows) {
-			header.putIndexMapping(counter,
-					flowIndex.getIndex(flow.getRealId()));
+			header.putIndexMapping(counter, flowIndex.of(flow.getRealId()));
 			counter++;
 		}
 		return sortedFlows;
 	}
 
-	private List<ProductInfo> mapProductIndices(ExcelHeader header, TechIndex index) {
+	private List<ProductInfo> mapProductIndices(ExcelHeader header,
+			TechIndex index) {
 		List<ProductInfo> products = ProductInfo.getAll(conf, index);
 		Collections.sort(products);
 		int i = 0;
 		for (ProductInfo product : products) {
-			header.putIndexMapping(i, index.getIndex(product.getLongPair()));
+			header.putIndexMapping(i, index.getIndex(product.provider));
 			i++;
 		}
 		return products;
 	}
 
 	private List<ImpactCategoryDescriptor> mapImpactCategoryIndices(
-			ExcelHeader header, LongIndex impactIndex) {
-		Set<ImpactCategoryDescriptor> impacts = getImpacts(impactIndex,
-				conf.getEntityCache());
+			ExcelHeader header, DIndex<ImpactCategoryDescriptor> impactIndex) {
+		Set<ImpactCategoryDescriptor> impacts = impactIndex.content();
 		List<ImpactCategoryDescriptor> sortedCategories = new ArrayList<>(
 				impacts);
 		Collections.sort(sortedCategories);
 		int counter = 0;
 		for (ImpactCategoryDescriptor category : sortedCategories) {
-			header.putIndexMapping(counter,
-					impactIndex.getIndex(category.getId()));
+			header.putIndexMapping(counter, impactIndex.of(category));
 			counter++;
 		}
 		return sortedCategories;
-	}
-
-	private Set<ImpactCategoryDescriptor> getImpacts(LongIndex index,
-			EntityCache cache) {
-		if (index == null)
-			return Collections.emptySet();
-		List<Long> ids = new ArrayList<>(index.size());
-		for (long id : index.getKeys())
-			ids.add(id);
-		Map<Long, ImpactCategoryDescriptor> values = cache.getAll(
-				ImpactCategoryDescriptor.class, ids);
-		HashSet<ImpactCategoryDescriptor> descriptors = new HashSet<>();
-		descriptors.addAll(values.values());
-		return descriptors;
 	}
 
 	private IMatrix transpose(IMatrix matrix) {
@@ -502,24 +486,23 @@ public class SystemExport {
 		private String getValue(String header) {
 			switch (header) {
 			case HEADERS.PRODUCT.PROCESS_NAME:
-				return productInfo.getProcess();
+				return productInfo.process;
 			case HEADERS.PRODUCT.PRODUCT_NAME:
-				return productInfo.getProduct();
+				return productInfo.product;
 			case HEADERS.PRODUCT.MULTI_OUTPUT:
-				return Boolean.toString(productInfo.isFromMultiOutputProcess());
+				return Boolean.toString(productInfo.fromMultiOutputProcess);
 			case HEADERS.PRODUCT.UUID:
-				return productInfo.getProductId();
+				return productInfo.productId;
 			case HEADERS.PRODUCT.INFRASTRUCTURE_PRODUCT:
-				return Boolean.toString(productInfo
-						.isFromInfrastructureProcess());
+				return Boolean.toString(productInfo.fromInfrastructureProcess);
 			case HEADERS.PRODUCT.PROCESS_LOCATION:
-				return productInfo.getProcessLocation();
+				return productInfo.processLocation;
 			case HEADERS.PRODUCT.PROCESS_CATEGORY:
-				return productInfo.getProcessCategory();
+				return productInfo.processCategory;
 			case HEADERS.PRODUCT.PROCESS_SUB_CATEGORY:
-				return productInfo.getProcessSubCategory();
+				return productInfo.processSubCategory;
 			case HEADERS.PRODUCT.PRODUCT_UNIT:
-				return productInfo.getProductUnit();
+				return productInfo.productUnit;
 			}
 			return null;
 		}

@@ -14,6 +14,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -40,12 +41,16 @@ public class CellWriter {
 	/**
 	 * Writes the process information into the given row, starting in column col
 	 */
-	public void processCol(Sheet sheet, int row, int col, ProcessDescriptor process) {
+	public void processCol(Sheet sheet, int row, int col,
+			CategorizedDescriptor process) {
 		cell(sheet, row++, col, process.getRefId(), false);
 		cell(sheet, row++, col, process.getName(), false);
-		if (process.getLocation() == null)
+		if (!(process instanceof ProcessDescriptor))
 			return;
-		Location loc = cache.get(Location.class, process.getLocation());
+		ProcessDescriptor p = (ProcessDescriptor) process;
+		if (p.getLocation() == null)
+			return;
+		Location loc = cache.get(Location.class, p.getLocation());
 		String code = loc == null ? "" : loc.getCode();
 		cell(sheet, row++, col, code, false);
 	}
@@ -54,7 +59,8 @@ public class CellWriter {
 	 * Writes the impact category information into the given row, starting in
 	 * column col
 	 */
-	public void impactRow(Sheet sheet, int row, int col, ImpactCategoryDescriptor impact) {
+	public void impactRow(Sheet sheet, int row, int col,
+			ImpactCategoryDescriptor impact) {
 		cell(sheet, row, col++, impact.getRefId(), false);
 		cell(sheet, row, col++, impact.getName(), false);
 		cell(sheet, row, col++, impact.getReferenceUnit(), false);
@@ -75,16 +81,23 @@ public class CellWriter {
 		flow(sheet, row, col, flow, false);
 	}
 
-	private void flow(Sheet sheet, int row, int col, FlowDescriptor flow, boolean isRow) {
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.getRefId(), false);
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.getName(), false);
+	private void flow(Sheet sheet, int row, int col, FlowDescriptor flow,
+			boolean isRow) {
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.getRefId(),
+				false);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.getName(),
+				false);
 		CategoryPair flowCat = CategoryPair.create(flow, cache);
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flowCat.getCategory(), false);
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flowCat.getSubCategory(), false);
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flowUnit(flow), false);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++,
+				flowCat.getCategory(), false);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++,
+				flowCat.getSubCategory(), false);
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flowUnit(flow),
+				false);
 	}
 
-	public int dataQuality(Sheet sheet, int row, int col, double[] quality, RoundingMode rounding, int scores) {
+	public int dataQuality(Sheet sheet, int row, int col, double[] quality,
+			RoundingMode rounding, int scores) {
 		return dataQuality(sheet, row, col, quality, rounding, scores, false);
 	}
 
@@ -92,7 +105,8 @@ public class CellWriter {
 	 * Writes the given data quality information into the given row, starting
 	 * with column col
 	 */
-	private int dataQuality(Sheet sheet, int row, int col, double[] quality, RoundingMode rounding, int scores,
+	private int dataQuality(Sheet sheet, int row, int col, double[] quality,
+			RoundingMode rounding, int scores,
 			boolean bold) {
 		if (scores == 0 || quality == null)
 			return col;
@@ -100,7 +114,9 @@ public class CellWriter {
 			double value = quality[i];
 			if (value == 0d)
 				continue;
-			int score = (int) (rounding == RoundingMode.CEILING ? Math.ceil(value) : Math.round(value));
+			int score = (int) (rounding == RoundingMode.CEILING
+					? Math.ceil(value)
+					: Math.round(value));
 			Color color = DQColors.get(score, scores);
 			cell(sheet, row, col + i, Integer.toString(score), color, bold);
 		}
@@ -111,7 +127,8 @@ public class CellWriter {
 	 * Writes the data quality indicators of the given system into the given
 	 * row, starting with column col.
 	 */
-	public int dataQualityHeader(Sheet sheet, int row, int col, DQSystem system) {
+	public int dataQualityHeader(Sheet sheet, int row, int col,
+			DQSystem system) {
 		Collections.sort(system.indicators);
 		for (DQIndicator indicator : system.indicators) {
 			String name = Integer.toString(indicator.position);
@@ -153,7 +170,8 @@ public class CellWriter {
 		}
 	}
 
-	private void cell(Sheet sheet, int row, int col, Object val, Color color, boolean bold) {
+	private void cell(Sheet sheet, int row, int col, Object val, Color color,
+			boolean bold) {
 		if (bold) {
 			cell(sheet, row, col, val, styles.bold(color));
 		} else {
@@ -161,7 +179,8 @@ public class CellWriter {
 		}
 	}
 
-	void wrappedCell(Sheet sheet, int row, int col, Object val, Color color, boolean bold) {
+	void wrappedCell(Sheet sheet, int row, int col, Object val, Color color,
+			boolean bold) {
 		Cell cell = null;
 		if (bold) {
 			cell = cell(sheet, row, col, val, styles.bold(color));
@@ -171,7 +190,8 @@ public class CellWriter {
 		cell.getCellStyle().setWrapText(true);
 	}
 
-	private Cell cell(Sheet sheet, int row, int col, Object val, CellStyle style) {
+	private Cell cell(Sheet sheet, int row, int col, Object val,
+			CellStyle style) {
 		Cell cell = null;
 		if (val instanceof Number) {
 			cell = Excel.cell(sheet, row, col, ((Number) val).doubleValue());
@@ -180,7 +200,8 @@ public class CellWriter {
 			cell.setCellValue((Date) val);
 			style = styles.date();
 		} else {
-			cell = Excel.cell(sheet, row, col, val == null ? "" : val.toString());
+			cell = Excel.cell(sheet, row, col,
+					val == null ? "" : val.toString());
 		}
 		cell.setCellStyle(style);
 		return cell;

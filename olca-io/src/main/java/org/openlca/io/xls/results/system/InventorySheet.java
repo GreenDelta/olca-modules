@@ -8,14 +8,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.results.SimpleResultProvider;
+import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class InventorySheet {
 
 	private final CellWriter writer;
 	private final Workbook workbook;
-	private final SimpleResultProvider<?> result;
+	private final SimpleResult result;
 	private final DQResult dqResult;
 	private final List<FlowDescriptor> flows;
 	private Sheet sheet;
@@ -66,7 +66,7 @@ class InventorySheet {
 		int row = 3;
 		int resultStartCol = ResultExport.FLOW_HEADER.length;
 		for (FlowDescriptor flow : flows) {
-			double value = result.getTotalFlowResult(flow).value;
+			double value = result.getTotalFlowResult(flow);
 			writer.flowRow(sheet, row, col, flow);
 			writer.cell(sheet, row, resultStartCol + col, value);
 			if (dqResult == null) {

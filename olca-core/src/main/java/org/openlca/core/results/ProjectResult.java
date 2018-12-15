@@ -11,18 +11,17 @@ import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * A project result is a wrapper for the inventory results of the respective
  * project variants.
  */
-public class ProjectResultProvider implements IResult {
+public class ProjectResult implements IResult {
 
 	private HashMap<ProjectVariant, ContributionResult> results = new HashMap<>();
 	public final EntityCache cache;
 
-	public ProjectResultProvider(EntityCache cache) {
+	public ProjectResult(EntityCache cache) {
 		this.cache = cache;
 	}
 

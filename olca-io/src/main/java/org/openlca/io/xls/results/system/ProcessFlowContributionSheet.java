@@ -4,32 +4,31 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.core.results.ContributionResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessFlowContributionSheet
-		extends ContributionSheet<ProcessDescriptor, FlowDescriptor> {
+		extends ContributionSheet<CategorizedDescriptor, FlowDescriptor> {
 
 	private final CellWriter writer;
-	private final ContributionResultProvider<?> result;
+	private final ContributionResult result;
 
-	static void write(ResultExport export,
-			ContributionResultProvider<?> result) {
+	static void write(ResultExport export, ContributionResult result) {
 		new ProcessFlowContributionSheet(export, result)
 				.write(export.workbook, export.processes, export.flows);
 	}
 
 	private ProcessFlowContributionSheet(ResultExport export,
-			ContributionResultProvider<?> result) {
+			ContributionResult result) {
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
 		this.result = result;
 	}
 
-	private void write(Workbook workbook, List<ProcessDescriptor> processes,
+	private void write(Workbook workbook, List<CategorizedDescriptor> processes,
 			List<FlowDescriptor> flows) {
 		Sheet sheet = workbook.createSheet("Process flow contributions");
 		header(sheet);
@@ -38,12 +37,13 @@ class ProcessFlowContributionSheet
 	}
 
 	@Override
-	protected double getValue(ProcessDescriptor process, FlowDescriptor flow) {
-		return result.getSingleFlowResult(process, flow).value;
+	protected double getValue(CategorizedDescriptor process,
+			FlowDescriptor flow) {
+		return result.getDirectFlowResult(process, flow);
 	}
 
 	@Override
-	protected void subHeaderCol(ProcessDescriptor process, Sheet sheet,
+	protected void subHeaderCol(CategorizedDescriptor process, Sheet sheet,
 			int col) {
 		writer.processCol(sheet, 1, col, process);
 	}
