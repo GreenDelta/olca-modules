@@ -12,7 +12,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
-public abstract class BaseResult {
+public abstract class BaseResult implements IResult {
 
 	/**
 	 * The index of the technology matrix that maps the process-flow pairs
@@ -34,24 +34,15 @@ public abstract class BaseResult {
 	 */
 	public DIndex<ImpactCategoryDescriptor> impactIndex;
 
-	/**
-	 * Returns true when this result contains LCIA results.
-	 */
+	@Override
 	public boolean hasImpactResults() {
 		return impactIndex != null && !impactIndex.isEmpty();
 	}
 
-	/**
-	 * Returns true when this result contains (elementary) flow results.
-	 */
+	@Override
 	public boolean hasFlowResults() {
 		return flowIndex != null && !flowIndex.isEmpty();
 	}
-
-	/**
-	 * Returns true when this result contains LCC results.
-	 */
-	public abstract boolean hasCostResults();
 
 	/** Returns true when the given flow is an input flow. */
 	public boolean isInput(FlowDescriptor flow) {
@@ -60,18 +51,14 @@ public abstract class BaseResult {
 		return flowIndex.isInput(flow);
 	}
 
-	/**
-	 * Get the (elementary) flows of the inventory result.
-	 */
+	@Override
 	public Set<FlowDescriptor> getFlows() {
 		if (flowIndex == null)
 			return Collections.emptySet();
 		return flowIndex.content();
 	}
 
-	/**
-	 * Get the LCIA categories of the LCIA result.
-	 */
+	@Override
 	public Set<ImpactCategoryDescriptor> getImpacts() {
 		if (impactIndex == null)
 			return Collections.emptySet();

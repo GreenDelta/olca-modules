@@ -78,8 +78,8 @@ public class SystemProcess {
 			if (flow == null)
 				return;
 			Exchange e = p.exchange(flow);
-			e.isInput = flowResult.input;
-			e.amount = flowResult.value;
+			e.isInput = result.flowIndex.isInput(d);
+			e.amount = amount;
 		});
 	}
 

@@ -51,6 +51,11 @@ public class ContributionResult extends SimpleResult {
 	 */
 	public IMatrix impactFactors;
 
+	@Override
+	public boolean hasCostResults() {
+		return singleCostResults != null;
+	}
+
 	/**
 	 * Get the single flow result of the flow with the given ID for the given
 	 * process-product. Inputs have negative values here.

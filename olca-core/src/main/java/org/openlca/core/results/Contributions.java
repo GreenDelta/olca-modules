@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 
 public final class Contributions {
 
@@ -25,14 +26,14 @@ public final class Contributions {
 	 * (contributionItem.isRest = true) if the item in the collection is null).
 	 */
 	public static <T> ContributionSet<T> calculate(Collection<T> items,
-			double totalAmount, Function<T> fn) {
+			double totalAmount, ToDoubleFunction<T> fn) {
 		List<ContributionItem<T>> contributions = new ArrayList<>();
 		double total = Math.abs(totalAmount);
 		for (T item : items) {
 			ContributionItem<T> contribution = new ContributionItem<>();
 			contribution.rest = item == null;
 			contribution.item = item;
-			double val = fn.value(item);
+			double val = fn.applyAsDouble(item);
 			contribution.amount = val;
 			if (total != 0)
 				contribution.share = val / total;
@@ -42,13 +43,13 @@ public final class Contributions {
 	}
 
 	public static <T> ContributionSet<T> calculate(Collection<T> items,
-			Function<T> fn) {
+			ToDoubleFunction<T> fn) {
 		List<ContributionItem<T>> contributions = new ArrayList<>();
 		for (T item : items) {
 			ContributionItem<T> contribution = new ContributionItem<>();
 			contribution.rest = item == null;
 			contribution.item = item;
-			double val = fn.value(item);
+			double val = fn.applyAsDouble(item);
 			contribution.amount = val;
 			contributions.add(contribution);
 		}
@@ -122,13 +123,6 @@ public final class Contributions {
 		}
 		list.add(restItem);
 		return list;
-	}
-
-	@FunctionalInterface
-	public interface Function<T> {
-
-		double value(T t);
-
 	}
 
 	private static class Sorter implements Comparator<ContributionItem<?>> {

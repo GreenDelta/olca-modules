@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -17,10 +18,10 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  */
 public class LocationContribution {
 
-	private ContributionResultProvider<?> result;
+	private ContributionResult result;
 	private Map<Location, List<ProcessDescriptor>> index = new HashMap<>();
 
-	public LocationContribution(ContributionResultProvider<?> result) {
+	public LocationContribution(ContributionResult result) {
 		this.result = result;
 		initProcessIndex();
 	}
@@ -29,7 +30,7 @@ public class LocationContribution {
 		if (result == null)
 			return;
 		EntityCache cache = result.cache;
-		for (ProcessDescriptor process : result.getProcessDescriptors()) {
+		for (CategorizedDescriptor process : result.getProviderHosts()) {
 			Location loc = null;
 			if (process.getLocation() != null)
 				loc = cache.get(Location.class, process.getLocation());
