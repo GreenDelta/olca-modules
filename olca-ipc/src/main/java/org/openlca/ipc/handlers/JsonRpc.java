@@ -4,7 +4,6 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.results.FlowResult;
 import org.openlca.core.results.ImpactResult;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.core.results.SimpleResultProvider;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -24,11 +23,9 @@ class JsonRpc {
 		if (r == null)
 			return obj;
 		obj.addProperty("@type", r.getClass().getSimpleName());
-		SimpleResultProvider<SimpleResult> provider = new SimpleResultProvider<>(
-				r, cache);
 		JsonArray flowResults = new JsonArray();
 		obj.add("flowResults", flowResults);
-		for (FlowResult flowResult : provider.getTotalFlowResults()) {
+		for (FlowResult flowResult : r.getTotalFlowResults()) {
 			JsonObject item = JsonRpc.encode(flowResult, cache);
 			if (item != null) {
 				flowResults.add(item);
@@ -38,7 +35,7 @@ class JsonRpc {
 			return obj;
 		JsonArray impactResults = new JsonArray();
 		obj.add("impactResults", impactResults);
-		for (ImpactResult impact : provider.getTotalImpactResults()) {
+		for (ImpactResult impact : r.getTotalImpactResults()) {
 			JsonObject item = JsonRpc.encode(impact, cache);
 			if (item != null)
 				impactResults.add(item);

@@ -4,14 +4,8 @@ import java.io.File;
 
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.Simulator;
-import org.openlca.core.results.ContributionResult;
-import org.openlca.core.results.ContributionResultProvider;
-import org.openlca.core.results.FullResult;
-import org.openlca.core.results.FullResultProvider;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.core.results.SimpleResultProvider;
 import org.openlca.core.results.SimulationResult;
-import org.openlca.core.results.SimulationResultProvider;
 import org.openlca.io.xls.results.SimulationResultExport;
 import org.openlca.io.xls.results.system.ResultExport;
 import org.openlca.ipc.Responses;
@@ -57,8 +51,9 @@ public class ExportHandler {
 	private RpcResponse exportSimpleResult(RpcRequest req, String path,
 			CachedResult<?> r) {
 		ResultExport export = new ResultExport(r.setup,
-				getProvider((SimpleResult) r.result),
-				new File(path));
+				(SimpleResult) r.result,
+				new File(path),
+				EntityCache.create(context.db));
 		export.run();
 		if (export.doneWithSuccess())
 			return Responses.ok("Exported to " + path, req);
@@ -66,25 +61,12 @@ public class ExportHandler {
 			return Responses.internalServerError("Export failed", req);
 	}
 
-	private SimpleResultProvider<?> getProvider(
-			SimpleResult r) {
-		EntityCache cache = EntityCache.create(context.db);
-		if (r instanceof FullResult)
-			return new FullResultProvider((FullResult) r, cache);
-		if (r instanceof ContributionResult)
-			return new ContributionResultProvider<>(
-					(ContributionResult) r, cache);
-		return new SimpleResultProvider<>(r, cache);
-	}
-
 	private RpcResponse exportSimulationResult(RpcRequest req, String path,
 			CachedResult<?> r) {
 		Simulator simulator = (Simulator) r.result;
 		SimulationResult result = simulator.getResult();
-		SimulationResultProvider<SimulationResult> provider = new SimulationResultProvider<>(
-				result, EntityCache.create(context.db));
 		SimulationResultExport export = new SimulationResultExport(
-				r.setup, provider);
+				r.setup, result, context.db);
 		try {
 			export.run(new File(path));
 			return Responses.ok("Exported to " + path, req);
