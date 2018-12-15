@@ -10,9 +10,9 @@ import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -76,7 +76,7 @@ public class RegionalizedCalculator {
 			IMatrix assessedEnvi = solver.multiply(factors, m.enviMatrix);
 			eachKml(regioSetup, impactTable, interpreter, (kml, kmlFactors) -> {
 				IMatrix assessedKml = solver.multiply(kmlFactors, m.enviMatrix);
-				for (LongPair product : kml.processProducts) {
+				for (Provider product : kml.processProducts) {
 					int col = r.techIndex.getIndex(product);
 					for (int row = 0; row < assessedEnvi.rows(); row++) {
 						assessedEnvi.set(row, col, assessedKml.get(row, col));
@@ -103,7 +103,6 @@ public class RegionalizedCalculator {
 
 			// add LCC results
 			if (setup.withCosts) {
-				r.hasCostResults = true;
 
 				// direct LCC
 				double[] costValues = CostVector.build(inventory, db);
@@ -117,7 +116,7 @@ public class RegionalizedCalculator {
 				IMatrix costMatrix = CostVector.asMatrix(solver, costValues);
 				IMatrix upstreamCosts = solver.multiply(costMatrix, inverse);
 				solver.scaleColumns(upstreamCosts, demands);
-				r.totalCostResult = upstreamCosts.get(0, refIdx);
+				r.totalCosts = upstreamCosts.get(0, refIdx);
 				r.upstreamCostResults = upstreamCosts;
 			}
 

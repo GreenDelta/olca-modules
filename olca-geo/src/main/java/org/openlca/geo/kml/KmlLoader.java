@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.util.BinUtils;
 import org.slf4j.Logger;
@@ -41,13 +41,13 @@ public class KmlLoader implements IKmlLoader {
 			queryLocationTable();
 			List<LocationKml> results = new ArrayList<>();
 			for (int i = 0; i < index.size(); i++) {
-				LongPair product = index.getProviderAt(i);
-				LocationKml result = getFeatureResult(product.getFirst());
+				Provider provider = index.getProviderAt(i);
+				LocationKml result = getFeatureResult(provider.id());
 				if (result == null)
 					continue;
 				if (!results.contains(result))
 					results.add(result);
-				result.processProducts.add(product);
+				result.processProducts.add(provider);
 			}
 			return results;
 		} catch (Exception e) {
