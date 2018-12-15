@@ -125,7 +125,7 @@ public class FullResult extends ContributionResult {
 			r.impactCategory = impact;
 			r.value = getUpstreamImpactResult(process, impact);
 			results.add(r);
-		}
+		});
 		return results;
 	}
 

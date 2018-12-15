@@ -3,6 +3,9 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.openlca.core.model.descriptors.FlowDescriptor;
 
 /**
  * The results of a Monte-Carlo-Simulation. The single result values of the
@@ -56,11 +59,13 @@ public class SimulationResult extends BaseResult {
 		}
 	}
 
-	public List<Double> getFlowResults(long flowId) {
-		int idx = flowIndex.of(flowId);
+	public List<Double> getFlowResults(FlowDescriptor flow) {
+		int idx = flowIndex.of(flow);
 		if (idx < 0)
 			return Collections.emptyList();
-		return flowResults[idx];
+		return flowResults[idx].stream()
+				.map(v -> adopt(flow, v))
+				.collect(Collectors.toList());
 	}
 
 	public List<Double> getImpactResults(long impactCategoryId) {
@@ -80,6 +85,12 @@ public class SimulationResult extends BaseResult {
 			return 0;
 		else
 			return first.size();
+	}
+
+	// TODO: no LCC for Monte Carlo simulations ?
+	@Override
+	public boolean hasCostResults() {
+		return false;
 	}
 
 }

@@ -44,7 +44,7 @@ public abstract class BaseResult implements IResult {
 		return flowIndex != null && !flowIndex.isEmpty();
 	}
 
-	/** Returns true when the given flow is an input flow. */
+	@Override
 	public boolean isInput(FlowDescriptor flow) {
 		if (flowIndex == null)
 			return false;
@@ -76,15 +76,18 @@ public abstract class BaseResult implements IResult {
 		return techIndex.content();
 	}
 
-	/**
-	 * Get the descriptors of the processes and product systems (the
-	 * sub-systems) of the inventory model; the elements that provide a product
-	 * output or a waste input (for treatment).
-	 */
-	public Set<CategorizedDescriptor> getProviderHosts() {
+	@Override
+	public Set<CategorizedDescriptor> getProcesses() {
 		return getProviders().stream()
 				.map(p -> p.entity)
 				.collect(Collectors.toSet());
+	}
+
+	/** Switches the sign for input-flows. */
+	protected double adopt(FlowDescriptor flow, double value) {
+		if (value == 0)
+			return 0; // avoid -0 in the results
+		return flowIndex.isInput(flow) ? -value : value;
 	}
 
 }

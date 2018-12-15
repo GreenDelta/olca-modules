@@ -41,7 +41,6 @@ public class LcaCalculator {
 		}
 
 		if (data.costVector != null) {
-			result.hasCostResults = true;
 			addTotalCosts(result, s);
 		}
 
@@ -73,7 +72,6 @@ public class LcaCalculator {
 		}
 
 		if (data.costVector != null) {
-			result.hasCostResults = true;
 			addTotalCosts(result, s);
 			addDirectCosts(result, s);
 		}
@@ -126,12 +124,11 @@ public class LcaCalculator {
 		}
 
 		if (data.costVector != null) {
-			result.hasCostResults = true;
 			addDirectCosts(result, scalingVector);
 			IMatrix costValues = CostVector.asMatrix(solver, data.costVector);
 			IMatrix upstreamCosts = solver.multiply(costValues, inverse);
 			solver.scaleColumns(upstreamCosts, demands);
-			result.totalCostResult = upstreamCosts.get(0, refIdx);
+			result.totalCosts = upstreamCosts.get(0, refIdx);
 			result.upstreamCostResults = upstreamCosts;
 		}
 
@@ -142,11 +139,11 @@ public class LcaCalculator {
 	/**
 	 * Calculates the scaling vector for the reference product i from the given
 	 * inverse of the technology matrix:
-	 * 
+	 *
 	 * s = d[i] .* Inverse[:, i]
-	 * 
+	 *
 	 * where d is the demand vector and.
-	 * 
+	 *
 	 */
 	public double[] getScalingVector(IMatrix inverse, TechIndex techIndex) {
 		Provider refProduct = techIndex.getRefFlow();
@@ -161,11 +158,11 @@ public class LcaCalculator {
 	/**
 	 * Calculates the total requirements of the respective product amounts to
 	 * fulfill the demand of the product system:
-	 * 
+	 *
 	 * tr = s .* diag(A)
-	 * 
+	 *
 	 * where s is the scaling vector and A the technology matrix.
-	 * 
+	 *
 	 */
 	public double[] getTotalRequirements(IMatrix techMatrix,
 			double[] scalingVector) {
@@ -225,7 +222,7 @@ public class LcaCalculator {
 		for (int i = 0; i < scalingVector.length; i++) {
 			total += scalingVector[i] * costValues[i];
 		}
-		result.totalCostResult = total;
+		result.totalCosts = total;
 	}
 
 	private void addDirectCosts(ContributionResult result,

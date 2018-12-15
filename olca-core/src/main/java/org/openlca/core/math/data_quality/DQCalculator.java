@@ -81,7 +81,7 @@ class DQCalculator {
 	}
 
 	private double getFlowResult(long processId, long flowId) {
-		return Math.abs(result.getSingleFlowResult(processId, flowId));
+		return Math.abs(result.getDirectFlowResult(processId, flowId));
 	}
 
 	Map<Long, double[]> getFlowValues() {

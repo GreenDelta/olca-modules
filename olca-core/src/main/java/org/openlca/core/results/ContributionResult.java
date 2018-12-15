@@ -100,7 +100,7 @@ public class ContributionResult extends SimpleResult {
 	public ContributionSet<CategorizedDescriptor> getProcessContributions(
 			FlowDescriptor flow) {
 		return Contributions.calculate(
-				getProviderHosts(),
+				getProcesses(),
 				getTotalFlowResult(flow),
 				d -> getDirectFlowResult(d, flow));
 	}
@@ -150,7 +150,7 @@ public class ContributionResult extends SimpleResult {
 	public ContributionSet<CategorizedDescriptor> getProcessContributions(
 			ImpactCategoryDescriptor impact) {
 		return Contributions.calculate(
-				getProviderHosts(),
+				getProcesses(),
 				getTotalImpactResult(impact),
 				d -> getDirectImpactResult(d, impact));
 	}
@@ -174,7 +174,7 @@ public class ContributionResult extends SimpleResult {
 
 	public ContributionSet<CategorizedDescriptor> getProcessCostContributions() {
 		return Contributions.calculate(
-				getProviderHosts(),
+				getProcesses(),
 				totalCosts,
 				d -> getDirectCostResult(d));
 	}

@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.openlca.core.database.EntityCache;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -19,27 +22,32 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 public class LocationContribution {
 
 	private ContributionResult result;
-	private Map<Location, List<ProcessDescriptor>> index = new HashMap<>();
 
-	public LocationContribution(ContributionResult result) {
+	// TODO: using lists of Provider instances could be a bit faster
+	private Map<Location, List<CategorizedDescriptor>> index = new HashMap<>();
+
+	public LocationContribution(ContributionResult result, EntityCache cache) {
 		this.result = result;
-		initProcessIndex();
+		initProcessIndex(cache);
 	}
 
-	private void initProcessIndex() {
+	private void initProcessIndex(EntityCache cache) {
 		if (result == null)
 			return;
-		EntityCache cache = result.cache;
-		for (CategorizedDescriptor process : result.getProviderHosts()) {
+		for (CategorizedDescriptor d : result.getProcesses()) {
 			Location loc = null;
-			if (process.getLocation() != null)
-				loc = cache.get(Location.class, process.getLocation());
-			List<ProcessDescriptor> list = index.get(loc);
+			if (d instanceof ProcessDescriptor) {
+				ProcessDescriptor p = (ProcessDescriptor)d;
+				if (p.getLocation() != null) {
+					loc = cache.get(Location.class, p.getLocation());
+				}
+			}
+			List<CategorizedDescriptor> list = index.get(loc);
 			if (list == null) {
 				list = new ArrayList<>();
 				index.put(loc, list);
 			}
-			list.add(process);
+			list.add(d);
 		}
 	}
 
@@ -47,11 +55,12 @@ public class LocationContribution {
 	public ContributionSet<Location> calculate(FlowDescriptor flow) {
 		if (flow == null || result == null)
 			return ContributionSet.empty();
-		double total = result.getTotalFlowResult(flow).value;
+		double total = result.getTotalFlowResult(flow);
 		return Contributions.calculate(index.keySet(), total, location -> {
 			double amount = 0;
-			for (ProcessDescriptor p : index.get(location))
-				amount += result.getSingleFlowResult(p, flow).value;
+			for (CategorizedDescriptor p : index.get(location)) {
+				amount += result.getDirectFlowResult(p, flow);
+			}
 			return amount;
 		});
 	}
@@ -60,11 +69,12 @@ public class LocationContribution {
 	public ContributionSet<Location> calculate(ImpactCategoryDescriptor impact) {
 		if (impact == null || result == null)
 			return ContributionSet.empty();
-		double total = result.getTotalImpactResult(impact).value;
+		double total = result.getTotalImpactResult(impact);
 		return Contributions.calculate(index.keySet(), total, location -> {
 			double amount = 0;
-			for (ProcessDescriptor p : index.get(location))
-				amount += result.getSingleImpactResult(p, impact).value;
+			for (CategorizedDescriptor p : index.get(location)) {
+				amount += result.getDirectImpactResult(p, impact);
+			}
 			return amount;
 		});
 	}
@@ -73,12 +83,12 @@ public class LocationContribution {
 	public ContributionSet<Location> addedValues() {
 		if (result == null)
 			return ContributionSet.empty();
-		double total = result.getTotalCostResult();
+		double total = result.totalCosts;
 		total = total == 0 ? 0 : -total;
 		return Contributions.calculate(index.keySet(), total, location -> {
 			double amount = 0;
-			for (ProcessDescriptor p : index.get(location)) {
-				double r = result.getSingleCostResult(p);
+			for (CategorizedDescriptor p : index.get(location)) {
+				double r = result.getDirectCostResult(p);
 				r = r == 0 ? 0 : -r;
 				amount += r;
 			}
@@ -90,11 +100,11 @@ public class LocationContribution {
 	public ContributionSet<Location> netCosts() {
 		if (result == null)
 			return ContributionSet.empty();
-		double total = result.getTotalCostResult();
+		double total = result.totalCosts;
 		return Contributions.calculate(index.keySet(), total, location -> {
 			double amount = 0;
-			for (ProcessDescriptor p : index.get(location)) {
-				amount += result.getSingleCostResult(p);
+			for (CategorizedDescriptor p : index.get(location)) {
+				amount += result.getDirectCostResult(p);
 			}
 			return amount;
 		});

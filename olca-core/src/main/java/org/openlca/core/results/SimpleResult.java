@@ -124,11 +124,4 @@ public class SimpleResult extends BaseResult {
 	public boolean hasCostResults() {
 		return totalCosts != 0;
 	}
-
-	/** Switches the sign for input-flows. */
-	protected double adopt(FlowDescriptor flow, double value) {
-		if (value == 0)
-			return 0; // avoid -0 in the results
-		return flowIndex.isInput(flow) ? -value : value;
-	}
 }
