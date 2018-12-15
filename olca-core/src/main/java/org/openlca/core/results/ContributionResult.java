@@ -159,28 +159,50 @@ public class ContributionResult extends SimpleResult {
 		return singleCostResults[col];
 	}
 
-	public double getSingleCostResult(long processId) {
-		if (!hasCostResults)
-			return 0;
-		double sum = 0;
-		for (Provider provider : techIndex.getProviders(processId)) {
-			sum += getSingleCostResult(provider);
+	public double getDirectCostResult(CategorizedDescriptor d) {
+		double total = 0;
+		for (Provider provider : techIndex.getProviders(d)) {
+			total += getDirectCostResult(provider);
 		}
-		return sum;
+		return total;
+	}
+
+	public ContributionSet<CategorizedDescriptor> getProcessCostContributions() {
+		return Contributions.calculate(
+				getProviderHosts(),
+				totalCosts,
+				d -> getDirectCostResult(d));
 	}
 
 	/**
 	 * Get the single LCIA category result of the LCIA category with the given
 	 * ID for the given process-product.
+	 *
+	 * TODO: doc
 	 */
-	public double getSingleFlowImpact(long flowId, long impactId) {
+	public double getDirectFlowImpact(FlowDescriptor flow,
+			ImpactCategoryDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
-		int row = impactIndex.of(impactId);
-		int col = flowIndex.of(flowId);
+		int row = impactIndex.of(impact);
+		int col = flowIndex.of(flow);
 		return getValue(singleFlowImpacts, row, col);
 	}
 
+	public List<FlowResult> getFlowContributions(
+			ImpactCategoryDescriptor impact) {
+		List<FlowResult> results = new ArrayList<>();
+		flowIndex.each(flow -> {
+			FlowResult r = new FlowResult();
+			r.flow = flow;
+			r.input = flowIndex.isInput(flow);
+			r.value = getDirectFlowImpact(flow, impact);
+			results.add(r);
+		});
+		return results;
+	}
+
+	@Deprecated
 	protected double getProviderValue(IMatrix matrix, int row,
 			long providerID) {
 		if (matrix == null)

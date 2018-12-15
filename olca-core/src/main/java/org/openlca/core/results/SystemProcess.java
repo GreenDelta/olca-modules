@@ -15,25 +15,27 @@ import org.openlca.core.model.SocialAspect;
 
 public class SystemProcess {
 
-	public static Process create(IDatabase database, CalculationSetup setup,
-			SimpleResultProvider<?> result,
+	public static Process create(
+			IDatabase database,
+			CalculationSetup setup,
+			SimpleResult result,
 			String name) {
 		return new SystemProcess(database, setup, result, name).create(false);
 	}
 
 	public static Process createWithMetaData(IDatabase database,
 			CalculationSetup setup,
-			SimpleResultProvider<?> result, String name) {
+			SimpleResult result, String name) {
 		return new SystemProcess(database, setup, result, name).create(true);
 	}
 
 	private final FlowDao flowDao;
 	private final CalculationSetup setup;
-	private final SimpleResultProvider<?> result;
+	private final SimpleResult result;
 	private final String name;
 
 	private SystemProcess(IDatabase database, CalculationSetup setup,
-			SimpleResultProvider<?> result, String name) {
+			SimpleResult result, String name) {
 		this.flowDao = new FlowDao(database);
 		this.setup = setup;
 		this.result = result;
@@ -68,9 +70,9 @@ public class SystemProcess {
 	}
 
 	private void addElemFlows(Process p) {
-		result.result.flowIndex.each(d -> {
-			FlowResult flowResult = result.getTotalFlowResult(d);
-			if (flowResult == null || flowResult.value == 0)
+		result.flowIndex.each(d -> {
+			double amount = result.getTotalFlowResult(d);
+			if (amount == 0)
 				return;
 			Flow flow = flowDao.getForId(d.getId());
 			if (flow == null)
