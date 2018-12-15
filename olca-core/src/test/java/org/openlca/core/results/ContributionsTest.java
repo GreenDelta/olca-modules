@@ -17,13 +17,9 @@ public class ContributionsTest {
 		Set<Location> items = new HashSet<>();
 		items.add(loc);
 		items.add(null);
-		ContributionSet<Location> set = Contributions.calculate(items, 2,
-				new Contributions.Function<Location>() {
-					@Override
-					public double value(Location t) {
-						return 1;
-					}
-				});
+		ContributionSet<Location> set = Contributions.calculate(items, 2, l -> {
+			return 1;
+		});
 		ContributionItem<?> item = set.getContribution(null);
 		Assert.assertNull(item.item);
 		Assert.assertEquals(1, item.amount, 1e-27);
@@ -43,7 +39,8 @@ public class ContributionsTest {
 	@Test
 	public void testTopWithRest() {
 		List<ContributionItem<String>> rawItems = createSampleItems();
-		List<ContributionItem<String>> items = Contributions.topWithRest(rawItems, 6);
+		List<ContributionItem<String>> items = Contributions
+				.topWithRest(rawItems, 6);
 		checkAmounts(items, 2, 2, 1, 1, 0);
 		items = Contributions.topWithRest(rawItems, 3);
 		checkAmounts(items, 2, 2, 2);
@@ -54,7 +51,7 @@ public class ContributionsTest {
 	}
 
 	private <T> void checkAmounts(List<ContributionItem<T>> items,
-	                              double... values) {
+			double... values) {
 		Assert.assertEquals(values.length, items.size());
 		for (int i = 0; i < items.size(); i++)
 			Assert.assertEquals(values[i], items.get(i).amount, 1e-16);

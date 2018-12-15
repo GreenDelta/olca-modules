@@ -8,13 +8,13 @@ import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.FullResultProvider;
+import org.openlca.core.results.FullResult;
 
 public class SelfLoopAnalysisTest {
 
-	private FullResultProvider result;
+	private FullResult result;
 
 	@Before
 	public void setUp() {
@@ -38,14 +38,14 @@ public class SelfLoopAnalysisTest {
 
 	@Test
 	public void testTotalRequirements() {
-		double[] tr = result.result.totalRequirements;
+		double[] tr = result.totalRequirements;
 		Assert.assertEquals(4, tr[0], 1e-10);
 		Assert.assertEquals(4, tr[1], 1e-10);
 	}
 
 	@Test
 	public void testScalingVector() {
-		double[] s = result.result.scalingFactors;
+		double[] s = result.scalingFactors;
 		Assert.assertEquals(4, s[0], 1e-10);
 		Assert.assertEquals(4, s[1], 1e-10);
 	}
@@ -67,25 +67,25 @@ public class SelfLoopAnalysisTest {
 	}
 
 	private double direct(String processName, String flowName) {
-		return result.getSingleFlowResult(process(processName),
-				flow(flowName)).value;
+		return result.getDirectFlowResult(process(processName),
+				flow(flowName));
 	}
 
 	private double upstream(String processName, String flowName) {
 		return result.getUpstreamFlowResult(
-				process(processName), flow(flowName)).value;
+				process(processName), flow(flowName));
 	}
 
 	private FlowDescriptor flow(String name) {
-		for (FlowDescriptor f : result.result.flowIndex.content()) {
+		for (FlowDescriptor f : result.flowIndex.content()) {
 			if (name.equals(f.getName()))
 				return f;
 		}
 		return null;
 	}
 
-	private ProcessDescriptor process(String name) {
-		for (ProcessDescriptor p : result.getProcessDescriptors()) {
+	private CategorizedDescriptor process(String name) {
+		for (CategorizedDescriptor p : result.getProcesses()) {
 			if (name.equals(p.getName()))
 				return p;
 		}

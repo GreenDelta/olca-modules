@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.openlca.core.math.data_quality.Aggregation.AggregationValue;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.ContributionResult;
 
 class DQCalculator {
@@ -28,23 +30,24 @@ class DQCalculator {
 	}
 
 	void calculate() {
-		for (long processId : result.techIndex.getProcessIds()) {
-			for (long flowId : result.flowIndex.ids()) {
-				addValues(processId, flowId);
+		for (CategorizedDescriptor process : result.getProcesses()) {
+			for (FlowDescriptor flow : result.getFlows()) {
+				addValues(process, flow);
 			}
 		}
 	}
 
-	private void addValues(long processId, long flowId) {
-		double[] dqValues = getDqValues(processId, flowId);
-		BigDecimal flowResult = new BigDecimal(
-				getFlowResult(processId, flowId));
+	private void addValues(CategorizedDescriptor process, FlowDescriptor flow) {
+		double[] dqValues = data.exchangeData.get(
+				LongPair.of(process.getId(), flow.getId()));
+		double flowVal = Math.abs(result.getDirectFlowResult(process, flow));
+		BigDecimal flowResult = new BigDecimal(flowVal);
 		if (dqValues == null || flowResult.equals(BigDecimal.ZERO))
 			return;
-		addValue(flowAggregations, flowId, flowResult, dqValues);
+		addValue(flowAggregations, flow.getId(), flowResult, dqValues);
 		if (!result.hasImpactResults())
 			return;
-		addImpactValues(processId, flowId, flowResult, dqValues);
+		addImpactValues(process.getId(), flow.getId(), flowResult, dqValues);
 	}
 
 	private void addImpactValues(long processId, long flowId,
@@ -74,14 +77,6 @@ class DQCalculator {
 			dqValues[i] = max;
 		}
 		list.add(new AggregationValue(dqValues, factor));
-	}
-
-	private double[] getDqValues(long processId, long flowId) {
-		return data.exchangeData.get(new LongPair(processId, flowId));
-	}
-
-	private double getFlowResult(long processId, long flowId) {
-		return Math.abs(result.getDirectFlowResult(processId, flowId));
 	}
 
 	Map<Long, double[]> getFlowValues() {

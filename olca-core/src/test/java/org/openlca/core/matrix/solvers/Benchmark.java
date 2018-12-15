@@ -12,6 +12,7 @@ import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.results.FullResult;
 
 public class Benchmark {
@@ -64,9 +65,9 @@ public class Benchmark {
 		System.out.println("done");
 		System.out.println("\nResults:\n");
 		System.out.println("flowId \t result");
-		for (long flowId : result.flowIndex.ids()) {
-			System.out.printf("%d \t %.10f \n", flowId,
-					result.getTotalFlowResult(flowId));
+		for (FlowDescriptor flow : result.getFlows()) {
+			System.out.printf("%s \t %.10f \n", flow.getName(),
+					result.getTotalFlowResult(flow));
 		}
 	}
 }

@@ -9,12 +9,13 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.Descriptors;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ContributionItem;
-import org.openlca.core.results.ContributionResultProvider;
+import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.ContributionSet;
-import org.openlca.core.results.FullResultProvider;
+import org.openlca.core.results.FullResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
 
@@ -29,20 +30,20 @@ public class CostTests {
 				.addCosts("water", 5, "EUR")
 				.get();
 		ProductSystem system = TestSystem.of(p1).get();
-		FullResultProvider r = TestSystem.calculate(system);
+		FullResult r = TestSystem.calculate(system);
 
-		Assert.assertEquals(3, r.getTotalCostResult(), 1e-10);
+		Assert.assertEquals(3, r.totalCosts, 1e-10);
 		ProcessDescriptor d1 = Descriptors.toDescriptor(p1);
 		Assert.assertEquals(3, r.getUpstreamCostResult(d1), 1e-10);
-		Assert.assertEquals(3, r.getSingleCostResult(d1), 1e-10);
+		Assert.assertEquals(3, r.getDirectCostResult(d1), 1e-10);
 		UpstreamTree tree = r.getCostTree();
 		UpstreamNode root = tree.root;
 		Assert.assertTrue(tree.childs(root).isEmpty());
 		Assert.assertEquals(3, root.result, 1e-10);
-		ContributionSet<ProcessDescriptor> set = r
+		ContributionSet<CategorizedDescriptor> set = r
 				.getProcessCostContributions();
 		Assert.assertTrue(set.contributions.size() == 1);
-		ContributionItem<ProcessDescriptor> item = set.contributions.get(0);
+		ContributionItem<CategorizedDescriptor> item = set.contributions.get(0);
 		Assert.assertEquals(3, item.amount, 1e-10);
 		Assert.assertEquals(1, item.share, 1e-10);
 	}
@@ -56,8 +57,8 @@ public class CostTests {
 				.addCosts("water", 5, "EUR")
 				.get();
 		ProductSystem system = TestSystem.of(p1).get();
-		ContributionResultProvider<?> r = TestSystem.contributions(system);
-		Assert.assertEquals(3, r.getTotalCostResult(), 1e-10);
+		ContributionResult r = TestSystem.contributions(system);
+		Assert.assertEquals(3, r.totalCosts, 1e-10);
 	}
 
 	@Test
@@ -75,13 +76,13 @@ public class CostTests {
 				.addCosts("p1", 4, "EUR")
 				.get();
 		ProductSystem system = TestSystem.of(p2).link(p1).get();
-		FullResultProvider r = TestSystem.calculate(system);
+		FullResult r = TestSystem.calculate(system);
 
 		ProcessDescriptor d1 = Descriptors.toDescriptor(p1);
 		ProcessDescriptor d2 = Descriptors.toDescriptor(p2);
-		Assert.assertEquals(5, r.getTotalCostResult(), 1e-10);
-		Assert.assertEquals(6, r.getSingleCostResult(d1), 1e-10);
-		Assert.assertEquals(-1, r.getSingleCostResult(d2), 1e-10);
+		Assert.assertEquals(5, r.totalCosts, 1e-10);
+		Assert.assertEquals(6, r.getDirectCostResult(d1), 1e-10);
+		Assert.assertEquals(-1, r.getDirectCostResult(d2), 1e-10);
 		Assert.assertEquals(6, r.getUpstreamCostResult(d1), 1e-10);
 		Assert.assertEquals(5, r.getUpstreamCostResult(d2), 1e-10);
 	}
@@ -115,8 +116,8 @@ public class CostTests {
 		system.processLinks.add(selfLink);
 		system = Tests.update(system);
 
-		FullResultProvider r = TestSystem.calculate(system);
-		Assert.assertEquals(-1.2, r.getTotalCostResult(), 1e-10);
+		FullResult r = TestSystem.calculate(system);
+		Assert.assertEquals(-1.2, r.totalCosts, 1e-10);
 	}
 
 	@Test
@@ -164,8 +165,9 @@ public class CostTests {
 				.link(electricity)
 				.get();
 
-		FullResultProvider result = TestSystem.calculate(system);
-		System.out.println(result.getTotalCostResult());
+		// TODO: test something here
+		FullResult result = TestSystem.calculate(system);
+		System.out.println(result.totalCosts);
 
 	}
 

@@ -45,8 +45,7 @@ public class ContributionTreeTest {
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setId(4);
 
-		Assert.assertEquals(1.0, result.getTotalFlowResult(flow.getId()),
-				1e-16);
+		Assert.assertEquals(1.0, result.getTotalFlowResult(flow), 1e-16);
 
 		UpstreamTree tree = new UpstreamTree(result,
 				result.upstreamFlowResults.getRow(0));

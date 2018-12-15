@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
@@ -18,9 +17,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.ContributionResult;
-import org.openlca.core.results.ContributionResultProvider;
 import org.openlca.core.results.FullResult;
-import org.openlca.core.results.FullResultProvider;
 
 public class TestSystem {
 
@@ -103,22 +100,21 @@ public class TestSystem {
 		return dao.insert(system);
 	}
 
-	public static FullResultProvider calculate(ProductSystem system) {
+	public static FullResult calculate(ProductSystem system) {
 		CalculationSetup setup = new CalculationSetup(
 				CalculationType.UPSTREAM_ANALYSIS, system);
 		setup.withCosts = true;
 		return calculate(setup);
 	}
 
-	public static FullResultProvider calculate(CalculationSetup setup) {
+	public static FullResult calculate(CalculationSetup setup) {
 		SystemCalculator calc = new SystemCalculator(
 				MatrixCache.createEager(Tests.getDb()),
 				Tests.getDefaultSolver());
-		FullResult fr = calc.calculateFull(setup);
-		return new FullResultProvider(fr, EntityCache.create(Tests.getDb()));
+		return calc.calculateFull(setup);
 	}
 
-	public static ContributionResultProvider<ContributionResult> contributions(
+	public static ContributionResult contributions(
 			ProductSystem system) {
 		CalculationSetup setup = new CalculationSetup(
 				CalculationType.CONTRIBUTION_ANALYSIS, system);
@@ -126,9 +122,7 @@ public class TestSystem {
 		SystemCalculator calc = new SystemCalculator(
 				MatrixCache.createEager(Tests.getDb()),
 				Tests.getDefaultSolver());
-		ContributionResult cr = calc.calculateContributions(setup);
-		return new ContributionResultProvider<>(cr,
-				EntityCache.create(Tests.getDb()));
+		return calc.calculateContributions(setup);
 	}
 
 }

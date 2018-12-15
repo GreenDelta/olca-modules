@@ -3,7 +3,6 @@ package org.openlca.core.results;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.TechIndex;
@@ -45,14 +44,12 @@ public class LinkContributionsTest {
 		FullResult r = new FullResult();
 		r.techMatrix = techMatrix;
 		r.techIndex = index;
-		FullResultProvider p = new FullResultProvider(r,
-				EntityCache.create(Tests.getDb()));
 
-		Assert.assertEquals(0, p.getLinkShare(link(4, 4, 1)), 1e-16);
-		Assert.assertEquals(1, p.getLinkShare(link(2, 2, 1)), 1e-16);
-		Assert.assertEquals(1, p.getLinkShare(link(3, 3, 1)), 1e-16);
-		Assert.assertEquals(0.5, p.getLinkShare(link(4, 4, 2)), 1e-16);
-		Assert.assertEquals(0.5, p.getLinkShare(link(4, 4, 3)), 1e-16);
+		Assert.assertEquals(0, r.getLinkShare(link(4, 4, 1)), 1e-16);
+		Assert.assertEquals(1, r.getLinkShare(link(2, 2, 1)), 1e-16);
+		Assert.assertEquals(1, r.getLinkShare(link(3, 3, 1)), 1e-16);
+		Assert.assertEquals(0.5, r.getLinkShare(link(4, 4, 2)), 1e-16);
+		Assert.assertEquals(0.5, r.getLinkShare(link(4, 4, 3)), 1e-16);
 	}
 
 	/**
@@ -81,15 +78,13 @@ public class LinkContributionsTest {
 		FullResult r = new FullResult();
 		r.techMatrix = techMatrix;
 		r.techIndex = index;
-		FullResultProvider p = new FullResultProvider(r,
-				EntityCache.create(Tests.getDb()));
 
 		for (int i = 0; i < size; i++) {
 			if (i < (size - 1)) {
 				Assert.assertEquals(1,
-						p.getLinkShare(link(i + 2, i + 2, i + 1)), 1e-16);
+						r.getLinkShare(link(i + 2, i + 2, i + 1)), 1e-16);
 				Assert.assertEquals(0,
-						p.getLinkShare(link(i + 3, i + 3, i + 1)), 1e-16);
+						r.getLinkShare(link(i + 3, i + 3, i + 1)), 1e-16);
 			}
 		}
 	}

@@ -9,7 +9,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.results.FullResultProvider;
+import org.openlca.core.results.FullResult;
 
 public class AvoidedFlowsTest {
 
@@ -47,10 +47,10 @@ public class AvoidedFlowsTest {
 
 	private void check(Process refProc, Process linkedProc) {
 		ProductSystem system = TestSystem.of(refProc).link(linkedProc).get();
-		FullResultProvider r = TestSystem.calculate(system);
-		assertEquals(1, r.result.flowIndex.size());
-		FlowDescriptor co2 = r.result.flowIndex.at(0);
-		assertEquals(1.0, r.getTotalFlowResult(co2).value, 1e-16);
+		FullResult r = TestSystem.calculate(system);
+		assertEquals(1, r.flowIndex.size());
+		FlowDescriptor co2 = r.flowIndex.at(0);
+		assertEquals(1.0, r.getTotalFlowResult(co2), 1e-16);
 	}
 
 }
