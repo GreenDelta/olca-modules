@@ -63,8 +63,8 @@ public class RegionalizedCalculator {
 			LcaCalculator baseCalc = new LcaCalculator(solver, m);
 			IMatrix inverse = solver.invert(m.techMatrix);
 			r.scalingFactors = baseCalc.getScalingVector(inverse, r.techIndex);
-			r.singleFlowResults = m.enviMatrix.copy();
-			solver.scaleColumns(r.singleFlowResults, r.scalingFactors);
+			r.directFlowResults = m.enviMatrix.copy();
+			solver.scaleColumns(r.directFlowResults, r.scalingFactors);
 			r.totalRequirements = baseCalc.getTotalRequirements(
 					m.techMatrix, r.scalingFactors);
 			r.techMatrix = m.techMatrix.copy();
@@ -85,8 +85,8 @@ public class RegionalizedCalculator {
 			});
 
 			// direct LCIA results
-			r.singleImpactResults = assessedEnvi.copy();
-			solver.scaleColumns(r.singleImpactResults, r.scalingFactors);
+			r.directImpactResults = assessedEnvi.copy();
+			solver.scaleColumns(r.directImpactResults, r.scalingFactors);
 
 			// upstream & total results
 			r.loopFactor = baseCalc.getLoopFactor(
@@ -110,7 +110,7 @@ public class RegionalizedCalculator {
 				for (int i = 0; i < r.scalingFactors.length; i++) {
 					directCosts[i] = costValues[i] * r.scalingFactors[i];
 				}
-				r.singleCostResults = directCosts;
+				r.directCostResults = directCosts;
 
 				// upstream LCC
 				IMatrix costMatrix = CostVector.asMatrix(solver, costValues);

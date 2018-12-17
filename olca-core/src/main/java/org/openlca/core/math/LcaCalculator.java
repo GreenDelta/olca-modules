@@ -63,7 +63,7 @@ public class LcaCalculator {
 		IMatrix enviMatrix = data.enviMatrix;
 		IMatrix singleResult = enviMatrix.copy();
 		solver.scaleColumns(singleResult, s);
-		result.singleFlowResults = singleResult;
+		result.directFlowResults = singleResult;
 		result.totalFlowResults = solver.multiply(enviMatrix, s);
 
 		if (data.impactMatrix != null) {
@@ -94,8 +94,8 @@ public class LcaCalculator {
 		// direct results
 		result.techMatrix = techMatrix.copy();
 		solver.scaleColumns(result.techMatrix, scalingVector);
-		result.singleFlowResults = enviMatrix.copy();
-		solver.scaleColumns(result.singleFlowResults, scalingVector);
+		result.directFlowResults = enviMatrix.copy();
+		solver.scaleColumns(result.directFlowResults, scalingVector);
 		result.totalRequirements = getTotalRequirements(techMatrix,
 				scalingVector);
 
@@ -209,11 +209,11 @@ public class LcaCalculator {
 		IMatrix factors = data.impactMatrix;
 		result.impactFactors = factors;
 		IMatrix directResults = solver.multiply(factors,
-				result.singleFlowResults);
-		result.singleImpactResults = directResults;
+				result.directFlowResults);
+		result.directImpactResults = directResults;
 		IMatrix singleFlowImpacts = factors.copy();
 		solver.scaleColumns(singleFlowImpacts, result.totalFlowResults);
-		result.singleFlowImpacts = singleFlowImpacts;
+		result.directFlowImpacts = singleFlowImpacts;
 	}
 
 	private void addTotalCosts(SimpleResult result, double[] scalingVector) {
@@ -232,7 +232,7 @@ public class LcaCalculator {
 		for (int i = 0; i < scalingVector.length; i++) {
 			directCosts[i] = costValues[i] * scalingVector[i];
 		}
-		result.singleCostResults = directCosts;
+		result.directCostResults = directCosts;
 	}
 
 }

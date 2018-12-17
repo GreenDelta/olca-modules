@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -37,7 +34,7 @@ public class LocationContribution {
 		for (CategorizedDescriptor d : result.getProcesses()) {
 			Location loc = null;
 			if (d instanceof ProcessDescriptor) {
-				ProcessDescriptor p = (ProcessDescriptor)d;
+				ProcessDescriptor p = (ProcessDescriptor) d;
 				if (p.getLocation() != null) {
 					loc = cache.get(Location.class, p.getLocation());
 				}
@@ -66,7 +63,8 @@ public class LocationContribution {
 	}
 
 	/** Calculates contributions to an impact category. */
-	public ContributionSet<Location> calculate(ImpactCategoryDescriptor impact) {
+	public ContributionSet<Location> calculate(
+			ImpactCategoryDescriptor impact) {
 		if (impact == null || result == null)
 			return ContributionSet.empty();
 		double total = result.getTotalImpactResult(impact);

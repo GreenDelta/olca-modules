@@ -31,7 +31,11 @@ public class Simulator {
 	private MatrixData data;
 	private CalculationSetup setup;
 
-	public Simulator(CalculationSetup setup, MatrixCache cache,
+	private boolean withContributions = false;
+
+	public Simulator(
+			CalculationSetup setup,
+			MatrixCache cache,
 			IMatrixSolver solver) {
 		this.impactMethod = setup.impactMethod;
 		this.cache = cache;
@@ -41,6 +45,10 @@ public class Simulator {
 
 	public SimulationResult getResult() {
 		return result;
+	}
+
+	public void withContributions(boolean b) {
+		withContributions = b;
 	}
 
 	/**
@@ -62,7 +70,9 @@ public class Simulator {
 				impactTable.simulate(data.impactMatrix, interpreter);
 			}
 			LcaCalculator calc = new LcaCalculator(solver, data);
-			SimpleResult result = calc.calculateSimple();
+			SimpleResult result = withContributions
+					? calc.calculateContributions()
+					: calc.calculateSimple();
 			appendResults(result);
 			return result;
 		} catch (Throwable e) {

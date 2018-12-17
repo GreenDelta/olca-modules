@@ -9,7 +9,6 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * A full result extends the base and contribution result by providing
@@ -116,11 +115,11 @@ public class FullResult extends ContributionResult {
 	}
 
 	public List<ImpactResult> getUpstreamImpactResults(
-		CategorizedDescriptor process) {
+			CategorizedDescriptor process) {
 		List<ImpactResult> results = new ArrayList<>();
 		if (!hasImpactResults())
 			return results;
-		impactIndex.each(impact ->  {
+		impactIndex.each(impact -> {
 			ImpactResult r = new ImpactResult();
 			r.impactCategory = impact;
 			r.value = getUpstreamImpactResult(process, impact);

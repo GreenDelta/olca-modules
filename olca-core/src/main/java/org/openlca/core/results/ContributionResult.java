@@ -3,7 +3,6 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.Provider;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -20,30 +19,31 @@ import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 public class ContributionResult extends SimpleResult {
 
 	/**
-	 * This is a matrix with single flow results where the flows are mapped to
-	 * the rows and the process-products to the columns. Inputs have negative
-	 * values here.
+	 * A (elementary) flow * process matrix which contains the direct
+	 * (elementary) flow results. This is the scaled intervention matrix:
+	 * 
+	 * $$\mathbf{B} * \text{diag}(\mathbf{s})$$
 	 */
-	public IMatrix singleFlowResults;
+	public IMatrix directFlowResults;
 
 	/**
 	 * The single LCIA category results in a matrix where the LCIA categories
 	 * are mapped to the rows and the process-products to the columns.
 	 */
-	public IMatrix singleImpactResults;
+	public IMatrix directImpactResults;
 
 	/**
 	 * Contains the direct net-costs. Each entry contains the net-costs of the
 	 * respective process-product at the respective index.
 	 */
-	public double[] singleCostResults;
+	public double[] directCostResults;
 
 	/**
 	 * The single LCIA category result for each intervention flow in a matrix
 	 * where the LCIA categories are mapped to the rows and the intervention
 	 * flows to the columns.
 	 */
-	public IMatrix singleFlowImpacts;
+	public IMatrix directFlowImpacts;
 
 	/**
 	 * Contains the characterization factors in a matrix where the LCIA
@@ -53,7 +53,7 @@ public class ContributionResult extends SimpleResult {
 
 	@Override
 	public boolean hasCostResults() {
-		return singleCostResults != null;
+		return directCostResults != null;
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class ContributionResult extends SimpleResult {
 			return 0;
 		int row = flowIndex.of(flow);
 		int col = techIndex.getIndex(provider);
-		return adopt(flow, getValue(singleFlowResults, row, col));
+		return adopt(flow, getValue(directFlowResults, row, col));
 	}
 
 	public double getDirectFlowResult(CategorizedDescriptor d,
@@ -117,7 +117,7 @@ public class ContributionResult extends SimpleResult {
 			return 0;
 		int row = impactIndex.of(impact);
 		int col = techIndex.getIndex(provider);
-		return getValue(singleImpactResults, row, col);
+		return getValue(directImpactResults, row, col);
 	}
 
 	/**
@@ -159,9 +159,9 @@ public class ContributionResult extends SimpleResult {
 		if (!hasCostResults())
 			return 0;
 		int col = techIndex.getIndex(provider);
-		if (col >= singleCostResults.length)
+		if (col >= directCostResults.length)
 			return 0;
-		return singleCostResults[col];
+		return directCostResults[col];
 	}
 
 	public double getDirectCostResult(CategorizedDescriptor d) {
@@ -191,7 +191,7 @@ public class ContributionResult extends SimpleResult {
 			return 0;
 		int row = impactIndex.of(impact);
 		int col = flowIndex.of(flow);
-		return getValue(singleFlowImpacts, row, col);
+		return getValue(directFlowImpacts, row, col);
 	}
 
 	public List<FlowResult> getFlowContributions(
