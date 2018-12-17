@@ -10,7 +10,6 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -38,10 +37,10 @@ public class SimulationResultExport {
 	private boolean useStreaming = false;
 
 	public SimulationResultExport(CalculationSetup setup,
-			SimulationResult result, IDatabase db) {
+			SimulationResult result, EntityCache cache) {
 		this.setup = setup;
 		this.result = result;
-		this.cache = EntityCache.create(db);
+		this.cache = cache;
 	}
 
 	/**

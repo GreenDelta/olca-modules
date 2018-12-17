@@ -7,7 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.results.ContributionResult;
 
 public class DQResult {
@@ -21,7 +21,7 @@ public class DQResult {
 	private Map<LongPair, double[]> impactValuesPerFlow = new HashMap<>();
 	private Map<LongPair, double[]> impactValuesPerProcess = new HashMap<>();
 
-	public double[] get(ProcessDescriptor process) {
+	public double[] get(CategorizedDescriptor process) {
 		return processValues.get(process.getId());
 	}
 
@@ -33,12 +33,12 @@ public class DQResult {
 		return impactValues.get(impact.getId());
 	}
 
-	public double[] get(ProcessDescriptor process, FlowDescriptor flow) {
+	public double[] get(CategorizedDescriptor process, FlowDescriptor flow) {
 		return flowValuesPerProcess
 				.get(new LongPair(process.getId(), flow.getId()));
 	}
 
-	public double[] get(ProcessDescriptor process,
+	public double[] get(CategorizedDescriptor process,
 			ImpactCategoryDescriptor impact) {
 		return impactValuesPerProcess
 				.get(new LongPair(process.getId(), impact.getId()));

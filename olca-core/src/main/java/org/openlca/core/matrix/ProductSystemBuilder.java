@@ -1,6 +1,5 @@
 package org.openlca.core.matrix;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
@@ -76,22 +75,18 @@ public class ProductSystemBuilder {
 	 * the supply chain of the given system.
 	 */
 	public void autoComplete(ProductSystem system, Provider product) {
-		try (Connection con = database.createConnection()) {
-			log.trace("auto complete product system {}", system);
-			log.trace("build product index");
-			ITechIndexBuilder builder;
-			if (config.cutoff == null || config.cutoff == 0) {
-				builder = new TechIndexBuilder(matrixCache, system, config);
-			} else {
-				builder = new TechIndexCutoffBuilder(
-						matrixCache, system, config);
-			}
-			TechIndex index = builder.build(product);
-			log.trace("create new process links");
-			addLinksAndProcesses(system, index);
-		} catch (Exception e) {
-			log.error("Failed to auto complete product system " + system, e);
+		log.trace("auto complete product system {}", system);
+		log.trace("build product index");
+		ITechIndexBuilder builder;
+		if (config.cutoff == null || config.cutoff == 0) {
+			builder = new TechIndexBuilder(matrixCache, system, config);
+		} else {
+			builder = new TechIndexCutoffBuilder(
+					matrixCache, system, config);
 		}
+		TechIndex index = builder.build(product);
+		log.trace("create new process links");
+		addLinksAndProcesses(system, index);
 	}
 
 	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {

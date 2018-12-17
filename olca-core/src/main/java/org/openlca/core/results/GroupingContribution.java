@@ -2,9 +2,9 @@ package org.openlca.core.results;
 
 import java.util.List;
 
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * Calculates the contributions of single process results grouped by a given
@@ -29,7 +29,7 @@ public class GroupingContribution {
 		double total = result.getTotalFlowResult(flow);
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;
-			for (ProcessDescriptor p : grouping.processes) {
+			for (CategorizedDescriptor p : grouping.processes) {
 				amount += result.getDirectFlowResult(p, flow);
 			}
 			return amount;
@@ -44,7 +44,7 @@ public class GroupingContribution {
 		double total = result.getTotalImpactResult(impact);
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;
-			for (ProcessDescriptor p : grouping.processes) {
+			for (CategorizedDescriptor p : grouping.processes) {
 				amount += result.getDirectImpactResult(p, impact);
 			}
 			return amount;

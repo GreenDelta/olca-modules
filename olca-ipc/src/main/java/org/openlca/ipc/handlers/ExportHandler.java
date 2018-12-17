@@ -66,7 +66,7 @@ public class ExportHandler {
 		Simulator simulator = (Simulator) r.result;
 		SimulationResult result = simulator.getResult();
 		SimulationResultExport export = new SimulationResultExport(
-				r.setup, result, context.db);
+				r.setup, result, EntityCache.create(context.db));
 		try {
 			export.run(new File(path));
 			return Responses.ok("Exported to " + path, req);

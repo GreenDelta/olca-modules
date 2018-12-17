@@ -8,7 +8,7 @@ import java.util.Objects;
 
 import org.openlca.core.model.ProcessGroup;
 import org.openlca.core.model.ProcessGroupSet;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class ProcessGrouping {
 
 	public String name;
-	public final List<ProcessDescriptor> processes = new ArrayList<>();
+	public final List<CategorizedDescriptor> processes = new ArrayList<>();
 	public boolean rest;
 
 	@Override
@@ -47,18 +47,19 @@ public class ProcessGrouping {
 	 * processes is created using the given parameter restName.
 	 */
 	public static List<ProcessGrouping> applyOn(
-			Collection<ProcessDescriptor> processes, ProcessGroupSet groupSet,
+			Collection<CategorizedDescriptor> processes,
+			ProcessGroupSet groupSet,
 			String restName) {
 		if (processes == null)
 			return Collections.emptyList();
 		List<ProcessGroup> groups = getGroups(groupSet);
 		List<ProcessGrouping> groupings = new ArrayList<>();
-		List<ProcessDescriptor> rest = new ArrayList<>(processes);
+		List<CategorizedDescriptor> rest = new ArrayList<>(processes);
 		for (ProcessGroup group : groups) {
 			ProcessGrouping grouping = new ProcessGrouping();
 			grouping.name = group.getName();
 			grouping.rest = false;
-			List<ProcessDescriptor> matches = split(group.getProcessIds(),
+			List<CategorizedDescriptor> matches = split(group.getProcessIds(),
 					rest);
 			grouping.processes.addAll(matches);
 			groupings.add(grouping);
@@ -85,11 +86,11 @@ public class ProcessGrouping {
 		}
 	}
 
-	private static List<ProcessDescriptor> split(List<String> processIds,
-			List<ProcessDescriptor> processes) {
-		List<ProcessDescriptor> matches = new ArrayList<>();
+	private static List<CategorizedDescriptor> split(List<String> processIds,
+			List<CategorizedDescriptor> processes) {
+		List<CategorizedDescriptor> matches = new ArrayList<>();
 		for (String id : processIds) {
-			for (ProcessDescriptor p : processes) {
+			for (CategorizedDescriptor p : processes) {
 				if (p.getRefId() != null && p.getRefId().equals(id))
 					matches.add(p);
 			}

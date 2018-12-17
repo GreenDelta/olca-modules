@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.model.DQIndicator;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
 public class DQStatistics {
 
@@ -27,7 +27,7 @@ public class DQStatistics {
 		return get(exchangeCounts, 0l, 0);
 	}
 
-	public int getNoOfExchanges(ProcessDescriptor process) {
+	public int getNoOfExchanges(CategorizedDescriptor process) {
 		return get(exchangeCounts, process.getId(), 0);
 	}
 
@@ -35,7 +35,8 @@ public class DQStatistics {
 		return get(exchangeCounts, 0l, indicator.position);
 	}
 
-	public int getNoOfExchanges(ProcessDescriptor process, DQIndicator indicator) {
+	public int getNoOfExchanges(CategorizedDescriptor process,
+			DQIndicator indicator) {
 		return get(exchangeCounts, process.getId(), indicator.position);
 	}
 
