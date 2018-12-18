@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A calculator for Monte-Carlo-Simulations.
+ * A `Simulator` runs Monte-Carlo simulations with a given calculation setup.
  */
 public class Simulator {
 
@@ -33,6 +33,9 @@ public class Simulator {
 
 	private boolean withContributions = false;
 
+	/**
+	 * Creates a new `Simulator` instance for the given setup.
+	 */
 	public Simulator(
 			CalculationSetup setup,
 			MatrixCache cache,
@@ -43,10 +46,17 @@ public class Simulator {
 		this.solver = solver;
 	}
 
+	/**
+	 * Get the result of the simulation.
+	 */
 	public SimulationResult getResult() {
 		return result;
 	}
 
+	/**
+	 * When set to `true`, the result of each simulation will be a
+	 * `ContributionResult`.
+	 */
 	public void withContributions(boolean b) {
 		withContributions = b;
 	}
@@ -54,10 +64,12 @@ public class Simulator {
 	/**
 	 * Generates random numbers and calculates the product system. Returns the
 	 * simulation result if the calculation in this run finished without errors,
-	 * otherwise <code>null</code> is returned (e.g. the resulting matrix was
+	 * otherwise `null` is returned (e.g. when the resulting matrix was
 	 * singular). The returned result is appended to the result of the simulator
-	 * (which you get via {@link #getResult()}, so it does not need to (and
-	 * should not) be cached.
+	 * (which you get via `getResult()`, so it does not need to be cached.
+	 * 
+	 * When the flag `withContributions` is set to true, the returned result
+	 * will be an instance of `ContributionResult`.
 	 */
 	public SimpleResult nextRun() {
 		if (inventory == null || data == null)
