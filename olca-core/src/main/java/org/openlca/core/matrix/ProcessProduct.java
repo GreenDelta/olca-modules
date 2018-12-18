@@ -10,13 +10,30 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
- * A provider describes a process or product system which provides a link to one
- * or more processes in a product system. Thus, it describes the provider part
- * of a process link and is mapped to the index of the technology matrix.
+ * In openLCA, we map the process-product pairs of a product system to the
+ * respective rows and columns of the matrices in the inventory model.
+ * Multi-output processes are split into multiple vectors that each are relate
+ * to a single process-product pair. This also includes waste treatment
+ * processes (where the treatment of waste is the product) and product systems
+ * that are sub-systems of other product systems (and are handled like processes
+ * in these systems with their quantitative reference as product).
  */
 public class ProcessProduct {
 
+	/**
+	 * The process of process-product pair. Note that this can be also the
+	 * descriptor of a product system when it is a sub-system of another product
+	 * system because in this case such systems are handled just like processes
+	 * (they are mapped to the technology matrix $mathbf{A}$ via the `TechIndex`
+	 * etc.).
+	 */
 	public CategorizedDescriptor process;
+
+	/**
+	 * The product flow of the process-product pair. Note that this can also be
+	 * a waste flow (which is then an input of the process and the treatment of
+	 * waste is the product of the process).
+	 */
 	public FlowDescriptor flow;
 
 	public static ProcessProduct of(

@@ -70,29 +70,32 @@ public class SimpleResult extends BaseResult {
 	public double totalCosts;
 
 	/**
-	 * Get the scaling factor of the given process-product.
-	 *
-	 * TODO: doc
+	 * Get the scaling factor $\mathbf{s}_j$ of the given process-product pair
+	 * $j$.
 	 */
-	public double getScalingFactor(ProcessProduct provider) {
-		int idx = techIndex.getIndex(provider);
+	public double getScalingFactor(ProcessProduct product) {
+		int idx = techIndex.getIndex(product);
 		if (idx < 0 || idx > scalingVector.length)
 			return 0;
 		return scalingVector[idx];
 	}
 
 	/**
-	 * Get the sum of all scaling factors for the products of the process or
-	 * product system with the given ID.
+	 * Get the scaling factor $\mathbf{s}_j$ of the given process $j$. When the
+	 * process has multiple products in the system it returns the sum of the
+	 * scaling factors of all of these process-product pairs.
 	 */
-	public double getScalingFactor(CategorizedDescriptor d) {
+	public double getScalingFactor(CategorizedDescriptor process) {
 		double factor = 0;
-		for (ProcessProduct p : techIndex.getProviders(d)) {
+		for (ProcessProduct p : techIndex.getProviders(process)) {
 			factor += getScalingFactor(p);
 		}
 		return factor;
 	}
 
+	/**
+	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
+	 */
 	public double getTotalFlowResult(FlowDescriptor flow) {
 		int idx = flowIndex.of(flow);
 		if (idx < 0 || idx >= totalFlowResults.length)
@@ -101,7 +104,7 @@ public class SimpleResult extends BaseResult {
 	}
 
 	/**
-	 * Returns the flow results of the inventory results.
+	 * Returns the flow results of the inventory result $\mathbf{g}$.
 	 */
 	public List<FlowResult> getTotalFlowResults() {
 		List<FlowResult> results = new ArrayList<>();
@@ -116,7 +119,8 @@ public class SimpleResult extends BaseResult {
 	}
 
 	/**
-	 * Returns the total result of the LCIA category with the given ID.
+	 * Returns the total LCIA result $\mathbf{h}_i$ of the given LCIA category
+	 * $i$.
 	 */
 	public double getTotalImpactResult(ImpactCategoryDescriptor impact) {
 		int idx = impactIndex.of(impact);
@@ -126,8 +130,7 @@ public class SimpleResult extends BaseResult {
 	}
 
 	/**
-	 * Returns the impact category results for the given result. In contrast to
-	 * the flow results, entries are also generated for 0-values.
+	 * Returns the impact category results for the given result.
 	 */
 	public List<ImpactResult> getTotalImpactResults() {
 		List<ImpactResult> results = new ArrayList<>();
