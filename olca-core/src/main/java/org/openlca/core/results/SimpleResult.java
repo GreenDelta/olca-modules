@@ -9,14 +9,22 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
- * The simplest kind of result of a calculated product system. It contains the
- * total interventions and optionally the total impact assessment results of the
- * product system. This result type is suitable for Monte-Carlo-Simulations or
- * other quick calculations.
+ * The simplest kind of result of a calculated product system. This result type
+ * is particularly suitable for Monte Carlo simulations or other quick
+ * calculations.
  */
 public class SimpleResult extends BaseResult {
 
-	public double[] scalingFactors;
+	/**
+	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
+	 * equation
+	 * 
+	 * $$\mathbf{A} \ \mathbf{s} = \mathbf{f}$$
+	 * 
+	 * where $\mathbf{A}$ is the technology matrix and $\mathbf{f}$ the final
+	 * demand vector of the product system.
+	 */
+	public double[] scalingVector;
 
 	/**
 	 * This is a vector which contains for each process product the total amount
@@ -26,14 +34,18 @@ public class SimpleResult extends BaseResult {
 	 *
 	 * tr_i = s_i * A_{i,i}
 	 *
-	 * where s_i is the scaling factor for the process product and A{i, i} the
+	 * Where s_i is the scaling factor for the process product and A{i, i} the
 	 * respective entry in the technology matrix.
 	 */
 	public double[] totalRequirements;
 
 	/**
-	 * The total results of all intervention flows. Note that inputs have a
-	 * negative value.
+	 * The inventory result $\mathbf{g}$ of a product system:
+	 * 
+	 * $$\mathbf{g} = \mathbf{B} \ \mathbf{s}$$
+	 * 
+	 * Where $\mathbf{B}$ is the intervention matrix and $\mathbf{s}$ the
+	 * scaling vector. Note that inputs have negative values in this vector.
 	 */
 	public double[] totalFlowResults;
 
@@ -43,7 +55,12 @@ public class SimpleResult extends BaseResult {
 	public double[] totalImpactResults;
 
 	/**
-	 * Sum of the net-costs for all products in a product system.
+	 * The total net-costs $k_t$ of the LCC result:
+	 * 
+	 * $$k_t = \mathbf{k} \cdot \mathbf{s}$$
+	 * 
+	 * Where $\mathbf{k}_j$ are the net-costs of process $j$ and $\mathbf{s}_j$
+	 * is the scaling factor of that process.
 	 */
 	public double totalCosts;
 
@@ -54,9 +71,9 @@ public class SimpleResult extends BaseResult {
 	 */
 	public double getScalingFactor(Provider provider) {
 		int idx = techIndex.getIndex(provider);
-		if (idx < 0 || idx > scalingFactors.length)
+		if (idx < 0 || idx > scalingVector.length)
 			return 0;
-		return scalingFactors[idx];
+		return scalingVector[idx];
 	}
 
 	/**

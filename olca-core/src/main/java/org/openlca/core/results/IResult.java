@@ -7,7 +7,7 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
- * The common protocoll of all result types.
+ * The common protocol of all result types.
  */
 public interface IResult {
 
@@ -27,20 +27,20 @@ public interface IResult {
 	boolean hasCostResults();
 
 	/**
-	 * Get the descriptors of the processes and product systems (the
-	 * sub-systems) of the inventory model; the elements that provide a product
-	 * output or a waste input (for treatment).
+	 * Get the descriptors of the processes of the inventory model. If a product
+	 * system contains other product systems, these sub-systems are also handled
+	 * like processes and returned.
 	 */
 	Set<CategorizedDescriptor> getProcesses();
 
 	/**
-	 * Get the (elementary) flows of the inventory result.
+	 * Get the (elementary) flows of the inventory model.
 	 */
 	Set<FlowDescriptor> getFlows();
 
 	/**
-	 * Indicates whether the given flow is handled as an input flow in the
-	 * result.
+	 * Returns true when the given flow is handled as an input flow in the
+	 * inventory model.
 	 */
 	boolean isInput(FlowDescriptor flow);
 

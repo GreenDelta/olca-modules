@@ -62,13 +62,13 @@ public class RegionalizedCalculator {
 			// direct LCI results
 			LcaCalculator baseCalc = new LcaCalculator(solver, m);
 			IMatrix inverse = solver.invert(m.techMatrix);
-			r.scalingFactors = baseCalc.getScalingVector(inverse, r.techIndex);
+			r.scalingVector = baseCalc.getScalingVector(inverse, r.techIndex);
 			r.directFlowResults = m.enviMatrix.copy();
-			solver.scaleColumns(r.directFlowResults, r.scalingFactors);
+			solver.scaleColumns(r.directFlowResults, r.scalingVector);
 			r.totalRequirements = baseCalc.getTotalRequirements(
-					m.techMatrix, r.scalingFactors);
+					m.techMatrix, r.scalingVector);
 			r.techMatrix = m.techMatrix.copy();
-			solver.scaleColumns(r.techMatrix, r.scalingFactors);
+			solver.scaleColumns(r.techMatrix, r.scalingVector);
 
 			// assessed intervention matrix
 			IMatrix factors = impactTable.createMatrix(solver, interpreter);
@@ -86,11 +86,11 @@ public class RegionalizedCalculator {
 
 			// direct LCIA results
 			r.directImpactResults = assessedEnvi.copy();
-			solver.scaleColumns(r.directImpactResults, r.scalingFactors);
+			solver.scaleColumns(r.directImpactResults, r.scalingVector);
 
 			// upstream & total results
 			r.loopFactor = baseCalc.getLoopFactor(
-					m.techMatrix, r.scalingFactors, r.techIndex);
+					m.techMatrix, r.scalingVector, r.techIndex);
 			double[] demands = baseCalc.getRealDemands(
 					r.totalRequirements, r.loopFactor);
 			r.upstreamFlowResults = solver.multiply(m.enviMatrix, inverse);
@@ -107,8 +107,8 @@ public class RegionalizedCalculator {
 				// direct LCC
 				double[] costValues = CostVector.build(inventory, db);
 				double[] directCosts = new double[costValues.length];
-				for (int i = 0; i < r.scalingFactors.length; i++) {
-					directCosts[i] = costValues[i] * r.scalingFactors[i];
+				for (int i = 0; i < r.scalingVector.length; i++) {
+					directCosts[i] = costValues[i] * r.scalingVector[i];
 				}
 				r.directCostResults = directCosts;
 

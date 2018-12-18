@@ -30,7 +30,7 @@ public class LcaCalculator {
 		TechIndex productIndex = data.techIndex;
 		int idx = productIndex.getIndex(productIndex.getRefFlow());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
-		result.scalingFactors = s;
+		result.scalingVector = s;
 		result.totalRequirements = getTotalRequirements(techMatrix, s);
 		IMatrix enviMatrix = data.enviMatrix;
 
@@ -57,7 +57,7 @@ public class LcaCalculator {
 		TechIndex productIndex = data.techIndex;
 		int idx = productIndex.getIndex(productIndex.getRefFlow());
 		double[] s = solver.solve(techMatrix, idx, productIndex.getDemand());
-		result.scalingFactors = s;
+		result.scalingVector = s;
 		result.totalRequirements = getTotalRequirements(techMatrix, s);
 
 		IMatrix enviMatrix = data.enviMatrix;
@@ -89,7 +89,7 @@ public class LcaCalculator {
 		IMatrix enviMatrix = data.enviMatrix;
 		IMatrix inverse = solver.invert(techMatrix);
 		double[] scalingVector = getScalingVector(inverse, productIdx);
-		result.scalingFactors = scalingVector;
+		result.scalingVector = scalingVector;
 
 		// direct results
 		result.techMatrix = techMatrix.copy();

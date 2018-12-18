@@ -15,8 +15,11 @@ import org.slf4j.LoggerFactory;
 import gnu.trove.map.hash.TLongByteHashMap;
 
 /**
- * A flow index maps the flows that are not linked in the technology matrix to
- * the rows of the intervention matrix.
+ * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
+ * maps the (elementary) flows $\mathit{F}$ of the processes in the product
+ * system to the $k$ rows of $\mathbf{B}$.
+ * 
+ * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
  */
 public class FlowIndex extends DIndex<FlowDescriptor> {
 

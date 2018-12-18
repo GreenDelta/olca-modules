@@ -12,25 +12,41 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
+/**
+ * `BaseResult` is a common (abstract) super class of different result
+ * implementations. It mainly contains the indices that map objects from the
+ * database to the rows and columns of the result matrices.
+ */
 public abstract class BaseResult implements IResult {
 
 	/**
-	 * The index of the technology matrix that maps the process-flow pairs
-	 * (products and waste flows) of the technosphere to the respective matrix
-	 * indices.
+	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps
+	 * the process-product pairs (or process-waste pairs) $\mathit{P}$ of the
+	 * product system to the respective $n$ rows and columns of $\mathbf{A}$. If
+	 * the product system contains other product systems as sub-systems, these
+	 * systems are handled like processes and are also mapped as pair with their
+	 * quantitative reference flow to that index (and also their processes
+	 * etc.).
+	 * 
+	 * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
 	 */
 	public TechIndex techIndex;
 
 	/**
-	 * The flow index which maps the flow-IDs from the interventions to column
-	 * and row indices of the matrices and vectors of the mathematical model.
+	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$.
+	 * It maps the (elementary) flows $\mathit{F}$ of the processes in the
+	 * product system to the $k$ rows of $\mathbf{B}$.
+	 * 
+	 * $$\mathit{Idx}_B: \mathit{F} \mapsto [0 \dots k-1]$$
 	 */
 	public FlowIndex flowIndex;
 
 	/**
-	 * The impact category index maps impact categories (their descriptors) to
-	 * column and row indices of the matrices and vectors of the mathematical
-	 * model.
+	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
+	 * factors $\mathbf{C}$. It maps the LCIA categories $\mathit{C}$ to the $l$
+	 * rows of $\mathbf{C}$.
+	 * 
+	 * $$\mathit{Idx}_C: \mathit{C} \mapsto [0 \dots l-1]$$
 	 */
 	public DIndex<ImpactCategoryDescriptor> impactIndex;
 
@@ -66,9 +82,10 @@ public abstract class BaseResult implements IResult {
 	}
 
 	/**
-	 * Get the providers of the inventory model. These are the process-flow and
-	 * product-system-flow pairs that are linked to processes in the product
-	 * system and form the index of the technology matrix.
+	 * Get the process-product pairs (or process-waste pairs) $\mathit{P}$ of
+	 * the product system. If the product system contains other product systems
+	 * as sub-systems, these systems are handled like processes and are also
+	 * included as pairs with their quantitative reference flow.
 	 */
 	public Set<Provider> getProviders() {
 		if (techIndex == null)
@@ -84,7 +101,7 @@ public abstract class BaseResult implements IResult {
 	}
 
 	/** Switches the sign for input-flows. */
-	protected double adopt(FlowDescriptor flow, double value) {
+	double adopt(FlowDescriptor flow, double value) {
 		if (value == 0)
 			return 0; // avoid -0 in the results
 		return flowIndex.isInput(flow) ? -value : value;

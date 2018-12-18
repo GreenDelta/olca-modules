@@ -11,10 +11,10 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
- * A contribution result extends a simple result and contains all single
- * contributions of processes and products to the overall inventory and impact
- * assessment results. Additionally, it contains the contributions of the single
- * inventory flows to impact category results.
+ * The `ContributionResult` extends the `SimpleResult` type by also containing
+ * all direct contributions of the processes to the LCI and LCIA results.
+ * Additionally, it contains the contributions of the (elementary) flows to the
+ * LCIA results.
  */
 public class ContributionResult extends SimpleResult {
 
@@ -22,7 +22,7 @@ public class ContributionResult extends SimpleResult {
 	 * A (elementary) flow * process matrix which contains the direct
 	 * (elementary) flow results. This is the scaled intervention matrix:
 	 * 
-	 * $$\mathbf{B} * \text{diag}(\mathbf{s})$$
+	 * $$\mathbf{B} \ \text{diag}(\mathbf{s})$$
 	 */
 	public IMatrix directFlowResults;
 

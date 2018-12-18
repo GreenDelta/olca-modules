@@ -10,11 +10,15 @@ import java.util.Set;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 
 /**
- * The TechIndex maps the linked product-outputs and waste-inputs (provider-flow
- * pairs) of a product system to a matrix index that is used in the calculation
- * and results. It also contains the process links of that product system.
- *
- * TODO: update doc and check the usage of each method
+ * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$ of a product
+ * system. It maps the process-product pairs (or process-waste pairs)
+ * $\mathit{P}$ of the product system to the respective $n$ rows and columns of
+ * $\mathbf{A}$. If the product system contains other product systems as
+ * sub-systems, these systems are handled like processes and are also mapped as
+ * pair with their quantitative reference flow to that index (and also their
+ * processes etc.).
+ * 
+ * $$\mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]$$
  */
 public class TechIndex {
 
@@ -51,8 +55,9 @@ public class TechIndex {
 	/**
 	 * Creates a new technosphere index of a product system.
 	 *
-	 * @param refFlow the reference product-output or waste-input as (processId,
-	 *                flowId) pair.
+	 * @param refFlow
+	 *            the reference product-output or waste-input as (processId,
+	 *            flowId) pair.
 	 */
 	public TechIndex(Provider refFlow) {
 		put(refFlow);
@@ -178,10 +183,12 @@ public class TechIndex {
 	/**
 	 * Adds a process link to this index.
 	 *
-	 * @param exchange The linked product-input or waste-output as (processId,
-	 *                 exchangeId) pair.
-	 * @param provider The product-output or waste-input (provider) as
-	 *                 (processId, flowId) pair.
+	 * @param exchange
+	 *            The linked product-input or waste-output as (processId,
+	 *            exchangeId) pair.
+	 * @param provider
+	 *            The product-output or waste-input (provider) as (processId,
+	 *            flowId) pair.
 	 */
 	public void putLink(LongPair exchange, Provider provider) {
 		if (links.containsKey(exchange))
