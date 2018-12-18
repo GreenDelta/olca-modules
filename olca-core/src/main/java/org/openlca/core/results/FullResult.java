@@ -57,40 +57,48 @@ public class FullResult extends ContributionResult {
 	public IMatrix upstreamFlowResults;
 	//@formatter:on
 
+	/**
+	 * A LCIA category * process-product matrix that contains the upstream
+	 * contributions (including the direct contributions) of the processes to
+	 * the LCIA result. It can be calculated by a matrix-matrix multiplication
+	 * of the characterization factor matrix $\mathbf{C}$ with the upstream
+	 * results of the elementary flows $\mathbf{U}$:
+	 * 
+	 * $$\mathbf{V} = \mathbf{C} \ \mathbf{U}$$
+	 */
+	public IMatrix upstreamImpactResults;
+
 	//@formatter:off
 	/**
-	 * An elementary flow * process-product matrix that contains the direct
-	 * contributions of the processes to the inventory result. This can be
-	 * calculated by column-wise scaling of the intervention matrix $\mathbf{B}$
-	 * with the scaling vector $\mathbf{s}$:
-	 *
-	 * $$\mathbf{G} = \mathbf{B} \ \text{diag}(\mathbf{s})$$
-	 */	
-	public IMatrix upstreamImpactResults;
+	 * A row vector the upstream contributions to the LCC result of each
+	 * process-product pair in the product system.
+	 * 
+	 * $$\mathbf{k}_u = (\mathbf{k} \ \mathbf{A}^{-1}) \ \text{diag}(c_r \ \mathbf{t})$$
+	 * 
+	 * When the reference process itself is located in a loop the total requirements
+	 * need to be multiplied with the loop factor $c_r$ to avoid double counting
+	 * of the loop contributions (as they are contained in $\mathbf{A}^{-1}$ and
+	 * $\mathbf{t}$).
+	 */
+	public IMatrix upstreamCostResults;
 	//@formatter:on
 
 	/**
-	 * The upstream cost results is a simple row vector where each entry
-	 * contains the upstream costs for the product at the given index.
-	 */
-	public IMatrix upstreamCostResults;
-
-	/**
-	 * Get the upstream flow result of the flow with the given ID for the given
-	 * process-product. Inputs have negative values here.
+	 * Get the upstream contribution of the given process-product pair $j$ to
+	 * the inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
 	public double getUpstreamFlowResult(
-			ProcessProduct provider,
+			ProcessProduct product,
 			FlowDescriptor flow) {
 		int row = flowIndex.of(flow);
-		int col = techIndex.getIndex(provider);
+		int col = techIndex.getIndex(product);
 		return adopt(flow, getValue(upstreamFlowResults, row, col));
 	}
 
 	/**
-	 * Get the sum of the upstream flow results of the flow with the given ID
-	 * for all products of the process with the given ID. Inputs have negative
-	 * values here.
+	 * Get the upstream contribution of the given process $j$ to the inventory
+	 * result of elementary flow $i$. When the process has multiple products it
+	 * is the sum of the contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamFlowResult(
 			CategorizedDescriptor process,
@@ -102,6 +110,10 @@ public class FullResult extends ContributionResult {
 		return total;
 	}
 
+	/**
+	 * Get the upstream contributions of the given process $j$ to the inventory
+	 * result of all elementary flows in the product system.
+	 */
 	public List<FlowResult> getUpstreamFlowResults(
 			CategorizedDescriptor process) {
 		List<FlowResult> results = new ArrayList<>();
@@ -116,22 +128,23 @@ public class FullResult extends ContributionResult {
 	}
 
 	/**
-	 * Get the upstream LCIA category result of the LCIA category with the given
-	 * ID for the given process-product.
+	 * Get the upstream contribution of the given process-product pair $j$ to
+	 * the LCIA category result $j$: $\mathbf{V}[i,j]$.
 	 */
 	public double getUpstreamImpactResult(
-			ProcessProduct provider,
+			ProcessProduct product,
 			ImpactCategoryDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
 		int row = impactIndex.of(impact);
-		int col = techIndex.getIndex(provider);
+		int col = techIndex.getIndex(product);
 		return getValue(upstreamImpactResults, row, col);
 	}
 
 	/**
-	 * Get the sum of the upstream LCIA category results of the LCIA category
-	 * with the given ID for all products of the process with the given ID.
+	 * Get the upstream contribution of the given process $j$ to the LCIA
+	 * category result $i$. When the process has multiple products it is the sum
+	 * of the contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamImpactResult(
 			CategorizedDescriptor process,
@@ -143,6 +156,10 @@ public class FullResult extends ContributionResult {
 		return total;
 	}
 
+	/**
+	 * Get the upstream contributions of the given process $j$ to the LCIA
+	 * category results.
+	 */
 	public List<ImpactResult> getUpstreamImpactResults(
 			CategorizedDescriptor process) {
 		List<ImpactResult> results = new ArrayList<>();
@@ -158,7 +175,8 @@ public class FullResult extends ContributionResult {
 	}
 
 	/**
-	 * Get the upstream cost result of the given process-product.
+	 * Get the upstream contribution of the given process-product pair $j$ to
+	 * the LCC result: $\mathbf{k}_u[j]$.
 	 */
 	public double getUpstreamCostResult(ProcessProduct provider) {
 		if (!hasCostResults())
@@ -168,7 +186,9 @@ public class FullResult extends ContributionResult {
 	}
 
 	/**
-	 * Get the upstream cost result of the given process.
+	 * Get the upstream contribution of the given process $j$ to the LCC result.
+	 * When the process has multiple products it is the sum of the contributions
+	 * of all of these process-product pairs.
 	 */
 	public double getUpstreamCostResult(CategorizedDescriptor process) {
 		double total = 0;
@@ -202,22 +222,34 @@ public class FullResult extends ContributionResult {
 		return -amount / total;
 	}
 
+	/**
+	 * Calculate the upstream tree for the given flow.
+	 */
 	public UpstreamTree getTree(FlowDescriptor flow) {
 		int i = flowIndex.of(flow);
 		double[] u = upstreamFlowResults.getRow(i);
 		return new UpstreamTree(flow, this, u);
 	}
 
+	/**
+	 * Calculate the upstream tree for the given LCIA category.
+	 */
 	public UpstreamTree getTree(ImpactCategoryDescriptor impact) {
 		int i = impactIndex.of(impact.getId());
 		double[] u = upstreamImpactResults.getRow(i);
 		return new UpstreamTree(impact, this, u);
 	}
 
+	/**
+	 * Calculate the upstream tree for the LCC result as costs.
+	 */
 	public UpstreamTree getCostTree() {
 		return new UpstreamTree(this, upstreamCostResults.getRow(0));
 	}
 
+	/**
+	 * Calculate the upstream tree for the LCC result as added value.
+	 */
 	public UpstreamTree getAddedValueTree() {
 		double[] u = upstreamCostResults.getRow(0);
 		for (int i = 0; i < u.length; i++) {
