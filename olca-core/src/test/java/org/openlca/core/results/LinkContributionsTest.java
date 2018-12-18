@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.ProcessLink;
@@ -97,13 +97,13 @@ public class LinkContributionsTest {
 		return link;
 	}
 
-	private Provider provider(long id, long flowId) {
+	private ProcessProduct provider(long id, long flowId) {
 		ProcessDescriptor process = new ProcessDescriptor();
 		process.setName("Process " + id);
 		process.setId(id);
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setName("Flow " + flowId);
 		flow.setId(flowId);
-		return Provider.of(process, flow);
+		return ProcessProduct.of(process, flow);
 	}
 }

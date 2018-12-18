@@ -25,6 +25,6 @@ public interface LinkingCallback {
 	 * 
 	 * TODO: update doc
 	 */
-	List<Provider> select(CalcExchange e, List<Provider> providerCandidates);
+	List<ProcessProduct> select(CalcExchange e, List<ProcessProduct> providerCandidates);
 
 }

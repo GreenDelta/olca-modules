@@ -3,7 +3,7 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
@@ -27,15 +27,15 @@ public class SimpleResult extends BaseResult {
 	public double[] scalingVector;
 
 	/**
-	 * This is a vector which contains for each process product the total amount
-	 * of this product to fulfill the demand of a product system. The amount is
-	 * given in the reference unit of the respective flow and can be calculated
-	 * for a process product i via:
-	 *
-	 * tr_i = s_i * A_{i,i}
-	 *
-	 * Where s_i is the scaling factor for the process product and A{i, i} the
-	 * respective entry in the technology matrix.
+	 * The total requirements of the products to fulfill the demand of the
+	 * product system. As our technology matrix $\mathbf{A}$ is indexed
+	 * symmetrically (means rows and columns refer to the same process-product
+	 * pair) our product amounts are on the diagonal of the technology matrix
+	 * $\mathbf{A}$ and the total requirements can be calculated by the
+	 * following equation where $\mathbf{s}$ is the scaling vector ($\odot$
+	 * denotes element-wise multiplication):
+	 * 
+	 * $$\mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}$$
 	 */
 	public double[] totalRequirements;
 
@@ -50,7 +50,12 @@ public class SimpleResult extends BaseResult {
 	public double[] totalFlowResults;
 
 	/**
-	 * The total results of all LCIA categories.
+	 * The LCIA result $\mathbf{h}$ of a product system:
+	 * 
+	 * $$\mathbf{h} = \mathbf{C} \ \mathbf{g}$$
+	 * 
+	 * Where $\mathbf{C}$ is a flow * LCIA category matrix with the
+	 * characterization factors and $\mathbf{g}$ the inventory result.
 	 */
 	public double[] totalImpactResults;
 
@@ -69,7 +74,7 @@ public class SimpleResult extends BaseResult {
 	 *
 	 * TODO: doc
 	 */
-	public double getScalingFactor(Provider provider) {
+	public double getScalingFactor(ProcessProduct provider) {
 		int idx = techIndex.getIndex(provider);
 		if (idx < 0 || idx > scalingVector.length)
 			return 0;
@@ -82,7 +87,7 @@ public class SimpleResult extends BaseResult {
 	 */
 	public double getScalingFactor(CategorizedDescriptor d) {
 		double factor = 0;
-		for (Provider p : techIndex.getProviders(d)) {
+		for (ProcessProduct p : techIndex.getProviders(d)) {
 			factor += getScalingFactor(p);
 		}
 		return factor;

@@ -65,7 +65,7 @@ public class ProductSystemBuilder {
 		Flow refProduct = system.referenceExchange.flow;
 		if (refProduct == null)
 			return;
-		Provider ref = Provider.of(refProcess, refProduct);
+		ProcessProduct ref = ProcessProduct.of(refProcess, refProduct);
 		autoComplete(system, ref);
 	}
 
@@ -74,7 +74,7 @@ public class ProductSystemBuilder {
 	 * linking at the given process product which can be arbitrary product in
 	 * the supply chain of the given system.
 	 */
-	public void autoComplete(ProductSystem system, Provider product) {
+	public void autoComplete(ProductSystem system, ProcessProduct product) {
 		log.trace("auto complete product system {}", system);
 		log.trace("build product index");
 		ITechIndexBuilder builder;
@@ -96,7 +96,7 @@ public class ProductSystemBuilder {
 			linkIds.add(link.exchangeId);
 		}
 		for (LongPair exchange : index.getLinkedExchanges()) {
-			Provider provider = index.getLinkedProvider(exchange);
+			ProcessProduct provider = index.getLinkedProvider(exchange);
 			if (provider == null)
 				continue;
 			system.processes.add(provider.id());

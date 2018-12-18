@@ -2,7 +2,7 @@ package org.openlca.core.math;
 
 import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -146,7 +146,7 @@ public class LcaCalculator {
 	 *
 	 */
 	public double[] getScalingVector(IMatrix inverse, TechIndex techIndex) {
-		Provider refProduct = techIndex.getRefFlow();
+		ProcessProduct refProduct = techIndex.getRefFlow();
 		int idx = techIndex.getIndex(refProduct);
 		double[] s = inverse.getColumn(idx);
 		double demand = techIndex.getDemand();

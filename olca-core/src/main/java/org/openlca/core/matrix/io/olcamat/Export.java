@@ -13,7 +13,7 @@ import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.IMatrix;
@@ -71,7 +71,7 @@ public class Export implements Runnable {
 	}
 
 	private MatrixData dbInventory() throws Exception {
-		List<Provider> products = cache.getProcessTable().getProviders();
+		List<ProcessProduct> products = cache.getProcessTable().getProviders();
 		TechIndex techIndex = new TechIndex(products.get(0));
 		for (int i = 1; i < products.size(); i++) {
 			techIndex.put(products.get(i));
@@ -99,11 +99,11 @@ public class Export implements Runnable {
 				.getExchangeCache()
 				.getAll(idx.getProcessIds());
 		for (int i = 0; i < idx.size(); i++) {
-			Provider recipient = idx.getProviderAt(i);
+			ProcessProduct recipient = idx.getProviderAt(i);
 			List<CalcExchange> candidates = search.getLinkCandidates(
 					exchanges.get(recipient.id()));
 			for (CalcExchange linkExchange : candidates) {
-				Provider provider = search.find(linkExchange);
+				ProcessProduct provider = search.find(linkExchange);
 				if (provider == null)
 					continue;
 				LongPair exchange = new LongPair(recipient.id(),

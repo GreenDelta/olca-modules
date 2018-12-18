@@ -11,7 +11,7 @@ import java.util.Set;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.FlowType;
@@ -38,12 +38,12 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
-	public TechIndex build(Provider refProduct) {
+	public TechIndex build(ProcessProduct refProduct) {
 		return build(refProduct, 1.0);
 	}
 
 	@Override
-	public TechIndex build(Provider refProduct, double demand) {
+	public TechIndex build(ProcessProduct refProduct, double demand) {
 		log.trace("build product index for {} with cutoff=", refProduct,
 				cutoff);
 		TechIndex index = new TechIndex(refProduct);
@@ -61,7 +61,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		if (system == null)
 			return;
 		for (ProcessLink link : system.processLinks) {
-			Provider provider = providers.getProvider(
+			ProcessProduct provider = providers.getProvider(
 					link.providerId, link.flowId);
 			if (provider == null)
 				continue;
@@ -90,9 +90,9 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 		Node root;
 
 		List<Node> next = new ArrayList<>();
-		HashMap<Provider, Node> nodes = new HashMap<>();
+		HashMap<ProcessProduct, Node> nodes = new HashMap<>();
 
-		Graph(Provider refProduct, double demand) {
+		Graph(ProcessProduct refProduct, double demand) {
 			this.root = new Node(refProduct, demand);
 			root.flow = refProduct;
 			root.state = NodeState.WAITING;
@@ -130,7 +130,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 				List<Node> nextLayer) {
 			for (CalcExchange linkExchange : providers
 					.getLinkCandidates(exchanges)) {
-				Provider provider = providers.find(linkExchange);
+				ProcessProduct provider = providers.find(linkExchange);
 				if (provider == null)
 					continue;
 				double amount = amount(linkExchange);
@@ -147,7 +147,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 			}
 		}
 
-		private Node createNode(double demand, Provider product,
+		private Node createNode(double demand, ProcessProduct product,
 				List<Node> nextLayer) {
 			Node node = new Node(product, demand);
 			nodes.put(product, node);

@@ -10,7 +10,7 @@ import java.util.Set;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.ProcessLink;
@@ -33,30 +33,30 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 	}
 
 	@Override
-	public TechIndex build(Provider refProduct) {
+	public TechIndex build(ProcessProduct refProduct) {
 		return build(refProduct, 1.0);
 	}
 
 	@Override
-	public TechIndex build(Provider refFlow, double demand) {
+	public TechIndex build(ProcessProduct refFlow, double demand) {
 		log.trace("build product index for {}", refFlow);
 		TechIndex index = new TechIndex(refFlow);
 		index.setDemand(demand);
 		addSystemLinks(index);
-		List<Provider> block = new ArrayList<>();
+		List<ProcessProduct> block = new ArrayList<>();
 		block.add(refFlow);
-		HashSet<Provider> handled = new HashSet<>();
+		HashSet<ProcessProduct> handled = new HashSet<>();
 		while (!block.isEmpty()) {
-			List<Provider> nextBlock = new ArrayList<>();
+			List<ProcessProduct> nextBlock = new ArrayList<>();
 			log.trace("fetch next block with {} entries", block.size());
 			Map<Long, List<CalcExchange>> exchanges = fetchExchanges(block);
-			for (Provider recipient : block) {
+			for (ProcessProduct recipient : block) {
 				handled.add(recipient);
 				List<CalcExchange> all = exchanges.get(recipient.id());
 				List<CalcExchange> candidates = providers
 						.getLinkCandidates(all);
 				for (CalcExchange linkExchange : candidates) {
-					Provider provider = providers.find(linkExchange);
+					ProcessProduct provider = providers.find(linkExchange);
 					if (provider == null)
 						continue;
 					LongPair exchange = new LongPair(recipient.id(),
@@ -76,7 +76,7 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 		if (system == null)
 			return;
 		for (ProcessLink link : system.processLinks) {
-			Provider provider = providers.getProvider(
+			ProcessProduct provider = providers.getProvider(
 					link.providerId, link.flowId);
 			if (provider == null)
 				continue;
@@ -85,11 +85,11 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 		}
 	}
 
-	private Map<Long, List<CalcExchange>> fetchExchanges(List<Provider> block) {
+	private Map<Long, List<CalcExchange>> fetchExchanges(List<ProcessProduct> block) {
 		if (block.isEmpty())
 			return Collections.emptyMap();
 		Set<Long> processIds = new HashSet<>();
-		for (Provider provider : block) {
+		for (ProcessProduct provider : block) {
 			processIds.add(provider.id());
 		}
 		try {

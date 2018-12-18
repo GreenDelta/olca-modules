@@ -20,7 +20,7 @@ public class AllocationIndexTest {
 		flow.setId(1);
 		ProcessDescriptor process = new ProcessDescriptor();
 		process.setId(1);
-		Provider provider = Provider.of(process, flow);
+		ProcessProduct provider = ProcessProduct.of(process, flow);
 
 		TechIndex index = new TechIndex(provider);
 		AllocationIndex allocationIndex = AllocationIndex.create(index,

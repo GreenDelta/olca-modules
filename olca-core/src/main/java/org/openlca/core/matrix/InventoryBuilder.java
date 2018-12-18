@@ -58,8 +58,8 @@ class InventoryBuilder {
 					.getAll(techIndex.getProcessIds());
 			for (Long processID : techIndex.getProcessIds()) {
 				List<CalcExchange> exchanges = map.get(processID);
-				List<Provider> providers = techIndex.getProviders(processID);
-				for (Provider provider : providers) {
+				List<ProcessProduct> providers = techIndex.getProviders(processID);
+				for (ProcessProduct provider : providers) {
 					for (CalcExchange exchange : exchanges) {
 						putExchangeValue(provider, exchange);
 					}
@@ -71,7 +71,7 @@ class InventoryBuilder {
 		}
 	}
 
-	private void putExchangeValue(Provider provider, CalcExchange e) {
+	private void putExchangeValue(ProcessProduct provider, CalcExchange e) {
 		if (e.flowType == FlowType.ELEMENTARY_FLOW) {
 			// elementary flows
 			addIntervention(provider, e);
@@ -104,19 +104,19 @@ class InventoryBuilder {
 		}
 	}
 
-	private void addProcessLink(Provider processProduct, CalcExchange e) {
+	private void addProcessLink(ProcessProduct processProduct, CalcExchange e) {
 		LongPair exchange = LongPair.of(e.processId, e.exchangeId);
-		Provider provider = techIndex.getLinkedProvider(exchange);
+		ProcessProduct provider = techIndex.getLinkedProvider(exchange);
 		int row = techIndex.getIndex(provider);
 		add(row, processProduct, technologyMatrix, e);
 	}
 
-	private void addIntervention(Provider provider, CalcExchange e) {
+	private void addIntervention(ProcessProduct provider, CalcExchange e) {
 		int row = flowIndex.of(e.flowId);
 		add(row, provider, interventionMatrix, e);
 	}
 
-	private void add(int row, Provider provider, ExchangeMatrix matrix,
+	private void add(int row, ProcessProduct provider, ExchangeMatrix matrix,
 			CalcExchange exchange) {
 		int col = techIndex.getIndex(provider);
 		if (row < 0 || col < 0)

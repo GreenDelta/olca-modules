@@ -97,7 +97,7 @@ class AllocationIndex {
 		productFactors.put(processProduct, factor.value);
 	}
 
-	public double getFactor(Provider provider, CalcExchange e) {
+	public double getFactor(ProcessProduct provider, CalcExchange e) {
 		if (!e.isInput && e.flowType == FlowType.PRODUCT_FLOW)
 			return 1d;
 		if (e.isInput && e.flowType == FlowType.WASTE_FLOW)

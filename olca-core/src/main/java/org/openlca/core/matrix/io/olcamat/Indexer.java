@@ -10,7 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.RootEntityDao;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
@@ -86,7 +86,7 @@ class Indexer {
 		e.unitName = u.getName();
 	}
 
-	TechIndexEntry getTechEntry(Provider product) {
+	TechIndexEntry getTechEntry(ProcessProduct product) {
 		TechIndexEntry e = new TechIndexEntry();
 		if (product == null)
 			return e;

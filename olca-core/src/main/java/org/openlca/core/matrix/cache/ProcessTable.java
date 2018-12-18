@@ -8,7 +8,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
@@ -131,30 +131,30 @@ public class ProcessTable {
 		return allocMap.get(processId);
 	}
 
-	public Provider getProvider(long id, long flowId) {
+	public ProcessProduct getProvider(long id, long flowId) {
 		ProcessDescriptor process = processes.get(id);
 		FlowDescriptor flow = flows.get(flowId);
 		if (flow == null || process == null)
 			return null;
-		return Provider.of(process, flow);
+		return ProcessProduct.of(process, flow);
 	}
 
 	/**
 	 * Returns the list of providers that have the flow with the given ID as
 	 * product output or waste input.
 	 */
-	public List<Provider> getProviders(long flowId) {
+	public List<ProcessProduct> getProviders(long flowId) {
 		TLongArrayList list = flowProviders.get(flowId);
 		if (list == null)
 			return Collections.emptyList();
 		FlowDescriptor flow = flows.get(flowId);
 		if (flow == null)
 			return Collections.emptyList();
-		ArrayList<Provider> providers = new ArrayList<>();
+		ArrayList<ProcessProduct> providers = new ArrayList<>();
 		list.forEach(id -> {
 			ProcessDescriptor d = processes.get(id);
 			if (d != null) {
-				providers.add(Provider.of(d, flow));
+				providers.add(ProcessProduct.of(d, flow));
 			}
 			return true;
 		});
@@ -163,14 +163,14 @@ public class ProcessTable {
 	}
 
 	/** Get all product or waste treatment providers from the database. */
-	public List<Provider> getProviders() {
-		List<Provider> list = new ArrayList<>();
+	public List<ProcessProduct> getProviders() {
+		List<ProcessProduct> list = new ArrayList<>();
 		TLongObjectIterator<TLongArrayList> it = flowProviders.iterator();
 		while (it.hasNext()) {
 			it.advance();
 			long flowId = it.key();
 			for (long providerId : it.value().toArray()) {
-				Provider p = getProvider(providerId, flowId);
+				ProcessProduct p = getProvider(providerId, flowId);
 				if (p != null) {
 					list.add(p);
 				}

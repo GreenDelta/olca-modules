@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -53,7 +53,7 @@ public class SolverTest {
 		flow.setId(1);
 		ProcessDescriptor process = new ProcessDescriptor();
 		process.setId(1);
-		Provider provider = Provider.of(process, flow);
+		ProcessProduct provider = ProcessProduct.of(process, flow);
 
 		TechIndex techIndex = new TechIndex(provider);
 		techIndex.put(provider);

@@ -3,7 +3,7 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
@@ -62,7 +62,7 @@ public class ContributionResult extends SimpleResult {
 	 *
 	 * TODO: doc
 	 */
-	public double getDirectFlowResult(Provider provider, FlowDescriptor flow) {
+	public double getDirectFlowResult(ProcessProduct provider, FlowDescriptor flow) {
 		if (!hasFlowResults())
 			return 0;
 		int row = flowIndex.of(flow);
@@ -73,7 +73,7 @@ public class ContributionResult extends SimpleResult {
 	public double getDirectFlowResult(CategorizedDescriptor d,
 			FlowDescriptor flow) {
 		double total = 0;
-		for (Provider p : techIndex.getProviders(d)) {
+		for (ProcessProduct p : techIndex.getProviders(d)) {
 			total += getDirectFlowResult(p, flow);
 		}
 		return total;
@@ -111,7 +111,7 @@ public class ContributionResult extends SimpleResult {
 	 *
 	 * TODO: doc
 	 */
-	public double getDirectImpactResult(Provider provider,
+	public double getDirectImpactResult(ProcessProduct provider,
 			ImpactCategoryDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
@@ -129,7 +129,7 @@ public class ContributionResult extends SimpleResult {
 	public double getDirectImpactResult(CategorizedDescriptor d,
 			ImpactCategoryDescriptor impact) {
 		double total = 0;
-		for (Provider p : techIndex.getProviders(d)) {
+		for (ProcessProduct p : techIndex.getProviders(d)) {
 			total += getDirectImpactResult(p, impact);
 		}
 		return total;
@@ -155,7 +155,7 @@ public class ContributionResult extends SimpleResult {
 				d -> getDirectImpactResult(d, impact));
 	}
 
-	public double getDirectCostResult(Provider provider) {
+	public double getDirectCostResult(ProcessProduct provider) {
 		if (!hasCostResults())
 			return 0;
 		int col = techIndex.getIndex(provider);
@@ -166,7 +166,7 @@ public class ContributionResult extends SimpleResult {
 
 	public double getDirectCostResult(CategorizedDescriptor d) {
 		double total = 0;
-		for (Provider provider : techIndex.getProviders(d)) {
+		for (ProcessProduct provider : techIndex.getProviders(d)) {
 			total += getDirectCostResult(provider);
 		}
 		return total;
@@ -213,7 +213,7 @@ public class ContributionResult extends SimpleResult {
 		if (matrix == null)
 			return 0;
 		double colSum = 0;
-		for (Provider provider : techIndex.getProviders(providerID)) {
+		for (ProcessProduct provider : techIndex.getProviders(providerID)) {
 			int col = techIndex.getIndex(provider);
 			colSum += getValue(matrix, row, col);
 		}

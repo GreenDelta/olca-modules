@@ -3,7 +3,7 @@ package org.openlca.core.results;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -51,7 +51,7 @@ public class FullResult extends ContributionResult {
 	 * process-product. Inputs have negative values here.
 	 */
 	public double getUpstreamFlowResult(
-			Provider provider,
+			ProcessProduct provider,
 			FlowDescriptor flow) {
 		int row = flowIndex.of(flow);
 		int col = techIndex.getIndex(provider);
@@ -67,7 +67,7 @@ public class FullResult extends ContributionResult {
 			CategorizedDescriptor process,
 			FlowDescriptor flow) {
 		double total = 0;
-		for (Provider p : techIndex.getProviders(process)) {
+		for (ProcessProduct p : techIndex.getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
 		}
 		return total;
@@ -91,7 +91,7 @@ public class FullResult extends ContributionResult {
 	 * ID for the given process-product.
 	 */
 	public double getUpstreamImpactResult(
-			Provider provider,
+			ProcessProduct provider,
 			ImpactCategoryDescriptor impact) {
 		if (!hasImpactResults())
 			return 0;
@@ -108,7 +108,7 @@ public class FullResult extends ContributionResult {
 			CategorizedDescriptor process,
 			ImpactCategoryDescriptor impact) {
 		double total = 0;
-		for (Provider p : techIndex.getProviders(process)) {
+		for (ProcessProduct p : techIndex.getProviders(process)) {
 			total += getUpstreamImpactResult(p, impact);
 		}
 		return total;
@@ -131,7 +131,7 @@ public class FullResult extends ContributionResult {
 	/**
 	 * Get the upstream cost result of the given process-product.
 	 */
-	public double getUpstreamCostResult(Provider provider) {
+	public double getUpstreamCostResult(ProcessProduct provider) {
 		if (!hasCostResults())
 			return 0;
 		int col = techIndex.getIndex(provider);
@@ -143,7 +143,7 @@ public class FullResult extends ContributionResult {
 	 */
 	public double getUpstreamCostResult(CategorizedDescriptor process) {
 		double total = 0;
-		for (Provider p : techIndex.getProviders(process)) {
+		for (ProcessProduct p : techIndex.getProviders(process)) {
 			total += getUpstreamCostResult(p);
 		}
 		return total;
@@ -155,12 +155,12 @@ public class FullResult extends ContributionResult {
 	 * product system. The returned share is a value between 0 and 1.
 	 */
 	public double getLinkShare(ProcessLink link) {
-		Provider provider = techIndex.getProvider(link.providerId, link.flowId);
+		ProcessProduct provider = techIndex.getProvider(link.providerId, link.flowId);
 		int providerIdx = techIndex.getIndex(provider);
 		if (providerIdx < 0)
 			return 0;
 		double amount = 0.0;
-		for (Provider process : techIndex.getProviders(link.processId)) {
+		for (ProcessProduct process : techIndex.getProviders(link.processId)) {
 			int processIdx = techIndex.getIndex(process);
 			amount += techMatrix.get(providerIdx, processIdx);
 		}

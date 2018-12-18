@@ -7,7 +7,7 @@ import java.util.List;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 
 class IndexWriter {
@@ -33,7 +33,7 @@ class IndexWriter {
 		List<String> rows = new ArrayList<>(techIndex.size() + 1);
 		rows.add(Csv.techIndexHeader());
 		for (int i = 0; i < techIndex.size(); i++) {
-			Provider idx = techIndex.getProviderAt(i);
+			ProcessProduct idx = techIndex.getProviderAt(i);
 			TechIndexEntry e = indexer.getTechEntry(idx);
 			e.index = i;
 			rows.add(e.toCsv());

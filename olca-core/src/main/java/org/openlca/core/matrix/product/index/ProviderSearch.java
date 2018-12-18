@@ -7,7 +7,7 @@ import java.util.List;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
@@ -30,10 +30,10 @@ public class ProviderSearch {
 	 * Find the best provider for the given product input or waste output
 	 * according to the search settings.
 	 */
-	public Provider find(CalcExchange e) {
+	public ProcessProduct find(CalcExchange e) {
 		if (e == null || cancel())
 			return null;
-		List<Provider> providers = processTable.getProviders(e.flowId);
+		List<ProcessProduct> providers = processTable.getProviders(e.flowId);
 		if (providers.isEmpty())
 			return null;
 
@@ -42,7 +42,7 @@ public class ProviderSearch {
 		// for options as the callback should be only called when
 		// there are multiple options.
 		if (config.providerLinking != DefaultProviders.IGNORE) {
-			for (Provider provider : providers) {
+			for (ProcessProduct provider : providers) {
 				if (provider.id() == e.defaultProviderId)
 					return provider;
 			}
@@ -61,8 +61,8 @@ public class ProviderSearch {
 				return providers.get(0);
 		}
 
-		Provider candidate = null;
-		for (Provider next : providers) {
+		ProcessProduct candidate = null;
+		for (ProcessProduct next : providers) {
 			if (isBetter(e, candidate, next)) {
 				candidate = next;
 			}
@@ -70,7 +70,7 @@ public class ProviderSearch {
 		return candidate;
 	}
 
-	private boolean isBetter(CalcExchange e, Provider old, Provider newOption) {
+	private boolean isBetter(CalcExchange e, ProcessProduct old, ProcessProduct newOption) {
 		if (old == null)
 			return true;
 		if (newOption == null)
@@ -118,7 +118,7 @@ public class ProviderSearch {
 				&& config.callback.cancel();
 	}
 
-	Provider getProvider(long id, long flowId) {
+	ProcessProduct getProvider(long id, long flowId) {
 		return processTable.getProvider(id, flowId);
 	}
 

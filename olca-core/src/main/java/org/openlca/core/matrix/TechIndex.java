@@ -26,24 +26,24 @@ public class TechIndex {
 	 * Maps the product-outputs and waste-inputs as (processId, flowId) pairs to
 	 * an ordinal index.
 	 */
-	private final HashMap<Provider, Integer> index = new HashMap<>();
+	private final HashMap<ProcessProduct, Integer> index = new HashMap<>();
 
 	/**
 	 * Contains the product-outputs and waste-inputs in an ordinal list.
 	 */
-	private final ArrayList<Provider> providers = new ArrayList<>();
+	private final ArrayList<ProcessProduct> providers = new ArrayList<>();
 
 	/**
 	 * Maps linked exchanges (keys) as (processId, exchangeId) pairs to the
 	 * respective provider.
 	 */
-	private final HashMap<LongPair, Provider> links = new HashMap<>();
+	private final HashMap<LongPair, ProcessProduct> links = new HashMap<>();
 
 	/**
 	 * Maps the process IDs to the list of product-outputs and waste-inputs
 	 * provided by the respective process.
 	 */
-	private final HashMap<Long, List<Provider>> processProviders = new HashMap<>();
+	private final HashMap<Long, List<ProcessProduct>> processProviders = new HashMap<>();
 
 	/**
 	 * The demand value of the reference flow of the product system described by
@@ -59,7 +59,7 @@ public class TechIndex {
 	 *            the reference product-output or waste-input as (processId,
 	 *            flowId) pair.
 	 */
-	public TechIndex(Provider refFlow) {
+	public TechIndex(ProcessProduct refFlow) {
 		put(refFlow);
 	}
 
@@ -75,7 +75,7 @@ public class TechIndex {
 	 * Get the reference product-output or waste-input of the product system
 	 * described by this index.
 	 */
-	public Provider getRefFlow() {
+	public ProcessProduct getRefFlow() {
 		return providers.get(0);
 	}
 
@@ -99,7 +99,7 @@ public class TechIndex {
 	 * Returns the ordinal index of the given provider (product-output or waste
 	 * input).
 	 */
-	public int getIndex(Provider provider) {
+	public int getIndex(ProcessProduct provider) {
 		Integer idx = index.get(provider);
 		if (idx == null)
 			return -1;
@@ -110,7 +110,7 @@ public class TechIndex {
 	 * Returns true if the given provider (product-output or waste-input) is
 	 * contained in this index.
 	 */
-	public boolean contains(Provider provider) {
+	public boolean contains(ProcessProduct provider) {
 		return index.containsKey(provider);
 	}
 
@@ -118,11 +118,11 @@ public class TechIndex {
 		return getProvider(id, flowId) != null;
 	}
 
-	public Provider getProvider(long id, long flowId) {
-		List<Provider> list = processProviders.get(id);
+	public ProcessProduct getProvider(long id, long flowId) {
+		List<ProcessProduct> list = processProviders.get(id);
 		if (list == null)
 			return null;
-		for (Provider p : list) {
+		for (ProcessProduct p : list) {
 			if (p.flowId() == flowId)
 				return p;
 		}
@@ -133,12 +133,12 @@ public class TechIndex {
 	 * Adds the given provider (product-output or waste-input) to this index.
 	 * Does nothing if it is already contained in this index.
 	 */
-	public void put(Provider provider) {
+	public void put(ProcessProduct provider) {
 		if (contains(provider))
 			return;
 		int idx = index.size();
 		index.put(provider, idx);
-		List<Provider> list = processProviders.get(provider.id());
+		List<ProcessProduct> list = processProviders.get(provider.id());
 		if (list == null) {
 			list = new ArrayList<>();
 			processProviders.put(provider.id(), list);
@@ -150,7 +150,7 @@ public class TechIndex {
 	/**
 	 * Returns the provider (product-output or waste-input) at the given index.
 	 */
-	public Provider getProviderAt(int index) {
+	public ProcessProduct getProviderAt(int index) {
 		return providers.get(index);
 	}
 
@@ -158,10 +158,10 @@ public class TechIndex {
 	 * Get all providers with the given descriptor of a process or product
 	 * system as entity.
 	 */
-	public List<Provider> getProviders(CategorizedDescriptor d) {
+	public List<ProcessProduct> getProviders(CategorizedDescriptor d) {
 		if (d == null)
 			return Collections.emptyList();
-		List<Provider> providers = processProviders.get(d.getId());
+		List<ProcessProduct> providers = processProviders.get(d.getId());
 		if (providers == null)
 			return Collections.emptyList();
 		return new ArrayList<>(providers);
@@ -173,8 +173,8 @@ public class TechIndex {
 	 *
 	 * TODO: do we need this anymore?
 	 */
-	public List<Provider> getProviders(long processId) {
-		List<Provider> providers = processProviders.get(processId);
+	public List<ProcessProduct> getProviders(long processId) {
+		List<ProcessProduct> providers = processProviders.get(processId);
 		if (providers == null)
 			return Collections.emptyList();
 		return new ArrayList<>(providers);
@@ -190,7 +190,7 @@ public class TechIndex {
 	 *            The product-output or waste-input (provider) as (processId,
 	 *            flowId) pair.
 	 */
-	public void putLink(LongPair exchange, Provider provider) {
+	public void putLink(LongPair exchange, ProcessProduct provider) {
 		if (links.containsKey(exchange))
 			return;
 		put(provider);
@@ -210,7 +210,7 @@ public class TechIndex {
 	 * Returns the linked provider (product-output or waste-input) for the given
 	 * exchange (product-input or waste-output)
 	 */
-	public Provider getLinkedProvider(LongPair exchange) {
+	public ProcessProduct getLinkedProvider(LongPair exchange) {
 		return links.get(exchange);
 	}
 
@@ -230,7 +230,7 @@ public class TechIndex {
 	@Deprecated
 	public Set<Long> getProcessIds() {
 		HashSet<Long> set = new HashSet<>();
-		for (Provider p : providers) {
+		for (ProcessProduct p : providers) {
 			set.add(p.id());
 		}
 		return set;
@@ -239,7 +239,7 @@ public class TechIndex {
 	/**
 	 * Returns all providers of this index.
 	 */
-	public Set<Provider> content() {
+	public Set<ProcessProduct> content() {
 		return new HashSet<>(providers);
 	}
 }

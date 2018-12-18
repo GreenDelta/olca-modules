@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -87,7 +87,7 @@ public abstract class BaseResult implements IResult {
 	 * as sub-systems, these systems are handled like processes and are also
 	 * included as pairs with their quantitative reference flow.
 	 */
-	public Set<Provider> getProviders() {
+	public Set<ProcessProduct> getProviders() {
 		if (techIndex == null)
 			return Collections.emptySet();
 		return techIndex.content();
@@ -96,7 +96,7 @@ public abstract class BaseResult implements IResult {
 	@Override
 	public Set<CategorizedDescriptor> getProcesses() {
 		return getProviders().stream()
-				.map(p -> p.entity)
+				.map(p -> p.process)
 				.collect(Collectors.toSet());
 	}
 

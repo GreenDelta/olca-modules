@@ -12,7 +12,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.ParameterTable;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
@@ -39,7 +39,7 @@ public class DataStructures {
 	public static TechIndex createProductIndex(
 			ProductSystem system, IDatabase db) {
 		Exchange refExchange = system.referenceExchange;
-		Provider refFlow = Provider.of(
+		ProcessProduct refFlow = ProcessProduct.of(
 				system.referenceProcess, refExchange.flow);
 		TechIndex index = new TechIndex(refFlow);
 		index.setDemand(ReferenceAmount.get(system));
@@ -64,7 +64,7 @@ public class DataStructures {
 			FlowDescriptor flow = flows.get(link.flowId);
 			if (flow == null)
 				continue;
-			Provider provider = Provider.of(p, flow);
+			ProcessProduct provider = ProcessProduct.of(p, flow);
 			index.put(provider);
 			LongPair exchange = new LongPair(link.processId, link.exchangeId);
 			index.putLink(exchange, provider);

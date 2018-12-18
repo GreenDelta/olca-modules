@@ -12,7 +12,7 @@ import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
@@ -76,7 +76,7 @@ public class RegionalizedCalculator {
 			IMatrix assessedEnvi = solver.multiply(factors, m.enviMatrix);
 			eachKml(regioSetup, impactTable, interpreter, (kml, kmlFactors) -> {
 				IMatrix assessedKml = solver.multiply(kmlFactors, m.enviMatrix);
-				for (Provider product : kml.processProducts) {
+				for (ProcessProduct product : kml.processProducts) {
 					int col = r.techIndex.getIndex(product);
 					for (int row = 0; row < assessedEnvi.rows(); row++) {
 						assessedEnvi.set(row, col, assessedKml.get(row, col));

@@ -11,7 +11,7 @@ import org.openlca.core.math.DataStructures;
 import org.openlca.core.matrix.ExchangeMatrix;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.Inventory;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
@@ -70,7 +70,7 @@ public class CsvMatrixExport implements Runnable {
 		TechIndex techIndex = inventory.productIndex;
 		int size = techIndex.size();
 		for (int row = 0; row < size; row++) {
-			Provider product = techIndex.getProviderAt(row);
+			ProcessProduct product = techIndex.getProviderAt(row);
 			FlowDescriptor flow = product.flow;
 			writeName(flow, buffer);
 			sep(buffer);
@@ -124,7 +124,7 @@ public class CsvMatrixExport implements Runnable {
 		sep(buffer);
 		int columns = techIndex.size();
 		for (int col = 0; col < columns; col++) {
-			Provider product = techIndex.getProviderAt(col);
+			ProcessProduct product = techIndex.getProviderAt(col);
 			FlowDescriptor flow = product.flow;
 			writeName(flow, buffer);
 			sep(buffer, col, columns);
@@ -133,7 +133,7 @@ public class CsvMatrixExport implements Runnable {
 		sep(buffer);
 		sep(buffer);
 		for (int col = 0; col < columns; col++) {
-			Provider product = techIndex.getProviderAt(col);
+			ProcessProduct product = techIndex.getProviderAt(col);
 			FlowDescriptor flow = product.flow;
 			writeCategory(flow, buffer);
 			sep(buffer, col, columns);

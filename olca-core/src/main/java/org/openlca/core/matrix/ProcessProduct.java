@@ -14,21 +14,21 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  * or more processes in a product system. Thus, it describes the provider part
  * of a process link and is mapped to the index of the technology matrix.
  */
-public class Provider {
+public class ProcessProduct {
 
-	public CategorizedDescriptor entity;
+	public CategorizedDescriptor process;
 	public FlowDescriptor flow;
 
-	public static Provider of(
+	public static ProcessProduct of(
 			CategorizedDescriptor entity,
 			FlowDescriptor flow) {
-		Provider p = new Provider();
-		p.entity = entity;
+		ProcessProduct p = new ProcessProduct();
+		p.process = entity;
 		p.flow = flow;
 		return p;
 	}
 
-	public static Provider of(
+	public static ProcessProduct of(
 			Process process,
 			Flow flow) {
 		return of(Descriptors.toDescriptor(process),
@@ -37,15 +37,15 @@ public class Provider {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(entity, flow);
+		return Objects.hash(process, flow);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Provider))
+		if (!(obj instanceof ProcessProduct))
 			return false;
-		Provider other = (Provider) obj;
-		return Objects.equals(this.entity, other.entity)
+		ProcessProduct other = (ProcessProduct) obj;
+		return Objects.equals(this.process, other.process)
 				&& Objects.equals(this.flow, other.flow);
 	}
 
@@ -62,7 +62,7 @@ public class Provider {
 	 * provider.
 	 */
 	public long id() {
-		return entity == null ? 0L : entity.getId();
+		return process == null ? 0L : process.getId();
 	}
 
 	public LongPair pair() {
@@ -70,8 +70,8 @@ public class Provider {
 	}
 
 	public Long locationId() {
-		if (entity instanceof ProcessDescriptor)
-			return ((ProcessDescriptor) entity).getLocation();
+		if (process instanceof ProcessDescriptor)
+			return ((ProcessDescriptor) process).getLocation();
 		return null;
 	}
 

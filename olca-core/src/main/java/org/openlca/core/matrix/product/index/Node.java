@@ -3,7 +3,7 @@ package org.openlca.core.matrix.product.index;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 
 /**
  * When building a product system graph, a node represents a product output or
@@ -23,7 +23,7 @@ class Node implements Comparable<Node> {
 	 * 
 	 * TODO: update doc
 	 */
-	Provider flow;
+	ProcessProduct flow;
 
 	/**
 	 * The maximum demanded amount of product in the product system.
@@ -51,7 +51,7 @@ class Node implements Comparable<Node> {
 	 */
 	List<Link> links = new ArrayList<>();
 
-	Node(Provider flow, double demand) {
+	Node(ProcessProduct flow, double demand) {
 		this.flow = flow;
 		this.demand = demand;
 		state = NodeState.WAITING;

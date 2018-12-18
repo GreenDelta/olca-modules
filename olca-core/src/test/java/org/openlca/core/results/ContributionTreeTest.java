@@ -7,7 +7,7 @@ import org.openlca.core.math.LcaCalculator;
 import org.openlca.core.matrix.FlowIndex;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.Provider;
+import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -55,13 +55,13 @@ public class ContributionTreeTest {
 		Assert.assertEquals(0.5, tree.childs(tree.root).get(1).result, 1e-16);
 	}
 
-	private Provider provider(long id, long flowId) {
+	private ProcessProduct provider(long id, long flowId) {
 		ProcessDescriptor process = new ProcessDescriptor();
 		process.setName("Process " + id);
 		process.setId(id);
 		FlowDescriptor flow = new FlowDescriptor();
 		flow.setName("Flow " + flowId);
 		flow.setId(flowId);
-		return Provider.of(process, flow);
+		return ProcessProduct.of(process, flow);
 	}
 }
