@@ -11,34 +11,63 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 
 /**
- * A full result extends the base and contribution result by providing
- * additionally all calculated upstream-results for intervention flows and LCIA
- * categories for each single process-product in the system.
+ * The `FullResult` extends the `ContributionResult`. It contains additionally
+ * the upstream contributions to LCI, LCIA, and LCC results where applicable.
  */
 public class FullResult extends ContributionResult {
 
 	/**
-	 * The *scaled* technology matrix of the product system: A * diagm(0 => s).
+	 * The *scaled* technology matrix $\mathbf{A*}$ of the product system. In
+	 * this matrix each column $j$ is scaled by the respective scaling factor
+	 * $\mathbf{s}_j$:
+	 *
+	 * $$\mathbf{A*} = \mathbf{A} \ \text{diag}(\mathbf{s})$$
 	 */
 	public IMatrix techMatrix;
 
 	/**
-	 * TODO: add doc ...
+	 * The loop factor $c_r$ indicates whether the reference process of the
+	 * product system is part of a product loop ($c_r \neq 1$ when this is the
+	 * case). It can be calculated via:
+	 * 
+	 * $$c_r = \frac{\mathbf{s}[r] \mathbf{A}[r,r]}{\mathbf{f}[r]}$$
+	 * 
+	 * Where $r$ is the index of the reference product of the system. Some
+	 * upstream results have to be corrected by $c_r$ when $c_r \neq 1$ to avoid
+	 * double counting of these loop contributions.
 	 */
 	public double loopFactor;
 
+	//@formatter:off
 	/**
-	 * The upstream flow results in a matrix where the flows are mapped to the
-	 * rows and the process-products to the columns. Inputs have negative values
-	 * here.
+	 * An elementary flow * process-product matrix that contains the upstream
+	 * contributions (including the direct contributions) of the processes to
+	 * the inventory result. It can be calculated by column-wise scaling of the
+	 * result of the matrix-matrix multiplication of the intervention matrix
+	 * $\mathbf{B}$ with the inverse of the technology matrix $\mathbf{A}$ by
+	 * the total requirements $\mathbf{t}$:
+	 * 
+	 * $$\mathbf{U} = (\mathbf{B} \ \mathbf{A}^{-1}) \ \text{diag}(c_r \ \mathbf{t})$$
+	 * 
+	 * When the reference process itself is located in a loop the total requirements
+	 * need to be multiplied with the loop factor $c_r$ to avoid double counting
+	 * of the loop contributions (as they are contained in $\mathbf{A}^{-1}$ and
+	 * $\mathbf{t}$).
 	 */
 	public IMatrix upstreamFlowResults;
+	//@formatter:on
 
+	//@formatter:off
 	/**
-	 * The upstream LCIA category results in a matrix where the LCIA categories
-	 * are mapped to the rows and the process-products to the columns.
-	 */
+	 * An elementary flow * process-product matrix that contains the direct
+	 * contributions of the processes to the inventory result. This can be
+	 * calculated by column-wise scaling of the intervention matrix $\mathbf{B}$
+	 * with the scaling vector $\mathbf{s}$:
+	 *
+	 * $$\mathbf{G} = \mathbf{B} \ \text{diag}(\mathbf{s})$$
+	 */	
 	public IMatrix upstreamImpactResults;
+	//@formatter:on
 
 	/**
 	 * The upstream cost results is a simple row vector where each entry
@@ -155,7 +184,8 @@ public class FullResult extends ContributionResult {
 	 * product system. The returned share is a value between 0 and 1.
 	 */
 	public double getLinkShare(ProcessLink link) {
-		ProcessProduct provider = techIndex.getProvider(link.providerId, link.flowId);
+		ProcessProduct provider = techIndex.getProvider(link.providerId,
+				link.flowId);
 		int providerIdx = techIndex.getIndex(provider);
 		if (providerIdx < 0)
 			return 0;
