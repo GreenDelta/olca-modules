@@ -17,98 +17,43 @@ import javax.persistence.Table;
 @Table(name = "tbl_parameter_redefs")
 public class ParameterRedef extends AbstractEntity {
 
+	/**
+	 * The name of the parameter that should be redefined.
+	 */
 	@Column(name = "name")
-	private String name;
+	public String name;
 
+	/**
+	 * The ID of the process or LCIA method for which the redefinition is valid.
+	 * If the context ID is null it is a redefinition of a global parameter.
+	 */
 	@Column(name = "f_context")
-	private Long contextId;
+	public Long contextId;
 
+	/**
+	 * The type of the context where the original parameter is defined
+	 * (currently only processes or LCIA methods are possible). For global
+	 * parameter redefinitions the context type is null.
+	 */
 	@Column(name = "context_type")
 	@Enumerated(EnumType.STRING)
-	private ModelType contextType;
+	public ModelType contextType;
 
 	@Column(name = "value")
-	private double value;
+	public double value;
 
 	@Embedded
-	private Uncertainty uncertainty;
+	public Uncertainty uncertainty;
 
 	@Override
 	public ParameterRedef clone() {
 		ParameterRedef clone = new ParameterRedef();
-		clone.setName(getName());
-		clone.setContextId(getContextId());
-		clone.setContextType(getContextType());
-		clone.setValue(getValue());
-		if (getUncertainty() != null)
-			clone.setUncertainty(getUncertainty().clone());
+		clone.name = name;
+		clone.contextId = contextId;
+		clone.contextType = contextType;
+		clone.value = value;
+		if (uncertainty != null)
+			clone.uncertainty = uncertainty.clone();
 		return clone;
 	}
-
-	/**
-	 * Get the name of the parameter that should be redefined.
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * Set the name of the parameter that should be redefined.
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * Get the ID of the process or LCIA method for which the redefinition is
-	 * valid. If the context ID is null it is a redefinition of a global
-	 * parameter.
-	 */
-	public Long getContextId() {
-		return contextId;
-	}
-
-	/**
-	 * Set the ID of the process or LCIA method for which the redefinition is
-	 * valid. If the context ID is null it is a redefinition of a global
-	 * parameter.
-	 */
-	public void setContextId(Long contextId) {
-		this.contextId = contextId;
-	}
-
-	/**
-	 * Returns the type of the context where the original parameter is defined
-	 * (currently only processes or LCIA methods are possible). For global
-	 * parameter redefinitions the context type is null.
-	 */
-	public ModelType getContextType() {
-		return contextType;
-	}
-
-	/**
-	 * Set the type of the context where the original parameter is defined
-	 * (currently only processes or LCIA methods are possible). For global
-	 * parameter redefinitions the context type is null.
-	 */
-	public void setContextType(ModelType contextType) {
-		this.contextType = contextType;
-	}
-
-	public double getValue() {
-		return value;
-	}
-
-	public void setValue(double value) {
-		this.value = value;
-	}
-
-	public Uncertainty getUncertainty() {
-		return uncertainty;
-	}
-
-	public void setUncertainty(Uncertainty uncertainty) {
-		this.uncertainty = uncertainty;
-	}
-
 }

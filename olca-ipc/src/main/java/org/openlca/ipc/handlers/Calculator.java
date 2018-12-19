@@ -150,8 +150,8 @@ public class Calculator {
 			if (name == null)
 				continue;
 			ParameterRedef redef = new ParameterRedef();
-			redef.setName(name);
-			redef.setValue(Json.getDouble(obj, "value", 1));
+			redef.name = name;
+			redef.value = Json.getDouble(obj, "value", 1);
 
 			JsonObject context = Json.getObject(obj, "context");
 			if (context == null) {
@@ -164,8 +164,8 @@ public class Calculator {
 			BaseDescriptor d = parameterContext(context);
 			if (d == null)
 				continue;
-			redef.setContextId(d.getId());
-			redef.setContextType(d.getModelType());
+			redef.contextId = d.getId();
+			redef.contextType = d.getModelType();
 			setup.parameterRedefs.add(redef);
 		}
 	}

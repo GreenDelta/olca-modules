@@ -23,10 +23,10 @@ class ParameterRedefs {
 		for (JsonElement element : array) {
 			JsonObject ref = element.getAsJsonObject();
 			ParameterRedef p = new ParameterRedef();
-			p.setName(Json.getString(ref, "name"));
-			p.setValue(Json.getDouble(ref, "value", 0));
-			p.setUncertainty(Uncertainties.read(Json
-					.getObject(ref, "uncertainty")));
+			p.name = Json.getString(ref, "name");
+			p.value = Json.getDouble(ref, "value", 0);
+			p.uncertainty = Uncertainties.read(Json
+			.getObject(ref, "uncertainty"));
 			JsonObject context = Json.getObject(ref, "context");
 			boolean valid = setContext(context, p, conf);
 			if (valid)
@@ -45,14 +45,14 @@ class ParameterRedefs {
 			model = ProcessImport.run(refId, conf);
 			if (model == null)
 				return false;
-			p.setContextType(ModelType.PROCESS);
+			p.contextType = ModelType.PROCESS;
 		} else if (ImpactMethod.class.getSimpleName().equals(type)) {
 			model = ImpactMethodImport.run(refId, conf);
 			if (model == null)
 				return false;
-			p.setContextType(ModelType.IMPACT_METHOD);
+			p.contextType = ModelType.IMPACT_METHOD;
 		}
-		p.setContextId(model.getId());
+		p.contextId = model.getId();
 		return true;
 	}
 

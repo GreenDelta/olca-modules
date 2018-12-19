@@ -184,8 +184,8 @@ public class ParameterUseSearchTest {
 
 	private ParameterRedef createParameterRedef(String name) {
 		ParameterRedef redef = new ParameterRedef();
-		redef.setName(name);
-		redef.setValue(5d);
+		redef.name = name;
+		redef.value = 5d;
 		return redef;
 	}
 

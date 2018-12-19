@@ -91,12 +91,12 @@ public class ParameterTable {
 	 */
 	public void apply(Collection<ParameterRedef> redefs) {
 		for (ParameterRedef redef : redefs) {
-			Long owner = redef.getContextId();
+			Long owner = redef.contextId;
 			long scope = owner == null ? 0 : owner;
 			Map<String, ParameterCell> map = entries.get(scope);
 			if (map == null)
 				continue;
-			ParameterCell cell = map.get(redef.getName());
+			ParameterCell cell = map.get(redef.name);
 			if (cell == null)
 				continue;
 			redefine(cell, redef);
@@ -106,9 +106,9 @@ public class ParameterTable {
 	private void redefine(ParameterCell cell, ParameterRedef redef) {
 		cell.generator = null;
 		CalcParameter param = cell.param;
-		param.value = redef.getValue();
+		param.value = redef.value;
 		param.formula = null; // it is important to delete the formula!
-		if (redef.getUncertainty() == null) {
+		if (redef.uncertainty == null) {
 			param.uncertaintyType = null;
 			param.parameter1 = (double) 0;
 			param.parameter2 = (double) 0;
@@ -117,7 +117,7 @@ public class ParameterTable {
 			param.parameter2Formula = null;
 			param.parameter3Formula = null;
 		} else {
-			Uncertainty uncertainty = redef.getUncertainty();
+			Uncertainty uncertainty = redef.uncertainty;
 			param.uncertaintyType = uncertainty.distributionType;
 			param.parameter1 = val(uncertainty.parameter1);
 			param.parameter2 = val(uncertainty.parameter2);

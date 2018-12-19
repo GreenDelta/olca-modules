@@ -49,8 +49,8 @@ public class ParameterReferences {
 	private static Set<String> getRedefVariables(List<ParameterRedef> redefs) {
 		Set<String> names = new HashSet<>();
 		for (ParameterRedef redef : redefs)
-			if (redef.getContextType() == null)
-				names.add(redef.getName());
+			if (redef.contextType == null)
+				names.add(redef.name);
 		return names;
 	}
 

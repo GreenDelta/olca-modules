@@ -148,10 +148,10 @@ class GraphSync {
 					return;
 				}
 				ParameterRedef redef = new ParameterRedef();
-				redef.setName(name);
-				redef.setValue(value);
-				redef.setContextId(node.process.getId());
-				redef.setContextType(ModelType.PROCESS);
+				redef.name = name;
+				redef.value = value;
+				redef.contextId = node.process.getId();
+				redef.contextType = ModelType.PROCESS;
 				system.parameterRedefs.add(redef);
 			});
 		});

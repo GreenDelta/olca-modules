@@ -98,16 +98,15 @@ class ProjectImport {
 		variant.setUnit(refs.switchRef(variant.getUnit()));
 		switchVariantProperty(variant);
 		for (ParameterRedef redef : variant.getParameterRedefs()) {
-			if (redef.getContextId() == null)
+			if (redef.contextId == null)
 				continue;
-			if (redef.getContextType() == ModelType.IMPACT_METHOD) {
-				Long destMethodId = refs.getDestImpactMethodId(redef
-						.getContextId());
-				redef.setContextId(destMethodId);
+			if (redef.contextType == ModelType.IMPACT_METHOD) {
+				Long destMethodId = refs.getDestImpactMethodId(redef.contextId);
+				redef.contextId = destMethodId;
 			} else {
 				Long destProcessId = refs
-						.getDestProcessId(redef.getContextId());
-				redef.setContextId(destProcessId);
+						.getDestProcessId(redef.contextId);
+				redef.contextId = destProcessId;
 			}
 		}
 	}

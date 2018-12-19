@@ -115,7 +115,7 @@ public class ProjectResultExport {
 		for (int i = 0; i < parameters.size(); i++) {
 			ParameterRedef redef = parameters.get(i);
 			int r = row + i + 1;
-			Excel.cell(sheet, r, 1, redef.getName());
+			Excel.cell(sheet, r, 1, redef.name);
 			Excel.cell(sheet, r, 2, processName(redef));
 			for (int j = 0; j < project.getVariants().size(); j++) {
 				ProjectVariant variant = project.getVariants().get(j);
@@ -127,18 +127,18 @@ public class ProjectResultExport {
 						variant.getParameterRedefs());
 				if (variantRedef == null)
 					continue;
-				Excel.cell(sheet, r, c, variantRedef.getValue());
+				Excel.cell(sheet, r, c, variantRedef.value);
 			}
 		}
 	}
 
 	private String processName(ParameterRedef redef) {
-		if (redef.getContextId() == null)
+		if (redef.contextId == null)
 			return "global";
 		ProcessDescriptor p = cache.get(ProcessDescriptor.class,
-				redef.getContextId());
+				redef.contextId);
 		if (p == null)
-			return "not found: " + redef.getContextId();
+			return "not found: " + redef.contextId;
 		return p.getName();
 	}
 
@@ -154,7 +154,7 @@ public class ProjectResultExport {
 		Collections.sort(parameters, new Comparator<ParameterRedef>() {
 			@Override
 			public int compare(ParameterRedef o1, ParameterRedef o2) {
-				return Strings.compare(o1.getName(), o2.getName());
+				return Strings.compare(o1.name, o2.name);
 			}
 		});
 		return parameters;
@@ -173,8 +173,8 @@ public class ProjectResultExport {
 			return true;
 		if (redef1 == null || redef2 == null)
 			return false;
-		return Objects.equals(redef1.getName(), redef2.getName())
-				&& Objects.equals(redef1.getContextId(), redef2.getContextId());
+		return Objects.equals(redef1.name, redef2.name)
+				&& Objects.equals(redef1.contextId, redef2.contextId);
 	}
 
 	private void header(Sheet sheet, int row, int col, String val) {

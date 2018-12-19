@@ -112,11 +112,11 @@ public class ProductSystemReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private ParameterRedef createParameterRedef(String name, Object contextOrValue) {
 		ParameterRedef redef = new ParameterRedef();
-		redef.setName(name);
-		redef.setValue(1d);
+		redef.name = name;
+		redef.value = 1d;
 		if (contextOrValue instanceof Long) {
-			redef.setContextType(ModelType.PROCESS);
-			redef.setContextId((long) contextOrValue);
+			redef.contextType = ModelType.PROCESS;
+			redef.contextId = (long) contextOrValue;
 		} else if (contextOrValue instanceof String) {
 			insertAndAddExpected(name, createParameter(name, contextOrValue.toString(), true));
 		}

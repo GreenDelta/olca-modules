@@ -63,17 +63,17 @@ public class ParameterIOTests {
 		ProductSystem system = new ProductSystem();
 		system.setName("test system");
 		ParameterRedef redef = new ParameterRedef();
-		redef.setName("a");
-		redef.setContextId(123L);
-		redef.setValue(42);
-		redef.setUncertainty(Uncertainty.normal(42, 2));
+		redef.name = "a";
+		redef.contextId = 123L;
+		redef.value = (double) 42;
+		redef.uncertainty = Uncertainty.normal(42, 2);
 		system.parameterRedefs.add(redef);
 		ProductSystemDao dao = new ProductSystemDao(database);
 		dao.insert(system);
 		Tests.emptyCache();
 		ProductSystem alias = dao.getForId(system.getId());
 		Assert.assertTrue(
-				alias.parameterRedefs.get(0).getContextId() == 123L);
+				alias.parameterRedefs.get(0).contextId == 123L);
 		dao.delete(system);
 	}
 

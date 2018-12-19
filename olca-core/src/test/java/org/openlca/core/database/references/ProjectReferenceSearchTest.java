@@ -54,8 +54,8 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 			addExpected("unit", v.getUnit(), "variants", ProjectVariant.class, v.getId());
 			addExpected("flowPropertyFactor", v.getFlowPropertyFactor(), "variants", ProjectVariant.class, v.getId());
 			for (ParameterRedef p : v.getParameterRedefs()) {
-				if (p.getContextType() == null) {
-					addExpected(p.getName(), parameters.get(p.getName()), "variants", ProjectVariant.class, v.getId());
+				if (p.contextType == null) {
+					addExpected(p.name, parameters.get(p.name), "variants", ProjectVariant.class, v.getId());
 				}
 			}
 		}
@@ -89,11 +89,11 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 
 	private ParameterRedef createParameterRedef(String name, Object contextOrValue) {
 		ParameterRedef redef = new ParameterRedef();
-		redef.setName(name);
-		redef.setValue(1d);
+		redef.name = name;
+		redef.value = 1d;
 		if (contextOrValue instanceof Long) {
-			redef.setContextType(ModelType.IMPACT_METHOD);
-			redef.setContextId((long) contextOrValue);
+			redef.contextType = ModelType.IMPACT_METHOD;
+			redef.contextId = (long) contextOrValue;
 		} else {
 			if (!parameters.containsKey(name)) {
 				Parameter parameter = createParameter(name, contextOrValue.toString(), true);

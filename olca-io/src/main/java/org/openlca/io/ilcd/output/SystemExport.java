@@ -157,12 +157,12 @@ public class SystemExport {
 		}
 		pi.process = toRef(d);
 		for (ParameterRedef redef : system.parameterRedefs) {
-			Long context = redef.getContextId();
-			if (redef.getContextId() == null || context != id)
+			Long context = redef.contextId;
+			if (redef.contextId == null || context != id)
 				continue;
 			Parameter param = new Parameter();
-			param.name = redef.getName();
-			param.value = redef.getValue();
+			param.name = redef.name;
+			param.value = redef.value;
 			pi.parameters.add(param);
 		}
 		return pi;

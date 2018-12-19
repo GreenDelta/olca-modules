@@ -74,10 +74,10 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 		for (JsonElement element : array) {
 			JsonObject ref = element.getAsJsonObject();
 			ParameterRedef p = new ParameterRedef();
-			p.setName(Json.getString(ref, "name"));
-			p.setValue(Json.getDouble(ref, "value", 0));
-			p.setUncertainty(Uncertainties.read(Json
-					.getObject(ref, "uncertainty")));
+			p.name = Json.getString(ref, "name");
+			p.value = Json.getDouble(ref, "value", 0);
+			p.uncertainty = Uncertainties.read(Json
+			.getObject(ref, "uncertainty"));
 			JsonObject context = Json.getObject(ref, "context");
 			if (context == null) {
 				s.parameterRedefs.add(p);
@@ -90,8 +90,8 @@ public class ProductSystemImport extends BaseImport<ProductSystem> {
 			Process model = ProcessImport.run(refId, conf);
 			if (model == null)
 				continue;
-			p.setContextType(ModelType.PROCESS);
-			p.setContextId(model.getId());
+			p.contextType = ModelType.PROCESS;
+			p.contextId = model.getId();
 			s.parameterRedefs.add(p);
 		}
 	}

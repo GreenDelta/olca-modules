@@ -101,15 +101,15 @@ class ProductSystemImport {
 
 	private void switchParameterRedefs(ProductSystem destSystem) {
 		for (ParameterRedef redef : destSystem.parameterRedefs) {
-			Long contextId = redef.getContextId();
+			Long contextId = redef.contextId;
 			if (contextId == null)
 				continue;
-			if (redef.getContextType() == ModelType.IMPACT_METHOD) {
+			if (redef.contextType == ModelType.IMPACT_METHOD) {
 				Long destMethodId = refs.getDestImpactMethodId(contextId);
-				redef.setContextId(destMethodId);
+				redef.contextId = destMethodId;
 			} else {
 				long destProcessId = refs.getDestProcessId(contextId);
-				redef.setContextId(destProcessId);
+				redef.contextId = destProcessId;
 			}
 		}
 	}

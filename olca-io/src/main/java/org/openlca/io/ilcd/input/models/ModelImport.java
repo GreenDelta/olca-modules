@@ -143,10 +143,10 @@ public class ModelImport {
 			if (param.name == null || param.value == null)
 				continue;
 			ParameterRedef redef = new ParameterRedef();
-			redef.setContextId(p.getId());
-			redef.setContextType(ModelType.PROCESS);
-			redef.setName(param.name);
-			redef.setValue(param.value);
+			redef.contextId = p.getId();
+			redef.contextType = ModelType.PROCESS;
+			redef.name = param.name;
+			redef.value = param.value;
 			system.parameterRedefs.add(redef);
 		}
 	}

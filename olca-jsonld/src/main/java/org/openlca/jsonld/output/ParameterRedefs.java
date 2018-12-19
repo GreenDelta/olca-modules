@@ -22,13 +22,13 @@ class ParameterRedefs {
 		for (ParameterRedef p : redefs) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", ParameterRedef.class.getSimpleName());
-			Out.put(obj, "name", p.getName(), Out.REQUIRED_FIELD);
-			Out.put(obj, "value", p.getValue());
-			Out.put(obj, "uncertainty", Uncertainties.map(p.getUncertainty()));
+			Out.put(obj, "name", p.name, Out.REQUIRED_FIELD);
+			Out.put(obj, "value", p.value);
+			Out.put(obj, "uncertainty", Uncertainties.map(p.uncertainty));
 			Out.put(obj, "context",
-					loader.load(p.getContextType(), p.getContextId()));
-			if (p.getContextId() == null && conf.db != null) {
-				Parameter global = loadParameter(database, p.getName());
+					loader.load(p.contextType, p.contextId));
+			if (p.contextId == null && conf.db != null) {
+				Parameter global = loadParameter(database, p.name);
 				if (conf.exportReferences && conf.refFn != null)
 					conf.refFn.accept(global);
 			}

@@ -85,15 +85,15 @@ public class FormulaInterpretersTest {
 		List<ParameterRedef> redefs = new ArrayList<>();
 		redefs.add(new ParameterRedef() {
 			{
-				setName("fi_tests_global");
-				setValue(3.1);
+				this.name = "fi_tests_global";
+				this.value = 3.1;
 			}
 		});
 		redefs.add(new ParameterRedef() {
 			{
-				setName("fi_tests_local");
-				setValue(1.3);
-				setContextId(process.getId());
+				this.name = "fi_tests_local";
+				this.value = 1.3;
+				this.contextId = process.getId();
 			}
 		});
 		parameterTable.apply(redefs);

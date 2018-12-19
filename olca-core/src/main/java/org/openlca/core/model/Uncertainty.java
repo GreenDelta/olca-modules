@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import org.openlca.core.math.NumberGenerator;
 import org.openlca.util.Strings;
 
 /**
@@ -304,6 +305,29 @@ public class Uncertainty {
 			return Double.parseDouble(s);
 		} catch (Exception e) {
 			return null;
+		}
+	}
+
+	/**
+	 * Creates a number generator of this uncertainty distribution.
+	 */
+	public NumberGenerator generator() {
+		double p1 = parameter1 != null ? parameter1 : 0;
+		double p2 = parameter2 != null ? parameter2 : 0;
+		if (distributionType == null)
+			return NumberGenerator.discrete(p1);
+		switch (distributionType) {
+		case LOG_NORMAL:
+			return NumberGenerator.logNormal(p1, p2);
+		case NORMAL:
+			return NumberGenerator.normal(p1, p2);
+		case TRIANGLE:
+			double p3 = parameter3 != null ? parameter3 : 0;
+			return NumberGenerator.triangular(p1, p2, p3);
+		case UNIFORM:
+			return NumberGenerator.uniform(p1, p2);
+		default:
+			return NumberGenerator.discrete(p1);
 		}
 	}
 }

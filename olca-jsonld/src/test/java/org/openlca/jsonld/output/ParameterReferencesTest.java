@@ -369,15 +369,15 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	private ParameterRedef createRedef(Parameter p, Uncertainty u) {
 		ParameterRedef redef = new ParameterRedef();
-		redef.setName(p.getName());
+		redef.name = p.getName();
 		if (p.scope == ParameterScope.PROCESS)
-			redef.setContextType(ModelType.PROCESS);
+			redef.contextType = ModelType.PROCESS;
 		else if (p.scope == ParameterScope.IMPACT_METHOD)
-			redef.setContextType(ModelType.IMPACT_METHOD);
+			redef.contextType = ModelType.IMPACT_METHOD;
 		if (p.scope != ParameterScope.GLOBAL)
-			redef.setContextId(1l);
-		redef.setValue(1);
-		redef.setUncertainty(u);
+			redef.contextId = 1l;
+		redef.value = (double) 1;
+		redef.uncertainty = u;
 		return redef;
 	}
 
