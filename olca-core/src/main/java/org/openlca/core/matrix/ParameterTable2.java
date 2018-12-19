@@ -42,7 +42,7 @@ public class ParameterTable2 {
 	/**
 	 * Builds a formula interpreter for the global parameters and the local
 	 * parameters of the given contexts (processes or LCIA methods). It also
-	 * applies the given parameter redifinitions.
+	 * applies the given parameter redefinitions.
 	 */
 	public static FormulaInterpreter interpreter(IDatabase db,
 			Set<Long> contexts, Collection<ParameterRedef> redefs) {

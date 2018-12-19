@@ -27,7 +27,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * A data structure for fast creation of formula interpreters of the parameters
  * in a database.
  */
-public class ParameterTable {
+public class ParameterTableOLD {
 
 	/**
 	 * Maps: parameter scope -> parameter name -> parameter cell. The global
@@ -40,11 +40,11 @@ public class ParameterTable {
 	 * from the given database and the parameters of the processes and LCIA
 	 * methods with the given IDs.
 	 */
-	public static ParameterTable build(IDatabase db, Set<Long> contexts) {
+	public static ParameterTableOLD build(IDatabase db, Set<Long> contexts) {
 		return new ParameterTableBuilder().build(db, contexts);
 	}
 
-	private ParameterTable() {
+	private ParameterTableOLD() {
 		entries = new TLongObjectHashMap<>();
 	}
 
@@ -237,9 +237,9 @@ public class ParameterTable {
 		private Logger log = LoggerFactory.getLogger(getClass());
 		private Set<Long> contexts;
 
-		ParameterTable build(IDatabase db, Set<Long> contexts) {
+		ParameterTableOLD build(IDatabase db, Set<Long> contexts) {
 			this.contexts = contexts;
-			ParameterTable table = new ParameterTable();
+			ParameterTableOLD table = new ParameterTableOLD();
 			try {
 				putParameters(db, table);
 			} catch (Exception e) {
@@ -249,7 +249,7 @@ public class ParameterTable {
 			return table;
 		}
 
-		private void putParameters(IDatabase db, ParameterTable table)
+		private void putParameters(IDatabase db, ParameterTableOLD table)
 				throws Exception {
 			String query = "select * from tbl_parameters";
 			NativeSql.on(db).query(query, r -> {

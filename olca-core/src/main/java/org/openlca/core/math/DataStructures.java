@@ -11,7 +11,6 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.LongPair;
-import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -97,16 +96,17 @@ public class DataStructures {
 		return Inventory.build(cache, productIndex, method);
 	}
 
-	public static ParameterTable createParameterTable(IDatabase db,
-			CalculationSetup setup, Inventory inventory) {
-		Set<Long> contexts = new HashSet<>();
-		if (setup.impactMethod != null)
-			contexts.add(setup.impactMethod.getId());
-		if (inventory.productIndex != null)
-			contexts.addAll(inventory.productIndex.getProcessIds());
-		ParameterTable table = ParameterTable.build(db, contexts);
-		table.apply(setup.parameterRedefs);
-		return table;
+	public Set<Long> parameterContexts(
+			CalculationSetup setup, 
+			TechIndex techIndex) {
+		HashSet<Long> set = new HashSet<>();
+		if (setup != null && setup.impactMethod != null) {
+			set.add(setup.impactMethod.getId());
+		}
+		if (techIndex != null) {
+			techIndex.getProcessIds()
+		}
+		return set;
 	}
 
 }

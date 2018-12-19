@@ -13,7 +13,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.ParameterTable;
+import org.openlca.core.matrix.ParameterTable2;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
@@ -27,7 +27,7 @@ public class FormulaInterpretersTest {
 	private IDatabase database = Tests.getDb();
 	private Parameter globalParam;
 	private Process process;
-	private ParameterTable parameterTable;
+	private ParameterTable2 parameterTable;
 	private FormulaInterpreter interpreter;
 
 	/**
@@ -54,8 +54,8 @@ public class FormulaInterpretersTest {
 		process.getParameters().add(localParam);
 		process = new ProcessDao(database).insert(process);
 		Set<Long> context = Collections.singleton(process.getId());
-		parameterTable = ParameterTable.build(database, context);
-		interpreter = parameterTable.createInterpreter();
+		interpreter = ParameterTable2.interpreter(database, context,
+				Collections.emptySet());
 	}
 
 	@After

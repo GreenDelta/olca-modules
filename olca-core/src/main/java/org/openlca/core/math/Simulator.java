@@ -3,7 +3,7 @@ package org.openlca.core.math;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.ParameterTable;
+import org.openlca.core.matrix.ParameterTable2;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
@@ -26,7 +26,7 @@ public class Simulator {
 
 	private SimulationResult result;
 	private Inventory inventory;
-	private ParameterTable parameterTable;
+	private ParameterTable2 parameterTable;
 	private ImpactTable impactTable;
 	private MatrixData data;
 	private CalculationSetup setup;
@@ -102,7 +102,12 @@ public class Simulator {
 	private void setUp() {
 		log.trace("set up inventory");
 		inventory = DataStructures.createInventory(setup, cache);
-		parameterTable = DataStructures.createParameterTable(
+		parameterTable = ParameterTable2.forSimulation(
+				cache.getDatabase(), 
+				inventory.productIndex.getProcessIds(), 
+				redefs)
+				
+				DataStructures.createParameterTable(
 				cache.getDatabase(),
 				setup, inventory);
 		data = inventory.createMatrix(solver);
