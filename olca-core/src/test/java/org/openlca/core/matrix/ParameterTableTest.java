@@ -1,9 +1,8 @@
 package org.openlca.core.matrix;
 
+import static java.util.Collections.emptySet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,17 +23,34 @@ public class ParameterTableTest {
 		IDatabase db = Tests.getDb();
 		ParameterDao paramDao = new ParameterDao(db);
 
-		Parameter globalIn = new Parameter();
-		globalIn.scope = ParameterScope.GLOBAL;
-		globalIn.setName("globalIn");
-		globalIn.isInputParameter = true;
-		globalIn.value = 42.0;
+		Parameter globalInp = inpParameter();
+		globalInp.scope = ParameterScope.GLOBAL;
+		Parameter globalDep = depParameter();
+		globalDep.scope = ParameterScope.GLOBAL;
+		paramDao.insert(globalInp);
+		paramDao.insert(globalDep);
+
+	}
+
+	private Parameter inpParameter() {
+		Parameter inpParam = new Parameter();
+		inpParam.setName("inp_param");
+		inpParam.isInputParameter = true;
+		inpParam.value = 42.0;
 		Uncertainty u1 = new Uncertainty();
-		u1.distributionType = UncertaintyType.NORMAL;
-		u1.parameter1 = 42.0;
-		u1.parameter2 = 1.0;
-		globalIn.uncertainty = u1;
-		paramDao.insert(globalIn);
+		u1.distributionType = UncertaintyType.UNIFORM;
+		u1.parameter1 = 10.0;
+		u1.parameter2 = 21.0;
+		inpParam.uncertainty = u1;
+		return inpParam;
+	}
+
+	private Parameter depParameter() {
+		Parameter depParam = new Parameter();
+		depParam.setName("dep_param");
+		depParam.isInputParameter = false;
+		depParam.formula = "2 * inp_param";
+		return depParam;
 	}
 
 	@After
@@ -45,13 +61,19 @@ public class ParameterTableTest {
 
 	@Test
 	public void testGlobals() throws Exception {
-		ParameterTable table = ParameterTable.build(
-				Tests.getDb(), Collections.emptySet());
-		FormulaInterpreter fi = table.createInterpreter();
-		assertEquals(42.0, fi.eval("globalIn"), 1e-6);
+		FormulaInterpreter fi = ParameterTable2.interpreter(
+				Tests.getDb(), emptySet(), emptySet());
+		assertEquals(42.0, fi.eval("inp_param"), 1e-6);
+		assertEquals(2 * 42.0, fi.eval("dep_param"), 1e-6);
+	}
 
-		table.simulate();
-		fi = table.createInterpreter();
-		assertTrue(42.0 != fi.eval("globalIn"));
+	@Test
+	public void testSimulation() throws Exception {
+		ParameterTable2 table = ParameterTable2.forSimulation(
+				Tests.getDb(), emptySet(), emptySet());
+		FormulaInterpreter fi = table.simulate();
+		double globalIn = fi.eval("inp_param");
+		assertTrue(globalIn > 9 && globalIn < 22);
+		assertEquals(2 * globalIn, fi.eval("dep_param"), 1e-6);
 	}
 }
