@@ -132,9 +132,9 @@ class ProcessImport {
 		List<Parameter> list = Parameters.fetch(dataSet, config);
 		List<Parameter> newGlobals = new ArrayList<>();
 		for (Parameter p : list) {
-			if (p.getScope() == ParameterScope.PROCESS)
+			if (p.scope == ParameterScope.PROCESS)
 				process.getParameters().add(p);
-			else if (p.getScope() == ParameterScope.GLOBAL)
+			else if (p.scope == ParameterScope.GLOBAL)
 				newGlobals.add(p);
 		}
 		ParameterDao dao = new ParameterDao(config.db);

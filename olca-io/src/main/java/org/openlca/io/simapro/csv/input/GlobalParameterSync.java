@@ -55,12 +55,12 @@ class GlobalParameterSync {
 	private void evalAndWrite(List<Parameter> globals, HashSet<String> added) {
 		FormulaInterpreter interpreter = new FormulaInterpreter();
 		for (Parameter param : globals) {
-			interpreter.bind(param.getName(), param.getFormula());
+			interpreter.bind(param.getName(), param.formula);
 		}
 		for (Parameter param : globals) {
 			if (!added.contains(param.getName()))
 				continue;
-			if (!param.isInputParameter()) {
+			if (!param.isInputParameter) {
 				eval(param, interpreter);
 			}
 			dao.insert(param);
@@ -69,13 +69,13 @@ class GlobalParameterSync {
 
 	private void eval(Parameter p, FormulaInterpreter interpreter) {
 		try {
-			double val = interpreter.eval(p.getFormula());
-			p.setValue(val);
+			double val = interpreter.eval(p.formula);
+			p.value = val;
 		} catch (Exception e) {
 			log.warn("failed to evaluate formula for global parameter "
 					+ p.getName() + ": set value to 1.0", e);
-			p.setInputParameter(true);
-			p.setValue(1.0);
+			p.isInputParameter = true;
+			p.value = 1.0;
 		}
 	}
 

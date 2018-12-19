@@ -49,18 +49,18 @@ class ProcessParameterConversion {
 		if (isGlobal(iParameter))
 			scope = ParameterScope.GLOBAL;
 		Parameter param = new Parameter();
-		param.setScope(scope);
+		param.scope = scope;
 		param.setName(iParameter.name);
 		param.setDescription(LangString.getFirst(iParameter.comment, config.langs));
 		Double mean = iParameter.mean;
 		if (mean != null)
-			param.setValue(mean);
+			param.value = mean;
 		new UncertaintyConverter().map(iParameter, param);
-		param.setInputParameter(true);
+		param.isInputParameter = true;
 		String formula = getFormula(iParameter);
 		if (formula != null && scope == ParameterScope.PROCESS) {
-			param.setFormula(formula);
-			param.setInputParameter(false);
+			param.formula = formula;
+			param.isInputParameter = false;
 		}
 		return param;
 	}
@@ -90,7 +90,7 @@ class ProcessParameterConversion {
 	}
 
 	private void addOrInsert(Parameter param) {
-		if (param.getScope() == ParameterScope.PROCESS) {
+		if (param.scope == ParameterScope.PROCESS) {
 			olcaProcess.getParameters().add(param);
 			return;
 		}

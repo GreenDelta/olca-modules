@@ -42,7 +42,7 @@ class ParameterSheet {
 		List<Parameter> inputParams = new ArrayList<>();
 		List<Parameter> calcParams = new ArrayList<>();
 		for (Parameter p : all) {
-			if (p.isInputParameter())
+			if (p.isInputParameter)
 				inputParams.add(p);
 			else
 				calcParams.add(p);
@@ -58,8 +58,8 @@ class ParameterSheet {
 		for (Parameter param : params) {
 			row++;
 			Excel.cell(sheet, row, 0, param.getName());
-			Excel.cell(sheet, row, 1, param.getValue());
-			config.uncertainty(sheet, row, 2, param.getUncertainty());
+			Excel.cell(sheet, row, 1, param.value);
+			config.uncertainty(sheet, row, 2, param.uncertainty);
 			Excel.cell(sheet, row, 7, param.getDescription());
 		}
 		row += 2;
@@ -81,8 +81,8 @@ class ParameterSheet {
 		for (Parameter param : params) {
 			row++;
 			Excel.cell(sheet, row, 0, param.getName());
-			Excel.cell(sheet, row, 1, param.getFormula());
-			Excel.cell(sheet, row, 2, param.getValue());
+			Excel.cell(sheet, row, 1, param.formula);
+			Excel.cell(sheet, row, 2, param.value);
 			Excel.cell(sheet, row, 3, param.getDescription());
 		}
 		row += 2;
@@ -98,7 +98,7 @@ class ParameterSheet {
 	private List<Parameter> getInputParameters() {
 		List<Parameter> parameters = new ArrayList<>();
 		for (Parameter param : config.process.getParameters()) {
-			if (param.isInputParameter())
+			if (param.isInputParameter)
 				parameters.add(param);
 		}
 		Collections.sort(parameters, new Sorter());
@@ -108,7 +108,7 @@ class ParameterSheet {
 	private List<Parameter> getDependentParameters() {
 		List<Parameter> parameters = new ArrayList<>();
 		for (Parameter param : config.process.getParameters()) {
-			if (!param.isInputParameter())
+			if (!param.isInputParameter)
 				parameters.add(param);
 		}
 		Collections.sort(parameters, new Sorter());

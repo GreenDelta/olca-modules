@@ -35,7 +35,7 @@ public class ParameterCalculator implements Closeable {
 		cache = new ParameterCache(folder);
 		defaults = new HashMap<>();
 		for (Parameter p : parameters) {
-			defaults.put(p.getName(), p.getValue());
+			defaults.put(p.getName(), p.value);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class ParameterCalculator implements Closeable {
 	private Map<String, List<String>> groupByShapeFile(List<Parameter> params) {
 		Map<String, List<String>> groups = new HashMap<>();
 		for (Parameter param : params) {
-			String shapeFile = param.getExternalSource();
+			String shapeFile = param.externalSource;
 			List<String> group = groups.get(shapeFile);
 			if (group == null) {
 				group = new ArrayList<>();

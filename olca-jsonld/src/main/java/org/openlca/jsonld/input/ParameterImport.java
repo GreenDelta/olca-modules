@@ -30,13 +30,13 @@ class ParameterImport extends BaseImport<Parameter> {
 	/** Field mappings for processes and LCIA methods. */
 	void mapFields(JsonObject json, Parameter p) {
 		In.mapAtts(json, p, p.getId());
-		p.setScope(Json.getEnum(json, "parameterScope", ParameterScope.class));
-		p.setInputParameter(Json.getBool(json, "inputParameter", true));
-		p.setValue(Json.getDouble(json, "value", 0));
-		p.setFormula(Json.getString(json, "formula"));
-		p.setExternalSource(Json.getString(json, "externalSource"));
-		p.setSourceType(Json.getString(json, "sourceType"));
-		p.setUncertainty(Uncertainties.read(Json.getObject(json, "uncertainty")));
+		p.scope = Json.getEnum(json, "parameterScope", ParameterScope.class);
+		p.isInputParameter = Json.getBool(json, "inputParameter", true);
+		p.value = Json.getDouble(json, "value", 0);
+		p.formula = Json.getString(json, "formula");
+		p.externalSource = Json.getString(json, "externalSource");
+		p.sourceType = Json.getString(json, "sourceType");
+		p.uncertainty = Uncertainties.read(Json.getObject(json, "uncertainty"));
 	}
 
 }

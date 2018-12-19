@@ -99,13 +99,13 @@ public class EcoSpold2ImportTest {
 			String name = parameter.getName();
 			switch (name) {
 			case "vehicle_life":
-				Assert.assertEquals(23, parameter.getValue(), 1e-16);
+				Assert.assertEquals(23, parameter.value, 1e-16);
 				break;
 			case "p":
-				Assert.assertEquals("23 + SUM(8;2)", parameter.getFormula());
+				Assert.assertEquals("23 + SUM(8;2)", parameter.formula);
 				break;
 			case "allard_mine_area_yearly_growth":
-				Assert.assertEquals(1, parameter.getValue(), 1e-16);
+				Assert.assertEquals(1, parameter.value, 1e-16);
 				break;
 			default:
 				Assert.fail("unknown parameter: " + parameter.getName());

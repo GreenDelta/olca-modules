@@ -10,40 +10,74 @@ import javax.persistence.Table;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
 
+/**
+ * In openLCA, parameters can be defined in different scopes: global, process,
+ * or LCIA method. The parameter name can be used in formulas and, thus, need to
+ * conform to a specific syntax. Within a scope the parameter name should be
+ * unique (otherwise the evaluation is not deterministic). There are two types
+ * of parameters in openLCA: input parameters and dependent parameters. An input
+ * parameter can have an optional uncertainty distribution but not a formula. A
+ * dependent parameter can (should) have a formula (where also other parameters
+ * can be used) but no uncertainty distribution.
+ */
 @Entity
 @Table(name = "tbl_parameters")
 public class Parameter extends CategorizedEntity {
 
+	/**
+	 * The scope of the parameter (global, process, LCIA method).
+	 */
 	@Column(name = "scope")
 	@Enumerated(EnumType.STRING)
-	private ParameterScope scope = ParameterScope.GLOBAL;
+	public ParameterScope scope = ParameterScope.GLOBAL;
 
+	/**
+	 * Indicates whether the parameter is an input parameter.
+	 */
 	@Column(name = "is_input_param")
-	private boolean inputParameter;
+	public boolean isInputParameter;
 
+	/**
+	 * The value of the parameter.
+	 */
 	@Column(name = "value")
-	private double value;
+	public double value;
 
+	/**
+	 * The formula of the parameter (only valid for dependent parameters).
+	 */
 	@Column(name = "formula")
-	private String formula;
+	public String formula;
 
+	/**
+	 * The uncertainty distribution of the parameter value (only valid for input
+	 * parameters).
+	 */
 	@Embedded
-	private Uncertainty uncertainty;
+	public Uncertainty uncertainty;
 
+	/**
+	 * A reference to an external source of the parameter (e.g. a shape file in
+	 * a regionalized LCIA method).
+	 */
 	@Column(name = "external_source")
-	private String externalSource;
+	public String externalSource;
 
+	/**
+	 * If the parameter has an external source the type of this source can be
+	 * specified in this field.
+	 */
 	@Column(name = "source_type")
-	private String sourceType;
+	public String sourceType;
 
 	/**
 	 * Returns true if the given name is a valid identifier for a parameter. We
 	 * allow the same rules as for Java identifiers.
 	 */
-	public static boolean isValidName(String paramaterName) {
-		if (paramaterName == null)
+	public static boolean isValidName(String name) {
+		if (name == null)
 			return false;
-		String id = paramaterName.trim();
+		String id = name.trim();
 		if (id.isEmpty())
 			return false;
 		for (int i = 0; i < id.length(); i++) {
@@ -54,9 +88,9 @@ public class Parameter extends CategorizedEntity {
 				return false;
 		}
 		FormulaInterpreter interpreter = new FormulaInterpreter();
-		interpreter.bind(paramaterName, "1");
+		interpreter.bind(name, "1");
 		try {
-			interpreter.eval(paramaterName);
+			interpreter.eval(name);
 		} catch (InterpreterException e) {
 			return false;
 		}
@@ -67,71 +101,15 @@ public class Parameter extends CategorizedEntity {
 	public Parameter clone() {
 		Parameter clone = new Parameter();
 		Util.cloneRootFields(this, clone);
-		clone.setFormula(getFormula());
-		clone.setInputParameter(isInputParameter());
-		clone.setScope(getScope());
-		if (getUncertainty() != null)
-			clone.setUncertainty(getUncertainty().clone());
-		clone.setValue(getValue());
-		clone.setExternalSource(getExternalSource());
-		clone.setSourceType(getSourceType());
+		clone.formula = formula;
+		clone.isInputParameter = isInputParameter;
+		clone.scope = scope;
+		if (uncertainty != null)
+			clone.uncertainty = uncertainty.clone();
+		clone.value = value;
+		clone.externalSource = externalSource;
+		clone.sourceType = sourceType;
 		return clone;
-	}
-
-	public void setScope(ParameterScope type) {
-		this.scope = type;
-	}
-
-	public boolean isInputParameter() {
-		return inputParameter;
-	}
-
-	public void setInputParameter(boolean inputParameter) {
-		this.inputParameter = inputParameter;
-	}
-
-	public double getValue() {
-		return value;
-	}
-
-	public void setValue(double value) {
-		this.value = value;
-	}
-
-	public String getFormula() {
-		return formula;
-	}
-
-	public void setFormula(String formula) {
-		this.formula = formula;
-	}
-
-	public ParameterScope getScope() {
-		return scope;
-	}
-
-	public Uncertainty getUncertainty() {
-		return uncertainty;
-	}
-
-	public void setUncertainty(Uncertainty uncertainty) {
-		this.uncertainty = uncertainty;
-	}
-
-	public String getExternalSource() {
-		return externalSource;
-	}
-
-	public void setExternalSource(String externalSource) {
-		this.externalSource = externalSource;
-	}
-
-	public String getSourceType() {
-		return sourceType;
-	}
-
-	public void setSourceType(String sourceType) {
-		this.sourceType = sourceType;
 	}
 
 	@Override

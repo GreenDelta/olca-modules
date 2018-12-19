@@ -221,14 +221,13 @@ public class EcoSpold2Export implements Runnable {
 			spold2.Parameter e2Param = new spold2.Parameter();
 			e2Param.name = param.getName();
 			e2Param.id = new UUID(param.getId(), 0L).toString();
-			e2Param.amount = param.getValue();
+			e2Param.amount = param.value;
 			e2Param.variableName = param.getName();
-			e2Param.mathematicalRelation = param.getFormula();
-			e2Param.isCalculatedAmount = !param.isInputParameter();
-			if (param.getScope() != null)
-				e2Param.scope = param.getScope().name();
-			e2Param.uncertainty = UncertaintyConverter.fromOpenLCA(param
-					.getUncertainty());
+			e2Param.mathematicalRelation = param.formula;
+			e2Param.isCalculatedAmount = !param.isInputParameter;
+			if (param.scope != null)
+				e2Param.scope = param.scope.name();
+			e2Param.uncertainty = UncertaintyConverter.fromOpenLCA(param.uncertainty);
 			ds.flowData.parameters.add(e2Param);
 		}
 	}

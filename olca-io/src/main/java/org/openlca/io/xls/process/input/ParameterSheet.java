@@ -105,10 +105,10 @@ class ParameterSheet {
 			ParameterScope scope) {
 		Parameter p = new Parameter();
 		p.setName(name);
-		p.setInputParameter(false);
-		p.setScope(scope);
-		p.setFormula(config.getString(sheet, row, 1));
-		p.setValue(config.getDouble(sheet, row, 2));
+		p.isInputParameter = false;
+		p.scope = scope;
+		p.formula = config.getString(sheet, row, 1);
+		p.value = config.getDouble(sheet, row, 2);
 		p.setDescription(config.getString(sheet, row, 3));
 		return p;
 	}
@@ -117,10 +117,10 @@ class ParameterSheet {
 			ParameterScope scope) {
 		Parameter p = new Parameter();
 		p.setName(name);
-		p.setInputParameter(true);
-		p.setScope(scope);
-		p.setValue(config.getDouble(sheet, row, 1));
-		p.setUncertainty(config.getUncertainty(sheet, row, 2));
+		p.isInputParameter = true;
+		p.scope = scope;
+		p.value = config.getDouble(sheet, row, 1);
+		p.uncertainty = config.getUncertainty(sheet, row, 2);
 		p.setDescription(config.getString(sheet, row, 7));
 		return p;
 	}

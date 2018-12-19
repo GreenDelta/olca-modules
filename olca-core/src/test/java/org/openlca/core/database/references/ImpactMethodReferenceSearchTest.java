@@ -100,15 +100,15 @@ public class ImpactMethodReferenceSearchTest extends BaseReferenceSearchTest {
 		Parameter parameter = new Parameter();
 		parameter.setName(name);
 		boolean formula = value instanceof String;
-		parameter.setInputParameter(!formula);
+		parameter.isInputParameter = !formula;
 		if (formula)
-			parameter.setFormula(value.toString());
+			parameter.formula = value.toString();
 		else
-			parameter.setValue((double) value);
+			parameter.value = (double) value;
 		if (global)
-			parameter.setScope(ParameterScope.GLOBAL);
+			parameter.scope = ParameterScope.GLOBAL;
 		else
-			parameter.setScope(ParameterScope.IMPACT_METHOD);
+			parameter.scope = ParameterScope.IMPACT_METHOD;
 		return parameter;
 	}
 

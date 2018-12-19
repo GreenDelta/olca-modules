@@ -71,10 +71,10 @@ public class ParameterReferences {
 		Set<String> names = new HashSet<>();
 		for (Parameter param : parameters) {
 			// no formulas in input parameters
-			if (param.isInputParameter())
+			if (param.isInputParameter)
 				continue;
-			names.addAll(getVariables(param.getFormula()));
-			names.addAll(getUncercaintyVariables(param.getUncertainty()));
+			names.addAll(getVariables(param.formula));
+			names.addAll(getUncercaintyVariables(param.uncertainty));
 		}
 		return names;
 	}
@@ -128,10 +128,10 @@ public class ParameterReferences {
 		if (conf.db == null || conf.refFn == null)
 			return;
 		Set<String> names = new HashSet<>();
-		if (p.isInputParameter())
+		if (p.isInputParameter)
 			return;
-		names.addAll(getVariables(p.getFormula()));
-		names.addAll(getUncercaintyVariables(p.getUncertainty()));
+		names.addAll(getVariables(p.formula));
+		names.addAll(getUncercaintyVariables(p.uncertainty));
 		writeParameters(names, conf);
 	}
 

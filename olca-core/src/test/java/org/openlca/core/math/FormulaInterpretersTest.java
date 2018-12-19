@@ -41,16 +41,16 @@ public class FormulaInterpretersTest {
 	public void setUp() throws Exception {
 		globalParam = new Parameter();
 		globalParam.setName("fi_tests_global");
-		globalParam.setInputParameter(true);
-		globalParam.setScope(ParameterScope.GLOBAL);
-		globalParam.setValue(32);
+		globalParam.isInputParameter = true;
+		globalParam.scope = ParameterScope.GLOBAL;
+		globalParam.value = (double) 32;
 		new ParameterDao(database).insert(globalParam);
 		process = new Process();
 		Parameter localParam = new Parameter();
 		localParam.setName("fi_tests_local");
-		localParam.setFormula("fi_tests_global + 10");
-		localParam.setInputParameter(false);
-		localParam.setScope(ParameterScope.PROCESS);
+		localParam.formula = "fi_tests_global + 10";
+		localParam.isInputParameter = false;
+		localParam.scope = ParameterScope.PROCESS;
 		process.getParameters().add(localParam);
 		process = new ProcessDao(database).insert(process);
 		Set<Long> context = Collections.singleton(process.getId());

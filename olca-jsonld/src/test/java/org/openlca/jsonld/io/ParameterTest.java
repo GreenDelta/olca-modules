@@ -85,10 +85,10 @@ public class ParameterTest extends AbstractZipTest {
 		Parameter param = new Parameter();
 		param.setRefId(UUID.randomUUID().toString());
 		param.setName("param");
-		param.setScope(scope);
-		param.setValue(42);
-		param.setInputParameter(false);
-		param.setFormula("21 + 21");
+		param.scope = scope;
+		param.value = (double) 42;
+		param.isInputParameter = false;
+		param.formula = "21 + 21";
 		return param;
 	}
 

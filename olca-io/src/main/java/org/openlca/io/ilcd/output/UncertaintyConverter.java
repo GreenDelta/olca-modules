@@ -38,7 +38,7 @@ class UncertaintyConverter {
 
 	public void map(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Uncertainty uncertainty = oParameter.getUncertainty();
+		Uncertainty uncertainty = oParameter.uncertainty;
 		if (uncertainty == null
 				|| uncertainty.distributionType == UncertaintyType.NONE)
 			return;
@@ -71,7 +71,7 @@ class UncertaintyConverter {
 
 	private void mapLogNormal(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double std = oParameter.getUncertainty().parameter2;
+		Double std = oParameter.uncertainty.parameter2;
 		if (std == null)
 			return;
 		iParameter.dispersion = std;
@@ -89,7 +89,7 @@ class UncertaintyConverter {
 
 	private void mapNormal(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double std = oParameter.getUncertainty().parameter2;
+		Double std = oParameter.uncertainty.parameter2;
 		if (std == null)
 			return;
 		iParameter.dispersion = std;
@@ -111,11 +111,11 @@ class UncertaintyConverter {
 
 	private void mapTriangle(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double min = oParameter.getUncertainty().parameter1;
+		Double min = oParameter.uncertainty.parameter1;
 		// Double mode = oParameter.getUncertainty().getParameter2Value();
 		// TODO: ILCD do not provide a field for the mode, we have to add
 		// an extension to the format
-		Double max = oParameter.getUncertainty().parameter3;
+		Double max = oParameter.uncertainty.parameter3;
 		if (min == null || max == null)
 			return;
 		iParameter.min = min;
@@ -136,8 +136,8 @@ class UncertaintyConverter {
 
 	private void mapUniform(Parameter oParameter,
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double min = oParameter.getUncertainty().parameter1;
-		Double max = oParameter.getUncertainty().parameter2;
+		Double min = oParameter.uncertainty.parameter1;
+		Double max = oParameter.uncertainty.parameter2;
 		if (min == null || max == null)
 			return;
 		iParameter.min = min;

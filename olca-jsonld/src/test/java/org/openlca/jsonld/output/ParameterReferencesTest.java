@@ -292,19 +292,19 @@ public class ParameterReferencesTest extends AbstractZipTest {
 			ParameterScope scope, Uncertainty u) {
 		Parameter p = new Parameter();
 		p.setName(name);
-		p.setValue(1);
+		p.value = (double) 1;
 		if (formula != null) {
-			p.setInputParameter(false);
-			p.setFormula(formula);
+			p.isInputParameter = false;
+			p.formula = formula;
 		} else
-			p.setInputParameter(true);
+			p.isInputParameter = true;
 		if (scope != null)
-			p.setScope(scope);
+			p.scope = scope;
 		else
-			p.setScope(ParameterScope.GLOBAL);
+			p.scope = ParameterScope.GLOBAL;
 		p.setRefId(UUID.randomUUID().toString());
-		p.setUncertainty(u);
-		if (p.getScope() != ParameterScope.GLOBAL)
+		p.uncertainty = u;
+		if (p.scope != ParameterScope.GLOBAL)
 			return p;
 		IDatabase db = Tests.getDb();
 		return new ParameterDao(db).insert(p);
@@ -370,11 +370,11 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	private ParameterRedef createRedef(Parameter p, Uncertainty u) {
 		ParameterRedef redef = new ParameterRedef();
 		redef.setName(p.getName());
-		if (p.getScope() == ParameterScope.PROCESS)
+		if (p.scope == ParameterScope.PROCESS)
 			redef.setContextType(ModelType.PROCESS);
-		else if (p.getScope() == ParameterScope.IMPACT_METHOD)
+		else if (p.scope == ParameterScope.IMPACT_METHOD)
 			redef.setContextType(ModelType.IMPACT_METHOD);
-		if (p.getScope() != ParameterScope.GLOBAL)
+		if (p.scope != ParameterScope.GLOBAL)
 			redef.setContextId(1l);
 		redef.setValue(1);
 		redef.setUncertainty(u);

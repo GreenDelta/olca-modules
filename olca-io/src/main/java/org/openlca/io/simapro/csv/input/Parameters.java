@@ -16,13 +16,13 @@ class Parameters {
 		Parameter p = new Parameter();
 		p.setRefId(UUID.randomUUID().toString());
 		p.setName(row.getName());
-		p.setInputParameter(true);
-		p.setScope(scope);
-		p.setValue(row.getValue());
-		p.setFormula(Double.toString(row.getValue()));
+		p.isInputParameter = true;
+		p.scope = scope;
+		p.value = row.getValue();
+		p.formula = Double.toString(row.getValue());
 		p.setDescription(row.getComment());
-		p.setUncertainty(Uncertainties.get(row.getValue(),
-				row.getUncertainty()));
+		p.uncertainty = Uncertainties.get(row.getValue(),
+		row.getUncertainty());
 		return p;
 	}
 
@@ -30,9 +30,9 @@ class Parameters {
 		Parameter p = new Parameter();
 		p.setRefId(UUID.randomUUID().toString());
 		p.setName(row.getName());
-		p.setScope(scope);
+		p.scope = scope;
 		p.setDescription(row.getComment());
-		p.setInputParameter(false);
+		p.isInputParameter = false;
 		String expr = row.getExpression();
 		if (expr.contains("(") && expr.contains(",")) {
 			// openLCA uses semicolons as parameter separators in functions
@@ -41,7 +41,7 @@ class Parameters {
 			// good solution for this problem.
 			expr = expr.replaceAll(",", ";");
 		}
-		p.setFormula(expr);
+		p.formula = expr;
 		return p;
 	}
 }

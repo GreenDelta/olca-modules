@@ -41,14 +41,14 @@ final class Parameters {
 			olcaParam.setDescription(param.unitName);
 			olcaParam.setName(param.variableName);
 			setScope(param, olcaParam);
-			olcaParam.setValue(param.amount);
-			olcaParam.setUncertainty(UncertaintyConverter.toOpenLCA(param.uncertainty, 1));
+			olcaParam.value = param.amount;
+			olcaParam.uncertainty = UncertaintyConverter.toOpenLCA(param.uncertainty, 1);
 			String formula = param.mathematicalRelation;
 			if (config.withParameterFormulas && isValid(formula, config)) {
-				olcaParam.setFormula(formula.trim());
-				olcaParam.setInputParameter(false);
+				olcaParam.formula = formula.trim();
+				olcaParam.isInputParameter = false;
 			} else {
-				olcaParam.setInputParameter(true);
+				olcaParam.isInputParameter = true;
 			}
 		}
 	}
@@ -58,9 +58,9 @@ final class Parameters {
 		String scope = param.scope;
 		String global = ParameterScope.GLOBAL.name();
 		if (scope != null && global.equalsIgnoreCase(scope))
-			olcaParam.setScope(ParameterScope.GLOBAL);
+			olcaParam.scope = ParameterScope.GLOBAL;
 		else
-			olcaParam.setScope(ParameterScope.PROCESS);
+			olcaParam.scope = ParameterScope.PROCESS;
 	}
 
 	private static void fetchFromExchanges(List<? extends Exchange> exchanges,
@@ -80,15 +80,15 @@ final class Parameters {
 			return;
 		Parameter olcaParam = new Parameter();
 		olcaParam.setName(exchange.variableName);
-		olcaParam.setScope(ParameterScope.PROCESS);
-		olcaParam.setValue(exchange.amount);
+		olcaParam.scope = ParameterScope.PROCESS;
+		olcaParam.value = exchange.amount;
 		olcaParam.setDescription(exchange.unit);
 		String formula = exchange.mathematicalRelation;
 		if (config.withParameterFormulas && isValid(formula, config)) {
-			olcaParam.setFormula(formula.trim());
-			olcaParam.setInputParameter(false);
+			olcaParam.formula = formula.trim();
+			olcaParam.isInputParameter = false;
 		} else
-			olcaParam.setInputParameter(true);
+			olcaParam.isInputParameter = true;
 		params.add(olcaParam);
 	}
 
@@ -102,13 +102,13 @@ final class Parameters {
 			return;
 		Parameter param = new Parameter();
 		param.setName(varName);
-		param.setScope(ParameterScope.PROCESS);
-		param.setValue(amount == null ? 0d : amount);
+		param.scope = ParameterScope.PROCESS;
+		param.value = amount == null ? 0d : amount;
 		if (config.withParameterFormulas && isValid(formula, config)) {
-			param.setFormula(formula.trim());
-			param.setInputParameter(false);
+			param.formula = formula.trim();
+			param.isInputParameter = false;
 		} else
-			param.setInputParameter(true);
+			param.isInputParameter = true;
 		params.add(param);
 	}
 
@@ -119,15 +119,15 @@ final class Parameters {
 				continue;
 			Parameter olcaParam = new Parameter();
 			olcaParam.setName(property.variableName);
-			olcaParam.setScope(ParameterScope.PROCESS);
-			olcaParam.setValue(property.amount);
+			olcaParam.scope = ParameterScope.PROCESS;
+			olcaParam.value = property.amount;
 			olcaParam.setDescription(property.unit);
 			String formula = property.mathematicalRelation;
 			if (config.withParameterFormulas && isValid(formula, config)) {
-				olcaParam.setFormula(formula.trim());
-				olcaParam.setInputParameter(false);
+				olcaParam.formula = formula.trim();
+				olcaParam.isInputParameter = false;
 			} else
-				olcaParam.setInputParameter(true);
+				olcaParam.isInputParameter = true;
 			parameters.add(olcaParam);
 		}
 	}

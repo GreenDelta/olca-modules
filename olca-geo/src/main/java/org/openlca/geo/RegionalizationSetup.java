@@ -111,9 +111,9 @@ public class RegionalizationSetup {
 				Collections.singletonMap("methodId", method.getId()));
 		List<Parameter> params = new ArrayList<>();
 		for (Parameter param : all) {
-			if (param == null || param.getExternalSource() == null)
+			if (param == null || param.externalSource == null)
 				continue;
-			if (!"SHAPE_FILE".equals(param.getSourceType()))
+			if (!"SHAPE_FILE".equals(param.sourceType))
 				continue;
 			params.add(param);
 		}
@@ -136,7 +136,7 @@ public class RegionalizationSetup {
 			return false;
 		List<String> shapeFiles = folder.getShapeFiles();
 		for (Parameter parameter : params) {
-			String shapefile = parameter.getExternalSource();
+			String shapefile = parameter.externalSource;
 			if (shapeFiles.contains(shapefile))
 				continue;
 			log.error("Cannot calculate regionalized LCIA because "
