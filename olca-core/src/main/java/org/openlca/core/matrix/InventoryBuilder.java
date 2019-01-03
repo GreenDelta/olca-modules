@@ -20,10 +20,10 @@ class InventoryBuilder {
 	private ExchangeMatrix technologyMatrix;
 	private ExchangeMatrix interventionMatrix;
 
-	InventoryBuilder(MatrixCache matrixCache, TechIndex productIndex,
+	InventoryBuilder(MatrixCache matrixCache, TechIndex techIndex,
 			AllocationMethod allocationMethod) {
 		this.cache = matrixCache;
-		this.techIndex = productIndex;
+		this.techIndex = techIndex;
 		this.allocationMethod = allocationMethod;
 	}
 

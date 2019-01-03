@@ -5,15 +5,14 @@ import java.util.Objects;
 
 import org.openlca.core.model.ModelType;
 
-import com.google.common.primitives.Longs;
-
 /**
  * Descriptors are lightweight models containing only descriptive information of
  * a corresponding entity.The intention of descriptors is to get these
  * information fast from the database without loading the complete model.
  * Therefore, the respective DAO classes should provide these.
  */
-public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable {
+public class BaseDescriptor
+		implements Comparable<BaseDescriptor>, Serializable {
 
 	private static final long serialVersionUID = -8609519818770549160L;
 
@@ -110,7 +109,7 @@ public class BaseDescriptor implements Comparable<BaseDescriptor>, Serializable 
 
 	@Override
 	public int hashCode() {
-		return Longs.hashCode(id);
+		return Long.hashCode(id);
 	}
 
 	@Override
