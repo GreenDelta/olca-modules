@@ -98,7 +98,7 @@ public class SystemExport {
 
 		String name = conf.getSystem().getName();
 		int processes = conf.getSystem().processes.size();
-		int products = inventory.productIndex.size();
+		int products = inventory.techIndex.size();
 		int flows = inventory.flowIndex.size();
 		String dimensions = flows + "x" + products;
 
@@ -145,7 +145,7 @@ public class SystemExport {
 
 		String name = conf.getSystem().getName();
 		int processes = conf.getSystem().processes.size();
-		int products = inventory.productIndex.size();
+		int products = inventory.techIndex.size();
 		String dimensions = products + "x" + products;
 
 		currentRow = line(sheet, currentRow, "Product system:", name);
@@ -259,7 +259,7 @@ public class SystemExport {
 	}
 
 	private void createElementarySheet(Workbook workbook) {
-		ExcelHeader columnHeader = createProductHeader(inventory.productIndex);
+		ExcelHeader columnHeader = createProductHeader(inventory.techIndex);
 		ExcelHeader rowHeader = createFlowHeader(inventory.flowIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
@@ -270,8 +270,8 @@ public class SystemExport {
 	}
 
 	private void createProductSheet(Workbook workbook) {
-		ExcelHeader columnHeader = createProductHeader(inventory.productIndex);
-		ExcelHeader rowHeader = createProductHeader(inventory.productIndex);
+		ExcelHeader columnHeader = createProductHeader(inventory.techIndex);
+		ExcelHeader rowHeader = createProductHeader(inventory.techIndex);
 		MatrixExcelExport export = new MatrixExcelExport();
 		export.setColumnHeader(columnHeader);
 		export.setRowHeader(rowHeader);

@@ -1,8 +1,6 @@
 package org.openlca.core.math;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.After;
@@ -13,9 +11,8 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.ParameterTable2;
+import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.model.Parameter;
-import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.expressions.FormulaInterpreter;
@@ -27,7 +24,6 @@ public class FormulaInterpretersTest {
 	private IDatabase database = Tests.getDb();
 	private Parameter globalParam;
 	private Process process;
-	private ParameterTable2 parameterTable;
 	private FormulaInterpreter interpreter;
 
 	/**
@@ -54,7 +50,7 @@ public class FormulaInterpretersTest {
 		process.getParameters().add(localParam);
 		process = new ProcessDao(database).insert(process);
 		Set<Long> context = Collections.singleton(process.getId());
-		interpreter = ParameterTable2.interpreter(database, context,
+		interpreter = ParameterTable.interpreter(database, context,
 				Collections.emptySet());
 	}
 
@@ -80,27 +76,4 @@ public class FormulaInterpretersTest {
 		Assert.assertEquals(42, interpreter.eval("fi_tests_local"), 1e-16);
 	}
 
-	@Test
-	public void testRedefine() throws Exception {
-		List<ParameterRedef> redefs = new ArrayList<>();
-		redefs.add(new ParameterRedef() {
-			{
-				this.name = "fi_tests_global";
-				this.value = 3.1;
-			}
-		});
-		redefs.add(new ParameterRedef() {
-			{
-				this.name = "fi_tests_local";
-				this.value = 1.3;
-				this.contextId = process.getId();
-			}
-		});
-		parameterTable.apply(redefs);
-		interpreter = parameterTable.createInterpreter();
-		Assert.assertEquals(3.1, interpreter.eval("fi_tests_global"), 1e-16);
-		Scope scope = interpreter.getScope(process.getId());
-		// assure that the formula was deleted
-		Assert.assertEquals(1.3, scope.eval("fi_tests_local"), 1e-16);
-	}
 }

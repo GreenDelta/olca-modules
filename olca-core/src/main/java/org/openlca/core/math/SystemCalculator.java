@@ -5,7 +5,6 @@ import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.results.ContributionResult;
@@ -45,9 +44,8 @@ public class SystemCalculator {
 		IDatabase db = matrixCache.getDatabase();
 		Inventory inventory = DataStructures.createInventory(setup,
 				matrixCache);
-		ParameterTable parameters = DataStructures.createParameterTable(
-				db, setup, inventory);
-		FormulaInterpreter interpreter = parameters.createInterpreter();
+		FormulaInterpreter interpreter = DataStructures.interpreter(
+				db, setup, inventory.techIndex);
 		MatrixData data = inventory.createMatrix(solver, interpreter);
 		if (setup.impactMethod != null) {
 			ImpactTable impacts = ImpactTable.build(matrixCache,

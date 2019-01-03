@@ -11,6 +11,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -22,6 +23,7 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
+import org.openlca.expressions.FormulaInterpreter;
 
 /**
  * Provides helper methods for creating matrix-like data structures that can be
@@ -96,17 +98,22 @@ public class DataStructures {
 		return Inventory.build(cache, productIndex, method);
 	}
 
-	public Set<Long> parameterContexts(
-			CalculationSetup setup, 
+	public static Set<Long> parameterContexts(CalculationSetup setup,
 			TechIndex techIndex) {
 		HashSet<Long> set = new HashSet<>();
 		if (setup != null && setup.impactMethod != null) {
 			set.add(setup.impactMethod.getId());
 		}
 		if (techIndex != null) {
-			techIndex.getProcessIds()
+			set.addAll(techIndex.getProcessIds());
 		}
 		return set;
 	}
 
+	public static FormulaInterpreter interpreter(IDatabase db,
+			CalculationSetup setup, TechIndex techIndex) {
+		return ParameterTable.interpreter(db,
+				parameterContexts(setup, techIndex),
+				setup.parameterRedefs);
+	}
 }

@@ -11,7 +11,6 @@ import org.openlca.core.matrix.CostVector;
 import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.format.IMatrix;
@@ -39,24 +38,26 @@ public class RegionalizedCalculator {
 		return calculate(db, cache, null);
 	}
 
-	public RegionalizedResult calculate(IDatabase db, MatrixCache cache, RegionalizationSetup regioSetup) {
+	public RegionalizedResult calculate(IDatabase db, MatrixCache cache,
+			RegionalizationSetup regioSetup) {
 		try {
 			Inventory inventory = DataStructures.createInventory(setup, cache);
 			if (regioSetup == null)
-				regioSetup = RegionalizationSetup.create(db, setup.impactMethod, inventory.productIndex);
+				regioSetup = RegionalizationSetup.create(
+						db, setup.impactMethod, inventory.techIndex);
 			if (!regioSetup.canCalculate)
 				return null;
 
-			ParameterTable parameterTable = DataStructures
-					.createParameterTable(regioSetup.database, setup, inventory);
-			FormulaInterpreter interpreter = parameterTable.createInterpreter();
+			FormulaInterpreter interpreter = DataStructures.interpreter(
+					db, setup, inventory.techIndex);
+
 			MatrixData m = inventory.createMatrix(solver, interpreter);
 			ImpactTable impactTable = ImpactTable.build(cache,
 					setup.impactMethod.getId(), inventory.flowIndex);
 
 			FullResult r = new FullResult();
 			r.flowIndex = inventory.flowIndex;
-			r.techIndex = inventory.productIndex;
+			r.techIndex = inventory.techIndex;
 			r.impactIndex = impactTable.impactIndex;
 
 			// direct LCI results

@@ -22,10 +22,10 @@ import gnu.trove.iterator.TLongObjectIterator;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
- * A data structure for fast creation of formula interpreters of the parameters
- * in a database.
+ * A data structure for fast creation of formula interpreters for the parameters
+ * of a database.
  */
-public class ParameterTable2 {
+public class ParameterTable {
 
 	/**
 	 * The number generators in case the parameter table is build with
@@ -36,7 +36,7 @@ public class ParameterTable2 {
 
 	private FormulaInterpreter interpreter = new FormulaInterpreter();
 
-	private ParameterTable2() {
+	private ParameterTable() {
 	}
 
 	/**
@@ -46,11 +46,11 @@ public class ParameterTable2 {
 	 */
 	public static FormulaInterpreter interpreter(IDatabase db,
 			Set<Long> contexts, Collection<ParameterRedef> redefs) {
-		ParameterTable2 table = new ParameterTable2();
+		ParameterTable table = new ParameterTable();
 		try {
 			table.scan(db, contexts);
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(ParameterTable2.class);
+			Logger log = LoggerFactory.getLogger(ParameterTable.class);
 			log.error("Failed to scan parameter table", e);
 		}
 		table.bindRedefs(redefs);
@@ -61,9 +61,9 @@ public class ParameterTable2 {
 	 * Builds a parameter table suitable for creating formula interpreters in a
 	 * Monte Carlo simulation.
 	 */
-	public static ParameterTable2 forSimulation(IDatabase db,
+	public static ParameterTable forSimulation(IDatabase db,
 			Set<Long> contexts, Collection<ParameterRedef> redefs) {
-		ParameterTable2 table = new ParameterTable2();
+		ParameterTable table = new ParameterTable();
 		table.numberGens = new TLongObjectHashMap<>(
 				Constants.DEFAULT_CAPACITY,
 				Constants.DEFAULT_LOAD_FACTOR,
@@ -71,7 +71,7 @@ public class ParameterTable2 {
 		try {
 			table.scan(db, contexts);
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(ParameterTable2.class);
+			Logger log = LoggerFactory.getLogger(ParameterTable.class);
 			log.error("Failed to scan parameter table", e);
 		}
 		table.bindRedefs(redefs);

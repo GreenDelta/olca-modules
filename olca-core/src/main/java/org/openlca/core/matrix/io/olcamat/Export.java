@@ -12,7 +12,6 @@ import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.LinkingConfig;
 import org.openlca.core.matrix.LongPair;
 import org.openlca.core.matrix.MatrixData;
-import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -84,9 +83,8 @@ public class Export implements Runnable {
 
 	private MatrixData setupInventory() {
 		Inventory inventory = DataStructures.createInventory(setup, cache);
-		ParameterTable params = DataStructures.createParameterTable(
-				db, setup, inventory);
-		FormulaInterpreter interpreter = params.createInterpreter();
+		FormulaInterpreter interpreter = DataStructures.interpreter(
+				db, setup, inventory.techIndex);
 		return inventory.createMatrix(solver, interpreter);
 	}
 

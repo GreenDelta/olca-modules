@@ -80,7 +80,7 @@ public class ParameterTableTest {
 
 	@Test
 	public void testGlobals() throws Exception {
-		FormulaInterpreter fi = ParameterTable2.interpreter(
+		FormulaInterpreter fi = ParameterTable.interpreter(
 				Tests.getDb(), emptySet(), emptySet());
 		assertEquals(42.0, fi.eval("inp_param"), 1e-6);
 		assertEquals(2 * 42.0, fi.eval("dep_param"), 1e-6);
@@ -88,7 +88,7 @@ public class ParameterTableTest {
 
 	@Test
 	public void testProcessParams() throws Exception {
-		FormulaInterpreter fi = ParameterTable2.interpreter(Tests.getDb(),
+		FormulaInterpreter fi = ParameterTable.interpreter(Tests.getDb(),
 				Collections.singleton(process.getId()), emptySet());
 		// global
 		assertEquals(42.0, fi.eval("inp_param"), 1e-6);
@@ -101,7 +101,7 @@ public class ParameterTableTest {
 
 	@Test
 	public void testSimulation() throws Exception {
-		ParameterTable2 table = ParameterTable2.forSimulation(
+		ParameterTable table = ParameterTable.forSimulation(
 				Tests.getDb(), emptySet(), emptySet());
 		FormulaInterpreter fi = table.simulate();
 		double globalIn = fi.eval("inp_param");
@@ -111,7 +111,7 @@ public class ParameterTableTest {
 
 	@Test
 	public void testProcessSimulation() throws Exception {
-		ParameterTable2 table = ParameterTable2.forSimulation(Tests.getDb(),
+		ParameterTable table = ParameterTable.forSimulation(Tests.getDb(),
 				Collections.singleton(process.getId()), emptySet());
 		// global
 		FormulaInterpreter fi = table.simulate();
@@ -132,7 +132,7 @@ public class ParameterTableTest {
 		redef.name = "inp_param";
 		redef.value = 99;
 
-		FormulaInterpreter fi = ParameterTable2.interpreter(Tests.getDb(),
+		FormulaInterpreter fi = ParameterTable.interpreter(Tests.getDb(),
 				Collections.singleton(process.getId()),
 				Collections.singleton(redef));
 
@@ -153,7 +153,7 @@ public class ParameterTableTest {
 		redef.name = "inp_param";
 		redef.value = 99;
 
-		FormulaInterpreter fi = ParameterTable2.interpreter(Tests.getDb(),
+		FormulaInterpreter fi = ParameterTable.interpreter(Tests.getDb(),
 				Collections.singleton(process.getId()),
 				Collections.singleton(redef));
 
@@ -173,7 +173,7 @@ public class ParameterTableTest {
 		redef.value = 99;
 		redef.uncertainty = Uncertainty.uniform(1001, 2000);
 
-		ParameterTable2 table = ParameterTable2.forSimulation(Tests.getDb(),
+		ParameterTable table = ParameterTable.forSimulation(Tests.getDb(),
 				Collections.singleton(process.getId()),
 				Collections.singleton(redef));
 
@@ -199,7 +199,7 @@ public class ParameterTableTest {
 		redef.value = 99;
 		redef.uncertainty = Uncertainty.uniform(1001, 2000);
 
-		ParameterTable2 table = ParameterTable2.forSimulation(Tests.getDb(),
+		ParameterTable table = ParameterTable.forSimulation(Tests.getDb(),
 				Collections.singleton(process.getId()),
 				Collections.singleton(redef));
 

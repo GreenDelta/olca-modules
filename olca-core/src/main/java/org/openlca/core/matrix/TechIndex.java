@@ -223,11 +223,10 @@ public class TechIndex {
 	}
 
 	/**
-	 * Returns the IDs of all processes in this index.
-	 *
-	 * TODO: this can be now a set of process AND product system IDs.
+	 * Returns the IDs of all processes in this index (note that this can also
+	 * can contain product system IDs if there are sub-systems in the product
+	 * system).
 	 */
-	@Deprecated
 	public Set<Long> getProcessIds() {
 		HashSet<Long> set = new HashSet<>();
 		for (ProcessProduct p : providers) {

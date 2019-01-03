@@ -40,9 +40,9 @@ public final class CostVector {
 		}
 
 		private double[] build() {
-			if (inventory == null || inventory.productIndex == null)
+			if (inventory == null || inventory.techIndex == null)
 				return new double[0];
-			values = new double[inventory.productIndex.size()];
+			values = new double[inventory.techIndex.size()];
 			scan(inventory.technologyMatrix);
 			scan(inventory.interventionMatrix);
 			return values;
