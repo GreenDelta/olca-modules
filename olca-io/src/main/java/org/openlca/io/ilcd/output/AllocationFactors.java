@@ -29,7 +29,7 @@ class AllocationFactors {
 
 	private void map() {
 		for (AllocationFactor factor : process.getAllocationFactors()) {
-			if (factor.getExchange() != null)
+			if (factor.exchange != null)
 				addCausalFactor(factor);
 			else
 				addOtherFactor(factor);
@@ -37,22 +37,22 @@ class AllocationFactors {
 	}
 
 	private void addCausalFactor(AllocationFactor factor) {
-		Exchange exchange = exchangeMap.get(factor.getExchange());
+		Exchange exchange = exchangeMap.get(factor.exchange);
 		if (exchange == null)
 			return;
 		Exchange product = findProduct(factor);
 		if (product == null)
 			return;
-		addFactor(exchange, factor.getValue(), product.id);
+		addFactor(exchange, factor.value, product.id);
 	}
 
 	private void addOtherFactor(AllocationFactor factor) {
-		if (factor.getAllocationType() != AllocationMethod.PHYSICAL)
+		if (factor.method != AllocationMethod.PHYSICAL)
 			return;
 		Exchange product = findProduct(factor);
 		if (product == null)
 			return;
-		addFactor(product, factor.getValue(), product.id);
+		addFactor(product, factor.value, product.id);
 	}
 
 	private void addFactor(Exchange iExchange, double factor, int ref) {
@@ -70,7 +70,7 @@ class AllocationFactors {
 				continue;
 			if (oExchange.flow.getFlowType() != FlowType.PRODUCT_FLOW)
 				continue;
-			if (oExchange.flow.getId() == factor.getProductId())
+			if (oExchange.flow.getId() == factor.productId)
 				return exchangeMap.get(oExchange);
 		}
 		return null;

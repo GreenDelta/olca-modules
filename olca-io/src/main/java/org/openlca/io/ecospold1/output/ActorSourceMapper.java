@@ -29,11 +29,11 @@ final class ActorSourceMapper {
 		person.setNumber(id);
 		person.setCompanyCode("unknown");
 		person.setName(actor.getName());
-		person.setAddress(actor.getAddress());
-		person.setCountryCode(factory.getCountryCode(actor.getCountry()));
-		person.setEmail(actor.getEmail());
-		person.setTelefax(actor.getTelefax());
-		person.setTelephone(actor.getTelephone());
+		person.setAddress(actor.address);
+		person.setCountryCode(factory.getCountryCode(actor.country));
+		person.setEmail(actor.email);
+		person.setTelefax(actor.telefax);
+		person.setTelephone(actor.telephone);
 		dataset.getPersons().add(person);
 		createDefaults(person);
 		return id;

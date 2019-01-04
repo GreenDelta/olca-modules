@@ -141,20 +141,20 @@ class AllocationSheet {
 
 	private double getFactor(Exchange product, AllocationMethod method) {
 		for (AllocationFactor factor : config.process.getAllocationFactors()) {
-			if (method == factor.getAllocationType()
-					&& factor.getProductId() == product.flow.getId())
-				return factor.getValue();
+			if (method == factor.method
+					&& factor.productId == product.flow.getId())
+				return factor.value;
 		}
 		return 1.0;
 	}
 
 	private double getCausalFactor(Exchange product, Exchange flow) {
 		for (AllocationFactor factor : config.process.getAllocationFactors()) {
-			if (factor.getAllocationType() != AllocationMethod.CAUSAL)
+			if (factor.method != AllocationMethod.CAUSAL)
 				continue;
-			if (factor.getProductId() == product.flow.getId()
-					&& Objects.equals(factor.getExchange(), flow))
-				return factor.getValue();
+			if (factor.productId == product.flow.getId()
+					&& Objects.equals(factor.exchange, flow))
+				return factor.value;
 		}
 		return 1.0;
 	}

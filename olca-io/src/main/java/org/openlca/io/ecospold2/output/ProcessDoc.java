@@ -108,7 +108,7 @@ class ProcessDoc {
 			dataEntryBy.personId = "788d0176-a69c-4de0-a5d3-259866b6b100";
 			dataEntryBy.personName = "[Current User]";
 		} else {
-			dataEntryBy.personEmail = dataDocumentor.getEmail();
+			dataEntryBy.personEmail = dataDocumentor.email;
 			dataEntryBy.personId = dataDocumentor.getRefId();
 			dataEntryBy.personName = dataDocumentor.getName();
 		}
@@ -195,12 +195,12 @@ class ProcessDoc {
 		person.id = actor.getRefId();
 		person.name = actor.getName();
 		person.address = getAddress(actor);
-		String email = actor.getEmail() != null ? actor.getEmail()
+		String email = actor.email != null ? actor.email
 				: "no@mail.net";
 		person.email = email;
 		person.name = actor.getName();
-		person.telefax = actor.getTelefax();
-		person.telephone = actor.getTelephone();
+		person.telefax = actor.telefax;
+		person.telephone = actor.telephone;
 		person.companyId = "b35ea934-b41d-4830-b1aa-c7c678270240";
 		person.company = "UKNWN";
 		dataSet.masterData.persons.add(person);
@@ -210,14 +210,14 @@ class ProcessDoc {
 
 	private String getAddress(Actor actor) {
 		String adress = "";
-		if (actor.getAddress() != null)
-			adress += actor.getAddress();
-		if (actor.getZipCode() != null)
-			adress += " " + actor.getZipCode();
-		if (actor.getCity() != null)
-			adress += " " + actor.getCity();
-		if (actor.getCountry() != null)
-			adress += " " + actor.getCountry();
+		if (actor.address != null)
+			adress += actor.address;
+		if (actor.zipCode != null)
+			adress += " " + actor.zipCode;
+		if (actor.city != null)
+			adress += " " + actor.city;
+		if (actor.country != null)
+			adress += " " + actor.country;
 		return adress;
 	}
 

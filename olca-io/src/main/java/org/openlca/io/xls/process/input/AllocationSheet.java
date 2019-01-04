@@ -87,13 +87,13 @@ class AllocationSheet {
 			return null;
 		AllocationFactor[] factors = new AllocationFactor[2];
 		factors[0] = new AllocationFactor();
-		factors[0].setProductId(product.flow.getId());
-		factors[0].setValue(config.getDouble(sheet, row, 2));
-		factors[0].setAllocationType(AllocationMethod.PHYSICAL);
+		factors[0].productId = product.flow.getId();
+		factors[0].value = config.getDouble(sheet, row, 2);
+		factors[0].method = AllocationMethod.PHYSICAL;
 		factors[1] = new AllocationFactor();
-		factors[1].setProductId(product.flow.getId());
-		factors[1].setValue(config.getDouble(sheet, row, 3));
-		factors[1].setAllocationType(AllocationMethod.ECONOMIC);
+		factors[1].productId = product.flow.getId();
+		factors[1].value = config.getDouble(sheet, row, 3);
+		factors[1].method = AllocationMethod.ECONOMIC;
 		return factors;
 	}
 
@@ -119,10 +119,10 @@ class AllocationSheet {
 			if (col == null || productId == null)
 				continue;
 			AllocationFactor factor = new AllocationFactor();
-			factor.setAllocationType(AllocationMethod.CAUSAL);
-			factor.setProductId(productId);
-			factor.setValue(config.getDouble(sheet, row, col));
-			factor.setExchange(exchange);
+			factor.method = AllocationMethod.CAUSAL;
+			factor.productId = productId;
+			factor.value = config.getDouble(sheet, row, col);
+			factor.exchange = exchange;
 			process.getAllocationFactors().add(factor);
 		}
 	}

@@ -53,8 +53,8 @@ class ProcessCopy {
 			AllocationFactor clone = factor.clone();
 			// not that the cloned factor has a reference to an exchange of
 			// the original process
-			Exchange copyExchange = findExchange(clone.getExchange(), copy);
-			clone.setExchange(copyExchange);
+			Exchange copyExchange = findExchange(clone.exchange, copy);
+			clone.exchange = copyExchange;
 			copy.getAllocationFactors().add(clone);
 		}
 	}

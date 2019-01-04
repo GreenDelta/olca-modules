@@ -12,107 +12,42 @@ import javax.persistence.Table;
 public class Actor extends CategorizedEntity {
 
 	@Column(name = "address")
-	private String address;
+	public String address;
 
 	@Column(name = "city")
-	private String city;
+	public String city;
 
 	@Column(name = "country")
-	private String country;
+	public String country;
 
 	@Column(name = "email")
-	private String email;
+	public String email;
 
 	@Column(name = "telefax")
-	private String telefax;
+	public String telefax;
 
 	@Column(name = "telephone")
-	private String telephone;
+	public String telephone;
 
 	@Column(name = "website")
-	private String website;
+	public String website;
 
 	@Column(name = "zip_code")
-	private String zipCode;
+	public String zipCode;
 
 	@Override
 	public Actor clone() {
 		Actor clone = new Actor();
 		Util.cloneRootFields(this, clone);
-		clone.setAddress(getAddress());
+		clone.address = address;
 		clone.setCategory(getCategory());
-		clone.setCity(getCity());
-		clone.setCountry(getCountry());
-		clone.setEmail(getEmail());
-		clone.setTelefax(getTelefax());
-		clone.setTelephone(getTelephone());
-		clone.setWebsite(getWebsite());
-		clone.setZipCode(getZipCode());
+		clone.city = city;
+		clone.country = country;
+		clone.email = email;
+		clone.telefax = telefax;
+		clone.telephone = telephone;
+		clone.website = website;
+		clone.zipCode = zipCode;
 		return clone;
 	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public String getTelefax() {
-		return telefax;
-	}
-
-	public String getTelephone() {
-		return telephone;
-	}
-
-	public String getWebsite() {
-		return website;
-	}
-
-	public String getZipCode() {
-		return zipCode;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	public void setTelefax(String telefax) {
-		this.telefax = telefax;
-	}
-
-	public void setTelephone(String telephone) {
-		this.telephone = telephone;
-	}
-
-	public void setWebsite(String website) {
-		this.website = website;
-	}
-
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
-	}
-
 }

@@ -154,7 +154,7 @@ class ProcessImport {
 	private void switchAllocationProducts(Process srcProcess,
 			Process destProcess) {
 		for (AllocationFactor factor : destProcess.getAllocationFactors()) {
-			long srcProductId = factor.getProductId();
+			long srcProductId = factor.productId;
 			String srcRefId = null;
 			for (Exchange srcExchange : srcProcess.getExchanges()) {
 				if (srcExchange.flow == null)
@@ -164,7 +164,7 @@ class ProcessImport {
 				}
 			}
 			long destProductId = seq.get(seq.FLOW, srcRefId);
-			factor.setProductId(destProductId);
+			factor.productId = destProductId;
 		}
 	}
 

@@ -330,10 +330,10 @@ public class EcoSpold01Import implements FileImport {
 					continue;
 				}
 				AllocationFactor af = new AllocationFactor();
-				af.setProductId(product.flow.getId());
-				af.setValue(factor);
-				af.setAllocationType(AllocationMethod.CAUSAL);
-				af.setExchange(e);
+				af.productId = product.flow.getId();
+				af.value = factor;
+				af.method = AllocationMethod.CAUSAL;
+				af.exchange = e;
 				process.getAllocationFactors().add(af);
 			}
 		}

@@ -83,13 +83,13 @@ public class AllocationCleanup {
 	}
 
 	private boolean isValid(AllocationFactor factor) {
-		if (factor.getAllocationType() == null)
+		if (factor.method == null)
 			return false;
-		if (!hasExchangeWithFlow(factor.getProductId()))
+		if (!hasExchangeWithFlow(factor.productId))
 			return false;
-		if (factor.getAllocationType() == AllocationMethod.CAUSAL && factor.getExchange() == null)
+		if (factor.method == AllocationMethod.CAUSAL && factor.exchange == null)
 			return false;
-		if (factor.getAllocationType() == AllocationMethod.CAUSAL && !hasExchangeFor(factor.getExchange().getId()))
+		if (factor.method == AllocationMethod.CAUSAL && !hasExchangeFor(factor.exchange.getId()))
 			return false;
 		return true;
 	}
@@ -124,10 +124,10 @@ public class AllocationCleanup {
 		if (factor != null)
 			return;
 		factor = new AllocationFactor();
-		factor.setAllocationType(type);
-		factor.setProductId(product.flow.getId());
-		factor.setExchange(exchange);
-		factor.setValue(defaultValue);
+		factor.method = type;
+		factor.productId = product.flow.getId();
+		factor.exchange = exchange;
+		factor.value = defaultValue;
 		process.getAllocationFactors().add(factor);
 	}
 
@@ -135,11 +135,11 @@ public class AllocationCleanup {
 		if (type == AllocationMethod.CAUSAL && exchange == null)
 			return null;
 		for (AllocationFactor factor : process.getAllocationFactors()) {
-			if (factor.getAllocationType() != type)
+			if (factor.method != type)
 				continue;
-			if (product.flow == null || factor.getProductId() != product.flow.getId())
+			if (product.flow == null || factor.productId != product.flow.getId())
 				continue;
-			if (exchange != null && !factor.getExchange().equals(exchange))
+			if (exchange != null && !factor.exchange.equals(exchange))
 				continue;
 			return factor;
 		}

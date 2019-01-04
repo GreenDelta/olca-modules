@@ -73,14 +73,14 @@ class ActorSheet {
 		if (lastChange != null) {
 			actor.setLastChange(lastChange.getTime());
 		}
-		actor.setAddress(config.getString(sheet, row, 6));
-		actor.setCity(config.getString(sheet, row, 7));
-		actor.setZipCode(config.getString(sheet, row, 8));
-		actor.setCountry(config.getString(sheet, row, 9));
-		actor.setEmail(config.getString(sheet, row, 10));
-		actor.setTelefax(config.getString(sheet, row, 11));
-		actor.setTelephone(config.getString(sheet, row, 12));
-		actor.setWebsite(config.getString(sheet, row, 13));
+		actor.address = config.getString(sheet, row, 6);
+		actor.city = config.getString(sheet, row, 7);
+		actor.zipCode = config.getString(sheet, row, 8);
+		actor.country = config.getString(sheet, row, 9);
+		actor.email = config.getString(sheet, row, 10);
+		actor.telefax = config.getString(sheet, row, 11);
+		actor.telephone = config.getString(sheet, row, 12);
+		actor.website = config.getString(sheet, row, 13);
 	}
 
 }

@@ -1,5 +1,9 @@
 package org.openlca.core.model;
 
+/**
+ * An enumeration of the allocation methods that can be used in processes and
+ * calculation setups.
+ */
 public enum AllocationMethod {
 
 	/**

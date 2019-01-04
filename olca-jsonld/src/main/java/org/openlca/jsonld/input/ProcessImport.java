@@ -193,15 +193,15 @@ class ProcessImport extends BaseImport<Process> {
 		if (product == null)
 			return null;
 		AllocationFactor factor = new AllocationFactor();
-		factor.setProductId(product.getId());
+		factor.productId = product.getId();
 		Integer exchangeId = null;
 		JsonObject exchange = Json.getObject(json, "exchange");
 		if (exchange != null)
 			exchangeId = Json.getInt(exchange, "internalId", 0);
 		if (exchangeId != null && exchangeId != 0)
-			factor.setExchange(exchangeMap.get(exchangeId));
-		factor.setValue(Json.getDouble(json, "value", 1));
-		factor.setAllocationType(Json.getEnum(json, "allocationType", AllocationMethod.class));
+			factor.exchange = exchangeMap.get(exchangeId);
+		factor.value = Json.getDouble(json, "value", 1);
+		factor.method = Json.getEnum(json, "allocationType", AllocationMethod.class);
 		return factor;
 	}
 

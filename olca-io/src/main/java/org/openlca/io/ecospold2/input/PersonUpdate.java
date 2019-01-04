@@ -49,10 +49,10 @@ public class PersonUpdate implements Runnable {
 
 	private void updateActor(Actor actor, Person person) {
 		actor.setName(person.name);
-		actor.setAddress(person.address);
-		actor.setEmail(person.email);
-		actor.setTelefax(person.telefax);
-		actor.setTelephone(person.telephone);
+		actor.address = person.address;
+		actor.email = person.email;
+		actor.telefax = person.telefax;
+		actor.telephone = person.telephone;
 		if (person.company != null)
 			actor.setDescription("company: " + person.company);
 		actor.setLastChange(Calendar.getInstance().getTimeInMillis());

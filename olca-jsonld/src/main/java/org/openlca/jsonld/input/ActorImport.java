@@ -27,13 +27,13 @@ class ActorImport extends BaseImport<Actor> {
 	}
 
 	private void mapAtts(JsonObject json, Actor a) {
-		a.setAddress(Json.getString(json, "address"));
-		a.setCity(Json.getString(json, "city"));
-		a.setCountry(Json.getString(json, "country"));
-		a.setEmail(Json.getString(json, "email"));
-		a.setTelefax(Json.getString(json, "telefax"));
-		a.setTelephone(Json.getString(json, "telephone"));
-		a.setWebsite(Json.getString(json, "website"));
-		a.setZipCode(Json.getString(json, "zipCode"));
+		a.address = Json.getString(json, "address");
+		a.city = Json.getString(json, "city");
+		a.country = Json.getString(json, "country");
+		a.email = Json.getString(json, "email");
+		a.telefax = Json.getString(json, "telefax");
+		a.telephone = Json.getString(json, "telephone");
+		a.website = Json.getString(json, "website");
+		a.zipCode = Json.getString(json, "zipCode");
 	}
 }

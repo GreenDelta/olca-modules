@@ -46,10 +46,10 @@ public class ActorExport {
 		DataSetInfo info = new DataSetInfo();
 		info.uuid = actor.getRefId();
 		LangString.set(info.name, actor.getName(), config.lang);
-		info.email = actor.getEmail();
-		info.telefax = actor.getTelefax();
-		info.telephone = actor.getTelephone();
-		info.wwwAddress = actor.getWebsite();
+		info.email = actor.email;
+		info.telefax = actor.telefax;
+		info.telephone = actor.telephone;
+		info.wwwAddress = actor.website;
 		addAddress(info);
 		if (actor.getDescription() != null) {
 			LangString.set(info.description,
@@ -60,13 +60,13 @@ public class ActorExport {
 	}
 
 	private void addAddress(DataSetInfo dataSetInfo) {
-		String address = actor.getAddress();
+		String address = actor.address;
 		if (address == null)
 			return;
-		if (actor.getZipCode() != null)
-			address += ", " + actor.getZipCode();
-		if (actor.getCity() != null)
-			address += " " + actor.getCity();
+		if (actor.zipCode != null)
+			address += ", " + actor.zipCode;
+		if (actor.city != null)
+			address += " " + actor.city;
 		LangString.set(dataSetInfo.contactAddress, address,
 				config.lang);
 	}

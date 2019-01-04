@@ -12,7 +12,7 @@ import org.openlca.core.model.FlowType;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongDoubleHashMap;
 
-class AllocationIndex {
+public class AllocationIndex {
 
 	private final AllocationMethod method;
 	private final ProcessTable processTable;

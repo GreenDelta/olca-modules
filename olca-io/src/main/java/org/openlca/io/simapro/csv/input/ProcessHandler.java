@@ -130,18 +130,18 @@ class ProcessHandler {
 	private void addFactor(AllocationMethod method, long productId,
 			double value) {
 		AllocationFactor f = new AllocationFactor();
-		f.setAllocationType(method);
-		f.setValue(value);
-		f.setProductId(productId);
+		f.method = method;
+		f.value = value;
+		f.productId = productId;
 		process.getAllocationFactors().add(f);
 	}
 
 	private void addCausalFactor(long productId, Exchange e, double value) {
 		AllocationFactor f = new AllocationFactor();
-		f.setAllocationType(AllocationMethod.CAUSAL);
-		f.setValue(value);
-		f.setProductId(productId);
-		f.setExchange(e);
+		f.method = AllocationMethod.CAUSAL;
+		f.value = value;
+		f.productId = productId;
+		f.exchange = e;
 		process.getAllocationFactors().add(f);
 	}
 

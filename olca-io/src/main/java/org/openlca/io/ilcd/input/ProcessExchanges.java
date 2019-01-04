@@ -174,13 +174,13 @@ class ProcessExchanges {
 		if (oExchange.flow == null)
 			return;
 		org.openlca.core.model.AllocationFactor f = new org.openlca.core.model.AllocationFactor();
-		f.setProductId(productId);
-		f.setValue(fraction / 100);
+		f.productId = productId;
+		f.value = fraction / 100;
 		if (oExchange.flow.getId() == productId)
-			f.setAllocationType(AllocationMethod.PHYSICAL);
+			f.method = AllocationMethod.PHYSICAL;
 		else {
-			f.setAllocationType(AllocationMethod.CAUSAL);
-			f.setExchange(oExchange);
+			f.method = AllocationMethod.CAUSAL;
+			f.exchange = oExchange;
 		}
 		process.getAllocationFactors().add(f);
 	}

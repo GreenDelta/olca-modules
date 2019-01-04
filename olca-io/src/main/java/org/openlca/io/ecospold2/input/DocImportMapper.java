@@ -111,7 +111,7 @@ class DocImportMapper {
 		if (actor == null) {
 			actor = new Actor();
 			actor.setRefId(dataEntry.personId);
-			actor.setEmail(dataEntry.personEmail);
+			actor.email = dataEntry.personEmail;
 			actor.setName(dataEntry.personName);
 			actor = dao.insert(actor);
 		}
@@ -127,7 +127,7 @@ class DocImportMapper {
 		if (actor == null) {
 			actor = new Actor();
 			actor.setRefId(dataGenerator.personId);
-			actor.setEmail(dataGenerator.personEmail);
+			actor.email = dataGenerator.personEmail;
 			actor.setName(dataGenerator.personName);
 			actor = dao.insert(actor);
 		}

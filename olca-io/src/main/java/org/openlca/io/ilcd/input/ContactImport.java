@@ -82,14 +82,14 @@ public class ContactImport {
 		actor.setRefId(ilcdContact.getId());
 		actor.setName(ilcdContact.getName());
 		actor.setDescription(ilcdContact.getComment());
-		actor.setAddress(ilcdContact.getContactAddress());
-		if (actor.getAddress() == null) {
-			actor.setAddress(ilcdContact.getCentralContactPoint());
+		actor.address = ilcdContact.getContactAddress();
+		if (actor.address == null) {
+			actor.address = ilcdContact.getCentralContactPoint();
 		}
-		actor.setEmail(ilcdContact.getEmail());
-		actor.setTelefax(ilcdContact.getTelefax());
-		actor.setTelephone(ilcdContact.getTelephone());
-		actor.setWebsite(ilcdContact.getWebSite());
+		actor.email = ilcdContact.getEmail();
+		actor.telefax = ilcdContact.getTelefax();
+		actor.telephone = ilcdContact.getTelephone();
+		actor.website = ilcdContact.getWebSite();
 	}
 
 	private void setVersionTime() {

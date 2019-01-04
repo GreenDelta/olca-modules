@@ -23,12 +23,12 @@ class Mapper {
 
 	public static void mapPerson(IPerson inPerson, Actor ioActor) {
 		ioActor.setName(inPerson.getName());
-		ioActor.setAddress(inPerson.getAddress());
+		ioActor.address = inPerson.getAddress();
 		if (inPerson.getCountryCode() != null)
-			ioActor.setCountry(inPerson.getCountryCode().value());
-		ioActor.setEmail(inPerson.getEmail());
-		ioActor.setTelefax(inPerson.getTelefax());
-		ioActor.setTelephone(inPerson.getTelephone());
+			ioActor.country = inPerson.getCountryCode().value();
+		ioActor.email = inPerson.getEmail();
+		ioActor.telefax = inPerson.getTelefax();
+		ioActor.telephone = inPerson.getTelephone();
 	}
 
 	public static void mapSource(ISource inSource, Source ioSource) {

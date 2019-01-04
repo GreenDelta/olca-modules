@@ -61,13 +61,13 @@ class ActorSheet {
 		Excel.cell(sheet, row, 3, CategoryPath.getFull(actor.getCategory()));
 		Excel.cell(sheet, row, 4, Version.asString(actor.getVersion()));
 		config.date(sheet, row, 5, actor.getLastChange());
-		Excel.cell(sheet, row, 6, actor.getAddress());
-		Excel.cell(sheet, row, 7, actor.getCity());
-		Excel.cell(sheet, row, 8, actor.getZipCode());
-		Excel.cell(sheet, row, 9, actor.getCountry());
-		Excel.cell(sheet, row, 10, actor.getEmail());
-		Excel.cell(sheet, row, 11, actor.getTelefax());
-		Excel.cell(sheet, row, 12, actor.getTelephone());
-		Excel.cell(sheet, row, 13, actor.getWebsite());
+		Excel.cell(sheet, row, 6, actor.address);
+		Excel.cell(sheet, row, 7, actor.city);
+		Excel.cell(sheet, row, 8, actor.zipCode);
+		Excel.cell(sheet, row, 9, actor.country);
+		Excel.cell(sheet, row, 10, actor.email);
+		Excel.cell(sheet, row, 11, actor.telefax);
+		Excel.cell(sheet, row, 12, actor.telephone);
+		Excel.cell(sheet, row, 13, actor.website);
 	}
 }

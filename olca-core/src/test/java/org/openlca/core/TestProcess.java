@@ -119,10 +119,10 @@ public class TestProcess {
 	 */
 	public TestProcess alloc(String flow, AllocationMethod method, double factor) {
 		AllocationFactor f = new AllocationFactor();
-		f.setAllocationType(method);
+		f.method = method;
 		Exchange e = findExchange(process, flow);
-		f.setProductId(e.flow.getId());
-		f.setValue(factor);
+		f.productId = e.flow.getId();
+		f.value = factor;
 		process.getAllocationFactors().add(f);
 		return this;
 	}

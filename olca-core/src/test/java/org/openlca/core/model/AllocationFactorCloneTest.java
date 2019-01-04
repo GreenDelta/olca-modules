@@ -26,11 +26,11 @@ public class AllocationFactorCloneTest {
 
 	private void checkAllocationFactor(Process clone) {
 		AllocationFactor fac = clone.getAllocationFactors().get(0);
-		Assert.assertEquals(21d, fac.getValue(), 1e-24);
-		Assert.assertEquals(AllocationMethod.ECONOMIC, fac.getAllocationType());
-		Assert.assertEquals(3L, fac.getProductId());
-		Assert.assertEquals(fac.getExchange(), clone.getQuantitativeReference());
-		Assert.assertEquals(fac.getExchange(), clone.getExchanges().get(0));
+		Assert.assertEquals(21d, fac.value, 1e-24);
+		Assert.assertEquals(AllocationMethod.ECONOMIC, fac.method);
+		Assert.assertEquals(3L, fac.productId);
+		Assert.assertEquals(fac.exchange, clone.getQuantitativeReference());
+		Assert.assertEquals(fac.exchange, clone.getExchanges().get(0));
 	}
 
 	private Process createProcess() {
@@ -42,10 +42,10 @@ public class AllocationFactorCloneTest {
 		process.getExchanges().add(exchange);
 		process.setQuantitativeReference(exchange);
 		AllocationFactor factor = new AllocationFactor();
-		factor.setProductId(3);
-		factor.setExchange(exchange);
-		factor.setAllocationType(AllocationMethod.ECONOMIC);
-		factor.setValue(21d);
+		factor.productId = (long) 3;
+		factor.exchange = exchange;
+		factor.method = AllocationMethod.ECONOMIC;
+		factor.value = 21d;
 		process.getAllocationFactors().add(factor);
 		return process;
 	}
