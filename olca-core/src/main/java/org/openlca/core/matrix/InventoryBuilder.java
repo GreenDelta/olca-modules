@@ -128,7 +128,7 @@ class InventoryBuilder {
 			exchange = mergeExchanges(existingCell, exchange);
 		}
 		ExchangeCell cell = new ExchangeCell(exchange);
-		if (allocationIndex != null) {
+		if (allocationIndex != null && exchange.isAllocatable()) {
 			// note that the default allocation factor is 1.0
 			cell.allocationFactor = allocationIndex.get(
 					provider, exchange.exchangeId);

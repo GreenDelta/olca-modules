@@ -57,10 +57,10 @@ public class AllocationIndex {
 
 	/**
 	 * Returns the allocation factor $\lambda_{p,i}$ for the given product $p$
-	 * and (ID of the exchange with the) flow $i$. When there is no allocation
-	 * factor available for the given product and exchange, the value 1.0 is
-	 * returned. Thus, it is save to call this method with all kinds of
-	 * unallocated product exchange pairs.
+	 * and (ID of the exchange with the) flow $i$. **It is very important** that
+	 * this method is only called with exchanges that can be allocated to a
+	 * product output or waste input, which are: product inputs, waste outputs,
+	 * or elementary flows.
 	 */
 	public double get(ProcessProduct product, long exchangeID) {
 		if (product == null)

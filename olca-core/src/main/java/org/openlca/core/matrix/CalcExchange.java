@@ -28,4 +28,25 @@ public class CalcExchange {
 	public double costValue;
 	public String costFormula;
 	public long currency;
+
+	/**
+	 * Returns true when this exchange can be allocated to a product output or
+	 * waste input, thus it is either a product input, waste output, or
+	 * elementary flow (and not an avoided product or waste flow).
+	 */
+	public boolean isAllocatable() {
+		if (isAvoided || flowType == null)
+			return false;
+		switch (flowType) {
+		case ELEMENTARY_FLOW:
+			return true;
+		case PRODUCT_FLOW:
+			return isInput;
+		case WASTE_FLOW:
+			return !isInput;
+		default:
+			// this should never happen
+			return false;
+		}
+	}
 }
