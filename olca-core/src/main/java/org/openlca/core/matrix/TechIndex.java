@@ -114,16 +114,20 @@ public class TechIndex {
 		return index.containsKey(provider);
 	}
 
-	public boolean contains(long id, long flowId) {
-		return getProvider(id, flowId) != null;
+	/**
+	 * Returns true when there is a product in this index with a process and
+	 * flow of the given IDs.
+	 */
+	public boolean contains(long processID, long flowID) {
+		return getProvider(processID, flowID) != null;
 	}
 
-	public ProcessProduct getProvider(long id, long flowId) {
-		List<ProcessProduct> list = processProviders.get(id);
+	public ProcessProduct getProvider(long processID, long flowID) {
+		List<ProcessProduct> list = processProviders.get(processID);
 		if (list == null)
 			return null;
 		for (ProcessProduct p : list) {
-			if (p.flowId() == flowId)
+			if (p.flowId() == flowID)
 				return p;
 		}
 		return null;

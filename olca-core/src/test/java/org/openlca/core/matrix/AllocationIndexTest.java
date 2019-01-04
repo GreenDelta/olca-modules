@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -23,10 +22,10 @@ public class AllocationIndexTest {
 		ProcessProduct provider = ProcessProduct.of(process, flow);
 
 		TechIndex index = new TechIndex(provider);
-		AllocationIndex allocationIndex = AllocationIndex.create(index,
-				AllocationMethod.USE_DEFAULT, MatrixCache.createLazy(database));
-		double f = allocationIndex.getFactor(index.getRefFlow(),
-				new CalcExchange());
+		AllocationIndex allocationIndex = AllocationIndex.create(database,
+				index,
+				AllocationMethod.USE_DEFAULT);
+		double f = allocationIndex.get(index.getRefFlow(), 1);
 		assertEquals(1.0, f, 1e-16);
 	}
 

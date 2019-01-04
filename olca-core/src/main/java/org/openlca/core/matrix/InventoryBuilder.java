@@ -30,8 +30,8 @@ class InventoryBuilder {
 	Inventory build() {
 		if (allocationMethod != null
 				&& allocationMethod != AllocationMethod.NONE) {
-			allocationIndex = AllocationIndex.create(techIndex,
-					allocationMethod, cache);
+			allocationIndex = AllocationIndex.create(
+					cache.getDatabase(), techIndex, allocationMethod);
 		}
 		flowIndex = FlowIndex.build(cache, techIndex, allocationMethod);
 		technologyMatrix = new ExchangeMatrix(techIndex.size(),
@@ -58,7 +58,8 @@ class InventoryBuilder {
 					.getAll(techIndex.getProcessIds());
 			for (Long processID : techIndex.getProcessIds()) {
 				List<CalcExchange> exchanges = map.get(processID);
-				List<ProcessProduct> providers = techIndex.getProviders(processID);
+				List<ProcessProduct> providers = techIndex
+						.getProviders(processID);
 				for (ProcessProduct provider : providers) {
 					for (CalcExchange exchange : exchanges) {
 						putExchangeValue(provider, exchange);
@@ -128,10 +129,9 @@ class InventoryBuilder {
 		}
 		ExchangeCell cell = new ExchangeCell(exchange);
 		if (allocationIndex != null) {
-			// note that the allocation table assures that the factor is 1.0 for
-			// reference products
-			double factor = allocationIndex.getFactor(provider, exchange);
-			cell.allocationFactor = factor;
+			// note that the default allocation factor is 1.0
+			cell.allocationFactor = allocationIndex.get(
+					provider, exchange.exchangeId);
 		}
 		matrix.setEntry(row, col, cell);
 	}

@@ -9,7 +9,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.matrix.ProcessProduct;
-import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -32,12 +31,6 @@ public class ProcessTable {
 	private final TLongObjectHashMap<FlowDescriptor> flows = new TLongObjectHashMap<>();
 
 	/**
-	 * Stores the default allocation methods of the processes: processID =>
-	 * AllocationMethod.
-	 */
-	private final TLongObjectHashMap<AllocationMethod> allocMap = new TLongObjectHashMap<>();
-
-	/**
 	 * Maps IDs of product and waste flows to process IDs that have the
 	 * respective product as output or waste as input: flow-id ->
 	 * provider-process-id. We need this when we build a product system
@@ -52,12 +45,6 @@ public class ProcessTable {
 
 	private ProcessTable(IDatabase db) {
 		log.trace("build process index table");
-		initAllocation(db);
-		initProviderMap(db);
-	}
-
-	private void initProviderMap(IDatabase db) {
-		log.trace("load provider map");
 
 		// index processes and tech-flows
 		ProcessDao pDao = new ProcessDao(db);
@@ -99,36 +86,10 @@ public class ProcessTable {
 		}
 	}
 
-	private void initAllocation(IDatabase db) {
-		log.trace("index allocation types");
-		String sql = "select id, default_allocation_method"
-				+ " from tbl_processes";
-		try {
-			NativeSql.on(db).query(sql, r -> {
-				long id = r.getLong(1);
-				String m = r.getString(2);
-				if (m != null) {
-					allocMap.put(
-							id, AllocationMethod.valueOf(m));
-				}
-				return true;
-			});
-			log.trace("{} processes indexed", allocMap.size());
-
-		} catch (Exception e) {
-			log.error("failed to build process type index", e);
-		}
-	}
-
 	/** Returns the process type for the given process-ID. */
 	public ProcessType getType(long processId) {
 		ProcessDescriptor d = processes.get(processId);
 		return d == null ? null : d.getProcessType();
-	}
-
-	/** Note that this method can return <code>null</code> */
-	public AllocationMethod getDefaultAllocationMethod(long processId) {
-		return allocMap.get(processId);
 	}
 
 	public ProcessProduct getProvider(long id, long flowId) {
