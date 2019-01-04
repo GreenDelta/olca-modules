@@ -48,21 +48,11 @@ class Aggregation {
 				continue;
 			if (divisors == null || divisors[i] == null || divisors[i].doubleValue() == 0d)
 				continue;
-			System.out.println(aggregated[i]);
-			System.out.println(divisors[i]);
 			result[i] = aggregated[i].divide(divisors[i], MathContext.DECIMAL128).doubleValue();
 		}
 		return result;
 	}
 	
-	public static void main(String[] args) {
-		double dd = 0E-77;
-		System.out.println(dd);
-		BigDecimal d = new BigDecimal(dd);
-		System.out.println(d.equals(BigDecimal.ZERO));
-		System.out.println(d);
-	}
-
 	private static double[] maximumOf(List<AggregationValue> values) {
 		double[] result = new double[values.get(0).values.length];
 		for (AggregationValue value : values) {
