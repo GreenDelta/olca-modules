@@ -2,6 +2,7 @@ package org.openlca.io.ecospold2.output;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -42,7 +43,7 @@ public class EcoSpold2Export implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final File dir;
+	private final File activityDir;
 	private final IDatabase database;
 	private final List<ProcessDescriptor> descriptors;
 
@@ -51,9 +52,12 @@ public class EcoSpold2Export implements Runnable {
 	private final CompartmentMap compartmentMap;
 	private final ElemFlowMap elemFlowMap;
 
-	public EcoSpold2Export(File dir, IDatabase database,
-			List<ProcessDescriptor> descriptors) {
-		this.dir = dir;
+	public EcoSpold2Export(File dir, IDatabase database) {
+		this(dir, database, Collections.emptyList());
+	}
+
+	public EcoSpold2Export(File dir, IDatabase database, List<ProcessDescriptor> descriptors) {
+		this.activityDir = new File(dir, "Activities");
 		this.database = database;
 		this.descriptors = descriptors;
 		this.locationMap = new LocationMap(database);
@@ -65,16 +69,19 @@ public class EcoSpold2Export implements Runnable {
 	@Override
 	public void run() {
 		try {
-			File activityDir = new File(dir, "Activities");
-			if (!activityDir.exists())
-				activityDir.mkdirs();
-			exportProcesses(activityDir);
+			init();
+			exportProcesses();
 		} catch (Exception e) {
 			log.error("EcoSpold 2 export failed", e);
 		}
 	}
 
-	private void exportProcesses(File activityDir) throws Exception {
+	public void init() {
+		if (!activityDir.exists())
+			activityDir.mkdirs();
+	}
+	
+	private void exportProcesses() throws Exception {
 		for (ProcessDescriptor descriptor : descriptors) {
 			ProcessDao dao = new ProcessDao(database);
 			Process process = dao.getForId(descriptor.getId());
@@ -84,12 +91,11 @@ public class EcoSpold2Export implements Runnable {
 						descriptor);
 				continue;
 			}
-			exportProcess(activityDir, process);
+			exportProcess(process);
 		}
 	}
 
-	private void exportProcess(File activityDir, Process process)
-			throws Exception {
+	public void exportProcess(Process process) throws Exception {
 		DataSet dataSet = new DataSet();
 		dataSet.description = new ActivityDescription();
 		UserMasterData masterData = new UserMasterData();
