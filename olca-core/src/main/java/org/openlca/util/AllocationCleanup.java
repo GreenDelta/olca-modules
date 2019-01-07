@@ -42,7 +42,7 @@ public class AllocationCleanup {
 	}
 
 	private boolean isQuantitativeReference(Exchange exchange) {
-		return exchange.equals(process.getQuantitativeReference());
+		return exchange != null && exchange.equals(process.getQuantitativeReference());
 	}
 
 	private void run() {
@@ -61,6 +61,8 @@ public class AllocationCleanup {
 	}
 
 	private void checkFactors(Exchange product) {
+		if (product == null)
+			return;
 		double defaultValue = 0;
 		if (process.getAllocationFactors().isEmpty() && isQuantitativeReference(product)) {
 			defaultValue = 1; // initialize quant. ref. with 1
