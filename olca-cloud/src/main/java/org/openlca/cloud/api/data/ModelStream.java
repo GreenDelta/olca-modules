@@ -167,6 +167,9 @@ public abstract class ModelStream extends InputStream {
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 			String path = dir.relativize(file).toString().replace('\\', '/');
+			if (path.endsWith(".gz")) {
+				path = path.substring(0, path.length() - 3);
+			}
 			byte[] data = getBinaryData(file);
 			result.add(new BinaryFile(path, data));
 			return FileVisitResult.CONTINUE;
