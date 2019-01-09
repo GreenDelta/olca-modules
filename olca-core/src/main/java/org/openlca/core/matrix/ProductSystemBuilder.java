@@ -20,6 +20,9 @@ import org.slf4j.LoggerFactory;
 import gnu.trove.impl.Constants;
 import gnu.trove.set.hash.TLongHashSet;
 
+/**
+ * Builds or auto-completes a product system according to a given configuration.
+ */
 public class ProductSystemBuilder {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -28,6 +31,9 @@ public class ProductSystemBuilder {
 	private final IDatabase database;
 	private final LinkingConfig config;
 
+	/**
+	 * Create a new product system builder.
+	 */
 	public ProductSystemBuilder(MatrixCache matrixCache, LinkingConfig config) {
 		this.matrixCache = matrixCache;
 		this.database = matrixCache.getDatabase();
