@@ -35,7 +35,7 @@ public class ContributionResult extends SimpleResult {
 	 * $\mathbf{G}$ with the matrix with the characterization factors
 	 * $\mathbf{C}$:
 	 *
-	 * $$\mathbf{D} = \mathbf{C} \ \mathbf{G}$$
+	 * $$\mathbf{H} = \mathbf{C} \ \mathbf{G}$$
 	 */
 	public IMatrix directImpactResults;
 
