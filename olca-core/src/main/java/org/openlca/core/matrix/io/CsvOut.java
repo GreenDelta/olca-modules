@@ -18,6 +18,9 @@ import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.results.BaseResult;
+import org.openlca.core.results.ContributionResult;
+import org.openlca.core.results.SimpleResult;
 
 /**
  * This class provides methods for writing matrices and related indices to CSV
@@ -38,6 +41,35 @@ public final class CsvOut {
 	}
 
 	// TODO: not yet sure if we need the entity cache here
+
+
+	/**
+	 * Write the result to the given folder.
+	 */
+	public static void write(BaseResult result, File folder) {
+		if (result == null || folder == null)
+			return;
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+		write(result.techIndex, new File(folder, "indexA.csv"));
+		write(result.flowIndex, new File(folder, "indexB.csv"));
+		write(result.impactIndex, new File(folder, "indexC.csv"));
+
+		if (result instanceof SimpleResult) {
+			SimpleResult sr = (SimpleResult) result;
+			writeCol(sr.scalingVector, new File(folder, "s.csv"));
+			writeCol(sr.totalRequirements, new File(folder, "t.csv"));
+			writeCol(sr.totalFlowResults, new File(folder, "g.csv"));
+			writeCol(sr.totalImpactResults, new File(folder, "h.csv"));
+		}
+
+		if (result instanceof ContributionResult) {
+			ContributionResult cr = (ContributionResult) result;
+			write(cr.directFlowResults, new File(folder, "G.csv"));
+		}
+
+	}
 
 	/**
 	 * Write the matrix to the given file.

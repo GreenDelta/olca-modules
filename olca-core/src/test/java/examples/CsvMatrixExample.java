@@ -37,7 +37,7 @@ public class CsvMatrixExample {
 				MatrixCache.createEager(db), new DenseSolver());
 		FullResult r = calc.calculateFull(setup);
 
-		CsvOut.write(r.flowIndex, new File("target/indexB.csv"));
+		CsvOut.write(r, new File("target"));
 	}
 
 }
