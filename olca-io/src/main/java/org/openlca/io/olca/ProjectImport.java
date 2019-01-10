@@ -38,7 +38,7 @@ class ProjectImport {
 		log.trace("import projects");
 		try {
 			for (ProjectDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.PROJECT, descriptor.getRefId()))
+				if (seq.contains(seq.PROJECT, descriptor.refId))
 					continue;
 				createProject(descriptor);
 			}
@@ -48,7 +48,7 @@ class ProjectImport {
 	}
 
 	private void createProject(ProjectDescriptor descriptor) {
-		Project srcProject = srcDao.getForId(descriptor.getId());
+		Project srcProject = srcDao.getForId(descriptor.id);
 		Project destProject = srcProject.clone();
 		destProject.setRefId(srcProject.getRefId());
 		destProject.setCategory(refs.switchRef(srcProject.getCategory()));
@@ -71,7 +71,7 @@ class ProjectImport {
 			destProject.setImpactMethodId(null);
 			return;
 		}
-		long id = seq.get(seq.IMPACT_METHOD, descriptor.getRefId());
+		long id = seq.get(seq.IMPACT_METHOD, descriptor.refId);
 		destProject.setImpactMethodId(id);
 	}
 
@@ -89,7 +89,7 @@ class ProjectImport {
 			destProject.setNwSetId(null);
 			return;
 		}
-		long id = seq.get(seq.NW_SET, descriptor.getRefId());
+		long id = seq.get(seq.NW_SET, descriptor.refId);
 		destProject.setNwSetId(id);
 	}
 

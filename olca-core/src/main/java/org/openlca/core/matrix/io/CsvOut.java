@@ -43,7 +43,6 @@ public final class CsvOut {
 
 	// TODO: not yet sure if we need the entity cache here
 
-
 	/**
 	 * Write the result to the given folder.
 	 */
@@ -141,10 +140,10 @@ public final class CsvOut {
 				CategorizedDescriptor p = product.process;
 				FlowDescriptor f = product.flow;
 				mask[0] = Integer.toString(i);
-				mask[1] = p.getRefId();
-				mask[2] = p.getName();
+				mask[1] = p.refId;
+				mask[2] = p.name;
 				if (p instanceof ProcessDescriptor) {
-					ProcessType t = ((ProcessDescriptor) p).getProcessType();
+					ProcessType t = ((ProcessDescriptor) p).processType;
 					mask[3] = t != null
 							? t.toString()
 							: ModelType.PROCESS.toString();
@@ -153,10 +152,10 @@ public final class CsvOut {
 				}
 				mask[4] = ""; // TODO: process location
 				mask[5] = ""; // TODO: process category
-				mask[6] = f.getRefId();
-				mask[7] = f.getName();
-				mask[8] = f.getFlowType() != null
-						? f.getFlowType().toString()
+				mask[6] = f.refId;
+				mask[7] = f.name;
+				mask[8] = f.flowType != null
+						? f.flowType.toString()
 						: "";
 				mask[9] = ""; // TODO: flow location
 				mask[10] = ""; // TODO: flow category
@@ -188,10 +187,10 @@ public final class CsvOut {
 			for (int i = 0; i < idx.size(); i++) {
 				FlowDescriptor flow = idx.at(i);
 				mask[0] = Integer.toString(i);
-				mask[1] = flow.getRefId();
-				mask[2] = flow.getName();
-				mask[3] = flow.getFlowType() != null
-						? flow.getFlowType().toString()
+				mask[1] = flow.refId;
+				mask[2] = flow.name;
+				mask[3] = flow.flowType != null
+						? flow.flowType.toString()
 						: "";
 				mask[4] = ""; // TODO location code
 				mask[5] = ""; // TODO category path
@@ -217,9 +216,9 @@ public final class CsvOut {
 			for (int i = 0; i < idx.size(); i++) {
 				ImpactCategoryDescriptor d = idx.at(i);
 				mask[0] = Integer.toString(i);
-				mask[1] = d.getRefId();
-				mask[2] = d.getName();
-				mask[3] = d.getReferenceUnit();
+				mask[1] = d.refId;
+				mask[2] = d.name;
+				mask[3] = d.referenceUnit;
 				writeln(w, line(mask));
 			}
 		});

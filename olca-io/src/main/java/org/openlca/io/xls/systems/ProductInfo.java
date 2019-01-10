@@ -43,20 +43,20 @@ class ProductInfo implements Comparable<ProductInfo> {
 			ProductInfo info = new ProductInfo();
 			info.provider = pair;
 			info.ref = pair.equals(index.getRefFlow());
-			info.process = process.getName();
-			info.processId = process.getRefId();
-			info.product = product.getName();
-			info.productId = product.getRefId();
-			if (process.getCategory() != null) {
-				Category cat = cache.get(Category.class, process.getCategory());
+			info.process = process.name;
+			info.processId = process.refId;
+			info.product = product.name;
+			info.productId = product.refId;
+			if (process.category != null) {
+				Category cat = cache.get(Category.class, process.category);
 				CategoryPair catPair = new CategoryPair(cat);
 				info.processCategory = catPair.getCategory();
 				info.processSubCategory = catPair.getSubCategory();
 			}
 			if (process instanceof ProcessDescriptor) {
 				ProcessDescriptor p = (ProcessDescriptor) process;
-				if (p.getLocation() != null) {
-					Location loc = cache.get(Location.class, p.getLocation());
+				if (p.location != null) {
+					Location loc = cache.get(Location.class, p.location);
 					if (loc != null)
 						info.processLocation = loc.getCode();
 				}

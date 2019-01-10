@@ -36,7 +36,7 @@ class ProductSystemImport {
 		log.trace("import product systems");
 		try {
 			for (ProductSystemDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.PRODUCT_SYSTEM, descriptor.getRefId()))
+				if (seq.contains(seq.PRODUCT_SYSTEM, descriptor.refId))
 					continue;
 				copy(descriptor);
 			}
@@ -46,7 +46,7 @@ class ProductSystemImport {
 	}
 
 	private void copy(ProductSystemDescriptor descriptor) {
-		ProductSystem srcSystem = srcDao.getForId(descriptor.getId());
+		ProductSystem srcSystem = srcDao.getForId(descriptor.id);
 		ProductSystem destSystem = srcSystem.clone();
 		destSystem.setRefId(srcSystem.getRefId());
 		destSystem.setCategory(refs.switchRef(srcSystem.getCategory()));

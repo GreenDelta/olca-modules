@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,6 +23,7 @@ import org.openlca.core.matrix.format.IMatrix;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.io.xls.Excel;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ public class SystemExport {
 				conf.getAllocationMethod(), conf.getMatrixCache());
 		if (conf.getImpactMethod() != null) {
 			impactTable = ImpactTable.build(conf.getMatrixCache(), conf
-					.getImpactMethod().getId(), inventory.flowIndex);
+					.getImpactMethod().id, inventory.flowIndex);
 		}
 	}
 
@@ -169,7 +170,7 @@ public class SystemExport {
 		row++;
 
 		String name = conf.getSystem().getName();
-		String method = conf.getImpactMethod().getName();
+		String method = conf.getImpactMethod().name;
 		int categories = impactTable.impactIndex.size();
 		int factors = impactTable.flowIndex.size();
 		String dimensions = factors + "x" + categories;
@@ -251,7 +252,7 @@ public class SystemExport {
 				header, impactIndex);
 		for (ImpactCategoryDescriptor category : sortedCategories) {
 			headerEntries.add(new ImpactCategoryHeaderEntry(conf
-					.getImpactMethod().getName(), category));
+					.getImpactMethod().name, category));
 		}
 		header.setEntries(headerEntries
 				.toArray(new IExcelHeaderEntry[headerEntries.size()]));
@@ -322,10 +323,10 @@ public class SystemExport {
 
 	private List<ImpactCategoryDescriptor> mapImpactCategoryIndices(
 			ExcelHeader header, DIndex<ImpactCategoryDescriptor> impactIndex) {
-		Set<ImpactCategoryDescriptor> impacts = impactIndex.content();
-		List<ImpactCategoryDescriptor> sortedCategories = new ArrayList<>(
-				impacts);
-		Collections.sort(sortedCategories);
+		List<ImpactCategoryDescriptor> sortedCategories = impactIndex.content()
+				.stream()
+				.sorted((i1, i2) -> Strings.compare(i1.name, i2.name))
+				.collect(Collectors.toList());
 		int counter = 0;
 		for (ImpactCategoryDescriptor category : sortedCategories) {
 			header.putIndexMapping(counter, impactIndex.of(category));
@@ -531,13 +532,13 @@ public class SystemExport {
 		private String getValue(String header) {
 			switch (header) {
 			case HEADERS.IMPACT_CATEGORY.CATEGORY:
-				return impactCategory.getName();
+				return impactCategory.name;
 			case HEADERS.IMPACT_CATEGORY.UUID:
-				return impactCategory.getRefId();
+				return impactCategory.refId;
 			case HEADERS.IMPACT_CATEGORY.METHOD:
 				return methodName;
 			case HEADERS.IMPACT_CATEGORY.UNIT:
-				return impactCategory.getReferenceUnit();
+				return impactCategory.referenceUnit;
 			}
 			return null;
 		}

@@ -16,9 +16,9 @@ public class CategoryPair implements Comparable<CategoryPair> {
 	private String subCategory;
 
 	public static CategoryPair create(FlowDescriptor flow, EntityCache cache) {
-		if (flow == null || flow.getCategory() == null)
+		if (flow == null || flow.category == null)
 			return new CategoryPair(null);
-		Category category = cache.get(Category.class, flow.getCategory());
+		Category category = cache.get(Category.class, flow.category);
 		return new CategoryPair(category);
 	}
 

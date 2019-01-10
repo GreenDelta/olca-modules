@@ -53,7 +53,7 @@ public class RegionalizedCalculator {
 
 			MatrixData m = inventory.createMatrix(solver, interpreter);
 			ImpactTable impactTable = ImpactTable.build(cache,
-					setup.impactMethod.getId(), inventory.flowIndex);
+					setup.impactMethod.id, inventory.flowIndex);
 
 			FullResult r = new FullResult();
 			r.flowIndex = inventory.flowIndex;
@@ -131,7 +131,7 @@ public class RegionalizedCalculator {
 
 	private void eachKml(RegionalizationSetup regioSetup, ImpactTable table,
 			FormulaInterpreter interpreter, BiConsumer<LocationKml, IMatrix> fn) {
-		Scope scope = interpreter.getScope(setup.impactMethod.getId());
+		Scope scope = interpreter.getScope(setup.impactMethod.id);
 		for (LocationKml kml : regioSetup.kmlData) {
 			Map<String, Double> params = regioSetup.parameterSet.get(
 					kml.locationId);

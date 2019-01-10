@@ -38,7 +38,7 @@ public class FlowTable {
 		FlowDao dao = new FlowDao(db);
 		List<FlowDescriptor> flows = dao.getDescriptors();
 		for (FlowDescriptor d : flows) {
-			map.put(d.getId(), d);
+			map.put(d.id, d);
 		}
 	}
 
@@ -48,7 +48,7 @@ public class FlowTable {
 
 	public FlowType type(long flowId) {
 		FlowDescriptor d = map.get(flowId);
-		return d == null ? null : d.getFlowType();
+		return d == null ? null : d.flowType;
 	}
 
 	/** Get the IDs of all flows in this table. */

@@ -27,7 +27,7 @@ class FlowPropertyImport {
 		log.trace("import flow properties");
 		try {
 			for (FlowPropertyDescriptor descriptor : sourceDao.getDescriptors()) {
-				if (seq.contains(seq.FLOW_PROPERTY, descriptor.getRefId()))
+				if (seq.contains(seq.FLOW_PROPERTY, descriptor.refId))
 					continue;
 				createFlowProperty(descriptor);
 			}
@@ -37,7 +37,7 @@ class FlowPropertyImport {
 	}
 
 	private void createFlowProperty(FlowPropertyDescriptor descriptor) {
-		FlowProperty srcProp = sourceDao.getForId(descriptor.getId());
+		FlowProperty srcProp = sourceDao.getForId(descriptor.id);
 		FlowProperty destProp = srcProp.clone();
 		destProp.setRefId(srcProp.getRefId());
 		destProp.setUnitGroup(refs.switchRef(srcProp.getUnitGroup()));

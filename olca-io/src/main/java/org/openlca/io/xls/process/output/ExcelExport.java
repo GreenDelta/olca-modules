@@ -41,7 +41,7 @@ public class ExcelExport implements Runnable {
 		try {
 			ProcessDao dao = new ProcessDao(db);
 			for (ProcessDescriptor d : descriptors) {
-				Process p = dao.getForId(d.getId());
+				Process p = dao.getForId(d.id);
 				if (p == null || p.getDocumentation() == null) {
 					log.warn("process {} was null or has no documentation: "
 							+ "not exported", d);

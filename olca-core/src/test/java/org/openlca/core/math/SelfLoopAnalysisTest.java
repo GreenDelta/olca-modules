@@ -78,7 +78,7 @@ public class SelfLoopAnalysisTest {
 
 	private FlowDescriptor flow(String name) {
 		for (FlowDescriptor f : result.flowIndex.content()) {
-			if (name.equals(f.getName()))
+			if (name.equals(f.name))
 				return f;
 		}
 		return null;
@@ -86,7 +86,7 @@ public class SelfLoopAnalysisTest {
 
 	private CategorizedDescriptor process(String name) {
 		for (CategorizedDescriptor p : result.getProcesses()) {
-			if (name.equals(p.getName()))
+			if (name.equals(p.name))
 				return p;
 		}
 		return null;

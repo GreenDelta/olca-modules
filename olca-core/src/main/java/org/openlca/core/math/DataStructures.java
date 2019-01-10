@@ -48,13 +48,13 @@ public class DataStructures {
 		// TODO: trove maps?
 		Map<Long, ProductSystemDescriptor> systems = new ProductSystemDao(db)
 				.getDescriptors().stream()
-				.collect(Collectors.toMap(d -> d.getId(), d -> d));
+				.collect(Collectors.toMap(d -> d.id, d -> d));
 		Map<Long, ProcessDescriptor> processes = new ProcessDao(db)
 				.getDescriptors().stream()
-				.collect(Collectors.toMap(d -> d.getId(), d -> d));
+				.collect(Collectors.toMap(d -> d.id, d -> d));
 		Map<Long, FlowDescriptor> flows = new FlowDao(db)
 				.getDescriptors().stream()
-				.collect(Collectors.toMap(d -> d.getId(), d -> d));
+				.collect(Collectors.toMap(d -> d.id, d -> d));
 		for (ProcessLink link : system.processLinks) {
 			CategorizedDescriptor p = processes.get(link.providerId);
 			if (p == null) {
@@ -102,7 +102,7 @@ public class DataStructures {
 			TechIndex techIndex) {
 		HashSet<Long> set = new HashSet<>();
 		if (setup != null && setup.impactMethod != null) {
-			set.add(setup.impactMethod.getId());
+			set.add(setup.impactMethod.id);
 		}
 		if (techIndex != null) {
 			set.addAll(techIndex.getProcessIds());

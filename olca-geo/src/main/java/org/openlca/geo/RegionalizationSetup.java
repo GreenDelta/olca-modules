@@ -108,7 +108,7 @@ public class RegionalizationSetup {
 				+ "m.id = :methodId";
 		ParameterDao dao = new ParameterDao(database);
 		List<Parameter> all = dao.getAll(query,
-				Collections.singletonMap("methodId", method.getId()));
+				Collections.singletonMap("methodId", method.id));
 		List<Parameter> params = new ArrayList<>();
 		for (Parameter param : all) {
 			if (param == null || param.externalSource == null)
@@ -152,7 +152,7 @@ public class RegionalizationSetup {
 			return null;
 		try {
 			String sql = "select parameter_mean from tbl_impact_methods"
-					+ " where id = " + method.getId();
+					+ " where id = " + method.id;
 			AtomicReference<String> ref = new AtomicReference<String>(null);
 			NativeSql.on(database).query(sql, r -> {
 				String s = r.getString(1);

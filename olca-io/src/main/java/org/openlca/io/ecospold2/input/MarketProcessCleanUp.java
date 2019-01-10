@@ -35,7 +35,7 @@ public class MarketProcessCleanUp implements Runnable {
 			List<ProcessDescriptor> marketProcesses = getMarketProcesses();
 			int i = 0;
 			for (ProcessDescriptor descriptor : marketProcesses) {
-				Process marketProcess = dao.getForId(descriptor.getId());
+				Process marketProcess = dao.getForId(descriptor.id);
 				log.trace("replace market process {}", descriptor);
 				marketProcess = fixSelfLoop(marketProcess);
 				replaceMarket(marketProcess);
@@ -51,7 +51,7 @@ public class MarketProcessCleanUp implements Runnable {
 		List<ProcessDescriptor> descriptors = dao.getDescriptors();
 		List<ProcessDescriptor> marketProcesses = new ArrayList<>();
 		for (ProcessDescriptor descriptor : descriptors) {
-			if (descriptor.getName().toLowerCase().startsWith("market for "))
+			if (descriptor.name.toLowerCase().startsWith("market for "))
 				marketProcesses.add(descriptor);
 		}
 		log.trace("{} market processes in {} processes found",

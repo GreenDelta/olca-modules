@@ -76,12 +76,12 @@ public class CommitInvocation {
 
 	private Dataset toDataset(BaseDescriptor descriptor) {
 		Dataset ds = new Dataset();
-		ds.refId = descriptor.getRefId();
-		ds.type = descriptor.getModelType();
-		ds.version = Version.asString(descriptor.getVersion());
-		ds.lastChange = descriptor.getLastChange();
-		ds.name = descriptor.getName();
-		ds.categoryType = descriptor.getModelType();
+		ds.refId = descriptor.refId;
+		ds.type = descriptor.type;
+		ds.version = Version.asString(descriptor.version);
+		ds.lastChange = descriptor.lastChange;
+		ds.name = descriptor.name;
+		ds.categoryType = descriptor.type;
 		return ds;
 	}
 

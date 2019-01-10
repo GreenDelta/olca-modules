@@ -15,7 +15,7 @@ public class ListUtils {
 		if (descriptors == null)
 			return null;
 		for (T descriptor : descriptors) {
-			if (id == descriptor.getId())
+			if (id == descriptor.id)
 				return descriptor;
 		}
 		return null;

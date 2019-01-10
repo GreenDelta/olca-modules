@@ -27,11 +27,11 @@ class ImpactMethodExport extends AbstractExport {
 	private Object[] createLine(ImpactMethodDescriptor method,
 			CategoryDao categoryDao) {
 		Object[] line = new Object[4];
-		line[0] = method.getRefId();
-		line[1] = method.getName();
-		line[2] = method.getDescription();
-		if (method.getCategory() != null) {
-			Category category = categoryDao.getForId(method.getCategory());
+		line[0] = method.refId;
+		line[1] = method.name;
+		line[2] = method.description;
+		if (method.category != null) {
+			Category category = categoryDao.getForId(method.category);
 			if (category != null)
 				line[3] = category.getRefId();
 		}

@@ -28,7 +28,7 @@ public class DQStatistics {
 	}
 
 	public int getNoOfExchanges(CategorizedDescriptor process) {
-		return get(exchangeCounts, process.getId(), 0);
+		return get(exchangeCounts, process.id, 0);
 	}
 
 	public int getNoOfExchanges(DQIndicator indicator) {
@@ -37,7 +37,7 @@ public class DQStatistics {
 
 	public int getNoOfExchanges(CategorizedDescriptor process,
 			DQIndicator indicator) {
-		return get(exchangeCounts, process.getId(), indicator.position);
+		return get(exchangeCounts, process.id, indicator.position);
 	}
 
 	private <T> int get(Map<T, Integer> map, T key) {

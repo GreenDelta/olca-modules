@@ -59,12 +59,12 @@ public class ParameterUsageTree {
 				return 1;
 			if (context == null || o.context == null)
 				return 0;
-			int o1 = typeOrder(context.getModelType());
-			int o2 = typeOrder(o.context.getModelType());
+			int o1 = typeOrder(context.type);
+			int o2 = typeOrder(o.context.type);
 			if (o1 == o2)
 				return Strings.compare(
-						context.getName(),
-						o.context.getName());
+						context.name,
+						o.context.name);
 			return o1 - o2;
 		}
 
@@ -241,7 +241,7 @@ public class ParameterUsageTree {
 				if (redefContext == null) {
 					Node child = new Node();
 					child.context = new ParameterDescriptor();
-					child.context.setName(name);
+					child.context.name = name;
 					child.type = "parameter redefinition";
 					child.formula = name;
 					root.add(child);
@@ -268,7 +268,7 @@ public class ParameterUsageTree {
 				Node root = context(int64(r, 2), ProjectDescriptor.class);
 				Node child = new Node();
 				child.context = new ParameterDescriptor();
-				child.context.setName(name);
+				child.context.name = name;
 				child.type = "parameter redefinition";
 				child.formula = name;
 				root.add(child);
@@ -339,7 +339,7 @@ public class ParameterUsageTree {
 		private Node child(Node root, long id,
 				Class<? extends BaseDescriptor> clazz) {
 			for (Node c : root.childs) {
-				if (c.context != null && c.context.getId() == id)
+				if (c.context != null && c.context.id == id)
 					return c;
 			}
 			Node c = new Node();

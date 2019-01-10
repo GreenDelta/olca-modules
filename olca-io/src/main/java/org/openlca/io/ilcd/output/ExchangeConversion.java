@@ -112,7 +112,7 @@ class ExchangeConversion {
 			ProcessDao dao = new ProcessDao(config.db);
 			ProcessDescriptor d = dao.getDescriptor(provider);
 			if (d != null) {
-				ext.setDefaultProvider(d.getRefId());
+				ext.setDefaultProvider(d.refId);
 			}
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());

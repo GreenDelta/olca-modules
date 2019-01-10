@@ -38,8 +38,8 @@ public class Processes {
 		ProcessDescriptor selected = null;
 		ProcessDao pDao = new ProcessDao(db);
 		for (ProcessDescriptor d : pDao.getDescriptors()) {
-			if (!Strings.nullOrEqual(fullName, d.getName())
-					&& !Strings.nullOrEqual(name, d.getName()))
+			if (!Strings.nullOrEqual(fullName, d.name)
+					&& !Strings.nullOrEqual(name, d.name))
 				continue;
 			if (selected == null) {
 				selected = d;
@@ -60,10 +60,10 @@ public class Processes {
 	private static boolean matchLocation(ProcessDescriptor d, Location loc) {
 		if (d == null)
 			return false;
-		if (d.getLocation() == null)
+		if (d.location == null)
 			return loc == null;
 		if (loc == null)
-			return d.getLocation() == null;
-		return d.getLocation().longValue() == loc.getId();
+			return d.location == null;
+		return d.location.longValue() == loc.getId();
 	}
 }

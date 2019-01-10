@@ -36,14 +36,14 @@ class FlowInfo implements Comparable<FlowInfo> {
 		for (FlowDescriptor flow : flows) {
 			CategoryPair catPair = CategoryPair.create(flow, cache);
 			FlowInfo info = new FlowInfo();
-			info.realId = flow.getId();
-			info.setId(flow.getRefId());
-			info.setName(flow.getName());
+			info.realId = flow.id;
+			info.setId(flow.refId);
+			info.setName(flow.name);
 			info.setCategory(catPair.getCategory());
 			info.setSubCategory(catPair.getSubCategory());
-			if (flow.getLocation() != null) {
+			if (flow.location != null) {
 				Location location = cache.get(Location.class,
-						flow.getLocation());
+						flow.location);
 				if (location != null)
 					info.setLocation(location.getCode());
 			}

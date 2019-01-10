@@ -21,9 +21,9 @@ class Models {
 		if (id == null || type == null)
 			return null;
 		BaseDescriptor d = new BaseDescriptor();
-		d.setRefId(id);
-		d.setType(type);
-		d.setName(Json.getString(obj, "name"));
+		d.refId = id;
+		d.type = type;
+		d.name = Json.getString(obj, "name");
 		return d;
 	}
 

@@ -38,7 +38,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 
 	@Override
 	public List<Reference> findReferences(T descriptor) {
-		if (descriptor == null || descriptor.getId() == 0l)
+		if (descriptor == null || descriptor.id == 0l)
 			return Collections.emptyList();
 		return findReferences(Collections.singletonList(descriptor));
 	}
@@ -80,7 +80,7 @@ abstract class BaseReferenceSearch<T extends CategorizedDescriptor> implements
 			if (o instanceof Reference) {
 				ids.add(((Reference) o).id); 
 			} else if (o instanceof BaseDescriptor) {
-				ids.add(((BaseDescriptor) o).getId());
+				ids.add(((BaseDescriptor) o).id);
 			}
 		}
 		return ids;

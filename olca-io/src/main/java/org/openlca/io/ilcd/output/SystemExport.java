@@ -69,12 +69,12 @@ public class SystemExport {
 	private void loadMaps() {
 		ProcessDao pDao = new ProcessDao(config.db);
 		for (ProcessDescriptor pd : pDao.getDescriptors()) {
-			processes.put(pd.getId(), pd);
-			processIDs.put(pd.getId(), processIDs.size());
+			processes.put(pd.id, pd);
+			processIDs.put(pd.id, processIDs.size());
 		}
 		FlowDao fDao = new FlowDao(config.db);
 		for (FlowDescriptor fd : fDao.getDescriptors()) {
-			flows.put(fd.getId(), fd);
+			flows.put(fd.id, fd);
 		}
 		Set<Long> exchanges = system.processLinks.stream()
 				.map(link -> link.exchangeId)
@@ -135,10 +135,10 @@ public class SystemExport {
 			FlowDescriptor flow = flows.get(link.flowId);
 			if (flow == null)
 				continue;
-			if (flow.getFlowType() == FlowType.PRODUCT_FLOW) {
+			if (flow.flowType == FlowType.PRODUCT_FLOW) {
 				ProcessInstance pi = instances.get(link.providerId);
 				addLink(pi, link, flow);
-			} else if (flow.getFlowType() == FlowType.WASTE_FLOW) {
+			} else if (flow.flowType == FlowType.WASTE_FLOW) {
 				ProcessInstance pi = instances.get(link.processId);
 				addLink(pi, link, flow);
 			}
@@ -150,10 +150,10 @@ public class SystemExport {
 		ProcessInstance pi = new ProcessInstance();
 		pi.id = processIDs.getOrDefault(id, -1);
 		ProcessDescriptor d = processes.get(id);
-		if (!config.store.contains(Process.class, d.getRefId())) {
+		if (!config.store.contains(Process.class, d.refId)) {
 			ProcessDao dao = new ProcessDao(config.db);
 			ExportDispatch.forwardExport(
-					dao.getForId(d.getId()), config);
+					dao.getForId(d.id), config);
 		}
 		pi.process = toRef(d);
 		for (ParameterRedef redef : system.parameterRedefs) {
@@ -174,23 +174,23 @@ public class SystemExport {
 			return;
 		Connection con = null;
 		for (Connection c : pi.connections) {
-			if (Objects.equals(c.outputFlow, flow.getRefId())) {
+			if (Objects.equals(c.outputFlow, flow.refId)) {
 				con = c;
 				break;
 			}
 		}
 		if (con == null) {
 			con = new Connection();
-			con.outputFlow = flow.getRefId();
+			con.outputFlow = flow.refId;
 			pi.connections.add(con);
 		}
 		DownstreamLink dl = new DownstreamLink();
-		dl.inputFlow = flow.getRefId();
+		dl.inputFlow = flow.refId;
 		dl.linkedExchange = exchangeIDs.get(link.exchangeId);
 		long linkProcess = 0L;
-		if (flow.getFlowType() == FlowType.PRODUCT_FLOW) {
+		if (flow.flowType == FlowType.PRODUCT_FLOW) {
 			linkProcess = link.processId;
-		} else if (flow.getFlowType() == FlowType.WASTE_FLOW) {
+		} else if (flow.flowType == FlowType.WASTE_FLOW) {
 			linkProcess = link.providerId;
 		}
 		dl.process = processIDs.getOrDefault(linkProcess, -1);
@@ -204,10 +204,10 @@ public class SystemExport {
 			return null;
 		Ref ref = new Ref();
 		ref.type = DataSetType.PROCESS;
-		ref.uuid = d.getRefId();
+		ref.uuid = d.refId;
 		ref.uri = "../processes/" + ref.uuid + ".xml";
-		ref.version = Version.asString(d.getVersion());
-		ref.name.add(LangString.of(d.getName(), config.lang));
+		ref.version = Version.asString(d.version);
+		ref.name.add(LangString.of(d.name, config.lang));
 		return ref;
 	}
 }

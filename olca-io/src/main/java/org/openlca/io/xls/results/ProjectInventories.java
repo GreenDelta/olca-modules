@@ -59,7 +59,7 @@ class ProjectInventories {
 		writeHeader(row++);
 		FlowIndex index = result.getResult(variants.get(0)).flowIndex;
 		for (FlowDescriptor flow : flows) {
-			if (inputs != index.isInput(flow.getId()))
+			if (inputs != index.isInput(flow.id))
 				continue;
 			writeInfo(flow, row);
 			ContributionSet<ProjectVariant> contributions = result
@@ -79,8 +79,8 @@ class ProjectInventories {
 
 	private void writeInfo(FlowDescriptor flow, int row) {
 		int col = 1;
-		Excel.cell(sheet, row, col++, flow.getRefId());
-		Excel.cell(sheet, row, col++, flow.getName());
+		Excel.cell(sheet, row, col++, flow.refId);
+		Excel.cell(sheet, row, col++, flow.name);
 		CategoryPair flowCat = CategoryPair.create(flow, result.cache);
 		Excel.cell(sheet, row, col++, flowCat.getCategory());
 		Excel.cell(sheet, row, col++, flowCat.getSubCategory());

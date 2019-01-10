@@ -84,11 +84,11 @@ class Sequence {
 	private void index(int type, RootEntityDao<?, ?> dao) {
 		List<? extends BaseDescriptor> descriptors = dao.getDescriptors();
 		for (BaseDescriptor d : descriptors) {
-			if (d.getRefId() == null) {
+			if (d.refId == null) {
 				log.warn("found root entity without reference ID: {}", d);
 				continue;
 			}
-			put(type, d.getRefId(), d.getId());
+			put(type, d.refId, d.id);
 		}
 	}
 

@@ -38,8 +38,7 @@ public class CategoryDao
 	protected CategoryDescriptor createDescriptor(Object[] queryResult) {
 		CategoryDescriptor descriptor = super.createDescriptor(queryResult);
 		if (queryResult[7] instanceof String)
-			descriptor.setCategoryType(
-					ModelType.valueOf((String) queryResult[7]));
+			descriptor.categoryType = ModelType.valueOf((String) queryResult[7]);
 		return descriptor;
 	}
 
@@ -119,24 +118,24 @@ public class CategoryDao
 		Optional<Category> optional = Optional.ofNullable(category);
 		for (CategorizedDescriptor descriptor : getDescriptors(
 				category.getModelType(), optional)) {
-			Version v = new Version(descriptor.getVersion());
+			Version v = new Version(descriptor.version);
 			v.incUpdate();
 			long version = v.getValue();
 			long lastChange = System.currentTimeMillis();
-			descriptor.setVersion(version);
-			descriptor.setLastChange(lastChange);
+			descriptor.version = version;
+			descriptor.lastChange = lastChange;
 			try {
-				String update = "UPDATE " + getTable(descriptor.getModelType())
+				String update = "UPDATE " + getTable(descriptor.type)
 						+ " SET version = " + version + ", last_change = "
 						+ lastChange
-						+ " WHERE id = " + descriptor.getId();
+						+ " WHERE id = " + descriptor.id;
 				NativeSql.on(database).runUpdate(update);
 			} catch (SQLException e) {
 				log.error("Error updating "
-						+ descriptor.getModelType().getModelClass()
+						+ descriptor.type.getModelClass()
 								.getSimpleName()
 						+ " "
-						+ descriptor.getId(), e);
+						+ descriptor.id, e);
 			}
 			database.notifyUpdate(descriptor);
 		}

@@ -7,10 +7,8 @@ import org.openlca.core.model.ModelType;
  */
 public class ImpactMethodDescriptor extends CategorizedDescriptor {
 
-	private static final long serialVersionUID = 7475077805551284454L;
-
 	public ImpactMethodDescriptor() {
-		setType(ModelType.IMPACT_METHOD);
+		this.type = ModelType.IMPACT_METHOD;
 	}
 
 }

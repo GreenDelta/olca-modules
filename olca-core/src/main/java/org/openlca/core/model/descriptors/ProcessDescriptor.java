@@ -5,48 +5,13 @@ import org.openlca.core.model.ProcessType;
 
 public class ProcessDescriptor extends CategorizedDescriptor {
 
-	private static final long serialVersionUID = 5631406720764078522L;
-
-	private ProcessType processType;
-	private boolean infrastructureProcess;
-	private Long location;
-	private Long quantitativeReference;
+	public ProcessType processType;
+	public boolean infrastructureProcess;
+	public Long location;
+	public Long quantitativeReference; // TODO: is this field used?, why?
 
 	public ProcessDescriptor() {
-		setType(ModelType.PROCESS);
-	}
-
-	public ProcessType getProcessType() {
-		return processType;
-	}
-
-	public void setProcessType(ProcessType processType) {
-		this.processType = processType;
-	}
-
-	public boolean isInfrastructureProcess() {
-		return infrastructureProcess;
-	}
-
-	public void setInfrastructureProcess(boolean infrastructureProcess) {
-		this.infrastructureProcess = infrastructureProcess;
-	}
-
-	public Long getLocation() {
-		return location;
-	}
-
-	public void setLocation(Long location) {
-		this.location = location;
-	}
-
-	// TODO: is this really used somewhere?
-	public Long getQuantitativeReference() {
-		return quantitativeReference;
-	}
-
-	public void setQuantitativeReference(Long quantitativeReference) {
-		this.quantitativeReference = quantitativeReference;
+		this.type = ModelType.PROCESS;
 	}
 
 }

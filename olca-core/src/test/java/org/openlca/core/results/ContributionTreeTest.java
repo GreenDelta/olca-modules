@@ -27,7 +27,7 @@ public class ContributionTreeTest {
 
 		FlowIndex enviIndex = new FlowIndex();
 		FlowDescriptor outFlow = new FlowDescriptor();
-		outFlow.setId(4);
+		outFlow.id = (long) 4;
 		enviIndex.putOutput(outFlow);
 		data.enviIndex = enviIndex;
 
@@ -43,7 +43,7 @@ public class ContributionTreeTest {
 		FullResult result = new LcaCalculator(Tests.getDefaultSolver(), data)
 				.calculateFull();
 		FlowDescriptor flow = new FlowDescriptor();
-		flow.setId(4);
+		flow.id = (long) 4;
 
 		Assert.assertEquals(1.0, result.getTotalFlowResult(flow), 1e-16);
 
@@ -57,11 +57,11 @@ public class ContributionTreeTest {
 
 	private ProcessProduct provider(long id, long flowId) {
 		ProcessDescriptor process = new ProcessDescriptor();
-		process.setName("Process " + id);
-		process.setId(id);
+		process.name = "Process " + id;
+		process.id = id;
 		FlowDescriptor flow = new FlowDescriptor();
-		flow.setName("Flow " + flowId);
-		flow.setId(flowId);
+		flow.name = "Flow " + flowId;
+		flow.id = flowId;
 		return ProcessProduct.of(process, flow);
 	}
 }

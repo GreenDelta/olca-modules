@@ -147,12 +147,12 @@ public class Json {
 		if (d == null)
 			return null;
 		JsonObject obj = new JsonObject();
-		if (d.getModelType() != null) {
-			String type = d.getModelType().getModelClass().getSimpleName();
+		if (d.type != null) {
+			String type = d.type.getModelClass().getSimpleName();
 			put(obj, "@type", type);
 		}
-		put(obj, "@id", d.getRefId());
-		put(obj, "name", d.getName());
+		put(obj, "@id", d.refId);
+		put(obj, "name", d.name);
 		if (d instanceof CategorizedDescriptor) {
 			putCategoryPath(obj, (CategorizedDescriptor) d, cache);
 		}
@@ -167,7 +167,7 @@ public class Json {
 		}
 		if (d instanceof ImpactCategoryDescriptor) {
 			ImpactCategoryDescriptor icd = (ImpactCategoryDescriptor) d;
-			obj.addProperty("refUnit", icd.getReferenceUnit());
+			obj.addProperty("refUnit", icd.referenceUnit);
 		}
 		return obj;
 	}
@@ -183,17 +183,17 @@ public class Json {
 		JsonObject obj = asRef(d, cache);
 		if (obj == null)
 			return obj;
-		put(obj, "description", d.getDescription());
-		put(obj, "version", Version.asString(d.getVersion()));
+		put(obj, "description", d.description);
+		put(obj, "version", Version.asString(d.version));
 		return obj;
 	}
 
 	private static void putCategoryPath(JsonObject ref,
 			CategorizedDescriptor d, EntityCache cache) {
 		if (ref == null || d == null || cache == null
-				|| d.getCategory() == null)
+				|| d.category == null)
 			return;
-		Category cat = cache.get(Category.class, d.getCategory());
+		Category cat = cache.get(Category.class, d.category);
 		if (cat == null)
 			return;
 		List<String> path = Categories.path(cat);
@@ -208,8 +208,8 @@ public class Json {
 			CategoryDescriptor d) {
 		if (ref == null || d == null)
 			return;
-		if (d.getCategoryType() != null) {
-			String type = d.getCategoryType().getModelClass().getSimpleName();
+		if (d.categoryType != null) {
+			String type = d.categoryType.getModelClass().getSimpleName();
 			ref.addProperty("categoryType", type);
 		}
 	}
@@ -218,18 +218,18 @@ public class Json {
 			FlowDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
-		if (d.getFlowType() != null) {
-			ref.addProperty("flowType", d.getFlowType().name());
+		if (d.flowType != null) {
+			ref.addProperty("flowType", d.flowType.name());
 		}
 		if (cache == null)
 			return;
-		if (d.getLocation() != null) {
-			Location loc = cache.get(Location.class, d.getLocation());
+		if (d.location != null) {
+			Location loc = cache.get(Location.class, d.location);
 			if (loc != null) {
 				ref.addProperty("location", loc.getCode());
 			}
 		}
-		FlowProperty prop = cache.get(FlowProperty.class, d.getRefFlowPropertyId());
+		FlowProperty prop = cache.get(FlowProperty.class, d.refFlowPropertyId);
 		if (prop != null && prop.getUnitGroup() != null) {
 			Unit unit = prop.getUnitGroup().getReferenceUnit();
 			if (unit != null) {
@@ -242,11 +242,11 @@ public class Json {
 			ProcessDescriptor d, EntityCache cache) {
 		if (ref == null || d == null)
 			return;
-		if (d.getProcessType() != null) {
-			ref.addProperty("processType", d.getProcessType().name());
+		if (d.processType != null) {
+			ref.addProperty("processType", d.processType.name());
 		}
-		if (cache != null && d.getLocation() != null) {
-			Location loc = cache.get(Location.class, d.getLocation());
+		if (cache != null && d.location != null) {
+			Location loc = cache.get(Location.class, d.location);
 			if (loc != null) {
 				ref.addProperty("location", loc.getCode());
 			}

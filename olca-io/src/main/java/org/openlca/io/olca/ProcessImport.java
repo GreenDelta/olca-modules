@@ -54,9 +54,9 @@ class ProcessImport {
 		log.trace("import processes");
 		try {
 			for (ProcessDescriptor descriptor : srcDao.getDescriptors()) {
-				long destId = seq.get(seq.PROCESS, descriptor.getRefId());
+				long destId = seq.get(seq.PROCESS, descriptor.refId);
 				if (destId != 0)
-					srcDestIdMap.put(descriptor.getId(), destId);
+					srcDestIdMap.put(descriptor.id, destId);
 				else
 					createProcess(descriptor);
 			}
@@ -67,7 +67,7 @@ class ProcessImport {
 	}
 
 	private void createProcess(ProcessDescriptor descriptor) {
-		Process srcProcess = srcDao.getForId(descriptor.getId());
+		Process srcProcess = srcDao.getForId(descriptor.id);
 		Process destProcess = srcProcess.clone();
 		destProcess.setRefId(srcProcess.getRefId());
 		destProcess.setCategory(refs.switchRef(srcProcess.getCategory()));

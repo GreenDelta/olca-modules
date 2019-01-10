@@ -134,7 +134,7 @@ public class NwSetTable {
 			ImpactResult r = new ImpactResult();
 			r.impactCategory = result.impactCategory;
 			applied.add(r);
-			long impactId = result.impactCategory.getId();
+			long impactId = result.impactCategory.id;
 			double f = getFactor(type, impactId);
 			r.value = f * result.value;
 		}

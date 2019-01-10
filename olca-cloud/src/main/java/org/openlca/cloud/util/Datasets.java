@@ -22,20 +22,20 @@ public class Datasets {
 
 	public static Dataset toDataset(CategorizedDescriptor descriptor, Category category) {
 		Dataset dataset = new Dataset();
-		dataset.name = descriptor.getName();
-		dataset.refId = descriptor.getRefId();
-		dataset.type = descriptor.getModelType();
-		dataset.version = Version.asString(descriptor.getVersion());
-		dataset.lastChange = descriptor.getLastChange();
+		dataset.name = descriptor.name;
+		dataset.refId = descriptor.refId;
+		dataset.type = descriptor.type;
+		dataset.version = Version.asString(descriptor.version);
+		dataset.lastChange = descriptor.lastChange;
 		ModelType categoryType = null;
 		if (category != null) {
 			dataset.categoryRefId = category.getRefId();
 			categoryType = category.getModelType();
 		} else {
-			if (descriptor.getModelType() == ModelType.CATEGORY)
-				categoryType = ((CategoryDescriptor) descriptor).getCategoryType();
+			if (descriptor.type == ModelType.CATEGORY)
+				categoryType = ((CategoryDescriptor) descriptor).categoryType;
 			else
-				categoryType = descriptor.getModelType();
+				categoryType = descriptor.type;
 		}
 		dataset.categoryType = categoryType;
 		dataset.categories = getCategories(descriptor, category);

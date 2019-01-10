@@ -50,9 +50,9 @@ public class SolverTest {
 		MatrixData data = new MatrixData();
 
 		FlowDescriptor flow = new FlowDescriptor();
-		flow.setId(1);
+		flow.id = (long) 1;
 		ProcessDescriptor process = new ProcessDescriptor();
-		process.setId(1);
+		process.id = (long) 1;
 		ProcessProduct provider = ProcessProduct.of(process, flow);
 
 		TechIndex techIndex = new TechIndex(provider);
@@ -105,7 +105,7 @@ public class SolverTest {
 
 	private FlowDescriptor flow(int id) {
 		FlowDescriptor flow = new FlowDescriptor();
-		flow.setId(id);
+		flow.id = (long) id;
 		return flow;
 	}
 

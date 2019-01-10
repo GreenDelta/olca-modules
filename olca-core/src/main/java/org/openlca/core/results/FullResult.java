@@ -235,7 +235,7 @@ public class FullResult extends ContributionResult {
 	 * Calculate the upstream tree for the given LCIA category.
 	 */
 	public UpstreamTree getTree(ImpactCategoryDescriptor impact) {
-		int i = impactIndex.of(impact.getId());
+		int i = impactIndex.of(impact.id);
 		double[] u = upstreamImpactResults.getRow(i);
 		return new UpstreamTree(impact, this, u);
 	}

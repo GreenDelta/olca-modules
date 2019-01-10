@@ -125,8 +125,8 @@ public class EntityCacheTest {
 		Assert.assertEquals(actor.getName(), alias.getName());
 		ActorDescriptor descriptor = cache.get(ActorDescriptor.class,
 				actor.getId());
-		Assert.assertEquals(actor.getName(), descriptor.getName());
-		Assert.assertEquals(actor.getId(), descriptor.getId());
+		Assert.assertEquals(actor.getName(), descriptor.name);
+		Assert.assertEquals(actor.getId(), descriptor.id);
 		Assert.assertTrue(cache.getAll(Actor.class,
 				Arrays.asList(actor.getId())).containsValue(actor));
 		Assert.assertTrue(cache.getAll(ActorDescriptor.class,

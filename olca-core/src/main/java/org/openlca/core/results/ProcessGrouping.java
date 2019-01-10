@@ -91,7 +91,7 @@ public class ProcessGrouping {
 		List<CategorizedDescriptor> matches = new ArrayList<>();
 		for (String id : processIds) {
 			for (CategorizedDescriptor p : processes) {
-				if (p.getRefId() != null && p.getRefId().equals(id))
+				if (p.refId != null && p.refId.equals(id))
 					matches.add(p);
 			}
 		}

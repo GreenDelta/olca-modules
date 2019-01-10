@@ -49,7 +49,7 @@ public class SystemCalculator {
 		MatrixData data = inventory.createMatrix(solver, interpreter);
 		if (setup.impactMethod != null) {
 			ImpactTable impacts = ImpactTable.build(matrixCache,
-					setup.impactMethod.getId(), inventory.flowIndex);
+					setup.impactMethod.id, inventory.flowIndex);
 			data.impactMatrix = impacts.createMatrix(solver, interpreter);
 			data.impactIndex = impacts.impactIndex;
 		}

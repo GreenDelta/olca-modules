@@ -99,11 +99,11 @@ public class LinkContributionsTest {
 
 	private ProcessProduct provider(long id, long flowId) {
 		ProcessDescriptor process = new ProcessDescriptor();
-		process.setName("Process " + id);
-		process.setId(id);
+		process.name = "Process " + id;
+		process.id = id;
 		FlowDescriptor flow = new FlowDescriptor();
-		flow.setName("Flow " + flowId);
-		flow.setId(flowId);
+		flow.name = "Flow " + flowId;
+		flow.id = flowId;
 		return ProcessProduct.of(process, flow);
 	}
 }

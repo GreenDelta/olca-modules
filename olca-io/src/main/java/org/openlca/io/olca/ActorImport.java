@@ -27,7 +27,7 @@ class ActorImport {
 		log.trace("import actors");
 		try {
 			for (ActorDescriptor descriptor : sourceDao.getDescriptors()) {
-				if (seq.contains(seq.ACTOR, descriptor.getRefId()))
+				if (seq.contains(seq.ACTOR, descriptor.refId))
 					continue;
 				createActor(descriptor);
 			}
@@ -37,7 +37,7 @@ class ActorImport {
 	}
 
 	private void createActor(ActorDescriptor descriptor) {
-		Actor srcActor = sourceDao.getForId(descriptor.getId());
+		Actor srcActor = sourceDao.getForId(descriptor.id);
 		Actor destActor = srcActor.clone();
 		destActor.setRefId(srcActor.getRefId());
 		destActor.setCategory(refs.switchRef(srcActor.getCategory()));

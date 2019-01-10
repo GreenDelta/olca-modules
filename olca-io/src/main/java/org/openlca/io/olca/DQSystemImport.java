@@ -27,7 +27,7 @@ class DQSystemImport {
 		log.trace("import data quality systems");
 		try {
 			for (DQSystemDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.DQ_SYSTEM, descriptor.getRefId()))
+				if (seq.contains(seq.DQ_SYSTEM, descriptor.refId))
 					continue;
 				create(descriptor);
 			}
@@ -37,7 +37,7 @@ class DQSystemImport {
 	}
 
 	private void create(DQSystemDescriptor descriptor) {
-		DQSystem src = srcDao.getForId(descriptor.getId());
+		DQSystem src = srcDao.getForId(descriptor.id);
 		DQSystem dest = src.clone();
 		dest.setRefId(src.getRefId());
 		dest.setCategory(refs.switchRef(src.getCategory()));

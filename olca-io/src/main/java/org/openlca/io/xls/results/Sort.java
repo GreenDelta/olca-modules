@@ -24,7 +24,7 @@ public class Sort {
 			@Override
 			public int compare(ImpactCategoryDescriptor o1,
 					ImpactCategoryDescriptor o2) {
-				return Strings.compare(o1.getName(), o2.getName());
+				return Strings.compare(o1.name, o2.name);
 			}
 		});
 		return list;
@@ -49,11 +49,11 @@ public class Sort {
 			@Override
 			public int compare(CategorizedDescriptor o1,
 					CategorizedDescriptor o2) {
-				if (o1.getId() == refProcessId)
+				if (o1.id == refProcessId)
 					return -1;
-				if (o2.getId() == refProcessId)
+				if (o2.id == refProcessId)
 					return 1;
-				return Strings.compare(o1.getName(), o2.getName());
+				return Strings.compare(o1.name, o2.name);
 			}
 		});
 		return list;
@@ -84,15 +84,15 @@ public class Sort {
 			int c = cat1.compareTo(cat2);
 			if (c != 0)
 				return c;
-			return Strings.compare(o1.getName(), o2.getName());
+			return Strings.compare(o1.name, o2.name);
 		}
 
 		private CategoryPair flowCategory(FlowDescriptor flow) {
-			CategoryPair pair = flowCategories.get(flow.getId());
+			CategoryPair pair = flowCategories.get(flow.id);
 			if (pair != null)
 				return pair;
 			pair = CategoryPair.create(flow, cache);
-			flowCategories.put(flow.getId(), pair);
+			flowCategories.put(flow.id, pair);
 			return pair;
 		}
 	}

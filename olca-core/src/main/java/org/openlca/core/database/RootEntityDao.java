@@ -149,15 +149,15 @@ public class RootEntityDao<T extends RootEntity, V extends BaseDescriptor> exten
 		V descriptor = null;
 		try {
 			descriptor = descriptorType.newInstance();
-			descriptor.setId((Long) queryResult[0]);
-			descriptor.setRefId((String) queryResult[1]);
-			descriptor.setName((String) queryResult[2]);
-			descriptor.setDescription((String) queryResult[3]);
+			descriptor.id = (Long) queryResult[0];
+			descriptor.refId = (String) queryResult[1];
+			descriptor.name = (String) queryResult[2];
+			descriptor.description = (String) queryResult[3];
 			if (queryResult[4] != null)
-				descriptor.setVersion((long) queryResult[4]);
+				descriptor.version = (long) queryResult[4];
 			if (queryResult[5] != null)
-				descriptor.setLastChange((long) queryResult[5]);
-			descriptor.setType(ModelType.forModelClass(entityType));
+				descriptor.lastChange = (long) queryResult[5];
+			descriptor.type = ModelType.forModelClass(entityType);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "failed to map query result to descriptor", e);
 		}

@@ -148,7 +148,7 @@ class RefSwitcher {
 				.getDescriptor(srcMethodId);
 		if (srcDescriptor == null)
 			return null;
-		return seq.get(seq.IMPACT_METHOD, srcDescriptor.getRefId());
+		return seq.get(seq.IMPACT_METHOD, srcDescriptor.refId);
 	}
 
 	Long getDestProcessId(Long srcProcessId) {
@@ -158,7 +158,7 @@ class RefSwitcher {
 		ProcessDescriptor srcDescriptor = srcDao.getDescriptor(srcProcessId);
 		if (srcDescriptor == null)
 			return null;
-		return seq.get(seq.PROCESS, srcDescriptor.getRefId());
+		return seq.get(seq.PROCESS, srcDescriptor.refId);
 	}
 
 }

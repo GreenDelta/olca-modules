@@ -165,7 +165,7 @@ public class TechIndex {
 	public List<ProcessProduct> getProviders(CategorizedDescriptor d) {
 		if (d == null)
 			return Collections.emptyList();
-		List<ProcessProduct> providers = processProviders.get(d.getId());
+		List<ProcessProduct> providers = processProviders.get(d.id);
 		if (providers == null)
 			return Collections.emptyList();
 		return new ArrayList<>(providers);

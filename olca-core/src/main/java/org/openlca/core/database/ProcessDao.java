@@ -35,10 +35,10 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 		if (queryResult == null)
 			return null;
 		ProcessDescriptor d = super.createDescriptor(queryResult);
-		d.setProcessType(ProcessType.valueOf((String) queryResult[7]));
-		d.setInfrastructureProcess((Integer) queryResult[8] == 1);
-		d.setLocation((Long) queryResult[9]);
-		d.setQuantitativeReference((Long) queryResult[10]);
+		d.processType = ProcessType.valueOf((String) queryResult[7]);
+		d.infrastructureProcess = (Integer) queryResult[8] == 1;
+		d.location = (Long) queryResult[9];
+		d.quantitativeReference = (Long) queryResult[10];
 		return d;
 	}
 
@@ -84,7 +84,7 @@ public class ProcessDao extends CategorizedEntityDao<Process, ProcessDescriptor>
 		if (descriptor == null)
 			return Collections.emptySet();
 		String sql = "select f_flow from tbl_exchanges where f_owner = "
-				+ descriptor.getId() + " and is_input = " + (input ? 1 : 0);
+				+ descriptor.id + " and is_input = " + (input ? 1 : 0);
 		Set<Long> ids = new HashSet<>();
 		try (Connection con = getDatabase().createConnection();
 				Statement s = con.createStatement();

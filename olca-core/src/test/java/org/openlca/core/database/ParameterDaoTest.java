@@ -42,7 +42,7 @@ public class ParameterDaoTest {
 	
 	private ParameterDescriptor find(List<ParameterDescriptor> list, String name) {
 		for (ParameterDescriptor d: list)
-			if (d.getName().equals(name))
+			if (d.name.equals(name))
 				return d;
 		return null;
 	}

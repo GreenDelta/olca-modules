@@ -106,7 +106,7 @@ public class ContributionResult extends SimpleResult {
 		flowIndex.each(flow -> {
 			FlowResult r = new FlowResult();
 			r.flow = flow;
-			r.input = flowIndex.isInput(flow.getId());
+			r.input = flowIndex.isInput(flow.id);
 			r.value = getDirectFlowResult(process, flow);
 			results.add(r);
 		});

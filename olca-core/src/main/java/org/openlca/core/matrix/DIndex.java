@@ -58,7 +58,7 @@ public class DIndex<D extends BaseDescriptor> {
 	 */
 	public long idAt(int i) {
 		D d = at(i);
-		return d == null ? 0L : d.getId();
+		return d == null ? 0L : d.id;
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class DIndex<D extends BaseDescriptor> {
 	public int of(D d) {
 		if (d == null)
 			return -1;
-		return index.get(d.getId());
+		return index.get(d.id);
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class DIndex<D extends BaseDescriptor> {
 			return idx;
 		idx = content.size();
 		content.add(d);
-		index.put(d.getId(), idx);
+		index.put(d.id, idx);
 		return idx;
 	}
 

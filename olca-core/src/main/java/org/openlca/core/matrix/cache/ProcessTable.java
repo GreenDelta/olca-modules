@@ -49,13 +49,13 @@ public class ProcessTable {
 		// index processes and tech-flows
 		ProcessDao pDao = new ProcessDao(db);
 		for (ProcessDescriptor d : pDao.getDescriptors()) {
-			processes.put(d.getId(), d);
+			processes.put(d.id, d);
 		}
 		FlowDao fDao = new FlowDao(db);
 		for (FlowDescriptor d : fDao.getDescriptors()) {
-			if (d.getFlowType() == FlowType.ELEMENTARY_FLOW)
+			if (d.flowType == FlowType.ELEMENTARY_FLOW)
 				continue;
-			flows.put(d.getId(), d);
+			flows.put(d.id, d);
 		}
 
 		// index flow -> process relations
@@ -68,7 +68,7 @@ public class ProcessTable {
 				FlowDescriptor flow = flows.get(flowId);
 				if (flow == null)
 					return true;
-				FlowType t = flow.getFlowType();
+				FlowType t = flow.flowType;
 				if ((isInput && t == FlowType.WASTE_FLOW)
 						|| (!isInput && t == FlowType.PRODUCT_FLOW)) {
 					TLongArrayList list = flowProviders.get(flowId);
@@ -89,7 +89,7 @@ public class ProcessTable {
 	/** Returns the process type for the given process-ID. */
 	public ProcessType getType(long processId) {
 		ProcessDescriptor d = processes.get(processId);
-		return d == null ? null : d.getProcessType();
+		return d == null ? null : d.processType;
 	}
 
 	public ProcessProduct getProvider(long id, long flowId) {

@@ -38,7 +38,7 @@ public class FlowDescriptorTest {
 	@Test
 	public void testGetRefFlowPropertyId() throws Exception {
 		FlowDescriptor descriptor = flowDao.getDescriptor(flow.getId());
-		Assert.assertEquals(property.getId(), descriptor.getRefFlowPropertyId());
+		Assert.assertEquals(property.getId(), descriptor.refFlowPropertyId);
 	}
 
 }

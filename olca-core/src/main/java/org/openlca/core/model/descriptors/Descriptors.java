@@ -78,7 +78,7 @@ public class Descriptors {
 			return null;
 		CategoryDescriptor descriptor = new CategoryDescriptor();
 		setBaseValues(category, descriptor);
-		descriptor.setCategoryType(category.getModelType());
+		descriptor.categoryType = category.getModelType();
 		return descriptor;
 	}
 
@@ -112,10 +112,10 @@ public class Descriptors {
 		ProcessDescriptor descriptor = new ProcessDescriptor();
 		setBaseValues(process, descriptor);
 		if (process.getLocation() != null)
-			descriptor.setLocation(process.getLocation().getId());
+			descriptor.location = process.getLocation().getId();
 		if (process.getQuantitativeReference() != null)
-			descriptor.setQuantitativeReference(process.getQuantitativeReference().getId());
-		descriptor.setProcessType(process.getProcessType());
+			descriptor.quantitativeReference = process.getQuantitativeReference().getId();
+		descriptor.processType = process.getProcessType();
 		return descriptor;
 	}
 
@@ -125,11 +125,11 @@ public class Descriptors {
 		FlowDescriptor descriptor = new FlowDescriptor();
 		setBaseValues(flow, descriptor);
 		if (flow.getLocation() != null)
-			descriptor.setLocation(flow.getLocation().getId());
+			descriptor.location = flow.getLocation().getId();
 		FlowProperty refProp = flow.getReferenceFlowProperty();
 		if (refProp != null)
-			descriptor.setRefFlowPropertyId(refProp.getId());
-		descriptor.setFlowType(flow.getFlowType());
+			descriptor.refFlowPropertyId = refProp.getId();
+		descriptor.flowType = flow.getFlowType();
 		return descriptor;
 	}
 
@@ -210,7 +210,7 @@ public class Descriptors {
 			return null;
 		ImpactCategoryDescriptor descriptor = new ImpactCategoryDescriptor();
 		setBaseValues(impactCategory, descriptor);
-		descriptor.setReferenceUnit(impactCategory.referenceUnit);
+		descriptor.referenceUnit = impactCategory.referenceUnit;
 		return descriptor;
 	}
 
@@ -219,7 +219,7 @@ public class Descriptors {
 			return null;
 		NwSetDescriptor descriptor = new NwSetDescriptor();
 		setBaseValues(nwSet, descriptor);
-		descriptor.setWeightedScoreUnit(nwSet.weightedScoreUnit);
+		descriptor.weightedScoreUnit = nwSet.weightedScoreUnit;
 		return descriptor;
 	}
 
@@ -234,16 +234,16 @@ public class Descriptors {
 	private static void setBaseValues(CategorizedEntity entity, CategorizedDescriptor descriptor) {
 		setBaseValues((RootEntity) entity, descriptor);
 		if (entity.getCategory() != null)
-			descriptor.setCategory(entity.getCategory().getId());
+			descriptor.category = entity.getCategory().getId();
 	}
 
 	private static void setBaseValues(RootEntity entity, BaseDescriptor descriptor) {
-		descriptor.setRefId(entity.getRefId());
-		descriptor.setDescription(entity.getDescription());
-		descriptor.setId(entity.getId());
-		descriptor.setName(entity.getName());
-		descriptor.setLastChange(entity.getLastChange());
-		descriptor.setVersion(entity.getVersion());
+		descriptor.refId = entity.getRefId();
+		descriptor.description = entity.getDescription();
+		descriptor.id = entity.getId();
+		descriptor.name = entity.getName();
+		descriptor.lastChange = entity.getLastChange();
+		descriptor.version = entity.getVersion();
 	}
 
 	private static CategorizedDescriptor createUnknownDescriptor(CategorizedEntity entity) {

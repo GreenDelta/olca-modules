@@ -44,7 +44,7 @@ class UnitGroupImport {
 		log.trace("import unit groups");
 		try {
 			for (UnitGroupDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.UNIT_GROUP, descriptor.getRefId()))
+				if (seq.contains(seq.UNIT_GROUP, descriptor.refId))
 					synchUnitGroup(descriptor);
 				else
 					createUnitGroup(descriptor);
@@ -55,9 +55,9 @@ class UnitGroupImport {
 	}
 
 	private void synchUnitGroup(UnitGroupDescriptor descriptor) {
-		UnitGroup srcGroup = srcDao.getForId(descriptor.getId());
+		UnitGroup srcGroup = srcDao.getForId(descriptor.id);
 		UnitGroup destGroup = destDao.getForId(seq.get(seq.UNIT_GROUP,
-				descriptor.getRefId()));
+				descriptor.refId));
 		boolean updated = false;
 		for (Unit srcUnit : srcGroup.getUnits()) {
 			Unit destUnit = destGroup.getUnit(srcUnit.getName());
@@ -80,7 +80,7 @@ class UnitGroupImport {
 	}
 
 	private void createUnitGroup(UnitGroupDescriptor descriptor) {
-		UnitGroup srcGroup = srcDao.getForId(descriptor.getId());
+		UnitGroup srcGroup = srcDao.getForId(descriptor.id);
 		UnitGroup destGroup = srcGroup.clone();
 		destGroup.setRefId(srcGroup.getRefId());
 		switchUnitRefIds(srcGroup, destGroup);

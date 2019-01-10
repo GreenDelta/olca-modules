@@ -21,18 +21,18 @@ public final class DisplayValues {
 	/** Returns the name of the reference unit of the given flow. */
 	public static String referenceUnit(FlowDescriptor flow, EntityCache cache) {
 		FlowPropertyDescriptor descriptor = cache.get(
-				FlowPropertyDescriptor.class, flow.getRefFlowPropertyId());
+				FlowPropertyDescriptor.class, flow.refFlowPropertyId);
 		if (descriptor == null) {
 			log.warn("no reference flow property for flow {}", flow);
 			return "";
 		}
 		try {
 			FlowProperty property = cache.get(FlowProperty.class,
-					descriptor.getId());
+					descriptor.id);
 			Unit refUnit = property.getUnitGroup().getReferenceUnit();
 			return refUnit.getName();
 		} catch (Exception e) {
-			log.error("failed to get reference unit for flow " + flow.getId(),
+			log.error("failed to get reference unit for flow " + flow.id,
 					e);
 			return "";
 		}

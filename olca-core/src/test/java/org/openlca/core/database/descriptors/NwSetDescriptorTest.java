@@ -50,7 +50,7 @@ public class NwSetDescriptorTest {
 	public void testGetFromAll() {
 		NwSetDescriptor descriptor = null;
 		for (NwSetDescriptor candidate : dao.getDescriptors()) {
-			if (candidate.getId() == nwSet.getId())
+			if (candidate.id == nwSet.getId())
 				descriptor = candidate;
 		}
 		checkDescriptor(descriptor);
@@ -61,18 +61,18 @@ public class NwSetDescriptorTest {
 		NwSetDescriptor descriptor = null;
 		for (NwSetDescriptor candidate : dao.getDescriptors(Collections
 				.singleton(nwSet.getId()))) {
-			if (candidate.getId() == nwSet.getId())
+			if (candidate.id == nwSet.getId())
 				descriptor = candidate;
 		}
 		checkDescriptor(descriptor);
 	}
 
 	private void checkDescriptor(NwSetDescriptor descriptor) {
-		Assert.assertEquals(nwSet.getName(), descriptor.getName());
-		Assert.assertEquals(nwSet.getDescription(), descriptor.getDescription());
-		Assert.assertEquals(nwSet.getRefId(), descriptor.getRefId());
+		Assert.assertEquals(nwSet.getName(), descriptor.name);
+		Assert.assertEquals(nwSet.getDescription(), descriptor.description);
+		Assert.assertEquals(nwSet.getRefId(), descriptor.refId);
 		Assert.assertEquals(nwSet.weightedScoreUnit,
-				descriptor.getWeightedScoreUnit());
+				descriptor.weightedScoreUnit);
 	}
 
 }

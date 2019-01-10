@@ -1,6 +1,5 @@
 package org.openlca.core.model.descriptors;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 import org.openlca.core.model.ModelType;
@@ -11,82 +10,15 @@ import org.openlca.core.model.ModelType;
  * information fast from the database without loading the complete model.
  * Therefore, the respective DAO classes should provide these.
  */
-public class BaseDescriptor
-		implements Comparable<BaseDescriptor>, Serializable {
+public class BaseDescriptor {
 
-	private static final long serialVersionUID = -8609519818770549160L;
-
-	private String refId;
-	private long id;
-	private String name;
-	private String description;
-	private long version;
-	private long lastChange;
-	private ModelType type = ModelType.UNKNOWN;
-
-	@Override
-	public int compareTo(BaseDescriptor o) {
-		if (name == null)
-			return 0;
-		return name.toLowerCase().compareTo(
-				o.name != null ? o.name.toLowerCase() : null);
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public String getRefId() {
-		return refId;
-	}
-
-	public void setRefId(String refId) {
-		this.refId = refId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public long getVersion() {
-		return version;
-	}
-
-	public void setVersion(long version) {
-		this.version = version;
-	}
-
-	public long getLastChange() {
-		return lastChange;
-	}
-
-	public void setLastChange(long lastChange) {
-		this.lastChange = lastChange;
-	}
-
-	public void setType(ModelType type) {
-		this.type = type;
-	}
-
-	public ModelType getModelType() {
-		return type;
-	}
+	public String refId;
+	public long id;
+	public String name;
+	public String description;
+	public long version;
+	public long lastChange;
+	public ModelType type = ModelType.UNKNOWN;
 
 	@Override
 	public boolean equals(Object obj) {

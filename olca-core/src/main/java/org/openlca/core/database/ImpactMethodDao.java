@@ -36,15 +36,15 @@ public class ImpactMethodDao extends
 			List<ImpactCategoryDescriptor> list = new ArrayList<>();
 			for (Object[] val : vals) {
 				ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
-				d.setId((Long) val[0]);
-				d.setRefId((String) val[1]);
-				d.setName((String) val[2]);
-				d.setReferenceUnit((String) val[3]);
-				d.setDescription((String) val[4]);
+				d.id = (Long) val[0];
+				d.refId = (String) val[1];
+				d.name = (String) val[2];
+				d.referenceUnit = (String) val[3];
+				d.description = (String) val[4];
 				if (val[5] != null)
-					d.setVersion((long) val[5]);
+					d.version = (long) val[5];
 				if (val[6] != null)
-					d.setLastChange((long) val[6]);
+					d.lastChange = (long) val[6];
 				list.add(d);
 			}
 			return list;
@@ -74,15 +74,15 @@ public class ImpactMethodDao extends
 			List<NwSetDescriptor> list = new ArrayList<>();
 			for (Object[] val : vals) {
 				NwSetDescriptor d = new NwSetDescriptor();
-				d.setId((Long) val[0]);
-				d.setRefId((String) val[1]);
-				d.setName((String) val[2]);
-				d.setWeightedScoreUnit((String) val[3]);
-				d.setDescription((String) val[4]);
+				d.id = (Long) val[0];
+				d.refId = (String) val[1];
+				d.name = (String) val[2];
+				d.weightedScoreUnit = (String) val[3];
+				d.description = (String) val[4];
 				if (val[5] != null)
-					d.setVersion((long) val[5]);
+					d.version = (long) val[5];
 				if (val[6] != null)
-					d.setLastChange((long) val[6]);
+					d.lastChange = (long) val[6];
 				list.add(d);
 			}
 			return list;

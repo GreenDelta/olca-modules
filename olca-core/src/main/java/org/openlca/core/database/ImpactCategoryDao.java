@@ -25,7 +25,7 @@ public class ImpactCategoryDao extends
 		if (queryResult == null)
 			return null;
 		ImpactCategoryDescriptor d = super.createDescriptor(queryResult);
-		d.setReferenceUnit((String) queryResult[6]);
+		d.referenceUnit = (String) queryResult[6];
 		return d;
 	}
 
@@ -42,13 +42,13 @@ public class ImpactCategoryDao extends
 		try {
 			NativeSql.on(database).query(sql, r -> {
 				ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
-				d.setId(r.getLong(1));
-				d.setRefId(r.getString(2));
-				d.setName(r.getString(3));
-				d.setDescription(r.getString(4));
-				d.setVersion(r.getLong(5));
-				d.setLastChange(r.getLong(6));
-				d.setReferenceUnit(r.getString(7));
+				d.id = r.getLong(1);
+				d.refId = r.getString(2);
+				d.name = r.getString(3);
+				d.description = r.getString(4);
+				d.version = r.getLong(5);
+				d.lastChange = r.getLong(6);
+				d.referenceUnit = r.getString(7);
 				list.add(d);
 				return true;
 			});

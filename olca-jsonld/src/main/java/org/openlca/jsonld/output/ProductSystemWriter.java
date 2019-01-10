@@ -113,7 +113,7 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		List<FlowDescriptor> flows = flowDao.getDescriptors(flowIds);
 		Map<Long, FlowDescriptor> flowMap = new HashMap<>();
 		for (FlowDescriptor f : flows) {
-			flowMap.put(f.getId(), f);
+			flowMap.put(f.id, f);
 		}
 		return flowMap;
 	}
@@ -124,10 +124,10 @@ class ProductSystemWriter extends Writer<ProductSystem> {
 		List<ProcessDescriptor> descriptors = processDao.getDescriptors(pIds);
 		Map<Long, ProcessDescriptor> map = new HashMap<>();
 		for (ProcessDescriptor descriptor : descriptors) {
-			map.put(descriptor.getId(), descriptor);
+			map.put(descriptor.id, descriptor);
 			JsonObject ref = null;
 			if (conf.exportReferences) {
-				ref = References.create(ModelType.PROCESS, descriptor.getId(), conf, false);
+				ref = References.create(ModelType.PROCESS, descriptor.id, conf, false);
 			} else {
 				ref = References.create(descriptor, conf);
 			}

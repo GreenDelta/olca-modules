@@ -73,9 +73,9 @@ class ProjectImpacts {
 
 	void writeInfo(int row, ImpactCategoryDescriptor impact) {
 		int col = 1;
-		Excel.cell(sheet, row, col++, impact.getRefId());
-		Excel.cell(sheet, row, col++, impact.getName());
-		Excel.cell(sheet, row, col++, impact.getReferenceUnit());
+		Excel.cell(sheet, row, col++, impact.refId);
+		Excel.cell(sheet, row, col++, impact.name);
+		Excel.cell(sheet, row, col++, impact.referenceUnit);
 	}
 
 	private void header(Sheet sheet, int row, int col, String val) {

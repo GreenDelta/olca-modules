@@ -35,15 +35,15 @@ public class ModelHandler {
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @id and @type", req);
 		try {
-			RootEntity e = Daos.root(db, d.getModelType())
-					.getForRefId(d.getRefId());
+			RootEntity e = Daos.root(db, d.type)
+					.getForRefId(d.refId);
 			if (e == null)
 				return Responses.error(404, "Not found", req);
 			MemStore store = new MemStore();
 			JsonExport exp = new JsonExport(db, store);
 			exp.setExportReferences(false);
 			exp.write(e);
-			JsonObject obj = store.get(d.getModelType(), d.getRefId());
+			JsonObject obj = store.get(d.type, d.refId);
 			if (obj == null)
 				return Responses.error(500, "Conversion to JSON failed", req);
 			return Responses.ok(obj, req);
@@ -115,8 +115,8 @@ public class ModelHandler {
 					+ " valid @id and @type", req);
 		try {
 			RootEntityDao<T, ?> dao = (RootEntityDao<T, ?>) Daos.root(
-					db, d.getModelType());
-			T e = dao.getForRefId(d.getRefId());
+					db, d.type);
+			T e = dao.getForRefId(d.refId);
 			if (e == null)
 				return Responses.error(404, "Not found", req);
 			dao.delete(e);
@@ -134,10 +134,10 @@ public class ModelHandler {
 		JsonObject obj = req.params.getAsJsonObject();
 		try {
 			MemStore store = new MemStore();
-			store.put(d.getModelType(), obj);
+			store.put(d.type, obj);
 			JsonImport imp = new JsonImport(store, db);
 			imp.setUpdateMode(mode);
-			imp.run(d.getModelType(), d.getRefId());
+			imp.run(d.type, d.refId);
 			return Responses.ok(req);
 		} catch (Exception e) {
 			return Responses.serverError(e, req);

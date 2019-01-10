@@ -145,7 +145,7 @@ public class CsvMatrixExport implements Runnable {
 			throws Exception {
 		if (flow == null)
 			return;
-		String name = flow.getName();
+		String name = flow.name;
 		try {
 			String unit = DisplayValues.referenceUnit(flow, cache);
 			name = name.concat(" [").concat(unit).concat("]");
@@ -181,12 +181,12 @@ public class CsvMatrixExport implements Runnable {
 
 	private void writeCategory(FlowDescriptor flow, Writer buffer)
 			throws Exception {
-		if (flow == null || flow.getCategory() == null)
+		if (flow == null || flow.category == null)
 			return;
-		String catPath = categoryCache.get(flow.getCategory());
+		String catPath = categoryCache.get(flow.category);
 		if (catPath == null) {
 			catPath = CategoryPair.create(flow, cache).toPath();
-			categoryCache.put(flow.getCategory(), catPath);
+			categoryCache.put(flow.category, catPath);
 		}
 		quote(catPath, buffer);
 	}

@@ -7,20 +7,10 @@ import org.openlca.core.model.ModelType;
  */
 public class ImpactCategoryDescriptor extends BaseDescriptor {
 
-	private static final long serialVersionUID = -8733726472954941608L;
-
-	private String referenceUnit;
+	public String referenceUnit;
 
 	public ImpactCategoryDescriptor() {
-		setType(ModelType.IMPACT_CATEGORY);
-	}
-
-	public String getReferenceUnit() {
-		return referenceUnit;
-	}
-
-	public void setReferenceUnit(String referenceUnit) {
-		this.referenceUnit = referenceUnit;
+		this.type = ModelType.IMPACT_CATEGORY;
 	}
 
 }

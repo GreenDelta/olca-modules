@@ -57,7 +57,7 @@ public class FlowMap {
 		try {
 			HashSet<String> dbIDs = new HashSet<>();
 			new FlowDao(db).getDescriptors().stream()
-					.forEach(d -> dbIDs.add(d.getRefId()));
+					.forEach(d -> dbIDs.add(d.refId));
 			Maps.readAll(map, db, null, null, new ParseDouble())
 					.forEach(r -> createEntry(r, dbIDs));
 		} catch (Exception e) {

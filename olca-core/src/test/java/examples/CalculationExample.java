@@ -39,12 +39,12 @@ public class CalculationExample {
 		FullResult r = calc.calculateFull(setup);
 		FlowDescriptor flow = r.flowIndex.at(0);
 		System.out.println(
-				flow.getName() + "  -> " +
+				flow.name + "  -> " +
 						r.getTotalFlowResult(flow));
 
 		ImpactCategoryDescriptor impact = r.impactIndex.at(0);
 		System.out.println(
-				impact.getName() + "  -> " +
+				impact.name + "  -> " +
 						r.getTotalImpactResult(impact));
 	}
 

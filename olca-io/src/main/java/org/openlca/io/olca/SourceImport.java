@@ -27,7 +27,7 @@ class SourceImport {
 		log.trace("import sources");
 		try {
 			for (SourceDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.SOURCE, descriptor.getRefId()))
+				if (seq.contains(seq.SOURCE, descriptor.refId))
 					continue;
 				createSource(descriptor);
 			}
@@ -37,7 +37,7 @@ class SourceImport {
 	}
 
 	private void createSource(SourceDescriptor descriptor) {
-		Source srcSource = srcDao.getForId(descriptor.getId());
+		Source srcSource = srcDao.getForId(descriptor.id);
 		Source destSource = srcSource.clone();
 		destSource.setRefId(srcSource.getRefId());
 		destSource.setCategory(refs.switchRef(srcSource.getCategory()));

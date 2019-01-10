@@ -20,7 +20,7 @@ abstract class BaseUseSearch<T extends CategorizedDescriptor> implements
 
 	@Override
 	public List<CategorizedDescriptor> findUses(T descriptor) {
-		if (descriptor == null || descriptor.getId() == 0l)
+		if (descriptor == null || descriptor.id == 0l)
 			return Collections.emptyList();
 		return findUses(Collections.singletonList(descriptor));
 	}
@@ -64,7 +64,7 @@ abstract class BaseUseSearch<T extends CategorizedDescriptor> implements
 	private Set<Long> toIdSet(List<? extends CategorizedDescriptor> descriptors) {
 		Set<Long> ids = new HashSet<>();
 		for (CategorizedDescriptor descriptor : descriptors)
-			ids.add(descriptor.getId());
+			ids.add(descriptor.id);
 		return ids;
 	}
 

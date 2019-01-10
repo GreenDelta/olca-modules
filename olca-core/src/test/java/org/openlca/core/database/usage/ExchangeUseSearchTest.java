@@ -115,7 +115,7 @@ public class ExchangeUseSearchTest {
 	public void testFindInReference() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
 		List<CategorizedDescriptor> list = search.findUses(p.getExchanges().get(0));
-		Assert.assertEquals(list.get(0).getName(), SYS_NAME);
+		Assert.assertEquals(list.get(0).name, SYS_NAME);
 		Assert.assertEquals(list.size(), 1);
 	}
 
@@ -123,7 +123,7 @@ public class ExchangeUseSearchTest {
 	public void testFindInLinks() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
 		List<CategorizedDescriptor> list = search.findUses(p.getExchanges().get(1));
-		Assert.assertEquals(list.get(0).getName(), SYS_NAME);
+		Assert.assertEquals(list.get(0).name, SYS_NAME);
 		Assert.assertEquals(list.size(), 1);
 	}
 
@@ -131,7 +131,7 @@ public class ExchangeUseSearchTest {
 	public void testFindAllDistinct() {
 		ExchangeUseSearch search = new ExchangeUseSearch(database, p);
 		List<CategorizedDescriptor> list = search.findUses(p.getExchanges());
-		Assert.assertEquals(list.get(0).getName(), SYS_NAME);
+		Assert.assertEquals(list.get(0).name, SYS_NAME);
 		Assert.assertEquals(list.size(), 1);
 	}
 

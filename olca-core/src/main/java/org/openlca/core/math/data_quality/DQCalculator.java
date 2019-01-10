@@ -39,15 +39,15 @@ class DQCalculator {
 
 	private void addValues(CategorizedDescriptor process, FlowDescriptor flow) {
 		double[] dqValues = data.exchangeData.get(
-				LongPair.of(process.getId(), flow.getId()));
+				LongPair.of(process.id, flow.id));
 		double flowVal = Math.abs(result.getDirectFlowResult(process, flow));
 		BigDecimal flowResult = new BigDecimal(flowVal);
 		if (dqValues == null || flowResult.equals(BigDecimal.ZERO))
 			return;
-		addValue(flowAggregations, flow.getId(), flowResult, dqValues);
+		addValue(flowAggregations, flow.id, flowResult, dqValues);
 		if (!result.hasImpactResults())
 			return;
-		addImpactValues(process.getId(), flow.getId(), flowResult, dqValues);
+		addImpactValues(process.id, flow.id, flowResult, dqValues);
 	}
 
 	private void addImpactValues(long processId, long flowId,

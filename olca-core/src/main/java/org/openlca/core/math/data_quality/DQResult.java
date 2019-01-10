@@ -22,31 +22,31 @@ public class DQResult {
 	private Map<LongPair, double[]> impactValuesPerProcess = new HashMap<>();
 
 	public double[] get(CategorizedDescriptor process) {
-		return processValues.get(process.getId());
+		return processValues.get(process.id);
 	}
 
 	public double[] get(FlowDescriptor flow) {
-		return flowValues.get(flow.getId());
+		return flowValues.get(flow.id);
 	}
 
 	public double[] get(ImpactCategoryDescriptor impact) {
-		return impactValues.get(impact.getId());
+		return impactValues.get(impact.id);
 	}
 
 	public double[] get(CategorizedDescriptor process, FlowDescriptor flow) {
 		return flowValuesPerProcess
-				.get(new LongPair(process.getId(), flow.getId()));
+				.get(new LongPair(process.id, flow.id));
 	}
 
 	public double[] get(CategorizedDescriptor process,
 			ImpactCategoryDescriptor impact) {
 		return impactValuesPerProcess
-				.get(new LongPair(process.getId(), impact.getId()));
+				.get(new LongPair(process.id, impact.id));
 	}
 
 	public double[] get(FlowDescriptor flow, ImpactCategoryDescriptor impact) {
 		return impactValuesPerFlow
-				.get(new LongPair(flow.getId(), impact.getId()));
+				.get(new LongPair(flow.id, impact.id));
 	}
 
 	public static DQResult calculate(IDatabase db, ContributionResult result,

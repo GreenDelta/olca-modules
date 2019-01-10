@@ -74,7 +74,7 @@ public class SystemProcess {
 			double amount = result.getTotalFlowResult(d);
 			if (amount == 0)
 				return;
-			Flow flow = flowDao.getForId(d.getId());
+			Flow flow = flowDao.getForId(d.id);
 			if (flow == null)
 				return;
 			Exchange e = p.exchange(flow);

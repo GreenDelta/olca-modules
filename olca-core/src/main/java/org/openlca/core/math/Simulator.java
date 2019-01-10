@@ -111,7 +111,7 @@ public class Simulator {
 		result.flowIndex = inventory.flowIndex;
 		if (impactMethod != null) {
 			ImpactTable impactTable = ImpactTable.build(cache,
-					impactMethod.getId(), inventory.flowIndex);
+					impactMethod.id, inventory.flowIndex);
 			if (impactTable.isEmpty()) {
 				return;
 			}

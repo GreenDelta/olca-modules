@@ -84,7 +84,7 @@ public class EcoSpold2Export implements Runnable {
 	private void exportProcesses() throws Exception {
 		for (ProcessDescriptor descriptor : descriptors) {
 			ProcessDao dao = new ProcessDao(database);
-			Process process = dao.getForId(descriptor.getId());
+			Process process = dao.getForId(descriptor.id);
 			ProcessDocumentation doc = process.getDocumentation();
 			if (process == null || doc == null) {
 				log.warn("no process entity or documentation for {} found",
@@ -191,7 +191,7 @@ public class EcoSpold2Export implements Runnable {
 		e2Ex.flowId = exchange.flow.getRefId();
 		ProcessDescriptor provider = getDefaultProvider(exchange);
 		if (provider != null)
-			e2Ex.activityLinkId = provider.getRefId();
+			e2Ex.activityLinkId = provider.refId;
 		mapExchangeData(exchange, e2Ex);
 		unitMap.apply(exchange.unit, e2Ex, masterData);
 		MasterData.writeTechFlow(e2Ex, masterData);

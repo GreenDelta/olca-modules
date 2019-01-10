@@ -116,7 +116,7 @@ public class SimulationResultExport {
 		writeInventoryHeader(sheet, forInputs);
 		FlowIndex idx = result.flowIndex;
 		for (FlowDescriptor flow : flows) {
-			if (idx.isInput(flow.getId()) != forInputs)
+			if (idx.isInput(flow.id) != forInputs)
 				continue;
 			writer.flowRow(sheet, row, 1, flow);
 			List<Double> values = result.getFlowResults(flow);

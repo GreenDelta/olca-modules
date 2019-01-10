@@ -35,8 +35,8 @@ public class LocationContribution {
 			Location loc = null;
 			if (d instanceof ProcessDescriptor) {
 				ProcessDescriptor p = (ProcessDescriptor) d;
-				if (p.getLocation() != null) {
-					loc = cache.get(Location.class, p.getLocation());
+				if (p.location != null) {
+					loc = cache.get(Location.class, p.location);
 				}
 			}
 			List<CategorizedDescriptor> list = index.get(loc);

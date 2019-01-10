@@ -42,7 +42,7 @@ class Indexer {
 			RootEntityDao<?, T> dao) {
 		Map<Long, T> map = new HashMap<>();
 		for (T d : dao.getDescriptors()) {
-			map.put(d.getId(), d);
+			map.put(d.id, d);
 		}
 		return map;
 	}
@@ -65,15 +65,15 @@ class Indexer {
 		FlowDescriptor f = flows.get(flowID);
 		if (f == null)
 			return;
-		e.flowID = f.getRefId();
-		e.flowName = f.getName();
-		e.flowType = f.getFlowType();
-		Location location = locations.get(f.getLocation());
+		e.flowID = f.refId;
+		e.flowName = f.name;
+		e.flowType = f.flowType;
+		Location location = locations.get(f.location);
 		if (location != null) {
 			e.flowLocation = location.getCode();
 		}
-		e.flowCategory = category(f.getCategory());
-		FlowProperty fp = flowProperties.get(f.getRefFlowPropertyId());
+		e.flowCategory = category(f.category);
+		FlowProperty fp = flowProperties.get(f.refFlowPropertyId);
 		if (fp == null)
 			return;
 		e.flowPropertyID = fp.getRefId();
@@ -94,14 +94,14 @@ class Indexer {
 		ProcessDescriptor p = processes.get(product.id());
 		if (p == null)
 			return e;
-		e.processID = p.getRefId();
-		e.processName = p.getName();
-		e.processType = p.getProcessType();
-		Location l = locations.get(p.getLocation());
+		e.processID = p.refId;
+		e.processName = p.name;
+		e.processType = p.processType;
+		Location l = locations.get(p.location);
 		if (l != null) {
 			e.processLocation = l.getCode();
 		}
-		e.processCategory = category(p.getCategory());
+		e.processCategory = category(p.category);
 
 		// TODO: we could directly take the flow descriptor here
 		fillFlowInfo(e, product.flowId());

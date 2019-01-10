@@ -38,21 +38,21 @@ public class FlowIndex extends DIndex<FlowDescriptor> {
 	public int putInput(FlowDescriptor flow) {
 		if (flow == null)
 			return -1;
-		inputs.put(flow.getId(), (byte) 1);
+		inputs.put(flow.id, (byte) 1);
 		return put(flow);
 	}
 
 	public int putOutput(FlowDescriptor flow) {
 		if (flow == null)
 			return -1;
-		inputs.put(flow.getId(), (byte) 0);
+		inputs.put(flow.id, (byte) 0);
 		return put(flow);
 	}
 
 	public boolean isInput(FlowDescriptor flow) {
 		if (flow == null)
 			return false;
-		return isInput(flow.getId());
+		return isInput(flow.id);
 	}
 
 	public boolean isInput(long flowId) {

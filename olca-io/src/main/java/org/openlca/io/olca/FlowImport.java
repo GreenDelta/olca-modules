@@ -28,7 +28,7 @@ class FlowImport {
 		log.trace("import flows");
 		try {
 			for (FlowDescriptor descriptor : sourceDao.getDescriptors()) {
-				if (seq.contains(seq.FLOW, descriptor.getRefId()))
+				if (seq.contains(seq.FLOW, descriptor.refId))
 					continue;
 				createFlow(descriptor);
 			}
@@ -38,7 +38,7 @@ class FlowImport {
 	}
 
 	private void createFlow(FlowDescriptor descriptor) {
-		Flow srcFlow = sourceDao.getForId(descriptor.getId());
+		Flow srcFlow = sourceDao.getForId(descriptor.id);
 		Flow destFlow = srcFlow.clone();
 		destFlow.setRefId(srcFlow.getRefId());
 		destFlow.setCategory(refs.switchRef(srcFlow.getCategory()));

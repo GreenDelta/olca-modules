@@ -66,7 +66,7 @@ public class Benchmark {
 		System.out.println("\nResults:\n");
 		System.out.println("flowId \t result");
 		for (FlowDescriptor flow : result.getFlows()) {
-			System.out.printf("%s \t %.10f \n", flow.getName(),
+			System.out.printf("%s \t %.10f \n", flow.name,
 					result.getTotalFlowResult(flow));
 		}
 	}

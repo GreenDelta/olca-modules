@@ -15,7 +15,7 @@ public class DIndexTest {
 		assertArrayEquals(new long[] {}, index.ids());
 		for (int i = 1; i < 11; i++) {
 			ImpactCategoryDescriptor d = new ImpactCategoryDescriptor();
-			d.setId(i);
+			d.id = (long) i;
 			index.put(d);
 		}
 		long[] ids = index.ids();
@@ -28,7 +28,7 @@ public class DIndexTest {
 			ImpactCategoryDescriptor d = index.at(i - 1);
 			assertEquals(i - 1, index.of(d));
 			assertTrue(index.contains(d));
-			assertEquals((long) i, d.getId());
+			assertEquals((long) i, d.id);
 		}
 
 	}

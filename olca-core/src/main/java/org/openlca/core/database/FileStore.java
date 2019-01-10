@@ -33,7 +33,7 @@ public class FileStore {
 		if (d == null)
 			return new File(root, "null");
 		else
-			return getFolder(d.getModelType(), d.getRefId());
+			return getFolder(d.type, d.refId);
 	}
 
 	public File getFolder(RootEntity e) {
@@ -61,7 +61,7 @@ public class FileStore {
 	public void copyFolder(BaseDescriptor from, BaseDescriptor to) {
 		if (from == null || to == null)
 			return;
-		copyFolder(from.getModelType(), from.getRefId(), to.getRefId());
+		copyFolder(from.type, from.refId, to.refId);
 	}
 
 	public void copyFolder(ModelType type, String fromId, String toId) {
@@ -82,7 +82,7 @@ public class FileStore {
 	public void deleteFolder(BaseDescriptor d) {
 		if (d == null)
 			return;
-		deleteFolder(d.getModelType(), d.getRefId());
+		deleteFolder(d.type, d.refId);
 	}
 
 	public void deleteFolder(RootEntity e) {

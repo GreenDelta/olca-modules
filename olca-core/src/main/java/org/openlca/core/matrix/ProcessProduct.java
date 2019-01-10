@@ -71,7 +71,7 @@ public class ProcessProduct {
 	}
 
 	public long flowId() {
-		return flow == null ? 0L : flow.getId();
+		return flow == null ? 0L : flow.id;
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class ProcessProduct {
 	 * provider.
 	 */
 	public long id() {
-		return process == null ? 0L : process.getId();
+		return process == null ? 0L : process.id;
 	}
 
 	public LongPair pair() {
@@ -88,7 +88,7 @@ public class ProcessProduct {
 
 	public Long locationId() {
 		if (process instanceof ProcessDescriptor)
-			return ((ProcessDescriptor) process).getLocation();
+			return ((ProcessDescriptor) process).location;
 		return null;
 	}
 

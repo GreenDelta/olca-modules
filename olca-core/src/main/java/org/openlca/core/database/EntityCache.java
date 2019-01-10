@@ -222,7 +222,7 @@ public class EntityCache {
 			List<? extends BaseDescriptor> descriptors = dao
 					.getDescriptors(new HashSet<>(ids));
 			for (BaseDescriptor descriptor : descriptors)
-				result.put(Key.get(clazz, descriptor.getId()), descriptor);
+				result.put(Key.get(clazz, descriptor.id), descriptor);
 		}
 
 		@Override

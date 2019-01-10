@@ -74,11 +74,11 @@ public class FlowPropertyUseSearchTest {
 				Descriptors.toDescriptor(used));
 		Assert.assertEquals(2, list.size());
 		for (BaseDescriptor d : list) {
-			if (d.getModelType() != ModelType.UNIT_GROUP) {
-				Assert.assertEquals(ModelType.FLOW, d.getModelType());
-				Assert.assertEquals(flow.getId(), d.getId());
+			if (d.type != ModelType.UNIT_GROUP) {
+				Assert.assertEquals(ModelType.FLOW, d.type);
+				Assert.assertEquals(flow.getId(), d.id);
 			} else {
-				Assert.assertEquals(unitGroup.getId(), d.getId());
+				Assert.assertEquals(unitGroup.getId(), d.id);
 			}
 		}
 	}

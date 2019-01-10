@@ -71,7 +71,7 @@ public class ProjectResultExport {
 		else {
 			ImpactMethodDescriptor method = cache.get(
 					ImpactMethodDescriptor.class, project.getImpactMethodId());
-			Excel.cell(sheet, row++, 2, method.getName());
+			Excel.cell(sheet, row++, 2, method.name);
 		}
 		row++;
 		row = writeVariantTable(sheet, row);
@@ -139,7 +139,7 @@ public class ProjectResultExport {
 				redef.contextId);
 		if (p == null)
 			return "not found: " + redef.contextId;
-		return p.getName();
+		return p.name;
 	}
 
 	private List<ParameterRedef> fetchParameters() {

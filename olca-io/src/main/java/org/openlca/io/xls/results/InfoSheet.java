@@ -138,13 +138,13 @@ public class InfoSheet {
 	private static String method(CalculationSetup setup) {
 		if (setup.impactMethod == null)
 			return "none";
-		return setup.impactMethod.getName();
+		return setup.impactMethod.name;
 	}
 
 	private static String nwSet(CalculationSetup setup) {
 		if (setup.nwSet == null)
 			return "none";
-		return setup.nwSet.getName();
+		return setup.nwSet.name;
 	}
 
 	private static String allocation(CalculationSetup setup) {

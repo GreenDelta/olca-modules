@@ -43,14 +43,14 @@ public class CellWriter {
 	 */
 	public void processCol(Sheet sheet, int row, int col,
 			CategorizedDescriptor process) {
-		cell(sheet, row++, col, process.getRefId(), false);
-		cell(sheet, row++, col, process.getName(), false);
+		cell(sheet, row++, col, process.refId, false);
+		cell(sheet, row++, col, process.name, false);
 		if (!(process instanceof ProcessDescriptor))
 			return;
 		ProcessDescriptor p = (ProcessDescriptor) process;
-		if (p.getLocation() == null)
+		if (p.location == null)
 			return;
-		Location loc = cache.get(Location.class, p.getLocation());
+		Location loc = cache.get(Location.class, p.location);
 		String code = loc == null ? "" : loc.getCode();
 		cell(sheet, row++, col, code, false);
 	}
@@ -61,9 +61,9 @@ public class CellWriter {
 	 */
 	public void impactRow(Sheet sheet, int row, int col,
 			ImpactCategoryDescriptor impact) {
-		cell(sheet, row, col++, impact.getRefId(), false);
-		cell(sheet, row, col++, impact.getName(), false);
-		cell(sheet, row, col++, impact.getReferenceUnit(), false);
+		cell(sheet, row, col++, impact.refId, false);
+		cell(sheet, row, col++, impact.name, false);
+		cell(sheet, row, col++, impact.referenceUnit, false);
 	}
 
 	/**
@@ -83,9 +83,9 @@ public class CellWriter {
 
 	private void flow(Sheet sheet, int row, int col, FlowDescriptor flow,
 			boolean isRow) {
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.getRefId(),
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.refId,
 				false);
-		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.getName(),
+		cell(sheet, isRow ? row : row++, !isRow ? col : col++, flow.name,
 				false);
 		CategoryPair flowCat = CategoryPair.create(flow, cache);
 		cell(sheet, isRow ? row : row++, !isRow ? col : col++,
@@ -208,11 +208,11 @@ public class CellWriter {
 	}
 
 	private String flowUnit(FlowDescriptor flow) {
-		String unit = flowUnits.get(flow.getId());
+		String unit = flowUnits.get(flow.id);
 		if (unit != null)
 			return unit;
 		unit = DisplayValues.referenceUnit(flow, cache);
-		flowUnits.put(flow.getId(), unit == null ? "" : unit);
+		flowUnits.put(flow.id, unit == null ? "" : unit);
 		return unit;
 	}
 

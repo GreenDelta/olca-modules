@@ -164,8 +164,8 @@ public class Calculator {
 			BaseDescriptor d = parameterContext(context);
 			if (d == null)
 				continue;
-			redef.contextId = d.getId();
-			redef.contextType = d.getModelType();
+			redef.contextId = d.id;
+			redef.contextType = d.type;
 			setup.parameterRedefs.add(redef);
 		}
 	}

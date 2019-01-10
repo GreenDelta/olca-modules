@@ -41,7 +41,7 @@ abstract class BaseParametrizedReferenceSearch<T extends CategorizedDescriptor> 
 		List<Reference> results = toReferences(descriptors, false, undeclared);
 		Set<String> found = new HashSet<>();
 		for (ParameterDescriptor d : descriptors) {
-			found.add(d.getName().toLowerCase());
+			found.add(d.name.toLowerCase());
 		}
 		for (String name : allUndeclared) {
 			if (found.contains(name))
@@ -108,7 +108,7 @@ abstract class BaseParametrizedReferenceSearch<T extends CategorizedDescriptor> 
 		for (long ownerId : names.keySet()) {
 			namesLoop: for (String name : names.get(ownerId)) {
 				for (ParameterDescriptor d : descriptors) {
-					if (d.getName().toLowerCase().equals(name)) {
+					if (d.name.toLowerCase().equals(name)) {
 						continue namesLoop;
 					}
 				}
@@ -135,26 +135,26 @@ abstract class BaseParametrizedReferenceSearch<T extends CategorizedDescriptor> 
 		Map<Long, Set<Long>> descriptorToOwnerIds = new HashMap<>();
 		for (ParameterDescriptor d : descriptors) {
 			for (long ownerId : names.keySet()) {
-				if (!names.get(ownerId).contains(d.getName().toLowerCase()))
+				if (!names.get(ownerId).contains(d.name.toLowerCase()))
 					continue;
-				put(d.getId(), ownerId, descriptorToOwnerIds);
+				put(d.id, ownerId, descriptorToOwnerIds);
 			}
 		}
 		List<Reference> references = new ArrayList<>();
 		for (ParameterDescriptor descriptor : descriptors) {
-			Set<Long> set = descriptorToOwnerIds.get(descriptor.getId());
+			Set<Long> set = descriptorToOwnerIds.get(descriptor.id);
 			if (set == null)
 				continue;
 			for (long ownerId : set) {
 				Class<? extends AbstractEntity> type = (Class<? extends AbstractEntity>)
-						descriptor.getModelType().getModelClass();
-				long id = descriptor.getId();
+						descriptor.type.getModelClass();
+				long id = descriptor.id;
 				long nestedOwnerId = 0;
 				if (ownerIds != null) {
 					nestedOwnerId = ownerId;
 					ownerId = ownerIds.get(ownerId);
 				}
-				Reference reference = new Reference(descriptor.getName(), type, id, this.type, ownerId,
+				Reference reference = new Reference(descriptor.name, type, id, this.type, ownerId,
 						nestedProperty, nestedType, nestedOwnerId, optional);
 				references.add(reference);
 			}

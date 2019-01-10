@@ -23,7 +23,7 @@ public class CurrencyDao
 		List<CurrencyDescriptor> all = getDescriptors();
 		if (all.isEmpty())
 			return null;
-		Currency currency = getForId(all.get(0).getId());
+		Currency currency = getForId(all.get(0).id);
 		return currency == null ? null : currency.referenceCurrency;
 	}
 }

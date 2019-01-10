@@ -156,8 +156,8 @@ public class JsonImport implements Runnable {
 		Map<String, Long> refIdToId = new HashMap<>();
 		Map<Long, String> idToRefId = new HashMap<>();
 		for (ProcessDescriptor p : new ProcessDao(database).getDescriptors()) {
-			refIdToId.put(p.getRefId(), p.getId());
-			idToRefId.put(p.getId(), p.getRefId());
+			refIdToId.put(p.refId, p.id);
+			idToRefId.put(p.id, p.refId);
 		}
 		Stack<Long> owners = new Stack<>();
 		for (String refId : conf.providerInfo.keySet()) {

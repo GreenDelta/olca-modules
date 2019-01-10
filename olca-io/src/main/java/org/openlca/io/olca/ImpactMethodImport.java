@@ -32,7 +32,7 @@ class ImpactMethodImport {
 		log.trace("import LCIA methods");
 		try {
 			for (ImpactMethodDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.IMPACT_METHOD, descriptor.getRefId()))
+				if (seq.contains(seq.IMPACT_METHOD, descriptor.refId))
 					continue;
 				createMethod(descriptor);
 			}
@@ -42,7 +42,7 @@ class ImpactMethodImport {
 	}
 
 	private void createMethod(ImpactMethodDescriptor descriptor) {
-		ImpactMethod srcMethod = srcDao.getForId(descriptor.getId());
+		ImpactMethod srcMethod = srcDao.getForId(descriptor.id);
 		ImpactMethod destMethod = srcMethod.clone();
 		destMethod.setRefId(srcMethod.getRefId());
 		destMethod.setCategory(refs.switchRef(srcMethod.getCategory()));
