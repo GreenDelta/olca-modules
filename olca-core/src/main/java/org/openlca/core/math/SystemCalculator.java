@@ -1,19 +1,16 @@
 package org.openlca.core.math;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.CostVector;
-import org.openlca.core.matrix.ImpactTable;
-import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.results.ContributionResult;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
-import org.openlca.expressions.FormulaInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO: this class only dispatches the method calls to the
+// LcaCalculator class and thus may be removed
 public class SystemCalculator {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -27,35 +24,25 @@ public class SystemCalculator {
 
 	public SimpleResult calculateSimple(CalculationSetup setup) {
 		log.trace("calculate product system - simple result");
-		return calculator(setup).calculateSimple();
+		MatrixData data = DataStructures.matrixData(
+				setup, solver, matrixCache);
+		LcaCalculator calc = new LcaCalculator(solver, data);
+		return calc.calculateSimple();
 	}
 
 	public ContributionResult calculateContributions(CalculationSetup setup) {
 		log.trace("calculate product system - contribution result");
-		return calculator(setup).calculateContributions();
+		MatrixData data = DataStructures.matrixData(
+				setup, solver, matrixCache);
+		LcaCalculator calc = new LcaCalculator(solver, data);
+		return calc.calculateContributions();
 	}
 
 	public FullResult calculateFull(CalculationSetup setup) {
 		log.trace("calculate product system - full result");
-		return calculator(setup).calculateFull();
-	}
-
-	private LcaCalculator calculator(CalculationSetup setup) {
-		IDatabase db = matrixCache.getDatabase();
-		Inventory inventory = DataStructures.createInventory(setup,
-				matrixCache);
-		FormulaInterpreter interpreter = DataStructures.interpreter(
-				db, setup, inventory.techIndex);
-		MatrixData data = inventory.createMatrix(solver, interpreter);
-		if (setup.impactMethod != null) {
-			ImpactTable impacts = ImpactTable.build(matrixCache,
-					setup.impactMethod.id, inventory.flowIndex);
-			data.impactMatrix = impacts.createMatrix(solver, interpreter);
-			data.impactIndex = impacts.impactIndex;
-		}
-		if (setup.withCosts) {
-			data.costVector = CostVector.build(inventory, db);
-		}
-		return new LcaCalculator(solver, data);
+		MatrixData data = DataStructures.matrixData(
+				setup, solver, matrixCache);
+		LcaCalculator calc = new LcaCalculator(solver, data);
+		return calc.calculateFull();
 	}
 }

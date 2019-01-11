@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import org.openlca.core.matrix.DIndex;
 import org.openlca.core.matrix.FlowIndex;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.format.IMatrix;
@@ -44,6 +45,25 @@ public final class CsvOut {
 	// TODO: not yet sure if we need the entity cache here
 
 	/**
+	 * Write the given matrix data and indices as CSV files to the given folder.
+	 */
+	public static void write(MatrixData data, File folder) {
+		if (data == null || folder == null)
+			return;
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+		write(data.techIndex, new File(folder, "indexA.csv"));
+		write(data.enviIndex, new File(folder, "indexB.csv"));
+		write(data.impactIndex, new File(folder, "indexC.csv"));
+
+		write(data.techMatrix, new File(folder, "A.csv"));
+		write(data.enviMatrix, new File(folder, "B.csv"));
+		write(data.impactMatrix, new File(folder, "C.csv"));
+		writeCol(data.costVector, new File(folder, "k.csv"));
+	}
+
+	/**
 	 * Write the result to the given folder.
 	 */
 	public static void write(BaseResult result, File folder) {
@@ -68,16 +88,16 @@ public final class CsvOut {
 			ContributionResult cr = (ContributionResult) result;
 			write(cr.directFlowResults, new File(folder, "G.csv"));
 			write(cr.directImpactResults, new File(folder, "H.csv"));
-			writeCol(cr.directCostResults, new File(folder, "k.csv"));
+			writeCol(cr.directCostResults, new File(folder, "k_scaled.csv"));
 			write(cr.impactFactors, new File(folder, "C.csv"));
 		}
 
 		if (result instanceof FullResult) {
 			FullResult fr = (FullResult) result;
-			write(fr.techMatrix, new File(folder, "A.csv"));
+			write(fr.techMatrix, new File(folder, "A_scaled.csv"));
 			write(fr.upstreamFlowResults, new File(folder, "U.csv"));
 			write(fr.upstreamImpactResults, new File(folder, "V.csv"));
-			write(fr.upstreamCostResults, new File(folder, "ku.csv"));
+			write(fr.upstreamCostResults, new File(folder, "k_upstreams.csv"));
 		}
 	}
 
@@ -204,6 +224,9 @@ public final class CsvOut {
 	 * Write the LCIA category index into the given file.
 	 */
 	public static void write(DIndex<ImpactCategoryDescriptor> idx, File file) {
+		if (idx == null || file == null)
+			return;
+
 		String[] header = {
 				"index",
 				"impact ID",

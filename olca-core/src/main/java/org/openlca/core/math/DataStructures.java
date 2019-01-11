@@ -9,12 +9,16 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.matrix.CostVector;
+import org.openlca.core.matrix.ImpactTable;
 import org.openlca.core.matrix.Inventory;
 import org.openlca.core.matrix.LongPair;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.ProcessProduct;
 import org.openlca.core.matrix.TechIndex;
 import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.solvers.IMatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ProcessLink;
@@ -96,6 +100,33 @@ public class DataStructures {
 				cache.getDatabase());
 		productIndex.setDemand(ReferenceAmount.get(setup));
 		return Inventory.build(cache, productIndex, method);
+	}
+
+	/**
+	 * Create the matrix data for the calculation of the given setup.
+	 */
+	public static MatrixData matrixData(CalculationSetup setup,
+			IMatrixSolver solver, MatrixCache mcache) {
+		IDatabase db = mcache.getDatabase();
+		Inventory inventory = createInventory(
+				setup, mcache);
+		FormulaInterpreter interpreter = interpreter(
+				db, setup, inventory.techIndex);
+		MatrixData data = inventory.createMatrix(
+				solver, interpreter);
+		if (setup.impactMethod != null) {
+			ImpactTable impacts = ImpactTable.build(
+					mcache, setup.impactMethod.id,
+					inventory.flowIndex);
+			data.impactMatrix = impacts.createMatrix(
+					solver, interpreter);
+			data.impactIndex = impacts.impactIndex;
+		}
+		if (setup.withCosts) {
+			data.costVector = CostVector.build(
+					inventory, db);
+		}
+		return data;
 	}
 
 	public static Set<Long> parameterContexts(CalculationSetup setup,
