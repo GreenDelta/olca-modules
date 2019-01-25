@@ -36,7 +36,7 @@ public class Sort {
 		Collections.sort(list, new Comparator<ProjectVariant>() {
 			@Override
 			public int compare(ProjectVariant o1, ProjectVariant o2) {
-				return Strings.compare(o1.getName(), o2.getName());
+				return Strings.compare(o1.name, o2.name);
 			}
 		});
 		return list;

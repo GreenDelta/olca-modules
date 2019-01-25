@@ -74,13 +74,13 @@ class SourceSheet {
 		if (lastChange != null) {
 			source.setLastChange(lastChange.getTime());
 		}
-		source.setUrl(config.getString(sheet, row, 6));
-		source.setTextReference(config.getString(sheet, row, 7));
+		source.url = config.getString(sheet, row, 6);
+		source.textReference = config.getString(sheet, row, 7);
 		Cell yearCell = config.getCell(sheet, row, 8);
 		if (yearCell != null
 				&& yearCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
 			double y = yearCell.getNumericCellValue();
-			source.setYear((short) y);
+			source.year = (short) y;
 		}
 	}
 }

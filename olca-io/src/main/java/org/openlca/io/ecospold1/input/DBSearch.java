@@ -63,7 +63,7 @@ class DBSearch {
 					args);
 			if (candidate == null)
 				return null;
-			if (Objects.equals(candidate.getTextReference(), source.getTitle()))
+			if (Objects.equals(candidate.textReference, source.getTitle()))
 				return candidate;
 			return null;
 		} catch (Exception e) {

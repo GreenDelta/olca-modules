@@ -395,7 +395,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		ProjectVariant v = new ProjectVariant();
 		p.variants.add(v);
 		for (ParameterRedef redef : redefs)
-			v.getParameterRedefs().add(redef);
+			v.parameterRedefs.add(redef);
 		return p;
 	}
 

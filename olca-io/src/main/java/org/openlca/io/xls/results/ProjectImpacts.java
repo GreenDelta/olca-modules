@@ -43,7 +43,7 @@ class ProjectImpacts {
 			List<ImpactCategoryDescriptor> impacts) {
 		for (int i = 0; i < variants.size(); i++) {
 			int col = i + 4;
-			header(sheet, row, col, variants.get(i).getName());
+			header(sheet, row, col, variants.get(i).name);
 		}
 		row++;
 		writeHeader(row++);

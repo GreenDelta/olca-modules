@@ -50,10 +50,10 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 				createProjectVariant(n1, n2, n3, project.impactMethodId));
 		project = Tests.insert(project);
 		for (ProjectVariant v : project.variants) {
-			addExpected("productSystem", v.getProductSystem(), "variants", ProjectVariant.class, v.getId());
-			addExpected("unit", v.getUnit(), "variants", ProjectVariant.class, v.getId());
-			addExpected("flowPropertyFactor", v.getFlowPropertyFactor(), "variants", ProjectVariant.class, v.getId());
-			for (ParameterRedef p : v.getParameterRedefs()) {
+			addExpected("productSystem", v.productSystem, "variants", ProjectVariant.class, v.getId());
+			addExpected("unit", v.unit, "variants", ProjectVariant.class, v.getId());
+			addExpected("flowPropertyFactor", v.flowPropertyFactor, "variants", ProjectVariant.class, v.getId());
+			for (ParameterRedef p : v.parameterRedefs) {
 				if (p.contextType == null) {
 					addExpected(p.name, parameters.get(p.name), "variants", ProjectVariant.class, v.getId());
 				}
@@ -65,21 +65,21 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 	private ProjectVariant createProjectVariant(String p1Name, String p2Name,
 			String p3Name, long methodId) {
 		ProjectVariant variant = new ProjectVariant();
-		variant.setProductSystem(Tests.insert(new ProductSystem()));
-		variant.getParameterRedefs().add(
+		variant.productSystem = Tests.insert(new ProductSystem());
+		variant.parameterRedefs.add(
 				createParameterRedef(p1Name, methodId));
-		variant.getParameterRedefs().add(
+		variant.parameterRedefs.add(
 				createParameterRedef(p2Name, p3Name + "*5"));
 		FlowPropertyFactor factor = new FlowPropertyFactor();
 		factor.setFlowProperty(Tests.insert(new FlowProperty()));
-		variant.setFlowPropertyFactor(factor);
+		variant.flowPropertyFactor = factor;
 		UnitGroup unitGroup = new UnitGroup();
 		Unit unit = new Unit();
 		unit.setName("unit");
 		unitGroup.getUnits().add(unit);
 		unitGroup = Tests.insert(unitGroup);
 		unit = unitGroup.getUnit(unit.getName());
-		variant.setUnit(unit);
+		variant.unit = unit;
 		Flow flow = new Flow();
 		flow.getFlowPropertyFactors().add(factor);
 		// don't add flow to expected references, just for persisting the factor

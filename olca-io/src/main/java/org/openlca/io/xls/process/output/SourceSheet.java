@@ -56,10 +56,10 @@ class SourceSheet {
 		Excel.cell(sheet, row, 3, CategoryPath.getFull(source.getCategory()));
 		Excel.cell(sheet, row, 4, Version.asString(source.getVersion()));
 		config.date(sheet, row, 5, source.getLastChange());
-		Excel.cell(sheet, row, 6, source.getUrl());
-		Excel.cell(sheet, row, 7, source.getTextReference());
-		if (source.getYear() != null) {
-			Excel.cell(sheet, row, 8).setCellValue(source.getYear());
+		Excel.cell(sheet, row, 6, source.url);
+		Excel.cell(sheet, row, 7, source.textReference);
+		if (source.year != null) {
+			Excel.cell(sheet, row, 8).setCellValue(source.year);
 		}
 	}
 

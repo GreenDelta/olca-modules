@@ -57,7 +57,7 @@ public class SystemUseSearchTest {
 	@Test
 	public void testFindInProject() {
 		ProjectVariant variant = new ProjectVariant();
-		variant.setProductSystem(system);
+		variant.productSystem = system;
 		project.variants.add(variant);
 		project = projectDao.update(project);
 		ProductSystemDescriptor d = Descriptors.toDescriptor(system);

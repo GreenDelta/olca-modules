@@ -15,10 +15,10 @@ class SourceWriter extends Writer<Source> {
 		JsonObject obj = super.write(source);
 		if (obj == null)
 			return null;
-		Out.put(obj, "url", source.getUrl());
-		Out.put(obj, "externalFile", source.getExternalFile());
-		Out.put(obj, "textReference", source.getTextReference());
-		Out.put(obj, "year", source.getYear());
+		Out.put(obj, "url", source.url);
+		Out.put(obj, "externalFile", source.externalFile);
+		Out.put(obj, "textReference", source.textReference);
+		Out.put(obj, "year", source.year);
 		return obj;
 	}
 

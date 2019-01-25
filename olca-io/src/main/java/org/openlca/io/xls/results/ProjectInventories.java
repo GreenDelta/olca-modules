@@ -53,7 +53,7 @@ class ProjectInventories {
 		header(sheet, row, 1, inputs ? "Inputs" : "Outputs");
 		for (int i = 0; i < variants.size(); i++) {
 			int col = i + 6;
-			header(sheet, row, col, variants.get(i).getName());
+			header(sheet, row, col, variants.get(i).name);
 		}
 		row++;
 		writeHeader(row++);

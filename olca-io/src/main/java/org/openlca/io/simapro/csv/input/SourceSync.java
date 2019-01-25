@@ -58,7 +58,7 @@ class SourceSync {
 		source.setName(block.getName());
 		source.setCategory(getCategory(block));
 		source.setDescription(block.getDescription());
-		source.setTextReference(block.getDocumentationLink());
+		source.textReference = block.getDocumentationLink();
 		new SourceDao(database).insert(source);
 		return source;
 	}

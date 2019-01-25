@@ -177,9 +177,9 @@ class ProcessDoc {
 		source.comment = olcaSource.getDescription();
 		source.firstAuthor = olcaSource.getName();
 		source.sourceType = 0;
-		source.title = olcaSource.getTextReference();
-		if (olcaSource.getYear() != null)
-			source.year = olcaSource.getYear().intValue();
+		source.title = olcaSource.textReference;
+		if (olcaSource.year != null)
+			source.year = olcaSource.year.intValue();
 		else
 			source.year = 9999;
 		dataSet.masterData.sources.add(source);

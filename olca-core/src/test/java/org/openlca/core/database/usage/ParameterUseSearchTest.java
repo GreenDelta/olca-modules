@@ -156,7 +156,7 @@ public class ParameterUseSearchTest {
 		Tests.insert(parameter);
 		Project project = new Project();
 		ProjectVariant variant = new ProjectVariant();
-		variant.getParameterRedefs().add(createParameterRedef("p1"));
+		variant.parameterRedefs.add(createParameterRedef("p1"));
 		project.variants.add(variant);
 		Tests.insert(project);
 		List<CategorizedDescriptor> models = search.findUses(Descriptors

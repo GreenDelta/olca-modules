@@ -62,8 +62,8 @@ final class ActorSourceMapper {
 		source.setNumber(id);
 		source.setFirstAuthor(inSource.getName());
 		source.setText(inSource.getDescription());
-		source.setTitle(inSource.getTextReference());
-		source.setYear(Util.toXml(inSource.getYear()));
+		source.setTitle(inSource.textReference);
+		source.setYear(Util.toXml(inSource.year));
 		source.setPlaceOfPublications("unknown");
 		source.setSourceType(0);
 		dataset.getSources().add(source);

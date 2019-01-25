@@ -37,7 +37,7 @@ public class ProjectResultExport {
 				new Comparator<ProjectVariant>() {
 					@Override
 					public int compare(ProjectVariant o1, ProjectVariant o2) {
-						return Strings.compare(o1.getName(), o2.getName());
+						return Strings.compare(o1.name, o2.name);
 					}
 				});
 	}
@@ -89,8 +89,8 @@ public class ProjectResultExport {
 		header(sheet, row, 5, "Amount");
 		header(sheet, row++, 6, "Unit");
 		for (ProjectVariant variant : project.variants) {
-			Excel.cell(sheet, row, 1, variant.getName());
-			Excel.cell(sheet, row, 2, variant.getProductSystem().getName());
+			Excel.cell(sheet, row, 1, variant.name);
+			Excel.cell(sheet, row, 2, variant.productSystem.getName());
 			// TODO: take data from the variants' functional unit
 			// Excel.cell(sheet, row, 3, "Allocation method").setCellStyle(
 			// headerStyle);
@@ -121,10 +121,10 @@ public class ProjectResultExport {
 				ProjectVariant variant = project.variants.get(j);
 				int c = j + 3;
 				if (r == (row + 1))
-					Excel.cell(sheet, row, c, variant.getName()).setCellStyle(
+					Excel.cell(sheet, row, c, variant.name).setCellStyle(
 							headerStyle);
 				ParameterRedef variantRedef = findRedef(redef,
-						variant.getParameterRedefs());
+						variant.parameterRedefs);
 				if (variantRedef == null)
 					continue;
 				Excel.cell(sheet, r, c, variantRedef.value);
@@ -145,7 +145,7 @@ public class ProjectResultExport {
 	private List<ParameterRedef> fetchParameters() {
 		List<ParameterRedef> parameters = new ArrayList<>();
 		for (ProjectVariant variant : project.variants) {
-			for (ParameterRedef redef : variant.getParameterRedefs()) {
+			for (ParameterRedef redef : variant.parameterRedefs) {
 				ParameterRedef contained = findRedef(redef, parameters);
 				if (contained == null)
 					parameters.add(redef);

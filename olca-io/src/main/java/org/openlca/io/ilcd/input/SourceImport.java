@@ -83,7 +83,7 @@ public class SourceImport {
 		source.setRefId(ilcdSource.getId());
 		source.setName(ilcdSource.getShortName());
 		source.setDescription(ilcdSource.getComment());
-		source.setTextReference(ilcdSource.getSourceCitation());
+		source.textReference = ilcdSource.getSourceCitation();
 		String v = ilcdSource.getVersion();
 		source.setVersion(Version.fromString(v).getValue());
 		Date time = ilcdSource.getTimeStamp();
@@ -126,7 +126,7 @@ public class SourceImport {
 			if (in == null)
 				return;
 			Files.copy(in, dbFile.toPath());
-			source.setExternalFile(fileName);
+			source.externalFile = fileName;
 		}
 	}
 

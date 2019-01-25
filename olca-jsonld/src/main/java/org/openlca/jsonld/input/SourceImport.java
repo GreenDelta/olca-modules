@@ -28,11 +28,11 @@ class SourceImport extends BaseImport<Source> {
 	}
 
 	private void mapAtts(JsonObject json, Source s) {
-		s.setUrl(Json.getString(json, "url"));
-		s.setExternalFile(Json.getString(json, "externalFile"));
-		s.setTextReference(Json.getString(json, "textReference"));
+		s.url = Json.getString(json, "url");
+		s.externalFile = Json.getString(json, "externalFile");
+		s.textReference = Json.getString(json, "textReference");
 		JsonElement year = json.get("year");
 		if (year != null && year.isJsonPrimitive())
-			s.setYear(year.getAsShort());
+			s.year = year.getAsShort();
 	}
 }

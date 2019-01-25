@@ -92,10 +92,10 @@ class ProjectImport {
 	}
 
 	private void switchVariantReferences(ProjectVariant variant) {
-		variant.setProductSystem(refs.switchRef(variant.getProductSystem()));
-		variant.setUnit(refs.switchRef(variant.getUnit()));
+		variant.productSystem = refs.switchRef(variant.productSystem);
+		variant.unit = refs.switchRef(variant.unit);
 		switchVariantProperty(variant);
-		for (ParameterRedef redef : variant.getParameterRedefs()) {
+		for (ParameterRedef redef : variant.parameterRedefs) {
 			if (redef.contextId == null)
 				continue;
 			if (redef.contextType == ModelType.IMPACT_METHOD) {
@@ -110,15 +110,15 @@ class ProjectImport {
 	}
 
 	private void switchVariantProperty(ProjectVariant variant) {
-		if (variant.getFlowPropertyFactor() == null)
+		if (variant.flowPropertyFactor == null)
 			return;
-		ProductSystem destSystem = variant.getProductSystem();
+		ProductSystem destSystem = variant.productSystem;
 		if (destSystem == null || destSystem.referenceExchange == null) {
-			variant.setFlowPropertyFactor(null);
+			variant.flowPropertyFactor = null;
 			return;
 		}
 		Flow destFlow = destSystem.referenceExchange.flow;
-		variant.setFlowPropertyFactor(refs.switchRef(
-				variant.getFlowPropertyFactor(), destFlow));
+		variant.flowPropertyFactor = refs.switchRef(
+		variant.flowPropertyFactor, destFlow);
 	}
 }

@@ -27,11 +27,11 @@ public class ProjectVariantIOTest {
         unit = unitDao.insert(unit);
         ProjectVariant variant = new ProjectVariant();
         variant = dao.insert(variant);
-        variant.setUnit(unit);
+        variant.unit = unit;
         variant = dao.update(variant);
         Tests.emptyCache();
         variant = dao.getForId(variant.getId());
-        Assert.assertEquals(unit, variant.getUnit());
+        Assert.assertEquals(unit, variant.unit);
         dao.delete(variant);
         unitDao.delete(unit);
     }

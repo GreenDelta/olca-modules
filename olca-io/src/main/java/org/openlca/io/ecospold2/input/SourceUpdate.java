@@ -69,7 +69,7 @@ public class SourceUpdate implements Runnable {
 		}
 		olcaSource.setName(shortTitle.toString());
 		olcaSource.setDescription(source.comment);
-		olcaSource.setTextReference(title.toString());
+		olcaSource.textReference = title.toString();
 		olcaSource.setLastChange(Calendar.getInstance().getTimeInMillis());
 		Version.incUpdate(olcaSource);
 		dao.update(olcaSource);

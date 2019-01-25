@@ -30,14 +30,14 @@ public class ProjectCalculator {
 		for (ProjectVariant v : project.variants) {
 			CalculationSetup setup = new CalculationSetup(
 					CalculationType.CONTRIBUTION_ANALYSIS,
-					v.getProductSystem());
-			setup.setUnit(v.getUnit());
-			setup.setFlowPropertyFactor(v.getFlowPropertyFactor());
-			setup.setAmount(v.getAmount());
-			setup.allocationMethod = v.getAllocationMethod();
+					v.productSystem);
+			setup.setUnit(v.unit);
+			setup.setFlowPropertyFactor(v.flowPropertyFactor);
+			setup.setAmount(v.amount);
+			setup.allocationMethod = v.allocationMethod;
 			setup.impactMethod = method;
 			setup.nwSet = nwSet;
-			setup.parameterRedefs.addAll(v.getParameterRedefs());
+			setup.parameterRedefs.addAll(v.parameterRedefs);
 			setup.withCosts = true;
 			ContributionResult cr = calculator.calculateContributions(setup);
 			result.addResult(v, cr);

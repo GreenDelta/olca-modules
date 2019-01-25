@@ -58,7 +58,7 @@ public class SourceExport {
 	}
 
 	private File getExternalFile() {
-		String name = source.getExternalFile();
+		String name = source.externalFile;
 		if (name == null)
 			return null;
 		File dbDir = config.db.getFileStorageLocation();
@@ -92,11 +92,11 @@ public class SourceExport {
 
 	private void addTextReference(DataSetInfo dataSetInfo) {
 		log.trace("Create text reference.");
-		String cit = source.getTextReference();
+		String cit = source.textReference;
 		if (cit == null)
 			return;
-		if (source.getYear() != null)
-			cit += " " + source.getYear();
+		if (source.year != null)
+			cit += " " + source.year;
 		dataSetInfo.citation = cit;
 	}
 

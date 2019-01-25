@@ -34,7 +34,7 @@ public class ParameterReferences {
 			return;
 		Set<String> names = new HashSet<>();
 		for (ProjectVariant v : p.variants)
-			names.addAll(getRedefVariables(v.getParameterRedefs()));
+			names.addAll(getRedefVariables(v.parameterRedefs));
 		writeParameters(names, conf);
 	}
 

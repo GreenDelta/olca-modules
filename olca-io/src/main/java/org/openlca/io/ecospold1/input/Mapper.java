@@ -34,9 +34,9 @@ class Mapper {
 	public static void mapSource(ISource inSource, Source ioSource) {
 		ioSource.setName(inSource.getFirstAuthor());
 		ioSource.setDescription(inSource.getText());
-		ioSource.setTextReference(inSource.getTitle());
+		ioSource.textReference = inSource.getTitle();
 		if (inSource.getYear() != null) {
-			ioSource.setYear((short) inSource.getYear().getYear());
+			ioSource.year = (short) inSource.getYear().getYear();
 		}
 	}
 

@@ -36,16 +36,16 @@ class ProjectWriter extends Writer<Project> {
 		for (ProjectVariant v : p.variants) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", ProjectVariant.class.getSimpleName());
-			Out.put(obj, "name", v.getName());
-			Out.put(obj, "productSystem", v.getProductSystem(), conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "amount", v.getAmount());
-			Out.put(obj, "unit", v.getUnit(), conf, Out.REQUIRED_FIELD);
-			Out.put(obj, "allocationMethod", v.getAllocationMethod());
+			Out.put(obj, "name", v.name);
+			Out.put(obj, "productSystem", v.productSystem, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "amount", v.amount);
+			Out.put(obj, "unit", v.unit, conf, Out.REQUIRED_FIELD);
+			Out.put(obj, "allocationMethod", v.allocationMethod);
 			FlowProperty prop = null;
-			if (v.getFlowPropertyFactor() != null)
-				prop = v.getFlowPropertyFactor().getFlowProperty();
+			if (v.flowPropertyFactor != null)
+				prop = v.flowPropertyFactor.getFlowProperty();
 			Out.put(obj, "flowProperty", prop, conf, Out.REQUIRED_FIELD);
-			ParameterRedefs.map(obj, v.getParameterRedefs(), conf.db, conf, this::createRef);
+			ParameterRedefs.map(obj, v.parameterRedefs, conf.db, conf, this::createRef);
 			array.add(obj);
 		}
 		Out.put(json, "variants", array);

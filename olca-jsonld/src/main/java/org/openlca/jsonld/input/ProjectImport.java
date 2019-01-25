@@ -71,23 +71,23 @@ class ProjectImport extends BaseImport<Project> {
 			ProductSystem system = ProductSystemImport.run(systemRefId, conf);
 			if (system == null)
 				continue;
-			v.setProductSystem(system);
+			v.productSystem = system;
 			String propRefId = Json.getRefId(obj, "flowProperty");
 			FlowPropertyFactor factor = findFlowPropertyFactor(propRefId,
 					system);
 			if (factor == null)
 				continue;
-			v.setFlowPropertyFactor(factor);
+			v.flowPropertyFactor = factor;
 			String unitRefId = Json.getRefId(obj, "unit");
 			Unit unit = findUnit(unitRefId, factor);
 			if (unit == null)
 				continue;
-			v.setUnit(unit);
-			v.setName(Json.getString(obj, "name"));
-			v.setAmount(Json.getDouble(obj, "amount", 0));
-			v.setAllocationMethod(Json.getEnum(obj, "allocationMethod",
-					AllocationMethod.class));
-			ParameterRedefs.addParameters(obj, v.getParameterRedefs(), conf);
+			v.unit = unit;
+			v.name = Json.getString(obj, "name");
+			v.amount = Json.getDouble(obj, "amount", 0);
+			v.allocationMethod = Json.getEnum(obj, "allocationMethod",
+			AllocationMethod.class);
+			ParameterRedefs.addParameters(obj, v.parameterRedefs, conf);
 			p.variants.add(v);
 		}
 	}
