@@ -45,7 +45,7 @@ public class ActorUseSearchTest {
 		Actor actor = createActor();
 		Project project = new Project();
 		project.setName("project");
-		project.setAuthor(actor);
+		project.author = actor;
 		new ProjectDao(database).insert(project);
 		List<CategorizedDescriptor> results = search.findUses(Descriptors
 				.toDescriptor(actor));

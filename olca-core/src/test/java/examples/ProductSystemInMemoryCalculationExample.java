@@ -10,8 +10,8 @@ import org.openlca.core.math.CalculationSetup;
 import org.openlca.core.math.CalculationType;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.LinkingConfig;
-import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.LinkingConfig.DefaultProviders;
+import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.solvers.DenseSolver;
 import org.openlca.core.model.Process;
@@ -19,7 +19,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.ImpactCategoryDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.SimpleResult;
 import org.openlca.eigen.NativeLibrary;
 
 /*
@@ -30,7 +30,7 @@ public class ProductSystemInMemoryCalculationExample {
 	public static void main(String[] args) throws Exception {
 
 		// load the database and matrix cache
-		String workspace = "C:/Users/ms/openLCA-data-1.4";
+		String workspace = "C:/Users/Besitzer/openLCA-data-1.4";
 		String dbPath = workspace + "/databases/ecoinvent_2_2_unit";
 		IDatabase db = new DerbyDatabase(new File(dbPath));
 		MatrixCache mcache = MatrixCache.createLazy(db);
@@ -58,7 +58,7 @@ public class ProductSystemInMemoryCalculationExample {
 		NativeLibrary.loadFromDir(new File(workspace));
 		SystemCalculator calc = new SystemCalculator(
 				mcache, new DenseSolver());
-		FullResult r = calc.calculateFull(setup);
+		SimpleResult r = calc.calculateSimple(setup);
 
 		// print the LCIA results
 		for (ImpactCategoryDescriptor impact : r.getImpacts()) {

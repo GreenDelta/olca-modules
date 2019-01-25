@@ -40,20 +40,20 @@ class ProjectImport extends BaseImport<Project> {
 
 	private void mapAtts(JsonObject json, Project p) {
 		String authorRefId = Json.getRefId(json, "author");
-		p.setAuthor(ActorImport.run(authorRefId, conf));
-		p.setCreationDate(Json.getDate(json, "creationDate"));
-		p.setFunctionalUnit(Json.getString(json, "functionalUnit"));
-		p.setGoal(Json.getString(json, "goal"));
-		p.setLastModificationDate(Json.getDate(json, "lastModificationDate"));
+		p.author = ActorImport.run(authorRefId, conf);
+		p.creationDate = Json.getDate(json, "creationDate");
+		p.functionalUnit = Json.getString(json, "functionalUnit");
+		p.goal = Json.getString(json, "goal");
+		p.lastModificationDate = Json.getDate(json, "lastModificationDate");
 		String methodRefId = Json.getRefId(json, "impactMethod");
 		ImpactMethod method = ImpactMethodImport.run(methodRefId, conf);
 		if (method == null)
 			return;
-		p.setImpactMethodId(method.getId());
+		p.impactMethodId = method.getId();
 		String nwSetRefId = Json.getRefId(json, "nwSet");
 		for (NwSet set : method.nwSets)
 			if (set.getRefId().equals(nwSetRefId)) {
-				p.setNwSetId(set.getId());
+				p.nwSetId = set.getId();
 				break;
 			}
 	}
@@ -88,7 +88,7 @@ class ProjectImport extends BaseImport<Project> {
 			v.setAllocationMethod(Json.getEnum(obj, "allocationMethod",
 					AllocationMethod.class));
 			ParameterRedefs.addParameters(obj, v.getParameterRedefs(), conf);
-			p.getVariants().add(v);
+			p.variants.add(v);
 		}
 	}
 

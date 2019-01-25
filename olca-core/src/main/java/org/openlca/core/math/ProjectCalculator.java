@@ -27,7 +27,7 @@ public class ProjectCalculator {
 		SystemCalculator calculator = new SystemCalculator(matrixCache, solver);
 		ImpactMethodDescriptor method = getImpactMethod(project);
 		NwSetDescriptor nwSet = getNwSet(project);
-		for (ProjectVariant v : project.getVariants()) {
+		for (ProjectVariant v : project.variants) {
 			CalculationSetup setup = new CalculationSetup(
 					CalculationType.CONTRIBUTION_ANALYSIS,
 					v.getProductSystem());
@@ -46,16 +46,16 @@ public class ProjectCalculator {
 	}
 
 	private ImpactMethodDescriptor getImpactMethod(Project project) {
-		if (project.getImpactMethodId() == null)
+		if (project.impactMethodId == null)
 			return null;
 		ImpactMethodDao dao = new ImpactMethodDao(matrixCache.getDatabase());
-		return dao.getDescriptor(project.getImpactMethodId());
+		return dao.getDescriptor(project.impactMethodId);
 	}
 
 	private NwSetDescriptor getNwSet(Project project) {
-		if (project.getNwSetId() == null)
+		if (project.nwSetId == null)
 			return null;
 		NwSetDao dao = new NwSetDao(matrixCache.getDatabase());
-		return dao.getDescriptor(project.getNwSetId());
+		return dao.getDescriptor(project.nwSetId);
 	}
 }

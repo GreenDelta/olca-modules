@@ -393,7 +393,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		Project p = new Project();
 		p.setRefId(UUID.randomUUID().toString());
 		ProjectVariant v = new ProjectVariant();
-		p.getVariants().add(v);
+		p.variants.add(v);
 		for (ParameterRedef redef : redefs)
 			v.getParameterRedefs().add(redef);
 		return p;

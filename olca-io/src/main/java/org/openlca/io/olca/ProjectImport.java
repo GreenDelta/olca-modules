@@ -52,45 +52,43 @@ class ProjectImport {
 		Project destProject = srcProject.clone();
 		destProject.setRefId(srcProject.getRefId());
 		destProject.setCategory(refs.switchRef(srcProject.getCategory()));
-		destProject.setAuthor(refs.switchRef(srcProject.getAuthor()));
+		destProject.author = refs.switchRef(srcProject.author);
 		switchImpactMethod(destProject);
 		switchNwSet(destProject);
-		for (ProjectVariant variant : destProject.getVariants())
+		for (ProjectVariant variant : destProject.variants)
 			switchVariantReferences(variant);
 		destProject = destDao.insert(destProject);
 		seq.put(seq.PROJECT, srcProject.getRefId(), destProject.getId());
 	}
 
 	private void switchImpactMethod(Project destProject) {
-		if (destProject.getImpactMethodId() == null)
+		if (destProject.impactMethodId == null)
 			return;
 		ImpactMethodDao srcDao = new ImpactMethodDao(source);
-		ImpactMethodDescriptor descriptor = srcDao.getDescriptor(destProject
-				.getImpactMethodId());
+		ImpactMethodDescriptor descriptor = srcDao.getDescriptor(destProject.impactMethodId);
 		if (descriptor == null) {
-			destProject.setImpactMethodId(null);
+			destProject.impactMethodId = null;
 			return;
 		}
 		long id = seq.get(seq.IMPACT_METHOD, descriptor.refId);
-		destProject.setImpactMethodId(id);
+		destProject.impactMethodId = id;
 	}
 
 	private void switchNwSet(Project destProject) {
-		if (destProject.getNwSetId() == null)
+		if (destProject.nwSetId == null)
 			return;
-		if (destProject.getImpactMethodId() == null) {
-			destProject.setNwSetId(null);
+		if (destProject.impactMethodId == null) {
+			destProject.nwSetId = null;
 			return;
 		}
 		NwSetDao srcDao = new NwSetDao(source);
-		NwSetDescriptor descriptor = srcDao.getDescriptor(destProject
-				.getNwSetId());
+		NwSetDescriptor descriptor = srcDao.getDescriptor(destProject.nwSetId);
 		if (descriptor == null) {
-			destProject.setNwSetId(null);
+			destProject.nwSetId = null;
 			return;
 		}
 		long id = seq.get(seq.NW_SET, descriptor.refId);
-		destProject.setNwSetId(id);
+		destProject.nwSetId = id;
 	}
 
 	private void switchVariantReferences(ProjectVariant variant) {

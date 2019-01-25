@@ -55,7 +55,7 @@ public class ImpactMethodUseSearchTest {
 
 	@Test
 	public void testFindInProject() {
-		project.setImpactMethodId(method.getId());
+		project.impactMethodId = method.getId();
 		project = projectDao.update(project);
 		ImpactMethodDescriptor d = Descriptors.toDescriptor(method);
 		List<CategorizedDescriptor> descriptors = search.findUses(d);

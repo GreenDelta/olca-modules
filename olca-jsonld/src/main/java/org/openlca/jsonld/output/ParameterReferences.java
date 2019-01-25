@@ -33,7 +33,7 @@ public class ParameterReferences {
 		if (!conf.exportReferences)
 			return;
 		Set<String> names = new HashSet<>();
-		for (ProjectVariant v : p.getVariants())
+		for (ProjectVariant v : p.variants)
 			names.addAll(getRedefVariables(v.getParameterRedefs()));
 		writeParameters(names, conf);
 	}

@@ -63,7 +63,7 @@ public class ProductSystemUseSearchTest {
 		project.setName("project");
 		ProjectVariant variant = new ProjectVariant();
 		variant.setProductSystem(system);
-		project.getVariants().add(variant);
+		project.variants.add(variant);
 		return new ProjectDao(database).insert(project);
 	}
 

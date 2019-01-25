@@ -19,13 +19,13 @@ class ProjectWriter extends Writer<Project> {
 		JsonObject obj = super.write(p);
 		if (obj == null)
 			return null;
-		Out.put(obj, "creationDate", p.getCreationDate());
-		Out.put(obj, "functionalUnit", p.getFunctionalUnit());
-		Out.put(obj, "goal", p.getGoal());
-		Out.put(obj, "lastModificationDate", p.getLastModificationDate());
-		Out.put(obj, "author", p.getAuthor(), conf);
-		Out.put(obj, "impactMethod", createRef(ModelType.IMPACT_METHOD, p.getImpactMethodId()));
-		Out.put(obj, "nwSet", createRef(ModelType.NW_SET, p.getNwSetId()));
+		Out.put(obj, "creationDate", p.creationDate);
+		Out.put(obj, "functionalUnit", p.functionalUnit);
+		Out.put(obj, "goal", p.goal);
+		Out.put(obj, "lastModificationDate", p.lastModificationDate);
+		Out.put(obj, "author", p.author, conf);
+		Out.put(obj, "impactMethod", createRef(ModelType.IMPACT_METHOD, p.impactMethodId));
+		Out.put(obj, "nwSet", createRef(ModelType.NW_SET, p.nwSetId));
 		mapVariants(obj, p);
 		ParameterReferences.writeReferencedParameters(p, conf);
 		return obj;
@@ -33,7 +33,7 @@ class ProjectWriter extends Writer<Project> {
 
 	private void mapVariants(JsonObject json, Project p) {
 		JsonArray array = new JsonArray();
-		for (ProjectVariant v : p.getVariants()) {
+		for (ProjectVariant v : p.variants) {
 			JsonObject obj = new JsonObject();
 			Out.put(obj, "@type", ProjectVariant.class.getSimpleName());
 			Out.put(obj, "name", v.getName());

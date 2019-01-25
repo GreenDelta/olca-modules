@@ -58,7 +58,7 @@ public class SystemUseSearchTest {
 	public void testFindInProject() {
 		ProjectVariant variant = new ProjectVariant();
 		variant.setProductSystem(system);
-		project.getVariants().add(variant);
+		project.variants.add(variant);
 		project = projectDao.update(project);
 		ProductSystemDescriptor d = Descriptors.toDescriptor(system);
 		List<CategorizedDescriptor> descriptors = search.findUses(d);

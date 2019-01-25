@@ -33,7 +33,7 @@ public class ProjectResultExport {
 		this.project = project;
 		this.file = file;
 		this.cache = cache;
-		Collections.sort(project.getVariants(),
+		Collections.sort(project.variants,
 				new Comparator<ProjectVariant>() {
 					@Override
 					public int compare(ProjectVariant o1, ProjectVariant o2) {
@@ -66,11 +66,11 @@ public class ProjectResultExport {
 		header(sheet, row, 1, "Description:");
 		Excel.cell(sheet, row++, 2, project.getDescription());
 		header(sheet, row, 1, "LCIA Method:");
-		if (project.getImpactMethodId() == null)
+		if (project.impactMethodId == null)
 			Excel.cell(sheet, row++, 2, "none");
 		else {
 			ImpactMethodDescriptor method = cache.get(
-					ImpactMethodDescriptor.class, project.getImpactMethodId());
+					ImpactMethodDescriptor.class, project.impactMethodId);
 			Excel.cell(sheet, row++, 2, method.name);
 		}
 		row++;
@@ -88,7 +88,7 @@ public class ProjectResultExport {
 		header(sheet, row, 4, "Reference flow");
 		header(sheet, row, 5, "Amount");
 		header(sheet, row++, 6, "Unit");
-		for (ProjectVariant variant : project.getVariants()) {
+		for (ProjectVariant variant : project.variants) {
 			Excel.cell(sheet, row, 1, variant.getName());
 			Excel.cell(sheet, row, 2, variant.getProductSystem().getName());
 			// TODO: take data from the variants' functional unit
@@ -117,8 +117,8 @@ public class ProjectResultExport {
 			int r = row + i + 1;
 			Excel.cell(sheet, r, 1, redef.name);
 			Excel.cell(sheet, r, 2, processName(redef));
-			for (int j = 0; j < project.getVariants().size(); j++) {
-				ProjectVariant variant = project.getVariants().get(j);
+			for (int j = 0; j < project.variants.size(); j++) {
+				ProjectVariant variant = project.variants.get(j);
 				int c = j + 3;
 				if (r == (row + 1))
 					Excel.cell(sheet, row, c, variant.getName()).setCellStyle(
@@ -144,7 +144,7 @@ public class ProjectResultExport {
 
 	private List<ParameterRedef> fetchParameters() {
 		List<ParameterRedef> parameters = new ArrayList<>();
-		for (ProjectVariant variant : project.getVariants()) {
+		for (ProjectVariant variant : project.variants) {
 			for (ParameterRedef redef : variant.getParameterRedefs()) {
 				ParameterRedef contained = findRedef(redef, parameters);
 				if (contained == null)

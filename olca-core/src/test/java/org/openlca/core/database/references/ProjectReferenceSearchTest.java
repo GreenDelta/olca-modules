@@ -33,9 +33,9 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 	protected Project createModel() {
 		Project project = new Project();
 		project.setCategory(insertAndAddExpected("category", new Category()));
-		project.setAuthor(insertAndAddExpected("author", new Actor()));
-		project.setImpactMethodId(insertAndAddExpected("impactMethodId",
-				new ImpactMethod()).getId());
+		project.author = insertAndAddExpected("author", new Actor());
+		project.impactMethodId = insertAndAddExpected("impactMethodId",
+		new ImpactMethod()).getId();
 		String n1 = generateName();
 		String n2 = generateName();
 		String n3 = generateName();
@@ -44,12 +44,12 @@ public class ProjectReferenceSearchTest extends BaseReferenceSearchTest {
 		// must be inserted manually
 		globalUnreferenced = Tests.insert(globalUnreferenced);
 		globalUnreferenced2 = Tests.insert(globalUnreferenced2);
-		project.getVariants().add(
-				createProjectVariant(n1, n2, n3, project.getImpactMethodId()));
-		project.getVariants().add(
-				createProjectVariant(n1, n2, n3, project.getImpactMethodId()));
+		project.variants.add(
+				createProjectVariant(n1, n2, n3, project.impactMethodId));
+		project.variants.add(
+				createProjectVariant(n1, n2, n3, project.impactMethodId));
 		project = Tests.insert(project);
-		for (ProjectVariant v : project.getVariants()) {
+		for (ProjectVariant v : project.variants) {
 			addExpected("productSystem", v.getProductSystem(), "variants", ProjectVariant.class, v.getId());
 			addExpected("unit", v.getUnit(), "variants", ProjectVariant.class, v.getId());
 			addExpected("flowPropertyFactor", v.getFlowPropertyFactor(), "variants", ProjectVariant.class, v.getId());
