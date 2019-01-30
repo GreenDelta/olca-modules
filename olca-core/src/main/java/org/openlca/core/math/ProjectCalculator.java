@@ -28,6 +28,8 @@ public class ProjectCalculator {
 		ImpactMethodDescriptor method = getImpactMethod(project);
 		NwSetDescriptor nwSet = getNwSet(project);
 		for (ProjectVariant v : project.variants) {
+			if (v.isDisabled)
+				continue;
 			CalculationSetup setup = new CalculationSetup(
 					CalculationType.CONTRIBUTION_ANALYSIS,
 					v.productSystem);
