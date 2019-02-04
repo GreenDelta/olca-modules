@@ -56,7 +56,7 @@ public class IsicCategoryTreeSync implements Runnable {
 		for (IsicNode childNode : root.getChilds()) {
 			if (childNode.getCategory() != null) {
 				syncWithDatabase(childNode);
-				category.getChildCategories().add(childNode.getCategory());
+				category.childCategories.add(childNode.getCategory());
 				childNode.getCategory().category = category;
 			}
 		}
@@ -90,7 +90,7 @@ public class IsicCategoryTreeSync implements Runnable {
 
 	private Category createCategory(IsicNode node) {
 		Category c = new Category();
-		c.setModelType(type);
+		c.modelType = type;
 		c.name = node.getCode() + ":" + node.getName();
 		c.refId = KeyGen.get(type.name() + "/" + c.name);
 		return c;

@@ -28,8 +28,8 @@ class CategoryExport extends AbstractExport {
 		line[0] = category.refId;
 		line[1] = category.name;
 		line[2] = category.description;
-		if (category.getModelType() != null)
-			line[3] = category.getModelType().name();
+		if (category.modelType != null)
+			line[3] = category.modelType.name();
 		if (category.category != null)
 			line[4] = category.category.refId;
 		return line;

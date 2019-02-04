@@ -18,33 +18,21 @@ public class Category extends CategorizedEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
 	@JoinColumn(name = "f_category")
-	private List<Category> childCategories = new ArrayList<>();
+	public final List<Category> childCategories = new ArrayList<>();
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "model_type")
-	private ModelType modelType;
-
-	public ModelType getModelType() {
-		return modelType;
-	}
-
-	public void setModelType(ModelType modelType) {
-		this.modelType = modelType;
-	}
-
-	public List<Category> getChildCategories() {
-		return childCategories;
-	}
+	public ModelType modelType;
 
 	@Override
 	public Category clone() {
 		Category clone = new Category();
 		Util.cloneRootFields(this, clone);
-		clone.setModelType(getModelType());
+		clone.modelType = modelType;
 		clone.category = category;
-		for (Category child : getChildCategories()) {
+		for (Category child : childCategories) {
 			Category childCopy = child.clone();
-			clone.getChildCategories().add(childCopy);
+			clone.childCategories.add(childCopy);
 			childCopy.category = clone;
 		}
 		return clone;
@@ -53,7 +41,7 @@ public class Category extends CategorizedEntity {
 	@Override
 	public String toString() {
 		return String.format("Category {modelType=%s, refId=%s, name=%s}",
-				getModelType(), refId, name);
+				modelType, refId, name);
 	}
 
 }

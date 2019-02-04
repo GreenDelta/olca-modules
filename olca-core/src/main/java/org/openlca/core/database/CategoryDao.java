@@ -81,7 +81,7 @@ public class CategoryDao
 		if (Objects.equals(refId, newRefId) || forRefId == null) {
 			category.refId = newRefId;
 			category = super.update(category);
-			for (Category child : category.getChildCategories())
+			for (Category child : category.childCategories)
 				update(child);
 			if (!Objects.equals(refId, newRefId) && !isNew) {
 				updateModels(category);
@@ -90,7 +90,7 @@ public class CategoryDao
 		}
 		mergeChildren(forRefId, category);
 		forRefId = super.update(forRefId);
-		for (Category child : forRefId.getChildCategories())
+		for (Category child : forRefId.childCategories)
 			update(child);
 		if (!Objects.equals(refId, newRefId) && !isNew)
 			updateModels(category);
@@ -98,11 +98,11 @@ public class CategoryDao
 	}
 
 	private void mergeChildren(Category into, Category from) {
-		for (Category child : from.getChildCategories()) {
-			if (contains(into.getChildCategories(), child))
+		for (Category child : from.childCategories) {
+			if (contains(into.childCategories, child))
 				continue;
 			child.category = into;
-			into.getChildCategories().add(child);
+			into.childCategories.add(child);
 		}
 	}
 
@@ -117,7 +117,7 @@ public class CategoryDao
 	private <T extends CategorizedEntity> void updateModels(Category category) {
 		Optional<Category> optional = Optional.ofNullable(category);
 		for (CategorizedDescriptor descriptor : getDescriptors(
-				category.getModelType(), optional)) {
+				category.modelType, optional)) {
 			Version v = new Version(descriptor.version);
 			v.incUpdate();
 			long version = v.getValue();

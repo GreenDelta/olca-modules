@@ -116,7 +116,7 @@ class RefDataImport {
 		if (category == null) {
 			category = new Category();
 			category.description = classification.system;
-			category.setModelType(ModelType.PROCESS);
+			category.modelType = ModelType.PROCESS;
 			category.name = classification.value;
 			category.refId = refId;
 			category = categoryDao.insert(category);

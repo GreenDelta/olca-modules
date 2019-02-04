@@ -81,7 +81,7 @@ public class CategorizedEntityDaoTest {
 		Category category = new Category();
 		category.refId = UUID.randomUUID().toString();
 		category.name = "test_category";
-		category.setModelType(ModelType.forModelClass(clazz));
+		category.modelType = ModelType.forModelClass(clazz);
 		CategoryDao catDao = new CategoryDao(Tests.getDb());
 		catDao.insert(category);
 		instance.category = category;

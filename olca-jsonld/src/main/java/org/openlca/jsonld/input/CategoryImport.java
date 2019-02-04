@@ -31,7 +31,7 @@ class CategoryImport extends BaseImport<Category> {
 			isNew = true;
 		}
 		In.mapAtts(json, model, model.id, conf);
-		model.setModelType(Json.getEnum(json, "modelType", ModelType.class));
+		model.modelType = Json.getEnum(json, "modelType", ModelType.class);
 		if (!isNew || model.category == null)
 			model = conf.db.put(model);
 		else
@@ -60,13 +60,13 @@ class CategoryImport extends BaseImport<Category> {
 		String refId = Categories.createRefId(category);
 		Category parent = category.category;
 		// now check if category with id (generated) already exists
-		for (Category child : parent.getChildCategories()) {
+		for (Category child : parent.childCategories) {
 			if (Objects.equals(child.refId, refId))
 				return child;
 		}
-		parent.getChildCategories().add(category);
+		parent.childCategories.add(category);
 		parent = conf.db.updateChilds(parent);
-		for (Category child : parent.getChildCategories()) {
+		for (Category child : parent.childCategories) {
 			if (Objects.equals(child.refId, refId))
 				return child;
 		}

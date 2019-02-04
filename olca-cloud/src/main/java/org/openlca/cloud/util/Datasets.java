@@ -30,7 +30,7 @@ public class Datasets {
 		ModelType categoryType = null;
 		if (category != null) {
 			dataset.categoryRefId = category.refId;
-			categoryType = category.getModelType();
+			categoryType = category.modelType;
 		} else {
 			if (descriptor.type == ModelType.CATEGORY)
 				categoryType = ((CategoryDescriptor) descriptor).categoryType;

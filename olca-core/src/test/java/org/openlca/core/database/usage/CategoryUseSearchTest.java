@@ -56,7 +56,7 @@ public class CategoryUseSearchTest {
 	private Category createCategory() {
 		Category category = new Category();
 		category.name = "category";
-		category.setModelType(ModelType.PROCESS);
+		category.modelType = ModelType.PROCESS;
 		return new CategoryDao(database).insert(category);
 	}
 

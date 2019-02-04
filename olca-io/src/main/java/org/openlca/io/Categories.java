@@ -17,17 +17,17 @@ public final class Categories {
 
 	public static Category findOrAddChild(IDatabase database, Category parent,
 			String childName) {
-		for (Category child : parent.getChildCategories()) {
+		for (Category child : parent.childCategories) {
 			if (StringUtils.equalsIgnoreCase(child.name, childName))
 				return child;
 		}
 		try {
 			Category child = new Category();
-			child.setModelType(parent.getModelType());
+			child.modelType = parent.modelType;
 			child.name = childName;
 			child.refId = UUID.randomUUID().toString();
 			child.category = parent;
-			parent.getChildCategories().add(child);
+			parent.childCategories.add(child);
 			CategoryDao dao = new CategoryDao(database);
 			dao.insert(child);
 			new CategoryDao(database).update(parent);
@@ -57,7 +57,7 @@ public final class Categories {
 		try {
 			Category category = new Category();
 			category.refId = UUID.randomUUID().toString();
-			category.setModelType(type);
+			category.modelType = type;
 			category.name = name;
 			new CategoryDao(database).insert(category);
 			return category;

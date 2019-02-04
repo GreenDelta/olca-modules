@@ -78,7 +78,7 @@ public class Descriptors {
 			return null;
 		CategoryDescriptor descriptor = new CategoryDescriptor();
 		setBaseValues(category, descriptor);
-		descriptor.categoryType = category.getModelType();
+		descriptor.categoryType = category.modelType;
 		return descriptor;
 	}
 

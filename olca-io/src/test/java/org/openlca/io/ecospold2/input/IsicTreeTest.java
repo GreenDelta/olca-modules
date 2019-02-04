@@ -37,7 +37,7 @@ public class IsicTreeTest {
 		CategoryDao dao = new CategoryDao(database);
 		Category cat = new Category();
 		cat.name = "0121:Growing of grapes";
-		cat.setModelType(ModelType.FLOW);
+		cat.modelType = ModelType.FLOW;
 		cat = dao.insert(cat);
 		new IsicCategoryTreeSync(database, ModelType.FLOW).run();
 		cat = dao.getForId(cat.id);
@@ -52,7 +52,7 @@ public class IsicTreeTest {
 		Category cat = new Category();
 		String catName = "01:Crop and animal production, hunting and related service activities";
 		cat.name = catName;
-		cat.setModelType(ModelType.PROCESS);
+		cat.modelType = ModelType.PROCESS;
 		cat = dao.insert(cat);
 		new IsicCategoryTreeSync(database, ModelType.PROCESS).run();
 		cat = dao.getForId(cat.id);

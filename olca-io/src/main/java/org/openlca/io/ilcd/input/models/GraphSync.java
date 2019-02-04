@@ -93,7 +93,7 @@ class GraphSync {
 		if (e == null || e.category == null)
 			return;
 		Category c = e.category;
-		ModelType type = c.getModelType();
+		ModelType type = c.modelType;
 		ArrayList<String> names = new ArrayList<>();
 		while (c != null) {
 			names.add(0, c.name);

@@ -27,14 +27,14 @@ public class CategoryDaoTest {
 	public void testAddChild() {
 		Category parent = dao.insert(create());
 		Category child = create();
-		parent.getChildCategories().add(child);
+		parent.childCategories.add(child);
 		child.category = parent;
 		parent = dao.update(parent);
-		child = parent.getChildCategories().get(0);
+		child = parent.childCategories.get(0);
 		Tests.emptyCache();
 		Category alias = dao.getForId(parent.id);
-		Assert.assertEquals(1, alias.getChildCategories().size());
-		Assert.assertEquals(child.refId, alias.getChildCategories().get(0).refId);
+		Assert.assertEquals(1, alias.childCategories.size());
+		Assert.assertEquals(child.refId, alias.childCategories.get(0).refId);
 		dao.delete(alias);
 		Assert.assertNull(dao.getForId(child.id));
 	}
@@ -43,7 +43,7 @@ public class CategoryDaoTest {
 	public void testFindRoot() {
 		Category parent = create();
 		Category child = create();
-		parent.getChildCategories().add(child);
+		parent.childCategories.add(child);
 		child.category = parent;
 		dao.insert(parent);
 		Tests.emptyCache();
@@ -59,7 +59,7 @@ public class CategoryDaoTest {
 		// in categories, but this test should work
 		for (ModelType type : ModelType.values()) {
 			Category cat = create();
-			cat.setModelType(type);
+			cat.modelType = type;
 			dao.insert(cat);
 			Tests.emptyCache();
 			List<Category> categories = dao.getRootCategories(type);
@@ -73,7 +73,7 @@ public class CategoryDaoTest {
 	private Category create() {
 		Category category = new Category();
 		category.name = "name";
-		category.setModelType(ModelType.FLOW);
+		category.modelType = ModelType.FLOW;
 		return category;
 	}
 }

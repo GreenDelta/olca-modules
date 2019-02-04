@@ -175,7 +175,7 @@ class Db {
 			return null;
 		CategoryDao dao = new CategoryDao(db);
 		Category cat = dao.update(category);
-		for (Category child : cat.getChildCategories()) {
+		for (Category child : cat.childCategories) {
 			String refId = child.refId;
 			if (categoryIds.containsKey(refId))
 				continue;
